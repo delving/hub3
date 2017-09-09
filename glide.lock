@@ -1,8 +1,10 @@
-hash: fd95b0df96b125c89ed8084655320eeb6aabdcd9c331b3aab095efa49184a8e1
-updated: 2017-09-09T22:37:14.883576672+02:00
+hash: a02d458b4aff4dd0dea700ccda0d5576279c9076c4073fabc294c040847de1f8
+updated: 2017-09-09T23:28:42.617990621+02:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+- name: github.com/githubnemo/CompileDaemon
+  version: b275f450f47cf6f46612d6215c1caec75dcd8951
 - name: github.com/hashicorp/hcl
   version: 8f6b1344a92ff8877cf24a5de9177bf7d0a2a187
   subpackages:

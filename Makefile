@@ -38,3 +38,6 @@ gox-build:
 	@make build 
 	gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
 	ls -la ./build/
+
+run-dev:
+	CompileDaemon -exclude-dir=vendor -command="go run main.go http"

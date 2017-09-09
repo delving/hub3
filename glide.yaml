@@ -5,3 +5,5 @@ import:
   - cobra
 - package: github.com/mitchellh/gox
   version: ~0.3.0
+- package: github.com/githubnemo/CompileDaemon
+  version: ~1.0.0
