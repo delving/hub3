@@ -1,0 +1,25 @@
+# Intellij
+.idea
+rapid.iml
+
+# Apple
+.DS_Store
+
+# Vim
+*.swp
+*.swo
+*.tmp
+
+# build and vendor
+rapid
+gin-bin
+*.rpm
+*.deb
+build/*
+
+# do not commit vendored files
+vendor/*/
+
+# coverage
+report
+*.coverprofile
