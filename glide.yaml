@@ -1,2 +1,5 @@
 package: bitbucket.org/delving/rapid
-import: []
+import:
+- package: github.com/spf13/cobra
+  subpackages:
+  - cobra
