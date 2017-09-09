@@ -1,5 +1,5 @@
-hash: bad97cc88933126bbc503863eb47f95e290da31ceb4f676d22762300a40d5b00
-updated: 2017-09-09T15:50:49.816050303+02:00
+hash: fd95b0df96b125c89ed8084655320eeb6aabdcd9c331b3aab095efa49184a8e1
+updated: 2017-09-09T22:37:14.883576672+02:00
 imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
@@ -20,6 +20,8 @@ imports:
   version: 8d7837e64d3c1ee4e54a880c5a920ab4316fc90a
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/mitchellh/gox
+  version: 54b619477e8932bbb6314644c867e7e6db7a9c71
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/pelletier/go-toml

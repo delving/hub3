@@ -23,16 +23,25 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	// path to the config file
+	cfgFile string
+	// Version of the application. (Injected at build time)
+	Version = "0.1-SNAPSHOT"
+	// GoVersion is the Golang version of the application. (Injected at build time)
+	GoVersion = ""
+	// BuildStamp is the timestamp of the application. (Injected at build time)
+	BuildStamp = "1970-01-01 UTC"
+	// BuildAgent is the agent that created the current build. (Injected at build time)
+	BuildAgent string
+	// GitHash of the current build. (Injected at build time.)
+	GitHash string
+)
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "rapid",
 	Short: "RAPID: A Golang-based Linked Open Data discovery platform.",
-	Long: `
-	The goal of RAPID is to provide 'an API Framework that makes it easy
-	and predictable for webdevelopers to work with arbitrarily structured RDF
-	and leverage semantic network technology'.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -40,7 +49,13 @@ var RootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(version string, goversion string, buildstamp string, buildagent string, githash string) {
+	Version = version
+	GoVersion = goversion
+	BuildStamp = buildstamp
+	BuildAgent = buildagent
+	GitHash = githash
+
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
