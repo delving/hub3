@@ -1,95 +1,12 @@
-hash: a02d458b4aff4dd0dea700ccda0d5576279c9076c4073fabc294c040847de1f8
-updated: 2017-09-10T11:15:13.665372176+02:00
+hash: dfc4eed644e2a0701cf39acbbbcb4448c66ff99fbe657909e7307b9759a683a9
+updated: 2017-09-10T13:34:26.122079134+02:00
 imports:
-- name: github.com/dgrijalva/jwt-go
-  version: a539ee1a749a2b895533f979515ac7e6e0f5b650
-- name: github.com/facebookgo/clock
-  version: 600d898af40aa09a7a93ecb9265d87b0504b6f03
-- name: github.com/facebookgo/grace
-  version: 4afe952a37a495ae4ac0c1d4ce5f66e91058d149
-  subpackages:
-  - gracehttp
-  - gracenet
-- name: github.com/facebookgo/httpdown
-  version: a3b1354551a26449fbe05f5d855937f6e7acbd71
-- name: github.com/facebookgo/stats
-  version: 1b76add642e42c6ffba7211ad7b3939ce654526e
-- name: github.com/fsnotify/fsnotify
-  version: 4da3e2cfbabc9f751898f250b49f2439785783a1
-- name: github.com/githubnemo/CompileDaemon
-  version: b275f450f47cf6f46612d6215c1caec75dcd8951
-- name: github.com/hashicorp/hcl
-  version: 8f6b1344a92ff8877cf24a5de9177bf7d0a2a187
-  subpackages:
-  - hcl/ast
-  - hcl/parser
-  - hcl/scanner
-  - hcl/strconv
-  - hcl/token
-  - json/parser
-  - json/scanner
-  - json/token
-- name: github.com/inconshreveable/mousetrap
-  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- name: github.com/labstack/echo
-  version: 1678da53d65d33464d578ace3d2854b30dfd8e4f
-  subpackages:
-  - middleware
-- name: github.com/labstack/gommon
-  version: 779b8a8b9850a97acba6a3fe20feb628c39e17c1
-  subpackages:
-  - bytes
-  - color
-  - log
-  - random
-- name: github.com/magiconair/properties
-  version: 8d7837e64d3c1ee4e54a880c5a920ab4316fc90a
-- name: github.com/mattn/go-colorable
-  version: ad5389df28cdac544c99bd7b9161a0b5b6ca9d1b
-- name: github.com/mattn/go-isatty
-  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
-- name: github.com/mitchellh/go-homedir
-  version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/codegangsta/gin
+  version: 9ba699191d209550053612796f2181e6ae352585
 - name: github.com/mitchellh/gox
   version: 54b619477e8932bbb6314644c867e7e6db7a9c71
-- name: github.com/mitchellh/mapstructure
-  version: d0303fe809921458f417bcf828397a65db30a7e4
-- name: github.com/pelletier/go-toml
-  version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
-- name: github.com/spf13/afero
-  version: ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b
-  subpackages:
-  - mem
-- name: github.com/spf13/cast
-  version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
   version: b78744579491c1ceeaaa3b40205e56b0591b93a3
   subpackages:
   - cobra
-- name: github.com/spf13/jwalterweatherman
-  version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
-- name: github.com/spf13/pflag
-  version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
-- name: github.com/spf13/viper
-  version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
-- name: github.com/valyala/bytebufferpool
-  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
-- name: github.com/valyala/fasttemplate
-  version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
-- name: golang.org/x/crypto
-  version: 9ba3862cf6a5452ae579de98f9364dd2e544844c
-  subpackages:
-  - acme
-  - acme/autocert
-- name: golang.org/x/sys
-  version: a5054c7c1385fd50d9394475365355a87a7873ec
-  subpackages:
-  - unix
-- name: golang.org/x/text
-  version: bd91bbf73e9a4a801adbfb97133c992678533126
-  subpackages:
-  - transform
-  - unicode/norm
-- name: gopkg.in/yaml.v2
-  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 testImports: []

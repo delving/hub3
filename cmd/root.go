@@ -16,7 +16,11 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strings"
+
+	"bitbucket.org/delving/rapid/config"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -36,6 +40,9 @@ var (
 	BuildAgent string
 	// GitHash of the current build. (Injected at build time.)
 	GitHash string
+
+	// General configuration object
+	Config config.RawConfig
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -90,13 +97,27 @@ func initConfig() {
 
 		// Search config in home directory with name ".rapid" (without extension).
 		viper.AddConfigPath(home)
+		viper.AddConfigPath(".")
 		viper.SetConfigName(".rapid")
 	}
 
+	viper.SetEnvPrefix("RAPID")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
+
+	// setting defaults
+	viper.SetDefault("port", 3001)
+	viper.SetDefault("orgId", "rapid")
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
+	err := viper.Unmarshal(&Config)
+	if err != nil {
+		log.Fatal(
+			fmt.Sprintf("unable to decode into struct, %v", err),
+		)
+	}
+
 }

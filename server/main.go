@@ -1,16 +1,20 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
+
+	"bitbucket.org/delving/rapid/config"
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
 	"golang.org/x/crypto/acme/autocert"
 )
 
 // Start starts a graceful webserver process.
-func Start() {
+func Start(config config.RawConfig) {
 	// Setup
 	e := echo.New()
 	e.Use(middleware.Recover())
@@ -18,7 +22,8 @@ func Start() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "You are rocking rapid!")
 	})
-	e.Server.Addr = ":3001"
+	log.Infof("Using port: %d", config.Port)
+	e.Server.Addr = fmt.Sprintf(":%d", config.Port)
 
 	// Serve it like a boss
 	e.Logger.Fatal(gracehttp.Serve(e.Server))

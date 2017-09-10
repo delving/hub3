@@ -15,10 +15,9 @@
 package cmd
 
 import (
-	"fmt"
-
 	"bitbucket.org/delving/rapid/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // httpCmd represents the http command
@@ -29,14 +28,15 @@ var httpCmd = &cobra.Command{
 
 You can find an overview of available endpoints on https://localhost:443/endpoints`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("http called")
-		server.Start()
+		server.Start(Config)
 	},
 }
 
 func init() {
 	RootCmd.AddCommand(httpCmd)
 
+	httpCmd.Flags().IntP("port", "p", 3001, "Port to run Application server on")
+	viper.BindPFlag("port", httpCmd.Flags().Lookup("port"))
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

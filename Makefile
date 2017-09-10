@@ -40,4 +40,4 @@ gox-build:
 	ls -la ./build/
 
 run-dev:
-	CompileDaemon -exclude-dir=vendor -command="go run main.go http"
+	gin run http
