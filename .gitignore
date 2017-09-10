@@ -17,6 +17,9 @@ gin-bin
 *.deb
 build/*
 
+# TLS cache
+.cache
+
 # do not commit vendored files
 vendor/*/
 

@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 
+	"bitbucket.org/delving/rapid/server"
 	"github.com/spf13/cobra"
 )
 
@@ -29,6 +30,7 @@ var httpCmd = &cobra.Command{
 You can find an overview of available endpoints on https://localhost:443/endpoints`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("http called")
+		server.Start()
 	},
 }
 
