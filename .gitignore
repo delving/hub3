@@ -23,6 +23,10 @@ build/*
 # do not commit vendored files
 vendor/*/
 
+# jupyter notebooks
+*.ipynb
+.ipynb*
+
 # coverage
 report
 *.coverprofile
