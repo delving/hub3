@@ -6,3 +6,9 @@ import:
 - package: github.com/mitchellh/gox
   version: ~0.3.0
 - package: github.com/codegangsta/gin
+- package: github.com/onsi/gomega
+  version: ~1.2.0
+- package: github.com/onsi/ginkgo
+  version: ~1.4.0
+- package: github.com/OneOfOne/xxhash
+  version: ~1.2.0

@@ -41,3 +41,12 @@ gox-build:
 
 run-dev:
 	gin run http
+
+test:
+	@go test  
+
+ginkgo:
+	@ginkgo -r 
+
+twatch:
+	@ginkgo watch -r
