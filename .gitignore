@@ -27,6 +27,9 @@ vendor/*/
 *.ipynb
 .ipynb*
 
+# Vegeta stress testing
+results.bin
+
 # coverage
 report
 *.coverprofile

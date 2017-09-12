@@ -19,7 +19,7 @@ install-glide:
 	curl https://glide.sh/get | sh
 
 clean:
-	rm -rf $(NAME) build report gin-bin
+	rm -rf $(NAME) build report gin-bin result.bin
 
 clean-build:
 	@make clean
@@ -50,3 +50,23 @@ ginkgo:
 
 twatch:
 	@ginkgo watch -r
+
+docker-image:
+	gox -os="linux" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
+	docker build -t $(NAME) .
+
+docker-start:
+	docker run -p 3001:3001 -d $(NAME)
+
+docker-stop:
+	@sh -c "docker ps -a -q --filter ancestor=$(NAME) | xargs docker stop "
+
+docker-remove:
+	@make docker-stop
+	@sh -c "docker image list -q rapid | xargs docker image rm -f"
+
+docker-clean-build:
+	@make docker-remove; 
+	@make docker-image; 
+	@make docker-start; 
+	docker ps -all
