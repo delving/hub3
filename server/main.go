@@ -19,9 +19,24 @@ func Start(config config.RawConfig) {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "You are rocking rapid!")
 	})
+
+	// Admin group
+	a := e.Group("/admin")
+	a.GET("/routes", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, e.Routes())
+	})
+	a.GET("/config", func(c echo.Context) error {
+		return c.JSON(
+			http.StatusOK,
+			config,
+		)
+	})
+
+	// Start the server
 	log.Infof("Using port: %d", config.Port)
 	e.Server.Addr = fmt.Sprintf(":%d", config.Port)
 
