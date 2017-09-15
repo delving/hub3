@@ -18,6 +18,13 @@ package config
 // These are bound from cli, Environment variables or configuration files by
 // Viper.
 type RawConfig struct {
-	OrgID string `json:"orgId"`
-	Port  int    `json:"port" mapstructure:"port"`
+	OrgID         string `json:"orgId"`
+	Port          int    `json:"port" mapstructure:"port"`
+	ElasticSearch `json:"elasticsearch"`
+}
+
+// ElasticSearch holds all the configuration values
+// It is bound by Viper.
+type ElasticSearch struct {
+	Urls []string `json:"urls"`
 }

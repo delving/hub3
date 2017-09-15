@@ -108,6 +108,7 @@ func initConfig() {
 	// setting defaults
 	viper.SetDefault("port", 3001)
 	viper.SetDefault("orgId", "rapid")
+	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
