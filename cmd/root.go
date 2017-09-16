@@ -24,8 +24,6 @@ import (
 )
 
 var (
-	// path to the config file
-	cfgFile string
 	// Version of the application. (Injected at build time)
 	Version = "0.1-SNAPSHOT"
 	// GoVersion is the Golang version of the application. (Injected at build time)
