@@ -1,5 +1,5 @@
-hash: a01254b405577aa81cac613a41522964cae406a58450ee2524e9442f64694c47
-updated: 2017-09-11T21:34:24.143733501+02:00
+hash: 3e201ef7b0cad20f6a9a7ec3e6c6435c25d7eba500d88e4d303fb44db88945a8
+updated: 2017-09-15T16:50:16.089335975+02:00
 imports:
 - name: github.com/codegangsta/gin
   version: 9ba699191d209550053612796f2181e6ae352585
@@ -19,7 +19,7 @@ imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/hashicorp/hcl
-  version: 8f6b1344a92ff8877cf24a5de9177bf7d0a2a187
+  version: 68e816d1c783414e79bc65b3994d9ab6b0a722ab
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -113,16 +113,16 @@ imports:
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
 - name: golang.org/x/crypto
-  version: 74b34b9dd60829a9fcaf56a59e81c3877a8ecd2c
+  version: b0c9c05bfe149df95eb1d25642162cca051e0466
   subpackages:
   - acme
   - acme/autocert
 - name: golang.org/x/sys
-  version: a5054c7c1385fd50d9394475365355a87a7873ec
+  version: 062cd7e4e68206d8bab9b18396626e855c992658
   subpackages:
   - unix
 - name: golang.org/x/text
-  version: bd91bbf73e9a4a801adbfb97133c992678533126
+  version: 1cbadb444a806fd9430d14ad08967ed91da4fa0a
   subpackages:
   - encoding
   - encoding/charmap
@@ -140,11 +140,13 @@ imports:
   - runes
   - transform
   - unicode/norm
+- name: gopkg.in/olivere/elastic.v5
+  version: edbef41beaacc2ee95e61af8faff04e67c01e268
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 testImports:
 - name: golang.org/x/net
-  version: 66aacef3dd8a676686c7ae3716979581e8b03c47
+  version: 8351a756f30f1297fe94bbf4b767ec589c6ea6d0
   subpackages:
   - html
   - html/atom

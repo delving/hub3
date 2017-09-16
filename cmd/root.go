@@ -16,15 +16,11 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"strings"
 
 	"bitbucket.org/delving/rapid/config"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -40,9 +36,6 @@ var (
 	BuildAgent string
 	// GitHash of the current build. (Injected at build time.)
 	GitHash string
-
-	// General configuration object
-	Config config.RawConfig
 )
 
 // RootCmd represents the base command when called without any subcommands
@@ -70,55 +63,14 @@ func Execute(version string, goversion string, buildstamp string, buildagent str
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(config.InitConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.rapid.yaml)")
+	RootCmd.PersistentFlags().StringVar(&config.CfgFile, "config", "", "config file (default is $HOME/.rapid.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-
-		// Search config in home directory with name ".rapid" (without extension).
-		viper.AddConfigPath(home)
-		viper.AddConfigPath(".")
-		viper.SetConfigName(".rapid")
-	}
-
-	viper.SetEnvPrefix("RAPID")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// setting defaults
-	viper.SetDefault("port", 3001)
-	viper.SetDefault("orgId", "rapid")
-	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
-	err := viper.Unmarshal(&Config)
-	if err != nil {
-		log.Fatal(
-			fmt.Sprintf("unable to decode into struct, %v", err),
-		)
-	}
-
 }

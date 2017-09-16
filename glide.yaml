@@ -12,3 +12,5 @@ import:
   version: ~1.4.0
 - package: github.com/OneOfOne/xxhash
   version: ~1.2.0
+- package: gopkg.in/olivere/elastic.v5
+  version: ~5.0.45

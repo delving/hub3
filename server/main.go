@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"bitbucket.org/delving/rapid/config"
+	. "bitbucket.org/delving/rapid/config"
 
 	"github.com/facebookgo/grace/gracehttp"
 	"github.com/labstack/echo"
@@ -14,7 +14,7 @@ import (
 )
 
 // Start starts a graceful webserver process.
-func Start(config config.RawConfig) {
+func Start() {
 	// Setup
 	e := echo.New()
 	e.Use(middleware.Recover())
@@ -32,13 +32,13 @@ func Start(config config.RawConfig) {
 	a.GET("/config", func(c echo.Context) error {
 		return c.JSON(
 			http.StatusOK,
-			config,
+			Config,
 		)
 	})
 
 	// Start the server
-	log.Infof("Using port: %d", config.Port)
-	e.Server.Addr = fmt.Sprintf(":%d", config.Port)
+	log.Infof("Using port: %d", Config.Port)
+	e.Server.Addr = fmt.Sprintf(":%d", Config.Port)
 
 	// Serve it like a boss
 	e.Logger.Fatal(gracehttp.Serve(e.Server))

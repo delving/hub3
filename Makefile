@@ -19,7 +19,7 @@ install-glide:
 	curl https://glide.sh/get | sh
 
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin
+	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile
 
 clean-build:
 	@make clean
@@ -70,3 +70,8 @@ docker-clean-build:
 	@make docker-image; 
 	@make docker-start; 
 	docker ps -all
+
+goreport:
+	@mkdir -p report
+	@rm -rf report/*
+	@goreporter -p ../rapid -r report -e vendor -f html
