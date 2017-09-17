@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	stdlog "log"
 	"net/http"
 	"os"
 	"syscall"
@@ -33,9 +33,9 @@ func createESClient() *elastic.Client {
 			elastic.SetSniff(false),                        // disable sniffing
 			elastic.SetHealthcheckInterval(10*time.Second), // do healthcheck every 10 seconds
 			elastic.SetRetrier(NewCustomRetrier()),         // set custom retrier that tries 5 times. Default is 0
-			// todo add proper filebase logging based on debug setting
-			elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)), // error log
-			elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)),          // info log
+			// todo replace with logrus logger later
+			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
+			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
 		)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)

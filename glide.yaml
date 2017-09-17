@@ -14,3 +14,5 @@ import:
   version: ~1.2.0
 - package: gopkg.in/olivere/elastic.v5
   version: ~5.0.45
+- package: go.uber.org/zap
+  version: ~1.6.0

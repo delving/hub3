@@ -1,10 +1,14 @@
-hash: 3e201ef7b0cad20f6a9a7ec3e6c6435c25d7eba500d88e4d303fb44db88945a8
-updated: 2017-09-15T16:50:16.089335975+02:00
+hash: 58fb0861048671496723df42cc822977e142e48e7e6857c61c9ea69c13798865
+updated: 2017-09-17T10:42:46.630696246+02:00
 imports:
+- name: github.com/certifi/gocertifi
+  version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
 - name: github.com/codegangsta/gin
   version: 9ba699191d209550053612796f2181e6ae352585
 - name: github.com/dgrijalva/jwt-go
   version: a539ee1a749a2b895533f979515ac7e6e0f5b650
+- name: github.com/evalphobia/logrus_sentry
+  version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
 - name: github.com/facebookgo/clock
   version: 600d898af40aa09a7a93ecb9265d87b0504b6f03
 - name: github.com/facebookgo/grace
@@ -18,6 +22,8 @@ imports:
   version: 1b76add642e42c6ffba7211ad7b3939ce654526e
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+- name: github.com/getsentry/raven-go
+  version: d175f85701dfbf44cb0510114c9943e665e60907
 - name: github.com/hashicorp/hcl
   version: 68e816d1c783414e79bc65b3994d9ab6b0a722ab
   subpackages:
@@ -92,6 +98,10 @@ imports:
   - types
 - name: github.com/pelletier/go-toml
   version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
+- name: github.com/pkg/errors
+  version: 2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb
+- name: github.com/sirupsen/logrus
+  version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
   version: ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b
   subpackages:
@@ -112,15 +122,19 @@ imports:
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
+- name: go.uber.org/zap
+  version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: b0c9c05bfe149df95eb1d25642162cca051e0466
+  version: 7d9177d70076375b9a59c8fde23d52d9c4a7ecd5
   subpackages:
   - acme
   - acme/autocert
+  - ssh/terminal
 - name: golang.org/x/sys
   version: 062cd7e4e68206d8bab9b18396626e855c992658
   subpackages:
   - unix
+  - windows
 - name: golang.org/x/text
   version: 1cbadb444a806fd9430d14ad08967ed91da4fa0a
   subpackages:
@@ -141,7 +155,10 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: edbef41beaacc2ee95e61af8faff04e67c01e268
+  version: 75b071e35066bfb592a0d770e4cd1e5a5e45edf0
+  subpackages:
+  - config
+  - uritemplates
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 testImports:

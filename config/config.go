@@ -37,14 +37,39 @@ var (
 // Viper.
 type RawConfig struct {
 	OrgID         string `json:"orgId"`
-	Port          int    `json:"port" mapstructure:"port"`
+	HTTP          `json:"http"`
 	ElasticSearch `json:"elasticsearch"`
+	Logging       `json:"logging"`
 }
 
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
 	Urls []string `json:"urls"`
+}
+
+// Logging holds all the logging and path configuration
+type Logging struct {
+	DevMode   bool   `json:"devmode"`
+	SentryDSN string `json:"sentrydsn"`
+}
+
+// HTTP holds all the configuration for the http server subcommand
+type HTTP struct {
+	Port int `json:"port" mapstructure:"port"`
+}
+
+func setDefaults() {
+
+	// setting defaults
+	viper.SetDefault("HTTP.port", 3001)
+	viper.SetDefault("orgId", "rapid")
+
+	// elastic
+	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
+
+	// logging
+	viper.SetDefault("Logging.DevMode", false)
 }
 
 // InitConfig reads in config file and ENV variables if set.
@@ -70,10 +95,7 @@ func InitConfig() {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// setting defaults
-	viper.SetDefault("port", 3001)
-	viper.SetDefault("orgId", "rapid")
-	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
+	setDefaults()
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
@@ -85,5 +107,4 @@ func InitConfig() {
 			fmt.Sprintf("unable to decode into struct, %v", err),
 		)
 	}
-
 }

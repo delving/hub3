@@ -15,7 +15,7 @@ var _ = Describe("Config", func() {
 
 			It("should not be initialised", func() {
 				Expect(Config.OrgID).To(BeEmpty())
-				Expect(Config.Port).To(Equal(0))
+				Expect(Config.HTTP.Port).To(Equal(0))
 			})
 
 		})
@@ -24,10 +24,19 @@ var _ = Describe("Config", func() {
 
 			It("should be initialised with defaults", func() {
 				InitConfig()
-				Expect(Config.Port).To(Equal(3001))
+				Expect(Config.HTTP.Port).To(Equal(3001))
 				Expect(Config.OrgID).ToNot(BeEmpty())
 			})
 
+		})
+
+		Context("when setting a config value", func() {
+
+			It("should be available in the global scope", func() {
+				Expect(Config.Logging.SentryDSN).To(BeEmpty())
+				Config.Logging.SentryDSN = "test"
+				Expect(Config.Logging.SentryDSN).ToNot(BeEmpty())
+			})
 		})
 	})
 })

@@ -1,5 +1,13 @@
-port = 3001
+# The port of the http server
 orgId = "rapid"
+
+[http]
+# all the configuration for the http sub-command
+port = 3001
 
 [ElasticSearch]
 urls = ["http://localhost:9200"]
+
+[Logging]
+devmode = true
+sentrydsn = ""
