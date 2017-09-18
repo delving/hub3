@@ -40,6 +40,7 @@ type RawConfig struct {
 	HTTP          `json:"http"`
 	ElasticSearch `json:"elasticsearch"`
 	Logging       `json:"logging"`
+	RDF           `json:"rdf"`
 }
 
 // ElasticSearch holds all the configuration values
@@ -59,6 +60,14 @@ type HTTP struct {
 	Port int `json:"port" mapstructure:"port"`
 }
 
+// RDF holds all the configuration for SPARQL queries and RDF conversions
+type RDF struct {
+	// the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlHost string
+	// the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	SparqlPath string
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -70,6 +79,10 @@ func setDefaults() {
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
+
+	// rdf with defaults for Blazegraph
+	viper.SetDefault("RDF.SparqlHost", "http://localhost:9999")
+	viper.SetDefault("RDF.SparqlPath", "/bigdata/namespace/%s/sparql")
 }
 
 // InitConfig reads in config file and ENV variables if set.

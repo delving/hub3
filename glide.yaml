@@ -16,3 +16,4 @@ import:
   version: ~5.0.45
 - package: go.uber.org/zap
   version: ~1.6.0
+- package: github.com/knakk/sparql

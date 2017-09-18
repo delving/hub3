@@ -1,5 +1,5 @@
-hash: 58fb0861048671496723df42cc822977e142e48e7e6857c61c9ea69c13798865
-updated: 2017-09-17T10:42:46.630696246+02:00
+hash: 3fa125dab6b6e9dc11d7551b8afdb2e90c1793b94241b71424d5db9e18c2ecc4
+updated: 2017-09-18T21:24:16.733636714+02:00
 imports:
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
@@ -23,7 +23,7 @@ imports:
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/getsentry/raven-go
-  version: d175f85701dfbf44cb0510114c9943e665e60907
+  version: 1452f6376ddb15c546b6d7567e1d9518765391b5
 - name: github.com/hashicorp/hcl
   version: 68e816d1c783414e79bc65b3994d9ab6b0a722ab
   subpackages:
@@ -37,6 +37,12 @@ imports:
   - json/token
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/knakk/digest
+  version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
+- name: github.com/knakk/rdf
+  version: 9659d914ab599d63e07af0b84aeabd4a942b66d5
+- name: github.com/knakk/sparql
+  version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
   version: 1678da53d65d33464d578ace3d2854b30dfd8e4f
   subpackages:
