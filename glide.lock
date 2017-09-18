@@ -1,5 +1,5 @@
-hash: 3fa125dab6b6e9dc11d7551b8afdb2e90c1793b94241b71424d5db9e18c2ecc4
-updated: 2017-09-18T21:24:16.733636714+02:00
+hash: 7538f3b00b82d80aeba82dd5882265f65336c4f3dba11723bca7f7a48ee1e899
+updated: 2017-09-19T00:13:30.428744297+02:00
 imports:
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
@@ -66,6 +66,8 @@ imports:
   version: 54b619477e8932bbb6314644c867e7e6db7a9c71
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
+- name: github.com/moul/http2curl
+  version: 4e24498b31dba4683efb9d35c1c8a91e2eda28c8
 - name: github.com/OneOfOne/xxhash
   version: 8e3f99d9489277dae933ed6f2daae376a6c7b011
 - name: github.com/onsi/ginkgo
@@ -102,6 +104,8 @@ imports:
   - matchers/support/goraph/node
   - matchers/support/goraph/util
   - types
+- name: github.com/parnurzeal/gorequest
+  version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
 - name: github.com/pelletier/go-toml
   version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
 - name: github.com/pkg/errors
@@ -136,8 +140,15 @@ imports:
   - acme
   - acme/autocert
   - ssh/terminal
+- name: golang.org/x/net
+  version: 8351a756f30f1297fe94bbf4b767ec589c6ea6d0
+  subpackages:
+  - html
+  - html/atom
+  - html/charset
+  - publicsuffix
 - name: golang.org/x/sys
-  version: 062cd7e4e68206d8bab9b18396626e855c992658
+  version: 1f337fdb7fffc2ab9c536b9b462da1521d706042
   subpackages:
   - unix
   - windows
@@ -167,10 +178,4 @@ imports:
   - uritemplates
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
-testImports:
-- name: golang.org/x/net
-  version: 8351a756f30f1297fe94bbf4b767ec589c6ea6d0
-  subpackages:
-  - html
-  - html/atom
-  - html/charset
+testImports: []
