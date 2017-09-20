@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
+	"time"
 
 	. "bitbucket.org/delving/rapid/config"
 	"github.com/knakk/sparql"
@@ -37,10 +38,28 @@ var queryBank sparql.Bank
 // SparqlQueryURL is the fully qualified URI to the SPARQL endpoint
 var SparqlQueryURL string
 
+// SparqlRepo is the repository used for querying
+var SparqlRepo *sparql.Repo
+
 func init() {
 	SparqlQueryURL = getSparqlEndpoint("")
 	f := bytes.NewBufferString(queries)
 	queryBank = sparql.LoadBank(f)
+	SparqlRepo = buildRepo(SparqlQueryURL)
+}
+
+// buildRepo builds the query repository
+func buildRepo(endPoint string) *sparql.Repo {
+	if endPoint == "" {
+		endPoint = getSparqlEndpoint("")
+	}
+	repo, err := sparql.NewRepo(endPoint,
+		sparql.Timeout(time.Millisecond*1500),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return repo
 }
 
 // getSparqlEndpoint builds the SPARQL endpoint from the Config object.
