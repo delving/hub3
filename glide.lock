@@ -1,5 +1,5 @@
-hash: 7538f3b00b82d80aeba82dd5882265f65336c4f3dba11723bca7f7a48ee1e899
-updated: 2017-09-19T00:13:30.428744297+02:00
+hash: 22c1b3f2833fbd4df9c7e272e21d2c4863e63f8a5b0cb655fb77bc3ea35aa38c
+updated: 2017-09-20T10:29:26.752385287+02:00
 imports:
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
@@ -44,7 +44,7 @@ imports:
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
-  version: 1678da53d65d33464d578ace3d2854b30dfd8e4f
+  version: b7c4ccf8f3ca3f350260e8d578720b54924dd4b1
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
@@ -67,7 +67,7 @@ imports:
 - name: github.com/mitchellh/mapstructure
   version: d0303fe809921458f417bcf828397a65db30a7e4
 - name: github.com/moul/http2curl
-  version: 4e24498b31dba4683efb9d35c1c8a91e2eda28c8
+  version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
 - name: github.com/OneOfOne/xxhash
   version: 8e3f99d9489277dae933ed6f2daae376a6c7b011
 - name: github.com/onsi/ginkgo
@@ -110,6 +110,8 @@ imports:
   version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
 - name: github.com/pkg/errors
   version: 2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb
+- name: github.com/renevanderark/goharvest
+  version: cbaf6f70f07ddfd2c40473b664a7df0c661066dd
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
@@ -148,7 +150,7 @@ imports:
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: 1f337fdb7fffc2ab9c536b9b462da1521d706042
+  version: b6e1ae21643682ce023deb8d152024597b0e9bb4
   subpackages:
   - unix
   - windows
