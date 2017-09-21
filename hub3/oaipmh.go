@@ -28,7 +28,7 @@ func dump(record *oai.Record) {
 // harvestToFile demonstrates harvesting using the ListRecords verb with HarvestRecords
 func harvestToFile(baseUrl string, set string, prefix string, from string) {
 	req := &oai.Request{
-		BaseUrl:        BaseUrl,
+		BaseURL:        baseUrl,
 		Set:            set,
 		MetadataPrefix: prefix,
 		Verb:           "ListRecords",

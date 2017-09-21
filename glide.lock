@@ -1,5 +1,5 @@
 hash: 22c1b3f2833fbd4df9c7e272e21d2c4863e63f8a5b0cb655fb77bc3ea35aa38c
-updated: 2017-09-20T10:29:26.752385287+02:00
+updated: 2017-09-21T20:16:40.336140114+02:00
 imports:
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
@@ -44,7 +44,7 @@ imports:
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
-  version: b7c4ccf8f3ca3f350260e8d578720b54924dd4b1
+  version: b5de47f16562c079647fb5d16c7229e1e0947ba5
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
@@ -112,6 +112,8 @@ imports:
   version: 2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb
 - name: github.com/renevanderark/goharvest
   version: cbaf6f70f07ddfd2c40473b664a7df0c661066dd
+  subpackages:
+  - oai
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
@@ -143,7 +145,7 @@ imports:
   - acme/autocert
   - ssh/terminal
 - name: golang.org/x/net
-  version: 8351a756f30f1297fe94bbf4b767ec589c6ea6d0
+  version: b60f3a92103dfd93dfcb900ec77c6d0643510868
   subpackages:
   - html
   - html/atom
