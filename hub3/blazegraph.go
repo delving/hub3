@@ -20,7 +20,6 @@ import (
 
 	. "bitbucket.org/delving/rapid/config"
 	"github.com/parnurzeal/gorequest"
-	"github.com/sirupsen/logrus"
 )
 
 var request = gorequest.New()
@@ -59,7 +58,7 @@ func namespaceExist(name string) (bool, []error) {
 		//Set("Content-Type", "text/plain").
 		End()
 	if len(errs) != 0 {
-		log.Error(errs)
+		logger.Error(errs)
 		return false, errs
 	}
 	exists := resp.StatusCode != 404
@@ -84,13 +83,13 @@ func createNameSpaceProperties(name string) string {
 func createNameSpace(name string) (bool, []error) {
 	properties := createNameSpaceProperties(name)
 	endPoint := namespaceBaseURI()
-	log.WithFields(logrus.Fields{"endpoint": endPoint}).Debugf("Blazegraph properties: %s", properties)
+	//logger.WithField("endpoint", endPoint).Debugf("Blazegraph properties: %s", properties)
 	resp, _, errs := request.Post(endPoint).
 		Set("Content-Type", "text/plain").
 		Send(properties).
 		End()
 	if len(errs) != 0 {
-		log.Error(errs)
+		logger.Error(errs)
 		return false, errs
 	}
 	created := resp.StatusCode == 201
@@ -101,7 +100,7 @@ func createNameSpace(name string) (bool, []error) {
 func deleteNameSpace(name string) (bool, []error) {
 	resp, _, errs := request.Delete(blazegraphEndpoint(name)).End()
 	if len(errs) != 0 {
-		log.Error(errs)
+		logger.Error(errs)
 		return false, errs
 	}
 	deleted := resp.StatusCode == 200

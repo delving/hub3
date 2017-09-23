@@ -23,11 +23,11 @@ import (
 	. "bitbucket.org/delving/rapid/config"
 )
 
-var log *logrus.Logger
+var logger *logrus.Logger
 
 // init added all the logrus hooks
 func init() {
-	log = NewLogger()
+	logger = NewLogger()
 }
 
 func NewLogger() *logrus.Logger {
@@ -39,10 +39,10 @@ func NewLogger() *logrus.Logger {
 }
 
 // addSentry add the Sentry logging hook when a DSN is defined in the Config
-func addSentry(log *logrus.Logger) {
+func addSentry(logger *logrus.Logger) {
 	dsn := Config.Logging.SentryDSN
 	if dsn != "" {
-		log.WithField("dsn", dsn).Infoln("Adding Sentry logging hook.")
+		logger.WithField("dsn", dsn).Infoln("Adding Sentry logging hook.")
 		hook, err := logrus_sentry.NewSentryHook(dsn, []logrus.Level{
 			logrus.PanicLevel,
 			logrus.FatalLevel,
@@ -50,9 +50,9 @@ func addSentry(log *logrus.Logger) {
 		})
 
 		if err != nil {
-			log.WithField("dsn", dsn).Fatalln("Unable to start sentry with specified DSN.")
+			logger.WithField("dsn", dsn).Fatalln("Unable to start sentry with specified DSN.")
 		}
-		log.Hooks.Add(hook)
+		logger.Hooks.Add(hook)
 
 	}
 }

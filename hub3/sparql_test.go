@@ -3,6 +3,7 @@ package hub3
 import (
 	"fmt"
 
+	"github.com/labstack/gommon/log"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -76,5 +77,35 @@ var _ = Describe("Sparql", func() {
 			})
 		})
 
+	})
+
+	Describe("Excecuting a SPARQL query", func() {
+
+		_, errs := deleteNameSpace(Config.OrgID)
+		if errs != nil {
+			//log.Error(errs)
+			fmt.Println(errs)
+		}
+		_, errs = createNameSpace(Config.OrgID)
+		if errs != nil {
+			//log.Error(errs)
+			fmt.Println(errs)
+		}
+		Context("Ask", func() {
+
+			It("should return a boolean", func() {
+				ask := AskSPARQL("ASK {<urn:123> ?p ?o}")
+				Expect(ask).To(Equal(false))
+			})
+		})
+
+		Context("Describe", func() {
+			It("should return sparql bindings", func() {
+				describe := DescribeSPARQL("urn:123")
+				log.Debug(describe)
+				//fmt.Println(describe)
+				Expect(describe).ToNot(BeEmpty())
+			})
+		})
 	})
 })

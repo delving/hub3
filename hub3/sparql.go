@@ -21,6 +21,7 @@ import (
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
+	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 	"github.com/sirupsen/logrus"
 )
@@ -29,8 +30,21 @@ const queries = `
 # SPARQL queries that are loaded as a QueryBank
 
 # ask returns a boolean
-# tag: ask
-ASK <{{ .Uri }}>
+# tag: ask_subject
+ASK { <{{ .Uri }}> ?p ?o }
+
+# tag: ask_predicate
+ASK { ?s <{{ .Uri }}> ?o }
+
+# tag: ask_object
+ASK { ?s <{{ .Uri }}> ?o }
+
+# tag: ask_query
+ASK { {{ .Query }} }
+
+# The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
+# tag: describe
+DESCRIBE <{{ .Uri }}>
 `
 
 var queryBank sparql.Bank
@@ -57,7 +71,7 @@ func buildRepo(endPoint string) *sparql.Repo {
 		sparql.Timeout(time.Millisecond*1500),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	return repo
 }
@@ -69,21 +83,45 @@ func getSparqlEndpoint(dbName string) string {
 		dbName = Config.OrgID
 	}
 	u, err := url.Parse(Config.RDF.SparqlHost)
+
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	u.Path = fmt.Sprintf(Config.RDF.SparqlPath, dbName)
-	//log.WithField("endpoint", u.String()).Debug("Building SPARQL endpoint")
+	//logger.WithField("endpoint", u.String()).Debug("Building SPARQL endpoint")
 	return u.String()
 }
 
 // PrepareAsk takes an a string and returns a valid SPARQL ASK query
 func PrepareAsk(uri string) (string, error) {
-	q, err := queryBank.Prepare("ask", struct{ Uri string }{uri})
+	q, err := queryBank.Prepare("ask_subject", struct{ Uri string }{uri})
 
 	if err != nil {
-		log.WithFields(logrus.Fields{"err": err, "uri": uri}).Error("Unable to build ask query")
+		logger.WithFields(logrus.Fields{"err": err, "uri": uri}).Error("Unable to build ask query")
 		return "", err
 	}
 	return q, err
+}
+
+// AskSPARQL performs a SPARQL ASK query
+func AskSPARQL(query string) bool {
+	res, err := SparqlRepo.Query(query)
+	if err != nil {
+		logger.WithField("sparql", "ask").Fatal(err)
+	}
+	bindings := res.Bindings()
+	logger.Debug(bindings)
+	return false
+}
+
+func DescribeSPARQL(uri string) map[string][]rdf.Term {
+	query, err := queryBank.Prepare("describe", struct{ Uri string }{uri})
+	if err != nil {
+		logger.WithField("uri", uri).Errorf("Unable to build describe query.")
+	}
+	res, err := SparqlRepo.Query(query)
+	if err != nil {
+		logger.WithField("query", query).Errorf("Unable query endpoint")
+	}
+	return res.Bindings()
 }
