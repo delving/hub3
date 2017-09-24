@@ -1,6 +1,8 @@
-hash: 22c1b3f2833fbd4df9c7e272e21d2c4863e63f8a5b0cb655fb77bc3ea35aa38c
-updated: 2017-09-21T20:16:40.336140114+02:00
+hash: 84d2e8c1d6be13350ac01ebb3890ab663f3f917855f8e2e1ade82b386ea399fa
+updated: 2017-09-24T19:51:59.60641971+02:00
 imports:
+- name: github.com/asdine/storm
+  version: 255212403bcca439778718edf5e2d3d50744eca3
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
 - name: github.com/codegangsta/gin
@@ -44,7 +46,7 @@ imports:
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
-  version: b5de47f16562c079647fb5d16c7229e1e0947ba5
+  version: a625e589cffa33eac768ab98bc21518cef786e2d
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
@@ -145,14 +147,14 @@ imports:
   - acme/autocert
   - ssh/terminal
 - name: golang.org/x/net
-  version: b60f3a92103dfd93dfcb900ec77c6d0643510868
+  version: 0744d001aa8470aaa53df28d32e5ceeb8af9bd70
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: b6e1ae21643682ce023deb8d152024597b0e9bb4
+  version: 429f518978ab01db8bb6f44b66785088e7fba58b
   subpackages:
   - unix
   - windows
@@ -176,7 +178,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: 75b071e35066bfb592a0d770e4cd1e5a5e45edf0
+  version: 575dcf5070608328cb017251b40a8f06c5fa99b7
   subpackages:
   - config
   - uritemplates

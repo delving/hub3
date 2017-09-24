@@ -30,6 +30,10 @@ vendor/*/
 # Vegeta stress testing
 results.bin
 
+# Data Storage
+# Boltdb
+rapid.db
+
 # coverage
 report
 *.coverprofile
