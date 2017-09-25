@@ -17,6 +17,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"strings"
 
@@ -120,4 +121,20 @@ func InitConfig() {
 			fmt.Sprintf("unable to decode into struct, %v", err),
 		)
 	}
+}
+
+// GetSparqlEndpoint builds the SPARQL endpoint from the RDF Config object.
+// When the dbName is empty the OrgId from the configuration is used.
+func (c RawConfig) GetSparqlEndpoint(dbName string) string {
+	if dbName == "" {
+		dbName = c.OrgID
+	}
+	u, err := url.Parse(c.RDF.SparqlHost)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
+	log.Printf("Sparql endpoint: %s", u.String())
+	return u.String()
 }

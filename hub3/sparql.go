@@ -16,8 +16,6 @@ package hub3
 
 import (
 	"bytes"
-	"fmt"
-	"net/url"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
@@ -56,7 +54,7 @@ var SparqlQueryURL string
 var SparqlRepo *sparql.Repo
 
 func init() {
-	SparqlQueryURL = getSparqlEndpoint("")
+	SparqlQueryURL = Config.GetSparqlEndpoint("")
 	f := bytes.NewBufferString(queries)
 	queryBank = sparql.LoadBank(f)
 	SparqlRepo = buildRepo(SparqlQueryURL)
@@ -65,7 +63,7 @@ func init() {
 // buildRepo builds the query repository
 func buildRepo(endPoint string) *sparql.Repo {
 	if endPoint == "" {
-		endPoint = getSparqlEndpoint("")
+		endPoint = Config.GetSparqlEndpoint("")
 	}
 	repo, err := sparql.NewRepo(endPoint,
 		sparql.Timeout(time.Millisecond*1500),
@@ -74,22 +72,6 @@ func buildRepo(endPoint string) *sparql.Repo {
 		logger.Fatal(err)
 	}
 	return repo
-}
-
-// getSparqlEndpoint builds the SPARQL endpoint from the Config object.
-// When the dbName is empty the OrgId from the configuration is used.
-func getSparqlEndpoint(dbName string) string {
-	if dbName == "" {
-		dbName = Config.OrgID
-	}
-	u, err := url.Parse(Config.RDF.SparqlHost)
-
-	if err != nil {
-		logger.Fatal(err)
-	}
-	u.Path = fmt.Sprintf(Config.RDF.SparqlPath, dbName)
-	//logger.WithField("endpoint", u.String()).Debug("Building SPARQL endpoint")
-	return u.String()
 }
 
 // PrepareAsk takes an a string and returns a valid SPARQL ASK query
