@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/gommon/log"
-
 	"bitbucket.org/delving/rapid/config"
+	"github.com/labstack/gommon/log"
 )
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
