@@ -17,6 +17,7 @@ package hub3
 
 import (
 	"fmt"
+	"log"
 
 	. "bitbucket.org/delving/rapid/config"
 	"github.com/parnurzeal/gorequest"
@@ -58,7 +59,7 @@ func namespaceExist(name string) (bool, []error) {
 		//Set("Content-Type", "text/plain").
 		End()
 	if len(errs) != 0 {
-		logger.Error(errs)
+		log.Fatal(errs)
 		return false, errs
 	}
 	exists := resp.StatusCode != 404
@@ -100,7 +101,7 @@ func createNameSpace(name string) (bool, []error) {
 func deleteNameSpace(name string) (bool, []error) {
 	resp, _, errs := request.Delete(blazegraphEndpoint(name)).End()
 	if len(errs) != 0 {
-		logger.Error(errs)
+		log.Fatal(errs)
 		return false, errs
 	}
 	deleted := resp.StatusCode == 200
