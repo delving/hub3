@@ -64,9 +64,14 @@ type HTTP struct {
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
 	// the base-url to the SPARQL endpoint including the scheme and the port
-	SparqlHost string
+	SparqlHost string `json:"sparqlHost"`
 	// the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	SparqlPath string
+	SparqlPath string `json:"sparqlPath"`
+	// the RDF baseUrl used for minting new URIs
+	BaseUrl string `json:"baseUrl"`
+	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
+	// The entry-points need to be fully qualified, i.e. with their scheme.
+	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 }
 
 func setDefaults() {
@@ -84,6 +89,8 @@ func setDefaults() {
 	// rdf with defaults for Blazegraph
 	viper.SetDefault("RDF.SparqlHost", "http://localhost:9999")
 	viper.SetDefault("RDF.SparqlPath", "/bigdata/namespace/%s/sparql")
+	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
+	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 }
 
 // InitConfig reads in config file and ENV variables if set.

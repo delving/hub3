@@ -11,3 +11,13 @@ urls = ["http://localhost:9200"]
 [Logging]
 devmode = true
 sentrydsn = ""
+
+[rdf]
+# the fully qualified URL including the port
+sparqlHost = "http://localhost:9999"
+# the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+sparqlPath = "/bigdata/namespace/%s/sparql"
+# A list of RDF entry points. 
+routedEntryPoints = ["http://localhost:3000"]
+# The base url used for minting RDF URI's
+baseUrl = "http://data.rapid.org"
