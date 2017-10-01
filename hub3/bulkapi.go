@@ -24,7 +24,7 @@ type BulkAction struct {
 	hubId       string `json:"hubId"`
 	dataset     string `json:"dataset"`
 	graphUri    string `json:"graphUri"`
-	actionType  string `json:"type"`
+	recordType  string `json:"type"`
 	action      string `json:"action"`
 	contentHash string `json:"contentHash"`
 	graph       string `json:"graph"`
