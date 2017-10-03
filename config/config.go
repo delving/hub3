@@ -93,6 +93,13 @@ func setDefaults() {
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 }
 
+func cleanConfig() {
+	Config.RDF.BaseUrl = strings.TrimSuffix(Config.RDF.BaseUrl, "/")
+	if !strings.HasPrefix(Config.RDF.BaseUrl, "http://") {
+		log.Fatalf("RDF.BaseUrl config value '%s' should start with 'http://'", Config.RDF.BaseUrl)
+	}
+}
+
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig() {
 	if CfgFile != "" {
@@ -128,6 +135,8 @@ func InitConfig() {
 			fmt.Sprintf("unable to decode into struct, %v", err),
 		)
 	}
+
+	cleanConfig()
 }
 
 // GetSparqlEndpoint builds the SPARQL endpoint from the RDF Config object.
