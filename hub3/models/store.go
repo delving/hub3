@@ -1,7 +1,9 @@
-package hub3
+package models
 
 import (
+	"fmt"
 	"log"
+	"strings"
 
 	"github.com/asdine/storm"
 )
@@ -24,14 +26,20 @@ import (
 var orm *storm.DB
 
 func init() {
-	orm = newDB()
+	orm = newDB("")
 }
 
-func newDB() *storm.DB {
-	db, err := storm.Open("rapid.db", storm.Batch())
+func newDB(dbName string) *storm.DB {
+	if dbName == "" {
+		dbName = "rapid.db"
+	}
+	if !strings.HasSuffix(dbName, ".db") {
+		dbName = fmt.Sprintf("%s.db", dbName)
+	}
+	db, err := storm.Open(dbName, storm.Batch())
 	if err != nil {
 		log.Fatal("Unable to open the BoltDB database file.")
 	}
-	defer db.Close()
+	//defer db.Close()
 	return db
 }

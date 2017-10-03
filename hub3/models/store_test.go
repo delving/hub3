@@ -1,4 +1,4 @@
-package hub3
+package models
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -16,6 +16,12 @@ var _ = Describe("Store", func() {
 			})
 		})
 
+	})
+
+	Context("when a new store is initialised with a dbName", func() {
+		It("should use that dbName", func() {
+			Expect("test.db").To(BeAnExistingFile())
+		})
 	})
 
 })

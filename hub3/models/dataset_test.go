@@ -30,7 +30,7 @@ var _ = Describe("Dataset", func() {
 	})
 
 	Context("When creating a new Dataset", func() {
-		spec := "test"
+		spec := "test_spec"
 		dataset := NewDataset(spec)
 		It("should set the spec", func() {
 			Expect(dataset).ToNot(BeNil())
@@ -38,7 +38,7 @@ var _ = Describe("Dataset", func() {
 		})
 
 		It("should set a datasetUri", func() {
-			uri := dataset.Uri
+			uri := dataset.URI
 			Expect(uri).ToNot(BeEmpty())
 			Expect(uri).To(Equal(createDatasetURI(spec)))
 		})
@@ -61,6 +61,35 @@ var _ = Describe("Dataset", func() {
 
 		It("should set deleted to be false", func() {
 			Expect(dataset.Deleted).To(BeFalse())
+		})
+
+	})
+
+	Context("When saving a DataSet", func() {
+		spec := "test_spec"
+		dataset := NewDataset(spec)
+
+		It("should have nothing saved before save", func() {
+			var ds []DataSet
+			err := orm.All(&ds)
+			Expect(err).To(BeNil())
+			Expect(len(ds)).To(Equal(0))
+		})
+
+		It("should save a dataset without errors", func() {
+			Expect(dataset.Save()).To(BeNil())
+			var ds []DataSet
+			err := orm.All(&ds)
+			Expect(err).To(BeNil())
+			Expect(len(ds)).To(Equal(1))
+		})
+
+		It("should be able to find it in the database", func() {
+			var ds DataSet
+			err := orm.One("Spec", spec, &ds)
+			Expect(err).To(BeNil())
+			Expect(ds.Created.Unix()).To(Equal(dataset.Created.Unix()))
+			Expect(ds.Modified.UnixNano()).ToNot(Equal(dataset.Modified.UnixNano()))
 		})
 
 	})
