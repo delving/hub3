@@ -21,13 +21,13 @@ import (
 // limitations under the License.
 
 type BulkAction struct {
-	hubId       string `json:"hubId"`
-	dataset     string `json:"dataset"`
-	graphUri    string `json:"graphUri"`
-	recordType  string `json:"type"`
-	action      string `json:"action"`
-	contentHash string `json:"contentHash"`
-	graph       string `json:"graph"`
+	HubId       string `json:"hubId"`
+	Dataset     string `json:"dataset"`
+	GraphUri    string `json:"graphUri"`
+	RecordType  string `json:"type"`
+	Action      string `json:"action"`
+	ContentHash string `json:"contentHash"`
+	Graph       string `json:"graph"`
 }
 
 // readActions reads BulkActions from an io.Reader line by line.
