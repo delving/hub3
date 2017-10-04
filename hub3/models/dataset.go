@@ -55,3 +55,22 @@ func (ds DataSet) Save() error {
 	ds.Modified = time.Now()
 	return orm.Save(&ds)
 }
+
+// GetOrCreateDataSet returns a DataSet object from the Storm ORM.
+// If none is present it will create one
+func GetOrCreateDataSet(spec string) (*DataSet, error) {
+	var ds DataSet
+	err := orm.One("Spec", spec, &ds)
+	if err != nil {
+		ds = NewDataset(spec)
+		err = ds.Save()
+	}
+	return &ds, nil
+}
+
+// ListDataSets returns an array of Datasets stored in Storm ORM
+func ListDataSets() ([]DataSet, error) {
+	var ds []DataSet
+	err := orm.All(&ds)
+	return ds, err
+}

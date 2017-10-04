@@ -101,4 +101,34 @@ var _ = Describe("Dataset", func() {
 
 	})
 
+	Context("When calling GetOrCreateDataSet", func() {
+
+		It("should create the datasets when no dataset is available", func() {
+			ds, err := GetOrCreateDataSet("test2")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ds.Spec).To(Equal("test2"))
+		})
+
+		It("should not store the dataset again on Get", func() {
+			datasetCount, err := ListDataSets()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(len(datasetCount) > 0).To(BeTrue())
+			ds, err := GetOrCreateDataSet("test2")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ds.Spec).To(Equal("test2"))
+			newCount, err := ListDataSets()
+			Expect(len(datasetCount)).To(Equal(len(newCount)))
+		})
+	})
+
+	Context("When calling ListDatasets", func() {
+
+		It("should return an array of all stored datasets", func() {
+			datasets, err := ListDataSets()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(datasets).ToNot(BeEmpty())
+		})
+
+	})
+
 })
