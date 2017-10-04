@@ -63,6 +63,12 @@ var _ = Describe("Dataset", func() {
 			Expect(dataset.Deleted).To(BeFalse())
 		})
 
+		It("should have access set to true", func() {
+			Expect(dataset.Access.OAIPMH).To(BeTrue())
+			Expect(dataset.Access.Search).To(BeTrue())
+			Expect(dataset.Access.LOD).To(BeTrue())
+		})
+
 	})
 
 	Context("When saving a DataSet", func() {
@@ -90,6 +96,7 @@ var _ = Describe("Dataset", func() {
 			Expect(err).To(BeNil())
 			Expect(ds.Created.Unix()).To(Equal(dataset.Created.Unix()))
 			Expect(ds.Modified.UnixNano()).ToNot(Equal(dataset.Modified.UnixNano()))
+			Expect(ds.Access.LOD).To(BeTrue())
 		})
 
 	})

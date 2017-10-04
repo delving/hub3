@@ -9,13 +9,21 @@ import (
 
 // DataSet contains all the known informantion for a RAPID metadata dataset
 type DataSet struct {
-	Spec string `json:"spec" storm:"id,index"`
-	URI  string `json:"uri" storm:"unique,index"`
 	//MapToPrefix string    `json:"mapToPrefix"`
+	Spec     string    `json:"spec" storm:"id,index"`
+	URI      string    `json:"uri" storm:"unique,index"`
 	Revision int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
 	Modified time.Time `json:"modified" storm:"index"`
 	Created  time.Time `json:"created"`
 	Deleted  bool      `json:"deleted"`
+	Access   `storm:"inline"`
+}
+
+// Access determines the which types of access are enabled for this dataset
+type Access struct {
+	OAIPMH bool `json:"oaipmh"`
+	Search bool `json:"search"`
+	LOD    bool `json:"lod"`
 }
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
@@ -27,11 +35,17 @@ func createDatasetURI(spec string) string {
 // NewDataset creates a new instance of a DataSet
 func NewDataset(spec string) DataSet {
 	now := time.Now()
+	access := Access{
+		OAIPMH: true,
+		Search: true,
+		LOD:    true,
+	}
 	dataset := DataSet{
 		Spec:     spec,
 		URI:      createDatasetURI(spec),
 		Created:  now,
 		Modified: now,
+		Access:   access,
 	}
 	return dataset
 }
