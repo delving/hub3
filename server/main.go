@@ -36,6 +36,9 @@ func Start() {
 		)
 	})
 
+	// API configuration
+	e.POST("/api/index/bulk", bulkApi)
+
 	// Start the server
 	log.Infof("Using port: %d", Config.Port)
 	e.Server.Addr = fmt.Sprintf(":%d", Config.Port)

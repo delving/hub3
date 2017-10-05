@@ -2,6 +2,7 @@ package hub3
 
 import (
 	"bufio"
+	"encoding/json"
 	"io"
 	"log"
 )
@@ -20,28 +21,47 @@ import (
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
-	HubId       string `json:"hubId"`
-	Dataset     string `json:"dataset"`
-	GraphUri    string `json:"graphUri"`
+	HubID       string `json:"hubId"`
+	Spec        string `json:"dataset"`
+	GraphURI    string `json:"graphUri"`
 	RecordType  string `json:"type"`
 	Action      string `json:"action"`
 	ContentHash string `json:"contentHash"`
 	Graph       string `json:"graph"`
 }
 
-// readActions reads BulkActions from an io.Reader line by line.
-func readActions(reader io.Reader) error {
+type BulkActionResponse struct {
+	Total        int      `json:"totalItemCount"`
+	IndexCount   int      `json:"indexedItemCount"`
+	DeletedCount int      `json:"deletedItemCount"`
+	InvalidCount int      `json:"invalidItemCount"`
+	InvalidItems []string `json:"invalidItems"`
+}
+
+// ReadActions reads BulkActions from an io.Reader line by line.
+func ReadActions(reader io.Reader) (BulkActionResponse, error) {
 
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		log.Println(scanner.Text())
+		var action BulkAction
+		err := json.Unmarshal(scanner.Bytes(), &action)
+		if err != nil {
+			log.Println("Unable to unmarshal JSON.")
+			log.Print(err)
+		}
+		//log.Println(action.HubID)
+		log.Println(action.Action)
 	}
 
+	response := BulkActionResponse{
+		InvalidItems: []string{},
+	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
-		return err
+		return response, err
 	}
-	return nil
+	return response, nil
 
 }
