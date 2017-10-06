@@ -22,10 +22,30 @@ type RDFRecord struct {
 }
 
 // NewRDFRecord creates a new RDFRecord
-func NewRDFRecord(hubID string) RDFRecord {
+func NewRDFRecord(hubID string, spec string) RDFRecord {
 	return RDFRecord{
-		HubID: hubID,
+		HubID:   hubID,
+		Created: time.Now(),
+		Spec:    spec,
 	}
+}
+
+// GetOrCreateRDFRecord returns a RDFRecord object from the Storm ORM.
+// If none is present it will create one
+func GetOrCreateRDFRecord(hubID, spec string) (RDFRecord, error) {
+	var record RDFRecord
+	err := orm.One("HubID", hubID, &record)
+	if err != nil {
+		record = NewRDFRecord(hubID, spec)
+		err = record.Save()
+	}
+	return record, nil
+}
+
+// Save saves the RDFRecord to Boltdb
+func (record RDFRecord) Save() error {
+	record.Modified = time.Now()
+	return orm.Save(&record)
 }
 
 // ExtractHubID extracts the orgId, spec and localId from the HubID

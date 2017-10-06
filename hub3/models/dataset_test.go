@@ -131,4 +131,20 @@ var _ = Describe("Dataset", func() {
 
 	})
 
+	Context("When calling IncrementRevision", func() {
+
+		It("should update the revision of the dataset by one", func() {
+			ds, _ := GetOrCreateDataSet("test3")
+			Expect(ds.Revision).To(Equal(0))
+			err := ds.IncrementRevision()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ds.Revision).To(Equal(1))
+		})
+
+		It("should have stored the dataset with the new revision", func() {
+			ds, _ := GetOrCreateDataSet("test3")
+			Expect(ds.Revision).To(Equal(1))
+		})
+	})
+
 })

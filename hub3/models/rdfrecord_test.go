@@ -8,12 +8,25 @@ import (
 var _ = Describe("RDFRecord", func() {
 
 	hubID := "test_spec_123"
+	spec := "spec"
 	Context("When creating a new RDFRecord", func() {
 		It("should not be empty", func() {
 			record := NewRDFRecord(
 				hubID,
+				spec,
 			)
 			Expect(record.HubID).ToNot(BeEmpty())
+		})
+	})
+
+	Context("when saving an RDFRecord", func() {
+		It("should store the record in BoltDB", func() {
+			record := NewRDFRecord(hubID, spec)
+			err := record.Save()
+			Expect(err).ToNot(HaveOccurred())
+			var response RDFRecord
+			err = orm.One("HubID", record.HubID, &response)
+			Expect(err).ToNot(HaveOccurred())
 		})
 	})
 
