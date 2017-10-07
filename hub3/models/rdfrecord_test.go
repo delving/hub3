@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bitbucket.org/delving/rapid/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -60,6 +61,29 @@ var _ = Describe("RDFRecord", func() {
 		It("should return an error", func() {
 			Expect(orgID).To(BeEmpty())
 			Expect(err).To(HaveOccurred())
+		})
+
+	})
+
+	Context("When creating a source URI", func() {
+
+		config.InitConfig()
+		uri := createSourceURI(hubID)
+		It("should start with the baseURI", func() {
+			Expect(uri).ToNot(BeEmpty())
+			Expect(uri).To(HavePrefix(config.Config.RDF.BaseUrl))
+		})
+
+		It("should include the record type", func() {
+
+		})
+
+		It("should end with the localId", func() {
+
+		})
+
+		It("should include the spec", func() {
+
 		})
 
 	})

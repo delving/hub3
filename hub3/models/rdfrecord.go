@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"bitbucket.org/delving/rapid/config"
 )
 
 // RDFRecord contains all the information about a grouping of RDF triples
@@ -19,6 +21,13 @@ type RDFRecord struct {
 	Created       time.Time `json:"created"`
 	Revision      int64     `json:"revision" storm:"index"` // the revision is used to mark records as orphans. it is autoincremented on each full save of the dataset
 	Deleted       bool      `json:"deleted"`                // Deleted marks a record as an orphan
+}
+
+// createSourceURI creates a RDF uri for the RDFRecord based Config RDF BaseUrl
+func createSourceURI(hubID string) string {
+	//_, spec, localID, err := ExtractHubID(hubID)
+	uri := fmt.Sprintf("%s/resource/", config.Config.RDF.BaseUrl)
+	return uri
 }
 
 // NewRDFRecord creates a new RDFRecord
