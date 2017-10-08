@@ -68,7 +68,10 @@ var _ = Describe("RDFRecord", func() {
 	Context("When creating a source URI", func() {
 
 		config.InitConfig()
-		uri := createSourceURI(hubID)
+		record := RDFRecord{
+			HubID: "test_spec_123",
+		}
+		uri := record.createSourceURI()
 		It("should start with the baseURI", func() {
 			Expect(uri).ToNot(BeEmpty())
 			Expect(uri).To(HavePrefix(config.Config.RDF.BaseUrl))
@@ -79,11 +82,12 @@ var _ = Describe("RDFRecord", func() {
 		})
 
 		It("should end with the localId", func() {
-
+			Expect(uri).To(ContainSubstring("123"))
+			Expect(uri).To(HaveSuffix("/123"))
 		})
 
 		It("should include the spec", func() {
-
+			Expect(uri).To(ContainSubstring("/spec/"))
 		})
 
 	})

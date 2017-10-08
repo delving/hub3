@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -13,10 +14,10 @@ import (
 // RDFRecord can be stored in various backends. The default is a Boltdb database
 type RDFRecord struct {
 	HubID         string    `json:"hubId" storm:"id,index"`
-	ContentHash   string    `json:"contentHash" `
-	Spec          string    `json:"spec"`
+	ContentHash   string    `json:"contentHash"`
+	Spec          string    `json:"spec" storm:"index"`
 	Graph         string    `json:"graph"`
-	NamedGraphURI string    `json:"graphURI"`
+	NamedGraphURI string    `json:"graphURI" storm:"unique"`
 	Modified      time.Time `json:"modified" storm:"index"`
 	Created       time.Time `json:"created"`
 	Revision      int64     `json:"revision" storm:"index"` // the revision is used to mark records as orphans. it is autoincremented on each full save of the dataset
@@ -24,9 +25,12 @@ type RDFRecord struct {
 }
 
 // createSourceURI creates a RDF uri for the RDFRecord based Config RDF BaseUrl
-func createSourceURI(hubID string) string {
-	//_, spec, localID, err := ExtractHubID(hubID)
-	uri := fmt.Sprintf("%s/resource/", config.Config.RDF.BaseUrl)
+func (r RDFRecord) createSourceURI() string {
+	_, spec, localID, err := r.ExtractHubID()
+	if err != nil {
+		log.Printf("Unable to extract hubId for %s", r.HubID)
+	}
+	uri := fmt.Sprintf("%s/resource/%s/%s", config.Config.RDF.BaseUrl, spec, localID)
 	return uri
 }
 
