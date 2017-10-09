@@ -16,29 +16,160 @@ package cmd
 
 import (
 	"fmt"
+	"log"
+	"os"
 
+	"github.com/renevanderark/goharvest/oai"
 	"github.com/spf13/cobra"
 )
 
-// oaipmhCmd represents the oaipmh command
-var oaipmhCmd = &cobra.Command{
-	Use:   "oaipmh",
-	Short: "Harvesting an OAI-PMH endpoint.",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("oaipmh called")
-	},
-}
+var (
+	// oaipmhCmd represents the oaipmh command
+	oaipmhCmd = &cobra.Command{
+		Use:   "oaipmh",
+		Short: "Harvesting an OAI-PMH endpoint.",
+	}
+
+	// identifyCmd subcommand to identify remote OAI-PMH target
+	identifyCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "identify",
+		Short: "Identify OAI-PMH response",
+
+		Run: identify,
+	}
+
+	// listDataSetsCmd subcommand to list all datasets remote OAI-PMH target
+	listDataSetsCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "datasets",
+		Short: "list all available datasets",
+
+		Run: listDatasets,
+	}
+	// listMetadataFormatsCmd subcommand to list all datasets remote OAI-PMH target
+	listMetadataFormatsCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "formats",
+		Short: "list all available metadataformats",
+
+		Run: listMetadataFormats,
+	}
+	// listIdentifiersCmd subcommand harvest all identifiers to a file
+	listIdentifiersCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "identifiers",
+		Short: "harvest all identifiers for a spec and MetadataPrefix",
+
+		Run: listIdentifiers,
+	}
+
+	url     string
+	verbose bool
+	spec    string
+	prefix  string
+)
 
 func init() {
 	RootCmd.AddCommand(oaipmhCmd)
 
-	// Here you will define your flags and configuration settings.
+	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
+	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// oaipmhCmd.PersistentFlags().String("foo", "", "A help for foo")
+	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
+	oaipmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// oaipmhCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	oaipmhCmd.AddCommand(identifyCmd)
+	oaipmhCmd.AddCommand(listDataSetsCmd)
+	oaipmhCmd.AddCommand(listMetadataFormatsCmd)
+	oaipmhCmd.AddCommand(listIdentifiersCmd)
+}
+
+// Print the OAI Response object to stdout
+func dump(resp *oai.Response) {
+	fmt.Printf("%#v\n", resp.Identify)
+
+}
+
+// identify returns the XML response from a remote OAI-PMH endpoint
+func identify(ccmd *cobra.Command, args []string) {
+	fmt.Println(url)
+	if url == "" {
+		fmt.Println("Error: -u or --url is required and must be a valid URL.")
+		return
+	}
+	req := (&oai.Request{
+		BaseURL: url,
+		Verb:    "Identify",
+	})
+	req.Harvest(func(resp *oai.Response) {
+		fmt.Printf("%#v\n\n", resp.Identify)
+	})
+}
+
+// listDataSets returns the datasets from a remote OAI-PMH endpoint
+func listDatasets(ccmd *cobra.Command, args []string) {
+	req := (&oai.Request{
+		BaseURL: url,
+		Verb:    "ListSets",
+	})
+	req.Harvest(func(resp *oai.Response) {
+		for idx, set := range resp.ListSets.Set {
+			fmt.Printf("\n========= %d =========\n", idx)
+			fmt.Printf("Spec\t\t%s\n", set.SetSpec)
+			if set.SetName != "None" {
+				fmt.Printf("Name:\t\t%s\n", set.SetName)
+			}
+			if len(set.SetDescription.Body) > 0 && verbose {
+				fmt.Printf("Description:\n%s\n", set.SetDescription)
+			}
+		}
+	})
+}
+
+// listMetadataFormats returns the available metadataformats from a remote OAI-PMH endpoint
+func listMetadataFormats(ccmd *cobra.Command, args []string) {
+	req := (&oai.Request{
+		BaseURL: url,
+		Verb:    "ListMetadataFormats",
+	})
+	req.Harvest(func(resp *oai.Response) {
+		for idx, format := range resp.ListMetadataFormats.MetadataFormat {
+			fmt.Printf("\n========= %d =========\n", idx)
+			fmt.Printf("prefix:\t\t%s\n", format.MetadataPrefix)
+			if verbose {
+				fmt.Printf("schema:\t\t%s\n", format.Schema)
+				fmt.Printf("namespace:\t%s\n", format.MetadataNamespace)
+			}
+		}
+	})
+}
+
+// listidentifiers writes all identifiers to a file
+func listIdentifiers(ccmd *cobra.Command, args []string) {
+	req := (&oai.Request{
+		BaseURL:        url,
+		Verb:           "ListIdentifiers",
+		Set:            spec,
+		MetadataPrefix: prefix,
+	})
+
+	file, err := os.Create(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
+	if err != nil {
+		log.Fatal("Cannot create file", err)
+	}
+	defer file.Close()
+	seen := 0
+	req.HarvestIdentifiers(func(header *oai.Header) {
+		seen++
+		if seen%250 == 0 {
+			fmt.Printf("\rharvested: %d\n", seen)
+		}
+		fmt.Fprintln(file, header.Identifier)
+	})
+
 }
