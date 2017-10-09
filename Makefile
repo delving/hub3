@@ -19,7 +19,7 @@ install-glide:
 	curl https://glide.sh/get | sh
 
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile
+	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db
 
 clean-build:
 	@make clean
