@@ -1,8 +1,16 @@
 hash: 84d2e8c1d6be13350ac01ebb3890ab663f3f917855f8e2e1ade82b386ea399fa
-updated: 2017-09-24T19:51:59.60641971+02:00
+updated: 2017-10-11T21:18:11.467823265+02:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
+  subpackages:
+  - codec
+  - codec/json
+  - index
+  - internal
+  - q
+- name: github.com/boltdb/bolt
+  version: fa5367d20c994db73282594be0146ab221657943
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
 - name: github.com/codegangsta/gin
@@ -27,7 +35,7 @@ imports:
 - name: github.com/getsentry/raven-go
   version: 1452f6376ddb15c546b6d7567e1d9518765391b5
 - name: github.com/hashicorp/hcl
-  version: 68e816d1c783414e79bc65b3994d9ab6b0a722ab
+  version: 42e33e2d55a0ff1d6263f738896ea8c13571a8d0
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -46,11 +54,11 @@ imports:
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
-  version: a625e589cffa33eac768ab98bc21518cef786e2d
+  version: b28538b2e3f5446fe6e0e47ee34cd74b662ca2ab
   subpackages:
   - middleware
 - name: github.com/labstack/gommon
-  version: 779b8a8b9850a97acba6a3fe20feb628c39e17c1
+  version: 57409ada9da0f2afad6664c49502f8c50fbd8476
   subpackages:
   - bytes
   - color
@@ -61,7 +69,7 @@ imports:
 - name: github.com/mattn/go-colorable
   version: ad5389df28cdac544c99bd7b9161a0b5b6ca9d1b
 - name: github.com/mattn/go-isatty
-  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+  version: a5cdd64afdee435007ee3e9f6ed4684af949d568
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/gox
@@ -109,7 +117,7 @@ imports:
 - name: github.com/parnurzeal/gorequest
   version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
 - name: github.com/pelletier/go-toml
-  version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
+  version: 2009e44b6f182e34d8ce081ac2767622937ea3d4
 - name: github.com/pkg/errors
   version: 2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb
 - name: github.com/renevanderark/goharvest
@@ -119,21 +127,21 @@ imports:
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
-  version: ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b
+  version: e67d870304c4bca21331b02f414f970df13aa694
   subpackages:
   - mem
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: b78744579491c1ceeaaa3b40205e56b0591b93a3
+  version: 40f18800b20df8f74ad2b02aa4e56748a3d17239
   subpackages:
   - cobra
 - name: github.com/spf13/jwalterweatherman
   version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
 - name: github.com/spf13/pflag
-  version: 7aff26db30c1be810f9de5038ec5ef96ac41fd7c
+  version: a9789e855c7696159b7db0db7f440b449edf2b31
 - name: github.com/spf13/viper
-  version: 25b30aa063fc18e48662b86996252eabdcf2f0c7
+  version: d9cca5ef33035202efb1586825bdbb15ff9ec3ba
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
@@ -141,25 +149,25 @@ imports:
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: 7d9177d70076375b9a59c8fde23d52d9c4a7ecd5
+  version: 9419663f5a44be8b34ca85f08abc5fe1be11f8a3
   subpackages:
   - acme
   - acme/autocert
   - ssh/terminal
 - name: golang.org/x/net
-  version: 0744d001aa8470aaa53df28d32e5ceeb8af9bd70
+  version: a04bdaca5b32abe1c069418fb7088ae607de5bd0
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: 429f518978ab01db8bb6f44b66785088e7fba58b
+  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 1cbadb444a806fd9430d14ad08967ed91da4fa0a
+  version: 825fc78a2fd6fa0a5447e300189e3219e05e1f25
   subpackages:
   - encoding
   - encoding/charmap
@@ -178,7 +186,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: 575dcf5070608328cb017251b40a8f06c5fa99b7
+  version: 2a08d39723b7f4df92b96e2dff891a60952714d6
   subpackages:
   - config
   - uritemplates
