@@ -37,7 +37,8 @@ func Start() {
 	})
 
 	// API configuration
-	e.POST("/api/index/bulk", bulkApi)
+	e.GET("/api/oai-pmh", oaiPmhEndpoint)
+	e.POST("/api/index/bulk", bulkAPI)
 
 	// Start the server
 	log.Infof("Using port: %d", Config.Port)
