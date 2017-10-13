@@ -55,5 +55,6 @@ func bindPMHRequest(c echo.Context) oai.Request {
 // oaiPmhEndpoint processed OAI-PMH request and returns the results
 func oaiPmhEndpoint(c echo.Context) (err error) {
 	req := bindPMHRequest(c)
-	return c.JSON(http.StatusOK, req)
+	resp := hub3.ProcessVerb(&req)
+	return c.XML(http.StatusOK, resp)
 }

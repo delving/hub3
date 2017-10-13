@@ -15,26 +15,33 @@
 package hub3
 
 import (
-	"fmt"
-
 	"github.com/renevanderark/goharvest/oai"
 )
 
-// Dump a snippet of the Record metadata
-func dump(record *oai.Record) {
-	fmt.Printf("%s\n\n", record.Metadata.Body[0:500])
-}
-
-// harvestToFile demonstrates harvesting using the ListRecords verb with HarvestRecords
-func harvestToFile(baseUrl string, set string, prefix string, from string) {
-	req := &oai.Request{
-		BaseURL:        baseUrl,
-		Set:            set,
-		MetadataPrefix: prefix,
-		Verb:           "ListRecords",
-		From:           from,
+// ProcessVerb processes different OAI-PMH verbs
+func ProcessVerb(r *oai.Request) interface{} {
+	switch r.Verb {
+	case "Identify":
+		return oai.Identify{
+			RepositoryName:    "dev",
+			BaseURL:           r.BaseURL,
+			ProtocolVersion:   "2.0",
+			AdminEmail:        []string{"from config"},
+			DeletedRecord:     "persistent",
+			EarliestDatestamp: "1970-01-01T00:00:00Z",
+			Granularity:       "YYYY-MM-DDThh:mm:ssZ",
+		}
+	case "ListMetadataFormats":
+		return "formats"
+	case "ListSets":
+		return "sets"
+	case "ListIdentifiers":
+		return "identifiers"
+	case "ListRecords":
+		return "records"
+	case "GetRecord":
+		return "record"
+	default:
+		return "badVerb"
 	}
-	// HarvestRecords passes each individual metadata record to the dump
-	// function as a Record object
-	req.HarvestRecords(dump)
 }
