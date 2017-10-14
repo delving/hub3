@@ -23,6 +23,9 @@ build/*
 # do not commit vendored files
 vendor/*/
 
+# do not commit files stored by npm
+node_modules
+
 # jupyter notebooks
 *.ipynb
 .ipynb*
