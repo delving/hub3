@@ -1,0 +1,24 @@
+{
+  "name": "rapid",
+  "version": "1.0.0",
+  "description": "RAPID is a recursive acronym that stands for *Rapid API Delving*.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "spectacle-docs": "^0.9.11"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/delving/rapid.git"
+  },
+  "keywords": [],
+  "author": "Delving B.V.",
+  "license": "Apache 2.0",
+  "homepage": "https://bitbucket.org/delving/rapid#readme"
+}
