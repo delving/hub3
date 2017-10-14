@@ -37,7 +37,9 @@ func Start() {
 	})
 
 	// API configuration
-	e.GET("/api/oai-pmh", oaiPmhEndpoint)
+	if Config.OAIPMH.Enabled {
+		e.GET("/api/oai-pmh", oaiPmhEndpoint)
+	}
 	e.POST("/api/index/bulk", bulkAPI)
 
 	// Start the server

@@ -42,6 +42,7 @@ type RawConfig struct {
 	ElasticSearch `json:"elasticsearch"`
 	Logging       `json:"logging"`
 	RDF           `json:"rdf"`
+	OAIPMH        `json:"oaipmh"`
 }
 
 // ElasticSearch holds all the configuration values
@@ -74,6 +75,16 @@ type RDF struct {
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 }
 
+// OAIPMH holds all the configuration options for the OAI-PMH endpoint
+type OAIPMH struct {
+	// Make the oai-pmh endpoint available
+	Enabled bool `json:"enabled"`
+	// AdminEmails has a list of the admin emails of this endpoint
+	AdminEmails []string `json:"adminEmails"`
+	// RepositoryName is the name of the OAI-PMH repossitory
+	RepositoryName string `json:"repositoryName"`
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -91,6 +102,11 @@ func setDefaults() {
 	viper.SetDefault("RDF.SparqlPath", "/bigdata/namespace/%s/sparql")
 	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
+
+	// oai-pmh
+	viper.SetDefault("OAIPMH.enabled", true)
+	viper.SetDefault("OAIPMH.repostitoryName", "rapid")
+	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
 }
 
 func cleanConfig() {

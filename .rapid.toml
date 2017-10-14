@@ -21,3 +21,14 @@ sparqlPath = "/bigdata/namespace/%s/sparql"
 routedEntryPoints = ["http://localhost:3000"]
 # The base url used for minting RDF URI's
 baseUrl = "http://data.rapid.org"
+
+
+[oaipmh]
+# options: no, transient, persistent
+deletedRecords = "persistent"
+# enable the oai-pmh endpoint at /api/oai-pmh
+enabled = true 
+# admin emails 
+adminEmails = ["info@delving.eu",]
+# repositoryName
+repositoryName = "dev1"
