@@ -56,16 +56,28 @@ func (ds DataSet) Save() error {
 	return orm.Save(&ds)
 }
 
+// GetDataSet returns a DataSet object when found
+func GetDataSet(spec string) (DataSet, error) {
+	var ds DataSet
+	err := orm.One("Spec", spec, &ds)
+	return ds, err
+}
+
+func CreateDataSet(spec string) (DataSet, error) {
+	ds := NewDataset(spec)
+	err := ds.Save()
+	return ds, err
+}
+
 // GetOrCreateDataSet returns a DataSet object from the Storm ORM.
 // If none is present it will create one
 func GetOrCreateDataSet(spec string) (DataSet, error) {
-	var ds DataSet
-	err := orm.One("Spec", spec, &ds)
+	ds, err := GetDataSet(spec)
 	if err != nil {
 		ds = NewDataset(spec)
 		err = ds.Save()
 	}
-	return ds, nil
+	return ds, err
 }
 
 // IncrementRevision bumps the latest revision of the DataSet
