@@ -75,3 +75,7 @@ goreport:
 	@mkdir -p report
 	@rm -rf report/*
 	@goreporter -p ../rapid -r report -e vendor -f html
+
+setup-npm:
+	# used for getting dependencies to render swagger specifications
+	@npm install
