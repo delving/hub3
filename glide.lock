@@ -1,5 +1,5 @@
 hash: 84d2e8c1d6be13350ac01ebb3890ab663f3f917855f8e2e1ade82b386ea399fa
-updated: 2017-10-11T21:18:11.467823265+02:00
+updated: 2017-10-14T23:08:00.776971067+02:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -133,7 +133,7 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: 40f18800b20df8f74ad2b02aa4e56748a3d17239
+  version: 7b2c5ac9fc04fc5efafb60700713d4fa609b777b
   subpackages:
   - cobra
 - name: github.com/spf13/jwalterweatherman
@@ -162,12 +162,12 @@ imports:
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: ebfc5b4631820b793c9010c87fd8fef0f39eb082
+  version: 686000749eaec0b8855b8eef5336cf63899fe51d
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 825fc78a2fd6fa0a5447e300189e3219e05e1f25
+  version: c01e4764d870b77f8abe5096ee19ad20d80e8075
   subpackages:
   - encoding
   - encoding/charmap
@@ -186,7 +186,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: 2a08d39723b7f4df92b96e2dff891a60952714d6
+  version: e8c9fc5c302ede16c26837ee0ac8ed6301a5806f
   subpackages:
   - config
   - uritemplates
