@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/renevanderark/goharvest/oai"
 	"github.com/spf13/cobra"
@@ -68,6 +70,16 @@ var (
 		Run: listIdentifiers,
 	}
 
+	// listRecordsCmd subcommand harvest all Records to a file
+	listRecordsCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "records",
+		Short: "harvest all Records for a spec and MetadataPrefix",
+
+		Run: listRecords,
+	}
+
 	url     string
 	verbose bool
 	spec    string
@@ -79,6 +91,8 @@ func init() {
 
 	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
+	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 
 	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
 	oaipmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
@@ -87,6 +101,7 @@ func init() {
 	oaipmhCmd.AddCommand(listDataSetsCmd)
 	oaipmhCmd.AddCommand(listMetadataFormatsCmd)
 	oaipmhCmd.AddCommand(listIdentifiersCmd)
+	oaipmhCmd.AddCommand(listRecordsCmd)
 }
 
 // Print the OAI Response object to stdout
@@ -172,4 +187,40 @@ func listIdentifiers(ccmd *cobra.Command, args []string) {
 		fmt.Fprintln(file, header.Identifier)
 	})
 
+}
+
+// listRecords writes all Records to a file
+func listRecords(ccmd *cobra.Command, args []string) {
+	req := (&oai.Request{
+		BaseURL:        url,
+		Verb:           "ListRecords",
+		Set:            spec,
+		MetadataPrefix: prefix,
+	})
+	file, err := os.Create(fmt.Sprintf("%s_%s_records.xml", spec, prefix))
+	if err != nil {
+		log.Fatal("Cannot create file", err)
+	}
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		fmt.Println("Caught Interrupt. Closing the file as valid XML.")
+		fmt.Fprintln(file, "</pockets>")
+		defer file.Close()
+		os.Exit(1)
+	}()
+
+	seen := 0
+	fmt.Fprintln(file, `<?xml version="1.0" encoding="UTF-8" ?>`)
+	fmt.Fprintln(file, "<pockets>")
+	req.HarvestRecords(func(r *oai.Record) {
+		seen++
+		if seen%250 == 0 {
+			fmt.Printf("\rharvested: %d\n", seen)
+		}
+		fmt.Fprintf(file, `<pocket id="%s">\n`, r.Header.Identifier)
+		fmt.Fprintln(file, r.Metadata.GoString())
+		fmt.Fprintln(file, "</pocket>")
+	})
 }
