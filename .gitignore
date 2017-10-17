@@ -40,3 +40,7 @@ rapid.db
 # coverage
 report
 *.coverprofile
+
+# harvested data
+*_ids.txt
+*_records.xml

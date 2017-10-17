@@ -21,6 +21,9 @@ install-glide:
 clean:
 	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db
 
+clean-harvesting:
+	rm -rf *_ids.txt *_records.xml
+
 clean-build:
 	@make clean
 	mkdir -p build
