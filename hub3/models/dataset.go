@@ -10,7 +10,7 @@ import (
 // DataSet contains all the known informantion for a RAPID metadata dataset
 type DataSet struct {
 	//MapToPrefix string    `json:"mapToPrefix"`
-	Spec     string    `json:"spec" storm:"id,index"`
+	Spec     string    `json:"spec" storm:"id,index,unique"`
 	URI      string    `json:"uri" storm:"unique,index"`
 	Revision int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
 	Modified time.Time `json:"modified" storm:"index"`

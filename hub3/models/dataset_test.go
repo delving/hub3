@@ -101,6 +101,16 @@ var _ = Describe("Dataset", func() {
 
 	})
 
+	Context("When calling CreateDataSet", func() {
+
+		It("should create a dataset when no dataset is present.", func() {
+			ds, err := CreateDataSet("test3")
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ds.Spec).To(Equal("test3"))
+		})
+
+	})
+
 	Context("When calling GetOrCreateDataSet", func() {
 
 		It("should create the datasets when no dataset is available", func() {
