@@ -16,6 +16,7 @@ package hub3
 
 import (
 	"bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/renevanderark/goharvest/oai"
 )
 
@@ -37,7 +38,7 @@ func ProcessVerb(r *oai.Request) interface{} {
 			MetadataFormat: formats,
 		}
 	case "ListSets":
-		return "sets"
+		return renderListSets(r)
 	case "ListIdentifiers":
 		return "identifiers"
 	case "ListRecords":
@@ -63,5 +64,30 @@ func renderIdentify(r *oai.Request) interface{} {
 		DeletedRecord:     "persistent",
 		EarliestDatestamp: "1970-01-01T00:00:00Z",
 		Granularity:       "YYYY-MM-DDThh:mm:ssZ",
+	}
+}
+
+// renderListSets returns a list of all the publicly available sets
+func renderListSets(r *oai.Request) interface{} {
+	sets := []oai.Set{}
+	datasets, err := models.ListDataSets()
+	if err != nil {
+		logger.Errorln("Unable to retrieve datasets from the storage layer.")
+		return sets
+	}
+	for _, ds := range datasets {
+		if ds.Access.OAIPMH {
+			sets = append(
+				sets,
+				oai.Set{
+					SetSpec:        ds.Spec,
+					SetName:        ds.Spec,                                // todo change to name if it has one later
+					SetDescription: oai.Description{Body: []byte(ds.Spec)}, // TODO change to description from ds later.
+				},
+			)
+		}
+	}
+	return oai.ListSets{
+		Set: sets,
 	}
 }
