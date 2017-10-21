@@ -16,7 +16,7 @@ type DataSet struct {
 	Modified time.Time `json:"modified" storm:"index"`
 	Created  time.Time `json:"created"`
 	Deleted  bool      `json:"deleted"`
-	Access   `storm:"inline"`
+	Access   `json:"access" storm:"inline"`
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -90,6 +90,6 @@ func (ds *DataSet) IncrementRevision() error {
 // ListDataSets returns an array of Datasets stored in Storm ORM
 func ListDataSets() ([]DataSet, error) {
 	var ds []DataSet
-	err := orm.All(&ds)
+	err := orm.AllByIndex("Spec", &ds)
 	return ds, err
 }
