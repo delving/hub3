@@ -1,5 +1,5 @@
 hash: 84d2e8c1d6be13350ac01ebb3890ab663f3f917855f8e2e1ade82b386ea399fa
-updated: 2017-10-14T23:08:00.776971067+02:00
+updated: 2017-10-23T20:42:08.068928149+02:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -14,9 +14,9 @@ imports:
 - name: github.com/certifi/gocertifi
   version: 3fd9e1adb12b72d2f3f82191d49be9b93c69f67c
 - name: github.com/codegangsta/gin
-  version: 9ba699191d209550053612796f2181e6ae352585
+  version: 01243699c19287f0eaccc8f2de4a46ff7ec3ba91
 - name: github.com/dgrijalva/jwt-go
-  version: a539ee1a749a2b895533f979515ac7e6e0f5b650
+  version: dbeaa9332f19a944acb5736b4456cfcc02140e29
 - name: github.com/evalphobia/logrus_sentry
   version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
 - name: github.com/facebookgo/clock
@@ -35,7 +35,7 @@ imports:
 - name: github.com/getsentry/raven-go
   version: 1452f6376ddb15c546b6d7567e1d9518765391b5
 - name: github.com/hashicorp/hcl
-  version: 42e33e2d55a0ff1d6263f738896ea8c13571a8d0
+  version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
   subpackages:
   - hcl/ast
   - hcl/parser
@@ -50,7 +50,7 @@ imports:
 - name: github.com/knakk/digest
   version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
 - name: github.com/knakk/rdf
-  version: 9659d914ab599d63e07af0b84aeabd4a942b66d5
+  version: 156c65e101e9a9502e06249712c1d10754a2404d
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
@@ -75,7 +75,7 @@ imports:
 - name: github.com/mitchellh/gox
   version: 54b619477e8932bbb6314644c867e7e6db7a9c71
 - name: github.com/mitchellh/mapstructure
-  version: d0303fe809921458f417bcf828397a65db30a7e4
+  version: 06020f85339e21b2478f756a78e295255ffa4d6a
 - name: github.com/moul/http2curl
   version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
 - name: github.com/OneOfOne/xxhash
@@ -117,9 +117,9 @@ imports:
 - name: github.com/parnurzeal/gorequest
   version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
 - name: github.com/pelletier/go-toml
-  version: 2009e44b6f182e34d8ce081ac2767622937ea3d4
+  version: 8c31c2ec65b208cc2ad1608bf25a3ff91adf1944
 - name: github.com/pkg/errors
-  version: 2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb
+  version: f15c970de5b76fac0b59abb32d62c17cc7bed265
 - name: github.com/renevanderark/goharvest
   version: cbaf6f70f07ddfd2c40473b664a7df0c661066dd
   subpackages:
@@ -127,7 +127,7 @@ imports:
 - name: github.com/sirupsen/logrus
   version: 89742aefa4b206dcf400792f3bd35b542998eb3b
 - name: github.com/spf13/afero
-  version: e67d870304c4bca21331b02f414f970df13aa694
+  version: 5660eeed305fe5f69c8fc6cf899132a459a97064
   subpackages:
   - mem
 - name: github.com/spf13/cast
@@ -139,9 +139,9 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
 - name: github.com/spf13/pflag
-  version: a9789e855c7696159b7db0db7f440b449edf2b31
+  version: 97afa5e7ca8a08a383cb259e06636b5e2cc7897f
 - name: github.com/spf13/viper
-  version: d9cca5ef33035202efb1586825bdbb15ff9ec3ba
+  version: 8ef37cbca71638bf32f3d5e194117d4cb46da163
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
@@ -149,20 +149,20 @@ imports:
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: 9419663f5a44be8b34ca85f08abc5fe1be11f8a3
+  version: 2509b142fb2b797aa7587dad548f113b2c0f20ce
   subpackages:
   - acme
   - acme/autocert
   - ssh/terminal
 - name: golang.org/x/net
-  version: a04bdaca5b32abe1c069418fb7088ae607de5bd0
+  version: 5561cd9b4330353950f399814f427425c0a26fd2
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: 686000749eaec0b8855b8eef5336cf63899fe51d
+  version: a1a1f1746d156bbc9954f29134b20ed4ce2752f1
   subpackages:
   - unix
   - windows
@@ -186,7 +186,7 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: e8c9fc5c302ede16c26837ee0ac8ed6301a5806f
+  version: 3f891f0d04aba0bba9a8bd365a9d3846efcb3527
   subpackages:
   - config
   - uritemplates
