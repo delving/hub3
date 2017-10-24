@@ -1,12 +1,18 @@
-package models_test
+package models
 
 import (
-	. "bitbucket.org/delving/rapid/hub3/models"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Search", func() {
+
+	Context("When creating a RDFObject", func() {
+
+		It("should have a subject", func() {
+			o := RdfObject{}
+			Expect(o).ToNot(BeNil())
+		})
+	})
 
 })
