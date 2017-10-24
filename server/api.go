@@ -8,9 +8,9 @@ import (
 	"bitbucket.org/delving/rapid/hub3/models"
 
 	"github.com/asdine/storm"
+	"github.com/kiivihal/goharvest/oai"
 	"github.com/labstack/echo"
 	"github.com/labstack/gommon/log"
-	"github.com/renevanderark/goharvest/oai"
 )
 
 // Copyright © 2017 Delving B.V. <info@delving.eu>

@@ -17,7 +17,7 @@ package hub3
 import (
 	"bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
-	"github.com/renevanderark/goharvest/oai"
+	"github.com/kiivihal/goharvest/oai"
 )
 
 // ProcessVerb processes different OAI-PMH verbs

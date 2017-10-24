@@ -21,7 +21,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/renevanderark/goharvest/oai"
+	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
 )
 
