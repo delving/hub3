@@ -44,3 +44,9 @@ report
 # harvested data
 *_ids.txt
 *_records.xml
+
+# vuejs projects
+diw
+
+# generated docs
+public
