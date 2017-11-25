@@ -6,6 +6,6 @@ builds:
     goos:
       - darwin
       - linux
-      - windows
+      # - windows TODO enable windows after gracehttp solution
     goarch:
       - amd64
