@@ -1,0 +1,11 @@
+# .goreleaser.yml
+# Build customization
+builds:
+  - main: main.go
+    binary: rapid
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
