@@ -16,6 +16,7 @@ gin-bin
 *.rpm
 *.deb
 build/*
+dist
 
 # TLS cache
 .cache
