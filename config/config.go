@@ -43,6 +43,7 @@ type RawConfig struct {
 	Logging       `json:"logging"`
 	RDF           `json:"rdf"`
 	OAIPMH        `json:"oaipmh"`
+	WebResource   `json:"webresource"`
 }
 
 // ElasticSearch holds all the configuration values
@@ -64,15 +65,12 @@ type HTTP struct {
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
-	// the base-url to the SPARQL endpoint including the scheme and the port
-	SparqlHost string `json:"sparqlHost"`
-	// the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	SparqlPath string `json:"sparqlPath"`
-	// the RDF baseUrl used for minting new URIs
-	BaseUrl string `json:"baseUrl"`
+	SparqlHost        string   `json:"sparqlHost"`        // the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	BaseUrl           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
+	RoutedEntryPoints []string `json:"RoutedEntryPoints"` // the RDF baseUrl used for minting new URIs
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
-	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -83,6 +81,12 @@ type OAIPMH struct {
 	AdminEmails []string `json:"adminEmails"`
 	// RepositoryName is the name of the OAI-PMH repossitory
 	RepositoryName string `json:"repositoryName"`
+}
+
+// WebResource holds all the configuration options for the WebResource endpoint
+type WebResource struct {
+	Enabled        bool   `json:"enabled"`   // Make the webresource endpoint available
+	WebResourceDir string `json:"sourceDir"` // Target directory for the webresources
 }
 
 func setDefaults() {

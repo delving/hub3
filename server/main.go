@@ -43,11 +43,15 @@ func Start() {
 		)
 	})
 
+	// WebResource & imageproxy configuration
+	//if Config.
+
 	// API configuration
 	if Config.OAIPMH.Enabled {
 		e.GET("/api/oai-pmh", oaiPmhEndpoint)
 	}
 	e.POST("/api/index/bulk", bulkAPI)
+
 	// datasets
 	e.GET("/api/datasets", listDataSets)
 	e.POST("/api/datasets", createDataSet)
