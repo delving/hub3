@@ -8,9 +8,8 @@ import (
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"golang.org/x/crypto/acme/autocert"
+	"github.com/go-chi/cors"
+	"github.com/labstack/gommon/log"
 )
 
 // Start starts a graceful webserver process.
@@ -21,24 +20,24 @@ func Start() {
 	r.Use(mw.Recoverer)
 	r.Use(mw.StripSlashes)
 
+	cors := cors.New(cors.Options{
+		// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	})
+	r.Use(cors.Handler)
+
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("You are rocking rapid!"))
 	})
+
+	log.Infof("Using port: %d", Config.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), r)
-	//e := echo.New()
-	//e.Use(middleware.Recover())
-	//e.Use(middleware.Logger())
-	//e.Pre(middleware.RemoveTrailingSlash())
-
-	////CORS
-	//e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-	//AllowOrigins: []string{"*"},
-	//AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
-	//}))
-
-	//e.GET("/", func(c echo.Context) error {
-	//return c.String(http.StatusOK, "You are rocking rapid!")
-	//})
 
 	//// Admin group
 	//a := e.Group("/admin")
@@ -76,19 +75,7 @@ func Start() {
 	//e.Logger.Fatal(gracehttp.Serve(e.Server))
 }
 
-// StartTLS starts a webserver that uses Let's Encrypt to provide SSL cectificates
-func StartTLS() {
-	e := echo.New()
-	e.AutoTLSManager.HostPolicy = autocert.HostWhitelist("rapid.delving.org")
-	// Cache certificates
-	e.AutoTLSManager.Cache = autocert.DirCache(".cert_cache")
-	e.Use(middleware.Recover())
-	e.Use(middleware.Logger())
-	e.GET("/", func(c echo.Context) error {
-		return c.HTML(http.StatusOK, `
-			<h1>Welcome to Rapid!</h1>
-			<h3>TLS certificates automatically installed from Let's Encrypt :)</h3>
-		`)
-	})
-	e.Logger.Fatal(e.StartAutoTLS(":4443"))
+func ConfigRouter() http.Handler {
+	r := chi.NewRouter()
+	return r
 }
