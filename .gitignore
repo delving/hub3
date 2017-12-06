@@ -17,6 +17,7 @@ gin-bin
 *.deb
 build/*
 dist
+utils
 
 # TLS cache
 .cache
