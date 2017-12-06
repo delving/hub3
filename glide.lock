@@ -1,5 +1,5 @@
-hash: 57de1c6f18d866ce8fc7bf3f868f3c1d87edd19e1477abde9a8dbba90b5ceaa3
-updated: 2017-12-04T13:41:25.360514576+01:00
+hash: 94a4b4ab00bee91d333e340be1a128c2a3a6324fb25e553bc3678f3d15967b1a
+updated: 2017-12-06T11:37:30.437515705+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -15,14 +15,12 @@ imports:
   version: a4ab0227d360091084658029ec8ae45f989fba3e
 - name: github.com/codegangsta/gin
   version: cafe2ce98974a3dcca6b92ce393a91a0b58b8133
-- name: github.com/dgrijalva/jwt-go
-  version: dbeaa9332f19a944acb5736b4456cfcc02140e29
 - name: github.com/evalphobia/logrus_sentry
   version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
 - name: github.com/fsnotify/fsnotify
   version: 4da3e2cfbabc9f751898f250b49f2439785783a1
 - name: github.com/getsentry/raven-go
-  version: c9de0b92586aaba092c2a231cb7384354b178544
+  version: 32a13797442ccb601b11761d74232773c1402d14
 - name: github.com/go-chi/chi
   version: 687d2792aedd8e8ac3bbd8592cf55b91d7ea8ce9
   subpackages:
@@ -54,15 +52,11 @@ imports:
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
 - name: github.com/labstack/echo
   version: 0473c51f1dbd83487effce00702571d19033a6e5
-  subpackages:
-  - middleware
 - name: github.com/labstack/gommon
   version: 57409ada9da0f2afad6664c49502f8c50fbd8476
   subpackages:
-  - bytes
   - color
   - log
-  - random
 - name: github.com/magiconair/properties
   version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
 - name: github.com/mattn/go-colorable
@@ -120,7 +114,7 @@ imports:
 - name: github.com/pkg/errors
   version: f15c970de5b76fac0b59abb32d62c17cc7bed265
 - name: github.com/sirupsen/logrus
-  version: 95cd2b9c79aa5e72ab0bc69b7ccc2be15bf850f6
+  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/afero
   version: 8d919cbe7e2627e417f3e45c3c0e489a5b7e2536
   subpackages:
@@ -128,7 +122,7 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: 3a5f27b046057b8b1bc8301159a31635aa68d0d5
+  version: de2d9c4eca8f3c1de17d48b096b6504e0296f003
   subpackages:
   - cobra
 - name: github.com/spf13/jwalterweatherman
@@ -137,6 +131,8 @@ imports:
   version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: github.com/spf13/viper
   version: 4dddf7c62e16bce5807744018f5b753bfe21bbd2
+- name: github.com/urfave/negroni
+  version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
 - name: github.com/valyala/bytebufferpool
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
@@ -162,7 +158,7 @@ imports:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 556d234e9c5239918de4d1fe247d1fe004e71764
+  version: 57961680700a5336d15015c8c50686ca5ba362a4
   subpackages:
   - encoding
   - encoding/charmap
