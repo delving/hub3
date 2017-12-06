@@ -60,7 +60,8 @@ type Logging struct {
 
 // HTTP holds all the configuration for the http server subcommand
 type HTTP struct {
-	Port int `json:"port" mapstructure:"port"`
+	Port      int    `json:"port" mapstructure:"port"`
+	StaticDir string `json:"staticDir"` // the relative path to the static directory to serve documentation.
 }
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
@@ -93,6 +94,7 @@ func setDefaults() {
 
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
+	viper.SetDefault("HTTP.staticDir", "public")
 	viper.SetDefault("orgId", "rapid")
 
 	// elastic
@@ -147,7 +149,7 @@ func InitConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		log.Printf("Using config file: %s", viper.ConfigFileUsed())
 	}
 	err := viper.Unmarshal(&Config)
 	if err != nil {
@@ -171,6 +173,6 @@ func (c RawConfig) GetSparqlEndpoint(dbName string) string {
 		log.Fatal(err)
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
-	log.Printf("Sparql endpoint: %s", u.String())
+	log.Printf("Sparql endpoint: %s", u)
 	return u.String()
 }

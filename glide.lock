@@ -1,5 +1,5 @@
-hash: 94a4b4ab00bee91d333e340be1a128c2a3a6324fb25e553bc3678f3d15967b1a
-updated: 2017-12-06T11:37:30.437515705+01:00
+hash: 6f824f7bf79014e5e170890144ad629daae58d1aafe8897e64e2e1092f03cbd4
+updated: 2017-12-06T14:15:54.808771573+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -25,8 +25,6 @@ imports:
   version: 687d2792aedd8e8ac3bbd8592cf55b91d7ea8ce9
   subpackages:
   - middleware
-- name: github.com/go-chi/cors
-  version: dba6525398619dead495962a916728e7ee2ca322
 - name: github.com/hashicorp/hcl
   version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
   subpackages:
@@ -113,6 +111,8 @@ imports:
   version: 4e9e0ee19b60b13eb79915933f44d8ed5f268bdd
 - name: github.com/pkg/errors
   version: f15c970de5b76fac0b59abb32d62c17cc7bed265
+- name: github.com/rs/cors
+  version: 7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6
 - name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/afero
