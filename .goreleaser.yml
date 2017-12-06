@@ -48,6 +48,7 @@ fpm:
   # Files or directories to add to your package (beyond the binary).
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
-  # TODO: add systemd configuration
   files:
     "deploy/systemd/": "/usr/lib/systemd/system "
+    ".rapid.toml": "/opt/hub3/rapid"
+    "public": "/opt/hub3/rapid"
