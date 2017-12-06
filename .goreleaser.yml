@@ -6,7 +6,7 @@ builds:
     goos:
       - darwin
       - linux
-      # - windows TODO enable windows after gracehttp solution
+      - windows
     goarch:
       - amd64
 fpm:
@@ -35,19 +35,19 @@ fpm:
     - rpm
 
   # Packages your package depends on.
-  dependencies:
-    - git
+  # dependencies:
+    # - git
 
   # Packages that conflict with your package.
-  conflicts:
-    - svn
+  # conflicts:
+    # - svn
 
   # Override default /usr/local/bin destination for binaries
-  bindir: /usr/bin
+  bindir: /opt/hub3/rapid
 
   # Files or directories to add to your package (beyond the binary).
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   # TODO: add systemd configuration
-  # files:
-  #  "scripts/etc/init.d/": "/etc/init.d"
+  files:
+    "deploy/systemd/": "/usr/lib/systemd/system "
