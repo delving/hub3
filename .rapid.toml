@@ -1,8 +1,9 @@
-# The port of the http server
+# The default orgId
 orgId = "rapid"
 
 [http]
 # all the configuration for the http sub-command
+# The port of the http server
 port = 3001
 
 [ElasticSearch]
@@ -38,6 +39,8 @@ repositoryName = "dev1"
 enabled = true
 # webresource source dir
 sourceDir = "/tmp/webresource"
+# path to vips binary. When not found deepzoom is disabled
+vipsBin = "/usr/bin/vips"
 
 
 [imageproxy]
