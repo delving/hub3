@@ -71,18 +71,19 @@ func Start() {
 		r.Get("/api/oai-pmh", oaiPmhEndpoint)
 	}
 
+	// Narthex endpoint
+	r.Post("/api/index/bulk", bulkAPI)
+
+	// datasets
+	r.Get("/api/datasets", listDataSets)
+	r.Post("/api/datasets", createDataSet)
+	r.Get("/api/datasets/{spec}", getDataSet)
+	////e.POST("/api/datasets/:spec", updateDataSet)
+	////e.DELETE("/api/datasets/:spec", deleteDataset)
+
 	n.UseHandler(r)
 	log.Printf("Using port: %d", Config.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), n)
-
-	//e.POST("/api/index/bulk", bulkAPI)
-
-	//// datasets
-	//e.GET("/api/datasets", listDataSets)
-	//e.POST("/api/datasets", createDataSet)
-	//e.GET("/api/datasets/:spec", getDataSet)
-	////e.POST("/api/datasets/:spec", updateDataSet)
-	////e.DELETE("/api/datasets/:spec", deleteDataset)
 
 	//// Start the server
 	//log.Infof("Using port: %d", Config.Port)

@@ -1,5 +1,5 @@
-hash: 6f824f7bf79014e5e170890144ad629daae58d1aafe8897e64e2e1092f03cbd4
-updated: 2017-12-06T14:15:54.808771573+01:00
+hash: 11e32427675a8f877a53530497cafc42876ec2847588b4074def0046fa868d03
+updated: 2017-12-08T23:02:29.513376671+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -25,11 +25,14 @@ imports:
   version: 687d2792aedd8e8ac3bbd8592cf55b91d7ea8ce9
   subpackages:
   - middleware
+- name: github.com/go-chi/render
+  version: 7bbdb19f4016118d23bc31d6d33dc1dd517c6b2e
 - name: github.com/hashicorp/hcl
   version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
   subpackages:
   - hcl/ast
   - hcl/parser
+  - hcl/printer
   - hcl/scanner
   - hcl/strconv
   - hcl/token
@@ -48,8 +51,6 @@ imports:
   version: b6ee24f8f40ff0580683aefb6831dad263a3f751
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
-- name: github.com/labstack/echo
-  version: 0473c51f1dbd83487effce00702571d19033a6e5
 - name: github.com/labstack/gommon
   version: 57409ada9da0f2afad6664c49502f8c50fbd8476
   subpackages:
@@ -110,7 +111,7 @@ imports:
 - name: github.com/pelletier/go-toml
   version: 4e9e0ee19b60b13eb79915933f44d8ed5f268bdd
 - name: github.com/pkg/errors
-  version: f15c970de5b76fac0b59abb32d62c17cc7bed265
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/rs/cors
   version: 7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6
 - name: github.com/sirupsen/logrus
@@ -122,7 +123,7 @@ imports:
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: de2d9c4eca8f3c1de17d48b096b6504e0296f003
+  version: ccaecb155a2177302cb56cae929251a256d0f646
   subpackages:
   - cobra
 - name: github.com/spf13/jwalterweatherman
@@ -130,7 +131,7 @@ imports:
 - name: github.com/spf13/pflag
   version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: github.com/spf13/viper
-  version: 4dddf7c62e16bce5807744018f5b753bfe21bbd2
+  version: 1a0c4a370c3e8286b835467d2dfcdaf636c3538b
 - name: github.com/urfave/negroni
   version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
 - name: github.com/valyala/bytebufferpool
@@ -142,23 +143,21 @@ imports:
 - name: golang.org/x/crypto
   version: 94eea52f7b742c7cbe0b03b22f0c4c8631ece122
   subpackages:
-  - acme
-  - acme/autocert
   - ssh/terminal
 - name: golang.org/x/net
-  version: a8b9294777976932365dabb6640cf1468d95c70f
+  version: dc871a5d77e227f5bbf6545176ef3eeebf87e76e
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: 8b4580aae2a0dd0c231a45d3ccb8434ff533b840
+  version: b8f5ef32195cae6470b728e8ca677f0dbed1a004
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 57961680700a5336d15015c8c50686ca5ba362a4
+  version: be25de41fadfae372d6470bda81ca6beb55ef551
   subpackages:
   - encoding
   - encoding/charmap

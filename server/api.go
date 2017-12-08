@@ -9,9 +9,9 @@ import (
 	"bitbucket.org/delving/rapid/hub3/models"
 
 	"github.com/asdine/storm"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/kiivihal/goharvest/oai"
-	"github.com/labstack/echo"
 )
 
 // Copyright © 2017 Delving B.V. <info@delving.eu>
@@ -37,12 +37,15 @@ type APIErrorMessage struct {
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
-func bulkAPI(c echo.Context) error {
-	response, err := hub3.ReadActions(c.Request().Body)
+func bulkAPI(w http.ResponseWriter, r *http.Request) {
+	response, err := hub3.ReadActions(r.Body)
 	if err != nil {
 		log.Println("Unable to read actions")
+		render.Render(w, r, ErrRender(err))
 	}
-	return c.JSON(http.StatusCreated, response)
+	render.Status(r, http.StatusCreated)
+	render.JSON(w, r, response)
+	return
 }
 
 // bindPMHRequest the query parameters to the OAI-Request
@@ -71,45 +74,56 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 }
 
 // listDataSets returns a list of all public datasets
-func listDataSets(c echo.Context) (err error) {
+func listDataSets(w http.ResponseWriter, r *http.Request) {
 	sets, err := models.ListDataSets()
 	if err != nil {
 		log.Printf("Unable to list datasets because of: %s", err)
-		return err
+		render.Render(w, r, ErrRender(err))
 	}
-	return c.JSON(http.StatusOK, sets)
+	render.Status(r, http.StatusOK)
+	render.JSON(w, r, sets)
+	return
 }
 
 // getDataSet returns a dataset when found or a 404
-func getDataSet(c echo.Context) error {
-	ds, err := models.GetDataSet(c.Param("spec"))
+func getDataSet(w http.ResponseWriter, r *http.Request) {
+	ds, err := models.GetDataSet(chi.URLParam(r, "spec"))
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
-			return c.JSON(http.StatusNotFound, APIErrorMessage{
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, APIErrorMessage{
 				HttpStatus: http.StatusNotFound,
-				Message:    fmt.Sprintf("%s was not found", c.Param("spec")),
+				Message:    fmt.Sprintf("%s was not found", chi.URLParam(r, "spec")),
 				Error:      err,
 			})
+			return
 		}
-		return err
+		render.Render(w, r, ErrRender(err))
+		return
 
 	}
-	return c.JSON(http.StatusOK, ds)
+	render.JSON(w, r, ds)
+	return
 }
 
 // createDataSet creates a new dataset.
-func createDataSet(c echo.Context) error {
-	spec := c.FormValue("spec")
+func createDataSet(w http.ResponseWriter, r *http.Request) {
+	spec := r.FormValue("spec")
 	fmt.Printf("spec is %s", spec)
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
 		ds, err = models.CreateDataSet(spec)
 		if err != nil {
 			log.Printf("Unable to create dataset for %s", spec)
-			return nil
+			render.Render(w, r, ErrRender(err))
+			return
 		}
-		return c.JSON(http.StatusCreated, ds)
+		render.Status(r, http.StatusCreated)
+		render.JSON(w, r, ds)
+		return
 	}
-	return c.JSON(http.StatusNotModified, ds)
+	render.Status(r, http.StatusNotModified)
+	render.JSON(w, r, ds)
+	return
 }
