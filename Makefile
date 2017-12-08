@@ -19,7 +19,7 @@ install-glide:
 	curl https://glide.sh/get | sh
 
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db
+	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db dist
 
 clean-harvesting:
 	rm -rf *_ids.txt *_records.xml
@@ -82,3 +82,9 @@ goreport:
 setup-npm:
 	# used for getting dependencies to render swagger specifications
 	@npm install
+
+make-release:
+	@goreleaser --rm-dist --skip-publish                                                                                                          0|21:40:20
+
+make-release-public:
+	@goreleaser --rm-dist                                                                                                          0|21:40:20
