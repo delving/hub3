@@ -12,6 +12,7 @@ import (
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
 )
@@ -50,7 +51,6 @@ func Start() {
 	// Setup Router
 	r := chi.NewRouter()
 	r.Use(mw.StripSlashes)
-	n.UseHandler(r)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("You are rocking rapid!"))
@@ -59,28 +59,22 @@ func Start() {
 	// example fileserver
 	//FileServer(r, "/docs", getAbsolutePathToFileDir("public"))
 
+	// WebResource & imageproxy configuration
+
+	// introspection
+	if Config.DevMode {
+		r.Mount("/introspect", IntrospectionRouter(r))
+	}
+
+	// API configuration
+	if Config.OAIPMH.Enabled {
+		r.Get("/api/oai-pmh", oaiPmhEndpoint)
+	}
+
+	n.UseHandler(r)
 	log.Printf("Using port: %d", Config.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), n)
 
-	//// Admin group
-	//a := e.Group("/admin")
-	//a.GET("/routes", func(c echo.Context) error {
-	//return c.JSON(http.StatusOK, e.Routes())
-	//})
-	//a.GET("/config", func(c echo.Context) error {
-	//return c.JSON(
-	//http.StatusOK,
-	//Config,
-	//)
-	//})
-
-	// WebResource & imageproxy configuration
-	//if Config.
-
-	// API configuration
-	//if Config.OAIPMH.Enabled {
-	//e.GET("/api/oai-pmh", oaiPmhEndpoint)
-	//}
 	//e.POST("/api/index/bulk", bulkAPI)
 
 	//// datasets
@@ -98,8 +92,15 @@ func Start() {
 	//e.Logger.Fatal(gracehttp.Serve(e.Server))
 }
 
-func ConfigRouter() http.Handler {
+func IntrospectionRouter(chiRouter chi.Router) http.Handler {
 	r := chi.NewRouter()
+	r.Get("/config", func(w http.ResponseWriter, r *http.Request) {
+		render.JSON(w, r, Config)
+	})
+	// todo add routes
+	//r.Get("routes", func(w http.ResponseWriter, req *http.Request) {
+	//render.JSON(w, req, docgen.JSONRoutesDoc(chiRouter.Routes))
+	//})
 	return r
 }
 

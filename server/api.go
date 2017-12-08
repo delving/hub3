@@ -2,15 +2,16 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"bitbucket.org/delving/rapid/hub3"
 	"bitbucket.org/delving/rapid/hub3/models"
 
 	"github.com/asdine/storm"
+	"github.com/go-chi/render"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/labstack/echo"
-	"github.com/labstack/gommon/log"
 )
 
 // Copyright © 2017 Delving B.V. <info@delving.eu>
@@ -39,33 +40,34 @@ type APIErrorMessage struct {
 func bulkAPI(c echo.Context) error {
 	response, err := hub3.ReadActions(c.Request().Body)
 	if err != nil {
-		log.Info("Unable to read actions")
+		log.Println("Unable to read actions")
 	}
 	return c.JSON(http.StatusCreated, response)
 }
 
 // bindPMHRequest the query parameters to the OAI-Request
-func bindPMHRequest(c echo.Context) oai.Request {
-	r := c.Request()
+func bindPMHRequest(r *http.Request) oai.Request {
 	baseURL := fmt.Sprintf("http://%s%s", r.Host, r.URL.Path)
+	q := r.URL.Query()
 	req := oai.Request{
-		Verb:            c.QueryParam("verb"),
-		MetadataPrefix:  c.QueryParam("metadataPrefix"),
-		Set:             c.QueryParam("set"),
-		From:            c.QueryParam("from"),
-		Until:           c.QueryParam("until"),
-		Identifier:      c.QueryParam("identifier"),
-		ResumptionToken: c.QueryParam("resumptionToken"),
+		Verb:            q.Get("verb"),
+		MetadataPrefix:  q.Get("metadataPrefix"),
+		Set:             q.Get("set"),
+		From:            q.Get("from"),
+		Until:           q.Get("until"),
+		Identifier:      q.Get("identifier"),
+		ResumptionToken: q.Get("resumptionToken"),
 		BaseURL:         baseURL,
 	}
 	return req
 }
 
 // oaiPmhEndpoint processed OAI-PMH request and returns the results
-func oaiPmhEndpoint(c echo.Context) (err error) {
-	req := bindPMHRequest(c)
+func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
+	req := bindPMHRequest(r)
+	log.Println(req)
 	resp := hub3.ProcessVerb(&req)
-	return c.XML(http.StatusOK, resp)
+	render.XML(w, r, resp)
 }
 
 // listDataSets returns a list of all public datasets
