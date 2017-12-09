@@ -44,6 +44,7 @@ type RawConfig struct {
 	RDF           `json:"rdf"`
 	OAIPMH        `json:"oaipmh"`
 	WebResource   `json:"webresource"`
+	ImageProxy    `json:"imageproxy"`
 }
 
 // ElasticSearch holds all the configuration values
@@ -90,6 +91,18 @@ type WebResource struct {
 	WebResourceDir string `json:"sourceDir"` // Target directory for the webresources
 }
 
+// ImageProxy holds all the configuration for the ImageProxy functionality
+type ImageProxy struct {
+	Enabled     bool     `json:"enabled"`     // Make the imageproxy endpoint available
+	CacheDir    string   `json:"cacheDir"`    // The path to the imageCache
+	Referrer    []string `json:"referrer"`    // A list of allowed refferers. If empty allow all.
+	Whitelist   []string `json:"whitelist"`   // A list of allowed remote hosts. If empty allow all.
+	ScaleUp     bool     `json:"scaleUp"`     // Allow images to scale beyond their original dimensions.
+	TimeOut     int      `json:"timeout"`     // timelimit for request served by this proxy. 0 is for no timeout
+	Deepzoom    bool     `json:"deepzoom"`    // Enable deepzoom of remote images.
+	ProxyPrefix string   `json:"proxyPrefix"` // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -113,6 +126,17 @@ func setDefaults() {
 	viper.SetDefault("OAIPMH.enabled", true)
 	viper.SetDefault("OAIPMH.repostitoryName", "rapid")
 	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
+
+	// image proxy
+	viper.SetDefault("ImageProxy.enabled", true)
+	viper.SetDefault("ImageProxy.CacheDir", "webresource/cache")
+	viper.SetDefault("ImageProxy.referrer", []string{})
+	viper.SetDefault("ImageProxy.whitelist", []string{})
+	viper.SetDefault("ImageProxy.scaleUp", false)
+	viper.SetDefault("ImageProxy.timeout", 0)
+	viper.SetDefault("ImageProxy.deepzoom", true)
+	viper.SetDefault("ImageProxy.proxyPrefix", "imageproxy")
+
 }
 
 func cleanConfig() {

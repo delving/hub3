@@ -51,14 +51,17 @@ enabled = true
 cacheDir = "/tmp/webresource/cache"
 # a list of allowed referrers. If empty everything is allowed
 referrer = []
+
 # a list of allowed remote hosts. If empty everything is allowed
 whitelist = []
 # allow images to scale beyond their original dimensions
 scaleUp = false
 # time limit for request served by this proxy. 0 is no timeout
-timeout = 0
+timeout = 10
 # enable deepzoom of images
 deepzoom = true
+# path where to mount the imageproxy. default: "imageproxy".
+proxyPrefix = "imageproxy"
 
 
 

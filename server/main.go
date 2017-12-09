@@ -60,6 +60,8 @@ func Start() {
 	//FileServer(r, "/docs", getAbsolutePathToFileDir("public"))
 
 	// WebResource & imageproxy configuration
+	proxyPrefix := fmt.Sprintf("/%s/*", Config.ImageProxy.ProxyPrefix)
+	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
 
 	// introspection
 	if Config.DevMode {
@@ -91,6 +93,12 @@ func Start() {
 
 	//// Serve it like a boss
 	//e.Logger.Fatal(gracehttp.Serve(e.Server))
+
+}
+
+func StripPrefix(h http.Handler) http.Handler {
+	proxyPrefix := fmt.Sprintf("/%s", Config.ImageProxy.ProxyPrefix)
+	return http.StripPrefix(proxyPrefix, h)
 }
 
 func IntrospectionRouter(chiRouter chi.Router) http.Handler {
