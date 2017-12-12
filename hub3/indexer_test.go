@@ -10,10 +10,14 @@ var _ = Describe("Indexer", func() {
 	Describe("when initialised", func() {
 
 		It("should have a search client", func() {
+			c := ESClient()
+			Expect(c).ToNot(BeNil())
 			Expect(client).ToNot(BeNil())
 		})
 
 		It("should have a bulk-indexer", func() {
+			bps := IndexingProcessor()
+			Expect(bps).ToNot(BeNil())
 			Expect(processor).ToNot(BeNil())
 		})
 

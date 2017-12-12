@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"bitbucket.org/delving/rapid/config"
+	"github.com/asdine/storm/q"
 )
 
 // RDFRecord contains all the information about a grouping of RDF triples
@@ -43,6 +44,23 @@ func NewRDFRecord(hubID string, spec string) RDFRecord {
 	}
 }
 
+// CountRDFRecords returns an int with the records count for spec.
+// If the spec is empty it should return a count for all
+func CountRDFRecords(spec string) int {
+	var record RDFRecord
+	var count int
+	var err error
+	if spec != "" {
+		count, err = orm.Select(q.Eq("Spec", spec)).Count(&record)
+	} else {
+		count, err = orm.Count(&record)
+	}
+	if err != nil {
+		log.Printf("Unable to count for spec: %s", spec)
+	}
+	return count
+}
+
 // GetOrCreateRDFRecord returns a RDFRecord object from the Storm ORM.
 // If none is present it will create one
 func GetOrCreateRDFRecord(hubID, spec string) (RDFRecord, error) {
@@ -51,6 +69,9 @@ func GetOrCreateRDFRecord(hubID, spec string) (RDFRecord, error) {
 	if err != nil {
 		record = NewRDFRecord(hubID, spec)
 		err = record.Save()
+		if err != nil {
+			log.Println(err)
+		}
 	}
 	return record, nil
 }
@@ -70,4 +91,4 @@ func (record RDFRecord) ExtractHubID() (orgID string, spec string, localID strin
 	return parts[0], parts[1], parts[2], nil
 }
 
-// TODO: func toRdfSearchRecord
+//// TODO: func toRdfSearchRecord

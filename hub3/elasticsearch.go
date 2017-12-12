@@ -19,11 +19,52 @@ type CustomRetrier struct {
 	backoff elastic.Backoff
 }
 
-var client *elastic.Client
+var (
+	client *elastic.Client
+	ctx    context.Context
+)
 
-func init() {
-	// setup ElasticSearch client
-	client = createESClient()
+func ESClient() *elastic.Client {
+	if client == nil {
+		if Config.ElasticSearch.Enabled {
+			// setting up execution context
+			ctx = context.Background()
+
+			// setup ElasticSearch client
+			client = createESClient()
+			//defer client.Stop()
+			ensureESIndex("")
+		} else {
+			stdlog.Printf("Warn: trying to call elasticsearch when not enabled.")
+		}
+	}
+	return client
+}
+
+func ensureESIndex(index string) {
+	if index == "" {
+		index = Config.ElasticSearch.IndexName
+	}
+	exists, err := ESClient().IndexExists(index).Do(ctx)
+	if err != nil {
+		// Handle error
+		panic(err)
+	}
+	if !exists {
+		// Create a new index.
+		createIndex, err := client.CreateIndex(index).BodyString(mapping).Do(ctx)
+		if err != nil {
+			// Handle error
+			panic(err)
+		}
+		if !createIndex.Acknowledged {
+			// Not acknowledged
+		}
+	}
+}
+
+func ListIndexes() ([]string, error) {
+	return ESClient().IndexNames()
 }
 
 func createESClient() *elastic.Client {
@@ -36,6 +77,7 @@ func createESClient() *elastic.Client {
 			// todo replace with logrus logger later
 			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
+			//elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
 		)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
@@ -69,3 +111,25 @@ func (r *CustomRetrier) Retry(ctx context.Context, retry int, req *http.Request,
 	wait, stop := r.backoff.Next(retry)
 	return wait, stop, nil
 }
+
+// Create a new index.
+var mapping = `{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"rdfrecord":{
+			"properties":{
+				"spec":{
+					"type":"string"
+				},
+				"graph":{
+					"index": "no",
+					"type": "string",
+					"doc_values": ndfalse
+				}
+			}
+		}
+	}
+}`

@@ -27,6 +27,7 @@ var orm *storm.DB
 
 func init() {
 	orm = newDB("")
+	orm.WithBatch(true)
 }
 
 func newDB(dbName string) *storm.DB {

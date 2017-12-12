@@ -29,6 +29,11 @@ var _ = Describe("RDFRecord", func() {
 			err = orm.One("HubID", record.HubID, &response)
 			Expect(err).ToNot(HaveOccurred())
 		})
+
+		It("should have the count of 1", func() {
+			count := CountRDFRecords(spec)
+			Expect(count).To(Equal(1))
+		})
 	})
 
 	Context("Given an HubID", func() {

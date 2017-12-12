@@ -1,12 +1,14 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
 
 	"bitbucket.org/delving/rapid/hub3"
 	"bitbucket.org/delving/rapid/hub3/models"
+	elastic "gopkg.in/olivere/elastic.v5"
 
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
@@ -28,6 +30,19 @@ import (
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+var bp *elastic.BulkProcessor
+var ctx context.Context
+
+func init() {
+	var err error
+	ctx = context.Background()
+	bps := hub3.CreateBulkProcessorService()
+	bp, err = bps.Do(ctx)
+	if err != nil {
+		log.Fatalf("Unable to start BulkProcessor: ", err)
+	}
+}
+
 // APIErrorMessage contains the default API error messages
 type APIErrorMessage struct {
 	HttpStatus int    `json:"code"`
@@ -38,7 +53,7 @@ type APIErrorMessage struct {
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(r.Body)
+	response, err := hub3.ReadActions(r.Body, bp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		render.Render(w, r, ErrRender(err))

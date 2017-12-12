@@ -63,6 +63,17 @@ func Start() {
 	proxyPrefix := fmt.Sprintf("/%s/*", Config.ImageProxy.ProxyPrefix)
 	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
 
+	//r.Get("/deepzoom", func(w http.ResponseWriter, r *http.Request) {
+	//cmd := exec.Command("vips", "dzsave", "/tmp/webresource/dev-org-id/test2/source/123.jpg", "/tmp/123")
+	//stdoutStderr, err := cmd.Output()
+	//if err != nil {
+	//log.Println("Something went wrong")
+	//fmt.Printf("%s\n", stdoutStderr)
+	//log.Println(err)
+	//}
+	//w.Write([]byte("zoomed"))
+	//})
+
 	// introspection
 	if Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
@@ -75,6 +86,9 @@ func Start() {
 
 	// Narthex endpoint
 	r.Post("/api/index/bulk", bulkAPI)
+
+	// RDF indexing endpoint
+	r.Mount("/api/es", IndexResource{}.Routes())
 
 	// datasets
 	r.Get("/api/datasets", listDataSets)

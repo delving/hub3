@@ -7,7 +7,9 @@ import (
 	"io"
 	"log"
 
+	. "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // Copyright © 2017 Delving B.V. <info@delving.eu>
@@ -33,6 +35,7 @@ type BulkAction struct {
 	Action      string `json:"action"`
 	ContentHash string `json:"contentHash"`
 	Graph       string `json:"graph"`
+	p           *elastic.BulkProcessor
 }
 
 type BulkActionResponse struct {
@@ -44,26 +47,35 @@ type BulkActionResponse struct {
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
-func ReadActions(reader io.Reader) (BulkActionResponse, error) {
+func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, error) {
 
-	scanner := bufio.NewScanner(reader)
+	reader := bufio.NewReader(r)
 	response := BulkActionResponse{}
-	for scanner.Scan() {
+	var line string
+	var err error
+	for {
+		line, err = reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				fmt.Printf(" > Failed!: %v\n", err)
+				continue
+			}
+		}
 		response.TotalReceived += 1
+
 		var action BulkAction
-		err := json.Unmarshal(scanner.Bytes(), &action)
+		err := json.Unmarshal([]byte(line), &action)
 		if err != nil {
 			response.JsonErrors += 1
 			log.Println("Unable to unmarshal JSON.")
 			log.Print(err)
 			continue
 		}
+		action.p = p
 		action.Excute(&response)
-	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-		return response, err
 	}
 	return response, nil
 
@@ -94,15 +106,32 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 	case "drop_dataset":
 		fmt.Println("remove the dataset completely")
 	case "index":
-		err := action.Save(response)
+		err := action.ESSave(response)
+		//err := action.Save(response)
 		if err != nil {
 			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 			return err
 		}
-		fmt.Println("Store and index")
+		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
 	}
+	return nil
+}
+
+// ESSaves the RDFRecord to ElasticSearch
+func (action BulkAction) ESSave(response *BulkActionResponse) error {
+	record := models.NewRDFRecord(action.HubID, action.Spec)
+	record.ContentHash = action.ContentHash
+	record.Graph = action.Graph
+	if action.Graph == "" {
+		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
+	}
+	r := elastic.NewBulkIndexRequest().Index(Config.ElasticSearch.IndexName).Type("rdfrecord").Id(action.HubID).Doc(record)
+	if r == nil {
+		return fmt.Errorf("Unable create BulkIndexRequest")
+	}
+	action.p.Add(r)
 	return nil
 }
 
@@ -119,7 +148,7 @@ func (action BulkAction) Save(response *BulkActionResponse) error {
 		return nil
 	}
 	record.ContentHash = action.ContentHash
-	record.Graph = action.Graph
+	//record.Graph = action.Graph
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
