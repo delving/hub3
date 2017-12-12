@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
+	. "bitbucket.org/delving/rapid/config"
 	"github.com/labstack/gommon/log"
 )
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
 func runSparqlQuery(query string) (body []byte, statusCode int, err error) {
 	log.Debugf("Sparql Query: %s", query)
-	req, err := http.NewRequest("Get", config.Config.GetSparqlEndpoint(""), nil)
+	req, err := http.NewRequest("Get", Config.GetSparqlEndpoint(""), nil)
 	if err != nil {
 		log.Errorf("Unable to create sparql request %s", err)
 	}
