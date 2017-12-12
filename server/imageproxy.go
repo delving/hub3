@@ -18,27 +18,40 @@ package server
 import (
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
-	"github.com/labstack/gommon/log"
+	"github.com/die-net/lrucache"
+	"github.com/die-net/lrucache/twotier"
+	"github.com/gregjones/httpcache/diskcache"
+	"github.com/peterbourgon/diskv"
 	"willnorris.com/go/imageproxy"
 )
 
-// todo configure tiered cache
-var cache imageproxy.Cache
+const defaultMemorySize = 100
 
 var p *imageproxy.Proxy
 
 // setup proxy in init function
 func init() {
+	u, err := url.Parse("memory:200:1h")
+	memCache, err := lruCache(u.Opaque)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fileCache := diskCache(Config.ImageProxy.CacheDir)
+	cache := twotier.New(memCache, fileCache)
 	p = imageproxy.NewProxy(nil, cache)
 	p.Whitelist = Config.ImageProxy.Whitelist
 	p.ScaleUp = Config.ImageProxy.ScaleUp
 }
 
-// create handler fuction to run p.serveImage
+// create handler fuction to serve the proxied images
 func serveProxyImage(w http.ResponseWriter, r *http.Request) {
 	req, err := imageproxy.NewRequest(r, nil)
 	if err != nil {
@@ -120,4 +133,81 @@ func should304(req *http.Request, resp *http.Response) bool {
 	}
 
 	return false
+}
+
+// lruCache creates an LRU Cache with the specified options of the form
+// "maxSize:maxAge".  maxSize is specified in megabytes, maxAge is a duration.
+func lruCache(options string) (*lrucache.LruCache, error) {
+	parts := strings.SplitN(options, ":", 2)
+	size, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	var age time.Duration
+	if len(parts) > 1 {
+		age, err = time.ParseDuration(parts[1])
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return lrucache.New(size*1e6, int64(age.Seconds())), nil
+}
+
+func diskCache(path string) *diskcache.Cache {
+	d := diskv.New(diskv.Options{
+		BasePath: path,
+
+		// For file "c0ffee", store file as "c0/ff/c0ffee"
+		Transform: func(s string) []string { return []string{s[0:2], s[2:4]} },
+	})
+	return diskcache.NewWithDiskv(d)
+}
+
+type tieredCache struct {
+	imageproxy.Cache
+}
+
+func (tc *tieredCache) String() string {
+	return fmt.Sprint(*tc)
+}
+
+func (tc *tieredCache) Set(value string) error {
+	c, err := parseCache(value)
+	if err != nil {
+		return err
+	}
+
+	if tc.Cache == nil {
+		tc.Cache = c
+	} else {
+		tc.Cache = twotier.New(tc.Cache, c)
+	}
+	return nil
+}
+
+// parseCache parses c returns the specified Cache implementation.
+func parseCache(c string) (imageproxy.Cache, error) {
+	if c == "" {
+		return nil, nil
+	}
+
+	if c == "memory" {
+		c = fmt.Sprintf("memory:%d", defaultMemorySize)
+	}
+
+	u, err := url.Parse(c)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing cache flag: %v", err)
+	}
+
+	switch u.Scheme {
+	case "memory":
+		return lruCache(u.Opaque)
+	case "file":
+		fallthrough
+	default:
+		return diskCache(u.Path), nil
+	}
 }
