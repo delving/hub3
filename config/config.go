@@ -33,6 +33,11 @@ var (
 	CfgFile string
 )
 
+func init() {
+	// make sure the config is initialised first
+	InitConfig()
+}
+
 // RawConfig holds all the configuration blocks.
 // These are bound from cli, Environment variables or configuration files by
 // Viper.
@@ -50,7 +55,9 @@ type RawConfig struct {
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
-	Urls []string `json:"urls"`
+	Urls      []string `json:"urls"`
+	Enabled   bool     `json:"enabled"`
+	IndexName string   `json:"index"`
 }
 
 // Logging holds all the logging and path configuration
@@ -112,6 +119,8 @@ func setDefaults() {
 
 	// elastic
 	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
+	viper.SetDefault("ElasticSearch.enabled", true)
+	viper.SetDefault("ElasticSearch.IndexName", viper.GetString("OrgId"))
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
