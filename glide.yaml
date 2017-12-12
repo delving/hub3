@@ -30,3 +30,9 @@ import:
 - package: github.com/pkg/errors
   version: ~0.8.0
 - package: github.com/knakk/rdf
+- package: github.com/peterbourgon/diskv
+  version: ~2.0.1
+- package: github.com/die-net/lrucache
+  subpackages:
+  - twotier
+- package: github.com/deiu/rdf2go
