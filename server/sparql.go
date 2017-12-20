@@ -6,8 +6,25 @@ import (
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
 )
+
+type SparqlResource struct{}
+
+func (rs SparqlResource) Routes() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/", sparqlProxy)
+
+	return r
+}
+
+func sparqlProxy(w http.ResponseWriter, r *http.Request) {
+	render.PlainText(w, r, `{"status": "not enabled"}`)
+	return
+}
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
 func runSparqlQuery(query string) (body []byte, statusCode int, err error) {

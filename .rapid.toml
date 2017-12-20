@@ -68,9 +68,14 @@ deepzoom = true
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
 
-
-[elasticsearch]
-# 
-
+[lod]
+# enable the lod routing point
+enabled = true
+## resource routing point
+resource = "resource"
+# html routing point
+html = "page"
+# rdf data routing point
+rdf = "data"
 
 

@@ -2,6 +2,7 @@ package hub3
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 
 	. "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
+	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -112,6 +114,11 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 			return err
 		}
+		//errs := action.RDFSave(response)
+		//if errs != nil {
+		//log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, errs)
+		//return errs[0]
+		//}
 		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
@@ -133,6 +140,27 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	}
 	action.p.Add(r)
 	return nil
+}
+
+// RDFSave save the RDFrecord to the TripleStore
+func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
+	request := gorequest.New()
+	postURL := fmt.Sprintf("%s?graph=%s", "http://localhost:3030/rapid/data", action.GraphURI)
+	resp, body, errs := request.Post(postURL).
+		Set("Content-Type", "application/n-triples; charset=utf-8").
+		Type("multipart").
+		SendFile(bytes.NewBufferString(action.Graph)).
+		//Send([]byte(action.Graph)).
+		End()
+	fmt.Printf("%#v", []byte(action.Graph))
+	fmt.Println(action.Graph)
+	fmt.Println(body)
+	fmt.Println(resp)
+	fmt.Println(errs)
+	if errs != nil {
+		log.Fatal(errs)
+	}
+	return errs
 }
 
 // Save converts the bulkAction request to an RDFRecord and saves it in Boltdb

@@ -50,6 +50,7 @@ type RawConfig struct {
 	OAIPMH        `json:"oaipmh"`
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
+	LOD           `json:"lod"`
 }
 
 // ElasticSearch holds all the configuration values
@@ -110,6 +111,15 @@ type ImageProxy struct {
 	ProxyPrefix string   `json:"proxyPrefix"` // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 }
 
+// LOD holds all the configuration for the Linked Open Data (LOD) functionality
+type LOD struct {
+	Enabled           bool   `json:"enabled"`     // Make the lod endpoint available
+	Resource          string `json:"resource"`    // the 303 redirect entry point. This is where the content negotiation happens
+	HTML              string `json:html`          // the endpoint that renders the data as formatted HTML
+	RDF               string `json:rdf`           // the endpoint that renders the RDF data in the requested RDF format. Currently, JSON-LD and N-triples are supported
+	HtmlRedirectRegex string `json:redirectregex` // the regular expression to convert the subject uri to the uri for the external Page view
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -146,6 +156,12 @@ func setDefaults() {
 	viper.SetDefault("ImageProxy.deepzoom", true)
 	viper.SetDefault("ImageProxy.proxyPrefix", "imageproxy")
 
+	// lod
+	viper.SetDefault("LOD.enabled", true)
+	viper.SetDefault("LOD.html", "page")
+	viper.SetDefault("LOD.rdf", "data")
+	viper.SetDefault("LOD.resource", "resource")
+	viper.SetDefault("LOD.redirectregex", "")
 }
 
 func cleanConfig() {

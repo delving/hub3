@@ -87,6 +87,12 @@ func Start() {
 	// Narthex endpoint
 	r.Post("/api/index/bulk", bulkAPI)
 
+	// Search endpoint
+	r.Mount("/api/search", SearchResource{}.Routes())
+
+	// Sparql endpoint
+	r.Mount("/sparql", SparqlResource{}.Routes())
+
 	// RDF indexing endpoint
 	r.Mount("/api/es", IndexResource{}.Routes())
 

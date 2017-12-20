@@ -34,6 +34,7 @@ type RDFSearchRecord struct {
 	DataSetURI  string      `json:"datasetUri"`
 	Tags        []string    `json:"tags"`
 	RecordType  string      `json:"recordType"`
+	Revision    int         `json:"revision"`
 	Modified    time.Time   `json:"modified"`
 	Created     time.Time   `json:"created"`
 	Triples     []RdfObject `json:"triples"`
