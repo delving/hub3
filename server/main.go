@@ -103,6 +103,9 @@ func Start() {
 	////e.POST("/api/datasets/:spec", updateDataSet)
 	////e.DELETE("/api/datasets/:spec", deleteDataset)
 
+	// LoD routingendpoint
+	r.Mount("/", LODResource{}.Routes())
+
 	n.UseHandler(r)
 	log.Printf("Using port: %d", Config.Port)
 	http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), n)
