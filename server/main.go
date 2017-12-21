@@ -19,6 +19,7 @@ import (
 
 // Start starts a graceful webserver process.
 func Start() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Negroni middleware manager
 	n := negroni.New()

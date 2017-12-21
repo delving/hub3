@@ -19,6 +19,10 @@ type CustomRetrier struct {
 	backoff elastic.Backoff
 }
 
+func init() {
+	stdlog.SetFlags(stdlog.LstdFlags | stdlog.Lshortfile)
+}
+
 var (
 	client *elastic.Client
 	ctx    context.Context
@@ -48,16 +52,17 @@ func ensureESIndex(index string) {
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {
 		// Handle error
-		panic(err)
+		stdlog.Fatal(err)
 	}
 	if !exists {
 		// Create a new index.
 		createIndex, err := client.CreateIndex(index).BodyString(mapping).Do(ctx)
 		if err != nil {
 			// Handle error
-			panic(err)
+			stdlog.Fatal(err)
 		}
 		if !createIndex.Acknowledged {
+			stdlog.Println(createIndex.Acknowledged)
 			// Not acknowledged
 		}
 	}
@@ -77,7 +82,7 @@ func createESClient() *elastic.Client {
 			// todo replace with logrus logger later
 			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
-			//elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
+			elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
 		)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
@@ -127,7 +132,7 @@ var mapping = `{
 				"graph":{
 					"index": "no",
 					"type": "string",
-					"doc_values": ndfalse
+					"doc_values": false
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 hash: dadff3ee8f8697922282a83cfc629e793ed7aced1dba5546cbb620353a677a22
-updated: 2017-12-10T17:38:44.843050037+01:00
+updated: 2017-12-21T09:56:45.102917004+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -127,7 +127,7 @@ imports:
 - name: github.com/parnurzeal/gorequest
   version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
 - name: github.com/pelletier/go-toml
-  version: 4e9e0ee19b60b13eb79915933f44d8ed5f268bdd
+  version: b8b5e7696574464b2f9bf303a7b37781bb52889f
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pkg/errors
@@ -166,11 +166,11 @@ imports:
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: 94eea52f7b742c7cbe0b03b22f0c4c8631ece122
+  version: d585fd2cc9195196078f516b69daff6744ef5e84
   subpackages:
   - ssh/terminal
 - name: golang.org/x/image
-  version: e5db4c466346ada62f27934dab20e4b6f6bda285
+  version: 12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7
   subpackages:
   - bmp
   - draw
@@ -182,19 +182,19 @@ imports:
   - vp8l
   - webp
 - name: golang.org/x/net
-  version: dc871a5d77e227f5bbf6545176ef3eeebf87e76e
+  version: d866cfc389cec985d6fda2859936a575a55a3ab6
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: b8f5ef32195cae6470b728e8ca677f0dbed1a004
+  version: d818ba11af4465e00c1998bd3f8a55603b422290
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: 3b24cac7bc3a458991ab409aa2a339ac9e0d60d6
+  version: eb22672bea55af56d225d4e35405f4d2e9f062a0
   subpackages:
   - encoding
   - encoding/charmap
