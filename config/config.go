@@ -77,6 +77,7 @@ type HTTP struct {
 type RDF struct {
 	SparqlHost        string   `json:"sparqlHost"`        // the base-url to the SPARQL endpoint including the scheme and the port
 	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	GraphStorePath    string   `json:"dataPath"`          // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	BaseUrl           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"` // the RDF baseUrl used for minting new URIs
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
@@ -136,8 +137,9 @@ func setDefaults() {
 	viper.SetDefault("Logging.DevMode", false)
 
 	// rdf with defaults for Blazegraph
-	viper.SetDefault("RDF.SparqlHost", "http://localhost:9999")
-	viper.SetDefault("RDF.SparqlPath", "/bigdata/namespace/%s/sparql")
+	viper.SetDefault("RDF.SparqlHost", "http://localhost:3030")
+	viper.SetDefault("RDF.SparqlPath", "/%s/sparql")
+	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
 	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 
@@ -223,5 +225,21 @@ func (c RawConfig) GetSparqlEndpoint(dbName string) string {
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
 	log.Printf("Sparql endpoint: %s", u)
+	return u.String()
+}
+
+// GetGraphStoreEndpoint builds the GraphStore endpoint from the RDF Config object.
+// When the dbName is empty the OrgId from the configuration is used.
+func (c RawConfig) GetGraphStoreEndpoint(dbName string) string {
+	if dbName == "" {
+		dbName = c.OrgID
+	}
+	u, err := url.Parse(c.RDF.SparqlHost)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	u.Path = fmt.Sprintf(c.RDF.GraphStorePath, dbName)
+	log.Printf("GraphStore endpoint: %s", u)
 	return u.String()
 }

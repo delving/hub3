@@ -20,9 +20,12 @@ sentrydsn = ""
 
 [rdf]
 # the fully qualified URL including the port
-sparqlHost = "http://localhost:9999"
+sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
-sparqlPath = "/bigdata/namespace/%s/sparql"
+#sparqlPath = "/bigdata/namespace/%s/sparql"
+sparqlPath = "/%s/sparql"
+# dataPath is the path to the GraphStore Protocol endpoint
+dataPath = "/%s/data"
 # A list of RDF entry points. 
 routedEntryPoints = ["http://localhost:3000"]
 # The base url used for minting RDF URI's
