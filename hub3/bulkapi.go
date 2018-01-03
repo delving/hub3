@@ -2,7 +2,6 @@ package hub3
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -46,6 +45,7 @@ type BulkActionResponse struct {
 	ContentHashMatches int    `json:"contentHashMatches"` // originally json was content_hash_matches
 	RecordsStored      int    `json:"recordsStored"`      // originally json was records_stored
 	JsonErrors         int    `json:"jsonErrors"`
+	TriplesStored      int    `json:"triplesStored"`
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
@@ -79,6 +79,7 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, err
 		action.Excute(&response)
 
 	}
+	log.Printf("%#v", response)
 	return response, nil
 
 }
@@ -114,11 +115,12 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 			return err
 		}
-		//errs := action.RDFSave(response)
-		//if errs != nil {
-		//log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, errs)
-		//return errs[0]
-		//}
+		// todo replace with Bulk implementation for performance later
+		errs := action.RDFSave(response)
+		if errs != nil {
+			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, errs)
+			return errs[0]
+		}
 		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
@@ -142,24 +144,36 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	return nil
 }
 
+type fusekiStoreResponse struct {
+	Count       int `json:"count"`
+	TripleCount int `json:"tripleCount"`
+	QuadCount   int `json:"quadCount"`
+}
+
 // RDFSave save the RDFrecord to the TripleStore
 func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 	request := gorequest.New()
-	postURL := fmt.Sprintf("%s?graph=%s", "http://localhost:3030/rapid/data", action.GraphURI)
+	postURL := Config.GetGraphStoreEndpoint("")
 	resp, body, errs := request.Post(postURL).
+		Query(fmt.Sprintf("graph=%s", action.GraphURI)).
 		Set("Content-Type", "application/n-triples; charset=utf-8").
-		Type("multipart").
-		SendFile(bytes.NewBufferString(action.Graph)).
-		//Send([]byte(action.Graph)).
+		Type("text").
+		Send(action.Graph).
 		End()
-	fmt.Printf("%#v", []byte(action.Graph))
-	fmt.Println(action.Graph)
-	fmt.Println(body)
-	fmt.Println(resp)
-	fmt.Println(errs)
 	if errs != nil {
 		log.Fatal(errs)
 	}
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		log.Printf("Unable to store GraphURI: %s", action.GraphURI)
+		return []error{fmt.Errorf("Store error for %s with message:%s", action.GraphURI, body)}
+	}
+	fres := new(fusekiStoreResponse)
+	err := json.Unmarshal([]byte(body), &fres)
+	if err != nil {
+		return []error{err}
+	}
+	log.Printf("Stored %d triples for graph %s", fres.TripleCount, action.GraphURI)
+	response.TriplesStored += fres.TripleCount
 	return errs
 }
 
