@@ -82,7 +82,7 @@ func createESClient() *elastic.Client {
 			// todo replace with logrus logger later
 			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
-			elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
+			//elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
 		)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
