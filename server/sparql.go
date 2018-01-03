@@ -22,6 +22,12 @@ func (rs SparqlResource) Routes() chi.Router {
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query().Get("query")
+	log.Info(query)
+	if query == "" {
+		render.Status(r, http.StatusNotFound)
+		return
+	}
 	render.PlainText(w, r, `{"status": "not enabled"}`)
 	return
 }
