@@ -58,7 +58,7 @@ var _ = Describe("Config", func() {
 
 			It("should use the sparql path from the configuration", func() {
 				Expect(Config.RDF.SparqlPath).To(ContainSubstring("%s"))
-				Expect(endpoint).To(ContainSubstring("/bigdata/namespace/"))
+				Expect(endpoint).To(ContainSubstring("/rapid/sparql"))
 			})
 
 			It("should should inject the orgId from the configuration when dbName is empty", func() {
