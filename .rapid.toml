@@ -30,6 +30,8 @@ dataPath = "/%s/data"
 routedEntryPoints = ["http://localhost:3000"]
 # The base url used for minting RDF URI's
 baseUrl = "http://data.rapid.org"
+# Enable the sparql endpoint proxy (Read-Only)
+sparqlEnabled = true 
 
 
 [oaipmh]

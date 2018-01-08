@@ -75,6 +75,7 @@ type HTTP struct {
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
+	SparqlEnabled     bool     `json:"sparqlEnabled"`     // Enable the SPARQL proxy
 	SparqlHost        string   `json:"sparqlHost"`        // the base-url to the SPARQL endpoint including the scheme and the port
 	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	GraphStorePath    string   `json:"dataPath"`          // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
@@ -136,7 +137,8 @@ func setDefaults() {
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
 
-	// rdf with defaults for Blazegraph
+	// rdf with defaults for Apache Fuseki
+	viper.SetDefault("RDF.SparqlEnabled", true)
 	viper.SetDefault("RDF.SparqlHost", "http://localhost:3030")
 	viper.SetDefault("RDF.SparqlPath", "/%s/sparql")
 	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
