@@ -1,8 +1,10 @@
 package server
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
@@ -22,26 +24,43 @@ func (rs SparqlResource) Routes() chi.Router {
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
+	if !Config.RDF.SparqlEnabled {
+		// todo replace with json later
+		render.PlainText(w, r, `{"status": "not enabled"}`)
+		return
+	}
 	query := r.URL.Query().Get("query")
-	log.Info(query)
 	if query == "" {
 		render.Status(r, http.StatusNotFound)
 		return
 	}
-	render.PlainText(w, r, `{"status": "not enabled"}`)
+	if !strings.Contains(strings.ToLower(query), " limit ") {
+		query = fmt.Sprintf("%s LIMIT 25", query)
+	}
+	log.Info(query)
+	resp, statusCode, contentType, err := runSparqlQuery(query)
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", contentType)
+	w.Write(resp)
+	render.Status(r, statusCode)
 	return
 }
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
-func runSparqlQuery(query string) (body []byte, statusCode int, err error) {
+func runSparqlQuery(query string) (body []byte, statusCode int, contentType string, err error) {
 	log.Debugf("Sparql Query: %s", query)
 	req, err := http.NewRequest("Get", Config.GetSparqlEndpoint(""), nil)
 	if err != nil {
 		log.Errorf("Unable to create sparql request %s", err)
 	}
 	req.Header.Set("Accept", "application/sparql-results+json")
-	rquery := req.URL.Query()
-	rquery.Set("query", query)
+	q := req.URL.Query()
+	q.Add("query", query)
+	req.URL.RawQuery = q.Encode()
+
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -55,5 +74,6 @@ func runSparqlQuery(query string) (body []byte, statusCode int, err error) {
 		log.Errorf("Unable to read the response body with error: %s", err)
 	}
 	statusCode = resp.StatusCode
+	contentType = resp.Header.Get("Content-Type")
 	return
 }
