@@ -17,6 +17,7 @@ var _ = Describe("Blazegraph", func() {
 	Describe("Initialisation", func() {
 
 		Context("When there is no Blazegraph namespace present", func() {
+			Skip("Blazegraph is not supported for now.")
 
 			It("should have set the BlazeGraph Base namespace uri", func() {
 				uri := namespaceBaseURI()
