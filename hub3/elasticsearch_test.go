@@ -14,6 +14,7 @@ var _ = Describe("Elasticsearch", func() {
 		Context("When initialised", func() {
 
 			It("Should return an elastic client", func() {
+				client := ESClient()
 				Expect(client).ToNot(BeNil())
 				Expect(fmt.Sprintf("%T", client)).To(Equal("*elastic.Client"))
 			})
