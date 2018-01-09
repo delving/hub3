@@ -16,6 +16,7 @@ package hub3
 
 import (
 	"bytes"
+	"fmt"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
@@ -42,7 +43,7 @@ ASK { {{ .Query }} }
 
 # The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
 # tag: describe
-DESCRIBE <{{ .Uri }}>
+DESCRIBE <{{.Uri}}>
 `
 
 var queryBank sparql.Bank
@@ -86,24 +87,28 @@ func PrepareAsk(uri string) (string, error) {
 }
 
 // AskSPARQL performs a SPARQL ASK query
-func AskSPARQL(query string) bool {
+func AskSPARQL(query string) (bool, error) {
 	res, err := SparqlRepo.Query(query)
 	if err != nil {
 		logger.WithField("sparql", "ask").Fatal(err)
+		return false, err
 	}
-	bindings := res.Bindings()
+	bindings := res.Results.Bindings
 	logger.Debug(bindings)
-	return false
+	fmt.Println(bindings)
+	return false, nil
 }
 
-func DescribeSPARQL(uri string) map[string][]rdf.Term {
+func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
 	query, err := queryBank.Prepare("describe", struct{ Uri string }{uri})
 	if err != nil {
 		logger.WithField("uri", uri).Errorf("Unable to build describe query.")
+		return nil, err
 	}
 	res, err := SparqlRepo.Query(query)
 	if err != nil {
-		logger.WithField("query", query).Errorf("Unable query endpoint")
+		logger.WithField("query", query).Errorf("Unable query endpoint: %s", err)
+		return nil, err
 	}
-	return res.Bindings()
+	return res.Bindings(), nil
 }
