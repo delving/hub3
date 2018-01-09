@@ -35,7 +35,7 @@ fpm:
     - rpm
 
   # Packages your package depends on.
-  # dependencies:
+  dependencies:
     - systemd
 
   # Packages that conflict with your package.
