@@ -78,6 +78,7 @@ type RDF struct {
 	SparqlEnabled     bool     `json:"sparqlEnabled"`     // Enable the SPARQL proxy
 	SparqlHost        string   `json:"sparqlHost"`        // the base-url to the SPARQL endpoint including the scheme and the port
 	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	SparqlUpdatePath  string   `json:"sparqlUpdatePath"`  // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	GraphStorePath    string   `json:"dataPath"`          // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	BaseUrl           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"` // the RDF baseUrl used for minting new URIs
@@ -141,6 +142,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.SparqlEnabled", true)
 	viper.SetDefault("RDF.SparqlHost", "http://localhost:3030")
 	viper.SetDefault("RDF.SparqlPath", "/%s/sparql")
+	viper.SetDefault("RDF.SparqlUpdatePath", "/%s/update")
 	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
 	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
@@ -227,6 +229,22 @@ func (c RawConfig) GetSparqlEndpoint(dbName string) string {
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
 	log.Printf("Sparql endpoint: %s", u)
+	return u.String()
+}
+
+// GetSparqlUpdateEndpoint builds the SPARQL Update endpoint from the RDF Config object.
+// When the dbName is empty the OrgId from the configuration is used.
+func (c RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
+	if dbName == "" {
+		dbName = c.OrgID
+	}
+	u, err := url.Parse(c.RDF.SparqlHost)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	u.Path = fmt.Sprintf(c.RDF.SparqlUpdatePath, dbName)
+	log.Printf("Sparql update endpoint: %s", u)
 	return u.String()
 }
 

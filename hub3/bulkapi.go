@@ -2,10 +2,16 @@ package hub3
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"net/http"
+	"net/url"
+	"strings"
+	"text/template"
+	"time"
 
 	. "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
@@ -39,20 +45,44 @@ type BulkAction struct {
 	p           *elastic.BulkProcessor
 }
 
+type SparqlUpdate struct {
+	Triples  string `json:"triples"`
+	GraphUri string `json:"graphUri"`
+}
+
+func (su SparqlUpdate) String() string {
+	//DROP SILENT GRAPH <{{ .GraphUri }}>;
+	//CREATE GRAPH <{{ .GraphUri }}>;
+	t := `GRAPH <{{.GraphUri}}> { {{ .Triples }} }`
+	tmpl, err := template.New("update").Parse(t)
+	if err != nil {
+		panic(err)
+	}
+	var dropInsert bytes.Buffer
+	err = tmpl.Execute(&dropInsert, su)
+	if err != nil {
+		panic(err)
+	}
+	return dropInsert.String()
+}
+
 type BulkActionResponse struct {
-	Spec               string `json:"spec"`
-	TotalReceived      int    `json:"totalReceived"`      // originally json was total_received
-	ContentHashMatches int    `json:"contentHashMatches"` // originally json was content_hash_matches
-	RecordsStored      int    `json:"recordsStored"`      // originally json was records_stored
-	JsonErrors         int    `json:"jsonErrors"`
-	TriplesStored      int    `json:"triplesStored"`
+	Spec               string         `json:"spec"`
+	TotalReceived      int            `json:"totalReceived"`      // originally json was total_received
+	ContentHashMatches int            `json:"contentHashMatches"` // originally json was content_hash_matches
+	RecordsStored      int            `json:"recordsStored"`      // originally json was records_stored
+	JsonErrors         int            `json:"jsonErrors"`
+	TriplesStored      int            `json:"triplesStored"`
+	SparqlUpdates      []SparqlUpdate `json:"sparqlUpdates"` // store all the triples here for bulk insert
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
 func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, error) {
 
 	reader := bufio.NewReader(r)
-	response := BulkActionResponse{}
+	response := BulkActionResponse{
+		SparqlUpdates: []SparqlUpdate{},
+	}
 	var line string
 	var err error
 	for {
@@ -79,7 +109,14 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, err
 		action.Excute(&response)
 
 	}
-	log.Printf("%#v", response)
+	// insert the RDF triples
+	errs := response.RDFBulkInsert()
+	if errs != nil {
+		////log.Fatal(errs)
+		response.SparqlUpdates = nil
+		return response, errs[0]
+	}
+	//log.Printf("%#v", response)
 	return response, nil
 
 }
@@ -116,16 +153,88 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 			return err
 		}
 		// todo replace with Bulk implementation for performance later
-		errs := action.RDFSave(response)
-		if errs != nil {
-			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, errs)
-			return errs[0]
-		}
+		action.CreateRDFBulkRequest(response)
+		//if errs != nil {
+		//log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, errs)
+		//return errs[0]
+		//}
 		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
 	}
 	return nil
+}
+
+func (r BulkActionResponse) RDFBulkInsert() []error {
+	request := gorequest.New()
+	postURL := Config.GetSparqlUpdateEndpoint("")
+
+	strs := make([]string, len(r.SparqlUpdates))
+	for i, v := range r.SparqlUpdates {
+		strs[i] = v.String()
+	}
+	parameters := url.Values{}
+	sparqlInsert := fmt.Sprintf("INSERT DATA {%s}", strings.Join(strs, "\n"))
+	parameters.Add("update", sparqlInsert)
+	dropInsert := parameters.Encode()
+
+	//log.Println(dropInsert)
+	resp, body, errs := request.Post(postURL).
+		Send(dropInsert).
+		Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8").
+		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
+		End()
+	if errs != nil {
+		log.Fatal(errs)
+	}
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		log.Println(body)
+		log.Println(resp)
+		log.Printf("unable to store sparqlUpdate: %s", dropInsert)
+		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
+	}
+	//fres := new(fusekiStoreResponse)
+	//err := json.Unmarshal([]byte(body), &fres)
+	//if err != nil {
+	//return []error{err}
+	//}
+	//log.Printf("Stored %d triples for graph %s", fres.TripleCount, action.GraphURI)
+	//response.TriplesStored += fres.TripleCount
+	return errs
+}
+
+func getContext(input string, lineNumber int) (string, error) {
+	lineContext := 10
+	start := lineNumber - lineContext
+	if start < 2 {
+		start = 1
+	}
+	end := lineNumber + lineContext
+	// Splits on newlines by default.
+	scanner := bufio.NewScanner(strings.NewReader(input))
+
+	line := 1
+	errorContext := []string{}
+	// https://golang.org/pkg/bufio/#Scanner.Scan
+	for scanner.Scan() {
+		if line > start && line < end {
+			text := fmt.Sprintf("%d:\t%s", line, scanner.Text())
+			if line == lineNumber {
+				text = fmt.Sprintf("\n%s\n", text)
+			}
+			errorContext = append(errorContext, text)
+		}
+		if line > end {
+			break
+		}
+		line++
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Println("Scan error: %s", err)
+		return "", nil
+	}
+	return strings.Join(errorContext, "\n"), nil
 }
 
 // ESSaves the RDFRecord to ElasticSearch
@@ -148,6 +257,15 @@ type fusekiStoreResponse struct {
 	Count       int `json:"count"`
 	TripleCount int `json:"tripleCount"`
 	QuadCount   int `json:"quadCount"`
+}
+
+// RDFBulkInsert gathers all the
+func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
+	su := SparqlUpdate{
+		Triples:  action.Graph,
+		GraphUri: action.GraphURI,
+	}
+	response.SparqlUpdates = append(response.SparqlUpdates, su)
 }
 
 // RDFSave save the RDFrecord to the TripleStore
