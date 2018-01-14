@@ -18,10 +18,10 @@ type RDFRecord struct {
 	ContentHash   string    `json:"contentHash"`
 	Spec          string    `json:"spec" storm:"index"`
 	Graph         string    `json:"graph"`
-	NamedGraphURI string    `json:"graphURI" storm:"unique"`
+	NamedGraphURI string    `json:"NamedGraphURI" storm:"unique"`
 	Modified      time.Time `json:"modified" storm:"index"`
 	Created       time.Time `json:"created"`
-	Revision      int64     `json:"revision" storm:"index"` // the revision is used to mark records as orphans. it is autoincremented on each full save of the dataset
+	Revision      int       `json:"revision" storm:"index"` // the revision is used to mark records as orphans. it is autoincremented on each full save of the dataset
 	Deleted       bool      `json:"deleted"`                // Deleted marks a record as an orphan
 }
 
