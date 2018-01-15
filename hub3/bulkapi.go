@@ -156,7 +156,7 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := models.DeleteGraphsOrphansBySpec(action.Spec, response.SpecRevision)
+		ok, err := ds.DeleteGraphsOrphans()
 		if !ok || err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
 			return err
@@ -164,7 +164,7 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
 		// remove all triples
-		ok, err := models.DeleteAllGraphsBySpec(action.Spec)
+		ok, err := ds.DeleteAllGraphs()
 		if !ok || err != nil {
 			log.Printf("Unable to remove all RDF graphs from spec %s: %s", action.Spec, err)
 			return err

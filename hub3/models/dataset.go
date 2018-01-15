@@ -145,6 +145,10 @@ func (ds DataSet) DeleteGraphsOrphans() (bool, error) {
 }
 
 // DeleteAllGraphs deletes all the graphs linked to this dataset
+func (ds DataSet) DeleteAllGraphs() (bool, error) {
+	return DeleteAllGraphsBySpec(ds.Spec)
+}
+
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 // Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
