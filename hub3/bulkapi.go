@@ -172,7 +172,12 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		// todo remove elasticsearch records
 		log.Printf("remove dataset %s from the index", action.Spec)
 	case "drop_dataset":
-		fmt.Println("remove the dataset completely")
+		ok, err := ds.Drop()
+		if !ok || err != nil {
+			log.Printf("Unable to drop dataset %s", action.Spec)
+			return err
+		}
+		log.Printf("remove the dataset %s completely", action.Spec)
 	case "index":
 		if response.SpecRevision == 0 {
 			response.SpecRevision = ds.Revision

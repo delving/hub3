@@ -106,6 +106,16 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Get stats for spec %s", spec)
 	stats, err := models.CreateDataSetStats(spec)
 	if err != nil {
+		if err == storm.ErrNotFound {
+			log.Printf("Unable to retrieve a dataset: %s", err)
+			render.Status(r, http.StatusNotFound)
+			render.JSON(w, r, APIErrorMessage{
+				HttpStatus: http.StatusNotFound,
+				Message:    fmt.Sprintf("%s was not found", chi.URLParam(r, "spec")),
+				Error:      err,
+			})
+			return
+		}
 		status := http.StatusInternalServerError
 		render.Status(r, status)
 		log.Println("Unable to create dataset stats: %s", err)

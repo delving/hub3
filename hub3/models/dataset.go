@@ -151,4 +151,19 @@ func (ds DataSet) DeleteAllGraphs() (bool, error) {
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
+
 // Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
+func (ds DataSet) Drop() (bool, error) {
+	ok, err := ds.DeleteAllGraphs()
+	if !ok || err != nil {
+		logger.Errorf("Unable to drop all graphs for %s", ds.Spec)
+		return ok, err
+	}
+	// todo add deleting all records from elastic search
+	err = ds.Delete()
+	if err != nil {
+		logger.Errorf("Unable to delete dataset %s from storage")
+		return false, err
+	}
+	return ok, err
+}
