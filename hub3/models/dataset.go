@@ -65,16 +65,6 @@ func NewDataset(spec string) DataSet {
 	return dataset
 }
 
-// Save saves the DataSet to BoltDB
-func (ds DataSet) Save() error {
-	ds.Modified = time.Now()
-	return orm.Save(&ds)
-}
-
-// Delete delets the DataSet from BoltDB
-func (ds DataSet) Delete() error {
-	return orm.DeleteStruct(&ds)
-}
 
 // GetDataSet returns a DataSet object when found
 func GetDataSet(spec string) (DataSet, error) {
@@ -95,8 +85,7 @@ func CreateDataSet(spec string) (DataSet, error) {
 func GetOrCreateDataSet(spec string) (DataSet, error) {
 	ds, err := GetDataSet(spec)
 	if err != nil {
-		ds = NewDataset(spec)
-		err = ds.Save()
+		return CreateDataSet(spec)
 	}
 	return ds, err
 }
@@ -115,3 +104,20 @@ func ListDataSets() ([]DataSet, error) {
 	err := orm.AllByIndex("Spec", &ds)
 	return ds, err
 }
+
+// Save saves the DataSet to BoltDB
+func (ds DataSet) Save() error {
+	ds.Modified = time.Now()
+	return orm.Save(&ds)
+}
+
+// Delete deletes the DataSet from BoltDB
+func (ds DataSet) Delete() error {
+	return orm.DeleteStruct(&ds)
+}
+
+// Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
+// DeleteGraphsOrphans deletes all the orphaned graphs from the Triple Store linked to this dataset
+// DeleteAllGraphs deletes all the graphs linked to this dataset
+// DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
+// DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
