@@ -7,11 +7,8 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"net/http"
-	"net/url"
 	"strings"
 	"text/template"
-	"time"
 
 	. "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
@@ -119,7 +116,10 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, err
 			continue
 		}
 		action.p = p
-		action.Excute(&response)
+		err = action.Excute(&response)
+		if err != nil {
+			return response, err
+		}
 		response.TotalReceived += 1
 
 	}
@@ -155,7 +155,13 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		response.SpecRevision = ds.Revision + 1
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
-		fmt.Println("Mark orphans and delete them")
+		// clear triples
+		ok, err := DeleteOrphansBySpec(action.Spec, response.SpecRevision)
+		if !ok || err != nil {
+			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
+			return err
+		}
+		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
 		fmt.Println("remove dataset from the index")
 	case "drop_dataset":
@@ -183,8 +189,6 @@ func (r *BulkActionResponse) RDFBulkInsert() []error {
 		log.Println("No graphs to store")
 		return nil
 	}
-	request := gorequest.New()
-	postURL := Config.GetSparqlUpdateEndpoint("")
 	strs := make([]string, nrGraphs)
 	graphs := make([]string, nrGraphs)
 	triplesStored := 0
@@ -198,24 +202,10 @@ func (r *BulkActionResponse) RDFBulkInsert() []error {
 		}
 		triplesStored += count
 	}
-	parameters := url.Values{}
 	sparqlInsert := fmt.Sprintf("%s INSERT DATA {%s}", strings.Join(graphs, "\n"), strings.Join(strs, "\n"))
-	parameters.Add("update", sparqlInsert)
-	dropInsert := parameters.Encode()
-
-	resp, body, errs := request.Post(postURL).
-		Send(dropInsert).
-		Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8").
-		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
-		End()
+	errs := UpdateViaSparql(sparqlInsert)
 	if errs != nil {
-		log.Fatal(errs)
-	}
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		log.Println(body)
-		log.Println(resp)
-		log.Printf("unable to store sparqlUpdate: %s", dropInsert)
-		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
+		return errs
 	}
 	r.TriplesStored = triplesStored
 	// remove sparqlUpdates because they are no longer needed

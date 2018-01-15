@@ -17,6 +17,9 @@ package hub3
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -24,6 +27,7 @@ import (
 	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
+	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
 )
 
@@ -71,7 +75,7 @@ DELETE {
 }
 WHERE {
 	GRAPH ?g {
-	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{.Spec}".
+	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}".
 	}
 	GRAPH ?g {
 	?s ?p ?o .
@@ -86,8 +90,9 @@ DELETE {
 }
 WHERE {
 	GRAPH ?g {
-	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{.Spec}";
-		<http://schemas.delving.eu/nave/terms/specRevision> {{.RevisionNumber}} .
+	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}";
+		<http://schemas.delving.eu/nave/terms/specRevision> ?revision .
+		FILTER (?revision != {{.RevisionNumber}}).
 	}
 	GRAPH ?g {
 	?s ?p ?o .
@@ -100,14 +105,22 @@ var queryBank sparql.Bank
 // SparqlQueryURL is the fully qualified URI to the SPARQL endpoint
 var SparqlQueryURL string
 
+// SparqlUpdateURL is the fully qualified URI to the SPARQL Update endpoint
+var SparqlUpdateURL string
+
 // SparqlRepo is the repository used for querying
 var SparqlRepo *sparql.Repo
 
+// SparqlUpdateRepo is the repository used for updating the TripleStore
+var SparqlUpdateRepo *sparql.Repo
+
 func init() {
 	SparqlQueryURL = Config.GetSparqlEndpoint("")
+	SparqlUpdateURL = Config.GetSparqlUpdateEndpoint("")
 	f := bytes.NewBufferString(queries)
 	queryBank = sparql.LoadBank(f)
 	SparqlRepo = buildRepo(SparqlQueryURL)
+	SparqlUpdateRepo = buildRepo(SparqlUpdateURL)
 }
 
 // buildRepo builds the query repository
@@ -124,17 +137,47 @@ func buildRepo(endPoint string) *sparql.Repo {
 	return repo
 }
 
+// UpdateViaSparql is a post to sparql function that tasks a valid SPARQL update query
+func UpdateViaSparql(update string) []error {
+	request := gorequest.New()
+	postURL := Config.GetSparqlUpdateEndpoint("")
+
+	parameters := url.Values{}
+	parameters.Add("update", update)
+	updateQuery := parameters.Encode()
+
+	resp, body, errs := request.Post(postURL).
+		Send(updateQuery).
+		Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8").
+		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
+		End()
+	if errs != nil {
+		log.Fatal(errs)
+	}
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+		log.Println(body)
+		log.Println(resp)
+		log.Printf("unable to store sparqlUpdate: %s", update)
+		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
+	}
+	return errs
+}
+
 func DeleteOrphansBySpec(spec string, revision int) (bool, error) {
 	query, err := queryBank.Prepare("deleteOrphanGraphsBySpec", struct {
-		Spec     string
-		Revision int
+		Spec           string
+		RevisionNumber int
 	}{spec, revision})
 	if err != nil {
 		logger.WithField("spec", spec).Errorf("Unable to build deleteOrphanGraphsBySpec query: %s", err)
 		return false, err
 	}
-	fmt.Println(query)
-
+	logger.Info(query)
+	errs := UpdateViaSparql(query)
+	if errs != nil {
+		logger.WithField("query", query).Errorf("Unable query endpoint: %s", errs)
+		return false, errs[0]
+	}
 	return true, nil
 }
 
@@ -152,9 +195,14 @@ func CountRevisionsBySpec(spec string) ([]models.DataSetRevisions, error) {
 		logger.WithField("query", query).Errorf("Unable query endpoint: %s", err)
 		return revisions, err
 	}
-	//fmt.Printf("%#v", res)
+	//fmt.Printf("%#v", res.Solutions())
 	for _, v := range res.Solutions() {
-		revision, err := strconv.Atoi(v["revision"].String())
+		revisionTerm, ok := v["revision"]
+		if !ok {
+			logger.Infof("No revisions found for spec %s", spec)
+			return revisions, nil
+		}
+		revision, err := strconv.Atoi(revisionTerm.String())
 		if err != nil {
 			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["revision"])
 		}
