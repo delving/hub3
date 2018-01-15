@@ -157,4 +157,25 @@ var _ = Describe("Dataset", func() {
 		})
 	})
 
+	// todo add code for removing datasets.
+	Context("When calling delete", func() {
+
+		It("should delete the dataset", func() {
+			dataSets, err := ListDataSets()
+			Expect(err).To(BeNil())
+			dsNr := len(dataSets)
+			dsName := "test4"
+			ds, _ := GetOrCreateDataSet(dsName)
+			Expect(ds).ToNot(BeNil())
+			err = ds.Delete()
+			Expect(err).To(BeNil())
+			ds, err = GetDataSet(dsName)
+			Expect(err).ToNot(BeNil())
+			dataSets, err = ListDataSets()
+			Expect(err).To(BeNil())
+			Expect(dsNr).To(Equal(len(dataSets)))
+		})
+
+	})
+
 })

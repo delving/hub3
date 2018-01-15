@@ -100,6 +100,49 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func createDataSetStats(spec string) (models.DataSetStats, error) {
+	storedGraphs, err := hub3.CountGraphsBySpec(spec)
+	if err != nil {
+		return models.DataSetStats{}, err
+	}
+	revisionCount, err := hub3.CountRevisionsBySpec(spec)
+	if err != nil {
+		return models.DataSetStats{}, err
+	}
+	ds, err := models.GetDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
+		return models.DataSetStats{}, err
+	}
+	return models.DataSetStats{
+		Spec:            spec,
+		StoredGraphs:    storedGraphs,
+		CurrentRevision: ds.Revision,
+		GraphRevisions:  revisionCount,
+	}, nil
+}
+
+// getDataSetStats returns a dataset when found or a 404
+func getDataSetStats(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	log.Printf("Get stats for spec %s", spec)
+	stats, err := createDataSetStats(spec)
+	if err != nil {
+		status := http.StatusInternalServerError
+		render.Status(r, status)
+		log.Println("Unable to create dataset stats: %s", err)
+		render.JSON(w, r, APIErrorMessage{
+			HttpStatus: status,
+			Message:    fmt.Sprintf("Can't create stats for %s", spec),
+			Error:      err,
+		})
+		return
+	}
+	render.JSON(w, r, stats)
+	return
+
+}
+
 // getDataSet returns a dataset when found or a 404
 func getDataSet(w http.ResponseWriter, r *http.Request) {
 	ds, err := models.GetDataSet(chi.URLParam(r, "spec"))
@@ -122,9 +165,41 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func deleteDataset(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	fmt.Printf("spec is %s", spec)
+	ds, err := models.GetDataSet(spec)
+	if err == storm.ErrNotFound {
+		render.Status(r, http.StatusNotFound)
+		log.Printf("Dataset is not found: %s", spec)
+		return
+	}
+	err = ds.Delete()
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		log.Printf("Unable to delete request because: %s", err)
+		return
+	}
+	log.Printf("Dataset is deleted: %s", spec)
+	render.Status(r, http.StatusAccepted)
+	return
+}
+
 // createDataSet creates a new dataset.
 func createDataSet(w http.ResponseWriter, r *http.Request) {
 	spec := r.FormValue("spec")
+	if spec == "" {
+		spec = chi.URLParam(r, "spec")
+	}
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HttpStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
 	fmt.Printf("spec is %s", spec)
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {

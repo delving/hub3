@@ -17,9 +17,11 @@ package hub3
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 	"github.com/sirupsen/logrus"
@@ -44,6 +46,53 @@ ASK { {{ .Query }} }
 # The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
 # tag: describe
 DESCRIBE <{{.Uri}}>
+
+# tag: countGraphPerSpec
+SELECT (count(?subject) as ?count)
+WHERE {
+  ?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}"
+}
+LIMIT 1
+
+# tag: countRevisionsBySpec
+SELECT ?revision (COUNT(?revision) as ?rCount)
+WHERE
+{
+  ?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}";
+		<http://schemas.delving.eu/nave/terms/specRevision> ?revision .
+}
+GROUP BY ?revision
+
+# tag: deleteAllGraphsBySpec
+DELETE {
+	GRAPH ?g {
+	?s ?p ?o .
+	}
+}
+WHERE {
+	GRAPH ?g {
+	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{.Spec}".
+	}
+	GRAPH ?g {
+	?s ?p ?o .
+	}
+};
+
+# tag: deleteOrphanGraphsBySpec
+DELETE {
+	GRAPH ?g {
+	?s ?p ?o .
+	}
+}
+WHERE {
+	GRAPH ?g {
+	?subject <http://schemas.delving.eu/nave/terms/datasetSpec> "{.Spec}";
+		<http://schemas.delving.eu/nave/terms/specRevision> {{.RevisionNumber}} .
+	}
+	GRAPH ?g {
+	?s ?p ?o .
+	}
+};
 `
 
 var queryBank sparql.Bank
@@ -73,6 +122,77 @@ func buildRepo(endPoint string) *sparql.Repo {
 		logger.Fatal(err)
 	}
 	return repo
+}
+
+func DeleteOrphansBySpec(spec string, revision int) (bool, error) {
+	query, err := queryBank.Prepare("deleteOrphanGraphsBySpec", struct {
+		Spec     string
+		Revision int
+	}{spec, revision})
+	if err != nil {
+		logger.WithField("spec", spec).Errorf("Unable to build deleteOrphanGraphsBySpec query: %s", err)
+		return false, err
+	}
+	fmt.Println(query)
+
+	return true, nil
+}
+
+//CountRevisionsBySpec counts each revision available in the spec
+func CountRevisionsBySpec(spec string) ([]models.DataSetRevisions, error) {
+	query, err := queryBank.Prepare("countRevisionsBySpec", struct{ Spec string }{spec})
+	revisions := []models.DataSetRevisions{}
+	if err != nil {
+		logger.WithField("spec", spec).Errorf("Unable to build countRevisionsBySpec query: %s", err)
+		return revisions, err
+	}
+	//fmt.Printf("%#v", query)
+	res, err := SparqlRepo.Query(query)
+	if err != nil {
+		logger.WithField("query", query).Errorf("Unable query endpoint: %s", err)
+		return revisions, err
+	}
+	//fmt.Printf("%#v", res)
+	for _, v := range res.Solutions() {
+		revision, err := strconv.Atoi(v["revision"].String())
+		if err != nil {
+			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["revision"])
+		}
+		revisionCount, err := strconv.Atoi(v["rCount"].String())
+		if err != nil {
+			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["rCount"])
+		}
+		revisions = append(revisions, models.DataSetRevisions{
+			Number:      revision,
+			RecordCount: revisionCount,
+		})
+	}
+	return revisions, nil
+}
+
+// CountGraphsBySpec counts all the named graphs for a spec
+func CountGraphsBySpec(spec string) (int, error) {
+	query, err := queryBank.Prepare("countGraphPerSpec", struct{ Spec string }{spec})
+	if err != nil {
+		logger.WithField("spec", spec).Errorf("Unable to build CountGraphsBySpec query: %s", err)
+		return 0, err
+	}
+	res, err := SparqlRepo.Query(query)
+	if err != nil {
+		logger.WithField("query", query).Errorf("Unable query endpoint: %s", err)
+		return 0, err
+	}
+	countStr, ok := res.Bindings()["count"]
+	if !ok {
+		logger.WithField("bindings", res.Bindings()).Errorf("Unable to get count from results")
+		return 0, fmt.Errorf("Unable to get count from result bindings: %#v", res.Bindings())
+	}
+	var count int
+	count, err = strconv.Atoi(countStr[0].String())
+	if err != nil {
+		return 0, fmt.Errorf("Unable to convert %s to integer.", countStr)
+	}
+	return count, err
 }
 
 // PrepareAsk takes an a string and returns a valid SPARQL ASK query

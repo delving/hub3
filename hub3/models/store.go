@@ -27,7 +27,7 @@ var orm *storm.DB
 
 func init() {
 	orm = newDB("")
-	orm.WithBatch(true)
+	//orm.WithBatch(true)
 }
 
 func newDB(dbName string) *storm.DB {
@@ -37,7 +37,7 @@ func newDB(dbName string) *storm.DB {
 	if !strings.HasSuffix(dbName, ".db") {
 		dbName = fmt.Sprintf("%s.db", dbName)
 	}
-	db, err := storm.Open(dbName, storm.Batch())
+	db, err := storm.Open(dbName)
 	if err != nil {
 		log.Fatal("Unable to open the BoltDB database file.")
 	}

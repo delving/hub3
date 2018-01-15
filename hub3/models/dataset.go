@@ -7,6 +7,21 @@ import (
 	. "bitbucket.org/delving/rapid/config"
 )
 
+// DataSetRevisions holds the type-frequency data for each revision
+type DataSetRevisions struct {
+	Number      int `json:"revisionNumber"`
+	RecordCount int `json:"recordCount"`
+}
+
+// DataSetStats holds all gather statistics for a DataSet
+type DataSetStats struct {
+	Spec            string             `json:"spec"`
+	StoredGraphs    int                `json:"storedGraphs"`
+	IndexedRecords  int                `json:"indexedRecords"`
+	CurrentRevision int                `json:"currentRevision"`
+	GraphRevisions  []DataSetRevisions `json:"dataSetRevisions"`
+}
+
 // DataSet contains all the known informantion for a RAPID metadata dataset
 type DataSet struct {
 	//MapToPrefix string    `json:"mapToPrefix"`
@@ -56,6 +71,11 @@ func (ds DataSet) Save() error {
 	return orm.Save(&ds)
 }
 
+// Delete delets the DataSet from BoltDB
+func (ds DataSet) Delete() error {
+	return orm.DeleteStruct(&ds)
+}
+
 // GetDataSet returns a DataSet object when found
 func GetDataSet(spec string) (DataSet, error) {
 	var ds DataSet
@@ -83,8 +103,7 @@ func GetOrCreateDataSet(spec string) (DataSet, error) {
 
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() error {
-	ds.Revision++
-	return ds.Save()
+	return orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
 }
 
 // ListDataSets returns an array of Datasets stored in Storm ORM

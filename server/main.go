@@ -101,8 +101,10 @@ func Start() {
 	r.Get("/api/datasets", listDataSets)
 	r.Post("/api/datasets", createDataSet)
 	r.Get("/api/datasets/{spec}", getDataSet)
-	////e.POST("/api/datasets/:spec", updateDataSet)
-	////e.DELETE("/api/datasets/:spec", deleteDataset)
+	r.Get("/api/datasets/{spec}/stats", getDataSetStats)
+	// later change to update dataset
+	r.Post("/api/datasets/{spec}", createDataSet)
+	r.Delete("/api/datasets/{spec}", deleteDataset)
 
 	// LoD routingendpoint
 	r.Mount("/", LODResource{}.Routes())

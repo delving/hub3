@@ -139,19 +139,21 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 	if response.Spec == "" {
 		response.Spec = action.Spec
 	}
+	ds, err := models.GetOrCreateDataSet(action.Spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", action.Spec)
+		return err
+	}
+	response.SpecRevision = ds.Revision
 	switch action.Action {
 	case "increment_revision":
-		ds, err := models.GetOrCreateDataSet(action.Spec)
-		if err != nil {
-			log.Printf("Unable to get DataSet for %s\n", action.Spec)
-			return err
-		}
 		err = ds.IncrementRevision()
 		if err != nil {
 			log.Printf("Unable to increment DataSet for %s\n", action.Spec)
 			return err
 		}
-		log.Printf("Incremented dataset %s to %d", action.Spec, ds.Revision)
+		response.SpecRevision = ds.Revision + 1
+		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		fmt.Println("Mark orphans and delete them")
 	case "disable_index":
@@ -160,11 +162,6 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		fmt.Println("remove the dataset completely")
 	case "index":
 		if response.SpecRevision == 0 {
-			ds, err := models.GetOrCreateDataSet(action.Spec)
-			if err != nil {
-				log.Printf("Unable to get DataSet for %s\n", action.Spec)
-				return err
-			}
 			response.SpecRevision = ds.Revision
 		}
 		err := action.ESSave(response)
@@ -189,9 +186,11 @@ func (r *BulkActionResponse) RDFBulkInsert() []error {
 	request := gorequest.New()
 	postURL := Config.GetSparqlUpdateEndpoint("")
 	strs := make([]string, nrGraphs)
+	graphs := make([]string, nrGraphs)
 	triplesStored := 0
 	for i, v := range r.SparqlUpdates {
 		strs[i] = v.String()
+		graphs[i] = fmt.Sprintf("DROP GRAPH <%s>;", v.NamedGraphURI)
 		count, err := v.TripleCount()
 		if err != nil {
 			log.Printf("Unable to count triples: %s", err)
@@ -200,7 +199,7 @@ func (r *BulkActionResponse) RDFBulkInsert() []error {
 		triplesStored += count
 	}
 	parameters := url.Values{}
-	sparqlInsert := fmt.Sprintf("INSERT DATA {%s}", strings.Join(strs, "\n"))
+	sparqlInsert := fmt.Sprintf("%s INSERT DATA {%s}", strings.Join(graphs, "\n"), strings.Join(strs, "\n"))
 	parameters.Add("update", sparqlInsert)
 	dropInsert := parameters.Encode()
 
