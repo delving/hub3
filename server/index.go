@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"bitbucket.org/delving/rapid/hub3"
+	"bitbucket.org/delving/rapid/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
@@ -17,7 +17,7 @@ func (rs IndexResource) Routes() chi.Router {
 
 	r.Get("/stats", rs.Get) // GET
 	r.Get("/indexes", func(w http.ResponseWriter, r *http.Request) {
-		indexes, err := hub3.ListIndexes()
+		indexes, err := index.ListIndexes()
 		if err != nil {
 			log.Print(err)
 		}
@@ -30,7 +30,7 @@ func (rs IndexResource) Routes() chi.Router {
 
 // Get returns JSON formatted statistics for the BulkProcessor
 func (rs IndexResource) Get(w http.ResponseWriter, r *http.Request) {
-	stats := hub3.IndexStatistics(bp)
+	stats := index.IndexStatistics(bp)
 	render.PlainText(w, r, fmt.Sprintf("stats: ", stats))
 	return
 }

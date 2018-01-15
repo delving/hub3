@@ -3,6 +3,7 @@ package hub3
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -97,7 +98,7 @@ type BulkActionResponse struct {
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
-func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, error) {
+func ReadActions(r io.Reader, p *elastic.BulkProcessor, ctx context.Context) (BulkActionResponse, error) {
 
 	scanner := bufio.NewScanner(r)
 	response := BulkActionResponse{
@@ -116,7 +117,7 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, err
 			continue
 		}
 		action.p = p
-		err = action.Excute(&response)
+		err = action.Excute(&response, ctx)
 		if err != nil {
 			return response, err
 		}
@@ -135,7 +136,7 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, err
 }
 
 // Execute performs the various BulkActions
-func (action BulkAction) Excute(response *BulkActionResponse) error {
+func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Context) error {
 	if response.Spec == "" {
 		response.Spec = action.Spec
 	}
@@ -169,10 +170,14 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 			log.Printf("Unable to remove all RDF graphs from spec %s: %s", action.Spec, err)
 			return err
 		}
-		// todo remove elasticsearch records
+		_, err = ds.DeleteAllIndexRecords(ctx)
+		if err != nil {
+			logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
+			return err
+		}
 		log.Printf("remove dataset %s from the index", action.Spec)
 	case "drop_dataset":
-		ok, err := ds.Drop()
+		ok, err := ds.Drop(ctx)
 		if !ok || err != nil {
 			log.Printf("Unable to drop dataset %s", action.Spec)
 			return err

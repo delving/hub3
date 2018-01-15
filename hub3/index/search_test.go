@@ -1,4 +1,4 @@
-package models
+package index
 
 import (
 	. "github.com/onsi/ginkgo"

@@ -1,4 +1,4 @@
-package hub3
+package index
 
 import (
 	. "github.com/onsi/ginkgo"

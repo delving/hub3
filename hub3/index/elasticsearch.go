@@ -1,4 +1,4 @@
-package hub3
+package index
 
 import (
 	"context"
@@ -39,7 +39,7 @@ func ESClient() *elastic.Client {
 			//defer client.Stop()
 			ensureESIndex("")
 		} else {
-			stdlog.Printf("Warn: trying to call elasticsearch when not enabled.")
+			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
 	}
 	return client

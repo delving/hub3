@@ -1,4 +1,4 @@
-package hub3
+package index
 
 // The Indexer contains all services elements for indexing RDF data in ElasticSearch
 

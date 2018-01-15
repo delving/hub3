@@ -1,11 +1,14 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/index"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -150,16 +153,42 @@ func (ds DataSet) DeleteAllGraphs() (bool, error) {
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
+// todo implement
+
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
+func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
+	q := elastic.NewMatchQuery("spec", ds.Spec)
+	logger.Infof("%#v", q)
+	res, err := index.ESClient().DeleteByQuery().
+		Index(Config.ElasticSearch.IndexName).
+		Type("rdfrecord").
+		Query(q).
+		Do(ctx)
+	if err != nil {
+		logger.WithField("spec", ds.Spec).Errorf("Unable to delete dataset records from index.")
+		return 0, err
+	}
+	if res == nil {
+		logger.Errorf("expected response != nil; got: %v", res)
+		return 0, fmt.Errorf("expected response != nil")
+	}
+	logger.Infof("Removed %d records for spec %s", res.Deleted, ds.Spec)
+	return int(res.Deleted), err
+}
 
 // Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
-func (ds DataSet) Drop() (bool, error) {
+func (ds DataSet) Drop(ctx context.Context) (bool, error) {
 	ok, err := ds.DeleteAllGraphs()
 	if !ok || err != nil {
 		logger.Errorf("Unable to drop all graphs for %s", ds.Spec)
 		return ok, err
 	}
 	// todo add deleting all records from elastic search
+	_, err = ds.DeleteAllIndexRecords(ctx)
+	if err != nil {
+		logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
+		return false, err
+	}
 	err = ds.Delete()
 	if err != nil {
 		logger.Errorf("Unable to delete dataset %s from storage")
