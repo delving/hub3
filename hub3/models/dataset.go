@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
@@ -65,7 +66,6 @@ func NewDataset(spec string) DataSet {
 	return dataset
 }
 
-
 // GetDataSet returns a DataSet object when found
 func GetDataSet(spec string) (DataSet, error) {
 	var ds DataSet
@@ -116,8 +116,35 @@ func (ds DataSet) Delete() error {
 	return orm.DeleteStruct(&ds)
 }
 
-// Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
+// CreateDataSetStats returns DataSetStats that contain all relevant counts from the storage layer
+func CreateDataSetStats(spec string) (DataSetStats, error) {
+	storedGraphs, err := CountGraphsBySpec(spec)
+	if err != nil {
+		return DataSetStats{}, err
+	}
+	revisionCount, err := CountRevisionsBySpec(spec)
+	if err != nil {
+		return DataSetStats{}, err
+	}
+	ds, err := GetDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
+		return DataSetStats{}, err
+	}
+	return DataSetStats{
+		Spec:            spec,
+		StoredGraphs:    storedGraphs,
+		CurrentRevision: ds.Revision,
+		GraphRevisions:  revisionCount,
+	}, nil
+}
+
 // DeleteGraphsOrphans deletes all the orphaned graphs from the Triple Store linked to this dataset
+func (ds DataSet) DeleteGraphsOrphans() (bool, error) {
+	return DeleteGraphsOrphansBySpec(ds.Spec, ds.Revision)
+}
+
 // DeleteAllGraphs deletes all the graphs linked to this dataset
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
+// Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)

@@ -1,4 +1,4 @@
-package hub3
+package models
 
 import (
 	"fmt"

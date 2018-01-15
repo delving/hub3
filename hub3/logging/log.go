@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hub3
+package logging
 
 import (
 	"os"
@@ -23,12 +23,6 @@ import (
 	. "bitbucket.org/delving/rapid/config"
 )
 
-var logger *logrus.Logger
-
-// init added all the logrus hooks
-func init() {
-	logger = NewLogger()
-}
 
 func NewLogger() *logrus.Logger {
 	l := logrus.New()

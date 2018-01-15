@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hub3
+package models
 
 import (
 	"bytes"
@@ -24,7 +24,6 @@ import (
 	"time"
 
 	. "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 	"github.com/parnurzeal/gorequest"
@@ -199,9 +198,9 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 }
 
 //CountRevisionsBySpec counts each revision available in the spec
-func CountRevisionsBySpec(spec string) ([]models.DataSetRevisions, error) {
+func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 	query, err := queryBank.Prepare("countRevisionsBySpec", struct{ Spec string }{spec})
-	revisions := []models.DataSetRevisions{}
+	revisions := []DataSetRevisions{}
 	if err != nil {
 		logger.WithField("spec", spec).Errorf("Unable to build countRevisionsBySpec query: %s", err)
 		return revisions, err
@@ -227,7 +226,7 @@ func CountRevisionsBySpec(spec string) ([]models.DataSetRevisions, error) {
 		if err != nil {
 			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["rCount"])
 		}
-		revisions = append(revisions, models.DataSetRevisions{
+		revisions = append(revisions, DataSetRevisions{
 			Number:      revision,
 			RecordCount: revisionCount,
 		})

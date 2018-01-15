@@ -100,33 +100,11 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func createDataSetStats(spec string) (models.DataSetStats, error) {
-	storedGraphs, err := hub3.CountGraphsBySpec(spec)
-	if err != nil {
-		return models.DataSetStats{}, err
-	}
-	revisionCount, err := hub3.CountRevisionsBySpec(spec)
-	if err != nil {
-		return models.DataSetStats{}, err
-	}
-	ds, err := models.GetDataSet(spec)
-	if err != nil {
-		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
-		return models.DataSetStats{}, err
-	}
-	return models.DataSetStats{
-		Spec:            spec,
-		StoredGraphs:    storedGraphs,
-		CurrentRevision: ds.Revision,
-		GraphRevisions:  revisionCount,
-	}, nil
-}
-
 // getDataSetStats returns a dataset when found or a 404
 func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	log.Printf("Get stats for spec %s", spec)
-	stats, err := createDataSetStats(spec)
+	stats, err := models.CreateDataSetStats(spec)
 	if err != nil {
 		status := http.StatusInternalServerError
 		render.Status(r, status)
