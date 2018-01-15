@@ -163,7 +163,24 @@ func UpdateViaSparql(update string) []error {
 	return errs
 }
 
-func DeleteOrphansBySpec(spec string, revision int) (bool, error) {
+// DeleteAllGraphsBySpec issues an SPARQL Update query to delete all graphs for a DataSet from the triple store
+func DeleteAllGraphsBySpec(spec string) (bool, error) {
+	query, err := queryBank.Prepare("deleteAllGraphsBySpec", struct{ Spec string }{spec})
+	if err != nil {
+		logger.WithField("spec", spec).Errorf("Unable to build deleteAllGraphsBySpec query: %s", err)
+		return false, err
+	}
+	logger.Info(query)
+	errs := UpdateViaSparql(query)
+	if errs != nil {
+		logger.WithField("query", query).Errorf("Unable query endpoint: %s", errs)
+		return false, errs[0]
+	}
+	return true, nil
+}
+
+// DeleteGraphsOrphansBySpec issues an SPARQL Update query to delete all orphaned graphs for a DataSet from the triple store.
+func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 	query, err := queryBank.Prepare("deleteOrphanGraphsBySpec", struct {
 		Spec           string
 		RevisionNumber int

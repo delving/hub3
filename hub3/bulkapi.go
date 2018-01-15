@@ -156,14 +156,21 @@ func (action BulkAction) Excute(response *BulkActionResponse) error {
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := DeleteOrphansBySpec(action.Spec, response.SpecRevision)
+		ok, err := DeleteGraphsOrphansBySpec(action.Spec, response.SpecRevision)
 		if !ok || err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
 			return err
 		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
-		fmt.Println("remove dataset from the index")
+		// remove all triples
+		ok, err := DeleteAllGraphsBySpec(action.Spec)
+		if !ok || err != nil {
+			log.Printf("Unable to remove all RDF graphs from spec %s: %s", action.Spec, err)
+			return err
+		}
+		// todo remove elasticsearch records
+		log.Printf("remove dataset %s from the index", action.Spec)
 	case "drop_dataset":
 		fmt.Println("remove the dataset completely")
 	case "index":
