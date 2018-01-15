@@ -103,7 +103,10 @@ func GetOrCreateDataSet(spec string) (DataSet, error) {
 
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() error {
-	return orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
+	orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
+	freshDs, err := GetDataSet(ds.Spec)
+	ds = &freshDs
+	return err
 }
 
 // ListDataSets returns an array of Datasets stored in Storm ORM

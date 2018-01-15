@@ -148,6 +148,7 @@ var _ = Describe("Dataset", func() {
 			Expect(ds.Revision).To(Equal(0))
 			err := ds.IncrementRevision()
 			Expect(err).ToNot(HaveOccurred())
+			ds, _ = GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(1))
 		})
 
