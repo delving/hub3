@@ -57,8 +57,8 @@ func Start() {
 		w.Write([]byte("You are rocking rapid!"))
 	})
 
-	// example fileserver
-	//FileServer(r, "/docs", getAbsolutePathToFileDir("public"))
+	// static fileserver
+	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
 	// WebResource & imageproxy configuration
 	proxyPrefix := fmt.Sprintf("/%s/*", Config.ImageProxy.ProxyPrefix)
