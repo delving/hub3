@@ -1,5 +1,5 @@
 hash: dadff3ee8f8697922282a83cfc629e793ed7aced1dba5546cbb620353a677a22
-updated: 2017-12-21T09:56:45.102917004+01:00
+updated: 2018-01-20T20:15:35.983303146+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -12,7 +12,7 @@ imports:
 - name: github.com/boltdb/bolt
   version: 9da31745363232bc1e27dbab3569e77383a51585
 - name: github.com/certifi/gocertifi
-  version: a4ab0227d360091084658029ec8ae45f989fba3e
+  version: deb3ae2ef2610fde3330947281941c562861188b
 - name: github.com/codegangsta/gin
   version: cafe2ce98974a3dcca6b92ce393a91a0b58b8133
 - name: github.com/deiu/rdf2go
@@ -26,15 +26,15 @@ imports:
 - name: github.com/evalphobia/logrus_sentry
   version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
 - name: github.com/fsnotify/fsnotify
-  version: 4da3e2cfbabc9f751898f250b49f2439785783a1
+  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/getsentry/raven-go
   version: 32a13797442ccb601b11761d74232773c1402d14
 - name: github.com/go-chi/chi
-  version: 687d2792aedd8e8ac3bbd8592cf55b91d7ea8ce9
+  version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
 - name: github.com/go-chi/render
-  version: 7bbdb19f4016118d23bc31d6d33dc1dd517c6b2e
+  version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
 - name: github.com/google/btree
   version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
 - name: github.com/gregjones/httpcache
@@ -72,8 +72,14 @@ imports:
   - log
 - name: github.com/magiconair/properties
   version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
+- name: github.com/mailru/easyjson
+  version: 32fa128f234d041f196a9f3e0fea5ac9772c08e1
+  subpackages:
+  - buffer
+  - jlexer
+  - jwriter
 - name: github.com/mattn/go-colorable
-  version: 6fcc0c1fd9b620311d821b106a400b35dc95c497
+  version: 6cc8b475d4682021d75d2cbe2bc481bec4ce98e5
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
 - name: github.com/mitchellh/go-homedir
@@ -81,7 +87,7 @@ imports:
 - name: github.com/mitchellh/gox
   version: 54b619477e8932bbb6314644c867e7e6db7a9c71
 - name: github.com/mitchellh/mapstructure
-  version: 06020f85339e21b2478f756a78e295255ffa4d6a
+  version: b4575eea38cca1123ec2dc90c26529b5c5acfcff
 - name: github.com/moul/http2curl
   version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
 - name: github.com/muesli/smartcrop
@@ -127,7 +133,7 @@ imports:
 - name: github.com/parnurzeal/gorequest
   version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
 - name: github.com/pelletier/go-toml
-  version: b8b5e7696574464b2f9bf303a7b37781bb52889f
+  version: acdc4509485b587f5e675510c4f2c63e90ff68a8
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pkg/errors
@@ -135,28 +141,28 @@ imports:
 - name: github.com/rs/cors
   version: 7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6
 - name: github.com/rwcarlsen/goexif
-  version: 709fab3d192d7c62f86043caff1e7e3fb0f42bd8
+  version: 17202558c8d9c3fd047859f1a5e73fd9ae709187
   subpackages:
   - exif
   - tiff
 - name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/afero
-  version: 8d919cbe7e2627e417f3e45c3c0e489a5b7e2536
+  version: bb8f1927f2a9d3ab41c9340aa034f6b803f4359c
   subpackages:
   - mem
 - name: github.com/spf13/cast
   version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
-  version: ccaecb155a2177302cb56cae929251a256d0f646
+  version: 0c34d16c3123764e413b9ed982ada58b1c3d53ea
   subpackages:
   - cobra
 - name: github.com/spf13/jwalterweatherman
-  version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
+  version: 7c0cea34c8ece3fbeb2b27ab9b59511d360fb394
 - name: github.com/spf13/pflag
   version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: github.com/spf13/viper
-  version: 1a0c4a370c3e8286b835467d2dfcdaf636c3538b
+  version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: github.com/urfave/negroni
   version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
 - name: github.com/valyala/bytebufferpool
@@ -166,7 +172,7 @@ imports:
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: d585fd2cc9195196078f516b69daff6744ef5e84
+  version: a6600008915114d9c087fad9f03d75087b1a74df
   subpackages:
   - ssh/terminal
 - name: golang.org/x/image
@@ -182,19 +188,19 @@ imports:
   - vp8l
   - webp
 - name: golang.org/x/net
-  version: d866cfc389cec985d6fda2859936a575a55a3ab6
+  version: 5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: d818ba11af4465e00c1998bd3f8a55603b422290
+  version: 2c42eef0765b9837fbdab12011af7830f55f88f0
   subpackages:
   - unix
   - windows
 - name: golang.org/x/text
-  version: eb22672bea55af56d225d4e35405f4d2e9f062a0
+  version: e19ae1496984b1c655b8044a65c0300a3c878dd3
   subpackages:
   - encoding
   - encoding/charmap
@@ -213,12 +219,12 @@ imports:
   - transform
   - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
-  version: 79ff368708b3a2a9da641dc831d95fd0782bf4ef
+  version: 1094ee281ca61a783c9ba22bf86e7e0a8aa2d112
   subpackages:
   - config
   - uritemplates
 - name: gopkg.in/yaml.v2
-  version: 287cf08546ab5e7e37d55a84f7ed3fd1db036de5
+  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 - name: willnorris.com/go/gifresize
   version: 6a222229fa0697e6da06ec80f8ffd0ada346669d
 - name: willnorris.com/go/imageproxy
