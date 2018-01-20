@@ -20,6 +20,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Verbose logs extra information when the version command is called.
 var Verbose bool
 
 // versionCmd represents the version command

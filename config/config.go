@@ -80,7 +80,7 @@ type RDF struct {
 	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	SparqlUpdatePath  string   `json:"sparqlUpdatePath"`  // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	GraphStorePath    string   `json:"dataPath"`          // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	BaseUrl           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
+	BaseURL           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"` // the RDF baseUrl used for minting new URIs
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
@@ -116,11 +116,11 @@ type ImageProxy struct {
 
 // LOD holds all the configuration for the Linked Open Data (LOD) functionality
 type LOD struct {
-	Enabled           bool   `json:"enabled"`     // Make the lod endpoint available
-	Resource          string `json:"resource"`    // the 303 redirect entry point. This is where the content negotiation happens
-	HTML              string `json:html`          // the endpoint that renders the data as formatted HTML
-	RDF               string `json:rdf`           // the endpoint that renders the RDF data in the requested RDF format. Currently, JSON-LD and N-triples are supported
-	HtmlRedirectRegex string `json:redirectregex` // the regular expression to convert the subject uri to the uri for the external Page view
+	Enabled           bool   `json:"enabled"`       // Make the lod endpoint available
+	Resource          string `json:"resource"`      // the 303 redirect entry point. This is where the content negotiation happens
+	HTML              string `json:"html"`          // the endpoint that renders the data as formatted HTML
+	RDF               string `json:"rdf"`           // the endpoint that renders the RDF data in the requested RDF format. Currently, JSON-LD and N-triples are supported
+	HTMLRedirectRegex string `json:"redirectregex"` // the regular expression to convert the subject uri to the uri for the external Page view
 }
 
 func setDefaults() {
@@ -171,9 +171,9 @@ func setDefaults() {
 }
 
 func cleanConfig() {
-	Config.RDF.BaseUrl = strings.TrimSuffix(Config.RDF.BaseUrl, "/")
-	if !strings.HasPrefix(Config.RDF.BaseUrl, "http://") {
-		log.Fatalf("RDF.BaseUrl config value '%s' should start with 'http://'", Config.RDF.BaseUrl)
+	Config.RDF.BaseURL = strings.TrimSuffix(Config.RDF.BaseURL, "/")
+	if !strings.HasPrefix(Config.RDF.BaseURL, "http://") {
+		log.Fatalf("RDF.BaseUrl config value '%s' should start with 'http://'", Config.RDF.BaseURL)
 	}
 }
 
