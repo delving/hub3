@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package server
 
 import (
@@ -24,11 +38,13 @@ type ErrResponse struct {
 	ErrorText  string `json:"error,omitempty"` // application-level error message, for debugging
 }
 
+// Render renders the ErrResponse
 func (e *ErrResponse) Render(w http.ResponseWriter, r *http.Request) error {
 	render.Status(r, e.HTTPStatusCode)
 	return nil
 }
 
+// ErrInvalidRequest returns an Invalid Request Response
 func ErrInvalidRequest(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
@@ -38,6 +54,7 @@ func ErrInvalidRequest(err error) render.Renderer {
 	}
 }
 
+// ErrRender creates an error response
 func ErrRender(err error) render.Renderer {
 	return &ErrResponse{
 		Err:            err,
@@ -47,4 +64,5 @@ func ErrRender(err error) render.Renderer {
 	}
 }
 
+// ErrNotFound is a 404 convenience variable
 var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}

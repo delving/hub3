@@ -7,14 +7,16 @@ import (
 	"strings"
 	"time"
 
-	. "bitbucket.org/delving/rapid/config"
+	c "bitbucket.org/delving/rapid/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
 )
 
+// SparqlResource is a struct for the Search routes
 type SparqlResource struct{}
 
+// Routes returns the chi.Router
 func (rs SparqlResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
@@ -24,7 +26,7 @@ func (rs SparqlResource) Routes() chi.Router {
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
-	if !Config.RDF.SparqlEnabled {
+	if !c.Config.RDF.SparqlEnabled {
 		// todo replace with json later
 		render.PlainText(w, r, `{"status": "not enabled"}`)
 		return
@@ -44,7 +46,11 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", contentType)
-	w.Write(resp)
+	_, err = w.Write(resp)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		return
+	}
 	render.Status(r, statusCode)
 	return
 }
@@ -52,7 +58,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
 func runSparqlQuery(query string) (body []byte, statusCode int, contentType string, err error) {
 	log.Debugf("Sparql Query: %s", query)
-	req, err := http.NewRequest("Get", Config.GetSparqlEndpoint(""), nil)
+	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(""), nil)
 	if err != nil {
 		log.Errorf("Unable to create sparql request %s", err)
 	}

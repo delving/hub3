@@ -30,7 +30,7 @@ func (rs IndexResource) Routes() chi.Router {
 
 // Get returns JSON formatted statistics for the BulkProcessor
 func (rs IndexResource) Get(w http.ResponseWriter, r *http.Request) {
-	stats := index.IndexStatistics(bp)
+	stats := index.BulkIndexStatistics(bp)
 	render.PlainText(w, r, fmt.Sprintf("stats: ", stats))
 	return
 }

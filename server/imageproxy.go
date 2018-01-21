@@ -25,12 +25,13 @@ import (
 	"strings"
 	"time"
 
-	. "bitbucket.org/delving/rapid/config"
 	"github.com/die-net/lrucache"
 	"github.com/die-net/lrucache/twotier"
 	"github.com/gregjones/httpcache/diskcache"
 	"github.com/peterbourgon/diskv"
 	"willnorris.com/go/imageproxy"
+
+	c "bitbucket.org/delving/rapid/config"
 )
 
 const defaultMemorySize = 100
@@ -40,15 +41,18 @@ var p *imageproxy.Proxy
 // setup proxy in init function
 func init() {
 	u, err := url.Parse("memory:200:1h")
+	if err != nil {
+		log.Fatal(err)
+	}
 	memCache, err := lruCache(u.Opaque)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fileCache := diskCache(Config.ImageProxy.CacheDir)
+	fileCache := diskCache(c.Config.ImageProxy.CacheDir)
 	cache := twotier.New(memCache, fileCache)
 	p = imageproxy.NewProxy(nil, cache)
-	p.Whitelist = Config.ImageProxy.Whitelist
-	p.ScaleUp = Config.ImageProxy.ScaleUp
+	p.Whitelist = c.Config.ImageProxy.Whitelist
+	p.ScaleUp = c.Config.ImageProxy.ScaleUp
 }
 
 // create handler fuction to serve the proxied images
@@ -86,7 +90,13 @@ func serveProxyImage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
 	w.WriteHeader(resp.StatusCode)
-	io.Copy(w, resp.Body)
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		msg := fmt.Sprintf("error copying remote image: %v", err)
+		log.Println(msg)
+		http.Error(w, msg, http.StatusInternalServerError)
+		return
+	}
 
 	return
 }
@@ -96,7 +106,7 @@ func serveProxyImage(w http.ResponseWriter, r *http.Request) {
 // keys will be copied.
 func copyHeader(dst, src http.Header, keys ...string) {
 	if len(keys) == 0 {
-		for k, _ := range src {
+		for k := range src {
 			keys = append(keys, k)
 		}
 	}

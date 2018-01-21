@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package server
 
 import (
@@ -8,7 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	. "bitbucket.org/delving/rapid/config"
+	c "bitbucket.org/delving/rapid/config"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
@@ -47,21 +61,25 @@ func Start() {
 	n.Use(cors)
 
 	// setup fileserver for public directory
-	n.Use(negroni.NewStatic(http.Dir(Config.HTTP.StaticDir)))
+	n.Use(negroni.NewStatic(http.Dir(c.Config.HTTP.StaticDir)))
 
 	// Setup Router
 	r := chi.NewRouter()
 	r.Use(mw.StripSlashes)
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("You are rocking rapid!"))
+		_, err := w.Write([]byte("You are rocking rapid!"))
+		if err != nil {
+			http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+			return
+		}
 	})
 
 	// static fileserver
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
 	// WebResource & imageproxy configuration
-	proxyPrefix := fmt.Sprintf("/%s/*", Config.ImageProxy.ProxyPrefix)
+	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
 	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
 
 	//r.Get("/deepzoom", func(w http.ResponseWriter, r *http.Request) {
@@ -76,12 +94,12 @@ func Start() {
 	//})
 
 	// introspection
-	if Config.DevMode {
+	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
 	}
 
 	// API configuration
-	if Config.OAIPMH.Enabled {
+	if c.Config.OAIPMH.Enabled {
 		r.Get("/api/oai-pmh", oaiPmhEndpoint)
 	}
 
@@ -110,27 +128,32 @@ func Start() {
 	r.Mount("/", LODResource{}.Routes())
 
 	n.UseHandler(r)
-	log.Printf("Using port: %d", Config.Port)
-	http.ListenAndServe(fmt.Sprintf(":%d", Config.Port), n)
+	log.Printf("Using port: %d", c.Config.Port)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", c.Config.Port), n)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	//// Start the server
-	//log.Infof("Using port: %d", Config.Port)
-	//e.Server.Addr = fmt.Sprintf(":%d", Config.Port)
+	//log.Infof("Using port: %d", c.Config.Port)
+	//e.Server.Addr = fmt.Sprintf(":%d", c.Config.Port)
 
 	//// Serve it like a boss
 	//e.Logger.Fatal(gracehttp.Serve(e.Server))
 
 }
 
+// StripPrefix removes the leading '/' from the HTTP path
 func StripPrefix(h http.Handler) http.Handler {
-	proxyPrefix := fmt.Sprintf("/%s", Config.ImageProxy.ProxyPrefix)
+	proxyPrefix := fmt.Sprintf("/%s", c.Config.ImageProxy.ProxyPrefix)
 	return http.StripPrefix(proxyPrefix, h)
 }
 
+// IntrospectionRouter gives access to the configuration at runtime when debug mode is enabled.
 func IntrospectionRouter(chiRouter chi.Router) http.Handler {
 	r := chi.NewRouter()
 	r.Get("/config", func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, Config)
+		render.JSON(w, r, c.Config)
 	})
 	// todo add routes
 	//r.Get("routes", func(w http.ResponseWriter, req *http.Request) {

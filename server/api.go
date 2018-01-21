@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package server
 
 import (
@@ -46,7 +60,7 @@ func init() {
 
 // APIErrorMessage contains the default API error messages
 type APIErrorMessage struct {
-	HttpStatus int    `json:"code"`
+	HTTPStatus int    `json:"code"`
 	Message    string `json:"type"`
 	Error      error  `json:error`
 }
@@ -57,7 +71,10 @@ func bulkAPI(w http.ResponseWriter, r *http.Request) {
 	response, err := hub3.ReadActions(r.Body, bp, ctx)
 	if err != nil {
 		log.Println("Unable to read actions")
-		render.Render(w, r, ErrRender(err))
+		errR := ErrRender(err)
+		_ = errR.Render(w, r)
+		//render.Render(w, r, rrRender(err))
+		return
 	}
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, response)
@@ -94,7 +111,12 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 	sets, err := models.ListDataSets()
 	if err != nil {
 		log.Printf("Unable to list datasets because of: %s", err)
-		render.Render(w, r, ErrRender(err))
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusInternalServerError,
+			Message:    fmt.Sprint("Unable to list datasets was not found"),
+			Error:      err,
+		})
+		return
 	}
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, sets)
@@ -105,13 +127,13 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	log.Printf("Get stats for spec %s", spec)
-	stats, err := models.CreateDataSetStats(spec)
+	stats, err := models.CreateDataSetStats(ctx, spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
 			render.Status(r, http.StatusNotFound)
 			render.JSON(w, r, APIErrorMessage{
-				HttpStatus: http.StatusNotFound,
+				HTTPStatus: http.StatusNotFound,
 				Message:    fmt.Sprintf("%s was not found", chi.URLParam(r, "spec")),
 				Error:      err,
 			})
@@ -121,7 +143,7 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, status)
 		log.Println("Unable to create dataset stats: %s", err)
 		render.JSON(w, r, APIErrorMessage{
-			HttpStatus: status,
+			HTTPStatus: status,
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),
 			Error:      err,
 		})
@@ -134,19 +156,28 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 
 // getDataSet returns a dataset when found or a 404
 func getDataSet(w http.ResponseWriter, r *http.Request) {
-	ds, err := models.GetDataSet(chi.URLParam(r, "spec"))
+	spec := chi.URLParam(r, "spec")
+	ds, err := models.GetDataSet(spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
 			render.Status(r, http.StatusNotFound)
 			render.JSON(w, r, APIErrorMessage{
-				HttpStatus: http.StatusNotFound,
-				Message:    fmt.Sprintf("%s was not found", chi.URLParam(r, "spec")),
+				HTTPStatus: http.StatusNotFound,
+				Message:    fmt.Sprintf("%s was not found", spec),
 				Error:      err,
 			})
 			return
 		}
-		render.Render(w, r, ErrRender(err))
+		status := http.StatusInternalServerError
+		render.Status(r, status)
+		log.Println("Unable to get dataset: %s", spec)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: status,
+			Message:    fmt.Sprintf("Can't create stats for %s", spec),
+			Error:      err,
+		})
+		return
 		return
 
 	}
@@ -183,7 +214,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
-			HttpStatus: http.StatusBadRequest,
+			HTTPStatus: http.StatusBadRequest,
 			Message:    fmt.Sprintln("spec can't be empty."),
 			Error:      nil,
 		})
@@ -194,8 +225,13 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	if err == storm.ErrNotFound {
 		ds, err = models.CreateDataSet(spec)
 		if err != nil {
-			log.Printf("Unable to create dataset for %s", spec)
-			render.Render(w, r, ErrRender(err))
+			render.Status(r, http.StatusBadRequest)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprintf("Unable to create dataset for %s", spec),
+				Error:      nil,
+			})
+			log.Printf("Unable to create dataset for %s.\n", spec)
 			return
 		}
 		render.Status(r, http.StatusCreated)
