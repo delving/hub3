@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"time"
 
-	. "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/config"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 	"github.com/parnurzeal/gorequest"
@@ -35,20 +35,20 @@ const queries = `
 
 # ask returns a boolean
 # tag: ask_subject
-ASK { <{{ .Uri }}> ?p ?o }
+ASK { <{{ .URI }}> ?p ?o }
 
 # tag: ask_predicate
-ASK { ?s <{{ .Uri }}> ?o }
+ASK { ?s <{{ .URI }}> ?o }
 
 # tag: ask_object
-ASK { ?s <{{ .Uri }}> ?o }
+ASK { ?s <{{ .URI }}> ?o }
 
 # tag: ask_query
 ASK { {{ .Query }} }
 
 # The DESCRIBE form returns a single result RDF graph containing RDF data about resources.
 # tag: describe
-DESCRIBE <{{.Uri}}>
+DESCRIBE <{{.URI}}>
 
 # tag: countGraphPerSpec
 SELECT (count(?subject) as ?count)
@@ -114,8 +114,8 @@ var SparqlRepo *sparql.Repo
 var SparqlUpdateRepo *sparql.Repo
 
 func init() {
-	SparqlQueryURL = Config.GetSparqlEndpoint("")
-	SparqlUpdateURL = Config.GetSparqlUpdateEndpoint("")
+	SparqlQueryURL = config.Config.GetSparqlEndpoint("")
+	SparqlUpdateURL = config.Config.GetSparqlUpdateEndpoint("")
 	f := bytes.NewBufferString(queries)
 	queryBank = sparql.LoadBank(f)
 	SparqlRepo = buildRepo(SparqlQueryURL)
@@ -125,7 +125,7 @@ func init() {
 // buildRepo builds the query repository
 func buildRepo(endPoint string) *sparql.Repo {
 	if endPoint == "" {
-		endPoint = Config.GetSparqlEndpoint("")
+		endPoint = config.Config.GetSparqlEndpoint("")
 	}
 	repo, err := sparql.NewRepo(endPoint,
 		sparql.Timeout(time.Millisecond*1500),
@@ -139,7 +139,7 @@ func buildRepo(endPoint string) *sparql.Repo {
 // UpdateViaSparql is a post to sparql function that tasks a valid SPARQL update query
 func UpdateViaSparql(update string) []error {
 	request := gorequest.New()
-	postURL := Config.GetSparqlUpdateEndpoint("")
+	postURL := config.Config.GetSparqlUpdateEndpoint("")
 
 	parameters := url.Values{}
 	parameters.Add("update", update)
@@ -178,7 +178,8 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 	return true, nil
 }
 
-// DeleteGraphsOrphansBySpec issues an SPARQL Update query to delete all orphaned graphs for a DataSet from the triple store.
+// DeleteGraphsOrphansBySpec issues an SPARQL Update query to delete all orphaned graphs
+// for a DataSet from the triple store.
 func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 	query, err := queryBank.Prepare("deleteOrphanGraphsBySpec", struct {
 		Spec           string
@@ -220,11 +221,11 @@ func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 		}
 		revision, err := strconv.Atoi(revisionTerm.String())
 		if err != nil {
-			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["revision"])
+			return revisions, fmt.Errorf("unable to convert %#v to integer", v["revision"])
 		}
 		revisionCount, err := strconv.Atoi(v["rCount"].String())
 		if err != nil {
-			return revisions, fmt.Errorf("Unable to convert %#v to integer.", v["rCount"])
+			return revisions, fmt.Errorf("unable to convert %#v to integer", v["rCount"])
 		}
 		revisions = append(revisions, DataSetRevisions{
 			Number:      revision,
@@ -254,17 +255,17 @@ func CountGraphsBySpec(spec string) (int, error) {
 	var count int
 	count, err = strconv.Atoi(countStr[0].String())
 	if err != nil {
-		return 0, fmt.Errorf("Unable to convert %s to integer.", countStr)
+		return 0, fmt.Errorf("unable to convert %s to integer", countStr)
 	}
 	return count, err
 }
 
 // PrepareAsk takes an a string and returns a valid SPARQL ASK query
 func PrepareAsk(uri string) (string, error) {
-	q, err := queryBank.Prepare("ask_subject", struct{ Uri string }{uri})
-
+	q, err := queryBank.Prepare("ask_subject", struct{ URI string }{uri})
 	if err != nil {
-		logger.WithFields(logrus.Fields{"err": err, "uri": uri}).Error("Unable to build ask query")
+		fields := logrus.Fields{"err": err, "uri": uri}
+		logger.WithFields(fields).Error("Unable to build ask query")
 		return "", err
 	}
 	return q, err
@@ -283,8 +284,9 @@ func AskSPARQL(query string) (bool, error) {
 	return false, nil
 }
 
+// DescribeSPARQL creates a describe query for a given URI.
 func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
-	query, err := queryBank.Prepare("describe", struct{ Uri string }{uri})
+	query, err := queryBank.Prepare("describe", struct{ URI string }{uri})
 	if err != nil {
 		logger.WithField("uri", uri).Errorf("Unable to build describe query.")
 		return nil, err

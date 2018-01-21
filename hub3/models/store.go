@@ -1,13 +1,3 @@
-package models
-
-import (
-	"fmt"
-	"log"
-	"strings"
-
-	"github.com/asdine/storm"
-)
-
 // Copyright © 2017 Delving B.V. <info@delving.eu>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +11,16 @@ import (
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+package models
+
+import (
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/asdine/storm"
+)
 
 // orm is the storm db entry point
 var orm *storm.DB

@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package models
 
 import (
@@ -6,7 +20,7 @@ import (
 	"log"
 	"time"
 
-	. "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/index"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -23,7 +37,8 @@ type DataSetStats struct {
 	StoredGraphs    int                `json:"storedGraphs"`
 	IndexedRecords  int                `json:"indexedRecords"`
 	CurrentRevision int                `json:"currentRevision"`
-	GraphRevisions  []DataSetRevisions `json:"dataSetRevisions"`
+	GraphRevisions  []DataSetRevisions `json:"graphRevisions"`
+	IndexRevisions  []DataSetRevisions `json:"indexRevisions"`
 }
 
 // DataSet contains all the known informantion for a RAPID metadata dataset
@@ -47,7 +62,7 @@ type Access struct {
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
 func createDatasetURI(spec string) string {
-	uri := fmt.Sprintf("%s/resource/dataset/%s", Config.RDF.BaseUrl, spec)
+	uri := fmt.Sprintf("%s/resource/dataset/%s", config.Config.RDF.BaseURL, spec)
 	return uri
 }
 
@@ -95,7 +110,11 @@ func GetOrCreateDataSet(spec string) (DataSet, error) {
 
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() error {
-	orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
+	err := orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
+	if err != nil {
+		log.Printf("Unable to update field in dataset: %s", ds.Spec)
+		return err
+	}
 	freshDs, err := GetDataSet(ds.Spec)
 	ds = &freshDs
 	return err
@@ -119,8 +138,44 @@ func (ds DataSet) Delete() error {
 	return orm.DeleteStruct(&ds)
 }
 
+// IndexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
+func (ds DataSet) IndexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, error) {
+	revisions := []DataSetRevisions{}
+	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
+	q := elastic.NewMatchQuery("spec", ds.Spec)
+	res, err := index.ESClient().Search().
+		Index(config.Config.ElasticSearch.IndexName).
+		Type("rdfrecord").
+		Query(q).
+		Size(0).
+		Aggregation("revisions", revisionAgg).
+		Do(ctx)
+	if err != nil {
+		logger.WithField("spec", ds.Spec).Errorf("Unable to get IndexRevisionStats for the dataset.")
+		return 0, revisions, err
+	}
+	if res == nil {
+		logger.Errorf("expected response != nil; got: %v", res)
+		return 0, revisions, fmt.Errorf("expected response != nil")
+	}
+	aggs := res.Aggregations
+	revAggCount, found := aggs.Terms("revisions")
+	if !found {
+		logger.Errorf("Expected to find revision aggregations but got: %v", res)
+		return 0, revisions, fmt.Errorf("expected revision aggregrations")
+	}
+	for _, keyCount := range revAggCount.Buckets {
+		revisions = append(revisions, DataSetRevisions{
+			Number:      int(keyCount.Key.(float64)),
+			RecordCount: int(keyCount.DocCount),
+		})
+	}
+	totalHits := res.Hits.TotalHits
+	return int(totalHits), revisions, err
+}
+
 // CreateDataSetStats returns DataSetStats that contain all relevant counts from the storage layer
-func CreateDataSetStats(spec string) (DataSetStats, error) {
+func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) {
 	storedGraphs, err := CountGraphsBySpec(spec)
 	if err != nil {
 		return DataSetStats{}, err
@@ -134,11 +189,18 @@ func CreateDataSetStats(spec string) (DataSetStats, error) {
 		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
+	hits, indexRevisionCount, err := ds.IndexRecordRevisionsBySpec(ctx)
+	if err != nil {
+		log.Printf("Unable to get Index Revisions from ElasticSearch.")
+		return DataSetStats{}, err
+	}
 	return DataSetStats{
 		Spec:            spec,
 		StoredGraphs:    storedGraphs,
 		CurrentRevision: ds.Revision,
 		GraphRevisions:  revisionCount,
+		IndexRevisions:  indexRevisionCount,
+		IndexedRecords:  hits,
 	}, nil
 }
 
@@ -153,14 +215,34 @@ func (ds DataSet) DeleteAllGraphs() (bool, error) {
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
-// todo implement
+func (ds DataSet) DeleteIndexOrphans(ctx context.Context) (int, error) {
+	q := elastic.NewBoolQuery()
+	q = q.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
+	q = q.Must(elastic.NewMatchQuery("spec", ds.Spec))
+	logger.Infof("%#v", q)
+	res, err := index.ESClient().DeleteByQuery().
+		Index(config.Config.ElasticSearch.IndexName).
+		Type("rdfrecord").
+		Query(q).
+		Do(ctx)
+	if err != nil {
+		logger.WithField("spec", ds.Spec).Errorf("Unable to delete orphaned dataset records from index.")
+		return 0, err
+	}
+	if res == nil {
+		logger.Errorf("expected response != nil; got: %v", res)
+		return 0, fmt.Errorf("expected response != nil")
+	}
+	logger.Infof("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
+	return int(res.Deleted), err
+}
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
 	q := elastic.NewMatchQuery("spec", ds.Spec)
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
-		Index(Config.ElasticSearch.IndexName).
+		Index(config.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
 		Query(q).
 		Do(ctx)
