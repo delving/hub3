@@ -135,7 +135,7 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor, ctx context.Context) (Bu
 
 }
 
-// Execute performs the various BulkActions
+//Execute performs the various BulkActions
 func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Context) error {
 	if response.Spec == "" {
 		response.Spec = action.Spec
