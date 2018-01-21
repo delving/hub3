@@ -17,13 +17,13 @@ package logging
 import (
 	"os"
 
+	"bitbucket.org/delving/rapid/config"
 	"github.com/evalphobia/logrus_sentry"
 	"github.com/sirupsen/logrus"
-
-	. "bitbucket.org/delving/rapid/config"
 )
 
-
+// NewLogger creates a Logrus structured logger
+// Additionally this logger also includes sentry configuration
 func NewLogger() *logrus.Logger {
 	l := logrus.New()
 	l.Out = os.Stdout
@@ -34,7 +34,7 @@ func NewLogger() *logrus.Logger {
 
 // addSentry add the Sentry logging hook when a DSN is defined in the Config
 func addSentry(logger *logrus.Logger) {
-	dsn := Config.Logging.SentryDSN
+	dsn := config.Config.Logging.SentryDSN
 	if dsn != "" {
 		logger.WithField("dsn", dsn).Infoln("Adding Sentry logging hook.")
 		hook, err := logrus_sentry.NewSentryHook(dsn, []logrus.Level{
