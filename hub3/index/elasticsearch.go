@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package index
 
 import (
@@ -10,7 +24,7 @@ import (
 	"syscall"
 	"time"
 
-	. "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/config"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -28,9 +42,11 @@ var (
 	ctx    context.Context
 )
 
+// ESClient creates or returns an ElasticSearch Client.
+// This function should always be used to perform any ElasticSearch action.
 func ESClient() *elastic.Client {
 	if client == nil {
-		if Config.ElasticSearch.Enabled {
+		if config.Config.ElasticSearch.Enabled {
 			// setting up execution context
 			ctx = context.Background()
 
@@ -47,7 +63,7 @@ func ESClient() *elastic.Client {
 
 func ensureESIndex(index string) {
 	if index == "" {
-		index = Config.ElasticSearch.IndexName
+		index = config.Config.ElasticSearch.IndexName
 	}
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {
@@ -68,6 +84,7 @@ func ensureESIndex(index string) {
 	}
 }
 
+// ListIndexes returns a list of all the ElasticSearch Indices.
 func ListIndexes() ([]string, error) {
 	return ESClient().IndexNames()
 }
@@ -75,10 +92,10 @@ func ListIndexes() ([]string, error) {
 func createESClient() *elastic.Client {
 	if client == nil {
 		c, err := elastic.NewClient(
-			elastic.SetURL(Config.ElasticSearch.Urls...),   // set elastic urs from config
-			elastic.SetSniff(false),                        // disable sniffing
-			elastic.SetHealthcheckInterval(10*time.Second), // do healthcheck every 10 seconds
-			elastic.SetRetrier(NewCustomRetrier()),         // set custom retrier that tries 5 times. Default is 0
+			elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
+			elastic.SetSniff(false),                             // disable sniffing
+			elastic.SetHealthcheckInterval(10*time.Second),      // do healthcheck every 10 seconds
+			elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
 			// todo replace with logrus logger later
 			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
@@ -101,7 +118,12 @@ func NewCustomRetrier() *CustomRetrier {
 }
 
 // Retry defines how the retrier should deal with retrying the elasticsearch connection.
-func (r *CustomRetrier) Retry(ctx context.Context, retry int, req *http.Request, resp *http.Response, err error) (time.Duration, bool, error) {
+func (r *CustomRetrier) Retry(
+	ctx context.Context,
+	retry int,
+	req *http.Request,
+	resp *http.Response,
+	err error) (time.Duration, bool, error) {
 	// Fail hard on a specific error
 	if err == syscall.ECONNREFUSED {
 		return 0, false, errors.New("Elasticsearch or network down")
