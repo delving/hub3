@@ -88,3 +88,6 @@ make-release:
 
 make-release-public:
 	@goreleaser --rm-dist                                                                                                          0|21:40:20
+
+api-protobuffer:
+	@protoc --go_out=. hub3/api/api.proto

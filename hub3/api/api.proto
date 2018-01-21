@@ -1,0 +1,180 @@
+syntax = "proto3";
+package api;
+
+// Query object
+
+enum ResponseFormatType {
+  PROTOBUF = 0;
+  JSON = 1;
+  // not supported 
+  XML = 2;
+  // not supported 
+  JSONP = 3;
+  // not supported 
+  KML = 4;
+  // not supported 
+  GEOCLUSTER = 5;
+  // not supported 
+  GEOJSON = 6;
+}
+
+enum ResponseBlockType {
+  QUERY = 0;
+  ITEMS = 1;
+  FACETS = 2;
+  LAYOUT = 3;
+}
+
+message SearchRequest {
+  // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
+  string query = 1;
+  ResponseFormatType format = 2;
+  // number of results returned
+  // rows
+  int32 responseSize = 3;
+  int32 start = 4;
+  int32 page = 5;
+  repeated string QueryFilter = 6;
+  repeated string HiddenQueryFilter = 7;
+  repeated ResponseBlockType disable = 8;
+  repeated ResponseFormatType enable = 9;
+  repeated string FacetField  = 10;
+  int32 FacetLimit = 11;
+  bool FacetBoolType = 12;
+  string sortBy = 13;
+  // geo options
+  string LatLong = 14; // pt
+  string Distance = 15; // d
+  // min_* and max_* are the bounding box parameters
+  float min_x = 16;
+  float min_y = 17;
+  float max_x = 18;
+  float max_y = 19;
+  // add support for polygon
+  repeated string field = 20;
+  GeoType geoType = 21; 
+  // qr
+  string QueryRefinement = 22;
+}
+
+enum GeoType {
+  BBOX = 0;
+  GEOFILT = 1;
+}
+
+enum IdType {
+  // same as ES doc_id
+  HUDID = 0;
+  // case insensitive id search
+  IDCI = 1;
+  // named graph
+  NAMEDGRAPH = 2;
+}
+
+message DetailRequest {
+  // option: any valid identifier specified by the idType
+  // description: Will output a full-view. Default idType is hubId taken from the delving_hubId field.
+  string id = 1;
+  bool mlt = 2;
+  ResponseFormatType format = 3;
+  int32 mltCount = 4;
+  string mltQueryFilter = 5;
+  string mltFilterKey = 6;
+  // searchRequest is a serialised form of the search result and is the return 
+  // to results link
+  string searchRequest = 7;
+  // resultIndex is the point where this detail object is in the search result order
+  int32 resultIndex = 8;
+  // converter for result fields
+  string converter = 9; 
+  // the type of id used in the ?id field
+  IdType idType = 10;
+}
+
+
+// Base Response objects
+
+message BreadCrumb {
+  string href = 1;
+  string display = 2;
+  string field = 3;
+  string localised_field = 4;
+  string value = 5;
+  bool is_last = 6;
+}
+
+message PaginationLink {
+  int32 start = 1;
+  bool isLinked = 2;
+  int32 pageNumber = 3;
+}
+
+message Pagination {
+  int32 start = 1;
+  int32 rows = 2;
+  int32 numFound = 3;
+  bool hasNext = 4;
+  int32 nextPage = 5;
+  bool hasPrevious = 6;
+  int32 previousPage = 7;
+  int32 currentPage = 8;
+  repeated PaginationLink links = 9;
+}
+
+message Query {
+  int32 numfound = 1;
+  string terms = 2;
+  repeated BreadCrumb breadCrumbs = 3;
+}
+
+message Facet {
+  string name = 1;
+  bool isSelecet = 2;
+  string i18n = 3;
+  int32 total = 4;
+  int32 missingDocs = 5;
+  int32 otherDocs = 6;
+  repeated FaceLink links = 7;
+}
+
+message FaceLink {
+  string url = 1;
+  bool isSelected = 2;
+  string value = 3;
+  int32 count = 4;
+  string displayString = 5;
+}
+
+
+// V3
+
+// V2
+
+// V1 
+
+message MetadataFieldV1 {
+  repeated string field = 1;
+}
+
+message MetadataItemV1 {
+  string doc_id = 1;
+  string doc_type = 2;
+  map<string, MetadataFieldV1> fields = 3;
+}
+
+message SearchResultWrapperV1 {
+  SearchResultV1 result = 1;
+}
+
+// Full SearchResult
+message SearchResultV1 {
+  Query query = 1; 
+  Pagination pagination = 2;
+  repeated MetadataItemV1 items = 3;
+  repeated Facet facets = 4;
+}
+
+// The structure of the detail page
+message DetailResult {
+  MetadataItemV1 item = 1;
+}

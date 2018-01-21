@@ -1,18 +1,8 @@
 hash: dadff3ee8f8697922282a83cfc629e793ed7aced1dba5546cbb620353a677a22
-updated: 2018-01-20T20:15:35.983303146+01:00
+updated: 2018-01-21T16:55:23.514844026+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
-  subpackages:
-  - codec
-  - codec/json
-  - index
-  - internal
-  - q
-- name: github.com/boltdb/bolt
-  version: 9da31745363232bc1e27dbab3569e77383a51585
-- name: github.com/certifi/gocertifi
-  version: deb3ae2ef2610fde3330947281941c562861188b
 - name: github.com/codegangsta/gin
   version: cafe2ce98974a3dcca6b92ce393a91a0b58b8133
 - name: github.com/deiu/rdf2go
@@ -21,214 +11,36 @@ imports:
   version: 04b9315ab7a61886b4e51dba37a9c7cc14885fae
   subpackages:
   - twotier
-- name: github.com/disintegration/imaging
-  version: 1884593a19ddc6f2ea050403430d02c1d0fc1283
-- name: github.com/evalphobia/logrus_sentry
-  version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
-- name: github.com/fsnotify/fsnotify
-  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
-- name: github.com/getsentry/raven-go
-  version: 32a13797442ccb601b11761d74232773c1402d14
 - name: github.com/go-chi/chi
   version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
-  subpackages:
-  - middleware
-- name: github.com/go-chi/render
-  version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
-- name: github.com/google/btree
-  version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
-- name: github.com/gregjones/httpcache
-  version: 2bcd89a1743fd4b373f7370ce8ddc14dfbd18229
-  subpackages:
-  - diskcache
-- name: github.com/hashicorp/hcl
-  version: 23c074d0eceb2b8a5bfdbb271ab780cde70f05a8
-  subpackages:
-  - hcl/ast
-  - hcl/parser
-  - hcl/printer
-  - hcl/scanner
-  - hcl/strconv
-  - hcl/token
-  - json/parser
-  - json/scanner
-  - json/token
-- name: github.com/inconshreveable/mousetrap
-  version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
-- name: github.com/kiivihal/goharvest
-  version: 49a344e702a7f2949e94fc3ddceb99ea90c69162
-  subpackages:
-  - oai
-- name: github.com/knakk/digest
-  version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
 - name: github.com/knakk/rdf
   version: b6ee24f8f40ff0580683aefb6831dad263a3f751
 - name: github.com/knakk/sparql
   version: 3de19ad6a5dcee30dd5e101b47e3aedc7f69ef57
-- name: github.com/labstack/gommon
-  version: 57409ada9da0f2afad6664c49502f8c50fbd8476
-  subpackages:
-  - color
-  - log
-- name: github.com/magiconair/properties
-  version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
-- name: github.com/mailru/easyjson
-  version: 32fa128f234d041f196a9f3e0fea5ac9772c08e1
-  subpackages:
-  - buffer
-  - jlexer
-  - jwriter
-- name: github.com/mattn/go-colorable
-  version: 6cc8b475d4682021d75d2cbe2bc481bec4ce98e5
-- name: github.com/mattn/go-isatty
-  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
-- name: github.com/mitchellh/go-homedir
-  version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/gox
   version: 54b619477e8932bbb6314644c867e7e6db7a9c71
-- name: github.com/mitchellh/mapstructure
-  version: b4575eea38cca1123ec2dc90c26529b5c5acfcff
-- name: github.com/moul/http2curl
-  version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
-- name: github.com/muesli/smartcrop
-  version: 2b6d59398c039797affc60c0cb099e98bdba9dde
-- name: github.com/nfnt/resize
-  version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/OneOfOne/xxhash
   version: 4e9e81466dc37c9fd94ce9ecf42020ef54112203
 - name: github.com/onsi/ginkgo
   version: 9eda700730cba42af70d53180f9dcce9266bc2bc
-  subpackages:
-  - config
-  - internal/codelocation
-  - internal/containernode
-  - internal/failer
-  - internal/leafnodes
-  - internal/remote
-  - internal/spec
-  - internal/spec_iterator
-  - internal/specrunner
-  - internal/suite
-  - internal/testingtproxy
-  - internal/writer
-  - reporters
-  - reporters/stenographer
-  - reporters/stenographer/support/go-colorable
-  - reporters/stenographer/support/go-isatty
-  - types
 - name: github.com/onsi/gomega
   version: c893efa28eb45626cdaa76c9f653b62488858837
-  subpackages:
-  - format
-  - internal/assertion
-  - internal/asyncassertion
-  - internal/oraclematcher
-  - internal/testingtsupport
-  - matchers
-  - matchers/support/goraph/bipartitegraph
-  - matchers/support/goraph/edge
-  - matchers/support/goraph/node
-  - matchers/support/goraph/util
-  - types
 - name: github.com/parnurzeal/gorequest
   version: a578a48e8d6ca8b01a3b18314c43c6716bb5f5a3
-- name: github.com/pelletier/go-toml
-  version: acdc4509485b587f5e675510c4f2c63e90ff68a8
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/rs/cors
   version: 7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6
-- name: github.com/rwcarlsen/goexif
-  version: 17202558c8d9c3fd047859f1a5e73fd9ae709187
-  subpackages:
-  - exif
-  - tiff
-- name: github.com/sirupsen/logrus
-  version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
-- name: github.com/spf13/afero
-  version: bb8f1927f2a9d3ab41c9340aa034f6b803f4359c
-  subpackages:
-  - mem
-- name: github.com/spf13/cast
-  version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
 - name: github.com/spf13/cobra
   version: 0c34d16c3123764e413b9ed982ada58b1c3d53ea
   subpackages:
   - cobra
-- name: github.com/spf13/jwalterweatherman
-  version: 7c0cea34c8ece3fbeb2b27ab9b59511d360fb394
-- name: github.com/spf13/pflag
-  version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
-- name: github.com/spf13/viper
-  version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
 - name: github.com/urfave/negroni
   version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
-- name: github.com/valyala/bytebufferpool
-  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
-- name: github.com/valyala/fasttemplate
-  version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
-- name: golang.org/x/crypto
-  version: a6600008915114d9c087fad9f03d75087b1a74df
-  subpackages:
-  - ssh/terminal
-- name: golang.org/x/image
-  version: 12117c17ca67ffa1ce22e9409f3b0b0a93ac08c7
-  subpackages:
-  - bmp
-  - draw
-  - math/f64
-  - riff
-  - tiff
-  - tiff/lzw
-  - vp8
-  - vp8l
-  - webp
-- name: golang.org/x/net
-  version: 5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec
-  subpackages:
-  - html
-  - html/atom
-  - html/charset
-  - publicsuffix
-- name: golang.org/x/sys
-  version: 2c42eef0765b9837fbdab12011af7830f55f88f0
-  subpackages:
-  - unix
-  - windows
-- name: golang.org/x/text
-  version: e19ae1496984b1c655b8044a65c0300a3c878dd3
-  subpackages:
-  - encoding
-  - encoding/charmap
-  - encoding/htmlindex
-  - encoding/internal
-  - encoding/internal/identifier
-  - encoding/japanese
-  - encoding/korean
-  - encoding/simplifiedchinese
-  - encoding/traditionalchinese
-  - encoding/unicode
-  - internal/tag
-  - internal/utf8internal
-  - language
-  - runes
-  - transform
-  - unicode/norm
 - name: gopkg.in/olivere/elastic.v5
   version: 1094ee281ca61a783c9ba22bf86e7e0a8aa2d112
-  subpackages:
-  - config
-  - uritemplates
-- name: gopkg.in/yaml.v2
-  version: d670f9405373e636a5a2765eea47fac0c9bc91a4
-- name: willnorris.com/go/gifresize
-  version: 6a222229fa0697e6da06ec80f8ffd0ada346669d
-- name: willnorris.com/go/imageproxy
-  version: e7f9017674d9badb025048fb73bfa39782016e5d
-  subpackages:
-  - third_party/http
 testImports: []
