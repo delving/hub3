@@ -16,14 +16,28 @@ Part of the design is to require as little external dependencies outside the com
 
 ## Install
 
-    $ go get bitbucket/delving/rapid
+RAPID is written in Golang, so you have to setup your Golang environment first, see [Golang Installation].
 
+After that you can glone it from bitbucket:
+
+    $ git clone git@bitbucket.org:delving/rapid.git $GOPATH/src/bitbucket.org/delving
+
+Or use `go get`
+
+    $ go get bitbucket.org/delving/rapid
+
+In order to get the dependencies, install [glide]:
+
+    $ curl https://glide.sh/get | sh
+    $ glide install
 
 Start the server with the default configuration.
 
     $ rapid http
 
 For development setup, see [Develop](./docs/development.md).
+
+For deployment instructions, see [Deployment](./docs/deployment.md).
 
 ## Changelog
 
@@ -38,3 +52,6 @@ For development setup, see [Develop](./docs/development.md).
 Copyright (c) 2017-present Delving B.V.
 
 Licensed under [Apache 2.0](./License)
+
+[Golang Installation]: https://golang.org/doc/install
+[glide]: https://glide.sh 
