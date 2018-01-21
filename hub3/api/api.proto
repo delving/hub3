@@ -25,6 +25,10 @@ enum ResponseBlockType {
   LAYOUT = 3;
 }
 
+message FilterValue {
+  repeated string value = 1;
+}
+
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
@@ -34,8 +38,8 @@ message SearchRequest {
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
-  repeated string QueryFilter = 6;
-  repeated string HiddenQueryFilter = 7;
+  map<string, FilterValue> QueryFilter = 6;
+  map<string, FilterValue> HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseFormatType enable = 9;
   repeated string FacetField  = 10;
@@ -129,7 +133,7 @@ message Query {
 
 message Facet {
   string name = 1;
-  bool isSelecet = 2;
+  bool isSelected = 2;
   string i18n = 3;
   int32 total = 4;
   int32 missingDocs = 5;
