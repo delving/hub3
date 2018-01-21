@@ -38,7 +38,7 @@ results.bin
 # Data Storage
 # Boltdb
 rapid.db
-test.db
+tesu.db
 
 # coverage
 report
@@ -53,6 +53,7 @@ diw
 
 # generated docs
 public/api
+public/tests
 
 # scratch pad
 _scratch
