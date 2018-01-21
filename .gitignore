@@ -38,6 +38,7 @@ results.bin
 # Data Storage
 # Boltdb
 rapid.db
+test.db
 
 # coverage
 report
