@@ -47,8 +47,9 @@ func ProcessVerb(r *oai.Request) interface{} {
 		return "record"
 	default:
 		badVerb := oai.OAIError{
-			Code:    "badVerb",
-			Message: "Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated.",
+			Code: "badVerb",
+			Message: `Value of the verb argument is not a legal OAI-PMH verb,
+			the verb argument is missing, or the verb argument is repeated.`,
 		}
 		return badVerb
 	}

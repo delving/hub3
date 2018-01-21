@@ -11,7 +11,7 @@ import (
 	"strings"
 	"text/template"
 
-	. "bitbucket.org/delving/rapid/config"
+	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -162,6 +162,16 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
 			return err
 		}
+		// todo make sure the BulkIndexService is flushed first. Make sure that this is indeed an issue
+		// err := index.FlushIndexProcesser()
+		// if err != nil {
+		//log.Printf("unable to flush the index processor for %s: err", action.Spec, err)
+		//}
+		_, err = ds.DeleteIndexOrphans(ctx)
+		if err != nil {
+			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
+			return err
+		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
 		// remove all triples
@@ -258,7 +268,7 @@ func getContext(input string, lineNumber int) (string, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Println("Scan error: %s", err)
+		log.Printf("Scan error: %s", err)
 		return "", nil
 	}
 	return strings.Join(errorContext, "\n"), nil
@@ -274,7 +284,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
-	r := elastic.NewBulkIndexRequest().Index(Config.ElasticSearch.IndexName).Type("rdfrecord").Id(action.HubID).Doc(record)
+	r := elastic.NewBulkIndexRequest().Index(c.Config.ElasticSearch.IndexName).Type("rdfrecord").Id(action.HubID).Doc(record)
 	if r == nil {
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
@@ -303,7 +313,7 @@ func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
 // This saves each action individualy. You should use RDFBulkInsert instead.
 func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 	request := gorequest.New()
-	postURL := Config.GetGraphStoreEndpoint("")
+	postURL := c.Config.GetGraphStoreEndpoint("")
 	resp, body, errs := request.Post(postURL).
 		Query(fmt.Sprintf("graph=%s", action.NamedGraphURI)).
 		Set("Content-Type", "application/n-triples; charset=utf-8").
