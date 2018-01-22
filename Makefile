@@ -46,7 +46,10 @@ run-dev:
 	gin run http
 
 test:
-	@go test  
+	@go test  ./...
+
+benchmark:
+	@go test --bench=. -benchmem ./...
 
 ginkgo:
 	@ginkgo -r 
@@ -91,3 +94,4 @@ make-release-public:
 
 api-protobuffer:
 	@protoc --go_out=. hub3/api/api.proto
+

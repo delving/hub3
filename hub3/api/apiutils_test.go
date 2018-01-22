@@ -1,6 +1,9 @@
 package api_test
 
 import (
+	fmt "fmt"
+	"testing"
+
 	c "bitbucket.org/delving/rapid/config"
 	. "bitbucket.org/delving/rapid/hub3/api"
 
@@ -39,18 +42,19 @@ var _ = Describe("Apiutils", func() {
 
 			It("should marshal from a string", func() {
 				sr := &SearchRequest{
-					Query:        "Rapid Rocks",
+					Query:        "Rapid Rocks Gööd",
 					ResponseSize: int32(20),
 					FacetLimit:   int32(100),
 				}
 				output, err := SearchRequestToHex(sr)
+				fmt.Println(output)
 				Expect(err).ToNot(HaveOccurred())
-				input := "0a0b526170696420526f636b7318145864"
+				input := "0a12526170696420526f636b732047c3b6c3b66418145864"
 				Expect(output).To(Equal(input))
 				newSr, err := SearchRequestFromHex(input)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(newSr.GetResponseSize()).To(Equal(int32(20)))
-				Expect(newSr.GetQuery()).To(Equal("Rapid Rocks"))
+				Expect(newSr.GetQuery()).To(Equal("Rapid Rocks Gööd"))
 			})
 
 		})
@@ -58,3 +62,16 @@ var _ = Describe("Apiutils", func() {
 	})
 
 })
+
+func BenchmarkSearchRequestToHex(b *testing.B) {
+	sr := &SearchRequest{Query: "TestQuery"}
+	for n := 0; n < b.N; n++ {
+		SearchRequestToHex(sr)
+	}
+}
+
+func BenchmarkSearchRequestFromHex(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		SearchRequestFromHex("1810")
+	}
+}
