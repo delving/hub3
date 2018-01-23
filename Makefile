@@ -90,6 +90,10 @@ release:
 	@goreleaser --rm-dist --skip-publish
 	@rpm --addsign dist/*.rpm
 
+release-snapshot:
+	@goreleaser --rm-dist --skip-publish --snapshot
+	@rpm --addsign dist/*.rpm
+
 release-public:
 	@goreleaser --rm-dist --skip-publish
 
