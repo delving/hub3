@@ -86,11 +86,12 @@ setup-npm:
 	# used for getting dependencies to render swagger specifications
 	@npm install
 
-make-release:
-	@goreleaser --rm-dist --skip-publish                                                                                                          0|21:40:20
+release:
+	@goreleaser --rm-dist --skip-publish
+	@rpm --addsign dist/*.rpm
 
-make-release-public:
-	@goreleaser --rm-dist                                                                                                          0|21:40:20
+release-public:
+	@goreleaser --rm-dist --skip-publish
 
 api-protobuffer:
 	@protoc --go_out=. hub3/api/api.proto
