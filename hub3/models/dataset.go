@@ -142,7 +142,7 @@ func (ds DataSet) Delete() error {
 func (ds DataSet) IndexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, error) {
 	revisions := []DataSetRevisions{}
 	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
-	q := elastic.NewMatchQuery("spec", ds.Spec)
+	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
 	res, err := index.ESClient().Search().
 		Index(config.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
@@ -154,6 +154,7 @@ func (ds DataSet) IndexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		logger.WithField("spec", ds.Spec).Errorf("Unable to get IndexRevisionStats for the dataset.")
 		return 0, revisions, err
 	}
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
 	if res == nil {
 		logger.Errorf("expected response != nil; got: %v", res)
 		return 0, revisions, fmt.Errorf("expected response != nil")
@@ -218,7 +219,7 @@ func (ds DataSet) DeleteAllGraphs() (bool, error) {
 func (ds DataSet) DeleteIndexOrphans(ctx context.Context) (int, error) {
 	q := elastic.NewBoolQuery()
 	q = q.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
-	q = q.Must(elastic.NewMatchQuery("spec", ds.Spec))
+	q = q.Must(elastic.NewMatchPhraseQuery("spec", ds.Spec))
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(config.Config.ElasticSearch.IndexName).
