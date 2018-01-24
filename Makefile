@@ -87,7 +87,13 @@ setup-npm:
 	@npm install
 
 release:
+	@export LDFLAGS=$(LDFLAGS)
 	@goreleaser --rm-dist --skip-publish
+	@rpm --addsign dist/*.rpm
+
+release-dirty:
+	@export LDFLAGS=$(LDFLAGS)
+	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
 	@rpm --addsign dist/*.rpm
 
 release-snapshot:
