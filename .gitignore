@@ -18,6 +18,8 @@ gin-bin
 build/*
 dist
 utils
+rapidctl/build/*
+rapidctl/rapidctl
 
 # TLS cache
 .cache
