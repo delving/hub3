@@ -56,7 +56,7 @@ var _ = Describe("Sparql", func() {
 
 	})
 
-	Describe("Excecuting a SPARQL query", func() {
+	Describe("Executing a SPARQL query", func() {
 
 		Context("Ask", func() {
 

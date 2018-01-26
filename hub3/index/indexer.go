@@ -50,7 +50,7 @@ func CreateBulkProcessorService() *elastic.BulkProcessorService {
 		BulkActions(1000).               // commit if # requests >= 1000
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
 		FlushInterval(30 * time.Second). // commit every 30s
-		After(afterFn).                  // after Excecution callback
+		After(afterFn).                  // after Execution callback
 		//Before(beforeFn).
 		Stats(true) // enable statistics
 

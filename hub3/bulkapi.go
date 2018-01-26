@@ -310,7 +310,7 @@ func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
 }
 
 // RDFSave save the RDFrecord to the TripleStore.
-// This saves each action individualy. You should use RDFBulkInsert instead.
+// This saves each action individually. You should use RDFBulkInsert instead.
 func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 	request := gorequest.New()
 	postURL := c.Config.GetGraphStoreEndpoint("")
