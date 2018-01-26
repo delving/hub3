@@ -54,6 +54,25 @@ func (n *NameSpaceMap) Add(prefix, base string) {
 	n.Unlock()
 }
 
+// AddNameSpace is a convenience function to add NameSpace objects to the Map
+func (n *NameSpaceMap) AddNameSpace(ns NameSpace) {
+	n.Add(ns.Prefix, ns.Base)
+}
+
+// Load loads the namespaces from the config object
+func (n *NameSpaceMap) Load(c *RawConfig) {
+	for _, ns := range c.NameSpaces {
+		n.AddNameSpace(ns)
+	}
+}
+
+// NewConfigNameSpaceMap creates a map from the NameSpaces defined in the config
+func NewConfigNameSpaceMap(c *RawConfig) *NameSpaceMap {
+	nsMap := NewNameSpaceMap()
+	nsMap.Load(c)
+	return nsMap
+}
+
 // GetBaseURI returns the base URI from the prefix
 func (n *NameSpaceMap) GetBaseURI(prefix string) (base string, ok bool) {
 	n.RLock()
@@ -90,6 +109,11 @@ func (n *NameSpaceMap) DeleteBaseURI(base string) {
 	}
 	delete(n.base2prefix, base)
 	n.Unlock()
+}
+
+// ByPrefix returns the map with prefixes as keys
+func (n *NameSpaceMap) ByPrefix() map[string]string {
+	return n.prefix2base
 }
 
 // SplitURI takes a given URI and splits it into a base URI and a local name

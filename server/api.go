@@ -232,6 +232,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 
 // listNameSpaces list all currently defined NameSpace object
 func listNameSpaces(w http.ResponseWriter, r *http.Request) {
-	render.JSON(w, r, c.Config.NameSpaces)
+	render.JSON(w, r, c.Config.NameSpaceMap.ByPrefix())
+	//render.JSON(w, r, c.Config.NameSpaces)
 	return
 }

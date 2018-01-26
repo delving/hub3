@@ -88,3 +88,116 @@ rdf = "data"
 [[namespaces]]
 base = "http://purl.org/dc/elements/1.1/"
 prefix = "dc"
+
+[[namespaces]]
+base = "http://purl.org/abm/sen"
+prefix = "abm"
+
+[[namespaces]]
+base = "http://www.europeana.eu/schemas/ese/"
+prefix = "europeana"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/"
+prefix = "delving"
+
+[[namespaces]]
+base = "http://purl.org/dc/terms/"
+prefix = "dcterms"
+
+[[namespaces]]
+base = "http://www.delving.eu/namespaces/custom/"
+prefix = "custom"
+
+[[namespaces]]
+base = "http://www.musip.nl/"
+prefix = "musip"
+
+[[namespaces]]
+base = "http://www.itin.nl/namespace/"
+prefix = "itin"
+
+[[namespaces]]
+base = "http://www.itin.nl/drupal/"
+prefix = "drup"
+
+[[namespaces]]
+base = "http://www.ab-c.nl/"
+prefix = "abc"
+
+[[namespaces]]
+base = "http://delving.eu/namespaces/raw/"
+prefix = "raw"
+
+[[namespaces]]
+base = "http://www.icn.nl/schemas/icn/"
+prefix = "icn"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/aff/"
+prefix = "aff"
+
+[[namespaces]]
+base = "http://www.w3.org/2004/02/skos/core#"
+prefix = "skos"
+
+[[namespaces]]
+base = "http://dbpedia.org/ontology/"
+prefix = "dbpedia-owl"
+
+[[namespaces]]
+base = "http://www.w3.org/2003/01/geo/wgs84_pos#"
+prefix = "wgs84_pos"
+
+[[namespaces]]
+base = "http://xmlns.com/foaf/0.1/"
+prefix = "foaf"
+
+[[namespaces]]
+base = "http://www.w3.org/2002/07/owl#"
+prefix = "owl"
+
+[[namespaces]]
+base = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+prefix = "rdf"
+
+[[namespaces]]
+base = "http://www.w3.org/2000/01/rdf-schema#"
+prefix = "rdfs"
+
+[[namespaces]]
+base = "http://www.europeana.eu/schemas/edm/"
+prefix = "edm"
+
+[[namespaces]]
+base = "http://www.openarchives.org/ore/terms/"
+prefix = "ore"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/narthex/terms/"
+prefix = "narthex"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/nave/terms/"
+prefix = "nave"
+
+[[namespaces]]
+base = "http://localhost:8000/resource/"
+prefix = "devmode"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/resource/ns/tib/"
+prefix = "tib"
+
+[[namespaces]]
+base = "http://creativecommons.org/ns#"
+prefix = "cc"
+
+[[namespaces]]
+base = "http://www.geonames.org/ontology#"
+prefix = "gn"
+
+[[namespaces]]
+base = "http://rdvocab.info/ElementsGr2/"
+prefix = "rda"
+

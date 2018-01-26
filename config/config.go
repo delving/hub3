@@ -52,7 +52,7 @@ type RawConfig struct {
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
 	NameSpaces    []NameSpace `json:"nameSpaces"`
-	nameSpaceMap  NameSpaceMap
+	NameSpaceMap  *NameSpaceMap
 }
 
 // ElasticSearch holds all the configuration values
@@ -222,6 +222,8 @@ func InitConfig() {
 			fmt.Sprintf("unable to decode into struct, %v", err),
 		)
 	}
+
+	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
 	cleanConfig()
 }
 
