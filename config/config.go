@@ -51,6 +51,8 @@ type RawConfig struct {
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
+	NameSpaces    []NameSpace `json:"nameSpaces"`
+	nameSpaceMap  NameSpaceMap
 }
 
 // ElasticSearch holds all the configuration values
@@ -98,8 +100,10 @@ type OAIPMH struct {
 
 // WebResource holds all the configuration options for the WebResource endpoint
 type WebResource struct {
-	Enabled        bool   `json:"enabled"`   // Make the webresource endpoint available
-	WebResourceDir string `json:"sourceDir"` // Target directory for the webresources
+	Enabled          bool   `json:"enabled"`    // Make the webresource endpoint available
+	WebResourceDir   string `json:"sourceDir"`  // Target directory for the webresources
+	CacheResourceDir string `json:"cacheDir"`   // cache directory for the webresources
+	enableSearch     bool   `json:enableSource` // enable searching for images in ElasticSearch
 }
 
 // ImageProxy holds all the configuration for the ImageProxy functionality
@@ -154,13 +158,19 @@ func setDefaults() {
 
 	// image proxy
 	viper.SetDefault("ImageProxy.enabled", true)
-	viper.SetDefault("ImageProxy.CacheDir", "webresource/cache")
+	viper.SetDefault("ImageProxy.CacheDir", "webresource_cache/cache")
 	viper.SetDefault("ImageProxy.referrer", []string{})
 	viper.SetDefault("ImageProxy.whitelist", []string{})
 	viper.SetDefault("ImageProxy.scaleUp", false)
 	viper.SetDefault("ImageProxy.timeout", 0)
 	viper.SetDefault("ImageProxy.deepzoom", true)
 	viper.SetDefault("ImageProxy.proxyPrefix", "imageproxy")
+
+	// webresource
+	viper.SetDefault("WebResource.enabled", true)
+	viper.SetDefault("WebResource.WebResourceDir", "webresource")
+	viper.SetDefault("WebResource.CacheResourceDir", "webresource_cache")
+	viper.SetDefault("WebResource.searchEnabled", false)
 
 	// lod
 	viper.SetDefault("LOD.enabled", true)
@@ -212,7 +222,6 @@ func InitConfig() {
 			fmt.Sprintf("unable to decode into struct, %v", err),
 		)
 	}
-
 	cleanConfig()
 }
 
@@ -262,4 +271,10 @@ func (c RawConfig) GetGraphStoreEndpoint(dbName string) string {
 	u.Path = fmt.Sprintf(c.RDF.GraphStorePath, dbName)
 	log.Printf("GraphStore endpoint: %s", u)
 	return u.String()
+}
+
+// Save saves the update version of the configuration file
+// At the moment this is mostly used for persisting the namespaces
+func (c RawConfig) Save() error {
+	return viper.SafeWriteConfig()
 }

@@ -85,4 +85,6 @@ html = "page"
 # rdf data routing point
 rdf = "data"
 
-
+[[namespaces]]
+base = "http://purl.org/dc/elements/1.1/"
+prefix = "dc"
