@@ -12,26 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hub3_test
+package mediamanager
 
 import (
-	"bitbucket.org/delving/rapid/hub3"
+	"fmt"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/OneOfOne/xxhash"
 )
 
-var _ = Describe("Webresource", func() {
+const (
+	sourceDir    = "source"
+	thumbnailDir = "thumbnail"
+	deepzoomDir  = "deepzoom"
+)
 
-	Describe("hasher", func() {
+// CreateHash creates an xxhash-based hash of a string
+func CreateHash(input string) string {
+	hash := xxhash.Checksum64([]byte(input))
+	return fmt.Sprintf("%016x", hash)
+}
 
-		Context("When given a string", func() {
-
-			It("should return a short hash", func() {
-				hash := hub3.CreateHash("rapid rocks.")
-				Expect(hash).To(Equal("a5b3be36c0f378a1"))
-			})
-		})
-
-	})
-})
+// NewWebResource creates a new webresource

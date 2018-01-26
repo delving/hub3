@@ -82,6 +82,15 @@ func Start() {
 	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
 	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
 
+	if c.Config.WebResource.Enabled {
+		r.Mount("/thumbnail", ThumbnailResource{}.Routes())
+		r.Mount("/deepzoom", DeepZoomResource{}.Routes())
+		r.Mount("/explore", ExploreResource{}.Routes())
+		// legacy route
+		r.Get("/iip/deepzoom/mnt/tib/tiles/{orgId}/{spec}/{localId}.tif.dzi", renderDeepZoom)
+		// render cached directories
+		FileServer(r, "/webresource", getAbsolutePathToFileDir(c.Config.WebResource.CacheResourceDir))
+	}
 	//r.Get("/deepzoom", func(w http.ResponseWriter, r *http.Request) {
 	//cmd := exec.Command("vips", "dzsave", "/tmp/webresource/dev-org-id/test2/source/123.jpg", "/tmp/123")
 	//stdoutStderr, err := cmd.Output()
@@ -123,6 +132,9 @@ func Start() {
 	// later change to update dataset
 	r.Post("/api/datasets/{spec}", createDataSet)
 	r.Delete("/api/datasets/{spec}", deleteDataset)
+
+	// namespaces
+	r.Get("/api/namespaces", listNameSpaces)
 
 	// LoD routingendpoint
 	r.Mount("/", LODResource{}.Routes())

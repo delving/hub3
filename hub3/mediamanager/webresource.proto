@@ -1,0 +1,13 @@
+syntax = "proto3";
+package mediamanager;
+
+message WebResource {
+  string OrgId = 1;
+  string Spec = 2;
+  repeated string HubId = 3;
+  map<string, string> derivatives = 4;
+  string ObjectNumber = 5;
+  repeated string Alternatives = 6;
+  string SourcePath = 7;
+}
+
