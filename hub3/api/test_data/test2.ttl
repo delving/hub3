@@ -1,0 +1,91 @@
+@prefix abc: <http://www.ab-c.nl/> .
+@prefix abm: <http://purl.org/abm/sen> .
+@prefix aff: <http://schemas.delving.eu/aff/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix cs: <http://schemas.delving.eu/cs/terms/> .
+@prefix custom: <http://www.delving.eu/namespaces/custom/> .
+@prefix dbpedia-owl: <http://dbpedia.org/ontology/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix delving: <http://schemas.delving.eu/> .
+@prefix devmode: <http://localhost:8000/resource/> .
+@prefix drup: <http://www.itin.nl/drupal> .
+@prefix edm: <http://www.europeana.eu/schemas/edm/> .
+@prefix europeana: <http://www.europeana.eu/schemas/ese/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix gn: <http://www.geonames.org/ontology#> .
+@prefix icn: <http://www.icn.nl/schemas/icn/> .
+@prefix itin: <http://www.itin.nl/namespace> .
+@prefix musip: <http://www.musip.nl/> .
+@prefix narthex: <http://schemas.delving.eu/narthex/terms/> .
+@prefix nave: <http://schemas.delving.eu/nave/terms/> .
+@prefix ore: <http://www.openarchives.org/ore/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix raw: <http://delving.eu/namespaces/raw> .
+@prefix rda: <http://rdvocab.info/ElementsGr2/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix tib: <http://schemas.delving.eu/resource/ns/tib/> .
+@prefix wgs84_pos: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter> a edm:Agent ;
+    skos:prefLabel "Lange, Peter" ;
+    foaf:name "Lange, Peter" .
+
+<http://data.jck.nl/resource/aggregation/jhm-foto/F900893> a ore:Aggregation ;
+    edm:aggregatedCHO <http://data.jck.nl/resource/document/jhm-foto/F900893> ;
+    edm:hasView <urn:joods-historisch/d375/375N021.jpg> ;
+    edm:isShownAt <http://data.jck.nl/resource/aggregation/jhm-foto/F900893> ;
+    edm:isShownBy <http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000> ;
+    edm:object <http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500> ;
+    ore:aggregates [ a nave:DelvingResource ;
+            nave:allowDeepZoom "true" ;
+            nave:allowLinkedOpenData "true" ;
+            nave:allowSourceDownload "false" ;
+            nave:featured "false" ;
+            nave:public "true" ],
+        [ a nave:BrabantCloudResource ;
+            nave:collection "Fotocollectie" ;
+            nave:collectionPart "Foto's" ;
+            nave:material "digitaal" ;
+            nave:objectNumber "F900893" ;
+            nave:objectSoort "foto" ;
+            nave:place "Muiderberg" ;
+            nave:technique "fotografie" ] .
+
+<http://data.jck.nl/resource/document/jhm-foto/F900893> a edm:ProvidedCHO ;
+    dc:creator <http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter> ;
+    dc:date "2006-06-09" ;
+    dc:description "Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006" ;
+    dc:identifier "F900893" ;
+    dc:rights "Joods Historisch Museum Amsterdam" ;
+    dc:subject <http://data.jck.nl/resource/skos/thesau/90000072>,
+        <http://data.jck.nl/resource/skos/thesau/90002542>,
+        <http://data.jck.nl/resource/skos/thesau/90073896> ;
+    dcterms:alternative "F900893: Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006" ;
+    dcterms:isPartOf "Joods Historisch Museum" ;
+    edm:hasMet <http://data.jck.nl/resource/skos/thespersoon/34715> .
+
+<http://data.jck.nl/resource/skos/thesau/90000072> a skos:Concept ;
+    skos:prefLabel "grafsteen" .
+
+<http://data.jck.nl/resource/skos/thesau/90002542> a skos:Concept ;
+    skos:prefLabel "Muiderberg" .
+
+<http://data.jck.nl/resource/skos/thesau/90073896> a skos:Concept ;
+    skos:prefLabel "begraafplaats" .
+
+<http://data.jck.nl/resource/skos/thespersoon/34715> a edm:Agent ;
+    rda:biographicalInformation "Mr. I. van S. Mulder (overleden in 1877) was een zoon van Samuel Israel Mulder (Amsterdam, 1792-1862) en was vanaf 1860 tot aan zijn dood lid van het bestuur van het N.I.A." ;
+    skos:prefLabel "Mulder, Israel van Samuel (-1877)" ;
+    foaf:name "Mulder, Israel van Samuel (-1877)" .
+
+<urn:joods-historisch/d375/375N021.jpg> a edm:WebResource ;
+    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021.tif.dzi" ;
+    nave:resourceSortOrder "1" ;
+    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
+    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
+    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500" .
