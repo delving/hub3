@@ -31,14 +31,53 @@ type DataSetRevisions struct {
 	RecordCount int `json:"recordCount"`
 }
 
+// IndexStats hold all Index Statistics for this dataset
+type IndexStats struct {
+	Enabled        bool               `json:"enabled"`
+	Revisions      []DataSetRevisions `json:"revisions"`
+	IndexedRecords int                `json:"indexedRecords"`
+}
+
+// RDFStoreStats hold all the RDFStore Statistics for this dataset
+type RDFStoreStats struct {
+	Revisions    []DataSetRevisions `json:"revisions"`
+	StoredGraphs int                `json:"storedGraphs"`
+	Enabled      bool               `json:"enabled"`
+}
+
+// LODFragmentStats hold all the LODFragment stats for this dataset
+type LODFragmentStats struct {
+	Enabled         bool               `json:"enabled"`
+	Revisions       []DataSetRevisions `json:"revisions"`
+	StoredFragments int                `json:"storedFragments"`
+}
+
+// WebResourceStats gathers all the MediaManager information for this DataSet
+type WebResourceStats struct {
+	Enabled           bool `json:"enabled"`
+	SourceItems       int  `json:"sourceItems"`
+	ThumbnailsCreated int  `json:"thumbnailsCreated"`
+	DeepZoomsCreated  int  `json:"deepZoomsCreated"`
+	Missing           int  `json:"missing"`
+}
+
+// NarthexStats gathers all the record statistics from Narthex
+type NarthexStats struct {
+	Enabled        bool `json:"enabled"`
+	SourceRecords  int  `json:"sourceRecords"`
+	ValidRecords   int  `json:"validRecords"`
+	InvalidRecords int  `json:"invalidRecords"`
+}
+
 // DataSetStats holds all gather statistics for a DataSet
 type DataSetStats struct {
-	Spec            string             `json:"spec"`
-	StoredGraphs    int                `json:"storedGraphs"`
-	IndexedRecords  int                `json:"indexedRecords"`
-	CurrentRevision int                `json:"currentRevision"`
-	GraphRevisions  []DataSetRevisions `json:"graphRevisions"`
-	IndexRevisions  []DataSetRevisions `json:"indexRevisions"`
+	Spec             string `json:"spec"`
+	CurrentRevision  int    `json:"currentRevision"`
+	IndexStats       `json:"index"`
+	RDFStoreStats    `json:"rdfStore"`
+	LODFragmentStats `json:"lodFragmentStats"`
+	WebResourceStats `json:"webResourceStats"`
+	NarthexStats     `json:"narthexStats"`
 }
 
 // DataSet contains all the known informantion for a RAPID metadata dataset
@@ -186,33 +225,70 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	return int(totalHits), revisions, err
 }
 
+// createLodFragmentStats queries the Fragment Store and returns LODFragmentStats struct
+func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats, error) {
+	return LODFragmentStats{}, nil
+}
+
+// createIndexStats queries ElasticSearch and returns the IndexStats struct
+func (ds DataSet) createIndexStats(ctx context.Context) (IndexStats, error) {
+	if !c.Config.ElasticSearch.Enabled {
+		return IndexStats{Enabled: false}, nil
+	}
+	hits, indexRevisionCount, err := ds.indexRecordRevisionsBySpec(ctx)
+	if err != nil {
+		log.Printf("Unable to get Index Revisions from ElasticSearch.")
+		return IndexStats{}, err
+	}
+	return IndexStats{
+		Revisions:      indexRevisionCount,
+		Enabled:        c.Config.ElasticSearch.Enabled,
+		IndexedRecords: hits,
+	}, nil
+}
+
+// createRDFStoreStats queries the RDFstore and returns the RDFStoreStats struct
+func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
+	if !c.Config.RDF.RDFStoreEnabled {
+		return RDFStoreStats{Enabled: false}, nil
+	}
+	storedGraphs, err := CountGraphsBySpec(ds.Spec)
+	if err != nil {
+		return RDFStoreStats{}, err
+	}
+	revisionCount, err := CountRevisionsBySpec(ds.Spec)
+	if err != nil {
+		return RDFStoreStats{}, err
+	}
+	return RDFStoreStats{
+		Enabled:      c.Config.RDF.RDFStoreEnabled,
+		Revisions:    revisionCount,
+		StoredGraphs: storedGraphs,
+	}, nil
+}
+
 // CreateDataSetStats returns DataSetStats that contain all relevant counts from the storage layer
 func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) {
-	storedGraphs, err := CountGraphsBySpec(spec)
-	if err != nil {
-		return DataSetStats{}, err
-	}
-	revisionCount, err := CountRevisionsBySpec(spec)
-	if err != nil {
-		return DataSetStats{}, err
-	}
 	ds, err := GetDataSet(spec)
 	if err != nil {
 		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
-	hits, indexRevisionCount, err := ds.indexRecordRevisionsBySpec(ctx)
+	indexStats, err := ds.createIndexStats(ctx)
 	if err != nil {
-		log.Printf("Unable to get Index Revisions from ElasticSearch.")
+		log.Printf("Unable to create indexStats for %s; %#v", spec, err)
+		return DataSetStats{}, err
+	}
+	storeStats, err := ds.createRDFStoreStats()
+	if err != nil {
+		log.Printf("Unable to create rdfStoreStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
 	return DataSetStats{
 		Spec:            spec,
-		StoredGraphs:    storedGraphs,
+		IndexStats:      indexStats,
+		RDFStoreStats:   storeStats,
 		CurrentRevision: ds.Revision,
-		GraphRevisions:  revisionCount,
-		IndexRevisions:  indexRevisionCount,
-		IndexedRecords:  hits,
 	}, nil
 }
 
