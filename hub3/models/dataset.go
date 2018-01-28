@@ -69,15 +69,24 @@ type NarthexStats struct {
 	InvalidRecords int  `json:"invalidRecords"`
 }
 
+// VocabularyEnrichmentStats gathers all counters for the SKOS based enrichment
+type VocabularyEnrichmentStats struct {
+	LiteralFields        []string `json:"literalFields"`
+	TotalConceptsMapped  int      `json:"totalConceptsMapped"`
+	UniqueConceptsMapped int      `json:"uniqueConceptsMapped"`
+	VocabularyLinked     []string `json:"vocabularyLinked"`
+}
+
 // DataSetStats holds all gather statistics for a DataSet
 type DataSetStats struct {
-	Spec             string `json:"spec"`
-	CurrentRevision  int    `json:"currentRevision"`
-	IndexStats       `json:"index"`
-	RDFStoreStats    `json:"rdfStore"`
-	LODFragmentStats `json:"lodFragmentStats"`
-	WebResourceStats `json:"webResourceStats"`
-	NarthexStats     `json:"narthexStats"`
+	Spec                      string `json:"spec"`
+	CurrentRevision           int    `json:"currentRevision"`
+	IndexStats                `json:"index"`
+	RDFStoreStats             `json:"rdfStore"`
+	LODFragmentStats          `json:"lodFragmentStats"`
+	WebResourceStats          `json:"webResourceStats"`
+	NarthexStats              `json:"narthexStats"`
+	VocabularyEnrichmentStats `json:"vocabularyEnrichmentStats"`
 }
 
 // DataSet contains all the known informantion for a RAPID metadata dataset

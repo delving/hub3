@@ -140,6 +140,7 @@ func (r *CustomRetrier) Retry(
 }
 
 // Create a new index.
+// TODO: add other mappings to the default mapping
 var mapping = `{
 	"settings":{
 		"number_of_shards":1,

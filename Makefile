@@ -103,6 +103,6 @@ release-snapshot:
 release-public:
 	@goreleaser --rm-dist --skip-publish
 
-api-protobuffer:
+protobuffer:
 	@protoc --go_out=. hub3/api/api.proto
-
+	@protoc --go_out=. hub3/fragments/fragments.proto
