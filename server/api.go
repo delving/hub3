@@ -181,7 +181,7 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Dataset is not found: %s", spec)
 		return
 	}
-	err = ds.Delete()
+	err = ds.Delete(ctx)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		log.Printf("Unable to delete request because: %s", err)

@@ -162,11 +162,6 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
 			return err
 		}
-		// todo make sure the BulkIndexService is flushed first. Make sure that this is indeed an issue
-		// err := index.FlushIndexProcesser()
-		// if err != nil {
-		//log.Printf("unable to flush the index processor for %s: err", action.Spec, err)
-		//}
 		_, err = ds.DeleteIndexOrphans(ctx)
 		if err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
@@ -187,7 +182,7 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 		}
 		log.Printf("remove dataset %s from the index", action.Spec)
 	case "drop_dataset":
-		ok, err := ds.Drop(ctx)
+		ok, err := ds.DropAll(ctx)
 		if !ok || err != nil {
 			log.Printf("Unable to drop dataset %s", action.Spec)
 			return err
@@ -202,7 +197,9 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 			return err
 		}
-		action.CreateRDFBulkRequest(response)
+		if c.Config.RDF.RDFStoreEnabled {
+			action.CreateRDFBulkRequest(response)
+		}
 		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
@@ -335,30 +332,4 @@ func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 	log.Printf("Stored %d triples for graph %s", fres.TripleCount, action.NamedGraphURI)
 	response.TriplesStored += fres.TripleCount
 	return errs
-}
-
-// Save converts the bulkAction request to an RDFRecord and saves it in Boltdb
-// TODO remove this later. Now superseded by ESSave
-func (action BulkAction) Save(response *BulkActionResponse) error {
-	record, err := models.GetOrCreateRDFRecord(action.HubID, action.Spec)
-	if err != nil {
-		log.Printf("Unable to get or create RDFrecord for %s", action.HubID)
-		return err
-	}
-	if record.ContentHash == action.ContentHash && action.ContentHash != "" {
-		// do nothing when the contentHash matches.
-		response.ContentHashMatches++
-		return nil
-	}
-	record.ContentHash = action.ContentHash
-	//record.Graph = action.Graph
-	if action.Graph == "" {
-		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
-	}
-	//record.Revision
-	err = record.Save()
-	if err != nil {
-		log.Printf("Unable to save %s because of %s", action.HubID, err)
-	}
-	return err
 }

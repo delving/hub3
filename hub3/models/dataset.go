@@ -20,7 +20,7 @@ import (
 	"log"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
+	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/index"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -62,7 +62,7 @@ type Access struct {
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
 func createDatasetURI(spec string) string {
-	uri := fmt.Sprintf("%s/resource/dataset/%s", config.Config.RDF.BaseURL, spec)
+	uri := fmt.Sprintf("%s/resource/dataset/%s", c.Config.RDF.BaseURL, spec)
 	return uri
 }
 
@@ -134,17 +134,28 @@ func (ds DataSet) Save() error {
 }
 
 // Delete deletes the DataSet from BoltDB
-func (ds DataSet) Delete() error {
+func (ds DataSet) Delete(ctx context.Context) error {
+	if c.Config.ElasticSearch.Enabled || c.Config.RDF.RDFStoreEnabled {
+		if _, err := ds.DropAll(ctx); err != nil {
+			return err
+		}
+		return nil
+	}
 	return orm.DeleteStruct(&ds)
 }
 
 // IndexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
 func (ds DataSet) IndexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, error) {
 	revisions := []DataSetRevisions{}
+
+	if !c.Config.ElasticSearch.Enabled {
+		return 0, revisions, fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+	}
+
 	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
 	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
 	res, err := index.ESClient().Search().
-		Index(config.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
 		Query(q).
 		Size(0).
@@ -222,7 +233,7 @@ func (ds DataSet) DeleteIndexOrphans(ctx context.Context) (int, error) {
 	q = q.Must(elastic.NewMatchPhraseQuery("spec", ds.Spec))
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
-		Index(config.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
 		Query(q).
 		Do(ctx)
@@ -243,7 +254,7 @@ func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
 	q := elastic.NewMatchQuery("spec", ds.Spec)
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
-		Index(config.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
 		Query(q).
 		Do(ctx)
@@ -259,20 +270,38 @@ func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
 	return int(res.Deleted), err
 }
 
-// Drop drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
-func (ds DataSet) Drop(ctx context.Context) (bool, error) {
-	ok, err := ds.DeleteAllGraphs()
-	if !ok || err != nil {
-		logger.Errorf("Unable to drop all graphs for %s", ds.Spec)
-		return ok, err
+// DropOrphans
+
+// DropRecords Drops all records linked to the dataset from the storage layers
+func (ds DataSet) DropRecords(ctx context.Context) (bool, error) {
+	var err error
+	ok := false
+	if c.Config.RDF.RDFStoreEnabled {
+		ok, err = ds.DeleteAllGraphs()
+		if !ok || err != nil {
+			logger.Errorf("Unable to drop all graphs for %s", ds.Spec)
+			return ok, err
+		}
 	}
 	// todo add deleting all records from elastic search
-	_, err = ds.DeleteAllIndexRecords(ctx)
-	if err != nil {
-		logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
-		return false, err
+	if c.Config.ElasticSearch.Enabled {
+		_, err = ds.DeleteAllIndexRecords(ctx)
+		if err != nil {
+			logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
+			return false, err
+		}
 	}
-	err = ds.Delete()
+	return ok, err
+}
+
+// DropAll drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
+func (ds DataSet) DropAll(ctx context.Context) (bool, error) {
+	ok, err := ds.DropRecords(ctx)
+	if !ok || err != nil {
+		logger.Errorf("Unable to drop all records for spec %s: %#v", ds.Spec, err)
+		return ok, err
+	}
+	err = orm.DeleteStruct(&ds)
 	if err != nil {
 		logger.Errorf("Unable to delete dataset %s from storage")
 		return false, err

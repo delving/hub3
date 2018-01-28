@@ -77,15 +77,16 @@ type HTTP struct {
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
-	SparqlEnabled     bool     `json:"sparqlEnabled"`     // Enable the SPARQL proxy
-	SparqlHost        string   `json:"sparqlHost"`        // the base-url to the SPARQL endpoint including the scheme and the port
-	SparqlPath        string   `json:"sparqlPath"`        // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	SparqlUpdatePath  string   `json:"sparqlUpdatePath"`  // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	GraphStorePath    string   `json:"dataPath"`          // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	BaseURL           string   `json:"baseUrl"`           // the RDF baseUrl used for minting new URIs
-	RoutedEntryPoints []string `json:"RoutedEntryPoints"` // the RDF baseUrl used for minting new URIs
+	SparqlEnabled    bool   `json:"sparqlEnabled"`    // Enable the SPARQL proxy
+	SparqlHost       string `json:"sparqlHost"`       // the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlPath       string `json:"sparqlPath"`       // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	SparqlUpdatePath string `json:"sparqlUpdatePath"` // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	GraphStorePath   string `json:"dataPath"`         // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	BaseURL          string `json:"baseUrl"`          // the RDF baseUrl used for minting new URIs
+	RDFStoreEnabled  bool   `json:"rdfStoreEnabled"`  // Store to Triple Store while saving RDF
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
+	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -150,6 +151,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
 	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
+	viper.SetDefault("RDF.RDFStoreEnabled", false)
 
 	// oai-pmh
 	viper.SetDefault("OAIPMH.enabled", true)
