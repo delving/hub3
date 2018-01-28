@@ -55,7 +55,7 @@ type APIErrorMessage struct {
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(r.Body, bp, ctx)
+	response, err := hub3.ReadActions(ctx, r.Body, bp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)
@@ -181,8 +181,8 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Dataset is not found: %s", spec)
 		return
 	}
-	err = ds.Delete(ctx)
-	if err != nil {
+	ok, err := ds.DropAll(ctx)
+	if !ok || err != nil {
 		render.Status(r, http.StatusBadRequest)
 		log.Printf("Unable to delete request because: %s", err)
 		return

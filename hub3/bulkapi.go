@@ -1,3 +1,17 @@
+// Copyright © 2017 Delving B.V. <info@delving.eu>
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package hub3
 
 import (
@@ -17,20 +31,6 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-// Copyright © 2017 Delving B.V. <info@delving.eu>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
 	HubID         string `json:"hubId"`
@@ -43,6 +43,7 @@ type BulkAction struct {
 	p             *elastic.BulkProcessor
 }
 
+// SparqlUpdate contains the elements to perform a SPARQL update query
 type SparqlUpdate struct {
 	Triples       string `json:"triples"`
 	NamedGraphURI string `json:"graphUri"`
@@ -50,6 +51,7 @@ type SparqlUpdate struct {
 	SpecRevision  int    `json:"specRevision"`
 }
 
+// TripleCount counts the number of Ntriples in a string
 func (su SparqlUpdate) TripleCount() (int, error) {
 	r := strings.NewReader(su.Triples)
 	return lineCounter(r)
@@ -86,19 +88,20 @@ func (su SparqlUpdate) String() string {
 	return executeTemplate(t, "update", su)
 }
 
+// BulkActionResponse is the datastructure where we keep the BulkAction statistics
 type BulkActionResponse struct {
 	Spec               string         `json:"spec"`
 	SpecRevision       int            `json:"specRevision"`       // version of the records stored
 	TotalReceived      int            `json:"totalReceived"`      // originally json was total_received
 	ContentHashMatches int            `json:"contentHashMatches"` // originally json was content_hash_matches
 	RecordsStored      int            `json:"recordsStored"`      // originally json was records_stored
-	JsonErrors         int            `json:"jsonErrors"`
+	JSONErrors         int            `json:"jsonErrors"`
 	TriplesStored      int            `json:"triplesStored"`
 	SparqlUpdates      []SparqlUpdate `json:"sparqlUpdates"` // store all the triples here for bulk insert
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
-func ReadActions(r io.Reader, p *elastic.BulkProcessor, ctx context.Context) (BulkActionResponse, error) {
+func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, error) {
 
 	scanner := bufio.NewScanner(r)
 	response := BulkActionResponse{
@@ -111,24 +114,25 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor, ctx context.Context) (Bu
 		var action BulkAction
 		err := json.Unmarshal(line, &action)
 		if err != nil {
-			response.JsonErrors += 1
+			response.JSONErrors++
 			log.Println("Unable to unmarshal JSON.")
 			log.Print(err)
 			continue
 		}
 		action.p = p
-		err = action.Excute(&response, ctx)
+		err = action.Execute(ctx, &response)
 		if err != nil {
 			return response, err
 		}
-		response.TotalReceived += 1
+		response.TotalReceived++
 
 	}
-	// insert the RDF triples
-	errs := response.RDFBulkInsert()
-	if errs != nil {
-		////log.Fatal(errs)
-		return response, errs[0]
+	if c.Config.RDF.RDFStoreEnabled {
+		// insert the RDF triples
+		errs := response.RDFBulkInsert()
+		if errs != nil {
+			return response, errs[0]
+		}
 	}
 	log.Printf("%#v", response)
 	return response, nil
@@ -136,7 +140,7 @@ func ReadActions(r io.Reader, p *elastic.BulkProcessor, ctx context.Context) (Bu
 }
 
 //Execute performs the various BulkActions
-func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Context) error {
+func (action BulkAction) Execute(ctx context.Context, response *BulkActionResponse) error {
 	if response.Spec == "" {
 		response.Spec = action.Spec
 	}
@@ -157,30 +161,19 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := ds.DeleteGraphsOrphans()
+		ok, err := ds.DropOrphans(ctx)
 		if !ok || err != nil {
-			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
-			return err
-		}
-		_, err = ds.DeleteIndexOrphans(ctx)
-		if err != nil {
-			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", action.Spec, err)
+			log.Printf("Unable to drop orphans for %s\n", action.Spec)
 			return err
 		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
-		// remove all triples
-		ok, err := ds.DeleteAllGraphs()
+		ok, err := ds.DropRecords(ctx)
 		if !ok || err != nil {
-			log.Printf("Unable to remove all RDF graphs from spec %s: %s", action.Spec, err)
+			log.Printf("Unable to drop records for %s\n", action.Spec)
 			return err
 		}
-		_, err = ds.DeleteAllIndexRecords(ctx)
-		if err != nil {
-			logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
-			return err
-		}
-		log.Printf("remove dataset %s from the index", action.Spec)
+		log.Printf("remove dataset %s from the storage", action.Spec)
 	case "drop_dataset":
 		ok, err := ds.DropAll(ctx)
 		if !ok || err != nil {
@@ -192,21 +185,23 @@ func (action BulkAction) Excute(response *BulkActionResponse, ctx context.Contex
 		if response.SpecRevision == 0 {
 			response.SpecRevision = ds.Revision
 		}
-		err := action.ESSave(response)
-		if err != nil {
-			log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
-			return err
+		if c.Config.ElasticSearch.Enabled {
+			err := action.ESSave(response)
+			if err != nil {
+				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
+				return err
+			}
 		}
 		if c.Config.RDF.RDFStoreEnabled {
 			action.CreateRDFBulkRequest(response)
 		}
-		//fmt.Println("Store and index")
 	default:
 		log.Printf("Unknown action %s", action.Action)
 	}
 	return nil
 }
 
+// RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
 func (r *BulkActionResponse) RDFBulkInsert() []error {
 	nrGraphs := len(r.SparqlUpdates)
 	if nrGraphs == 0 {
@@ -271,7 +266,7 @@ func getContext(input string, lineNumber int) (string, error) {
 	return strings.Join(errorContext, "\n"), nil
 }
 
-// ESSaves the RDFRecord to ElasticSearch
+//ESSave the RDFRecord to ElasticSearch
 func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	record := models.NewRDFRecord(action.HubID, action.Spec)
 	record.ContentHash = action.ContentHash
@@ -281,7 +276,10 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
-	r := elastic.NewBulkIndexRequest().Index(c.Config.ElasticSearch.IndexName).Type("rdfrecord").Id(action.HubID).Doc(record)
+	r := elastic.NewBulkIndexRequest().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type("rdfrecord").Id(action.HubID).
+		Doc(record)
 	if r == nil {
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
@@ -295,7 +293,7 @@ type fusekiStoreResponse struct {
 	QuadCount   int `json:"quadCount"`
 }
 
-// RDFBulkInsert gathers all the
+//CreateRDFBulkRequest gathers all the triples from an BulkAction to be inserted in bulk.
 func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
 	su := SparqlUpdate{
 		Triples:       action.Graph,
@@ -306,8 +304,8 @@ func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
 	response.SparqlUpdates = append(response.SparqlUpdates, su)
 }
 
-// RDFSave save the RDFrecord to the TripleStore.
-// This saves each action individually. You should use RDFBulkInsert instead.
+//RDFSave save the RDFrecord to the TripleStore.
+//This saves each action individually. You should use RDFBulkInsert instead.
 func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 	request := gorequest.New()
 	postURL := c.Config.GetGraphStoreEndpoint("")

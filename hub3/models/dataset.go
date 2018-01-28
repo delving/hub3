@@ -144,8 +144,8 @@ func (ds DataSet) Delete(ctx context.Context) error {
 	return orm.DeleteStruct(&ds)
 }
 
-// IndexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
-func (ds DataSet) IndexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, error) {
+// indexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
+func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, error) {
 	revisions := []DataSetRevisions{}
 
 	if !c.Config.ElasticSearch.Enabled {
@@ -201,7 +201,7 @@ func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) 
 		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
-	hits, indexRevisionCount, err := ds.IndexRecordRevisionsBySpec(ctx)
+	hits, indexRevisionCount, err := ds.indexRecordRevisionsBySpec(ctx)
 	if err != nil {
 		log.Printf("Unable to get Index Revisions from ElasticSearch.")
 		return DataSetStats{}, err
@@ -217,17 +217,17 @@ func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) 
 }
 
 // DeleteGraphsOrphans deletes all the orphaned graphs from the Triple Store linked to this dataset
-func (ds DataSet) DeleteGraphsOrphans() (bool, error) {
+func (ds DataSet) deleteGraphsOrphans() (bool, error) {
 	return DeleteGraphsOrphansBySpec(ds.Spec, ds.Revision)
 }
 
 // DeleteAllGraphs deletes all the graphs linked to this dataset
-func (ds DataSet) DeleteAllGraphs() (bool, error) {
+func (ds DataSet) deleteAllGraphs() (bool, error) {
 	return DeleteAllGraphsBySpec(ds.Spec)
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
-func (ds DataSet) DeleteIndexOrphans(ctx context.Context) (int, error) {
+func (ds DataSet) deleteIndexOrphans(ctx context.Context) (int, error) {
 	q := elastic.NewBoolQuery()
 	q = q.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
 	q = q.Must(elastic.NewMatchPhraseQuery("spec", ds.Spec))
@@ -250,7 +250,7 @@ func (ds DataSet) DeleteIndexOrphans(ctx context.Context) (int, error) {
 }
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
-func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
+func (ds DataSet) deleteAllIndexRecords(ctx context.Context) (int, error) {
 	q := elastic.NewMatchQuery("spec", ds.Spec)
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
@@ -270,14 +270,34 @@ func (ds DataSet) DeleteAllIndexRecords(ctx context.Context) (int, error) {
 	return int(res.Deleted), err
 }
 
-// DropOrphans
+//DropOrphans removes all records of different revision that the current from the attached datastores
+func (ds DataSet) DropOrphans(ctx context.Context) (bool, error) {
+	var err error
+	ok := false
+	if c.Config.ElasticSearch.Enabled {
+
+		ok, err := ds.deleteGraphsOrphans()
+		if !ok || err != nil {
+			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
+			return false, err
+		}
+	}
+	if c.Config.RDF.RDFStoreEnabled {
+		_, err = ds.deleteIndexOrphans(ctx)
+		if err != nil {
+			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
+			return false, err
+		}
+	}
+	return ok, err
+}
 
 // DropRecords Drops all records linked to the dataset from the storage layers
 func (ds DataSet) DropRecords(ctx context.Context) (bool, error) {
 	var err error
 	ok := false
 	if c.Config.RDF.RDFStoreEnabled {
-		ok, err = ds.DeleteAllGraphs()
+		ok, err = ds.deleteAllGraphs()
 		if !ok || err != nil {
 			logger.Errorf("Unable to drop all graphs for %s", ds.Spec)
 			return ok, err
@@ -285,7 +305,7 @@ func (ds DataSet) DropRecords(ctx context.Context) (bool, error) {
 	}
 	// todo add deleting all records from elastic search
 	if c.Config.ElasticSearch.Enabled {
-		_, err = ds.DeleteAllIndexRecords(ctx)
+		_, err = ds.deleteAllIndexRecords(ctx)
 		if err != nil {
 			logger.Errorf("Unable to drop all index records for %s: %#v", ds.Spec, err)
 			return false, err
