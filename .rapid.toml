@@ -34,7 +34,8 @@ routedEntryPoints = ["http://localhost:3000"]
 baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
-
+# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+rdfStoreEnabled = false
 
 [oaipmh]
 # options: no, transient, persistent

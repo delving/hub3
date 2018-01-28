@@ -163,7 +163,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		// clear triples
 		ok, err := ds.DropOrphans(ctx)
 		if !ok || err != nil {
-			log.Printf("Unable to drop orphans for %s\n", action.Spec)
+			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
 			return err
 		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
@@ -186,6 +186,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 			response.SpecRevision = ds.Revision
 		}
 		if c.Config.ElasticSearch.Enabled {
+			log.Println("saving record")
 			err := action.ESSave(response)
 			if err != nil {
 				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)

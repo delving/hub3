@@ -273,16 +273,15 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context) (int, error) {
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context) (bool, error) {
 	var err error
-	ok := false
-	if c.Config.ElasticSearch.Enabled {
-
+	ok := true
+	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
 			return false, err
 		}
 	}
-	if c.Config.RDF.RDFStoreEnabled {
+	if c.Config.ElasticSearch.Enabled {
 		_, err = ds.deleteIndexOrphans(ctx)
 		if err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
