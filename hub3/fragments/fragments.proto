@@ -1,0 +1,77 @@
+// Run 'make protobuffer' from the root directory to generate 'fragments.pb.go'.
+syntax = "proto3";
+package fragments;
+
+service FragmentService           {
+  rpc Search (FragmentRequest) returns (FragmentResponse);
+}
+
+message FragmentResponse {
+  FragmentRequest request = 1;
+  int32 nrTriples = 2;
+  int32 page = 3;
+  repeated Fragment fragments = 4;
+}
+
+message FragmentRequest {
+  string subject = 1;
+  string predicate = 2;
+  string object = 3;
+  int32 page = 4;
+}
+
+enum ObjectType {
+RESOURCE = 0;
+LITERAL = 1;
+}
+
+enum ObjectXSDType {
+  STRING = 0;
+  BOOLEAN = 1;
+  DECIMAL = 2;
+  FLOAT = 3;
+  DOUBLE = 4;
+  DATETIME = 5;
+  TIME = 6;
+  DATE = 7;
+  GYEARMONTH = 8;
+  GYEAR = 9;
+  GMONTHDAY = 10;
+  GDAY = 11;
+  GMONTH = 12;
+  HEXBINARY = 13;
+  BASE64BINARY = 14;
+  ANYURI = 15;
+  NORMALIZEDSTRING = 16;
+  TOKEN = 17;
+  LANGUAGE = 18;
+  NMTOKEN = 19;
+  NAME = 20;
+  NCNAME = 21;
+  INTEGER = 22;
+  NONPOSITIVEINTEGER = 23;
+  NEGATIVEINTEGER = 24;
+  LONG = 25;
+  INT = 26;
+  SHORT = 27;
+  BYTE = 28;
+  NONNEGATIVEINTEGER = 29;
+  UNSIGNEDLONG = 30;
+  UNSIGNEDINT = 31;
+  UNSIGNEDSHORT = 32;
+  UNSIGNEDBYTE = 33;
+  POSITIVEINTEGER = 34;
+}
+
+
+message Fragment {
+  string spec = 1;
+  int32 revision = 2;
+  string NamedGraphURI = 3;
+  string subject = 4;
+  string predicate = 5;
+  string object = 6;
+  string language = 7;
+  ObjectType   objectType = 8;
+  ObjectXSDType dataType = 9;
+}
