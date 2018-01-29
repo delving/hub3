@@ -26,9 +26,10 @@ import (
 
 // FragmentGraph holds all the information to build and store Fragments
 type FragmentGraph struct {
-	Spec          string
-	Revision      int32
-	NamedGraphURI string
+	OrgID         string `json:"orgID"`
+	Spec          string `json:"spec"`
+	Revision      int32  `json:"revision"`
+	NamedGraphURI string `json:"namedGraphURI"`
 }
 
 // CreateFragment creates a fragment from a triple
@@ -37,6 +38,7 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		Spec:          fg.Spec,
 		Revision:      fg.Revision,
 		NamedGraphURI: fg.NamedGraphURI,
+		OrgID:         fg.OrgID,
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -53,7 +55,6 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	default:
 		return f, fmt.Errorf("unknown object type: %#v", triple.Object)
 	}
-	//fmt.Printf("%#v", triple.Object.Language)
 	return f, nil
 }
 
@@ -96,4 +97,32 @@ func (fr FragmentRequest) Find(client *elastic.Client) (FragmentResponse, error)
 	var resp FragmentResponse
 	// TODO: implement the search
 	return resp, nil
+}
+
+// GetLabel retrieves the XSD label of the ObjectXSDType
+func (t ObjectXSDType) GetLabel() (string, error) {
+	label, ok := objectXSDType2XSDLabel[int32(t)]
+	if !ok {
+		return "", fmt.Errorf("%s has no xsd label", t.String())
+	}
+	return label, nil
+}
+
+// GetObjectXSDType returns the ObjectXSDType from a valid XSD label
+func GetObjectXSDType(label string) (ObjectXSDType, error) {
+	if len(xsdLabel2ObjectXSDType) == 0 {
+		for k, v := range objectXSDType2XSDLabel {
+			xsdLabel2ObjectXSDType[v] = k
+		}
+	}
+
+	typeInt, ok := xsdLabel2ObjectXSDType[label]
+	if !ok {
+		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
+	}
+	t, ok := int2ObjectXSDType[typeInt]
+	if !ok {
+		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
+	}
+	return t, nil
 }

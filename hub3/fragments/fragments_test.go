@@ -193,8 +193,75 @@ var _ = Describe("Fragments", func() {
 				v.Add("page", "error")
 				err := fr.ParseQueryString(v)
 				Expect(err).To(HaveOccurred())
+			})
+
+			It("should set the page when it is an int", func() {
+				fr := NewFragmentRequest()
+				v := url.Values{}
+				v.Add("page", "10")
+				err := fr.ParseQueryString(v)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fr.GetPage()).To(Equal(int32(10)))
+			})
+
+			It("should set all the non-empty values", func() {
+				fr := NewFragmentRequest()
+				v := url.Values{}
+				v.Add("subject", "urn:1")
+				v.Add("predicate", "urn:subject")
+				v.Add("object", "mountain")
+				v.Add("language", "nl")
+				v.Add("page", "3")
+				err := fr.ParseQueryString(v)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fr.GetSubject()).To(Equal("urn:1"))
+				Expect(fr.GetPredicate()).To(Equal("urn:subject"))
+				Expect(fr.GetObject()).To(Equal("mountain"))
+				Expect(fr.GetLanguage()).To(Equal("nl"))
+				Expect(fr.GetPage()).To(Equal(int32(3)))
+			})
+		})
+	})
+
+	Describe("when creating a fragment", func() {
+
+		Context("and converting it to a Bulk Action", func() {
+
+			It("should set the doc_type", func() {
+				// todo implement this
 
 			})
 		})
+	})
+
+	Describe("ObjectXSDType conversions", func() {
+
+		Context("when converting to label", func() {
+
+			It("should return the xsd label when found", func() {
+				label, err := ObjectXSDType_BOOLEAN.GetLabel()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(label).ToNot(BeEmpty())
+				Expect(label).To(Equal("xsd:boolean"))
+			})
+
+			It("should return an error when no label could be found", func() {
+				const ObjectXSDType_ERROR ObjectXSDType = 100
+				label, err := ObjectXSDType_ERROR.GetLabel()
+				Expect(err).To(HaveOccurred())
+				Expect(label).To(BeEmpty())
+			})
+		})
+
+		Context("when converting from a label", func() {
+
+			It("should return the ObjectXSDType", func() {
+				t, err := GetObjectXSDType("xsd:boolean")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(t).ToNot(BeNil())
+				Expect(t).To(Equal(ObjectXSDType_BOOLEAN))
+			})
+		})
+
 	})
 })

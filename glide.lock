@@ -1,5 +1,5 @@
-hash: dadff3ee8f8697922282a83cfc629e793ed7aced1dba5546cbb620353a677a22
-updated: 2018-01-22T00:31:29.939271596+01:00
+hash: ba85e5f8947afaf7ac402f6725dfcd69a61ea7ef538f582789aecb1848b768e1
+updated: 2018-01-29T16:20:40.115790569+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -15,6 +15,8 @@ imports:
   version: deb3ae2ef2610fde3330947281941c562861188b
 - name: github.com/codegangsta/gin
   version: cafe2ce98974a3dcca6b92ce393a91a0b58b8133
+- name: github.com/deiu/gon3
+  version: f84eb1e0bd629a62676207d0a47516da8338cf60
 - name: github.com/deiu/rdf2go
   version: ba3ab40de4961dadc8e5fdcf57ddec818a6d9d0e
 - name: github.com/die-net/lrucache
@@ -36,11 +38,11 @@ imports:
 - name: github.com/go-chi/render
   version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
 - name: github.com/golang/protobuf
-  version: 1e59b77b52bf8e4b449a57e6f79f21226d571845
+  version: 925541529c1fa6821df4e44ce2723319eb2be768
   subpackages:
   - proto
 - name: github.com/google/btree
-  version: 316fb6d3f031ae8f4d457c6c5186b9e3ded70435
+  version: e89373fe6b4a7413d7acd6da1725b83ef713e6e4
 - name: github.com/gregjones/httpcache
   version: 2bcd89a1743fd4b373f7370ce8ddc14dfbd18229
   subpackages:
@@ -74,6 +76,8 @@ imports:
   subpackages:
   - color
   - log
+- name: github.com/linkeddata/gojsonld
+  version: 4f5db6791326b8962ede4edbba693edcf20fd1ad
 - name: github.com/magiconair/properties
   version: 49d762b9817ba1c2e9d0c69183c2b4a8b8f1d934
 - name: github.com/mailru/easyjson
@@ -95,7 +99,7 @@ imports:
 - name: github.com/moul/http2curl
   version: 9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d
 - name: github.com/muesli/smartcrop
-  version: 2b6d59398c039797affc60c0cb099e98bdba9dde
+  version: 9032446b30f6284f8718490b6bcff8a1d51173cf
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/OneOfOne/xxhash
@@ -121,7 +125,7 @@ imports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: c893efa28eb45626cdaa76c9f653b62488858837
+  version: 003f63b7f4cff3fc95357005358af2de0f5fe152
   subpackages:
   - format
   - internal/assertion
@@ -149,6 +153,8 @@ imports:
   subpackages:
   - exif
   - tiff
+- name: github.com/rychipman/easylex
+  version: 49ee7767142fe77a736296b5069907f42a807763
 - name: github.com/sirupsen/logrus
   version: d682213848ed68c0a260ca37d6dd5ace8423f5ba
 - name: github.com/spf13/afero
@@ -176,7 +182,7 @@ imports:
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
-  version: a6600008915114d9c087fad9f03d75087b1a74df
+  version: 1875d0a70c90e57f11972aefd42276df65e895b9
   subpackages:
   - ssh/terminal
 - name: golang.org/x/image
@@ -192,14 +198,14 @@ imports:
   - vp8l
   - webp
 - name: golang.org/x/net
-  version: 5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec
+  version: 0ed95abb35c445290478a5348a7b38bb154135fd
   subpackages:
   - html
   - html/atom
   - html/charset
   - publicsuffix
 - name: golang.org/x/sys
-  version: 2c42eef0765b9837fbdab12011af7830f55f88f0
+  version: ff2a66f350cefa5c93a634eadb5d25bb60c85a9c
   subpackages:
   - unix
   - windows

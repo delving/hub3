@@ -19,6 +19,7 @@ message FragmentRequest {
   string object = 3;
   int32 page = 4;
   string language = 5;
+  string orgId = 6;
 }
 
 enum ObjectType {
@@ -75,4 +76,5 @@ message Fragment {
   string language = 7;
   ObjectType   objectType = 8;
   ObjectXSDType dataType = 9;
+  string orgID = 10;
 }
