@@ -98,6 +98,7 @@ type DataSet struct {
 	Modified time.Time `json:"modified" storm:"index"`
 	Created  time.Time `json:"created"`
 	Deleted  bool      `json:"deleted"`
+	OrgID    string    `json:"orgID"`
 	Access   `json:"access" storm:"inline"`
 }
 
@@ -123,6 +124,7 @@ func NewDataset(spec string) DataSet {
 		LOD:    true,
 	}
 	dataset := DataSet{
+		OrgID:    c.Config.OrgID,
 		Spec:     spec,
 		URI:      createDatasetURI(spec),
 		Created:  now,
