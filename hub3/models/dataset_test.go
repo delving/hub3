@@ -15,9 +15,10 @@
 package models
 
 import (
+	"context"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
+	c "bitbucket.org/delving/rapid/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -26,7 +27,10 @@ var _ = Describe("Dataset", func() {
 
 	Context("When creating a dataset URI", func() {
 
-		config.InitConfig()
+		c.InitConfig()
+		c.Config.RDF.RDFStoreEnabled = false
+		c.Config.ElasticSearch.Enabled = false
+
 		uri := createDatasetURI("test")
 		It("should end with the spec", func() {
 			Expect(uri).To(HaveSuffix("test"))
@@ -37,7 +41,7 @@ var _ = Describe("Dataset", func() {
 		})
 
 		It("should start with the RDF baseUrl from the configuration.", func() {
-			baseURL := config.Config.RDF.BaseURL
+			baseURL := c.Config.RDF.BaseURL
 			Expect(uri).To(HavePrefix(baseURL))
 		})
 
@@ -183,7 +187,10 @@ var _ = Describe("Dataset", func() {
 			dsName := "test4"
 			ds, _ := GetOrCreateDataSet(dsName)
 			Expect(ds).ToNot(BeNil())
-			err = ds.Delete()
+			ds, err = GetDataSet(dsName)
+			Expect(err).To(BeNil())
+			ctx := context.Background()
+			err = ds.Delete(ctx)
 			Expect(err).To(BeNil())
 			ds, err = GetDataSet(dsName)
 			Expect(err).ToNot(BeNil())

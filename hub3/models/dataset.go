@@ -379,7 +379,7 @@ func (ds DataSet) DropOrphans(ctx context.Context) (bool, error) {
 // DropRecords Drops all records linked to the dataset from the storage layers
 func (ds DataSet) DropRecords(ctx context.Context) (bool, error) {
 	var err error
-	ok := false
+	ok := true
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err = ds.deleteAllGraphs()
 		if !ok || err != nil {

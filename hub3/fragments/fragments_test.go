@@ -178,12 +178,22 @@ var _ = Describe("Fragments", func() {
 				v.Add("predicate", "")
 				v.Add("object", "")
 				v.Add("language", "")
+				v.Add("page", "2")
 				err := fr.ParseQueryString(v)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fr.GetSubject()).To(Equal("urn:1"))
 				Expect(fr.GetPredicate()).To(BeEmpty())
 				Expect(fr.GetObject()).To(BeEmpty())
 				Expect(fr.GetLanguage()).To(BeEmpty())
+			})
+
+			It("should throw an error when the page is not an int", func() {
+				fr := NewFragmentRequest()
+				v := url.Values{}
+				v.Add("page", "error")
+				err := fr.ParseQueryString(v)
+				Expect(err).To(HaveOccurred())
+
 			})
 		})
 	})
