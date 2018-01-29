@@ -194,7 +194,7 @@ var _ = Describe("Fragments", func() {
 			})
 		})
 
-		Context("when receving a triple with literal and type", func() {
+		Context("when receiving a triple with literal and type", func() {
 
 			It("should have the custom dataType", func() {
 				t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_DATE))

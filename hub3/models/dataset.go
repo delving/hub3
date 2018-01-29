@@ -186,7 +186,8 @@ func (ds DataSet) Save() error {
 // Delete deletes the DataSet from BoltDB
 func (ds DataSet) Delete(ctx context.Context) error {
 	if c.Config.ElasticSearch.Enabled || c.Config.RDF.RDFStoreEnabled {
-		if _, err := ds.DropAll(ctx); err != nil {
+		_, err := ds.DropAll(ctx)
+		if err != nil {
 			return err
 		}
 		return nil
