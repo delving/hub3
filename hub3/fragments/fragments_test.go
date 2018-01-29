@@ -16,6 +16,7 @@ package fragments_test
 
 import (
 	fmt "fmt"
+	"net/url"
 	"reflect"
 
 	. "bitbucket.org/delving/rapid/hub3/fragments"
@@ -145,6 +146,44 @@ var _ = Describe("Fragments", func() {
 
 			It("should have string as datatype", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
+			})
+		})
+	})
+
+	Describe("creating a new FragmentRequest", func() {
+
+		Context("directly", func() {
+
+			It("should have no triple pattern set", func() {
+				fr := NewFragmentRequest()
+				Expect(fr).ToNot(BeNil())
+				Expect(fr.GetSubject()).To(BeEmpty())
+				Expect(fr.GetPredicate()).To(BeEmpty())
+				Expect(fr.GetObject()).To(BeEmpty())
+				Expect(fr.GetLanguage()).To(BeEmpty())
+			})
+
+			It("should have a non-zero page start", func() {
+				fr := NewFragmentRequest()
+				Expect(fr.GetPage()).To(Equal(int32(1)))
+			})
+		})
+
+		Context("parsing from url.Values", func() {
+
+			It("should ignore empty values", func() {
+				fr := NewFragmentRequest()
+				v := url.Values{}
+				v.Add("subject", "urn:1")
+				v.Add("predicate", "")
+				v.Add("object", "")
+				v.Add("language", "")
+				err := fr.ParseQueryString(v)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fr.GetSubject()).To(Equal("urn:1"))
+				Expect(fr.GetPredicate()).To(BeEmpty())
+				Expect(fr.GetObject()).To(BeEmpty())
+				Expect(fr.GetLanguage()).To(BeEmpty())
 			})
 		})
 	})

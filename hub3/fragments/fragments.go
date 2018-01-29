@@ -17,6 +17,8 @@ package fragments
 import (
 	fmt "fmt"
 	"log"
+	"net/url"
+	"strconv"
 
 	r "github.com/deiu/rdf2go"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -59,7 +61,34 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 // Use the funcs to setup filters and search properties
 // then call Find to execute.
 func NewFragmentRequest() *FragmentRequest {
-	return &FragmentRequest{}
+	fr := &FragmentRequest{}
+	fr.Page = int32(1)
+	return fr
+}
+
+// ParseQueryString sets the FragmentRequest values from url.Values
+func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
+	for k, v := range v {
+		switch k {
+		case "subject":
+			fr.Subject = v[0]
+		case "predicate":
+			fr.Predicate = v[0]
+		case "object":
+			fr.Object = v[0]
+		case "language":
+			fr.Language = v[0]
+		case "page":
+			page, err := strconv.ParseInt(v[0], 10, 32)
+			if err != nil {
+				return fmt.Errorf("Unable to convert page %s into an int32", v[0])
+			}
+			fr.Page = int32(page)
+		default:
+			return fmt.Errorf("unknown ")
+		}
+	}
+	return nil
 }
 
 // Find executes the search and returns a response

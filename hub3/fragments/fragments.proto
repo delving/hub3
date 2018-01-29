@@ -18,6 +18,7 @@ message FragmentRequest {
   string predicate = 2;
   string object = 3;
   int32 page = 4;
+  string language = 5;
 }
 
 enum ObjectType {
