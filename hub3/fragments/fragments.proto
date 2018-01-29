@@ -77,4 +77,7 @@ message Fragment {
   ObjectType   objectType = 8;
   ObjectXSDType dataType = 9;
   string orgID = 10;
+  string triple = 11;
+  string xsdRaw = 12;
+  string resourceType = 13;
 }

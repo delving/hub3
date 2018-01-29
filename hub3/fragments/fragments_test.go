@@ -264,4 +264,17 @@ var _ = Describe("Fragments", func() {
 		})
 
 	})
+
+	Describe("hasher", func() {
+
+		Context("When given a string", func() {
+
+			It("should return a short hash", func() {
+				hash := CreateHash("rapid rocks.")
+				Expect(hash).To(Equal("a5b3be36c0f378a1"))
+			})
+		})
+
+	})
+
 })

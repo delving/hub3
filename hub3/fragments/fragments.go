@@ -19,10 +19,16 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"strings"
 
+	c "bitbucket.org/delving/rapid/config"
+	"github.com/OneOfOne/xxhash"
 	r "github.com/deiu/rdf2go"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
+
+// DOCTYPE is the ElasticSearch doctype for the Fragment Struct
+const DOCTYPE = "lodfragment"
 
 // FragmentGraph holds all the information to build and store Fragments
 type FragmentGraph struct {
@@ -90,6 +96,33 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 		}
 	}
 	return nil
+}
+
+// CreateHash creates an xxhash-based hash of a string
+func CreateHash(input string) string {
+	hash := xxhash.Checksum64([]byte(input))
+	return fmt.Sprintf("%016x", hash)
+}
+
+// Quad returns a RDF Quad from the Fragment
+func (f Fragment) Quad() string {
+	return fmt.Sprintf("%s <%s> .", strings.TrimRight(f.Triple, "."), f.NamedGraphURI)
+}
+
+// ID is the hashed identifier of the Fragment Quad field.
+// This is used as identifier by the storage layer.
+func (f Fragment) ID() string {
+	return CreateHash(f.Quad())
+}
+
+// CreateBulkIndexRequest converts the fragment into a request that can be
+// submitted to the ElasticSearch BulkIndexService
+func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
+	r := elastic.NewBulkIndexRequest().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(DOCTYPE).Id(f.ID()).
+		Doc(f)
+	return r, nil
 }
 
 // Find executes the search and returns a response
