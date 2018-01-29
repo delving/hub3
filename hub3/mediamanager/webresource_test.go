@@ -21,7 +21,6 @@ import (
 	"path/filepath"
 
 	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/mediamanager"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -79,18 +78,6 @@ var _ = Describe("Webresource", func() {
 
 	AfterEach(func() {
 		os.RemoveAll(tmpDir)
-	})
-
-	Describe("hasher", func() {
-
-		Context("When given a string", func() {
-
-			It("should return a short hash", func() {
-				hash := mediamanager.CreateHash("rapid rocks.")
-				Expect(hash).To(Equal("a5b3be36c0f378a1"))
-			})
-		})
-
 	})
 
 })
