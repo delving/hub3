@@ -49,15 +49,30 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
 	f.Object = triple.Object.RawValue()
+	f.Triple = triple.String()
 	switch triple.Object.(type) {
 	case *r.Literal:
 		f.ObjectType = ObjectType_LITERAL
+		f.ObjectTypeRaw = "literal"
 		l := triple.Object.(*r.Literal)
-		log.Printf("lang: %s\n", l.Language)
 		f.Language = l.Language
-		//f.DataType = l.Datatype.String()
+		// Set default datatypes
+		f.DataType = ObjectXSDType_STRING
+		f.XsdRaw, _ = f.GetDataType().GetLabel()
+		if l.Datatype != nil {
+			fmt.Println("Inside the datatype loop")
+			xsdType, err := GetObjectXSDType(l.Datatype.String())
+			fmt.Println(err)
+			if err != nil {
+				log.Printf("Unable to get xsdType for %s", l.Datatype.String())
+				break
+			}
+			f.XsdRaw = l.Datatype.RawValue()
+			f.DataType = xsdType
+		}
 	case *r.Resource:
 		f.ObjectType = ObjectType_RESOURCE
+		f.ObjectTypeRaw = "resource"
 	default:
 		return f, fmt.Errorf("unknown object type: %#v", triple.Object)
 	}
@@ -106,7 +121,9 @@ func CreateHash(input string) string {
 
 // Quad returns a RDF Quad from the Fragment
 func (f Fragment) Quad() string {
-	return fmt.Sprintf("%s <%s> .", strings.TrimRight(f.Triple, "."), f.NamedGraphURI)
+	// remove trailing period
+	cleanTriple := strings.TrimSuffix(f.GetTriple(), " .")
+	return fmt.Sprintf("%s <%s> .", cleanTriple, f.GetNamedGraphURI())
 }
 
 // ID is the hashed identifier of the Fragment Quad field.
@@ -148,7 +165,10 @@ func GetObjectXSDType(label string) (ObjectXSDType, error) {
 			xsdLabel2ObjectXSDType[v] = k
 		}
 	}
-
+	if strings.HasPrefix(label, "<") || strings.HasSuffix(label, ">") {
+		label = strings.TrimPrefix(label, "<")
+		label = strings.TrimSuffix(label, ">")
+	}
 	typeInt, ok := xsdLabel2ObjectXSDType[label]
 	if !ok {
 		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)

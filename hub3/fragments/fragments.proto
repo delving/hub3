@@ -79,5 +79,5 @@ message Fragment {
   string orgID = 10;
   string triple = 11;
   string xsdRaw = 12;
-  string resourceType = 13;
+  string objectTypeRaw = 13;
 }

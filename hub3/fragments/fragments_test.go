@@ -16,8 +16,8 @@ package fragments_test
 
 import (
 	fmt "fmt"
+	"log"
 	"net/url"
-	"reflect"
 
 	. "bitbucket.org/delving/rapid/hub3/fragments"
 	r "github.com/deiu/rdf2go"
@@ -45,6 +45,13 @@ func URIRef(uri string) r.Term {
 func Literal(value string, language string, dataType ObjectXSDType) r.Term {
 	if language != "" {
 		return r.NewLiteralWithLanguage(value, language)
+	}
+	if dataType != ObjectXSDType_STRING {
+		t, err := dataType.GetLabel()
+		if err != nil {
+			log.Println("Unable to get label for this type")
+		}
+		return r.NewLiteralWithDatatype(value, r.NewResource(t))
 	}
 	return r.NewLiteral(value)
 }
@@ -83,6 +90,25 @@ var _ = Describe("Fragments", func() {
 				Expect(f.GetNamedGraphURI()).To(Equal(ng))
 			})
 
+			It("should have an n-triple", func() {
+				t := f.GetTriple()
+				Expect(t).ToNot(BeEmpty())
+			})
+
+			It("should have a quad with the NamedGraphURI", func() {
+				q := f.Quad()
+				Expect(q).ToNot(BeEmpty())
+				Expect(q).To(HaveSuffix("<urn:target> <%s> .", f.GetNamedGraphURI()))
+			})
+
+			It("should have an id that is a hashed version of the Quad", func() {
+				id := f.ID()
+				Expect(id).ToNot(BeEmpty())
+				hash := CreateHash(f.Quad())
+				Expect(id).To(Equal(hash))
+				fmt.Println(id)
+			})
+
 			It("should have a subject without <>", func() {
 				r := f.GetSubject()
 				Expect(r).To(Equal("urn:1"))
@@ -102,8 +128,6 @@ var _ = Describe("Fragments", func() {
 				Expect(r).To(Equal("urn:target"))
 				Expect(r).ToNot(HaveSuffix("%s", ">"))
 				Expect(r).ToNot(HavePrefix("%s", "<"))
-				fmt.Println(reflect.TypeOf(r))
-				fmt.Println(t.String())
 			})
 
 			It("should have resource as objecttype", func() {
@@ -112,6 +136,19 @@ var _ = Describe("Fragments", func() {
 				Expect(t).To(Equal(ObjectType_RESOURCE))
 			})
 
+		})
+
+		Context("when getting the ObjectXSDType", func() {
+
+			It("should return the XSD label", func() {
+
+			})
+
+			It("should trim <>", func() {
+				t, err := GetObjectXSDType("<xsd:date>")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(t).ToNot(BeNil())
+			})
 		})
 
 		Context("when receiving a triple with a literal object", func() {
@@ -133,6 +170,10 @@ var _ = Describe("Fragments", func() {
 			It("should have string as datatype", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
+
+			It("should have xsd:string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
+			})
 		})
 
 		Context("when receiving a triple with a literal and language", func() {
@@ -146,6 +187,21 @@ var _ = Describe("Fragments", func() {
 
 			It("should have string as datatype", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
+			})
+
+			It("should have xsd:string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
+			})
+		})
+
+		Context("when receving a triple with literal and type", func() {
+
+			It("should have the custom dataType", func() {
+				t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_DATE))
+				f, err := fg.CreateFragment(t)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(f.GetDataType()).To(Equal(ObjectXSDType_DATE))
+				Expect(f.GetXsdRaw()).To(Equal("xsd:date"))
 			})
 		})
 	})
@@ -225,7 +281,7 @@ var _ = Describe("Fragments", func() {
 
 	Describe("when creating a fragment", func() {
 
-		Context("and converting it to a Bulk Action", func() {
+		Context("and converting it to a BulkIndexRequest", func() {
 
 			It("should set the doc_type", func() {
 				// todo implement this
