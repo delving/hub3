@@ -15,10 +15,12 @@
 package fragments_test
 
 import (
+	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
 
+	c "bitbucket.org/delving/rapid/config"
 	. "bitbucket.org/delving/rapid/hub3/fragments"
 	r "github.com/deiu/rdf2go"
 	. "github.com/onsi/ginkgo"
@@ -56,6 +58,16 @@ func Literal(value string, language string, dataType ObjectXSDType) r.Term {
 	return r.NewLiteral(value)
 }
 
+func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
+	fg := FragmentGraph{
+		OrgID:         "rapid",
+		Spec:          spec,
+		Revision:      rev,
+		NamedGraphURI: ng,
+	}
+	return &fg
+}
+
 var _ = Describe("Fragments", func() {
 
 	Describe("When receiving a Triple", func() {
@@ -63,11 +75,8 @@ var _ = Describe("Fragments", func() {
 		spec := "test-spec"
 		rev := int32(1)
 		ng := "urn:1/graph"
-		fg := FragmentGraph{
-			Spec:          spec,
-			Revision:      rev,
-			NamedGraphURI: ng,
-		}
+		fg := testFragmentGraph(spec, rev, ng)
+
 		Context("with an object resource", func() {
 
 			t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), URIRef("urn:target"))
@@ -281,11 +290,55 @@ var _ = Describe("Fragments", func() {
 
 	Describe("when creating a fragment", func() {
 
+		fg := testFragmentGraph("test", int32(1), "urn:1/graph")
+
 		Context("and converting it to a BulkIndexRequest", func() {
 
-			It("should set the doc_type", func() {
-				// todo implement this
+			t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "en", ObjectXSDType_STRING))
+			f, err := fg.CreateFragment(t)
 
+			It("the fragment should be valid", func() {
+				Expect(err).ToNot(HaveOccurred())
+				Expect(f).ToNot(BeNil())
+			})
+
+			It("should create the BulkIndexRequest", func() {
+				bir, err := f.CreateBulkIndexRequest()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(bir).ToNot(BeNil())
+			})
+
+			It("should have a valid header", func() {
+				bir, err := f.CreateBulkIndexRequest()
+				Expect(err).ToNot(HaveOccurred())
+				lines, err := bir.Source()
+				Expect(err).ToNot(HaveOccurred())
+				header := lines[0]
+				//body := lines[1]
+				var h interface{}
+				err = json.Unmarshal([]byte(header), &h)
+				Expect(err).ToNot(HaveOccurred())
+				m := h.(map[string]interface{})
+				Expect(m["index"]).To(HaveKeyWithValue("_id", f.ID()))
+				Expect(m["index"]).To(HaveKeyWithValue("_type", DOCTYPE))
+				Expect(m["index"]).To(HaveKeyWithValue("_index", c.Config.ElasticSearch.IndexName))
+
+			})
+
+			It("should have a valid body", func() {
+				bir, err := f.CreateBulkIndexRequest()
+				Expect(err).ToNot(HaveOccurred())
+				lines, err := bir.Source()
+				Expect(err).ToNot(HaveOccurred())
+				body := lines[1]
+				Expect(body).ToNot(BeEmpty())
+				var b interface{}
+				err = json.Unmarshal([]byte(body), &b)
+				Expect(err).ToNot(HaveOccurred())
+				m := b.(map[string]interface{})
+				Expect(m).To(HaveKeyWithValue("subject", "urn:1"))
+				Expect(m).To(HaveKeyWithValue("xsdRaw", "xsd:string"))
+				Expect(m).To(HaveKeyWithValue("language", "en"))
 			})
 		})
 	})
