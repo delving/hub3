@@ -241,7 +241,6 @@ func (c RawConfig) GetSparqlEndpoint(dbName string) string {
 		log.Fatal(err)
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
-	log.Printf("Sparql endpoint: %s", u)
 	return u.String()
 }
 
@@ -257,7 +256,6 @@ func (c RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
 		log.Fatal(err)
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlUpdatePath, dbName)
-	log.Printf("Sparql update endpoint: %s", u)
 	return u.String()
 }
 
