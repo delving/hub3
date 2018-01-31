@@ -16,7 +16,6 @@ package fragments_test
 
 import (
 	"encoding/json"
-	fmt "fmt"
 	"log"
 	"net/url"
 
@@ -115,7 +114,6 @@ var _ = Describe("Fragments", func() {
 				Expect(id).ToNot(BeEmpty())
 				hash := CreateHash(f.Quad())
 				Expect(id).To(Equal(hash))
-				fmt.Println(id)
 			})
 
 			It("should have a subject without <>", func() {
@@ -154,7 +152,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should trim <>", func() {
-				t, err := GetObjectXSDType("<xsd:date>")
+				t, err := GetObjectXSDType("<https://www.w3.org/2001/XMLSchema#date>")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t).ToNot(BeNil())
 			})
@@ -180,8 +178,8 @@ var _ = Describe("Fragments", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
 
-			It("should have xsd:string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
+			It("should have https://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("https://www.w3.org/2001/XMLSchema#string"))
 			})
 		})
 
@@ -198,8 +196,8 @@ var _ = Describe("Fragments", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
 
-			It("should have xsd:string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
+			It("should have https://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("https://www.w3.org/2001/XMLSchema#string"))
 			})
 		})
 
@@ -337,7 +335,7 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				m := b.(map[string]interface{})
 				Expect(m).To(HaveKeyWithValue("subject", "urn:1"))
-				Expect(m).To(HaveKeyWithValue("xsdRaw", "xsd:string"))
+				Expect(m).To(HaveKeyWithValue("xsdRaw", "https://www.w3.org/2001/XMLSchema#string"))
 				Expect(m).To(HaveKeyWithValue("language", "en"))
 			})
 		})
@@ -351,7 +349,7 @@ var _ = Describe("Fragments", func() {
 				label, err := ObjectXSDType_BOOLEAN.GetLabel()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(label).ToNot(BeEmpty())
-				Expect(label).To(Equal("xsd:boolean"))
+				Expect(label).To(Equal("https://www.w3.org/2001/XMLSchema#boolean"))
 			})
 
 			It("should return an error when no label could be found", func() {
@@ -362,10 +360,21 @@ var _ = Describe("Fragments", func() {
 			})
 		})
 
+		Context("when requesting a prefix label", func() {
+
+			It("should shorten the namespace to xsd", func() {
+				label, err := ObjectXSDType_BOOLEAN.GetPrefixLabel()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(label).ToNot(BeEmpty())
+				Expect(label).To(Equal("xsd:boolean"))
+
+			})
+		})
+
 		Context("when converting from a label", func() {
 
 			It("should return the ObjectXSDType", func() {
-				t, err := GetObjectXSDType("xsd:boolean")
+				t, err := GetObjectXSDType("https://www.w3.org/2001/XMLSchema#boolean")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t).ToNot(BeNil())
 				Expect(t).To(Equal(ObjectXSDType_BOOLEAN))

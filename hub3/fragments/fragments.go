@@ -16,6 +16,7 @@ package fragments
 
 import (
 	fmt "fmt"
+	"io"
 	"log"
 	"net/url"
 	"strconv"
@@ -32,10 +33,62 @@ const DOCTYPE = "lodfragment"
 
 // FragmentGraph holds all the information to build and store Fragments
 type FragmentGraph struct {
-	OrgID         string `json:"orgID"`
-	Spec          string `json:"spec"`
-	Revision      int32  `json:"revision"`
-	NamedGraphURI string `json:"namedGraphURI"`
+	OrgID         string   `json:"orgID"`
+	Spec          string   `json:"spec"`
+	HubID         string   `json:"hubID"`
+	Revision      int32    `json:"revision"`
+	NamedGraphURI string   `json:"namedGraphURI"`
+	Tags          []string `json:"tags"`
+	Graph         *r.Graph `json:"graph"`
+	MimeType      string   `json:"mimeType"`
+}
+
+// NewFragmentGraph creates a new instance of FragmentGraph
+func NewFragmentGraph() *FragmentGraph {
+	return &FragmentGraph{}
+}
+
+// ParseGraph creates a RDF2Go Graph
+func (fg *FragmentGraph) ParseGraph(rdf io.Reader, mimeType string) error {
+	var err error
+	fg.Graph = r.NewGraph("")
+	switch mimeType {
+	case "text/turtle":
+		err = fg.Graph.Parse(rdf, mimeType)
+	case "application/ld+json":
+		err = fg.Graph.Parse(rdf, mimeType)
+	default:
+		return fmt.Errorf(
+			"Unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",
+			mimeType,
+		)
+	}
+	if err != nil {
+		log.Printf("Unable to parse RDF string into graph: %v\n%s\n", err, rdf)
+		return err
+	}
+	fg.MimeType = mimeType
+	return nil
+}
+
+// SaveFragments creates and stores all the fragments
+func (fg *FragmentGraph) SaveFragments(p *elastic.BulkProcessor) error {
+	if fg.Graph.Len() == 0 {
+		return fmt.Errorf("cannot store fragments from empty graph")
+	}
+	for t := range fg.Graph.IterTriples() {
+		frag, err := fg.CreateFragment(t)
+		if err != nil {
+			log.Printf("Unable to create fragment due to %v.", err)
+			return err
+		}
+		err = frag.AddTo(p)
+		if err != nil {
+			log.Printf("Unable to save fragment due to %v.", err)
+			return err
+		}
+	}
+	return nil
 }
 
 // CreateFragment creates a fragment from a triple
@@ -45,6 +98,7 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		Revision:      fg.Revision,
 		NamedGraphURI: fg.NamedGraphURI,
 		OrgID:         fg.OrgID,
+		HubID:         fg.HubID,
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -60,14 +114,17 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		f.DataType = ObjectXSDType_STRING
 		f.XsdRaw, _ = f.GetDataType().GetLabel()
 		if l.Datatype != nil {
-			fmt.Println("Inside the datatype loop")
 			xsdType, err := GetObjectXSDType(l.Datatype.String())
-			fmt.Println(err)
 			if err != nil {
 				log.Printf("Unable to get xsdType for %s", l.Datatype.String())
 				break
 			}
-			f.XsdRaw = l.Datatype.RawValue()
+			prefixLabel, err := xsdType.GetPrefixLabel()
+			if err != nil {
+				log.Printf("Unable to get xsdType prefix label for %s", l.Datatype.String())
+				break
+			}
+			f.XsdRaw = prefixLabel
 			f.DataType = xsdType
 		}
 	case *r.Resource:
@@ -142,6 +199,16 @@ func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	return r, nil
 }
 
+// AddTo adds the BulkableRequest to the Storage interface where it is flushed periodically.
+func (f Fragment) AddTo(p *elastic.BulkProcessor) error {
+	cbr, err := f.CreateBulkIndexRequest()
+	if err != nil {
+		return err
+	}
+	p.Add(cbr)
+	return nil
+}
+
 // Find executes the search and returns a response
 func (fr FragmentRequest) Find(client *elastic.Client) (FragmentResponse, error) {
 	var resp FragmentResponse
@@ -156,6 +223,15 @@ func (t ObjectXSDType) GetLabel() (string, error) {
 		return "", fmt.Errorf("%s has no xsd label", t.String())
 	}
 	return label, nil
+}
+
+// GetPrefixLabel retrieves the XSD label of the ObjectXSDType with xsd: prefix.
+func (t ObjectXSDType) GetPrefixLabel() (string, error) {
+	label, err := t.GetLabel()
+	if err != nil {
+		return "<`1`>", err
+	}
+	return strings.Replace(label, "https://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
 }
 
 // GetObjectXSDType returns the ObjectXSDType from a valid XSD label

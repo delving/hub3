@@ -100,6 +100,7 @@ type DataSet struct {
 	Deleted  bool      `json:"deleted"`
 	OrgID    string    `json:"orgID"`
 	Access   `json:"access" storm:"inline"`
+	Tags     []string `json:"tags"`
 }
 
 // Access determines the which types of access are enabled for this dataset

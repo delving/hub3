@@ -26,6 +26,7 @@ import (
 	"text/template"
 
 	c "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -186,7 +187,6 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 			response.SpecRevision = ds.Revision
 		}
 		if c.Config.ElasticSearch.Enabled {
-			log.Println("saving record")
 			err := action.ESSave(response)
 			if err != nil {
 				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
@@ -284,8 +284,25 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	if r == nil {
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
+	fg := action.createFragmentGraph(response.SpecRevision)
+	err := fg.SaveFragments(action.p)
+	if err != nil {
+		log.Printf("Unable to save fragments: %v", err)
+		return err
+	}
 	action.p.Add(r)
 	return nil
+}
+
+func (action BulkAction) createFragmentGraph(revision int) *fragments.FragmentGraph {
+	fg := fragments.NewFragmentGraph()
+	fg.OrgID = c.Config.OrgID
+	fg.Spec = action.Spec
+	fg.Revision = int32(revision)
+	fg.NamedGraphURI = action.NamedGraphURI
+	fg.Tags = []string{"narthex", "mdr"}
+	fg.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
+	return fg
 }
 
 type fusekiStoreResponse struct {

@@ -80,4 +80,6 @@ message Fragment {
   string triple = 11;
   string xsdRaw = 12;
   string objectTypeRaw = 13;
+  repeated string tags = 14;
+  string hubID = 15;
 }
