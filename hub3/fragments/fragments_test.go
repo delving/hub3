@@ -28,7 +28,7 @@ import (
 
 // testGraph creates a dummy graph for testing
 func testGraph() *r.Graph {
-	baseUri := "https://rapid.org/resource"
+	baseUri := "http://rapid.org/resource"
 
 	g := r.NewGraph(baseUri)
 	g.Add(r.NewTriple(r.NewResource("a"), r.NewResource("b"), r.NewResource("c")))
@@ -152,7 +152,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should trim <>", func() {
-				t, err := GetObjectXSDType("<https://www.w3.org/2001/XMLSchema#date>")
+				t, err := GetObjectXSDType("<http://www.w3.org/2001/XMLSchema#date>")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t).ToNot(BeNil())
 			})
@@ -178,8 +178,8 @@ var _ = Describe("Fragments", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
 
-			It("should have https://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("https://www.w3.org/2001/XMLSchema#string"))
+			It("should have http://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("http://www.w3.org/2001/XMLSchema#string"))
 			})
 		})
 
@@ -196,8 +196,8 @@ var _ = Describe("Fragments", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
 
-			It("should have https://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("https://www.w3.org/2001/XMLSchema#string"))
+			It("should have http://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("http://www.w3.org/2001/XMLSchema#string"))
 			})
 		})
 
@@ -335,7 +335,7 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				m := b.(map[string]interface{})
 				Expect(m).To(HaveKeyWithValue("subject", "urn:1"))
-				Expect(m).To(HaveKeyWithValue("xsdRaw", "https://www.w3.org/2001/XMLSchema#string"))
+				Expect(m).To(HaveKeyWithValue("xsdRaw", "http://www.w3.org/2001/XMLSchema#string"))
 				Expect(m).To(HaveKeyWithValue("language", "en"))
 			})
 		})
@@ -349,7 +349,7 @@ var _ = Describe("Fragments", func() {
 				label, err := ObjectXSDType_BOOLEAN.GetLabel()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(label).ToNot(BeEmpty())
-				Expect(label).To(Equal("https://www.w3.org/2001/XMLSchema#boolean"))
+				Expect(label).To(Equal("http://www.w3.org/2001/XMLSchema#boolean"))
 			})
 
 			It("should return an error when no label could be found", func() {
@@ -374,7 +374,7 @@ var _ = Describe("Fragments", func() {
 		Context("when converting from a label", func() {
 
 			It("should return the ObjectXSDType", func() {
-				t, err := GetObjectXSDType("https://www.w3.org/2001/XMLSchema#boolean")
+				t, err := GetObjectXSDType("http://www.w3.org/2001/XMLSchema#boolean")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(t).ToNot(BeNil())
 				Expect(t).To(Equal(ObjectXSDType_BOOLEAN))

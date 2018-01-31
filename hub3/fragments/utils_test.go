@@ -35,7 +35,7 @@ func TestObjectTypeConversions(t *testing.T) {
 		label, err := ot.GetLabel()
 		gt.Expect(err).ToNot(g.HaveOccurred())
 		gt.Expect(label).ToNot(g.BeEmpty())
-		gt.Expect(label).To(g.HavePrefix("%s", "https://www.w3.org/2001/XMLSchema#"))
+		gt.Expect(label).To(g.HavePrefix("%s", "http://www.w3.org/2001/XMLSchema#"))
 
 		rawLabel, ok := objectXSDType2XSDLabel[i]
 		gt.Expect(ok).To(g.BeTrue())

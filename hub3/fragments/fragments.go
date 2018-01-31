@@ -231,7 +231,7 @@ func (t ObjectXSDType) GetPrefixLabel() (string, error) {
 	if err != nil {
 		return "<`1`>", err
 	}
-	return strings.Replace(label, "https://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
+	return strings.Replace(label, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
 }
 
 // GetObjectXSDType returns the ObjectXSDType from a valid XSD label
