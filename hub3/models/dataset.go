@@ -21,6 +21,7 @@ import (
 	"time"
 
 	c "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -29,6 +30,12 @@ import (
 type DataSetRevisions struct {
 	Number      int `json:"revisionNumber"`
 	RecordCount int `json:"recordCount"`
+}
+
+// DataSetCounter holds value counters for statistics overviews
+type DataSetCounter struct {
+	Value    string `json:"value"`
+	DocCount int    `json:"docCount"`
 }
 
 // IndexStats hold all Index Statistics for this dataset
@@ -50,6 +57,9 @@ type LODFragmentStats struct {
 	Enabled         bool               `json:"enabled"`
 	Revisions       []DataSetRevisions `json:"revisions"`
 	StoredFragments int                `json:"storedFragments"`
+	ObjectType      []DataSetCounter   `json:"objectType"`
+	Language        []DataSetCounter   `json:"language"`
+	ObjectDataType  []DataSetCounter   `json:"objectDataType"`
 }
 
 // WebResourceStats gathers all the MediaManager information for this DataSet
@@ -238,9 +248,86 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	return int(totalHits), revisions, err
 }
 
+// createDataSetCounters creates counters from an ElasticSearch aggregation
+func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCounter, error) {
+	counters := []DataSetCounter{}
+	aggCount, found := aggs.Terms(name)
+	if !found {
+		logger.Errorf("Expected to find %s aggregations but got: %v", name, aggs)
+		return counters, fmt.Errorf("expected %s aggregrations", name)
+	}
+	for _, keyCount := range aggCount.Buckets {
+		counters = append(counters, DataSetCounter{
+			Value:    keyCount.Key.(string),
+			DocCount: int(keyCount.DocCount),
+		})
+	}
+	return counters, nil
+}
+
 // createLodFragmentStats queries the Fragment Store and returns LODFragmentStats struct
 func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats, error) {
-	return LODFragmentStats{}, nil
+	revisions := []DataSetRevisions{}
+	fStats := LODFragmentStats{Enabled: true}
+
+	if !c.Config.ElasticSearch.Enabled {
+		return fStats, fmt.Errorf("FragmentStatsBySpec should not be called when elasticsearch is not enabled")
+	}
+
+	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
+	languageAgg := elastic.NewTermsAggregation().Field("language.keyword").Size(50).OrderByCountDesc()
+	objectTypeAgg := elastic.NewTermsAggregation().Field("objectTypeRaw.keyword").Size(50).OrderByCountDesc()
+	objectDataTypeAgg := elastic.NewTermsAggregation().Field("xsdRaw.keyword").Size(50).OrderByCountDesc()
+	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
+	res, err := index.ESClient().Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(fragments.DOCTYPE).
+		Query(q).
+		Size(0).
+		Aggregation("revisions", revisionAgg).
+		Aggregation("language", languageAgg).
+		Aggregation("objectTypeRaw", objectTypeAgg).
+		Aggregation("xsdRaw", objectDataTypeAgg).
+		Do(ctx)
+	if err != nil {
+		logger.WithField("spec", ds.Spec).Errorf("Unable to get FragmentStatsBySpec for the dataset.")
+		return fStats, err
+	}
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	if res == nil {
+		logger.Errorf("expected response != nil; got: %v", res)
+		return fStats, fmt.Errorf("expected response != nil")
+	}
+	aggs := res.Aggregations
+	revAggCount, found := aggs.Terms("revisions")
+	if !found {
+		logger.Errorf("Expected to find revision aggregations but got: %v", res)
+		return fStats, fmt.Errorf("expected revision aggregrations")
+	}
+	for _, keyCount := range revAggCount.Buckets {
+		revisions = append(revisions, DataSetRevisions{
+			Number:      int(keyCount.Key.(float64)),
+			RecordCount: int(keyCount.DocCount),
+		})
+	}
+	for _, a := range []string{"language", "objectTypeRaw", "xsdRaw"} {
+		counter, err := createDataSetCounters(aggs, a)
+		if err != nil {
+			return fStats, err
+		}
+		switch a {
+		case "language":
+			fStats.Language = counter
+		case "objectTypeRaw":
+			fStats.ObjectType = counter
+		case "xsdRaw":
+			fStats.ObjectDataType = counter
+		}
+	}
+	fStats.StoredFragments = int(res.Hits.TotalHits)
+	fStats.Enabled = true
+	fStats.Revisions = revisions
+	return fStats, nil
 }
 
 // createIndexStats queries ElasticSearch and returns the IndexStats struct
@@ -297,11 +384,17 @@ func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) 
 		log.Printf("Unable to create rdfStoreStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
+	lodFragmentStats, err := ds.createLodFragmentStats(ctx)
+	if err != nil {
+		log.Printf("Unable to create LODFragmentStats for %s; %#v", spec, err)
+		return DataSetStats{}, err
+	}
 	return DataSetStats{
-		Spec:            spec,
-		IndexStats:      indexStats,
-		RDFStoreStats:   storeStats,
-		CurrentRevision: ds.Revision,
+		Spec:             spec,
+		IndexStats:       indexStats,
+		RDFStoreStats:    storeStats,
+		LODFragmentStats: lodFragmentStats,
+		CurrentRevision:  ds.Revision,
 	}, nil
 }
 
@@ -324,6 +417,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context) (int, error) {
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
+		Type(fragments.DOCTYPE).
 		Query(q).
 		Do(ctx)
 	if err != nil {
@@ -345,6 +439,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context) (int, error) {
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type("rdfrecord").
+		Type(fragments.DOCTYPE).
 		Query(q).
 		Do(ctx)
 	if err != nil {
