@@ -113,7 +113,7 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		f.Language = l.Language
 		// Set default datatypes
 		f.DataType = ObjectXSDType_STRING
-		f.XsdRaw, _ = f.GetDataType().GetLabel()
+		f.XsdRaw, _ = f.GetDataType().GetPrefixLabel()
 		if l.Datatype != nil {
 			xsdType, err := GetObjectXSDType(l.Datatype.String())
 			if err != nil {

@@ -261,7 +261,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should have http://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("http://www.w3.org/2001/XMLSchema#string"))
+				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
 			})
 		})
 
@@ -278,8 +278,8 @@ var _ = Describe("Fragments", func() {
 				Expect(f.DataType).To(Equal(ObjectXSDType_STRING))
 			})
 
-			It("should have http://www.w3.org/2001/XMLSchema#string as default xsdRaw", func() {
-				Expect(f.GetXsdRaw()).To(Equal("http://www.w3.org/2001/XMLSchema#string"))
+			It("should have xsd:string as default xsdRaw", func() {
+				Expect(f.GetXsdRaw()).To(Equal("xsd:string"))
 			})
 		})
 
@@ -417,7 +417,7 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				m := b.(map[string]interface{})
 				Expect(m).To(HaveKeyWithValue("subject", "urn:1"))
-				Expect(m).To(HaveKeyWithValue("xsdRaw", "http://www.w3.org/2001/XMLSchema#string"))
+				Expect(m).To(HaveKeyWithValue("xsdRaw", "xsd:string"))
 				Expect(m).To(HaveKeyWithValue("language", "en"))
 			})
 		})
