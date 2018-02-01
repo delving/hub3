@@ -54,12 +54,15 @@ type RDFStoreStats struct {
 
 // LODFragmentStats hold all the LODFragment stats for this dataset
 type LODFragmentStats struct {
-	Enabled         bool               `json:"enabled"`
-	Revisions       []DataSetRevisions `json:"revisions"`
-	StoredFragments int                `json:"storedFragments"`
-	ObjectType      []DataSetCounter   `json:"objectType"`
-	Language        []DataSetCounter   `json:"language"`
-	ObjectDataType  []DataSetCounter   `json:"objectDataType"`
+	Enabled            bool               `json:"enabled"`
+	Revisions          []DataSetRevisions `json:"revisions"`
+	StoredFragments    int                `json:"storedFragments"`
+	ObjectType         []DataSetCounter   `json:"objectType"`
+	Language           []DataSetCounter   `json:"language"`
+	ObjectDataType     []DataSetCounter   `json:"objectDataType"`
+	RDFType            int                `json:"rdfType"`
+	GraphExternalLink  int                `json:"graphExternalLink"`
+	DomainExternalLink int                `json:"domainExternalLink"`
 }
 
 // WebResourceStats gathers all the MediaManager information for this DataSet
@@ -257,8 +260,9 @@ func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCou
 		return counters, fmt.Errorf("expected %s aggregrations", name)
 	}
 	for _, keyCount := range aggCount.Buckets {
+
 		counters = append(counters, DataSetCounter{
-			Value:    keyCount.Key.(string),
+			Value:    fmt.Sprintf("%s", keyCount.Key),
 			DocCount: int(keyCount.DocCount),
 		})
 	}
@@ -278,6 +282,9 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	languageAgg := elastic.NewTermsAggregation().Field("language.keyword").Size(50).OrderByCountDesc()
 	objectTypeAgg := elastic.NewTermsAggregation().Field("objectTypeRaw.keyword").Size(50).OrderByCountDesc()
 	objectDataTypeAgg := elastic.NewTermsAggregation().Field("xsdRaw.keyword").Size(50).OrderByCountDesc()
+	domainAgg := elastic.NewTermsAggregation().Field("domainExternalLink").Size(50).OrderByCountDesc()
+	graphAgg := elastic.NewTermsAggregation().Field("graphExternalLink").Size(50).OrderByCountDesc()
+	typeAgg := elastic.NewTermsAggregation().Field("typeLink").Size(50).OrderByCountDesc()
 	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -288,6 +295,9 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		Aggregation("language", languageAgg).
 		Aggregation("objectTypeRaw", objectTypeAgg).
 		Aggregation("xsdRaw", objectDataTypeAgg).
+		Aggregation("GraphExternalLink", graphAgg).
+		Aggregation("DomainExternalLink", domainAgg).
+		Aggregation("TypeLink", typeAgg).
 		Do(ctx)
 	if err != nil {
 		logger.WithField("spec", ds.Spec).Errorf("Unable to get FragmentStatsBySpec for the dataset.")
@@ -310,7 +320,11 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			RecordCount: int(keyCount.DocCount),
 		})
 	}
-	for _, a := range []string{"language", "objectTypeRaw", "xsdRaw"} {
+	buckets := []string{
+		"language", "objectTypeRaw", "xsdRaw",
+		"DomainExternalLink", "TypeLink", "GraphExternalLink",
+	}
+	for _, a := range buckets {
 		counter, err := createDataSetCounters(aggs, a)
 		if err != nil {
 			return fStats, err
@@ -322,12 +336,26 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			fStats.ObjectType = counter
 		case "xsdRaw":
 			fStats.ObjectDataType = counter
+		case "DomainExternalLink":
+			fStats.DomainExternalLink = getCount(counter)
+		case "TypeLink":
+			fStats.RDFType = getCount(counter)
+		case "GraphExternalLink":
+			fStats.GraphExternalLink = getCount(counter)
 		}
 	}
 	fStats.StoredFragments = int(res.Hits.TotalHits)
 	fStats.Enabled = true
 	fStats.Revisions = revisions
 	return fStats, nil
+}
+
+func getCount(counter []DataSetCounter) int {
+	links := 0
+	if len(counter) == 1 {
+		links = counter[0].DocCount
+	}
+	return links
 }
 
 // createIndexStats queries ElasticSearch and returns the IndexStats struct

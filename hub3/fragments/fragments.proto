@@ -82,4 +82,7 @@ message Fragment {
   string objectTypeRaw = 13;
   repeated string tags = 14;
   string hubID = 15;
+  bool graphExternalLink = 16;
+  bool domainExternalLink = 17;
+  bool typeLink = 18;
 }

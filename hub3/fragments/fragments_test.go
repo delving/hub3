@@ -16,6 +16,7 @@ package fragments_test
 
 import (
 	"encoding/json"
+	fmt "fmt"
 	"log"
 	"net/url"
 
@@ -42,6 +43,11 @@ func URIRef(uri string) r.Term {
 	return r.NewResource(uri)
 }
 
+// NSRef creates a URIRef with the RDF Base URL
+func NSRef(uri string) r.Term {
+	return r.NewResource(fmt.Sprintf("%s/%s", c.Config.RDF.BaseURL, uri))
+}
+
 // Literal is a utility function to create a RDF literal
 func Literal(value string, language string, dataType ObjectXSDType) r.Term {
 	if language != "" {
@@ -58,13 +64,12 @@ func Literal(value string, language string, dataType ObjectXSDType) r.Term {
 }
 
 func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
-	fg := FragmentGraph{
-		OrgID:         "rapid",
-		Spec:          spec,
-		Revision:      rev,
-		NamedGraphURI: ng,
-	}
-	return &fg
+	fg := NewFragmentGraph()
+	fg.OrgID = "rapid"
+	fg.Spec = spec
+	fg.Revision = rev
+	fg.NamedGraphURI = ng
+	return fg
 }
 
 var _ = Describe("Fragments", func() {
@@ -141,6 +146,83 @@ var _ = Describe("Fragments", func() {
 				t := f.GetObjectType()
 				Expect(t).ToNot(BeNil())
 				Expect(t).To(Equal(ObjectType_RESOURCE))
+			})
+
+		})
+
+		Context("When receiving a object resource link", func() {
+
+			g := r.NewGraph(c.Config.RDF.BaseURL)
+			t1 := r.NewTriple(NSRef("1"), NSRef("subject"), NSRef("2"))
+			t2 := r.NewTriple(NSRef("1"), NSRef("subject"), NSRef("3"))
+			t3 := r.NewTriple(
+				NSRef("1"),
+				NSRef("subject"),
+				r.NewResource("https://data.cultureelerfgoed.nl/term/id/cht/99efdcca-cce0-4629-adfb-becab8381183"),
+			)
+			t4 := r.NewTriple(
+				NSRef("1"),
+				r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+				r.NewResource("http://www.europeana.eu/schemas/edm/WebResource"),
+			)
+			g.Add(t1)
+			g.Add(t2)
+			g.Add(t3)
+			g.Add(t4)
+			g.AddTriple(NSRef("2"), NSRef("prefLabel"), r.NewLiteral("subject of 2"))
+			g.AddTriple(NSRef("1"), NSRef("title"), r.NewLiteral("2"))
+			fg.Graph = g
+
+			It("should mark the fragment not graphExternal if subject present in graph", func() {
+				frag, err := fg.CreateFragment(t1)
+				Expect(t1).ToNot(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(frag).ToNot(BeNil())
+				external := fg.IsGraphExternal(t1.Object)
+				Expect(external).To(BeFalse())
+				Expect(frag.GraphExternalLink).To(BeFalse())
+
+			})
+
+			It("should mark the fragment not graphExternal if subject present in graph", func() {
+				frag, err := fg.CreateFragment(t2)
+				Expect(t2).ToNot(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(frag).ToNot(BeNil())
+				external := fg.IsGraphExternal(t2.Object)
+				Expect(external).To(BeTrue())
+				Expect(frag.GraphExternalLink).To(BeTrue())
+			})
+
+			It("should mark the fragment as domainExternal when the host differs from the RDF base url", func() {
+				frag, err := fg.CreateFragment(t3)
+				Expect(t3).ToNot(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(frag).ToNot(BeNil())
+				external, err := fg.IsDomainExternal(frag.Object)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(external).To(BeTrue())
+				Expect(frag.DomainExternalLink).To(BeTrue())
+			})
+
+			It("should mark the fragment as not domainExternal when the host equals the RDF base url", func() {
+				frag, err := fg.CreateFragment(t2)
+				Expect(t2).ToNot(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(frag).ToNot(BeNil())
+				external, err := fg.IsDomainExternal(frag.Object)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(external).To(BeFalse())
+				Expect(frag.DomainExternalLink).To(BeFalse())
+			})
+
+			It("should not make type links as external", func() {
+				frag, err := fg.CreateFragment(t4)
+				Expect(t4).ToNot(BeNil())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(frag).ToNot(BeNil())
+				Expect(frag.IsTypeLink()).To(BeTrue())
+				Expect(frag.GetTypeLink()).To(BeTrue())
 			})
 
 		})

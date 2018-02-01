@@ -45,13 +45,14 @@ type FragmentGraph struct {
 
 // NewFragmentGraph creates a new instance of FragmentGraph
 func NewFragmentGraph() *FragmentGraph {
-	return &FragmentGraph{}
+	return &FragmentGraph{
+		Graph: r.NewGraph(""),
+	}
 }
 
 // ParseGraph creates a RDF2Go Graph
 func (fg *FragmentGraph) ParseGraph(rdf io.Reader, mimeType string) error {
 	var err error
-	fg.Graph = r.NewGraph("")
 	switch mimeType {
 	case "text/turtle":
 		err = fg.Graph.Parse(rdf, mimeType)
@@ -130,10 +131,42 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	case *r.Resource:
 		f.ObjectType = ObjectType_RESOURCE
 		f.ObjectTypeRaw = "resource"
+		f.TypeLink = f.IsTypeLink()
+		if fg.Graph.Len() == 0 {
+			log.Printf("Warn: Graph is empty can't do linking checks\n")
+			break
+		}
+		f.GraphExternalLink = fg.IsGraphExternal(triple.Object)
+		isDomainExternal, err := fg.IsDomainExternal(f.Object)
+		if err != nil {
+			log.Printf("Unable to parse object domain: %#v", err)
+			break
+		}
+		f.DomainExternalLink = isDomainExternal
 	default:
 		return f, fmt.Errorf("unknown object type: %#v", triple.Object)
 	}
 	return f, nil
+}
+
+// IsDomainExternal checks if the object link points to another domain
+func (fg *FragmentGraph) IsDomainExternal(obj string) (bool, error) {
+	u, err := url.Parse(obj)
+	if err != nil {
+		return false, err
+	}
+	return !strings.Contains(c.Config.RDF.BaseURL, u.Host), nil
+}
+
+// IsGraphExternal checks if the object link points outside the current graph
+func (fg *FragmentGraph) IsGraphExternal(obj r.Term) bool {
+	found := fg.Graph.One(obj, nil, nil)
+	return found == nil
+}
+
+// IsTypeLink checks if the Predicate is a RDF type link
+func (f Fragment) IsTypeLink() bool {
+	return f.Predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 }
 
 // NewFragmentRequest creates a finder for Fragments
