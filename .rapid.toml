@@ -13,6 +13,8 @@ enabled = true
 urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId
 index = "rapid2"
+# if _mapping and _search proxies should be enabled
+proxy = true 
 
 [logging]
 devmode = true

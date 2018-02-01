@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"net/url"
+
+	c "bitbucket.org/delving/rapid/config"
 
 	"bitbucket.org/delving/rapid/hub3/index"
 	"github.com/go-chi/chi"
@@ -24,6 +27,13 @@ func (rs IndexResource) Routes() chi.Router {
 		render.PlainText(w, r, fmt.Sprint("indexes:", indexes))
 		return
 	})
+	// Anything we don't do in Go, we pass to the old platform
+	es, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
+	es.Path = fmt.Sprintf("/%s/", c.Config.ElasticSearch.IndexName)
+	if c.Config.ElasticSearch.Proxy {
+		r.Handle("/_search", NewSingleFinalPathHostReverseProxy(es, "_search"))
+		r.Handle("/_mapping", NewSingleFinalPathHostReverseProxy(es, "_mapping"))
+	}
 
 	return r
 }

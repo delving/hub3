@@ -61,6 +61,7 @@ type ElasticSearch struct {
 	Urls      []string `json:"urls"`
 	Enabled   bool     `json:"enabled"`
 	IndexName string   `json:"index"`
+	Proxy     bool     `json:"proxy"`
 }
 
 // Logging holds all the logging and path configuration
@@ -139,6 +140,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
 	viper.SetDefault("ElasticSearch.enabled", true)
 	viper.SetDefault("ElasticSearch.IndexName", viper.GetString("OrgId"))
+	viper.SetDefault("ElasticSearch.Proxy", true)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
