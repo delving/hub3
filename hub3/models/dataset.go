@@ -447,9 +447,10 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context) (int, error) {
 		Type("rdfrecord").
 		Type(fragments.DOCTYPE).
 		Query(q).
+		Conflicts("proceed"). // default is abort
 		Do(ctx)
 	if err != nil {
-		logger.WithField("spec", ds.Spec).Errorf("Unable to delete orphaned dataset records from index.")
+		logger.WithField("spec", ds.Spec).Errorf("Unable to delete orphaned dataset records from index: %s.", err)
 		return 0, err
 	}
 	if res == nil {
