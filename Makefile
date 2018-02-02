@@ -10,7 +10,7 @@ TEMPDIR:=$(shell mktemp -d)
 VERSION:=$(shell sh -c 'grep "Version = \"" cmd/root.go  | cut -d\" -f2')
 GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 
-LDFLAGS:="-X main.Version=$(VERSION) -X main.GoVersion=$(GOVERSION) -X main.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X main.GitHash=`git rev-parse HEAD` -X main.BuildAgent=`git config user.email`"
+LDFLAGS:=-X main.Version=$(VERSION) -X main.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X main.GitHash=`git rev-parse HEAD` -X main.BuildAgent=`git config user.email`
 
 # var print rule
 print-%  : ; @echo $* = $($*)
@@ -43,7 +43,7 @@ gox-build:
 	ls -la ./build/
 
 run-dev:
-	gin run http
+	gin -buildArgs "-ldflags '${LDFLAGS}'" run http
 
 test:
 	@go test  ./...

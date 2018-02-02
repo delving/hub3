@@ -294,6 +294,9 @@ type BuildVersionInfo struct {
 
 // NewBuildVersionInfo creates a BuildVersionInfo struct
 func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVersionInfo {
+	if version == "" {
+		version = "devBuild"
+	}
 	return &BuildVersionInfo{
 		Version:    version,
 		Commit:     commit,

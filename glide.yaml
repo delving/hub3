@@ -36,3 +36,5 @@ import:
   subpackages:
   - twotier
 - package: github.com/deiu/rdf2go
+- package: github.com/go-chi/docgen
+  version: ~1.0.2

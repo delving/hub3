@@ -26,6 +26,7 @@ import (
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
 	"github.com/rs/cors"
 	"github.com/urfave/negroni"
@@ -108,11 +109,6 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	//w.Write([]byte("zoomed"))
 	//})
 
-	// introspection
-	if c.Config.DevMode {
-		r.Mount("/introspect", IntrospectionRouter(r))
-	}
-
 	// API configuration
 	if c.Config.OAIPMH.Enabled {
 		r.Get("/api/oai-pmh", oaiPmhEndpoint)
@@ -147,6 +143,11 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// LoD routingendpoint
 	r.Mount("/", LODResource{}.Routes())
 
+	// introspection
+	if c.Config.DevMode {
+		r.Mount("/introspect", IntrospectionRouter(r))
+	}
+
 	n.UseHandler(r)
 	log.Printf("Using port: %d", c.Config.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", c.Config.Port), n)
@@ -175,10 +176,11 @@ func IntrospectionRouter(chiRouter chi.Router) http.Handler {
 	r.Get("/config", func(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, c.Config)
 	})
-	// todo add routes
-	//r.Get("routes", func(w http.ResponseWriter, req *http.Request) {
-	//render.JSON(w, req, docgen.JSONRoutesDoc(chiRouter.Routes))
-	//})
+	r.Get("/routes", func(w http.ResponseWriter, req *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(docgen.JSONRoutesDoc(chiRouter)))
+		return
+	})
 	return r
 }
 

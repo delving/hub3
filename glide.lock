@@ -1,5 +1,5 @@
-hash: ba85e5f8947afaf7ac402f6725dfcd69a61ea7ef538f582789aecb1848b768e1
-updated: 2018-01-29T16:20:40.115790569+01:00
+hash: d569f0a26afea311232e81f0db721f5e06949e323aa4ffb2954c59d00df59863
+updated: 2018-02-02T10:58:00.278329073+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -35,6 +35,8 @@ imports:
   version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
+- name: github.com/go-chi/docgen
+  version: ac43d9a63f3b58b1e82922411d2de365d896ee72
 - name: github.com/go-chi/render
   version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
 - name: github.com/golang/protobuf
