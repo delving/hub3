@@ -133,6 +133,8 @@ func Start() {
 	r.Post("/api/datasets/{spec}", createDataSet)
 	r.Delete("/api/datasets/{spec}", deleteDataset)
 
+	r.Get("/api/fragments", listFragments)
+
 	// namespaces
 	r.Get("/api/namespaces", listNameSpaces)
 
@@ -145,7 +147,7 @@ func Start() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// TODO: graceful shutdown with flushing and closing connections.
 	//// Start the server
 	//log.Infof("Using port: %d", c.Config.Port)
 	//e.Server.Addr = fmt.Sprintf(":%d", c.Config.Port)

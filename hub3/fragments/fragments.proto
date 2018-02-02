@@ -20,6 +20,8 @@ message FragmentRequest {
   int32 page = 4;
   string language = 5;
   string orgId = 6;
+  string graph = 7;
+  string spec = 8;
 }
 
 enum ObjectType {

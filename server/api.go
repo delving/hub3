@@ -24,6 +24,7 @@ import (
 
 	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3"
+	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"bitbucket.org/delving/rapid/hub3/models"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -115,6 +116,35 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 	render.XML(w, r, resp)
 }
 
+// listFragments returns a list of matching fragments
+// See for more info: http://linkeddatafragments.org/
+func listFragments(w http.ResponseWriter, r *http.Request) {
+	fr := fragments.NewFragmentRequest()
+	err := fr.ParseQueryString(r.URL.Query())
+	if err != nil {
+		log.Printf("Unable to list fragments because of: %s", err)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprint("Unable to list fragments was not found"),
+			Error:      err,
+		})
+		return
+	}
+	// TODO implement QueryFragments
+	frags, err := fr.Find(ctx, index.ESClient())
+	if err != nil {
+		log.Printf("Unable to list fragments because of: %s", err)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprint("Unable to list fragments was not found"),
+			Error:      err,
+		})
+		return
+	}
+	render.JSON(w, r, frags)
+	return
+}
+
 // listDataSets returns a list of all public datasets
 func listDataSets(w http.ResponseWriter, r *http.Request) {
 	sets, err := models.ListDataSets()
@@ -186,7 +216,6 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),
 			Error:      err,
 		})
-		return
 		return
 
 	}

@@ -15,10 +15,13 @@
 package fragments
 
 import (
+	"context"
+	"encoding/json"
 	fmt "fmt"
 	"io"
 	"log"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -30,6 +33,9 @@ import (
 
 // DOCTYPE is the ElasticSearch doctype for the Fragment Struct
 const DOCTYPE = "lodfragment"
+
+// SIZE of the fragments returned
+const SIZE = 100
 
 // FragmentGraph holds all the information to build and store Fragments
 type FragmentGraph struct {
@@ -190,6 +196,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Object = v[0]
 		case "language":
 			fr.Language = v[0]
+		case "graph":
+			fr.Graph = v[0]
 		case "page":
 			page, err := strconv.ParseInt(v[0], 10, 32)
 			if err != nil {
@@ -201,6 +209,70 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 		}
 	}
 	return nil
+}
+
+func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
+	searchField := fmt.Sprintf("%s.keyword", fieldName)
+	if len(fieldValue) == 0 {
+		return q
+	}
+	if strings.HasPrefix("-", fieldValue) {
+		fieldValue = strings.TrimPrefix(fieldValue, "-")
+		return q.MustNot(elastic.NewTermQuery(searchField, fieldValue))
+	}
+	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
+}
+
+// GetESPage returns the 0 based page for Elastic Search
+func (fr FragmentRequest) GetESPage() int {
+	if fr.GetPage() < 2 {
+		return 0
+	}
+	return int((fr.GetPage() * SIZE) - 1)
+}
+
+// Find returns a list of matching LodFragments
+func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]string, error) {
+	q := elastic.NewBoolQuery()
+	buildQueryClause(q, "subject", fr.GetSubject())
+	buildQueryClause(q, "predicate", fr.GetPredicate())
+	buildQueryClause(q, "object", fr.GetObject())
+	buildQueryClause(q, "NamedGraphURI", fr.GetGraph())
+	buildQueryClause(q, "spec", fr.GetSpec())
+	if c.Config.DevMode {
+		src, err := q.Source()
+		if err != nil {
+			log.Fatal("Unable get query source")
+			return []string{}, err
+		}
+		data, err := json.Marshal(src)
+		if err != nil {
+			log.Fatal("Unable get query source")
+			return []string{}, err
+		}
+		fmt.Println(string(data))
+	}
+	res, err := client.Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(DOCTYPE).
+		Query(q).
+		Size(SIZE).
+		From(fr.GetESPage()).
+		Do(ctx)
+	if err != nil {
+		return []string{}, err
+	}
+	triples := []string{}
+	if res == nil {
+		log.Printf("expected response != nil; got: %v", res)
+		return triples, fmt.Errorf("expected response != nil")
+	}
+	var frtyp Fragment
+	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
+		frag := item.(Fragment)
+		triples = append(triples, frag.Triple)
+	}
+	return triples, nil
 }
 
 // CreateHash creates an xxhash-based hash of a string
@@ -240,13 +312,6 @@ func (f Fragment) AddTo(p *elastic.BulkProcessor) error {
 	}
 	p.Add(cbr)
 	return nil
-}
-
-// Find executes the search and returns a response
-func (fr FragmentRequest) Find(client *elastic.Client) (FragmentResponse, error) {
-	var resp FragmentResponse
-	// TODO: implement the search
-	return resp, nil
 }
 
 // GetLabel retrieves the XSD label of the ObjectXSDType

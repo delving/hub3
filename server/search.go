@@ -107,8 +107,6 @@ func getSearchResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("%#v\n", res)
-	fmt.Printf("%#v\n", res.TotalHits())
 	records, err := decodeRDFRecords(res)
 	if err != nil {
 		log.Printf("Unable to decode records")
