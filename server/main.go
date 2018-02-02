@@ -32,7 +32,7 @@ import (
 )
 
 // Start starts a graceful webserver process.
-func Start() {
+func Start(buildInfo *c.BuildVersionInfo) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	// Negroni middleware manager
@@ -73,6 +73,12 @@ func Start() {
 			http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
 			return
 		}
+	})
+
+	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("%+v\n", buildInfo)
+		render.JSON(w, r, buildInfo)
+		return
 	})
 
 	// static fileserver

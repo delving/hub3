@@ -15,10 +15,37 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
+
+// BuildVersionInfo holds all the version information
+type BuildVersionInfo struct {
+	Version    string `json:"version"`
+	Commit     string `json:"commit"`
+	BuildAgent string `json:"buildAgent"`
+	BuildDate  string `json:"buildDate"`
+}
+
+// NewBuildVersionInfo creates a BuildVersionInfo struct
+func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVersionInfo {
+	return &BuildVersionInfo{
+		Version:    version,
+		Commit:     commit,
+		BuildAgent: buildagent,
+		BuildDate:  builddate,
+	}
+}
+
+// JSON returns a json version of the BuildVersionInfo
+func (b BuildVersionInfo) JSON(pretty bool) ([]byte, error) {
+	if pretty {
+		return json.MarshalIndent(b, "", "\t")
+	}
+	return json.Marshal(b)
+}
 
 // Verbose logs extra information when the version command is called.
 var Verbose bool
@@ -29,13 +56,14 @@ var versionCmd = &cobra.Command{
 	Short: "Version and build information.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !Verbose {
-			fmt.Println(RootCmd.Use + " " + Version)
+			fmt.Println(RootCmd.Use + " " + buildInfo.Version)
 		} else {
-			fmt.Println("App version: " + Version)
-			fmt.Println("Golang version: " + GoVersion)
-			fmt.Println("Build Agent: " + BuildAgent)
-			fmt.Println("Build Time: " + BuildStamp)
-			fmt.Println("Build git hash: " + GitHash)
+			info, err := buildInfo.JSON(true)
+			if err != nil {
+				fmt.Printf("%+v\n", buildInfo)
+			} else {
+				fmt.Printf("%s\n", info)
+			}
 		}
 	},
 }

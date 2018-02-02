@@ -23,18 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	// Version of the application. (Injected at build time)
-	Version = "0.1-SNAPSHOT"
-	// GoVersion is the Golang version of the application. (Injected at build time)
-	GoVersion = ""
-	// BuildStamp is the timestamp of the application. (Injected at build time)
-	BuildStamp = "1970-01-01 UTC"
-	// BuildAgent is the agent that created the current build. (Injected at build time)
-	BuildAgent string
-	// GitHash of the current build. (Injected at build time.)
-	GitHash string
-)
+var buildInfo *config.BuildVersionInfo
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
@@ -47,12 +36,13 @@ var RootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(version string, goversion string, buildstamp string, buildagent string, githash string) {
-	Version = version
-	GoVersion = goversion
-	BuildStamp = buildstamp
-	BuildAgent = buildagent
-	GitHash = githash
+func Execute(version string, buildstamp string, buildagent string, githash string) {
+	buildInfo = config.NewBuildVersionInfo(
+		version,
+		githash,
+		buildagent,
+		buildstamp,
+	)
 
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)

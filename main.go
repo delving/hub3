@@ -19,8 +19,6 @@ import "bitbucket.org/delving/rapid/cmd"
 var (
 	// Version of the application. (Injected at build time)
 	Version = "0.1-SNAPSHOT"
-	// GoVersion is the Golang version of the application. (Injected at build time)
-	GoVersion = ""
 	// BuildStamp is the timestamp of the application. (Injected at build time)
 	BuildStamp = "1970-01-01 UTC"
 	// BuildAgent is the agent that created the current build. (Injected at build time)
@@ -30,5 +28,5 @@ var (
 )
 
 func main() {
-	cmd.Execute(Version, GoVersion, BuildStamp, BuildAgent, GitHash)
+	cmd.Execute(Version, BuildStamp, BuildAgent, GitHash)
 }

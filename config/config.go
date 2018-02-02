@@ -15,6 +15,7 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/url"
@@ -281,4 +282,30 @@ func (c RawConfig) GetGraphStoreEndpoint(dbName string) string {
 // At the moment this is mostly used for persisting the namespaces
 func (c RawConfig) Save() error {
 	return viper.SafeWriteConfig()
+}
+
+// BuildVersionInfo holds all the version information
+type BuildVersionInfo struct {
+	Version    string `json:"version"`
+	Commit     string `json:"commit"`
+	BuildAgent string `json:"buildAgent"`
+	BuildDate  string `json:"buildDate"`
+}
+
+// NewBuildVersionInfo creates a BuildVersionInfo struct
+func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVersionInfo {
+	return &BuildVersionInfo{
+		Version:    version,
+		Commit:     commit,
+		BuildAgent: buildagent,
+		BuildDate:  builddate,
+	}
+}
+
+// JSON returns a json version of the BuildVersionInfo
+func (b BuildVersionInfo) JSON(pretty bool) ([]byte, error) {
+	if pretty {
+		return json.MarshalIndent(b, "", "\t")
+	}
+	return json.Marshal(b)
 }
