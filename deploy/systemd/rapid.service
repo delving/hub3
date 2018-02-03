@@ -16,14 +16,14 @@ TimeoutStopSec=600
 RestartSec=10
 startLimitIntervalSec=60
 
-#WorkingDirectory=/opt/hub3/rapid
+WorkingDirectory=/opt/hub3/rapid
 ExecStart=/opt/hub3/rapid/rapid http
 
 # make sure log directory exists and owned by syslog
 PermissionsStartOnly=true
-#ExecStartPre=/bin/mkdir -p /tmp/var/log/rapid
-#ExecStartPre=/bin/chown syslog:adm /tmp/var/log/rapid
-#ExecStartPre=/bin/chmod 755 /tmp/var/log/rapid
+ExecStartPre=/bin/mkdir -p /var/log/rapid
+ExecStartPre=/bin/chown syslog:adm /var/log/rapid
+ExecStartPre=/bin/chmod 755 /var/log/rapid
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=rapid

@@ -17,6 +17,8 @@ package models
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/asdine/storm"
@@ -30,6 +32,14 @@ func init() {
 	//orm.WithBatch(true)
 }
 
+// CloseStorm close the underlying BoltDB for Storm
+func CloseStorm() {
+	err := orm.Close()
+	if err != nil {
+		log.Fatalf("Unable to close BoltDB. %s", err)
+	}
+}
+
 func newDB(dbName string) *storm.DB {
 	if dbName == "" {
 		dbName = "rapid.db"
@@ -41,6 +51,13 @@ func newDB(dbName string) *storm.DB {
 	if err != nil {
 		log.Fatal("Unable to open the BoltDB database file.")
 	}
+	ex, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	exPath := filepath.Dir(ex)
+	log.Printf("Running from %s\n", exPath)
+	log.Printf("Using Storm/BoltDB path: %s\n", db.Path)
 	//defer db.Close()
 	return db
 }

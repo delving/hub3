@@ -92,7 +92,6 @@ release:
 	@rpm --addsign dist/*.rpm
 
 release-dirty:
-	@export LDFLAGS=$(LDFLAGS)
 	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
 	@rpm --addsign dist/*.rpm
 
