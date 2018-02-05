@@ -29,6 +29,7 @@ import (
 	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
 	"github.com/rs/cors"
+	"github.com/thoas/stats"
 	"github.com/urfave/negroni"
 )
 
@@ -47,6 +48,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// logger
 	l := negroni.NewLogger()
 	n.Use(l)
+
+	// stats middleware
+	s := stats.New()
+	n.Use(s)
 
 	// configure CORS, see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 	cors := cors.New(cors.Options{
@@ -67,6 +72,13 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// Setup Router
 	r := chi.NewRouter()
 	r.Use(mw.StripSlashes)
+
+	// stats page
+	r.Get("/api/stats/http", func(w http.ResponseWriter, r *http.Request) {
+		stats := s.Data()
+		render.JSON(w, r, stats)
+		return
+	})
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("You are rocking rapid!"))

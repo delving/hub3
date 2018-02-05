@@ -38,3 +38,4 @@ import:
 - package: github.com/deiu/rdf2go
 - package: github.com/go-chi/docgen
   version: ~1.0.2
+- package: github.com/thoas/stats

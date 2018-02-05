@@ -1,5 +1,5 @@
-hash: d569f0a26afea311232e81f0db721f5e06949e323aa4ffb2954c59d00df59863
-updated: 2018-02-02T10:58:00.278329073+01:00
+hash: 975352f60dd2e962d5dacd9462eabc1e15c7bed2a437301e944e29d326344380
+updated: 2018-02-05T16:53:54.449924048+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -175,6 +175,8 @@ imports:
   version: 4c012f6dcd9546820e378d0bdda4d8fc772cdfea
 - name: github.com/spf13/viper
   version: aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5
+- name: github.com/thoas/stats
+  version: 37829025d2242afb04d91572cb143e00019e2aac
 - name: github.com/urfave/negroni
   version: 5dbbc83f748fc3ad38585842b0aedab546d0ea1e
 - name: github.com/valyala/bytebufferpool
