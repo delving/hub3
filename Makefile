@@ -103,5 +103,5 @@ release-public:
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
-	@protoc --go_out=. hub3/api/api.proto
-	@protoc --go_out=. hub3/fragments/fragments.proto
+	@protoc --proto_path=../../../ --go_out=. bitbucket.org/delving/rapid/hub3/api/api.proto
+	@protoc --proto_path=../../../ --go_out=. bitbucket.org/delving/rapid/hub3/fragments/fragments.proto

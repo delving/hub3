@@ -28,9 +28,11 @@ import (
 	mw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/cors"
 	"github.com/thoas/stats"
 	"github.com/urfave/negroni"
+	negroniprometheus "github.com/zbindenren/negroni-prometheus"
 )
 
 // Start starts a graceful webserver process.
@@ -52,6 +54,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// stats middleware
 	s := stats.New()
 	n.Use(s)
+
+	// stats prometheus
+	m := negroniprometheus.NewMiddleware("rapid")
+	n.Use(m)
 
 	// configure CORS, see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 	cors := cors.New(cors.Options{
@@ -79,6 +85,8 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		render.JSON(w, r, stats)
 		return
 	})
+
+	r.Handle("/api/stats/prometheus", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("You are rocking rapid!"))

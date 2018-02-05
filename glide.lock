@@ -1,5 +1,5 @@
-hash: 975352f60dd2e962d5dacd9462eabc1e15c7bed2a437301e944e29d326344380
-updated: 2018-02-05T16:53:54.449924048+01:00
+hash: 8ad2210d5e9369b5a5ae1ae22a75033fe493d62e9324abe370c5b83b49266948
+updated: 2018-02-05T17:04:37.846977693+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -9,6 +9,10 @@ imports:
   - index
   - internal
   - q
+- name: github.com/beorn7/perks
+  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
+  subpackages:
+  - quantile
 - name: github.com/boltdb/bolt
   version: 9da31745363232bc1e27dbab3569e77383a51585
 - name: github.com/certifi/gocertifi
@@ -92,6 +96,10 @@ imports:
   version: 6cc8b475d4682021d75d2cbe2bc481bec4ce98e5
 - name: github.com/mattn/go-isatty
   version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/matttproud/golang_protobuf_extensions
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  subpackages:
+  - pbutil
 - name: github.com/mitchellh/go-homedir
   version: b8bc1bf767474819792c23f32d8286a45736f1c6
 - name: github.com/mitchellh/gox
@@ -148,6 +156,26 @@ imports:
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: github.com/prometheus/client_golang
+  version: 9bb6ab929dcbe1c8393cd9ef70387cb69811bd1c
+  subpackages:
+  - prometheus
+- name: github.com/prometheus/client_model
+  version: 99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c
+  subpackages:
+  - go
+- name: github.com/prometheus/common
+  version: 89604d197083d4781071d3c65855d24ecfb0a563
+  subpackages:
+  - expfmt
+  - internal/bitbucket.org/ww/goautoneg
+  - model
+- name: github.com/prometheus/procfs
+  version: cb4147076ac75738c9a7d279075a253c0cc5acbd
+  subpackages:
+  - internal/util
+  - nfs
+  - xfs
 - name: github.com/rs/cors
   version: 7af7a1e09ba336d2ea14b1ce73bf693c6837dbf6
 - name: github.com/rwcarlsen/goexif
@@ -183,6 +211,8 @@ imports:
   version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
 - name: github.com/valyala/fasttemplate
   version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
+- name: github.com/zbindenren/negroni-prometheus
+  version: b4860d1377680423b4c7f957ef4fce828deacf65
 - name: go.uber.org/zap
   version: 3216c4c73e8ebbafff73c456dd27143f4a7c1f94
 - name: golang.org/x/crypto
