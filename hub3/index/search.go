@@ -30,7 +30,7 @@ type RdfObject struct {
 	// Label of predicate. Used for user facing searching
 	SearchLabel string `json:"searchLabel"`
 
-	// URI or Literal value of the objject the object
+	// URI or Literal value of the object the object
 	Object string `json:"object"`
 
 	// The RDF language of the object
