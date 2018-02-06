@@ -3,14 +3,27 @@ syntax = "proto3";
 package fragments;
 
 service FragmentService           {
-  rpc Search (FragmentRequest) returns (FragmentResponse);
+  rpc Search (FragmentRequest) returns (FragmentSearchResponse);
+  rpc Update (FragmentGraph) returns (FragmentUpdateResponse);
 }
 
-message FragmentResponse {
+
+message FragmentSearchResponse {
   FragmentRequest request = 1;
   int32 nrTriples = 2;
   int32 page = 3;
   repeated Fragment fragments = 4;
+}
+
+message FragmentUpdateResponse {
+    int32 graphsStored = 1;
+    string spec = 2;
+    bool hasErrors = 3;
+    repeated FragmentError errors = 4;
+}
+
+message FragmentError {
+    
 }
 
 message FragmentRequest {
@@ -19,14 +32,14 @@ message FragmentRequest {
   string object = 3;
   int32 page = 4;
   string language = 5;
-  string orgId = 6;
+  string orgID = 6;
   string graph = 7;
   string spec = 8;
 }
 
 enum ObjectType {
-RESOURCE = 0;
-LITERAL = 1;
+  RESOURCE = 0;
+  LITERAL = 1;
 }
 
 enum ObjectXSDType {
@@ -67,24 +80,82 @@ enum ObjectXSDType {
   POSITIVEINTEGER = 34;
 }
 
+enum RecordType {
+  NARTHEX = 0;
+  SCHEMA = 1;
+  VOCABULARY = 2;
+  SOURCE = 3;
+  CACHE = 4;
+}
+
+/*type FragmentGraph struct {*/
+	/*OrgID         string   `json:"orgID"`*/
+	/*Spec          string   `json:"spec"`*/
+	/*HubID         string   `json:"hubID"`*/
+	/*Revision      int32    `json:"revision"`*/
+	/*NamedGraphURI string   `json:"namedGraphURI"`*/
+	/*Tags          []string `json:"tags"`*/
+	/*Graph         *r.Graph `json:"graph"`*/
+	/*MimeType      string   `json:"mimeType"`*/
+/*}*/
+
+message FragmentGraph {
+  string orgID = 1;
+  string spec  = 2;
+  int32 revision = 3;
+  string hubID = 4;
+
+  string entryURI = 5;
+  string namedGraphURI = 6;
+  bytes RDF = 7;
+  string rdfMimeType = 8;
+  RecordType recordType = 9;
+
+  repeated Fragment fragments = 10;
+  repeated string tags = 11;
+}
 
 message Fragment {
-  string spec = 1;
-  int32 revision = 2;
-  string NamedGraphURI = 3;
-  string subject = 4;
-  string predicate = 5;
-  string object = 6;
-  string language = 7;
-  ObjectType   objectType = 8;
-  ObjectXSDType dataType = 9;
-  string orgID = 10;
-  string triple = 11;
-  string xsdRaw = 12;
-  string objectTypeRaw = 13;
-  repeated string tags = 14;
-  string hubID = 15;
-  bool graphExternalLink = 16;
-  bool domainExternalLink = 17;
-  bool typeLink = 18;
+  // meta block
+  string orgID = 1;
+  string spec = 2; 
+  int32 revision = 3;
+  string hubID = 4;
+
+  // RDF core
+  string subject = 5;
+  repeated string subjectClass = 6;
+
+  string predicate = 7;
+  string searchLabel = 8;
+
+  string object = 9;
+  ObjectType   objectType = 10;
+  string language = 11;
+  string objectContentType = 12;
+  ObjectXSDType dataType = 13;
+  string XSDRaw = 14;
+  string objectTypeRaw = 29; 
+
+  string namedGraphURI = 15;
+  string triple = 16;
+
+  // RDF graph position
+  int32 level = 17;
+  string referrerSubject = 18;
+  string referrerPredicate = 19;
+  string referrerSearchLabel = 20;
+  repeated string referrerSubjectClass = 21;
+
+  // Content Index
+  string latLong = 22;
+  string date = 23;
+  string dateRange = 24;
+  int32 integer = 25;
+  int32 integerRange = 26;
+  int32 referrerResourceSortOrder = 27;
+
+// content tags
+// example values linkGraphExternal prefLabel linkDomainExternal thumbnail date
+  repeated string tags = 28;
 }

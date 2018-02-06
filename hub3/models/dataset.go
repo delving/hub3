@@ -54,15 +54,13 @@ type RDFStoreStats struct {
 
 // LODFragmentStats hold all the LODFragment stats for this dataset
 type LODFragmentStats struct {
-	Enabled            bool               `json:"enabled"`
-	Revisions          []DataSetRevisions `json:"revisions"`
-	StoredFragments    int                `json:"storedFragments"`
-	ObjectType         []DataSetCounter   `json:"objectType"`
-	Language           []DataSetCounter   `json:"language"`
-	ObjectDataType     []DataSetCounter   `json:"objectDataType"`
-	RDFType            int                `json:"rdfType"`
-	GraphExternalLink  int                `json:"graphExternalLink"`
-	DomainExternalLink int                `json:"domainExternalLink"`
+	Enabled         bool               `json:"enabled"`
+	Revisions       []DataSetRevisions `json:"revisions"`
+	StoredFragments int                `json:"storedFragments"`
+	ObjectType      []DataSetCounter   `json:"objectType"`
+	Language        []DataSetCounter   `json:"language"`
+	ObjectDataType  []DataSetCounter   `json:"objectDataType"`
+	Tags            []DataSetCounter   `json:"tags"`
 }
 
 // WebResourceStats gathers all the MediaManager information for this DataSet
@@ -222,7 +220,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").
+		Type(fragments.FragmentGraphDocType).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -283,22 +281,18 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	languageAgg := elastic.NewTermsAggregation().Field("language.keyword").Size(50).OrderByCountDesc()
 	objectTypeAgg := elastic.NewTermsAggregation().Field("objectTypeRaw.keyword").Size(50).OrderByCountDesc()
 	objectDataTypeAgg := elastic.NewTermsAggregation().Field("xsdRaw.keyword").Size(50).OrderByCountDesc()
-	domainAgg := elastic.NewTermsAggregation().Field("domainExternalLink").Size(50).OrderByCountDesc()
-	graphAgg := elastic.NewTermsAggregation().Field("graphExternalLink").Size(50).OrderByCountDesc()
-	typeAgg := elastic.NewTermsAggregation().Field("typeLink").Size(50).OrderByCountDesc()
+	tagsAgg := elastic.NewTermsAggregation().Field("tags.keyword").Size(50).OrderByCountDesc()
 	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DOCTYPE).
+		Type(fragments.FragmentDocType).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
 		Aggregation("language", languageAgg).
 		Aggregation("objectTypeRaw", objectTypeAgg).
 		Aggregation("xsdRaw", objectDataTypeAgg).
-		Aggregation("GraphExternalLink", graphAgg).
-		Aggregation("DomainExternalLink", domainAgg).
-		Aggregation("TypeLink", typeAgg).
+		Aggregation("tags", tagsAgg).
 		Do(ctx)
 	if err != nil {
 		logger.WithField("spec", ds.Spec).Errorf("Unable to get FragmentStatsBySpec for the dataset.")
@@ -323,7 +317,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	}
 	buckets := []string{
 		"language", "objectTypeRaw", "xsdRaw",
-		"DomainExternalLink", "TypeLink", "GraphExternalLink",
+		"tags",
 	}
 	for _, a := range buckets {
 		counter, err := createDataSetCounters(aggs, a)
@@ -337,12 +331,8 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			fStats.ObjectType = counter
 		case "xsdRaw":
 			fStats.ObjectDataType = counter
-		case "DomainExternalLink":
-			fStats.DomainExternalLink = getCount(counter)
-		case "TypeLink":
-			fStats.RDFType = getCount(counter)
-		case "GraphExternalLink":
-			fStats.GraphExternalLink = getCount(counter)
+		case "tags":
+			fStats.Tags = counter
 		}
 	}
 	fStats.StoredFragments = int(res.Hits.TotalHits)
@@ -445,8 +435,8 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context) (int, error) {
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").
-		Type(fragments.DOCTYPE).
+		Type(fragments.FragmentGraphDocType).
+		Type(fragments.FragmentDocType).
 		Query(q).
 		Conflicts("proceed"). // default is abort
 		Do(ctx)
@@ -468,8 +458,8 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context) (int, error) {
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").
-		Type(fragments.DOCTYPE).
+		Type(fragments.FragmentGraphDocType).
+		Type(fragments.FragmentDocType).
 		Query(q).
 		Do(ctx)
 	if err != nil {

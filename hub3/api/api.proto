@@ -2,7 +2,7 @@
 syntax = "proto3";
 package api;
 
-import "bitbucket.org/delving/rapid/hub3/fragments/fragments.proto";
+import "hub3/fragments/fragments.proto";
 
 // Query object
 
@@ -166,7 +166,7 @@ message SearchResultV3 {
   Query query = 1; 
   SearchRequest request = 2;
   Pagination pagination = 3;
-  repeated fragments.RDFSearchRecord items = 4; 
+  repeated fragments.FragmentGraph items = 4; 
   repeated Facet facets = 5;
 }
 

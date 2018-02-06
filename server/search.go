@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/go-chi/chi"
@@ -58,7 +59,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	res, err := index.ESClient().Get().
 		Index(config.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").
+		Type(fragments.FragmentGraphDocType).
 		Id(id).
 		Do(ctx)
 	if err != nil {
@@ -86,7 +87,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 func getSearchResult(w http.ResponseWriter, r *http.Request) {
 	s := index.ESClient().Search().
 		Index(config.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").
+		Type(fragments.FragmentGraphDocType).
 		Size(20)
 	rawQuery := r.FormValue("q")
 	fmt.Println("query: ", rawQuery)

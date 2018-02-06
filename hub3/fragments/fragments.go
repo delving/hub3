@@ -31,39 +31,42 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-// DOCTYPE is the ElasticSearch doctype for the Fragment Struct
-const DOCTYPE = "lodfragment"
+// FragmentDocType is the ElasticSearch doctype for the Fragment
+const FragmentDocType = "lodfragment"
+
+// FragmentGraphDocType is the ElasticSearch doctype for the FragmentGraph
+const FragmentGraphDocType = "lodgraph"
 
 // SIZE of the fragments returned
 const SIZE = 100
 
-// FragmentGraph holds all the information to build and store Fragments
-type FragmentGraph struct {
-	OrgID         string   `json:"orgID"`
-	Spec          string   `json:"spec"`
-	HubID         string   `json:"hubID"`
-	Revision      int32    `json:"revision"`
-	NamedGraphURI string   `json:"namedGraphURI"`
-	Tags          []string `json:"tags"`
-	Graph         *r.Graph `json:"graph"`
-	MimeType      string   `json:"mimeType"`
+// FragmentBuilder holds all the information to build and store Fragments
+type FragmentBuilder struct {
+	fg    *FragmentGraph
+	Graph *r.Graph
 }
 
-// NewFragmentGraph creates a new instance of FragmentGraph
-func NewFragmentGraph() *FragmentGraph {
-	return &FragmentGraph{
+// NewFragmentBuilder creates a new instance of the FragmentBuilder
+func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
+	return &FragmentBuilder{
+		fg:    fg,
 		Graph: r.NewGraph(""),
 	}
 }
 
+// NewFragmentGraph creates a new instance of FragmentGraph
+func NewFragmentGraph() *FragmentGraph {
+	return &FragmentGraph{}
+}
+
 // ParseGraph creates a RDF2Go Graph
-func (fg *FragmentGraph) ParseGraph(rdf io.Reader, mimeType string) error {
+func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 	var err error
 	switch mimeType {
 	case "text/turtle":
-		err = fg.Graph.Parse(rdf, mimeType)
+		err = fb.Graph.Parse(rdf, mimeType)
 	case "application/ld+json":
-		err = fg.Graph.Parse(rdf, mimeType)
+		err = fb.Graph.Parse(rdf, mimeType)
 	default:
 		return fmt.Errorf(
 			"Unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",
@@ -74,17 +77,17 @@ func (fg *FragmentGraph) ParseGraph(rdf io.Reader, mimeType string) error {
 		log.Printf("Unable to parse RDF string into graph: %v\n%s\n", err, rdf)
 		return err
 	}
-	fg.MimeType = mimeType
+	fb.fg.RdfMimeType = mimeType
 	return nil
 }
 
 // SaveFragments creates and stores all the fragments
-func (fg *FragmentGraph) SaveFragments(p *elastic.BulkProcessor) error {
-	if fg.Graph.Len() == 0 {
+func (fb *FragmentBuilder) SaveFragments(p *elastic.BulkProcessor) error {
+	if fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
-	for t := range fg.Graph.IterTriples() {
-		frag, err := fg.CreateFragment(t)
+	for t := range fb.Graph.IterTriples() {
+		frag, err := fb.CreateFragment(t)
 		if err != nil {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
@@ -98,14 +101,21 @@ func (fg *FragmentGraph) SaveFragments(p *elastic.BulkProcessor) error {
 	return nil
 }
 
+// AddTags adds a tag to the fragment tag list
+func (f *Fragment) AddTags(tag ...string) {
+	for _, t := range tag {
+		f.Tags = append(f.Tags, t)
+	}
+}
+
 // CreateFragment creates a fragment from a triple
-func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
+func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	f := &Fragment{
-		Spec:          fg.Spec,
-		Revision:      fg.Revision,
-		NamedGraphURI: fg.NamedGraphURI,
-		OrgID:         fg.OrgID,
-		HubID:         fg.HubID,
+		Spec:          fb.fg.Spec,
+		Revision:      fb.fg.Revision,
+		NamedGraphURI: fb.fg.NamedGraphURI,
+		OrgID:         fb.fg.OrgID,
+		HubID:         fb.fg.HubID,
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -119,7 +129,7 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		f.Language = l.Language
 		// Set default datatypes
 		f.DataType = ObjectXSDType_STRING
-		f.XsdRaw, _ = f.GetDataType().GetPrefixLabel()
+		f.XSDRaw, _ = f.GetDataType().GetPrefixLabel()
 		if l.Datatype != nil {
 			xsdType, err := GetObjectXSDType(l.Datatype.String())
 			if err != nil {
@@ -131,24 +141,27 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 				log.Printf("Unable to get xsdType prefix label for %s", l.Datatype.String())
 				break
 			}
-			f.XsdRaw = prefixLabel
+			f.XSDRaw = prefixLabel
 			f.DataType = xsdType
 		}
 	case *r.Resource:
 		f.ObjectType = ObjectType_RESOURCE
 		f.ObjectTypeRaw = "resource"
-		f.TypeLink = f.IsTypeLink()
-		if fg.Graph.Len() == 0 {
-			log.Printf("Warn: Graph is empty can't do linking checks\n")
-			break
+		if f.IsTypeLink() {
+			f.AddTags("typelink")
 		}
-		f.GraphExternalLink = fg.IsGraphExternal(triple.Object)
-		isDomainExternal, err := fg.IsDomainExternal(f.Object)
-		if err != nil {
-			log.Printf("Unable to parse object domain: %#v", err)
-			break
-		}
-		f.DomainExternalLink = isDomainExternal
+		//f.TypeLink = f.IsTypeLink()
+		//if fg.Graph.Len() == 0 {
+		//log.Printf("Warn: Graph is empty can't do linking checks\n")
+		//break
+		//}
+		//f.GraphExternalLink = fg.IsGraphExternal(triple.Object)
+		//isDomainExternal, err := fg.IsDomainExternal(f.Object)
+		//if err != nil {
+		//log.Printf("Unable to parse object domain: %#v", err)
+		//break
+		//}
+		//f.DomainExternalLink = isDomainExternal
 	default:
 		return f, fmt.Errorf("unknown object type: %#v", triple.Object)
 	}
@@ -156,7 +169,7 @@ func (fg *FragmentGraph) CreateFragment(triple *r.Triple) (*Fragment, error) {
 }
 
 // IsDomainExternal checks if the object link points to another domain
-func (fg *FragmentGraph) IsDomainExternal(obj string) (bool, error) {
+func (fb *FragmentBuilder) IsDomainExternal(obj string) (bool, error) {
 	u, err := url.Parse(obj)
 	if err != nil {
 		return false, err
@@ -165,8 +178,8 @@ func (fg *FragmentGraph) IsDomainExternal(obj string) (bool, error) {
 }
 
 // IsGraphExternal checks if the object link points outside the current graph
-func (fg *FragmentGraph) IsGraphExternal(obj r.Term) bool {
-	found := fg.Graph.One(obj, nil, nil)
+func (fb *FragmentBuilder) IsGraphExternal(obj r.Term) bool {
+	found := fb.Graph.One(obj, nil, nil)
 	return found == nil
 }
 
@@ -254,7 +267,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]s
 	}
 	res, err := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(DOCTYPE).
+		Type(FragmentDocType).
 		Query(q).
 		Size(SIZE).
 		From(fr.GetESPage()).
@@ -299,7 +312,7 @@ func (f Fragment) ID() string {
 func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(DOCTYPE).Id(f.ID()).
+		Type(FragmentDocType).Id(f.ID()).
 		Doc(f)
 	return r, nil
 }

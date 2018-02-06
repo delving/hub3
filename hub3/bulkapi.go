@@ -279,13 +279,13 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	}
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type("rdfrecord").Id(action.HubID).
+		Type(fragments.FragmentGraphDocType).Id(action.HubID).
 		Doc(record)
 	if r == nil {
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
-	fg := action.createFragmentGraph(response.SpecRevision)
-	err := fg.SaveFragments(action.p)
+	fb := action.createFragmentBuilder(response.SpecRevision)
+	err := fb.SaveFragments(action.p)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
 		return err
@@ -294,15 +294,16 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 	return nil
 }
 
-func (action BulkAction) createFragmentGraph(revision int) *fragments.FragmentGraph {
+func (action BulkAction) createFragmentBuilder(revision int) *fragments.FragmentBuilder {
 	fg := fragments.NewFragmentGraph()
 	fg.OrgID = c.Config.OrgID
 	fg.Spec = action.Spec
 	fg.Revision = int32(revision)
 	fg.NamedGraphURI = action.NamedGraphURI
 	fg.Tags = []string{"narthex", "mdr"}
-	fg.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
-	return fg
+	fb := fragments.NewFragmentBuilder(fg)
+	fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
+	return fb
 }
 
 type fusekiStoreResponse struct {
