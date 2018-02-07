@@ -52,8 +52,10 @@ type RawConfig struct {
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
-	NameSpaces    []NameSpace `json:"nameSpaces"`
+	NameSpaces    []NameSpace `json:"namespaces"`
 	NameSpaceMap  *NameSpaceMap
+	RDFTag        `json:"rdftag"`
+	//RDFTagMap     *RDFTagMap
 }
 
 // ElasticSearch holds all the configuration values
@@ -89,6 +91,7 @@ type RDF struct {
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
+	Tags              string   `json:"tags" mapstructure:"tags"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint

@@ -204,3 +204,27 @@ prefix = "gn"
 base = "http://rdvocab.info/ElementsGr2/"
 prefix = "rda"
 
+[rdftag]
+label = [
+    "http://www.w3.org/2004/02/skos/core#preflabel",
+    "http://www.w3.org/2000/01/rdf-schema#label",
+    "http://www.w3.org/2004/02/skos/core#altLabel",
+    "http://xmlns.com/foaf/0.1/name",
+    "http://www.geonames.org/ontology#name",
+    "http://purl.org/dc/elements/1.1/title",
+    "http://schemas.delving.eu/narthex/terms/proxyLiteralValue",
+    "http://dbpedia.org/ontology/name",
+]
+
+thumbnail = [
+    "http://xmlns.com/foaf/0.1/depiction",
+    "http://schemas.delving.eu/nave/terms/thumbnail",
+    "http://schemas.delving.eu/nave/terms/thumbSmall",
+    "http://schemas.delving.eu/nave/terms/thumbLarge",
+    "http://www.europeana.eu/schemas/edm/object",
+    "http://www.europeana.eu/schemas/edm/isShownBy",
+]
+
+latLong = []
+dateRange = []
+date = []
