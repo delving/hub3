@@ -155,20 +155,20 @@ func GetDataSet(spec string) (DataSet, error) {
 }
 
 // CreateDataSet creates and returns a DataSet
-func CreateDataSet(spec string) (DataSet, error) {
+func CreateDataSet(spec string) (DataSet, bool, error) {
 	ds := NewDataset(spec)
 	err := ds.Save()
-	return ds, err
+	return ds, true, err
 }
 
 // GetOrCreateDataSet returns a DataSet object from the Storm ORM.
 // If none is present it will create one
-func GetOrCreateDataSet(spec string) (DataSet, error) {
+func GetOrCreateDataSet(spec string) (DataSet, bool, error) {
 	ds, err := GetDataSet(spec)
 	if err != nil {
 		return CreateDataSet(spec)
 	}
-	return ds, err
+	return ds, false, err
 }
 
 // IncrementRevision bumps the latest revision of the DataSet

@@ -145,10 +145,17 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 	if response.Spec == "" {
 		response.Spec = action.Spec
 	}
-	ds, err := models.GetOrCreateDataSet(action.Spec)
+	ds, created, err := models.GetOrCreateDataSet(action.Spec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", action.Spec)
 		return err
+	}
+	if created {
+		err = fragments.SaveDataSet(action.Spec, action.p)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", action.Spec)
+			return err
+		}
 	}
 	response.SpecRevision = ds.Revision
 	switch action.Action {
@@ -273,7 +280,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
 	fb := action.createFragmentBuilder(response.SpecRevision)
-	err := fb.CreateFragments(action.p)
+	err := fb.CreateFragments(action.p, c.Config.ElasticSearch.Fragments)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
 		return err

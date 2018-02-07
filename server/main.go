@@ -157,6 +157,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	r.Get("/api/fragments", listFragments)
 
+	r.Get("/fragments/{spec}", listFragments)
+	r.Get("/fragments/", listFragments)
+
 	// namespaces
 	r.Get("/api/namespaces", listNameSpaces)
 

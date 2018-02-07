@@ -120,6 +120,7 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
 	fr := fragments.NewFragmentRequest()
+	fr.Spec = chi.URLParam(r, "spec")
 	err := fr.ParseQueryString(r.URL.Query())
 	if err != nil {
 		log.Printf("Unable to list fragments because of: %s", err)
@@ -141,7 +142,8 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	render.JSON(w, r, frags)
+	w.Header().Set("Content-Type", "text/turtle")
+	frags.Serialize(w, "text/turtle")
 	return
 }
 
@@ -261,7 +263,11 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("spec is %s", spec)
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
-		ds, err = models.CreateDataSet(spec)
+		created := false
+		ds, created, err = models.CreateDataSet(spec)
+		if created {
+			err = fragments.SaveDataSet(spec, bp)
+		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, APIErrorMessage{

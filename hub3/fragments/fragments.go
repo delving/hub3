@@ -15,6 +15,7 @@
 package fragments
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	fmt "fmt"
@@ -92,13 +93,13 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	return fb.fg
 }
 
-// SaveFragments creates and stores all the fragments
-func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor) error {
+// CreateFragments creates and stores all the fragments
+func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, noJoin bool) error {
 	if fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
 	for t := range fb.Graph.IterTriples() {
-		frag, err := fb.CreateFragment(t)
+		frag, err := fb.CreateFragment(t, noJoin)
 		if err != nil {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
@@ -126,7 +127,7 @@ func (f *Fragment) AddTags(tag ...string) {
 }
 
 // CreateFragment creates a fragment from a triple
-func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
+func (fb *FragmentBuilder) CreateFragment(triple *r.Triple, noJoin bool) (*Fragment, error) {
 	f := &Fragment{
 		Spec:          fb.fg.GetSpec(),
 		Revision:      fb.fg.GetRevision(),
@@ -134,7 +135,9 @@ func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 		OrgID:         fb.fg.GetOrgID(),
 		HubID:         fb.fg.GetHubID(),
 		DocType:       FragmentDocType,
-		Join:          &Join{Name: FragmentDocType, Parent: fb.fg.GetHubID()},
+	}
+	if !noJoin {
+		f.Join = &Join{Name: FragmentDocType, Parent: fb.fg.GetHubID()}
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -264,48 +267,120 @@ func (fr FragmentRequest) GetESPage() int {
 }
 
 // Find returns a list of matching LodFragments
-func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]string, error) {
+func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) (*r.Graph, error) {
 	q := elastic.NewBoolQuery()
 	buildQueryClause(q, "subject", fr.GetSubject())
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
-	buildQueryClause(q, "NamedGraphURI", fr.GetGraph())
-	buildQueryClause(q, "spec", fr.GetSpec())
 	q = q.Must(elastic.NewTermQuery("docType", FragmentDocType))
+	q = q.Must(elastic.NewTermQuery("spec", fr.GetSpec()))
 	if c.Config.DevMode {
 		src, err := q.Source()
 		if err != nil {
 			log.Fatal("Unable get query source")
-			return []string{}, err
+			return &r.Graph{}, err
 		}
 		data, err := json.Marshal(src)
 		if err != nil {
 			log.Fatal("Unable get query source")
-			return []string{}, err
+			return &r.Graph{}, err
 		}
 		fmt.Println(string(data))
 	}
 	res, err := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		//Type(FragmentDocType).
 		Query(q).
 		Size(SIZE).
 		From(fr.GetESPage()).
 		Do(ctx)
 	if err != nil {
-		return []string{}, err
+		return &r.Graph{}, err
 	}
+	var buffer bytes.Buffer
 	triples := []string{}
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
-		return triples, fmt.Errorf("expected response != nil")
+		return &r.Graph{}, fmt.Errorf("expected response != nil")
 	}
 	var frtyp Fragment
 	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
 		frag := item.(Fragment)
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
 		triples = append(triples, frag.Triple)
 	}
-	return triples, nil
+	g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
+	err = g.Parse(&buffer, "text/turtle")
+	if err != nil {
+		log.Printf("unable to parse triples from result: %s", err)
+		return g, err
+	}
+	return g, nil
+}
+
+// CreateHyperMediaControlGraph creates a graph based on the triple-pattern-fragment spec
+// see http://www.hydra-cg.com/spec/latest/triple-pattern-fragments/#controls
+func CreateHyperMediaControlGraph(spec string, total int64, page int) *r.Graph {
+	g := r.NewGraph("")
+	hits := strconv.Itoa(int(total))
+	subject := r.NewResource(fmt.Sprintf("%s/fragments/%s", c.Config.RDF.BaseURL, spec))
+	g.AddTriple(subject, r.NewResource("http://rdfs.org/ns/void#subset"), subject)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+		r.NewResource("http://www.w3.org/ns/hydra/core#Collection"),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+		r.NewResource("http://www.w3.org/ns/hydra/core#PagedCollection"),
+	)
+
+	g.AddTriple(
+		subject,
+		r.NewResource("http://purl.org/dc/terms/title"),
+		r.NewLiteralWithLanguage(fmt.Sprintf("Linked Data Fragment of %s", spec), "en"),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://purl.org/dc/terms/description"),
+		r.NewLiteralWithLanguage(
+			fmt.Sprintf(
+				"Triple Pattern Fragment of the '%s' dataset containing triples matching the pattern { ?s ?p ?o  }.",
+				spec,
+			),
+			"en"),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://purl.org/dc/term/source"),
+		subject,
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/ns/hydra/core#totalItems"),
+		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://rdfs.org/ns/void#triples"),
+		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://rdfs.org/ns/void#triples"),
+		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/ns/hydra/core#itemsPerPage"),
+		r.NewLiteralWithDatatype("100", r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
+	)
+	g.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/ns/hydra/core#firstPage"),
+		r.NewLiteral("1"),
+	)
+	return g
 }
 
 // CreateHash creates an xxhash-based hash of a string
@@ -362,7 +437,7 @@ func (t ObjectXSDType) GetLabel() (string, error) {
 func (t ObjectXSDType) GetPrefixLabel() (string, error) {
 	label, err := t.GetLabel()
 	if err != nil {
-		return "<`1`>", err
+		return "", err
 	}
 	return strings.Replace(label, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
 }
@@ -387,6 +462,22 @@ func GetObjectXSDType(label string) (ObjectXSDType, error) {
 		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
 	}
 	return t, nil
+}
+
+// SaveDataSet creates a fragment entry for a Dataset
+func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
+	fg := NewFragmentGraph()
+	fg.Spec = "datasets"
+	fb := NewFragmentBuilder(fg)
+	subject := r.NewResource(fmt.Sprintf("%s/fragments/%s", c.Config.RDF.BaseURL, spec))
+	fb.Graph.AddTriple(
+		subject,
+		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+		r.NewResource("http://rdfs.org/ns/void#Dataset"),
+	)
+	fb.Graph.AddTriple(subject, r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"), r.NewLiteral(spec))
+	fb.Graph.AddTriple(subject, r.NewResource("http://purl.org/dc/terms/title"), r.NewLiteral(spec))
+	return fb.CreateFragments(p, false)
 }
 
 // ESMapping is the default mapping for the RDF records enabled by rapid
