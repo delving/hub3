@@ -103,5 +103,12 @@ release-public:
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
+	@make pb.fragment
+	@make pb.api
+
+pb.fragment:
 	@protoc --go_out=plugins=grpc:. hub3/fragments/fragments.proto
+
+pb.api:
+	@echo "correct the import path in the api.pb.go file for fragments."
 	@protoc --go_out=. hub3/api/api.proto

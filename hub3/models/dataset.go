@@ -23,7 +23,7 @@ import (
 	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -217,10 +217,13 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	}
 
 	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
-	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
+	q := elastic.NewBoolQuery()
+	q = q.Must(
+		elastic.NewMatchPhraseQuery("spec", ds.Spec),
+		elastic.NewTermQuery("docType", fragments.FragmentGraphDocType),
+	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -282,10 +285,13 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	objectTypeAgg := elastic.NewTermsAggregation().Field("objectTypeRaw.keyword").Size(50).OrderByCountDesc()
 	objectDataTypeAgg := elastic.NewTermsAggregation().Field("xsdRaw.keyword").Size(50).OrderByCountDesc()
 	tagsAgg := elastic.NewTermsAggregation().Field("tags.keyword").Size(50).OrderByCountDesc()
-	q := elastic.NewMatchPhraseQuery("spec", ds.Spec)
+	q := elastic.NewBoolQuery()
+	q = q.Must(
+		elastic.NewMatchPhraseQuery("spec", ds.Spec),
+		elastic.NewTermQuery("docType", fragments.FragmentDocType),
+	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentDocType).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -435,8 +441,6 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context) (int, error) {
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).
-		Type(fragments.FragmentDocType).
 		Query(q).
 		Conflicts("proceed"). // default is abort
 		Do(ctx)
@@ -458,8 +462,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context) (int, error) {
 	logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).
-		Type(fragments.FragmentDocType).
 		Query(q).
 		Do(ctx)
 	if err != nil {

@@ -1,5 +1,5 @@
-hash: 8ad2210d5e9369b5a5ae1ae22a75033fe493d62e9324abe370c5b83b49266948
-updated: 2018-02-05T17:04:37.846977693+01:00
+hash: 91bf5439823bfe4b5b107f7b64d955e39e0d9a61e3154741dfa810240bd0efb3
+updated: 2018-02-07T20:20:48.795025208+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -47,6 +47,10 @@ imports:
   version: 925541529c1fa6821df4e44ce2723319eb2be768
   subpackages:
   - proto
+  - ptypes
+  - ptypes/any
+  - ptypes/duration
+  - ptypes/timestamp
 - name: github.com/google/btree
   version: e89373fe6b4a7413d7acd6da1725b83ef713e6e4
 - name: github.com/gregjones/httpcache
@@ -112,6 +116,11 @@ imports:
   version: 9032446b30f6284f8718490b6bcff8a1d51173cf
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
+- name: github.com/olivere/elastic
+  version: 2963eb09b89294356e1a826068f33e5a44326ac0
+  subpackages:
+  - config
+  - uritemplates
 - name: github.com/OneOfOne/xxhash
   version: 4e9e81466dc37c9fd94ce9ecf42020ef54112203
 - name: github.com/onsi/ginkgo
@@ -234,10 +243,17 @@ imports:
 - name: golang.org/x/net
   version: 0ed95abb35c445290478a5348a7b38bb154135fd
   subpackages:
+  - context
   - html
   - html/atom
   - html/charset
+  - http2
+  - http2/hpack
+  - idna
+  - internal/timeseries
+  - lex/httplex
   - publicsuffix
+  - trace
 - name: golang.org/x/sys
   version: ff2a66f350cefa5c93a634eadb5d25bb60c85a9c
   subpackages:
@@ -260,13 +276,39 @@ imports:
   - internal/utf8internal
   - language
   - runes
+  - secure/bidirule
   - transform
+  - unicode/bidi
   - unicode/norm
-- name: gopkg.in/olivere/elastic.v5
-  version: 1094ee281ca61a783c9ba22bf86e7e0a8aa2d112
+- name: google.golang.org/genproto
+  version: 2b5a72b8730b0b16380010cfe5286c42108d88e7
   subpackages:
-  - config
-  - uritemplates
+  - googleapis/rpc/status
+- name: google.golang.org/grpc
+  version: 7646b5360d049a7ca31e9133315db43456f39e2e
+  subpackages:
+  - balancer
+  - balancer/base
+  - balancer/roundrobin
+  - codes
+  - connectivity
+  - credentials
+  - encoding
+  - encoding/proto
+  - grpclb/grpc_lb_v1/messages
+  - grpclog
+  - internal
+  - keepalive
+  - metadata
+  - naming
+  - peer
+  - resolver
+  - resolver/dns
+  - resolver/passthrough
+  - stats
+  - status
+  - tap
+  - transport
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 - name: willnorris.com/go/gifresize

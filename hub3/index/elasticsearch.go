@@ -25,7 +25,8 @@ import (
 	"time"
 
 	"bitbucket.org/delving/rapid/config"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"bitbucket.org/delving/rapid/hub3/fragments"
+	elastic "github.com/olivere/elastic"
 )
 
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
@@ -72,7 +73,7 @@ func ensureESIndex(index string) {
 	}
 	if !exists {
 		// Create a new index.
-		createIndex, err := client.CreateIndex(index).BodyString(mapping).Do(ctx)
+		createIndex, err := client.CreateIndex(index).BodyJson(fragments.ESMapping).Do(ctx)
 		if err != nil {
 			// Handle error
 			stdlog.Fatal(err)
@@ -138,26 +139,3 @@ func (r *CustomRetrier) Retry(
 	wait, stop := r.backoff.Next(retry)
 	return wait, stop, nil
 }
-
-// Create a new index.
-// TODO: add other mappings to the default mapping
-var mapping = `{
-	"settings":{
-		"number_of_shards":1,
-		"number_of_replicas":0
-	},
-	"mappings":{
-		"rdfrecord":{
-			"properties":{
-				"spec":{
-					"type":"string"
-				},
-				"graph":{
-					"index": "no",
-					"type": "string",
-					"doc_values": false
-				}
-			}
-		}
-	}
-}`

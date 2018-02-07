@@ -28,14 +28,17 @@ import (
 	c "bitbucket.org/delving/rapid/config"
 	"github.com/OneOfOne/xxhash"
 	r "github.com/deiu/rdf2go"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // FragmentDocType is the ElasticSearch doctype for the Fragment
-const FragmentDocType = "lodfragment"
+const FragmentDocType = "fragment"
 
 // FragmentGraphDocType is the ElasticSearch doctype for the FragmentGraph
-const FragmentGraphDocType = "lodgraph"
+const FragmentGraphDocType = "graph"
+
+// DocType is the default doctype since elasticsearch deprecated mapping types
+const DocType = "doc"
 
 // SIZE of the fragments returned
 const SIZE = 100
@@ -56,7 +59,10 @@ func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 
 // NewFragmentGraph creates a new instance of FragmentGraph
 func NewFragmentGraph() *FragmentGraph {
-	return &FragmentGraph{}
+	return &FragmentGraph{
+		DocType: FragmentGraphDocType,
+		Join:    &Join{Name: FragmentGraphDocType},
+	}
 }
 
 // ParseGraph creates a RDF2Go Graph
@@ -81,8 +87,13 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 	return nil
 }
 
+// Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
+func (fb *FragmentBuilder) Doc() *FragmentGraph {
+	return fb.fg
+}
+
 // SaveFragments creates and stores all the fragments
-func (fb *FragmentBuilder) SaveFragments(p *elastic.BulkProcessor) error {
+func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor) error {
 	if fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
@@ -92,10 +103,16 @@ func (fb *FragmentBuilder) SaveFragments(p *elastic.BulkProcessor) error {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
 		}
-		err = frag.AddTo(p)
-		if err != nil {
-			log.Printf("Unable to save fragment due to %v.", err)
-			return err
+		if c.Config.ElasticSearch.Fragments {
+			err = frag.AddTo(p)
+			if err != nil {
+				log.Printf("Unable to save fragment due to %v.", err)
+				return err
+			}
+		}
+		if c.Config.ElasticSearch.Nested {
+			frag.Join = &Join{}
+			fb.fg.Fragments = append(fb.fg.Fragments)
 		}
 	}
 	return nil
@@ -111,11 +128,13 @@ func (f *Fragment) AddTags(tag ...string) {
 // CreateFragment creates a fragment from a triple
 func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	f := &Fragment{
-		Spec:          fb.fg.Spec,
-		Revision:      fb.fg.Revision,
-		NamedGraphURI: fb.fg.NamedGraphURI,
-		OrgID:         fb.fg.OrgID,
-		HubID:         fb.fg.HubID,
+		Spec:          fb.fg.GetSpec(),
+		Revision:      fb.fg.GetRevision(),
+		NamedGraphURI: fb.fg.GetNamedGraphURI(),
+		OrgID:         fb.fg.GetOrgID(),
+		HubID:         fb.fg.GetHubID(),
+		DocType:       FragmentDocType,
+		Join:          &Join{Name: FragmentDocType, Parent: fb.fg.GetHubID()},
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -252,6 +271,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]s
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "NamedGraphURI", fr.GetGraph())
 	buildQueryClause(q, "spec", fr.GetSpec())
+	q = q.Must(elastic.NewTermQuery("docType", FragmentDocType))
 	if c.Config.DevMode {
 		src, err := q.Source()
 		if err != nil {
@@ -267,7 +287,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]s
 	}
 	res, err := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(FragmentDocType).
+		//Type(FragmentDocType).
 		Query(q).
 		Size(SIZE).
 		From(fr.GetESPage()).
@@ -312,7 +332,9 @@ func (f Fragment) ID() string {
 func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(FragmentDocType).Id(f.ID()).
+		Type(DocType).
+		Routing(f.HubID).
+		Id(f.ID()).
 		Doc(f)
 	return r, nil
 }
@@ -366,3 +388,33 @@ func GetObjectXSDType(label string) (ObjectXSDType, error) {
 	}
 	return t, nil
 }
+
+// ESMapping is the default mapping for the RDF records enabled by rapid
+var ESMapping = `{
+	"settings":{
+		"number_of_shards":1,
+		"number_of_replicas":0
+	},
+	"mappings":{
+		"doc": {
+			"properties": {
+				"spec": {"type": "keyword"},
+				"orgID": {"type": "keyword"},
+				"hubID": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+				"revision": {"type": "long"},
+				"entryURI": {"type": "keyword"},
+				"namedGraphURI": {"type": "keyword"},
+				"RDF": {"type": "binary", "index": "false", "store": "false"},
+				"rdfMimeType": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+				"tags": {"type": "keyword"},
+				"docType": {"type": "keyword"},
+				"join": {"type": "join", "relations": {"graph": "fragment"}},
+				"level": {"type": "long"},
+				"fragments": {"type": "nested"},
+				"object": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+				"stats": {
+					"type": "object"
+				}
+			}
+		}
+}}`

@@ -15,6 +15,10 @@ urls = ["http://localhost:9200"]
 index = "rapid2"
 # if _mapping and _search proxies should be enabled
 proxy = true 
+# Use nested fragments in FragmentGraph record
+nested = false
+# Store fragments separtely with parent-child join
+fragments = true
 
 [logging]
 devmode = true

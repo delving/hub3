@@ -28,8 +28,8 @@ import (
 	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/models"
+	elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
-	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // BulkAction is used to unmarshal the information from the BulkAPI
@@ -267,28 +267,26 @@ func getContext(input string, lineNumber int) (string, error) {
 	return strings.Join(errorContext, "\n"), nil
 }
 
-//ESSave the RDFRecord to ElasticSearch
+//ESSave the RDF Record to ElasticSearch
 func (action BulkAction) ESSave(response *BulkActionResponse) error {
-	record := models.NewRDFRecord(action.HubID, action.Spec)
-	record.ContentHash = action.ContentHash
-	record.Graph = action.Graph
-	record.Revision = response.SpecRevision
-	record.NamedGraphURI = action.NamedGraphURI
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
-	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).Id(action.HubID).
-		Doc(record)
-	if r == nil {
-		return fmt.Errorf("Unable create BulkIndexRequest")
-	}
 	fb := action.createFragmentBuilder(response.SpecRevision)
-	err := fb.SaveFragments(action.p)
+	err := fb.CreateFragments(action.p)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
 		return err
+	}
+
+	r := elastic.NewBulkIndexRequest().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(fragments.DocType).
+		Id(action.HubID).
+		Doc(fb.Doc())
+	if r == nil {
+		panic("can't create index doc")
+		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 	action.p.Add(r)
 	return nil
@@ -297,6 +295,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 func (action BulkAction) createFragmentBuilder(revision int) *fragments.FragmentBuilder {
 	fg := fragments.NewFragmentGraph()
 	fg.OrgID = c.Config.OrgID
+	fg.HubID = action.HubID
 	fg.Spec = action.Spec
 	fg.Revision = int32(revision)
 	fg.NamedGraphURI = action.NamedGraphURI

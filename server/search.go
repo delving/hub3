@@ -19,15 +19,13 @@ import (
 	"fmt"
 	log "log"
 	"net/http"
-	"strings"
 
 	"bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
-	"bitbucket.org/delving/rapid/hub3/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // SearchResource is a struct for the Search routes
@@ -59,7 +57,6 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	res, err := index.ESClient().Get().
 		Index(config.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).
 		Id(id).
 		Do(ctx)
 	if err != nil {
@@ -76,7 +73,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	record, err := decodeRFDRecord(res.Source)
+	record, err := decodeFragmentGraph(res.Source)
 	if err != nil {
 		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
 		return
@@ -87,16 +84,19 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 func getSearchResult(w http.ResponseWriter, r *http.Request) {
 	s := index.ESClient().Search().
 		Index(config.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).
 		Size(20)
 	rawQuery := r.FormValue("q")
 	fmt.Println("query: ", rawQuery)
-	if rawQuery != "" {
-		rawQuery = strings.Replace(rawQuery, "delving_spec:", "spec:", 1)
-		s = s.Query(elastic.NewQueryStringQuery(rawQuery))
-	} else {
-		s = s.Query(elastic.NewMatchAllQuery())
-	}
+	query := elastic.NewBoolQuery()
+	query = query.Must(elastic.NewTermQuery("docType", fragments.FragmentGraphDocType))
+	// todo enable query later
+	//if rawQuery != "" {
+	//rawQuery = strings.Replace(rawQuery, "delving_spec:", "spec:", 1)
+	//s = s.Query(elastic.NewQueryStringQuery(rawQuery))
+	//} else {
+	//s = s.Query(elastic.NewMatchAllQuery())
+	//}
+	s = s.Query(query)
 	res, err := s.Do(ctx)
 	if err != nil {
 		log.Println("Unable to get search result.")
@@ -108,7 +108,7 @@ func getSearchResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	records, err := decodeRDFRecords(res)
+	records, err := decodeFragmentGraphs(res)
 	if err != nil {
 		log.Printf("Unable to decode records")
 		return
@@ -117,28 +117,26 @@ func getSearchResult(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func decodeRFDRecord(hit *json.RawMessage) (*models.RDFRecord, error) {
-	r := new(models.RDFRecord)
+func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error) {
+	r := new(fragments.FragmentGraph)
 	if err := json.Unmarshal(*hit, r); err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-// decodeRDFRecords takes a search result and deserializes the records
-func decodeRDFRecords(res *elastic.SearchResult) ([]*models.RDFRecord, error) {
+// decodeFragmentGraphs takes a search result and deserializes the records
+func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, error) {
 	if res == nil || res.TotalHits() == 0 {
 		return nil, nil
 	}
 
-	var records []*models.RDFRecord
+	var records []*fragments.FragmentGraph
 	for _, hit := range res.Hits.Hits {
-		r, err := decodeRFDRecord(hit.Source)
+		r, err := decodeFragmentGraph(hit.Source)
 		if err != nil {
 			return nil, err
 		}
-		// TODO Add Score here, e.g.:
-		// film.Score = *hit.Score
 		records = append(records, r)
 	}
 	return records, nil

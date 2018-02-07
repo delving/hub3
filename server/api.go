@@ -27,7 +27,7 @@ import (
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"bitbucket.org/delving/rapid/hub3/models"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
