@@ -122,8 +122,9 @@ var _ = Describe("Dataset", func() {
 	Context("When calling CreateDataSet", func() {
 
 		It("should create a dataset when no dataset is present.", func() {
-			ds, err := CreateDataSet("test3")
+			ds, created, err := CreateDataSet("test3")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(created).To(BeTrue())
 			Expect(ds.Spec).To(Equal("test3"))
 		})
 
@@ -132,8 +133,9 @@ var _ = Describe("Dataset", func() {
 	Context("When calling GetOrCreateDataSet", func() {
 
 		It("should create the datasets when no dataset is available", func() {
-			ds, err := GetOrCreateDataSet("test2")
+			ds, created, err := GetOrCreateDataSet("test2")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(created).To(BeTrue())
 			Expect(ds.Spec).To(Equal("test2"))
 		})
 
@@ -141,8 +143,9 @@ var _ = Describe("Dataset", func() {
 			datasetCount, err := ListDataSets()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(datasetCount) > 0).To(BeTrue())
-			ds, err := GetOrCreateDataSet("test2")
+			ds, created, err := GetOrCreateDataSet("test2")
 			Expect(err).ToNot(HaveOccurred())
+			Expect(created).To(BeFalse())
 			Expect(ds.Spec).To(Equal("test2"))
 			newCount, err := ListDataSets()
 			Expect(err).ToNot(HaveOccurred())
@@ -163,16 +166,16 @@ var _ = Describe("Dataset", func() {
 	Context("When calling IncrementRevision", func() {
 
 		It("should update the revision of the dataset by one", func() {
-			ds, _ := GetOrCreateDataSet("test3")
+			ds, _, _ := GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(0))
 			err := ds.IncrementRevision()
 			Expect(err).ToNot(HaveOccurred())
-			ds, _ = GetOrCreateDataSet("test3")
+			ds, _, _ = GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(1))
 		})
 
 		It("should have stored the dataset with the new revision", func() {
-			ds, _ := GetOrCreateDataSet("test3")
+			ds, _, _ := GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(1))
 		})
 	})
@@ -185,7 +188,7 @@ var _ = Describe("Dataset", func() {
 			Expect(err).To(BeNil())
 			dsNr := len(dataSets)
 			dsName := "test4"
-			ds, _ := GetOrCreateDataSet(dsName)
+			ds, _, _ := GetOrCreateDataSet(dsName)
 			Expect(ds).ToNot(BeNil())
 			ds, err = GetDataSet(dsName)
 			Expect(err).To(BeNil())

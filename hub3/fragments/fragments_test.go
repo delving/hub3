@@ -407,9 +407,8 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				m := h.(map[string]interface{})
 				Expect(m["index"]).To(HaveKeyWithValue("_id", f.ID()))
-				Expect(m["index"]).To(HaveKeyWithValue("_type", FragmentDocType))
+				Expect(m["index"]).To(HaveKeyWithValue("_type", DocType))
 				Expect(m["index"]).To(HaveKeyWithValue("_index", c.Config.ElasticSearch.IndexName))
-
 			})
 
 			It("should have a valid body", func() {
