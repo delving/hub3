@@ -65,7 +65,6 @@ type ElasticSearch struct {
 	Enabled   bool     `json:"enabled"`
 	IndexName string   `json:"index"`
 	Proxy     bool     `json:"proxy"`
-	Nested    bool     `json:"nested"`
 	Fragments bool     `json:"fragments"`
 }
 
@@ -147,7 +146,6 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.enabled", true)
 	viper.SetDefault("ElasticSearch.IndexName", viper.GetString("OrgId"))
 	viper.SetDefault("ElasticSearch.Proxy", true)
-	viper.SetDefault("ElasticSearch.Nested", true)
 	viper.SetDefault("ElasticSearch.Fragments", true)
 
 	// logging

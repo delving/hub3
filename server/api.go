@@ -133,11 +133,11 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	}
 	// TODO implement QueryFragments
 	frags, err := fr.Find(ctx, index.ESClient())
-	if err != nil {
+	if err != nil || frags.Len() == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprint("Unable to list fragments was not found"),
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprint("No fragmenst for query were found."),
 			Error:      err,
 		})
 		return

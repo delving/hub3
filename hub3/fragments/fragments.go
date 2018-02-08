@@ -22,7 +22,6 @@ import (
 	"io"
 	"log"
 	"net/url"
-	"reflect"
 	"strconv"
 	"strings"
 
@@ -62,7 +61,6 @@ func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 func NewFragmentGraph() *FragmentGraph {
 	return &FragmentGraph{
 		DocType: FragmentGraphDocType,
-		Join:    &Join{Name: FragmentGraphDocType},
 	}
 }
 
@@ -94,12 +92,12 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 }
 
 // CreateFragments creates and stores all the fragments
-func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, noJoin bool) error {
+func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool) error {
 	if fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
 	for t := range fb.Graph.IterTriples() {
-		frag, err := fb.CreateFragment(t, noJoin)
+		frag, err := fb.CreateFragment(t)
 		if err != nil {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
@@ -111,9 +109,8 @@ func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, noJoin bool
 				return err
 			}
 		}
-		if c.Config.ElasticSearch.Nested {
-			frag.Join = &Join{}
-			fb.fg.Fragments = append(fb.fg.Fragments)
+		if nestFragments {
+			fb.fg.Fragments = append(fb.fg.Fragments, frag)
 		}
 	}
 	return nil
@@ -127,7 +124,7 @@ func (f *Fragment) AddTags(tag ...string) {
 }
 
 // CreateFragment creates a fragment from a triple
-func (fb *FragmentBuilder) CreateFragment(triple *r.Triple, noJoin bool) (*Fragment, error) {
+func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 	f := &Fragment{
 		Spec:          fb.fg.GetSpec(),
 		Revision:      fb.fg.GetRevision(),
@@ -135,9 +132,6 @@ func (fb *FragmentBuilder) CreateFragment(triple *r.Triple, noJoin bool) (*Fragm
 		OrgID:         fb.fg.GetOrgID(),
 		HubID:         fb.fg.GetHubID(),
 		DocType:       FragmentDocType,
-	}
-	if !noJoin {
-		f.Join = &Join{Name: FragmentDocType, Parent: fb.fg.GetHubID()}
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -297,16 +291,13 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) (*r.
 		return &r.Graph{}, err
 	}
 	var buffer bytes.Buffer
-	triples := []string{}
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		return &r.Graph{}, fmt.Errorf("expected response != nil")
 	}
-	var frtyp Fragment
-	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
-		frag := item.(Fragment)
-		buffer.WriteString(fmt.Sprintln(frag.Triple))
-		triples = append(triples, frag.Triple)
+	if res.Hits.TotalHits == 0 {
+		log.Println("Nothing found for this query.")
+		return &r.Graph{}, nil
 	}
 	g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
 	err = g.Parse(&buffer, "text/turtle")
@@ -408,7 +399,6 @@ func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type(DocType).
-		Routing(f.HubID).
 		Id(f.ID()).
 		Doc(f)
 	return r, nil
@@ -499,9 +489,13 @@ var ESMapping = `{
 				"rdfMimeType": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
 				"tags": {"type": "keyword"},
 				"docType": {"type": "keyword"},
-				"join": {"type": "join", "relations": {"graph": "fragment"}},
 				"level": {"type": "long"},
-				"fragments": {"type": "nested"},
+				"fragments": {
+					"type": "nested",
+					"properties": {
+						"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}}
+					}
+				},
 				"object": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
 				"stats": {
 					"type": "object"

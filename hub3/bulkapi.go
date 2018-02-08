@@ -280,12 +280,11 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
 	fb := action.createFragmentBuilder(response.SpecRevision)
-	err := fb.CreateFragments(action.p, c.Config.ElasticSearch.Fragments)
+	err := fb.CreateFragments(action.p, true)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
 		return err
 	}
-
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type(fragments.DocType).
