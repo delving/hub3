@@ -89,3 +89,10 @@
     nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
     nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
     nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500" .
+
+<urn:joods-historisch/d376/375N021.jpg> a edm:WebResource ;
+    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021.tif.dzi" ;
+    nave:resourceSortOrder "2" ;
+    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/2000" ;
+    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/2000" ;
+    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/500" .

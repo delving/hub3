@@ -22,6 +22,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -42,6 +43,8 @@ const DocType = "doc"
 
 // SIZE of the fragments returned
 const SIZE = 100
+
+const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // FragmentBuilder holds all the information to build and store Fragments
 type FragmentBuilder struct {
@@ -91,9 +94,33 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	return fb.fg
 }
 
+// FragmentContext holds the referrer in formation for creating new fragments
+type FragmentContext struct {
+	Subject         string   `json:"subject"`
+	SubjectClass    []string `json:"subjectClass"`
+	Predicate       string   `json:"predicate"`
+	SearchLabel     string   `json:"searchLabel"`
+	Level           int      `json:"level"`
+	FragmentSubject string   `json:"fragmentSubject"`
+	g               *r.Graph `json:"g"`
+}
+
+// CreateLinkedFragments creates fragments that are context aware
+func (fb *FragmentBuilder) CreateLinkedFragments() error {
+	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
+		return fmt.Errorf("cannot store fragments from empty graph")
+	}
+	log.Println("Start iterating")
+	// Add channel
+	for _, subject := range fb.Graph.All(nil, r.NewResource(RDFType), r.NewResource(fb.fg.GetEntryURI())) {
+		log.Println(subject)
+	}
+	return nil
+}
+
 // CreateFragments creates and stores all the fragments
 func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool) error {
-	if fb.Graph.Len() == 0 {
+	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
 	for t := range fb.Graph.IterTriples() {
@@ -201,7 +228,7 @@ func (fb *FragmentBuilder) IsGraphExternal(obj r.Term) bool {
 
 // IsTypeLink checks if the Predicate is a RDF type link
 func (f Fragment) IsTypeLink() bool {
-	return f.Predicate == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+	return f.Predicate == RDFType
 }
 
 // NewFragmentRequest creates a finder for Fragments
@@ -299,7 +326,14 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) (*r.
 		log.Println("Nothing found for this query.")
 		return &r.Graph{}, nil
 	}
-	g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
+	var frtyp Fragment
+	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
+		frag := item.(Fragment)
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
+		//triples = append(triples, frag.Triple)
+	}
+	//g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
+	g := r.NewGraph("")
 	err = g.Parse(&buffer, "text/turtle")
 	if err != nil {
 		log.Printf("unable to parse triples from result: %s", err)

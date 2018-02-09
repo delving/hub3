@@ -120,7 +120,10 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
 	fr := fragments.NewFragmentRequest()
-	fr.Spec = chi.URLParam(r, "spec")
+	spec := chi.URLParam(r, "spec")
+	if spec != "" {
+		fr.Spec = spec
+	}
 	err := fr.ParseQueryString(r.URL.Query())
 	if err != nil {
 		log.Printf("Unable to list fragments because of: %s", err)
@@ -131,7 +134,6 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// TODO implement QueryFragments
 	frags, err := fr.Find(ctx, index.ESClient())
 	if err != nil || frags.Len() == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
@@ -143,7 +145,17 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/turtle")
-	frags.Serialize(w, "text/turtle")
+	err = frags.Serialize(w, "text/turtle")
+	if err != nil {
+		log.Printf("Unable to list serialize fragments because of: %s", err)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
+			Error:      err,
+		})
+		return
+
+	}
 	return
 }
 
@@ -263,7 +275,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("spec is %s", spec)
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
-		created := false
+		var created bool
 		ds, created, err = models.CreateDataSet(spec)
 		if created {
 			err = fragments.SaveDataSet(spec, bp)

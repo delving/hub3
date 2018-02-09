@@ -38,7 +38,7 @@ var _ = Describe("V1", func() {
 				g, err := api.NewGraphFromTurtle(turtle)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(g).ToNot(BeNil())
-				Expect(g.Len()).To(Equal(53))
+				Expect(g.Len()).To(Equal(59))
 				//triples := g.IterTriples()
 				//fmt.Printf("%#v", triples)
 				//for triple := range triples {

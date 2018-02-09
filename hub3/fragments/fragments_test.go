@@ -15,8 +15,10 @@
 package fragments_test
 
 import (
+	"bytes"
 	"encoding/json"
 	fmt "fmt"
+	"io/ioutil"
 	"log"
 	"net/url"
 
@@ -70,6 +72,22 @@ func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg.Revision = rev
 	fg.NamedGraphURI = ng
 	return fg
+}
+
+func testDataGraph() (*FragmentBuilder, error) {
+	spec := "test-spec"
+	rev := int32(1)
+	ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
+	fg := testFragmentGraph(spec, rev, ng)
+	fg.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
+	fb := NewFragmentBuilder(fg)
+	dat, err := ioutil.ReadFile("test_data/test2.ttl")
+	if err != nil {
+		return fb, err
+	}
+	fg.RDF = dat
+	fb.ParseGraph(bytes.NewReader(fg.RDF), "text/turtle")
+	return fb, nil
 }
 
 var _ = Describe("Fragments", func() {
@@ -478,6 +496,21 @@ var _ = Describe("Fragments", func() {
 			It("should return a short hash", func() {
 				hash := CreateHash("rapid rocks.")
 				Expect(hash).To(Equal("a5b3be36c0f378a1"))
+			})
+		})
+
+	})
+
+	Describe("FragmentBuilder", func() {
+		fb, err := testDataGraph()
+
+		Context("when creating linked data", func() {
+
+			It("should find subjects by EntryURI", func() {
+				Expect(err).ToNot(HaveOccurred())
+				err := fb.CreateLinkedFragments()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fb.Graph.Len()).To(Equal(59))
 			})
 		})
 
