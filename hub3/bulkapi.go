@@ -194,7 +194,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 			response.SpecRevision = ds.Revision
 		}
 		if c.Config.ElasticSearch.Enabled {
-			err := action.ESSave(response)
+			err := action.ESSave(response, c.Config.ElasticSearch.IndexV1)
 			if err != nil {
 				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 				return err
@@ -275,7 +275,7 @@ func getContext(input string, lineNumber int) (string, error) {
 }
 
 //ESSave the RDF Record to ElasticSearch
-func (action BulkAction) ESSave(response *BulkActionResponse) error {
+func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing bool) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
@@ -285,11 +285,25 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 		log.Printf("Unable to save fragments: %v", err)
 		return err
 	}
-	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DocType).
-		Id(action.HubID).
-		Doc(fb.Doc())
+	var r *elastic.BulkIndexRequest
+	if v1StylingIndexing {
+		indexDoc, err := fragments.CreateV1IndexDoc(fb.Graph)
+		if err != nil {
+			log.Printf("Unable to create index doc: %s", err)
+			return err
+		}
+		r, err = fragments.CreateESAction(indexDoc, action.HubID)
+		if err != nil {
+			log.Printf("Unable to create v1 es action: %s", err)
+			return err
+		}
+	} else {
+		r = elastic.NewBulkIndexRequest().
+			Index(c.Config.ElasticSearch.IndexName).
+			Type(fragments.DocType).
+			Id(action.HubID).
+			Doc(fb.Doc())
+	}
 	if r == nil {
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
