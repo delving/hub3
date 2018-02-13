@@ -10,7 +10,7 @@ builds:
     goarch:
       - amd64
     # Custom ldflags
-    ldflags: -s -w  -X main.Version={{.Version}}  -X main.GitHash={{.Commit}} -X main.BuildStamp={{.Date}} -X main.BuildAgent=GoReleaser
+    ldflags: -s -w -X main.Version={{.Version}}  -X main.GitHash={{.Commit}} -X main.BuildStamp={{.Date}} -X main.BuildAgent="GoReleaser"
   
 fpm:
   # Your app's vendor.
