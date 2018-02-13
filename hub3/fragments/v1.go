@@ -18,6 +18,7 @@ import (
 	fmt "fmt"
 	"io"
 	"log"
+	"strconv"
 	"time"
 
 	c "bitbucket.org/delving/rapid/config"
@@ -45,10 +46,10 @@ type Legacy struct {
 	Title            string `json:"delving_title,omitempty"`
 	Creator          string `json:"delving_creator,omitempty"`
 	Provider         string `json:"delving_provider,omitempty"`
-	HasGeoHash       bool   `json:"delving_hasGeoHash"`
-	HasDigitalObject bool   `json:"delving_hasDigitalObject"`
-	HasLandingPage   bool   `json:"delving_hasLandingPage"`
-	HasDeepZoom      bool   `json:"delving_hasDeepZoom"`
+	HasGeoHash       string `json:"delving_hasGeoHash"`
+	HasDigitalObject string `json:"delving_hasDigitalObject"`
+	HasLandingPage   string `json:"delving_hasLandingPage"`
+	HasDeepZoom      string `json:"delving_hasDeepZoom"`
 }
 
 // NewLegacy returns a legacy struct with default values
@@ -61,18 +62,14 @@ func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder) *Legacy {
 		Collection: fb.fg.GetSpec(),
 	}
 	var ok bool
-	if _, ok = indexDoc["nave_GeoHash"]; ok {
-		l.HasGeoHash = ok
-	}
-	if _, ok = indexDoc["edm_isShownBy"]; ok {
-		l.HasDigitalObject = ok
-	}
-	if _, ok = indexDoc["nave_DeepZoomUrl"]; ok {
-		l.HasDeepZoom = ok
-	}
-	if _, ok = indexDoc["edm_isShownAt"]; ok {
-		l.HasLandingPage = ok
-	}
+	_, ok = indexDoc["nave_GeoHash"]
+	l.HasGeoHash = strconv.FormatBool(ok)
+	_, ok = indexDoc["edm_isShownBy"]
+	l.HasDigitalObject = strconv.FormatBool(ok)
+	_, ok = indexDoc["nave_DeepZoomUrl"]
+	l.HasDeepZoom = strconv.FormatBool(ok)
+	_, ok = indexDoc["edm_isShownAt"]
+	l.HasLandingPage = strconv.FormatBool(ok)
 	return l
 }
 
@@ -92,10 +89,10 @@ type System struct {
 	ProxyResourceGraph string `json:"proxy_resource_graph,omitempty"`
 	WebResourceGraph   string `json:"web_resource_graph,omitempty"`
 	ContentHash        string `json:"content_hash,omitempty"`
-	HasGeoHash         bool   `json:"hasGeoHash"`
-	HasDigitalObject   bool   `json:"hasDigitalObject"`
-	HasLandingPage     bool   `json:"hasLandingPage"`
-	HasDeepZoom        bool   `json:"hasDeepZoom"`
+	HasGeoHash         string `json:"hasGeoHash"`
+	HasDigitalObject   string `json:"hasDigitalObject"`
+	HasLandingPage     string `json:"hasLandingPage"`
+	HasDeepZoom        string `json:"hasDeepZoom"`
 }
 
 // NewSystem generates system info for the V1 doc
@@ -110,18 +107,14 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
 	var ok bool
-	if _, ok = indexDoc["nave_GeoHash"]; ok {
-		s.HasGeoHash = ok
-	}
-	if _, ok = indexDoc["edm_isShownBy"]; ok {
-		s.HasDigitalObject = ok
-	}
-	if _, ok = indexDoc["nave_DeepZoomUrl"]; ok {
-		s.HasDeepZoom = ok
-	}
-	if _, ok = indexDoc["edm_isShownAt"]; ok {
-		s.HasLandingPage = ok
-	}
+	_, ok = indexDoc["nave_GeoHash"]
+	s.HasGeoHash = strconv.FormatBool(ok)
+	_, ok = indexDoc["edm_isShownBy"]
+	s.HasDigitalObject = strconv.FormatBool(ok)
+	_, ok = indexDoc["nave_DeepZoomUrl"]
+	s.HasDeepZoom = strconv.FormatBool(ok)
+	_, ok = indexDoc["edm_isShownAt"]
+	s.HasLandingPage = strconv.FormatBool(ok)
 	// todo
 	//s.Caption = ""
 	//s.Thumbnail = ""
