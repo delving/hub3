@@ -61,12 +61,13 @@ type RawConfig struct {
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
-	Urls      []string `json:"urls"`
-	Enabled   bool     `json:"enabled"`
-	IndexName string   `json:"index"`
-	Proxy     bool     `json:"proxy"`
-	Fragments bool     `json:"fragments"`
-	IndexV1   bool     `json:"indexV1"` // exclusive with v2 indexing
+	Urls        []string `json:"urls"`
+	Enabled     bool     `json:"enabled"`
+	IndexName   string   `json:"index"`
+	Proxy       bool     `json:"proxy"`
+	Fragments   bool     `json:"fragments"`
+	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing
+	EnableTrace bool     `json:"enableTrace"`
 }
 
 // Logging holds all the logging and path configuration
@@ -154,6 +155,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Proxy", true)
 	viper.SetDefault("ElasticSearch.Fragments", true)
 	viper.SetDefault("ElasticSearch.IndexV1", false)
+	viper.SetDefault("ElasticSearch.EnableTrace", false)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

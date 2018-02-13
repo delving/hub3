@@ -91,17 +91,20 @@ func ListIndexes() ([]string, error) {
 }
 
 func createESClient() *elastic.Client {
+	options := []elastic.ClientOptionFunc{
+		elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
+		elastic.SetSniff(false),                             // disable sniffing
+		elastic.SetHealthcheckInterval(10 * time.Second),    // do healthcheck every 10 seconds
+		elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
+		// todo replace with logrus logger later
+		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
+		elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
+	}
+	if config.Config.ElasticSearch.EnableTrace {
+		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
+	}
 	if client == nil {
-		c, err := elastic.NewClient(
-			elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
-			elastic.SetSniff(false),                             // disable sniffing
-			elastic.SetHealthcheckInterval(10*time.Second),      // do healthcheck every 10 seconds
-			elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
-			// todo replace with logrus logger later
-			elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
-			elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
-			//elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),         // trace log
-		)
+		c, err := elastic.NewClient(options...)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
 		}

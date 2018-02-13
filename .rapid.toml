@@ -19,6 +19,8 @@ proxy = true
 fragments = true
 # index in V1 mode (will disable fragments and v2 style indexing)
 indexV1 = false
+# Enable trace logging of elasticsearch
+enableTrace = false
 
 [logging]
 devmode = true
