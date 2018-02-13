@@ -66,6 +66,7 @@ type ElasticSearch struct {
 	IndexName string   `json:"index"`
 	Proxy     bool     `json:"proxy"`
 	Fragments bool     `json:"fragments"`
+	IndexV1   bool     `json:"indexV1"` // exclusive with v2 indexing
 }
 
 // Logging holds all the logging and path configuration
@@ -147,6 +148,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.IndexName", viper.GetString("OrgId"))
 	viper.SetDefault("ElasticSearch.Proxy", true)
 	viper.SetDefault("ElasticSearch.Fragments", true)
+	viper.SetDefault("ElasticSearch.IndexV1", false)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

@@ -141,5 +141,19 @@ var _ = Describe("Namespace", func() {
 			})
 		})
 
+		Context("when given a URI", func() {
+
+			nsMap := c.NewNameSpaceMap()
+			nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
+
+			It("should return the search label", func() {
+				dcSubject := "http://purl.org/dc/elements/1.1/subject"
+				label, err := nsMap.GetSearchLabel(dcSubject)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(label).ToNot(BeEmpty())
+				Expect(label).To(Equal("dc_subject"))
+			})
+		})
+
 	})
 })
