@@ -294,7 +294,9 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) (*r.
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	q = q.Must(elastic.NewTermQuery("docType", FragmentDocType))
-	q = q.Must(elastic.NewTermQuery("spec", fr.GetSpec()))
+	if len(fr.GetSpec()) != 0 {
+		q = q.Must(elastic.NewTermQuery("spec", fr.GetSpec()))
+	}
 	if c.Config.DevMode {
 		src, err := q.Source()
 		if err != nil {

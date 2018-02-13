@@ -501,6 +501,19 @@ var _ = Describe("Fragments", func() {
 
 	})
 
+	Describe("FragmentRequest", func() {
+
+		Context("when assiging an object", func() {
+
+			It("should strip double quotes", func() {
+				fr := NewFragmentRequest()
+				fr.AssignObject(`"1982"`)
+				Expect(fr.GetObject()).To(Equal("1982"))
+			})
+
+		})
+	})
+
 	Describe("FragmentBuilder", func() {
 		fb, err := testDataGraph()
 
