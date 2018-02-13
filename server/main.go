@@ -113,6 +113,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		r.Mount("/thumbnail", ThumbnailResource{}.Routes())
 		r.Mount("/deepzoom", DeepZoomResource{}.Routes())
 		r.Mount("/explore", ExploreResource{}.Routes())
+		r.Mount("/api/webresource", WebResourceAPIResource{}.Routes())
 		// legacy route
 		r.Get("/iip/deepzoom/mnt/tib/tiles/{orgId}/{spec}/{localId}.tif.dzi", renderDeepZoom)
 		// render cached directories

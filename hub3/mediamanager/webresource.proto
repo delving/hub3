@@ -14,5 +14,6 @@ message WebResource {
   string sourceExtension = 8;
   string sourceMimeType = 9;
   google.protobuf.Timestamp lastModified = 10;
+  int64 sourceSize = 11;
 }
 

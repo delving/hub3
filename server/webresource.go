@@ -15,11 +15,44 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
+	"path/filepath"
+	"strings"
 
+	c "bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/mediamanager"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/labstack/gommon/log"
 )
+
+// WebResourceAPIResource is the router struct for webresource data
+type WebResourceAPIResource struct{}
+
+// Routes returns the chi.Router
+func (wra WebResourceAPIResource) Routes() chi.Router {
+	r := chi.NewRouter()
+
+	r.Get("/{urn}*", listWebResource)
+	return r
+}
+
+func listWebResource(w http.ResponseWriter, r *http.Request) {
+	urn := chi.URLParam(r, "urn")
+	if strings.HasSuffix(urn, "__") {
+		path := filepath.Join(c.Config.WebResource.WebResourceDir, strings.TrimPrefix(urn, "urn:"))
+		log.Printf(path)
+		matches, err := filepath.Glob(fmt.Sprintf("%s*", path))
+		if err != nil {
+			log.Printf("%v", err)
+		}
+		log.Printf("matches: %s", matches)
+	}
+	log.Printf("urn: %s", urn)
+	render.JSON(w, r, `{"type": "thumbnail"}`)
+	return
+}
 
 // ThumbnailResource is the router struct for Thumbnail links
 type ThumbnailResource struct{}
@@ -54,6 +87,13 @@ func (rs ExploreResource) Routes() chi.Router {
 	r := chi.NewRouter()
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, `{"type": "explore"}`)
+		return
+	})
+	r.Get("/index", func(w http.ResponseWriter, r *http.Request) {
+		err := mediamanager.IndexWebResources(bp)
+		if err != nil {
+			log.Printf("Unable to index webresources: %s", err)
+		}
 		return
 	})
 	return r
