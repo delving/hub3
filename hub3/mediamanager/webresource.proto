@@ -1,13 +1,18 @@
 syntax = "proto3";
 package mediamanager;
 
+import "google/protobuf/timestamp.proto";
+
 message WebResource {
-  string OrgId = 1;
-  string Spec = 2;
-  repeated string HubId = 3;
+  string orgID = 1;
+  string spec = 2;
+  repeated string hubID = 3;
   map<string, string> derivatives = 4;
-  string ObjectNumber = 5;
-  repeated string Alternatives = 6;
-  string SourcePath = 7;
+  string objectNumber = 5;
+  repeated string alternatives = 6;
+  string sourcePath = 7;
+  string sourceExtension = 8;
+  string sourceMimeType = 9;
+  google.protobuf.Timestamp lastModified = 10;
 }
 

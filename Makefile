@@ -106,6 +106,9 @@ protobuffer:
 	@make pb.fragment
 	@make pb.api
 
+pb.webresource:
+	@protoc --go_out=. hub3/mediamanager/webresource.proto
+
 pb.fragment:
 	@protoc --go_out=plugins=grpc:. hub3/fragments/fragments.proto
 

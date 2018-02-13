@@ -517,6 +517,7 @@ var ESMapping = `{
 			"properties": {
 				"spec": {"type": "keyword"},
 				"orgID": {"type": "keyword"},
+				"objectNumber": {"type": "keyword"},
 				"hubID": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
 				"revision": {"type": "long"},
 				"entryURI": {"type": "keyword"},
@@ -524,6 +525,7 @@ var ESMapping = `{
 				"RDF": {"type": "binary", "index": "false", "store": "false"},
 				"rdfMimeType": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
 				"tags": {"type": "keyword"},
+				"LastModified": {"type": "date"},
 				"docType": {"type": "keyword"},
 				"level": {"type": "long"},
 				"fragments": {
