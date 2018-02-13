@@ -1,5 +1,5 @@
 hash: 91bf5439823bfe4b5b107f7b64d955e39e0d9a61e3154741dfa810240bd0efb3
-updated: 2018-02-07T20:20:48.795025208+01:00
+updated: 2018-02-13T15:16:32.530885987+01:00
 imports:
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
@@ -166,7 +166,7 @@ imports:
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
-  version: 9bb6ab929dcbe1c8393cd9ef70387cb69811bd1c
+  version: a40133b69fbd73ee655606a9bf5f8b9b9bf758dd
   subpackages:
   - prometheus
 - name: github.com/prometheus/client_model
@@ -180,7 +180,7 @@ imports:
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: cb4147076ac75738c9a7d279075a253c0cc5acbd
+  version: 282c8707aa210456a825798969cc27edda34992a
   subpackages:
   - internal/util
   - nfs
@@ -285,7 +285,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 7646b5360d049a7ca31e9133315db43456f39e2e
+  version: 6c48c7f5c8d60269eb9f72197e2926cb1a6ffea8
   subpackages:
   - balancer
   - balancer/base
