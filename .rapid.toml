@@ -62,6 +62,8 @@ sourceDir = "/tmp/webresource"
 cacheDir = "/tmp/webresource_cache"
 # path to vips binary. When not found deepzoom is disabled
 vipsBin = "/usr/bin/vips"
+# host of the media manager
+mediaManagerHost = "http://media.delving.org"
 
 
 [imageproxy]
