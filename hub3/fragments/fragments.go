@@ -129,7 +129,7 @@ func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragmen
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
 		}
-		if c.Config.ElasticSearch.Fragments {
+		if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
 			err = frag.AddTo(p)
 			if err != nil {
 				log.Printf("Unable to save fragment due to %v.", err)

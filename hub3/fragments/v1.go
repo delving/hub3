@@ -18,6 +18,7 @@ import (
 	fmt "fmt"
 	"io"
 	"log"
+	"time"
 
 	c "bitbucket.org/delving/rapid/config"
 	r "github.com/deiu/rdf2go"
@@ -44,10 +45,10 @@ type Legacy struct {
 	Title            string `json:"delving_title,omitempty"`
 	Creator          string `json:"delving_creator,omitempty"`
 	Provider         string `json:"delving_provider,omitempty"`
-	HasGeoHash       bool   `json:"delving_hasGeoHash,omitempty"`
-	HasDigitalObject bool   `json:"delving_hasDigitalObject,omitempty"`
-	HasLandingPage   bool   `json:"delving_hasLandingPage,omitempty"`
-	HasDeepZoom      bool   `json:"delving_hasDeepZoom,omitempty"`
+	HasGeoHash       bool   `json:"delving_hasGeoHash"`
+	HasDigitalObject bool   `json:"delving_hasDigitalObject"`
+	HasLandingPage   bool   `json:"delving_hasLandingPage"`
+	HasDeepZoom      bool   `json:"delving_hasDeepZoom"`
 }
 
 // NewLegacy returns a legacy struct with default values
@@ -91,16 +92,39 @@ type System struct {
 	ProxyResourceGraph string `json:"proxy_resource_graph,omitempty"`
 	WebResourceGraph   string `json:"web_resource_graph,omitempty"`
 	ContentHash        string `json:"content_hash,omitempty"`
-	HasGeoHash         bool   `json:"hasGeoHash,omitempty"`
-	HasDigitalObject   bool   `json:"hasDigitalObject,omitempty"`
-	HasLandingPage     bool   `json:"hasLandingPage,omitempty"`
-	HasDeepZoom        bool   `json:"hasDeepZoom,omitempty"`
+	HasGeoHash         bool   `json:"hasGeoHash"`
+	HasDigitalObject   bool   `json:"hasDigitalObject"`
+	HasLandingPage     bool   `json:"hasLandingPage"`
+	HasDeepZoom        bool   `json:"hasDeepZoom"`
 }
 
 // NewSystem generates system info for the V1 doc
 func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s := &System{}
 	s.Slug = fb.fg.GetHubID()
+	s.Spec = fb.fg.GetSpec()
+	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.GetHubID())
+	s.SourceGraph = string(fb.fg.GetRDF())
+	now := time.Now()
+	nowString := fmt.Sprintf(now.Format("2018-02-13T12:44:31.432985"))
+	s.CreatedAt = nowString
+	s.ModifiedAt = nowString
+	var ok bool
+	if _, ok = indexDoc["nave_GeoHash"]; ok {
+		s.HasGeoHash = ok
+	}
+	if _, ok = indexDoc["edm_isShownBy"]; ok {
+		s.HasDigitalObject = ok
+	}
+	if _, ok = indexDoc["nave_DeepZoomUrl"]; ok {
+		s.HasDeepZoom = ok
+	}
+	if _, ok = indexDoc["edm_isShownAt"]; ok {
+		s.HasLandingPage = ok
+	}
+	// todo
+	//s.Caption = ""
+	//s.Thumbnail = ""
 	return s
 }
 
@@ -139,12 +163,10 @@ func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 }
 
 // CreateV1IndexDoc creates a map that can me marshaled to json
-func CreateV1IndexDoc(r *r.Graph) (map[string]interface{}, error) {
+func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	indexDoc := make(map[string]interface{})
-	indexDoc["system"] = ""
-	indexDoc["legacy"] = ""
 	// todo create NS from predicate map
-	for t := range r.IterTriples() {
+	for t := range fb.Graph.IterTriples() {
 		searchLabel, err := GetFieldKey(t)
 		if err != nil {
 			return indexDoc, err
@@ -161,6 +183,13 @@ func CreateV1IndexDoc(r *r.Graph) (map[string]interface{}, error) {
 		}
 		indexDoc[searchLabel] = append(fields, entry)
 	}
+	indexDoc["delving_spec"] = IndexEntry{
+		Type:  "Literal",
+		Value: fb.fg.GetSpec(),
+		Raw:   fb.fg.GetSpec(),
+	}
+	indexDoc["system"] = NewSystem(indexDoc, fb)
+	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
 	return indexDoc, nil
 }
 
@@ -207,7 +236,7 @@ func CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
 
 // CreateESAction creates bulkAPIRequest from map[string]interface{}
 func CreateESAction(indexDoc map[string]interface{}, id string) (*elastic.BulkIndexRequest, error) {
-	v1Index := fmt.Sprintf("%s_v1", c.Config.ElasticSearch.IndexName)
+	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.IndexName)
 	r := elastic.NewBulkIndexRequest().
 		Index(v1Index).
 		Type("void_edmrecord").

@@ -108,10 +108,15 @@ type OAIPMH struct {
 
 // WebResource holds all the configuration options for the WebResource endpoint
 type WebResource struct {
-	Enabled          bool   `json:"enabled"`    // Make the webresource endpoint available
-	WebResourceDir   string `json:"sourceDir"`  // Target directory for the webresources
-	CacheResourceDir string `json:"cacheDir"`   // cache directory for the webresources
-	enableSearch     bool   `json:enableSource` // enable searching for images in ElasticSearch
+	Enabled          bool   `json:"enabled"`          // Make the webresource endpoint available
+	WebResourceDir   string `json:"sourceDir"`        // Target directory for the webresources
+	CacheResourceDir string `json:"cacheDir"`         // cache directory for the webresources
+	enableSearch     bool   `json:"enableSearch"`     // enable searching for images in ElasticSearch
+	MediaManagerHost string `json:"mediaManagerHost"` // the domain to build the derivatives
+	SmallDefault     string `json:"smallDefault"`
+	MediumDefault    string `json:"mediumDefault"`
+	LargeDefault     string `json:"largeDefault"`
+	MaxSize          int32  `json:"maxSize"`
 }
 
 // ImageProxy holds all the configuration for the ImageProxy functionality
@@ -182,7 +187,12 @@ func setDefaults() {
 	viper.SetDefault("WebResource.enabled", true)
 	viper.SetDefault("WebResource.WebResourceDir", "/tmp/webresource")
 	viper.SetDefault("WebResource.CacheResourceDir", "/tmp/webresource_cache")
-	viper.SetDefault("WebResource.searchEnabled", false)
+	viper.SetDefault("WebResource.enableSearch", false)
+	viper.SetDefault("WebResource.mediaManagerHost", "https://media.delving.org")
+	viper.SetDefault("WebResource.SmallDefault", "220")
+	viper.SetDefault("WebResource.MediumDefault", "350")
+	viper.SetDefault("WebResource.LargeDefault", "500")
+	viper.SetDefault("WebResource.MaxSize", int32(2000))
 
 	// lod
 	viper.SetDefault("LOD.enabled", true)

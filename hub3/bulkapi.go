@@ -287,7 +287,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 	}
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {
-		indexDoc, err := fragments.CreateV1IndexDoc(fb.Graph)
+		indexDoc, err := fragments.CreateV1IndexDoc(fb)
 		if err != nil {
 			log.Printf("Unable to create index doc: %s", err)
 			return err
