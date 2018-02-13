@@ -188,6 +188,8 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		Value: fb.fg.GetSpec(),
 		Raw:   fb.fg.GetSpec(),
 	}
+	indexDoc["spec"] = fb.fg.GetSpec()
+	indexDoc["revision"] = fb.fg.GetRevision()
 	indexDoc["system"] = NewSystem(indexDoc, fb)
 	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
 	return indexDoc, nil

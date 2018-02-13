@@ -320,6 +320,7 @@ func (action BulkAction) createFragmentBuilder(revision int) *fragments.Fragment
 	fg.Revision = int32(revision)
 	fg.NamedGraphURI = action.NamedGraphURI
 	fg.Tags = []string{"narthex", "mdr"}
+	fg.RDF = []byte(action.Graph)
 	fb := fragments.NewFragmentBuilder(fg)
 	fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
 	return fb
