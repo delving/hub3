@@ -58,6 +58,8 @@ repositoryName = "dev1"
 enabled = true
 # webresource source dir
 sourceDir = "/tmp/webresource"
+# webresource cache dir
+cacheDir = "/tmp/webresource_cache"
 # path to vips binary. When not found deepzoom is disabled
 vipsBin = "/usr/bin/vips"
 

@@ -180,8 +180,8 @@ func setDefaults() {
 
 	// webresource
 	viper.SetDefault("WebResource.enabled", true)
-	viper.SetDefault("WebResource.WebResourceDir", "webresource")
-	viper.SetDefault("WebResource.CacheResourceDir", "webresource_cache")
+	viper.SetDefault("WebResource.WebResourceDir", "/tmp/webresource")
+	viper.SetDefault("WebResource.CacheResourceDir", "/tmp/webresource_cache")
 	viper.SetDefault("WebResource.searchEnabled", false)
 
 	// lod
