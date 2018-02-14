@@ -21,6 +21,7 @@ import (
 	"net/http"
 
 	"bitbucket.org/delving/rapid/config"
+	"bitbucket.org/delving/rapid/hub3/api"
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"github.com/go-chi/chi"
@@ -107,13 +108,14 @@ func getSearchResult(w http.ResponseWriter, r *http.Request) {
 		log.Printf("expected response != nil; got: %v", res)
 		return
 	}
-
 	records, err := decodeFragmentGraphs(res)
 	if err != nil {
 		log.Printf("Unable to decode records")
 		return
 	}
-	render.JSON(w, r, records)
+	result := api.SearchResultV3{}
+	result.Items = records
+	render.JSON(w, r, result)
 	return
 }
 
