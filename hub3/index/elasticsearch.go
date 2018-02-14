@@ -73,7 +73,11 @@ func ensureESIndex(index string) {
 	}
 	if !exists {
 		// Create a new index.
-		createIndex, err := client.CreateIndex(index).BodyJson(fragments.ESMapping).Do(ctx)
+		mapping := fragments.ESMapping
+		if config.Config.ElasticSearch.IndexV1 {
+			mapping = fragments.V1ESMapping
+		}
+		createIndex, err := client.CreateIndex(index).BodyJson(mapping).Do(ctx)
 		if err != nil {
 			// Handle error
 			stdlog.Fatal(err)
