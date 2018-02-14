@@ -53,6 +53,6 @@ fpm:
   # Values are the destination locations of the files in the package.
   files:
     "deploy/systemd/rapid.service": "/lib/systemd/system/"
-    ".rapid.toml": "/opt/hub3/rapid"
+    ".rapid.toml": "/opt/hub3/rapid/.rapid.toml.template"
     "public": "/opt/hub3/rapid"
     "deploy/rapid-syslog.conf": "/etc/rsyslog.d/"
