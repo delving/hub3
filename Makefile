@@ -89,6 +89,7 @@ setup-npm:
 release:
 	@goreleaser --rm-dist --skip-publish
 	@rpm --addsign dist/*.rpm
+	@debsigs --sign=origin -k E2D6BD239452B1ED15CB99A66C417F6E7521731E dist/*.deb
 
 release-dirty:
 	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
