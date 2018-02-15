@@ -105,6 +105,12 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// static fileserver
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
+	// dashboard
+	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/dashboard.html")
+		return
+	})
+
 	// WebResource & imageproxy configuration
 	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
 	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)

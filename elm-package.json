@@ -1,10 +1,10 @@
 {
     "version": "1.0.0",
-    "summary": "elm-mdl-dashboard example",
-    "repository": "https://github.com/vipentti/elm-mdl-dashboard.git",
-    "license": "MIT",
+    "summary": "Rapid Dashboard",
+    "repository": "https://github.com/delving/rapid.git",
+    "license": "Apache 2.0",
     "source-directories": [
-        "src"
+        "elm-src"
     ],
     "exposed-modules": [],
     "dependencies": {

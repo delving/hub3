@@ -105,6 +105,7 @@ release-public:
 protobuffer:
 	@make pb.fragment
 	@make pb.api
+	@make pb.webresource
 
 pb.webresource:
 	@protoc --go_out=. hub3/mediamanager/webresource.proto
@@ -115,3 +116,6 @@ pb.fragment:
 pb.api:
 	@echo "correct the import path in the api.pb.go file for fragments."
 	@protoc --go_out=. hub3/api/api.proto
+
+elm:
+	elm-make elm-src/Main.elm --output=public/js/elm.js

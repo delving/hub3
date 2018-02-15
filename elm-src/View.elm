@@ -185,7 +185,7 @@ drawerHeader model =
         , Color.text <| Color.color Color.BlueGrey Color.S50
         ]
         [ Options.styled Html.img
-            [ Options.attribute <| src "images/elm.png"
+            [ Options.attribute <| src "/img/elm.png"
             , css "width" "48px"
             , css "height" "48px"
             , css "border-radius" "24px"
