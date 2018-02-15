@@ -106,9 +106,8 @@ type alias MenuItem =
 
 menuItems : List MenuItem
 menuItems =
-    [ { text = "Dashboard", iconName = "dashboard", route = Just Services }
-
-    --, { text = "Services", iconName = "explore", route = Just Services }
+    [ --{ text = "Dashboard", iconName = "dashboard", route = Just Services }
+      { text = "Services", iconName = "explore", route = Just Services }
     , { text = "Datasets", iconName = "folder", route = Nothing }
     , { text = "Users", iconName = "group", route = Just Users }
     , { text = "Last Activity", iconName = "alarm", route = Nothing }

@@ -1,7 +1,7 @@
 module Route exposing (..)
 
 import Navigation
-import UrlParser exposing (parsePath, oneOf, map, top, s, (</>), string)
+import UrlParser exposing (parsePath, oneOf, map, top, s, (</>), string, parseHash)
 
 
 type Route
@@ -37,15 +37,15 @@ urlFor : Route -> String
 urlFor loc =
     case loc of
         Home ->
-            "/"
+            "#"
 
         Users ->
-            "/users"
+            "#users"
 
         Services ->
-            "/services"
+            "#services"
 
 
 locFor : Navigation.Location -> Maybe Route
 locFor path =
-    parsePath pathParser path
+    parseHash pathParser path
