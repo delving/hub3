@@ -19,7 +19,7 @@ import (
 	"strings"
 
 	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/api"
+	"bitbucket.org/delving/rapid/hub3/fragments"
 
 	"os"
 
@@ -34,7 +34,7 @@ func getTestGraph() (*r.Graph, error) {
 	if err != nil {
 		return &r.Graph{}, err
 	}
-	g, err := api.NewGraphFromTurtle(turtle)
+	g, err := fragments.NewGraphFromTurtle(turtle)
 	return g, err
 }
 
@@ -60,7 +60,7 @@ var _ = Describe("V1", func() {
 				turtle, err := os.Open("test_data/test2.ttl")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(turtle).ToNot(BeNil())
-				g, err := api.NewGraphFromTurtle(turtle)
+				g, err := fragments.NewGraphFromTurtle(turtle)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(g).ToNot(BeNil())
 				Expect(g.Len()).To(Equal(59))
@@ -68,7 +68,7 @@ var _ = Describe("V1", func() {
 
 			It("Should throw an error when receiving invalid RDF", func() {
 				badRDF := strings.NewReader("")
-				g, err := api.NewGraphFromTurtle(badRDF)
+				g, err := fragments.NewGraphFromTurtle(badRDF)
 				Expect(err).To(HaveOccurred())
 				Expect(g.Len()).To(Equal(0))
 			})
@@ -79,21 +79,22 @@ var _ = Describe("V1", func() {
 	Describe("indexDoc", func() {
 
 		Context("when created from an RDF graph", func() {
-			g, err := getTestGraph()
+			//g, err := getTestGraph()
+			fb, err := testDataGraph()
 
 			It("should have a valid graph", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(g).ToNot(BeNil())
-				Expect(g.Len()).To(Equal(59))
+				Expect(fb.Graph).ToNot(BeNil())
+				Expect(fb.Graph.Len()).To(Equal(59))
 			})
 
 			It("should return a map", func() {
-				indexDoc, err := api.CreateV1IndexDoc(g)
+				indexDoc, err := fragments.CreateV1IndexDoc(fb)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(indexDoc).ToNot(BeEmpty())
 				Expect(indexDoc).To(HaveKey("legacy"))
 				Expect(indexDoc).To(HaveKey("system"))
-				Expect(len(indexDoc)).To(Equal(38))
+				Expect(len(indexDoc)).To(Equal(41))
 			})
 		})
 	})
@@ -107,7 +108,7 @@ var _ = Describe("V1", func() {
 			r.NewBlankNode(0),
 		)
 		It("should identify an resource", func() {
-			ie, err := api.CreateV1IndexEntry(t)
+			ie, err := fragments.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("Bnode"))
@@ -127,7 +128,7 @@ var _ = Describe("V1", func() {
 			r.NewResource("urn:rapid"),
 		)
 		It("should identify an resource", func() {
-			ie, err := api.CreateV1IndexEntry(t)
+			ie, err := fragments.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("URIRef"))
@@ -147,7 +148,7 @@ var _ = Describe("V1", func() {
 			r.NewResource(dcSubject),
 			r.NewLiteralWithLanguage("rapid", "nl"),
 		)
-		ie, err := api.CreateV1IndexEntry(t)
+		ie, err := fragments.CreateV1IndexEntry(t)
 
 		It("should identify an Literal", func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -165,7 +166,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := api.CreateV1IndexEntry(t)
+			ie, err := fragments.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Raw).To(HaveLen(256))
@@ -180,7 +181,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := api.CreateV1IndexEntry(t)
+			ie, err := fragments.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie.Raw).To(HaveLen(256))
 			Expect(ie.Value).To(HaveLen(32000))

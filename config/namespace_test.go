@@ -153,6 +153,12 @@ var _ = Describe("Namespace", func() {
 				Expect(label).ToNot(BeEmpty())
 				Expect(label).To(Equal("dc_subject"))
 			})
+
+			It("should throw an error when namespace is not found", func() {
+				dcSubject := "http://purl.org/dc/elements/1.3/subject"
+				_, err := nsMap.GetSearchLabel(dcSubject)
+				Expect(err).To(HaveOccurred())
+			})
 		})
 
 	})

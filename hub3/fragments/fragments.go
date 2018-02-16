@@ -240,6 +240,24 @@ func NewFragmentRequest() *FragmentRequest {
 	return fr
 }
 
+// AssignObject cleans the object string and sets the language when applicable
+func (fr *FragmentRequest) AssignObject(o string) {
+	if strings.Contains(o, "@") {
+		parts := strings.Split(o, "@")
+		o = parts[0]
+		if len(parts[1]) > 0 {
+			fr.Language = parts[1]
+		}
+	}
+	if len(o) > 0 && o[0] == '"' {
+		o = o[1:]
+	}
+	if len(o) > 0 && o[len(o)-1] == '"' {
+		o = o[:len(o)-1]
+	}
+	fr.Object = o
+}
+
 // ParseQueryString sets the FragmentRequest values from url.Values
 func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 	for k, v := range v {

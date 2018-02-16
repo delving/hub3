@@ -511,6 +511,13 @@ var _ = Describe("Fragments", func() {
 				Expect(fr.GetObject()).To(Equal("1982"))
 			})
 
+			It("should set the language when the string contains @ annotation", func() {
+				fr := NewFragmentRequest()
+				fr.AssignObject(`"door"@en`)
+				Expect(fr.GetObject()).To(Equal("door"))
+				Expect(fr.GetLanguage()).To(Equal("en"))
+			})
+
 		})
 	})
 
