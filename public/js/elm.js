@@ -17819,11 +17819,11 @@ var _delving$rapid$Route$urlFor = function (loc) {
 	var _p0 = loc;
 	switch (_p0.ctor) {
 		case 'Home':
-			return '/';
+			return '#';
 		case 'Users':
-			return '/users';
+			return '#users';
 		default:
-			return '/services';
+			return '#services';
 	}
 };
 var _delving$rapid$Route$Services = {ctor: 'Services'};
@@ -17866,7 +17866,7 @@ var _delving$rapid$Route$pathParser = _evancz$url_parser$UrlParser$oneOf(
 		}
 	});
 var _delving$rapid$Route$locFor = function (path) {
-	return A2(_evancz$url_parser$UrlParser$parsePath, _delving$rapid$Route$pathParser, path);
+	return A2(_evancz$url_parser$UrlParser$parseHash, _delving$rapid$Route$pathParser, path);
 };
 
 var _delving$rapid$Model$mockServices = {ctor: '[]'};
@@ -18839,8 +18839,8 @@ var _delving$rapid$View$viewDrawerMenuItem = F2(
 var _delving$rapid$View$menuItems = {
 	ctor: '::',
 	_0: {
-		text: 'Dashboard',
-		iconName: 'dashboard',
+		text: 'Services',
+		iconName: 'explore',
 		route: _elm_lang$core$Maybe$Just(_delving$rapid$Route$Services)
 	},
 	_1: {
