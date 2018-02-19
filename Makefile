@@ -43,7 +43,7 @@ gox-build:
 	ls -la ./build/
 
 run-dev:
-	gin -buildArgs "-ldflags '${LDFLAGS}'" run http
+	gin -buildArgs "-i -ldflags '${LDFLAGS}'" run http
 
 test:
 	@go test  ./...
