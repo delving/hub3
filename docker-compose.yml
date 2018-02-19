@@ -1,0 +1,15 @@
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+  fuseki:
+    image: stain/jena-fuseki:latest
+    ports:
+      - "3030:3030"
+    environment:
+      - ADMIN_PASSWORD=pw123
