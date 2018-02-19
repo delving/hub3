@@ -67,6 +67,11 @@ func NewFragmentGraph() *FragmentGraph {
 	}
 }
 
+// GetAboutURI returns the subject of the FragmentGraph
+func (fg *FragmentGraph) GetAboutURI() string {
+	return strings.TrimSuffix(fg.GetNamedGraphURI(), "/graph")
+}
+
 // ParseGraph creates a RDF2Go Graph
 func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 	var err error
@@ -145,6 +150,7 @@ func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragmen
 
 // AddTags adds a tag to the fragment tag list
 func (f *Fragment) AddTags(tag ...string) {
+	//f.Tags = append(f.Tags, tag)
 	for _, t := range tag {
 		f.Tags = append(f.Tags, t)
 	}

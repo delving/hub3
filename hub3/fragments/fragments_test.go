@@ -534,6 +534,19 @@ var _ = Describe("Fragments", func() {
 			})
 		})
 
+		Context("when a graphName is present", func() {
+			spec := "test-spec"
+			rev := int32(1)
+			ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
+			fg := testFragmentGraph(spec, rev, ng)
+
+			It("should extract the about or source uri", func() {
+				sourceURI := fg.GetAboutURI()
+				Expect(sourceURI).ToNot(BeEmpty())
+				Expect(sourceURI).ToNot(HaveSuffix("/graph"))
+			})
+		})
+
 	})
 
 })
