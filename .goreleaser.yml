@@ -12,7 +12,7 @@ builds:
     # Custom ldflags
     ldflags: -s -w -X main.Version={{.Version}}  -X main.GitHash={{.Commit}} -X main.BuildStamp={{.Date}} -X main.BuildAgent="GoReleaser"
   
-fpm:
+nfpm:
   # Your app's vendor.
   # Default is empty.
   vendor: Delving B.V.
@@ -53,6 +53,13 @@ fpm:
   # Values are the destination locations of the files in the package.
   files:
     "deploy/systemd/rapid.service": "/lib/systemd/system/"
-    ".rapid.toml": "/opt/hub3/rapid/.rapid.toml.template"
     "public": "/opt/hub3/rapid"
     "deploy/rapid-syslog.conf": "/etc/rsyslog.d/"
+
+  # Config files to add to your package. They are about the same as
+  # the files keyword, except package managers treat them differently (while
+  # uninstalling, mostly).
+  # Keys are source paths to get the files from.
+  # Values are the destination locations of the files in the package.
+  config_files:
+    ".rapid.toml": "/etc/default/rapid.toml"
