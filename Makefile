@@ -77,6 +77,15 @@ docker-clean-build:
 	@make docker-start; 
 	docker ps -all
 
+compose-up:
+	@docker-compose up
+
+compose-down:
+	@docker-compose down
+
+compose-clean:
+	@docker-compose down --volumes
+
 goreport:
 	@mkdir -p report
 	@rm -rf report/*
