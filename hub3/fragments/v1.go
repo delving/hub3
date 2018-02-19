@@ -100,12 +100,21 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s := &System{}
 	s.Slug = fb.fg.GetHubID()
 	s.Spec = fb.fg.GetSpec()
+	// TODO: implement this
+	//s.Thumbnail = ""
 	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.GetHubID())
-	s.SourceGraph = string(fb.fg.GetRDF())
+	//s.Caption = ""
+	s.AboutURI = fb.fg.GetAboutURI()
+	s.SourceURI = fb.fg.GetAboutURI()
+	s.GraphName = fb.fg.GetNamedGraphURI()
 	now := time.Now()
 	nowString := fmt.Sprintf(now.Format(time.RFC3339))
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
+	s.SourceGraph = string(fb.fg.GetRDF())
+	// s.ProxyResourceGraph
+	// s.WebResourceGraph
+	// s.ContentHash
 	var ok bool
 	_, ok = indexDoc["nave_GeoHash"]
 	s.HasGeoHash = strconv.FormatBool(ok)
@@ -115,9 +124,6 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s.HasDeepZoom = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownAt"]
 	s.HasLandingPage = strconv.FormatBool(ok)
-	// todo
-	//s.Caption = ""
-	//s.Thumbnail = ""
 	return s
 }
 
