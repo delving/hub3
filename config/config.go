@@ -225,9 +225,10 @@ func InitConfig() {
 		}
 
 		// Search config in home directory with name ".rapid" (without extension).
+		viper.AddConfigPath("/etc/default/")
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(".")
-		viper.SetConfigName(".rapid")
+		viper.SetConfigName("rapid")
 	}
 
 	viper.SetEnvPrefix("RAPID")
