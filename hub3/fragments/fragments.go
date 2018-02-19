@@ -187,7 +187,11 @@ func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 			}
 			prefixLabel, err := xsdType.GetPrefixLabel()
 			if err != nil {
-				log.Printf("Unable to get xsdType prefix label for %s", l.Datatype.String())
+				log.Printf(
+					"Unable to get xsdType prefix label for %s (%s)",
+					l.Datatype.String(),
+					xsdType.String(),
+				)
 				break
 			}
 			f.XSDRaw = prefixLabel

@@ -11,8 +11,20 @@ builds:
       - amd64
     # Custom ldflags
     ldflags: -s -w -X main.Version={{.Version}}  -X main.GitHash={{.Commit}} -X main.BuildStamp={{.Date}} -X main.BuildAgent="GoReleaser"
-  
-nfpm:
+
+nfpm: 
+  # This is parsed with the Go template engine and the following variables
+  # are available:
+  # - ProjectName
+  # - Tag
+  # - Version (Git tag without `v` prefix)
+  # - Os
+  # - Arch
+  # - Arm (ARM version)
+  # - Env (environment variables)
+  # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
   # Your app's vendor.
   # Default is empty.
   vendor: Delving B.V.
@@ -62,4 +74,30 @@ nfpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   config_files:
-    ".rapid.toml": "/etc/default/rapid.toml"
+    "rapid.toml": "/etc/default/rapid.toml"
+
+sign:
+  # name of the signature file.
+  # '${artifact}' is the path to the artifact that should be signed.
+  #
+  # signature: "${artifact}.sig"
+
+  # path to the signature command
+  #
+  # cmd: gpg
+
+  # command line arguments for the command
+  #
+  # to sign with a specific key use
+  # args: ["-u", "<key id, fingerprint, email, ...>", "--output", "${signature}", "--detach-sign", "${artifact}"]
+  #
+  # args: ["--output", "${signature}", "--detach-sign", "${artifact}"]
+
+
+  # which artifacts to sign
+  #
+  #   checksum: only checksum file(s)
+  #   all:      all artifacts
+  #   none:     no signing
+  #
+  # artifacts: none
