@@ -15,8 +15,10 @@
 package fragments_test
 
 import (
+	"bytes"
 	"encoding/json"
 	fmt "fmt"
+	"io/ioutil"
 	"log"
 	"net/url"
 
@@ -70,6 +72,22 @@ func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg.Revision = rev
 	fg.NamedGraphURI = ng
 	return fg
+}
+
+func testDataGraph() (*FragmentBuilder, error) {
+	spec := "test-spec"
+	rev := int32(1)
+	ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
+	fg := testFragmentGraph(spec, rev, ng)
+	fg.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
+	fb := NewFragmentBuilder(fg)
+	dat, err := ioutil.ReadFile("test_data/test2.ttl")
+	if err != nil {
+		return fb, err
+	}
+	fg.RDF = dat
+	fb.ParseGraph(bytes.NewReader(fg.RDF), "text/turtle")
+	return fb, nil
 }
 
 var _ = Describe("Fragments", func() {
@@ -407,9 +425,8 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				m := h.(map[string]interface{})
 				Expect(m["index"]).To(HaveKeyWithValue("_id", f.ID()))
-				Expect(m["index"]).To(HaveKeyWithValue("_type", FragmentDocType))
+				Expect(m["index"]).To(HaveKeyWithValue("_type", DocType))
 				Expect(m["index"]).To(HaveKeyWithValue("_index", c.Config.ElasticSearch.IndexName))
-
 			})
 
 			It("should have a valid body", func() {
@@ -479,6 +496,54 @@ var _ = Describe("Fragments", func() {
 			It("should return a short hash", func() {
 				hash := CreateHash("rapid rocks.")
 				Expect(hash).To(Equal("a5b3be36c0f378a1"))
+			})
+		})
+
+	})
+
+	Describe("FragmentRequest", func() {
+
+		Context("when assiging an object", func() {
+
+			It("should strip double quotes", func() {
+				fr := NewFragmentRequest()
+				fr.AssignObject(`"1982"`)
+				Expect(fr.GetObject()).To(Equal("1982"))
+			})
+
+			It("should set the language when the string contains @ annotation", func() {
+				fr := NewFragmentRequest()
+				fr.AssignObject(`"door"@en`)
+				Expect(fr.GetObject()).To(Equal("door"))
+				Expect(fr.GetLanguage()).To(Equal("en"))
+			})
+
+		})
+	})
+
+	Describe("FragmentBuilder", func() {
+		fb, err := testDataGraph()
+
+		Context("when creating linked data", func() {
+
+			It("should find subjects by EntryURI", func() {
+				Expect(err).ToNot(HaveOccurred())
+				err := fb.CreateLinkedFragments()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fb.Graph.Len()).To(Equal(59))
+			})
+		})
+
+		Context("when a graphName is present", func() {
+			spec := "test-spec"
+			rev := int32(1)
+			ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
+			fg := testFragmentGraph(spec, rev, ng)
+
+			It("should extract the about or source uri", func() {
+				sourceURI := fg.GetAboutURI()
+				Expect(sourceURI).ToNot(BeEmpty())
+				Expect(sourceURI).ToNot(HaveSuffix("/graph"))
 			})
 		})
 

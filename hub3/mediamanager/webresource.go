@@ -14,10 +14,75 @@
 
 package mediamanager
 
+import (
+	"crypto/sha512"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+
+	c "bitbucket.org/delving/rapid/config"
+	"github.com/olivere/elastic"
+)
+
 const (
 	sourceDir    = "source"
 	thumbnailDir = "thumbnail"
 	deepzoomDir  = "deepzoom"
 )
 
-// NewWebResource creates a new webresource
+var files = make(map[[sha512.Size]byte]string)
+
+func printFile(ignoreDirs []string) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Print(err)
+			return nil
+		}
+		if info.IsDir() {
+			dir := filepath.Base(path)
+			for _, d := range ignoreDirs {
+				if d == dir {
+					return filepath.SkipDir
+				}
+			}
+		}
+		fmt.Println(path)
+		fmt.Printf("%+v", info)
+		return nil
+	}
+}
+
+func checkDuplicate(path string, info os.FileInfo, err error) error {
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	if info.IsDir() {
+		return nil
+	}
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Print(err)
+		return nil
+	}
+	digest := sha512.Sum512(data)
+	if v, ok := files[digest]; ok {
+		fmt.Printf("%q is a duplicate of %q\n", path, v)
+	} else {
+		files[digest] = path
+	}
+	return nil
+}
+
+// IndexWebResources reindexes all webresources
+func IndexWebResources(p *elastic.BulkProcessor) error {
+	err := filepath.Walk(c.Config.WebResource.WebResourceDir, printFile([]string{}))
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}

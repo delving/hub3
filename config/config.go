@@ -52,17 +52,22 @@ type RawConfig struct {
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
-	NameSpaces    []NameSpace `json:"nameSpaces"`
+	NameSpaces    []NameSpace `json:"namespaces"`
 	NameSpaceMap  *NameSpaceMap
+	RDFTag        `json:"rdftag"`
+	//RDFTagMap     *RDFTagMap
 }
 
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
-	Urls      []string `json:"urls"`
-	Enabled   bool     `json:"enabled"`
-	IndexName string   `json:"index"`
-	Proxy     bool     `json:"proxy"`
+	Urls        []string `json:"urls"`
+	Enabled     bool     `json:"enabled"`
+	IndexName   string   `json:"index"`
+	Proxy       bool     `json:"proxy"`
+	Fragments   bool     `json:"fragments"`
+	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing
+	EnableTrace bool     `json:"enableTrace"`
 }
 
 // Logging holds all the logging and path configuration
@@ -89,6 +94,7 @@ type RDF struct {
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
+	Tags              string   `json:"tags" mapstructure:"tags"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -103,10 +109,15 @@ type OAIPMH struct {
 
 // WebResource holds all the configuration options for the WebResource endpoint
 type WebResource struct {
-	Enabled          bool   `json:"enabled"`    // Make the webresource endpoint available
-	WebResourceDir   string `json:"sourceDir"`  // Target directory for the webresources
-	CacheResourceDir string `json:"cacheDir"`   // cache directory for the webresources
-	enableSearch     bool   `json:enableSource` // enable searching for images in ElasticSearch
+	Enabled          bool   `json:"enabled"`          // Make the webresource endpoint available
+	WebResourceDir   string `json:"sourceDir"`        // Target directory for the webresources
+	CacheResourceDir string `json:"cacheDir"`         // cache directory for the webresources
+	enableSearch     bool   `json:"enableSearch"`     // enable searching for images in ElasticSearch
+	MediaManagerHost string `json:"mediaManagerHost"` // the domain to build the derivatives
+	SmallDefault     string `json:"smallDefault"`
+	MediumDefault    string `json:"mediumDefault"`
+	LargeDefault     string `json:"largeDefault"`
+	MaxSize          int32  `json:"maxSize"`
 }
 
 // ImageProxy holds all the configuration for the ImageProxy functionality
@@ -142,6 +153,9 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.enabled", true)
 	viper.SetDefault("ElasticSearch.IndexName", viper.GetString("OrgId"))
 	viper.SetDefault("ElasticSearch.Proxy", true)
+	viper.SetDefault("ElasticSearch.Fragments", true)
+	viper.SetDefault("ElasticSearch.IndexV1", false)
+	viper.SetDefault("ElasticSearch.EnableTrace", false)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
@@ -173,9 +187,14 @@ func setDefaults() {
 
 	// webresource
 	viper.SetDefault("WebResource.enabled", true)
-	viper.SetDefault("WebResource.WebResourceDir", "webresource")
-	viper.SetDefault("WebResource.CacheResourceDir", "webresource_cache")
-	viper.SetDefault("WebResource.searchEnabled", false)
+	viper.SetDefault("WebResource.WebResourceDir", "/tmp/webresource")
+	viper.SetDefault("WebResource.CacheResourceDir", "/tmp/webresource_cache")
+	viper.SetDefault("WebResource.enableSearch", false)
+	viper.SetDefault("WebResource.mediaManagerHost", "https://media.delving.org")
+	viper.SetDefault("WebResource.SmallDefault", "220")
+	viper.SetDefault("WebResource.MediumDefault", "350")
+	viper.SetDefault("WebResource.LargeDefault", "500")
+	viper.SetDefault("WebResource.MaxSize", int32(2000))
 
 	// lod
 	viper.SetDefault("LOD.enabled", true)

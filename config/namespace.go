@@ -15,6 +15,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 )
@@ -69,6 +70,7 @@ func (n *NameSpaceMap) Load(c *RawConfig) {
 // NewConfigNameSpaceMap creates a map from the NameSpaces defined in the config
 func NewConfigNameSpaceMap(c *RawConfig) *NameSpaceMap {
 	nsMap := NewNameSpaceMap()
+	nsMap.setDefaultNameSpaces()
 	nsMap.Load(c)
 	return nsMap
 }
@@ -131,4 +133,49 @@ func SplitURI(uri string) (base string, name string) {
 	}
 
 	return "", uri
+}
+
+// GetSearchLabel returns the search label for a Predicate URI
+func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
+	base, label := SplitURI(uri)
+	prefix, ok := n.GetPrefix(base)
+	if !ok {
+		return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
+	}
+	return fmt.Sprintf("%s_%s", prefix, label), nil
+}
+
+var defaultNameSpaces = map[string]string{
+	"abc":         "http://www.ab-c.nl/",
+	"abm":         "http://purl.org/abm/sen",
+	"cc":          "http://creativecommons.org/ns#",
+	"custom":      "http://www.delving.eu/namespaces/custom/",
+	"dbpedia-owl": "http://dbpedia.org/ontology/",
+	"dc":          "http://purl.org/dc/elements/1.1/",
+	"dcterms":     "http://purl.org/dc/terms/",
+	"delving":     "http://schemas.delving.eu/",
+	"devmode":     "http://localhost:8000/resource/",
+	"edm":         "http://www.europeana.eu/schemas/edm/",
+	"europeana":   "http://www.europeana.eu/schemas/ese/",
+	"foaf":        "http://xmlns.com/foaf/0.1/",
+	"gn":          "http://www.geonames.org/ontology#",
+	"icn":         "http://www.icn.nl/schemas/icn/",
+	"narthex":     "http://schemas.delving.eu/narthex/terms/",
+	"nave":        "http://schemas.delving.eu/nave/terms/",
+	"ore":         "http://www.openarchives.org/ore/terms/",
+	"owl":         "http://www.w3.org/2002/07/owl#",
+	"raw":         "http://delving.eu/namespaces/raw/",
+	"rda":         "http://rdvocab.info/ElementsGr2/",
+	"rdf":         "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+	"rdfs":        "http://www.w3.org/2000/01/rdf-schema#",
+	"skos":        "http://www.w3.org/2004/02/skos/core#",
+	"tib":         "http://schemas.delving.eu/resource/ns/tib/",
+	"wgs84_pos":   "http://www.w3.org/2003/01/geo/wgs84_pos#",
+}
+
+// setDefaultNameSpaces sets the default namespaces that are supported
+func (n *NameSpaceMap) setDefaultNameSpaces() {
+	for prefix, baseURI := range defaultNameSpaces {
+		n.Add(prefix, baseURI)
+	}
 }

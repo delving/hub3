@@ -28,8 +28,8 @@ import (
 	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/models"
+	elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
-	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // BulkAction is used to unmarshal the information from the BulkAPI
@@ -145,10 +145,17 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 	if response.Spec == "" {
 		response.Spec = action.Spec
 	}
-	ds, err := models.GetOrCreateDataSet(action.Spec)
+	ds, created, err := models.GetOrCreateDataSet(action.Spec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", action.Spec)
 		return err
+	}
+	if created {
+		err = fragments.SaveDataSet(action.Spec, action.p)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", action.Spec)
+			return err
+		}
 	}
 	response.SpecRevision = ds.Revision
 	switch action.Action {
@@ -187,7 +194,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 			response.SpecRevision = ds.Revision
 		}
 		if c.Config.ElasticSearch.Enabled {
-			err := action.ESSave(response)
+			err := action.ESSave(response, c.Config.ElasticSearch.IndexV1)
 			if err != nil {
 				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 				return err
@@ -267,28 +274,39 @@ func getContext(input string, lineNumber int) (string, error) {
 	return strings.Join(errorContext, "\n"), nil
 }
 
-//ESSave the RDFRecord to ElasticSearch
-func (action BulkAction) ESSave(response *BulkActionResponse) error {
-	record := models.NewRDFRecord(action.HubID, action.Spec)
-	record.ContentHash = action.ContentHash
-	record.Graph = action.Graph
-	record.Revision = response.SpecRevision
-	record.NamedGraphURI = action.NamedGraphURI
+//ESSave the RDF Record to ElasticSearch
+func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing bool) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
-	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.FragmentGraphDocType).Id(action.HubID).
-		Doc(record)
-	if r == nil {
-		return fmt.Errorf("Unable create BulkIndexRequest")
-	}
 	fb := action.createFragmentBuilder(response.SpecRevision)
-	err := fb.SaveFragments(action.p)
+	err := fb.CreateFragments(action.p, true)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
 		return err
+	}
+	var r *elastic.BulkIndexRequest
+	if v1StylingIndexing {
+		indexDoc, err := fragments.CreateV1IndexDoc(fb)
+		if err != nil {
+			log.Printf("Unable to create index doc: %s", err)
+			return err
+		}
+		r, err = fragments.CreateESAction(indexDoc, action.HubID)
+		if err != nil {
+			log.Printf("Unable to create v1 es action: %s", err)
+			return err
+		}
+	} else {
+		r = elastic.NewBulkIndexRequest().
+			Index(c.Config.ElasticSearch.IndexName).
+			Type(fragments.DocType).
+			Id(action.HubID).
+			Doc(fb.Doc())
+	}
+	if r == nil {
+		panic("can't create index doc")
+		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 	action.p.Add(r)
 	return nil
@@ -297,10 +315,12 @@ func (action BulkAction) ESSave(response *BulkActionResponse) error {
 func (action BulkAction) createFragmentBuilder(revision int) *fragments.FragmentBuilder {
 	fg := fragments.NewFragmentGraph()
 	fg.OrgID = c.Config.OrgID
+	fg.HubID = action.HubID
 	fg.Spec = action.Spec
 	fg.Revision = int32(revision)
 	fg.NamedGraphURI = action.NamedGraphURI
 	fg.Tags = []string{"narthex", "mdr"}
+	fg.RDF = []byte(action.Graph)
 	fb := fragments.NewFragmentBuilder(fg)
 	fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
 	return fb

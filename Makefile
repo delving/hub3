@@ -43,7 +43,7 @@ gox-build:
 	ls -la ./build/
 
 run-dev:
-	gin -buildArgs "-ldflags '${LDFLAGS}'" run http
+	gin -buildArgs "-i -ldflags '${LDFLAGS}'" run http
 
 test:
 	@go test  ./...
@@ -77,6 +77,15 @@ docker-clean-build:
 	@make docker-start; 
 	docker ps -all
 
+compose-up:
+	@docker-compose up
+
+compose-down:
+	@docker-compose down
+
+compose-clean:
+	@docker-compose down --volumes
+
 goreport:
 	@mkdir -p report
 	@rm -rf report/*
@@ -87,9 +96,9 @@ setup-npm:
 	@npm install
 
 release:
-	@export LDFLAGS=$(LDFLAGS)
 	@goreleaser --rm-dist --skip-publish
 	@rpm --addsign dist/*.rpm
+	@debsigs --sign=origin -k E2D6BD239452B1ED15CB99A66C417F6E7521731E dist/*.deb
 
 release-dirty:
 	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
@@ -103,5 +112,19 @@ release-public:
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
+	@make pb.fragment
+	@make pb.api
+	@make pb.webresource
+
+pb.webresource:
+	@protoc --go_out=. hub3/mediamanager/webresource.proto
+
+pb.fragment:
 	@protoc --go_out=plugins=grpc:. hub3/fragments/fragments.proto
+
+pb.api:
+	@echo "correct the import path in the api.pb.go file for fragments."
 	@protoc --go_out=. hub3/api/api.proto
+
+elm:
+	elm-make elm-src/Main.elm --output=public/js/elm.js

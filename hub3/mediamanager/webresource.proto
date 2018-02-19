@@ -1,13 +1,38 @@
 syntax = "proto3";
 package mediamanager;
 
+import "google/protobuf/timestamp.proto";
+
+enum DownloadType {
+  Thumbnail = 0;
+  DeepZoom = 1;
+  Source = 2;
+  RDF = 3;
+  JSON = 4;
+}
+
+message WebResourceRequest {
+  string orgID = 1;
+  string spec = 2;
+  string hubID = 3;
+  string mimeType = 4;
+  string sourcePath = 5;
+  string DownloadType = 6;
+  string dimension = 7; // 200 200x200 x100 in the case of DownloadType Thumbnail
+  string urn = 8;
+}
+
 message WebResource {
-  string OrgId = 1;
-  string Spec = 2;
-  repeated string HubId = 3;
+  string orgID = 1;
+  string spec = 2;
+  repeated string hubID = 3;
   map<string, string> derivatives = 4;
-  string ObjectNumber = 5;
-  repeated string Alternatives = 6;
-  string SourcePath = 7;
+  string objectNumber = 5;
+  repeated string alternatives = 6;
+  string sourcePath = 7;
+  string sourceExtension = 8;
+  string sourceMimeType = 9;
+  google.protobuf.Timestamp lastModified = 10;
+  int64 sourceSize = 11;
 }
 

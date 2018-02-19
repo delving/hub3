@@ -27,7 +27,7 @@ import (
 	"bitbucket.org/delving/rapid/hub3/fragments"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"bitbucket.org/delving/rapid/hub3/models"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
@@ -120,6 +120,10 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
 	fr := fragments.NewFragmentRequest()
+	spec := chi.URLParam(r, "spec")
+	if spec != "" {
+		fr.Spec = spec
+	}
 	err := fr.ParseQueryString(r.URL.Query())
 	if err != nil {
 		log.Printf("Unable to list fragments because of: %s", err)
@@ -130,18 +134,28 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// TODO implement QueryFragments
 	frags, err := fr.Find(ctx, index.ESClient())
-	if err != nil {
+	if err != nil || frags.Len() == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprint("Unable to list fragments was not found"),
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprint("No fragmenst for query were found."),
 			Error:      err,
 		})
 		return
 	}
-	render.JSON(w, r, frags)
+	w.Header().Set("Content-Type", "text/turtle")
+	err = frags.Serialize(w, "text/turtle")
+	if err != nil {
+		log.Printf("Unable to list serialize fragments because of: %s", err)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
+			Error:      err,
+		})
+		return
+
+	}
 	return
 }
 
@@ -261,7 +275,11 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("spec is %s", spec)
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
-		ds, err = models.CreateDataSet(spec)
+		var created bool
+		ds, created, err = models.CreateDataSet(spec)
+		if created {
+			err = fragments.SaveDataSet(spec, bp)
+		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
 			render.JSON(w, r, APIErrorMessage{

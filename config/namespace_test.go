@@ -141,5 +141,25 @@ var _ = Describe("Namespace", func() {
 			})
 		})
 
+		Context("when given a URI", func() {
+
+			nsMap := c.NewNameSpaceMap()
+			nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
+
+			It("should return the search label", func() {
+				dcSubject := "http://purl.org/dc/elements/1.1/subject"
+				label, err := nsMap.GetSearchLabel(dcSubject)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(label).ToNot(BeEmpty())
+				Expect(label).To(Equal("dc_subject"))
+			})
+
+			It("should throw an error when namespace is not found", func() {
+				dcSubject := "http://purl.org/dc/elements/1.3/subject"
+				_, err := nsMap.GetSearchLabel(dcSubject)
+				Expect(err).To(HaveOccurred())
+			})
+		})
+
 	})
 })

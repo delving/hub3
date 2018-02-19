@@ -105,6 +105,12 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// static fileserver
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
+	// dashboard
+	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/dashboard.html")
+		return
+	})
+
 	// WebResource & imageproxy configuration
 	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
 	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
@@ -113,6 +119,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		r.Mount("/thumbnail", ThumbnailResource{}.Routes())
 		r.Mount("/deepzoom", DeepZoomResource{}.Routes())
 		r.Mount("/explore", ExploreResource{}.Routes())
+		r.Mount("/api/webresource", WebResourceAPIResource{}.Routes())
 		// legacy route
 		r.Get("/iip/deepzoom/mnt/tib/tiles/{orgId}/{spec}/{localId}.tif.dzi", renderDeepZoom)
 		// render cached directories
@@ -156,6 +163,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Delete("/api/datasets/{spec}", deleteDataset)
 
 	r.Get("/api/fragments", listFragments)
+
+	r.Get("/fragments/{spec}", listFragments)
+	r.Get("/fragments", listFragments)
 
 	// namespaces
 	r.Get("/api/namespaces", listNameSpaces)

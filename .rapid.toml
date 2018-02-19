@@ -15,6 +15,12 @@ urls = ["http://localhost:9200"]
 index = "rapid2"
 # if _mapping and _search proxies should be enabled
 proxy = true 
+# Store fragments 
+fragments = true
+# index in V1 mode (will disable fragments and v2 style indexing)
+indexV1 = false
+# Enable trace logging of elasticsearch
+enableTrace = false
 
 [logging]
 devmode = true
@@ -54,8 +60,12 @@ repositoryName = "dev1"
 enabled = true
 # webresource source dir
 sourceDir = "/tmp/webresource"
+# webresource cache dir
+cacheDir = "/tmp/webresource_cache"
 # path to vips binary. When not found deepzoom is disabled
 vipsBin = "/usr/bin/vips"
+# host of the media manager
+mediaManagerHost = "http://media.delving.org"
 
 
 [imageproxy]
@@ -88,119 +98,38 @@ html = "page"
 # rdf data routing point
 rdf = "data"
 
-[[namespaces]]
-base = "http://purl.org/dc/elements/1.1/"
-prefix = "dc"
-
-[[namespaces]]
-base = "http://purl.org/abm/sen"
-prefix = "abm"
-
-[[namespaces]]
-base = "http://www.europeana.eu/schemas/ese/"
-prefix = "europeana"
-
-[[namespaces]]
-base = "http://schemas.delving.eu/"
-prefix = "delving"
-
-[[namespaces]]
-base = "http://purl.org/dc/terms/"
-prefix = "dcterms"
-
-[[namespaces]]
-base = "http://www.delving.eu/namespaces/custom/"
-prefix = "custom"
+# Default namespaces can be found in config/namespace.go
 
 [[namespaces]]
 base = "http://www.musip.nl/"
 prefix = "musip"
 
 [[namespaces]]
-base = "http://www.itin.nl/namespace/"
-prefix = "itin"
-
-[[namespaces]]
-base = "http://www.itin.nl/drupal/"
-prefix = "drup"
-
-[[namespaces]]
-base = "http://www.ab-c.nl/"
-prefix = "abc"
-
-[[namespaces]]
-base = "http://delving.eu/namespaces/raw/"
-prefix = "raw"
-
-[[namespaces]]
-base = "http://www.icn.nl/schemas/icn/"
-prefix = "icn"
-
-[[namespaces]]
 base = "http://schemas.delving.eu/aff/"
 prefix = "aff"
 
-[[namespaces]]
-base = "http://www.w3.org/2004/02/skos/core#"
-prefix = "skos"
 
-[[namespaces]]
-base = "http://dbpedia.org/ontology/"
-prefix = "dbpedia-owl"
+[rdftag]
+label = [
+    "http://www.w3.org/2004/02/skos/core#preflabel",
+    "http://www.w3.org/2000/01/rdf-schema#label",
+    "http://www.w3.org/2004/02/skos/core#altLabel",
+    "http://xmlns.com/foaf/0.1/name",
+    "http://www.geonames.org/ontology#name",
+    "http://purl.org/dc/elements/1.1/title",
+    "http://schemas.delving.eu/narthex/terms/proxyLiteralValue",
+    "http://dbpedia.org/ontology/name",
+]
 
-[[namespaces]]
-base = "http://www.w3.org/2003/01/geo/wgs84_pos#"
-prefix = "wgs84_pos"
+thumbnail = [
+    "http://xmlns.com/foaf/0.1/depiction",
+    "http://schemas.delving.eu/nave/terms/thumbnail",
+    "http://schemas.delving.eu/nave/terms/thumbSmall",
+    "http://schemas.delving.eu/nave/terms/thumbLarge",
+    "http://www.europeana.eu/schemas/edm/object",
+    "http://www.europeana.eu/schemas/edm/isShownBy",
+]
 
-[[namespaces]]
-base = "http://xmlns.com/foaf/0.1/"
-prefix = "foaf"
-
-[[namespaces]]
-base = "http://www.w3.org/2002/07/owl#"
-prefix = "owl"
-
-[[namespaces]]
-base = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-prefix = "rdf"
-
-[[namespaces]]
-base = "http://www.w3.org/2000/01/rdf-schema#"
-prefix = "rdfs"
-
-[[namespaces]]
-base = "http://www.europeana.eu/schemas/edm/"
-prefix = "edm"
-
-[[namespaces]]
-base = "http://www.openarchives.org/ore/terms/"
-prefix = "ore"
-
-[[namespaces]]
-base = "http://schemas.delving.eu/narthex/terms/"
-prefix = "narthex"
-
-[[namespaces]]
-base = "http://schemas.delving.eu/nave/terms/"
-prefix = "nave"
-
-[[namespaces]]
-base = "http://localhost:8000/resource/"
-prefix = "devmode"
-
-[[namespaces]]
-base = "http://schemas.delving.eu/resource/ns/tib/"
-prefix = "tib"
-
-[[namespaces]]
-base = "http://creativecommons.org/ns#"
-prefix = "cc"
-
-[[namespaces]]
-base = "http://www.geonames.org/ontology#"
-prefix = "gn"
-
-[[namespaces]]
-base = "http://rdvocab.info/ElementsGr2/"
-prefix = "rda"
-
+latLong = []
+dateRange = []
+date = []

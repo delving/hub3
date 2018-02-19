@@ -99,6 +99,7 @@ enum RecordType {
 	/*MimeType      string   `json:"mimeType"`*/
 /*}*/
 
+
 message FragmentGraph {
   string orgID = 1;
   string spec  = 2;
@@ -113,6 +114,7 @@ message FragmentGraph {
 
   repeated Fragment fragments = 10;
   repeated string tags = 11;
+  string docType = 12;
 }
 
 message Fragment {
@@ -158,4 +160,5 @@ message Fragment {
 // content tags
 // example values linkGraphExternal prefLabel linkDomainExternal thumbnail date
   repeated string tags = 28;
+  string docType = 30;
 }

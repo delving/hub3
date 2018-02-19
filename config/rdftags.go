@@ -12,27 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package config
 
-import (
-	fmt "fmt"
-	"io"
-	"log"
+import "sync"
 
-	"github.com/deiu/rdf2go"
-)
+// RDFTag holds tag information how to tag predicate values
+type RDFTag struct {
+	Label     []string `json:"label"`
+	Thumbnail []string `json:"thumbnail"`
+	LatLong   []string `json:"latLong"`
+	Date      []string `json:"date"`
+	DateRange []string `json:"dateRange"`
+}
 
-// NewGraphFromTurtle creates a RDF graph from the 'text/turtle' format
-func NewGraphFromTurtle(r io.Reader) (*rdf2go.Graph, error) {
-	g := rdf2go.NewGraph("")
-	err := g.Parse(r, "text/turtle")
-	if err != nil {
-		log.Println("Unable to parse the supplied turtle RDF.")
-		return g, err
-	}
-	if g.Len() == 0 {
-		log.Println("No triples were added to the graph")
-		return g, fmt.Errorf("no triples were added to the graph")
-	}
-	return g, nil
+// RDFTagMap contains all the namespaces
+type RDFTagMap struct {
+	sync.RWMutex
+	tag2uri  map[string]string
+	uri2tags map[string][]string
 }
