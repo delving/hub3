@@ -157,6 +157,7 @@ var defaultNameSpaces = map[string]string{
 	"devmode":     "http://localhost:8000/resource/",
 	"edm":         "http://www.europeana.eu/schemas/edm/",
 	"europeana":   "http://www.europeana.eu/schemas/ese/",
+	"ebucore":     "urn:ebu:metadata-schema:ebuCore_2014/",
 	"foaf":        "http://xmlns.com/foaf/0.1/",
 	"gn":          "http://www.geonames.org/ontology#",
 	"icn":         "http://www.icn.nl/schemas/icn/",
