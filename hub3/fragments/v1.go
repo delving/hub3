@@ -100,8 +100,6 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s := &System{}
 	s.Slug = fb.fg.GetHubID()
 	s.Spec = fb.fg.GetSpec()
-	// TODO: implement this
-	//s.Thumbnail = ""
 	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.GetHubID())
 	//s.Caption = ""
 	s.AboutURI = fb.fg.GetAboutURI()
@@ -115,7 +113,13 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
 	// s.ContentHash
-	var ok bool
+	thumbnails, ok := indexDoc["edm_object"]
+	if ok {
+		thumbs := thumbnails.([]*IndexEntry)
+		if len(thumbs) > 0 {
+			s.Thumbnail = thumbs[0].Value
+		}
+	}
 	_, ok = indexDoc["nave_GeoHash"]
 	s.HasGeoHash = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownBy"]
