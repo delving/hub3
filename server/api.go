@@ -82,6 +82,7 @@ func bulkAPI(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)
+		// todo fix errr renderer for better narthex consumption.
 		_ = errR.Render(w, r)
 		//render.Render(w, r, rrRender(err))
 		return
