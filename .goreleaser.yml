@@ -12,8 +12,8 @@ builds:
     # Custom ldflags
     ldflags: -s -w -X main.Version={{.Version}}  -X main.GitHash={{.Commit}} -X main.BuildStamp={{.Date}} -X main.BuildAgent="GoReleaser"
 
-fpm: 
-# nfpm: 
+# fpm: 
+nfpm: 
   # This is parsed with the Go template engine and the following variables
   # are available:
   # - ProjectName
@@ -65,9 +65,9 @@ fpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   files:
-    "deploy/systemd/rapid.service": "/lib/systemd/system/"
+    "deploy/systemd/rapid.service": "/lib/systemd/system"
     "public": "/opt/hub3/rapid"
-    "deploy/rapid-syslog.conf": "/etc/rsyslog.d/"
+    "deploy/rapid-syslog.conf": "/etc/rsyslog.d"
 
   # Config files to add to your package. They are about the same as
   # the files keyword, except package managers treat them differently (while
