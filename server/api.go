@@ -25,6 +25,7 @@ import (
 	c "bitbucket.org/delving/rapid/config"
 	"bitbucket.org/delving/rapid/hub3"
 	"bitbucket.org/delving/rapid/hub3/fragments"
+	"bitbucket.org/delving/rapid/hub3/harvesting"
 	"bitbucket.org/delving/rapid/hub3/index"
 	"bitbucket.org/delving/rapid/hub3/models"
 	elastic "github.com/olivere/elastic"
@@ -113,7 +114,7 @@ func bindPMHRequest(r *http.Request) oai.Request {
 func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 	req := bindPMHRequest(r)
 	log.Println(req)
-	resp := hub3.ProcessVerb(&req)
+	resp := harvesting.ProcessVerb(&req)
 	render.XML(w, r, resp)
 }
 

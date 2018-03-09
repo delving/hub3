@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package hub3
+package harvesting
 
 import (
 	"bitbucket.org/delving/rapid/config"

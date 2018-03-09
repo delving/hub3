@@ -52,10 +52,10 @@ benchmark:
 	@go test --bench=. -benchmem ./...
 
 ginkgo:
-	@ginkgo -r 
+	@ginkgo -r  -skipPackage go_tests
 
 twatch:
-	@ginkgo watch -r
+	@ginkgo watch -r -skipPackage go_tests
 
 docker-image:
 	gox -os="linux" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
@@ -127,4 +127,4 @@ pb.api:
 	@protoc --go_out=. hub3/api/api.proto
 
 elm:
-	elm-make elm-src/Main.elm --output=public/js/elm.js
+	@elm-make elm-src/Main.elm --output=public/js/elm.js
