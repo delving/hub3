@@ -58,7 +58,6 @@ twatch:
 	@ginkgo watch -r -skipPackage go_tests
 
 docker-image:
-	gox -os="linux" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
 	docker build -t $(NAME) .
 
 docker-start:
