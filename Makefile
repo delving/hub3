@@ -76,6 +76,7 @@ docker-clean-build:
 	@make docker-start; 
 	docker ps -all
 
+
 compose-up:
 	@docker-compose up
 
@@ -124,6 +125,3 @@ pb.fragment:
 pb.api:
 	@echo "correct the import path in the api.pb.go file for fragments."
 	@protoc --go_out=. hub3/api/api.proto
-
-elm:
-	@elm-make elm-src/Main.elm --output=public/js/elm.js
