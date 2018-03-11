@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
 	"github.com/asdine/storm/q"
+	"github.com/delving/rapid/config"
 )
 
 // RDFRecord contains all the information about a grouping of RDF triples

@@ -18,8 +18,8 @@ import (
 	"math/rand"
 	"strings"
 
-	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/fragments"
+	c "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/fragments"
 
 	"os"
 

@@ -15,8 +15,8 @@
 package harvesting
 
 import (
-	"bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/models"
+	"github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/models"
 	"github.com/kiivihal/goharvest/oai"
 )
 

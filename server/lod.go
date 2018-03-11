@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"bitbucket.org/delving/rapid/config"
+	"github.com/delving/rapid/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )

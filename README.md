@@ -20,11 +20,11 @@ RAPID is written in Golang, so you have to setup your Golang environment first, 
 
 After that you can glone it from bitbucket:
 
-    $ git clone git@bitbucket.org:delving/rapid.git $GOPATH/src/bitbucket.org/delving
+    $ git clone git@github.com:delving/rapid.git $GOPATH/src/github.com/delving
 
 Or use `go get`
 
-    $ go get bitbucket.org/delving/rapid
+    $ go get github.com/delving/rapid
 
 In order to get the dependencies, install [glide]:
 

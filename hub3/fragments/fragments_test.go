@@ -22,9 +22,9 @@ import (
 	"log"
 	"net/url"
 
-	c "bitbucket.org/delving/rapid/config"
-	. "bitbucket.org/delving/rapid/hub3/fragments"
 	r "github.com/deiu/rdf2go"
+	c "github.com/delving/rapid/config"
+	. "github.com/delving/rapid/hub3/fragments"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

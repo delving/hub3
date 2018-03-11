@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"

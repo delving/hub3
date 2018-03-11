@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"net/url"
 
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 
-	"bitbucket.org/delving/rapid/hub3/index"
+	"github.com/delving/rapid/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"

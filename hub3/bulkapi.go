@@ -25,9 +25,9 @@ import (
 	"strings"
 	"text/template"
 
-	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/fragments"
-	"bitbucket.org/delving/rapid/hub3/models"
+	c "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/fragments"
+	"github.com/delving/rapid/hub3/models"
 	elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
 )

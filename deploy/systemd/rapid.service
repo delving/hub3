@@ -1,6 +1,6 @@
 [Unit]
 Description=Delving RAPID Linked Open Data Platform 
-;Documentation=https://bitbucket.org/delving/rapid
+;Documentation=https://github.com/delving/rapid
 # ConditionPathExists=/opt/hub3/rapid
 After=network.target
 

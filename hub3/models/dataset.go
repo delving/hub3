@@ -20,9 +20,9 @@ import (
 	"log"
 	"time"
 
-	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/fragments"
-	"bitbucket.org/delving/rapid/hub3/index"
+	c "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/fragments"
+	"github.com/delving/rapid/hub3/index"
 	elastic "github.com/olivere/elastic"
 )
 

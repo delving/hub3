@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 	"github.com/olivere/elastic"
 )
 

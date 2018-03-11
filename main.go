@@ -14,7 +14,7 @@
 
 package main
 
-import "bitbucket.org/delving/rapid/cmd"
+import "github.com/delving/rapid/cmd"
 
 var (
 	// Version of the application. (Injected at build time)

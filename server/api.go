@@ -22,12 +22,12 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3"
-	"bitbucket.org/delving/rapid/hub3/fragments"
-	"bitbucket.org/delving/rapid/hub3/harvesting"
-	"bitbucket.org/delving/rapid/hub3/index"
-	"bitbucket.org/delving/rapid/hub3/models"
+	c "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3"
+	"github.com/delving/rapid/hub3/fragments"
+	"github.com/delving/rapid/hub3/harvesting"
+	"github.com/delving/rapid/hub3/index"
+	"github.com/delving/rapid/hub3/models"
 	elastic "github.com/olivere/elastic"
 
 	"github.com/asdine/storm"

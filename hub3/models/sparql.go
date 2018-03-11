@@ -23,7 +23,7 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
+	"github.com/delving/rapid/config"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 	"github.com/parnurzeal/gorequest"

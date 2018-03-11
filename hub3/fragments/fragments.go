@@ -26,9 +26,9 @@ import (
 	"strconv"
 	"strings"
 
-	c "bitbucket.org/delving/rapid/config"
 	"github.com/OneOfOne/xxhash"
 	r "github.com/deiu/rdf2go"
+	c "github.com/delving/rapid/config"
 	elastic "github.com/olivere/elastic"
 )
 

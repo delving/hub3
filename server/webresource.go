@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	c "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/mediamanager"
+	c "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/mediamanager"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"bitbucket.org/delving/rapid/config"
+	"github.com/delving/rapid/config"
 
 	"github.com/spf13/cobra"
 )

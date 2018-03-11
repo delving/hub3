@@ -20,8 +20,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/logging"
+	. "github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/logging"
 )
 
 var _ = Describe("Log", func() {

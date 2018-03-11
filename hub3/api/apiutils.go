@@ -19,7 +19,7 @@ import (
 	fmt "fmt"
 	"net/url"
 
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 	proto "github.com/golang/protobuf/proto"
 )
 

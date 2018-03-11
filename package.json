@@ -15,10 +15,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/delving/rapid.git"
+    "url": "git+ssh://git@github.com/delving/rapid.git"
   },
   "keywords": [],
   "author": "Delving B.V.",
   "license": "Apache 2.0",
-  "homepage": "https://bitbucket.org/delving/rapid#readme"
+  "homepage": "https://github.com/delving/rapid#readme"
 }

@@ -21,8 +21,8 @@ import (
 	"strconv"
 	"time"
 
-	c "bitbucket.org/delving/rapid/config"
 	r "github.com/deiu/rdf2go"
+	c "github.com/delving/rapid/config"
 	"github.com/olivere/elastic"
 )
 

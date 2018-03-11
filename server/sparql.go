@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"

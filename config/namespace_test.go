@@ -15,7 +15,7 @@
 package config_test
 
 import (
-	c "bitbucket.org/delving/rapid/config"
+	c "github.com/delving/rapid/config"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

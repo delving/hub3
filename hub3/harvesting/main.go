@@ -15,7 +15,7 @@
 package harvesting
 
 import (
-	"bitbucket.org/delving/rapid/hub3/logging"
+	"github.com/delving/rapid/hub3/logging"
 	"github.com/sirupsen/logrus"
 )
 

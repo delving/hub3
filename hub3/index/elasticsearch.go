@@ -24,8 +24,8 @@ import (
 	"syscall"
 	"time"
 
-	"bitbucket.org/delving/rapid/config"
-	"bitbucket.org/delving/rapid/hub3/fragments"
+	"github.com/delving/rapid/config"
+	"github.com/delving/rapid/hub3/fragments"
 	elastic "github.com/olivere/elastic"
 )
 
