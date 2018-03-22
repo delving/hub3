@@ -1,15 +1,156 @@
 version: '3'
 services:
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    container_name: elasticsearch
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
-      - discovery.type=single-node
+      #- discovery.type=single-node 
+      - cluster.name=rapid_cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+  elasticsearch2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+    container_name: elasticsearch2
+    environment:
+      #- discovery.type=single-node 
+      - cluster.name=rapid_cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
   fuseki:
     image: stain/jena-fuseki:latest
     ports:
       - "3030:3030"
     environment:
       - ADMIN_PASSWORD=pw123
+  ###############################
+  cassandra0:
+    image: cassandra:latest
+    container_name: cassandra0
+    ports:
+    - 9042:9042
+    - 9160:9160
+    - 7199:7199
+    - 8778:8778
+    environment:
+    - CASSANDRA_START_RPC=true
+    environment:
+    - CASSANDRA_SEEDS=cassandra0
+    - CASSANDRA_CLUSTER_NAME=rapid_cluster
+    ulimits:
+      memlock: -1
+      nproc: 32768
+      nofile: 100000
+  ###############################
+  cassandra1:
+    image: cassandra:latest
+    container_name: cassandra1
+    ports:
+    - 9142:9042
+    command: bash -c 'sleep 60;  /docker-entrypoint.sh cassandra -f'
+    depends_on:
+    - cassandra0
+    environment:
+    - CASSANDRA_SEEDS=cassandra0
+    - CASSANDRA_CLUSTER_NAME=rapid_cluster
+    ulimits:
+      memlock: -1
+      nproc: 32768
+      nofile: 100000
+  ###############################
+  cassandra2:
+    image: cassandra:latest
+    container_name: cassandra2
+    ports:
+    - 9242:9042
+    command: bash -c 'sleep 120;  /docker-entrypoint.sh cassandra -f'
+    depends_on:
+      - cassandra0
+    environment:
+    - CASSANDRA_SEEDS=cassandra0
+    - CASSANDRA_CLUSTER_NAME=rapid_cluster
+    ulimits:
+      memlock: -1
+      nproc: 32768
+      nofile: 100000
+  etcd0:
+    image: quay.io/coreos/etcd
+    ports:
+      - 2379
+    volumes:
+      - etcd0:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd0
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://etcd0:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-advertise-peer-urls
+      - http://etcd0:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster
+      - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+  etcd1:
+    image: quay.io/coreos/etcd
+    ports:
+      - 2379
+    volumes:
+      - etcd1:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd1
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://etcd1:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-advertise-peer-urls
+      - http://etcd1:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster
+      - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+  etcd2:
+    image: quay.io/coreos/etcd
+    ports:
+      - 2379
+    volumes:
+      - etcd2:/etcd_data
+    command:
+      - /usr/local/bin/etcd
+      - -name
+      - etcd2
+      - --data-dir
+      - /etcd_data
+      - -advertise-client-urls
+      - http://etcd2:2379
+      - -listen-client-urls
+      - http://0.0.0.0:2379
+      - -initial-advertise-peer-urls
+      - http://etcd2:2380
+      - -listen-peer-urls
+      - http://0.0.0.0:2380
+      - -initial-cluster
+      - etcd0=http://etcd0:2380,etcd1=http://etcd1:2380,etcd2=http://etcd2:2380
+
+volumes:
+  etcd0:
+  etcd1:
+  etcd2:
