@@ -23,6 +23,7 @@ import (
 
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
+	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
 var (
@@ -212,13 +213,19 @@ func listRecords(ccmd *cobra.Command, args []string) {
 	}()
 
 	seen := 0
+	completeListSize := 0
+	bar := pb.New(1000000)
+
 	fmt.Fprintln(file, `<?xml version="1.0" encoding="UTF-8" ?>`)
 	fmt.Fprintln(file, "<pockets>")
 	req.HarvestRecords(func(r *oai.Record) {
 		seen++
-		if seen%250 == 0 {
-			fmt.Printf("\rharvested: %d\n", seen)
+		if req.CompleteListSize != 0 && completeListSize == 0 {
+			completeListSize = req.CompleteListSize
+			bar = pb.New(completeListSize)
+			bar.Start()
 		}
+		bar.Increment()
 		fmt.Fprintf(file, `<pocket id="%s">\n`, r.Header.Identifier)
 		fmt.Fprintln(file, r.Metadata.GoString())
 		fmt.Fprintln(file, "</pocket>")

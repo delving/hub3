@@ -1,6 +1,8 @@
-hash: 91bf5439823bfe4b5b107f7b64d955e39e0d9a61e3154741dfa810240bd0efb3
-updated: 2018-02-13T15:16:32.530885987+01:00
+hash: 8862859fa0fb6ea4fdceec6390071011b3536a9543d76d9b2e026bc2e2981e41
+updated: 2018-03-27T21:55:31.880751018+02:00
 imports:
+- name: github.com/AndreasBriese/bbloom
+  version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
   subpackages:
@@ -10,7 +12,7 @@ imports:
   - internal
   - q
 - name: github.com/beorn7/perks
-  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
   subpackages:
   - quantile
 - name: github.com/boltdb/bolt
@@ -23,6 +25,16 @@ imports:
   version: f84eb1e0bd629a62676207d0a47516da8338cf60
 - name: github.com/deiu/rdf2go
   version: ba3ab40de4961dadc8e5fdcf57ddec818a6d9d0e
+- name: github.com/dgraph-io/badger
+  version: a39f9e06de643cd1edbc85492b18fec552fc7c7e
+  subpackages:
+  - options
+  - protos
+  - skl
+  - table
+  - "y"
+- name: github.com/dgryski/go-farm
+  version: 2de33835d10275975374b37b2dcfd22c9020a1f5
 - name: github.com/die-net/lrucache
   version: 04b9315ab7a61886b4e51dba37a9c7cc14885fae
   subpackages:
@@ -43,6 +55,8 @@ imports:
   version: ac43d9a63f3b58b1e82922411d2de365d896ee72
 - name: github.com/go-chi/render
   version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
+- name: github.com/gocql/gocql
+  version: 12e3a8c05db483441932e84ab6c35c339fb01de7
 - name: github.com/golang/protobuf
   version: 925541529c1fa6821df4e44ce2723319eb2be768
   subpackages:
@@ -117,7 +131,7 @@ imports:
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/olivere/elastic
-  version: 2963eb09b89294356e1a826068f33e5a44326ac0
+  version: d78530f6439d6cd674892320b6917d7c4cb25f7f
   subpackages:
   - config
   - uritemplates
@@ -166,7 +180,7 @@ imports:
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
-  version: a40133b69fbd73ee655606a9bf5f8b9b9bf758dd
+  version: d49167c4b9f3c4451707560c5c71471ff5291aaa
   subpackages:
   - prometheus
 - name: github.com/prometheus/client_model
@@ -174,13 +188,13 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 89604d197083d4781071d3c65855d24ecfb0a563
+  version: 38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 282c8707aa210456a825798969cc27edda34992a
+  version: 780932d4fbbe0e69b84c34c20f5c8d0981e109ea
   subpackages:
   - internal/util
   - nfs
@@ -281,11 +295,11 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: 2b5a72b8730b0b16380010cfe5286c42108d88e7
+  version: ab0870e398d5dd054b868c0db1481ab029b9a9f2
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 6c48c7f5c8d60269eb9f72197e2926cb1a6ffea8
+  version: 275695638f9c7f943b76a610eaaf4dd7ac0fb037
   subpackages:
   - balancer
   - balancer/base
@@ -309,6 +323,22 @@ imports:
   - status
   - tap
   - transport
+- name: gopkg.in/cheggaaa/pb.v1
+  version: c112833d014c77e8bde723fd0158e3156951639f
+- name: gopkg.in/cheggaaa/pb.v2
+  version: c112833d014c77e8bde723fd0158e3156951639f
+  subpackages:
+  - termutil
+- name: gopkg.in/fatih/color.v1
+  version: 507f6050b8568533fb3f5504de8e5205fa62a114
+- name: gopkg.in/mattn/go-colorable.v0
+  version: 167de6bfdfba052fa6b2d3664c8f5272e23c9072
+- name: gopkg.in/mattn/go-isatty.v0
+  version: 0360b2af4f38e8d38c7fce2a9f4e702702d73a39
+- name: gopkg.in/mattn/go-runewidth.v0
+  version: 9e777a8366cce605130a531d2cd6363d07ad7317
+- name: gopkg.in/VividCortex/ewma.v1
+  version: b24eb346a94c3ba12c1da1e564dbac1b498a77ce
 - name: gopkg.in/yaml.v2
   version: d670f9405373e636a5a2765eea47fac0c9bc91a4
 - name: willnorris.com/go/gifresize

@@ -41,3 +41,6 @@ import:
   version: ~0.1.1
 - package: github.com/olivere/elastic
   version: ~6.1.5
+- package: github.com/gocql/gocql
+- package: gopkg.in/cheggaaa/pb.v1
+  version: ~2.0.6
