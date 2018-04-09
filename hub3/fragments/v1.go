@@ -431,7 +431,9 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		Raw:   fb.fg.GetSpec(),
 	}
 	indexDoc["spec"] = fb.fg.GetSpec()
+	indexDoc["entryURI"] = fb.fg.GetAboutURI()
 	indexDoc["revision"] = fb.fg.GetRevision()
+	indexDoc["hubID"] = fb.fg.GetHubID()
 	indexDoc["system"] = NewSystem(indexDoc, fb)
 	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
 	return indexDoc, nil
@@ -495,7 +497,7 @@ var V1ESMapping = `
 {
     "settings": {
 		"number_of_shards":3,
-		"number_of_replicas":2
+		"number_of_replicas":2,
         "analysis": {
             "filter": {
                 "dutch_stop": {

@@ -183,7 +183,7 @@ func setDefaults() {
 
 	// oai-pmh
 	viper.SetDefault("OAIPMH.enabled", true)
-	viper.SetDefault("OAIPMH.repostitoryName", "rapid")
+	viper.SetDefault("OAIPMH.RepositoryName", "rapid")
 	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
 
 	// image proxy

@@ -172,21 +172,21 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := ds.DropOrphans(ctx)
+		ok, err := ds.DropOrphans(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
 			return err
 		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
-		ok, err := ds.DropRecords(ctx)
+		ok, err := ds.DropRecords(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop records for %s\n", action.Spec)
 			return err
 		}
 		log.Printf("remove dataset %s from the storage", action.Spec)
 	case "drop_dataset":
-		ok, err := ds.DropAll(ctx)
+		ok, err := ds.DropAll(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop dataset %s", action.Spec)
 			return err
@@ -305,9 +305,9 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		// add to posthook worker from v1
 		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
 		g := fb.Graph
-		ph := NewPostHook(g, action.Spec, false, subject)
+		ph := models.NewPostHookJob(g, action.Spec, false, subject)
 		if ph.Valid() {
-			action.wp.Submit(func() { ApplyPostHook(ph) })
+			action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
@@ -321,7 +321,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
-	//action.p.Add(r)
+	action.p.Add(r)
 	return nil
 }
 

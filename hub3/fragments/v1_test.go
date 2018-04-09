@@ -95,7 +95,7 @@ var _ = Describe("V1", func() {
 				Expect(indexDoc).ToNot(BeEmpty())
 				Expect(indexDoc).To(HaveKey("legacy"))
 				Expect(indexDoc).To(HaveKey("system"))
-				Expect(len(indexDoc)).To(Equal(42))
+				Expect(len(indexDoc)).To(Equal(43))
 			})
 
 			It("should return the MediaManagerUrl for a WebResource", func() {

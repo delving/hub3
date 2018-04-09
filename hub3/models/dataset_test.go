@@ -19,6 +19,7 @@ import (
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/gammazero/workerpool"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -193,7 +194,8 @@ var _ = Describe("Dataset", func() {
 			ds, err = GetDataSet(dsName)
 			Expect(err).To(BeNil())
 			ctx := context.Background()
-			err = ds.Delete(ctx)
+			wp := workerpool.New(1)
+			err = ds.Delete(ctx, wp)
 			Expect(err).To(BeNil())
 			ds, err = GetDataSet(dsName)
 			Expect(err).ToNot(BeNil())

@@ -1,4 +1,4 @@
-package hub3_test
+package models
 
 import (
 	"io/ioutil"
@@ -7,8 +7,6 @@ import (
 	"github.com/deiu/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	. "github.com/delving/rapid-saas/hub3"
 )
 
 func getRDFString(path string) (string, error) {
@@ -33,7 +31,7 @@ var _ = Describe("Posthook", func() {
 				g := rdf2go.NewGraph(subject)
 				err = g.Parse(strings.NewReader(content), "text/turtle")
 				Expect(err).ToNot(HaveOccurred())
-				posthook := NewPostHook(g, "enb-83-beeldmateriaal", false, subject)
+				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
 				Expect(posthook).ToNot(BeNil())
 				Expect(posthook.Graph.Len()).ToNot(Equal(0))
 				Expect(posthook.String()).To(ContainSubstring("brabant"))
