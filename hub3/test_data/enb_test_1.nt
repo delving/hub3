@@ -1,0 +1,99 @@
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUrl> "http://images.memorix.nl/enb_83/deepzoom/1ca66a02-7b05-2014-0ce4-87551cb68fb5.dzi" .
+<http://data.brabantcloud.nl/resource/place/enb-83-beeldmateriaal/2747584> <http://www.w3.org/2002/07/owl#sameAs> <http://sws.geonames.org/2747584> .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/BrabantCloudResource> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://creativecommons.org/ns#attributionName> "enb-83-beeldmateriaal" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/hasView> <http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://schemas.delving.eu/narthex/terms/saveTime> "2018-04-04T21:14:04Z" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/objectNumber> "P00093" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/coverage> "St Servatiusstraat 10" .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://schemas.delving.eu/nave/terms/allowSourceDownload> "false" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.openarchives.org/ore/terms/Aggregation> .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "4" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/sourceDownload> "http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+<http://data.brabantcloud.nl/resource/place/enb-83-beeldmateriaal/2747584> <http://purl.org/dc/terms/isPartOf> "Meierijstad" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/terms/created> "1984" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/description> "De slagerij was gevestigd in de St Servatiusstraat" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/productionPeriod> "1984" .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://schemas.delving.eu/nave/terms/public> "true" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/collectionType> "Beeldmateriaal" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/provider> "Erfgoed Brabant" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/allowSourceDownload> "true" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUrl> "http://images.memorix.nl/enb_83/deepzoom/ad146cf9-988e-af32-5587-bb8797be012c.dzi" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg" .
+<http://data.brabantcloud.nl/resource/place/enb-83-beeldmateriaal/2747584> <http://purl.org/dc/terms/hasPart> "Centrum" .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://schemas.delving.eu/nave/terms/allowLinkedOpenData> "true" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.openarchives.org/ore/terms/aggregates> _:N98ea7e1061624880ac11b7cf24e13572 .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "http://images.memorix.nl/enb_83/thumb/220x220/ad146cf9-988e-af32-5587-bb8797be012c.jpg" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/allowPublicWebView> "true" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/terms/spatial> "Centrum" .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DelvingResource> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/hasView> <http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/terms/temporal> "1980 tot 1990" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "http://images.memorix.nl/enb_83/thumb/220x220/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/technique> "St Servatiusstraat" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/hasView> <http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/geojson> "[{\"type\":\"Point\",\"coordinates\":[5.436386,51.619202]}]" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/allowPublicWebView> "true" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/type> "IMAGE" .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <urn:ebu:metadata-schema:ebuCore_2014hasMimeType> "image/jpeg" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/narthex/terms/Record> .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/identifier> "P00093" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/subject> "Slagerij" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/title> "Album slagerij van der Heijden" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "http://images.memorix.nl/enb_83/thumb/220x220/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/object> <http://images.memorix.nl/enb_83/thumb/220x220/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://xmlns.com/foaf/0.1/primaryTopic> <http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://schemas.delving.eu/nave/terms/featured> "false" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://schemas.delving.eu/narthex/terms/synced> "false"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/allowSourceDownload> "true" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://schemas.delving.eu/narthex/terms/belongsTo> <http://data.brabantcloud.nl/resource/dataset/enb-83-beeldmateriaal> .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/allowSourceDownload> "true" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUrl> "http://images.memorix.nl/enb_83/deepzoom/f1aa492c-f366-f59e-76c1-97a91fd32ee8.dzi" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "1" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/productionStart> "1984" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/isShownBy> <http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/place> "Schijndel" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "3" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/type> "St Servatiusstraat" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/isShownAt> <http://www.heemkundekringschijndel.nl/InstantWebsite/?diw-id=brabantcloud_enb-83-beeldmateriaal_enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <urn:ebu:metadata-schema:ebuCore_2014hasMimeType> "image/jpeg" .
+_:N7375b77d2b8c45e2a9a37d24e19d6017 <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/hasView> <http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/rights> <http://www.europeana.eu/rights/rr-f/> .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/allowPublicWebView> "true" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://purl.org/dc/elements/1.1/date> "1980 tot 1990" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/aggregatedCHO> <http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "http://images.memorix.nl/enb_83/thumb/220x220/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://schemas.delving.eu/nave/terms/sourceDownload> "http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <urn:ebu:metadata-schema:ebuCore_2014hasMimeType> "image/jpeg" .
+<http://data.brabantcloud.nl/resource/place/enb-83-beeldmateriaal/2747584> <http://www.w3.org/2004/02/skos/core#prefLabel> "Schijndel" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/sourceDownload> "http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "2" .
+<http://data.brabantcloud.nl/resource/place/enb-83-beeldmateriaal/2747584> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/Place> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.europeana.eu/schemas/edm/dataProvider> "Heemkundekring 'Schijndel'" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/allowSourceDownload> "true" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg" .
+<http://images.memorix.nl/enb_83/thumb/500x500/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUrl> "http://images.memorix.nl/enb_83/deepzoom/e77c1cba-a53d-6a9f-af0c-96d5ecbb12a0.dzi" .
+<http://images.memorix.nl/enb_83/thumb/500x500/ad146cf9-988e-af32-5587-bb8797be012c.jpg> <http://schemas.delving.eu/nave/terms/allowPublicWebView> "true" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/collection> "Heemkundekring 'Schijndel'" .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/objectSoort> "Foto" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Document> .
+<http://images.memorix.nl/enb_83/thumb/500x500/f1aa492c-f366-f59e-76c1-97a91fd32ee8.jpg> <urn:ebu:metadata-schema:ebuCore_2014hasMimeType> "image/jpeg" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/date> "1984" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/collectionPart> "Albums Heemkundekring Schijndel" .
+<http://data.brabantcloud.nl/resource/document/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/ProvidedCHO> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25/about> <http://schemas.delving.eu/narthex/terms/contentHash> "0ee2aae0ceb47faa0030946ffa6581353d7d868f" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-83-beeldmateriaal/enb-83.beeldmateriaal-620b3fa2-a2d8-796c-eae1-b8b9ca6947b7-14b9d8fd-a7f5-c901-2e2d-ae6d0966bd25> <http://www.openarchives.org/ore/terms/aggregates> _:N7375b77d2b8c45e2a9a37d24e19d6017 .
+<http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg> <http://schemas.delving.eu/nave/terms/sourceDownload> "http://images.memorix.nl/enb_83/thumb/500x500/1ca66a02-7b05-2014-0ce4-87551cb68fb5.jpg" .
+_:N98ea7e1061624880ac11b7cf24e13572 <http://schemas.delving.eu/nave/terms/collectionPart> "Heemkundekring Schijndel" .
+
