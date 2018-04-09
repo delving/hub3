@@ -177,6 +177,10 @@ func setDefaults() {
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
 
+	// posthook
+	viper.SetDefault("PostHook.urls", []string{})
+	viper.SetDefault("PostHook.ExcludeSpec", []string{})
+
 	// oai-pmh
 	viper.SetDefault("OAIPMH.enabled", true)
 	viper.SetDefault("OAIPMH.repostitoryName", "rapid")
