@@ -15,7 +15,7 @@
 package models
 
 import (
-	"github.com/delving/rapid/config"
+	"github.com/delving/rapid-saas/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -15,7 +15,7 @@
 package hub3
 
 import (
-	"github.com/delving/rapid/hub3/logging"
+	"github.com/delving/rapid-saas/hub3/logging"
 	"github.com/sirupsen/logrus"
 )
 

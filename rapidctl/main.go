@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/delving/rapid/rapidctl/cmd"
+import "github.com/delving/rapid-saas/rapidctl/cmd"
 
 func main() {
 	cmd.Execute()

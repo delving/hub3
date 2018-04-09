@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/delving/rapid/config"
+	"github.com/delving/rapid-saas/config"
 
 	"github.com/spf13/cobra"
 )

@@ -25,9 +25,10 @@ import (
 	"strings"
 	"text/template"
 
-	c "github.com/delving/rapid/config"
-	"github.com/delving/rapid/hub3/fragments"
-	"github.com/delving/rapid/hub3/models"
+	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/fragments"
+	"github.com/delving/rapid-saas/hub3/models"
+	"github.com/gammazero/workerpool"
 	elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
 )
@@ -42,6 +43,7 @@ type BulkAction struct {
 	ContentHash   string `json:"contentHash"`
 	Graph         string `json:"graph"`
 	p             *elastic.BulkProcessor
+	wp            *workerpool.WorkerPool
 }
 
 // SparqlUpdate contains the elements to perform a SPARQL update query
@@ -102,7 +104,7 @@ type BulkActionResponse struct {
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
-func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor) (BulkActionResponse, error) {
+func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp *workerpool.WorkerPool) (BulkActionResponse, error) {
 
 	scanner := bufio.NewScanner(r)
 	response := BulkActionResponse{
@@ -121,6 +123,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor) (Bu
 			continue
 		}
 		action.p = p
+		action.wp = wp
 		err = action.Execute(ctx, &response)
 		if err != nil {
 			return response, err
@@ -280,6 +283,8 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
 	fb := action.createFragmentBuilder(response.SpecRevision)
+	// cleanup the graph
+	fb.GetSortedWebResources()
 	err := fb.CreateFragments(action.p, true)
 	if err != nil {
 		log.Printf("Unable to save fragments: %v", err)
@@ -297,6 +302,14 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 			log.Printf("Unable to create v1 es action: %s", err)
 			return err
 		}
+		// add to posthook worker from v1
+		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
+		g := fb.Graph
+		ph := NewPostHook(g, action.Spec, false, subject)
+		if ph.Valid() {
+			action.wp.Submit(func() { ApplyPostHook(ph) })
+			//action.wp.Submit(func() { log.Println(ph.Subject) })
+		}
 	} else {
 		r = elastic.NewBulkIndexRequest().
 			Index(c.Config.ElasticSearch.IndexName).
@@ -308,7 +321,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
-	action.p.Add(r)
+	//action.p.Add(r)
 	return nil
 }
 

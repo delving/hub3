@@ -3,7 +3,7 @@
 NAME:=rapid
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
 DESCRIPTION:="RAPID Linked Open Data Platform"
-MODULE:=github.com/delving/rapid
+MODULE:=github.com/delving/rapid-saas
 
 GO ?= go
 TEMPDIR:=$(shell mktemp -d)

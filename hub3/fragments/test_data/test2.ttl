@@ -59,6 +59,7 @@
 <http://data.jck.nl/resource/document/jhm-foto/F900893> a edm:ProvidedCHO ;
     dc:creator <http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter> ;
     dc:date "2006-06-09" ;
+    dcterms:created "2006-06-09" ;
     dc:description "Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006" ;
     dc:identifier "F900893" ;
     dc:rights "Joods Historisch Museum Amsterdam" ;
@@ -83,16 +84,22 @@
     skos:prefLabel "Mulder, Israel van Samuel (-1877)" ;
     foaf:name "Mulder, Israel van Samuel (-1877)" .
 
-<urn:joods-historisch/d375/375N021.jpg> a edm:WebResource ;
-    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021.tif.dzi" ;
+<urn:joods-historisch/d375/375N021_01.jpg> a edm:WebResource ;
+    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi" ;
     nave:resourceSortOrder "1" ;
-    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
-    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000" ;
-    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500" .
+    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000" ;
+    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000" ;
+    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500" .
 
-<urn:joods-historisch/d376/375N021.jpg> a edm:WebResource ;
-    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021.tif.dzi" ;
+<urn:joods-historisch/d376/375N021_02.jpg> a edm:WebResource ;
+    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_02.tif.dzi" ;
     nave:resourceSortOrder "2" ;
-    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/2000" ;
-    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/2000" ;
-    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021/500" .
+    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000" ;
+    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000" ;
+    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/500" .
+
+<urn:joods-historisch/d376/375N021_3.jpg> a edm:WebResource ;
+    nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi" ;
+    nave:sourceDownload "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000" ;
+    nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000" ;
+    nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500" .

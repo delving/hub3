@@ -14,11 +14,11 @@
 
 package main
 
-import "github.com/delving/rapid/cmd"
+import "github.com/delving/rapid-saas/cmd"
 
 var (
 	// Version of the application. (Injected at build time)
-	Version = "0.1-SNAPSHOT"
+	Version = "0.1.0-SNAPSHOT"
 	// BuildStamp is the timestamp of the application. (Injected at build time)
 	BuildStamp = "1970-01-01 UTC"
 	// BuildAgent is the agent that created the current build. (Injected at build time)

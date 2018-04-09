@@ -18,13 +18,22 @@ import (
 	fmt "fmt"
 	"io"
 	"log"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	r "github.com/deiu/rdf2go"
-	c "github.com/delving/rapid/config"
+	c "github.com/delving/rapid-saas/config"
 	"github.com/olivere/elastic"
+	"github.com/parnurzeal/gorequest"
 )
+
+var request *gorequest.SuperAgent
+
+func init() {
+	request = gorequest.New()
+}
 
 // IndexEntry holds info for earch triple in the V1 API
 type IndexEntry struct {
@@ -163,6 +172,236 @@ func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 		return g, fmt.Errorf("no triples were added to the graph")
 	}
 	return g, nil
+}
+
+func getNSField(nsKey, label string) string {
+	var nsURI string
+	switch nsKey {
+	case "edm":
+		nsURI = "http://www.europeana.eu/schemas/edm/"
+	case "nave":
+		nsURI = "http://schemas.delving.eu/nave/terms/"
+	case "dcterms":
+		nsURI = "http://purl.org/dc/terms/"
+	case "rdagr2":
+		nsURI = "http://rdvocab.info/ElementsGr2/"
+	case "dc":
+		nsURI = "http://purl.org/dc/elements/1.1/"
+	}
+	if nsURI != "" {
+		return fmt.Sprintf(
+			"%s%s",
+			nsURI,
+			label,
+		)
+	}
+	return ""
+}
+
+func getEDMField(s string) r.Term {
+	return r.NewResource(getNSField("edm", s))
+}
+
+func getNaveField(s string) r.Term {
+	return r.NewResource(getNSField("nave", s))
+}
+
+// GetUrns returs a list of WebResource urns
+func (fb *FragmentBuilder) GetUrns() []string {
+	var urns []string
+	wrs := fb.Graph.All(nil, nil, getEDMField("WebResource"))
+	for _, t := range wrs {
+		s := strings.Trim(t.Subject.String(), "<>")
+		if strings.HasPrefix(s, "urn:") {
+			urns = append(urns, s)
+		}
+	}
+	return urns
+}
+
+// ResolveWebResources retrieves RDF graph from remote MediaManager
+// Only RDF Resources that start with 'urn:' are currently supported
+func (fb *FragmentBuilder) ResolveWebResources() error {
+	urns := fb.GetUrns()
+	for _, urn := range urns {
+		err := fb.GetRemoteWebResource(urn, "")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// GetSortedWebResources returns a list of subjects sorted by nave:resourceSortOrder.
+// WebResources without a sortKey will appended in order they are found to the end of the list.
+func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
+	resources := make(map[string]int)
+	cleanGraph := r.NewGraph("")
+
+	graphType := fb.Graph.One(nil, r.NewResource("http://www.openarchives.org/ore/terms/Aggregation"), nil)
+	subj := r.NewResource("")
+	if graphType != nil {
+		subj = graphType.Subject
+	}
+	for triple := range fb.Graph.IterTriples() {
+		s := triple.Subject.String()
+		p := triple.Predicate.String()
+		switch p {
+		case getNaveField("resourceSortOrder").String():
+			rawInt := triple.Object.(*r.Literal).RawValue()
+			i, err := strconv.Atoi(rawInt)
+			if err != nil {
+				resources[s] = 1000
+			} else {
+				resources[s] = i
+			}
+			cleanGraph.Add(triple)
+		case r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").String():
+			if triple.Object.String() == getEDMField("WebResource").String() {
+				if !strings.HasSuffix(s, "__>") {
+					_, ok := resources[s]
+					if !ok {
+						resources[s] = 1000
+					}
+					cleanGraph.Add(triple)
+				}
+			}
+		case getEDMField("hasView").String(), getEDMField("isShownBy").String(), getEDMField("object").String():
+			break
+			//g.Remove(triple)
+			//case getNaveField("thumbSmall").String(), getNaveField("thumbnail").String(), getNaveField("thumbLarge").String():
+			//fb.Graph.Remove(triple)
+			//case getNaveField("deepZoomUrl").String():
+			//fb.Graph.Remove(triple)
+		default:
+			if !fb.CleanDates(triple, cleanGraph) {
+				cleanGraph.Add(triple)
+			}
+		}
+
+	}
+	var ss []ResourceSortOrder
+	for k, v := range resources {
+		ss = append(ss, ResourceSortOrder{k, v})
+	}
+
+	// sort by key
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].Value < ss[j].Value
+	})
+
+	// replace 1000 with incremental number
+	for i, s := range ss {
+		if s.Value == 1000 {
+			ss[i].Value = i + 1
+		}
+		if len(subj.String()) > 0 {
+			if i == 0 {
+				fb.AddDefaults(r.NewResource(s.CleanKey()), cleanGraph)
+			}
+			hasView := r.NewTriple(
+				subj,
+				getEDMField("hasView"),
+				r.NewResource(s.CleanKey()),
+			)
+			cleanGraph.Add(hasView)
+		}
+	}
+
+	fb.Graph = cleanGraph
+	return ss
+}
+
+var dateFields = []string{
+	getNSField("dcterms", "created"),
+	getNSField("dcterms", "issued"),
+	getNSField("nave", "creatorBirthYear"),
+	getNSField("nave", "creatorDeathYear"),
+	getNSField("nave", "date"),
+	getNSField("dc", "date"),
+	getNSField("nave", "dateOfBurial"),
+	getNSField("nave", "productionEnd"),
+	getNSField("nave", "productionStart"),
+	getNSField("nave", "productionPeriod"),
+	getNSField("rdagr2", "dateOfBirth"),
+	getNSField("rdagr2", "dateOfDeath"),
+}
+
+// CleanDates modifies the Graph to only provide valid ISO dates
+func (fb *FragmentBuilder) CleanDates(t *r.Triple, g *r.Graph) bool {
+	for _, date := range dateFields {
+		p := strings.Trim(t.Predicate.String(), "<>")
+		if p == date {
+			g.AddTriple(
+				t.Subject,
+				r.NewResource(fmt.Sprintf("%sRaw", p)),
+				t.Object,
+			)
+			return true
+		}
+	}
+	return false
+}
+
+// ResourceSortOrder holds the sort keys
+type ResourceSortOrder struct {
+	Key   string
+	Value int
+}
+
+// CleanKey strips leading and trailing "<>" from the key.
+func (rso ResourceSortOrder) CleanKey() string {
+	return strings.Trim(rso.Key, "<>")
+}
+
+func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
+	t := fb.Graph.One(s, p, nil)
+	if t != nil {
+		return t.Object
+	}
+	return nil
+}
+
+func (fb *FragmentBuilder) AddDefaults(s r.Term, g *r.Graph) {
+	isShownBy := fb.GetObject(s, getNaveField("thumbLarge"))
+	if isShownBy != nil {
+		g.AddTriple(s, getEDMField("isShownBy"), isShownBy)
+	}
+	object := fb.GetObject(s, getNaveField("thumbSmall"))
+	if object != nil {
+		g.AddTriple(s, getEDMField("object"), isShownBy)
+	}
+}
+
+// GetRemoteWebResource retrieves a remote Graph from the MediaManare and
+// inserts it into the Graph
+func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string) error {
+	if strings.HasPrefix(urn, "urn:") {
+		url := fb.MediaManagerURL(urn, orgID)
+		request := gorequest.New()
+		resp, _, errs := request.Get(url).End()
+		if errs != nil {
+			return errs[0]
+		}
+		err := fb.Graph.Parse(resp.Body, "text/turtle")
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// MediaManagerURL returns the URL for the Remote WebResource call.
+func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
+	if orgID == "" {
+		orgID = c.Config.OrgID
+	}
+	return fmt.Sprintf(
+		"%s/api/webresource/%s/%s",
+		"http://media.delving.org",
+		orgID,
+		urn,
+	)
 }
 
 // CreateV1IndexDoc creates a map that can me marshaled to json

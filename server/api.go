@@ -22,12 +22,13 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	c "github.com/delving/rapid/config"
-	"github.com/delving/rapid/hub3"
-	"github.com/delving/rapid/hub3/fragments"
-	"github.com/delving/rapid/hub3/harvesting"
-	"github.com/delving/rapid/hub3/index"
-	"github.com/delving/rapid/hub3/models"
+	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3"
+	"github.com/delving/rapid-saas/hub3/fragments"
+	"github.com/delving/rapid-saas/hub3/harvesting"
+	"github.com/delving/rapid-saas/hub3/index"
+	"github.com/delving/rapid-saas/hub3/models"
+	"github.com/gammazero/workerpool"
 	elastic "github.com/olivere/elastic"
 
 	"github.com/asdine/storm"
@@ -37,6 +38,7 @@ import (
 )
 
 var bp *elastic.BulkProcessor
+var wp *workerpool.WorkerPool
 var ctx context.Context
 
 func init() {
@@ -47,6 +49,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("Unable to start BulkProcessor: ", err)
 	}
+	wp = workerpool.New(10)
 }
 
 // APIErrorMessage contains the default API error messages
@@ -79,7 +82,7 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(ctx, r.Body, bp)
+	response, err := hub3.ReadActions(ctx, r.Body, bp, wp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)

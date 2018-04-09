@@ -17,7 +17,7 @@ package logging
 import (
 	"os"
 
-	"github.com/delving/rapid/config"
+	"github.com/delving/rapid-saas/config"
 	"github.com/evalphobia/logrus_sentry"
 	"github.com/sirupsen/logrus"
 )

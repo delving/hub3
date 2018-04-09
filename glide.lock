@@ -1,8 +1,10 @@
-hash: 8862859fa0fb6ea4fdceec6390071011b3536a9543d76d9b2e026bc2e2981e41
-updated: 2018-03-27T21:55:31.880751018+02:00
+hash: 4993b4da4c862af365c490292d1488c6efd3b0c98b003d869263b7c1a03c0cb0
+updated: 2018-04-08T22:37:57.845381906+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
+- name: github.com/araddon/dateparse
+  version: 647d17def28afa02fecb88c69e1efda146c4ec8a
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
   subpackages:
@@ -25,8 +27,12 @@ imports:
   version: f84eb1e0bd629a62676207d0a47516da8338cf60
 - name: github.com/deiu/rdf2go
   version: ba3ab40de4961dadc8e5fdcf57ddec818a6d9d0e
+- name: github.com/delving/rapid
+  version: 022f7f68ce755cd8ce95b6161bfbf0160b22f61f
+  subpackages:
+  - config
 - name: github.com/dgraph-io/badger
-  version: a39f9e06de643cd1edbc85492b18fec552fc7c7e
+  version: deb140b6378159c58f803c01430a1b6ba3af248e
   subpackages:
   - options
   - protos
@@ -41,10 +47,16 @@ imports:
   - twotier
 - name: github.com/disintegration/imaging
   version: 1884593a19ddc6f2ea050403430d02c1d0fc1283
+- name: github.com/eapache/go-resiliency
+  version: ea41b0fad31007accc7f806884dcdf3da98b79ce
+  subpackages:
+  - retrier
 - name: github.com/evalphobia/logrus_sentry
   version: 13ba9278e2adf1537fd94143a6b6a1c0dc008ac7
 - name: github.com/fsnotify/fsnotify
   version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
+- name: github.com/gammazero/workerpool
+  version: 079e51c305029d6b2811c0fb88010a4f1178bf8b
 - name: github.com/getsentry/raven-go
   version: 563b81fc02b75d664e54da31f787c2cc2186780b
 - name: github.com/go-chi/chi
@@ -131,7 +143,7 @@ imports:
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/olivere/elastic
-  version: d78530f6439d6cd674892320b6917d7c4cb25f7f
+  version: d6362604399c7af560b54f048b4fcfbdd6eff293
   subpackages:
   - config
   - uritemplates
@@ -180,7 +192,7 @@ imports:
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
-  version: d49167c4b9f3c4451707560c5c71471ff5291aaa
+  version: f504d69affe11ec1ccb2e5948127f86878c9fd57
   subpackages:
   - prometheus
 - name: github.com/prometheus/client_model
@@ -194,7 +206,7 @@ imports:
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 780932d4fbbe0e69b84c34c20f5c8d0981e109ea
+  version: 8b1c2da0d56deffdbb9e48d4414b4e674bd8083e
   subpackages:
   - internal/util
   - nfs
@@ -295,11 +307,11 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: ab0870e398d5dd054b868c0db1481ab029b9a9f2
+  version: ce84044298496ef4b54b4a0a0909ba593cc60e30
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 275695638f9c7f943b76a610eaaf4dd7ac0fb037
+  version: 30fb59a4304034ce78ff68e21bd25776b1d79488
   subpackages:
   - balancer
   - balancer/base

@@ -4,8 +4,8 @@ import (
 	fmt "fmt"
 	"testing"
 
-	c "github.com/delving/rapid/config"
-	. "github.com/delving/rapid/hub3/api"
+	c "github.com/delving/rapid-saas/config"
+	. "github.com/delving/rapid-saas/hub3/api"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

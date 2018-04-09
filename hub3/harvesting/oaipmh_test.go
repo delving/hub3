@@ -15,7 +15,7 @@
 package harvesting_test
 
 import (
-	//. "github.com/delving/rapid/hub3"
+	//. "github.com/delving/rapid-saas/hub3"
 
 	. "github.com/onsi/ginkgo"
 	//. "github.com/onsi/gomega"

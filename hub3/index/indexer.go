@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/delving/rapid/config"
+	"github.com/delving/rapid-saas/config"
 	elastic "github.com/olivere/elastic"
 )
 

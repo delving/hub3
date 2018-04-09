@@ -15,8 +15,8 @@
 package harvesting
 
 import (
-	"github.com/delving/rapid/config"
-	"github.com/delving/rapid/hub3/models"
+	"github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/kiivihal/goharvest/oai"
 )
 
@@ -26,6 +26,7 @@ func ProcessVerb(r *oai.Request) interface{} {
 	case "Identify":
 		return renderIdentify(r)
 	case "ListMetadataFormats":
+		// TODO add getter from list of record definitions
 		formats := []oai.MetadataFormat{
 			oai.MetadataFormat{
 				MetadataPrefix:    "edm",

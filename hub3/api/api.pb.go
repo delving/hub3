@@ -30,7 +30,7 @@ package api
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
-import fragments "github.com/delving/rapid/hub3/fragments"
+import fragments "github.com/delving/rapid-saas/hub3/fragments"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

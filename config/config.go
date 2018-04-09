@@ -52,10 +52,17 @@ type RawConfig struct {
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
-	NameSpaces    []NameSpace `json:"namespaces"`
-	NameSpaceMap  *NameSpaceMap
+	NameSpaces    []NameSpace   `json:"namespaces"`
+	NameSpaceMap  *NameSpaceMap `json:"nameSpaceMap"`
 	RDFTag        `json:"rdftag"`
+	PostHook      `json:"postHook"`
 	//RDFTagMap     *RDFTagMap
+}
+
+// PostHook contains the configuration for the JSON-LD posthook configuration
+type PostHook struct {
+	ExcludeSpec []string `json:"excludeSpec"`
+	URLs        []string `json:"urLs"`
 }
 
 // ElasticSearch holds all the configuration values

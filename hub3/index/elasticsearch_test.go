@@ -17,7 +17,7 @@ package index_test
 import (
 	"fmt"
 
-	"github.com/delving/rapid/hub3/index"
+	"github.com/delving/rapid-saas/hub3/index"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

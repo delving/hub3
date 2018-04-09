@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package fragments_test
+package fragments
 
 import (
 	"bytes"
@@ -23,8 +23,7 @@ import (
 	"net/url"
 
 	r "github.com/deiu/rdf2go"
-	c "github.com/delving/rapid/config"
-	. "github.com/delving/rapid/hub3/fragments"
+	c "github.com/delving/rapid-saas/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -74,7 +73,7 @@ func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	return fg
 }
 
-func testDataGraph() (*FragmentBuilder, error) {
+func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	spec := "test-spec"
 	rev := int32(1)
 	ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
@@ -86,7 +85,9 @@ func testDataGraph() (*FragmentBuilder, error) {
 		return fb, err
 	}
 	fg.RDF = dat
-	fb.ParseGraph(bytes.NewReader(fg.RDF), "text/turtle")
+	if !empty {
+		fb.ParseGraph(bytes.NewReader(fg.RDF), "text/turtle")
+	}
 	return fb, nil
 }
 
@@ -522,7 +523,7 @@ var _ = Describe("Fragments", func() {
 	})
 
 	Describe("FragmentBuilder", func() {
-		fb, err := testDataGraph()
+		fb, err := testDataGraph(false)
 
 		Context("when creating linked data", func() {
 
@@ -530,7 +531,7 @@ var _ = Describe("Fragments", func() {
 				Expect(err).ToNot(HaveOccurred())
 				err := fb.CreateLinkedFragments()
 				Expect(err).ToNot(HaveOccurred())
-				Expect(fb.Graph.Len()).To(Equal(59))
+				Expect(fb.Graph.Len()).To(Equal(65))
 			})
 		})
 

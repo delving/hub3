@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package fragments_test
+package fragments
 
 import (
 	"math/rand"
 	"strings"
 
-	c "github.com/delving/rapid/config"
-	"github.com/delving/rapid/hub3/fragments"
+	c "github.com/delving/rapid-saas/config"
 
 	"os"
 
@@ -34,7 +33,7 @@ func getTestGraph() (*r.Graph, error) {
 	if err != nil {
 		return &r.Graph{}, err
 	}
-	g, err := fragments.NewGraphFromTurtle(turtle)
+	g, err := NewGraphFromTurtle(turtle)
 	return g, err
 }
 
@@ -60,15 +59,15 @@ var _ = Describe("V1", func() {
 				turtle, err := os.Open("test_data/test2.ttl")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(turtle).ToNot(BeNil())
-				g, err := fragments.NewGraphFromTurtle(turtle)
+				g, err := NewGraphFromTurtle(turtle)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(g).ToNot(BeNil())
-				Expect(g.Len()).To(Equal(59))
+				Expect(g.Len()).To(Equal(65))
 			})
 
 			It("Should throw an error when receiving invalid RDF", func() {
 				badRDF := strings.NewReader("")
-				g, err := fragments.NewGraphFromTurtle(badRDF)
+				g, err := NewGraphFromTurtle(badRDF)
 				Expect(err).To(HaveOccurred())
 				Expect(g.Len()).To(Equal(0))
 			})
@@ -80,23 +79,100 @@ var _ = Describe("V1", func() {
 
 		Context("when created from an RDF graph", func() {
 			//g, err := getTestGraph()
-			fb, err := testDataGraph()
 
 			It("should have a valid graph", func() {
+				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fb.Graph).ToNot(BeNil())
-				Expect(fb.Graph.Len()).To(Equal(59))
+				Expect(fb.Graph.Len()).To(Equal(65))
 			})
 
 			It("should return a map", func() {
-				indexDoc, err := fragments.CreateV1IndexDoc(fb)
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				indexDoc, err := CreateV1IndexDoc(fb)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(indexDoc).ToNot(BeEmpty())
 				Expect(indexDoc).To(HaveKey("legacy"))
 				Expect(indexDoc).To(HaveKey("system"))
-				Expect(len(indexDoc)).To(Equal(41))
+				Expect(len(indexDoc)).To(Equal(42))
 			})
+
+			It("should return the MediaManagerUrl for a WebResource", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				urn := "urn:spec/localID"
+				url := fb.MediaManagerURL(urn, "rapid")
+				Expect(url).ToNot(BeEmpty())
+				Expect(url).To(HaveSuffix("localID"))
+				Expect(url).To(ContainSubstring("rapid"))
+			})
+
+			It("should return a list of WebResource subjects", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fb.Graph.Len()).ToNot(Equal(0))
+				wr := fb.GetSortedWebResources()
+				Expect(wr).ToNot(BeNil())
+				Expect(wr).To(HaveLen(3))
+				var order []int
+				for _, v := range wr {
+					order = append(order, v.Value)
+				}
+				Expect(order).To(Equal([]int{1, 2, 3}))
+			})
+
+			It("should clean-up urn: references that end with __", func() {
+				Skip("slow test")
+				urn := "urn:museum-helmond-objecten/2008-018__"
+				orgID := "brabantcloud"
+				wrb, err := testDataGraph(true)
+				wr := r.NewTriple(
+					r.NewResource(urn),
+					r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+					getEDMField("WebResource"),
+				)
+				wrb.Graph.Add(wr)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(wrb.Graph.Len()).To(Equal(1))
+				triple := wrb.Graph.One(r.NewResource(urn), nil, nil)
+				Expect(triple).ToNot(BeNil())
+				err = wrb.GetRemoteWebResource(urn, orgID)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(wrb.Graph.Len()).ToNot(Equal(0))
+				wrList := wrb.GetSortedWebResources()
+				Expect(wrList).ToNot(BeEmpty())
+				triples := wrb.Graph.All(nil, getEDMField("hasView"), nil)
+				Expect(triples).ToNot(BeNil())
+				object := wrb.Graph.All(nil, getEDMField("object"), nil)
+				Expect(object).To(HaveLen(1))
+				isShownBy := wrb.Graph.All(nil, getEDMField("isShownBy"), nil)
+				Expect(isShownBy).To(HaveLen(1))
+			})
+
+			It("should return a list of webresources with urns", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				urns := fb.GetUrns()
+				Expect(urns).To(HaveLen(3))
+			})
+
+			It("should cleanup the dates", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				created := r.NewResource(getNSField("dcterms", "created"))
+				t := fb.Graph.One(nil, created, nil)
+				Expect(t).ToNot(BeNil())
+				fb.GetSortedWebResources()
+				t = fb.Graph.One(nil, created, nil)
+				Expect(t).To(BeNil())
+				createdRaw := r.NewResource(getNSField("dcterms", "createdRaw"))
+				tRaw := fb.Graph.One(nil, createdRaw, nil)
+				Expect(tRaw).ToNot(BeNil())
+			})
+
 		})
+
 	})
 
 	Context("when creating an IndexEntry from a blank node", func() {
@@ -108,7 +184,7 @@ var _ = Describe("V1", func() {
 			r.NewBlankNode(0),
 		)
 		It("should identify an resource", func() {
-			ie, err := fragments.CreateV1IndexEntry(t)
+			ie, err := CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("Bnode"))
@@ -128,7 +204,7 @@ var _ = Describe("V1", func() {
 			r.NewResource("urn:rapid"),
 		)
 		It("should identify an resource", func() {
-			ie, err := fragments.CreateV1IndexEntry(t)
+			ie, err := CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("URIRef"))
@@ -148,7 +224,7 @@ var _ = Describe("V1", func() {
 			r.NewResource(dcSubject),
 			r.NewLiteralWithLanguage("rapid", "nl"),
 		)
-		ie, err := fragments.CreateV1IndexEntry(t)
+		ie, err := CreateV1IndexEntry(t)
 
 		It("should identify an Literal", func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -166,7 +242,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := fragments.CreateV1IndexEntry(t)
+			ie, err := CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Raw).To(HaveLen(256))
@@ -181,7 +257,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := fragments.CreateV1IndexEntry(t)
+			ie, err := CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie.Raw).To(HaveLen(256))
 			Expect(ie.Value).To(HaveLen(32000))

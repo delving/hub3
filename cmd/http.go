@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/delving/rapid/server"
+	"github.com/delving/rapid-saas/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

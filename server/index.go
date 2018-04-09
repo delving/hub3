@@ -7,7 +7,7 @@ import (
 
 	c "github.com/delving/rapid/config"
 
-	"github.com/delving/rapid/hub3/index"
+	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
