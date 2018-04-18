@@ -75,6 +75,7 @@ type ElasticSearch struct {
 	Fragments   bool     `json:"fragments"`
 	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing
 	EnableTrace bool     `json:"enableTrace"`
+	SpecKey     string   `json:"specKey"`
 }
 
 // Logging holds all the logging and path configuration
@@ -163,6 +164,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Fragments", true)
 	viper.SetDefault("ElasticSearch.IndexV1", false)
 	viper.SetDefault("ElasticSearch.EnableTrace", false)
+	viper.SetDefault("ElasticSearch.SpecKey", "spec.keyword")
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
