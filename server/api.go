@@ -29,7 +29,8 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
@@ -88,7 +89,7 @@ func bulkAPI(w http.ResponseWriter, r *http.Request) {
 		errR := ErrRender(err)
 		// todo fix errr renderer for better narthex consumption.
 		_ = errR.Render(w, r)
-		//render.Render(w, r, rrRender(err))
+		render.Render(w, r, errR)
 		return
 	}
 	render.Status(r, http.StatusCreated)

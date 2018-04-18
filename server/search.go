@@ -26,7 +26,8 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.cocm/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // SearchResource is a struct for the Search routes
