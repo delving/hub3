@@ -26,6 +26,7 @@ enum ResponseBlockType {
   ITEMS = 1;
   FACETS = 2;
   LAYOUT = 3;
+  PAGINATION = 4;
 }
 
 message FilterValue {
