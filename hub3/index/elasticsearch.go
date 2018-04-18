@@ -26,7 +26,8 @@ import (
 
 	"github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
@@ -104,6 +105,9 @@ func createESClient() *elastic.Client {
 		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 		elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
 	}
+
+	// TODO: add this from the configuration later
+	//elastic.SetBasicAuth("elastic", "changeme"),
 	if config.Config.ElasticSearch.EnableTrace {
 		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
 	}

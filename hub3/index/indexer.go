@@ -24,7 +24,8 @@ import (
 	"time"
 
 	"github.com/delving/rapid-saas/config"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 var (
@@ -51,6 +52,7 @@ func CreateBulkProcessorService() *elastic.BulkProcessorService {
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
 		FlushInterval(30 * time.Second). // commit every 30s
 		//After(elastic.BulkAfterFunc{afterFn}). // after Execution callback
+		After(afterFn). // after Execution callback
 		//Before(beforeFn).
 		Stats(true) // enable statistics
 
@@ -64,7 +66,7 @@ func afterFn(executionID int64, requests []elastic.BulkableRequest, response *el
 	log.Println("After processor")
 	if response.Errors {
 		log.Println("Errors in bulk request")
-		log.Println(response.Failed())
+		log.Printf("%#v", response.Failed())
 	}
 }
 
@@ -102,7 +104,7 @@ func BulkIndexStatistics(p *elastic.BulkProcessor) elastic.BulkProcessorStats {
 
 	for i, w := range stats.Workers {
 		fmt.Printf("Worker %d: Number of requests queued: %d\n", i, w.Queued)
-		fmt.Printf("           Last response time       : %v\n", i, w.LastDuration)
+		fmt.Printf("           Last response time       : %v\n", w.LastDuration)
 	}
 	return stats
 }

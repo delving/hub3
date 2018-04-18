@@ -29,7 +29,8 @@ import (
 	"github.com/OneOfOne/xxhash"
 	r "github.com/deiu/rdf2go"
 	c "github.com/delving/rapid-saas/config"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // FragmentDocType is the ElasticSearch doctype for the Fragment
@@ -50,6 +51,11 @@ const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 type FragmentBuilder struct {
 	fg    *FragmentGraph
 	Graph *r.Graph
+}
+
+// FragmentGraph gives access to the FragmentGraph object from the Builder struct
+func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
+	return fb.fg
 }
 
 // NewFragmentBuilder creates a new instance of the FragmentBuilder
@@ -87,7 +93,7 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		)
 	}
 	if err != nil {
-		log.Printf("Unable to parse RDF string into graph: %v\n%s\n", err, rdf)
+		log.Printf("Unable to parse RDF string into graph: %v\n%#v\n", err, rdf)
 		return err
 	}
 	fb.fg.RdfMimeType = mimeType

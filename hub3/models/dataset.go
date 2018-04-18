@@ -26,7 +26,8 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	w "github.com/gammazero/workerpool"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 type ESRecord struct {
@@ -499,6 +500,9 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 
 // ValidForPostHook determines if the posthook should be called.
 func (ds DataSet) validForPostHook() bool {
+	if len(c.Config.PostHook.URLs) == 0 {
+		return false
+	}
 	for _, e := range c.Config.PostHook.ExcludeSpec {
 		if e == ds.Spec {
 			return false
@@ -511,6 +515,7 @@ func (ds DataSet) validForPostHook() bool {
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int, error) {
 	q := elastic.NewBoolQuery()
 	q = q.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
+	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	// enqueue posthooks first
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)
@@ -540,7 +545,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (int, error) {
-	q := elastic.NewMatchQuery("spec", ds.Spec)
+	q := elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)
 	logger.Infof("%#v", q)
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)

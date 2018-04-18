@@ -23,7 +23,8 @@ import (
 	"path/filepath"
 
 	c "github.com/delving/rapid-saas/config"
-	"github.com/olivere/elastic"
+	//"github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 const (
