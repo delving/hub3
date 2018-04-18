@@ -29,21 +29,23 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
-	elastic "github.com/olivere/elastic"
+	//elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
-	HubID         string `json:"hubId"`
-	Spec          string `json:"dataset"`
-	NamedGraphURI string `json:"graphUri"`
-	RecordType    string `json:"type"`
-	Action        string `json:"action"`
-	ContentHash   string `json:"contentHash"`
-	Graph         string `json:"graph"`
-	p             *elastic.BulkProcessor
-	wp            *workerpool.WorkerPool
+	HubID         string                 `json:"hubId"`
+	Spec          string                 `json:"dataset"`
+	NamedGraphURI string                 `json:"graphUri"`
+	RecordType    string                 `json:"type"`
+	Action        string                 `json:"action"`
+	ContentHash   string                 `json:"contentHash"`
+	Graph         string                 `json:"graph"`
+	RDF           string                 `json:"rdf"`
+	p             *elastic.BulkProcessor `json:"p"`
+	wp            *workerpool.WorkerPool `json:"wp"`
 }
 
 // SparqlUpdate contains the elements to perform a SPARQL update query
@@ -107,6 +109,9 @@ type BulkActionResponse struct {
 func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp *workerpool.WorkerPool) (BulkActionResponse, error) {
 
 	scanner := bufio.NewScanner(r)
+	buf := make([]byte, 0, 64*1024)
+	scanner.Buffer(buf, 1024*1024)
+
 	response := BulkActionResponse{
 		SparqlUpdates: []SparqlUpdate{},
 		TotalReceived: 0,
@@ -124,12 +129,24 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 		}
 		action.p = p
 		action.wp = wp
+
+		//err = ioutil.WriteFile(fmt.Sprintf("/tmp/es_actions/%s.json", action.HubID), []byte(action.Graph), 0644)
+		//err = ioutil.WriteFile(fmt.Sprintf("/tmp/raw_graph/%s.json", action.HubID), []byte(action.Graph), 0644)
+		//if err != nil {
+		//log.Printf("Processing error: %#v", err)
+		//return response, err
+		//}
 		err = action.Execute(ctx, &response)
 		if err != nil {
+			log.Printf("Processing error: %#v", err)
 			return response, err
 		}
 		response.TotalReceived++
 
+	}
+	if scanner.Err() != nil {
+		log.Printf("Error scanning bulkActions: %s", scanner.Err())
+		return response, scanner.Err()
 	}
 	if c.Config.RDF.RDFStoreEnabled {
 		// insert the RDF triples
@@ -138,6 +155,24 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 			return response, errs[0]
 		}
 	}
+	//if response.TotalReceived > 1 && response.TotalReceived < 100 {
+	//newFile, err := os.Create("/tmp/narthex_error.txt")
+	//if err != nil {
+	//return response, fmt.Errorf("Can't create error file.")
+	//}
+	//defer newFile.Close()
+	//_, err = io.Copy(newFile, r)
+	//if err != nil {
+	//return response, fmt.Errorf("Can't create error file.")
+	//}
+	//err = newFile.Sync()
+	//if err != nil {
+	//return response, fmt.Errorf("Can't create error file.")
+	//}
+
+	//log.Printf("received: %d", response.TotalReceived)
+	//return response, fmt.Errorf("Error with line count.")
+	//}
 	log.Printf("%#v", response)
 	return response, nil
 
@@ -285,11 +320,6 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 	fb := action.createFragmentBuilder(response.SpecRevision)
 	// cleanup the graph
 	fb.GetSortedWebResources()
-	err := fb.CreateFragments(action.p, true)
-	if err != nil {
-		log.Printf("Unable to save fragments: %v", err)
-		return err
-	}
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {
 		indexDoc, err := fragments.CreateV1IndexDoc(fb)
@@ -311,9 +341,15 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
+		err := fb.CreateFragments(action.p, true)
+		if err != nil {
+			log.Printf("Unable to save fragments: %v", err)
+			return err
+		}
 		r = elastic.NewBulkIndexRequest().
 			Index(c.Config.ElasticSearch.IndexName).
 			Type(fragments.DocType).
+			RetryOnConflict(3).
 			Id(action.HubID).
 			Doc(fb.Doc())
 	}
@@ -335,7 +371,8 @@ func (action BulkAction) createFragmentBuilder(revision int) *fragments.Fragment
 	fg.Tags = []string{"narthex", "mdr"}
 	fg.RDF = []byte(action.Graph)
 	fb := fragments.NewFragmentBuilder(fg)
-	fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
+	//fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
+	fb.ParseGraph(strings.NewReader(action.Graph), "application/ld+json")
 	return fb
 }
 
