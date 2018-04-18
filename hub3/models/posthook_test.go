@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -38,7 +37,7 @@ var _ = Describe("Posthook", func() {
 				jsonld, err := posthook.String()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(jsonld).To(ContainSubstring("brabant"))
-				fmt.Printf("json-ld content: %#v", jsonld)
+				Expect(jsonld).To(ContainSubstring("{\"@id\":"))
 			})
 
 		})
