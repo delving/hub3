@@ -25,7 +25,9 @@ import (
 
 	r "github.com/deiu/rdf2go"
 	c "github.com/delving/rapid-saas/config"
-	"github.com/olivere/elastic"
+	//"github.com/olivere/elastic"
+	elastic "gopkg.in/olivere/elastic.v5"
+
 	"github.com/parnurzeal/gorequest"
 )
 
@@ -65,7 +67,7 @@ type Legacy struct {
 func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder) *Legacy {
 	l := &Legacy{
 		HubID:      fb.fg.GetHubID(),
-		RecordType: "void_edmrecord",
+		RecordType: "mdr",
 		Spec:       fb.fg.GetSpec(),
 		OrgID:      fb.fg.GetOrgID(),
 		Collection: fb.fg.GetSpec(),
@@ -268,15 +270,13 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			}
 		case getEDMField("hasView").String(), getEDMField("isShownBy").String(), getEDMField("object").String():
 			break
-			//g.Remove(triple)
-			//case getNaveField("thumbSmall").String(), getNaveField("thumbnail").String(), getNaveField("thumbLarge").String():
-			//fb.Graph.Remove(triple)
-			//case getNaveField("deepZoomUrl").String():
-			//fb.Graph.Remove(triple)
+		//g.Remove(triple)
+		//case getNaveField("thumbSmall").String(), getNaveField("thumbnail").String(), getNaveField("thumbLarge").String():
+		//fb.Graph.Remove(triple)
+		//case getNaveField("deepZoomUrl").String():
+		//fb.Graph.Remove(triple)
 		default:
-			if !fb.CleanDates(triple, cleanGraph) {
-				cleanGraph.Add(triple)
-			}
+			cleanGraph.Add(triple)
 		}
 
 	}
@@ -310,37 +310,6 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 
 	fb.Graph = cleanGraph
 	return ss
-}
-
-var dateFields = []string{
-	getNSField("dcterms", "created"),
-	getNSField("dcterms", "issued"),
-	getNSField("nave", "creatorBirthYear"),
-	getNSField("nave", "creatorDeathYear"),
-	getNSField("nave", "date"),
-	getNSField("dc", "date"),
-	getNSField("nave", "dateOfBurial"),
-	getNSField("nave", "productionEnd"),
-	getNSField("nave", "productionStart"),
-	getNSField("nave", "productionPeriod"),
-	getNSField("rdagr2", "dateOfBirth"),
-	getNSField("rdagr2", "dateOfDeath"),
-}
-
-// CleanDates modifies the Graph to only provide valid ISO dates
-func (fb *FragmentBuilder) CleanDates(t *r.Triple, g *r.Graph) bool {
-	for _, date := range dateFields {
-		p := strings.Trim(t.Predicate.String(), "<>")
-		if p == date {
-			g.AddTriple(
-				t.Subject,
-				r.NewResource(fmt.Sprintf("%sRaw", p)),
-				t.Object,
-			)
-			return true
-		}
-	}
-	return false
 }
 
 // ResourceSortOrder holds the sort keys
@@ -487,6 +456,7 @@ func CreateESAction(indexDoc map[string]interface{}, id string) (*elastic.BulkIn
 	r := elastic.NewBulkIndexRequest().
 		Index(v1Index).
 		Type("void_edmrecord").
+		RetryOnConflict(3).
 		Id(id).
 		Doc(indexDoc)
 	return r, nil

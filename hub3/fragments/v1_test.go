@@ -95,7 +95,7 @@ var _ = Describe("V1", func() {
 				Expect(indexDoc).ToNot(BeEmpty())
 				Expect(indexDoc).To(HaveKey("legacy"))
 				Expect(indexDoc).To(HaveKey("system"))
-				Expect(len(indexDoc)).To(Equal(43))
+				Expect(len(indexDoc)).To(Equal(44))
 			})
 
 			It("should return the MediaManagerUrl for a WebResource", func() {
@@ -158,6 +158,7 @@ var _ = Describe("V1", func() {
 			})
 
 			It("should cleanup the dates", func() {
+				Skip("must be added to a different part of the code base")
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				created := r.NewResource(getNSField("dcterms", "created"))
