@@ -27,8 +27,8 @@ import (
 	"strings"
 
 	"github.com/OneOfOne/xxhash"
-	r "github.com/deiu/rdf2go"
 	c "github.com/delving/rapid-saas/config"
+	r "github.com/kiivihal/rdf2go"
 	//elastic "github.com/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )

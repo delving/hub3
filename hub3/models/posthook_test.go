@@ -1,10 +1,11 @@
 package models
 
 import (
+	"fmt"
 	"io/ioutil"
 	"strings"
 
-	"github.com/deiu/rdf2go"
+	"github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -34,7 +35,10 @@ var _ = Describe("Posthook", func() {
 				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
 				Expect(posthook).ToNot(BeNil())
 				Expect(posthook.Graph.Len()).ToNot(Equal(0))
-				Expect(posthook.String()).To(ContainSubstring("brabant"))
+				jsonld, err := posthook.String()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(jsonld).To(ContainSubstring("brabant"))
+				fmt.Printf("json-ld content: %#v", jsonld)
 			})
 
 		})

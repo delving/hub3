@@ -22,8 +22,8 @@ import (
 	"log"
 	"net/url"
 
-	r "github.com/deiu/rdf2go"
 	c "github.com/delving/rapid-saas/config"
+	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

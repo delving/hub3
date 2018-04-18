@@ -1,5 +1,5 @@
-hash: a599354bc5b85f41d3535b3a3ce11cc520c3316d5e78f0b97499d02cc131ea81
-updated: 2018-04-18T10:43:59.798709206+02:00
+hash: 463bf8ac9b77ac5a58098796be5b3aeabc16f2e5f003005eb50ca6ce8ecfceb3
+updated: 2018-04-18T11:21:24.562569018+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
@@ -101,6 +101,8 @@ imports:
   version: 49a344e702a7f2949e94fc3ddceb99ea90c69162
   subpackages:
   - oai
+- name: github.com/kiivihal/rdf2go
+  version: 65514f656ff8fdb8f0f0a8549d82aa9a6a22f038
 - name: github.com/knakk/digest
   version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
 - name: github.com/knakk/rdf

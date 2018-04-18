@@ -22,7 +22,7 @@ import (
 
 	"os"
 
-	r "github.com/deiu/rdf2go"
+	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

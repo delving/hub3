@@ -51,3 +51,4 @@ import:
   subpackages:
   - retrier
 - package: gopkg.in/olivere/elastic.v5
+- package: github.com/kiivihal/rdf2go
