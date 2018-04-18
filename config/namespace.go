@@ -137,6 +137,11 @@ func SplitURI(uri string) (base string, name string) {
 
 // GetSearchLabel returns the search label for a Predicate URI
 func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
+	if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
+		if !strings.Contains(uri, "ebuCore_2014/") {
+			uri = strings.Replace(uri, "ebuCore_2014", "ebuCore_2014/", 1)
+		}
+	}
 	base, label := SplitURI(uri)
 	prefix, ok := n.GetPrefix(base)
 	if !ok {
