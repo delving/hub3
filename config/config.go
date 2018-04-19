@@ -103,6 +103,7 @@ type RDF struct {
 	// The entry-points need to be fully qualified, i.e. with their scheme.
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 	Tags              string   `json:"tags" mapstructure:"tags"`
+	DefaultFormat     string   `json:"defaultFormat"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -178,6 +179,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
+	viper.SetDefault("RDF.DefaultFormat", "application/ld+json")
 
 	// posthook
 	viper.SetDefault("PostHook.urls", []string{})

@@ -66,7 +66,9 @@ func afterFn(executionID int64, requests []elastic.BulkableRequest, response *el
 	log.Println("After processor")
 	if response.Errors {
 		log.Println("Errors in bulk request")
-		log.Printf("%#v", response.Failed())
+		for _, item := range response.Failed() {
+			log.Printf("errored item: %#v errors: %#v", item, item.Error)
+		}
 	}
 }
 

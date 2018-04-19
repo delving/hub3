@@ -317,7 +317,10 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
-	fb := action.createFragmentBuilder(response.SpecRevision)
+	fb, err := action.createFragmentBuilder(response.SpecRevision)
+	if err != nil {
+		return err
+	}
 	// cleanup the graph
 	fb.GetSortedWebResources()
 	var r *elastic.BulkIndexRequest
@@ -361,7 +364,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 	return nil
 }
 
-func (action BulkAction) createFragmentBuilder(revision int) *fragments.FragmentBuilder {
+func (action BulkAction) createFragmentBuilder(revision int) (*fragments.FragmentBuilder, error) {
 	fg := fragments.NewFragmentGraph()
 	fg.OrgID = c.Config.OrgID
 	fg.HubID = action.HubID
@@ -371,9 +374,13 @@ func (action BulkAction) createFragmentBuilder(revision int) *fragments.Fragment
 	fg.Tags = []string{"narthex", "mdr"}
 	fg.RDF = []byte(action.Graph)
 	fb := fragments.NewFragmentBuilder(fg)
-	//fb.ParseGraph(strings.NewReader(action.Graph), "text/turtle")
-	fb.ParseGraph(strings.NewReader(action.Graph), "application/ld+json")
-	return fb
+	mimeType := c.Config.RDF.DefaultFormat
+	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)
+	if err != nil {
+		log.Printf("Unable to parse the graph: %s", err)
+		return fb, fmt.Errorf("Source RDF is not in format: %s", mimeType)
+	}
+	return fb, nil
 }
 
 type fusekiStoreResponse struct {
