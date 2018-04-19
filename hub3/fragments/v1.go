@@ -297,7 +297,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 		}
 		if len(subj.String()) > 0 {
 			if i == 0 {
-				fb.AddDefaults(r.NewResource(s.CleanKey()), cleanGraph)
+				fb.AddDefaults(r.NewResource(s.CleanKey()), subj, cleanGraph)
 			}
 			hasView := r.NewTriple(
 				subj,
@@ -331,12 +331,12 @@ func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 	return nil
 }
 
-func (fb *FragmentBuilder) AddDefaults(s r.Term, g *r.Graph) {
-	isShownBy := fb.GetObject(s, getNaveField("thumbLarge"))
+func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *r.Graph) {
+	isShownBy := fb.GetObject(wr, getNaveField("thumbLarge"))
 	if isShownBy != nil {
 		g.AddTriple(s, getEDMField("isShownBy"), isShownBy)
 	}
-	object := fb.GetObject(s, getNaveField("thumbSmall"))
+	object := fb.GetObject(wr, getNaveField("thumbSmall"))
 	if object != nil {
 		g.AddTriple(s, getEDMField("object"), isShownBy)
 	}

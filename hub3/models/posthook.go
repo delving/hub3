@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/gammazero/workerpool"
@@ -53,6 +54,7 @@ func ApplyPostHookJob(ph *PostHookJob) {
 	for _, u := range c.Config.PostHook.URLs {
 		err := ph.Post(u)
 		if err != nil {
+			log.Println(err)
 			log.Printf("Unable to send %s to %s", ph.Subject, u)
 		}
 	}
@@ -65,47 +67,38 @@ func (ph PostHookJob) Post(url string) error {
 		log.Printf("Deleting via posthook: %s", ph.Subject)
 		deleteURL := fmt.Sprintf("%s/delete", url)
 		req := request.Delete(deleteURL).
-			Query(fmt.Sprintf("id=%s", ph.Subject))
-			//Retry(3, 5*time.Second, http.StatusBadRequest, http.StatusInternalServerError, http.StatusRequestTimeout).
-		log.Printf("%v", req)
+			Query(fmt.Sprintf("id=%s", ph.Subject)).
+			Retry(3, 5*time.Second, http.StatusBadRequest, http.StatusInternalServerError, http.StatusRequestTimeout)
+		//log.Printf("%v", req)
 		rsp, body, errs := req.End()
-		log.Printf("%#v -> %#v", rsp, body)
-		if errs != nil {
+		if errs != nil || rsp.StatusCode != http.StatusNoContent {
+			log.Printf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
 			log.Printf("Unable to delete: %#v", errs)
-			return errs[0]
+			return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 		}
+		log.Printf("Deleted %s\n", ph.Subject)
 		return nil
 	}
-	//log.Printf("Storing %s", ph.Subject)
 	json, err := ph.String()
+
 	if err != nil {
 		return err
 	}
 
 	rsp, body, errs := request.Post(url).
+		Set("Content-Type", "application/json-ld; charset=utf-8").
 		Type("text").
 		Send(json).
-		// TODO enable retry later
-		//Retry(3, 5*time.Second, http.StatusBadRequest, http.StatusInternalServerError, http.StatusRequestTimeout).
+		Retry(3, 5*time.Second, http.StatusBadRequest, http.StatusInternalServerError, http.StatusRequestTimeout).
 		End()
-	// TODO disable verbose logging later
-	log.Printf("%#v -> %#v\n %#v", rsp, body, errs)
-	if errs != nil || rsp.StatusCode != http.StatusNoContent {
+	if errs != nil || rsp.StatusCode != http.StatusOK {
+		log.Printf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
 		log.Printf("Unable to store: %#v", errs)
 		return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 	}
-	log.Printf("Stored %s", ph.Subject)
+	log.Printf("Stored %s\n", ph.Subject)
 	return nil
 }
-
-// TODO remove later. Use r.Graph directl
-//func (ph PostHookJob) getDataset() (*ld.Dataset, error) {
-//dataset, err := ld.ParseDataset(ph.RDF)
-//if err != nil {
-//return nil, err
-//}
-//return dataset, nil
-//}
 
 var (
 	ns = struct {
@@ -156,32 +149,10 @@ func cleanDates(g *r.Graph, t *r.Triple) bool {
 	return false
 }
 
-//func AppendTriple(ds *ld.Dataset, triple *ld.Triple) {
-//graph := "@default"
-//ds.Graphs[graph] = append(ds.Graphs[graph], triple)
-//}
-
-// CleanDataset updates modifies the Graph to only provide valid ISO dates
-//func cleanDataset(ds *ld.Dataset) (*ld.Dataset, error) {
-//newDS := ld.NewDataset()
-//for triple := range ds.IterTriples() {
-//if !cleanDates(newDS, triple) {
-//AppendTriple(newDS, triple)
-//}
-
-//}
-//return newDS, nil
-//}
-
-// String returns a string representation of the JSON-LD dataset
-//func (ph PostHookJob) String(ds *ld.Dataset) string {
-//return ds.Serialize()
-//}
-
 // Bytes returns the PostHookJob as an JSON-LD bytes.Buffer
 func (ph PostHookJob) Bytes() (bytes.Buffer, error) {
 	var b bytes.Buffer
-	err := ph.Graph.Serialize(&b, "application/ld+json")
+	err := ph.Graph.SerializeFlatJSONLD(&b)
 	if err != nil {
 		return b, err
 	}
