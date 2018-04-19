@@ -1,5 +1,5 @@
-hash: 463bf8ac9b77ac5a58098796be5b3aeabc16f2e5f003005eb50ca6ce8ecfceb3
-updated: 2018-04-18T11:21:24.562569018+02:00
+hash: 191c7c16d1ab4e607a4cac8462e461e5502857f2871591eeeaf133f52820700c
+updated: 2018-04-19T01:50:44.71553588+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
@@ -97,12 +97,16 @@ imports:
   - json/token
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
+- name: github.com/kazarena/json-gold
+  version: d724c3337ae7cffc4ab830902c4af587ad725a9c
+  subpackages:
+  - ld
 - name: github.com/kiivihal/goharvest
   version: 49a344e702a7f2949e94fc3ddceb99ea90c69162
   subpackages:
   - oai
 - name: github.com/kiivihal/rdf2go
-  version: 65514f656ff8fdb8f0f0a8549d82aa9a6a22f038
+  version: 5c7df2a30add20a9353324ff72e3b4ac56ec0e17
 - name: github.com/knakk/digest
   version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
 - name: github.com/knakk/rdf
@@ -313,7 +317,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 6e5192d28c2b6a60ea6c2d6fbf1e128b0a65ee3d
+  version: d27df52a27ae0f6e08b19846f31eaf7d86e6bfa4
   subpackages:
   - balancer
   - balancer/base
