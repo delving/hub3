@@ -74,13 +74,13 @@ var _ = Describe("Sparql", func() {
 				}
 				Expect(err).To(BeNil())
 				Expect(res).ToNot(BeNil())
-				fmt.Printf("results: %#v", res.Results)
-				fmt.Println(res.Results.Bindings)
+				//fmt.Printf("results: %#v", res.Results)
+				//fmt.Println(res.Results.Bindings)
 				for i, m := range res.Results.Bindings {
 					s := m["s"]
 					fmt.Printf("%d %s %s\n", i, s.Type, s.Value)
 				}
-				fmt.Println(res.Results.Bindings)
+				//fmt.Println(res.Results.Bindings)
 			})
 		})
 

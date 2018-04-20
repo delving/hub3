@@ -79,6 +79,7 @@ func (ph PostHookJob) Post(url string) error {
 		log.Printf("Deleted %s\n", ph.Subject)
 		return nil
 	}
+	ph.cleanPostHookGraph()
 	json, err := ph.String()
 
 	if err != nil {
@@ -91,9 +92,11 @@ func (ph PostHookJob) Post(url string) error {
 		Send(json).
 		Retry(3, 5*time.Second, http.StatusBadRequest, http.StatusInternalServerError, http.StatusRequestTimeout).
 		End()
+	//fmt.Printf("jsonld: %s\n", json)
 	if errs != nil || rsp.StatusCode != http.StatusOK {
 		log.Printf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
 		log.Printf("Unable to store: %#v", errs)
+		log.Printf("JSON-LD: %s\n", json)
 		return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 	}
 	log.Printf("Stored %s\n", ph.Subject)
@@ -147,6 +150,17 @@ func cleanDates(g *r.Graph, t *r.Triple) bool {
 		}
 	}
 	return false
+}
+
+// cleanPostHookGraph applies post hook clean actions to the graph
+func (ph PostHookJob) cleanPostHookGraph() {
+	newGraph := r.NewGraph("")
+	for t := range ph.Graph.IterTriples() {
+		if !cleanDates(newGraph, t) {
+			newGraph.Add(t)
+		}
+	}
+	ph.Graph = newGraph
 }
 
 // Bytes returns the PostHookJob as an JSON-LD bytes.Buffer

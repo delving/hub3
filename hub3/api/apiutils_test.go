@@ -1,7 +1,6 @@
 package api_test
 
 import (
-	fmt "fmt"
 	"testing"
 
 	c "github.com/delving/rapid-saas/config"
@@ -47,7 +46,6 @@ var _ = Describe("Apiutils", func() {
 					FacetLimit:   int32(100),
 				}
 				output, err := SearchRequestToHex(sr)
-				fmt.Println(output)
 				Expect(err).ToNot(HaveOccurred())
 				input := "0a12526170696420526f636b732047c3b6c3b66418145864"
 				Expect(output).To(Equal(input))

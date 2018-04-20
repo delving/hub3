@@ -15,6 +15,8 @@
 package fragments
 
 import (
+	"bytes"
+	fmt "fmt"
 	"math/rand"
 	"strings"
 
@@ -35,6 +37,15 @@ func getTestGraph() (*r.Graph, error) {
 	}
 	g, err := NewGraphFromTurtle(turtle)
 	return g, err
+}
+
+func renderJSONLD(g *r.Graph) (string, error) {
+	var b bytes.Buffer
+	err := g.SerializeFlatJSONLD(&b)
+	if err != nil {
+		return "", err
+	}
+	return b.String(), nil
 }
 
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -157,6 +168,48 @@ var _ = Describe("V1", func() {
 				Expect(urns).To(HaveLen(3))
 			})
 
+			It("should have the ore:aggregation subject as subject for edm:hasView", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				wr := fb.GetSortedWebResources()
+				Expect(wr).ToNot(BeEmpty())
+				triples := fb.Graph.All(nil, getEDMField("hasView"), nil)
+				Expect(triples).ToNot(BeNil())
+				Expect(triples).To(HaveLen(3))
+				//fmt.Printf("%#v\n", triples[0].String())
+				triples = fb.Graph.All(nil, getEDMField("isShownBy"), nil)
+				Expect(triples).ToNot(BeNil())
+				Expect(triples).To(HaveLen(1))
+				triple := triples[0]
+				//fmt.Println(triple)
+				Expect(triple.Subject.(*r.Resource).RawValue()).To(HaveSuffix("F900893"))
+			})
+
+			It("should rerender blanknodes in cleaned up graph", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				graphLength := fb.Graph.Len()
+				Expect(graphLength).To(Equal(65))
+				//json, err := renderJSONLD(fb.Graph)
+				//Expect(err).ToNot(HaveOccurred())
+				//fmt.Println(json)
+
+				wr := fb.GetSortedWebResources()
+				Expect(wr).ToNot(BeEmpty())
+				Expect(fb.Graph.Len()).To(Equal(67))
+
+				// have brabantcloud resource
+				bType := r.NewResource("http://schemas.delving.eu/nave/terms/BrabantCloudResource")
+				tRaw := fb.Graph.One(nil, nil, bType)
+				Expect(tRaw).ToNot(BeNil())
+				//fmt.Printf("raw resource: %#v", tRaw.String())
+
+				//json, err = renderJSONLD(fb.Graph)
+				//Expect(err).ToNot(HaveOccurred())
+				//fmt.Println(json)
+
+			})
+
 			It("should cleanup the dates", func() {
 				Skip("must be added to a different part of the code base")
 				fb, err := testDataGraph(false)
@@ -167,7 +220,7 @@ var _ = Describe("V1", func() {
 				fb.GetSortedWebResources()
 				t = fb.Graph.One(nil, created, nil)
 				Expect(t).To(BeNil())
-				createdRaw := r.NewResource(getNSField("dcterms", "createdRaw"))
+				createdRaw := r.NewResource(getNSField("dcterms", "createdRaw1"))
 				tRaw := fb.Graph.One(nil, createdRaw, nil)
 				Expect(tRaw).ToNot(BeNil())
 			})
@@ -182,7 +235,7 @@ var _ = Describe("V1", func() {
 		t := r.NewTriple(
 			r.NewResource("urn:1"),
 			r.NewResource(dcSubject),
-			r.NewBlankNode(0),
+			r.NewBlankNode("0"),
 		)
 		It("should identify an resource", func() {
 			ie, err := CreateV1IndexEntry(t)

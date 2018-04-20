@@ -475,7 +475,7 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 
 		// Send the hits to the hits channel
 		for _, hit := range results.Hits.Hits {
-			log.Printf("%#v", hit.Id)
+			//log.Printf("%#v", hit.Id)
 			item := make(map[string]interface{})
 			err := json.Unmarshal(*hit.Source, &item)
 			if err != nil {
@@ -484,6 +484,8 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 			}
 			id := item["entryURI"]
 			spec := item["spec"]
+			revision := item["revision"]
+			log.Printf("ph queue for %s with revision %f", spec, revision)
 			if id != nil {
 				ds := string(spec.(string))
 				uri := string(id.(string))
@@ -525,7 +527,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		}
 	}
 
-	logger.Infof("%#v", q)
+	//logger.Infof("%#v", q)
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).

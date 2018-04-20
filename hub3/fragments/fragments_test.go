@@ -80,13 +80,13 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	fg := testFragmentGraph(spec, rev, ng)
 	fg.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
 	fb := NewFragmentBuilder(fg)
-	dat, err := ioutil.ReadFile("test_data/test2.ttl")
+	dat, err := ioutil.ReadFile("test_data/enb_test_2.jsonld")
 	if err != nil {
 		return fb, err
 	}
 	fg.RDF = dat
 	if !empty {
-		fb.ParseGraph(bytes.NewReader(fg.RDF), "text/turtle")
+		fb.ParseGraph(bytes.NewReader(fg.RDF), "application/ld+json")
 	}
 	return fb, nil
 }

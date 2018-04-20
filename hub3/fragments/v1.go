@@ -170,7 +170,7 @@ func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 		return g, err
 	}
 	if g.Len() == 0 {
-		log.Println("No triples were added to the graph")
+		//log.Println("No triples were added to the graph")
 		return g, fmt.Errorf("no triples were added to the graph")
 	}
 	return g, nil
@@ -240,7 +240,11 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 	resources := make(map[string]int)
 	cleanGraph := r.NewGraph("")
 
-	graphType := fb.Graph.One(nil, r.NewResource("http://www.openarchives.org/ore/terms/Aggregation"), nil)
+	graphType := fb.Graph.One(
+		nil,
+		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+		r.NewResource("http://www.openarchives.org/ore/terms/Aggregation"),
+	)
 	subj := r.NewResource("")
 	if graphType != nil {
 		subj = graphType.Subject
@@ -267,6 +271,8 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 					}
 					cleanGraph.Add(triple)
 				}
+			} else {
+				cleanGraph.Add(triple)
 			}
 		case getEDMField("hasView").String(), getEDMField("isShownBy").String(), getEDMField("object").String():
 			break

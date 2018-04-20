@@ -207,6 +207,12 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
+		//err := action.p.Flush()
+		//if err != nil {
+		//log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
+		//return err
+		//}
+		//log.Printf("Flushed remaining items on the index queue.")
 		ok, err := ds.DropOrphans(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)

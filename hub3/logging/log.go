@@ -36,7 +36,7 @@ func NewLogger() *logrus.Logger {
 func addSentry(logger *logrus.Logger) {
 	dsn := config.Config.Logging.SentryDSN
 	if dsn != "" {
-		logger.WithField("dsn", dsn).Infoln("Adding Sentry logging hook.")
+		//logger.WithField("dsn", dsn).Infoln("Adding Sentry logging hook.")
 		hook, err := logrus_sentry.NewSentryHook(dsn, []logrus.Level{
 			logrus.PanicLevel,
 			logrus.FatalLevel,

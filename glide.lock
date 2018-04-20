@@ -1,10 +1,10 @@
 hash: 191c7c16d1ab4e607a4cac8462e461e5502857f2871591eeeaf133f52820700c
-updated: 2018-04-19T01:50:44.71553588+02:00
+updated: 2018-04-20T13:44:15.541166089+02:00
 imports:
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/araddon/dateparse
-  version: d5da6dcdf66ed1d1ff88e61ae8057bb69586fea4
+  version: 4b079c6fdd8d7d3e224357566f278da3c159f441
 - name: github.com/asdine/storm
   version: 255212403bcca439778718edf5e2d3d50744eca3
   subpackages:
@@ -106,7 +106,7 @@ imports:
   subpackages:
   - oai
 - name: github.com/kiivihal/rdf2go
-  version: 5c7df2a30add20a9353324ff72e3b4ac56ec0e17
+  version: 95379ff05f875076595d49602022968704cde47c
 - name: github.com/knakk/digest
   version: fd45becddc49e7c583e46de4af3b9b3b37e629e3
 - name: github.com/knakk/rdf
@@ -317,7 +317,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: d27df52a27ae0f6e08b19846f31eaf7d86e6bfa4
+  version: 4172bfc25e1c7dc4265a50b3ba73e87401fb75c1
   subpackages:
   - balancer
   - balancer/base
