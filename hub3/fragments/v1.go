@@ -383,6 +383,7 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	indexDoc := make(map[string]interface{})
 	// todo create NS from predicate map
+	// TODO create a loop for label lookups. create new function
 	for t := range fb.Graph.IterTriples() {
 		searchLabel, err := GetFieldKey(t)
 		if err != nil {
@@ -442,6 +443,8 @@ func CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
 		if len(ie.Raw) > 256 {
 			ie.Raw = value[:256]
 		}
+		// replace double quotes a single quote
+		ie.Raw = strings.Replace(ie.Raw, "\"", "'", -1)
 		l := t.Object.(*r.Literal)
 		ie.Language = l.Language
 	case *r.BlankNode:
