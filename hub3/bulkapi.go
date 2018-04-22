@@ -327,8 +327,14 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 	if err != nil {
 		return err
 	}
-	// cleanup the graph
+	// get remote webresources
+	err = fb.ResolveWebResources()
+	if err != nil {
+		return err
+	}
+	// cleanup the graph and sort rdf webresources
 	fb.GetSortedWebResources()
+
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {
 		indexDoc, err := fragments.CreateV1IndexDoc(fb)
