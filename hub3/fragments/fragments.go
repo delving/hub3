@@ -132,6 +132,15 @@ func (fb *FragmentBuilder) CreateLinkedFragments() error {
 	return nil
 }
 
+func (fb *FragmentBuilder) GetRDF() ([]byte, error) {
+	var b bytes.Buffer
+	err := fb.Graph.SerializeFlatJSONLD(&b)
+	if err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
+}
+
 // CreateFragments creates and stores all the fragments
 func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool) error {
 	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {

@@ -120,7 +120,12 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	nowString := fmt.Sprintf(now.Format(time.RFC3339))
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
-	s.SourceGraph = string(fb.fg.GetRDF())
+	rdf, err := fb.GetRDF()
+	if err == nil {
+		s.SourceGraph = string(rdf)
+	} else {
+		log.Println("Unable to add RDF for %s", fb.fg.GetHubID())
+	}
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
 	// s.ContentHash
