@@ -229,10 +229,17 @@ func (fb *FragmentBuilder) GetUrns() []string {
 // ResolveWebResources retrieves RDF graph from remote MediaManager
 // Only RDF Resources that start with 'urn:' are currently supported
 func (fb *FragmentBuilder) ResolveWebResources() error {
+	errChan := make(chan error)
+
 	urns := fb.GetUrns()
 	for _, urn := range urns {
-		err := fb.GetRemoteWebResource(urn, "")
-		if err != nil {
+		go fb.GetRemoteWebResource(urn, "", errChan)
+	}
+	totalUrns := len(urns)
+	for i := 0; i < totalUrns; i++ {
+		select {
+		case err := <-errChan:
+			log.Printf("Error resolving webresources for: %v: %v\n", urns, err)
 			return err
 		}
 	}
@@ -355,20 +362,20 @@ func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *r.Graph) {
 
 // GetRemoteWebResource retrieves a remote Graph from the MediaManare and
 // inserts it into the Graph
-func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string) error {
+func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string, errChan chan error) {
 	if strings.HasPrefix(urn, "urn:") {
 		url := fb.MediaManagerURL(urn, orgID)
 		request := gorequest.New()
 		resp, _, errs := request.Get(url).End()
 		if errs != nil {
-			return errs[0]
+			errChan <- errs[0]
+			return
 		}
 		err := fb.Graph.Parse(resp.Body, "text/turtle")
-		if err != nil {
-			return err
-		}
+		errChan <- err
+		return
 	}
-	return nil
+	return
 }
 
 // MediaManagerURL returns the URL for the Remote WebResource call.
