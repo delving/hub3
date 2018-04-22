@@ -40,7 +40,6 @@ func (rs SearchResource) Routes() chi.Router {
 	r.Get("/v2", getSearchResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
-		render.PlainText(w, r, `{"status": "not enabled"}`)
 		return
 	})
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
