@@ -16,7 +16,7 @@ package fragments
 
 import (
 	"bytes"
-	fmt "fmt"
+	"io/ioutil"
 	"math/rand"
 	"strings"
 
@@ -207,6 +207,27 @@ var _ = Describe("V1", func() {
 				//json, err = renderJSONLD(fb.Graph)
 				//Expect(err).ToNot(HaveOccurred())
 				//fmt.Println(json)
+
+			})
+
+			It("should produce valid json-ld", func() {
+				g := r.NewGraph("")
+				dat, err := ioutil.ReadFile("test_data/test_nave_normalised.jsonld")
+				Expect(err).ToNot(HaveOccurred())
+				err = g.Parse(bytes.NewReader(dat), "application/ld+json")
+				Expect(err).ToNot(HaveOccurred())
+				json, err := renderJSONLD(g)
+				Expect(err).ToNot(HaveOccurred())
+				//fmt.Printf("jsonld_1: %s\n", json)
+
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				fb.Graph = g
+				fb.GetSortedWebResources()
+				json, err = renderJSONLD(fb.Graph)
+				Expect(err).ToNot(HaveOccurred())
+				//fmt.Printf("jsonld_2: %s\n", json)
+				// todo add diff between two versions of the json
 
 			})
 
