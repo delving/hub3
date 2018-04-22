@@ -49,8 +49,9 @@ const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // FragmentBuilder holds all the information to build and store Fragments
 type FragmentBuilder struct {
-	fg    *FragmentGraph
-	Graph *r.Graph
+	fg             *FragmentGraph
+	Graph          *r.Graph
+	ResourceLabels map[string]string
 }
 
 // FragmentGraph gives access to the FragmentGraph object from the Builder struct
@@ -61,8 +62,9 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 // NewFragmentBuilder creates a new instance of the FragmentBuilder
 func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 	return &FragmentBuilder{
-		fg:    fg,
-		Graph: r.NewGraph(""),
+		fg:             fg,
+		Graph:          r.NewGraph(""),
+		ResourceLabels: map[string]string{},
 	}
 }
 
@@ -124,6 +126,7 @@ func (fb *FragmentBuilder) CreateLinkedFragments() error {
 	log.Println("Start iterating")
 	// Add channel
 	for _, subject := range fb.Graph.All(nil, r.NewResource(RDFType), r.NewResource(fb.fg.GetEntryURI())) {
+		// TODO: remove print statement
 		log.Println(subject)
 	}
 	return nil

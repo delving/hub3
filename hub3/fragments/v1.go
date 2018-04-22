@@ -379,11 +379,36 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 	)
 }
 
+func (fb *FragmentBuilder) GetResourceLabel(t *r.Triple) (string, bool) {
+	switch t.Object.(type) {
+	case *r.Resource:
+		id := r.GetResourceID(t.Object)
+		label, ok := fb.ResourceLabels[id]
+		return label, ok
+	}
+	return "", false
+}
+
+// SetResourceLabels extracts resource labels from the graph which is used for
+// presenting labels for Triple.Object instances that are resources.
+func (fb *FragmentBuilder) SetResourceLabels() error {
+	prefLabel := r.NewResource("http://www.w3.org/2004/02/skos/core#prefLabel")
+	for _, t := range fb.Graph.All(nil, prefLabel, nil) {
+		fb.ResourceLabels[t.GetSubjectID()] = t.Object.(*r.Literal).RawValue()
+	}
+	return nil
+}
+
 // CreateV1IndexDoc creates a map that can me marshaled to json
 func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	indexDoc := make(map[string]interface{})
-	// todo create NS from predicate map
-	// TODO create a loop for label lookups. create new function
+
+	// set the resourceLabels
+	err := fb.SetResourceLabels()
+	if err != nil {
+		return indexDoc, err
+	}
+
 	for t := range fb.Graph.IterTriples() {
 		searchLabel, err := GetFieldKey(t)
 		if err != nil {
@@ -395,7 +420,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		if !ok {
 			fields = []*IndexEntry{}
 		}
-		entry, err := CreateV1IndexEntry(t)
+		entry, err := fb.CreateV1IndexEntry(t)
 		if err != nil {
 			return indexDoc, err
 		}
@@ -422,16 +447,21 @@ func GetFieldKey(t *r.Triple) (string, error) {
 }
 
 // CreateV1IndexEntry creates an IndexEntry from a r.Triple
-func CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
+func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
 	ie := &IndexEntry{}
 
 	switch t.Object.(type) {
 	case *r.Resource:
 		ie.Type = "URIRef"
 		ie.ID = t.Object.RawValue()
-		// todo replace with getLabel
-		ie.Value = t.Object.RawValue()
-		ie.Raw = t.Object.RawValue()
+		label, ok := fb.GetResourceLabel(t)
+		if ok {
+			ie.Value = label
+			ie.Raw = label
+		} else {
+			ie.Value = t.Object.RawValue()
+			ie.Raw = t.Object.RawValue()
+		}
 	case *r.Literal:
 		ie.Type = "Literal"
 		value := t.Object.RawValue()

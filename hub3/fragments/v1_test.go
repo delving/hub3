@@ -218,6 +218,7 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				json, err := renderJSONLD(g)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(json).ToNot(BeEmpty())
 				//fmt.Printf("jsonld_1: %s\n", json)
 
 				fb, err := testDataGraph(false)
@@ -226,6 +227,7 @@ var _ = Describe("V1", func() {
 				fb.GetSortedWebResources()
 				json, err = renderJSONLD(fb.Graph)
 				Expect(err).ToNot(HaveOccurred())
+				Expect(json).ToNot(BeEmpty())
 				//fmt.Printf("jsonld_2: %s\n", json)
 				// todo add diff between two versions of the json
 
@@ -258,8 +260,11 @@ var _ = Describe("V1", func() {
 			r.NewResource(dcSubject),
 			r.NewBlankNode("0"),
 		)
+		fb, err := testDataGraph(false)
+
 		It("should identify an resource", func() {
-			ie, err := CreateV1IndexEntry(t)
+			Expect(err).ToNot(HaveOccurred())
+			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("Bnode"))
@@ -278,8 +283,12 @@ var _ = Describe("V1", func() {
 			r.NewResource(dcSubject),
 			r.NewResource("urn:rapid"),
 		)
+		fb, _ := testDataGraph(false)
+		err := fb.SetResourceLabels()
+
 		It("should identify an resource", func() {
-			ie, err := CreateV1IndexEntry(t)
+			Expect(err).ToNot(HaveOccurred())
+			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("URIRef"))
@@ -288,9 +297,65 @@ var _ = Describe("V1", func() {
 			Expect(ie.Raw).To(Equal("urn:rapid"))
 		})
 
+		It("should add label when a resource object has a skos:prefLabel", func() {
+
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource(dcSubject),
+				r.NewResource("http://data.jck.nl/resource/skos/thesau/90073896"),
+			)
+			ie, err := fb.CreateV1IndexEntry(t)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ie).ToNot(BeNil())
+			Expect(ie.Type).To(Equal("URIRef"))
+			Expect(ie.ID).To(Equal("http://data.jck.nl/resource/skos/thesau/90073896"))
+			Expect(ie.Value).To(Equal("begraafplaats"))
+			Expect(ie.Raw).To(Equal("begraafplaats"))
+
+		})
+
 	})
 
-	Context("when creating an IndexEntry from a resource", func() {
+	Context("when creating a context inline map", func() {
+
+		fb, err := testDataGraph(false)
+
+		It("should extract all prefLabels", func() {
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fb.Graph).ToNot(BeNil())
+			Expect(fb.ResourceLabels).To(BeEmpty())
+			err := fb.SetResourceLabels()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fb.ResourceLabels).ToNot(BeEmpty())
+			Expect(fb.ResourceLabels).To(HaveLen(5))
+		})
+
+		It("should get a label if exists", func() {
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource("urn:subject"),
+				r.NewResource("http://data.jck.nl/resource/skos/thesau/90073896"),
+			)
+			label, ok := fb.GetResourceLabel(t)
+			Expect(label).ToNot(BeEmpty())
+			Expect(ok).To(BeTrue())
+			Expect(label).To(Equal("begraafplaats"))
+		})
+
+		It("should return not ok when no label is present", func() {
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource("urn:subject"),
+				r.NewResource("http://data.jck.nl/resource/skos/thesau/none"),
+			)
+			label, ok := fb.GetResourceLabel(t)
+			Expect(label).To(BeEmpty())
+			Expect(ok).To(BeFalse())
+		})
+
+	})
+
+	Context("when creating an IndexEntry from a literal", func() {
 
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 
@@ -299,7 +364,8 @@ var _ = Describe("V1", func() {
 			r.NewResource(dcSubject),
 			r.NewLiteralWithLanguage("rapid", "nl"),
 		)
-		ie, err := CreateV1IndexEntry(t)
+		fb, _ := testDataGraph(false)
+		ie, err := fb.CreateV1IndexEntry(t)
 
 		It("should identify an Literal", func() {
 			Expect(err).ToNot(HaveOccurred())
@@ -317,7 +383,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := CreateV1IndexEntry(t)
+			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Raw).To(HaveLen(256))
@@ -332,7 +398,7 @@ var _ = Describe("V1", func() {
 				r.NewResource(dcSubject),
 				r.NewLiteralWithLanguage(rString, "nl"),
 			)
-			ie, err := CreateV1IndexEntry(t)
+			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie.Raw).To(HaveLen(256))
 			Expect(ie.Value).To(HaveLen(32000))
