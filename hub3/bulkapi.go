@@ -328,9 +328,11 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		return err
 	}
 	// get remote webresources
-	err = fb.ResolveWebResources()
-	if err != nil {
-		return err
+	if c.Config.WebResource.ResolveWebResources {
+		err = fb.ResolveWebResources()
+		if err != nil {
+			return err
+		}
 	}
 	// cleanup the graph and sort rdf webresources
 	fb.GetSortedWebResources()
