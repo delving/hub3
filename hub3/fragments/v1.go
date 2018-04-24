@@ -385,7 +385,7 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 	}
 	return fmt.Sprintf(
 		"%s/api/webresource/%s/%s",
-		"http://media.delving.org",
+		c.Config.WebResource.MediaManagerHost,
 		orgID,
 		urn,
 	)
