@@ -155,24 +155,6 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 			return response, errs[0]
 		}
 	}
-	//if response.TotalReceived > 1 && response.TotalReceived < 100 {
-	//newFile, err := os.Create("/tmp/narthex_error.txt")
-	//if err != nil {
-	//return response, fmt.Errorf("Can't create error file.")
-	//}
-	//defer newFile.Close()
-	//_, err = io.Copy(newFile, r)
-	//if err != nil {
-	//return response, fmt.Errorf("Can't create error file.")
-	//}
-	//err = newFile.Sync()
-	//if err != nil {
-	//return response, fmt.Errorf("Can't create error file.")
-	//}
-
-	//log.Printf("received: %d", response.TotalReceived)
-	//return response, fmt.Errorf("Error with line count.")
-	//}
 	log.Printf("%#v", response)
 	return response, nil
 
@@ -328,7 +310,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		return err
 	}
 	// get remote webresources
-	if c.Config.WebResource.ResolveWebResources {
+	if c.Config.WebResource.ResolveRemoteWebResources {
 		err = fb.ResolveWebResources()
 		if err != nil {
 			return err

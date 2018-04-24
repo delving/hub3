@@ -127,7 +127,7 @@ type WebResource struct {
 	MediumDefault             string `json:"mediumDefault"`
 	LargeDefault              string `json:"largeDefault"`
 	MaxSize                   int32  `json:"maxSize"`
-	ResolveRemoteWebresources bool   `json:"resolveRemoteWebresources"`
+	ResolveRemoteWebResources bool   `json:"resolveRemoteWebResources"`
 }
 
 // ImageProxy holds all the configuration for the ImageProxy functionality
@@ -206,7 +206,7 @@ func setDefaults() {
 	viper.SetDefault("WebResource.WebResourceDir", "/tmp/webresource")
 	viper.SetDefault("WebResource.CacheResourceDir", "/tmp/webresource_cache")
 	viper.SetDefault("WebResource.enableSearch", false)
-	viper.SetDefault("WebResource.resolveRemoteWebresources", false)
+	viper.SetDefault("WebResource.resolveRemoteWebResources", false)
 	viper.SetDefault("WebResource.mediaManagerHost", "https://media.delving.org")
 	viper.SetDefault("WebResource.SmallDefault", "220")
 	viper.SetDefault("WebResource.MediumDefault", "350")

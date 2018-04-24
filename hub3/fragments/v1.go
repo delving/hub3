@@ -252,6 +252,8 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 	resources := make(map[string]int)
 	cleanGraph := r.NewGraph("")
 
+	hasUrns := len(fb.GetUrns()) > 0
+
 	graphType := fb.Graph.One(
 		nil,
 		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
@@ -286,8 +288,13 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			} else {
 				cleanGraph.Add(triple)
 			}
-		case getEDMField("hasView").String(), getEDMField("isShownBy").String(), getEDMField("object").String():
+		case getEDMField("hasView").String():
 			break
+		case getEDMField("isShownBy").String(), getEDMField("object").String():
+			if hasUrns {
+				break
+			}
+			fallthrough
 		//g.Remove(triple)
 		//case getNaveField("thumbSmall").String(), getNaveField("thumbnail").String(), getNaveField("thumbLarge").String():
 		//fb.Graph.Remove(triple)
@@ -314,7 +321,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			ss[i].Value = i + 1
 		}
 		if len(subj.String()) > 0 {
-			if i == 0 {
+			if i == 0 && hasUrns {
 				fb.AddDefaults(r.NewResource(s.CleanKey()), subj, cleanGraph)
 			}
 			hasView := r.NewTriple(
