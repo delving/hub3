@@ -138,9 +138,9 @@ func SplitURI(uri string) (base string, name string) {
 // GetSearchLabel returns the search label for a Predicate URI
 func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
 	if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
-		if !strings.Contains(uri, "ebuCore_2014/") {
-			uri = strings.Replace(uri, "ebuCore_2014", "ebuCore_2014/", 1)
-		}
+		uri = strings.TrimLeft(uri, "urn:ebu:metadata-schema:ebuCore_2014")
+		uri = strings.TrimLeft(uri, "/")
+		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
 	}
 	base, label := SplitURI(uri)
 	prefix, ok := n.GetPrefix(base)
@@ -162,7 +162,7 @@ var defaultNameSpaces = map[string]string{
 	"devmode":     "http://localhost:8000/resource/",
 	"edm":         "http://www.europeana.eu/schemas/edm/",
 	"europeana":   "http://www.europeana.eu/schemas/ese/",
-	"ebucore":     "urn:ebu:metadata-schema:ebuCore_2014/",
+	"ebucore":     "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#",
 	"foaf":        "http://xmlns.com/foaf/0.1/",
 	"gn":          "http://www.geonames.org/ontology#",
 	"icn":         "http://www.icn.nl/schemas/icn/",
