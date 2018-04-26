@@ -76,6 +76,12 @@ type ElasticSearch struct {
 	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing
 	EnableTrace bool     `json:"enableTrace"`
 	SpecKey     string   `json:"specKey"`
+	UserName    string   `json:"userName"`
+	Password    string   `json:"password"`
+}
+
+func (es ElasticSearch) HasAuthentication() bool {
+	return len(es.UserName) > 0 && len(es.Password) > 0
 }
 
 // Logging holds all the logging and path configuration

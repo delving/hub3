@@ -107,7 +107,10 @@ func createESClient() *elastic.Client {
 	}
 
 	// TODO: add this from the configuration later
-	//elastic.SetBasicAuth("elastic", "changeme"),
+	if config.Config.ElasticSearch.HasAuthentication() {
+		es := config.Config.ElasticSearch
+		options = append(options, elastic.SetBasicAuth(es.UserName, es.Password))
+	}
 	if config.Config.ElasticSearch.EnableTrace {
 		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
 	}
