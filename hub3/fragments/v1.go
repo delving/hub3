@@ -451,6 +451,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		Raw:   fb.fg.GetSpec(),
 	}
 	indexDoc["spec"] = fb.fg.GetSpec()
+	indexDoc["orgID"] = fb.fg.GetOrgID()
 	indexDoc["entryURI"] = fb.fg.GetAboutURI()
 	indexDoc["revision"] = fb.fg.GetRevision()
 	indexDoc["hubID"] = fb.fg.GetHubID()
@@ -563,7 +564,7 @@ var V1ESMapping = `
         "_default_":
             {
                 "_all": {
-                    "enabled": "false"
+                    "enabled": "true"
                 },
                 "date_detection": "false",
                 "properties": {

@@ -457,6 +457,8 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 // CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
 // to be delete to the PostHook workerpool.
 func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPool) error {
+	index.ESClient().Flush(c.Config.ElasticSearch.IndexName)
+	time.Sleep(1500 * time.Millisecond)
 	scroll := index.ESClient().Scroll().
 		Index(c.Config.ElasticSearch.IndexName).
 		//StoredFields("system.source_uri", "entryURI").

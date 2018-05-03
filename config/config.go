@@ -70,7 +70,7 @@ type PostHook struct {
 type ElasticSearch struct {
 	Urls        []string `json:"urls"`
 	Enabled     bool     `json:"enabled"`
-	IndexName   string   `json:"index"`
+	IndexName   string   `json:"indexName"`
 	Proxy       bool     `json:"proxy"`
 	Fragments   bool     `json:"fragments"`
 	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing

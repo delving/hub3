@@ -95,7 +95,7 @@ func (ph PostHookJob) Post(url string) error {
 	//fmt.Printf("jsonld: %s\n", json)
 	if errs != nil || rsp.StatusCode != http.StatusOK {
 		log.Printf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
-		log.Printf("Unable to store: %#v", errs)
+		log.Printf("Unable to store: %#v\n", errs)
 		log.Printf("JSON-LD: %s\n", json)
 		return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 	}

@@ -107,7 +107,7 @@ type BulkActionResponse struct {
 
 // ReadActions reads BulkActions from an io.Reader line by line.
 func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp *workerpool.WorkerPool) (BulkActionResponse, error) {
-
+	//log.Println("Start reading actions.")
 	scanner := bufio.NewScanner(r)
 	buf := make([]byte, 0, 64*1024)
 	scanner.Buffer(buf, 1024*1024)
@@ -189,12 +189,12 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		//err := action.p.Flush()
-		//if err != nil {
-		//log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
-		//return err
-		//}
-		//log.Printf("Flushed remaining items on the index queue.")
+		err := action.p.Flush()
+		if err != nil {
+			log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
+			return err
+		}
+		log.Printf("Flushed remaining items on the index queue.")
 		ok, err := ds.DropOrphans(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
