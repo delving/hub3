@@ -464,7 +464,7 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 		//StoredFields("system.source_uri", "entryURI").
 		Query(q).
 		Size(100)
-	log.Println("Starting enqueueing posthooks")
+	log.Println("Starting enqueueing delete posthooks")
 	for {
 		results, err := scroll.Do(ctx)
 		if err == io.EOF {

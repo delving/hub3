@@ -106,7 +106,7 @@ var _ = Describe("V1", func() {
 				Expect(indexDoc).ToNot(BeEmpty())
 				Expect(indexDoc).To(HaveKey("legacy"))
 				Expect(indexDoc).To(HaveKey("system"))
-				Expect(len(indexDoc)).To(Equal(44))
+				Expect(len(indexDoc)).To(Equal(45))
 			})
 
 			It("should return the MediaManagerUrl for a WebResource", func() {
@@ -148,8 +148,9 @@ var _ = Describe("V1", func() {
 				Expect(wrb.Graph.Len()).To(Equal(1))
 				triple := wrb.Graph.One(r.NewResource(urn), nil, nil)
 				Expect(triple).ToNot(BeNil())
-				err = wrb.GetRemoteWebResource(urn, orgID)
-				Expect(err).ToNot(HaveOccurred())
+				errChan := make(chan error)
+				wrb.GetRemoteWebResource(urn, orgID, errChan)
+				Expect(errChan).To(BeEmpty())
 				Expect(wrb.Graph.Len()).ToNot(Equal(0))
 				wrList := wrb.GetSortedWebResources()
 				Expect(wrList).ToNot(BeEmpty())
@@ -196,7 +197,7 @@ var _ = Describe("V1", func() {
 
 				wr := fb.GetSortedWebResources()
 				Expect(wr).ToNot(BeEmpty())
-				Expect(fb.Graph.Len()).To(Equal(67))
+				Expect(fb.Graph.Len()).To(Equal(69))
 
 				// have brabantcloud resource
 				bType := r.NewResource("http://schemas.delving.eu/nave/terms/BrabantCloudResource")

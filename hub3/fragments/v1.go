@@ -254,6 +254,8 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 
 	hasUrns := len(fb.GetUrns()) > 0
 
+	aggregates := []r.Term{}
+
 	graphType := fb.Graph.One(
 		nil,
 		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
@@ -263,6 +265,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 	if graphType != nil {
 		subj = graphType.Subject
 	}
+
 	for triple := range fb.Graph.IterTriples() {
 		s := triple.Subject.String()
 		p := triple.Predicate.String()
@@ -277,7 +280,8 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			}
 			cleanGraph.Add(triple)
 		case r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").String():
-			if triple.Object.String() == getEDMField("WebResource").String() {
+			o := triple.Object.String()
+			if o == getEDMField("WebResource").String() {
 				if !strings.HasSuffix(s, "__>") {
 					_, ok := resources[s]
 					if !ok {
@@ -285,6 +289,9 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 					}
 					cleanGraph.Add(triple)
 				}
+			} else if strings.HasPrefix(o, "<http://schemas.delving.eu/nave/terms/") {
+				aggregates = append(aggregates, triple.Subject)
+				cleanGraph.Add(triple)
 			} else {
 				cleanGraph.Add(triple)
 			}
@@ -331,6 +338,14 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			)
 			cleanGraph.Add(hasView)
 		}
+	}
+	// add ore:aggregates
+	for _, t := range aggregates {
+		cleanGraph.AddTriple(
+			subj,
+			r.NewResource("http://www.openarchives.org/ore/terms/aggregates"),
+			t,
+		)
 	}
 
 	fb.Graph = cleanGraph

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
@@ -30,7 +31,11 @@ type PostHookJobFactory struct {
 
 // NewPostHookJob creates a new PostHookJob and populates the rdf2go Graph
 func NewPostHookJob(g *r.Graph, spec string, delete bool, subject string) *PostHookJob {
-	return &PostHookJob{g, spec, delete, subject}
+	ph := &PostHookJob{g, spec, delete, subject}
+	if !delete {
+		ph.cleanPostHookGraph()
+	}
+	return ph
 }
 
 // Valid determines if the posthok is valid to apply.
@@ -76,10 +81,9 @@ func (ph PostHookJob) Post(url string) error {
 			log.Printf("Unable to delete: %#v", errs)
 			return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 		}
-		log.Printf("Deleted %s\n", ph.Subject)
+		//log.Printf("Deleted %s\n", ph.Subject)
 		return nil
 	}
-	ph.cleanPostHookGraph()
 	json, err := ph.String()
 
 	if err != nil {
@@ -99,7 +103,7 @@ func (ph PostHookJob) Post(url string) error {
 		log.Printf("JSON-LD: %s\n", json)
 		return fmt.Errorf("Unable to save %s to endpoint %s", ph.Subject, url)
 	}
-	log.Printf("Stored %s\n", ph.Subject)
+	//log.Printf("Stored %s\n", ph.Subject)
 	return nil
 }
 
@@ -152,11 +156,27 @@ func cleanDates(g *r.Graph, t *r.Triple) bool {
 	return false
 }
 
+func cleanEbuCore(g *r.Graph, t *r.Triple) bool {
+	uri := t.Predicate.RawValue()
+	if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
+		uri := strings.TrimLeft(uri, "urn:ebu:metadata-schema:ebuCore_2014")
+		uri = strings.TrimLeft(uri, "/")
+		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
+		g.AddTriple(
+			t.Subject,
+			r.NewResource(uri),
+			t.Object,
+		)
+		return true
+	}
+	return false
+}
+
 // cleanPostHookGraph applies post hook clean actions to the graph
-func (ph PostHookJob) cleanPostHookGraph() {
+func (ph *PostHookJob) cleanPostHookGraph() {
 	newGraph := r.NewGraph("")
 	for t := range ph.Graph.IterTriples() {
-		if !cleanDates(newGraph, t) {
+		if !cleanDates(newGraph, t) && !cleanEbuCore(newGraph, t) {
 			newGraph.Add(t)
 		}
 	}
