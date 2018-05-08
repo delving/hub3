@@ -24,7 +24,7 @@ nfpm:
   # - Arm (ARM version)
   # - Env (environment variables)
   # Default: `{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}`
-  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  # name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
   # Your app's vendor.
   # Default is empty.
@@ -65,9 +65,7 @@ nfpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   files:
-    "deploy/systemd/rapid.service": "/lib/systemd/system/"
     "public": "/opt/hub3/rapid/"
-    "deploy/rapid-syslog.conf": "/etc/rsyslog.d/"
 
   # Config files to add to your package. They are about the same as
   # the files keyword, except package managers treat them differently (while
@@ -75,6 +73,8 @@ nfpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   config_files:
+    "deploy/rapid.service": "/lib/systemd/system/rapid.service"
+    "deploy/rapid-syslog.conf": "/etc/rsyslog.d/rapid-syslog.conf"
     "rapid.toml": "/etc/default/rapid.toml"
 
 sign:
