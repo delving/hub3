@@ -12,6 +12,7 @@ rapid.iml
 
 # build and vendor
 rapid
+rapid-saas
 gin-bin
 *.rpm
 *.deb
@@ -67,3 +68,5 @@ elm-stuff/
 repl-temp-*
 
 target/
+*.log
+rapid-*.toml
