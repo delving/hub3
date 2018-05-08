@@ -1,5 +1,5 @@
 # The default orgId
-orgId = "brabantcloud"
+orgId = "rapid"
 
 [http]
 # all the configuration for the http sub-command
@@ -12,17 +12,20 @@ enabled = true
 # the urls where we can find elasticsearch
 urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId
-index = "brabantcloud"
+indexName = "rapid"
 # if _mapping and _search proxies should be enabled
 proxy = true 
 # Store fragments 
 fragments = false
 # index in V1 mode (will disable fragments and v2 style indexing)
-indexV1 = true
+indexV1 = false
 # Enable trace logging of elasticsearch
 enableTrace = false
 # key to use for searching and deleting spec (spec.raw for v5 style index)
-specKey = "spec.keyword"
+specKey = "spec"
+# username and password for packx security
+userName = ""
+password = ""
 
 [logging]
 devmode = true
@@ -71,9 +74,6 @@ cacheDir = "/tmp/webresource_cache"
 vipsBin = "/usr/bin/vips"
 # host of the media manager
 mediaManagerHost = "http://media.delving.org"
-
-[posthook]
-urls = [ 'https://erfgoedbrabant.ginger-acceptatie.driebit.net/api/erfgoedbrabant/brabantcloud']
 
 [imageproxy]
 # enable the image proxy at /api/imageproxy

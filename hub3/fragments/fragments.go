@@ -215,7 +215,7 @@ func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
 			f.XSDRaw = prefixLabel
 			f.DataType = xsdType
 		}
-	case *r.Resource:
+	case *r.Resource, *r.BlankNode:
 		f.ObjectType = ObjectType_RESOURCE
 		f.ObjectTypeRaw = "resource"
 		if f.IsTypeLink() {
