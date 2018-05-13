@@ -17,10 +17,14 @@ package fragments
 import (
 	"encoding/hex"
 	fmt "fmt"
+	"log"
 	"net/url"
+	"strconv"
+	"strings"
 
 	c "github.com/delving/rapid-saas/config"
 	proto "github.com/golang/protobuf/proto"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults
@@ -55,22 +59,89 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 }
 
 // NewSearchRequest builds a search request object from URL Parameters
-func NewSearchRequest(params url.Values) (SearchRequest, error) {
-	sr := SearchRequest{}
-	//for p, v := range params {
-	//switch p {
-	//case "q", "query":
-	//sr.Query = v
-	//case "qf", "qf[]":
-	//sr.QueryFilter = append(sr, v)
-	//case "rows":
-	//size, err := strconv.Atoi(v)
-	//if err != nil {
-	//log.Printf("unable to convert %v to int", v)
-	//return sr, err
-	//}
-	//sr.ResponseSize = size
-	//}
-	//}
+func NewSearchRequest(params url.Values) (*SearchRequest, error) {
+	scrollID := params.Get("scrollID")
+	if scrollID != "" {
+		sr, err := SearchRequestFromHex(scrollID)
+		if err != nil {
+			log.Println("Unable to parse search request from scrollID")
+			return nil, err
+		}
+		return sr, nil
+	}
+
+	sr := DefaultSearchRequest(&c.Config)
+	for p, v := range params {
+		switch p {
+		case "q", "query":
+			sr.Query = params.Get(p)
+		//case "qf", "qf[]":
+		//sr.QueryFilter = append(sr.QueryFilter, v)
+		case "rows":
+			size, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int", v)
+				return sr, err
+			}
+			sr.ResponseSize = int32(size)
+		}
+	}
 	return sr, nil
+}
+
+// ElasticQuery creates an ElasticSearch query from the Search Request
+// This query can be passed into an elastic Search Object.
+func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
+	query := elastic.NewBoolQuery()
+	query = query.Must(elastic.NewTermQuery("docType", FragmentGraphDocType))
+
+	if sr.GetQuery() != "" {
+		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "spec:", 1)
+		qs := elastic.NewQueryStringQuery(rawQuery)
+		qs = qs.DefaultField("fragments.object")
+		nq := elastic.NewNestedQuery("fragments", qs)
+		query = query.Must(nq)
+	}
+
+	return query, nil
+}
+
+// NewScrollPager returns a ScrollPager with defaults set
+func NewScrollPager() *ScrollPager {
+	sp := &ScrollPager{}
+	sp.Total = 0
+	sp.Cursor = 0
+	return sp
+
+}
+
+// NextScrollID creates a ScrollPager from a SearchRequest
+// This is used to provide a scrolling pager for returning SearchItems
+func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
+
+	sp := NewScrollPager()
+
+	// if no results return empty pager
+	if total == 0 {
+		return sp, nil
+	}
+	sp.Cursor = sr.GetStart()
+
+	// set the next cursor
+	sr.Start = sr.GetStart() + sr.GetResponseSize()
+
+	sp.Rows = sr.GetResponseSize()
+	sp.Total = total
+
+	// return empty ScrollID if there is no next page
+	if sr.GetStart() >= int32(total) {
+		return sp, nil
+	}
+
+	hex, err := SearchRequestToHex(sr)
+	if err != nil {
+		return nil, err
+	}
+	sp.ScrollID = hex
+	return sp, nil
 }

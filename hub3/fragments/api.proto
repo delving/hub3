@@ -123,7 +123,7 @@ message ScrollPager {
   // scrollID is serialized version SearchRequest
   string scrollID = 1;
   int32 cursor = 2;
-  int32 total = 3;
+  int64 total = 3;
   int32 rows = 4;
 }
 
@@ -178,6 +178,10 @@ message SearchResultV3 {
   Pagination pagination = 3;
   repeated fragments.FragmentGraph items = 4; 
   repeated Facet facets = 5;
+}
+
+message ScrollResultV3 {
+  ScrollPager pager = 1;
 }
 
 // V1 

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	c "github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/api"
+	. "github.com/delving/rapid-saas/hub3/fragments"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -55,6 +55,71 @@ var _ = Describe("Apiutils", func() {
 				Expect(newSr.GetQuery()).To(Equal("Rapid Rocks Gööd"))
 			})
 
+		})
+
+		Context("When parsing url parameters", func() {
+
+			It("should set the query", func() {
+				params := make(map[string][]string)
+				params["q"] = []string{"rapid"}
+				sr, err := NewSearchRequest(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(sr).ToNot(BeNil())
+				Expect(sr.GetQuery()).To(Equal("rapid"))
+
+			})
+
+			It("should set the rows param", func() {
+				params := make(map[string][]string)
+				params["rows"] = []string{"10"}
+				sr, err := NewSearchRequest(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(sr).ToNot(BeNil())
+				Expect(sr.GetResponseSize()).To(Equal(int32(10)))
+			})
+
+			It("should prioritize scroll_id above other parameters", func() {
+
+			})
+		})
+
+		Context("When creating a scrollID", func() {
+
+			It("should set defaults to zero", func() {
+				sp := NewScrollPager()
+				Expect(sp.Cursor).To(Equal(int32(0)))
+				Expect(sp.Total).To(Equal(int64(0)))
+				Expect(sp.ScrollID).To(BeEmpty())
+			})
+
+			It("should create a scroll pager", func() {
+				params := make(map[string][]string)
+				sr, err := NewSearchRequest(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(sr).ToNot(BeNil())
+
+				id, err := sr.NextScrollID(200)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(id.GetCursor()).To(Equal(int32(0)))
+				Expect(id.GetRows()).To(Equal(int32(16)))
+				Expect(id.GetScrollID()).ToNot(BeEmpty())
+
+				srFromId, err := SearchRequestFromHex(id.GetScrollID())
+				Expect(err).ToNot(HaveOccurred())
+				Expect(srFromId.GetStart()).To(Equal(int32(16)))
+			})
+
+			It("should have an empty scroldlID when on the last page", func() {
+				params := make(map[string][]string)
+				sr, err := NewSearchRequest(params)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(sr).ToNot(BeNil())
+
+				id, err := sr.NextScrollID(12)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(id.GetScrollID()).To(BeEmpty())
+
+			})
 		})
 
 	})

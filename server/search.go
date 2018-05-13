@@ -21,7 +21,6 @@ import (
 	"net/http"
 
 	"github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/api"
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
@@ -42,6 +41,7 @@ func (rs SearchResource) Routes() chi.Router {
 		getSearchRecord(w, r)
 		return
 	})
+	r.Get("/v2/scroll", getScrollResult)
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, `{"status": "not enabled"}`)
 		return
@@ -52,6 +52,61 @@ func (rs SearchResource) Routes() chi.Router {
 	})
 
 	return r
+}
+
+func getScrollResult(w http.ResponseWriter, r *http.Request) {
+
+	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	if err != nil {
+		log.Println("Unable to create Search request")
+		return
+	}
+
+	log.Printf("%#v\n", searchRequest)
+
+	s := index.ESClient().Search().
+		Index(config.Config.ElasticSearch.IndexName).
+		Size(int(searchRequest.GetResponseSize()))
+
+	query, err := searchRequest.ElasticQuery()
+	if err != nil {
+		log.Println("Unable to get search result.")
+		log.Println(err)
+		return
+	}
+
+	source, _ := query.Source()
+	qs, _ := json.MarshalIndent(source, "", " ")
+	log.Printf("%s\n", qs)
+
+	s = s.Query(query)
+	res, err := s.Do(ctx)
+	if err != nil {
+		log.Println("Unable to get search result.")
+		log.Println(err)
+		return
+	}
+	if res == nil {
+		log.Printf("expected response != nil; got: %v", res)
+		return
+	}
+	//records, err := decodeFragmentGraphs(res)
+	//if err != nil {
+	//log.Printf("Unable to decode records")
+	//return
+	//}
+
+	pager, err := searchRequest.NextScrollID(res.TotalHits())
+	if err != nil {
+		log.Println("Unable to create Scroll Pager. ")
+		return
+	}
+
+	result := fragments.ScrollResultV3{}
+	result.Pager = pager
+	//result.Items = records
+	render.JSON(w, r, result)
+	return
 }
 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
@@ -113,7 +168,7 @@ func getSearchResult(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to decode records")
 		return
 	}
-	result := api.SearchResultV3{}
+	result := fragments.SearchResultV3{}
 	result.Items = records
 	render.JSON(w, r, result)
 	return
