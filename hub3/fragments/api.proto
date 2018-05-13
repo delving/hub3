@@ -1,8 +1,9 @@
 // Run 'make protobuffer' from the root directory to generate 'api.pb.go'.
 syntax = "proto3";
-package api;
+package fragments;
 
 import "hub3/fragments/fragments.proto";
+
 
 // Query object
 
@@ -116,6 +117,14 @@ message PaginationLink {
   int32 start = 1;
   bool isLinked = 2;
   int32 pageNumber = 3;
+}
+
+message ScrollPager {
+  // scrollID is serialized version SearchRequest
+  string scrollID = 1;
+  int32 cursor = 2;
+  int32 total = 3;
+  int32 rows = 4;
 }
 
 message Pagination {

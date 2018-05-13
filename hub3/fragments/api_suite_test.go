@@ -1,4 +1,4 @@
-package api_test
+package fragments_test
 
 import (
 	. "github.com/onsi/ginkgo"

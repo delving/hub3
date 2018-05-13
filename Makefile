@@ -123,8 +123,7 @@ pb.fragment:
 	@protoc --go_out=plugins=grpc:. hub3/fragments/fragments.proto
 
 pb.api:
-	@echo "correct the import path in the api.pb.go file for fragments."
-	@protoc --go_out=. hub3/api/api.proto
+	@protoc --go_out=. hub3/fragments/api.proto
 
 cqlsh:
 	@docker exec -it cassandra0 cqlsh
