@@ -42,6 +42,7 @@ func (rs SearchResource) Routes() chi.Router {
 		return
 	})
 	r.Get("/v2/scroll", getScrollResult)
+
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, `{"status": "not enabled"}`)
 		return
@@ -62,24 +63,33 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("%#v\n", searchRequest)
+	// Echo requests when requested
+	echoRequest := r.URL.Query().Get("echo")
+	if echoRequest != "" {
+		echo, err := searchRequest.Echo(echoRequest, 0)
+		if err != nil {
+			log.Println("Unable to echo request")
+			log.Println(err)
+			return
+		}
+		if echo != nil {
+			render.JSON(w, r, echo)
+			return
+		}
+	}
 
-	s := index.ESClient().Search().
-		Index(config.Config.ElasticSearch.IndexName).
-		Size(int(searchRequest.GetResponseSize()))
-
-	query, err := searchRequest.ElasticQuery()
+	s, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
-		log.Println("Unable to get search result.")
-		log.Println(err)
+		log.Println("Unable to create Search Service")
 		return
 	}
 
-	source, _ := query.Source()
-	qs, _ := json.MarshalIndent(source, "", " ")
-	log.Printf("%s\n", qs)
+	log.Println(echoRequest)
+	if echoRequest == "searchService" {
+		render.JSON(w, r, s)
+		return
+	}
 
-	s = s.Query(query)
 	res, err := s.Do(ctx)
 	if err != nil {
 		log.Println("Unable to get search result.")
@@ -90,11 +100,18 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		log.Printf("expected response != nil; got: %v", res)
 		return
 	}
-	//records, err := decodeFragmentGraphs(res)
-	//if err != nil {
-	//log.Printf("Unable to decode records")
-	//return
-	//}
+
+	log.Println(echoRequest)
+	if echoRequest == "searchResponse" {
+		render.JSON(w, r, res)
+		return
+	}
+
+	records, err := decodeFragmentGraphs(res)
+	if err != nil {
+		log.Printf("Unable to decode records")
+		return
+	}
 
 	pager, err := searchRequest.NextScrollID(res.TotalHits())
 	if err != nil {
@@ -104,7 +121,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	result := fragments.ScrollResultV3{}
 	result.Pager = pager
-	//result.Items = records
+	result.Items = records
 	render.JSON(w, r, result)
 	return
 }

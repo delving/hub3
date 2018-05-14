@@ -58,3 +58,7 @@ import:
   - ld
 - package: github.com/golang/protobuf
   version: ^1.1.0
+- package: github.com/gobuffalo/packr
+  version: ~1.11.0
+  subpackages:
+  - '...'

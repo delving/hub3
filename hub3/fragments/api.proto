@@ -30,6 +30,7 @@ enum ResponseBlockType {
   PAGINATION = 4;
 }
 
+
 message FilterValue {
   repeated string value = 1;
 }
@@ -46,7 +47,7 @@ message SearchRequest {
   map<string, FilterValue> QueryFilter = 6;
   map<string, FilterValue> HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
-  repeated ResponseFormatType enable = 9;
+  repeated ResponseBlockType enable = 9;
   repeated string FacetField  = 10;
   int32 FacetLimit = 11;
   bool FacetBoolType = 12;
@@ -64,6 +65,7 @@ message SearchRequest {
   GeoType geoType = 21; 
   // qr
   string QueryRefinement = 22;
+  string searchAfter = 23;
 }
 
 enum GeoType {
@@ -182,6 +184,7 @@ message SearchResultV3 {
 
 message ScrollResultV3 {
   ScrollPager pager = 1;
+  repeated fragments.FragmentGraph items = 5;
 }
 
 // V1 

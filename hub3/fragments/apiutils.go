@@ -39,7 +39,6 @@ func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 func SearchRequestToHex(sr *SearchRequest) (string, error) {
 	output, err := proto.Marshal(sr)
 	if err != nil {
-		return "", err
 	}
 	return fmt.Sprintf("%x", output), nil
 }
@@ -106,12 +105,64 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	return query, nil
 }
 
+// ElasticSearchService creates the elastic SearchService for execution
+func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
+	idSort := elastic.NewFieldSort("_id")
+	scoreSort := elastic.NewFieldSort("_score")
+	s := client.Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Size(int(sr.GetResponseSize())).
+		SortBy(scoreSort, idSort)
+
+	//if sr.SearchAfter != "" {
+	//s = s.SearchAfter()
+
+	//}
+
+	query, err := sr.ElasticQuery()
+	if err != nil {
+		log.Println("Unable to uild the query result.")
+		return s, err
+	}
+
+	return s.Query(query), err
+}
+
 // NewScrollPager returns a ScrollPager with defaults set
 func NewScrollPager() *ScrollPager {
 	sp := &ScrollPager{}
 	sp.Total = 0
 	sp.Cursor = 0
 	return sp
+
+}
+
+// Echo returns a json version of the request object for introspection
+func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error) {
+	switch echoType {
+	case "es":
+		query, err := sr.ElasticQuery()
+		if err != nil {
+			return nil, err
+		}
+		source, _ := query.Source()
+		return source, nil
+	case "nextScrollID":
+		pager, err := sr.NextScrollID(total)
+		if err != nil {
+			return nil, err
+		}
+		next, err := SearchRequestFromHex(pager.GetScrollID())
+		if err != nil {
+			return nil, err
+		}
+		return next, nil
+	case "searchRequest":
+		return sr, nil
+	case "searchService", "searchResponse":
+		return nil, nil
+	}
+	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 
 }
 
