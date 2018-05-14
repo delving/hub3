@@ -107,7 +107,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
-	idSort := elastic.NewFieldSort("_id")
+	idSort := elastic.NewFieldSort("hubID.keyword")
 	scoreSort := elastic.NewFieldSort("_score")
 	s := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
