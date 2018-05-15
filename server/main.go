@@ -104,10 +104,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// static fileserver
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
-	FileServer(r, "/api/search/v2/scroll/_docs", getAbsolutePathToFileDir("public"))
 
 	// dashboard
-	r.Get("/api/search/v2/scroll/_docs", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/scroll-api.html")
 		return
 	})

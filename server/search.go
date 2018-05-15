@@ -36,12 +36,11 @@ type SearchResource struct{}
 func (rs SearchResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/v2", getSearchResult)
+	r.Get("/v2", getScrollResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
 		return
 	})
-	r.Get("/v2/scroll", getScrollResult)
 
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, `{"status": "not enabled"}`)
