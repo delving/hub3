@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>API Reference</title>
+    <title>V2 Search API Reference</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -201,7 +201,7 @@
       <script src="/javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;,&quot;javascript&quot;]">
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;python&quot;,&quot;javascript&quot;,&quot;golang&quot;,&quot;java&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -212,9 +212,10 @@
       <img src="/images/logo.png" class="logo" alt="Logo" />
         <div class="lang-selector">
               <a href="#" data-language-name="shell">shell</a>
-              <a href="#" data-language-name="ruby">ruby</a>
               <a href="#" data-language-name="python">python</a>
               <a href="#" data-language-name="javascript">javascript</a>
+              <a href="#" data-language-name="golang">golang</a>
+              <a href="#" data-language-name="java">java</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -228,16 +229,13 @@
             <a href="#authentication" class="toc-h1 toc-link" data-title="authentication">Authentication</a>
           </li>
           <li>
-            <a href="#kittens" class="toc-h1 toc-link" data-title="kittens">Kittens</a>
+            <a href="#rdf-search" class="toc-h1 toc-link" data-title="rdf-search">RDF Search</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-all-kittens" class="toc-h2 toc-link" data-title="get-all-kittens">Get All Kittens</a>
+                    <a href="#search-for-all-records" class="toc-h2 toc-link" data-title="search-for-all-records">Search for all records</a>
                   </li>
                   <li>
-                    <a href="#get-a-specific-kitten" class="toc-h2 toc-link" data-title="get-a-specific-kitten">Get a Specific Kitten</a>
-                  </li>
-                  <li>
-                    <a href="#delete-a-specific-kitten" class="toc-h2 toc-link" data-title="delete-a-specific-kitten">Delete a Specific Kitten</a>
+                    <a href="#get-a-specific-record" class="toc-h2 toc-link" data-title="get-a-specific-record">Get a Specific Record</a>
                   </li>
               </ul>
           </li>
@@ -246,7 +244,6 @@
           </li>
       </div>
         <ul class="toc-footer">
-            <li><a href='#'>Sign Up for a Developer Key</a></li>
             <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
         </ul>
     </div>
@@ -254,190 +251,262 @@
       <div class="dark-box"></div>
       <div class="content">
         <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+<p>Welcome to the V2 Search API! You can use our API to access V2 Search API endpoints, which can get information on all the RDF records stored in our database</p>
 
-<p>We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+<p>We have language bindings in Shell! In the future, we intend to extend that with Golang, Python, and Javascript. You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
 
-<p>This example API documentation page was created with <a href="https://github.com/lord/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&#39;s documentation.</p>
+<p>The all API request and responses are modelled using <a href="https://developers.google.com/protocol-buffers/">Google Protocol buffers</a>. Our language bindings are generated from these shared <code>proto</code> files. When consuming the API we recommend that you generate models to query and to read the response from the <code>api.proto</code> file available in the Rapid repository available at <a href="http://github.com/delving/rapid">github</a>.</p>
+
+<p>This example API documentation page was created with <a href="https://github.com/lord/slate">Slate</a>. </p>
 <h1 id='authentication'>Authentication</h1>
 <blockquote>
 <p>To authorize, use this code:</p>
 </blockquote>
-<pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
+<pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
 curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
+  -H <span class="s2">"Authorization: {apiKEY}"</span>
 </code></pre>
 <blockquote>
-<p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
+<p>Make sure to replace <code>{apiKEY}</code> with your API key.</p>
 </blockquote>
 
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
+<p><em>V2 Search API</em> uses API keys to allow full access to the API. You can register a new v2 API key at our <a href="http://example.com/developers">developer portal</a>. Anonymous access to the <em>read-only</em> APIs might be throttled.</p>
 
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
+<p>The <em>V2 Search API</em> expects for the API key to be included in all private API requests to the server in a header that looks like the following:</p>
 
-<p><code>Authorization: meowmeowmeow</code></p>
+<p><code>Authorization: {apiKEY}</code></p>
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>{apiKEY}</code> with your personal API key.
 </aside>
-<h1 id='kittens'>Kittens</h1><h2 id='get-all-kittens'>Get All Kittens</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">kittens</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
+<h1 id='rdf-search'>RDF Search</h1><h2 id='search-for-all-records'>Search for all records</h2>
+<p>This endpoint searches through all RDF records.</p>
+<pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/search/v2"</span>
+  -H <span class="s2">"Authorization: {apiKEY}"</span>
 </code></pre>
 <blockquote>
-<p>The above command returns JSON structured like this:</p>
+<p>The above command returns JSON structure like this:</p>
 </blockquote>
-<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">]</span><span class="w">
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+    </span><span class="s2">"pager"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"scrollID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"18102010"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">436</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">16</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="s2">"items"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="s2">"orgID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"natarch"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"spec"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coda-rce"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"revision"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"hubID"</span><span class="p">:</span><span class="w"> </span><span class="s2">"natarch_coda-rce_AA1716"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"namedGraphURI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://data.collectienederland.nl/resource/aggregation/coda-rce/AA1716/graph"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"fragments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://data.collectienederland.nl/resource/document/coda-rce/AA1716"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"predicate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://purl.org/dc/elements/1.1/identifier"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"object"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AA1716"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"objectType"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"XSDRaw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:string"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"objectTypeRaw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"literal"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"namedGraphURI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://data.collectienederland.nl/resource/aggregation/coda-rce/AA1716/graph"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"triple"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;http://data.collectienederland.nl/resource/document/coda-rce/AA1716&gt; &lt;http://purl.org/dc/elements/1.1/identifier&gt; </span><span class="se">\"</span><span class="s2">AA1716</span><span class="se">\"</span><span class="s2">^^&lt;http://www.w3.org/2001/XMLSchema#string&gt; ."</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"docType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fragment"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="s2">"subject"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.dcn-images.nl/img/AA1716.JPG"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"predicate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.w3.org/1999/02/22-rdf-syntax-ns#type"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"object"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.europeana.eu/schemas/edm/WebResource"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"objectTypeRaw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"resource"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"namedGraphURI"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://data.collectienederland.nl/resource/aggregation/coda-rce/AA1716/graph"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"triple"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;http://www.dcn-images.nl/img/AA1716.JPG&gt; &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#type&gt; &lt;http://www.europeana.eu/schemas/edm/WebResource&gt; ."</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                        </span><span class="s2">"typelink"</span><span class="w">
+                    </span><span class="p">],</span><span class="w">
+                    </span><span class="s2">"docType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"fragment"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves all kittens.</p>
+<p>In the next sections, these high level structures will be described.</p>
+<h3 id='pager'>Pager</h3>
+<p>The &#39;pager&#39; block contains all the information to page through the search result. The <code>scrollID</code> contains a protobuf serialised version of the original search request. This is used for paging. The <code>scrollID</code> is empty when the end of the search results have been reached. It also gives back the <code>total</code> number of results and the current <code>cursor</code> of the search results.</p>
+
+<p>The pager can be used for creating &#39;inifite scroll&#39; functionality or to update the results in an HTML page through an AJAX call. Underwater the pager contains functionality to offer efficient deep paging without keeping state in the client or on the server. </p>
+
+<p>For output formats where no pager block can be added - e.g. geobuf, geojson - the pager keys are added to the response headers as <code>P_SCROLL_ID</code>, <code>P_CURSOR</code>, <code>P_TOTAL</code>.</p>
+
+<aside class="notice">
+Once you start paging with the `scrollID` no other parameters can be supplied to modify the search request or result.
+</aside>
+<h3 id='items'>Items</h3>
+<p>The &#39;items&#39; block contain a list of search results. Through the <code>itemFormat</code> you can request a number formats to how the result item must be presented. Not all of these <code>itemFormat</code> formats are available in all output formats. </p>
+
+<table><thead>
+<tr>
+<th>outputFormat</th>
+<th>itemFormats</th>
+<th>mime-type</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>protobuf</td>
+<td>fragmentGraph, summary, grouped</td>
+<td>application/octet-stream</td>
+</tr>
+<tr>
+<td>json</td>
+<td>fragmentGraph, summary, json-ld, grouped</td>
+<td>application/json</td>
+</tr>
+<tr>
+<td>geojson</td>
+<td>geojson</td>
+<td>application/geo+json</td>
+</tr>
+</tbody></table>
+
+<aside class="warning">
+The item formats summary, grouped, json-ld, and geojson are currently under development.
+</aside>
 <h3 id='http-request'>HTTP Request</h3>
-<p><code>GET http://example.com/api/kittens</code></p>
+<p><code>GET http://example.com/api/search/v2</code></p>
 <h3 id='query-parameters'>Query Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
+<th>Type</th>
 <th>Default</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
+<td>q</td>
+<td>string</td>
+<td></td>
+<td>free text search in the <code>fragments.object</code> field</td>
 </tr>
 <tr>
-<td>available</td>
-<td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
+<td>rows</td>
+<td>integer</td>
+<td>16</td>
+<td>The number of items returned in the response</td>
+</tr>
+<tr>
+<td>scrollID</td>
+<td>string</td>
+<td></td>
+<td>Key pagination key. After the first response you can use the <code>scrollID</code> to retrieve all subsequent pages</td>
+</tr>
+<tr>
+<td>format</td>
+<td>string</td>
+<td>json</td>
+<td>The output or serialisation format to render the results in. The supported options are: &#39;json&#39; and &#39;protobuf&#39;. In the future, &#39;geobuf&#39; will be added for rendering geo results.</td>
+</tr>
+<tr>
+<td>itemFormat</td>
+<td>string</td>
+<td>fragmentGraph</td>
+<td>How the items should be rendered. The default is <code>fragmentGraph</code>. In the future, the following <code>itemFormats</code> will be added: <code>summary</code> (for a RDF agnostic summary view), <code>JSON-LD</code> (the JSON-based RDF serialisation), <code>grouped</code> (inline the object links in three levels).</td>
+</tr>
+<tr>
+<td>echo</td>
+<td>string</td>
+<td></td>
+<td>You can echo a number of hidden elements for debugging:</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>* <code>es</code> (the elasticsearch query),</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>* <code>searchResponse</code> (the elastic search response),</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>* <code>searchRequest</code> (protobuf searchRequest encode as JSON),</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>* <code>scrollID</code> (decode the searchRequest in the scrollID).</td>
 </tr>
 </tbody></table>
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
+<aside class="notice">
+At this time, the filter and facet options have not been integrated in the default endpoint.
 </aside>
-<h2 id='get-a-specific-kitten'>Get a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<h2 id='get-a-specific-record'>Get a Specific Record</h2>
+<p>You can retrieve a specific record by retrieving the <code>hubID</code> value from search response. </p>
+<pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/search/v2/{hubID}"</span>
+  -H <span class="s2">"Authorization: {apiKEY}"</span>
 </code></pre>
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+    </span><span class="err">orgID</span><span class="p">:</span><span class="w"> </span><span class="s2">"natarch"</span><span class="p">,</span><span class="w">
+    </span><span class="err">spec</span><span class="p">:</span><span class="w"> </span><span class="s2">"nt00191-staten-generaal-commissieboeken"</span><span class="p">,</span><span class="w">
+    </span><span class="err">revision</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+    </span><span class="err">hubID</span><span class="p">:</span><span class="w"> </span><span class="s2">"natarch_nt00191-staten-generaal-commissieboeken_2f5166fe-af24-102d-afe5-0050569c51dd"</span><span class="p">,</span><span class="w">
+    </span><span class="err">namedGraphURI</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8000/resource/aggregation/nt00191-staten-generaal-commissieboeken/2f5166fe-af24-102d-afe5-0050569c51dd/graph"</span><span class="p">,</span><span class="w">
+    </span><span class="err">fragments</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+        </span><span class="err">subject</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8000/resource/aggregation/nt00191-staten-generaal-commissieboeken/2f5166fe-af24-102d-afe5-0050569c51dd/about"</span><span class="p">,</span><span class="w">
+        </span><span class="err">predicate</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://creativecommons.org/ns#attributionName"</span><span class="p">,</span><span class="w">
+        </span><span class="err">object</span><span class="p">:</span><span class="w"> </span><span class="s2">"nt00191-staten-generaal-commissieboeken"</span><span class="p">,</span><span class="w">
+        </span><span class="err">objectType</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="err">XSDRaw</span><span class="p">:</span><span class="w"> </span><span class="s2">"xsd:string"</span><span class="p">,</span><span class="w">
+        </span><span class="err">objectTypeRaw</span><span class="p">:</span><span class="w"> </span><span class="s2">"literal"</span><span class="p">,</span><span class="w">
+        </span><span class="err">namedGraphURI</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://localhost:8000/resource/aggregation/nt00191-staten-generaal-commissieboeken/2f5166fe-af24-102d-afe5-0050569c51dd/graph"</span><span class="p">,</span><span class="w">
+        </span><span class="err">triple</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;http://localhost:8000/resource/aggregation/nt00191-staten-generaal-commissieboeken/2f5166fe-af24-102d-afe5-0050569c51dd/about&gt; &lt;http://creativecommons.org/ns#attributionName&gt; "</span><span class="err">nt</span><span class="mi">00191</span><span class="err">-staten-generaal-commissieboeken</span><span class="s2">"^^&lt;http://www.w3.org/2001/XMLSchema#string&gt; ."</span><span class="p">,</span><span class="w">
+        </span><span class="err">docType</span><span class="p">:</span><span class="w"> </span><span class="s2">"fragment"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves a specific kitten.</p>
+<p>This endpoint retrieves a specific RDF Record.</p>
 
 <aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
 <h3 id='http-request-2'>HTTP Request</h3>
-<p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
+<p><code>GET http://example.com/api/search/v2/&lt;ID&gt;</code></p>
 <h3 id='url-parameters'>URL Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>ID</td>
-<td>The ID of the kitten to retrieve</td>
+<td>string</td>
+<td>None</td>
+<td>The ID of the RDF Graph to retrieve</td>
 </tr>
-</tbody></table>
-<h2 id='delete-a-specific-kitten'>Delete a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -X DELETE
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-</code></pre>
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"deleted"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">":("</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>This endpoint deletes a specific kitten.</p>
-<h3 id='http-request-3'>HTTP Request</h3>
-<p><code>DELETE http://example.com/kittens/&lt;ID&gt;</code></p>
-<h3 id='url-parameters-2'>URL Parameters</h3>
-<table><thead>
 <tr>
-<th>Parameter</th>
-<th>Description</th>
+<td>format</td>
+<td>string</td>
+<td>json</td>
+<td>The output or serialisation format to render the results in. The supported options are: &#39;json&#39; and &#39;protobuf&#39;. In the future, &#39;geobuf&#39; will be added for rendering geo results.</td>
 </tr>
-</thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to delete</td>
+<td>itemFormat</td>
+<td>string</td>
+<td>fragmentGraph</td>
+<td>How the items should be rendered. The default is &#39;fragmentGraph&#39;. In the future, the following &#39;itemFormats&#39; will be added: summary (for a RDF agnostic summary view), JSON-LD (the JSON-based RDF serialisation).</td>
 </tr>
 </tbody></table>
 <h1 id='errors'>Errors</h1>
-<aside class="notice">
-This error section is stored in a separate file in <code>includes/_errors.md</code>. Slate allows you to optionally separate out your docs into many files...just save them to the <code>includes</code> folder and add them to the top of your <code>index.md</code>'s frontmatter. Files are included in the order listed.
-</aside>
-
-<p>The Kittn API uses the following error codes:</p>
+<p>The Hub3 V2 Search API uses the following error codes:</p>
 
 <table><thead>
 <tr>
@@ -455,15 +524,15 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
 </tr>
 <tr>
 <td>403</td>
-<td>Forbidden -- The kitten requested is hidden for administrators only.</td>
+<td>Forbidden -- The search requested is hidden for administrators only.</td>
 </tr>
 <tr>
 <td>404</td>
-<td>Not Found -- The specified kitten could not be found.</td>
+<td>Not Found -- The specified record could not be found.</td>
 </tr>
 <tr>
 <td>405</td>
-<td>Method Not Allowed -- You tried to access a kitten with an invalid method.</td>
+<td>Method Not Allowed -- You tried to access a record with an invalid method.</td>
 </tr>
 <tr>
 <td>406</td>
@@ -471,7 +540,7 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
 </tr>
 <tr>
 <td>410</td>
-<td>Gone -- The kitten requested has been removed from our servers.</td>
+<td>Gone -- The record requested has been removed from our servers.</td>
 </tr>
 <tr>
 <td>418</td>
@@ -479,7 +548,7 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
 </tr>
 <tr>
 <td>429</td>
-<td>Too Many Requests -- You&#39;re requesting too many kittens! Slow down!</td>
+<td>Too Many Requests -- You&#39;re requesting too many records! Slow down!</td>
 </tr>
 <tr>
 <td>500</td>
@@ -495,9 +564,10 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
       <div class="dark-box">
           <div class="lang-selector">
                 <a href="#" data-language-name="shell">shell</a>
-                <a href="#" data-language-name="ruby">ruby</a>
                 <a href="#" data-language-name="python">python</a>
                 <a href="#" data-language-name="javascript">javascript</a>
+                <a href="#" data-language-name="golang">golang</a>
+                <a href="#" data-language-name="java">java</a>
           </div>
       </div>
     </div>
