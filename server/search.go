@@ -19,6 +19,7 @@ import (
 	"fmt"
 	log "log"
 	"net/http"
+	"strconv"
 
 	"github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
@@ -118,6 +119,12 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Add scrollID pager information to the header
+	w.Header().Add("P_SCROLL_ID", pager.GetScrollID())
+	w.Header().Add("P_CURSOR", strconv.FormatInt(int64(pager.GetCursor()), 10))
+	w.Header().Add("P_TOTAL", strconv.FormatInt(int64(pager.GetTotal()), 10))
+	w.Header().Add("P_ROWS", strconv.FormatInt(int64(pager.GetRows()), 10))
+
 	result := fragments.ScrollResultV3{}
 	result.Pager = pager
 	result.Items = records
@@ -210,6 +217,8 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 		if err != nil {
 			return nil, err
 		}
+		// remove RDF
+		r.RDF = nil
 		records = append(records, r)
 	}
 	return records, nil
