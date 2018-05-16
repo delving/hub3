@@ -187,6 +187,8 @@ func (fb *FragmentBuilder) CreateFragment(triple *r.Triple, compact bool) (*Frag
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
+	label, _ := c.Config.NameSpaceMap.GetSearchLabel(f.GetPredicate())
+	f.SearchLabel = label
 	f.Object = triple.Object.RawValue()
 	f.Triple = triple.String()
 	switch triple.Object.(type) {
