@@ -112,15 +112,11 @@ release-public:
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
-	@make pb.fragment
 	@make pb.api
 	@make pb.webresource
 
 pb.webresource:
 	@protoc --go_out=. hub3/mediamanager/webresource.proto
-
-pb.fragment:
-	@protoc --go_out=plugins=grpc:. hub3/fragments/fragments.proto
 
 pb.api:
 	@protoc --go_out=. hub3/fragments/api.proto
