@@ -168,7 +168,18 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
 		return
 	}
-	render.JSON(w, r, record)
+	switch r.URL.Query().Get("format") {
+	case "protobuf":
+		output, err := proto.Marshal(record)
+		if err != nil {
+			log.Println("Unable to marshal result to protobuf format.")
+			return
+		}
+		render.Data(w, r, output)
+	default:
+		render.JSON(w, r, record)
+	}
+	return
 }
 
 func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error) {
