@@ -340,7 +340,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
-		err := fb.CreateFragments(action.p, true)
+		err := fb.CreateFragments(action.p, true, true)
 		if err != nil {
 			log.Printf("Unable to save fragments: %v", err)
 			return err

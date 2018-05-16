@@ -142,12 +142,12 @@ func (fb *FragmentBuilder) GetRDF() ([]byte, error) {
 }
 
 // CreateFragments creates and stores all the fragments
-func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool) error {
+func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool, compact bool) error {
 	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
 	for t := range fb.Graph.IterTriples() {
-		frag, err := fb.CreateFragment(t)
+		frag, err := fb.CreateFragment(t, compact)
 		if err != nil {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
@@ -175,14 +175,15 @@ func (f *Fragment) AddTags(tag ...string) {
 }
 
 // CreateFragment creates a fragment from a triple
-func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
-	f := &Fragment{
-		Spec:          fb.fg.GetSpec(),
-		Revision:      fb.fg.GetRevision(),
-		NamedGraphURI: fb.fg.GetNamedGraphURI(),
-		OrgID:         fb.fg.GetOrgID(),
-		HubID:         fb.fg.GetHubID(),
-		DocType:       FragmentDocType,
+func (fb *FragmentBuilder) CreateFragment(triple *r.Triple, compact bool) (*Fragment, error) {
+	f := &Fragment{}
+	if !compact {
+		f.DocType = FragmentDocType
+		f.Spec = fb.fg.GetSpec()
+		f.Revision = fb.fg.GetRevision()
+		f.NamedGraphURI = fb.fg.GetNamedGraphURI()
+		f.OrgID = fb.fg.GetOrgID()
+		f.HubID = fb.fg.GetHubID()
 	}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
@@ -549,7 +550,7 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	)
 	fb.Graph.AddTriple(subject, r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"), r.NewLiteral(spec))
 	fb.Graph.AddTriple(subject, r.NewResource("http://purl.org/dc/terms/title"), r.NewLiteral(spec))
-	return fb.CreateFragments(p, false)
+	return fb.CreateFragments(p, false, true)
 }
 
 // ESMapping is the default mapping for the RDF records enabled by rapid
