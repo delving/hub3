@@ -26,6 +26,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/golang/protobuf/proto"
 	//elastic "github.cocm/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -125,10 +126,20 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("P_TOTAL", strconv.FormatInt(int64(pager.GetTotal()), 10))
 	w.Header().Add("P_ROWS", strconv.FormatInt(int64(pager.GetRows()), 10))
 
-	result := fragments.ScrollResultV3{}
+	result := &fragments.ScrollResultV3{}
 	result.Pager = pager
 	result.Items = records
-	render.JSON(w, r, result)
+	switch searchRequest.GetResponseFormatType() {
+	case fragments.ResponseFormatType_PROTOBUF:
+		output, err := proto.Marshal(result)
+		if err != nil {
+			log.Println("Unable to marshal result to protobuf format.")
+			return
+		}
+		render.Data(w, r, output)
+	default:
+		render.JSON(w, r, result)
+	}
 	return
 }
 
@@ -158,43 +169,6 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, record)
-}
-
-func getSearchResult(w http.ResponseWriter, r *http.Request) {
-	s := index.ESClient().Search().
-		Index(config.Config.ElasticSearch.IndexName).
-		Size(20)
-	rawQuery := r.FormValue("q")
-	fmt.Println("query: ", rawQuery)
-	query := elastic.NewBoolQuery()
-	query = query.Must(elastic.NewTermQuery("docType", fragments.FragmentGraphDocType))
-	// todo enable query later
-	//if rawQuery != "" {
-	//rawQuery = strings.Replace(rawQuery, "delving_spec:", "spec:", 1)
-	//s = s.Query(elastic.NewQueryStringQuery(rawQuery))
-	//} else {
-	//s = s.Query(elastic.NewMatchAllQuery())
-	//}
-	s = s.Query(query)
-	res, err := s.Do(ctx)
-	if err != nil {
-		log.Println("Unable to get search result.")
-		log.Println(err)
-		return
-	}
-	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
-		return
-	}
-	records, err := decodeFragmentGraphs(res)
-	if err != nil {
-		log.Printf("Unable to decode records")
-		return
-	}
-	result := fragments.SearchResultV3{}
-	result.Items = records
-	render.JSON(w, r, result)
-	return
 }
 
 func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error) {

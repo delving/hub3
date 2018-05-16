@@ -74,8 +74,13 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
-		//case "qf", "qf[]":
-		//sr.QueryFilter = append(sr.QueryFilter, v)
+			//case "qf", "qf[]":
+			//sr.QueryFilter = append(sr.QueryFilter, v)
+		case "format":
+			switch params.Get(p) {
+			case "protobuf":
+				sr.ResponseFormatType = ResponseFormatType_PROTOBUF
+			}
 		case "rows":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {

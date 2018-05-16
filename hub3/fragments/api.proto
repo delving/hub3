@@ -5,8 +5,8 @@ package fragments;
 // Query object
 
 enum ResponseFormatType {
-  PROTOBUF = 0;
-  JSON = 1;
+  JSON = 0;
+  PROTOBUF = 1;
   // not supported 
   XML = 2;
   // not supported 
@@ -44,7 +44,7 @@ message FilterValue {
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
-  ResponseFormatType responseFormat = 2;
+  ResponseFormatType responseFormatType = 2;
   // number of results returned
   // rows
   int32 responseSize = 3;
@@ -336,6 +336,7 @@ message FragmentGraph {
   repeated Fragment fragments = 10;
   repeated string tags = 11;
   string docType = 12;
+  string lodKey = 13;
 }
 
 message Fragment {
