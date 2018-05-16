@@ -336,7 +336,6 @@ message FragmentGraph {
   repeated Fragment fragments = 10;
   repeated string tags = 11;
   string docType = 12;
-  string lodKey = 13;
 }
 
 message Fragment {
@@ -383,4 +382,5 @@ message Fragment {
 // example values linkGraphExternal prefLabel linkDomainExternal thumbnail date
   repeated string tags = 28;
   string docType = 30;
+  string lodKey = 31;
 }

@@ -356,7 +356,17 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
+
+	// submit the bulkIndexRequest for indexing
 	action.p.Add(r)
+
+	// index the LoD Fragments
+	if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
+		err = fb.IndexFragments(action.p)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
