@@ -59,9 +59,12 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 
 // NewSearchRequest builds a search request object from URL Parameters
 func NewSearchRequest(params url.Values) (*SearchRequest, error) {
-	scrollID := params.Get("scrollID")
-	if scrollID != "" {
-		sr, err := SearchRequestFromHex(scrollID)
+	hexRequest := params.Get("scrollID")
+	if hexRequest == "" {
+		hexRequest = params.Get("qs")
+	}
+	if hexRequest != "" {
+		sr, err := SearchRequestFromHex(hexRequest)
 		if err != nil {
 			log.Println("Unable to parse search request from scrollID")
 			return nil, err
