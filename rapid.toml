@@ -48,7 +48,7 @@ baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = false
+rdfStoreEnabled = true
 # Default format for importing in the bulk API, "text/turtle" or "application/ld+json"
 defaultFormat = "application/ld+json" 
 #defaultFormat = "text/turtle" 
