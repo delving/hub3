@@ -18,7 +18,7 @@ builds:
       - CGO_ENABLED=0
 
 dockers:
-  - image: delving/rapid
+  - image: delvingbv/rapid
 
 nfpm: 
   # This is parsed with the Go template engine and the following variables
