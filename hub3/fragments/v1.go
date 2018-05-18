@@ -409,7 +409,7 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 		"%s/api/webresource/%s/%s",
 		c.Config.WebResource.MediaManagerHost,
 		orgID,
-		urn,
+		strings.Replace(urn, "%", "%%", -1),
 	)
 }
 

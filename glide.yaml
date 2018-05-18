@@ -52,6 +52,7 @@ import:
   - retrier
 - package: gopkg.in/olivere/elastic.v5
 - package: github.com/kiivihal/rdf2go
+  version: ~0.1.2
 - package: github.com/kazarena/json-gold
   version: ~0.3.0
   subpackages:
