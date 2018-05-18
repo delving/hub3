@@ -86,7 +86,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 
-	r.Handle("/api/stats/prometheus", prometheus.Handler())
+	r.Handle("/metrics", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("You are rocking rapid!"))
