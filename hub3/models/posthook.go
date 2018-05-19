@@ -2,9 +2,12 @@ package models
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -172,6 +175,81 @@ func cleanEbuCore(g *r.Graph, t *r.Triple) bool {
 	return false
 }
 
+type ResourceSortOrder struct {
+	Resource map[string]interface{}
+	SortKey  int
+}
+
+func sortMapArray(m []map[string]interface{}) []map[string]interface{} {
+
+	var ss []ResourceSortOrder
+	for _, wr := range m {
+		sortKey, ok := wr["http://schemas.delving.eu/nave/terms/resourceSortOrder"]
+		var sortOrder int
+		if ok {
+			sortKeyValue := sortKey.([]*r.LdObject)[0]
+			sortInt, err := strconv.Atoi(sortKeyValue.Value)
+			if err == nil {
+				sortOrder = sortInt
+			}
+		}
+		ss = append(ss, ResourceSortOrder{wr, sortOrder})
+	}
+
+	// sort by key
+	sort.Slice(ss, func(i, j int) bool {
+		return ss[i].SortKey < ss[j].SortKey
+	})
+
+	var entries []map[string]interface{}
+	for _, entry := range ss {
+		entries = append(entries, entry.Resource)
+	}
+	return entries
+}
+
+// sortWebResources sorts the webresources in order last
+// todo sort the actual webresource in the output json, so marshal to map[string]interface{} then stort webresource from non webresource, sort and glue together
+func (ph *PostHookJob) sortWebResources() (bytes.Buffer, error) {
+	var b bytes.Buffer
+
+	entries := []map[string]interface{}{}
+	wr := []map[string]interface{}{}
+
+	jsonld, err := ph.Graph.GenerateJSONLD()
+	if err != nil {
+		return b, err
+	}
+
+	for _, resource := range jsonld {
+		rdfTypes, ok := resource["@type"]
+		if !ok {
+			return b, fmt.Errorf("JSONLD entry does not contain @type definition")
+		}
+		for _, t := range rdfTypes.([]string) {
+			switch t {
+			case "http://www.europeana.eu/schemas/edm/WebResource":
+				wr = append(wr, resource)
+			default:
+				entries = append(entries, resource)
+			}
+		}
+	}
+
+	for _, wrEntry := range sortMapArray(wr) {
+		entries = append(entries, wrEntry)
+	}
+
+	// write bytes
+	bytes, err := json.Marshal(entries)
+	if err != nil {
+		return b, err
+	}
+	fmt.Fprint(&b, string(bytes))
+
+	return b, nil
+}
+
 // cleanPostHookGraph applies post hook clean actions to the graph
 func (ph *PostHookJob) cleanPostHookGraph() {
 	newGraph := r.NewGraph("")
@@ -195,7 +273,7 @@ func (ph PostHookJob) Bytes() (bytes.Buffer, error) {
 
 // Bytes returns the PostHookJob as an JSON-LD string
 func (ph PostHookJob) String() (string, error) {
-	b, err := ph.Bytes()
+	b, err := ph.sortWebResources()
 	if err != nil {
 		return "", err
 	}

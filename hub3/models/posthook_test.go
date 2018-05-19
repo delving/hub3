@@ -103,6 +103,24 @@ var _ = Describe("Posthook", func() {
 
 			})
 
+			It("should sort the actual webresources resources in resourceSortOrder", func() {
+				content, err := getRDFString("test_data/enb_test_1.nt")
+				Expect(err).ToNot(HaveOccurred())
+				g := r.NewGraph(subject)
+				err = g.Parse(strings.NewReader(content), "text/turtle")
+				Expect(err).ToNot(HaveOccurred())
+				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
+				Expect(posthook).ToNot(BeNil())
+				Expect(posthook.Graph.Len()).ToNot(Equal(0))
+
+				b, err := posthook.sortWebResources()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(b.Len()).ToNot(Equal(0))
+
+				Expect(b.String()).To(HaveSuffix("[{\"@value\":\"image/jpeg\"}]}]"))
+
+			})
+
 		})
 
 	})
