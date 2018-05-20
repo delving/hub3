@@ -175,6 +175,8 @@ func cleanEbuCore(g *r.Graph, t *r.Triple) bool {
 	return false
 }
 
+// ResourceSortOrder holds information to sort RDF:type webresources based on
+// their nave:resourceSortOrder key
 type ResourceSortOrder struct {
 	Resource map[string]interface{}
 	SortKey  int
@@ -209,7 +211,6 @@ func sortMapArray(m []map[string]interface{}) []map[string]interface{} {
 }
 
 // sortWebResources sorts the webresources in order last
-// todo sort the actual webresource in the output json, so marshal to map[string]interface{} then stort webresource from non webresource, sort and glue together
 func (ph *PostHookJob) sortWebResources() (bytes.Buffer, error) {
 	var b bytes.Buffer
 

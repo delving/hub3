@@ -106,7 +106,6 @@ func createESClient() *elastic.Client {
 		elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
 	}
 
-	// TODO: add this from the configuration later
 	if config.Config.ElasticSearch.HasAuthentication() {
 		es := config.Config.ElasticSearch
 		options = append(options, elastic.SetBasicAuth(es.UserName, es.Password))
