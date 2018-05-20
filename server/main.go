@@ -35,6 +35,12 @@ import (
 	negroniprometheus "github.com/zbindenren/negroni-prometheus"
 )
 
+// DisabledMessage is a placeholder for disabled endpoints
+type ErrorMessage struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 // Start starts a graceful webserver process.
 func Start(buildInfo *c.BuildVersionInfo) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)

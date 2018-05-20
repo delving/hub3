@@ -45,11 +45,11 @@ func (rs SearchResource) Routes() chi.Router {
 	})
 
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
-		render.PlainText(w, r, `{"status": "not enabled"}`)
+		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	})
 	r.Get("/v1/{id}", func(w http.ResponseWriter, r *http.Request) {
-		render.PlainText(w, r, `{"status": "not enabled"}`)
+		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	})
 

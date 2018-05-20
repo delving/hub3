@@ -27,13 +27,14 @@ func (rs SparqlResource) Routes() chi.Router {
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		// todo replace with json later
-		render.PlainText(w, r, `{"status": "not enabled"}`)
+		log.Printf("sparql is disabled\n")
+		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	}
 	query := r.URL.Query().Get("query")
 	if query == "" {
-		render.Status(r, http.StatusNotFound)
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, &ErrorMessage{"Bad Request", "a value in the query param is required."})
 		return
 	}
 	if !strings.Contains(strings.ToLower(query), " limit ") {
