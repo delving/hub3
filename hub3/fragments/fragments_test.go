@@ -103,13 +103,25 @@ var _ = Describe("Fragments", func() {
 
 		Context("with an object resource", func() {
 
-			t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), URIRef("urn:target"))
+			t := r.NewTriple(URIRef("http://example.com/resource/1"), URIRef("urn:subject"), URIRef("urn:target"))
 			f, err := fb.CreateFragment(t)
 
-			It("should have a spec", func() {
+			It("should not have a header without calling AddHeader", func() {
 				Expect(t).ToNot(BeNil())
 				Expect(err).ToNot(HaveOccurred())
 				Expect(f).ToNot(BeNil())
+				//Expect(f.GetSpec()).ToNot(Equal(spec))
+
+				err := f.AddHeader(fb)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(f.GetSpec()).To(Equal(spec))
+			})
+
+			It("should have a  lodKey", func() {
+				Expect(f.GetLodKey()).To(Equal("/1"))
+			})
+
+			It("should have a spec", func() {
 				Expect(f.GetSpec()).To(Equal(spec))
 
 				Expect(f.GetPredicate()).To(Equal("urn:subject"))
@@ -143,7 +155,7 @@ var _ = Describe("Fragments", func() {
 
 			It("should have a subject without <>", func() {
 				r := f.GetSubject()
-				Expect(r).To(Equal("urn:1"))
+				Expect(r).To(Equal("http://example.com/resource/1"))
 				Expect(r).ToNot(HaveSuffix("%s", ">"))
 				Expect(r).ToNot(HavePrefix("%s", "<"))
 			})
@@ -166,6 +178,29 @@ var _ = Describe("Fragments", func() {
 				t := f.GetObjectType()
 				Expect(t).ToNot(BeNil())
 				Expect(t).To(Equal(ObjectType_RESOURCE))
+			})
+
+			It("should create a lodKey with a url fragment", func() {
+				t := r.NewTriple(URIRef("http://example.com/resource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
+				f, err := fb.CreateFragment(t)
+				Expect(err).ToNot(HaveOccurred())
+
+				key, err := f.CreateLodKey()
+				Expect(key).ToNot(BeEmpty())
+				Expect(err).ToNot(HaveOccurred())
+
+				Expect(key).To(HaveSuffix("#a"))
+			})
+
+			It("should give back on empty lodKey when the path does not start with Config.Lod.Resource HavePrefix", func() {
+				t := r.NewTriple(URIRef("http://example.com/bresource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
+				f, err := fb.CreateFragment(t)
+				Expect(err).ToNot(HaveOccurred())
+
+				key, err := f.CreateLodKey()
+				Expect(key).To(BeEmpty())
+				Expect(err).ToNot(HaveOccurred())
+
 			})
 
 		})

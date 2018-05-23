@@ -409,7 +409,7 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 		"%s/api/webresource/%s/%s",
 		c.Config.WebResource.MediaManagerHost,
 		orgID,
-		urn,
+		strings.Replace(urn, "%", "%%", -1),
 	)
 }
 
@@ -426,9 +426,20 @@ func (fb *FragmentBuilder) GetResourceLabel(t *r.Triple) (string, bool) {
 // SetResourceLabels extracts resource labels from the graph which is used for
 // presenting labels for Triple.Object instances that are resources.
 func (fb *FragmentBuilder) SetResourceLabels() error {
-	prefLabel := r.NewResource("http://www.w3.org/2004/02/skos/core#prefLabel")
-	for _, t := range fb.Graph.All(nil, prefLabel, nil) {
-		fb.ResourceLabels[t.GetSubjectID()] = t.Object.(*r.Literal).RawValue()
+	// TODO add support for additionalLabels from the configuration
+	labels := []r.Term{
+		r.NewResource("http://www.w3.org/2004/02/skos/core#prefLabel"),
+		r.NewResource("http://xmlns.com/foaf/0.1/name"),
+	}
+	for _, label := range labels {
+		for _, t := range fb.Graph.All(nil, label, nil) {
+			subjectID := t.GetSubjectID()
+			_, ok := fb.ResourceLabels[subjectID]
+			if ok {
+				break
+			}
+			fb.ResourceLabels[subjectID] = t.Object.(*r.Literal).RawValue()
+		}
 	}
 	return nil
 }

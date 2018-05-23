@@ -52,9 +52,14 @@ import:
   - retrier
 - package: gopkg.in/olivere/elastic.v5
 - package: github.com/kiivihal/rdf2go
+  version: ~0.1.2
 - package: github.com/kazarena/json-gold
   version: ~0.3.0
   subpackages:
   - ld
 - package: github.com/golang/protobuf
   version: ^1.1.0
+- package: github.com/gobuffalo/packr
+  version: ~1.11.0
+  subpackages:
+  - '...'

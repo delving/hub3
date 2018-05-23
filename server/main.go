@@ -35,6 +35,12 @@ import (
 	negroniprometheus "github.com/zbindenren/negroni-prometheus"
 )
 
+// DisabledMessage is a placeholder for disabled endpoints
+type ErrorMessage struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}
+
 // Start starts a graceful webserver process.
 func Start(buildInfo *c.BuildVersionInfo) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -86,7 +92,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 
-	r.Handle("/api/stats/prometheus", prometheus.Handler())
+	r.Handle("/metrics", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := w.Write([]byte("You are rocking rapid!"))
@@ -106,8 +112,8 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
 	// dashboard
-	r.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/dashboard.html")
+	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/scroll-api.html")
 		return
 	})
 

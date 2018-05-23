@@ -67,6 +67,9 @@ elm-stuff/
 # elm-repl generated files
 repl-temp-*
 
+# don't commit examples for now
+example
+
 target/
 *.log
 rapid-*.toml

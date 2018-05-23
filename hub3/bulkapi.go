@@ -29,6 +29,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
+	r "github.com/kiivihal/rdf2go"
 	//elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -226,9 +227,6 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 				return err
 			}
 		}
-		if c.Config.RDF.RDFStoreEnabled {
-			action.CreateRDFBulkRequest(response)
-		}
 	default:
 		log.Printf("Unknown action %s", action.Action)
 	}
@@ -301,7 +299,7 @@ func getContext(input string, lineNumber int) (string, error) {
 }
 
 //ESSave the RDF Record to ElasticSearch
-func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing bool) error {
+func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing bool) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
@@ -340,7 +338,7 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
-		err := fb.CreateFragments(action.p, true)
+		err := fb.CreateFragments(action.p, true, true)
 		if err != nil {
 			log.Printf("Unable to save fragments: %v", err)
 			return err
@@ -356,7 +354,21 @@ func (action BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing 
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
+
+	// submit the bulkIndexRequest for indexing
 	action.p.Add(r)
+
+	if c.Config.RDF.RDFStoreEnabled {
+		action.CreateRDFBulkRequest(response, fb.Graph)
+	}
+
+	// index the LoD Fragments
+	if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
+		err = fb.IndexFragments(action.p)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -386,9 +398,12 @@ type fusekiStoreResponse struct {
 }
 
 //CreateRDFBulkRequest gathers all the triples from an BulkAction to be inserted in bulk.
-func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse) {
+func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse, g *r.Graph) {
+	var b bytes.Buffer
+	g.Serialize(&b, "text/turtle")
+
 	su := SparqlUpdate{
-		Triples:       action.Graph,
+		Triples:       b.String(),
 		NamedGraphURI: action.NamedGraphURI,
 		Spec:          action.Spec,
 		SpecRevision:  response.SpecRevision,

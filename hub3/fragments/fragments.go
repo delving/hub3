@@ -141,24 +141,38 @@ func (fb *FragmentBuilder) GetRDF() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+// IndexFragments updates the Fragments for standalone indexing and adds them to the Elasti BulkProcessorService
+func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
+	for _, frag := range fb.fg.Fragments {
+		err := frag.AddHeader(fb)
+		if err != nil {
+			return err
+		}
+		frag.AddTo(p)
+	}
+	return nil
+}
+
 // CreateFragments creates and stores all the fragments
-func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool) error {
+func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool, compact bool) error {
 	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
 		return fmt.Errorf("cannot store fragments from empty graph")
 	}
 	for t := range fb.Graph.IterTriples() {
 		frag, err := fb.CreateFragment(t)
+		if !compact {
+			err := frag.AddHeader(fb)
+			if err != nil {
+				log.Printf("Unable to add header to fragment due to %v", err)
+				return err
+			}
+		}
 		if err != nil {
 			log.Printf("Unable to create fragment due to %v.", err)
 			return err
 		}
-		if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
-			err = frag.AddTo(p)
-			if err != nil {
-				log.Printf("Unable to save fragment due to %v.", err)
-				return err
-			}
-		}
+		// nest fragments as opposed to using a parent child construction in ElasticSearch.
+		// even though this would reduce the size of the index, it comes at the price of search performance.
 		if nestFragments {
 			fb.fg.Fragments = append(fb.fg.Fragments, frag)
 		}
@@ -174,20 +188,55 @@ func (f *Fragment) AddTags(tag ...string) {
 	}
 }
 
+// CreateLodKey returns the path including the # fragments from the subject URL
+// This is used for the Linked Open Data resolving
+func (f *Fragment) CreateLodKey() (string, error) {
+	u, err := url.Parse(f.GetSubject())
+	if err != nil {
+		return "", err
+	}
+	lodResourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
+	if !strings.HasPrefix(u.Path, lodResourcePrefix) {
+		return "", nil
+	}
+	lodKey := strings.TrimPrefix(u.Path, lodResourcePrefix)
+	if u.Fragment != "" {
+		lodKey = fmt.Sprintf("%s#%s", lodKey, u.Fragment)
+	}
+	return lodKey, nil
+}
+
+// AddHeader adds header information for stand-alone fragments.
+// When Fragments are embedded inside a FragmentGraph this information is
+// redundant.
+func (f *Fragment) AddHeader(fb *FragmentBuilder) error {
+	f.DocType = FragmentDocType
+	f.Spec = fb.fg.GetSpec()
+	f.Revision = fb.fg.GetRevision()
+	f.NamedGraphURI = fb.fg.GetNamedGraphURI()
+	f.OrgID = fb.fg.GetOrgID()
+	f.HubID = fb.fg.GetHubID()
+	lodKey, err := f.CreateLodKey()
+	if err != nil {
+		return err
+	}
+	if lodKey != "" {
+		f.LodKey = lodKey
+	}
+	return nil
+
+}
+
 // CreateFragment creates a fragment from a triple
 func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
-	f := &Fragment{
-		Spec:          fb.fg.GetSpec(),
-		Revision:      fb.fg.GetRevision(),
-		NamedGraphURI: fb.fg.GetNamedGraphURI(),
-		OrgID:         fb.fg.GetOrgID(),
-		HubID:         fb.fg.GetHubID(),
-		DocType:       FragmentDocType,
-	}
+	f := &Fragment{}
 	f.Subject = triple.Subject.RawValue()
 	f.Predicate = triple.Predicate.RawValue()
+	label, _ := c.Config.NameSpaceMap.GetSearchLabel(f.GetPredicate())
+	f.SearchLabel = label
 	f.Object = triple.Object.RawValue()
 	f.Triple = triple.String()
+
 	switch triple.Object.(type) {
 	case *r.Literal:
 		f.ObjectType = ObjectType_LITERAL
@@ -549,7 +598,7 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	)
 	fb.Graph.AddTriple(subject, r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"), r.NewLiteral(spec))
 	fb.Graph.AddTriple(subject, r.NewResource("http://purl.org/dc/terms/title"), r.NewLiteral(spec))
-	return fb.CreateFragments(p, false)
+	return fb.CreateFragments(p, false, true)
 }
 
 // ESMapping is the default mapping for the RDF records enabled by rapid

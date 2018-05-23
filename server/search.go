@@ -19,13 +19,14 @@ import (
 	"fmt"
 	log "log"
 	"net/http"
+	"strconv"
 
 	"github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/api"
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/golang/protobuf/proto"
 	//elastic "github.cocm/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -37,21 +38,109 @@ type SearchResource struct{}
 func (rs SearchResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/v2", getSearchResult)
+	r.Get("/v2", getScrollResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
 		return
 	})
+
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
-		render.PlainText(w, r, `{"status": "not enabled"}`)
+		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	})
 	r.Get("/v1/{id}", func(w http.ResponseWriter, r *http.Request) {
-		render.PlainText(w, r, `{"status": "not enabled"}`)
+		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	})
 
 	return r
+}
+
+func getScrollResult(w http.ResponseWriter, r *http.Request) {
+
+	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	if err != nil {
+		log.Println("Unable to create Search request")
+		return
+	}
+
+	// Echo requests when requested
+	echoRequest := r.URL.Query().Get("echo")
+	if echoRequest != "" {
+		echo, err := searchRequest.Echo(echoRequest, 0)
+		if err != nil {
+			log.Println("Unable to echo request")
+			log.Println(err)
+			return
+		}
+		if echo != nil {
+			render.JSON(w, r, echo)
+			return
+		}
+	}
+
+	s, err := searchRequest.ElasticSearchService(index.ESClient())
+	if err != nil {
+		log.Println("Unable to create Search Service")
+		return
+	}
+
+	log.Println(echoRequest)
+	if echoRequest == "searchService" {
+		render.JSON(w, r, s)
+		return
+	}
+
+	res, err := s.Do(ctx)
+	if err != nil {
+		log.Println("Unable to get search result.")
+		log.Println(err)
+		return
+	}
+	if res == nil {
+		log.Printf("expected response != nil; got: %v", res)
+		return
+	}
+
+	log.Println(echoRequest)
+	if echoRequest == "searchResponse" {
+		render.JSON(w, r, res)
+		return
+	}
+
+	records, err := decodeFragmentGraphs(res)
+	if err != nil {
+		log.Printf("Unable to decode records")
+		return
+	}
+
+	pager, err := searchRequest.NextScrollID(res.TotalHits())
+	if err != nil {
+		log.Println("Unable to create Scroll Pager. ")
+		return
+	}
+
+	// Add scrollID pager information to the header
+	w.Header().Add("P_SCROLL_ID", pager.GetScrollID())
+	w.Header().Add("P_CURSOR", strconv.FormatInt(int64(pager.GetCursor()), 10))
+	w.Header().Add("P_TOTAL", strconv.FormatInt(int64(pager.GetTotal()), 10))
+	w.Header().Add("P_ROWS", strconv.FormatInt(int64(pager.GetRows()), 10))
+
+	result := &fragments.ScrollResultV3{}
+	result.Pager = pager
+	result.Items = records
+	switch searchRequest.GetResponseFormatType() {
+	case fragments.ResponseFormatType_PROTOBUF:
+		output, err := proto.Marshal(result)
+		if err != nil {
+			log.Println("Unable to marshal result to protobuf format.")
+			return
+		}
+		render.Data(w, r, output)
+	default:
+		render.JSON(w, r, result)
+	}
+	return
 }
 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
@@ -79,43 +168,17 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
 		return
 	}
-	render.JSON(w, r, record)
-}
-
-func getSearchResult(w http.ResponseWriter, r *http.Request) {
-	s := index.ESClient().Search().
-		Index(config.Config.ElasticSearch.IndexName).
-		Size(20)
-	rawQuery := r.FormValue("q")
-	fmt.Println("query: ", rawQuery)
-	query := elastic.NewBoolQuery()
-	query = query.Must(elastic.NewTermQuery("docType", fragments.FragmentGraphDocType))
-	// todo enable query later
-	//if rawQuery != "" {
-	//rawQuery = strings.Replace(rawQuery, "delving_spec:", "spec:", 1)
-	//s = s.Query(elastic.NewQueryStringQuery(rawQuery))
-	//} else {
-	//s = s.Query(elastic.NewMatchAllQuery())
-	//}
-	s = s.Query(query)
-	res, err := s.Do(ctx)
-	if err != nil {
-		log.Println("Unable to get search result.")
-		log.Println(err)
-		return
+	switch r.URL.Query().Get("format") {
+	case "protobuf":
+		output, err := proto.Marshal(record)
+		if err != nil {
+			log.Println("Unable to marshal result to protobuf format.")
+			return
+		}
+		render.Data(w, r, output)
+	default:
+		render.JSON(w, r, record)
 	}
-	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
-		return
-	}
-	records, err := decodeFragmentGraphs(res)
-	if err != nil {
-		log.Printf("Unable to decode records")
-		return
-	}
-	result := api.SearchResultV3{}
-	result.Items = records
-	render.JSON(w, r, result)
 	return
 }
 
@@ -139,6 +202,8 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 		if err != nil {
 			return nil, err
 		}
+		// remove RDF
+		r.RDF = nil
 		records = append(records, r)
 	}
 	return records, nil

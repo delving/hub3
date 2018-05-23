@@ -324,7 +324,7 @@ var _ = Describe("V1", func() {
 		It("should extract all prefLabels", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb.Graph).ToNot(BeNil())
-			Expect(fb.ResourceLabels).To(BeEmpty())
+			//Expect(fb.ResourceLabels).To(BeEmpty())
 			err := fb.SetResourceLabels()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb.ResourceLabels).ToNot(BeEmpty())
