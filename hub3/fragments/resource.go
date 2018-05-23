@@ -43,10 +43,11 @@ type FragmentResource struct {
 
 // FragmentEntry holds all the information for the object of a rdf2go.Triple
 type FragmentEntry struct {
-	ID       string `json:"@id,omitempty"`
-	Value    string `json:"@value,omitempty"`
-	Language string `json:"@language,omitempty"`
-	Datatype string `json:"@type,omitempty"`
+	ID        string `json:"@id,omitempty"`
+	Value     string `json:"@value,omitempty"`
+	Language  string `json:"@language,omitempty"`
+	Datatype  string `json:"@type,omitempty"`
+	Entrytype string `json:"entrytype"`
 }
 
 // CreateResourceMap creates a map for all the resources in the rdf2go.Graph
@@ -89,14 +90,22 @@ func debrack(s string) string {
 }
 
 // CreateFragmentEntry creates a FragmentEntry from a triple
-func CreateFragmentEntry(t *r.Triple) *FragmentEntry {
-	// TODO check for duplicates
+func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
 	entry := &FragmentEntry{}
 	switch o := t.Object.(type) {
-	case *r.Resource, *r.BlankNode:
+	case *r.Resource:
+		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
+		entry.Entrytype = "Resource"
+		return entry, id
+	case *r.BlankNode:
+		id := r.GetResourceID(o)
+		entry.ID = r.GetResourceID(o)
+		entry.Entrytype = "Bnode"
+		return entry, id
 	case *r.Literal:
 		entry.Value = o.Value
+		entry.Entrytype = "Literal"
 		if o.Datatype != nil && len(o.Datatype.String()) > 0 {
 			if o.Datatype.String() != "<http://www.w3.org/2001/XMLSchema#string>" {
 				entry.Datatype = debrack(o.Datatype.String())
@@ -106,7 +115,7 @@ func CreateFragmentEntry(t *r.Triple) *FragmentEntry {
 			entry.Language = o.Language
 		}
 	}
-	return entry
+	return entry, ""
 }
 
 // AppendTriple appends a triple to a subject map
@@ -133,7 +142,15 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 	if !ok {
 		predicates = []*FragmentEntry{}
 	}
-	fr.Predicates[p] = append(predicates, CreateFragmentEntry(t))
+	entry, fragID := CreateFragmentEntry(t)
+	if fragID != "" {
+		if !contains(fr.ObjectIDs, fragID) && fragID != id {
+			fr.ObjectIDs = append(fr.ObjectIDs, fragID)
+		}
+
+	}
+	// TODO check for duplicates
+	fr.Predicates[p] = append(predicates, entry)
 
 	return nil
 }
