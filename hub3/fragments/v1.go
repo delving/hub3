@@ -124,7 +124,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	if err == nil {
 		s.SourceGraph = string(rdf)
 	} else {
-		log.Println("Unable to add RDF for %s", fb.fg.GetHubID())
+		log.Printf("Unable to add RDF for %s\n", fb.fg.GetHubID())
 	}
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
@@ -181,7 +181,8 @@ func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 	return g, nil
 }
 
-func getNSField(nsKey, label string) string {
+// GetNSField get as namespace field. It is a utility function
+func GetNSField(nsKey, label string) string {
 	var nsURI string
 	switch nsKey {
 	case "edm":
@@ -205,18 +206,20 @@ func getNSField(nsKey, label string) string {
 	return ""
 }
 
-func getEDMField(s string) r.Term {
-	return r.NewResource(getNSField("edm", s))
+// GetEDMField returns a rdf2go.Resource for a field
+func GetEDMField(s string) r.Term {
+	return r.NewResource(GetNSField("edm", s))
 }
 
-func getNaveField(s string) r.Term {
-	return r.NewResource(getNSField("nave", s))
+// GetNaveField returns a rdf2go.Resource for a field
+func GetNaveField(s string) r.Term {
+	return r.NewResource(GetNSField("nave", s))
 }
 
 // GetUrns returs a list of WebResource urns
 func (fb *FragmentBuilder) GetUrns() []string {
 	var urns []string
-	wrs := fb.Graph.All(nil, nil, getEDMField("WebResource"))
+	wrs := fb.Graph.All(nil, nil, GetEDMField("WebResource"))
 	for _, t := range wrs {
 		s := strings.Trim(t.Subject.String(), "<>")
 		if strings.HasPrefix(s, "urn:") {
@@ -270,7 +273,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 		s := triple.Subject.String()
 		p := triple.Predicate.String()
 		switch p {
-		case getNaveField("resourceSortOrder").String():
+		case GetNaveField("resourceSortOrder").String():
 			rawInt := triple.Object.(*r.Literal).RawValue()
 			i, err := strconv.Atoi(rawInt)
 			if err != nil {
@@ -281,7 +284,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			cleanGraph.Add(triple)
 		case r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").String():
 			o := triple.Object.String()
-			if o == getEDMField("WebResource").String() {
+			if o == GetEDMField("WebResource").String() {
 				if !strings.HasSuffix(s, "__>") {
 					_, ok := resources[s]
 					if !ok {
@@ -295,17 +298,17 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			} else {
 				cleanGraph.Add(triple)
 			}
-		case getEDMField("hasView").String():
+		case GetEDMField("hasView").String():
 			break
-		case getEDMField("isShownBy").String(), getEDMField("object").String():
+		case GetEDMField("isShownBy").String(), GetEDMField("object").String():
 			if hasUrns {
 				break
 			}
 			fallthrough
 		//g.Remove(triple)
-		//case getNaveField("thumbSmall").String(), getNaveField("thumbnail").String(), getNaveField("thumbLarge").String():
+		//case GetNaveField("thumbSmall").String(), GetNaveField("thumbnail").String(), GetNaveField("thumbLarge").String():
 		//fb.Graph.Remove(triple)
-		//case getNaveField("deepZoomUrl").String():
+		//case GetNaveField("deepZoomUrl").String():
 		//fb.Graph.Remove(triple)
 		default:
 			cleanGraph.Add(triple)
@@ -333,7 +336,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 			}
 			hasView := r.NewTriple(
 				subj,
-				getEDMField("hasView"),
+				GetEDMField("hasView"),
 				r.NewResource(s.CleanKey()),
 			)
 			cleanGraph.Add(hasView)
@@ -363,6 +366,7 @@ func (rso ResourceSortOrder) CleanKey() string {
 	return strings.Trim(rso.Key, "<>")
 }
 
+// GetObject returns a single object from the rdf2go.Graph
 func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 	t := fb.Graph.One(s, p, nil)
 	if t != nil {
@@ -371,14 +375,15 @@ func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 	return nil
 }
 
+// AddDefaults add default thumbnail fields to a edm:WebResource
 func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *r.Graph) {
-	isShownBy := fb.GetObject(wr, getNaveField("thumbLarge"))
+	isShownBy := fb.GetObject(wr, GetNaveField("thumbLarge"))
 	if isShownBy != nil {
-		g.AddTriple(s, getEDMField("isShownBy"), isShownBy)
+		g.AddTriple(s, GetEDMField("isShownBy"), isShownBy)
 	}
-	object := fb.GetObject(wr, getNaveField("thumbSmall"))
+	object := fb.GetObject(wr, GetNaveField("thumbSmall"))
 	if object != nil {
-		g.AddTriple(s, getEDMField("object"), isShownBy)
+		g.AddTriple(s, GetEDMField("object"), isShownBy)
 	}
 }
 
@@ -413,6 +418,7 @@ func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
 	)
 }
 
+// GetResourceLabel returns the label for a resource
 func (fb *FragmentBuilder) GetResourceLabel(t *r.Triple) (string, bool) {
 	switch t.Object.(type) {
 	case *r.Resource:
@@ -547,7 +553,8 @@ func CreateESAction(indexDoc map[string]interface{}, id string) (*elastic.BulkIn
 	return r, nil
 }
 
-// V1ESMapping has the legacy mapping for V1 indexes. It should only be used when indexV1 is enabled in the configuration.
+// V1ESMapping has the legacy mapping for V1 indexes. It should only be used when indexV1 is enabled in the
+// configuration.
 var V1ESMapping = `
 {
     "settings": {
