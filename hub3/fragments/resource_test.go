@@ -136,6 +136,7 @@ var _ = Describe("Resource", func() {
 			Expect(id).ToNot(BeEmpty())
 			Expect(id).To(Equal(r.GetResourceID(t.Object)))
 			Expect(entry.ID).To(Equal(id))
+			Expect(entry.Triple).ToNot(BeEmpty())
 			Expect(entry.Language).To(BeEmpty())
 			Expect(entry.Datatype).To(BeEmpty())
 			Expect(entry.Value).To(BeEmpty())

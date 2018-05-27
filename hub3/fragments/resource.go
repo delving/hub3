@@ -162,6 +162,7 @@ type FragmentEntry struct {
 	Language  string            `json:"@language,omitempty"`
 	Datatype  string            `json:"@type,omitempty"`
 	Entrytype string            `json:"entrytype"`
+	Triple    string            `json:"triple"`
 	Inline    *FragmentResource `json:"inline"`
 }
 
@@ -215,7 +216,7 @@ func debrack(s string) string {
 
 // CreateFragmentEntry creates a FragmentEntry from a triple
 func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
-	entry := &FragmentEntry{}
+	entry := &FragmentEntry{Triple: t.String()}
 	switch o := t.Object.(type) {
 	case *r.Resource:
 		id := r.GetResourceID(o)
