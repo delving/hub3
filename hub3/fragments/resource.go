@@ -68,6 +68,8 @@ type FragmentResource struct {
 	ObjectIDs            []*FragmentReferrerContext  `json:"objectIDs"`
 }
 
+// GetLabel returns the label and language for a resource
+// This is used to present a label for a link in the interface
 func (fr *FragmentResource) GetLabel() (label, language string) {
 	if fr.ID == "" {
 		return "", ""

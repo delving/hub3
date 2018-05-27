@@ -45,16 +45,6 @@ var _ = Describe("Builder", func() {
 
 		})
 
-		Context("when creating linked data", func() {
-
-			It("should find subjects by EntryURI", func() {
-				Expect(err).ToNot(HaveOccurred())
-				err := fb.CreateLinkedFragments()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(fb.Graph.Len()).To(Equal(65))
-			})
-		})
-
 		Context("when a graphName is present", func() {
 			spec := "test-spec"
 			rev := int32(1)

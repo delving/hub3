@@ -144,20 +144,6 @@ func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragmen
 	return nil
 }
 
-// CreateLinkedFragments creates fragments that are context aware
-func (fb *FragmentBuilder) CreateLinkedFragments() error {
-	if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
-		return fmt.Errorf("cannot store fragments from empty graph")
-	}
-	log.Println("Start iterating")
-	// Add channel
-	for _, subject := range fb.Graph.All(nil, r.NewResource(RDFType), r.NewResource(fb.fg.GetEntryURI())) {
-		// TODO: remove print statement
-		log.Println(subject)
-	}
-	return nil
-}
-
 // Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	return fb.fg
