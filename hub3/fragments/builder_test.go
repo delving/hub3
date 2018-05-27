@@ -28,7 +28,7 @@ var _ = Describe("Builder", func() {
 			})
 
 			It("should have an empty map of resources", func() {
-				Expect(fb.Resources).To(BeEmpty())
+				Expect(fb.Resources).To(BeNil())
 			})
 
 		})

@@ -68,9 +68,69 @@ type FragmentResource struct {
 	ObjectIDs            []*FragmentReferrerContext  `json:"objectIDs"`
 }
 
+func (fr *FragmentResource) GetLabel() (label, language string) {
+	if fr.ID == "" {
+		return "", ""
+	}
+	labels := []string{
+		"http://www.w3.org/2004/02/skos/core#prefLabel",
+		"http://xmlns.com/foaf/0.1/name",
+	}
+	for _, labelPredicate := range labels {
+		o, ok := fr.Predicates[labelPredicate]
+		if ok && len(o) != 0 {
+			return o[0].Value, o[0].Language
+		}
+	}
+	return "", ""
+}
+
+// GetSubject returns the root FragmentResource based on its subject URI
+// todo: remove this function later
 func (rm *ResourceMap) GetSubject(uri string) (*FragmentResource, bool) {
 	subject, ok := rm.Get(uri)
 	return subject, ok
+}
+
+// SetContextLevels sets FragmentReferrerContext to each level from the root
+func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
+	subject, ok := rm.Get(subjectURI)
+	if !ok {
+		return fmt.Errorf("Subject %s is not part of the graph", subjectURI)
+	}
+	for _, level1 := range subject.ObjectIDs {
+		level2Resource, ok := rm.Get(level1.ObjectID)
+		if !ok {
+			log.Printf("unknown target URI: %s", level1.ObjectID)
+			continue
+		}
+		level1.Level = 2
+		level2Resource.AppendContext(level1)
+
+		// loop into the next level, i.e. level 3
+		for _, level2 := range level2Resource.ObjectIDs {
+			level2.Level = 3
+			level3Resource, ok := rm.Get(level2.ObjectID)
+			if !ok {
+				log.Printf("unknown target URI: %s", level2.ObjectID)
+				continue
+			}
+			level3Resource.AppendContext(level1, level2)
+		}
+	}
+
+	return nil
+}
+
+// AppendContext adds the referrerContext to the FragmentResource
+// This action increments the level count
+func (fr *FragmentResource) AppendContext(ctxs ...*FragmentReferrerContext) {
+	for _, ctx := range ctxs {
+		//ctx.Level = fr.GetLevel()
+		if !containsContext(fr.Context, ctx) {
+			fr.Context = append(fr.Context, ctx)
+		}
+	}
 }
 
 /*
@@ -85,6 +145,7 @@ workflow:
  - Set level of the ReferrerContext (or better set it at current level plus 1)
  - recurse into ObjectIDs until you reach level 3 (break at level 4; this should also not be part of the grap)
 	- break should result in moving onto next object Id on level 2 or 1
+
  - When done create fragments.
 
 

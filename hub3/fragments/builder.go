@@ -32,7 +32,7 @@ type FragmentBuilder struct {
 	fg             *FragmentGraph
 	Graph          *r.Graph
 	ResourceLabels map[string]string
-	Resources      map[string]*FragmentResource
+	Resources      *ResourceMap
 }
 
 // NewFragmentBuilder creates a new instance of the FragmentBuilder

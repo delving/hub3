@@ -45,6 +45,7 @@ var _ = Describe("Resource", func() {
 			Expect(fr.Types).To(ContainElement("http://www.openarchives.org/ore/terms/Aggregation"))
 			Expect(fr.Types).To(HaveLen(1))
 			Expect(fr.ObjectIDs).To(HaveLen(6))
+			// todo properly check for not referring to itself
 			Expect(fr.ObjectIDs).ToNot(ContainElement(subject))
 			Expect(fr.Predicates).To(HaveLen(6))
 		})
@@ -211,6 +212,9 @@ var _ = Describe("Resource", func() {
 	Describe("when creating FragmentReferrerContext", func() {
 
 		Context("and determining the level", func() {
+			fb, _ := testDataGraph(false)
+			rm, _ := NewResourceMap(fb.Graph)
+			subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 
 			It("should not have 0 as level", func() {
 				fb, err := testDataGraph(false)
@@ -220,22 +224,43 @@ var _ = Describe("Resource", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rm.Resources()).ToNot(BeEmpty())
 
-				subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 				fr, ok := rm.Get(subject)
 				Expect(ok).To(BeTrue())
 
 				level := fr.GetLevel()
 				Expect(level).To(Equal(1))
-
+			})
+			It("should throw an error when the subject is unknown", func() {
+				Expect(rm).ToNot(BeNil())
+				err := rm.SetContextLevels("urn:unknown")
+				Expect(err).To(HaveOccurred())
 			})
 
 			It("should determine its level by the number of context is has", func() {
+				Expect(rm).ToNot(BeNil())
+				err := rm.SetContextLevels(subject)
+				Expect(err).ToNot(HaveOccurred())
 
+				providedCHO, ok := rm.Get("http://data.jck.nl/resource/document/jhm-foto/F900893")
+				Expect(providedCHO).ToNot(BeNil())
+				Expect(ok).To(BeTrue())
+				Expect(providedCHO.Context).To(HaveLen(1))
+				Expect(providedCHO.Context[0].Level).To(Equal(2))
+				Expect(providedCHO.GetLevel()).To(Equal(2))
+
+				skosConcept, ok := rm.Get("http://data.jck.nl/resource/skos/thesau/90000072")
+				Expect(skosConcept).ToNot(BeNil())
+				Expect(ok).To(BeTrue())
+				Expect(skosConcept.Context).To(HaveLen(2))
+				Expect(skosConcept.GetLevel()).To(Equal(3))
+				Expect(skosConcept.Context[1].Level).To(Equal(3))
+				Expect(skosConcept.Context[0].Level).To(Equal(2))
 			})
 		})
 	})
 
 	Context("when adding context to a ResourceMap", func() {
+
 	})
 
 	Context("when getting the first level resource from a resource", func() {
