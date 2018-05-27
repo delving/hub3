@@ -12,32 +12,34 @@ var _ = Describe("Resource", func() {
 	Describe("when creating a resource map", func() {
 
 		It("return an empty map when the graph is empty", func() {
-			rm, err := CreateResourceMap(r.NewGraph(""))
+			rm, err := NewResourceMap(r.NewGraph(""))
 			Expect(err).To(HaveOccurred())
-			Expect(rm).To(BeEmpty())
+			Expect(rm.Resources()).To(BeEmpty())
 		})
 
 		It("return an non empty map when the graph is not empty", func() {
 			fb, err := testDataGraph(false)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb).ToNot(BeNil())
-			rm, err := CreateResourceMap(fb.Graph)
+			rm, err := NewResourceMap(fb.Graph)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(rm).ToNot(BeEmpty())
-			Expect(rm).To(HaveLen(12))
-			Expect(rm).To(HaveKey("http://data.jck.nl/resource/aggregation/jhm-foto/F900893"))
+			Expect(rm).ToNot(BeNil())
+			rs := rm.Resources()
+			Expect(rs).ToNot(BeEmpty())
+			Expect(rs).To(HaveLen(12))
+			Expect(rs).To(HaveKey("http://data.jck.nl/resource/aggregation/jhm-foto/F900893"))
 		})
 
 		It("should have a FragmentResource for each map key", func() {
 			fb, err := testDataGraph(false)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb).ToNot(BeNil())
-			rm, err := CreateResourceMap(fb.Graph)
+			rm, err := NewResourceMap(fb.Graph)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(rm).ToNot(BeEmpty())
+			Expect(rm.Resources()).ToNot(BeEmpty())
 
 			subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
-			fr, ok := rm[subject]
+			fr, ok := rm.Get(subject)
 			Expect(ok).To(BeTrue())
 			Expect(fr.ID).To(Equal(subject))
 			Expect(fr.Types).To(ContainElement("http://www.openarchives.org/ore/terms/Aggregation"))
@@ -99,7 +101,7 @@ var _ = Describe("Resource", func() {
 			Expect(entry.ObjectIDs).To(HaveLen(0))
 		})
 
-		It("should add add objectIDS for resources", func() {
+		It("should add objectIDS for resources", func() {
 			rm := make(map[string]*FragmentResource)
 			Expect(rm).To(BeEmpty())
 			subject := NSRef("1")
@@ -204,6 +206,39 @@ var _ = Describe("Resource", func() {
 			Expect(entry.Language).To(BeEmpty())
 			Expect(entry.Entrytype).To(Equal("Literal"))
 		})
+	})
+
+	Describe("when creating FragmentReferrerContext", func() {
+
+		Context("and determining the level", func() {
+
+			It("should not have 0 as level", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(fb).ToNot(BeNil())
+				rm, err := NewResourceMap(fb.Graph)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(rm.Resources()).ToNot(BeEmpty())
+
+				subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
+				fr, ok := rm.Get(subject)
+				Expect(ok).To(BeTrue())
+
+				level := fr.GetLevel()
+				Expect(level).To(Equal(1))
+
+			})
+
+			It("should determine its level by the number of context is has", func() {
+
+			})
+		})
+	})
+
+	Context("when adding context to a ResourceMap", func() {
+	})
+
+	Context("when getting the first level resource from a resource", func() {
 	})
 
 })

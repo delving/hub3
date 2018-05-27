@@ -495,7 +495,6 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 // GetFieldKey returns the namespaced version of the Predicate of the Triple
 func GetFieldKey(t *r.Triple) (string, error) {
 	return c.Config.NameSpaceMap.GetSearchLabel(t.Predicate.RawValue())
-	return "", nil
 }
 
 // CreateV1IndexEntry creates an IndexEntry from a r.Triple
