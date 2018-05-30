@@ -39,7 +39,7 @@ var _ = Describe("Resource", func() {
 			Expect(rm.Resources()).ToNot(BeEmpty())
 
 			subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
-			fr, ok := rm.Get(subject)
+			fr, ok := rm.GetResource(subject)
 			Expect(ok).To(BeTrue())
 			Expect(fr.ID).To(Equal(subject))
 			Expect(fr.Types).To(ContainElement("http://www.openarchives.org/ore/terms/Aggregation"))
@@ -225,7 +225,7 @@ var _ = Describe("Resource", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rm.Resources()).ToNot(BeEmpty())
 
-				fr, ok := rm.Get(subject)
+				fr, ok := rm.GetResource(subject)
 				Expect(ok).To(BeTrue())
 
 				level := fr.GetLevel()
@@ -242,7 +242,7 @@ var _ = Describe("Resource", func() {
 				err := rm.SetContextLevels(subject)
 				Expect(err).ToNot(HaveOccurred())
 
-				providedCHO, ok := rm.Get("http://data.jck.nl/resource/document/jhm-foto/F900893")
+				providedCHO, ok := rm.GetResource("http://data.jck.nl/resource/document/jhm-foto/F900893")
 				Expect(providedCHO).ToNot(BeNil())
 				Expect(ok).To(BeTrue())
 				Expect(providedCHO.Context).To(HaveLen(1))
@@ -252,7 +252,7 @@ var _ = Describe("Resource", func() {
 				Expect(label).To(Equal(""))
 				Expect(lang).To(Equal(""))
 
-				skosConcept, ok := rm.Get("http://data.jck.nl/resource/skos/thesau/90000072")
+				skosConcept, ok := rm.GetResource("http://data.jck.nl/resource/skos/thesau/90000072")
 				Expect(skosConcept).ToNot(BeNil())
 				Expect(ok).To(BeTrue())
 				Expect(skosConcept.Context).To(HaveLen(2))
@@ -266,11 +266,63 @@ var _ = Describe("Resource", func() {
 		})
 	})
 
-	Context("when adding context to a ResourceMap", func() {
+	Describe("when creating a Header", func() {
 
-	})
+		fb, _ := testDataGraph(false)
+		//rm, _ := NewResourceMap(fb.Graph)
+		//subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 
-	Context("when getting the first level resource from a resource", func() {
+		Context("from a FragmentGraph", func() {
+
+			//skosConcept, _ := rm.GetResource("http://data.jck.nl/resource/skos/thesau/90000072")
+			//entry := skosConcept.Predicates["http://www.w3.org/2004/02/skos/core#prefLabel"]
+			header := fb.FragmentGraph().CreateHeader()
+
+			It("should set the OrgID", func() {
+				Expect(header.OrgID).To(Equal("rapid"))
+			})
+
+			It("should set the spec", func() {
+				Expect(header.Spec).To(Equal("test-spec"))
+			})
+
+			It("should set the Revision", func() {
+				Expect(header.Revision).To(Equal(int32(1)))
+			})
+
+			It("should set the hubID", func() {
+				Expect(header.HubID).ToNot(Equal(""))
+			})
+
+			It("should have no tags", func() {
+				Expect(header.Tags).To(BeEmpty())
+			})
+
+		})
+
+		Context("and adding Tags", func() {
+
+			It("should only add a tag", func() {
+				header := fb.FragmentGraph().CreateHeader()
+				Expect(header.Tags).To(BeEmpty())
+				header.AddTags("tag1")
+				Expect(header.Tags).ToNot(BeEmpty())
+				Expect(header.Tags).To(HaveLen(1))
+
+			})
+
+			It("should not add a tag twice", func() {
+				header := fb.FragmentGraph().CreateHeader()
+				Expect(header.Tags).To(BeEmpty())
+				header.AddTags("tag1", "tag2")
+				header.AddTags("tag1")
+				Expect(header.Tags).ToNot(BeEmpty())
+				Expect(header.Tags).To(HaveLen(2))
+
+			})
+
+		})
+
 	})
 
 })

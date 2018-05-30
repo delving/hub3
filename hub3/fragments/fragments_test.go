@@ -70,6 +70,7 @@ func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg.Spec = spec
 	fg.Revision = rev
 	fg.NamedGraphURI = ng
+	fg.HubID = fmt.Sprintf("%s_%s_1", fg.OrgID, fg.Spec)
 	return fg
 }
 

@@ -334,11 +334,73 @@ message FragmentGraph {
   RecordType recordType = 9;
 
   repeated Fragment fragments = 10;
+  repeated ResultSummary summary = 13;
   repeated string tags = 11;
   string docType = 12;
 }
 
+message ResultSummary {
+  string title = 1;
+  string owner = 2;
+  string datasetTitle = 3;
+  string thumbnail = 4;
+  string landingPage = 5;
+  string latLong = 6;
+  string date = 7;
+  string description = 8;
+  string subject = 9;
+}
+
+message Header {
+  // The tenant identifier for this RecordType.
+  string orgID = 1;
+  // The spec is the unique dataset string to identify which dataset  this 
+  // Fragment belongs to
+  string spec = 2; 
+  // The revision is used to determine which version is an orphan and should be removed
+  int32 revision = 3;
+  // The hubId is the unique identifier for any document record in hub3
+  string hubID = 4;
+  // Each fragment can be tagged with additional metadata. This can be queried for.
+  // Some examples are 'resource', 'literal', 'bnode', 'rdfType', etc.
+  repeated string tags = 5;
+  // The document type for ElasticSearch. This is a constant value 
+  string docType = 6;
+}
+
+// Fragment are used and stored in ElasticSearch for the Linked Data Fragments
+// API
 message Fragment {
+  
+  Header meta = 1;
+  // RDF core
+  // URI of the Triple subject
+  string subject = 7;
+  // URI of the Triple predicate
+  string predicate = 8;
+  // An underscore delimited version of the namespace and the label of the URI
+  // This is used in the Search DSL, for example dc:title becomes dc_title
+  string searchLabel = 9;
+  // The triple object. Can be both literal or resource (including Blank Nodes)
+  string object = 10;
+  // ISO 693 represenation of language code
+  string language = 11;
+  // Human readable version of the xsd:dataType
+  string dataType = 12; 
+  // The uri of the xsd:dataType used for rendering type in RDF represenation
+  string dataURI = 13; 
+  
+  // The n-triples representation of the triple. Used to quickly render
+  // RDF from a FragmentQuery
+  string triple = 14;
+  // The named graph that this triple is part of
+  string namedGraphURI = 15;
+
+  // the relative key that is used to resolve a SPARQL describe for a Subject
+  string lodKey = 16;
+}
+
+message FragmentGen1 {
   // meta block
   string orgID = 1;
   string spec = 2; 

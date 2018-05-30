@@ -90,18 +90,18 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 // GetSubject returns the root FragmentResource based on its subject URI
 // todo: remove this function later
 func (rm *ResourceMap) GetSubject(uri string) (*FragmentResource, bool) {
-	subject, ok := rm.Get(uri)
+	subject, ok := rm.GetResource(uri)
 	return subject, ok
 }
 
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
-	subject, ok := rm.Get(subjectURI)
+	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
 		return fmt.Errorf("Subject %s is not part of the graph", subjectURI)
 	}
 	for _, level1 := range subject.ObjectIDs {
-		level2Resource, ok := rm.Get(level1.ObjectID)
+		level2Resource, ok := rm.GetResource(level1.ObjectID)
 		if !ok {
 			log.Printf("unknown target URI: %s", level1.ObjectID)
 			continue
@@ -112,7 +112,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 		// loop into the next level, i.e. level 3
 		for _, level2 := range level2Resource.ObjectIDs {
 			level2.Level = 3
-			level3Resource, ok := rm.Get(level2.ObjectID)
+			level3Resource, ok := rm.GetResource(level2.ObjectID)
 			if !ok {
 				log.Printf("unknown target URI: %s", level2.ObjectID)
 				continue
@@ -192,6 +192,8 @@ func contains(s []string, e string) bool {
 	return false
 }
 
+// containsContext determines if a FragmentReferrerContext is already part of list
+// this deduplication is important to not provide false counts for context levels
 func containsContext(s []*FragmentReferrerContext, e *FragmentReferrerContext) bool {
 	for _, a := range s {
 		if a.ObjectID == e.ObjectID && a.Predicate == e.Predicate {
@@ -201,6 +203,17 @@ func containsContext(s []*FragmentReferrerContext, e *FragmentReferrerContext) b
 	return false
 }
 
+// containtsEntry determines if a FragmentEntry is already part of a predicate list
+func containsEntry(s []*FragmentEntry, e *FragmentEntry) bool {
+	for _, a := range s {
+		if a.ID == e.ID && a.Value == e.Value {
+			return true
+		}
+	}
+	return false
+}
+
+// debrack removes the brackets around a string representation of a triple
 func debrack(s string) string {
 	if len(s) < 2 {
 		return s
@@ -276,8 +289,9 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 			}
 		}
 	}
-	// TODO check for duplicates
-	fr.Predicates[p] = append(predicates, entry)
+	if !containsEntry(predicates, entry) {
+		fr.Predicates[p] = append(predicates, entry)
+	}
 
 	return nil
 }
@@ -287,8 +301,8 @@ func (rm *ResourceMap) Resources() map[string]*FragmentResource {
 	return rm.resources
 }
 
-// Get returns a Fragment resource from the ResourceMap
-func (rm *ResourceMap) Get(subject string) (*FragmentResource, bool) {
+// GetResource returns a Fragment resource from the ResourceMap
+func (rm *ResourceMap) GetResource(subject string) (*FragmentResource, bool) {
 	fr, ok := rm.resources[subject]
 	return fr, ok
 }
@@ -299,9 +313,29 @@ func (fr *FragmentResource) GetLevel() int {
 	return len(fr.Context) + 1
 }
 
-// NewContext returns the context for the current fragmentresource
+// CreateHeader Linked Data Fragment entry for ElasticSearch
+// as described here: http://linkeddatafragments.org/.
+//
+// The goal of this document is to support Linked Data Fragments based resolving
+// for all stored RDF triples in the Hub3 system.
+func (fg *FragmentGraph) CreateHeader() *Header {
+	h := &Header{
+		OrgID:    fg.OrgID,
+		Spec:     fg.Spec,
+		Revision: fg.Revision,
+		HubID:    fg.HubID,
+	}
+	return h
+}
 
-// AddContext Adds the referrer context to the FragmentResource
+// AddTags adds a tag string to the tags array of the Header
+func (h *Header) AddTags(tags ...string) {
+	for _, tag := range tags {
+		if !contains(h.Tags, tag) {
+			h.Tags = append(h.Tags, tag)
+		}
+	}
+}
 
 // AddGraphExternalContext
 

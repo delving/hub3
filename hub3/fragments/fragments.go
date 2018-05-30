@@ -44,6 +44,7 @@ const DocType = "doc"
 // SIZE of the fragments returned
 const SIZE = 100
 
+// RDFType is the URI for RDF:type
 const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // GetAboutURI returns the subject of the FragmentGraph
@@ -53,9 +54,8 @@ func (fg *FragmentGraph) GetAboutURI() string {
 
 // AddTags adds a tag to the fragment tag list
 func (f *Fragment) AddTags(tag ...string) {
-	//f.Tags = append(f.Tags, tag)
 	for _, t := range tag {
-		f.Tags = append(f.Tags, t)
+		f.Meta.Tags = append(f.Meta.Tags, t)
 	}
 }
 
@@ -66,37 +66,41 @@ func (f *Fragment) CreateLodKey() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	lodResourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
-	if !strings.HasPrefix(u.Path, lodResourcePrefix) {
-		return "", nil
+	lodKey := u.Path
+	if c.Config.LOD.SingleEndpoint == "" {
+		lodResourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
+		if !strings.HasPrefix(u.Path, lodResourcePrefix) {
+			return "", nil
+		}
+		lodKey = strings.TrimPrefix(u.Path, lodResourcePrefix)
 	}
-	lodKey := strings.TrimPrefix(u.Path, lodResourcePrefix)
 	if u.Fragment != "" {
 		lodKey = fmt.Sprintf("%s#%s", lodKey, u.Fragment)
 	}
 	return lodKey, nil
 }
 
+// TODO remove later
 // AddHeader adds header information for stand-alone fragments.
 // When Fragments are embedded inside a FragmentGraph this information is
 // redundant.
-func (f *Fragment) AddHeader(fb *FragmentBuilder) error {
-	f.DocType = FragmentDocType
-	f.Spec = fb.fg.GetSpec()
-	f.Revision = fb.fg.GetRevision()
-	f.NamedGraphURI = fb.fg.GetNamedGraphURI()
-	f.OrgID = fb.fg.GetOrgID()
-	f.HubID = fb.fg.GetHubID()
-	lodKey, err := f.CreateLodKey()
-	if err != nil {
-		return err
-	}
-	if lodKey != "" {
-		f.LodKey = lodKey
-	}
-	return nil
+//func (f *Fragment) AddHeader(fb *FragmentBuilder) error {
+//f.DocType = FragmentDocType
+//f.Spec = fb.fg.GetSpec()
+//f.Revision = fb.fg.GetRevision()
+//f.NamedGraphURI = fb.fg.GetNamedGraphURI()
+//f.OrgID = fb.fg.GetOrgID()
+//f.HubID = fb.fg.GetHubID()
+//lodKey, err := f.CreateLodKey()
+//if err != nil {
+//return err
+//}
+//if lodKey != "" {
+//f.LodKey = lodKey
+//}
+//return nil
 
-}
+//}
 
 // IsTypeLink checks if the Predicate is a RDF type link
 func (f Fragment) IsTypeLink() bool {
@@ -393,7 +397,9 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	)
 	fb.Graph.AddTriple(subject, r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"), r.NewLiteral(spec))
 	fb.Graph.AddTriple(subject, r.NewResource("http://purl.org/dc/terms/title"), r.NewLiteral(spec))
-	return fb.CreateFragments(p, false, true)
+	// TODO add new fragment builder here
+	//return fb.CreateFragments(p, false, true)
+	return nil
 }
 
 // ESMapping is the default mapping for the RDF records enabled by rapid

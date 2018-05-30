@@ -338,17 +338,18 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
-		err := fb.CreateFragments(action.p, true, true)
-		if err != nil {
-			log.Printf("Unable to save fragments: %v", err)
-			return err
-		}
-		r = elastic.NewBulkIndexRequest().
-			Index(c.Config.ElasticSearch.IndexName).
-			Type(fragments.DocType).
-			RetryOnConflict(3).
-			Id(action.HubID).
-			Doc(fb.Doc())
+		// todo add new fragment code here based on fragment resources
+		//err := fb.CreateFragments(action.p, true, true)
+		//if err != nil {
+		//log.Printf("Unable to save fragments: %v", err)
+		//return err
+		//}
+		//r = elastic.NewBulkIndexRequest().
+		//Index(c.Config.ElasticSearch.IndexName).
+		//Type(fragments.DocType).
+		//RetryOnConflict(3).
+		//Id(action.HubID).
+		//Doc(fb.Doc())
 	}
 	if r == nil {
 		panic("can't create index doc")
@@ -364,10 +365,11 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 	// index the LoD Fragments
 	if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
-		err = fb.IndexFragments(action.p)
-		if err != nil {
-			return err
-		}
+		// TODO add linked data fragments code here
+		//err = fb.IndexFragments(action.p)
+		//if err != nil {
+		//return err
+		//}
 	}
 	return nil
 }
