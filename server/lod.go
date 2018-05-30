@@ -30,21 +30,29 @@ type LODResource struct{}
 func (rs LODResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get(
-		fmt.Sprintf("/%s", config.Config.LOD.RDF), func(w http.ResponseWriter, r *http.Request) {
-			render.PlainText(w, r, `{"type": "rdf data endpoint"}`)
-			return
-		})
-	r.Get(
-		fmt.Sprintf("/%s", config.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
-			render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
-			return
-		})
-	r.Get(
-		fmt.Sprintf("/%s", config.Config.LOD.Resource), func(w http.ResponseWriter, r *http.Request) {
-			render.PlainText(w, r, `{"type": "rdf routing endpoint"}`)
-			return
-		})
+	if config.Config.LOD.SingleEndpoint != "" {
+		r.Get(
+			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.SingleEndpoint), func(w http.ResponseWriter, r *http.Request) {
+				render.PlainText(w, r, `{"type": "single endpoint for LoD data, redirect and HTML views"}`)
+				return
+			})
 
+	} else {
+		r.Get(
+			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.RDF), func(w http.ResponseWriter, r *http.Request) {
+				render.PlainText(w, r, `{"type": "rdf data endpoint"}`)
+				return
+			})
+		r.Get(
+			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
+				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
+				return
+			})
+		r.Get(
+			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.Resource), func(w http.ResponseWriter, r *http.Request) {
+				render.PlainText(w, r, `{"type": "rdf 303 redirect endpoint"}`)
+				return
+			})
+	}
 	return r
 }
