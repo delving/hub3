@@ -22,10 +22,24 @@ indexV1 = false
 # Enable trace logging of elasticsearch
 enableTrace = false
 # key to use for searching and deleting spec (spec.raw for v5 style index)
-specKey = "spec"
+# For v2 style indexing using meta.spec
+specKey = "meta.spec"
 # username and password for packx security
 userName = ""
 password = ""
+
+[posthook]
+# specs to exclude from posthook
+excludeSpec = [    
+    "brabant-blogs",
+    "geschiedenis",
+    "in-brabant",
+    "personen",
+    "textielmuseum-bibliotheek",
+    "weverij-de-ploeg",
+]
+# target URLS for JSON-LD post
+# urls = [ 'https://www.brabantserfgoed.nl/api/erfgoedbrabant/brabantcloud']
 
 [logging]
 devmode = true
@@ -48,7 +62,7 @@ baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = true
+rdfStoreEnabled = false
 # Default format for importing in the bulk API, "text/turtle" or "application/ld+json"
 defaultFormat = "application/ld+json" 
 #defaultFormat = "text/turtle" 
@@ -95,6 +109,18 @@ deepzoom = true
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
 
+[cache]
+# Enable HTTP cache
+enabled = true
+# Lifetime of objects in the cache in minutes
+lifeWindowMinutes = 10
+# APIPrefix to be used for caching. 
+apiPrefix = "/api/cache/http"
+# strip prefix determines if cache prefix should be included in the proxy request
+stripPrefix = true
+# domain to reroute the caching request to
+cacheDomain = "acpt.nationaalarchief.nl"
+
 [lod]
 # enable the lod routing point
 enabled = true
@@ -104,6 +130,11 @@ resource = "resource"
 html = "page"
 # rdf data routing point
 rdf = "data"
+# One the above three routes need to be handled from the same endpoint
+# When content is not "", it will override the other endpoints
+# You can use regural expressions for the first element of the relative
+# path, e.g. 'NL-.*'.
+#singleEndpoint = "NL-.*"
 
 # Default namespaces can be found in config/namespace.go
 

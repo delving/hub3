@@ -56,6 +56,7 @@ type RawConfig struct {
 	NameSpaceMap  *NameSpaceMap `json:"nameSpaceMap"`
 	RDFTag        `json:"rdftag"`
 	PostHook      `json:"postHook"`
+	Cache         `json:"cache"`
 	//RDFTagMap     *RDFTagMap
 }
 
@@ -111,6 +112,15 @@ type RDF struct {
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 	Tags              string   `json:"tags" mapstructure:"tags"`
 	DefaultFormat     string   `json:"defaultFormat"`
+}
+
+// Cache is the configuration of the BigCache implementation
+type Cache struct {
+	Enabled           bool   `json:"enabled"`
+	LifeWindowMinutes int    `json:"lifeWindowMinutes"`
+	APIPrefix         string `json:"apiPrefix"`
+	StripPrefix       bool   `json:"stripPrefix"`
+	CacheDomain       string `json:"cacheDomain"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -174,10 +184,17 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Fragments", true)
 	viper.SetDefault("ElasticSearch.IndexV1", false)
 	viper.SetDefault("ElasticSearch.EnableTrace", false)
-	viper.SetDefault("ElasticSearch.SpecKey", "spec.keyword")
+	viper.SetDefault("ElasticSearch.SpecKey", "meta.spec")
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
+
+	// cache
+	viper.SetDefault("Cache.enabled", false)
+	viper.SetDefault("Cache.lifeWindow", 10)
+	viper.SetDefault("Cache.apiPrefix", "/api/http/cache")
+	viper.SetDefault("Cache.stripPrefix", true)
+	viper.SetDefault("Cache.cacheDomain", "")
 
 	// rdf with defaults for Apache Fuseki
 	viper.SetDefault("RDF.SparqlEnabled", true)

@@ -1,6 +1,10 @@
-hash: 847759ba634c1fb3e7a04123e01e77fd6fea2f4630ad7cebe904ca98620cf40b
-updated: 2018-05-17T22:29:07.533246228+02:00
+hash: 3fa3b831676c601abb2944a1a1631c26a8bc4a0ed8335ca853fa0703f9872f44
+updated: 2018-06-10T09:58:27.66650695+02:00
 imports:
+- name: github.com/allegro/bigcache
+  version: f31987a23e44c5121ef8c8b2f2ea2e8ffa37b068
+  subpackages:
+  - queue
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/araddon/dateparse
@@ -68,7 +72,7 @@ imports:
 - name: github.com/go-chi/render
   version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
 - name: github.com/gobuffalo/packr
-  version: 7f4074995d431987caaa35088199f13c44b24440
+  version: bd47f2894846e32edcf9aa37290fef76c327883f
   subpackages:
   - '...'
 - name: github.com/gocql/gocql
@@ -150,12 +154,12 @@ imports:
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/olivere/elastic
-  version: e696873566cec97ef782ca4faaa33e5ee2ca6a35
+  version: dabcc5de0a3fd6313870c223c3119e2b1e942ba3
   subpackages:
   - config
   - uritemplates
 - name: github.com/OneOfOne/xxhash
-  version: 4e9e81466dc37c9fd94ce9ecf42020ef54112203
+  version: 6def279d2ce6c81a79dd1c1be580f03bb216fb8a
 - name: github.com/onsi/ginkgo
   version: 9eda700730cba42af70d53180f9dcce9266bc2bc
   subpackages:

@@ -63,3 +63,5 @@ import:
   version: ~1.11.0
   subpackages:
   - '...'
+- package: github.com/allegro/bigcache
+  version: ~1.1.0

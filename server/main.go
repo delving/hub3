@@ -35,7 +35,7 @@ import (
 	negroniprometheus "github.com/zbindenren/negroni-prometheus"
 )
 
-// DisabledMessage is a placeholder for disabled endpoints
+// ErrorMessage is a placeholder for disabled endpoints
 type ErrorMessage struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -182,6 +182,11 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// introspection
 	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
+	}
+
+	if c.Config.Cache.Enabled {
+		r.Mount("/api/cache", CacheResource{}.Routes())
+		r.Handle(fmt.Sprintf("%s/*", c.Config.Cache.APIPrefix), cacheHandler())
 	}
 
 	n.UseHandler(r)
