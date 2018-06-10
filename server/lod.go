@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/delving/rapid-saas/config"
+	c "github.com/delving/rapid-saas/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -30,27 +30,15 @@ type LODResource struct{}
 func (rs LODResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	if config.Config.LOD.SingleEndpoint != "" {
-		r.Get(
-			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.SingleEndpoint), func(w http.ResponseWriter, r *http.Request) {
-				render.PlainText(w, r, `{"type": "single endpoint for LoD data, redirect and HTML views"}`)
-				return
-			})
-
+	if c.Config.LOD.SingleEndpoint != "" {
+		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.SingleEndpoint), RenderLODResource)
 	} else {
+		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.RDF), RenderLODResource)
+		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.Resource), RenderLODResource)
 		r.Get(
-			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.RDF), func(w http.ResponseWriter, r *http.Request) {
-				render.PlainText(w, r, `{"type": "rdf data endpoint"}`)
-				return
-			})
-		r.Get(
-			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
+			//fmt.Sprintf("/{path:%s}/*", config.Config.LOD.HTML), RenderLODResource)
+			fmt.Sprintf("/{path:%s}/*", c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
 				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
-				return
-			})
-		r.Get(
-			fmt.Sprintf("/{path:%s}/*", config.Config.LOD.Resource), func(w http.ResponseWriter, r *http.Request) {
-				render.PlainText(w, r, `{"type": "rdf 303 redirect endpoint"}`)
 				return
 			})
 	}

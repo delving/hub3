@@ -15,12 +15,14 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3"
@@ -122,6 +124,57 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 	render.XML(w, r, resp)
 }
 
+// RenderLODResource returns a list of matching fragments
+// for a LOD resource. This mimicks a SPARQL describe request
+func RenderLODResource(w http.ResponseWriter, r *http.Request) {
+
+	lodKey := r.URL.Path
+	if c.Config.LOD.SingleEndpoint == "" {
+		resourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
+		if strings.HasPrefix(lodKey, resourcePrefix) {
+			// todo for  now only support  RDF data
+			lodKey = strings.Replace(lodKey, c.Config.LOD.Resource, c.Config.LOD.RDF, 1)
+			http.Redirect(w, r, lodKey, 302)
+			return
+		}
+
+		lodKey = strings.Replace(lodKey, c.Config.LOD.RDF, c.Config.LOD.Resource, 1)
+		lodKey = strings.Replace(lodKey, c.Config.LOD.HTML, c.Config.LOD.Resource, 1)
+	} else {
+		// for now only support nt as format
+		if !strings.HasSuffix(lodKey, ".nt") {
+			lodKey = fmt.Sprintf("%s.nt", strings.TrimSuffix(lodKey, "/"))
+			log.Printf("Redirecting to %s", lodKey)
+			http.Redirect(w, r, lodKey, 302)
+			return
+		}
+		lodKey = strings.TrimSuffix(lodKey, ".nt")
+
+	}
+
+	fr := fragments.NewFragmentRequest()
+	fr.LodKey = lodKey
+	frags, err := fr.Find(ctx, index.ESClient())
+	if err != nil || len(frags) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		if err != nil {
+			log.Printf("Unable to list fragments because of: %s", err)
+			return
+		}
+
+		log.Printf("Unable to find fragments")
+		return
+	}
+	w.Header().Set("Content-Type", "text/n-triples")
+	var buffer bytes.Buffer
+	for _, frag := range frags {
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
+	}
+	w.Write(buffer.Bytes())
+	return
+
+}
+
 // listFragments returns a list of matching fragments
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
@@ -140,8 +193,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	frags, err := fr.Find(ctx, index.ESClient())
-	if err != nil || frags.Len() == 0 {
+	if err != nil || len(frags) == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusNotFound,
@@ -150,8 +204,18 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	w.Header().Set("Content-Type", "text/turtle")
-	err = frags.Serialize(w, "text/turtle")
+	if fr.Echo == "raw" {
+		render.JSON(w, r, frags)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/n-triples")
+	var buffer bytes.Buffer
+	for _, frag := range frags {
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
+	}
+	w.Write(buffer.Bytes())
+	//err = frags.Serialize(w, "text/turtle")
 	if err != nil {
 		log.Printf("Unable to list serialize fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{

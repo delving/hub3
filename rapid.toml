@@ -136,7 +136,7 @@ rdf = "data"
 # When content is not "", it will override the other endpoints
 # You can use regural expressions for the first element of the relative
 # path, e.g. 'NL-.*'.
-#singleEndpoint = "NL-.*"
+singleEndpoint = "NL-.*"
 
 # Default namespaces can be found in config/namespace.go
 
