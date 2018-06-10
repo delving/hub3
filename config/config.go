@@ -121,6 +121,7 @@ type Cache struct {
 	APIPrefix         string `json:"apiPrefix"`
 	StripPrefix       bool   `json:"stripPrefix"`
 	CacheDomain       string `json:"cacheDomain"`
+	HardMaxCacheSize  int    `json:"hardMaxCacheSize"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -195,6 +196,7 @@ func setDefaults() {
 	viper.SetDefault("Cache.apiPrefix", "/api/http/cache")
 	viper.SetDefault("Cache.stripPrefix", true)
 	viper.SetDefault("Cache.cacheDomain", "")
+	viper.SetDefault("Cache.HardMaxCacheSize", 512)
 
 	// rdf with defaults for Apache Fuseki
 	viper.SetDefault("RDF.SparqlEnabled", true)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -32,6 +33,7 @@ func init() {
 	if c.Config.Cache.Enabled {
 		eviction := time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute
 		config := bigcache.DefaultConfig(eviction)
+		config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
 		cache, err := bigcache.NewBigCache(config)
 		if err != nil {
 			log.Fatalf("Unable to start bigCache implementation: %#v", err)
@@ -56,7 +58,24 @@ func (rs CacheResource) Routes() chi.Router {
 // PrepareCacheRequest modifies the request for the remote call
 // It returns the unique hash from the request that is used as the cacheKey
 func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
-	r.URL.Host = c.Config.Cache.CacheDomain
+	domain := r.URL.Query().Get("domain")
+	if domain == "" {
+		domain = c.Config.Cache.CacheDomain
+	} else {
+		u, err := url.Parse(domain)
+		if err != nil {
+			log.Printf("Unable to parse domain %s due to: %s", domain, err)
+			return "", err
+		}
+
+		domain = u.Host
+
+		params := r.URL.Query()
+		params.Del("domain")
+		r.URL.RawQuery = params.Encode()
+	}
+
+	r.URL.Host = domain
 	r.RequestURI = ""
 	r.URL.Scheme = "https"
 	if c.Config.Cache.StripPrefix {
@@ -64,10 +83,10 @@ func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
 	}
 
 	method := r.Method
-	path := r.URL.Path
+	path := r.URL.RawPath
 	contentType := r.Header.Get("Content-Type")
 	var b bytes.Buffer
-	b.WriteString(method + path + contentType)
+	b.WriteString(method + path + contentType + r.URL.RawQuery)
 
 	if r.Body != nil {
 		body, readErr := ioutil.ReadAll(r.Body)
@@ -113,9 +132,6 @@ func getCachedRequest(r *http.Request) (cr *CachedResponse, err error) {
 		Transport: transCfg,
 	}
 	resp, err := netClient.Do(r)
-	fmt.Printf("%#v\n", resp)
-	fmt.Printf("%#v\n", r)
-	fmt.Printf("%#v\n", r.URL.String())
 	if err != nil {
 		log.Printf("Error in proxy query: %s", err)
 	}
@@ -146,13 +162,14 @@ func getCachedRequest(r *http.Request) (cr *CachedResponse, err error) {
 
 func cacheRequest(w http.ResponseWriter, r *http.Request) {
 	cr, err := getCachedRequest(r)
-	w.Header().Set("Content-Type", cr.ContentType)
-	w.WriteHeader(cr.StatusCode)
 
 	if err != nil {
 		log.Printf("Unable to cache request: %#v", err)
 		return
 	}
+
+	w.Header().Set("Content-Type", cr.ContentType)
+	w.WriteHeader(cr.StatusCode)
 
 	_, err = w.Write(cr.Body)
 	if err != nil {
