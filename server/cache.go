@@ -76,6 +76,7 @@ func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
 	}
 
 	r.URL.Host = domain
+	r.Host = domain
 	r.RequestURI = ""
 	r.URL.Scheme = "https"
 	if c.Config.Cache.StripPrefix {
@@ -88,6 +89,8 @@ func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
 	var b bytes.Buffer
 	b.WriteString(method + path + contentType + r.URL.RawQuery)
 
+	//dump, _ := httputil.DumpRequest(r, true)
+	//fmt.Printf("%s\n", dump)
 	if r.Body != nil {
 		body, readErr := ioutil.ReadAll(r.Body)
 		if readErr != nil {
@@ -131,6 +134,8 @@ func getCachedRequest(r *http.Request) (cr *CachedResponse, err error) {
 		Timeout:   time.Second * 30,
 		Transport: transCfg,
 	}
+	log.Printf(r.URL.String(), r.Method)
+
 	resp, err := netClient.Do(r)
 	if err != nil {
 		log.Printf("Error in proxy query: %s", err)
