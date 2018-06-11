@@ -351,13 +351,15 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		//Id(action.HubID).
 		//Doc(fb.Doc())
 	}
-	if r == nil {
+	if r != nil {
+		// todo add code back to create index doc
 		panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 
+	// TODO enable again when v2 index docs are ready for indexing again
 	// submit the bulkIndexRequest for indexing
-	action.p.Add(r)
+	//action.p.Add(r)
 
 	if c.Config.RDF.RDFStoreEnabled {
 		action.CreateRDFBulkRequest(response, fb.Graph)
@@ -365,11 +367,10 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 	// index the LoD Fragments
 	if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
-		// TODO add linked data fragments code here
-		//err = fb.IndexFragments(action.p)
-		//if err != nil {
-		//return err
-		//}
+		err = fb.IndexFragments(action.p)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

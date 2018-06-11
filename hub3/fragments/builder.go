@@ -31,7 +31,20 @@ type FragmentBuilder struct {
 	fg             *FragmentGraph
 	Graph          *r.Graph
 	ResourceLabels map[string]string
-	Resources      *ResourceMap
+	resources      *ResourceMap
+}
+
+// ResourceMap returns a *ResourceMap for the Graph in the FragmentBuilder
+func (fb *FragmentBuilder) ResourceMap() (*ResourceMap, error) {
+	if fb.resources == nil {
+		rm, err := NewResourceMap(fb.Graph)
+		if err != nil {
+			log.Printf("unable to create resourceMap due to %s", err)
+			return nil, err
+		}
+		fb.resources = rm
+	}
+	return fb.resources, nil
 }
 
 // NewFragmentBuilder creates a new instance of the FragmentBuilder

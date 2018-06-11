@@ -26,7 +26,9 @@ var _ = Describe("Builder", func() {
 			})
 
 			It("should have an empty map of resources", func() {
-				Expect(fb.Resources).To(BeNil())
+				rm, err := fb.ResourceMap()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(rm.Resources()).ToNot(BeNil())
 			})
 
 		})

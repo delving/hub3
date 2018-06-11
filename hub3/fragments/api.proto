@@ -256,6 +256,8 @@ message FragmentRequest {
   string orgID = 6;
   string graph = 7;
   string spec = 8;
+  string echo = 9;
+  string lodKey = 10;
 }
 
 enum ObjectType {
@@ -372,7 +374,9 @@ message Header {
 // API
 message Fragment {
   
+  // Generic Header for all ElasticSearch records
   Header meta = 1;
+
   // RDF core
   // URI of the Triple subject
   string subject = 7;
@@ -387,17 +391,15 @@ message Fragment {
   string language = 11;
   // Human readable version of the xsd:dataType
   string dataType = 12; 
-  // The uri of the xsd:dataType used for rendering type in RDF represenation
-  string dataURI = 13; 
   
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
-  string triple = 14;
+  string triple = 13;
   // The named graph that this triple is part of
-  string namedGraphURI = 15;
+  string namedGraphURI = 14;
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
-  string lodKey = 16;
+  string lodKey = 15;
 }
 
 message FragmentGen1 {

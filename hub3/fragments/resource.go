@@ -17,9 +17,12 @@ package fragments
 import (
 	fmt "fmt"
 	"log"
+	"net/url"
+	"strings"
 
 	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // FragmentReferrerContext holds the referrer in formation for creating new fragments
@@ -318,12 +321,13 @@ func (fr *FragmentResource) GetLevel() int {
 //
 // The goal of this document is to support Linked Data Fragments based resolving
 // for all stored RDF triples in the Hub3 system.
-func (fg *FragmentGraph) CreateHeader() *Header {
+func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 	h := &Header{
 		OrgID:    fg.OrgID,
 		Spec:     fg.Spec,
 		Revision: fg.Revision,
 		HubID:    fg.HubID,
+		DocType:  docType,
 	}
 	return h
 }
@@ -335,6 +339,123 @@ func (h *Header) AddTags(tags ...string) {
 			h.Tags = append(h.Tags, tag)
 		}
 	}
+}
+
+// CreateLodKey returns the path including the # fragments from the subject URL
+// This is used for the Linked Open Data resolving
+func (fr *FragmentResource) CreateLodKey() (string, error) {
+	u, err := url.Parse(fr.ID)
+	if err != nil {
+		return "", err
+	}
+	lodKey := u.Path
+	if c.Config.LOD.SingleEndpoint == "" {
+		lodResourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
+		if !strings.HasPrefix(u.Path, lodResourcePrefix) {
+			return "", nil
+		}
+		lodKey = strings.TrimPrefix(u.Path, lodResourcePrefix)
+	}
+	if u.Fragment != "" {
+		lodKey = fmt.Sprintf("%s#%s", lodKey, u.Fragment)
+	}
+	return lodKey, nil
+}
+
+// NormalisedResource creates a unique BlankNode key
+// Normal resources are returned as is.
+//
+// This function is used so that you can query via the Fragment API for
+// unique BlankNodes
+func (fg *FragmentGraph) NormalisedResource(uri string) string {
+	if !strings.HasPrefix(uri, "_:") {
+		return uri
+	}
+	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.GetNamedGraphURI()))
+}
+
+// CreateFragments creates ElasticSearch documents for each
+// RDF triple in the FragmentResource
+func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, error) {
+	fragments := []*Fragment{}
+
+	lodKey, _ := fr.CreateLodKey()
+
+	// add type links
+	for _, ttype := range fr.Types {
+		frag := &Fragment{
+			Meta:          fg.CreateHeader(FragmentDocType),
+			Subject:       fg.NormalisedResource(fr.ID),
+			Predicate:     RDFType,
+			Object:        ttype,
+			NamedGraphURI: fg.GetNamedGraphURI(),
+		}
+		if strings.HasPrefix(fr.ID, "_:") {
+			frag.Triple = fmt.Sprintf("%s <%s> <%s> .", frag.Subject, RDFType, ttype)
+		} else {
+			frag.Triple = fmt.Sprintf("<%s> <%s> <%s> .", fr.ID, RDFType, ttype)
+		}
+		frag.Meta.AddTags("typelink", "Resource")
+		if lodKey != "" {
+			frag.LodKey = lodKey
+		}
+		fragments = append(fragments, frag)
+	}
+
+	// add entries
+	for predicate, entries := range fr.Predicates {
+		for _, entry := range entries {
+			frag := &Fragment{
+				Meta:          fg.CreateHeader(FragmentDocType),
+				Subject:       fg.NormalisedResource(fr.ID),
+				Predicate:     predicate,
+				DataType:      entry.Datatype,
+				Language:      entry.Language,
+				NamedGraphURI: fg.GetNamedGraphURI(),
+			}
+			if entry.ID != "" {
+				frag.Object = fg.NormalisedResource(entry.ID)
+			} else {
+				frag.Object = entry.Value
+			}
+			frag.Triple = strings.Replace(entry.Triple, entry.ID, fg.NormalisedResource(entry.ID), -1)
+			frag.Triple = strings.Replace(frag.Triple, fr.ID, frag.Subject, -1)
+			frag.Meta.AddTags(entry.Entrytype)
+			if lodKey != "" {
+				frag.LodKey = lodKey
+			}
+
+			fragments = append(fragments, frag)
+		}
+	}
+	return fragments, nil
+}
+
+// GetXSDLabel returns a namespaced label for the RDF datatype
+func (fe *FragmentEntry) GetXSDLabel() string {
+	return strings.Replace(fe.Datatype, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1)
+}
+
+// IndexFragments updates the Fragments for standalone indexing and adds them to the Elasti BulkProcessorService
+func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
+	rm, err := fb.ResourceMap()
+	if err != nil {
+		return err
+	}
+
+	for _, fr := range rm.Resources() {
+		fragments, err := fr.CreateFragments(fb.FragmentGraph())
+		if err != nil {
+			return err
+		}
+		for _, frag := range fragments {
+			err := frag.AddTo(p)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // AddGraphExternalContext

@@ -276,7 +276,7 @@ var _ = Describe("Resource", func() {
 
 			//skosConcept, _ := rm.GetResource("http://data.jck.nl/resource/skos/thesau/90000072")
 			//entry := skosConcept.Predicates["http://www.w3.org/2004/02/skos/core#prefLabel"]
-			header := fb.FragmentGraph().CreateHeader()
+			header := fb.FragmentGraph().CreateHeader("fragment")
 
 			It("should set the OrgID", func() {
 				Expect(header.OrgID).To(Equal("rapid"))
@@ -298,12 +298,16 @@ var _ = Describe("Resource", func() {
 				Expect(header.Tags).To(BeEmpty())
 			})
 
+			It("should have a docType", func() {
+				Expect(header.GetDocType()).To(Equal("fragment"))
+			})
+
 		})
 
 		Context("and adding Tags", func() {
 
 			It("should only add a tag", func() {
-				header := fb.FragmentGraph().CreateHeader()
+				header := fb.FragmentGraph().CreateHeader("")
 				Expect(header.Tags).To(BeEmpty())
 				header.AddTags("tag1")
 				Expect(header.Tags).ToNot(BeEmpty())
@@ -312,7 +316,7 @@ var _ = Describe("Resource", func() {
 			})
 
 			It("should not add a tag twice", func() {
-				header := fb.FragmentGraph().CreateHeader()
+				header := fb.FragmentGraph().CreateHeader("")
 				Expect(header.Tags).To(BeEmpty())
 				header.AddTags("tag1", "tag2")
 				header.AddTags("tag1")
