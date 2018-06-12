@@ -382,7 +382,7 @@ func GetObjectXSDType(label string) (ObjectXSDType, error) {
 // SaveDataSet creates a fragment entry for a Dataset
 func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	fg := NewFragmentGraph()
-	fg.Spec = "datasets"
+	fg.Meta.Spec = "datasets"
 	fb := NewFragmentBuilder(fg)
 	subject := r.NewResource(fmt.Sprintf("%s/fragments/%s", c.Config.RDF.BaseURL, spec))
 	fb.Graph.AddTriple(

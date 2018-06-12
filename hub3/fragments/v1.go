@@ -66,11 +66,11 @@ type Legacy struct {
 // NewLegacy returns a legacy struct with default values
 func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder) *Legacy {
 	l := &Legacy{
-		HubID:      fb.fg.GetHubID(),
+		HubID:      fb.fg.Meta.GetHubID(),
 		RecordType: "mdr",
-		Spec:       fb.fg.GetSpec(),
-		OrgID:      fb.fg.GetOrgID(),
-		Collection: fb.fg.GetSpec(),
+		Spec:       fb.fg.Meta.GetSpec(),
+		OrgID:      fb.fg.Meta.GetOrgID(),
+		Collection: fb.fg.Meta.GetSpec(),
 	}
 	var ok bool
 	_, ok = indexDoc["nave_GeoHash"]
@@ -109,9 +109,9 @@ type System struct {
 // NewSystem generates system info for the V1 doc
 func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s := &System{}
-	s.Slug = fb.fg.GetHubID()
-	s.Spec = fb.fg.GetSpec()
-	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.GetHubID())
+	s.Slug = fb.fg.Meta.GetHubID()
+	s.Spec = fb.fg.Meta.GetSpec()
+	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.Meta.GetHubID())
 	//s.Caption = ""
 	s.AboutURI = fb.fg.GetAboutURI()
 	s.SourceURI = fb.fg.GetAboutURI()
@@ -124,7 +124,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	if err == nil {
 		s.SourceGraph = string(rdf)
 	} else {
-		log.Printf("Unable to add RDF for %s\n", fb.fg.GetHubID())
+		log.Printf("Unable to add RDF for %s\n", fb.fg.Meta.GetHubID())
 	}
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
@@ -479,14 +479,14 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	}
 	indexDoc["delving_spec"] = IndexEntry{
 		Type:  "Literal",
-		Value: fb.fg.GetSpec(),
-		Raw:   fb.fg.GetSpec(),
+		Value: fb.fg.Meta.GetSpec(),
+		Raw:   fb.fg.Meta.GetSpec(),
 	}
-	indexDoc["spec"] = fb.fg.GetSpec()
-	indexDoc["orgID"] = fb.fg.GetOrgID()
+	indexDoc["spec"] = fb.fg.Meta.GetSpec()
+	indexDoc["orgID"] = fb.fg.Meta.GetOrgID()
 	indexDoc["entryURI"] = fb.fg.GetAboutURI()
-	indexDoc["revision"] = fb.fg.GetRevision()
-	indexDoc["hubID"] = fb.fg.GetHubID()
+	indexDoc["revision"] = fb.fg.Meta.GetRevision()
+	indexDoc["hubID"] = fb.fg.Meta.GetHubID()
 	indexDoc["system"] = NewSystem(indexDoc, fb)
 	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
 	return indexDoc, nil

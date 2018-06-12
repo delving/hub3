@@ -377,13 +377,12 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 func (action BulkAction) createFragmentBuilder(revision int) (*fragments.FragmentBuilder, error) {
 	fg := fragments.NewFragmentGraph()
-	fg.OrgID = c.Config.OrgID
-	fg.HubID = action.HubID
-	fg.Spec = action.Spec
-	fg.Revision = int32(revision)
+	fg.Meta.OrgID = c.Config.OrgID
+	fg.Meta.HubID = action.HubID
+	fg.Meta.Spec = action.Spec
+	fg.Meta.Revision = int32(revision)
 	fg.NamedGraphURI = action.NamedGraphURI
-	fg.Tags = []string{"narthex", "mdr"}
-	fg.RDF = []byte(action.Graph)
+	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
 	mimeType := c.Config.RDF.DefaultFormat
 	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)

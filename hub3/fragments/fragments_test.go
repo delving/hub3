@@ -66,11 +66,11 @@ func Literal(value string, language string, dataType ObjectXSDType) r.Term {
 
 func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg := NewFragmentGraph()
-	fg.OrgID = "rapid"
-	fg.Spec = spec
-	fg.Revision = rev
+	fg.Meta.OrgID = "rapid"
+	fg.Meta.Spec = spec
+	fg.Meta.Revision = rev
 	fg.NamedGraphURI = ng
-	fg.HubID = fmt.Sprintf("%s_%s_1", fg.OrgID, fg.Spec)
+	fg.Meta.HubID = fmt.Sprintf("%s_%s_1", fg.Meta.OrgID, fg.Meta.Spec)
 	return fg
 }
 
@@ -85,9 +85,8 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	if err != nil {
 		return fb, err
 	}
-	fg.RDF = dat
 	if !empty {
-		fb.ParseGraph(bytes.NewReader(fg.RDF), "application/ld+json")
+		fb.ParseGraph(bytes.NewReader(dat), "application/ld+json")
 	}
 	return fb, nil
 }

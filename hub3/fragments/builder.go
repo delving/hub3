@@ -59,7 +59,9 @@ func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 // NewFragmentGraph creates a new instance of FragmentGraph
 func NewFragmentGraph() *FragmentGraph {
 	return &FragmentGraph{
-		DocType: FragmentGraphDocType,
+		Meta: &Header{
+			DocType: FragmentGraphDocType,
+		},
 	}
 }
 
@@ -216,6 +218,5 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		log.Printf("Unable to parse RDF string into graph: %v\n%#v\n", err, rdf)
 		return err
 	}
-	fb.fg.RdfMimeType = mimeType
 	return nil
 }

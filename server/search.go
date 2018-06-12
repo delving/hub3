@@ -218,8 +218,6 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 		if err != nil {
 			return nil, err
 		}
-		// remove RDF
-		r.RDF = nil
 		records = append(records, r)
 	}
 	return records, nil

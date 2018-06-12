@@ -140,21 +140,8 @@ func (fr *FragmentResource) AppendContext(ctxs ...*FragmentReferrerContext) {
 
 /*
 
-workflow:
 
- - Add ReferrerContext during the first run
- - get the subject  FragmentResource
- - loop over the ObjectIDs (todo needs to have a better descriptive name)
- - get from fragment resource map
- - insert ReferrerContext into FragmentResource context block
- - Set level of the ReferrerContext (or better set it at current level plus 1)
- - recurse into ObjectIDs until you reach level 3 (break at level 4; this should also not be part of the grap)
-	- break should result in moving onto next object Id on level 2 or 1
-
- - When done create fragments.
-
-
- TODO: restructure fragments into blocks with header, geoblock, context flock (maybe nested)
+ TODO: restructure fragments into blocks with header, geoblock, context block (maybe nested)
 
 */
 
@@ -323,10 +310,10 @@ func (fr *FragmentResource) GetLevel() int {
 // for all stored RDF triples in the Hub3 system.
 func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 	h := &Header{
-		OrgID:    fg.OrgID,
-		Spec:     fg.Spec,
-		Revision: fg.Revision,
-		HubID:    fg.HubID,
+		OrgID:    fg.Meta.OrgID,
+		Spec:     fg.Meta.Spec,
+		Revision: fg.Meta.Revision,
+		HubID:    fg.Meta.HubID,
 		DocType:  docType,
 	}
 	return h

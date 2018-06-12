@@ -324,21 +324,14 @@ enum RecordType {
 
 
 message FragmentGraph {
-  string orgID = 1;
-  string spec  = 2;
-  int32 revision = 3;
-  string hubID = 4;
+  Header meta = 1;
 
-  string entryURI = 5;
-  string namedGraphURI = 6;
-  bytes RDF = 7;
-  string rdfMimeType = 8;
-  RecordType recordType = 9;
+  string entryURI = 2;
+  string namedGraphURI = 3;
+  RecordType recordType = 4;
 
-  repeated Fragment fragments = 10;
-  repeated ResultSummary summary = 13;
-  repeated string tags = 11;
-  string docType = 12;
+  repeated Fragment fragments = 5;
+  repeated ResultSummary summary = 6;
 }
 
 message ResultSummary {
