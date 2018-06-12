@@ -167,7 +167,7 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 		return next, nil
 	case "searchRequest":
 		return sr, nil
-	case "searchService", "searchResponse":
+	case "searchService", "searchResponse", "request":
 		return nil, nil
 	}
 	return nil, fmt.Errorf("unknown echoType: %s", echoType)

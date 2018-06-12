@@ -204,8 +204,24 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	if fr.Echo == "raw" {
+	switch fr.Echo {
+	case "raw":
 		render.JSON(w, r, frags)
+		return
+	case "request":
+		dump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+
+		render.PlainText(w, r, string(dump))
 		return
 	}
 
