@@ -23,13 +23,14 @@ import (
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/cors"
 	"github.com/thoas/stats"
 	"github.com/urfave/negroni"
 	negroniprometheus "github.com/zbindenren/negroni-prometheus"
@@ -57,6 +58,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	l := negroni.NewLogger()
 	n.Use(l)
 
+	// compress the responses
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	// stats middleware
 	s := stats.New()
 	n.Use(s)
@@ -76,14 +80,15 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
-	n.Use(cors)
 
 	// setup fileserver for public directory
 	n.Use(negroni.NewStatic(http.Dir(c.Config.HTTP.StaticDir)))
 
 	// Setup Router
 	r := chi.NewRouter()
+	r.Use(cors.Handler)
 	r.Use(mw.StripSlashes)
+	r.Use(mw.Heartbeat("/ping"))
 
 	// stats page
 	r.Get("/api/stats/http", func(w http.ResponseWriter, r *http.Request) {

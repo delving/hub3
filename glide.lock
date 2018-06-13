@@ -1,5 +1,5 @@
-hash: 3fa3b831676c601abb2944a1a1631c26a8bc4a0ed8335ca853fa0703f9872f44
-updated: 2018-06-10T09:58:27.66650695+02:00
+hash: 7c12b8321674e418cd260169178c27cf539feb7e8f682e0bef70f934e2958c66
+updated: 2018-06-13T16:25:20.440196725+02:00
 imports:
 - name: github.com/allegro/bigcache
   version: f31987a23e44c5121ef8c8b2f2ea2e8ffa37b068
@@ -67,6 +67,8 @@ imports:
   version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
+- name: github.com/go-chi/cors
+  version: dba6525398619dead495962a916728e7ee2ca322
 - name: github.com/go-chi/docgen
   version: ac43d9a63f3b58b1e82922411d2de365d896ee72
 - name: github.com/go-chi/render
@@ -200,6 +202,8 @@ imports:
   version: acdc4509485b587f5e675510c4f2c63e90ff68a8
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
+- name: github.com/phyber/negroni-gzip
+  version: ef6356a5d02936b65ca8e60b604ed6b078aac8d3
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
