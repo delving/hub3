@@ -482,7 +482,7 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 			id := item["entryURI"]
 			spec := item[c.Config.ElasticSearch.SpecKey]
 			// TODO replace with meta header key when migrated to v2 style indexing
-			revision := item["revision"]
+			revision := item[c.Config.ElasticSearch.RevisionKey]
 			log.Printf("ph queue for %s with revision %f", spec, revision)
 			if id != nil {
 				ds := string(spec.(string))
@@ -514,7 +514,7 @@ func (ds DataSet) validForPostHook() bool {
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int, error) {
 	q := elastic.NewBoolQuery()
-	q = q.MustNot(elastic.NewMatchQuery("meta.revision", ds.Revision))
+	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	// enqueue posthooks first
 	if ds.validForPostHook() {
@@ -525,7 +525,11 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		}
 	}
 
-	//logger.Infof("%#v", q)
+	// block for 2 seconds to allow cluster to be in sync
+	timer := time.NewTimer(time.Second * 2)
+	<-timer.C
+	log.Print("Timer expired")
+
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).

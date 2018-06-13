@@ -160,6 +160,7 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 
 // Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
+	// TODO added resources to the fragment graph
 	return fb.fg
 }
 

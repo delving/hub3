@@ -24,6 +24,9 @@ enableTrace = false
 # key to use for searching and deleting spec (spec.raw for v5 style index)
 # For v2 style indexing using meta.spec
 specKey = "meta.spec"
+# key to use to find revisions. For v1 style indexes use 'revision'
+# for v2 style indexing use 'meta.revision'
+revisionKey = "meta.revision"
 # username and password for packx security
 userName = ""
 password = ""
@@ -46,6 +49,8 @@ devmode = true
 sentrydsn = ""
 
 [rdf]
+# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+rdfStoreEnabled = false 
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
@@ -61,8 +66,6 @@ routedEntryPoints = ["http://localhost:3000"]
 baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
-# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = false
 # Default format for importing in the bulk API, "text/turtle" or "application/ld+json"
 defaultFormat = "application/ld+json" 
 #defaultFormat = "text/turtle" 
@@ -148,6 +151,9 @@ prefix = "musip"
 base = "http://schemas.delving.eu/aff/"
 prefix = "aff"
 
+[[namespaces]]
+base = "http://archief.nl/def/"
+prefix = "nadef"
 
 [rdftag]
 label = [

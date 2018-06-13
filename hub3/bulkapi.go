@@ -338,28 +338,22 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
-		// todo add new fragment code here based on fragment resources
-		//err := fb.CreateFragments(action.p, true, true)
-		//if err != nil {
-		//log.Printf("Unable to save fragments: %v", err)
-		//return err
-		//}
-		//r = elastic.NewBulkIndexRequest().
-		//Index(c.Config.ElasticSearch.IndexName).
-		//Type(fragments.DocType).
-		//RetryOnConflict(3).
-		//Id(action.HubID).
-		//Doc(fb.Doc())
+		r = elastic.NewBulkIndexRequest().
+			Index(c.Config.ElasticSearch.IndexName).
+			Type(fragments.DocType).
+			RetryOnConflict(3).
+			Id(action.HubID).
+			Doc(fb.Doc())
 	}
-	if r != nil {
+	if r == nil {
 		// todo add code back to create index doc
-		panic("can't create index doc")
+		//panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 
 	// TODO enable again when v2 index docs are ready for indexing again
 	// submit the bulkIndexRequest for indexing
-	//action.p.Add(r)
+	action.p.Add(r)
 
 	if c.Config.RDF.RDFStoreEnabled {
 		action.CreateRDFBulkRequest(response, fb.Graph)

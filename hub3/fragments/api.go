@@ -100,7 +100,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 // This query can be passed into an elastic Search Object.
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	query := elastic.NewBoolQuery()
-	query = query.Must(elastic.NewTermQuery("docType", FragmentGraphDocType))
+	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
 
 	if sr.GetQuery() != "" {
 		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "spec:", 1)
@@ -115,7 +115,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
-	idSort := elastic.NewFieldSort("hubID.keyword")
+	idSort := elastic.NewFieldSort("meta.hubID")
 	scoreSort := elastic.NewFieldSort("_score")
 	s := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
