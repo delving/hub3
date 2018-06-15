@@ -34,6 +34,7 @@ func init() {
 		eviction := time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute
 		config := bigcache.DefaultConfig(eviction)
 		config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
+		config.MaxEntrySize = 10000
 		cache, err := bigcache.NewBigCache(config)
 		if err != nil {
 			log.Fatalf("Unable to start bigCache implementation: %#v", err)
@@ -84,7 +85,7 @@ func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
 	}
 
 	method := r.Method
-	path := r.URL.RawPath
+	path := r.URL.EscapedPath()
 	contentType := r.Header.Get("Content-Type")
 	var b bytes.Buffer
 	b.WriteString(method + path + contentType + r.URL.RawQuery)
