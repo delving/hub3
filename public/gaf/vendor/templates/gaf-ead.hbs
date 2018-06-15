@@ -1,0 +1,245 @@
+<div class="gafsearch gaf-ead-container">
+
+  <div class="gaf-ead">
+
+    <div class="row-inner">
+
+      <div class="gaf-ead-header">
+        <div class="content-left">
+          <h1>
+            <span class="unit-id">{{findingAidNo}}</span>
+            <span class="ead-title">{{findingAidTitle}}</span>
+          </h1>
+          <div class="byline byline-repository">{{repository}}</div>
+          <div class="byline byline-period">
+            {{translatedLabels.period}}:
+            {{#each content.archdesc.did.mdid}}
+              {{#ifCond encodinganalog '===' '3.1.3'}}
+                {{#each content}}
+                  {{this}}<span class="period-separator">,</span>
+                {{/each}}
+              {{/ifCond}}
+            {{/each}}
+          </div>
+          <div class="summary" id="ead-summary">
+            <p>
+              {{content.archdesc.mdescFull.[0].addressOrChronlistOrList.[0].content.[0]}}
+            </p>
+            <a href="#ead-summary" class="read-more-summary">{{translatedLabels.readmore}}</a>
+            <a href="#ead-summary" class="read-less-summary">{{translatedLabels.readless}}</a>
+          </div>
+          {{#if content.eadheader.eadid.gafEadUrl}}
+            <div class="downloads-container">
+              <a href="{{content.eadheader.eadid.gafEadUrl}}" class="inventory-download-link"
+                  target="_blank">{{translatedLabels.downloadXml}}</a>
+            </div>
+          {{/if}}
+        </div>
+        <div class="content-right">
+          {{#if contentRight}}
+            {{{contentRight}}}
+          {{/if}}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="search-results">
+
+      <div class="ead-search-form-container">
+        <div class="row-inner">
+          <form class="search-ead">
+            <div class="group group-select select-wrapper">
+              <select id="filter-display" name="filterSearch" class="form-select">
+                <option value="description">{{translatedLabels.searchInDescription}}</option>
+                <option value="inventory" selected>{{translatedLabels.searchInInventory}}</option>
+                <option value="itemcode">{{translatedLabels.searchInItemCode}}</option>
+              </select>
+              <i class="select-down"></i>
+            </div>
+            <div class="group group-search-term">
+              <input type="hidden" name="id" value="{{id}}">
+              <input type="hidden" name="findingAidNo" value="{{findingAidNo}}">
+              <input type="search" autocapitalize="none" name="searchTerm" class="form-search" placeholder="">
+              <input type="submit" class="button js-form-submit form-submit" name="eadSearch" value="{{translatedLabels.search}}">
+              <div class="no-ead-results">
+                <h2>{{translatedLabels.noSearchResultsLabel}}</h2>
+              </div>
+            </div>
+            <div class="group group-total-search-results">
+            </div>
+            <div class="group group-buttons">
+              <button class="btn-up hidden" type="button">{{translatedLabels.previous}}</button>
+              <button class="btn-down hidden" type="button">{{translatedLabels.next}}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="search-results-inner">
+
+        <div class="row-inner">
+          <!-- LEFT PANE -->
+          <div class="search-sidebar">
+            <div class="form-group">
+
+              <h2 id="description-title" class="group-title bg-primary text-white clickable">
+                {{translatedLabels.description}}
+                <i class="fas fa-chevron-right pull-right"></i>
+              </h2>
+
+              <h2 id="components-title" tabindex="0" class="group-title bg-primary text-white ">
+                {{translatedLabels.components}}
+                <i class="fas fa-chevron-right pull-right"></i>
+              </h2>
+
+              <div class="ead-tree-container ead-tree-sidebar-container">
+                <!-- LEFT TREE LOADED WITH AJAX -->
+              </div>
+            </div>
+          </div>
+          <!-- END LEFT PANE -->
+
+          <!-- RIGHT PANE -->
+          <div class="search-content">
+            <!-- DESCRIPTION Accordion -->
+            <div id="description-container" class="ead-description-container hidden">
+
+              <div class="field-field-paragraphs-item">
+
+                <div id="ead-accordion-collection" class="paragraph ead-accordion-collection">
+
+                  <div class="ead-panel-group">
+
+                    <div class="ead-panel ead-panel-default">
+
+                      <div class="ead-panel-heading">
+                        <h3 id="anchorDescriptionArchive" class="ead-panel-title">
+                          <a data-toggle="collapse" href="#collapse-1" class="expanded" aria-expanded="true"
+                              title="{{translatedLabels.closeItem}}">{{translatedLabels.descriptionArchive}}
+                          </a>
+                        </h3>
+                      </div>
+
+                      <div id="collapse-1" class="ead-panel-collapse collapse in" aria-expanded="true">
+                        <div class="ead-panel-body">
+                          <div class="field-field-contents paragraph-ead-accordion__field-contents">
+                            <div class="field-field-contents-item paragraph-ead-accordion__field-contents-item">
+                              <h4 class="ead-lead">{{translatedLabels.descriptionArchiveInventory}}</h4>
+                              <p>{{findingAidNo}}</p>
+                              <h4 class="ead-lead">{{translatedLabels.descriptionArchiveName}}</h4>
+                              <p>{{findingAidTitle}}</p>
+                              <h4 class="ead-lead">{{translatedLabels.descriptionSummary}}</h4>
+                              <p>{{content.archdesc.mdescFull.[0].addressOrChronlistOrList.[0].content.[0]}}</p>
+                              <div class="ead-text-container" data-replaceLabel="Periode" data-searchFor="3.1.3"></div>
+                              <h4 class="ead-lead">{{translatedLabels.descriptionInstitute}}</h4>
+                              <p>{{repository}} ({{content.eadheader.eadid.mainagencycode}})</p>
+                              <div class="ead-text-container" data-replaceLabel="Locatie"
+                                  data-searchFor="Archieflocatie: " data-searchType="label"></div>
+                              <div class="ead-text-container" data-replaceLabel="Omvang" data-searchFor="3.1.5"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="ead-panel ead-panel-default">
+                      <div class="ead-panel-heading">
+                        <h3 id="anchorDescriptionArchiveFormation" class="ead-panel-title">
+                          <a data-toggle="collapse" href="#collapse-2" class="expanded" aria-expanded="true"
+                              title="{{translatedLabels.openItem}}">{{translatedLabels.descriptionArchiveFormation}}</a>
+                        </h3>
+                      </div>
+                      <div id="collapse-2" class="ead-panel-collapse collapse in" aria-expanded="true">
+                        <div class="ead-panel-body">
+                          <div class="field-field-contents paragraph-ead-accordion__field-contents">
+                            <div class="field-field-contents-item paragraph-ead-accordion__field-contents-item">
+
+                              <div class="ead-text-container" data-searchFor="Archiefvormers: "
+                                  data-searchType="label"></div>
+                              <div class="ead-text-container" data-searchFor="3.2.2"></div>
+                              <div class="ead-text-container" data-searchFor="3.2.3"></div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="ead-panel ead-panel-default">
+                      <div class="ead-panel-heading">
+                        <h3 id="anchorDescriptionContentStructure" class="ead-panel-title">
+                          <a data-toggle="collapse" href="#collapse-3" class="expanded" aria-expanded="true"
+                              title="{{translatedLabels.openItem}}">{{translatedLabels.descriptionContentStructure}}</a>
+                        </h3>
+                      </div>
+                      <div id="collapse-3" class="ead-panel-collapse collapse in" aria-expanded="true">
+                        <div class="ead-panel-body">
+                          <div class="field-field-contents paragraph-ead-accordion__field-contents">
+                            <div class="field-field-contents-item paragraph-ead-accordion__field-contents-item">
+                              <div class="ead-text-container" data-searchFor="Inhoud" data-searchType="head"></div>
+                              <div class="ead-text-container" data-searchFor="3.3.2"></div>
+                              <div class="ead-text-container" data-searchFor="3.3.3"></div>
+                              <div class="ead-text-container" data-searchFor="3.7.1"></div>
+                              <div class="ead-text-container" data-searchFor="3.3.4"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="ead-panel ead-panel-default">
+                      <div class="ead-panel-heading">
+                        <h3 id="anchorDescriptionInstructions" class="ead-panel-title">
+                          <a data-toggle="collapse" href="#collapse-4" class="expanded" aria-expanded="true"
+                              title="{{translatedLabels.openItem}}">{{translatedLabels.descriptionInstructions}}</a>
+                        </h3>
+                      </div>
+                      <div id="collapse-4" class="ead-panel-collapse collapse in" aria-expanded="true">
+                        <div class="ead-panel-body">
+                          <div class="field-field-contents paragraph-ead-accordion__field-contents">
+                            <div class="field-field-contents-item paragraph-ead-accordion__field-contents-item">
+                              <div class="ead-text-container" data-searchFor="3.4.1"></div>
+                              <div class="ead-text-container" data-searchFor="3.4.5"></div>
+                              <div class="ead-text-container" data-searchFor="3.4.4"></div>
+                              <div class="ead-text-container" data-searchFor="3.6.1"></div>
+                              <div class="ead-text-container" data-searchFor="Citeerinstructie"
+                                  data-searchType="head"></div>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT COMPONENTS TREE -->
+            <div id="components-container" class="treecontainer-search-content">
+
+              <h2 class="content-group-title">{{translatedLabels.components}}
+                <a href="#" class="collapse-tree content-collapse">{{translatedLabels.collapseAll}}</a>
+              </h2>
+
+              <div class="ead-tree-container ead-tree-content-container">
+                <!-- RIGHT TREE LOADED WITH AJAX -->
+              </div>
+
+            </div>
+          </div>
+          <!-- END RIGHT PANE -->
+
+        </div>
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

@@ -1,0 +1,52 @@
+{{!-- THIS TEMPLATE RENDERS A LIST OF ARCHIVES OF THE INSTITUTE --}}
+<div class="gafarchives gafarchives-container">
+  <ul class="gafarchives-list">
+    <li class="headings">
+      <span class="access-number">{{translatedLabels.findingAidNo}}</span>
+      <span class="title">{{translatedLabels.findingAidTitle}}</span>
+      <span class="period">{{translatedLabels.unitDate}}</span>
+    </li>
+    {{#each eadResults}}
+      <li class="result">
+        <a href="{{eadDocUrl}}">
+          <span class="access-number">{{findingAidNo}}</span>
+          <span class="title">{{findingAidTitle}}</span>
+          <span class="period">{{unitDate}}</span>
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+
+  <div class="paginator-container">
+    {{#if pageLinks }}
+      <ul class="search-pager list-inline">
+        {{#each pageLinks}}
+          <li class="{{linkCounter}}">
+            <a href="{{href}}" class="{{classes}} list-group-item" data-page="{{page}}"><span>{{label}}</span></a>
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
+
+    {{#if pageLinksMobile }}
+      <ul class="search-pager search-pager-mobile list-inline">
+        {{#each pageLinksMobile}}
+          <li class="{{linkCounter}}">
+            <a href="{{href}}" class="{{classes}} list-group-item" data-page="{{page}}"><span>{{label}}</span></a>
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
+
+    <div class="link-direct">
+      <label for="direct-to-page">{{translatedLabels.directToPage}}</label>
+      <span>
+        <form>
+          <input id="direct-to-page" type="number" name="page" step="1" min="1" max="{{totalPages}}">
+          <input type="submit" value="{{translatedLabels.go}}">
+        </form>
+      </span>
+    </div>
+  </div>
+
+</div>

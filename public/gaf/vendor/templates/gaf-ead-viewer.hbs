@@ -1,0 +1,25 @@
+<div class="uv-outerbox">
+
+  <button class="uv-btn uv-imageBtn uv-prev" title="{{translatedLabels.previous}}">
+    <i class="uv-icon-previous" aria-hidden="true"></i><span>{{translatedLabels.previous}}</span>
+  </button>
+  <button class="uv-btn uv-imageBtn uv-next" tabindex="0" title="{{translatedLabels.next}}">
+    <i class="uv-icon-next" aria-hidden="true"></i><span>{{translatedLabels.next}}</span>
+  </button>
+
+  {{#each objects}}
+    <a href='#' data-manifest-uri='{{uri}}' data-index='{{@index}}' title='{{name}}' class='showviewer {{#if @first}}active{{/if}}{{#unless @first}}notactive{{/unless}}'>
+      <div class='uv-link'>
+          <div class='uv-icon'>
+            <img src='{{iconLink}}'>
+          </div>
+          <div class='uv-metadata'>
+            <div class='uv-truncate'>{{name}}</div>
+            <div class='uv-truncate'>{{mime_type_name}}</div>
+            <div class='uv-truncate'>{{size}}</div>
+          </div>
+      </div>
+    </a>
+  {{/each}}
+
+</div>

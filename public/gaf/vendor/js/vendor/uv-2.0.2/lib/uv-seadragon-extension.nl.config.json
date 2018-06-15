@@ -1,0 +1,363 @@
+{
+	"options" : {
+		"allowStealFocus" : false,
+		"bookmarkThumbHeight" : 150,
+		"bookmarkThumbWidth" : 90,
+		"dropEnabled" : true,
+		"footerPanelEnabled" : true,
+		"headerPanelEnabled" : true,
+		"leftPanelEnabled" : true,
+		"limitLocales" : false,
+		"multiSelectionMimeType" : "application/zip",
+		"navigatorEnabled" : true,
+		"openTemplate" : "http://universalviewer.io?manifest={0}",
+		"overrideFullScreen" : false,
+		"pagingEnabled" : true,
+		"pagingOptionEnabled" : true,
+		"pessimisticAccessControl" : false,
+		"preserveViewport" : false,
+		"rightPanelEnabled" : true,
+		"saveUserSettings" : false,
+		"searchWithinEnabled" : true,
+		"termsOfUseEnabled" : false,
+		"theme" : "uv-nl-theme",
+		"tokenStorage" : "memory",
+		"useArrowKeysToNavigate" : true
+	},
+	"modules" : {
+		"contentLeftPanel" : {
+			"options" : {
+				"defaultToTreeEnabled" : false,
+				"defaultToTreeIfGreaterThan" : 0,
+				"elideCount" : 40,
+				"expandFullEnabled" : true,
+				"galleryThumbChunkedResizingEnabled" : true,
+				"galleryThumbChunkedResizingThreshold" : 400,
+				"galleryThumbHeight" : 320,
+				"galleryThumbLoadPadding" : 3,
+				"galleryThumbWidth" : 200,
+				"oneColThumbHeight" : 320,
+				"oneColThumbWidth" : 200,
+				"pageModeEnabled" : true,
+				"panelAnimationDuration" : 250,
+				"panelCollapsedWidth" : 30,
+				"panelExpandedWidth" : 255,
+				"panelOpen" : true,
+				"tabOrder" : "",
+				"thumbsEnabled" : true,
+				"thumbsExtraHeight" : 8,
+				"thumbsImageFadeInDuration" : 300,
+				"thumbsLoadRange" : 15,
+				"treeEnabled" : true,
+				"twoColThumbHeight" : 150,
+				"twoColThumbWidth" : 90
+			},
+			"content" : {
+				"collapse" : "Verberg inhoud",
+				"collapseFull" : "Verberg Galerij",
+				"date" : "datum",
+				"expand" : "Toon Inhoud",
+				"expandFull" : "Toon Galerij",
+				"index" : "Index",
+				"sortBy" : "Sorteer op:",
+				"thumbnails" : "Thumbnails",
+				"title" : "Inhoud",
+				"volume" : "volume"
+			}
+		},
+		"dialogue" : {
+			"content" : {
+				"close" : "Sluiten"
+			}
+		},
+		"downloadDialogue" : {
+			"options" : {
+				"confinedImageSize" : 1000,
+				"currentViewDisabledPercentage" : 90,
+				"maxImageWidth" : 5000,
+				"optionsExplanatoryTextEnabled" : false,
+				"selectionEnabled" : false
+			},
+			"content" : {
+				"currentViewAsJpg" : "Huidig zicht {0} x {1}px (jpg)",
+				"currentViewAsJpgExplanation" : "Opent in een nieuw venster",
+				"download" : "Download",
+				"downloadSelection" : "Download Selectie",
+				"downloadSelectionExplanation" : "Opent een venster om een selectie van pagina's te maken om te downloaden.",
+				"editSettings" : "Bewerk instellingen",
+				"entireDocument" : "Geheel document ({0})",
+				"entireFileAsOriginal" : "Geheel bestand ({0})",
+				"noneAvailable" : "Geen download opties zijn beschikbaar.",
+				"pagingNote" : "Zet AUB Twee-pagina weergave uit voor meer opties.",
+				"preview" : "Voorbeeld",
+				"title" : "Download",
+				"wholeImageHighRes" : "Gehele afbeelding {0} x {1}px ({2})",
+				"wholeImageHighResExplanation" : "Opent in een nieuw venster.",
+				"wholeImagesHighRes" : "Gehele afbeeldingen ({0})",
+				"wholeImagesHighResExplanation" : "Opent in twee nieuwe vensters.",
+				"wholeImageLowResAsJpg" : "Gehele afbeelding {0} x {1}px (jpg)",
+				"wholeImageLowResAsJpgExplanation" : "Opent in een nieuw venster."
+			}
+		},
+		"footerPanel" : {
+			"options" : {
+				"bookmarkEnabled" : true,
+				"downloadEnabled" : true,
+				"embedEnabled" : false,
+				"feedbackEnabled" : false,
+				"fullscreenEnabled" : true,
+				"minimiseButtons" : true,
+				"moreInfoEnabled" : true,
+				"openEnabled" : false,
+				"printEnabled" : false,
+				"shareEnabled" : true
+			},
+			"content" : {
+				"bookmark" : "Druk op Ctrl + D om toe te voegen aan favorieten.",
+				"download" : "Download",
+				"embed" : "Embed",
+				"feedback" : "Terugkoppeling",
+				"exitFullScreen" : "Verlaat volledig scherm.",
+				"fullScreen" : "Volledig scherm",
+				"open" : "Open",
+				"share" : "Delen"
+			}
+		},
+		"genericDialogue" : {
+			"content" : {
+				"emptyValue" : "Vul een waarde in.",
+				"invalidNumber" : "Vul een geldig nummer in.",
+				"noMatches" : "Geen resultaten gevonden.",
+				"ok" : "OK",
+				"pageNotFound" : "Dit item bevat geen pagina op basis van het  ingevoerde nummer. Probeer om te schakelen naar afbeelding modus.",
+				"refresh" : "Vernieuwen"
+			}
+		},
+		"headerPanel" : {
+			"options" : {
+				"localeToggleEnabled" : false,
+				"settingsButtonEnabled" : true
+			}
+		},
+		"helpDialogue" : {
+			"content" : {
+				"text" : "placeholder tekst",
+				"title" : "Help"
+			}
+		},
+		"moreInfoRightPanel" : {
+			"options" : {
+				"aggregateValues" : "",
+				"canvasExclude" : "",
+				"copyToClipboardEnabled" : false,
+				"displayOrder" : "",
+				"manifestExclude" : "",
+				"panelAnimationDuration" : 250,
+				"panelCollapsedWidth" : 30,
+				"panelExpandedWidth" : 255,
+				"panelOpen" : true,
+				"textLimit" : 4,
+				"textLimitType" : "lines"
+			},
+			"content" : {
+				"attribution" : "Toelichting",
+				"collapse" : "Verberg Informatie",
+				"collapseFull" : "Verberg Galerij",
+				"description" : "Beschrijving",
+				"expand" : "Toon Informatie",
+				"expandFull" : "Toon Galerij",
+				"holdingText" : "Uw module kan hier komen!",
+				"less" : "minder",
+				"license" : "Licentie",
+				"logo" : "Logo",
+				"more" : "meer",
+				"noData" : "Geen data om weer te geven",
+				"title" : "Meer Informatie",
+				"manifestHeader" : "Over het item",
+				"canvasHeader" : "Over de afbeelding",
+				"copyToClipboard" : "Kopieren naar klembord",
+				"copiedToClipboard" : "Gekopieerd naar klembord"
+			}
+		},
+		"multiSelectDialogue" : {
+			"options" : {
+				"galleryThumbChunkedResizingEnabled" : true,
+				"galleryThumbChunkedResizingThreshold" : 400,
+				"galleryThumbHeight" : 320,
+				"galleryThumbLoadPadding" : 3,
+				"galleryThumbWidth" : 200,
+				"pageModeEnabled" : true
+			},
+			"content" : {
+				"select" : "Download",
+				"selectAll" : "Selecteer Alles",
+				"title" : "Selecteer Paginas om te downloaden"
+			}
+		},
+		"pagingHeaderPanel" : {
+			"options" : {
+				"autoCompleteBoxEnabled" : true,
+				"galleryButtonEnabled" : true,
+				"imageSelectionBoxEnabled" : false,
+				"pageModeEnabled" : false,
+				"pagingToggleEnabled" : true
+			},
+			"content" : {
+				"close" : "Sluiten",
+				"emptyValue" : "Vul aub een waarde in.",
+				"first" : "Eerste",
+				"firstImage" : "Eerste afbeelding",
+				"firstPage" : "Eerste Pagina",
+				"folio" : "Folio",
+				"gallery" : "Galerij",
+				"go" : "Ga",
+				"help" : "Help",
+				"image" : "Afb.",
+				"last" : "Laatste",
+				"lastImage" : "Laatste Afbeelding",
+				"lastPage" : "Laatste Pagina",
+				"next" : "Volgende",
+				"nextImage" : "Volgende Afbeelding",
+				"nextPage" : "Volgende Pagina",
+				"of" : "van {0}",
+				"oneUp" : "Enkele pagina weergave",
+				"page" : "Pagina",
+				"previous" : "Vorige",
+				"previousImage" : "Vorige Afbeelding",
+				"previousPage" : "Vorige Pagina",
+				"settings" : "Instellingen",
+				"twoUp" : "Twee-pagina weergave"
+			}
+		},
+		"seadragonCenterPanel" : {
+			"options" : {
+				"animationTime" : 0.15,
+				"autoHideControls" : true,
+				"attributionEnabled" : true,
+				"blendTime" : 0,
+				"constrainDuringPan" : false,
+				"controlsFadeAfterInactive" : 1500,
+				"controlsFadeDelay" : 250,
+				"controlsFadeLength" : 250,
+				"defaultZoomLevel" : 0,
+				"immediateRender" : false,
+				"maxZoomLevel" : 8,
+				"navigatorPosition" : "BOTTOM_RIGHT",
+				"pageGap" : 50,
+				"showHomeControl" : false,
+				"trimAttributionCount" : 150,
+				"visibilityRatio" : 0.5
+			},
+			"content" : {
+				"attribution" : "Toelichting",
+				"goHome" : "Ga Naar Begin",
+				"imageUnavailable" : "Afbeelding niet beschikbaar",
+				"next" : "Volgene",
+				"previous" : "Vorige",
+				"rotateRight" : "Roteer Rechts",
+				"zoomIn" : "Zoom In",
+				"zoomOut" : "Zoom Out"
+			}
+		},
+		"searchFooterPanel" : {
+			"options" : {
+				"elideDetailsTermsCount" : 20,
+				"elideResultsTermsCount" : 10,
+				"pageModeEnabled" : true,
+				"positionMarkerEnabled" : true
+			},
+			"content" : {
+				"clearSearch" : "Wissen",
+				"defaultLabel" : "-",
+				"displaying" : "{0} {1} van {2}",
+				"enterKeyword" : "Vul zoekterm in",
+				"image" : "afbeelding",
+				"imageCaps" : "Afbeelding",
+				"instanceFound" : "1 instantie van '{0}' gevonden",
+				"instancesFound" : "{0} instanties van '{1}' gevonden",
+				"nextResult" : "Volgende Resultaat",
+				"page" : "pagina",
+				"pageCaps" : "Pagina",
+				"previousResult" : "Vorige Resultaat",
+				"print" : "Printen",
+				"resultFoundFor" : "resultaat gevonden voor",
+				"resultsFoundFor" : "resultaten gevonden voor",
+				"searchWithin" : "Zoek binnen dit item:"
+			}
+		},
+		"settingsDialogue" : {
+			"content" : {
+				"locale" : "Taal",
+				"navigatorEnabled" : "Navigator Aan",
+				"clickToZoomEnabled": "Gebruik muisklik om te zoomen",
+				"pagingEnabled" : "Twee-pagina Weergave",
+				"preserveViewport" : "Behoud Zoom",
+				"title" : "Instellingen",
+				"website" : "<a href='https://github.com/universalviewer/universalviewer#contributors'>meer info</a>"
+			}
+		},
+		"shareDialogue" : {
+			"options" : {
+				"embedTemplate" : "<div class=\"uv\" data-locale=\"{0}\" data-config=\"{1}\" data-uri=\"{2}\" data-collectionindex=\"{3}\" data-manifestindex=\"{4}\" data-sequenceindex=\"{5}\" data-canvasindex=\"{6}\" data-rotation=\"{8}\" style=\"width:{9}px; height:{10}px; background-color: #000\"></div>\n<script type=\"text/javascript\" id=\"embedUV\" src=\"{11}\"></script><script type=\"text/javascript\">/* wordpress fix */</script>",
+				"instructionsEnabled" : true,
+				"shareFrameEnabled" : true
+			},
+			"content" : {
+				"customSize" : "Specifiek",
+				"embed" : "Embed",
+				"embedInstructions" : "Om deze viewer te embedden kopieer en plak onderstaande code in uw website.",
+				"height" : "Hoogte",
+				"iiif" : "IIIF Manifest",
+				"share" : "Delen",
+				"shareInstructions" : "Om te delen kopieer onderstaande URL.",
+				"size" : "Afmetingen:",
+				"width" : "Breedte"
+			}
+		},
+		"clickThroughDialogue" : {
+			"content" : {
+				"viewTerms" : "Lees de volledige algemene voorwaarden."
+			}
+		},
+		"loginDialogue" : {
+			"content" : {
+				"login" : "Login",
+				"logout" : "Uitloggen",
+				"cancel" : "Annuleren"
+			}
+		},
+		"mobileFooterPanel" : {
+			"content" : {
+				"rotateRight" : "Roteer Rechts",
+				"moreInfo" : "Meer Informatie",
+				"zoomIn" : "Zoom In",
+				"zoomOut" : "Zoom Out"
+			}
+		},
+		"restrictedDialogue" : {
+			"content" : {
+				"cancel" : "Annuleren"
+			}
+		}
+	},
+	"localisation" : {
+		"label" : "Nederlands (NL)",
+		"locales" : [{
+				"name" : "en-GB",
+				"label" : "English (GB)"
+			}, {
+				"name" : "nl",
+				"label" : "Nederlands (NL)"
+			}
+		]
+	},
+	"content" : {
+		"authCORSError" : "Uw browser ondersteunt geen CORS, upgrade uw brwoser om deze pagina correct te kunnen weergeven.",
+		"authorisationFailedMessage" : "Uw poging om in te loggen blijkt niet succesvol, probeer het nog eens.",
+		"canvasIndexOutOfRange" : "Canvas index is buiten bereik.",
+		"degradedResourceMessage" : "Log in om de volledige kwaliteit te kunnen bezichtigen.",
+		"degradedResourceLogin" : "log in",
+		"forbiddenResourceMessage" : "Uw huidige rechten zijn nier voldoende om deze afbeelding te bekijken.",
+		"termsOfUse" : "Algemene Voorwaarden"
+	}
+}
