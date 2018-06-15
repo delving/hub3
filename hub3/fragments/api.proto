@@ -330,8 +330,82 @@ message FragmentGraph {
   string namedGraphURI = 3;
   RecordType recordType = 4;
 
-  repeated Fragment fragments = 5;
+  /*repeated Fragment fragments = 5;*/
   repeated ResultSummary summary = 6;
+  repeated FragmentResourceDoc resources = 7;
+}
+
+message FragmentGraphDoc {
+  Header meta = 1;
+
+  string entryURI = 2;
+  string namedGraphURI = 3;
+  RecordType recordType = 4;
+
+  /*repeated Fragment fragments = 5;*/
+  repeated ResultSummary summary = 6;
+  repeated FragmentResourceDoc resources = 7;
+}
+
+
+// FragmentReferrerContext holds the referrer in formation for creating new fragments
+message FragmentReferrerContext {
+  string Subject = 1;
+  repeated string SubjectClass = 2;
+  string Predicate = 3;
+  string SearchLabel = 4;
+  int32 Level = 5;
+  string ObjectID = 6;
+  int32 SortKey = 7;
+}
+
+/*message FragmentResource {*/
+  /*string ID = 1;*/
+  /*repeated string Types = 2;*/
+  /*repeated FragmentReferrerContext GraphExternalContext = 3;*/
+  /*repeated FragmentReferrerContext Context = 4;*/
+  /*map<string, FragmentEntry> Predicates = 6;*/
+  /*repeated FragmentReferrerContext ObjectIDs = 7;*/
+/*}*/
+
+message FragmentResourceDoc {
+  string ID = 1;
+  repeated string Types = 2;
+  repeated FragmentReferrerContext GraphExternalContext = 3;
+  repeated FragmentReferrerContext Context = 4;
+  repeated FragmentEntryDoc Predicates = 6;
+  repeated FragmentReferrerContext ObjectIDs = 7;
+}
+
+
+
+/*message FragmentEntry {*/
+  /*string ID = 1;*/
+  /*string Value = 2;*/
+  /*string Language = 3;*/
+  /*string Datatype = 4;*/
+  /*string Entrytype = 5;*/
+  /*string Triple = 6;*/
+  /*FragmentResource Inline = 7;*/
+/*}*/
+
+message FragmentEntryDoc {
+  string ID = 1;
+  string Value = 2;
+  string Language = 3;
+  string Datatype = 4;
+  string Entrytype = 5;
+  string Triple = 6;
+  FragmentResourceDoc Inline = 7;
+  string Predicate = 8;
+  string SearchLabel = 9;
+  repeated string tags = 10;
+  // Content Index
+  /*string latLong = 22;*/
+  /*string date = 23;*/
+  /*string dateRange = 24;*/
+  /*int32 integer = 25;*/
+  /*int32 integerRange = 26;*/
 }
 
 message ResultSummary {

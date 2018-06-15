@@ -26,16 +26,16 @@ import (
 )
 
 // FragmentReferrerContext holds the referrer in formation for creating new fragments
-type FragmentReferrerContext struct {
-	Subject      string   `json:"subject"`
-	SubjectClass []string `json:"subjectClass"`
-	Predicate    string   `json:"predicate"`
-	SearchLabel  string   `json:"searchLabel"`
-	Level        int      `json:"level"`
-	ObjectID     string   `json:"objectID"`
-	// todo: decide if the sortKey belongs here
-	//SortKey         int      `json:"sortKey"`
-}
+//type FragmentReferrerContext struct {
+//Subject      string   `json:"subject"`
+//SubjectClass []string `json:"subjectClass"`
+//Predicate    string   `json:"predicate"`
+//SearchLabel  string   `json:"searchLabel"`
+//Level        int      `json:"level"`
+//ObjectID     string   `json:"objectID"`
+//// todo: decide if the sortKey belongs here
+////SortKey         int      `json:"sortKey"`
+//}
 
 // NewContext returns the context for the current fragmentresource
 func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentReferrerContext {
@@ -150,8 +150,8 @@ type FragmentEntry struct {
 	ID        string            `json:"@id,omitempty"`
 	Value     string            `json:"@value,omitempty"`
 	Language  string            `json:"@language,omitempty"`
-	Datatype  string            `json:"@type,omitempty"`
-	Entrytype string            `json:"entrytype"`
+	DataType  string            `json:"@type,omitempty"`
+	EntryType string            `json:"entrytype"`
 	Triple    string            `json:"triple"`
 	Inline    *FragmentResource `json:"inline"`
 }
@@ -220,23 +220,24 @@ func debrack(s string) string {
 // CreateFragmentEntry creates a FragmentEntry from a triple
 func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
 	entry := &FragmentEntry{Triple: t.String()}
+	// TODO also add predicate information to the FragmentEntry
 	switch o := t.Object.(type) {
 	case *r.Resource:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.Entrytype = "Resource"
+		entry.EntryType = "Resource"
 		return entry, id
 	case *r.BlankNode:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.Entrytype = "Bnode"
+		entry.EntryType = "Bnode"
 		return entry, id
 	case *r.Literal:
 		entry.Value = o.Value
-		entry.Entrytype = "Literal"
+		entry.EntryType = "Literal"
 		if o.Datatype != nil && len(o.Datatype.String()) > 0 {
 			if o.Datatype.String() != "<http://www.w3.org/2001/XMLSchema#string>" {
-				entry.Datatype = debrack(o.Datatype.String())
+				entry.DataType = debrack(o.Datatype.String())
 			}
 		}
 		if len(o.Language) > 0 {
@@ -299,8 +300,8 @@ func (rm *ResourceMap) GetResource(subject string) (*FragmentResource, bool) {
 
 // GetLevel returns the relative level that this resource has from the root
 // or parent resource
-func (fr *FragmentResource) GetLevel() int {
-	return len(fr.Context) + 1
+func (fr *FragmentResource) GetLevel() int32 {
+	return int32(len(fr.Context) + 1)
 }
 
 // CreateHeader Linked Data Fragment entry for ElasticSearch
@@ -396,7 +397,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 				Meta:          fg.CreateHeader(FragmentDocType),
 				Subject:       fg.NormalisedResource(fr.ID),
 				Predicate:     predicate,
-				DataType:      entry.Datatype,
+				DataType:      entry.DataType,
 				Language:      entry.Language,
 				NamedGraphURI: fg.GetNamedGraphURI(),
 			}
@@ -407,7 +408,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			}
 			frag.Triple = strings.Replace(entry.Triple, entry.ID, fg.NormalisedResource(entry.ID), -1)
 			frag.Triple = strings.Replace(frag.Triple, fr.ID, frag.Subject, -1)
-			frag.Meta.AddTags(entry.Entrytype)
+			frag.Meta.AddTags(entry.EntryType)
 			if lodKey != "" {
 				frag.LodKey = lodKey
 			}
@@ -420,7 +421,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 // GetXSDLabel returns a namespaced label for the RDF datatype
 func (fe *FragmentEntry) GetXSDLabel() string {
-	return strings.Replace(fe.Datatype, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1)
+	return strings.Replace(fe.DataType, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1)
 }
 
 // IndexFragments updates the Fragments for standalone indexing and adds them to the Elasti BulkProcessorService

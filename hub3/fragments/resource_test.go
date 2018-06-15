@@ -138,9 +138,9 @@ var _ = Describe("Resource", func() {
 			Expect(entry.ID).To(Equal(id))
 			Expect(entry.Triple).ToNot(BeEmpty())
 			Expect(entry.Language).To(BeEmpty())
-			Expect(entry.Datatype).To(BeEmpty())
+			Expect(entry.DataType).To(BeEmpty())
 			Expect(entry.Value).To(BeEmpty())
-			Expect(entry.Entrytype).To(Equal("Resource"))
+			Expect(entry.EntryType).To(Equal("Resource"))
 		})
 
 		It("should return an ID for a BlankNode", func() {
@@ -156,9 +156,9 @@ var _ = Describe("Resource", func() {
 			Expect(id).To(Equal("_:book"))
 			Expect(entry.ID).To(Equal(id))
 			Expect(entry.Language).To(BeEmpty())
-			Expect(entry.Datatype).To(BeEmpty())
+			Expect(entry.DataType).To(BeEmpty())
 			Expect(entry.Value).To(BeEmpty())
-			Expect(entry.Entrytype).To(Equal("Bnode"))
+			Expect(entry.EntryType).To(Equal("Bnode"))
 		})
 
 		It("should return no ID for a Literal", func() {
@@ -172,9 +172,9 @@ var _ = Describe("Resource", func() {
 			Expect(entry.ID).To(BeEmpty())
 
 			Expect(entry.Value).To(Equal("book"))
-			Expect(entry.Datatype).To(BeEmpty())
+			Expect(entry.DataType).To(BeEmpty())
 			Expect(entry.Language).To(BeEmpty())
-			Expect(entry.Entrytype).To(Equal("Literal"))
+			Expect(entry.EntryType).To(Equal("Literal"))
 		})
 
 		It("should have a language when the triple has a language", func() {
@@ -188,9 +188,9 @@ var _ = Describe("Resource", func() {
 			Expect(entry.ID).To(BeEmpty())
 
 			Expect(entry.Value).To(Equal("book"))
-			Expect(entry.Datatype).To(BeEmpty())
+			Expect(entry.DataType).To(BeEmpty())
 			Expect(entry.Language).To(Equal("en"))
-			Expect(entry.Entrytype).To(Equal("Literal"))
+			Expect(entry.EntryType).To(Equal("Literal"))
 		})
 
 		It("should have a datatype for non-string", func() {
@@ -204,9 +204,9 @@ var _ = Describe("Resource", func() {
 			Expect(entry.ID).To(BeEmpty())
 
 			Expect(entry.Value).To(Equal("1"))
-			Expect(entry.Datatype).ToNot(BeEmpty())
+			Expect(entry.DataType).ToNot(BeEmpty())
 			Expect(entry.Language).To(BeEmpty())
-			Expect(entry.Entrytype).To(Equal("Literal"))
+			Expect(entry.EntryType).To(Equal("Literal"))
 		})
 	})
 
@@ -229,7 +229,7 @@ var _ = Describe("Resource", func() {
 				Expect(ok).To(BeTrue())
 
 				level := fr.GetLevel()
-				Expect(level).To(Equal(1))
+				Expect(level).To(Equal(int32(1)))
 			})
 			It("should throw an error when the subject is unknown", func() {
 				Expect(rm).ToNot(BeNil())
@@ -246,8 +246,8 @@ var _ = Describe("Resource", func() {
 				Expect(providedCHO).ToNot(BeNil())
 				Expect(ok).To(BeTrue())
 				Expect(providedCHO.Context).To(HaveLen(1))
-				Expect(providedCHO.Context[0].Level).To(Equal(2))
-				Expect(providedCHO.GetLevel()).To(Equal(2))
+				Expect(providedCHO.Context[0].Level).To(Equal(int32(2)))
+				Expect(providedCHO.GetLevel()).To(Equal(int32(2)))
 				label, lang := providedCHO.GetLabel()
 				Expect(label).To(Equal(""))
 				Expect(lang).To(Equal(""))
@@ -256,9 +256,9 @@ var _ = Describe("Resource", func() {
 				Expect(skosConcept).ToNot(BeNil())
 				Expect(ok).To(BeTrue())
 				Expect(skosConcept.Context).To(HaveLen(2))
-				Expect(skosConcept.GetLevel()).To(Equal(3))
-				Expect(skosConcept.Context[1].Level).To(Equal(3))
-				Expect(skosConcept.Context[0].Level).To(Equal(2))
+				Expect(skosConcept.GetLevel()).To(Equal(int32(3)))
+				Expect(skosConcept.Context[1].Level).To(Equal(int32(3)))
+				Expect(skosConcept.Context[0].Level).To(Equal(int32(2)))
 				label, lang = skosConcept.GetLabel()
 				Expect(label).To(Equal("grafsteen"))
 				Expect(lang).To(Equal("nl"))

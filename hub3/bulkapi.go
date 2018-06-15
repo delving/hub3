@@ -351,7 +351,6 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 
-	// TODO enable again when v2 index docs are ready for indexing again
 	// submit the bulkIndexRequest for indexing
 	action.p.Add(r)
 
