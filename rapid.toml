@@ -27,6 +27,8 @@ specKey = "meta.spec"
 # key to use to find revisions. For v1 style indexes use 'revision'
 # for v2 style indexing use 'meta.revision'
 revisionKey = "meta.revision"
+# Key to use for finding the tentant or orgID key. Default meta.orgID
+orgIDKey = "meta.orgID"
 # username and password for packx security
 userName = ""
 password = ""
@@ -122,7 +124,7 @@ apiPrefix = "/api/cache/http"
 # strip prefix determines if cache prefix should be included in the proxy request
 stripPrefix = true
 # default domain to reroute the caching request to
-cacheDomain = "service.nationaalarchief.nl"
+cacheDomain = "prod.nationaalarchief.nl"
 # max size for the in memory cache in MB. So 8192 for 8GB.
 hardMaxCacheSize = 1024
 

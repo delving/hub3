@@ -78,6 +78,7 @@ type ElasticSearch struct {
 	EnableTrace bool     `json:"enableTrace"`
 	SpecKey     string   `json:"specKey"`
 	RevisionKey string   `json:"revisionKey"`
+	OrgIDKey    string   `json:"orgIDKey"`
 	UserName    string   `json:"userName"`
 	Password    string   `json:"password"`
 }
@@ -188,6 +189,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.EnableTrace", false)
 	viper.SetDefault("ElasticSearch.SpecKey", "meta.spec")
 	viper.SetDefault("ElasticSearch.RevisionKey", "meta.revision")
+	viper.SetDefault("ElasticSearch.OrgIDKey", "meta.orgID")
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
