@@ -68,3 +68,7 @@ import:
 - package: github.com/go-chi/cors
   version: ~1.0.0
 - package: github.com/phyber/negroni-gzip
+- package: github.com/caltechlibrary/ead2002
+  version: ~0.0.1
+  subpackages:
+  - '...'

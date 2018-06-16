@@ -1,5 +1,5 @@
-hash: 7c12b8321674e418cd260169178c27cf539feb7e8f682e0bef70f934e2958c66
-updated: 2018-06-13T16:25:20.440196725+02:00
+hash: 7d82f37499f8f4a00b36e246f76b477d42638af8042afe3d0657516f08713f14
+updated: 2018-06-15T22:06:57.804317379+02:00
 imports:
 - name: github.com/allegro/bigcache
   version: f31987a23e44c5121ef8c8b2f2ea2e8ffa37b068
@@ -23,6 +23,10 @@ imports:
   - quantile
 - name: github.com/boltdb/bolt
   version: 9da31745363232bc1e27dbab3569e77383a51585
+- name: github.com/caltechlibrary/ead2002
+  version: 5bc395d40160fe16c8b740f2bf568479055fc944
+  subpackages:
+  - '...'
 - name: github.com/certifi/gocertifi
   version: deb3ae2ef2610fde3330947281941c562861188b
 - name: github.com/codegangsta/gin
@@ -204,6 +208,8 @@ imports:
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
 - name: github.com/phyber/negroni-gzip
   version: ef6356a5d02936b65ca8e60b604ed6b078aac8d3
+  subpackages:
+  - gzip
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
