@@ -185,13 +185,13 @@ message SearchResultV3 {
   Query query = 1; 
   SearchRequest request = 2;
   Pagination pagination = 3;
-  repeated fragments.FragmentGraph items = 4; 
+  repeated fragments.FragmentGraphDoc items = 4; 
   repeated Facet facets = 5;
 }
 
 message ScrollResultV3 {
   ScrollPager pager = 1;
-  repeated fragments.FragmentGraph items = 5;
+  repeated fragments.FragmentGraphDoc items = 5;
 }
 
 // V1 
@@ -223,10 +223,10 @@ message DetailResult {
   MetadataItemV1 item = 1;
 }
 
-service FragmentService           {
-  rpc Search (FragmentRequest) returns (FragmentSearchResponse);
-  rpc Update (FragmentGraph) returns (FragmentUpdateResponse);
-}
+/*service FragmentService           {*/
+  /*rpc Search (FragmentRequest) returns (FragmentSearchResponse);*/
+  /*rpc Update (FragmentGraph) returns (FragmentUpdateResponse);*/
+/*}*/
 
 
 message FragmentSearchResponse {
@@ -323,17 +323,18 @@ enum RecordType {
 /*}*/
 
 
-message FragmentGraph {
-  Header meta = 1;
 
-  string entryURI = 2;
-  string namedGraphURI = 3;
-  RecordType recordType = 4;
+/*message FragmentGraph {*/
+  /*Header meta = 1;*/
+
+  /*string entryURI = 2;*/
+  /*string namedGraphURI = 3;*/
+  /*RecordType recordType = 4;*/
 
   /*repeated Fragment fragments = 5;*/
-  repeated ResultSummary summary = 6;
-  repeated FragmentResourceDoc resources = 7;
-}
+  /*repeated ResultSummary summary = 6;*/
+  /*[>repeated FragmentResource resources = 7;<]*/
+/*}*/
 
 message FragmentGraphDoc {
   Header meta = 1;

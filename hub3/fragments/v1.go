@@ -115,7 +115,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	//s.Caption = ""
 	s.AboutURI = fb.fg.GetAboutURI()
 	s.SourceURI = fb.fg.GetAboutURI()
-	s.GraphName = fb.fg.GetNamedGraphURI()
+	s.GraphName = fb.fg.NamedGraphURI
 	now := time.Now()
 	nowString := fmt.Sprintf(now.Format(time.RFC3339))
 	s.CreatedAt = nowString

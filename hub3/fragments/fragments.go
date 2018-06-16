@@ -48,7 +48,7 @@ const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // GetAboutURI returns the subject of the FragmentGraph
 func (fg *FragmentGraph) GetAboutURI() string {
-	return strings.TrimSuffix(fg.GetNamedGraphURI(), "/graph")
+	return strings.TrimSuffix(fg.NamedGraphURI, "/graph")
 }
 
 // TODO remove later
@@ -162,13 +162,14 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 	fragments := []*Fragment{}
 
 	q := elastic.NewBoolQuery()
+	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
 	buildQueryClause(q, "subject", fr.GetSubject())
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
 	q = q.Must(elastic.NewTermQuery("meta.docType", FragmentDocType))
 	if len(fr.GetSpec()) != 0 {
-		q = q.Must(elastic.NewTermQuery("meta.spec", fr.GetSpec()))
+		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))
 	}
 	if c.Config.DevMode {
 		src, err := q.Source()
@@ -402,10 +403,14 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 var ESMapping = `{
 	"settings":{
 		"number_of_shards":3,
-		"number_of_replicas":2
+		"number_of_replicas":2,
+		"index.mapping.total_fields.limit": 1000,
+		"index.mapping.depth.limit": 20,
+		"index.mapping.nested_fields.limit": 50
 	},
 	"mappings":{
 		"doc": {
+			"dynamic": "strict",
 			"properties": {
 				"meta": {
 					"type": "object",
@@ -420,27 +425,48 @@ var ESMapping = `{
 				},
 				"subject": {"type": "keyword"},
 				"predicate": {"type": "keyword"},
-				"object": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
+				"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
 				"language": {"type": "keyword"},
 				"dataType": {"type": "keyword"},
 				"triple": {"type": "keyword", "index": "false", "store": "true"},
 				"namedGraphURI": {"type": "keyword"},
 				"lodKey": {"type": "keyword"},
-
-				"objectNumber": {"type": "keyword"},
 				"entryURI": {"type": "keyword"},
-				"RDF": {"type": "binary", "index": "false", "store": "false"},
-				"rdfMimeType": {"type": "text", "fields": {"keyword": {"type": "keyword"}}},
-				"LastModified": {"type": "date"},
-				"level": {"type": "long"},
-				"fragments": {
-					"type": "nested",
+				"recordType": {"type": "short"},
+
+				"resources": {
+					"type": "object",
 					"properties": {
-						"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}}
+						"id": {"type": "keyword"},
+						"types": {"type": "keyword"},
+						"tags": {"type": "keyword"},
+						"context": {
+							"type": "nested",
+							"properties": {
+								"Subject": {"type": "keyword", "ignore_above": 256},
+								"SubjectClass": {"type": "keyword", "ignore_above": 256},
+								"Predicate": {"type": "keyword", "ignore_above": 256},
+								"SearchLabel": {"type": "keyword", "ignore_above": 256},
+								"Level": {"type": "integer"},
+								"ObjectID": {"type": "keyword", "ignore_above": 256},
+								"SortKey": {"type": "integer"}
+								"tags": {"type": "keyword"},
+							}
+						},
+						"entries": {
+							"type": "nested",
+							"properties": {
+								"@id": {"type": "keyword"},
+								"@value": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+								"@language": {"type": "keyword", "ignore_above": 256},
+								"@type": {"type": "keyword", "ignore_above": 256},
+								"entrytype": {"type": "keyword", "ignore_above": 256},
+								"predicate": {"type": "keyword", "ignore_above": 256},
+								"searchLabel": {"type": "keyword", "ignore_above": 256},
+								"level": {"type": "integer"}
+							}
+						}
 					}
-				},
-				"stats": {
-					"type": "object"
 				}
 			}
 		}

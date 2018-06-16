@@ -30,13 +30,6 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-type ESRecord struct {
-	EntryURI string `json:"entryURI"`
-	Spec     string `json:"spec"`
-	Revision string `json:"revision"`
-	HubID    string `json:"hubID"`
-}
-
 // DataSetRevisions holds the type-frequency data for each revision
 type DataSetRevisions struct {
 	Number      int `json:"revisionNumber"`
@@ -225,7 +218,8 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	counter := []DataSetCounter{}
 
 	if !c.Config.ElasticSearch.Enabled {
-		return 0, revisions, counter, fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+		err := fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+		return 0, revisions, counter, err
 	}
 
 	revisionAgg := elastic.NewTermsAggregation().Field("meta.revision").Size(30).OrderByCountDesc()
@@ -234,6 +228,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -307,6 +302,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentDocType),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -516,6 +512,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 	q := elastic.NewBoolQuery()
 	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
+	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
 	// enqueue posthooks first
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)

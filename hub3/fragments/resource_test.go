@@ -44,10 +44,10 @@ var _ = Describe("Resource", func() {
 			Expect(fr.ID).To(Equal(subject))
 			Expect(fr.Types).To(ContainElement("http://www.openarchives.org/ore/terms/Aggregation"))
 			Expect(fr.Types).To(HaveLen(1))
-			Expect(fr.ObjectIDs).To(HaveLen(6))
+			Expect(fr.ObjectIDs()).To(HaveLen(6))
 			// todo properly check for not referring to itself
-			Expect(fr.ObjectIDs).ToNot(ContainElement(subject))
-			Expect(fr.Predicates).To(HaveLen(6))
+			Expect(fr.ObjectIDs()).ToNot(ContainElement(subject))
+			Expect(fr.Predicates()).To(HaveLen(6))
 		})
 	})
 
@@ -99,7 +99,7 @@ var _ = Describe("Resource", func() {
 
 			entry, ok := rm[r.GetResourceID(subject)]
 			Expect(ok).To(BeTrue())
-			Expect(entry.ObjectIDs).To(HaveLen(0))
+			Expect(entry.ObjectIDs()).To(HaveLen(0))
 		})
 
 		It("should add objectIDS for resources", func() {
@@ -119,7 +119,7 @@ var _ = Describe("Resource", func() {
 
 			entry, ok := rm[r.GetResourceID(subject)]
 			Expect(ok).To(BeTrue())
-			Expect(entry.ObjectIDs).To(HaveLen(1))
+			Expect(entry.ObjectIDs()).To(HaveLen(1))
 		})
 
 	})
@@ -246,7 +246,7 @@ var _ = Describe("Resource", func() {
 				Expect(providedCHO).ToNot(BeNil())
 				Expect(ok).To(BeTrue())
 				Expect(providedCHO.Context).To(HaveLen(1))
-				Expect(providedCHO.Context[0].Level).To(Equal(int32(2)))
+				Expect(providedCHO.Context[0].Level).To(Equal(int32(1)))
 				Expect(providedCHO.GetLevel()).To(Equal(int32(2)))
 				label, lang := providedCHO.GetLabel()
 				Expect(label).To(Equal(""))
@@ -257,8 +257,8 @@ var _ = Describe("Resource", func() {
 				Expect(ok).To(BeTrue())
 				Expect(skosConcept.Context).To(HaveLen(2))
 				Expect(skosConcept.GetLevel()).To(Equal(int32(3)))
-				Expect(skosConcept.Context[1].Level).To(Equal(int32(3)))
-				Expect(skosConcept.Context[0].Level).To(Equal(int32(2)))
+				Expect(skosConcept.Context[1].Level).To(Equal(int32(2)))
+				Expect(skosConcept.Context[0].Level).To(Equal(int32(1)))
 				label, lang = skosConcept.GetLabel()
 				Expect(label).To(Equal("grafsteen"))
 				Expect(lang).To(Equal("nl"))

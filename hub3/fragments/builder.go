@@ -34,6 +34,19 @@ type FragmentBuilder struct {
 	resources      *ResourceMap
 }
 
+// ResourcesList returns a list of FragmentResource
+func (rm *ResourceMap) ResourcesList() []*FragmentResource {
+	rs := []*FragmentResource{}
+	for _, entry := range rm.resources {
+		err := entry.SetEntries()
+		if err != nil {
+			log.Printf("Unable to set entries: %s", err)
+		}
+		rs = append(rs, entry)
+	}
+	return rs
+}
+
 // ResourceMap returns a *ResourceMap for the Graph in the FragmentBuilder
 func (fb *FragmentBuilder) ResourceMap() (*ResourceMap, error) {
 	if fb.resources == nil {
@@ -161,6 +174,18 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 // Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	// TODO added resources to the fragment graph
+	rm, err := fb.ResourceMap()
+	if err != nil {
+		log.Printf("Unable to create resources: %s", err)
+		return fb.fg
+	}
+	err = rm.SetContextLevels(fb.fg.GetAboutURI())
+	if err != nil {
+		log.Printf("Unable to set context: %s", err)
+		return fb.fg
+	}
+
+	fb.fg.Resources = rm.ResourcesList()
 	return fb.fg
 }
 

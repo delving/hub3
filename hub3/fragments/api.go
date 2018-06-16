@@ -101,12 +101,13 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	query := elastic.NewBoolQuery()
 	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
+	query = query.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
 
 	if sr.GetQuery() != "" {
-		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "spec:", 1)
+		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "meta.spec:", 1)
 		qs := elastic.NewQueryStringQuery(rawQuery)
-		qs = qs.DefaultField("fragments.object")
-		nq := elastic.NewNestedQuery("fragments", qs)
+		qs = qs.DefaultField("resources.entries.@value")
+		nq := elastic.NewNestedQuery("resources.entries", qs)
 		query = query.Must(nq)
 	}
 

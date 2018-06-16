@@ -60,6 +60,20 @@ type ResourceMap struct {
 	resources map[string]*FragmentResource `json:"resources"`
 }
 
+// FragmentGraph is a container for all entries of an RDF Named Graph
+type FragmentGraph struct {
+	Meta          *Header             `json:"meta"`
+	EntryURI      string              `json:"entryURI"`
+	NamedGraphURI string              `json:"namedGraphURI"`
+	RecordType    RecordType          `json:"recordType"`
+	Resources     []*FragmentResource `json:"resources"`
+}
+
+type ScrollResultV4 struct {
+	Pager *ScrollPager
+	Items []*FragmentGraph
+}
+
 // FragmentResource holds all the conttext information for a resource
 // It works together with the FragmentBuilder to create the linked fragments
 type FragmentResource struct {
@@ -67,8 +81,59 @@ type FragmentResource struct {
 	Types                []string                    `json:"types"`
 	GraphExternalContext []*FragmentReferrerContext  `json:"graphExternalContext"`
 	Context              []*FragmentReferrerContext  `json:"context"`
-	Predicates           map[string][]*FragmentEntry `json:""`
-	ObjectIDs            []*FragmentReferrerContext  `json:"objectIDs"`
+	predicates           map[string][]*FragmentEntry `json:"predicates"`
+	objectIDs            []*FragmentReferrerContext  `json:"objectIDs"`
+	Entries              []*ResourceEntry            `json:"entries"`
+	Tags                 []string                    `json:"tags,omitempty"`
+}
+
+// ObjectIDs returns an array of FragmentReferrerContext
+func (fr *FragmentResource) ObjectIDs() []*FragmentReferrerContext {
+	return fr.objectIDs
+}
+
+// Predicates returns a map of FragmentEntry
+func (fr *FragmentResource) Predicates() map[string][]*FragmentEntry {
+	return fr.predicates
+}
+
+// SetEntries sets the ResourceEntries for indexing
+func (fr *FragmentResource) SetEntries() error {
+	fr.Entries = []*ResourceEntry{}
+	for predicate, entries := range fr.predicates {
+		for _, entry := range entries {
+			re, err := entry.NewResourceEntry(predicate, fr.GetLevel())
+			if err != nil {
+				return err
+			}
+			fr.Entries = append(fr.Entries, re)
+		}
+	}
+	return nil
+}
+
+// NewResourceEntry creates a resource entry for indexing
+func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32) (*ResourceEntry, error) {
+	label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
+	if err != nil {
+		log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+		label = ""
+	}
+	re := &ResourceEntry{
+		ID:          fe.ID,
+		Value:       fe.Value,
+		Language:    fe.Language,
+		DataType:    fe.DataType,
+		EntryType:   fe.EntryType,
+		Predicate:   predicate,
+		Level:       level,
+		SearchLabel: label,
+	}
+	// TODO: get resource label from fragmentresource
+	//if re.ID != "" {
+	//re.Value
+	//}
+	return re, nil
 }
 
 // GetLabel returns the label and language for a resource
@@ -82,7 +147,7 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 		"http://xmlns.com/foaf/0.1/name",
 	}
 	for _, labelPredicate := range labels {
-		o, ok := fr.Predicates[labelPredicate]
+		o, ok := fr.predicates[labelPredicate]
 		if ok && len(o) != 0 {
 			return o[0].Value, o[0].Language
 		}
@@ -103,18 +168,19 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 	if !ok {
 		return fmt.Errorf("Subject %s is not part of the graph", subjectURI)
 	}
-	for _, level1 := range subject.ObjectIDs {
+
+	for _, level1 := range subject.objectIDs {
 		level2Resource, ok := rm.GetResource(level1.ObjectID)
 		if !ok {
 			log.Printf("unknown target URI: %s", level1.ObjectID)
 			continue
 		}
-		level1.Level = 2
+		level1.Level = 1
 		level2Resource.AppendContext(level1)
 
 		// loop into the next level, i.e. level 3
-		for _, level2 := range level2Resource.ObjectIDs {
-			level2.Level = 3
+		for _, level2 := range level2Resource.objectIDs {
+			level2.Level = 2
 			level3Resource, ok := rm.GetResource(level2.ObjectID)
 			if !ok {
 				log.Printf("unknown target URI: %s", level2.ObjectID)
@@ -138,22 +204,33 @@ func (fr *FragmentResource) AppendContext(ctxs ...*FragmentReferrerContext) {
 	}
 }
 
-/*
-
-
- TODO: restructure fragments into blocks with header, geoblock, context block (maybe nested)
-
-*/
-
 // FragmentEntry holds all the information for the object of a rdf2go.Triple
 type FragmentEntry struct {
-	ID        string            `json:"@id,omitempty"`
-	Value     string            `json:"@value,omitempty"`
-	Language  string            `json:"@language,omitempty"`
-	DataType  string            `json:"@type,omitempty"`
-	EntryType string            `json:"entrytype"`
-	Triple    string            `json:"triple"`
-	Inline    *FragmentResource `json:"inline"`
+	ID        string `json:"@id,omitempty"`
+	Value     string `json:"@value,omitempty"`
+	Language  string `json:"@language,omitempty"`
+	DataType  string `json:"@type,omitempty"`
+	EntryType string `json:"entrytype"`
+	Triple    string `json:"triple"`
+}
+
+// ResourceEntry contains all the indexed entries for FragmentResources
+type ResourceEntry struct {
+	ID          string   `json:"@id,omitempty"`
+	Value       string   `json:"@value,omitempty"`
+	Language    string   `json:"@language,omitempty"`
+	DataType    string   `json:"@type,omitempty"`
+	EntryType   string   `json:"entrytype"`
+	Predicate   string   `json:"predicate"`
+	SearchLabel string   `json:"searchLabel"`
+	Level       int32    `json:"level"`
+	Tags        []string `json:"tags,omitempty"`
+}
+
+// InlineResourceEntry renders ResourceEntries inline
+type InlineResourceEntry struct {
+	ResourceEntry ResourceEntry     `json:"resourceEntry"`
+	Inline        *FragmentResource `json:"inline"`
 }
 
 // NewResourceMap creates a map for all the resources in the rdf2go.Graph
@@ -220,7 +297,6 @@ func debrack(s string) string {
 // CreateFragmentEntry creates a FragmentEntry from a triple
 func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
 	entry := &FragmentEntry{Triple: t.String()}
-	// TODO also add predicate information to the FragmentEntry
 	switch o := t.Object.(type) {
 	case *r.Resource:
 		id := r.GetResourceID(o)
@@ -255,7 +331,7 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 		fr = &FragmentResource{}
 		fr.ID = id
 		resources[id] = fr
-		fr.Predicates = make(map[string][]*FragmentEntry)
+		fr.predicates = make(map[string][]*FragmentEntry)
 	}
 
 	ttype, ok := t.GetRDFType()
@@ -267,7 +343,7 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 	}
 
 	p := r.GetResourceID(t.Predicate)
-	predicates, ok := fr.Predicates[p]
+	predicates, ok := fr.predicates[p]
 	if !ok {
 		predicates = []*FragmentEntry{}
 	}
@@ -275,13 +351,13 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 	if fragID != "" {
 		if fragID != id {
 			ctx := fr.NewContext(p, fragID)
-			if !containsContext(fr.ObjectIDs, ctx) {
-				fr.ObjectIDs = append(fr.ObjectIDs, ctx)
+			if !containsContext(fr.objectIDs, ctx) {
+				fr.objectIDs = append(fr.objectIDs, ctx)
 			}
 		}
 	}
 	if !containsEntry(predicates, entry) {
-		fr.Predicates[p] = append(predicates, entry)
+		fr.predicates[p] = append(predicates, entry)
 	}
 
 	return nil
@@ -301,7 +377,13 @@ func (rm *ResourceMap) GetResource(subject string) (*FragmentResource, bool) {
 // GetLevel returns the relative level that this resource has from the root
 // or parent resource
 func (fr *FragmentResource) GetLevel() int32 {
-	return int32(len(fr.Context) + 1)
+	highestLevel := int32(0)
+	for _, ctx := range fr.Context {
+		if ctx.GetLevel() > highestLevel {
+			highestLevel = ctx.GetLevel()
+		}
+	}
+	return int32(highestLevel + 1)
 }
 
 // CreateHeader Linked Data Fragment entry for ElasticSearch
@@ -359,7 +441,7 @@ func (fg *FragmentGraph) NormalisedResource(uri string) string {
 	if !strings.HasPrefix(uri, "_:") {
 		return uri
 	}
-	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.GetNamedGraphURI()))
+	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.NamedGraphURI))
 }
 
 // CreateFragments creates ElasticSearch documents for each
@@ -376,7 +458,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			Subject:       fg.NormalisedResource(fr.ID),
 			Predicate:     RDFType,
 			Object:        ttype,
-			NamedGraphURI: fg.GetNamedGraphURI(),
+			NamedGraphURI: fg.NamedGraphURI,
 		}
 		if strings.HasPrefix(fr.ID, "_:") {
 			frag.Triple = fmt.Sprintf("%s <%s> <%s> .", frag.Subject, RDFType, ttype)
@@ -391,7 +473,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	}
 
 	// add entries
-	for predicate, entries := range fr.Predicates {
+	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
 			frag := &Fragment{
 				Meta:          fg.CreateHeader(FragmentDocType),
@@ -399,7 +481,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 				Predicate:     predicate,
 				DataType:      entry.DataType,
 				Language:      entry.Language,
-				NamedGraphURI: fg.GetNamedGraphURI(),
+				NamedGraphURI: fg.NamedGraphURI,
 			}
 			if entry.ID != "" {
 				frag.Object = fg.NormalisedResource(entry.ID)
