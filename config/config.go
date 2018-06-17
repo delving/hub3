@@ -216,6 +216,12 @@ func setDefaults() {
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
 	viper.SetDefault("RDF.DefaultFormat", "application/ld+json")
 
+	// rdftags
+	viper.SetDefault("RDFTag.Label", []string{
+		"http://www.w3.org/2004/02/skos/core#prefLabel",
+		"http://purl.org/dc/elements/1.1/title",
+	})
+
 	// posthook
 	viper.SetDefault("PostHook.urls", []string{})
 	viper.SetDefault("PostHook.ExcludeSpec", []string{})

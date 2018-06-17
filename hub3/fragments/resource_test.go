@@ -1,6 +1,7 @@
 package fragments_test
 
 import (
+	"github.com/delving/rapid-saas/config"
 	. "github.com/delving/rapid-saas/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
@@ -237,6 +238,7 @@ var _ = Describe("Resource", func() {
 				Expect(err).To(HaveOccurred())
 			})
 
+			config.InitConfig()
 			It("should determine its level by the number of context is has", func() {
 				Expect(rm).ToNot(BeNil())
 				err := rm.SetContextLevels(subject)
@@ -262,6 +264,7 @@ var _ = Describe("Resource", func() {
 				Expect(skosConcept.Context[1].GetSubjectClass()).To(HaveLen(1))
 				Expect(skosConcept.Context[0].Level).To(Equal(int32(1)))
 				Expect(skosConcept.Context[0].GetSubjectClass()).To(HaveLen(1))
+				Expect(config.Config.RDFTag.Label).To(HaveLen(2))
 				label, lang = skosConcept.GetLabel()
 				Expect(label).To(Equal("grafsteen"))
 				Expect(lang).To(Equal("nl"))
