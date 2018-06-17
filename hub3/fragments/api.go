@@ -77,8 +77,12 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
-			//case "qf", "qf[]":
-			//sr.QueryFilter = append(sr.QueryFilter, v)
+		//case "qf", "qf[]":
+		//sr.QueryFilter = append(sr.QueryFilter, v)
+		case "facet.field":
+			for _, field := range v {
+				sr.FacetField = append(sr.FacetField, field)
+			}
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":
@@ -109,9 +113,47 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		qs = qs.DefaultField("resources.entries.@value")
 		nq := elastic.NewNestedQuery("resources.entries", qs)
 		query = query.Must(nq)
+
 	}
 
 	return query, nil
+}
+
+// Aggregations returns the aggregations for the SearchRequest
+func (sr *SearchRequest) Aggregations() (map[string]elastic.Aggregation, error) {
+
+	aggs := map[string]elastic.Aggregation{}
+
+	for _, facetField := range sr.FacetField {
+		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField, false, 10)
+		if err != nil {
+			return nil, err
+		}
+		aggs[facetField] = agg
+	}
+	return aggs, nil
+}
+
+// CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
+func (sr *SearchRequest) CreateAggregationBySearchLabel(path, searchLabel string, byId bool, size int) (elastic.Aggregation, error) {
+	nestedPath := fmt.Sprintf("%s.searchLabel", path)
+	fieldQuery := elastic.NewTermQuery(nestedPath, searchLabel)
+
+	entryKey := "@value.keyword"
+	if byId {
+		entryKey = "@id"
+	}
+
+	termAggPath := fmt.Sprintf("%s.%s", path, entryKey)
+
+	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(size).OrderByCountDesc()
+
+	filterAgg := elastic.NewFilterAggregation().Filter(fieldQuery).SubAggregation("value", labelAgg)
+
+	testAgg := elastic.NewNestedAggregation().Path(path)
+	testAgg = testAgg.SubAggregation("inner", filterAgg)
+
+	return testAgg, nil
 }
 
 // ElasticSearchService creates the elastic SearchService for execution
@@ -130,8 +172,20 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 
 	query, err := sr.ElasticQuery()
 	if err != nil {
-		log.Println("Unable to uild the query result.")
+		log.Println("Unable to build the query result.")
 		return s, err
+	}
+
+	s = s.Query(query)
+
+	// Add aggregations
+	aggs, err := sr.Aggregations()
+	if err != nil {
+		log.Println("Unable to build the Aggregations.")
+		return s, err
+	}
+	for facetField, agg := range aggs {
+		s = s.Aggregation(facetField, agg)
 	}
 
 	return s.Query(query), err
@@ -156,6 +210,17 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 		}
 		source, _ := query.Source()
 		return source, nil
+	case "aggs":
+		aggs, err := sr.Aggregations()
+		if err != nil {
+			return nil, err
+		}
+		sourceMap := map[string]interface{}{}
+		for k, v := range aggs {
+			source, _ := v.Source()
+			sourceMap[k] = source
+		}
+		return sourceMap, nil
 	case "nextScrollID":
 		pager, err := sr.NextScrollID(total)
 		if err != nil {

@@ -87,7 +87,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	switch echoRequest {
 	case "searchService":
-		render.JSON(w, r, s)
+		render.JSON(w, r, searchRequest)
 		return
 	case "request":
 		dump, err := httputil.DumpRequest(r, true)
@@ -117,7 +117,6 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(echoRequest)
 	if echoRequest == "searchResponse" {
 		render.JSON(w, r, res)
 		return

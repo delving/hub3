@@ -100,11 +100,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Handle("/metrics", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("You are rocking rapid!"))
-		if err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
-			return
-		}
+		render.PlainText(w, r, "You are rocking rapid!")
 	})
 
 	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
