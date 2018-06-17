@@ -57,7 +57,7 @@ type RawConfig struct {
 	RDFTag        `json:"rdftag"`
 	PostHook      `json:"postHook"`
 	Cache         `json:"cache"`
-	//RDFTagMap     *RDFTagMap
+	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -124,6 +124,7 @@ type Cache struct {
 	StripPrefix       bool   `json:"stripPrefix"`
 	CacheDomain       string `json:"cacheDomain"`
 	HardMaxCacheSize  int    `json:"hardMaxCacheSize"`
+	MaxEntrySize      int    `json:"maxEntrySize"`
 }
 
 // OAIPMH holds all the configuration options for the OAI-PMH endpoint
@@ -201,6 +202,7 @@ func setDefaults() {
 	viper.SetDefault("Cache.stripPrefix", true)
 	viper.SetDefault("Cache.cacheDomain", "")
 	viper.SetDefault("Cache.HardMaxCacheSize", 512)
+	viper.SetDefault("Cache.MaxEntrySize", 10240)
 
 	// rdf with defaults for Apache Fuseki
 	viper.SetDefault("RDF.SparqlEnabled", true)

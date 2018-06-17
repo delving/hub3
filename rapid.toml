@@ -127,6 +127,8 @@ stripPrefix = true
 cacheDomain = "prod.nationaalarchief.nl"
 # max size for the in memory cache in MB. So 8192 for 8GB.
 hardMaxCacheSize = 1024
+# max size an individual entry in bytes, i.e. 10240 is 10MB
+maxEntrySize = 10240
 
 [lod]
 # enable the lod routing point
@@ -145,17 +147,6 @@ singleEndpoint = "NL-.*"
 
 # Default namespaces can be found in config/namespace.go
 
-[[namespaces]]
-base = "http://www.musip.nl/"
-prefix = "musip"
-
-[[namespaces]]
-base = "http://schemas.delving.eu/aff/"
-prefix = "aff"
-
-[[namespaces]]
-base = "http://archief.nl/def/"
-prefix = "nadef"
 
 [rdftag]
 label = [
@@ -181,3 +172,17 @@ thumbnail = [
 latLong = []
 dateRange = []
 date = []
+
+
+
+[[namespaces]]
+base = "http://www.musip.nl/"
+prefix = "musip"
+
+[[namespaces]]
+base = "http://schemas.delving.eu/aff/"
+prefix = "aff"
+
+[[namespaces]]
+base = "http://archief.nl/def/"
+prefix = "nadef"

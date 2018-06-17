@@ -34,7 +34,7 @@ func init() {
 		eviction := time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute
 		config := bigcache.DefaultConfig(eviction)
 		config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
-		config.MaxEntrySize = 10000
+		config.MaxEntrySize = c.Config.Cache.MaxEntrySize
 		cache, err := bigcache.NewBigCache(config)
 		if err != nil {
 			log.Fatalf("Unable to start bigCache implementation: %#v", err)
