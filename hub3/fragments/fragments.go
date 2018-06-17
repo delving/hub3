@@ -399,7 +399,6 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 }
 
 // ESMapping is the default mapping for the RDF records enabled by rapid
-// TODO update the mapping to new resource structure with nesting
 var ESMapping = `{
 	"settings":{
 		"number_of_shards":3,
@@ -435,7 +434,7 @@ var ESMapping = `{
 				"recordType": {"type": "short"},
 
 				"resources": {
-					"type": "object",
+					"type": "nested",
 					"properties": {
 						"id": {"type": "keyword"},
 						"types": {"type": "keyword"},
@@ -449,8 +448,8 @@ var ESMapping = `{
 								"SearchLabel": {"type": "keyword", "ignore_above": 256},
 								"Level": {"type": "integer"},
 								"ObjectID": {"type": "keyword", "ignore_above": 256},
-								"SortKey": {"type": "integer"}
-								"tags": {"type": "keyword"},
+								"SortKey": {"type": "integer"},
+								"tags": {"type": "keyword"}
 							}
 						},
 						"entries": {
