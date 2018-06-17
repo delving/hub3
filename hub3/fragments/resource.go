@@ -98,11 +98,11 @@ func (fr *FragmentResource) Predicates() map[string][]*FragmentEntry {
 }
 
 // SetEntries sets the ResourceEntries for indexing
-func (fr *FragmentResource) SetEntries() error {
+func (fr *FragmentResource) SetEntries(rm *ResourceMap) error {
 	fr.Entries = []*ResourceEntry{}
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
-			re, err := entry.NewResourceEntry(predicate, fr.GetLevel())
+			re, err := entry.NewResourceEntry(predicate, fr.GetLevel(), rm)
 			if err != nil {
 				return err
 			}
@@ -113,7 +113,7 @@ func (fr *FragmentResource) SetEntries() error {
 }
 
 // NewResourceEntry creates a resource entry for indexing
-func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32) (*ResourceEntry, error) {
+func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *ResourceMap) (*ResourceEntry, error) {
 	label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
 	if err != nil {
 		log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
@@ -129,10 +129,13 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32) (*Resou
 		Level:       level,
 		SearchLabel: label,
 	}
-	// TODO: get resource label from fragmentresource
-	//if re.ID != "" {
-	//re.Value
-	//}
+
+	if re.ID != "" {
+		r, ok := rm.GetResource(re.ID)
+		if ok {
+			re.Value, _ = r.GetLabel()
+		}
+	}
 	return re, nil
 }
 
@@ -176,6 +179,10 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 			continue
 		}
 		level1.Level = 1
+		if len(level1.GetSubjectClass()) == 0 {
+			level1.SubjectClass = subject.Types
+		}
+		// validate context
 		level2Resource.AppendContext(level1)
 
 		// loop into the next level, i.e. level 3
@@ -185,6 +192,9 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 			if !ok {
 				log.Printf("unknown target URI: %s", level2.ObjectID)
 				continue
+			}
+			if len(level2.GetSubjectClass()) == 0 {
+				level2.SubjectClass = level2Resource.Types
 			}
 			level3Resource.AppendContext(level1, level2)
 		}

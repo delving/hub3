@@ -38,7 +38,7 @@ type FragmentBuilder struct {
 func (rm *ResourceMap) ResourcesList() []*FragmentResource {
 	rs := []*FragmentResource{}
 	for _, entry := range rm.resources {
-		err := entry.SetEntries()
+		err := entry.SetEntries(rm)
 		if err != nil {
 			log.Printf("Unable to set entries: %s", err)
 		}
