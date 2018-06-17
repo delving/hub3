@@ -301,6 +301,7 @@ func InitConfig() {
 	}
 
 	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
+	Config.RDFTagMap = NewRDFTagMap(&Config)
 	cleanConfig()
 }
 

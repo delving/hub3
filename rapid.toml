@@ -169,9 +169,15 @@ thumbnail = [
     "http://www.europeana.eu/schemas/edm/isShownBy",
 ]
 
-latLong = []
+latLong = [
+    "http://schemas.delving.eu/nave/terms/latLong",
+    "http://schemas.delving.eu/nave/terms/GeoHash",
+    "http://schemas.delving.eu/nave/terms/geoHash",
+]
 dateRange = []
-date = []
+date = [
+    "http://schemas.delving.eu/nave/terms/date",
+]
 
 
 

@@ -25,9 +25,51 @@ type RDFTag struct {
 	DateRange []string `json:"dateRange"`
 }
 
-// RDFTagMap contains all the namespaces
+// RDFTagMap contains all the URIs that trigger indexing labels
 type RDFTagMap struct {
 	sync.RWMutex
-	tag2uri  map[string]string
-	uri2tags map[string][]string
+	TagMap map[string][]string
+}
+
+type tagPair struct {
+	tag  string
+	uris []string
+}
+
+// NewRDFTagMap return
+func NewRDFTagMap(c *RawConfig) *RDFTagMap {
+	pairs := []tagPair{
+		tagPair{"label", c.RDFTag.Label},
+		tagPair{"thumbnail", c.RDFTag.Thumbnail},
+		tagPair{"latLong", c.RDFTag.LatLong},
+		tagPair{"date", c.RDFTag.Date},
+		tagPair{"dateRange", c.RDFTag.DateRange},
+	}
+	tagMap := make(map[string][]string)
+	for _, pair := range pairs {
+		for _, uri := range pair.uris {
+			values, ok := tagMap[uri]
+			if ok {
+				tagMap[uri] = append(values, pair.tag)
+				continue
+			}
+			tagMap[uri] = []string{pair.tag}
+		}
+	}
+	return &RDFTagMap{
+		TagMap: tagMap,
+	}
+}
+
+// Len return number of URIs in the RDFTagMap
+func (rtm *RDFTagMap) Len() int {
+	return len(rtm.TagMap)
+}
+
+// Get returns the indexType label for a given URI
+func (rtm *RDFTagMap) Get(uri string) ([]string, bool) {
+	rtm.RLock()
+	label, ok := rtm.TagMap[uri]
+	rtm.RUnlock()
+	return label, ok
 }
