@@ -358,6 +358,7 @@ message FragmentReferrerContext {
   int32 Level = 5;
   string ObjectID = 6;
   int32 SortKey = 7;
+  string Label = 8;
 }
 
 /*message FragmentResource {*/

@@ -72,6 +72,7 @@ func ensureESIndex(index string) {
 		// Handle error
 		stdlog.Fatal(err)
 	}
+
 	if !exists {
 		// Create a new index.
 		mapping := fragments.ESMapping
@@ -87,7 +88,33 @@ func ensureESIndex(index string) {
 			stdlog.Println(createIndex.Acknowledged)
 			// Not acknowledged
 		}
+
+		// TODO: enable index updates later
+		//if !config.Config.ElasticSearch.IndexV1 {
+		//resp, err := client.IndexPutSettings(index).BodyJson(fragments.ESSettings).Do(ctx)
+		//if err != nil {
+		//// Handle error
+		//stdlog.Fatal(err)
+		//}
+		//if !resp.Acknowledged {
+		//stdlog.Println(createIndex.Acknowledged)
+		//// Not acknowledged
+		//}
+		//}
+		return
 	}
+	// TODO: enable index updates later
+	//service := client.IndexPutSettings(index)
+	//updateIndex, err := service.BodyJson(mapping).Do(ctx)
+	//if err != nil {
+	//stdlog.Fatal(err)
+	//return
+	//}
+	//if !updateIndex.Acknowledged {
+	//stdlog.Println(updateIndex.Acknowledged)
+	//// Not acknowledged
+	//}
+	return
 }
 
 // ListIndexes returns a list of all the ElasticSearch Indices.

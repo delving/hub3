@@ -398,6 +398,17 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	return nil
 }
 
+// ESSettings are the default settings for a Rapid index
+var ESSettings = `{
+	"settings":{
+		"number_of_shards":3,
+		"number_of_replicas":2,
+		"index.mapping.total_fields.limit": 1000,
+		"index.mapping.depth.limit": 20,
+		"index.mapping.nested_fields.limit": 50
+	}
+}`
+
 // ESMapping is the default mapping for the RDF records enabled by rapid
 var ESMapping = `{
 	"settings":{
@@ -449,7 +460,7 @@ var ESMapping = `{
 								"Level": {"type": "integer"},
 								"ObjectID": {"type": "keyword", "ignore_above": 256},
 								"SortKey": {"type": "integer"},
-								"tags": {"type": "keyword"}
+								"Label": {"type": "keyword"}
 							}
 						},
 						"entries": {
@@ -462,7 +473,17 @@ var ESMapping = `{
 								"entrytype": {"type": "keyword", "ignore_above": 256},
 								"predicate": {"type": "keyword", "ignore_above": 256},
 								"searchLabel": {"type": "keyword", "ignore_above": 256},
-								"level": {"type": "integer"}
+								"level": {"type": "integer"},
+								"tags": {"type": "keyword"},
+								"date": {
+									"type": "date",
+									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
+								},
+								"dateRange": {
+									"type": "date_range",
+									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
+								},
+								"latLong": {"type": "geo_point"}
 							}
 						}
 					}

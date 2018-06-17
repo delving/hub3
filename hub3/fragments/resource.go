@@ -136,6 +136,24 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			re.Value, _ = r.GetLabel()
 		}
 	}
+	labels, ok := c.Config.RDFTagMap.Get(predicate)
+	if ok {
+		re.AddTags(labels...)
+		if re.Value != "" {
+			// TODO add validation for the values here
+			for _, label := range labels {
+				switch label {
+				case "date":
+					re.Date = re.Value
+					//log.Printf("Date value: %s", re.Date)
+				case "dateRange":
+					re.DateRange = re.Value
+				case "latLong":
+					re.LatLong = re.Value
+				}
+			}
+		}
+	}
 	return re, nil
 }
 
@@ -145,11 +163,7 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 	if fr.ID == "" {
 		return "", ""
 	}
-	labels := []string{
-		"http://www.w3.org/2004/02/skos/core#prefLabel",
-		"http://xmlns.com/foaf/0.1/name",
-	}
-	for _, labelPredicate := range labels {
+	for _, labelPredicate := range c.Config.RDFTag.Label {
 		o, ok := fr.predicates[labelPredicate]
 		if ok && len(o) != 0 {
 			return o[0].Value, o[0].Language
@@ -207,7 +221,6 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 // This action increments the level count
 func (fr *FragmentResource) AppendContext(ctxs ...*FragmentReferrerContext) {
 	for _, ctx := range ctxs {
-		//ctx.Level = fr.GetLevel()
 		if !containsContext(fr.Context, ctx) {
 			fr.Context = append(fr.Context, ctx)
 		}
@@ -230,11 +243,14 @@ type ResourceEntry struct {
 	Value       string   `json:"@value,omitempty"`
 	Language    string   `json:"@language,omitempty"`
 	DataType    string   `json:"@type,omitempty"`
-	EntryType   string   `json:"entrytype"`
-	Predicate   string   `json:"predicate"`
-	SearchLabel string   `json:"searchLabel"`
+	EntryType   string   `json:"entrytype,omitempty"`
+	Predicate   string   `json:"predicate,omitempty"`
+	SearchLabel string   `json:"searchLabel,omitempty"`
 	Level       int32    `json:"level"`
 	Tags        []string `json:"tags,omitempty"`
+	Date        string   `json:"date,omitempty"`
+	DateRange   string   `json:"dateRange,omitempty"`
+	LatLong     string   `json:"latLong,omitempty"`
 }
 
 // InlineResourceEntry renders ResourceEntries inline
@@ -417,6 +433,15 @@ func (h *Header) AddTags(tags ...string) {
 	for _, tag := range tags {
 		if !contains(h.Tags, tag) {
 			h.Tags = append(h.Tags, tag)
+		}
+	}
+}
+
+// AddTags adds a tag string to the tags array of the Header
+func (re *ResourceEntry) AddTags(tags ...string) {
+	for _, tag := range tags {
+		if !contains(re.Tags, tag) {
+			re.Tags = append(re.Tags, tag)
 		}
 	}
 }
