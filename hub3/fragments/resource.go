@@ -69,9 +69,31 @@ type FragmentGraph struct {
 	Resources     []*FragmentResource `json:"resources"`
 }
 
+// ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager *ScrollPager
-	Items []*FragmentGraph
+	Pager  *ScrollPager     `json:"pager"`
+	Items  []*FragmentGraph `json:"items,omitempty"`
+	Facets []*QueryFacet    `json:"facets,omitempty"`
+}
+
+// QueryFacet contains all the information for an ElasticSearch Aggregation
+type QueryFacet struct {
+	Name        string       `json:"name"`
+	IsSelected  bool         `json:"isSelected"`
+	I18n        string       `json:"i18N,omitempty"`
+	Total       int64        `json:"total"`
+	MissingDocs int64        `json:"missingDocs"`
+	OtherDocs   int64        `json:"otherDocs"`
+	Links       []*FacetLink `json:"links"`
+}
+
+// FaceLink contains all the information for creating a filter for this facet
+type FacetLink struct {
+	URL           string `json:"url"`
+	IsSelected    bool   `json:"isSelected"`
+	Value         string `json:"value"`
+	DisplayString string `json:"displayString"`
+	Count         int64  `json:"count"`
 }
 
 // FragmentResource holds all the conttext information for a resource

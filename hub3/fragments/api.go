@@ -65,6 +65,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	}
 	if hexRequest != "" {
 		sr, err := SearchRequestFromHex(hexRequest)
+		sr.Paging = true
 		if err != nil {
 			log.Println("Unable to parse search request from scrollID")
 			return nil, err
@@ -179,6 +180,10 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 	s = s.Query(query)
 
 	// Add aggregations
+	if sr.Paging {
+		return s.Query(query), err
+	}
+
 	aggs, err := sr.Aggregations()
 	if err != nil {
 		log.Println("Unable to build the Aggregations.")
@@ -269,4 +274,70 @@ func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 	}
 	sp.ScrollID = hex
 	return sp, nil
+}
+
+// NewQueryFilter parses the filter string and creates a QueryFilter object
+func NewQueryFilter(filter string) (*QueryFilter, error) {
+	// split once on the first :
+	// split on first part and ]. This should give one or two
+	// determine the levels of nesting for the filter
+	// assign to values of the QueryFilter struct
+
+	return &QueryFilter{}, nil
+}
+
+// ElasticFilter creates an elasticsearch filter from the QueryFilter
+func (qf *QueryFilter) ElasticFilter() elastic.Query {
+	return nil
+}
+
+// AddQueryFilter adds a QueryFilter to the SearchRequest
+// The raw query from the QueryString are added here. This function converts
+// this string to a QueryFilter.
+func (sr *SearchRequest) AddQueryFilter(filter string) error {
+	return nil
+}
+
+// RemoveQueryFilter removes a QueryFilter from the SearchRequest
+// The raw query from the QueryString are added here.
+func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
+	return nil
+}
+
+// DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
+func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult) ([]*QueryFacet, error) {
+	if res == nil || res.TotalHits() == 0 {
+		return nil, nil
+	}
+
+	var aggs []*QueryFacet
+	for k := range res.Aggregations {
+		facet, ok := res.Aggregations.Nested(k)
+		if ok {
+			inner, ok := facet.Filter("inner")
+			if ok {
+				value, ok := inner.Terms("value")
+				if ok {
+					qf := &QueryFacet{
+						Name:      k,
+						Total:     inner.DocCount,
+						OtherDocs: value.SumOfOtherDocCount,
+						Links:     []*FacetLink{},
+					}
+					for _, b := range value.Buckets {
+						key := fmt.Sprintf("%s", b.Key)
+						fl := &FacetLink{
+							Value:         key,
+							Count:         b.DocCount,
+							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+						}
+						qf.Links = append(qf.Links, fl)
+					}
+					aggs = append(aggs, qf)
+				}
+			}
+		}
+
+	}
+	return aggs, nil
 }

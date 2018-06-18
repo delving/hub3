@@ -143,6 +143,17 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
 	result.Items = records
+
+	if !searchRequest.Paging {
+		// decode Aggregations
+		aggs, err := searchRequest.DecodeFacets(res)
+		if err != nil {
+			log.Printf("Unable to decode facets: %#v", err)
+			return
+		}
+		result.Facets = aggs
+	}
+
 	switch searchRequest.GetResponseFormatType() {
 	// TODO enable later again
 	//case fragments.ResponseFormatType_PROTOBUF:

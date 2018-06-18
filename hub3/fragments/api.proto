@@ -41,6 +41,19 @@ message FilterValue {
   repeated string value = 1;
 }
 
+message ContextQueryFilter {
+  string SearchLabel = 1;
+  string TypeClass = 2;
+}
+
+message QueryFilter {
+  ContextQueryFilter Level1 = 1;
+  ContextQueryFilter Level2 = 2;
+  string SearchLabel = 3;
+  string Value = 4;
+  bool Exclude = 5;
+}
+
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
@@ -50,8 +63,8 @@ message SearchRequest {
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
-  map<string, FilterValue> QueryFilter = 6;
-  map<string, FilterValue> HiddenQueryFilter = 7;
+  map<string, QueryFilter> QueryFilter = 6;
+  map<string, QueryFilter> HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
   repeated string FacetField  = 10;
@@ -73,6 +86,7 @@ message SearchRequest {
   string QueryRefinement = 22;
   string searchAfter = 23;
   ItemFormatType itemFormat = 24;
+  bool Paging = 25;
 }
 
 enum GeoType {
