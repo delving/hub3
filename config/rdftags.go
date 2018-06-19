@@ -18,11 +18,22 @@ import "sync"
 
 // RDFTag holds tag information how to tag predicate values
 type RDFTag struct {
-	Label     []string `json:"label"`
-	Thumbnail []string `json:"thumbnail"`
-	LatLong   []string `json:"latLong"`
-	Date      []string `json:"date"`
-	DateRange []string `json:"dateRange"`
+	Title            []string `json:"title"`
+	Label            []string `json:"label"`
+	Owner            []string `json:"owner"`
+	Thumbnail        []string `json:"thumbnail"`
+	LandingPage      []string `json:"landingPage"`
+	Description      []string `json:"description"`
+	Subject          []string `json:"subject"`
+	Date             []string `json:"date"`
+	Collection       []string `json:"collection"`
+	SubCollectection []string `json:"subCollectection"`
+	ObjectType       []string `json:"objectType"`
+	ObjectID         []string `json:"objectID"`
+	Creator          []string `json:"creator"`
+	LatLong          []string `json:"latLong"`
+	IsoDate          []string `json:"isoDate"`
+	DateRange        []string `json:"dateRange"`
 }
 
 // RDFTagMap contains all the URIs that trigger indexing labels
@@ -40,9 +51,20 @@ type tagPair struct {
 func NewRDFTagMap(c *RawConfig) *RDFTagMap {
 	pairs := []tagPair{
 		tagPair{"label", c.RDFTag.Label},
+		tagPair{"title", c.RDFTag.Title},
+		tagPair{"owner", c.RDFTag.Owner},
 		tagPair{"thumbnail", c.RDFTag.Thumbnail},
+		tagPair{"landingPage", c.RDFTag.LandingPage},
 		tagPair{"latLong", c.RDFTag.LatLong},
+		tagPair{"isoDate", c.RDFTag.IsoDate},
 		tagPair{"date", c.RDFTag.Date},
+		tagPair{"description", c.RDFTag.Description},
+		tagPair{"subject", c.RDFTag.Subject},
+		tagPair{"collection", c.RDFTag.Collection},
+		tagPair{"subCollection", c.RDFTag.SubCollectection},
+		tagPair{"objectType", c.RDFTag.ObjectType},
+		tagPair{"objectID", c.RDFTag.ObjectID},
+		tagPair{"creator", c.RDFTag.Creator},
 		tagPair{"dateRange", c.RDFTag.DateRange},
 	}
 	tagMap := make(map[string][]string)

@@ -142,6 +142,15 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
+
+	// FragmentGraph is the default decoded issue
+	switch searchRequest.ItemFormat {
+	case fragments.ItemFormatType_SUMMARY:
+		for _, rec := range records {
+			rec.NewResultSummary()
+			rec.Resources = nil
+		}
+	}
 	result.Items = records
 
 	if !searchRequest.Paging {

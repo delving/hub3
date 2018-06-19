@@ -475,7 +475,7 @@ var ESMapping = `{
 								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
 								"tags": {"type": "keyword"},
-								"date": {
+								"isoDate": {
 									"type": "date",
 									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
 								},

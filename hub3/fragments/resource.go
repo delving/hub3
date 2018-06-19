@@ -66,7 +66,8 @@ type FragmentGraph struct {
 	EntryURI      string              `json:"entryURI"`
 	NamedGraphURI string              `json:"namedGraphURI"`
 	RecordType    RecordType          `json:"recordType"`
-	Resources     []*FragmentResource `json:"resources"`
+	Resources     []*FragmentResource `json:"resources,omitempty"`
+	Summary       *ResultSummary      `json:"summary,omitempty"`
 }
 
 // ScrollResultV4 intermediate non-protobuf search results
@@ -432,6 +433,76 @@ func (fr *FragmentResource) GetLevel() int32 {
 		}
 	}
 	return int32(highestLevel + 1)
+}
+
+// NewResultSummary creates a Summary from the FragmentGraph based on the
+// RDFTag configuration.
+func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
+	fg.Summary = &ResultSummary{}
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			fg.Summary.AddEntry(entry)
+		}
+
+	}
+	return fg.Summary
+}
+
+// AddEntry adds Summary fields based on the ResourceEntry tags
+func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
+
+	for _, tag := range entry.Tags {
+		switch tag {
+		case "title":
+			if sum.Title == "" {
+				sum.Title = entry.Value
+			}
+		case "thumbnail":
+			if sum.Thumbnail == "" {
+				sum.Thumbnail = entry.Value
+			}
+		case "subject":
+			if sum.Subject == "" {
+				sum.Subject = entry.Value
+			}
+		case "creator":
+			if sum.Creator == "" {
+				sum.Creator = entry.Value
+			}
+		case "description":
+			if sum.Description == "" {
+				sum.Description = entry.Value
+			}
+		case "landingPage":
+			if sum.LandingPage == "" {
+				sum.LandingPage = entry.Value
+			}
+		case "collection":
+			if sum.Collection == "" {
+				sum.Collection = entry.Value
+			}
+		case "subCollection":
+			if sum.SubCollection == "" {
+				sum.SubCollection = entry.Value
+			}
+		case "objectType":
+			if sum.ObjectType == "" {
+				sum.ObjectType = entry.Value
+			}
+		case "objectID":
+			if sum.ObjectID == "" {
+				sum.ObjectID = entry.Value
+			}
+		case "owner":
+			if sum.Owner == "" {
+				sum.Owner = entry.Value
+			}
+		case "date":
+			if sum.Date == "" {
+				sum.Date = entry.Value
+			}
+		}
+	}
 }
 
 // CreateHeader Linked Data Fragment entry for ElasticSearch

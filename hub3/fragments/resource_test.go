@@ -272,6 +272,32 @@ var _ = Describe("Resource", func() {
 		})
 	})
 
+	Describe("when creating a ResultSummary", func() {
+
+		Context("from a resource entry", func() {
+
+			It("should only set a field once", func() {
+				entry1 := &ResourceEntry{
+					Value: "test1",
+					Tags:  []string{"label"},
+				}
+				entry2 := &ResourceEntry{
+					Value: "test2",
+					Tags:  []string{"label"},
+				}
+				sum := &ResultSummary{}
+				Expect(sum.Title).To(BeEmpty())
+				Expect(sum.Thumbnail).To(BeEmpty())
+				sum.AddEntry(entry1)
+				Expect(sum.Title).To(Equal("test1"))
+				sum.AddEntry(entry2)
+				Expect(sum.Thumbnail).To(BeEmpty())
+				Expect(sum.Title).To(Equal("test1"))
+				Expect(sum.Thumbnail).To(BeEmpty())
+			})
+		})
+	})
+
 	Describe("when creating a Header", func() {
 
 		fb, _ := testDataGraph(false)

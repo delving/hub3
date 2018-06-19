@@ -173,7 +173,6 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 
 // Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
-	// TODO added resources to the fragment graph
 	rm, err := fb.ResourceMap()
 	if err != nil {
 		log.Printf("Unable to create resources: %s", err)

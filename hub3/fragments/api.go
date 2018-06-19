@@ -96,7 +96,18 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			sr.ResponseSize = int32(size)
+		case "itemFormat":
+			format := params.Get("itemFormat")
+			switch format {
+			case "fragmentGraph":
+				sr.ItemFormat = ItemFormatType_FRAGMENTGRAPH
+			case "grouped":
+				sr.ItemFormat = ItemFormatType_GROUPED
+			default:
+				sr.ItemFormat = ItemFormatType_SUMMARY
+			}
 		}
+
 	}
 	return sr, nil
 }

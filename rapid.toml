@@ -52,7 +52,7 @@ sentrydsn = ""
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = false 
+rdfStoreEnabled = false
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
@@ -127,8 +127,8 @@ stripPrefix = true
 cacheDomain = "prod.nationaalarchief.nl"
 # max size for the in memory cache in MB. So 8192 for 8GB.
 hardMaxCacheSize = 1024
-# max size an individual entry in bytes, i.e. 10240 is 10MB
-maxEntrySize = 10240
+# max size an individual entry in bytes, i.e. 102400 is 10MB
+maxEntrySize = 30720
 
 [lod]
 # enable the lod routing point
@@ -149,13 +149,17 @@ singleEndpoint = "NL-.*"
 
 
 [rdftag]
+# used for title of a resource
+title = [
+    "http://purl.org/dc/elements/1.1/title",
+]
 label = [
+    "http://purl.org/dc/elements/1.1/title",
     "http://www.w3.org/2004/02/skos/core#prefLabel",
     "http://www.w3.org/2000/01/rdf-schema#label",
     "http://www.w3.org/2004/02/skos/core#altLabel",
     "http://xmlns.com/foaf/0.1/name",
     "http://www.geonames.org/ontology#name",
-    "http://purl.org/dc/elements/1.1/title",
     "http://schemas.delving.eu/narthex/terms/proxyLiteralValue",
     "http://dbpedia.org/ontology/name",
 ]
@@ -169,17 +173,53 @@ thumbnail = [
     "http://www.europeana.eu/schemas/edm/isShownBy",
 ]
 
+
+owner = [
+    "http://www.europeana.eu/schemas/edm/dataProvider",
+]
+landingPage = [
+    "http://www.europeana.eu/schemas/edm/isShownAt",
+]
+description = [
+    "http://purl.org/dc/elements/1.1/description",
+]
+subject = [
+    "http://purl.org/dc/elements/1.1/subject",
+]
+date = [
+    "http://purl.org/dc/elements/1.1/date",
+]
+collection = [
+    "http://schemas.delving.eu/nave/terms/collection",
+]
+subCollection = [
+    "http://schemas.delving.eu/nave/terms/collectionPart",
+]
+objectType = [
+    "http://schemas.delving.eu/nave/terms/objectType",
+    "http://schemas.delving.eu/nave/terms/objectSoort",
+]
+objectID = [
+    "http://schemas.delving.eu/nave/terms/objectNumber",
+    "http://schemas.delving.eu/nave/terms/objectNummer",
+    "http://purl.org/dc/elements/1.1/identifier",
+]
+creator = [
+    "http://purl.org/dc/elements/1.1/creator",
+]
+
+# The following tags trigger special indexing functionality
+# when they are invalid it could result in the records being dropped
+# during indexing
 latLong = [
     "http://schemas.delving.eu/nave/terms/latLong",
     "http://schemas.delving.eu/nave/terms/GeoHash",
     "http://schemas.delving.eu/nave/terms/geoHash",
 ]
 dateRange = []
-date = [
-    "http://schemas.delving.eu/nave/terms/date",
+isoDate = [
+    #"http://schemas.delving.eu/nave/terms/date",
 ]
-
-
 
 [[namespaces]]
 base = "http://www.musip.nl/"
