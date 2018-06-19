@@ -62,12 +62,9 @@ type ResourceMap struct {
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
-	Meta          *Header             `json:"meta"`
-	EntryURI      string              `json:"entryURI"`
-	NamedGraphURI string              `json:"namedGraphURI"`
-	RecordType    RecordType          `json:"recordType"`
-	Resources     []*FragmentResource `json:"resources,omitempty"`
-	Summary       *ResultSummary      `json:"summary,omitempty"`
+	Meta      *Header             `json:"meta"`
+	Resources []*FragmentResource `json:"resources,omitempty"`
+	Summary   *ResultSummary      `json:"summary,omitempty"`
 }
 
 // ScrollResultV4 intermediate non-protobuf search results
@@ -569,7 +566,7 @@ func (fg *FragmentGraph) NormalisedResource(uri string) string {
 	if !strings.HasPrefix(uri, "_:") {
 		return uri
 	}
-	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.NamedGraphURI))
+	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.Meta.NamedGraphURI))
 }
 
 // CreateFragments creates ElasticSearch documents for each
@@ -582,12 +579,12 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	// add type links
 	for _, ttype := range fr.Types {
 		frag := &Fragment{
-			Meta:          fg.CreateHeader(FragmentDocType),
-			Subject:       fg.NormalisedResource(fr.ID),
-			Predicate:     RDFType,
-			Object:        ttype,
-			NamedGraphURI: fg.NamedGraphURI,
+			Meta:      fg.CreateHeader(FragmentDocType),
+			Subject:   fg.NormalisedResource(fr.ID),
+			Predicate: RDFType,
+			Object:    ttype,
 		}
+		frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 		if strings.HasPrefix(fr.ID, "_:") {
 			frag.Triple = fmt.Sprintf("%s <%s> <%s> .", frag.Subject, RDFType, ttype)
 		} else {
@@ -604,13 +601,13 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
 			frag := &Fragment{
-				Meta:          fg.CreateHeader(FragmentDocType),
-				Subject:       fg.NormalisedResource(fr.ID),
-				Predicate:     predicate,
-				DataType:      entry.DataType,
-				Language:      entry.Language,
-				NamedGraphURI: fg.NamedGraphURI,
+				Meta:      fg.CreateHeader(FragmentDocType),
+				Subject:   fg.NormalisedResource(fr.ID),
+				Predicate: predicate,
+				DataType:  entry.DataType,
+				Language:  entry.Language,
 			}
+			frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 			if entry.ID != "" {
 				frag.Object = fg.NormalisedResource(entry.ID)
 			} else {

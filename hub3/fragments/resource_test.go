@@ -279,11 +279,11 @@ var _ = Describe("Resource", func() {
 			It("should only set a field once", func() {
 				entry1 := &ResourceEntry{
 					Value: "test1",
-					Tags:  []string{"label"},
+					Tags:  []string{"title"},
 				}
 				entry2 := &ResourceEntry{
 					Value: "test2",
-					Tags:  []string{"label"},
+					Tags:  []string{"title"},
 				}
 				sum := &ResultSummary{}
 				Expect(sum.Title).To(BeEmpty())

@@ -383,9 +383,9 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	fg.Meta.HubID = action.HubID
 	fg.Meta.Spec = action.Spec
 	fg.Meta.Revision = int32(revision)
-	fg.NamedGraphURI = action.NamedGraphURI
-	fg.EntryURI = fg.GetAboutURI()
-	fg.RecordType = fragments.RecordType_NARTHEX
+	fg.Meta.NamedGraphURI = action.NamedGraphURI
+	fg.Meta.EntryURI = fg.GetAboutURI()
+	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
 	mimeType := c.Config.RDF.DefaultFormat

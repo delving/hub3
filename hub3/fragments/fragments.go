@@ -48,7 +48,7 @@ const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // GetAboutURI returns the subject of the FragmentGraph
 func (fg *FragmentGraph) GetAboutURI() string {
-	return strings.TrimSuffix(fg.NamedGraphURI, "/graph")
+	return strings.TrimSuffix(fg.Meta.NamedGraphURI, "/graph")
 }
 
 // TODO remove later
@@ -310,7 +310,7 @@ func CreateHash(input string) string {
 func (f *Fragment) Quad() string {
 	// remove trailing period
 	cleanTriple := strings.TrimSuffix(f.GetTriple(), " .")
-	return fmt.Sprintf("%s <%s> .", cleanTriple, f.GetNamedGraphURI())
+	return fmt.Sprintf("%s <%s> .", cleanTriple, f.Meta.GetNamedGraphURI())
 }
 
 // ID is the hashed identifier of the Fragment Quad field.
@@ -430,7 +430,9 @@ var ESMapping = `{
 						"hubID": {"type": "keyword"},
 						"revision": {"type": "long"},
 						"tags": {"type": "keyword"},
-						"docType": {"type": "keyword"}
+						"docType": {"type": "keyword"},
+						"namedGraphURI": {"type": "keyword"},
+						"entryURI": {"type": "keyword"}
 					}
 				},
 				"subject": {"type": "keyword"},
@@ -439,9 +441,7 @@ var ESMapping = `{
 				"language": {"type": "keyword"},
 				"dataType": {"type": "keyword"},
 				"triple": {"type": "keyword", "index": "false", "store": "true"},
-				"namedGraphURI": {"type": "keyword"},
 				"lodKey": {"type": "keyword"},
-				"entryURI": {"type": "keyword"},
 				"recordType": {"type": "short"},
 
 				"resources": {

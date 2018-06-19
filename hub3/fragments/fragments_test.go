@@ -69,7 +69,7 @@ func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg.Meta.OrgID = "rapid"
 	fg.Meta.Spec = spec
 	fg.Meta.Revision = rev
-	fg.NamedGraphURI = ng
+	fg.Meta.NamedGraphURI = ng
 	fg.Meta.HubID = fmt.Sprintf("%s_%s_1", fg.Meta.OrgID, fg.Meta.Spec)
 	return fg
 }
@@ -79,7 +79,7 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	rev := int32(1)
 	ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
 	fg := testFragmentGraph(spec, rev, ng)
-	fg.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
+	fg.Meta.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
 	fb := NewFragmentBuilder(fg)
 	dat, err := ioutil.ReadFile("test_data/enb_test_2.jsonld")
 	if err != nil {

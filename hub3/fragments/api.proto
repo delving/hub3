@@ -456,6 +456,10 @@ message Header {
   repeated string tags = 5;
   // The document type for ElasticSearch. This is a constant value 
   string docType = 6;
+  // The subject of the graph stored
+  string entryURI = 7;
+  // the graph name of the graph stored
+  string namedGraphURI = 8;
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments
@@ -483,8 +487,6 @@ message Fragment {
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
   string triple = 13;
-  // The named graph that this triple is part of
-  string namedGraphURI = 14;
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;
