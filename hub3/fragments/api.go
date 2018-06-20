@@ -15,6 +15,8 @@
 package fragments
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/hex"
 	fmt "fmt"
 	"log"
@@ -48,11 +50,11 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 	decoded, err := hex.DecodeString(s)
 	newSr := &SearchRequest{}
 	if err != nil {
-		return newSr, nil
+		return newSr, err
 	}
 	err = proto.Unmarshal(decoded, newSr)
 	if err != nil {
-		return newSr, nil
+		return newSr, err
 	}
 	return newSr, nil
 }
@@ -67,7 +69,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		sr, err := SearchRequestFromHex(hexRequest)
 		sr.Paging = true
 		if err != nil {
-			log.Println("Unable to parse search request from scrollID")
+			log.Printf("Unable to parse search request from scrollID: %s", hexRequest)
 			return nil, err
 		}
 		return sr, nil
@@ -168,6 +170,16 @@ func (sr *SearchRequest) CreateAggregationBySearchLabel(path, searchLabel string
 	return testAgg, nil
 }
 
+func getInterface(bts []byte, data interface{}) error {
+	buf := bytes.NewBuffer(bts)
+	dec := gob.NewDecoder(buf)
+	err := dec.Decode(data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
 	idSort := elastic.NewFieldSort("meta.hubID")
@@ -177,10 +189,16 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 		Size(int(sr.GetResponseSize())).
 		SortBy(scoreSort, idSort)
 
-	//if sr.SearchAfter != "" {
-	//s = s.SearchAfter()
+	if len(sr.SearchAfter) != 0 {
+		var sa []interface{}
+		err := getInterface(sr.SearchAfter, &sa)
+		if err != nil {
+			log.Printf("Unable to decode interface: %s", err)
+			return s, err
+		}
+		s = s.SearchAfter(sa...)
 
-	//}
+	}
 
 	query, err := sr.ElasticQuery()
 	if err != nil {

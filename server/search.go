@@ -15,6 +15,8 @@
 package server
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	log "log"
@@ -56,11 +58,23 @@ func (rs SearchResource) Routes() chi.Router {
 	return r
 }
 
+func getBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, err.Error())
 		return
 	}
 
@@ -122,7 +136,14 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	records, err := decodeFragmentGraphs(res)
+	records, searchAfter, err := decodeFragmentGraphs(res)
+	searchAfterBin, err := getBytes(searchAfter)
+	if err != nil {
+		log.Printf("Unable to encode searchAfter")
+		return
+	}
+
+	searchRequest.SearchAfter = searchAfterBin
 	if err != nil {
 		log.Printf("Unable to decode records")
 		return
@@ -227,18 +248,20 @@ func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error)
 }
 
 // decodeFragmentGraphs takes a search result and deserializes the records
-func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, error) {
+func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, []interface{}, error) {
 	if res == nil || res.TotalHits() == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	var records []*fragments.FragmentGraph
+	var searchAfter []interface{}
 	for _, hit := range res.Hits.Hits {
+		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		records = append(records, r)
 	}
-	return records, nil
+	return records, searchAfter, nil
 }
