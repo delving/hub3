@@ -82,6 +82,67 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 	return &httputil.ReverseProxy{Director: director}
 }
 
+func csvUpload(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("csv")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	conv := fragments.NewCSVConvertor()
+	conv.InputFile = in
+	conv.SubjectColumn = r.FormValue("subjectColumn")
+	conv.SubjectClass = r.FormValue("subjectClass")
+	conv.SubjectURIBase = r.FormValue("subjectURIBase")
+	conv.Separator = r.FormValue("separator")
+	conv.PredicateURIBase = r.FormValue("predicateURIBase")
+	conv.SubjectColumn = r.FormValue("subjectColumn")
+	conv.ObjectResourceColumns = []string{r.FormValue("objectResourceColumns")}
+	conv.ObjectURIFormat = r.FormValue("objectURIFormat")
+	conv.DefaultSpec = r.FormValue("defaultSpec")
+
+	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", conv.DefaultSpec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	if created {
+		err = fragments.SaveDataSet(conv.DefaultSpec, bp)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", conv.DefaultSpec)
+			if err != nil {
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	seen, err := conv.IndexFragments(bp, ds.Revision)
+	log.Printf("Processed %d csv rows\n", seen)
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	_, err = ds.DropOrphans(ctx, wp)
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	render.Status(r, http.StatusCreated)
+	//render.PlainText(w, r, "ok")
+	render.JSON(w, r, conv)
+	return
+}
+
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {

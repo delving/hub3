@@ -169,6 +169,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// Narthex endpoint
 	r.Post("/api/index/bulk", bulkAPI)
 
+	// CSV upload endpoint
+	r.Post("/api/rdf/csv", csvUpload)
+
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
 

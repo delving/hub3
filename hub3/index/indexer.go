@@ -48,7 +48,7 @@ func CreateBulkProcessorService() *elastic.BulkProcessorService {
 	return ESClient().BulkProcessor().
 		Name("RAPID-backgroundworker").
 		Workers(4).
-		BulkActions(1000).               // commit if # requests >= 1000
+		BulkActions(2000).               // commit if # requests >= 1000
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
 		FlushInterval(30 * time.Second). // commit every 30s
 		//After(elastic.BulkAfterFunc{afterFn}). // after Execution callback
