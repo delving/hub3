@@ -51,28 +51,6 @@ func (fg *FragmentGraph) GetAboutURI() string {
 	return strings.TrimSuffix(fg.Meta.NamedGraphURI, "/graph")
 }
 
-// TODO remove later
-// AddHeader adds header information for stand-alone fragments.
-// When Fragments are embedded inside a FragmentGraph this information is
-// redundant.
-//func (f *Fragment) AddHeader(fb *FragmentBuilder) error {
-//f.DocType = FragmentDocType
-//f.Spec = fb.fg.GetSpec()
-//f.Revision = fb.fg.GetRevision()
-//f.NamedGraphURI = fb.fg.GetNamedGraphURI()
-//f.OrgID = fb.fg.GetOrgID()
-//f.HubID = fb.fg.GetHubID()
-//lodKey, err := f.CreateLodKey()
-//if err != nil {
-//return err
-//}
-//if lodKey != "" {
-//f.LodKey = lodKey
-//}
-//return nil
-
-//}
-
 // IsTypeLink checks if the Predicate is a RDF type link
 func (f Fragment) IsTypeLink() bool {
 	return f.Predicate == RDFType
@@ -156,6 +134,11 @@ func (fr FragmentRequest) GetESPage() int {
 	}
 	return int((fr.GetPage() * SIZE) - 1)
 }
+
+// TODO update Fragmentresource
+// give it a resourcemap and the uri the follow
+// either append or create a new one
+// convert FragmentEntry to FragmentResource (there should be code for this already)
 
 // Find returns a list of matching LodFragments
 func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, error) {

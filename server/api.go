@@ -82,6 +82,33 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 	return &httputil.ReverseProxy{Director: director}
 }
 
+func csvDelete(w http.ResponseWriter, r *http.Request) {
+	conv := fragments.NewCSVConvertor()
+	conv.DefaultSpec = r.FormValue("defaultSpec")
+
+	if conv.DefaultSpec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, "defaultSpec is a required field")
+		return
+	}
+
+	ds, _, err := models.GetOrCreateDataSet(conv.DefaultSpec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", conv.DefaultSpec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	_, err = ds.DropRecords(ctx, wp)
+	if err != nil {
+		log.Printf("Unable to delete all fragments for %s: %s", conv.DefaultSpec, err.Error())
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+
+	render.Status(r, http.StatusNoContent)
+	return
+}
+
 func csvUpload(w http.ResponseWriter, r *http.Request) {
 	in, _, err := r.FormFile("csv")
 	if err != nil {

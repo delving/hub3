@@ -171,6 +171,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// CSV upload endpoint
 	r.Post("/api/rdf/csv", csvUpload)
+	r.Delete("/api/rdf/csv", csvDelete)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
