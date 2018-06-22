@@ -188,7 +188,11 @@ func (con *CSVConvertor) CreateTriple(subject r.Term, predicate r.Term, column s
 // CreateSubjectResource creates the Subject  URI and type triple for the subject column
 func (con *CSVConvertor) CreateSubjectResource(subjectID string) (r.Term, *r.Triple) {
 	cleanID := strings.Replace(subjectID, "-", "", 0)
-	s := r.NewResource(fmt.Sprintf("%s/%s", strings.TrimSuffix(con.SubjectURIBase, "/"), cleanID))
+	sep := "/"
+	if strings.HasSuffix(con.SubjectURIBase, ":") {
+		sep = ""
+	}
+	s := r.NewResource(fmt.Sprintf("%s%s%s", strings.TrimSuffix(con.SubjectURIBase, "/"), sep, cleanID))
 	t := r.NewTriple(
 		s,
 		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),

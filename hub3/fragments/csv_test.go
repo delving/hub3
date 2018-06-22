@@ -35,7 +35,7 @@ var _ = Describe("CSV", func() {
 				Expect(records).ToNot(HaveLen(0))
 				Expect(err).ToNot(HaveOccurred())
 				header := records[0]
-				Expect(conv.GetSubjectColumn(header)).To(Equal(9))
+				Expect(conv.GetSubjectColumn(header, conv.SubjectColumn)).To(Equal(9))
 
 			})
 
