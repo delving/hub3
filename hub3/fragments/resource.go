@@ -15,15 +15,29 @@
 package fragments
 
 import (
+	"context"
 	fmt "fmt"
 	"log"
 	"net/url"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
+
+const (
+	literal  = "Literal"
+	resource = "Resource"
+	bnode    = "Bnode"
+)
+
+var ctx context.Context
+
+func init() {
+	ctx = context.Background()
+}
 
 // FragmentReferrerContext holds the referrer in formation for creating new fragments
 //type FragmentReferrerContext struct {
@@ -238,7 +252,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 }
 
 // AppendContext adds the referrerContext to the FragmentResource
-// This action increments the level count
+// This action increments nilthe level count
 func (fr *FragmentResource) AppendContext(ctxs ...*FragmentReferrerContext) {
 	for _, ctx := range ctxs {
 		if !containsContext(fr.Context, ctx) {
@@ -255,6 +269,7 @@ type FragmentEntry struct {
 	DataType  string `json:"@type,omitempty"`
 	EntryType string `json:"entrytype"`
 	Triple    string `json:"triple"`
+	Resolved  bool   `json:"resolved"`
 }
 
 // ResourceEntry contains all the indexed entries for FragmentResources
@@ -294,6 +309,57 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 		}
 	}
 	return rm, nil
+}
+
+// ResolveObjectIDs queries the fragmentstore for additional context
+func (rm *ResourceMap) ResolveObjectIDs() error {
+	for _, fr := range rm.Resources() {
+		if contains(fr.Types, "http://www.europeana.eu/schemas/edm/WebResource") {
+			req := NewFragmentRequest()
+			req.Subject = fr.ID
+			frags, err := req.Find(ctx, index.ESClient())
+			if err != nil {
+				log.Printf("unable to find fragments: %s", err.Error())
+				return err
+			}
+			for _, f := range frags {
+				t := f.CreateTriple()
+				err = AppendTriple(rm.resources, t)
+				if err != nil {
+					return err
+				}
+			}
+
+		}
+	}
+	return nil
+}
+
+// CreateTriple creates a *rdf2go.Triple from a Fragment
+func (f *Fragment) CreateTriple() *r.Triple {
+	s := r.NewResource(f.Subject)
+	p := r.NewResource(f.Predicate)
+	var o r.Term
+
+	switch f.ObjectType {
+	case resource:
+		o = r.NewResource(f.Object)
+	case bnode:
+		o = r.NewBlankNode(f.Object)
+	default:
+		if f.DataType != "" {
+			o = r.NewLiteralWithDatatype(
+				f.Object,
+				r.NewResource(f.DataType),
+			)
+			t := r.NewTriple(s, p, o)
+			return t
+		}
+		o = r.NewLiteralWithLanguage(f.Object, f.Language)
+	}
+
+	t := r.NewTriple(s, p, o)
+	return t
 }
 
 func contains(s []string, e string) bool {
@@ -347,16 +413,16 @@ func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
 	case *r.Resource:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.EntryType = "Resource"
+		entry.EntryType = resource
 		return entry, id
 	case *r.BlankNode:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.EntryType = "Bnode"
+		entry.EntryType = bnode
 		return entry, id
 	case *r.Literal:
 		entry.Value = o.Value
-		entry.EntryType = "Literal"
+		entry.EntryType = literal
 		if o.Datatype != nil && len(o.Datatype.String()) > 0 {
 			if o.Datatype.String() != "<http://www.w3.org/2001/XMLSchema#string>" {
 				entry.DataType = debrack(o.Datatype.String())
@@ -561,7 +627,7 @@ func (fr *FragmentResource) CreateLodKey() (string, error) {
 // Normal resources are returned as is.
 //
 // This function is used so that you can query via the Fragment API for
-// unique BlankNodes
+// unique BlankNodesThe named graph that this triple is part of
 func (fg *FragmentGraph) NormalisedResource(uri string) string {
 	if !strings.HasPrefix(uri, "_:") {
 		return uri
@@ -579,10 +645,11 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	// add type links
 	for _, ttype := range fr.Types {
 		frag := &Fragment{
-			Meta:      fg.CreateHeader(FragmentDocType),
-			Subject:   fg.NormalisedResource(fr.ID),
-			Predicate: RDFType,
-			Object:    ttype,
+			Meta:       fg.CreateHeader(FragmentDocType),
+			Subject:    fg.NormalisedResource(fr.ID),
+			Predicate:  RDFType,
+			Object:     ttype,
+			ObjectType: resource,
 		}
 		frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 		if strings.HasPrefix(fr.ID, "_:") {
@@ -601,11 +668,12 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
 			frag := &Fragment{
-				Meta:      fg.CreateHeader(FragmentDocType),
-				Subject:   fg.NormalisedResource(fr.ID),
-				Predicate: predicate,
-				DataType:  entry.DataType,
-				Language:  entry.Language,
+				Meta:       fg.CreateHeader(FragmentDocType),
+				Subject:    fg.NormalisedResource(fr.ID),
+				Predicate:  predicate,
+				DataType:   entry.DataType,
+				Language:   entry.Language,
+				ObjectType: entry.EntryType,
 			}
 			frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 			if entry.ID != "" {

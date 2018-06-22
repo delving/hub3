@@ -160,7 +160,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = ds.DropOrphans(ctx, wp)
+	_, err = ds.DropOrphans(ctx, bp, wp)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return

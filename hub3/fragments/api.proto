@@ -487,8 +487,8 @@ message Fragment {
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
   string triple = 13;
-  // The named graph that this triple is part of
-  string namedGraphURI = 14;
+  // the type of the
+  string objectType = 14;
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;

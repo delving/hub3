@@ -477,7 +477,6 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 			}
 			id := item["entryURI"]
 			spec := item[c.Config.ElasticSearch.SpecKey]
-			// TODO replace with meta header key when migrated to v2 style indexing
 			revision := item[c.Config.ElasticSearch.RevisionKey]
 			log.Printf("ph queue for %s with revision %f", spec, revision)
 			if id != nil {
@@ -572,9 +571,14 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 }
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
-func (ds DataSet) DropOrphans(ctx context.Context, wp *w.WorkerPool) (bool, error) {
-	var err error
+func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *w.WorkerPool) (bool, error) {
 	ok := true
+	err := p.Flush()
+	if err != nil {
+		log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
+		return false, err
+	}
+	log.Printf("Flushed remaining items on the index queue.")
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {

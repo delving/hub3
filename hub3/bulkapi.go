@@ -190,13 +190,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		err := action.p.Flush()
-		if err != nil {
-			log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
-			return err
-		}
-		log.Printf("Flushed remaining items on the index queue.")
-		ok, err := ds.DropOrphans(ctx, action.wp)
+		ok, err := ds.DropOrphans(ctx, action.p, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
 			return err
@@ -367,13 +361,6 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		action.CreateRDFBulkRequest(response, fb.Graph)
 	}
 
-	// index the LoD Fragments
-	if c.Config.ElasticSearch.Fragments && !c.Config.ElasticSearch.IndexV1 {
-		err = fb.IndexFragments(action.p)
-		if err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

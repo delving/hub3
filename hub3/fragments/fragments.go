@@ -167,7 +167,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 			return fragments, err
 			//return &r.Graph{}, err
 		}
-		fmt.Println(string(data))
+		log.Printf("fragment query: %s", string(data))
 	}
 	res, err := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -391,86 +391,3 @@ var ESSettings = `{
 		"index.mapping.nested_fields.limit": 50
 	}
 }`
-
-// ESMapping is the default mapping for the RDF records enabled by rapid
-var ESMapping = `{
-	"settings":{
-		"number_of_shards":3,
-		"number_of_replicas":2,
-		"index.mapping.total_fields.limit": 1000,
-		"index.mapping.depth.limit": 20,
-		"index.mapping.nested_fields.limit": 50
-	},
-	"mappings":{
-		"doc": {
-			"dynamic": "strict",
-			"properties": {
-				"meta": {
-					"type": "object",
-					"properties": {
-						"spec": {"type": "keyword"},
-						"orgID": {"type": "keyword"},
-						"hubID": {"type": "keyword"},
-						"revision": {"type": "long"},
-						"tags": {"type": "keyword"},
-						"docType": {"type": "keyword"},
-						"namedGraphURI": {"type": "keyword"},
-						"entryURI": {"type": "keyword"}
-					}
-				},
-				"subject": {"type": "keyword"},
-				"predicate": {"type": "keyword"},
-				"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
-				"language": {"type": "keyword"},
-				"dataType": {"type": "keyword"},
-				"triple": {"type": "keyword", "index": "false", "store": "true"},
-				"lodKey": {"type": "keyword"},
-				"recordType": {"type": "short"},
-
-				"resources": {
-					"type": "nested",
-					"properties": {
-						"id": {"type": "keyword"},
-						"types": {"type": "keyword"},
-						"tags": {"type": "keyword"},
-						"context": {
-							"type": "nested",
-							"properties": {
-								"Subject": {"type": "keyword", "ignore_above": 256},
-								"SubjectClass": {"type": "keyword", "ignore_above": 256},
-								"Predicate": {"type": "keyword", "ignore_above": 256},
-								"SearchLabel": {"type": "keyword", "ignore_above": 256},
-								"Level": {"type": "integer"},
-								"ObjectID": {"type": "keyword", "ignore_above": 256},
-								"SortKey": {"type": "integer"},
-								"Label": {"type": "keyword"}
-							}
-						},
-						"entries": {
-							"type": "nested",
-							"properties": {
-								"@id": {"type": "keyword"},
-								"@value": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
-								"@language": {"type": "keyword", "ignore_above": 256},
-								"@type": {"type": "keyword", "ignore_above": 256},
-								"entrytype": {"type": "keyword", "ignore_above": 256},
-								"predicate": {"type": "keyword", "ignore_above": 256},
-								"searchLabel": {"type": "keyword", "ignore_above": 256},
-								"level": {"type": "integer"},
-								"tags": {"type": "keyword"},
-								"isoDate": {
-									"type": "date",
-									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
-								},
-								"dateRange": {
-									"type": "date_range",
-									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
-								},
-								"latLong": {"type": "geo_point"}
-							}
-						}
-					}
-				}
-			}
-		}
-}}`

@@ -178,6 +178,12 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 		log.Printf("Unable to create resources: %s", err)
 		return fb.fg
 	}
+	err = rm.ResolveObjectIDs()
+	if err != nil {
+		log.Printf("Unable to resolve fragment resources: %s", err)
+		return fb.fg
+	}
+
 	err = rm.SetContextLevels(fb.fg.GetAboutURI())
 	if err != nil {
 		log.Printf("Unable to set context: %s", err)
