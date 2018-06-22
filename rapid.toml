@@ -231,5 +231,145 @@ base = "http://schemas.delving.eu/aff/"
 prefix = "aff"
 
 [[namespaces]]
+prefix="bf" 
+base = "http://id.loc.gov/ontologies/bibframe/"
+
+[[namespaces]]
+prefix="cs" 
+base = "http://www.kulttuurisampo.fi/ebkr/"
+
+[[namespaces]]
+prefix="dc" 
+base = "http://purl.org/dc/elements/1.1/"
+
+[[namespaces]]
+prefix="geo" 
+base = "http://www.opengis.net/ont/geosparql#"
+
+[[namespaces]]
+prefix="hg" 
+base = "http://rdf.histograph.io/"
+
+[[namespaces]]
+prefix="sd" 
+base = "http://www.w3.org/ns/sparql-service-description#"
+
+[[namespaces]]
+prefix="vs" 
+base = "http://www.w3.org/2003/06/sw-vocab-status/ns#"
+
+[[namespaces]]
+prefix="bgn" 
+base = "http://biographynet.nl/schema/"
+
+[[namespaces]]
+prefix="dbo" 
+base = "http://dbpedia.org/ontology/"
+
+[[namespaces]]
+prefix="edm" 
+base = "http://www.europeana.eu/schemas/edm/"
+
+[[namespaces]]
+prefix="naa" 
 base = "http://archief.nl/def/"
-prefix = "nadef"
+
+[[namespaces]]
+prefix="ore" 
+base = "http://www.openarchives.org/ore/terms/"
+
+[[namespaces]]
+prefix="org" 
+base = "http://www.w3.org/ns/org#"
+
+[[namespaces]]
+prefix="owl" 
+base = "http://www.w3.org/2002/07/owl#"
+
+[[namespaces]]
+prefix="rdf" 
+base = "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+
+[[namespaces]]
+prefix="sem" 
+base = "http://semanticweb.cs.vu.nl/2009/11/sem/"
+
+[[namespaces]]
+prefix="xml" 
+base = "http://www.w3.org/XML/1998/namespace"
+
+[[namespaces]]
+prefix="xsd" 
+base = "http://www.w3.org/2001/XMLSchema#"
+
+[[namespaces]]
+prefix="dcat" 
+base = "http://www.w3.org/ns/dcat#"
+
+[[namespaces]]
+prefix="foaf" 
+base = "http://xmlns.com/foaf/0.1/"
+
+[[namespaces]]
+prefix="iiif" 
+base = "http://iiif.io/api/image/2#"
+
+[[namespaces]]
+prefix="prov" 
+base = "http://www.w3.org/ns/prov#"
+
+[[namespaces]]
+prefix="rdfs" 
+base = "http://www.w3.org/2000/01/rdf-schema#"
+
+[[namespaces]]
+prefix="skos" 
+base = "http://www.w3.org/2004/02/skos/core#"
+
+[[namespaces]]
+prefix="svcs" 
+base = "http://rdfs.org/sioc/services#"
+
+[[namespaces]]
+prefix="void" 
+base = "http://rdfs.org/ns/void#"
+
+[[namespaces]]
+prefix="vcard" 
+base = "http://www.w3.org/2006/vcard/ns#"
+
+[[namespaces]]
+prefix="frbroo" 
+base = "http://iflastandards.info/ns/fr/frbr/frbroo/"
+
+[[namespaces]]
+prefix="premis" 
+base = "http://www.loc.gov/premis/rdf/v3/"
+
+[[namespaces]]
+prefix="schema" 
+base = "http://schema.org/"
+
+[[namespaces]]
+prefix="dcterms" 
+base = "http://purl.org/dc/terms/"
+
+[[namespaces]]
+prefix="eac-cpf" 
+base = "http://www3.iath.virginia.edu/eac/cpf/"
+
+[[namespaces]]
+prefix="ebucore" 
+base = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"
+
+[[namespaces]]
+prefix="cidoc-crm" 
+base = "http://www.cidoc-crm.org/cidoc-crm/"
+
+[[namespaces]]
+prefix="frbr_core" 
+base = "http://purl.org/vocab/frbr/core#"
+
+[[namespaces]]
+prefix="odrl" 
+base = "http://www.w3.org/ns/odrl/2/"
