@@ -23,19 +23,20 @@ import (
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/docgen"
 	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/cors"
 	"github.com/thoas/stats"
 	"github.com/urfave/negroni"
 	negroniprometheus "github.com/zbindenren/negroni-prometheus"
 )
 
-// DisabledMessage is a placeholder for disabled endpoints
+// ErrorMessage is a placeholder for disabled endpoints
 type ErrorMessage struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -57,6 +58,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	l := negroni.NewLogger()
 	n.Use(l)
 
+	// compress the responses
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
+
 	// stats middleware
 	s := stats.New()
 	n.Use(s)
@@ -76,14 +80,15 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	})
-	n.Use(cors)
 
 	// setup fileserver for public directory
 	n.Use(negroni.NewStatic(http.Dir(c.Config.HTTP.StaticDir)))
 
 	// Setup Router
 	r := chi.NewRouter()
+	r.Use(cors.Handler)
 	r.Use(mw.StripSlashes)
+	r.Use(mw.Heartbeat("/ping"))
 
 	// stats page
 	r.Get("/api/stats/http", func(w http.ResponseWriter, r *http.Request) {
@@ -95,11 +100,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Handle("/metrics", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte("You are rocking rapid!"))
-		if err != nil {
-			http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
-			return
-		}
+		render.PlainText(w, r, "You are rocking rapid!")
 	})
 
 	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
@@ -114,6 +115,24 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// dashboard
 	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/scroll-api.html")
+		return
+	})
+
+	// gaf ZVT
+	r.Get("/gaf/search-alt/*", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/gaf/index.html")
+		return
+	})
+	//r.Get("/gaf/search-alt", func(w http.ResponseWriter, r *http.Request) {
+	//http.ServeFile(w, r, "./public/gaf/index.html")
+	//return
+	//})
+	r.Get("/gaf/search-cache/*", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/gaf/index-cache.html")
+		return
+	})
+	r.Get("/gaf/search-cache", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/gaf/index-cache.html")
 		return
 	})
 
@@ -150,6 +169,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// Narthex endpoint
 	r.Post("/api/index/bulk", bulkAPI)
 
+	// CSV upload endpoint
+	r.Post("/api/rdf/csv", csvUpload)
+	r.Delete("/api/rdf/csv", csvDelete)
+
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
 
@@ -182,6 +205,11 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// introspection
 	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
+	}
+
+	if c.Config.Cache.Enabled {
+		r.Mount("/api/cache", CacheResource{}.Routes())
+		r.Handle(fmt.Sprintf("%s/*", c.Config.Cache.APIPrefix), cacheHandler())
 	}
 
 	n.UseHandler(r)

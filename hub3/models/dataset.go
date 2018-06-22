@@ -30,13 +30,6 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-type ESRecord struct {
-	EntryURI string `json:"entryURI"`
-	Spec     string `json:"spec"`
-	Revision string `json:"revision"`
-	HubID    string `json:"hubID"`
-}
-
 // DataSetRevisions holds the type-frequency data for each revision
 type DataSetRevisions struct {
 	Number      int `json:"revisionNumber"`
@@ -69,9 +62,8 @@ type LODFragmentStats struct {
 	Enabled         bool               `json:"enabled"`
 	Revisions       []DataSetRevisions `json:"revisions"`
 	StoredFragments int                `json:"storedFragments"`
-	ObjectType      []DataSetCounter   `json:"objectType"`
+	DataType        []DataSetCounter   `json:"dataType"`
 	Language        []DataSetCounter   `json:"language"`
-	ObjectDataType  []DataSetCounter   `json:"objectDataType"`
 	Tags            []DataSetCounter   `json:"tags"`
 }
 
@@ -226,15 +218,17 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	counter := []DataSetCounter{}
 
 	if !c.Config.ElasticSearch.Enabled {
-		return 0, revisions, counter, fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+		err := fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+		return 0, revisions, counter, err
 	}
 
-	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
-	tagAgg := elastic.NewTermsAggregation().Field("tags").Size(30).OrderByCountDesc()
+	revisionAgg := elastic.NewTermsAggregation().Field("meta.revision").Size(30).OrderByCountDesc()
+	tagAgg := elastic.NewTermsAggregation().Field("meta.tags").Size(30).OrderByCountDesc()
 	q := elastic.NewBoolQuery()
 	q = q.Must(
-		elastic.NewMatchPhraseQuery("spec", ds.Spec),
-		elastic.NewTermQuery("docType", fragments.FragmentGraphDocType),
+		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
+		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -300,15 +294,15 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		return fStats, fmt.Errorf("FragmentStatsBySpec should not be called when elasticsearch is not enabled")
 	}
 
-	revisionAgg := elastic.NewTermsAggregation().Field("revision").Size(30).OrderByCountDesc()
-	languageAgg := elastic.NewTermsAggregation().Field("language.keyword").Size(50).OrderByCountDesc()
-	objectTypeAgg := elastic.NewTermsAggregation().Field("objectTypeRaw.keyword").Size(50).OrderByCountDesc()
-	objectDataTypeAgg := elastic.NewTermsAggregation().Field("xsdRaw.keyword").Size(50).OrderByCountDesc()
-	tagsAgg := elastic.NewTermsAggregation().Field("tags").Size(50).OrderByCountDesc()
+	revisionAgg := elastic.NewTermsAggregation().Field("meta.revision").Size(30).OrderByCountDesc()
+	languageAgg := elastic.NewTermsAggregation().Field("language").Size(50).OrderByCountDesc()
+	dataType := elastic.NewTermsAggregation().Field("dataType").Size(50).OrderByCountDesc()
+	tagsAgg := elastic.NewTermsAggregation().Field("meta.tags").Size(50).OrderByCountDesc()
 	q := elastic.NewBoolQuery()
 	q = q.Must(
-		elastic.NewMatchPhraseQuery("spec", ds.Spec),
-		elastic.NewTermQuery("docType", fragments.FragmentDocType),
+		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
+		elastic.NewTermQuery("meta.docType", fragments.FragmentDocType),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.IndexName).
@@ -316,8 +310,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		Size(0).
 		Aggregation("revisions", revisionAgg).
 		Aggregation("language", languageAgg).
-		Aggregation("objectTypeRaw", objectTypeAgg).
-		Aggregation("xsdRaw", objectDataTypeAgg).
+		Aggregation("dataType", dataType).
 		Aggregation("tags", tagsAgg).
 		Do(ctx)
 	if err != nil {
@@ -342,7 +335,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		})
 	}
 	buckets := []string{
-		"language", "objectTypeRaw", "xsdRaw",
+		"language", "dataType",
 		"tags",
 	}
 	for _, a := range buckets {
@@ -353,10 +346,8 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		switch a {
 		case "language":
 			fStats.Language = counter
-		case "objectTypeRaw":
-			fStats.ObjectType = counter
-		case "xsdRaw":
-			fStats.ObjectDataType = counter
+		case "dataType":
+			fStats.DataType = counter
 		case "tags":
 			fStats.Tags = counter
 		}
@@ -485,8 +476,9 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 				return err
 			}
 			id := item["entryURI"]
-			spec := item["spec"]
-			revision := item["revision"]
+			spec := item[c.Config.ElasticSearch.SpecKey]
+			// TODO replace with meta header key when migrated to v2 style indexing
+			revision := item[c.Config.ElasticSearch.RevisionKey]
 			log.Printf("ph queue for %s with revision %f", spec, revision)
 			if id != nil {
 				ds := string(spec.(string))
@@ -518,8 +510,9 @@ func (ds DataSet) validForPostHook() bool {
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int, error) {
 	q := elastic.NewBoolQuery()
-	q = q.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
+	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
+	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
 	// enqueue posthooks first
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)
@@ -529,7 +522,11 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		}
 	}
 
-	//logger.Infof("%#v", q)
+	// block for 2 seconds to allow cluster to be in sync
+	timer := time.NewTimer(time.Second * 2)
+	<-timer.C
+	log.Print("Timer expired")
+
 	res, err := index.ESClient().DeleteByQuery().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).

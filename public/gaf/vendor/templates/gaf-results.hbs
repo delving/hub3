@@ -1,0 +1,206 @@
+<div class="search-results-inner">
+  <!--  <div class="row-inner">
+  <div class="select-wrapper">
+  <label for="page-language">Taal:</label>
+  <select id="language" name="language" class="form-select">
+        {{#each resultLanguageOptions}}
+  <option value="{{value}}" {{#if checked }}selected="selected"{{/if}}>{{value}}</option>
+        {{/each}}
+  </select>
+  <i class="select-down"></i>
+  </div>
+  </div>-->
+  <div class="row-inner">
+    <div class="search-sidebar">
+      <button class="close-button" title="{{translatedLabels.closeFilters}}" type="button"><span
+          class="sr-only">{{translatedLabels.closeFilters}}</span></button>
+      <h2><span>{{translatedLabels.filter}}</span></h2>
+
+      <!--Show empty text if no filters are available.-->
+      {{#if facetFields }}
+        {{#each facetFields}}
+          <div class="form-group">
+            <legend class="group-title bg-primary text-white"
+                    data-toggle="collapse"
+                    data-target="#filtergroup-{{@key}}">
+              {{translate ../translatedLabels.facetFieldTitles @key}}
+            </legend>
+            <div id="filtergroup-{{@key}}" class="filtergroup collapse in">
+              {{#each this}}
+                <div class="filter form-item-checkbox">
+                  <input type="checkbox"
+                         name="{{@../key}}"
+                         id="{{@key}}-{{name}}-{{id}}"
+                         value="{{id}}"
+                         {{#if checked}}checked{{/if}} />
+                  <label for="{{@key}}-{{name}}-{{id}}">{{translate ../../translatedLabels.facetFieldNames name}} ({{frequency}})</label>
+                </div>
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+
+        {{#each facetDateFields}}
+          <div class="form-group">
+            <legend class="group-title bg-primary text-white" data-toggle="collapse"
+                    data-target="#filtergroup-{{@key}}">
+              {{{translate ../translatedLabels.facetFieldTitles @key}}}
+            </legend>
+            <div id="filtergroup-{{@key}}" class="filtergroup collapse in">
+              {{#each buckets}}
+                <div class="filter form-item-radiobox">
+                  <input type="radio" name="{{@../key}}" class="date-radio" id="{{@../key}}-{{@key}}-{{name}}-{{id}}"
+                         value="{{id}}" data-labelTarget="#{{@../key}}-labelTarget"
+                         data-label="{{name}} ({{frequency}})"/>
+                  <label for="{{@../key}}-{{@key}}-{{name}}-{{id}}">{{name}} ({{frequency}})</label>
+                </div>
+              {{/each}}
+              <div class="filter form-item-radiobox {{#if checked}}visible{{else}}visually-hidden{{/if}}">
+                <input type="checkbox" name="{{@key}}Label" id="{{@key}}-labelTarget" class="visually-hidden"
+                       value="{{selectedLabel}}" {{#if checked}}checked{{/if}} />
+                <input type="radio" name="{{@key}}" class="date-check" id="{{@key}}-input" value="{{selectedValue}}"
+                       {{#if checked}}checked{{/if}} />
+                <label for="{{@key}}-input">{{selectedLabel}}</label>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+
+      {{else}}
+        <div class="no-results">
+          {{translatedLabels.noFiltersAvailable}}
+        </div>
+
+      {{/if}}
+
+    </div>
+
+    <div class="search-ead-content">
+
+      <div class="search-content">
+
+        <div class="filter-settings">
+
+          <!--        <div class="setting setting-display">
+                    <label>Weergave</label>
+                    <div class="select-wrapper">
+                      <select id="filter-display" name="filterDisplay" class="form-select">
+                        <option value="grid-large" selected="selected">Grid (groot)</option>
+                        <option value="grid-medium">Grid (medium)</option>
+                        <option value="grid-small">Grid (klein)</option>
+                      </select>
+                      <i class="select-down"></i>
+                    </div>
+                  </div>
+                  <div class="setting setting-sorting">
+                    <label>Sorteren op</label>
+                    <div class="select-wrapper">
+                      <select id="filter-sorting" name="filterSorting" class="form-select">
+                        <option value="name-a-z" selected="selected">Naam (A-Z)</option>
+                        <option value="name-z-a">Naam (Z-A)</option>
+                      </select>
+                      <i class="select-down"></i>
+                    </div>
+                  </div>-->
+
+          {{#if resultOptions }}
+            <div class="sort-results">
+              <div class="search-results-amount-category">{{{translatedLabels.numberResultsCategory}}}</div>
+              <div class="search-results-per-page">
+                <label for="gaf-results-per-page">{{translatedLabels.resultsPerPage}}</label>
+                <div class="select-wrapper">
+                  <select id="gaf-results-per-page" name="resultsPerPage" class="form-select">
+                    {{#each resultOptions}}
+                      <option value="{{value}}" {{#if selected }}selected="selected"{{/if}}>{{value}}</option>
+                    {{/each}}
+                  </select>
+                  <i class="select-down"></i>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+
+        </div>
+
+        <ul class="gafarchives-list">
+          <div class="headings">
+            <span class="access-number">{{translatedLabels.findingAidNo}}</span>
+            <span class="title">{{translatedLabels.findingAidTitle}}</span>
+            <span class="period">{{translatedLabels.unitDate}}</span>
+          </div>
+          {{#each eadDocList}}
+            <li class="result">
+              <a href="{{eadDocUrl}}"
+                 class="show-full-ead"
+                 data-id="{{id}}"
+                 data-findingAidNo="{{findingAidNo}}">
+                <span class="access-number">{{findingAidNo}}</span>
+                <span class="title">{{findingAidTitle}}</span>
+                <span class="period">{{unitDate}}</span>
+              </a>
+
+              <div class="descendants-container">
+                <button class="show-descendants"
+                        id="toggle-show-desccendants-btn-{{id}}"
+                        type="button"
+                        data-id="{{id}}"
+                        data-findingAidNo="{{findingAidNo}}"
+                        value="{{id}}"
+                        data-number-of-results="{{numberOfResults}}">
+                  {{../translatedLabels.showDescriptiveUnitButtonText}}
+                </button>
+                <span class="number-of-results-container"><span
+                    class="number-of-results"></span> {{toLowerCase ../translatedLabels.results}}</span>
+                <div class="descendants-content"
+                     id="gaf-{{id}}-content"
+                     data-gafDescendants="{{findingAidNo}}">
+                  <!--Filled in with gaf-results-descendants gaf-results-descendants.hbs-->
+                </div>
+              </div>
+            </li>
+          {{/each}}
+        </ul>
+
+        <div class="paginator-container">
+          {{#if pageLinks }}
+            <ul class="search-pager list-inline">
+              {{#each pageLinks}}
+                <li class="{{linkCounter}}">
+                  <a href="{{href}}" class="{{classes}} list-group-item" data-page="{{page}}">
+                    <span>{{label}}</span>
+                  </a>
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+
+          {{#if pageLinksMobile }}
+            <ul class="search-pager search-pager-mobile list-inline">
+              {{#each pageLinksMobile}}
+                <li class="{{linkCounter}}">
+                  <a href="{{href}}" class="{{classes}} list-group-item" data-page="{{page}}">
+                    <span>{{label}}</span>
+                  </a>
+                </li>
+              {{/each}}
+            </ul>
+          {{/if}}
+
+          <div class="link-direct">
+            <label for="direct-to-page">{{translatedLabels.directToPage}}</label>
+            <span>
+            <input id="direct-to-page" type="number" name="page" step="1" min="1" max="{{totalPages}}">
+            <input type="submit" value="{{translatedLabels.go}}">
+          </span>
+          </div>
+        </div>
+
+        <div class="filter-button">
+          <a class="primary-button">{{translatedLabels.filterResults}}</a>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

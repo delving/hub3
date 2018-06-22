@@ -22,16 +22,37 @@ indexV1 = false
 # Enable trace logging of elasticsearch
 enableTrace = false
 # key to use for searching and deleting spec (spec.raw for v5 style index)
-specKey = "spec"
+# For v2 style indexing using meta.spec
+specKey = "meta.spec"
+# key to use to find revisions. For v1 style indexes use 'revision'
+# for v2 style indexing use 'meta.revision'
+revisionKey = "meta.revision"
+# Key to use for finding the tentant or orgID key. Default meta.orgID
+orgIDKey = "meta.orgID"
 # username and password for packx security
 userName = ""
 password = ""
+
+[posthook]
+# specs to exclude from posthook
+excludeSpec = [    
+    "brabant-blogs",
+    "geschiedenis",
+    "in-brabant",
+    "personen",
+    "textielmuseum-bibliotheek",
+    "weverij-de-ploeg",
+]
+# target URLS for JSON-LD post
+# urls = [ 'https://www.brabantserfgoed.nl/api/erfgoedbrabant/brabantcloud']
 
 [logging]
 devmode = true
 sentrydsn = ""
 
 [rdf]
+# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+rdfStoreEnabled = false
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
@@ -47,8 +68,6 @@ routedEntryPoints = ["http://localhost:3000"]
 baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
-# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = true
 # Default format for importing in the bulk API, "text/turtle" or "application/ld+json"
 defaultFormat = "application/ld+json" 
 #defaultFormat = "text/turtle" 
@@ -95,6 +114,22 @@ deepzoom = true
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
 
+[cache]
+# Enable HTTP cache
+enabled = true
+# Lifetime of objects in the cache in minutes
+lifeWindowMinutes = 10
+# APIPrefix to be used for caching. 
+apiPrefix = "/api/cache/http"
+# strip prefix determines if cache prefix should be included in the proxy request
+stripPrefix = true
+# default domain to reroute the caching request to
+cacheDomain = "prod.nationaalarchief.nl"
+# max size for the in memory cache in MB. So 8192 for 8GB.
+hardMaxCacheSize = 1024
+# max size an individual entry in bytes, i.e. 102400 is 10MB
+maxEntrySize = 30720
+
 [lod]
 # enable the lod routing point
 enabled = true
@@ -104,8 +139,88 @@ resource = "resource"
 html = "page"
 # rdf data routing point
 rdf = "data"
+# One the above three routes need to be handled from the same endpoint
+# When content is not "", it will override the other endpoints
+# You can use regural expressions for the first element of the relative
+# path, e.g. 'NL-.*'.
+singleEndpoint = "NL-.*"
 
 # Default namespaces can be found in config/namespace.go
+
+
+[rdftag]
+# used for title of a resource
+title = [
+    "http://purl.org/dc/elements/1.1/title",
+]
+label = [
+    "http://purl.org/dc/elements/1.1/title",
+    "http://www.w3.org/2004/02/skos/core#prefLabel",
+    "http://www.w3.org/2000/01/rdf-schema#label",
+    "http://www.w3.org/2004/02/skos/core#altLabel",
+    "http://xmlns.com/foaf/0.1/name",
+    "http://www.geonames.org/ontology#name",
+    "http://schemas.delving.eu/narthex/terms/proxyLiteralValue",
+    "http://dbpedia.org/ontology/name",
+]
+
+thumbnail = [
+    "http://xmlns.com/foaf/0.1/depiction",
+    "http://nationaalarchief.nl/def/thumbnail",
+    "http://schemas.delving.eu/nave/terms/thumbnail",
+    "http://schemas.delving.eu/nave/terms/thumbSmall",
+    "http://schemas.delving.eu/nave/terms/thumbLarge",
+    "http://www.europeana.eu/schemas/edm/object",
+    "http://www.europeana.eu/schemas/edm/isShownBy",
+]
+
+
+owner = [
+    "http://www.europeana.eu/schemas/edm/dataProvider",
+]
+landingPage = [
+    "http://www.europeana.eu/schemas/edm/isShownAt",
+]
+description = [
+    "http://purl.org/dc/elements/1.1/description",
+]
+subject = [
+    "http://purl.org/dc/elements/1.1/subject",
+]
+date = [
+    "http://purl.org/dc/elements/1.1/date",
+]
+collection = [
+    "http://schemas.delving.eu/nave/terms/collection",
+]
+subCollection = [
+    "http://schemas.delving.eu/nave/terms/collectionPart",
+]
+objectType = [
+    "http://schemas.delving.eu/nave/terms/objectType",
+    "http://schemas.delving.eu/nave/terms/objectSoort",
+]
+objectID = [
+    "http://schemas.delving.eu/nave/terms/objectNumber",
+    "http://schemas.delving.eu/nave/terms/objectNummer",
+    "http://purl.org/dc/elements/1.1/identifier",
+]
+creator = [
+    "http://purl.org/dc/elements/1.1/creator",
+]
+
+# The following tags trigger special indexing functionality
+# when they are invalid it could result in the records being dropped
+# during indexing
+latLong = [
+    "http://schemas.delving.eu/nave/terms/latLong",
+    "http://schemas.delving.eu/nave/terms/GeoHash",
+    "http://schemas.delving.eu/nave/terms/geoHash",
+]
+dateRange = []
+isoDate = [
+    #"http://schemas.delving.eu/nave/terms/date",
+]
 
 [[namespaces]]
 base = "http://www.musip.nl/"
@@ -115,28 +230,6 @@ prefix = "musip"
 base = "http://schemas.delving.eu/aff/"
 prefix = "aff"
 
-
-[rdftag]
-label = [
-    "http://www.w3.org/2004/02/skos/core#preflabel",
-    "http://www.w3.org/2000/01/rdf-schema#label",
-    "http://www.w3.org/2004/02/skos/core#altLabel",
-    "http://xmlns.com/foaf/0.1/name",
-    "http://www.geonames.org/ontology#name",
-    "http://purl.org/dc/elements/1.1/title",
-    "http://schemas.delving.eu/narthex/terms/proxyLiteralValue",
-    "http://dbpedia.org/ontology/name",
-]
-
-thumbnail = [
-    "http://xmlns.com/foaf/0.1/depiction",
-    "http://schemas.delving.eu/nave/terms/thumbnail",
-    "http://schemas.delving.eu/nave/terms/thumbSmall",
-    "http://schemas.delving.eu/nave/terms/thumbLarge",
-    "http://www.europeana.eu/schemas/edm/object",
-    "http://www.europeana.eu/schemas/edm/isShownBy",
-]
-
-latLong = []
-dateRange = []
-date = []
+[[namespaces]]
+base = "http://archief.nl/def/"
+prefix = "nadef"

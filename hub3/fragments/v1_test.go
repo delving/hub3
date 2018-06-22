@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package fragments
+package fragments_test
 
 import (
 	"bytes"
@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	. "github.com/delving/rapid-saas/hub3/fragments"
 
 	"os"
 
@@ -141,7 +142,7 @@ var _ = Describe("V1", func() {
 				wr := r.NewTriple(
 					r.NewResource(urn),
 					r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-					getEDMField("WebResource"),
+					GetEDMField("WebResource"),
 				)
 				wrb.Graph.Add(wr)
 				Expect(err).ToNot(HaveOccurred())
@@ -154,11 +155,11 @@ var _ = Describe("V1", func() {
 				Expect(wrb.Graph.Len()).ToNot(Equal(0))
 				wrList := wrb.GetSortedWebResources()
 				Expect(wrList).ToNot(BeEmpty())
-				triples := wrb.Graph.All(nil, getEDMField("hasView"), nil)
+				triples := wrb.Graph.All(nil, GetEDMField("hasView"), nil)
 				Expect(triples).ToNot(BeNil())
-				object := wrb.Graph.All(nil, getEDMField("object"), nil)
+				object := wrb.Graph.All(nil, GetEDMField("object"), nil)
 				Expect(object).To(HaveLen(1))
-				isShownBy := wrb.Graph.All(nil, getEDMField("isShownBy"), nil)
+				isShownBy := wrb.Graph.All(nil, GetEDMField("isShownBy"), nil)
 				Expect(isShownBy).To(HaveLen(1))
 			})
 
@@ -174,11 +175,11 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				wr := fb.GetSortedWebResources()
 				Expect(wr).ToNot(BeEmpty())
-				triples := fb.Graph.All(nil, getEDMField("hasView"), nil)
+				triples := fb.Graph.All(nil, GetEDMField("hasView"), nil)
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(3))
 				//fmt.Printf("%#v\n", triples[0].String())
-				triples = fb.Graph.All(nil, getEDMField("isShownBy"), nil)
+				triples = fb.Graph.All(nil, GetEDMField("isShownBy"), nil)
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(1))
 				triple := triples[0]
@@ -238,13 +239,13 @@ var _ = Describe("V1", func() {
 				Skip("must be added to a different part of the code base")
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
-				created := r.NewResource(getNSField("dcterms", "created"))
+				created := r.NewResource(GetNSField("dcterms", "created"))
 				t := fb.Graph.One(nil, created, nil)
 				Expect(t).ToNot(BeNil())
 				fb.GetSortedWebResources()
 				t = fb.Graph.One(nil, created, nil)
 				Expect(t).To(BeNil())
-				createdRaw := r.NewResource(getNSField("dcterms", "createdRaw1"))
+				createdRaw := r.NewResource(GetNSField("dcterms", "createdRaw1"))
 				tRaw := fb.Graph.One(nil, createdRaw, nil)
 				Expect(tRaw).ToNot(BeNil())
 			})

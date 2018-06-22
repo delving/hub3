@@ -15,10 +15,13 @@
 package server
 
 import (
+	"bytes"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	log "log"
 	"net/http"
+	"net/http/httputil"
 	"strconv"
 
 	"github.com/delving/rapid-saas/config"
@@ -26,7 +29,6 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/golang/protobuf/proto"
 	//elastic "github.cocm/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -56,11 +58,23 @@ func (rs SearchResource) Routes() chi.Router {
 	return r
 }
 
+func getBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, err.Error())
 		return
 	}
 
@@ -85,9 +99,24 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(echoRequest)
-	if echoRequest == "searchService" {
-		render.JSON(w, r, s)
+	switch echoRequest {
+	case "searchService":
+		render.JSON(w, r, searchRequest)
+		return
+	case "request":
+		dump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+
+		render.PlainText(w, r, string(dump))
 		return
 	}
 
@@ -102,13 +131,19 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(echoRequest)
 	if echoRequest == "searchResponse" {
 		render.JSON(w, r, res)
 		return
 	}
 
-	records, err := decodeFragmentGraphs(res)
+	records, searchAfter, err := decodeFragmentGraphs(res)
+	searchAfterBin, err := getBytes(searchAfter)
+	if err != nil {
+		log.Printf("Unable to encode searchAfter")
+		return
+	}
+
+	searchRequest.SearchAfter = searchAfterBin
 	if err != nil {
 		log.Printf("Unable to decode records")
 		return
@@ -126,17 +161,38 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("P_TOTAL", strconv.FormatInt(int64(pager.GetTotal()), 10))
 	w.Header().Add("P_ROWS", strconv.FormatInt(int64(pager.GetRows()), 10))
 
-	result := &fragments.ScrollResultV3{}
+	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
+
+	// FragmentGraph is the default decoded issue
+	switch searchRequest.ItemFormat {
+	case fragments.ItemFormatType_SUMMARY:
+		for _, rec := range records {
+			rec.NewResultSummary()
+			rec.Resources = nil
+		}
+	}
 	result.Items = records
-	switch searchRequest.GetResponseFormatType() {
-	case fragments.ResponseFormatType_PROTOBUF:
-		output, err := proto.Marshal(result)
+
+	if !searchRequest.Paging {
+		// decode Aggregations
+		aggs, err := searchRequest.DecodeFacets(res)
 		if err != nil {
-			log.Println("Unable to marshal result to protobuf format.")
+			log.Printf("Unable to decode facets: %#v", err)
 			return
 		}
-		render.Data(w, r, output)
+		result.Facets = aggs
+	}
+
+	switch searchRequest.GetResponseFormatType() {
+	// TODO enable later again
+	//case fragments.ResponseFormatType_PROTOBUF:
+	//output, err := proto.Marshal(result)
+	//if err != nil {
+	//log.Println("Unable to marshal result to protobuf format.")
+	//return
+	//}
+	//render.Data(w, r, output)
 	default:
 		render.JSON(w, r, result)
 	}
@@ -169,13 +225,14 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch r.URL.Query().Get("format") {
-	case "protobuf":
-		output, err := proto.Marshal(record)
-		if err != nil {
-			log.Println("Unable to marshal result to protobuf format.")
-			return
-		}
-		render.Data(w, r, output)
+	// TODO enable protobuf later again
+	//case "protobuf":
+	//output, err := proto.Marshal(record)
+	//if err != nil {
+	//log.Println("Unable to marshal result to protobuf format.")
+	//return
+	//}
+	//render.Data(w, r, output)
 	default:
 		render.JSON(w, r, record)
 	}
@@ -191,20 +248,20 @@ func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error)
 }
 
 // decodeFragmentGraphs takes a search result and deserializes the records
-func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, error) {
+func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, []interface{}, error) {
 	if res == nil || res.TotalHits() == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	var records []*fragments.FragmentGraph
+	var searchAfter []interface{}
 	for _, hit := range res.Hits.Hits {
+		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		// remove RDF
-		r.RDF = nil
 		records = append(records, r)
 	}
-	return records, nil
+	return records, searchAfter, nil
 }

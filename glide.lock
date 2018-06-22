@@ -1,6 +1,10 @@
-hash: 847759ba634c1fb3e7a04123e01e77fd6fea2f4630ad7cebe904ca98620cf40b
-updated: 2018-05-17T22:29:07.533246228+02:00
+hash: 7d82f37499f8f4a00b36e246f76b477d42638af8042afe3d0657516f08713f14
+updated: 2018-06-15T22:06:57.804317379+02:00
 imports:
+- name: github.com/allegro/bigcache
+  version: f31987a23e44c5121ef8c8b2f2ea2e8ffa37b068
+  subpackages:
+  - queue
 - name: github.com/AndreasBriese/bbloom
   version: 28f7e881ca57bc00e028f9ede9f0d9104cfeef5e
 - name: github.com/araddon/dateparse
@@ -19,6 +23,10 @@ imports:
   - quantile
 - name: github.com/boltdb/bolt
   version: 9da31745363232bc1e27dbab3569e77383a51585
+- name: github.com/caltechlibrary/ead2002
+  version: 5bc395d40160fe16c8b740f2bf568479055fc944
+  subpackages:
+  - '...'
 - name: github.com/certifi/gocertifi
   version: deb3ae2ef2610fde3330947281941c562861188b
 - name: github.com/codegangsta/gin
@@ -63,12 +71,14 @@ imports:
   version: e83ac2304db3c50cf03d96a2fcd39009d458bc35
   subpackages:
   - middleware
+- name: github.com/go-chi/cors
+  version: dba6525398619dead495962a916728e7ee2ca322
 - name: github.com/go-chi/docgen
   version: ac43d9a63f3b58b1e82922411d2de365d896ee72
 - name: github.com/go-chi/render
   version: 8c8c7a43d054b536d7e18e82c4331e7258f211a2
 - name: github.com/gobuffalo/packr
-  version: 7f4074995d431987caaa35088199f13c44b24440
+  version: bd47f2894846e32edcf9aa37290fef76c327883f
   subpackages:
   - '...'
 - name: github.com/gocql/gocql
@@ -150,12 +160,12 @@ imports:
 - name: github.com/nfnt/resize
   version: 891127d8d1b52734debe1b3c3d7e747502b6c366
 - name: github.com/olivere/elastic
-  version: e696873566cec97ef782ca4faaa33e5ee2ca6a35
+  version: dabcc5de0a3fd6313870c223c3119e2b1e942ba3
   subpackages:
   - config
   - uritemplates
 - name: github.com/OneOfOne/xxhash
-  version: 4e9e81466dc37c9fd94ce9ecf42020ef54112203
+  version: 6def279d2ce6c81a79dd1c1be580f03bb216fb8a
 - name: github.com/onsi/ginkgo
   version: 9eda700730cba42af70d53180f9dcce9266bc2bc
   subpackages:
@@ -196,6 +206,10 @@ imports:
   version: acdc4509485b587f5e675510c4f2c63e90ff68a8
 - name: github.com/peterbourgon/diskv
   version: 5f041e8faa004a95c88a202771f4cc3e991971e6
+- name: github.com/phyber/negroni-gzip
+  version: ef6356a5d02936b65ca8e60b604ed6b078aac8d3
+  subpackages:
+  - gzip
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang

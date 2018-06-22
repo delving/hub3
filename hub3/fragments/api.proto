@@ -41,6 +41,19 @@ message FilterValue {
   repeated string value = 1;
 }
 
+message ContextQueryFilter {
+  string SearchLabel = 1;
+  string TypeClass = 2;
+}
+
+message QueryFilter {
+  ContextQueryFilter Level1 = 1;
+  ContextQueryFilter Level2 = 2;
+  string SearchLabel = 3;
+  string Value = 4;
+  bool Exclude = 5;
+}
+
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
@@ -50,8 +63,8 @@ message SearchRequest {
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
-  map<string, FilterValue> QueryFilter = 6;
-  map<string, FilterValue> HiddenQueryFilter = 7;
+  map<string, QueryFilter> QueryFilter = 6;
+  map<string, QueryFilter> HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
   repeated string FacetField  = 10;
@@ -71,8 +84,9 @@ message SearchRequest {
   GeoType geoType = 21; 
   // qr
   string QueryRefinement = 22;
-  string searchAfter = 23;
+  bytes searchAfter = 23;
   ItemFormatType itemFormat = 24;
+  bool Paging = 25;
 }
 
 enum GeoType {
@@ -185,13 +199,13 @@ message SearchResultV3 {
   Query query = 1; 
   SearchRequest request = 2;
   Pagination pagination = 3;
-  repeated fragments.FragmentGraph items = 4; 
+  repeated fragments.FragmentGraphDoc items = 4; 
   repeated Facet facets = 5;
 }
 
 message ScrollResultV3 {
   ScrollPager pager = 1;
-  repeated fragments.FragmentGraph items = 5;
+  repeated fragments.FragmentGraphDoc items = 5;
 }
 
 // V1 
@@ -223,10 +237,10 @@ message DetailResult {
   MetadataItemV1 item = 1;
 }
 
-service FragmentService           {
-  rpc Search (FragmentRequest) returns (FragmentSearchResponse);
-  rpc Update (FragmentGraph) returns (FragmentUpdateResponse);
-}
+/*service FragmentService           {*/
+  /*rpc Search (FragmentRequest) returns (FragmentSearchResponse);*/
+  /*rpc Update (FragmentGraph) returns (FragmentUpdateResponse);*/
+/*}*/
 
 
 message FragmentSearchResponse {
@@ -256,6 +270,8 @@ message FragmentRequest {
   string orgID = 6;
   string graph = 7;
   string spec = 8;
+  string echo = 9;
+  string lodKey = 10;
 }
 
 enum ObjectType {
@@ -321,24 +337,164 @@ enum RecordType {
 /*}*/
 
 
-message FragmentGraph {
-  string orgID = 1;
-  string spec  = 2;
-  int32 revision = 3;
-  string hubID = 4;
 
-  string entryURI = 5;
-  string namedGraphURI = 6;
-  bytes RDF = 7;
-  string rdfMimeType = 8;
-  RecordType recordType = 9;
+/*message FragmentGraph {*/
+  /*Header meta = 1;*/
 
-  repeated Fragment fragments = 10;
-  repeated string tags = 11;
-  string docType = 12;
+  /*string entryURI = 2;*/
+  /*string namedGraphURI = 3;*/
+  /*RecordType recordType = 4;*/
+
+  /*repeated Fragment fragments = 5;*/
+  /*repeated ResultSummary summary = 6;*/
+  /*[>repeated FragmentResource resources = 7;<]*/
+/*}*/
+
+message FragmentGraphDoc {
+  Header meta = 1;
+
+  string entryURI = 2;
+  string namedGraphURI = 3;
+  RecordType recordType = 4;
+
+  /*repeated Fragment fragments = 5;*/
+  repeated ResultSummary summary = 6;
+  repeated FragmentResourceDoc resources = 7;
 }
 
+
+// FragmentReferrerContext holds the referrer in formation for creating new fragments
+message FragmentReferrerContext {
+  string Subject = 1;
+  repeated string SubjectClass = 2;
+  string Predicate = 3;
+  string SearchLabel = 4;
+  int32 Level = 5;
+  string ObjectID = 6;
+  int32 SortKey = 7;
+  string Label = 8;
+}
+
+/*message FragmentResource {*/
+  /*string ID = 1;*/
+  /*repeated string Types = 2;*/
+  /*repeated FragmentReferrerContext GraphExternalContext = 3;*/
+  /*repeated FragmentReferrerContext Context = 4;*/
+  /*map<string, FragmentEntry> Predicates = 6;*/
+  /*repeated FragmentReferrerContext ObjectIDs = 7;*/
+/*}*/
+
+message FragmentResourceDoc {
+  string ID = 1;
+  repeated string Types = 2;
+  repeated FragmentReferrerContext GraphExternalContext = 3;
+  repeated FragmentReferrerContext Context = 4;
+  repeated FragmentEntryDoc Predicates = 6;
+  repeated FragmentReferrerContext ObjectIDs = 7;
+}
+
+
+
+/*message FragmentEntry {*/
+  /*string ID = 1;*/
+  /*string Value = 2;*/
+  /*string Language = 3;*/
+  /*string Datatype = 4;*/
+  /*string Entrytype = 5;*/
+  /*string Triple = 6;*/
+  /*FragmentResource Inline = 7;*/
+/*}*/
+
+message FragmentEntryDoc {
+  string ID = 1;
+  string Value = 2;
+  string Language = 3;
+  string Datatype = 4;
+  string Entrytype = 5;
+  string Triple = 6;
+  FragmentResourceDoc Inline = 7;
+  string Predicate = 8;
+  string SearchLabel = 9;
+  repeated string tags = 10;
+  // Content Index
+  /*string latLong = 22;*/
+  /*string date = 23;*/
+  /*string dateRange = 24;*/
+  /*int32 integer = 25;*/
+  /*int32 integerRange = 26;*/
+}
+
+message ResultSummary {
+  string title = 1;
+  string owner = 2;
+  string datasetTitle = 3;
+  string thumbnail = 4;
+  string landingPage = 5;
+  string latLong = 6;
+  string date = 7;
+  string description = 8;
+  string subject = 9;
+  string collection = 10;
+  string subCollection = 11;
+  string objectID = 12;
+  string objectType = 13;
+  string creator = 14;
+}
+
+message Header {
+  // The tenant identifier for this RecordType.
+  string orgID = 1;
+  // The spec is the unique dataset string to identify which dataset  this 
+  // Fragment belongs to
+  string spec = 2; 
+  // The revision is used to determine which version is an orphan and should be removed
+  int32 revision = 3;
+  // The hubId is the unique identifier for any document record in hub3
+  string hubID = 4;
+  // Each fragment can be tagged with additional metadata. This can be queried for.
+  // Some examples are 'resource', 'literal', 'bnode', 'rdfType', etc.
+  repeated string tags = 5;
+  // The document type for ElasticSearch. This is a constant value 
+  string docType = 6;
+  // The subject of the graph stored
+  string entryURI = 7;
+  // the graph name of the graph stored
+  string namedGraphURI = 8;
+}
+
+// Fragment are used and stored in ElasticSearch for the Linked Data Fragments
+// API
 message Fragment {
+  
+  // Generic Header for all ElasticSearch records
+  Header meta = 1;
+
+  // RDF core
+  // URI of the Triple subject
+  string subject = 7;
+  // URI of the Triple predicate
+  string predicate = 8;
+  // An underscore delimited version of the namespace and the label of the URI
+  // This is used in the Search DSL, for example dc:title becomes dc_title
+  string searchLabel = 9;
+  // The triple object. Can be both literal or resource (including Blank Nodes)
+  string object = 10;
+  // ISO 693 represenation of language code
+  string language = 11;
+  // Human readable version of the xsd:dataType
+  string dataType = 12; 
+  
+  // The n-triples representation of the triple. Used to quickly render
+  // RDF from a FragmentQuery
+  string triple = 13;
+  // The named graph that this triple is part of
+  string namedGraphURI = 14;
+
+  // the relative key that is used to resolve a SPARQL describe for a Subject
+  string lodKey = 15;
+}
+
+message FragmentGen1 {
   // meta block
   string orgID = 1;
   string spec = 2; 

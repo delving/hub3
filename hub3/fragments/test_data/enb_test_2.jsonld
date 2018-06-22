@@ -1,1 +1,364 @@
-[{"@id":"_:b0","@type":["http://schemas.delving.eu/nave/terms/DelvingResource"],"http://schemas.delving.eu/nave/terms/allowDeepZoom":[{"@value":"true"}],"http://schemas.delving.eu/nave/terms/allowLinkedOpenData":[{"@value":"true"}],"http://schemas.delving.eu/nave/terms/allowSourceDownload":[{"@value":"false"}],"http://schemas.delving.eu/nave/terms/featured":[{"@value":"false"}],"http://schemas.delving.eu/nave/terms/public":[{"@value":"true"}]},{"@id":"_:b1","@type":["http://schemas.delving.eu/nave/terms/BrabantCloudResource"],"http://schemas.delving.eu/nave/terms/collection":[{"@value":"Fotocollectie"}],"http://schemas.delving.eu/nave/terms/collectionPart":[{"@value":"Foto's"}],"http://schemas.delving.eu/nave/terms/material":[{"@value":"digitaal"}],"http://schemas.delving.eu/nave/terms/objectNumber":[{"@value":"F900893"}],"http://schemas.delving.eu/nave/terms/objectSoort":[{"@value":"foto"}],"http://schemas.delving.eu/nave/terms/place":[{"@value":"Muiderberg"}],"http://schemas.delving.eu/nave/terms/technique":[{"@value":"fotografie"}]},{"@id":"http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter","@type":["http://www.europeana.eu/schemas/edm/Agent"],"http://www.w3.org/2004/02/skos/core#prefLabel":[{"@value":"Lange, Peter"}],"http://xmlns.com/foaf/0.1/name":[{"@value":"Lange, Peter"}]},{"@id":"http://data.jck.nl/resource/aggregation/jhm-foto/F900893","@type":["http://www.openarchives.org/ore/terms/Aggregation"],"http://www.europeana.eu/schemas/edm/aggregatedCHO":[{"@id":"http://data.jck.nl/resource/document/jhm-foto/F900893"}],"http://www.europeana.eu/schemas/edm/hasView":[{"@id":"urn:joods-historisch/d375/375N021.jpg"}],"http://www.europeana.eu/schemas/edm/isShownAt":[{"@id":"http://data.jck.nl/resource/aggregation/jhm-foto/F900893"}],"http://www.europeana.eu/schemas/edm/isShownBy":[{"@id":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000"}],"http://www.europeana.eu/schemas/edm/object":[{"@id":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500"}],"http://www.openarchives.org/ore/terms/aggregates":[{"@id":"_:b0"},{"@id":"_:b1"}]},{"@id":"http://data.jck.nl/resource/document/jhm-foto/F900893","@type":["http://www.europeana.eu/schemas/edm/ProvidedCHO"],"http://purl.org/dc/elements/1.1/creator":[{"@id":"http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter"}],"http://purl.org/dc/elements/1.1/date":[{"@value":"2006-06-09"}],"http://purl.org/dc/terms/created":[{"@value":"2006-06-09"}],"http://purl.org/dc/elements/1.1/description":[{"@value":"Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"}],"http://purl.org/dc/elements/1.1/identifier":[{"@value":"F900893"}],"http://purl.org/dc/elements/1.1/rights":[{"@value":"Joods Historisch Museum Amsterdam"}],"http://purl.org/dc/elements/1.1/subject":[{"@id":"http://data.jck.nl/resource/skos/thesau/90000072"},{"@id":"http://data.jck.nl/resource/skos/thesau/90002542"},{"@id":"http://data.jck.nl/resource/skos/thesau/90073896"}],"http://purl.org/dc/terms/alternative":[{"@value":"F900893: Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"}],"http://purl.org/dc/terms/isPartOf":[{"@value":"Joods Historisch Museum"}],"http://www.europeana.eu/schemas/edm/hasMet":[{"@id":"http://data.jck.nl/resource/skos/thespersoon/34715"}]},{"@id":"http://data.jck.nl/resource/skos/thesau/90000072","@type":["http://www.w3.org/2004/02/skos/core#Concept"],"http://www.w3.org/2004/02/skos/core#prefLabel":[{"@value":"grafsteen"}]},{"@id":"http://data.jck.nl/resource/skos/thesau/90002542","@type":["http://www.w3.org/2004/02/skos/core#Concept"],"http://www.w3.org/2004/02/skos/core#prefLabel":[{"@value":"Muiderberg"}]},{"@id":"http://data.jck.nl/resource/skos/thesau/90073896","@type":["http://www.w3.org/2004/02/skos/core#Concept"],"http://www.w3.org/2004/02/skos/core#prefLabel":[{"@value":"begraafplaats"}]},{"@id":"http://data.jck.nl/resource/skos/thespersoon/34715","@type":["http://www.europeana.eu/schemas/edm/Agent"],"http://rdvocab.info/ElementsGr2/biographicalInformation":[{"@value":"Mr. I. van S. Mulder (overleden in 1877) was een zoon van Samuel Israel Mulder (Amsterdam, 1792-1862) en was vanaf 1860 tot aan zijn dood lid van het bestuur van het N.I.A."}],"http://www.w3.org/2004/02/skos/core#prefLabel":[{"@value":"Mulder, Israel van Samuel (-1877)"}],"http://xmlns.com/foaf/0.1/name":[{"@value":"Mulder, Israel van Samuel (-1877)"}]},{"@id":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000"},{"@id":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500"},{"@id":"http://schemas.delving.eu/nave/terms/BrabantCloudResource"},{"@id":"http://schemas.delving.eu/nave/terms/DelvingResource"},{"@id":"http://www.europeana.eu/schemas/edm/Agent"},{"@id":"http://www.europeana.eu/schemas/edm/ProvidedCHO"},{"@id":"http://www.europeana.eu/schemas/edm/WebResource"},{"@id":"http://www.openarchives.org/ore/terms/Aggregation"},{"@id":"http://www.w3.org/2004/02/skos/core#Concept"},{"@id":"urn:joods-historisch/d375/375N021.jpg"},{"@id":"urn:joods-historisch/d375/375N021_01.jpg","@type":["http://www.europeana.eu/schemas/edm/WebResource"],"http://schemas.delving.eu/nave/terms/deepZoomUrl":[{"@value":"https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi"}],"http://schemas.delving.eu/nave/terms/resourceSortOrder":[{"@value":"1"}],"http://schemas.delving.eu/nave/terms/sourceDownload":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000"}],"http://schemas.delving.eu/nave/terms/thumbLarge":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000"}],"http://schemas.delving.eu/nave/terms/thumbSmall":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500"}]},{"@id":"urn:joods-historisch/d376/375N021_02.jpg","@type":["http://www.europeana.eu/schemas/edm/WebResource"],"http://schemas.delving.eu/nave/terms/deepZoomUrl":[{"@value":"https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_02.tif.dzi"}],"http://schemas.delving.eu/nave/terms/resourceSortOrder":[{"@value":"2"}],"http://schemas.delving.eu/nave/terms/sourceDownload":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000"}],"http://schemas.delving.eu/nave/terms/thumbLarge":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000"}],"http://schemas.delving.eu/nave/terms/thumbSmall":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/500"}]},{"@id":"urn:joods-historisch/d376/375N021_3.jpg","@type":["http://www.europeana.eu/schemas/edm/WebResource"],"http://schemas.delving.eu/nave/terms/deepZoomUrl":[{"@value":"https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi"}],"http://schemas.delving.eu/nave/terms/sourceDownload":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"}],"http://schemas.delving.eu/nave/terms/thumbLarge":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"}],"http://schemas.delving.eu/nave/terms/thumbSmall":[{"@value":"http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500"}]}]
+[
+    {
+        "@id": "_:b0",
+        "@type": [
+            "http://schemas.delving.eu/nave/terms/DelvingResource"
+        ],
+        "http://schemas.delving.eu/nave/terms/allowDeepZoom": [
+            {
+                "@value": "true"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/allowLinkedOpenData": [
+            {
+                "@value": "true"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/allowSourceDownload": [
+            {
+                "@value": "false"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/featured": [
+            {
+                "@value": "false"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/public": [
+            {
+                "@value": "true"
+            }
+        ]
+    },
+    {
+        "@id": "_:b1",
+        "@type": [
+            "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+        ],
+        "http://schemas.delving.eu/nave/terms/collection": [
+            {
+                "@value": "Fotocollectie"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/collectionPart": [
+            {
+                "@value": "Foto's"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/material": [
+            {
+                "@value": "digitaal"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/objectNumber": [
+            {
+                "@value": "F900893"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/objectSoort": [
+            {
+                "@value": "foto"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/place": [
+            {
+                "@value": "Muiderberg"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/technique": [
+            {
+                "@value": "fotografie"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/Agent"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Lange, Peter"
+            }
+        ],
+        "http://xmlns.com/foaf/0.1/name": [
+            {
+                "@value": "Lange, Peter"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+        "@type": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+        ],
+        "http://www.europeana.eu/schemas/edm/aggregatedCHO": [
+            {
+                "@id": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+            }
+        ],
+        "http://www.europeana.eu/schemas/edm/hasView": [
+            {
+                "@id": "urn:joods-historisch/d375/375N021.jpg"
+            }
+        ],
+        "http://www.europeana.eu/schemas/edm/isShownAt": [
+            {
+                "@id": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
+            }
+        ],
+        "http://www.europeana.eu/schemas/edm/isShownBy": [
+            {
+                "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000"
+            }
+        ],
+        "http://www.europeana.eu/schemas/edm/object": [
+            {
+                "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500"
+            }
+        ],
+        "http://www.openarchives.org/ore/terms/aggregates": [
+            {
+                "@id": "_:b0"
+            },
+            {
+                "@id": "_:b1"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+        ],
+        "http://purl.org/dc/elements/1.1/creator": [
+            {
+                "@id": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter"
+            }
+        ],
+        "http://purl.org/dc/elements/1.1/date": [
+            {
+                "@value": "2006-06-09"
+            }
+        ],
+        "http://purl.org/dc/terms/created": [
+            {
+                "@value": "2006-06-09"
+            }
+        ],
+        "http://purl.org/dc/elements/1.1/description": [
+            {
+                "@value": "Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"
+            }
+        ],
+        "http://purl.org/dc/elements/1.1/identifier": [
+            {
+                "@value": "F900893"
+            }
+        ],
+        "http://purl.org/dc/elements/1.1/rights": [
+            {
+                "@value": "Joods Historisch Museum Amsterdam"
+            }
+        ],
+        "http://purl.org/dc/elements/1.1/subject": [
+            {
+                "@id": "http://data.jck.nl/resource/skos/thesau/90000072"
+            },
+            {
+                "@id": "http://data.jck.nl/resource/skos/thesau/90002542"
+            },
+            {
+                "@id": "http://data.jck.nl/resource/skos/thesau/90073896"
+            }
+        ],
+        "http://purl.org/dc/terms/alternative": [
+            {
+                "@value": "F900893: Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"
+            }
+        ],
+        "http://purl.org/dc/terms/isPartOf": [
+            {
+                "@value": "Joods Historisch Museum"
+            }
+        ],
+        "http://www.europeana.eu/schemas/edm/hasMet": [
+            {
+                "@id": "http://data.jck.nl/resource/skos/thespersoon/34715"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/skos/thesau/90000072",
+        "@type": [
+            "http://www.w3.org/2004/02/skos/core#Concept"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "grafsteen",
+                "@language": "nl"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/skos/thesau/90002542",
+        "@type": [
+            "http://www.w3.org/2004/02/skos/core#Concept"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Muiderberg"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/skos/thesau/90073896",
+        "@type": [
+            "http://www.w3.org/2004/02/skos/core#Concept"
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "begraafplaats"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/resource/skos/thespersoon/34715",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/Agent"
+        ],
+        "http://rdvocab.info/ElementsGr2/biographicalInformation": [
+            {
+                "@value": "Mr. I. van S. Mulder (overleden in 1877) was een zoon van Samuel Israel Mulder (Amsterdam, 1792-1862) en was vanaf 1860 tot aan zijn dood lid van het bestuur van het N.I.A."
+            }
+        ],
+        "http://www.w3.org/2004/02/skos/core#prefLabel": [
+            {
+                "@value": "Mulder, Israel van Samuel (-1877)"
+            }
+        ],
+        "http://xmlns.com/foaf/0.1/name": [
+            {
+                "@value": "Mulder, Israel van Samuel (-1877)"
+            }
+        ]
+    },
+    {
+        "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000"
+    },
+    {
+        "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500"
+    },
+    {
+        "@id": "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+    },
+    {
+        "@id": "http://schemas.delving.eu/nave/terms/DelvingResource"
+    },
+    {
+        "@id": "http://www.europeana.eu/schemas/edm/Agent"
+    },
+    {
+        "@id": "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+    },
+    {
+        "@id": "http://www.europeana.eu/schemas/edm/WebResource"
+    },
+    {
+        "@id": "http://www.openarchives.org/ore/terms/Aggregation"
+    },
+    {
+        "@id": "http://www.w3.org/2004/02/skos/core#Concept"
+    },
+    {
+        "@id": "urn:joods-historisch/d375/375N021.jpg"
+    },
+    {
+        "@id": "urn:joods-historisch/d375/375N021_01.jpg",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/WebResource"
+        ],
+        "http://schemas.delving.eu/nave/terms/deepZoomUrl": [
+            {
+                "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/resourceSortOrder": [
+            {
+                "@value": "1"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/sourceDownload": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbLarge": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbSmall": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500"
+            }
+        ]
+    },
+    {
+        "@id": "urn:joods-historisch/d376/375N021_02.jpg",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/WebResource"
+        ],
+        "http://schemas.delving.eu/nave/terms/deepZoomUrl": [
+            {
+                "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_02.tif.dzi"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/resourceSortOrder": [
+            {
+                "@value": "2"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/sourceDownload": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbLarge": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbSmall": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/500"
+            }
+        ]
+    },
+    {
+        "@id": "urn:joods-historisch/d376/375N021_3.jpg",
+        "@type": [
+            "http://www.europeana.eu/schemas/edm/WebResource"
+        ],
+        "http://schemas.delving.eu/nave/terms/deepZoomUrl": [
+            {
+                "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/sourceDownload": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbLarge": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"
+            }
+        ],
+        "http://schemas.delving.eu/nave/terms/thumbSmall": [
+            {
+                "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500"
+            }
+        ]
+    }
+]

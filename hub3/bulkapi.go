@@ -338,11 +338,15 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
 		}
 	} else {
-		err := fb.CreateFragments(action.p, true, true)
-		if err != nil {
-			log.Printf("Unable to save fragments: %v", err)
-			return err
+		// index the LoD Fragments
+		if c.Config.ElasticSearch.Fragments {
+			err = fb.IndexFragments(action.p)
+			if err != nil {
+				return err
+			}
 		}
+
+		// index FragmentGraph
 		r = elastic.NewBulkIndexRequest().
 			Index(c.Config.ElasticSearch.IndexName).
 			Type(fragments.DocType).
@@ -351,7 +355,8 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 			Doc(fb.Doc())
 	}
 	if r == nil {
-		panic("can't create index doc")
+		// todo add code back to create index doc
+		//panic("can't create index doc")
 		return fmt.Errorf("Unable create BulkIndexRequest")
 	}
 
@@ -374,13 +379,14 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 func (action BulkAction) createFragmentBuilder(revision int) (*fragments.FragmentBuilder, error) {
 	fg := fragments.NewFragmentGraph()
-	fg.OrgID = c.Config.OrgID
-	fg.HubID = action.HubID
-	fg.Spec = action.Spec
-	fg.Revision = int32(revision)
-	fg.NamedGraphURI = action.NamedGraphURI
-	fg.Tags = []string{"narthex", "mdr"}
-	fg.RDF = []byte(action.Graph)
+	fg.Meta.OrgID = c.Config.OrgID
+	fg.Meta.HubID = action.HubID
+	fg.Meta.Spec = action.Spec
+	fg.Meta.Revision = int32(revision)
+	fg.Meta.NamedGraphURI = action.NamedGraphURI
+	fg.Meta.EntryURI = fg.GetAboutURI()
+	//fg.RecordType = fragments.RecordType_NARTHEX
+	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
 	mimeType := c.Config.RDF.DefaultFormat
 	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)

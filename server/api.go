@@ -15,12 +15,14 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3"
@@ -80,6 +82,96 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 	return &httputil.ReverseProxy{Director: director}
 }
 
+func csvDelete(w http.ResponseWriter, r *http.Request) {
+	conv := fragments.NewCSVConvertor()
+	conv.DefaultSpec = r.FormValue("defaultSpec")
+
+	if conv.DefaultSpec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, "defaultSpec is a required field")
+		return
+	}
+
+	ds, _, err := models.GetOrCreateDataSet(conv.DefaultSpec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", conv.DefaultSpec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	_, err = ds.DropRecords(ctx, wp)
+	if err != nil {
+		log.Printf("Unable to delete all fragments for %s: %s", conv.DefaultSpec, err.Error())
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+
+	render.Status(r, http.StatusNoContent)
+	return
+}
+
+func csvUpload(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("csv")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	conv := fragments.NewCSVConvertor()
+	conv.InputFile = in
+	conv.SubjectColumn = r.FormValue("subjectColumn")
+	conv.SubjectClass = r.FormValue("subjectClass")
+	conv.SubjectURIBase = r.FormValue("subjectURIBase")
+	conv.Separator = r.FormValue("separator")
+	conv.PredicateURIBase = r.FormValue("predicateURIBase")
+	conv.SubjectColumn = r.FormValue("subjectColumn")
+	conv.ObjectResourceColumns = []string{r.FormValue("objectResourceColumns")}
+	conv.ObjectURIFormat = r.FormValue("objectURIFormat")
+	conv.DefaultSpec = r.FormValue("defaultSpec")
+	conv.ThumbnailURIBase = r.FormValue("thumbnailURIBase")
+	conv.ThumbnailColumn = r.FormValue("thumbnailColumn")
+
+	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", conv.DefaultSpec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	if created {
+		err = fragments.SaveDataSet(conv.DefaultSpec, bp)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", conv.DefaultSpec)
+			if err != nil {
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	seen, err := conv.IndexFragments(bp, ds.Revision)
+	log.Printf("Processed %d csv rows\n", seen)
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	_, err = ds.DropOrphans(ctx, wp)
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	render.Status(r, http.StatusCreated)
+	//render.PlainText(w, r, "ok")
+	render.JSON(w, r, conv)
+	return
+}
+
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
@@ -122,6 +214,57 @@ func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
 	render.XML(w, r, resp)
 }
 
+// RenderLODResource returns a list of matching fragments
+// for a LOD resource. This mimicks a SPARQL describe request
+func RenderLODResource(w http.ResponseWriter, r *http.Request) {
+
+	lodKey := r.URL.Path
+	if c.Config.LOD.SingleEndpoint == "" {
+		resourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
+		if strings.HasPrefix(lodKey, resourcePrefix) {
+			// todo for  now only support  RDF data
+			lodKey = strings.Replace(lodKey, c.Config.LOD.Resource, c.Config.LOD.RDF, 1)
+			http.Redirect(w, r, lodKey, 302)
+			return
+		}
+
+		lodKey = strings.Replace(lodKey, c.Config.LOD.RDF, c.Config.LOD.Resource, 1)
+		lodKey = strings.Replace(lodKey, c.Config.LOD.HTML, c.Config.LOD.Resource, 1)
+	} else {
+		// for now only support nt as format
+		if !strings.HasSuffix(lodKey, ".nt") {
+			lodKey = fmt.Sprintf("%s.nt", strings.TrimSuffix(lodKey, "/"))
+			log.Printf("Redirecting to %s", lodKey)
+			http.Redirect(w, r, lodKey, 302)
+			return
+		}
+		lodKey = strings.TrimSuffix(lodKey, ".nt")
+
+	}
+
+	fr := fragments.NewFragmentRequest()
+	fr.LodKey = lodKey
+	frags, err := fr.Find(ctx, index.ESClient())
+	if err != nil || len(frags) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		if err != nil {
+			log.Printf("Unable to list fragments because of: %s", err)
+			return
+		}
+
+		log.Printf("Unable to find fragments")
+		return
+	}
+	w.Header().Set("Content-Type", "text/n-triples")
+	var buffer bytes.Buffer
+	for _, frag := range frags {
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
+	}
+	w.Write(buffer.Bytes())
+	return
+
+}
+
 // listFragments returns a list of matching fragments
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
@@ -140,8 +283,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	frags, err := fr.Find(ctx, index.ESClient())
-	if err != nil || frags.Len() == 0 {
+	if err != nil || len(frags) == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusNotFound,
@@ -150,8 +294,34 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	w.Header().Set("Content-Type", "text/turtle")
-	err = frags.Serialize(w, "text/turtle")
+	switch fr.Echo {
+	case "raw":
+		render.JSON(w, r, frags)
+		return
+	case "request":
+		dump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+
+		render.PlainText(w, r, string(dump))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/n-triples")
+	var buffer bytes.Buffer
+	for _, frag := range frags {
+		buffer.WriteString(fmt.Sprintln(frag.Triple))
+	}
+	w.Write(buffer.Bytes())
+	//err = frags.Serialize(w, "text/turtle")
 	if err != nil {
 		log.Printf("Unable to list serialize fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{

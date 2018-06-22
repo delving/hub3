@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GAF Search">
+  <meta name="author" content="Ordina Nationaal Archief">
+  
+  <meta http-equiv="cache-control" content="max-age=0" />
+  <meta http-equiv="cache-control" content="no-cache" />
+  <meta http-equiv="expires" content="0" />
+  <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+  <meta http-equiv="pragma" content="no-cache" /> 
+
+  <title>GAF Search V2.0</title>
+    
+  <!-- Custom CSS -->
+  <link href="/gaf/vendor/css/main.min.css" rel="stylesheet">
+  <script src="//code.jquery.com/jquery-2.2.4.min.js"></script>
+  <script src="/gaf/vendor/js/bundle.min.js"></script>
+</head>
+
+<body>
+
+  <div id="gaf"> </div>
+
+    <script type="text/javascript">
+
+    $(document).ready(function(){
+     var options = {
+        baseUrl: '/gaf/search-alt',
+        sourceDirectory: '/gaf/vendor/',
+        tabOverrides: {
+        gaf: {
+          apiHost: 'https://service.nationaalarchief.nl',
+          apiEnvironment: 3, 
+          eadDocUrl: '/gaf/search-alt/:id',
+          eadInventoryUrl: '/gaf/search-alt/:id/invnr/:inventory',
+          eadViewerUrl: '/gaf/search-alt/:id/invnr/:inventory/:manifestUrl',
+          eadNiceDocUrl      : '/gaf/search-alt/instelling/:repositoryCode/toegang/:id',
+          eadNiceInventoryUrl: '/gaf/search-alt/instelling/:repositoryCode/toegang/:id/bestanddeel/:inventory',
+          eadNiceViewerUrl   : '/gaf/search-alt/instelling/:repositoryCode/toegang/:id/bestanddeel/:inventory/viewer'
+        }
+      },
+     };
+    $('#gaf').GAFSEARCH(options);
+});
+
+    </script>
+</body>
+</html>
