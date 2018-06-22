@@ -88,7 +88,7 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 	for k, v := range v {
 		switch k {
 		case "subject":
-			fr.Subject = v[0]
+			fr.Subject = v
 		case "predicate":
 			fr.Predicate = v[0]
 		case "object":
@@ -97,6 +97,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Language = v[0]
 		case "graph":
 			fr.Graph = v[0]
+		case "exclude":
+			fr.ExcludeHubID = v[0]
 		case "page":
 			page, err := strconv.ParseInt(v[0], 10, 32)
 			if err != nil {
@@ -112,21 +114,6 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 	return nil
 }
 
-func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
-	searchField := fmt.Sprintf("%s", fieldName)
-	if fieldName == "object" {
-		searchField = fmt.Sprintf("%s.keyword", fieldName)
-	}
-	if len(fieldValue) == 0 {
-		return q
-	}
-	if strings.HasPrefix("-", fieldValue) {
-		fieldValue = strings.TrimPrefix(fieldValue, "-")
-		return q.MustNot(elastic.NewTermQuery(searchField, fieldValue))
-	}
-	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
-}
-
 // GetESPage returns the 0 based page for Elastic Search
 func (fr FragmentRequest) GetESPage() int {
 	if fr.GetPage() < 2 {
@@ -135,10 +122,20 @@ func (fr FragmentRequest) GetESPage() int {
 	return int((fr.GetPage() * SIZE) - 1)
 }
 
-// TODO update Fragmentresource
-// give it a resourcemap and the uri the follow
-// either append or create a new one
-// convert FragmentEntry to FragmentResource (there should be code for this already)
+func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
+	searchField := fmt.Sprintf("%s", fieldName)
+	if fieldName == "object" {
+		searchField = fmt.Sprintf("%s.keyword", fieldName)
+	}
+	if len(fieldValue) == 0 {
+		return q
+	}
+	if strings.HasPrefix(fieldValue, "-") {
+		fieldValue = strings.TrimPrefix(fieldValue, "-")
+		return q.MustNot(elastic.NewTermQuery(searchField, fieldValue))
+	}
+	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
+}
 
 // Find returns a list of matching LodFragments
 func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, error) {
@@ -146,10 +143,24 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 
 	q := elastic.NewBoolQuery()
 	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
-	buildQueryClause(q, "subject", fr.GetSubject())
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
+
+	// support for exclude hubID
+	if fr.ExcludeHubID != "" {
+		key := fmt.Sprintf("-%s", fr.ExcludeHubID)
+		buildQueryClause(q, "meta.hubID", key)
+	}
+
+	// add subjects and exclude
+	subjects := fr.GetSubject()
+	if len(subjects) == 1 {
+		buildQueryClause(q, "subject", subjects[0])
+	}
+
+	// TODO later replace multiple subjects with scanner code and better Bool should queries
+
 	q = q.Must(elastic.NewTermQuery("meta.docType", FragmentDocType))
 	if len(fr.GetSpec()) != 0 {
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))

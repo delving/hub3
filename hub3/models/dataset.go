@@ -48,6 +48,7 @@ type IndexStats struct {
 	Revisions      []DataSetRevisions `json:"revisions"`
 	IndexedRecords int                `json:"indexedRecords"`
 	Tags           []DataSetCounter   `json:"tags"`
+	ContentTags    []DataSetCounter   `json:"contentTags"`
 }
 
 // RDFStoreStats hold all the RDFStore Statistics for this dataset
@@ -213,17 +214,24 @@ func (ds DataSet) Delete(ctx context.Context, wp *w.WorkerPool) error {
 }
 
 // indexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
-func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, []DataSetCounter, error) {
+func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSetRevisions, []DataSetCounter, []DataSetCounter, error) {
 	revisions := []DataSetRevisions{}
 	counter := []DataSetCounter{}
+	tagCounter := []DataSetCounter{}
 
 	if !c.Config.ElasticSearch.Enabled {
 		err := fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
-		return 0, revisions, counter, err
+		return 0, revisions, counter, tagCounter, err
 	}
 
 	revisionAgg := elastic.NewTermsAggregation().Field("meta.revision").Size(30).OrderByCountDesc()
 	tagAgg := elastic.NewTermsAggregation().Field("meta.tags").Size(30).OrderByCountDesc()
+
+	labelAgg := elastic.NewTermsAggregation().Field("resources.entries.tags").Size(30).OrderByCountDesc()
+	contentTagAgg := elastic.NewNestedAggregation().Path("resources.entries")
+	contentTagAgg = contentTagAgg.SubAggregation("contentTags", labelAgg)
+	//contentTagAgg := elastic.NewTermsAggregation().Field("resource.entries.tags").Size(30).OrderByCountDesc()
+
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
@@ -236,21 +244,22 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		Size(0).
 		Aggregation("revisions", revisionAgg).
 		Aggregation("tags", tagAgg).
+		Aggregation("contentTags", contentTagAgg).
 		Do(ctx)
 	if err != nil {
 		logger.WithField("spec", ds.Spec).Errorf("Unable to get IndexRevisionStats for the dataset.")
-		return 0, revisions, counter, err
+		return 0, revisions, counter, tagCounter, err
 	}
 	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
 	if res == nil {
 		logger.Errorf("expected response != nil; got: %v", res)
-		return 0, revisions, counter, fmt.Errorf("expected response != nil")
+		return 0, revisions, counter, tagCounter, fmt.Errorf("expected response != nil")
 	}
 	aggs := res.Aggregations
 	revAggCount, found := aggs.Terms("revisions")
 	if !found {
 		logger.Errorf("Expected to find revision aggregations but got: %v", res)
-		return 0, revisions, counter, fmt.Errorf("expected revision aggregrations")
+		return 0, revisions, counter, tagCounter, fmt.Errorf("expected revision aggregrations")
 	}
 	for _, keyCount := range revAggCount.Buckets {
 		revisions = append(revisions, DataSetRevisions{
@@ -261,10 +270,22 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	counter, err = createDataSetCounters(aggs, "tags")
 	if err != nil {
 		logger.Errorf("Unable to get Tag ggregations but got: %v", res)
-		return 0, revisions, counter, fmt.Errorf("expected tag aggregrations")
+		return 0, revisions, counter, tagCounter, fmt.Errorf("expected tag aggregrations")
 	}
+
+	// contentTags
+	ct, _ := aggs.Nested("contentTags")
+	ctt, _ := ct.Terms("contentTags")
+	for _, keyCount := range ctt.Buckets {
+
+		tagCounter = append(tagCounter, DataSetCounter{
+			Value:    fmt.Sprintf("%s", keyCount.Key),
+			DocCount: int(keyCount.DocCount),
+		})
+	}
+
 	totalHits := res.Hits.TotalHits
-	return int(totalHits), revisions, counter, err
+	return int(totalHits), revisions, counter, tagCounter, err
 }
 
 // createDataSetCounters creates counters from an ElasticSearch aggregation
@@ -371,7 +392,7 @@ func (ds DataSet) createIndexStats(ctx context.Context) (IndexStats, error) {
 	if !c.Config.ElasticSearch.Enabled {
 		return IndexStats{Enabled: false}, nil
 	}
-	hits, indexRevisionCount, tags, err := ds.indexRecordRevisionsBySpec(ctx)
+	hits, indexRevisionCount, tags, contentTags, err := ds.indexRecordRevisionsBySpec(ctx)
 	if err != nil {
 		log.Printf("Unable to get Index Revisions from ElasticSearch.")
 		return IndexStats{}, err
@@ -381,6 +402,7 @@ func (ds DataSet) createIndexStats(ctx context.Context) (IndexStats, error) {
 		Enabled:        c.Config.ElasticSearch.Enabled,
 		IndexedRecords: hits,
 		Tags:           tags,
+		ContentTags:    contentTags,
 	}, nil
 }
 

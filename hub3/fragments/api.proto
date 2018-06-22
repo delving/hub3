@@ -262,7 +262,7 @@ message FragmentError {
 }
 
 message FragmentRequest {
-  string subject = 1;
+  repeated string subject = 1;
   string predicate = 2;
   string object = 3;
   int32 page = 4;
@@ -272,6 +272,7 @@ message FragmentRequest {
   string spec = 8;
   string echo = 9;
   string lodKey = 10;
+  string excludeHubID = 11;
 }
 
 enum ObjectType {

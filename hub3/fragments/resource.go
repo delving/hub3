@@ -170,6 +170,12 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			re.Value, _ = r.GetLabel()
 		}
 	}
+
+	// add label for resolved
+	if fe.Resolved {
+		re.AddTags("resolved")
+	}
+
 	labels, ok := c.Config.RDFTagMap.Get(predicate)
 	if ok {
 		re.AddTags(labels...)
@@ -303,7 +309,7 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 	}
 
 	for t := range g.IterTriples() {
-		err := AppendTriple(rm.resources, t)
+		err := AppendTriple(rm.resources, t, false)
 		if err != nil {
 			return rm, err
 		}
@@ -312,24 +318,27 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 }
 
 // ResolveObjectIDs queries the fragmentstore for additional context
-func (rm *ResourceMap) ResolveObjectIDs() error {
+func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
+	objectIDs := []string{}
 	for _, fr := range rm.Resources() {
 		if contains(fr.Types, "http://www.europeana.eu/schemas/edm/WebResource") {
-			req := NewFragmentRequest()
-			req.Subject = fr.ID
-			frags, err := req.Find(ctx, index.ESClient())
-			if err != nil {
-				log.Printf("unable to find fragments: %s", err.Error())
-				return err
-			}
-			for _, f := range frags {
-				t := f.CreateTriple()
-				err = AppendTriple(rm.resources, t)
-				if err != nil {
-					return err
-				}
-			}
+			objectIDs = append(objectIDs, fr.ID)
 
+		}
+	}
+	req := NewFragmentRequest()
+	req.Subject = objectIDs
+	req.ExcludeHubID = excludeHubID
+	frags, err := req.Find(ctx, index.ESClient())
+	if err != nil {
+		log.Printf("unable to find fragments: %s", err.Error())
+		return err
+	}
+	for _, f := range frags {
+		t := f.CreateTriple()
+		err = AppendTriple(rm.resources, t, true)
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -407,7 +416,7 @@ func debrack(s string) string {
 }
 
 // CreateFragmentEntry creates a FragmentEntry from a triple
-func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
+func CreateFragmentEntry(t *r.Triple, resolved bool) (*FragmentEntry, string) {
 	entry := &FragmentEntry{Triple: t.String()}
 	switch o := t.Object.(type) {
 	case *r.Resource:
@@ -432,11 +441,12 @@ func CreateFragmentEntry(t *r.Triple) (*FragmentEntry, string) {
 			entry.Language = o.Language
 		}
 	}
+	entry.Resolved = resolved
 	return entry, ""
 }
 
 // AppendTriple appends a triple to a subject map
-func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
+func AppendTriple(resources map[string]*FragmentResource, t *r.Triple, resolved bool) error {
 	id := t.GetSubjectID()
 	fr, ok := resources[id]
 	if !ok {
@@ -459,7 +469,7 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple) error {
 	if !ok {
 		predicates = []*FragmentEntry{}
 	}
-	entry, fragID := CreateFragmentEntry(t)
+	entry, fragID := CreateFragmentEntry(t, resolved)
 	if fragID != "" {
 		if fragID != id {
 			ctx := fr.NewContext(p, fragID)

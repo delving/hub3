@@ -178,7 +178,7 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 		log.Printf("Unable to create resources: %s", err)
 		return fb.fg
 	}
-	err = rm.ResolveObjectIDs()
+	err = rm.ResolveObjectIDs(fb.fg.Meta.HubID)
 	if err != nil {
 		log.Printf("Unable to resolve fragment resources: %s", err)
 		return fb.fg
