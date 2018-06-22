@@ -127,6 +127,8 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.ObjectResourceColumns = []string{r.FormValue("objectResourceColumns")}
 	conv.ObjectURIFormat = r.FormValue("objectURIFormat")
 	conv.DefaultSpec = r.FormValue("defaultSpec")
+	conv.ThumbnailURIBase = r.FormValue("thumbnailURIBase")
+	conv.ThumbnailColumn = r.FormValue("thumbnailColumn")
 
 	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
 	if err != nil {

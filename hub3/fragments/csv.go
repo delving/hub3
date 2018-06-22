@@ -20,6 +20,8 @@ type CSVConvertor struct {
 	SubjectURIBase        string    `json:"subjectURIBase"`
 	ObjectURIFormat       string    `json:"objectURIFormat"`
 	ObjectResourceColumns []string  `json:"objectResourceColumns"`
+	ThumbnailURIBase      string    `json:"thumbnailURIBase"`
+	ThumbnailColumn       string    `json:"thumbnailColumn"`
 	DefaultSpec           string    `json:"defaultSpec"`
 	InputFile             io.Reader `json:"inputFile"`
 }
@@ -103,6 +105,7 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 	var header []string
 	var headerMap map[int]r.Term
 	var subjectColumnIdx int
+	var thumbnailColumnIdx int
 
 	triples := []*r.Triple{}
 
@@ -110,9 +113,21 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 		if idx == 0 {
 			header = row
 			headerMap = con.CreateHeader(header)
-			subjectColumnIdx, err = con.GetSubjectColumn(header)
+			subjectColumnIdx, err = con.GetSubjectColumn(
+				header,
+				con.SubjectColumn,
+			)
 			if err != nil {
 				return nil, err
+			}
+			if con.ThumbnailColumn != "" {
+				thumbnailColumnIdx, err = con.GetSubjectColumn(
+					header,
+					con.ThumbnailColumn,
+				)
+				if err != nil {
+					return nil, err
+				}
 			}
 			continue
 		}
@@ -123,6 +138,19 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 		for idx, column := range row {
 
 			if idx == subjectColumnIdx {
+				continue
+			}
+			if con.ThumbnailColumn != "" && idx == thumbnailColumnIdx {
+				thumbnail := r.NewTriple(
+					s,
+					r.NewResource(
+						fmt.Sprintf("%s/thumbnail", con.PredicateURIBase),
+					),
+					r.NewLiteral(
+						fmt.Sprintf("%s/%s", con.ThumbnailURIBase, column),
+					),
+				)
+				triples = append(triples, thumbnail)
 				continue
 			}
 			p := headerMap[idx]
@@ -159,7 +187,8 @@ func (con *CSVConvertor) CreateTriple(subject r.Term, predicate r.Term, column s
 
 // CreateSubjectResource creates the Subject  URI and type triple for the subject column
 func (con *CSVConvertor) CreateSubjectResource(subjectID string) (r.Term, *r.Triple) {
-	s := r.NewResource(fmt.Sprintf("%s/%s", strings.TrimSuffix(con.SubjectURIBase, "/"), subjectID))
+	cleanID := strings.Replace(subjectID, "-", "", 0)
+	s := r.NewResource(fmt.Sprintf("%s/%s", strings.TrimSuffix(con.SubjectURIBase, "/"), cleanID))
 	t := r.NewTriple(
 		s,
 		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
@@ -182,9 +211,9 @@ func (con *CSVConvertor) GetReader() ([][]string, error) {
 }
 
 // GetSubjectColumn returns the index of the subject column
-func (con *CSVConvertor) GetSubjectColumn(headers []string) (int, error) {
+func (con *CSVConvertor) GetSubjectColumn(headers []string, columnLabel string) (int, error) {
 	for idx, column := range headers {
-		if column == con.SubjectColumn {
+		if column == columnLabel {
 			return idx, nil
 		}
 	}

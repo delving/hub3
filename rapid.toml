@@ -166,6 +166,7 @@ label = [
 
 thumbnail = [
     "http://xmlns.com/foaf/0.1/depiction",
+    "http://nationaalarchief.nl/def/thumbnail",
     "http://schemas.delving.eu/nave/terms/thumbnail",
     "http://schemas.delving.eu/nave/terms/thumbSmall",
     "http://schemas.delving.eu/nave/terms/thumbLarge",
