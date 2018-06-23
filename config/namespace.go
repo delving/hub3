@@ -168,6 +168,7 @@ var defaultNameSpaces = map[string]string{
 	"icn":         "http://www.icn.nl/schemas/icn/",
 	"narthex":     "http://schemas.delving.eu/narthex/terms/",
 	"nave":        "http://schemas.delving.eu/nave/terms/",
+	"rapid":       "http://data.rapid.org/",
 	"ore":         "http://www.openarchives.org/ore/terms/",
 	"owl":         "http://www.w3.org/2002/07/owl#",
 	"raw":         "http://delving.eu/namespaces/raw/",
@@ -177,6 +178,7 @@ var defaultNameSpaces = map[string]string{
 	"skos":        "http://www.w3.org/2004/02/skos/core#",
 	"tib":         "http://schemas.delving.eu/resource/ns/tib/",
 	"wgs84_pos":   "http://www.w3.org/2003/01/geo/wgs84_pos#",
+	"naa":         "http://archief.nl/def/",
 }
 
 // setDefaultNameSpaces sets the default namespaces that are supported

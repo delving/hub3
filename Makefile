@@ -89,7 +89,7 @@ compose-clean:
 goreport:
 	@mkdir -p report
 	@rm -rf report/*
-	@goreporter -p ../rapid -r report -e vendor -f html
+	@goreporter -p ../rapid-saas -r report -e vendor,rapidctl,cmd,utils -f html
 
 setup-npm:
 	# used for getting dependencies to render swagger specifications

@@ -53,10 +53,7 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 		return newSr, err
 	}
 	err = proto.Unmarshal(decoded, newSr)
-	if err != nil {
-		return newSr, err
-	}
-	return newSr, nil
+	return newSr, err
 }
 
 // NewSearchRequest builds a search request object from URL Parameters
@@ -83,9 +80,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		//case "qf", "qf[]":
 		//sr.QueryFilter = append(sr.QueryFilter, v)
 		case "facet.field":
-			for _, field := range v {
-				sr.FacetField = append(sr.FacetField, field)
-			}
+			sr.FacetField = append(sr.FacetField, v...)
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":
@@ -174,10 +169,7 @@ func getInterface(bts []byte, data interface{}) error {
 	buf := bytes.NewBuffer(bts)
 	dec := gob.NewDecoder(buf)
 	err := dec.Decode(data)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // ElasticSearchService creates the elastic SearchService for execution

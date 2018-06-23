@@ -237,9 +237,7 @@ func (ph *PostHookJob) sortWebResources() (bytes.Buffer, error) {
 		}
 	}
 
-	for _, wrEntry := range sortMapArray(wr) {
-		entries = append(entries, wrEntry)
-	}
+	entries = append(entries, sortMapArray(wr)...)
 
 	// write bytes
 	bytes, err := json.Marshal(entries)
@@ -266,10 +264,7 @@ func (ph *PostHookJob) cleanPostHookGraph() {
 func (ph PostHookJob) Bytes() (bytes.Buffer, error) {
 	var b bytes.Buffer
 	err := ph.Graph.SerializeFlatJSONLD(&b)
-	if err != nil {
-		return b, err
-	}
-	return b, nil
+	return b, err
 }
 
 // Bytes returns the PostHookJob as an JSON-LD string

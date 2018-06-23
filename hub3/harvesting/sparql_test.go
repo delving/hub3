@@ -39,7 +39,7 @@ var _ = Describe("Sparql", func() {
 			})
 		})
 
-		Context("when receving a sparql response", func() {
+		Context("when receiving a sparql response", func() {
 
 			It("should store the request in a file", func() {
 			})

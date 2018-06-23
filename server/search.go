@@ -157,9 +157,9 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	// Add scrollID pager information to the header
 	w.Header().Add("P_SCROLL_ID", pager.GetScrollID())
-	w.Header().Add("P_CURSOR", strconv.FormatInt(int64(pager.GetCursor()), 10))
-	w.Header().Add("P_TOTAL", strconv.FormatInt(int64(pager.GetTotal()), 10))
-	w.Header().Add("P_ROWS", strconv.FormatInt(int64(pager.GetRows()), 10))
+	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.GetCursor())))
+	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.GetTotal())))
+	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
 
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager

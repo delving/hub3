@@ -205,10 +205,7 @@ func (ds DataSet) Save() error {
 func (ds DataSet) Delete(ctx context.Context, wp *w.WorkerPool) error {
 	if c.Config.ElasticSearch.Enabled || c.Config.RDF.RDFStoreEnabled {
 		_, err := ds.DropAll(ctx, wp)
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	}
 	return orm.DeleteStruct(&ds)
 }

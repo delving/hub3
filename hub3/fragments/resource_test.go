@@ -62,7 +62,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t))
+			err := (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(rm).To(HaveLen(1))
 			Expect(rm).To(HaveKey(t.GetSubjectID()))
@@ -79,9 +79,9 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t))
+			err := (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
-			err = (AppendTriple(rm, t))
+			err = (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
 			Expect(rm).To(HaveLen(1))
 		})
@@ -95,7 +95,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t))
+			err := (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
 
 			entry, ok := rm[r.GetResourceID(subject)]
@@ -112,10 +112,10 @@ var _ = Describe("Resource", func() {
 				NSRef("title"),
 				NSRef("myBook"),
 			)
-			err := (AppendTriple(rm, t))
+			err := (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
 
-			err = (AppendTriple(rm, t))
+			err = (AppendTriple(rm, t, false))
 			Expect(err).ToNot(HaveOccurred())
 
 			entry, ok := rm[r.GetResourceID(subject)]
@@ -133,7 +133,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			entry, id := CreateFragmentEntry(t)
+			entry, id := CreateFragmentEntry(t, false)
 			Expect(id).ToNot(BeEmpty())
 			Expect(id).To(Equal(r.GetResourceID(t.Object)))
 			Expect(entry.ID).To(Equal(id))
@@ -150,7 +150,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewBlankNode("book"),
 			)
-			entry, id := CreateFragmentEntry(t)
+			entry, id := CreateFragmentEntry(t, false)
 			Expect(id).ToNot(BeEmpty())
 			Expect(id).To(Equal(r.GetResourceID(t.Object)))
 			Expect(id).To(HavePrefix("_:"))
@@ -168,7 +168,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteral("book"),
 			)
-			entry, id := CreateFragmentEntry(t)
+			entry, id := CreateFragmentEntry(t, false)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
@@ -184,7 +184,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteralWithLanguage("book", "en"),
 			)
-			entry, id := CreateFragmentEntry(t)
+			entry, id := CreateFragmentEntry(t, false)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
@@ -200,7 +200,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteralWithDatatype("1", r.NewResource("http://www.w3.org/2001/XMLSchema#decimal")),
 			)
-			entry, id := CreateFragmentEntry(t)
+			entry, id := CreateFragmentEntry(t, false)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
