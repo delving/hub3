@@ -2,12 +2,35 @@ package mapping
 
 // ESMapping is the default mapping for the RDF records enabled by rapid
 var ESMapping = `{
-	"settings":{
-		"number_of_shards":3,
-		"number_of_replicas":2,
-		"index.mapping.total_fields.limit": 1000,
-		"index.mapping.depth.limit": 20,
-		"index.mapping.nested_fields.limit": 50
+	"settings": {
+		"index": {
+			"number_of_shards": 1,
+			"number_of_replicas":2,
+			"mapping.total_fields.limit": 1000,
+			"mapping.depth.limit": 20,
+			"mapping.nested_fields.limit": 50,
+			"analysis": {
+				"analyzer": {
+					"trigram": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": ["standard", "shingle"]
+					},
+					"reverse": {
+						"type": "custom",
+						"tokenizer": "standard",
+						"filter": ["standard", "reverse"]
+					}
+				},
+				"filter": {
+					"shingle": {
+						"type": "shingle",
+						"min_shingle_size": 2,
+						"max_shingle_size": 3
+					}
+				}
+			}
+		}
 	},
 	"mappings":{
 		"doc": {
@@ -59,7 +82,15 @@ var ESMapping = `{
 							"type": "nested",
 							"properties": {
 								"@id": {"type": "keyword"},
-								"@value": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+								"@value": {
+									"type": "text",
+									"fields": {
+										"keyword": {"type": "keyword", "ignore_above": 256},
+										"trigram": {"type": "text", "analyzer": "trigram"},
+										"reverse": {"type": "text", "analyzer": "reverse"},
+										"suggest": {"type": "completion"}
+									}
+								},
 								"@language": {"type": "keyword", "ignore_above": 256},
 								"@type": {"type": "keyword", "ignore_above": 256},
 								"entrytype": {"type": "keyword", "ignore_above": 256},

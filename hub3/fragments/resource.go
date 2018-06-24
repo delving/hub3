@@ -249,13 +249,6 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 	return "", ""
 }
 
-// GetSubject returns the root FragmentResource based on its subject URI
-// todo: remove this function later
-func (rm *ResourceMap) GetSubject(uri string) (*FragmentResource, bool) {
-	subject, ok := rm.GetResource(uri)
-	return subject, ok
-}
-
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 	subject, ok := rm.GetResource(subjectURI)
@@ -317,18 +310,19 @@ type FragmentEntry struct {
 
 // ResourceEntry contains all the indexed entries for FragmentResources
 type ResourceEntry struct {
-	ID          string   `json:"@id,omitempty"`
-	Value       string   `json:"@value,omitempty"`
-	Language    string   `json:"@language,omitempty"`
-	DataType    string   `json:"@type,omitempty"`
-	EntryType   string   `json:"entrytype,omitempty"`
-	Predicate   string   `json:"predicate,omitempty"`
-	SearchLabel string   `json:"searchLabel,omitempty"`
-	Level       int32    `json:"level"`
-	Tags        []string `json:"tags,omitempty"`
-	Date        string   `json:"date,omitempty"`
-	DateRange   string   `json:"dateRange,omitempty"`
-	LatLong     string   `json:"latLong,omitempty"`
+	ID          string            `json:"@id,omitempty"`
+	Value       string            `json:"@value,omitempty"`
+	Language    string            `json:"@language,omitempty"`
+	DataType    string            `json:"@type,omitempty"`
+	EntryType   string            `json:"entrytype,omitempty"`
+	Predicate   string            `json:"predicate,omitempty"`
+	SearchLabel string            `json:"searchLabel,omitempty"`
+	Level       int32             `json:"level"`
+	Tags        []string          `json:"tags,omitempty"`
+	Date        string            `json:"date,omitempty"`
+	DateRange   string            `json:"dateRange,omitempty"`
+	LatLong     string            `json:"latLong,omitempty"`
+	Inline      *FragmentResource `json:"inline,omitempty"`
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
@@ -342,12 +336,6 @@ func (re *ResourceEntry) AsLdObject() *r.LdObject {
 		o.Value = re.Value
 	}
 	return o
-}
-
-// InlineResourceEntry renders ResourceEntries inline
-type InlineResourceEntry struct {
-	ResourceEntry ResourceEntry     `json:"resourceEntry"`
-	Inline        *FragmentResource `json:"inline"`
 }
 
 // NewResourceMap creates a map for all the resources in the rdf2go.Graph
@@ -578,6 +566,38 @@ func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
 		fg.JSONLD = append(fg.JSONLD, rsc.GenerateJSONLD())
 	}
 	return fg.JSONLD
+}
+
+// NewGrouped returns an inlined version of the FragmentResources in the FragmentGraph
+func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
+	rm := &ResourceMap{make(map[string]*FragmentResource)}
+
+	// create the resource map
+	for _, fr := range fg.Resources {
+		rm.resources[fr.ID] = fr
+	}
+
+	// set the inlines
+	for _, fr := range fg.Resources {
+		for _, entry := range fr.Entries {
+			if entry.ID != "" && fr.ID != entry.ID {
+				target, ok := rm.GetResource(entry.ID)
+				if ok {
+					entry.Inline = target
+				}
+			}
+		}
+	}
+
+	// only return the subject
+	subject, ok := rm.GetResource(fg.GetAboutURI())
+
+	if !ok {
+		return nil, fmt.Errorf("unable to find root of the graph for %s", fg.GetAboutURI())
+	}
+
+	fg.Resources = []*FragmentResource{subject}
+	return subject, nil
 }
 
 // AddEntry adds Summary fields based on the ResourceEntry tags

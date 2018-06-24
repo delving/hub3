@@ -122,6 +122,9 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// suggestion
+	//s.Suggester(elastic.NewSuggestField)
+
 	res, err := s.Do(ctx)
 	if err != nil {
 		log.Println("Unable to get search result.")
@@ -170,7 +173,6 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		for _, rec := range records {
 
 			for _, json := range rec.NewJSONLD() {
-				log.Println(json)
 				entries = append(entries, json)
 			}
 			rec.Resources = nil
@@ -226,6 +228,18 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 			rec.NewJSONLD()
 			rec.Resources = nil
 		}
+	case fragments.ItemFormatType_GROUPED:
+		for _, rec := range records {
+			_, err = rec.NewGrouped()
+
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				log.Printf("Unable to render grouped resources: %s\n", err.Error())
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+
 	}
 	result.Items = records
 
@@ -279,7 +293,36 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
 		return
 	}
+
+	switch r.URL.Query().Get("itemFormat") {
+	case "jsonld":
+		record.NewJSONLD()
+		record.Resources = nil
+	case "summary":
+		record.NewResultSummary()
+		record.Resources = nil
+	case "grouped":
+		_, err := record.NewGrouped()
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			log.Printf("Unable to render grouped resources: %s\n", err.Error())
+			render.PlainText(w, r, err.Error())
+			return
+		}
+
+	}
+
 	switch r.URL.Query().Get("format") {
+	case "jsonld":
+		entries := []map[string]interface{}{}
+		for _, json := range record.NewJSONLD() {
+			entries = append(entries, json)
+		}
+		record.Resources = nil
+		render.JSON(w, r, entries)
+		w.Header().Set("Content-Type", "application/json-ld; charset=utf-8")
+		return
+
 	// TODO enable protobuf later again
 	//case "protobuf":
 	//output, err := proto.Marshal(record)

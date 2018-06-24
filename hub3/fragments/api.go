@@ -132,6 +132,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("<em>").PostTags("</em>")
 		innerValue := elastic.NewInnerHit().Name("inner").Path("resource.entries").Highlight(hl)
 		nq = nq.InnerHit(innerValue)
+
 		query = query.Must(nq)
 
 	}
