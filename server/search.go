@@ -302,6 +302,14 @@ func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error)
 	return r, nil
 }
 
+func decodeResourceEntry(hit *json.RawMessage) (*fragments.ResourceEntry, error) {
+	re := new(fragments.ResourceEntry)
+	if err := json.Unmarshal(*hit, re); err != nil {
+		return nil, err
+	}
+	return re, nil
+}
+
 // decodeFragmentGraphs takes a search result and deserializes the records
 func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, []interface{}, error) {
 	if res == nil || res.TotalHits() == 0 {
@@ -313,6 +321,33 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 	for _, hit := range res.Hits.Hits {
 		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
+		// add highlighting
+		if err != nil {
+			return nil, nil, err
+		}
+
+		hl, ok := hit.InnerHits["inner"]
+		if ok {
+			for _, hlHit := range hl.Hits.Hits {
+				re, err := decodeResourceEntry(hlHit.Source)
+				if err != nil {
+					return nil, nil, err
+				}
+				hlEntry, ok := hlHit.Highlight["resources.entries.@value"]
+				if ok {
+					// add highlighting
+					r.Highlights = append(
+						r.Highlights,
+						&fragments.ResourceEntryHighlight{
+							SearchLabel: re.SearchLabel,
+							Value:       hlEntry[0],
+						},
+					)
+
+				}
+			}
+		}
+		// add highlighting
 		if err != nil {
 			return nil, nil, err
 		}

@@ -76,10 +76,17 @@ type ResourceMap struct {
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
-	Meta      *Header                  `json:"meta"`
-	Resources []*FragmentResource      `json:"resources,omitempty"`
-	Summary   *ResultSummary           `json:"summary,omitempty"`
-	JSONLD    []map[string]interface{} `json:"jsonld,omitempty"`
+	Meta       *Header                   `json:"meta"`
+	Resources  []*FragmentResource       `json:"resources,omitempty"`
+	Summary    *ResultSummary            `json:"summary,omitempty"`
+	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
+	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
+}
+
+// ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
+type ResourceEntryHighlight struct {
+	SearchLabel string `json:"searchLabel"`
+	Value       string `json:"value"`
 }
 
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry

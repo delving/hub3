@@ -127,6 +127,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		qs := elastic.NewQueryStringQuery(rawQuery)
 		qs = qs.DefaultField("resources.entries.@value")
 		nq := elastic.NewNestedQuery("resources.entries", qs)
+
+		// inner hits
+		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("<em>").PostTags("</em>")
+		innerValue := elastic.NewInnerHit().Name("inner").Path("resource.entries").Highlight(hl)
+		nq = nq.InnerHit(innerValue)
 		query = query.Must(nq)
 
 	}
