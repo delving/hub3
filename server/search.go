@@ -277,20 +277,28 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println("Unable to get search result.")
 		log.Println(err)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, []string{})
 		return
 	}
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
+		render.Status(r, http.StatusInternalServerError)
+		render.JSON(w, r, []string{})
 		return
 	}
 	if !res.Found {
 		log.Printf("%s was not found", id)
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, []string{})
 		return
 	}
 
 	record, err := decodeFragmentGraph(res.Source)
 	if err != nil {
 		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
+		render.JSON(w, r, []string{})
+		render.Status(r, 404)
 		return
 	}
 
