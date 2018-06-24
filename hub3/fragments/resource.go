@@ -53,11 +53,13 @@ func init() {
 
 // NewContext returns the context for the current fragmentresource
 func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentReferrerContext {
-	label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
+	searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
 	if err != nil {
 		log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
-		label = ""
+		searchLabel = ""
 	}
+
+	label, _ := fr.GetLabel()
 
 	return &FragmentReferrerContext{
 		Subject:      fr.ID,
@@ -65,7 +67,8 @@ func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentRefe
 		Predicate:    predicate,
 		Level:        fr.GetLevel(),
 		ObjectID:     objectID,
-		SearchLabel:  label,
+		SearchLabel:  searchLabel,
+		Label:        label,
 	}
 }
 
