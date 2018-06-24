@@ -76,9 +76,29 @@ type ResourceMap struct {
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
-	Meta      *Header             `json:"meta"`
-	Resources []*FragmentResource `json:"resources,omitempty"`
-	Summary   *ResultSummary      `json:"summary,omitempty"`
+	Meta      *Header                  `json:"meta"`
+	Resources []*FragmentResource      `json:"resources,omitempty"`
+	Summary   *ResultSummary           `json:"summary,omitempty"`
+	JSONLD    []map[string]interface{} `json:"jsonld,omitempty"`
+}
+
+// GenerateJSONLD converts a FragmenResource into a JSON-LD entry
+func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
+	m := map[string]interface{}{}
+	m["@id"] = fr.ID
+	if len(fr.Types) > 0 {
+		m["@type"] = fr.Types
+	}
+	entries := map[string][]*ResourceEntry{}
+	for _, p := range fr.Entries {
+		entries[p.Predicate] = append(entries[p.Predicate], p)
+	}
+	for k, v := range entries {
+		for _, p := range v {
+			m[k] = p.AsLdObject()
+		}
+	}
+	return m
 }
 
 // ScrollResultV4 intermediate non-protobuf search results
@@ -144,6 +164,16 @@ func (fr *FragmentResource) SetEntries(rm *ResourceMap) error {
 		}
 	}
 	return nil
+}
+
+// AsLdObject generates an rdf2go.LdObject for JSON-LD generation
+func (fe *FragmentEntry) AsLdObject() *r.LdObject {
+	return &r.LdObject{
+		ID:       fe.ID,
+		Value:    fe.Value,
+		Language: fe.Language,
+		Datatype: fe.DataType,
+	}
 }
 
 // NewResourceEntry creates a resource entry for indexing
@@ -292,6 +322,16 @@ type ResourceEntry struct {
 	Date        string   `json:"date,omitempty"`
 	DateRange   string   `json:"dateRange,omitempty"`
 	LatLong     string   `json:"latLong,omitempty"`
+}
+
+// AsLdObject generates an rdf2go.LdObject for JSON-LD generation
+func (re *ResourceEntry) AsLdObject() *r.LdObject {
+	return &r.LdObject{
+		ID:       re.ID,
+		Value:    re.Value,
+		Language: re.Language,
+		Datatype: re.DataType,
+	}
 }
 
 // InlineResourceEntry renders ResourceEntries inline
@@ -519,6 +559,15 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 
 	}
 	return fg.Summary
+}
+
+// NewJSONLD creates a JSON-LD version of the FragmentGraph
+func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
+	fg.JSONLD = []map[string]interface{}{}
+	for _, rsc := range fg.Resources {
+		fg.JSONLD = append(fg.JSONLD, rsc.GenerateJSONLD())
+	}
+	return fg.JSONLD
 }
 
 // AddEntry adds Summary fields based on the ResourceEntry tags

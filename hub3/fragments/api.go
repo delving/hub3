@@ -100,6 +100,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_FRAGMENTGRAPH
 			case "grouped":
 				sr.ItemFormat = ItemFormatType_GROUPED
+			case "jsonld":
+				sr.ItemFormat = ItemFormatType_JSONLD
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}

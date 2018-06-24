@@ -171,6 +171,11 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 			rec.NewResultSummary()
 			rec.Resources = nil
 		}
+	case fragments.ItemFormatType_JSONLD:
+		for _, rec := range records {
+			rec.NewJSONLD()
+			rec.Resources = nil
+		}
 	}
 	result.Items = records
 
