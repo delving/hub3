@@ -531,35 +531,41 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
-	// enqueue posthooks first
-	if ds.validForPostHook() {
-		err := CreateDeletePostHooks(ctx, q, wp)
-		if err != nil {
-			logger.Errorf("unable to create delete posthooks: %#v", err)
-			return 0, err
+
+	go func() {
+		// block for 2 seconds to allow cluster to be in sync
+		timer := time.NewTimer(time.Second * 15)
+		<-timer.C
+		log.Print("Orphan wait timer expired")
+
+		// enqueue posthooks first
+		if ds.validForPostHook() {
+			err := CreateDeletePostHooks(ctx, q, wp)
+			if err != nil {
+				logger.Errorf("unable to create delete posthooks: %#v", err)
+				//return 0, err
+			}
 		}
-	}
 
-	// block for 2 seconds to allow cluster to be in sync
-	timer := time.NewTimer(time.Second * 2)
-	<-timer.C
-	log.Print("Timer expired")
+		res, err := index.ESClient().DeleteByQuery().
+			Index(c.Config.ElasticSearch.IndexName).
+			Query(q).
+			Conflicts("proceed"). // default is abort
+			Do(ctx)
+		if err != nil {
+			logger.WithField("spec", ds.Spec).Errorf("Unable to delete orphaned dataset records from index: %s.", err)
+			return
+			//return err
+		}
+		if res == nil {
+			logger.Errorf("expected response != nil; got: %v", res)
+			//return fmt.Errorf("expected response != nil")
+			return
+		}
+		logger.Infof("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
 
-	res, err := index.ESClient().DeleteByQuery().
-		Index(c.Config.ElasticSearch.IndexName).
-		Query(q).
-		Conflicts("proceed"). // default is abort
-		Do(ctx)
-	if err != nil {
-		logger.WithField("spec", ds.Spec).Errorf("Unable to delete orphaned dataset records from index: %s.", err)
-		return 0, err
-	}
-	if res == nil {
-		logger.Errorf("expected response != nil; got: %v", res)
-		return 0, fmt.Errorf("expected response != nil")
-	}
-	logger.Infof("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
-	return int(res.Deleted), err
+	}()
+	return 0, nil
 }
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
