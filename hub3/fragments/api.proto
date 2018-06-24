@@ -19,6 +19,10 @@ enum ResponseFormatType {
   GEOJSON = 6;
   // not supported
   GEOBUF = 7;
+  // supported
+  LDJSON = 8;
+  // supported
+  BULKACTION = 9;
 }
 
 enum ItemFormatType {

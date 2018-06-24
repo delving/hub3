@@ -326,12 +326,15 @@ type ResourceEntry struct {
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
 func (re *ResourceEntry) AsLdObject() *r.LdObject {
-	return &r.LdObject{
+	o := &r.LdObject{
 		ID:       re.ID,
-		Value:    re.Value,
 		Language: re.Language,
 		Datatype: re.DataType,
 	}
+	if re.ID == "" {
+		o.Value = re.Value
+	}
+	return o
 }
 
 // InlineResourceEntry renders ResourceEntries inline

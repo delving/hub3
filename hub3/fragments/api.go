@@ -85,6 +85,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			switch params.Get(p) {
 			case "protobuf":
 				sr.ResponseFormatType = ResponseFormatType_PROTOBUF
+			case "jsonld":
+				sr.ResponseFormatType = ResponseFormatType_LDJSON
+			case "bulkaction":
+				sr.ResponseFormatType = ResponseFormatType_BULKACTION
 			}
 		case "rows":
 			size, err := strconv.Atoi(params.Get(p))

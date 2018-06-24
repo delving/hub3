@@ -23,8 +23,10 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strconv"
+	"strings"
 
 	"github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3"
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
@@ -160,6 +162,54 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.GetCursor())))
 	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.GetTotal())))
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
+
+	// meta formats that don't use search result
+	switch searchRequest.GetResponseFormatType() {
+	case fragments.ResponseFormatType_LDJSON:
+		entries := []map[string]interface{}{}
+		for _, rec := range records {
+
+			for _, json := range rec.NewJSONLD() {
+				log.Println(json)
+				entries = append(entries, json)
+			}
+			rec.Resources = nil
+		}
+		render.JSON(w, r, entries)
+		w.Header().Set("Content-Type", "application/json-ld; charset=utf-8")
+		return
+	case fragments.ResponseFormatType_BULKACTION:
+		actions := []string{}
+		for _, rec := range records {
+			rec.NewJSONLD()
+			graph, err := json.Marshal(rec.JSONLD)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				log.Printf("Unable to marshal json-ld to string : %s\n", err.Error())
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			action := &hub3.BulkAction{
+				HubID:         rec.Meta.HubID,
+				Spec:          rec.Meta.Spec,
+				NamedGraphURI: rec.Meta.NamedGraphURI,
+				Action:        "index",
+				Graph:         string(graph),
+				RecordType:    "mdr",
+			}
+			bytes, err := json.Marshal(action)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				log.Printf("Unable to create Bulkactions: %s\n", err.Error())
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			actions = append(actions, string(bytes))
+		}
+		render.PlainText(w, r, strings.Join(actions, "\n"))
+		//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		return
+	}
 
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
