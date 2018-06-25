@@ -166,11 +166,17 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	}
 
 	// Narthex endpoint
+	r.Post("/api/rdf/bulk", bulkAPI)
+	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
 
 	// CSV upload endpoint
 	r.Post("/api/rdf/csv", csvUpload)
 	r.Delete("/api/rdf/csv", csvDelete)
+
+	// SKOS sync endpoint
+	r.Get("/api/rdf/skos", skosSync)
+	r.Post("/api/rdf/skos", skosUpload)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())

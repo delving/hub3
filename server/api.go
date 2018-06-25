@@ -17,6 +17,7 @@ package server
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -31,6 +32,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
+	"github.com/kiivihal/rdf2go"
 	//elastic "github.com/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 
@@ -80,6 +82,83 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 		}
 	}
 	return &httputil.ReverseProxy{Director: director}
+}
+
+func skosUpload(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("skos")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	//io.Copy(w, in)
+	var buff bytes.Buffer
+	fileSize, err := buff.ReadFrom(in)
+	//fmt.Println(fileSize) // this will return you a file size.
+	//if err != nil {
+	//render.PlainText(w, r, err.Error())
+	//return
+	//}
+	render.PlainText(w, r, fmt.Sprintf("The file is %d bytes long", fileSize))
+
+	jsonld := []map[string]interface{}{}
+	err = json.Unmarshal(buff.Bytes(), &jsonld)
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	log.Printf("found %#v resources", jsonld[0])
+	log.Printf("found %d resources", len(jsonld))
+
+	defer in.Close()
+	//g := rdf2go.NewGraph("")
+	//err = g.Parse(in, "application/ld+json")
+	//if err != nil {
+	//render.PlainText(w, r, err.Error())
+	//return
+	//}
+
+	//render.PlainText(w, r, fmt.Sprintf("processed triples: %d", g.Len()))
+	return
+}
+
+func skosSync(w http.ResponseWriter, r *http.Request) {
+	targetURL := r.URL.Query().Get("uri")
+	spec := r.URL.Query().Get("spec")
+
+	ds, created, err := models.GetOrCreateDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", spec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	if created {
+		err = fragments.SaveDataSet(spec, bp)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", spec)
+			if err != nil {
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	g := rdf2go.NewGraph("")
+	err = g.LoadURI(targetURL)
+	if err != nil {
+		log.Printf("Unable to get skos for %s\n", targetURL)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	render.PlainText(w, r, fmt.Sprintf("processed triples: %d", g.Len()))
+	return
 }
 
 func csvDelete(w http.ResponseWriter, r *http.Request) {
