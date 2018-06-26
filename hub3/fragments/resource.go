@@ -111,11 +111,20 @@ func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
 	return m
 }
 
+// Collapsed holds each entry of a FieldCollapse elasticsearch result
+type Collapsed struct {
+	Field    string           `json:"field"`
+	Title    string           `json:"title"`
+	HitCount int64            `json:"hitCount"`
+	Items    []*FragmentGraph `json:"items"`
+}
+
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager  *ScrollPager     `json:"pager"`
-	Items  []*FragmentGraph `json:"items,omitempty"`
-	Facets []*QueryFacet    `json:"facets,omitempty"`
+	Pager     *ScrollPager     `json:"pager"`
+	Items     []*FragmentGraph `json:"items,omitempty"`
+	Collapsed []*Collapsed     `json:"collapse,omitempty"`
+	Facets    []*QueryFacet    `json:"facets,omitempty"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation

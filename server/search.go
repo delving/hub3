@@ -141,6 +141,19 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if searchRequest.CollapseOn != "" {
+		records, err := decodeCollapsed(res, searchRequest)
+		if err != nil {
+			log.Printf("Unable to render collapse")
+			return
+		}
+		result := &fragments.ScrollResultV4{}
+		result.Collapsed = records
+		render.JSON(w, r, result)
+		return
+
+	}
+
 	records, searchAfter, err := decodeFragmentGraphs(res)
 	searchAfterBin, err := getBytes(searchAfter)
 	if err != nil {
@@ -361,6 +374,67 @@ func decodeResourceEntry(hit *json.RawMessage) (*fragments.ResourceEntry, error)
 	return re, nil
 }
 
+func decodeCollapsed(res *elastic.SearchResult, sr *fragments.SearchRequest) ([]*fragments.Collapsed, error) {
+	if res == nil || res.TotalHits() == 0 {
+		return nil, nil
+	}
+
+	var collapsed []*fragments.Collapsed
+
+	for _, hit := range res.Hits.Hits {
+		coll := &fragments.Collapsed{}
+		fields, ok := hit.Fields[sr.CollapseOn]
+		if ok {
+			coll.Field = fields.([]interface{})[0].(string)
+		}
+
+		collapseInner := hit.InnerHits["collapse"]
+		coll.HitCount = collapseInner.Hits.TotalHits
+		for _, inner := range collapseInner.Hits.Hits {
+			r, err := decodeFragmentGraph(inner.Source)
+
+			if err != nil {
+				return nil, err
+			}
+			err = decodeHighlights(r, inner)
+			if err != nil {
+				return nil, err
+			}
+			coll.Items = append(coll.Items, r)
+		}
+
+		collapsed = append(collapsed, coll)
+	}
+
+	return collapsed, nil
+}
+
+func decodeHighlights(r *fragments.FragmentGraph, hit *elastic.SearchHit) error {
+
+	hl, ok := hit.InnerHits["highlight"]
+	if ok {
+		for _, hlHit := range hl.Hits.Hits {
+			re, err := decodeResourceEntry(hlHit.Source)
+			if err != nil {
+				return err
+			}
+			hlEntry, ok := hlHit.Highlight["resources.entries.@value"]
+			if ok {
+				// add highlighting
+				r.Highlights = append(
+					r.Highlights,
+					&fragments.ResourceEntryHighlight{
+						SearchLabel: re.SearchLabel,
+						Value:       hlEntry[0],
+					},
+				)
+
+			}
+		}
+	}
+	return nil
+}
+
 // decodeFragmentGraphs takes a search result and deserializes the records
 func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph, []interface{}, error) {
 	if res == nil || res.TotalHits() == 0 {
@@ -372,33 +446,12 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 	for _, hit := range res.Hits.Hits {
 		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
-		// add highlighting
+
 		if err != nil {
 			return nil, nil, err
 		}
 
-		hl, ok := hit.InnerHits["inner"]
-		if ok {
-			for _, hlHit := range hl.Hits.Hits {
-				re, err := decodeResourceEntry(hlHit.Source)
-				if err != nil {
-					return nil, nil, err
-				}
-				hlEntry, ok := hlHit.Highlight["resources.entries.@value"]
-				if ok {
-					// add highlighting
-					r.Highlights = append(
-						r.Highlights,
-						&fragments.ResourceEntryHighlight{
-							SearchLabel: re.SearchLabel,
-							Value:       hlEntry[0],
-						},
-					)
-
-				}
-			}
-		}
-		// add highlighting
+		err = decodeHighlights(r, hit)
 		if err != nil {
 			return nil, nil, err
 		}

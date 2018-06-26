@@ -91,6 +91,9 @@ message SearchRequest {
   bytes searchAfter = 23;
   ItemFormatType itemFormat = 24;
   bool Paging = 25;
+  string collapseOn = 26;
+  int32 collapseSize = 27;
+  string collapseSort = 28;
 }
 
 enum GeoType {

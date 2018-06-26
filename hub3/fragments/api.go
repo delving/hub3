@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/hex"
+	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -109,6 +110,17 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
+		case "collapseOn":
+			sr.CollapseOn = params.Get(p)
+		case "collapseSort":
+			sr.CollapseSort = params.Get(p)
+		case "collapseSize":
+			size, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int for %s", v, p)
+				return sr, err
+			}
+			sr.CollapseSize = int32(size)
 		}
 
 	}
@@ -130,7 +142,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 		// inner hits
 		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("<em>").PostTags("</em>")
-		innerValue := elastic.NewInnerHit().Name("inner").Path("resource.entries").Highlight(hl)
+		innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
 		nq = nq.InnerHit(innerValue)
 
 		query = query.Must(nq)
@@ -193,13 +205,14 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 		Size(int(sr.GetResponseSize())).
 		SortBy(scoreSort, idSort)
 
-	if len(sr.SearchAfter) != 0 {
+	if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
 		var sa []interface{}
 		err := getInterface(sr.SearchAfter, &sa)
 		if err != nil {
 			log.Printf("Unable to decode interface: %s", err)
 			return s, err
 		}
+
 		s = s.SearchAfter(sa...)
 
 	}
@@ -211,6 +224,19 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 	}
 
 	s = s.Query(query)
+
+	if sr.CollapseOn != "" {
+		b := elastic.NewCollapseBuilder(sr.CollapseOn).
+			InnerHit(elastic.NewInnerHit().Name("collapse").Size(5)).
+			MaxConcurrentGroupRequests(4)
+		s = s.Collapse(b)
+		s = s.FetchSource(false)
+		src, _ := b.Source()
+		data, _ := json.Marshal(src)
+		log.Printf("collapse query %s", data)
+
+		//elastic.InnerHit
+	}
 
 	// Add aggregations
 	if sr.Paging {
