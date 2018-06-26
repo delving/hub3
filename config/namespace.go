@@ -16,8 +16,11 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"strings"
 	"sync"
+
+	"github.com/OneOfOne/xxhash"
 )
 
 // NameSpace is a container for Namespaces base URLs and prefixes
@@ -145,7 +148,11 @@ func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
 	base, label := SplitURI(uri)
 	prefix, ok := n.GetPrefix(base)
 	if !ok {
-		return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
+		hash := xxhash.Checksum64([]byte(base))
+		prefix = fmt.Sprintf("%016x", hash)
+		n.Add(prefix, base)
+		log.Printf("Added default prefix %s for %s", prefix, base)
+		//return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
 	}
 	return fmt.Sprintf("%s_%s", prefix, label), nil
 }
