@@ -111,7 +111,12 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// static fileserver
 	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
 
-	// dashboard
+	// stats dashboard
+	r.Get("/api/stats/bySearchLabel", searchLabelStats)
+	//r.Get("/api/stats/bySearchLabel/{:label}", searchLabelStatsValues)
+	r.Get("/api/stats/byPredicate", predicateStats)
+	//r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
+
 	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/scroll-api.html")
 		return
