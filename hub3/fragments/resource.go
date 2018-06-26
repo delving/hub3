@@ -124,6 +124,7 @@ type ScrollResultV4 struct {
 	Pager     *ScrollPager     `json:"pager"`
 	Items     []*FragmentGraph `json:"items,omitempty"`
 	Collapsed []*Collapsed     `json:"collapse,omitempty"`
+	Peek      map[string]int64 `json:"peek,omitempty"`
 	Facets    []*QueryFacet    `json:"facets,omitempty"`
 }
 
@@ -823,5 +824,3 @@ func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
 }
 
 // AddGraphExternalContext
-
-// InlineFragmentResources

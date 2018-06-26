@@ -141,6 +141,26 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if searchRequest.Peek != "" {
+		aggs, err := searchRequest.DecodeFacets(res)
+		if err != nil {
+			log.Printf("Unable to decode facets: %#v", err)
+			return
+		}
+		peek := make(map[string]int64)
+		for _, facet := range aggs {
+			for _, link := range facet.Links {
+				peek[link.Value] = link.Count
+			}
+		}
+
+		result := &fragments.ScrollResultV4{}
+		result.Peek = peek
+		render.JSON(w, r, result)
+		return
+
+	}
+
 	if searchRequest.CollapseOn != "" {
 		records, err := decodeCollapsed(res, searchRequest)
 		if err != nil {

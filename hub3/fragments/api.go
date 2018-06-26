@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/hex"
-	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -121,6 +120,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			sr.CollapseSize = int32(size)
+		case "peek":
+			sr.Peek = params.Get(p)
 		}
 
 	}
@@ -231,11 +232,17 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 			MaxConcurrentGroupRequests(4)
 		s = s.Collapse(b)
 		s = s.FetchSource(false)
-		src, _ := b.Source()
-		data, _ := json.Marshal(src)
-		log.Printf("collapse query %s", data)
+	}
 
-		//elastic.InnerHit
+	if sr.Peek != "" {
+
+		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", sr.Peek, false, 100)
+		if err != nil {
+			return nil, err
+		}
+		s = s.Size(0)
+		s = s.Aggregation(sr.Peek, agg)
+		return s.Query(query), err
 	}
 
 	// Add aggregations
