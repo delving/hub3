@@ -116,7 +116,7 @@ proxyPrefix = "imageproxy"
 
 [cache]
 # Enable HTTP cache
-enabled = true
+enabled = false
 # Lifetime of objects in the cache in minutes
 lifeWindowMinutes = 10
 # APIPrefix to be used for caching. 
