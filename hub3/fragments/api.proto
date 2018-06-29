@@ -56,6 +56,7 @@ message QueryFilter {
   string SearchLabel = 3;
   string Value = 4;
   bool Exclude = 5;
+  string Path = 6;
 }
 
 message SearchRequest {
@@ -67,8 +68,8 @@ message SearchRequest {
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
-  map<string, QueryFilter> QueryFilter = 6;
-  map<string, QueryFilter> HiddenQueryFilter = 7;
+  repeated QueryFilter QueryFilter = 6;
+  repeated QueryFilter HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
   repeated string FacetField  = 10;

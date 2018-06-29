@@ -77,8 +77,11 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
-		//case "qf", "qf[]":
-		//sr.QueryFilter = append(sr.QueryFilter, v)
+		case "qf", "qf[]":
+			err := sr.AddQueryFilter(params.Get(p))
+			if err != nil {
+				return sr, err
+			}
 		case "facet.field":
 			sr.FacetField = append(sr.FacetField, v...)
 		case "format":
@@ -344,16 +347,23 @@ func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 
 // NewQueryFilter parses the filter string and creates a QueryFilter object
 func NewQueryFilter(filter string) (*QueryFilter, error) {
+
 	// split once on the first :
 	// split on first part and ]. This should give one or two
 	// determine the levels of nesting for the filter
 	// assign to values of the QueryFilter struct
+	parts := strings.SplitN(filter, ":", 2)
+	qf := &QueryFilter{
+		Value: parts[1],
+		Path:  parts[0],
+	}
 
-	return &QueryFilter{}, nil
+	return qf, nil
 }
 
 // ElasticFilter creates an elasticsearch filter from the QueryFilter
 func (qf *QueryFilter) ElasticFilter() elastic.Query {
+	// todo add filter
 	return nil
 }
 
@@ -361,6 +371,11 @@ func (qf *QueryFilter) ElasticFilter() elastic.Query {
 // The raw query from the QueryString are added here. This function converts
 // this string to a QueryFilter.
 func (sr *SearchRequest) AddQueryFilter(filter string) error {
+	qf, err := NewQueryFilter(filter)
+	if err != nil {
+		return err
+	}
+	sr.QueryFilter = append(sr.QueryFilter, qf)
 	return nil
 }
 
