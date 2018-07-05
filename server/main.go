@@ -172,6 +172,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// Narthex endpoint
 	r.Post("/api/rdf/bulk", bulkAPI)
+	r.Get("/api/bulk/sync", bulkSyncList)
+	r.Post("/api/bulk/sync", bulkSyncStart)
+	r.Get("/api/bulk/sync/{:id}", bulkSyncProgress)
+	r.Delete("/api/bulk/sync/{:id}", bulkSyncCancel)
 	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
 

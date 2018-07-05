@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
@@ -150,6 +151,28 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func skosUpload(w http.ResponseWriter, r *http.Request) {
+
+	// create byte.buffer from the input file
+	// get dataset param
+	// get dataset object
+	// get subjectClass
+	// create map subject map[string]bool
+	// matcher string for rdf:Type
+	// create resourceMap
+	// use n-triple / turtle parse to build line by line, see rdf2go libraries for Graph
+	// addTriple per line
+	// gather subject per type
+	// check subject map
+	// next
+
+	// alternative approach
+	// store all fragments
+	// get scanner for spec and rdfType to get subjects back
+	// make nested call for elasticsearch: get all objects, do mget on fragments,
+	// parse into resource map
+	// do next level mget on resource objects
+	// parse into resource map
+	// add to elastic bulk processor
 	in, _, err := r.FormFile("skos")
 	if err != nil {
 		render.PlainText(w, r, err.Error())
@@ -297,8 +320,10 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seen, err := conv.IndexFragments(bp, ds.Revision)
-	log.Printf("Processed %d csv rows\n", seen)
+	triplesCreated, rowsSeen, err := conv.IndexFragments(bp, ds.Revision)
+	conv.RowsProcessed = rowsSeen
+	conv.TriplesCreated = triplesCreated
+	log.Printf("Processed %d csv rows\n", rowsSeen)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
@@ -314,6 +339,28 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	//render.PlainText(w, r, "ok")
 	render.JSON(w, r, conv)
 	return
+}
+
+func bulkSyncStart(w http.ResponseWriter, r *http.Request) {
+
+	//host := r.URL.Query().Get("host")
+	//index := r.URL.Query().Get("index")
+
+}
+
+func bulkSyncList(w http.ResponseWriter, r *http.Request) {
+
+	//host := r.URL.Query().Get("host")
+	//index := r.URL.Query().Get("index")
+
+}
+
+func bulkSyncProgress(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func bulkSyncCancel(w http.ResponseWriter, r *http.Request) {
+
 }
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
@@ -388,7 +435,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 
 	fr := fragments.NewFragmentRequest()
 	fr.LodKey = lodKey
-	frags, err := fr.Find(ctx, index.ESClient())
+	frags, _, err := fr.Find(ctx, index.ESClient())
 	if err != nil || len(frags) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		if err != nil {
@@ -428,7 +475,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	frags, err := fr.Find(ctx, index.ESClient())
+	frags, totalFrags, err := fr.Find(ctx, index.ESClient())
 	if err != nil || len(frags) == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
@@ -441,6 +488,34 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	switch fr.Echo {
 	case "raw":
 		render.JSON(w, r, frags)
+		return
+	case "es":
+		src, err := fr.BuildQuery().Source()
+		if err != nil {
+			msg := "Unable to get the query source"
+			log.Printf(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+		render.JSON(w, r, src)
+		return
+	case "searchResponse":
+		res, err := fr.Do(ctx, index.ESClient())
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+		render.JSON(w, r, res)
 		return
 	case "request":
 		dump, err := httputil.DumpRequest(r, true)
@@ -464,6 +539,8 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
+	w.Header().Add("FRAG_COUNT", strconv.Itoa(int(totalFrags)))
+
 	w.Write(buffer.Bytes())
 	//err = frags.Serialize(w, "text/turtle")
 	if err != nil {

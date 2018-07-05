@@ -380,7 +380,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	req := NewFragmentRequest()
 	req.Subject = objectIDs
 	req.ExcludeHubID = excludeHubID
-	frags, err := req.Find(ctx, index.ESClient())
+	frags, _, err := req.Find(ctx, index.ESClient())
 	if err != nil {
 		log.Printf("unable to find fragments: %s", err.Error())
 		return err

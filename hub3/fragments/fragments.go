@@ -16,7 +16,6 @@ package fragments
 
 import (
 	"context"
-	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -137,10 +136,7 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
 }
 
-// Find returns a list of matching LodFragments
-func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, error) {
-	fragments := []*Fragment{}
-
+func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
 	buildQueryClause(q, "predicate", fr.GetPredicate())
@@ -165,41 +161,39 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 	if len(fr.GetSpec()) != 0 {
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))
 	}
-	if c.Config.DevMode {
-		src, err := q.Source()
-		if err != nil {
-			log.Fatal("Unable get query source")
-			return fragments, err
-			//return &r.Graph{}, err
-		}
-		data, err := json.Marshal(src)
-		if err != nil {
-			log.Fatal("Unable get query source")
-			return fragments, err
-			//return &r.Graph{}, err
-		}
-		log.Printf("fragment query: %s", string(data))
-	}
-	res, err := client.Search().
+	return q
+}
+
+func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
+	q := fr.BuildQuery()
+	return client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).
 		Size(SIZE).
 		From(fr.GetESPage()).
 		Do(ctx)
+}
+
+// Find returns a list of matching LodFragments
+func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, int64, error) {
+	fragments := []*Fragment{}
+
+	res, err := fr.Do(ctx, client)
+
 	if err != nil {
-		return fragments, err
+		return fragments, 0, err
 		//return &r.Graph{}, err
 	}
 
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		//return &r.Graph{}, fmt.Errorf("expected response != nil")
-		return fragments, fmt.Errorf("expected response != nil")
+		return fragments, 0, fmt.Errorf("expected response != nil")
 	}
 	if res.Hits.TotalHits == 0 {
 		log.Println("Nothing found for this query.")
 		//return &r.Graph{}, nil
-		return fragments, nil
+		return fragments, 0, nil
 	}
 
 	var frtyp Fragment
@@ -225,7 +219,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 	//return g, err
 	//}
 	//return g, nil
-	return fragments, nil
+	return fragments, res.Hits.TotalHits, nil
 }
 
 // CreateHyperMediaControlGraph creates a graph based on the triple-pattern-fragment spec
