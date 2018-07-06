@@ -86,7 +86,7 @@ func (con *CSVConvertor) Convert() (*ResourceMap, int, error) {
 	}
 
 	for _, t := range triples {
-		err := AppendTriple(rm.resources, t, false)
+		err := rm.AppendTriple(t, false)
 		if err != nil {
 			return rm, 0, err
 		}

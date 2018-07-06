@@ -1,0 +1,56 @@
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ebucore="urn:ebu:metadata-schema:ebuCore_2014/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:nave="http://schemas.delving.eu/nave/terms/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <ore:Aggregation rdf:about="http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3">
+        <edm:aggregatedCHO rdf:resource="http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"/>
+        <edm:dataProvider>Heemkundekring 'De Plaets'</edm:dataProvider>
+        <edm:hasView rdf:resource="http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"/>
+        <edm:isShownAt rdf:resource="http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"/>
+        <edm:isShownBy rdf:resource="http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"/>
+        <edm:object rdf:resource="http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"/>
+        <edm:provider>Erfgoed Brabant</edm:provider>
+        <edm:rights rdf:resource="http://www.europeana.eu/rights/rr-f/"/>
+    </ore:Aggregation>
+    <edm:ProvidedCHO rdf:about="http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3">
+        <dc:description>Mr. Johan Marcelus van der Meer en zijn vrouw Anna Marie Bertels. Hij was burgemeester van de gemeente Berlicum van 1947 tot 1958. Hier is hij zojuist geridderd voor zijn aandeel in de wederopbouw na de oorlog van 1940-1945.</dc:description>
+        <dc:format>foto</dc:format>
+        <dc:identifier>1470</dc:identifier>
+        <dc:subject>Burgemeester</dc:subject>
+        <dc:subject>Ridderorde</dc:subject>
+        <dc:subject>van der Meer</dc:subject>
+        <dc:subject>Bertels</dc:subject>
+        <dc:title>personen</dc:title>
+        <dcterms:created>1947-1958</dcterms:created>
+        <dcterms:spatial rdf:resource="http://sws.geonames.org/2759059"/>
+        <edm:type>IMAGE</edm:type>
+    </edm:ProvidedCHO>
+    <edm:WebResource rdf:about="http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg">
+        <ebucore:hasMimeType>image/jpeg</ebucore:hasMimeType>
+        <nave:deepZoomUrl>http://images.memorix.nl/enb_10/deepzoom/77c2b3c4-5297-0605-7f59-b5f752b8ae29.dzi</nave:deepZoomUrl>
+        <nave:resourceSortOrder>1</nave:resourceSortOrder>
+        <nave:thumbSmall>http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg</nave:thumbSmall>
+        <nave:thumbLarge>http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg</nave:thumbLarge>
+    </edm:WebResource>
+    <edm:Place rdf:about="http://sws.geonames.org/2759059">
+        <nave:country>Nederland</nave:country>
+        <nave:province>Gemeente Sint-Michielsgestel</nave:province>
+        <nave:municipality>Gemeente Sint-Michielsgestel</nave:municipality>
+        <nave:city>Berlicum</nave:city>
+    </edm:Place>
+    <nave:BrabantCloudResource>
+        <nave:collection>Heemkundekring 'De Plaets'</nave:collection>
+        <nave:collectionType>Beeldmateriaal</nave:collectionType>
+        <nave:collectionPart>personen</nave:collectionPart>
+        <nave:date>1947-1958</nave:date>
+        <nave:dimensionNote>5044-14</nave:dimensionNote>
+        <nave:place>Berlicum</nave:place>
+        <nave:productionEnd>1958</nave:productionEnd>
+        <nave:productionPeriod>1947-1958</nave:productionPeriod>
+        <nave:productionStart>1947</nave:productionStart>
+    </nave:BrabantCloudResource>
+    <nave:DelvingResource>
+        <nave:featured>false</nave:featured>
+        <nave:allowDeepZoom>true</nave:allowDeepZoom>
+        <nave:allowLinkedOpenData>true</nave:allowLinkedOpenData>
+        <nave:allowSourceDownload>false</nave:allowSourceDownload>
+        <nave:public>true</nave:public>
+    </nave:DelvingResource>
+</rdf:RDF>

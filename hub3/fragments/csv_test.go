@@ -80,10 +80,10 @@ var _ = Describe("CSV", func() {
 					SubjectColumn: "handle-uuid",
 				}
 				Expect(conv.InputFile).ToNot(BeNil())
-				triples, err := conv.CreateTriples()
+				triples, totalRows, err := conv.CreateTriples()
 				Expect(err).ToNot(HaveOccurred())
-				// TODO fix later
 				Expect(triples).ToNot(BeEmpty())
+				Expect(totalRows).To(Equal(2944))
 			})
 		})
 	})

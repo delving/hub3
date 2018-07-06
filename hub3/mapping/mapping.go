@@ -34,6 +34,7 @@ var ESMapping = `{
 	},
 	"mappings":{
 		"doc": {
+				"order": {"type": "integer"},
 			"dynamic": "strict",
 			"properties": {
 				"meta": {
@@ -58,6 +59,8 @@ var ESMapping = `{
 				"lodKey": {"type": "keyword"},
 				"objectType": {"type": "keyword"},
 				"recordType": {"type": "short"},
+				"order": {"type": "integer"},
+				"path": {"type": "keyword"},
 
 				"resources": {
 					"type": "nested",
@@ -97,6 +100,8 @@ var ESMapping = `{
 								"predicate": {"type": "keyword", "ignore_above": 256},
 								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
+								"order": {"type": "integer"},
+
 								"tags": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",

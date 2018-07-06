@@ -139,7 +139,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 		//}
 		err = action.Execute(ctx, &response)
 		if err != nil {
-			log.Printf("Processing error: %#v", err)
+			log.Printf("Processing error: %v", err)
 			return response, err
 		}
 		response.TotalReceived++
@@ -375,7 +375,7 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
-	mimeType := c.Config.RDF.DefaultFormat
+	mimeType := "application/rdf+xml"
 	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)
 	if err != nil {
 		log.Printf("Unable to parse the graph: %s", err)

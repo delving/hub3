@@ -239,6 +239,18 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		err = fb.Graph.Parse(rdf, mimeType)
 	case "application/ld+json":
 		err = fb.Graph.Parse(rdf, mimeType)
+	case "application/rdf+xml":
+		triples, err := DecodeRDFXML(rdf)
+		if err != nil {
+			log.Printf("Unable to decode RDF-XML: %v", err)
+			return err
+		}
+		rm, err := NewResourceMapFromXML(triples)
+		if err != nil {
+			log.Printf("Unable to create resourceMap: %v", err)
+			return err
+		}
+		fb.resources = rm
 	default:
 		return fmt.Errorf(
 			"Unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",

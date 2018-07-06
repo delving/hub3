@@ -502,51 +502,11 @@ message Fragment {
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;
-}
 
-message FragmentGen1 {
-  // meta block
-  string orgID = 1;
-  string spec = 2; 
-  int32 revision = 3;
-  string hubID = 4;
 
-  // RDF core
-  string subject = 5;
-  repeated string subjectClass = 6;
+  // path is used for generating statistics 
+  string path = 16;
 
-  string predicate = 7;
-  string searchLabel = 8;
-
-  string object = 9;
-  ObjectType   objectType = 10;
-  string language = 11;
-  string objectContentType = 12;
-  ObjectXSDType dataType = 13;
-  string XSDRaw = 14;
-  string objectTypeRaw = 29; 
-
-  string namedGraphURI = 15;
-  string triple = 16;
-
-  // RDF graph position
-  int32 level = 17;
-  string referrerSubject = 18;
-  string referrerPredicate = 19;
-  string referrerSearchLabel = 20;
-  repeated string referrerSubjectClass = 21;
-
-  // Content Index
-  string latLong = 22;
-  string date = 23;
-  string dateRange = 24;
-  int32 integer = 25;
-  int32 integerRange = 26;
-  int32 referrerResourceSortOrder = 27;
-
-// content tags
-// example values linkGraphExternal prefLabel linkDomainExternal thumbnail date
-  repeated string tags = 28;
-  string docType = 30;
-  string lodKey = 31;
+  // order is the insert order of the source of the fragments
+  int32 order = 17;
 }
