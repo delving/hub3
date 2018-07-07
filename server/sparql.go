@@ -21,6 +21,7 @@ func (rs SparqlResource) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", sparqlProxy)
+	r.Post("/", sparqlProxy)
 
 	return r
 }
@@ -31,13 +32,21 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	}
-	query := r.URL.Query().Get("query")
+	var query string
+	log.Print(r.Method)
+	switch r.Method {
+	case http.MethodGet:
+		query = r.URL.Query().Get("query")
+	case http.MethodPost:
+		query = r.FormValue("query")
+	}
+
 	if query == "" {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, &ErrorMessage{"Bad Request", "a value in the query param is required."})
 		return
 	}
-	if !strings.Contains(strings.ToLower(query), " limit ") {
+	if !strings.Contains(strings.ToLower(query), "limit ") {
 		query = fmt.Sprintf("%s LIMIT 25", query)
 	}
 	log.Info(query)

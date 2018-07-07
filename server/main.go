@@ -117,8 +117,20 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Get("/api/stats/byPredicate", predicateStats)
 	//r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
 
+	// stastic serving on vfsgen files
 	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/api/_docs", http.StatusSeeOther)
+	})
+	r.Get("/api/_docs", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/scroll-api.html")
+		return
+	})
+	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/explore/sparql.html")
+		return
+	})
+	r.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/explore/fragments.html")
 		return
 	})
 
@@ -127,10 +139,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		http.ServeFile(w, r, "./public/gaf/index.html")
 		return
 	})
-	//r.Get("/gaf/search-alt", func(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "./public/gaf/index.html")
-	//return
-	//})
+	r.Get("/gaf/search-alt", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./public/gaf/index.html")
+		return
+	})
 	r.Get("/gaf/search-cache/*", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./public/gaf/index-cache.html")
 		return
