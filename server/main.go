@@ -122,7 +122,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		http.Redirect(w, r, "/api/_docs", http.StatusSeeOther)
 	})
 	r.Get("/api/_docs", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/scroll-api.html")
+		http.ServeFile(w, r, "./public/api-docs.html")
 		return
 	})
 	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
@@ -130,7 +130,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 	r.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/explore/fragments.html")
+		http.ServeFile(w, r, "./public/explore/ldf.html")
 		return
 	})
 
