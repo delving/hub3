@@ -15,11 +15,8 @@ LDFLAGS:=-X main.Version=$(VERSION) -X main.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S
 # var print rule
 print-%  : ; @echo $* = $($*)
 
-install-glide:
-	curl https://glide.sh/get | sh
-
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db dist
+	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db dist server/assets/assets_vfsdata.go
 
 clean-harvesting:
 	rm -rf *_ids.txt *_records.xml
@@ -33,17 +30,23 @@ run:
 
 build:
 	@make clean-build
+	@create-assets
 	@go build -a -o build/$(NAME) -ldflags=$(LDFLAGS) $(MODULE)
 
 gox-build:
 	@make clean-build
+	@create-assets
 	cd build 
 	@make build 
 	gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
 	ls -la ./build/
 
 run-dev:
-	gin -buildArgs "-i -ldflags '${LDFLAGS}'" run http
+	gin -buildArgs "-i -tags=dev -ldflags '${LDFLAGS}'" run http
+
+create-assets:
+	go run -tags=dev server/assets/assets_generate.go
+	mv assets_vfsdata.go server/assets/
 
 test:
 	@go test  ./...
@@ -96,19 +99,23 @@ setup-npm:
 	@npm install
 
 release:
+	@create-assets
 	@goreleaser --rm-dist --skip-publish
 	@rpm --addsign dist/*.rpm
 	@debsigs --sign=origin -k E2D6BD239452B1ED15CB99A66C417F6E7521731E dist/*.deb
 
 release-dirty:
+	@create-assets
 	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
 	@rpm --addsign dist/*.rpm
 
 release-snapshot:
+	@create-assets
 	@goreleaser --rm-dist --skip-publish --snapshot
 	@rpm --addsign dist/*.rpm
 
 release-public:
+	@create-assets
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:

@@ -437,6 +437,18 @@
   revision = "49ee7767142fe77a736296b5069907f42a807763"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/shurcooL/httpfs"
+  packages = ["vfsutil"]
+  revision = "809beceb23714880abc4a382a00c05f89d13b1cc"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/shurcooL/vfsgen"
+  packages = ["."]
+  revision = "bded413e56ef86004fb6a11dd9d1bb9dc118ed03"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
@@ -657,6 +669,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "43e578be2c4a8ee9c94bc92a83c772433e2b44fe75110fbd112db2c54b66b889"
+  inputs-digest = "d545d1328c2ca7b3aa8c975fe5fed4465ff337d8be896cdbab402f1acbd9b9e4"
   solver-name = "gps-cdcl"
   solver-version = 1

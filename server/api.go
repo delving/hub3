@@ -446,12 +446,13 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to find fragments")
 		return
 	}
-	w.Header().Set("Content-Type", "text/n-triples")
+
 	var buffer bytes.Buffer
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
 	w.Write(buffer.Bytes())
+	w.Header().Set("Content-Type", "application/n-triples")
 	return
 
 }
@@ -534,7 +535,6 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/n-triples")
 	var buffer bytes.Buffer
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
@@ -543,16 +543,17 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(buffer.Bytes())
 	//err = frags.Serialize(w, "text/turtle")
-	if err != nil {
-		log.Printf("Unable to list serialize fragments because of: %s", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
-			Error:      err,
-		})
-		return
+	//if err != nil {
+	//log.Printf("Unable to list serialize fragments because of: %s", err)
+	//render.JSON(w, r, APIErrorMessage{
+	//HTTPStatus: http.StatusNotFound,
+	//Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
+	//Error:      err,
+	//})
+	//return
 
-	}
+	//}
+	w.Header().Set("Content-Type", "application/n-triples")
 	return
 }
 
