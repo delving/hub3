@@ -58,6 +58,7 @@ type RawConfig struct {
 	PostHook      `json:"postHook"`
 	Cache         `json:"cache"`
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
+	SiteMap       `json:"siteMap"`
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -173,6 +174,14 @@ type LOD struct {
 	HTMLRedirectRegex string `json:"redirectregex"`  // the regular expression to convert the subject uri to the uri for the external Page view
 }
 
+// SiteMap holds all the configuration for the sitemap generation
+type SiteMap struct {
+	Enabled bool   `json:"enabled"`
+	BaseDir string `json:"baseDir"`
+	BaseURL string `json:"baseURL"`
+	Gzip    bool   `json:"gzip"`
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -260,6 +269,9 @@ func setDefaults() {
 	viper.SetDefault("LOD.singleEndpoint", "")
 	viper.SetDefault("LOD.resource", "resource")
 	viper.SetDefault("LOD.redirectregex", "")
+
+	// sitemap
+	viper.SetDefault("SiteMap.Enabled", false)
 }
 
 func cleanConfig() {
