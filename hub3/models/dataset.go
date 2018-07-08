@@ -108,16 +108,17 @@ type DataSetStats struct {
 // DataSet contains all the known informantion for a RAPID metadata dataset
 type DataSet struct {
 	//MapToPrefix string    `json:"mapToPrefix"`
-	Spec       string    `json:"spec" storm:"id,index,unique"`
-	URI        string    `json:"uri" storm:"unique,index"`
-	Revision   int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
-	Modified   time.Time `json:"modified" storm:"index"`
-	Created    time.Time `json:"created"`
-	Deleted    bool      `json:"deleted"`
-	OrgID      string    `json:"orgID"`
-	Access     `json:"access" storm:"inline"`
-	Tags       []string `json:"tags"`
-	RecordType string   `json:"recordType"` //
+	Spec             string    `json:"spec" storm:"id,index,unique"`
+	URI              string    `json:"uri" storm:"unique,index"`
+	Revision         int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
+	FragmentRevision int       `json:"fragmentRevision"`
+	Modified         time.Time `json:"modified" storm:"index"`
+	Created          time.Time `json:"created"`
+	Deleted          bool      `json:"deleted"`
+	OrgID            string    `json:"orgID"`
+	Access           `json:"access" storm:"inline"`
+	Tags             []string `json:"tags"`
+	RecordType       string   `json:"recordType"` //
 }
 
 // Access determines the which types of access are enabled for this dataset
