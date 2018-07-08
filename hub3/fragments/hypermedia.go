@@ -84,8 +84,6 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 		sep = "?"
 	}
 
-	log.Printf("current %d, next %d, previous %d", pageNumber, nextPage, previousPage)
-
 	return &HyperMediaDataSet{
 		DataSetURI:   fmt.Sprintf("%s://%s%s", url.Scheme, url.Host, url.EscapedPath()),
 		PagerURI:     url.String(),
@@ -110,7 +108,6 @@ func (hmd HyperMediaDataSet) CreateControls() ([]byte, error) {
 
 // HasNext returns if the dataset has a next page
 func (hmd HyperMediaDataSet) HasNext() bool {
-	fmt.Println(hmd.CurrentPage, FRAGMENT_SIZE, hmd.TotalItems)
 	return ((hmd.CurrentPage + 1) * FRAGMENT_SIZE) < int32(hmd.TotalItems)
 }
 
