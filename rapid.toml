@@ -68,9 +68,8 @@ routedEntryPoints = ["http://localhost:3000"]
 baseUrl = "http://data.rapid.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
-# Default format for importing in the bulk API, "text/turtle" or "application/ld+json"
+# Default format for importing in the bulk API, "text/turtle", "application/rdf+xml" or "application/ld+json"
 defaultFormat = "application/ld+json" 
-#defaultFormat = "text/turtle" 
 
 [oaipmh]
 # options: no, transient, persistent

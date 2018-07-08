@@ -38,7 +38,9 @@ import (
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
 	HubID         string                 `json:"hubId"`
+	OrgID         string                 `json:"orgID"`
 	Spec          string                 `json:"dataset"`
+	LocalID       string                 `json:"localID"`
 	NamedGraphURI string                 `json:"graphUri"`
 	RecordType    string                 `json:"type"`
 	Action        string                 `json:"action"`
@@ -375,7 +377,7 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
-	mimeType := "application/rdf+xml"
+	mimeType := c.Config.RDF.DefaultFormat
 	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)
 	if err != nil {
 		log.Printf("Unable to parse the graph: %s", err)
