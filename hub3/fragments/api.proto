@@ -159,6 +159,13 @@ message ScrollPager {
   int32 rows = 4;
 }
 
+message FragmentPager {
+  bytes firstPage = 1;
+  bytes previousPage = 2;
+  bytes currentPage = 3;
+  bytes nextPage = 4;
+}
+
 message Pagination {
   int32 start = 1;
   int32 rows = 2;

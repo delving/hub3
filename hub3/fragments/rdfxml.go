@@ -1,7 +1,6 @@
 package fragments
 
 import (
-	"fmt"
 	"io"
 
 	r "github.com/kiivihal/rdf2go"
@@ -19,7 +18,6 @@ func NewResourceMapFromXML(triples []rdf.Triple) (*ResourceMap, error) {
 	rm := NewEmptyResourceMap()
 	for idx, triple := range triples {
 		newTriple := ConvertTriple(triple)
-		fmt.Printf("%d for triple %#v\n", idx, newTriple.String())
 		err := rm.AppendOrderedTriple(newTriple, false, idx)
 		if err != nil {
 			return nil, err

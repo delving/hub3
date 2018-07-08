@@ -39,8 +39,8 @@ const FragmentGraphDocType = "graph"
 // DocType is the default doctype since elasticsearch deprecated mapping types
 const DocType = "doc"
 
-// SIZE of the fragments returned
-const SIZE = 100
+// FRAGMENT_SIZE of the fragments returned
+const FRAGMENT_SIZE = 100
 
 // RDFType is the URI for RDF:type
 const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -114,11 +114,12 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 }
 
 // GetESPage returns the 0 based page for Elastic Search
+// todo refactor for protobuf
 func (fr FragmentRequest) GetESPage() int {
 	if fr.GetPage() < 2 {
 		return 0
 	}
-	return int((fr.GetPage() * SIZE) - 1)
+	return int((fr.GetPage() * FRAGMENT_SIZE) - 1)
 }
 
 func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
@@ -164,12 +165,13 @@ func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	return q
 }
 
+// Do executes the fragments request on elasticsearch
 func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
 	q := fr.BuildQuery()
 	return client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).
-		Size(SIZE).
+		Size(FRAGMENT_SIZE).
 		From(fr.GetESPage()).
 		Do(ctx)
 }

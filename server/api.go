@@ -540,19 +540,26 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
 	w.Header().Add("FRAG_COUNT", strconv.Itoa(int(totalFrags)))
+	w.Header().Add("Content-Type", "application/n-triples")
 
+	// Add hyperMediaControls
+	hmd := fragments.NewHyperMediaDataSet(r, totalFrags, fr)
+	controls, err := hmd.CreateControls()
+	if err != nil {
+		msg := fmt.Sprintf("Unable to create media controls: %s", err)
+		log.Print(msg)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprint(msg),
+			Error:      err,
+		})
+		return
+	}
+	w.Write(controls)
+
+	w.Header().Set("Content-Type", "application/n-triples")
 	w.Write(buffer.Bytes())
-	//err = frags.Serialize(w, "text/turtle")
-	//if err != nil {
-	//log.Printf("Unable to list serialize fragments because of: %s", err)
-	//render.JSON(w, r, APIErrorMessage{
-	//HTTPStatus: http.StatusNotFound,
-	//Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
-	//Error:      err,
-	//})
-	//return
 
-	//}
 	w.Header().Set("Content-Type", "application/n-triples")
 	return
 }
