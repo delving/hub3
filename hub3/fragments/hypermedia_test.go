@@ -34,16 +34,20 @@ var _ = Describe("Hypermedia", func() {
 				Expect(hmd.PreviousPage).To(Equal(base + query + "&page=1"))
 				Expect(hmd.NextPage).To(Equal(base + query + "&page=3"))
 				Expect(hmd.ItemsPerPage).To(Equal(int64(FRAGMENT_SIZE)))
-				//Expect(hmd.HasNext()).To(BeTrue())
-				//Expect(hmd.HasPrevious()).To(BeTrue())
+				Expect(hmd.HasNext()).To(BeFalse())
+				Expect(hmd.HasPrevious()).To(BeTrue())
 			})
 
 			It("should create the controls", func() {
-				hmd := NewHyperMediaDataSet(r, 195, nil)
+				fr := NewFragmentRequest()
+				err := fr.ParseQueryString(r.URL.Query())
+				hmd := NewHyperMediaDataSet(r, 395, fr)
 				Expect(hmd).ToNot(BeNil())
 				b, err := hmd.CreateControls()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(b).ToNot(BeEmpty())
+				Expect(hmd.HasNext()).To(BeTrue())
+				Expect(hmd.HasPrevious()).To(BeTrue())
 			})
 
 		})

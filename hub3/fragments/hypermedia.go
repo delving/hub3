@@ -5,9 +5,9 @@ import (
 	fmt "fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
-
-	"github.com/alecthomas/template"
+	"text/template"
 )
 
 const hyperTmpl = `<{{.DataSetURI}}> <http://rdfs.org/ns/void#subset> <{{.PagerURI}}> .
@@ -20,8 +20,8 @@ const hyperTmpl = `<{{.DataSetURI}}> <http://rdfs.org/ns/void#subset> <{{.PagerU
 <{{.PagerURI}}> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/hydra/core#PagedCollection> .
 <{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#firstPage> <{{.FirstPage}}> .
 <{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#itemsPerPage> "{{.ItemsPerPage}}"^^<http://www.w3.org/2001/XMLSchema#integer> .
-{{ if .HasNext }}<{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#nextPage> <{{.NextPage}}> .  {{ end }}
-{{ if .HasPrevious }}<{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#previousPage> <{{.PreviousPage}}> . {{ end }}
+{{ if .HasNext -}}<{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#nextPage> <{{.NextPage}}> .  {{- end }}
+{{ if .HasPrevious -}}<{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#previousPage> <{{.PreviousPage}}> . {{- end }}
 <{{.PagerURI}}> <http://www.w3.org/ns/hydra/core#totalItems> "{{.TotalItems}}"^^<http://www.w3.org/2001/XMLSchema#integer> .
 <{{.PagerURI}}#subject> <http://www.w3.org/ns/hydra/core#property> <http://www.w3.org/1999/02/22-rdf-syntax-ns#subject> .
 <{{.PagerURI}}#subject> <http://www.w3.org/ns/hydra/core#variable> "subject" .
@@ -73,10 +73,16 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 		url.Host = "localhost:3000"
 	}
 
-	basePage := strings.Replace(url.String(), "page="+currentPage, "", 1)
+	regString := fmt.Sprintf("[?|&]page=%s", currentPage)
+	var re = regexp.MustCompile(regString)
+	basePage := re.ReplaceAllString(url.String(), "")
 	pageNumber := fr.GetPage()
 	nextPage := pageNumber + int32(1)
 	previousPage := pageNumber - int32(1)
+	sep := "&"
+	if !strings.Contains(basePage, "?") {
+		sep = "?"
+	}
 
 	log.Printf("current %d, next %d, previous %d", pageNumber, nextPage, previousPage)
 
@@ -84,9 +90,9 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 		DataSetURI:   fmt.Sprintf("%s://%s%s", url.Scheme, url.Host, url.EscapedPath()),
 		PagerURI:     url.String(),
 		TotalItems:   totalHits,
-		FirstPage:    fmt.Sprintf("%spage=1", basePage),
-		NextPage:     fmt.Sprintf("%spage=%d", basePage, nextPage),
-		PreviousPage: fmt.Sprintf("%spage=%d", basePage, previousPage),
+		FirstPage:    fmt.Sprintf("%s%spage=1", basePage, sep),
+		NextPage:     fmt.Sprintf("%s%spage=%d", basePage, sep, nextPage),
+		PreviousPage: fmt.Sprintf("%s%spage=%d", basePage, sep, previousPage),
 		ItemsPerPage: int64(FRAGMENT_SIZE),
 		CurrentPage:  pageNumber,
 	}
@@ -104,10 +110,11 @@ func (hmd HyperMediaDataSet) CreateControls() ([]byte, error) {
 
 // HasNext returns if the dataset has a next page
 func (hmd HyperMediaDataSet) HasNext() bool {
+	fmt.Println(hmd.CurrentPage, FRAGMENT_SIZE, hmd.TotalItems)
 	return ((hmd.CurrentPage + 1) * FRAGMENT_SIZE) < int32(hmd.TotalItems)
 }
 
 // HasPrevious returns if the dataset has a previous page
 func (hmd HyperMediaDataSet) HasPrevious() bool {
-	return (hmd.CurrentPage - 1) > 1
+	return (hmd.CurrentPage - 1) > 0
 }
