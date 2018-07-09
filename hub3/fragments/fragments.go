@@ -65,7 +65,8 @@ func NewFragmentRequest() *FragmentRequest {
 }
 
 // AssignObject cleans the object string and sets the language when applicable
-func (fr *FragmentRequest) AssignObject(o string) {
+func (fr *FragmentRequest) AssignObject() {
+	o := fr.GetObject()
 	if strings.Contains(o, "@") {
 		parts := strings.Split(o, "@")
 		o = parts[0]
@@ -106,6 +107,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Page = int32(page)
 		case "echo":
 			fr.Echo = v[0]
+		case "format":
+			break
 		default:
 			return fmt.Errorf("unknown ")
 		}
@@ -139,10 +142,13 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 
 func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
+	fr.AssignObject()
+	log.Println(fr.GetObject(), fr.GetLanguage())
 	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
+	buildQueryClause(q, "language", fr.GetLanguage())
 
 	// support for exclude hubID
 	if fr.ExcludeHubID != "" {
@@ -184,17 +190,14 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 
 	if err != nil {
 		return fragments, 0, err
-		//return &r.Graph{}, err
 	}
 
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
-		//return &r.Graph{}, fmt.Errorf("expected response != nil")
 		return fragments, 0, fmt.Errorf("expected response != nil")
 	}
 	if res.Hits.TotalHits == 0 {
 		log.Println("Nothing found for this query.")
-		//return &r.Graph{}, nil
 		return fragments, 0, nil
 	}
 
@@ -202,92 +205,8 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
 		frag := item.(Fragment)
 		fragments = append(fragments, &frag)
-		//if fr.Echo != "raw" {
-		//buffer.WriteString(fmt.Sprintln(frag.Triple))
-		//} else {
-		//b, err := json.Marshal(frag)
-		//if err != nil {
-		//return fragments, err
-		//}
-		//buffer.Write(b)
-		//}
-		//triples = append(triples, frag.Triple)
 	}
-	//g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
-	//g := r.NewGraph("")
-	//err = g.Parse(fragments, "text/turtle")
-	//if err != nil {
-	//log.Printf("unable to parse triples from result: %s", err)
-	//return g, err
-	//}
-	//return g, nil
 	return fragments, res.Hits.TotalHits, nil
-}
-
-// CreateHyperMediaControlGraph creates a graph based on the triple-pattern-fragment spec
-// see http://www.hydra-cg.com/spec/latest/triple-pattern-fragments/#controls
-func CreateHyperMediaControlGraph(spec string, total int64, page int) *r.Graph {
-	g := r.NewGraph("")
-	hits := strconv.Itoa(int(total))
-	subject := r.NewResource(fmt.Sprintf("%s/fragments/%s", c.Config.RDF.BaseURL, spec))
-	g.AddTriple(subject, r.NewResource("http://rdfs.org/ns/void#subset"), subject)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-		r.NewResource("http://www.w3.org/ns/hydra/core#Collection"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-		r.NewResource("http://www.w3.org/ns/hydra/core#PagedCollection"),
-	)
-
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/terms/title"),
-		r.NewLiteralWithLanguage(fmt.Sprintf("Linked Data Fragment of %s", spec), "en"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/terms/description"),
-		r.NewLiteralWithLanguage(
-			fmt.Sprintf(
-				"Triple Pattern Fragment of the '%s' dataset containing triples matching the pattern { ?s ?p ?o  }.",
-				spec,
-			),
-			"en"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/term/source"),
-		subject,
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#totalItems"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://rdfs.org/ns/void#triples"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://rdfs.org/ns/void#triples"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#itemsPerPage"),
-		r.NewLiteralWithDatatype("100", r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#firstPage"),
-		r.NewLiteral("1"),
-	)
-	return g
 }
 
 // CreateHash creates an xxhash-based hash of a string

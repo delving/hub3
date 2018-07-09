@@ -149,6 +149,65 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, res)
 	return
 }
+func rdfUpload(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("turtle")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	spec := r.FormValue("spec")
+	// todo handle when no spec is given
+	if spec == "" {
+		render.PlainText(w, r, "spec param is required")
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+	ds, created, err := models.GetOrCreateDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", spec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	if created {
+		err = fragments.SaveDataSet(spec, bp)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", spec)
+			if err != nil {
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	upl := fragments.NewRDFUploader(c.Config.OrgID, spec, "")
+
+	go func() {
+		defer in.Close()
+		log.Print("Start creating resource map")
+		_, err := upl.Parse(in)
+		if err != nil {
+			log.Printf("Can't read turtle file: %v", err)
+			return
+		}
+		log.Printf("Start saving fragments.")
+		processed, err := upl.IndexFragments(bp, 0)
+		if err != nil {
+			log.Printf("Can't save fragments: %v", err)
+			return
+		}
+		log.Printf("Saved %d fragments for %s", processed, upl.Spec)
+	}()
+
+	render.Status(r, http.StatusCreated)
+	render.PlainText(w, r, "ok")
+	return
+}
 
 func skosUpload(w http.ResponseWriter, r *http.Request) {
 
@@ -540,7 +599,6 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
 	w.Header().Add("FRAG_COUNT", strconv.Itoa(int(totalFrags)))
-	w.Header().Add("Content-Type", "application/n-triples")
 
 	// Add hyperMediaControls
 	hmd := fragments.NewHyperMediaDataSet(r, totalFrags, fr)
@@ -555,12 +613,17 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	w.Write(controls)
 
-	w.Header().Set("Content-Type", "application/n-triples")
+	format := r.URL.Query().Get("format")
+	if format == "plain" {
+		w.Header().Add("Content-Type", "text/plain")
+	} else {
+		w.Header().Add("Content-Type", "application/n-triples")
+	}
+
+	w.Write(controls)
 	w.Write(buffer.Bytes())
 
-	w.Header().Set("Content-Type", "application/n-triples")
 	return
 }
 

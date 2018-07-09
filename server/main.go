@@ -25,7 +25,6 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/server/assets"
-	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
@@ -61,7 +60,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	n.Use(l)
 
 	// compress the responses
-	n.Use(gzip.Gzip(gzip.DefaultCompression))
+	//n.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// stats middleware
 	s := stats.New()
@@ -197,6 +196,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// SKOS sync endpoint
 	r.Get("/api/rdf/skos", skosSync)
 	r.Post("/api/rdf/skos", skosUpload)
+
+	// RDF upload endpoint
+	r.Post("/api/rdf/source", rdfUpload)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())

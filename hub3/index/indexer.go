@@ -63,7 +63,6 @@ func beforeFn(executionID int64, requests []elastic.BulkableRequest) {
 }
 
 func afterFn(executionID int64, requests []elastic.BulkableRequest, response *elastic.BulkResponse, err error) {
-	log.Println("After processor")
 	if config.Config.ElasticSearch.IndexV1 && response.Errors {
 		log.Println("Errors in bulk request")
 		for _, item := range response.Failed() {
