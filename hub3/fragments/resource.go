@@ -84,6 +84,7 @@ type FragmentGraph struct {
 	Resources  []*FragmentResource       `json:"resources,omitempty"`
 	Summary    *ResultSummary            `json:"summary,omitempty"`
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
+	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
 }
 
@@ -140,7 +141,7 @@ type QueryFacet struct {
 	Links       []*FacetLink `json:"links"`
 }
 
-// FaceLink contains all the information for creating a filter for this facet
+// FacetLink contains all the information for creating a filter for this facet
 type FacetLink struct {
 	URL           string `json:"url"`
 	IsSelected    bool   `json:"isSelected"`
@@ -591,6 +592,17 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 
 	}
 	return fg.Summary
+}
+
+// NewFields returns a map of the triples sorted by their searchLabel
+func (fg *FragmentGraph) NewFields() map[string][]string {
+	fg.Fields = make(map[string][]string)
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			fg.Fields[entry.SearchLabel] = append(fg.Fields[entry.SearchLabel], entry.Value)
+		}
+	}
+	return fg.Fields
 }
 
 // NewJSONLD creates a JSON-LD version of the FragmentGraph

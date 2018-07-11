@@ -251,6 +251,11 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	// FragmentGraph is the default decoded issue
 	switch searchRequest.ItemFormat {
+	case fragments.ItemFormatType_FLAT:
+		for _, rec := range records {
+			rec.NewFields()
+			rec.Resources = nil
+		}
 	case fragments.ItemFormatType_SUMMARY:
 		for _, rec := range records {
 			rec.NewResultSummary()

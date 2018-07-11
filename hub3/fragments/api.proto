@@ -30,6 +30,7 @@ enum ItemFormatType {
   FRAGMENTGRAPH = 1;
   GROUPED = 2;
   JSONLD = 3;
+  FLAT = 4;
 }
 
 enum ResponseBlockType {

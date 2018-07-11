@@ -109,6 +109,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_GROUPED
 			case "jsonld":
 				sr.ItemFormat = ItemFormatType_JSONLD
+			case "flat":
+				sr.ItemFormat = ItemFormatType_FLAT
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
