@@ -355,6 +355,9 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.DefaultSpec = r.FormValue("defaultSpec")
 	conv.ThumbnailURIBase = r.FormValue("thumbnailURIBase")
 	conv.ThumbnailColumn = r.FormValue("thumbnailColumn")
+	conv.ManifestColumn = r.FormValue("manifestColumn")
+	conv.ManifestURIBase = r.FormValue("manifestURIBase")
+	conv.ManifestLocale = r.FormValue("manifestLocale")
 
 	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
 	if err != nil {
@@ -614,11 +617,10 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	format := r.URL.Query().Get("format")
-	if format == "plain" {
-		w.Header().Add("Content-Type", "text/plain")
-	} else {
+	if strings.Contains(r.Header.Get("Accept"), "n-triples") {
 		w.Header().Add("Content-Type", "application/n-triples")
+	} else {
+		w.Header().Add("Content-Type", "text/plain")
 	}
 
 	w.Write(controls)

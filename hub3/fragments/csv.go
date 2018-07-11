@@ -22,8 +22,11 @@ type CSVConvertor struct {
 	ObjectResourceColumns []string  `json:"objectResourceColumns"`
 	ThumbnailURIBase      string    `json:"thumbnailURIBase"`
 	ThumbnailColumn       string    `json:"thumbnailColumn"`
+	ManifestURIBase       string    `json:"manifestURIBase"`
+	ManifestColumn        string    `json:"manifestColumn"`
+	ManifestLocale        string    `json:"manifestLocale"`
 	DefaultSpec           string    `json:"defaultSpec"`
-	InputFile             io.Reader `json:"inputFile"`
+	InputFile             io.Reader `json:"-"`
 	RowsProcessed         int       `json:"rowsProcessed"`
 	TriplesCreated        int       `json:"triplesCreated"`
 }
@@ -108,6 +111,7 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 	var headerMap map[int]r.Term
 	var subjectColumnIdx int
 	var thumbnailColumnIdx int
+	var manifestColumnIdx int
 
 	triples := []*r.Triple{}
 
@@ -131,6 +135,15 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 					return nil, 0, err
 				}
 			}
+			if con.ManifestColumn != "" {
+				manifestColumnIdx, err = con.GetSubjectColumn(
+					header,
+					con.ManifestColumn,
+				)
+				if err != nil {
+					return nil, 0, err
+				}
+			}
 			continue
 		}
 
@@ -147,6 +160,22 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 					),
 					r.NewLiteral(
 						fmt.Sprintf("%s/%s", con.ThumbnailURIBase, column),
+					),
+				)
+				triples = append(triples, thumbnail)
+				continue
+			}
+			if con.ManifestColumn != "" && idx == manifestColumnIdx {
+				if con.ManifestLocale == "" {
+					con.ManifestLocale = "nl_nl"
+				}
+				thumbnail := r.NewTriple(
+					s,
+					r.NewResource(
+						fmt.Sprintf("%s/manifest", con.PredicateURIBase),
+					),
+					r.NewLiteral(
+						fmt.Sprintf("%s/%s/%s", con.ManifestURIBase, column, con.ManifestLocale),
 					),
 				)
 				triples = append(triples, thumbnail)
