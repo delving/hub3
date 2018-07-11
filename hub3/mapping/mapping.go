@@ -34,7 +34,6 @@ var ESMapping = `{
 	},
 	"mappings":{
 		"doc": {
-				"order": {"type": "integer"},
 			"dynamic": "strict",
 			"properties": {
 				"meta": {
