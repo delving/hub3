@@ -234,6 +234,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// introspection
 	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
+		r.Mount("/debug", mw.Profiler())
 	}
 
 	if c.Config.Cache.Enabled {

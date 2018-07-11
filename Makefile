@@ -79,7 +79,6 @@ docker-clean-build:
 	@make docker-start; 
 	docker ps -all
 
-
 compose-up:
 	@docker-compose up
 
@@ -99,23 +98,23 @@ setup-npm:
 	@npm install
 
 release:
-	@create-assets
+	@make create-assets
 	@goreleaser --rm-dist --skip-publish
 	@rpm --addsign dist/*.rpm
 	@debsigs --sign=origin -k E2D6BD239452B1ED15CB99A66C417F6E7521731E dist/*.deb
 
 release-dirty:
-	@create-assets
+	@make create-assets
 	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
 	@rpm --addsign dist/*.rpm
 
 release-snapshot:
-	@create-assets
+	@make create-assets
 	@goreleaser --rm-dist --skip-publish --snapshot
 	@rpm --addsign dist/*.rpm
 
 release-public:
-	@create-assets
+	@make create-assets
 	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
@@ -130,3 +129,6 @@ pb.api:
 
 cqlsh:
 	@docker exec -it cassandra0 cqlsh
+
+pprof-dev:
+	@pprof --http localhost:6060 -seconds 30 http://localhost:3000/debug/pprof/profile
