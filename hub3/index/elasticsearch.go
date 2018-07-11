@@ -55,7 +55,7 @@ func ESClient() *elastic.Client {
 			// setup ElasticSearch client
 			client = createESClient()
 			//defer client.Stop()
-			ensureESIndex("")
+			ensureESIndex("", false)
 		} else {
 			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
@@ -63,7 +63,12 @@ func ESClient() *elastic.Client {
 	return client
 }
 
-func ensureESIndex(index string) {
+func IndexReset(index string) error {
+	ensureESIndex(index, true)
+	return nil
+}
+
+func ensureESIndex(index string, reset bool) {
 	if index == "" {
 		index = config.Config.ElasticSearch.IndexName
 	}
@@ -71,6 +76,16 @@ func ensureESIndex(index string) {
 	if err != nil {
 		// Handle error
 		stdlog.Fatal(err)
+	}
+	if exists && reset {
+		deleteIndex, err := ESClient().DeleteIndex(index).Do(ctx)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		if !deleteIndex.Acknowledged {
+			stdlog.Printf("Unable to delete index %s", index)
+		}
+		exists = false
 	}
 
 	if !exists {

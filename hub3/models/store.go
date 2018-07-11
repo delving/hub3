@@ -40,6 +40,12 @@ func CloseStorm() {
 	}
 }
 
+func ResetStorm() {
+	CloseStorm()
+	os.Remove("rapid.db")
+	orm = newDB("")
+}
+
 func newDB(dbName string) *storm.DB {
 	if dbName == "" {
 		dbName = "rapid.db"

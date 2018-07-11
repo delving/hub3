@@ -163,6 +163,7 @@ func GetDataSet(spec string) (DataSet, error) {
 // CreateDataSet creates and returns a DataSet
 func CreateDataSet(spec string) (DataSet, bool, error) {
 	ds := NewDataset(spec)
+	ds.Revision = 1
 	err := ds.Save()
 	return ds, true, err
 }

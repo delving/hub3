@@ -24,6 +24,8 @@ import (
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/index"
+	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/delving/rapid-saas/server/assets"
 
 	"github.com/go-chi/chi"
@@ -272,7 +274,19 @@ func IntrospectionRouter(chiRouter chi.Router) http.Handler {
 		w.Write([]byte(docgen.JSONRoutesDoc(chiRouter)))
 		return
 	})
+	r.Delete("/reset", resetAll)
 	return r
+}
+
+func resetAll(w http.ResponseWriter, r *http.Request) {
+	// reset elasticsearch
+	err := index.IndexReset("")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	// reset Key Value Store
+	models.ResetStorm()
+	return
 }
 
 func getAbsolutePathToFileDir(relativePath string) http.Dir {
