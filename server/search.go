@@ -342,6 +342,9 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.URL.Query().Get("itemFormat") {
+	case "flat":
+		record.NewFields()
+		record.Resources = nil
 	case "jsonld":
 		record.NewJSONLD()
 		record.Resources = nil
