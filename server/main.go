@@ -27,6 +27,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/delving/rapid-saas/server/assets"
+	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
@@ -62,7 +63,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	n.Use(l)
 
 	// compress the responses
-	//n.Use(gzip.Gzip(gzip.DefaultCompression))
+	n.Use(gzip.Gzip(gzip.DefaultCompression))
 
 	// stats middleware
 	s := stats.New()
