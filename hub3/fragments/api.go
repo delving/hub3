@@ -99,6 +99,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				log.Printf("unable to convert %v to int", v)
 				return sr, err
 			}
+			if size > 1000 {
+				size = 1000
+			}
 			sr.ResponseSize = int32(size)
 		case "itemFormat":
 			format := params.Get("itemFormat")
