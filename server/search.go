@@ -230,6 +230,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 				NamedGraphURI: rec.Meta.NamedGraphURI,
 				Action:        "index",
 				Graph:         string(graph),
+				GraphMimeType: "application/ld+json",
 				RecordType:    "mdr",
 			}
 			bytes, err := json.Marshal(action)

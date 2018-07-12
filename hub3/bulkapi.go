@@ -47,6 +47,7 @@ type BulkAction struct {
 	ContentHash   string                 `json:"contentHash"`
 	Graph         string                 `json:"graph"`
 	RDF           string                 `json:"rdf"`
+	GraphMimeType string                 `json:"graphMimeType"`
 	p             *elastic.BulkProcessor `json:"p"`
 	wp            *workerpool.WorkerPool `json:"wp"`
 }
@@ -377,11 +378,13 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
-	mimeType := c.Config.RDF.DefaultFormat
-	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)
+	if action.GraphMimeType == "" {
+		action.GraphMimeType = c.Config.RDF.DefaultFormat
+	}
+	err := fb.ParseGraph(strings.NewReader(action.Graph), action.GraphMimeType)
 	if err != nil {
 		log.Printf("Unable to parse the graph: %s", err)
-		return fb, fmt.Errorf("Source RDF is not in format: %s", mimeType)
+		return fb, fmt.Errorf("Source RDF is not in format: %s", action.GraphMimeType)
 	}
 	return fb, nil
 }
