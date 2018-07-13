@@ -60,12 +60,18 @@ message QueryFilter {
   string Path = 6;
 }
 
+message FacetField {
+  string field = 1;
+  bool asc = 2;
+  bool byName = 3;
+  int32 size = 4;
+  bool byId = 5;
+}
+
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
   ResponseFormatType responseFormatType = 2;
-  // number of results returned
-  // rows
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
@@ -73,7 +79,7 @@ message SearchRequest {
   repeated QueryFilter HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
-  repeated string FacetField  = 10;
+  repeated FacetField facetField  = 10;
   int32 FacetLimit = 11;
   bool FacetBoolType = 12;
   string sortBy = 13;

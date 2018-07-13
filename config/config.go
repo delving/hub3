@@ -82,6 +82,7 @@ type ElasticSearch struct {
 	OrgIDKey    string   `json:"orgIDKey"`
 	UserName    string   `json:"userName"`
 	Password    string   `json:"password"`
+	FacetSize   int      `json:"facetSize"`
 }
 
 func (es ElasticSearch) HasAuthentication() bool {
@@ -200,6 +201,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.SpecKey", "meta.spec")
 	viper.SetDefault("ElasticSearch.RevisionKey", "meta.revision")
 	viper.SetDefault("ElasticSearch.OrgIDKey", "meta.orgID")
+	viper.SetDefault("ElasticSearch.FacetSize", 50)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

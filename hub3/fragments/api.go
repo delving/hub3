@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"encoding/gob"
 	"encoding/hex"
+	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -26,6 +27,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	proto "github.com/golang/protobuf/proto"
+	"github.com/pkg/errors"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -56,6 +58,20 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 	return newSr, err
 }
 
+// NewFacetField parses the QueryString and creates a FacetField
+func NewFacetField(field string) (*FacetField, error) {
+	if !strings.HasPrefix(field, "{") {
+		return &FacetField{Field: field}, nil
+	}
+	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
+	err := json.Unmarshal([]byte(field), &ff)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to unmarshal facetfield")
+	}
+
+	return &ff, nil
+}
+
 // NewSearchRequest builds a search request object from URL Parameters
 func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	hexRequest := params.Get("scrollID")
@@ -83,7 +99,13 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 		case "facet.field":
-			sr.FacetField = append(sr.FacetField, v...)
+			for _, ff := range v {
+				facet, err := NewFacetField(ff)
+				if err != nil {
+					return nil, err
+				}
+				sr.FacetField = append(sr.FacetField, facet)
+			}
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":
@@ -167,28 +189,34 @@ func (sr *SearchRequest) Aggregations() (map[string]elastic.Aggregation, error) 
 	aggs := map[string]elastic.Aggregation{}
 
 	for _, facetField := range sr.FacetField {
-		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField, false, 10)
+		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField)
 		if err != nil {
 			return nil, err
 		}
-		aggs[facetField] = agg
+		aggs[facetField.GetField()] = agg
 	}
 	return aggs, nil
 }
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
-func (sr *SearchRequest) CreateAggregationBySearchLabel(path, searchLabel string, byId bool, size int) (elastic.Aggregation, error) {
+func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *FacetField) (elastic.Aggregation, error) {
 	nestedPath := fmt.Sprintf("%s.searchLabel", path)
-	fieldQuery := elastic.NewTermQuery(nestedPath, searchLabel)
+	fieldQuery := elastic.NewTermQuery(nestedPath, facet.GetField())
 
 	entryKey := "@value.keyword"
-	if byId {
+	if facet.GetById() {
 		entryKey = "@id"
 	}
 
 	termAggPath := fmt.Sprintf("%s.%s", path, entryKey)
 
-	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(size).OrderByCountDesc()
+	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(int(facet.GetSize()))
+
+	if facet.GetByName() {
+		labelAgg = labelAgg.OrderByTerm(facet.GetAsc())
+	} else {
+		labelAgg = labelAgg.OrderByCount(facet.GetAsc())
+	}
 
 	filterAgg := elastic.NewFilterAggregation().Filter(fieldQuery).SubAggregation("value", labelAgg)
 
@@ -243,8 +271,8 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 	}
 
 	if sr.Peek != "" {
-
-		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", sr.Peek, false, 100)
+		facetField := &FacetField{Field: sr.Peek, Size: int32(100)}
+		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField)
 		if err != nil {
 			return nil, err
 		}
@@ -266,6 +294,26 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 	for facetField, agg := range aggs {
 		s = s.Aggregation(facetField, agg)
 	}
+
+	// Add post filters
+
+	postFilter := elastic.NewBoolQuery()
+	for _, qf := range sr.QueryFilter {
+		switch qf.Path {
+		case "spec", "delving_spec", "delving_spec.raw":
+			qf.Path = c.Config.ElasticSearch.SpecKey
+			postFilter = postFilter.Must(elastic.NewTermQuery(qf.Path, qf.Value))
+		default:
+			labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.Path)
+			fieldQuery := elastic.NewTermQuery("resources.entries.@value.keyword", qf.Value)
+
+			qs := elastic.NewBoolQuery()
+			qs = qs.Must(labelQ, fieldQuery)
+			nq := elastic.NewNestedQuery("resources.entries", qs)
+			postFilter = postFilter.Must(nq)
+		}
+	}
+	s = s.PostFilter(postFilter)
 
 	return s.Query(query), err
 }
@@ -358,6 +406,9 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 	// determine the levels of nesting for the filter
 	// assign to values of the QueryFilter struct
 	parts := strings.SplitN(filter, ":", 2)
+	if len(parts) < 2 {
+		return nil, fmt.Errorf("no query field specified in: %s", filter)
+	}
 	qf := &QueryFilter{
 		Value: parts[1],
 		Path:  parts[0],
