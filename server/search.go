@@ -80,45 +80,9 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Echo requests when requested
-	echoRequest := r.URL.Query().Get("echo")
-	if echoRequest != "" {
-		echo, err := searchRequest.Echo(echoRequest, 0)
-		if err != nil {
-			log.Println("Unable to echo request")
-			log.Println(err)
-			return
-		}
-		if echo != nil {
-			render.JSON(w, r, echo)
-			return
-		}
-	}
-
 	s, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
 		log.Println("Unable to create Search Service")
-		return
-	}
-
-	switch echoRequest {
-	case "searchService":
-		render.JSON(w, r, searchRequest)
-		return
-	case "request":
-		dump, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			msg := fmt.Sprintf("Unable to dump request: %s", err)
-			log.Print(msg)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprint(msg),
-				Error:      err,
-			})
-			return
-		}
-
-		render.PlainText(w, r, string(dump))
 		return
 	}
 
@@ -133,11 +97,6 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	}
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
-		return
-	}
-
-	if echoRequest == "searchResponse" {
-		render.JSON(w, r, res)
 		return
 	}
 
@@ -198,6 +157,53 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.GetCursor())))
 	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.GetTotal())))
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
+
+	// Echo requests when requested
+	echoRequest := r.URL.Query().Get("echo")
+	if echoRequest != "" {
+		echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
+		if err != nil {
+			log.Println("Unable to echo request")
+			log.Println(err)
+			return
+		}
+		if echo != nil {
+			render.JSON(w, r, echo)
+			return
+		}
+	}
+
+	switch echoRequest {
+	case "nextScrollID":
+		srNext, err := fragments.SearchRequestFromHex(pager.GetScrollID())
+		if err != nil {
+			http.Error(w, "unable to decode nextScrollID", http.StatusInternalServerError)
+			return
+		}
+		render.JSON(w, r, srNext)
+		return
+	case "searchResponse":
+		render.JSON(w, r, res)
+		return
+	case "searchService":
+		render.JSON(w, r, s)
+		return
+	case "request":
+		dump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+
+		render.PlainText(w, r, string(dump))
+		return
+	}
 
 	// meta formats that don't use search result
 	switch searchRequest.GetResponseFormatType() {

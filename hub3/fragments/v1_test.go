@@ -17,7 +17,6 @@ package fragments_test
 import (
 	"bytes"
 	"io/ioutil"
-	"math/rand"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
@@ -47,16 +46,6 @@ func renderJSONLD(g *r.Graph) (string, error) {
 		return "", err
 	}
 	return b.String(), nil
-}
-
-var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-func randSeq(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
 
 var _ = Describe("V1", func() {

@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	fmt "fmt"
 	"log"
+	"math/rand"
 	"net/url"
 	"strconv"
 	"strings"
@@ -170,6 +171,16 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	return sr, nil
 }
 
+var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+func randSeq(n int) string {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
 // ElasticQuery creates an ElasticSearch query from the Search Request
 // This query can be passed into an elastic Search Object.
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
@@ -190,6 +201,24 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 		query = query.Must(nq)
 
+	}
+	if strings.HasPrefix(sr.GetSortBy(), "random") {
+		randomFunc := elastic.NewRandomFunction()
+
+		seeds := strings.Split(sr.GetSortBy(), "_")
+		if len(seeds) == 2 {
+			seed := seeds[1]
+			randomFunc.Seed(seed)
+		} else {
+			seed := randSeq(10)
+			sr.SortBy = fmt.Sprintf("random_%s", seed)
+			randomFunc.Seed(seed)
+		}
+
+		query := elastic.NewFunctionScoreQuery().
+			AddScoreFunc(randomFunc).
+			Query(query)
+		return query, nil
 	}
 
 	return query, nil
@@ -250,7 +279,10 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 	idSort := elastic.NewFieldSort("meta.hubID")
 	var fieldSort *elastic.FieldSort
 
-	if sr.GetSortBy() != "" {
+	switch {
+	case strings.HasPrefix(sr.GetSortBy(), "random"), sr.GetSortBy() == "":
+		fieldSort = elastic.NewFieldSort("_score")
+	default:
 		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", sr.GetSortBy())
 		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").
 			NestedPath("resources.entries").
@@ -260,8 +292,6 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 		} else {
 			fieldSort = fieldSort.Desc()
 		}
-	} else {
-		fieldSort = elastic.NewFieldSort("_score")
 	}
 
 	s := client.Search().
@@ -375,19 +405,9 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 			sourceMap[k] = source
 		}
 		return sourceMap, nil
-	case "nextScrollID":
-		pager, err := sr.NextScrollID(total)
-		if err != nil {
-			return nil, err
-		}
-		next, err := SearchRequestFromHex(pager.GetScrollID())
-		if err != nil {
-			return nil, err
-		}
-		return next, nil
 	case "searchRequest":
 		return sr, nil
-	case "searchService", "searchResponse", "request":
+	case "searchService", "searchResponse", "request", "nextScrollID":
 		return nil, nil
 	}
 	return nil, fmt.Errorf("unknown echoType: %s", echoType)
