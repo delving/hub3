@@ -103,6 +103,7 @@ message SearchRequest {
   int32 collapseSize = 27;
   string collapseSort = 28;
   string peek = 29;
+  bool sortAsc = 30;
 }
 
 enum GeoType {

@@ -139,6 +139,18 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
+		case "sortBy":
+			sr.SortBy = params.Get(p)
+		case "sortAsc":
+			switch params.Get(p) {
+			case "true":
+				sr.SortAsc = true
+			}
+		case "sortOrder":
+			switch params.Get(p) {
+			case "asc":
+				sr.SortAsc = true
+			}
 		case "collapseOn":
 			sr.CollapseOn = params.Get(p)
 		case "collapseSort":
@@ -236,11 +248,26 @@ func getInterface(bts []byte, data interface{}) error {
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
 	idSort := elastic.NewFieldSort("meta.hubID")
-	scoreSort := elastic.NewFieldSort("_score")
+	var fieldSort *elastic.FieldSort
+
+	if sr.GetSortBy() != "" {
+		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", sr.GetSortBy())
+		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").
+			NestedPath("resources.entries").
+			NestedFilter(sortNestedQuery)
+		if sr.SortAsc {
+			fieldSort = fieldSort.Asc()
+		} else {
+			fieldSort = fieldSort.Desc()
+		}
+	} else {
+		fieldSort = elastic.NewFieldSort("_score")
+	}
+
 	s := client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
 		Size(int(sr.GetResponseSize())).
-		SortBy(scoreSort, idSort)
+		SortBy(fieldSort, idSort)
 
 	if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
 		var sa []interface{}
