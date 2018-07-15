@@ -30,6 +30,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 	//elastic "github.cocm/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -41,6 +42,9 @@ type SearchResource struct{}
 // Routes returns the chi.Router
 func (rs SearchResource) Routes() chi.Router {
 	r := chi.NewRouter()
+
+	// throttle queries on elasticsearch
+	r.Use(middleware.Throttle(100))
 
 	r.Get("/v2", getScrollResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
@@ -90,7 +94,20 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	//s.Suggester(elastic.NewSuggestField)
 
 	res, err := s.Do(ctx)
+	echoRequest := r.URL.Query().Get("echo")
 	if err != nil {
+		if echoRequest != "" {
+			echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
+			if err != nil {
+				log.Println("Unable to echo request")
+				log.Println(err)
+				return
+			}
+			if echo != nil {
+				render.JSON(w, r, echo)
+				return
+			}
+		}
 		log.Println("Unable to get search result.")
 		log.Println(err)
 		return
@@ -159,7 +176,6 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
 
 	// Echo requests when requested
-	echoRequest := r.URL.Query().Get("echo")
 	if echoRequest != "" {
 		echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
 		if err != nil {
