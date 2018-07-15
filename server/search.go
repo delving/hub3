@@ -174,13 +174,23 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch echoRequest {
-	case "nextScrollID":
+	case "nextScrollID", "searchAfter":
 		srNext, err := fragments.SearchRequestFromHex(pager.GetScrollID())
 		if err != nil {
 			http.Error(w, "unable to decode nextScrollID", http.StatusInternalServerError)
 			return
 		}
-		render.JSON(w, r, srNext)
+		if echoRequest != "searchAfter" {
+			render.JSON(w, r, srNext)
+			return
+
+		}
+		sa, err := srNext.DecodeSearchAfter()
+		if err != nil {
+			http.Error(w, "unable to decode next SearchAfter", http.StatusInternalServerError)
+			return
+		}
+		render.JSON(w, r, sa)
 		return
 	case "searchResponse":
 		render.JSON(w, r, res)

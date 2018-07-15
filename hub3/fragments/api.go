@@ -23,6 +23,7 @@ import (
 	"log"
 	"math/rand"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -274,6 +275,17 @@ func getInterface(bts []byte, data interface{}) error {
 	return err
 }
 
+// DecodeSearchAfter returns an interface array decoded from []byte
+func (sr *SearchRequest) DecodeSearchAfter() ([]interface{}, error) {
+	var sa []interface{}
+	err := getInterface(sr.SearchAfter, &sa)
+	if err != nil {
+		log.Printf("Unable to decode interface: %s", err)
+		return sa, err
+	}
+	return sa, nil
+}
+
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.SearchService, error) {
 	idSort := elastic.NewFieldSort("meta.hubID")
@@ -300,13 +312,10 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 		SortBy(fieldSort, idSort)
 
 	if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
-		var sa []interface{}
-		err := getInterface(sr.SearchAfter, &sa)
+		sa, err := sr.DecodeSearchAfter()
 		if err != nil {
-			log.Printf("Unable to decode interface: %s", err)
-			return s, err
+			return nil, err
 		}
-
 		s = s.SearchAfter(sa...)
 
 	}
@@ -407,7 +416,14 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 		return sourceMap, nil
 	case "searchRequest":
 		return sr, nil
-	case "searchService", "searchResponse", "request", "nextScrollID":
+	case "options":
+		options := []string{
+			"es", "aggs", "searchRequest", "options", "searchService", "searchResponse", "request",
+			"nextScrollID", "searchAfter",
+		}
+		sort.Strings(options)
+		return options, nil
+	case "searchService", "searchResponse", "request", "nextScrollID", "searchAfter":
 		return nil, nil
 	}
 	return nil, fmt.Errorf("unknown echoType: %s", echoType)
