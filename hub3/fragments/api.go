@@ -62,10 +62,11 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 
 // NewFacetField parses the QueryString and creates a FacetField
 func NewFacetField(field string) (*FacetField, error) {
-	if !strings.HasPrefix(field, "{") {
-		return &FacetField{Field: field}, nil
-	}
 	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
+	if !strings.HasPrefix(field, "{") {
+		ff.Field = field
+		return &ff, nil
+	}
 	err := json.Unmarshal([]byte(field), &ff)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to unmarshal facetfield")
