@@ -22,8 +22,10 @@ import (
 	log "log"
 	"net/http"
 	"net/http/httputil"
+	"reflect"
 	"strconv"
 	"strings"
+	"unsafe"
 
 	"github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3"
@@ -32,6 +34,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
+
 	//elastic "github.cocm/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -212,7 +215,15 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, res)
 		return
 	case "searchService":
-		render.JSON(w, r, s)
+		ss := reflect.ValueOf(s).Elem().FieldByName("searchSource")
+		src := reflect.NewAt(ss.Type(), unsafe.Pointer(ss.UnsafeAddr())).Elem().Interface().(*elastic.SearchSource)
+		srcMap, err := src.Source()
+		if err != nil {
+			log.Printf("Unable to decode SearchSource: got %s", err)
+			http.Error(w, "unable to decode next SearchSource", http.StatusInternalServerError)
+			return
+		}
+		render.JSON(w, r, srcMap)
 		return
 	case "request":
 		dump, err := httputil.DumpRequest(r, true)
@@ -282,7 +293,6 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
 
-	// FragmentGraph is the default decoded issue
 	switch searchRequest.ItemFormat {
 	case fragments.ItemFormatType_FLAT:
 		for _, rec := range records {
