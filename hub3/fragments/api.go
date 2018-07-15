@@ -466,13 +466,20 @@ func qfSplit(r rune) bool {
 	return r == ']' || r == '['
 }
 
+func validateTypeClass(tc string) string {
+	if tc == "a" {
+		return ""
+	}
+	return tc
+}
+
 // NewQueryFilter parses the filter string and creates a QueryFilter object
 func NewQueryFilter(filter string) (*QueryFilter, error) {
 	qf := &QueryFilter{}
-	// split once on the first :
-	// split on first part and ]. This should give one or two
-	// determine the levels of nesting for the filter
-	// assign to values of the QueryFilter struct
+
+	// fill empty type classes
+	filter = strings.Replace(filter, "[]", `[a]`, -1)
+
 	parts := strings.SplitN(filter, ":", 2)
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("no query field specified in: %s", filter)
@@ -484,14 +491,42 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 		qf.SearchLabel = parts[0]
 	case 2:
 		qf.SearchLabel = parts[1]
-		qf.TypeClass = parts[0]
+		qf.TypeClass = validateTypeClass(parts[0])
 	case 3:
 		qf.SearchLabel = parts[2]
-		qf.TypeClass = parts[1]
+		qf.TypeClass = validateTypeClass(parts[1])
 		qf.Level2 = &ContextQueryFilter{SearchLabel: parts[0]}
+	case 4:
+		qf.SearchLabel = parts[3]
+		qf.TypeClass = validateTypeClass(parts[2])
+		qf.Level2 = &ContextQueryFilter{SearchLabel: parts[1], TypeClass: validateTypeClass(parts[0])}
+	case 5:
+		qf.SearchLabel = parts[4]
+		qf.TypeClass = validateTypeClass(parts[3])
+		qf.Level2 = &ContextQueryFilter{SearchLabel: parts[2], TypeClass: validateTypeClass(parts[1])}
+		qf.Level1 = &ContextQueryFilter{SearchLabel: parts[0]}
+	case 6:
+		qf.SearchLabel = parts[5]
+		qf.TypeClass = validateTypeClass(parts[4])
+		qf.Level2 = &ContextQueryFilter{SearchLabel: parts[3], TypeClass: validateTypeClass(parts[2])}
+		qf.Level1 = &ContextQueryFilter{SearchLabel: parts[1], TypeClass: validateTypeClass(parts[0])}
 	}
 
 	return qf, nil
+}
+
+// AsString returns the QueryFilter formatted as a string
+func (qf *QueryFilter) AsString() string {
+	base := fmt.Sprintf("[%s]%s:%s", qf.GetTypeClass(), qf.GetSearchLabel(), qf.GetValue())
+	level2 := ""
+	if qf.GetLevel2() != nil {
+		level2 = fmt.Sprintf("[%s]%s", qf.Level2.GetTypeClass(), qf.Level2.GetSearchLabel())
+	}
+	level1 := ""
+	if qf.GetLevel1() != nil {
+		level1 = fmt.Sprintf("[%s]%s", qf.Level1.GetTypeClass(), qf.Level1.GetSearchLabel())
+	}
+	return fmt.Sprintf("%s%s%s", level1, level2, base)
 }
 
 // ElasticFilter creates an elasticsearch filter from the QueryFilter

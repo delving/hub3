@@ -2,6 +2,7 @@ package fragments
 
 import (
 	fmt "fmt"
+	"strings"
 	"testing"
 
 	c "github.com/delving/rapid-saas/config"
@@ -149,9 +150,9 @@ var _ = Describe("Apiutils", func() {
 				Expect(id.GetRows()).To(Equal(int32(16)))
 				Expect(id.GetScrollID()).ToNot(BeEmpty())
 
-				srFromId, err := SearchRequestFromHex(id.GetScrollID())
+				srFromID, err := SearchRequestFromHex(id.GetScrollID())
 				Expect(err).ToNot(HaveOccurred())
-				Expect(srFromId.GetStart()).To(Equal(int32(16)))
+				Expect(srFromID.GetStart()).To(Equal(int32(16)))
 			})
 
 			It("should have an empty scroldlID when on the last page", func() {
@@ -170,6 +171,28 @@ var _ = Describe("Apiutils", func() {
 	})
 
 })
+
+func Test_validateTypeClass(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"empty TypeClass", args{"a"}, ""},
+		{"valid TypeClass", args{"edm_Place"}, "edm_Place"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := validateTypeClass(tt.args.s); got != tt.want {
+				defer GinkgoRecover()
+				Fail(fmt.Sprintf("validateTypeClass() = %v, want %v", got, tt.want))
+			}
+		})
+	}
+}
 
 func Test_qfSplit(t *testing.T) {
 	type args struct {
@@ -236,18 +259,59 @@ func TestNewQueryFilter(t *testing.T) {
 			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
 				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"}},
 		},
+		{
+			"context level 1 with class empty filter", "dcterms_spatial[]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"}},
+		},
+		{
+			"context level 1 with context class filter", "[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"}},
+		},
+		{
+			"context level 1 with context class filter", "[]dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: ""}},
+		},
+		{
+			"context level 2 with context class filter",
+			"[ore_Aggregation]edm_aggregateCHO[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum",
+			nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"},
+				Level1: &ContextQueryFilter{SearchLabel: "edm_aggregateCHO", TypeClass: "ore_Aggregation"},
+			},
+		},
+		{
+			"context level 2 with empty context class filter",
+			"[]edm_aggregateCHO[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum",
+			nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"},
+				Level1: &ContextQueryFilter{SearchLabel: "edm_aggregateCHO", TypeClass: ""},
+			},
+		},
 	}
 
 	for _, tc := range tt {
 
 		t.Run(tc.name, func(t *testing.T) {
+			defer GinkgoRecover()
+
 			new, err := NewQueryFilter(tc.input)
 			if tc.err != nil && err.Error() != tc.err.Error() {
 				t.Fatalf("%s should not throw error %v: got %v", tc.name, tc.err, err)
 			}
 			if !cmp.Equal(new, tc.output) && tc.err == nil {
-				defer GinkgoRecover()
 				Fail(fmt.Sprintf("%s should be converted to %v; got %v", tc.input, tc.output, new))
+			}
+			normalisedInput := tc.input
+			if !strings.HasPrefix(normalisedInput, "[") {
+				normalisedInput = "[]" + normalisedInput
+			}
+			if normalisedInput != new.AsString() && tc.err == nil {
+				Fail(fmt.Sprintf("%s is not converted back correctly ; got %v", normalisedInput, new.AsString()))
 			}
 		})
 	}
