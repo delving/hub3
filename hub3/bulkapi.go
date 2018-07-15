@@ -48,6 +48,7 @@ type BulkAction struct {
 	Graph         string                 `json:"graph"`
 	RDF           string                 `json:"rdf"`
 	GraphMimeType string                 `json:"graphMimeType"`
+	SubjectType   string                 `json:"subjectType"`
 	p             *elastic.BulkProcessor `json:"p"`
 	wp            *workerpool.WorkerPool `json:"wp"`
 }
