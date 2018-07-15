@@ -175,7 +175,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func randSeq(n int) string {
+func RandSeq(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
@@ -212,7 +212,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			seed := seeds[1]
 			randomFunc.Seed(seed)
 		} else {
-			seed := randSeq(10)
+			seed := RandSeq(10)
 			sr.SortBy = fmt.Sprintf("random_%s", seed)
 			randomFunc.Seed(seed)
 		}
@@ -366,12 +366,12 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 
 	postFilter := elastic.NewBoolQuery()
 	for _, qf := range sr.QueryFilter {
-		switch qf.Path {
+		switch qf.SearchLabel {
 		case "spec", "delving_spec", "delving_spec.raw":
-			qf.Path = c.Config.ElasticSearch.SpecKey
-			postFilter = postFilter.Must(elastic.NewTermQuery(qf.Path, qf.Value))
+			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
+			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
 		default:
-			labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.Path)
+			labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
 			fieldQuery := elastic.NewTermQuery("resources.entries.@value.keyword", qf.Value)
 
 			qs := elastic.NewBoolQuery()
@@ -462,9 +462,13 @@ func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 	return sp, nil
 }
 
+func qfSplit(r rune) bool {
+	return r == ']' || r == '['
+}
+
 // NewQueryFilter parses the filter string and creates a QueryFilter object
 func NewQueryFilter(filter string) (*QueryFilter, error) {
-
+	qf := &QueryFilter{}
 	// split once on the first :
 	// split on first part and ]. This should give one or two
 	// determine the levels of nesting for the filter
@@ -473,9 +477,18 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("no query field specified in: %s", filter)
 	}
-	qf := &QueryFilter{
-		Value: parts[1],
-		Path:  parts[0],
+	qf.Value = parts[1]
+	parts = strings.FieldsFunc(parts[0], qfSplit)
+	switch len(parts) {
+	case 1:
+		qf.SearchLabel = parts[0]
+	case 2:
+		qf.SearchLabel = parts[1]
+		qf.TypeClass = parts[0]
+	case 3:
+		qf.SearchLabel = parts[2]
+		qf.TypeClass = parts[1]
+		qf.Level2 = &ContextQueryFilter{SearchLabel: parts[0]}
 	}
 
 	return qf, nil

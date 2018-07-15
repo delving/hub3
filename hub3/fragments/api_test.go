@@ -1,11 +1,11 @@
-package fragments_test
+package fragments
 
 import (
+	fmt "fmt"
 	"testing"
 
 	c "github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/fragments"
-
+	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -111,13 +111,13 @@ var _ = Describe("Apiutils", func() {
 
 			})
 
-			It("should show the scrollID", func() {
-				echo, err := sr.Echo("nextScrollID", int64(30))
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-				Expect(echo.(*SearchRequest).GetResponseSize()).To(Equal(int32(10)))
-			})
+			//It("should show the scrollID", func() {
+			//echo, err := sr.Echo("nextScrollID", int64(30))
+			//Expect(err).ToNot(HaveOccurred())
+			//Expect(echo).ToNot(BeNil())
+			//Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
+			//Expect(echo.(*SearchRequest).GetResponseSize()).To(Equal(int32(10)))
+			//})
 
 			It("should show the Search Request", func() {
 				echo, err := sr.Echo("searchRequest", 20)
@@ -171,6 +171,29 @@ var _ = Describe("Apiutils", func() {
 
 })
 
+func Test_qfSplit(t *testing.T) {
+	type args struct {
+		r rune
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"start bracket", args{'['}, true},
+		{"end bracket", args{']'}, true},
+		{"no bracket", args{'a'}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := qfSplit(tt.args.r); got != tt.want {
+				defer GinkgoRecover()
+				Fail(fmt.Sprintf("qfSplit() = %v, want %v", got, tt.want))
+			}
+		})
+	}
+}
+
 func BenchmarkSearchRequestToHex(b *testing.B) {
 	sr := &SearchRequest{Query: "TestQuery"}
 	for n := 0; n < b.N; n++ {
@@ -182,4 +205,51 @@ func BenchmarkSearchRequestFromHex(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		SearchRequestFromHex("1810")
 	}
+}
+
+func TestNewQueryFilter(t *testing.T) {
+
+	tt := []struct {
+		name   string
+		input  string
+		err    error
+		output *QueryFilter
+	}{
+		{
+			"simple filter", "dc_subject:boerderij", nil,
+			&QueryFilter{SearchLabel: "dc_subject", Value: "boerderij"},
+		},
+		{
+			"bad filter", "dc_subjectboerderij", fmt.Errorf("no query field specified in: dc_subjectboerderij"),
+			&QueryFilter{SearchLabel: "dc_subject", Value: "boerderij"},
+		},
+		{
+			"class filter", "[edm_Place]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place"},
+		},
+		{
+			"empty class filter", "[]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: ""},
+		},
+		{
+			"context level 1 with class filter", "dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
+			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"}},
+		},
+	}
+
+	for _, tc := range tt {
+
+		t.Run(tc.name, func(t *testing.T) {
+			new, err := NewQueryFilter(tc.input)
+			if tc.err != nil && err.Error() != tc.err.Error() {
+				t.Fatalf("%s should not throw error %v: got %v", tc.name, tc.err, err)
+			}
+			if !cmp.Equal(new, tc.output) && tc.err == nil {
+				defer GinkgoRecover()
+				Fail(fmt.Sprintf("%s should be converted to %v; got %v", tc.input, tc.output, new))
+			}
+		})
+	}
+
 }

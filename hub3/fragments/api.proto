@@ -55,9 +55,10 @@ message QueryFilter {
   ContextQueryFilter Level1 = 1;
   ContextQueryFilter Level2 = 2;
   string SearchLabel = 3;
+  string TypeClass = 6;
   string Value = 4;
   bool Exclude = 5;
-  string Path = 6;
+  // Path is the full query path 
 }
 
 message FacetField {

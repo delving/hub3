@@ -1,7 +1,6 @@
 package fragments
 
 import (
-	"fmt"
 	"strings"
 
 	rdf "github.com/deiu/gon3"
@@ -54,8 +53,7 @@ var _ = Describe("Rdfstream", func() {
 				g, err := parser.Parse(reader)
 				Expect(err).ToNot(HaveOccurred())
 				for t := range g.IterTriples() {
-					triple := r.NewTriple(rdf2term(t.Subject), rdf2term(t.Predicate), rdf2term(t.Object))
-					fmt.Println(triple)
+					_ = r.NewTriple(rdf2term(t.Subject), rdf2term(t.Predicate), rdf2term(t.Object))
 				}
 				//Expect(g.IterTriples()).ToNot(BeEmpty())
 			})

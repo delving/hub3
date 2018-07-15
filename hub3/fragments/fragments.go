@@ -143,7 +143,6 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 	fr.AssignObject()
-	log.Println(fr.GetObject(), fr.GetLanguage())
 	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())

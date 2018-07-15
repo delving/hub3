@@ -123,34 +123,34 @@ var _ = Describe("V1", func() {
 				Expect(order).To(Equal([]int{1, 2, 3}))
 			})
 
-			It("should clean-up urn: references that end with __", func() {
-				Skip("slow test")
-				urn := "urn:museum-helmond-objecten/2008-018__"
-				orgID := "brabantcloud"
-				wrb, err := testDataGraph(true)
-				wr := r.NewTriple(
-					r.NewResource(urn),
-					r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-					GetEDMField("WebResource"),
-				)
-				wrb.Graph.Add(wr)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(wrb.Graph.Len()).To(Equal(1))
-				triple := wrb.Graph.One(r.NewResource(urn), nil, nil)
-				Expect(triple).ToNot(BeNil())
-				errChan := make(chan error)
-				wrb.GetRemoteWebResource(urn, orgID, errChan)
-				Expect(errChan).To(BeEmpty())
-				Expect(wrb.Graph.Len()).ToNot(Equal(0))
-				wrList := wrb.GetSortedWebResources()
-				Expect(wrList).ToNot(BeEmpty())
-				triples := wrb.Graph.All(nil, GetEDMField("hasView"), nil)
-				Expect(triples).ToNot(BeNil())
-				object := wrb.Graph.All(nil, GetEDMField("object"), nil)
-				Expect(object).To(HaveLen(1))
-				isShownBy := wrb.Graph.All(nil, GetEDMField("isShownBy"), nil)
-				Expect(isShownBy).To(HaveLen(1))
-			})
+			//It("should clean-up urn: references that end with __", func() {
+			//Skip("slow test")
+			//urn := "urn:museum-helmond-objecten/2008-018__"
+			//orgID := "brabantcloud"
+			//wrb, err := testDataGraph(true)
+			//wr := r.NewTriple(
+			//r.NewResource(urn),
+			//r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+			//GetEDMField("WebResource"),
+			//)
+			//wrb.Graph.Add(wr)
+			//Expect(err).ToNot(HaveOccurred())
+			//Expect(wrb.Graph.Len()).To(Equal(1))
+			//triple := wrb.Graph.One(r.NewResource(urn), nil, nil)
+			//Expect(triple).ToNot(BeNil())
+			//errChan := make(chan error)
+			//wrb.GetRemoteWebResource(urn, orgID, errChan)
+			//Expect(errChan).To(BeEmpty())
+			//Expect(wrb.Graph.Len()).ToNot(Equal(0))
+			//wrList := wrb.GetSortedWebResources()
+			//Expect(wrList).ToNot(BeEmpty())
+			//triples := wrb.Graph.All(nil, GetEDMField("hasView"), nil)
+			//Expect(triples).ToNot(BeNil())
+			//object := wrb.Graph.All(nil, GetEDMField("object"), nil)
+			//Expect(object).To(HaveLen(1))
+			//isShownBy := wrb.Graph.All(nil, GetEDMField("isShownBy"), nil)
+			//Expect(isShownBy).To(HaveLen(1))
+			//})
 
 			It("should return a list of webresources with urns", func() {
 				fb, err := testDataGraph(false)
@@ -224,20 +224,20 @@ var _ = Describe("V1", func() {
 
 			})
 
-			It("should cleanup the dates", func() {
-				Skip("must be added to a different part of the code base")
-				fb, err := testDataGraph(false)
-				Expect(err).ToNot(HaveOccurred())
-				created := r.NewResource(GetNSField("dcterms", "created"))
-				t := fb.Graph.One(nil, created, nil)
-				Expect(t).ToNot(BeNil())
-				fb.GetSortedWebResources()
-				t = fb.Graph.One(nil, created, nil)
-				Expect(t).To(BeNil())
-				createdRaw := r.NewResource(GetNSField("dcterms", "createdRaw1"))
-				tRaw := fb.Graph.One(nil, createdRaw, nil)
-				Expect(tRaw).ToNot(BeNil())
-			})
+			//It("should cleanup the dates", func() {
+			//Skip("must be added to a different part of the code base")
+			//fb, err := testDataGraph(false)
+			//Expect(err).ToNot(HaveOccurred())
+			//created := r.NewResource(GetNSField("dcterms", "created"))
+			//t := fb.Graph.One(nil, created, nil)
+			//Expect(t).ToNot(BeNil())
+			//fb.GetSortedWebResources()
+			//t = fb.Graph.One(nil, created, nil)
+			//Expect(t).To(BeNil())
+			//createdRaw := r.NewResource(GetNSField("dcterms", "createdRaw1"))
+			//tRaw := fb.Graph.One(nil, createdRaw, nil)
+			//Expect(tRaw).ToNot(BeNil())
+			//})
 
 		})
 
@@ -367,7 +367,7 @@ var _ = Describe("V1", func() {
 		})
 
 		It("should limit raw to 256 characters", func() {
-			rString := randSeq(500)
+			rString := RandSeq(500)
 			Expect(rString).To(HaveLen(500))
 			t := r.NewTriple(
 				r.NewResource("urn:1"),
@@ -382,7 +382,7 @@ var _ = Describe("V1", func() {
 		})
 
 		It("should limit value to 32000 characters", func() {
-			rString := randSeq(40000)
+			rString := RandSeq(40000)
 			Expect(rString).To(HaveLen(40000))
 			t := r.NewTriple(
 				r.NewResource("urn:1"),

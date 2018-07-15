@@ -53,7 +53,7 @@ func init() {
 	bps := index.CreateBulkProcessorService()
 	bp, err = bps.Do(ctx)
 	if err != nil {
-		log.Fatalf("Unable to start BulkProcessor: ", err)
+		log.Fatalf("Unable to start BulkProcessor: %s", err)
 	}
 	wp = workerpool.New(10)
 }
@@ -664,7 +664,7 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 		}
 		status := http.StatusInternalServerError
 		render.Status(r, status)
-		log.Println("Unable to create dataset stats: %s", err)
+		log.Printf("Unable to create dataset stats: %s", err)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: status,
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),
@@ -694,7 +694,7 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 		}
 		status := http.StatusInternalServerError
 		render.Status(r, status)
-		log.Println("Unable to get dataset: %s", spec)
+		log.Printf("Unable to get dataset: %s", spec)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: status,
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),
