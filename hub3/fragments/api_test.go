@@ -2,6 +2,7 @@ package fragments
 
 import (
 	fmt "fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -340,6 +341,78 @@ func Test_TypeClassAsURI(t *testing.T) {
 			}
 			if got != tt.want {
 				Fail(fmt.Sprintf("TypeClassAsURI() = %v, want %v", got, tt.want))
+			}
+		})
+	}
+}
+
+func TestSearchRequest_NewUserQuery(t *testing.T) {
+	type fields struct {
+		Query       string
+		QueryFilter []*QueryFilter
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    *Query
+		wantErr bool
+	}{
+		{"match all query", fields{}, &Query{}, false},
+		{"simple query", fields{Query: "test"}, &Query{Terms: "test",
+			BreadCrumbs: []*BreadCrumb{&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer GinkgoRecover()
+
+			sr := &SearchRequest{
+				Query:       tt.fields.Query,
+				QueryFilter: tt.fields.QueryFilter,
+			}
+			got, err := sr.NewUserQuery()
+			if (err != nil) != tt.wantErr {
+				Fail(fmt.Sprintf("SearchRequest.NewUserQuery() error = %v, wantErr %v", err, tt.wantErr))
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				Fail(fmt.Sprintf("SearchRequest.NewUserQuery() = %v, want %v", got, tt.want))
+			}
+		})
+	}
+}
+
+func TestAppendBreadCrumb(t *testing.T) {
+	type args struct {
+		param string
+		qf    *QueryFilter
+		path  string
+	}
+	bcb := &BreadCrumbBuilder{}
+
+	tests := []struct {
+		name     string
+		args     args
+		wantLast *BreadCrumb
+		wantErr  bool
+	}{
+		{"empty query", args{param: "query", qf: &QueryFilter{Value: ""}}, &BreadCrumb{IsLast: true}, false},
+		{"simple query", args{param: "query", qf: &QueryFilter{Value: "test"}, path: "q=test"},
+			&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}, false},
+		{"simple filter query", args{param: "qf[]", qf: &QueryFilter{Value: "boerderij", SearchLabel: "dc_subject"},
+			path: "q=test&qf[]=dc_subject:boerderij"},
+			&BreadCrumb{Href: "q=test&qf[]=dc_subject:boerderij", Display: "dc_subject:boerderij", Value: "boerderij",
+				Field: "dc_subject", IsLast: true}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer GinkgoRecover()
+			bcb.AppendBreadCrumb(tt.args.param, tt.args.qf)
+			got := bcb.GetLast()
+			if !reflect.DeepEqual(got, tt.wantLast) {
+				Fail(fmt.Sprintf("NewBreadCrumb() = %v, want %v", got, tt.wantLast))
+			}
+			if bcb.GetPath() != tt.args.path {
+				Fail(fmt.Sprintf("NewBreadCrumb() Path = %v, want %v", bcb.GetPath(), tt.args.path))
 			}
 		})
 	}

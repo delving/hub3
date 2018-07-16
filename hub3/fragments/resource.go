@@ -124,6 +124,7 @@ type Collapsed struct {
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager     *ScrollPager     `json:"pager"`
+	Query     *Query           `json:"query"`
 	Items     []*FragmentGraph `json:"items,omitempty"`
 	Collapsed []*Collapsed     `json:"collapse,omitempty"`
 	Peek      map[string]int64 `json:"peek,omitempty"`

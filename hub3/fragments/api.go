@@ -175,12 +175,79 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+// RandSeq returns a random string of letters with the size of 'n'
 func RandSeq(n int) string {
 	b := make([]byte, n)
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
 	return string(b)
+}
+
+// BreadCrumbBuilder is a struct that holds all the information to build a BreadCrumb trail
+type BreadCrumbBuilder struct {
+	hrefPath []string
+	crumbs   []*BreadCrumb
+}
+
+// TODO implement pop and push for creating facets links
+
+// AppendBreadCrumb creates a BreadCrumb
+func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
+	bc := &BreadCrumb{IsLast: true}
+	switch param {
+	case "query":
+		if qf.GetValue() != "" {
+			bc.Display = qf.GetValue()
+			bc.Href = fmt.Sprintf("q=%s", qf.GetValue())
+			bc.Value = qf.GetValue()
+			bcb.hrefPath = append(bcb.hrefPath, bc.GetHref())
+		}
+	case "qf[]":
+		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
+		href := fmt.Sprintf("qf[]=%s", qfs)
+		bc.Href = href
+		if bcb.GetPath() != "" {
+			bc.Href = bcb.GetPath() + "&" + bc.Href
+		}
+		bcb.hrefPath = append(bcb.hrefPath, href)
+		bc.Display = qfs
+		bc.Field = qf.GetSearchLabel()
+		bc.Value = qf.GetValue()
+	}
+	last := bcb.GetLast()
+	if last != nil {
+		last.IsLast = false
+	}
+	bcb.crumbs = append(bcb.crumbs, bc)
+}
+
+// GetPath returns the path for the BreadCrumb
+func (bcb *BreadCrumbBuilder) GetPath() string {
+	return strings.Join(bcb.hrefPath, "&")
+}
+
+// GetLast returns the last BreadCrumb from the trail
+func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
+	if len(bcb.crumbs) == 0 {
+		return nil
+	}
+	return bcb.crumbs[len(bcb.crumbs)-1]
+}
+
+// NewUserQuery creates an object with the user Query and the breadcrumbs
+func (sr *SearchRequest) NewUserQuery() (*Query, error) {
+	q := &Query{}
+	bcb := &BreadCrumbBuilder{}
+	if sr.GetQuery() != "" {
+		q.Terms = sr.GetQuery()
+		bcb.AppendBreadCrumb("query", &QueryFilter{Value: sr.GetQuery()})
+	}
+	for _, qf := range sr.GetQueryFilter() {
+		bcb.AppendBreadCrumb("qf[]", qf)
+	}
+	q.BreadCrumbs = bcb.crumbs
+	return q, nil
 }
 
 // ElasticQuery creates an ElasticSearch query from the Search Request

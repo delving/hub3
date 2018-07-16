@@ -333,6 +333,13 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		result.Facets = aggs
+		q, err := searchRequest.NewUserQuery()
+		if err != nil {
+			log.Printf("Unable to create User Query")
+			return
+		}
+		q.Numfound = int32(res.TotalHits())
+		result.Query = q
 	}
 
 	switch searchRequest.GetResponseFormatType() {
