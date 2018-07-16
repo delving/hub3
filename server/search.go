@@ -89,7 +89,8 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 
 	s, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
-		log.Println("Unable to create Search Service")
+		log.Printf("Unable to create Search Service: %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

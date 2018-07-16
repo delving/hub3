@@ -371,13 +371,11 @@ func (sr *SearchRequest) ElasticSearchService(client *elastic.Client) (*elastic.
 			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
 			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
 		default:
-			labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
-			fieldQuery := elastic.NewTermQuery("resources.entries.@value.keyword", qf.Value)
-
-			qs := elastic.NewBoolQuery()
-			qs = qs.Must(labelQ, fieldQuery)
-			nq := elastic.NewNestedQuery("resources.entries", qs)
-			postFilter = postFilter.Must(nq)
+			f, err := qf.ElasticFilter()
+			if err != nil {
+				return s, err
+			}
+			postFilter = postFilter.Must(f)
 		}
 	}
 	s = s.PostFilter(postFilter)
@@ -529,10 +527,68 @@ func (qf *QueryFilter) AsString() string {
 	return fmt.Sprintf("%s%s%s", level1, level2, base)
 }
 
+// TypeClassAsURI resolves the type class formatted as "prefix_label" as fully qualified URI
+func TypeClassAsURI(uri string) (string, error) {
+	parts := strings.SplitN(uri, "_", 2)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("TypeClass is defined in the wrong shorthand; got %s", uri)
+	}
+	label := parts[1]
+	base, ok := c.Config.NameSpaceMap.GetBaseURI(parts[0])
+	if !ok {
+		return "", fmt.Errorf("namespace for prefix %s is unknown", parts[0])
+	}
+	if strings.HasSuffix(base, "#") || strings.HasSuffix(base, "/") {
+		return fmt.Sprintf("%s%s", base, label), nil
+	}
+	return fmt.Sprintf("%s/%s", base, label), nil
+}
+
 // ElasticFilter creates an elasticsearch filter from the QueryFilter
-func (qf *QueryFilter) ElasticFilter() elastic.Query {
-	// todo add filter
-	return nil
+func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
+
+	nestedBoolQuery := elastic.NewBoolQuery()
+	mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
+
+	// resource.entries queries
+	labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
+	fieldQuery := elastic.NewTermQuery("resources.entries.@value.keyword", qf.Value)
+
+	qs := elastic.NewBoolQuery()
+	qs = qs.Must(labelQ, fieldQuery)
+	nq := elastic.NewNestedQuery("resources.entries", qs)
+
+	nestedBoolQuery = nestedBoolQuery.Must(nq)
+
+	// resource.types query
+	if qf.GetTypeClass() != "" {
+		tc, err := TypeClassAsURI(qf.GetTypeClass())
+		if err != nil {
+			return mainQuery, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
+		}
+		typeQuery := elastic.NewTermQuery("resources.types", tc)
+		nestedBoolQuery = nestedBoolQuery.Must(typeQuery)
+	}
+
+	// TODO implement this with recursion later
+	// resource.context queries
+	if qf.GetLevel2() != nil {
+		level2 := qf.GetLevel2()
+		levelq := elastic.NewBoolQuery()
+		if level2.GetTypeClass() != "" {
+			tc, err := TypeClassAsURI(level2.GetTypeClass())
+			if err != nil {
+				return mainQuery, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
+			}
+			classQuery := elastic.NewTermQuery("resources.context.SubjectClass", tc)
+			levelq = levelq.Must(classQuery)
+		}
+		labelQ := elastic.NewTermQuery("resources.context.SearchLabel", level2.SearchLabel)
+		lq := elastic.NewNestedQuery("resources.context", levelq.Must(labelQ))
+		nestedBoolQuery = nestedBoolQuery.Must(lq)
+	}
+
+	return mainQuery, nil
 }
 
 // AddQueryFilter adds a QueryFilter to the SearchRequest

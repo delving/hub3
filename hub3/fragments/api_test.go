@@ -297,7 +297,6 @@ func TestNewQueryFilter(t *testing.T) {
 	for _, tc := range tt {
 
 		t.Run(tc.name, func(t *testing.T) {
-			defer GinkgoRecover()
 
 			new, err := NewQueryFilter(tc.input)
 			if tc.err != nil && err.Error() != tc.err.Error() {
@@ -316,4 +315,32 @@ func TestNewQueryFilter(t *testing.T) {
 		})
 	}
 
+}
+
+func Test_TypeClassAsURI(t *testing.T) {
+	tests := []struct {
+		name    string
+		given   string
+		want    string
+		wantErr bool
+	}{
+		{"correct namespace", "edm_Place", "http://www.europeana.eu/schemas/edm/Place", false},
+		{"bad shorthand", "navePlace", "", true},
+		{"unknown prefix", "example_Place", "", true},
+	}
+	for _, tt := range tests {
+
+		t.Run(tt.name, func(t *testing.T) {
+			defer GinkgoRecover()
+
+			got, err := TypeClassAsURI(tt.given)
+			if (err != nil) != tt.wantErr {
+				Fail(fmt.Sprintf("TypeClassAsURI() error = %v, wantErr %v", err, tt.wantErr))
+				return
+			}
+			if got != tt.want {
+				Fail(fmt.Sprintf("TypeClassAsURI() = %v, want %v", got, tt.want))
+			}
+		})
+	}
 }
