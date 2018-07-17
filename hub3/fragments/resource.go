@@ -91,7 +91,7 @@ type FragmentGraph struct {
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
 type ResourceEntryHighlight struct {
 	SearchLabel string `json:"searchLabel"`
-	Value       string `json:"value"`
+	MarkDown    string `json:"markdown"`
 }
 
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry

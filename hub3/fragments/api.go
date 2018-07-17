@@ -184,13 +184,25 @@ func RandSeq(n int) string {
 	return string(b)
 }
 
+// FacetURIBuilder is used for creating facet filter fields
+// TODO implement pop and push for creating facets links
+type FacetURIBuilder struct {
+	filters map[string]int
+}
+
+func NewFacetURIBuilder(filters []string) (*FacetURIBuilder, error) {
+	fub := &FacetURIBuilder{}
+	for idx, f := range filters {
+		fub.filters[f] = idx
+	}
+	return fub, nil
+}
+
 // BreadCrumbBuilder is a struct that holds all the information to build a BreadCrumb trail
 type BreadCrumbBuilder struct {
 	hrefPath []string
 	crumbs   []*BreadCrumb
 }
-
-// TODO implement pop and push for creating facets links
 
 // AppendBreadCrumb creates a BreadCrumb
 func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
@@ -201,7 +213,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			bc.Display = qf.GetValue()
 			bc.Href = fmt.Sprintf("q=%s", qf.GetValue())
 			bc.Value = qf.GetValue()
-			bcb.hrefPath = append(bcb.hrefPath, bc.GetHref())
+			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
 	case "qf[]":
 		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
@@ -236,7 +248,7 @@ func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
 }
 
 // NewUserQuery creates an object with the user Query and the breadcrumbs
-func (sr *SearchRequest) NewUserQuery() (*Query, error) {
+func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 	q := &Query{}
 	bcb := &BreadCrumbBuilder{}
 	if sr.GetQuery() != "" {
@@ -247,7 +259,7 @@ func (sr *SearchRequest) NewUserQuery() (*Query, error) {
 		bcb.AppendBreadCrumb("qf[]", qf)
 	}
 	q.BreadCrumbs = bcb.crumbs
-	return q, nil
+	return q, bcb, nil
 }
 
 // ElasticQuery creates an ElasticSearch query from the Search Request
@@ -264,7 +276,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		nq := elastic.NewNestedQuery("resources.entries", qs)
 
 		// inner hits
-		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("<em>").PostTags("</em>")
+		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
 		innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
 		nq = nq.InnerHit(innerValue)
 
@@ -677,7 +689,7 @@ func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
-func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult) ([]*QueryFacet, error) {
+func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, bcb *BreadCrumbBuilder) ([]*QueryFacet, error) {
 	if res == nil || res.TotalHits() == 0 {
 		return nil, nil
 	}
@@ -699,6 +711,7 @@ func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult) ([]*QueryFacet, 
 					for _, b := range value.Buckets {
 						key := fmt.Sprintf("%s", b.Key)
 						fl := &FacetLink{
+							URL:           bcb.GetPath(),
 							Value:         key,
 							Count:         b.DocCount,
 							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),

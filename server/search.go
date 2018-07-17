@@ -122,7 +122,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if searchRequest.Peek != "" {
-		aggs, err := searchRequest.DecodeFacets(res)
+		aggs, err := searchRequest.DecodeFacets(res, nil)
 		if err != nil {
 			log.Printf("Unable to decode facets: %#v", err)
 			return
@@ -326,20 +326,21 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	result.Items = records
 
 	if !searchRequest.Paging {
-		// decode Aggregations
-		aggs, err := searchRequest.DecodeFacets(res)
-		if err != nil {
-			log.Printf("Unable to decode facets: %#v", err)
-			return
-		}
-		result.Facets = aggs
-		q, err := searchRequest.NewUserQuery()
+		q, bcb, err := searchRequest.NewUserQuery()
 		if err != nil {
 			log.Printf("Unable to create User Query")
 			return
 		}
 		q.Numfound = int32(res.TotalHits())
 		result.Query = q
+
+		// decode Aggregations
+		aggs, err := searchRequest.DecodeFacets(res, bcb)
+		if err != nil {
+			log.Printf("Unable to decode facets: %#v", err)
+			return
+		}
+		result.Facets = aggs
 	}
 
 	switch searchRequest.GetResponseFormatType() {
@@ -504,7 +505,7 @@ func decodeHighlights(r *fragments.FragmentGraph, hit *elastic.SearchHit) error 
 					r.Highlights,
 					&fragments.ResourceEntryHighlight{
 						SearchLabel: re.SearchLabel,
-						Value:       hlEntry[0],
+						MarkDown:    hlEntry[0],
 					},
 				)
 

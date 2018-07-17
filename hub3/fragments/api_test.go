@@ -352,14 +352,16 @@ func TestSearchRequest_NewUserQuery(t *testing.T) {
 		QueryFilter []*QueryFilter
 	}
 	tests := []struct {
-		name    string
-		fields  fields
-		want    *Query
-		wantErr bool
+		name     string
+		fields   fields
+		want     *Query
+		crumbLen int
+		wantErr  bool
 	}{
-		{"match all query", fields{}, &Query{}, false},
+		{"match all query", fields{}, &Query{}, 0, false},
 		{"simple query", fields{Query: "test"}, &Query{Terms: "test",
-			BreadCrumbs: []*BreadCrumb{&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}}}, false},
+			BreadCrumbs: []*BreadCrumb{&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}}},
+			1, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -369,13 +371,16 @@ func TestSearchRequest_NewUserQuery(t *testing.T) {
 				Query:       tt.fields.Query,
 				QueryFilter: tt.fields.QueryFilter,
 			}
-			got, err := sr.NewUserQuery()
+			got, bcb, err := sr.NewUserQuery()
 			if (err != nil) != tt.wantErr {
 				Fail(fmt.Sprintf("SearchRequest.NewUserQuery() error = %v, wantErr %v", err, tt.wantErr))
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				Fail(fmt.Sprintf("SearchRequest.NewUserQuery() = %v, want %v", got, tt.want))
+			}
+			if len(bcb.crumbs) != tt.crumbLen {
+				Fail(fmt.Sprintf("SearchRequest.NewUserQuery() length = %v, want %v", len(bcb.crumbs), tt.crumbLen))
 			}
 		})
 	}
