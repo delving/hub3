@@ -162,23 +162,32 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 						fmt.Sprintf("%s/%s", con.ThumbnailURIBase, column),
 					),
 				)
-				triples = append(triples, thumbnail)
+				manifest := r.NewTriple(
+					s,
+					r.NewResource(
+						fmt.Sprintf("%s/manifest", con.PredicateURIBase),
+					),
+					r.NewLiteral(
+						fmt.Sprintf("%s/%s", strings.TrimSuffix(con.ManifestURIBase, "s"), column),
+					),
+				)
+				triples = append(triples, thumbnail, manifest)
 				continue
 			}
 			if con.ManifestColumn != "" && idx == manifestColumnIdx {
 				if con.ManifestLocale == "" {
 					con.ManifestLocale = "nl_nl"
 				}
-				thumbnail := r.NewTriple(
+				manifest := r.NewTriple(
 					s,
 					r.NewResource(
-						fmt.Sprintf("%s/manifest", con.PredicateURIBase),
+						fmt.Sprintf("%s/manifests", con.PredicateURIBase),
 					),
 					r.NewLiteral(
 						fmt.Sprintf("%s/%s/%s", con.ManifestURIBase, column, con.ManifestLocale),
 					),
 				)
-				triples = append(triples, thumbnail)
+				triples = append(triples, manifest)
 				continue
 			}
 			p := headerMap[idx]
