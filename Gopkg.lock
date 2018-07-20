@@ -59,6 +59,12 @@
   version = "2018.01.18"
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/deiu/gon3"
   packages = ["."]
@@ -180,6 +186,12 @@
   ]
   revision = "3af367b6b30c263d47e8895973edcca9a49cf029"
   version = "v0.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/google/gofuzz"
+  packages = ["."]
+  revision = "24818f796faf91cd76ec7bddd72458fbced7a6c1"
 
 [[projects]]
   name = "github.com/gregjones/httpcache"
@@ -405,6 +417,12 @@
   version = "v0.8.0"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/prometheus/client_golang"
   packages = ["prometheus"]
   revision = "82f5ff156b29e276022b1a958f7d385870fb9814"
@@ -501,6 +519,23 @@
   name = "github.com/spf13/viper"
   packages = ["."]
   revision = "aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5"
+
+[[projects]]
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
+  version = "v0.1.1"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = [
+    ".",
+    "assert",
+    "http",
+    "mock"
+  ]
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   branch = "master"
@@ -655,8 +690,8 @@
     "config",
     "uritemplates"
   ]
-  revision = "1094ee281ca61a783c9ba22bf86e7e0a8aa2d112"
-  version = "v5.0.62"
+  revision = "52741dc2ce53629cbe1e673869040d886cba2cd5"
+  version = "v5.0.70"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -681,6 +716,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a061f144a163b3c7cb679b814e7154375b988d7d12de976af8dc6b4966699c82"
+  inputs-digest = "7e7aaef27985c48d419eda0ae1293b3d171ea5011434e1467f6a843fea3787d4"
   solver-name = "gps-cdcl"
   solver-version = 1

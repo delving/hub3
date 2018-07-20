@@ -394,6 +394,7 @@ func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string, errCha
 		url := fb.MediaManagerURL(urn, orgID)
 		request := gorequest.New()
 		resp, _, errs := request.Get(url).End()
+		defer resp.Body.Close()
 		if errs != nil {
 			errChan <- errs[0]
 			return

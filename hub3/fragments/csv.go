@@ -46,6 +46,7 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 		DocType:  "csvUpload",
 		Spec:     con.DefaultSpec,
 		Tags:     []string{"csvUpload"},
+		Modified: NowInMillis(),
 	}
 
 	rm, rowsProcessed, err := con.Convert()

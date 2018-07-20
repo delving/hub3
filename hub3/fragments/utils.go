@@ -14,6 +14,8 @@
 
 package fragments
 
+import "time"
+
 var xsdLabel2ObjectXSDType = make(map[string]int32)
 
 var int2ObjectXSDType = map[int32]ObjectXSDType{
@@ -90,4 +92,9 @@ var objectXSDType2XSDLabel = map[int32]string{
 	32: "http://www.w3.org/2001/XMLSchema#unsignedShort",
 	33: "http://www.w3.org/2001/XMLSchema#unsignedByte",
 	34: "http://www.w3.org/2001/XMLSchema#positiveInteger",
+}
+
+// NowInMillis returns time.Now() in miliseconds
+func NowInMillis() int64 {
+	return time.Now().UnixNano() / 1000000
 }

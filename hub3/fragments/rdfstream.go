@@ -86,6 +86,7 @@ func (upl *RDFUploader) IndexFragments(p *elastic.BulkProcessor, revision int) (
 		DocType:  "sourceUpload",
 		Spec:     upl.Spec,
 		Tags:     []string{"sourceUpload"},
+		Modified: NowInMillis(),
 	}
 
 	triplesProcessed := 0

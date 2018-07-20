@@ -46,7 +46,8 @@ var ESMapping = `{
 						"tags": {"type": "keyword"},
 						"docType": {"type": "keyword"},
 						"namedGraphURI": {"type": "keyword"},
-						"entryURI": {"type": "keyword"}
+						"entryURI": {"type": "keyword"},
+						"modified": {"type": "date"}
 					}
 				},
 				"subject": {"type": "keyword"},

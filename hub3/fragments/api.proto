@@ -487,6 +487,9 @@ message Header {
   string entryURI = 7;
   // the graph name of the graph stored
   string namedGraphURI = 8;
+  // miliseconds since epoch
+  int64 modified = 9;
+
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments

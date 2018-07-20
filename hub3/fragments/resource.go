@@ -716,6 +716,7 @@ func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 		Revision: fg.Meta.Revision,
 		HubID:    fg.Meta.HubID,
 		DocType:  docType,
+		Modified: NowInMillis(),
 	}
 	return h
 }

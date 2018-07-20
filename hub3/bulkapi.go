@@ -30,6 +30,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
+
 	//elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -376,6 +377,7 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	fg.Meta.Revision = int32(revision)
 	fg.Meta.NamedGraphURI = action.NamedGraphURI
 	fg.Meta.EntryURI = fg.GetAboutURI()
+	fg.Meta.Modified = fragments.NowInMillis()
 	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
@@ -421,6 +423,7 @@ func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 		Type("text").
 		Send(action.Graph).
 		End()
+	defer resp.Body.Close()
 	if errs != nil {
 		log.Fatal(errs)
 	}

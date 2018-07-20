@@ -191,6 +191,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Delete("/api/bulk/sync/{:id}", bulkSyncCancel)
 	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
+	r.Post("/api/index/fuzzed", generateFuzzed)
 
 	// CSV upload endpoint
 	r.Post("/api/rdf/csv", csvUpload)
@@ -214,6 +215,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// datasets
 	r.Get("/api/datasets", listDataSets)
+	r.Get("/api/datasets/histogram", listDataSetHistogram)
 	r.Post("/api/datasets", createDataSet)
 	r.Get("/api/datasets/{spec}", getDataSet)
 	r.Get("/api/datasets/{spec}/stats", getDataSetStats)

@@ -26,6 +26,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	w "github.com/gammazero/workerpool"
+
 	//elastic "github.com/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -210,6 +211,28 @@ func (ds DataSet) Delete(ctx context.Context, wp *w.WorkerPool) error {
 		return err
 	}
 	return orm.DeleteStruct(&ds)
+}
+
+// NewDataSetHistogram returns a histogram for dates that items in the index are modified
+func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
+	ctx := context.Background()
+	specAgg := elastic.NewTermsAggregation().Field("meta.spec").Size(100).OrderByCountDesc()
+	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").Interval("1D").
+		SubAggregation("spec", specAgg)
+	q := elastic.NewMatchAllQuery()
+	res, err := index.ESClient().Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Query(q).
+		Size(0).
+		Aggregation("modified", agg).
+		Do(ctx)
+	if err != nil {
+		log.Printf("unable to render Modified histogram: %s", err)
+		return nil, err
+	}
+	aggMod, _ := res.Aggregations.DateHistogram("modified")
+
+	return aggMod.Buckets, nil
 }
 
 // indexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset
