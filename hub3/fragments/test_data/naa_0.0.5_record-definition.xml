@@ -1,0 +1,1278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record-definition prefix="naa" version="0.0.5" flat="false">
+	<namespaces>
+		<namespace prefix="bf" uri="http://id.loc.gov/ontologies/bibframe/"/>
+		<namespace prefix="cs" uri="http://www.kulttuurisampo.fi/ebkr/"/>
+		<namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/"/>
+		<namespace prefix="geo" uri="http://www.opengis.net/ont/geosparql#"/>
+		<namespace prefix="hg" uri="http://rdf.histograph.io/"/>
+		<namespace prefix="sd" uri="http://www.w3.org/ns/sparql-service-description#"/>
+		<namespace prefix="vs" uri="http://www.w3.org/2003/06/sw-vocab-status/ns#"/>
+		<namespace prefix="pnv" uri="http://archief.nl/pnv/def/"/>
+		<namespace prefix="dbo" uri="http://dbpedia.org/ontology/"/>
+		<namespace prefix="edm" uri="http://www.europeana.eu/schemas/edm/"/>
+		<namespace prefix="naa" uri="http://archief.nl/def/"/>
+		<namespace prefix="ore" uri="http://www.openarchives.org/ore/terms/"/>
+		<namespace prefix="org" uri="http://www.w3.org/ns/org#"/>
+		<namespace prefix="owl" uri="http://www.w3.org/2002/07/owl#"/>
+		<namespace prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+		<namespace prefix="sem" uri="http://semanticweb.cs.vu.nl/2009/11/sem/"/>
+		<namespace prefix="xml" uri="http://www.w3.org/XML/1998/namespace"/>
+		<namespace prefix="xsd" uri="http://www.w3.org/2001/XMLSchema#"/>
+		<namespace prefix="dcat" uri="http://www.w3.org/ns/dcat#"/>
+		<namespace prefix="foaf" uri="http://xmlns.com/foaf/0.1/"/>
+		<namespace prefix="iiif" uri="http://iiif.io/api/image/2#"/>
+		<namespace prefix="prov" uri="http://www.w3.org/ns/prov#"/>
+		<namespace prefix="rdfs" uri="http://www.w3.org/2000/01/rdf-schema#"/>
+		<namespace prefix="skos" uri="http://www.w3.org/2004/02/skos/core#"/>
+		<namespace prefix="svcs" uri="http://rdfs.org/sioc/services#"/>
+		<namespace prefix="void" uri="http://rdfs.org/ns/void#"/>
+		<namespace prefix="vcard" uri="http://www.w3.org/2006/vcard/ns#"/>
+		<namespace prefix="frbroo" uri="http://iflastandards.info/ns/fr/frbr/frbroo/"/>
+		<namespace prefix="premis" uri="http://www.loc.gov/premis/rdf/v3/"/>
+		<namespace prefix="schema" uri="http://schema.org/"/>
+		<namespace prefix="dcterms" uri="http://purl.org/dc/terms/"/>
+		<namespace prefix="eac-cpf" uri="http://www3.iath.virginia.edu/eac/cpf/"/>
+		<namespace prefix="ebucore" uri="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"/>
+		<namespace prefix="cidoc-crm" uri="http://www.cidoc-crm.org/cidoc-crm/"/>
+		<namespace prefix="frbr_core" uri="http://purl.org/vocab/frbr/core#"/>
+		<namespace prefix="odrl" uri="http://www.w3.org/ns/odrl/2/"/>
+	</namespaces>
+	<functions>
+		<mapping-function name="createOreAggregationUri">
+			<sample-input>
+				<string>00001</string>
+			</sample-input>
+			<groovy-code>
+				<string>"${baseUrl}/resource/aggregation/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="createEDMAgentUri">
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('%20')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('%5B')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('%5D')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('%5C')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString()</string>
+				<string>"${baseUrl}/resource/agent/${spec}/${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="createEDMPlaceUri">
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('%20')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('%5B')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('%5D')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('%5C')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString()</string>
+				<string>"${baseUrl}/resource/place/${spec}/${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="lowercase">
+			<sample-input>
+				<string>Bla bla</string>
+				<string>BLA bla bla</string>
+			</sample-input>
+			<groovy-code>
+				<string>"${it.toString().toLowerCase()}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="reverseNames">
+			<sample-input>
+				<string>Sjoerd Siebinga</string>
+				<string>Siebinga, Sjoerd</string>
+				<string>Siebinga, Sjoerd Michiel</string>
+			</sample-input>
+			<groovy-code>
+				<string>parts = it.toString().split(",")</string>
+				<string>if (parts.length &gt; 1) {</string>
+				<string>"${parts[1].trim()} ${parts[0]}"</string>
+				<string>}</string>
+				<string>else {</string>
+				<string>"${it}"</string>
+				<string>}</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="smallThumbnail">
+			<groovy-code>
+				<string>"http://media.delving.org/thumbnail/${orgId}/${spec}/${it.replaceAll('^.*[\\/|\\\\]','').replaceAll('(?i)\\.jpg|\\.jpeg|\\.tif|\\.tiff|\\.png|\\.gif', '')}/180"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="createNTURI">
+			<sample-input>
+				<string>lkjljk</string>
+			</sample-input>
+			<groovy-code>
+				<string>def utmOut = false</string>
+				<string>String string = it.toString()</string>
+				<string>if (string == '') {</string>
+				<string>""</string>
+				<string>}</string>
+				<string>else {</string>
+				<string>"nt00001"</string>
+				<string>}</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_createNARefByUri">
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('%20')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('%5B')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('%5D')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('%5C')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString()</string>
+				<string>code = "${spec}"</string>
+				<string>it = code.substring(0,7)</string>
+				<string>"${baseUrl}/naderetoegang/doc/${it}/${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_createImageMapping">
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('%20')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('%5B')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('%5D')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('%5C')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString()</string>
+				<string>code = "${spec}"</string>
+				<string>it = code.substring(0,7)</string>
+				<string>"${baseUrl}/imageshare/formaat/${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_createImageMappingWithNTcode">
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('%20')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('%5B')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('%5D')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('%5C')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString()</string>
+				<string>code = "${spec}"</string>
+				<string>it = code.substring(0,7)</string>
+				<string>"${baseUrl}/imageshare/formaat/${it}/${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_giveNTCODE">
+			<groovy-code>
+				<string>code = "${spec}"</string>
+				<string>it = code.substring(0,7)</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_urilify">
+			<sample-input>
+				<string>kkjhdf lkjj(d)f[l]k.kj'fHaneGra%af</string>
+			</sample-input>
+			<groovy-code>
+				<string>StringBuilder out = new StringBuilder()</string>
+				<string>for (char c : it.toString().chars) {</string>
+				<string>switch (c) {</string>
+				<string>case ' ':</string>
+				<string>out.append('_')</string>
+				<string>break;</string>
+				<string>case '.':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case '\\':</string>
+				<string>out.append('_')</string>
+				<string>break;</string>
+				<string>case '(':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case ']':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case '[':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case ')':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case '\'':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>case '%':</string>
+				<string>out.append('')</string>
+				<string>break;</string>
+				<string>default:</string>
+				<string>out.append(c);</string>
+				<string>}</string>
+				<string>}</string>
+				<string>identifier = out.toString().toLowerCase()</string>
+				<string>"${identifier}"</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="NA_genereerDataSetUrl">
+			<groovy-code>
+				<string>code = "${spec}"</string>
+				<string>it = "${baseUrl}/doc/Dataset-" + code.substring(0,7)</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="hyphenateGUID">
+			<sample-input>
+				<string>64ca27d182201d1ce0530518a8c06b96</string>
+			 </sample-input>
+			<groovy-code>
+				<string>&quot;${it}&quot;.toLowerCase().replaceAll(&apos;^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})&apos;, &apos;$1-$2-$3-$4-$5&apos;)</string>
+			</groovy-code>
+		</mapping-function>
+		<mapping-function name="test">
+			 <sample-input>
+				<string>64AC27d182201d1ce0530518a8c06b96</string>
+			 </sample-input>
+			 <groovy-code>
+				<string>&quot;${it}&quot;.toLowerCase().replaceAll(&apos;^([0-9a-f]{8})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{4})([0-9a-f]{12})&apos;, &apos;$1-$2-$3-$4-$5&apos;)</string>
+			 </groovy-code>
+    </mapping-function>
+	</functions>
+	<attrs>
+		<attr tag="rdf:about" uriCheck="true"/>
+		<attr tag="rdf:resource"/>
+		<attr tag="rdf:datatype"/>
+		<attr tag="rdf:type"/>
+		<attr tag="rdf:parseType"/>
+		<attr tag="xml:lang"/>
+	</attrs>
+	<!-- START - root -->
+	<root tag="naa:RDF">
+		<node-mapping inputPath="/input"/>
+		<!-- ore:Aggregation - niet gebruiken of weghalen -->
+		<elem tag="ore:Aggregation">
+			<attr tag="rdf:about" uriCheck="true">
+				<node-mapping inputPath="/input">
+					<groovy-code>
+						<string>"${baseUrl}/resource/aggregation/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+					</groovy-code>
+				</node-mapping>
+			</attr>
+		</elem>
+		<!-- ens - ore:Aggregation - niet gebruiken of weghalen -->
+		<!-- start elem - NL-HaNA_Aggregation -->
+		<elem tag="naa:NL-HaNA_Aggregation">
+			<attr tag="rdf:about" uriCheck="true">
+				<!-- Record 0 alleen PhotoCollection en daarboven PhotoRecord -->
+				<node-mapping inputPath="/input" outputPath="/naa:RDF/naa:NL-HaNA_Aggregation/@rdf:about">
+					<groovy-code>
+						<string>if ((_input.dcidentifierahdid_ == &quot;&quot; &amp;&amp; _input.ahdid_ == &quot;&quot;)) {</string>
+						<string>if (_input.dcidentifierarchiefinventaris_) {</string>
+						<string>&quot;${baseUrl}/${orgId}/doc/PhotoCollection:${_uniqueIdentifier.sanitizeURI()}&quot;</string>
+						<string>} else {</string>
+						<string>&quot;${baseUrl}/${orgId}/doc/NadereToegang:${_uniqueIdentifier.sanitizeURI()}&quot;</string>
+						<string>}</string>
+						<string>} else {</string>
+						<string>if (_input.dcidentifierahdid_) {</string>
+						<string>&quot;${baseUrl}/${orgId}/doc/PhotoRecord:${_uniqueIdentifier.sanitizeURI()}&quot;</string>
+						<string>} else {</string>
+						<string>&quot;${baseUrl}/${orgId}/doc/NTRecord:${_uniqueIdentifier.sanitizeURI()}&quot;</string>
+						<string>}</string>
+						<string>}</string>
+					</groovy-code>
+				</node-mapping>
+			</attr>
+			<!-- Additioneel type dd 6-7-2018  -->
+			<elem tag="rdf:type" attrs="rdf:resource"/>
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<!-- Titel van de collectie -->
+			<elem tag="dc:title" attrs="xml:lang"/>
+			<node-mapping inputPath="/facts/name" outputPath="/naa:RDF/naa:NL-HaNA_Aggregation/dc:title">
+				<groovy-code>
+					<string>if (_input.dcidentifierahdid_ == &quot;&quot; &amp;&amp; _input.ahdid_ == &quot;&quot;)</string>
+					<string>&quot;${_name}&quot;</string>
+				</groovy-code>
+			</node-mapping>
+			<!-- MAIS toegangscode / nummer archiefinventaris / toegangsnummer-->
+			<elem tag="naa:catalogReferenceNumber" attrs="xml:lang"/>
+			<!-- guid MAIS -->
+			<elem tag="dc:identifier" attrs="xml:lang"/>
+			<!-- Mais Handle  -->
+			<elem tag="edm:isShownAt" attrs="rdf:resource"/>
+			<!-- The primary topic of this aggregation, record or document. -->
+			<elem tag="foaf:primaryTopic" attrs="rdf:about"/>
+			<elem tag="edm:hasView" attrs="rdf:resource"/>
+			<!-- MAIS Webdisplay -->
+			<elem tag="edm:landingPage" attrs="rdf:resource"/>
+			<!-- Verwijzing naar hoger aggregatie niveau  -->
+			<elem tag="ore:isAggregatedBy" attrs="rdf:resource"/>
+			<!-- Verwijzing naar genest object (onderdeel van deze aggregatie) -->
+			<elem tag="ore:aggregates" attrs="rdf:resource"/>
+			<!-- Maker van de aggregatie / record  -->
+			<elem tag="dcterms:creator" attrs="rdf:resource"/>
+			<!-- Wat voor soort (type) aggregatie het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <http://archief.nl/def/TypePhotoAggregation> -->
+			<elem tag="dcterms:type" attrs="rdf:resource,xml:lang"/>
+			<elem tag="naa:isAggregationType" attrs="rdf:resource,xml:lang"/>
+			<!-- Wanneer de aggregatie gemaakt is -->
+			<elem tag="dcterms:created" attrs="xml:lang, rdf:datatype"/>
+			<!-- MAIS Wijzigingsdatum -->
+			<elem tag="dcterms:modified" attrs="rdf:resource,xml:lang"/>
+		</elem>
+		<!-- end elem - NL-HaNA_Aggregation -->
+		<!-- start elem - ArchivalEntity -->
+		<!-- Fysieke objecten of entiteiten. Gebruik "id" als onderdeel van de URI. -->
+		<!-- Een foto, persoon of echte plaats zijn entiteiten. Zie ook Niet-informatie-objecten. -->
+		<!-- Hiervoor wordt de GUID van MAIS gebruikt -->
+		<!-- vanaf record 1 en hoger -->
+		<elem tag="naa:ArchivalEntity" attrs="rdf:about">
+			<!-- Additioneel type dd 6-7-2018  -->
+			<elem tag="rdf:type" attrs="rdf:resource"/>
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<!-- Wat voor soort type entiteit het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <http://archief.nl/def/TypePhotograph>  -->
+			<elem tag="naa:isEntityType" attrs="rdf:resource,xml:lang"/>
+			<!-- MAIS toegangscode / nummer archiefinventaris / toegangsnummer-->
+			<elem tag="naa:catalogReferenceNumber" attrs="xml:lang"/>
+			<!-- MAIS bestanddeelnummer -->
+			<elem tag="naa:fileNumber" attrs="xml:lang"/>
+			<!-- MAIS inventarisnummer -->
+			<elem tag="naa:inventoryNumber" attrs="xml:lang"/>
+			<!-- guid MAIS -->
+			<elem tag="dc:identifier" attrs="xml:lang"/>
+			<!-- NOG IN TE VULLEN -->
+			<elem tag="ore:isAggregatedBy" attrs="rdf:resource"/>
+			<!-- MAIS Beschrijving (bijvoorbeeld Troonswisseling 30 april : bijeenkomst voor de abdicatie het Paleis op de Dam ; overzicht) -->
+			<elem tag="dc:description" attrs="xml:lang"/>
+			<!-- Extra beschrijving indien beschikbaar -->
+			<elem tag="naa:additionalDescription" attrs="xml:lang"/>
+			<!-- MAIS Verwijzing -->
+			<elem tag="dc:relation" attrs="xml:lang"/>
+			<elem tag="dc:date" attrs="xml:lang"/>
+			<!-- start nesting - dcterms:relation -->
+			<elem tag="dcterms:date" attrs="xml:lang, rdf:datatype"/>
+			<elem tag="dcterms:relation" attrs="rdf:about"/>
+			<!-- MAIS Publicatie, al eerder verschenen bijvoorbeeld in Elsevier Wereldkroniek. -->
+			<elem tag="bf:otherEdition" attrs="xml:lang"/>
+			<!-- MAIS Informatie aanbieder beschrijving -->
+			<elem tag="dc:publisher" attrs="xml:lang"/>
+			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <http://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
+			<elem tag="dcterms:publisher" attrs="rdf:resource,xml:lang"/>
+			<!-- MAIS Licentie methode -->
+			<elem tag="dc:license" attrs="xml:lang"/>
+			<!-- MAIS Licentie methode gecontrolleerde verwijzing beschikbaar (URI) -->
+			<elem tag="dcterms:license" attrs="rdf:resource,xml:lang"/>
+			<!-- MAIS Schaal -->
+			<elem tag="bf:scale" attrs="xml:lang"/>
+			<!-- MAIS Afmeting | MAIS Vorm (bijvoorbeeld 13 x 18 cm) -->
+			<elem tag="dc:format" attrs="xml:lang"/>
+			<!-- "MAIS Materiaal (bijvoorbeeld Foto zwart/wit)" -->
+			<elem tag="dc:type" attrs="xml:lang"/>
+			<!-- Toegangsrecht volgens Open Digital Rights Language -->
+			<elem tag="odrl:hasPolicy" attrs="rdf:resource"/>
+			<!-- Eventuele Opmerkingen -->
+			<elem tag="skos:note" attrs="xml:lang"/>
+		</elem>
+		<!-- end elem - ArchivalEntity -->
+		<!-- start elem - ArchivalReference -->
+		<elem tag="naa:ArchivalReference" attrs="rdf:about">
+			<!-- Additioneel type dd 6-7-2018  -->
+			<elem tag="rdf:type" attrs="rdf:resource"/>
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<elem tag="naa:isEntityType" attrs="rdf:resource,xml:lang"/>
+			<!-- Verwijzing naar hoger aggregatie niveau  -->
+			<elem tag="ore:isAggregatedBy" attrs="rdf:resource"/>
+			<!-- MAIS toegangscode / nummer archiefinventaris / toegangsnummer-->
+			<!-- The primary topic of this aggregation, record or document. -->
+			<elem tag="foaf:primaryTopic" attrs="rdf:about"/>
+			<elem tag="dc:description" attrs="xml:lang"/>
+			<!-- Extra beschrijving indien beschikbaar -->
+			<elem tag="naa:additionalDescription" attrs="xml:lang"/>
+			<!-- MAIS Trefwoorden: algemeen -->
+			<elem tag="dc:subject" attrs="xml:lang"/>
+			<!-- Verwijzingen naar thesauri of anderszijds vastgestelde gestructureerde data op basis van trefwoorden uit Mais -->
+			<!-- start nesting - dcterms:subject -->
+			<elem tag="dcterms:subject" attrs="rdf:resource"/>
+			<!-- MAIS Relaties:thesaurusterm algemeen. Als object van dcterms:subject, bijvoorbeeld de GTAA thesaurus: <http://data.beeldengeluid.nl/gtaa/217385>.  -->
+			<!-- MAIS Relaties: thesaurus persoon. Als object van dcterms:subject of als verwijzing in naa:PersonEntity met owl:seeAlso <http://data.beeldengeluid.nl/gtaa/xxxxx> -->
+			<!-- MAIS Relaties:geografische term. Als object van dcterms:subject of als verwijzing in hg:PlaceInTime met owl:seeAlso <http://data.beeldengeluid.nl/gtaa/xxxx> -->
+			<elem tag="foaf:primaryTopic" attrs="rdf:resource"/>
+			<!-- Coverage kan gebruikt worden voor tijd en lokatie. Als het lokatie is: MAIS Lokatie in Beschrijven (bijvoorbeeld Frankrijk). Als het tijd is: MAIS Datering geschat-->
+			<elem tag="dc:coverage" attrs="xml:lang"/>
+			<!-- Dc:terms Coverage kan gebruikt worden voor tijd en lokatie. ALs het lokatie is: MAIS Relaties:geografische term. Verwijzing naar een gecontrolleerde geo thesaurus zoals de GTAA. ALs tijd is: MAIS datumaanduiding (bijvoorbeeld Circa) -->
+			<elem tag="dcterms:coverage" attrs="rdf:resource"/>
+			<!-- MAIS Verwijzing -->
+			<elem tag="dc:relation" attrs="xml:lang"/>
+			<elem tag="dc:date" attrs="xml:lang"/>
+			<!-- start nesting - dcterms:relation -->
+			<elem tag="dcterms:date" attrs="xml:lang, rdf:datatype"/>
+			<elem tag="dcterms:relation" attrs="rdf:resource"/>
+			<!-- MAIS Publicatie, al eerder verschenen bijvoorbeeld in Elsevier Wereldkroniek. -->
+			<elem tag="bf:otherEdition" attrs="xml:lang"/>
+			<!-- MAIS Fotograaf | Memorix Vervaardiger | MAIS Auteur (bijvoorbeeld Onbekend / Publiek Domein) -->
+			<elem tag="dc:creator" attrs="xml:lang"/>
+			<elem tag="foaf:maker" attrs="xml:lang"/>
+			<!-- MAIS Vervaardiger -->
+			<elem tag="dcterms:creator" attrs="rdf:resource,xml:lang"/>
+			<!-- MAIS Aanmaakdatum -->
+			<elem tag="dcterms:created" attrs="rdf:datatype,xml:lang"/>
+			<!-- MAIS Informatie aanbieder beschrijving -->
+			<elem tag="dc:publisher" attrs="xml:lang"/>
+			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <http://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
+			<elem tag="dcterms:publisher" attrs="rdf:resource,xml:lang"/>
+			<elem tag="rdfs:comment" attrs="xml:lang"/>
+			<!-- Tijdsaanduiding aangepast in combinatie met type 6-7-2018-->
+			<!-- MAIS Begindatum (bijvoorbeeld 0000-00-00) -->
+			<elem tag="edm:begin" attrs="xml:lang"/>
+			<!-- MAIS Einddatum (bijvoorbeeld 0000-00-00) -->
+			<elem tag="edm:end" attrs="xml:lang"/>
+			<!-- end Tijdsaanduiding -->
+			<!-- Borderelnummer toegevoegd voor nt00341 -->
+			<elem tag="naa:docketRecordNumber" attrs="xml:lang"/>
+		</elem>
+		<!-- end elem - ArchivalReference -->
+		<!-- start elem - WebResource -->
+		<elem tag="edm:WebResource" attrs="rdf:about">
+			<elem tag="dc:identifier" attrs="xml:lang"/>
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<!-- Vervaardiger van digitaal object. Volgens EDM: For the creator of the web resource. -->
+			<!-- If possible supply the identifier of the creator from an authority source. Repeat for multiple creators.  -->
+			<elem tag="dc:creator" attrs="xml:lang"/>
+			<!-- Beschrijving van digitaal object. Volgens EDM: Use for an account or description of this digital representation -->
+			<elem tag="dc:description" attrs="xml:lang"/>
+			<!-- Metadata over formaat / specificatie (MAM). Bijvoorbeeld: image/jpeg -->
+			<elem tag="dc:format" attrs="xml:lang"/>
+			<!-- Volgens EDM: A related resource from which the Web resource is derived in whole or in part. -->
+			<elem tag="dc:source" attrs="xml:lang"/>
+			<!-- Volgens EDM:The nature or genre of the digital representation. Ideally the term(s) will be taken from a controlled vocabulary. -->
+			<elem tag="dc:type" attrs="xml:lang"/>
+			<!-- Zie dc:type maar dan een gecontrolleerde term zoals naa:TypeDigitalVideo -->
+			<elem tag="dcterms:type" attrs="xml:lang"/>
+			<!-- Volgens EDM: An established standard to which the web resource conforms. Bijvoorbeeld W3C of IIIF -->
+			<elem tag="dcterms:conformsTo" attrs="xml:lang"/>
+			<!-- Verwijzing naar de IIIF functies van de GAF-server. Link naar API -->
+			<elem tag="svcs:has_service" attrs="rdf:resource,xml:lang"/>
+		</elem>
+		<!-- end elem - WebResource -->
+		<!-- start TimeSpan zonder nesting. NB: alleen gebruiken als je een tijdsaanduiding als unieke entiteit wilt munten-->
+		<elem tag="edm:TimeSpan" attrs="rdf:about">
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<!-- MAIS Datering geschat -->
+			<elem tag="dc:coverage" attrs="xml:lang"/>
+			<!-- MAIS datumaanduiding (bijvoorbeeld Circa) -->
+			<elem tag="dc:description" attrs="xml:lang"/>
+			<!-- MAIS Begindatum (bijvoorbeeld 0000-00-00) -->
+			<elem tag="edm:begin" attrs="xml:lang"/>
+			<!-- MAIS Einddatum (bijvoorbeeld 0000-00-00) -->
+			<elem tag="edm:end" attrs="xml:lang"/>
+		</elem>
+		<!-- end TimeSpan zonder nesting -->
+		<!-- start Person zonder nesting -->
+		<elem tag="pnv:Person" attrs="rdf:about">
+			<!-- Als identifier bij voorkeur een guid uit het collectiebeheersysteem -->
+			<elem tag="dc:identifier" attrs="rdf:resource,xml:lang"/>
+			<!-- Fragment identifier is alleen uniek binnen context van een toegang of NT, bijvoorbeeld een prs_id. Buiten de context (zoals de bijbehorende aggregatie) zal deze referentie sleutel niet uniek zijn, maar binnen de context, of scope - wel. -->
+			<elem tag="naa:fragmentIdentifier" attrs="xml:lang"/>
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<!-- MAIS Trefwoorden: namen. Indien dit veld aanwezig is kan een naa:PersonEntity gemodelleerd worden -->
+			<elem tag="owl:seeAlso" attrs="rdf:about"/>
+			<!-- Linken naar een andere persoon als deze dezelfde is -->
+			<elem tag="owl:sameAs" attrs="rdf:resource"/>
+			<!-- Iets wat deze persoon gemaakt heeft -->
+			<elem tag="foaf:made" attrs="rdf:resource"/>
+			<!-- Toegevoegd om link te leggen naar beschrijvingd -->
+			<elem tag="foaf:isPrimaryTopicOf" attrs="rdf:resource"/>
+			<!-- Toegevoegd om een rol aan te geven zoals een beroep, status of familielid -->
+			<elem tag="ebucore:hasRole" attrs="rdf:resource"/>
+			<elem tag="naa:hasProfession" attrs="rdf:resource"/>
+			<!-- Extra toegevoegd, geen mapping regels vanuit MAIS -->
+			<elem tag="dc:description" attrs="rdf:resource,xml:lang"/>
+			<elem tag="skos:note" attrs="xml:lang"/>
+			<elem tag="naa:sex" attrs="rdf:resource,xml:lang"/>
+			<elem tag="naa:hasReligion" attrs="rdf:resource,xml:lang"/>
+			<elem tag="naa:age" attrs="xml:lang"/>
+			<!-- Einde extra toegevoegd -->
+			<elem tag="pnv:hasName" attrs="rdf:about,rdf:parseType">
+				<elem tag="pnv:PersonName" attrs="rdf:about,rdf:parseType">
+					<elem tag="skos:definition" attrs="xml:lang"/>
+					<elem tag="rdfs:label" attrs="xml:lang"/>
+					<elem tag="pnv:prefix" attrs="xml:lang"/>
+					<elem tag="pnv:givenName" attrs="xml:lang"/>
+					<elem tag="pnv:givenNameSuffix" attrs="xml:lang"/>
+					<elem tag="pnv:firstName" attrs="xml:lang"/>
+					<elem tag="pnv:patronym" attrs="xml:lang"/>
+					<elem tag="pnv:infixTitle" attrs="xml:lang"/>
+					<elem tag="pnv:surnamePrefix" attrs="xml:lang"/>
+					<elem tag="pnv:baseSurname" attrs="xml:lang"/>
+					<elem tag="pnv:infix" attrs="xml:lang"/>
+					<elem tag="pnv:surname" attrs="xml:lang"/>
+					<elem tag="pnv:trailingPatronym" attrs="xml:lang"/>
+					<elem tag="pnv:suffix" attrs="xml:lang"/>
+					<elem tag="pnv:honorificSuffix" attrs="xml:lang"/>
+					<elem tag="pnv:disambiguatingDescription" attrs="xml:lang"/>
+					<elem tag="pnv:literalName" attrs="xml:lang"/>
+				</elem>
+			</elem>
+			<elem tag="naa:hasResidency" attrs="rdf:resource,xml:lang"/>
+			<elem tag="naa:wasOwnedBy" attrs="rdf:resource,xml:lang"/>
+		</elem>
+		<!-- end - Person -->
+		<!-- start PlaceInTime -->
+		<elem tag="hg:PlaceInTime" attrs="rdf:about">
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<elem tag="sem:hasEarliestBeginTimeStamp" attrs="xml:lang"/>
+			<elem tag="sem:hasLatestBeginTimeStamp" attrs="xml:lang"/>
+			<elem tag="sem:hasEarliestEndTimeStamp" attrs="xml:lang"/>
+			<elem tag="sem:hasLatestEndTimeStamp" attrs="xml:lang"/>
+			<!-- MAIS Trefwoorden: geografische namen. Indien dit veld aanwezig is kan een hg:PlaceInTime gemodelleerd worden -->
+			<elem tag="naa:lastKnownName" attrs="xml:lang"/>
+			<!-- Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975 -->
+			<elem tag="owl:sameAs" attrs="rdf:resource"/>
+			<elem tag="schema:name" attrs="rdf:resource"/>
+			<elem tag="geo:hasGeometry" attrs="rdf:resource"/>
+			<elem tag="hg:sameHgConcept" attrs="rdf:resource"/>
+			<elem tag="hg:containsHgConcept" attrs="rdf:resource"/>
+			<elem tag="hg:withinHgConcept" attrs="rdf:resource"/>
+			<elem tag="hg:intersectsHgConcept" attrs="rdf:resource"/>
+			<elem tag="hg:absorbed" attrs="rdf:resource"/>
+			<elem tag="hg:absorbedBy" attrs="rdf:resource"/>
+			<elem tag="hg:originated" attrs="rdf:resource"/>
+			<elem tag="hg:originatedFrom" attrs="rdf:resource"/>
+			<elem tag="hg:contains" attrs="rdf:resource"/>
+			<elem tag="hg:liesIn" attrs="rdf:resource"/>
+		</elem>
+		<!-- end PlaceInTime -->
+		<!-- start elem - Policy -->
+		<elem tag="odrl:Policy" attrs="rdf:about">
+			<elem tag="dc:type" attrs="xml:lang"/>
+			<elem tag="odrl:permission" attrs="rdf:resource,xml:lang"/>
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="foaf:primaryTopic" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:rights" attrs="xml:lang"/>
+			<elem tag="dcterms:rightsHolder" attrs="rdf:resource, xml:lang"/>
+		</elem>
+		<!-- end Policy -->
+		<!-- Catalogus (dcat:Catalog) -->
+		<elem tag="dcat:Catalog" attrs="rdf:about">
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<elem tag="dcterms:title" attrs="xml:lang"/>
+			<elem tag="dcterms:description" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:issued" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:spatial" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:modified" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcat:themeTaxonomy" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:license" attrs="rdf:resource,xml:lang"/>
+			<elem tag="foaf:homepage" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcat:dataset" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcat:record" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:language"/>
+			<elem tag="dc:publisher" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:creator" attrs="rdf:resource"/>
+		</elem>
+		<!-- end elem - Catalog -->
+		<!-- start elem - CatalogRecord -->
+		<!-- Catalogus (dcat:CatalogRecord) Metadata over de dataset -->
+		<elem tag="dcat:CatalogRecord" attrs="rdf:about">
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<elem tag="dcterms:title" attrs="xml:lang"/>
+			<elem tag="dcterms:description" attrs="rdf:resource,xml:lang"/>
+			<elem tag="foaf:primaryTopic" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:issued" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:modified" attrs="rdf:resource,xml:lang"/>
+		</elem>
+		<!-- end elem - CatalogRecord -->
+		<!-- start elem - Dataset -->
+		<!--Dataset zegt iets over een verzameling triples. Records of entiteiten kunnen met rdfs:member verwijzen naar de dataset-->
+		<elem tag="dcat:Dataset" attrs="rdf:about">
+			<!-- Indien mogelijk een label toewijzen -->
+			<elem tag="rdfs:label" attrs="xml:lang"/>
+			<elem tag="skos:prefLabel" attrs="xml:lang"/>
+			<elem tag="skos:altLabel" attrs="xml:lang"/>
+			<elem tag="dcterms:title" attrs="xml:lang"/>
+			<elem tag="dcterms:description" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:issued" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:modified" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcterms:identifier" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcat:keyword" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dcat:landingPage" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:coverage" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:creator" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:date" attrs="rdf:resource,xml:lang"/>
+			<elem tag="dc:language"/>
+			<elem tag="dc:publisher" attrs="rdf:resource,xml:lang"/>
+		</elem>
+		<!-- end elem - Dataset -->
+	</root>
+	<!-- END - root -->
+	<field-markers/>
+	<opts/>
+	<docs>
+		<!-- start Tekst en uitleg - HaNA_Aggregation -->
+		<doc path="/naa:RDF/ore:Aggregation">
+			<para name="Label">ore:Aggregation</para>
+			<para name="Definition">ore:Aggregation komt mogelijk te vervallen en wordt niet in de nieuwe record definitions niet meer gebruikt. NL-HaNA_Aggregation is het startpunt van de mapping en hard aan Pockets gekoppeld.</para>
+		</doc>
+		<!-- Start van de tekst en uitleg per onderdeel -->
+		<!-- Start tekst en uitleg - HaNA_Aggregation -->
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation">
+			<para name="Label">NL-HaNA_Aggregation</para>
+			<para name="Definition">Ter vervanging van ore:Aggregation. Dit is de start van de record definitie/mapping en hard aan Pockets gekoppeld.</para>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dc:title">
+			<para name="Label">Titel van de collectie - /facts/name</para>
+			<para name="Note">Dit is een vaste instelling en wordt alleen op Record 0 getoond.</para>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dc:naa:catalogReferenceNumber">
+			<para name="Label">MAIS toegangscode / nummer archiefinventaris / toegangsnummer - dc:identifier.archiefinventaris</para>
+			<para name="Note">Dit is een vaste instelling en wordt alleen op Record 0 getoond.</para>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dc:identifier">
+			<para name="Label">MAIS hier komt de MAIS GUID - dc:identifier.guid</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/edm:isShownAt">
+			<para name="Label">Hier komt de Handle vanuit MAIS - dcterms:hasPart.handle</para>
+			<para name="Note">Dit is een link naar de foto/ het beeldmateriaal</para>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/foaf:primaryTopic">
+			<para name="Label">Het primaire onderwerp van deze aggregatie, record of document.</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/edm:hasView">
+			<para name="Label"> nog in te vullen </para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/edm:landingPage">
+			<para name="Label">MAIS geeft hier een 1 of 0 maar dt zou een URL of URI moeten zijn - dcterms:hasPart.webdisplay</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/ore:isAggregatedBy">
+			<para name="Label">Verwijzing naar hoger aggregatie niveau</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/ore:aggregates">
+			<para name="Label">Verwijzing naar genest object (onderdeel van deze aggregatie)</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dcterms:creator">
+			<para name="Label">Maker van de aggregatie / record</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dcterms:type">
+			<para name="Label">Wat voor soort (type) aggregatie het is. Bij voorkeur gecontrolleerde termen gebruiken bv.</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:NL-HaNA_Aggregation/dcterms:created">
+			<para name="Label">Wanneer de aggregatie gemaakt is</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - HaNA_Aggregation -->
+		<!-- Start tekst en uitleg - ArchivalEntity -->
+		<doc path="/naa:RDF/naa:ArchivalEntity">
+			<para name="Label">ArchivalEntity</para>
+			<para name="Definition">Nog in te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/rdfs:label">
+			<para name="Label">Indien mogelijk een Label toevoegen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/skos:prefLabel">
+			<para name="Label">Indien mogelijk een Label toevoegen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/skos:altLabel">
+			<para name="Label">Indien mogelijk een Label toevoegen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:isEntityType">
+			<para name="Label">Wat voor soort type entiteit het is. Bij voorkeur gecontrolleerde termen gebruiken zie onderliggend niveau @rdf:resource</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:isEntityType/@rdf:resource">
+			<para name="Label">Wat voor soort type entiteit het is. Bij voorkeur gecontrolleerde termen gebruiken bv. rijksarchief.nl/def/TypePhotograph in geval van een foto</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:catalogReferenceNumber">
+			<para name="Label">MAIS toegangscode / nummer archiefinventaris / toegangsnummer</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:fileNumber">
+			<para name="Label">MAIS bestanddeelnummer</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:inventoryNumber">
+			<para name="Label">MAIS inventarisnummer</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:identifier">
+			<para name="Label">guid MAIS - dc:identifier.guid</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/ore:isAggregatedBy">
+			<para name="Label">NOG IN TE VULLEN</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:description">
+			<para name="Label">MAIS Beschrijving (bijvoorbeeld Troonswisseling 30 april : bijeenkomst voor de abdicatie het Paleis op de Dam ; overzicht)</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/naa:additionalDescription">
+			<para name="Label">Extra beschrijving indien beschikbaar - dc:description.annotatie</para>
+			<para name="Note"/>
+		</doc>
+		<!--
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:subject">
+			<para name="Label">MAIS Trefwoorden: algemeen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dcterms:subject">
+			<para name="Label">Nog in te vullen - mogelijk een constant of vaste input</para>
+			<para name="Note">MAIS Relaties:thesaurusterm algemeen. Als object van dcterms:subject, bijvoorbeeld de GTAA thesaurus: data.beeldengeluid.nl/gtaa/217385</para>
+			<para name="Note2">MAIS Relaties: thesaurus persoon. Als object van dcterms:subject of als verwijzing in naa:PersonEntity met owl:seeAlso data.beeldengeluid.nl/gtaa/xxxxx</para>
+			<para name="Note3">MAIS Relaties:geografische term. Als object van dcterms:subject of als verwijzing in hg:PlaceInTime met owl:seeAlso data.beeldengeluid.nl/gtaa/xxxx</para>
+		</doc>
+
+		<doc path="/naa:RDF/naa:ArchivalEntity/foaf:primaryTopic">
+			<para name="Label">Nog in te vullen - </para>
+			<para name="Note"/>
+		</doc>
+
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:coverage">
+			<para name="Label">MAIS Lokatie in Beschrijven (bijvoorbeeld Frankrijk)</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dcterms:coverage">
+			<para name="Label">MAIS Relaties:geografische term. Verwijzing naar een gecontrolleerde geo thesaurus zoals de GTAA</para>
+			<para name="Note"/>
+		</doc>
+-->
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:relation">
+			<para name="Label">MAIS Verwijzing</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:date">
+			<para name="Label">MAIS Verwijzing</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dcterms:date">
+			<para name="Label">Nog in te vullen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dcterms:relation">
+			<para name="Label">Nog in te vullen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/bf:otherEdition">
+			<para name="Label">MAIS Publicatie, al eerder verschenen bijvoorbeeld in Elsevier Wereldkroniek.</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dc:publisher">
+			<para name="Label">MAIS Informatie aanbieder beschrijving</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalEntity/dcterms:publisher">
+			<para name="Label">MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. rijksarchief.overheid.nl/NL-HaNA/organisatie/id/NationaalArchief</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - ArchivalEntity -->
+		<!-- Start tekst en uitleg - ArchivalReference -->
+		<doc path="/naa:RDF/naa:ArchivalReference">
+			<para name="Label">ArchivalReference</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalReference/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalReference/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalReference/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/naa:ArchivalReference/foaf:primaryTopic">
+			<para name="Label">Het primaire onderwerp van deze aggregatie, record of document.</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - ArchivalReference -->
+		<!-- Start tekst en uitleg - WebResource -->
+		<doc path="/naa:RDF/edm:WebResource">
+			<para name="Label">WebResource</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dc:creator">
+			<para name="Label">Vervaardiger van digitaal object. Volgens EDM: For the creator of the web resource.</para>
+			<para name="Note">Geef indien mogelijk de ID van de maker op vanuit een bron van autoriteit. Herhaal dit voor meerdere vervaardigers.</para>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dc:description">
+			<para name="Label">Beschrijving van digitaal object. Volgens EDM: Gebruik voor een account of beschrijving van deze digitale weergave</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dc:format">
+			<para name="Label">Metadata over formaat / specificatie (MAM). Bijvoorbeeld: image/jpeg</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dc:source">
+			<para name="Label">Volgens EDM: Een verwante bron waaruit de webresource geheel of gedeeltelijk is afgeleid.</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dc:type">
+			<para name="Label">Volgens EDM: De aard of het genre van de digitale representatie. Idealiter zal/zullen de term(en) worden afgeleid uit een gecontroleerde vocabulaire.</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dcterms:type">
+			<para name="Label">Zie dc:type maar dan een gecontrolleerde term zoals naa:TypeDigitalVideo</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/dcterms:conformsTo">
+			<para name="Label">Volgens EDM: Een gevestigde standaard waaraan de webresource voldoet. Bijvoorbeeld W3C of IIIF</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:WebResource/svcs:has_service">
+			<para name="Label">Verwijzing naar de IIIF functies van de GAF-server. Link naar API</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - WebResource -->
+		<!-- Start tekst en uitleg - PersonEntity -->
+		<doc path="/naa:RDF/pnv:Person">
+			<para name="Label">Person</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/pnv:Person/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - PersonEntity -->
+		<!-- Start tekst en uitleg - TimeSpan -->
+		<doc path="/naa:RDF/edm:TimeSpan">
+			<para name="Label">Catalog</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/dc:coverage">
+			<para name="Label">MAIS Datering geschat</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/dc:description">
+			<para name="Label">MAIS datumaanduiding (bijvoorbeeld Circa)</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/edm:begin">
+			<para name="Label">MAIS Begindatum (bijvoorbeeld 0000-00-00)</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/edm:TimeSpan/edm:end">
+			<para name="Label">MAIS Einddatum (bijvoorbeeld 0000-00-00)</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - TimeSpan -->
+		<!-- Start tekst en uitleg - PlaceInTime -->
+		<doc path="/naa:RDF/hg:PlaceInTime">
+			<para name="Label">Catalog</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/sem:hasEarliestBeginTimeStamp">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/sem:hasLatestBeginTimeStamp">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/sem:hasEarliestEndTimeStamp">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/sem:hasLatestEndTimeStamp">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/naa:lastKnownName">
+			<para name="Label">MAIS Trefwoorden: geografische namen. Indien dit veld aanwezig is kan een hg:PlaceInTime gemodelleerd worden</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/owl:sameAs">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/schema:name">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/geo:hasGeometry">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:sameHgConcept">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:containsHgConcept">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:withinHgConcept">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:intersectsHgConcept">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:absorbed">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:absorbedBy">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:originated">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:originatedFrom">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:contains">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/hg:PlaceInTime/hg:liesIn">
+			<para name="Label">Linken naar externe plek als deze dezelfde is, bv BAG: http://bag.basisregistraties.overheid.nl/bag/id/pand/0363100012172975</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - PlaceInTime -->
+		<!-- Start tekst en uitleg - Catalogus (dcat:Catalog) -->
+		<doc path="/naa:RDF/dcat:Catalog">
+			<para name="Label">Catalog (dcat:Catalog)</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Verplichting en voorkomen">Is het veld verplicht en hoeveel mag hij voorkomen.</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:title">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:description">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:issued">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:spatial">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:modified">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcat:themeTaxonomy">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:license">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/foaf:homepage">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcat:dataset">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcat:record">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dc:language">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dc:publisher">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Catalog/dcterms:creator">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - Catalogus -->
+		<!-- Start tekst en uitleg - CatalogRecord -->
+		<doc path="/naa:RDF/dcat:CatalogRecord">
+			<para name="Label">CatalogRecord</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Obligation and Occurrence">Nog aan te vullen</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/dcterms:title">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/dcterms:description">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/foaf:primaryTopic">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/dcterms:issued">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:CatalogRecord/dcterms:modified">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - CatalogRecord -->
+		<!-- Start tekst en uitleg - Dataset -->
+		<doc path="/naa:RDF/dcat:Dataset">
+			<para name="Label">Dataset</para>
+			<para name="Definition">Nog aan te vullen</para>
+			<para name="Obligation and Occurrence">Nog aan te vullen</para>
+			<para name="Voorbeeld">Voorbeeld nog in te vullen</para>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/rdfs:label">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/skos:prefLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/skos:altLabel">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcterms:title">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcterms:description">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcterms:issued">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcterms:modified">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcterms:identifier">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcat:keyword">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dcat:landingPage">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dc:coverage">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dc:creator">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dc:date">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dc:language">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<doc path="/naa:RDF/dcat:Dataset/dc:publisher">
+			<para name="Label">Indien mogelijk een label toewijzen</para>
+			<para name="Note"/>
+		</doc>
+		<!-- Einde tekst en uitleg - Dataset -->
+		<!-- Onderstaande laat ik als voorbeeld in de record definition staan -->
+		<!--
+  <doc path="/naa:RDF/naa:Persoon/wie:hasName">
+    <para name="Label">Heeft naam</para>
+    <para name="Note">Heeft naam</para>
+  </doc>
+  <doc path="/naa:RDF/naa:ntRecord/wie:Person/wie:hasName/wie:HistoricalName">
+    <para name="Label">Historische naam</para>
+    <para name="Note">Historische naam</para>
+  </doc>
+  <doc path="/naa:RDF/naa:ntRecord/wie:Person/wie:hasName/wie:HistoricalName/wie:fullname">
+    <para name="URI">http://www.biographynet.nl/schema/fPerson/fullname</para>
+    <para name="Label">Volledige naam</para>
+    <para name="Definition">Volledige naam</para>
+    <para name="Obligation and Occurrence">Niet verplicht</para>
+    <para name="Example">For example Jan Pieterszoon Coen</para>
+    <para name="Comment">Volledige naam kan gebruikt worden voor het tonen. Soms is uit de bron alleen de volledige naam bekend en was het niet doenlijk om de naam te splitsen in de verschillende onderdelen zoals voornaam, intrapositie, achternaam enz.</para>
+    <para name="Note"><![CDATA[De volledige naam van een persoon - als die bekend is]]>            </para>
+    <para name="Value type">literal</para>
+    <para name="Cardinality">0….1</para>
+  </doc>
+  -->
+	</docs>
+	<!-- Revisie - 17 mei 2018 - NT/Beeld switch aangepast -->
+	<!-- Revisie - 07 juni 2018 - diverse wijigingen bijv uitbreiding ordl -->
+	<!-- Revisie - 08 juni 2018 - diverse wijigingen en nieuwe mapping -->
+</record-definition>
+
