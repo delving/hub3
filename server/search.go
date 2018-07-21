@@ -87,7 +87,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, err := searchRequest.ElasticSearchService(index.ESClient())
+	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
 		log.Printf("Unable to create Search Service: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -335,12 +335,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		result.Query = q
 
 		// decode Aggregations
-		fb, err := fragments.NewFacetURIBuilder(searchRequest.GetQuery(), searchRequest.GetQueryFilter())
-		if err != nil {
-			log.Printf("Unable to create facet URI builder: %#v", err)
-			return
-		}
-		aggs, err := searchRequest.DecodeFacets(res, fb)
+		aggs, err := searchRequest.DecodeFacets(res, fub)
 		if err != nil {
 			log.Printf("Unable to decode facets: %#v", err)
 			return

@@ -83,7 +83,7 @@ message SearchRequest {
   repeated ResponseBlockType enable = 9;
   repeated FacetField facetField  = 10;
   int32 FacetLimit = 11;
-  bool FacetBoolType = 12;
+  bool FacetAndBoolType = 12;
   string sortBy = 13;
   // geo options
   string LatLong = 14; // pt
