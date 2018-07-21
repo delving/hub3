@@ -65,6 +65,7 @@ func NewFacetField(field string) (*FacetField, error) {
 	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
 	if !strings.HasPrefix(field, "{") {
 		ff.Field = field
+		ff.Name = field
 		return &ff, nil
 	}
 	err := json.Unmarshal([]byte(field), &ff)
@@ -187,15 +188,64 @@ func RandSeq(n int) string {
 // FacetURIBuilder is used for creating facet filter fields
 // TODO implement pop and push for creating facets links
 type FacetURIBuilder struct {
-	filters map[string]int
+	query   string                             `json:"query"`
+	filters map[string]map[string]*QueryFilter `json:"filters"`
 }
 
-func NewFacetURIBuilder(filters []string) (*FacetURIBuilder, error) {
-	fub := &FacetURIBuilder{}
-	for idx, f := range filters {
-		fub.filters[f] = idx
+// NewFacetURIBuilder creates a builder for Facet links
+func NewFacetURIBuilder(query string, filters []*QueryFilter) (*FacetURIBuilder, error) {
+	fub := &FacetURIBuilder{query: query, filters: make(map[string]map[string]*QueryFilter)}
+	for _, f := range filters {
+		if err := fub.AddFilter(f); err != nil {
+			return nil, err
+		}
 	}
 	return fub, nil
+}
+
+func (fub *FacetURIBuilder) hasQueryFilter(field, value string) bool {
+	if len(fub.filters) == 0 {
+		return false
+	}
+	byField, ok := fub.filters[field]
+	if !ok {
+		return false
+	}
+	_, ok = byField[value]
+	return ok
+}
+
+// AddFilter adds a QueryFilter to a multi dimensional map
+func (fub *FacetURIBuilder) AddFilter(f *QueryFilter) error {
+	child, ok := fub.filters[f.GetSearchLabel()]
+	if !ok {
+		child = map[string]*QueryFilter{}
+		fub.filters[f.GetSearchLabel()] = child
+	}
+	child[f.GetValue()] = f
+	return nil
+}
+
+// CreateFacetFilterURI generates a facetquery for each FacetLink and determines if it is selected
+func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bool) {
+	fields := []string{}
+	var selected bool
+	if fub.query != "" {
+		fields = append(fields, fmt.Sprintf("q=%s", fub.query))
+	}
+	for f, values := range fub.filters {
+		for k := range values {
+			if f == field && k == value {
+				selected = true
+				continue
+			}
+			fields = append(fields, fmt.Sprintf("qf=%s:%s", f, k))
+		}
+	}
+	if !selected {
+		fields = append(fields, fmt.Sprintf("qf=%s:%s", field, value))
+	}
+	return strings.Join(fields, "&"), selected
 }
 
 // BreadCrumbBuilder is a struct that holds all the information to build a BreadCrumb trail
@@ -689,7 +739,7 @@ func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
-func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, bcb *BreadCrumbBuilder) ([]*QueryFacet, error) {
+func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
 	if res == nil || res.TotalHits() == 0 {
 		return nil, nil
 	}
@@ -704,14 +754,20 @@ func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, bcb *BreadCrumbB
 				if ok {
 					qf := &QueryFacet{
 						Name:      k,
+						Field:     k,
 						Total:     inner.DocCount,
 						OtherDocs: value.SumOfOtherDocCount,
 						Links:     []*FacetLink{},
 					}
 					for _, b := range value.Buckets {
 						key := fmt.Sprintf("%s", b.Key)
+						url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
+						if isSelected && !qf.IsSelected {
+							qf.IsSelected = true
+						}
 						fl := &FacetLink{
-							URL:           bcb.GetPath(),
+							URL:           url,
+							IsSelected:    isSelected,
 							Value:         key,
 							Count:         b.DocCount,
 							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),

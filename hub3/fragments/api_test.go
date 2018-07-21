@@ -10,6 +10,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
 var _ = Describe("Apiutils", func() {
@@ -418,6 +419,45 @@ func TestAppendBreadCrumb(t *testing.T) {
 			}
 			if bcb.GetPath() != tt.args.path {
 				Fail(fmt.Sprintf("NewBreadCrumb() Path = %v, want %v", bcb.GetPath(), tt.args.path))
+			}
+		})
+	}
+}
+
+func TestFacetURIBuilder_AddFilter(t *testing.T) {
+	type fields struct {
+		query string
+	}
+	type args struct {
+		qf *QueryFilter
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			"empty start",
+			fields{""},
+			args{&QueryFilter{SearchLabel: "dc_subject", Value: "boerderij"}},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defer GinkgoRecover()
+
+			fub := &FacetURIBuilder{
+				query:   tt.fields.query,
+				filters: make(map[string]map[string]*QueryFilter),
+			}
+			if err := fub.AddFilter(tt.args.qf); (err != nil) != tt.wantErr {
+				Fail(fmt.Sprintf("FacetURIBuilder.AddFilter() error = %v, wantErr %v", err, tt.wantErr))
+				return
+			}
+			if !assert.True(t, fub.hasQueryFilter(tt.args.qf.SearchLabel, tt.args.qf.Value)) {
+				Fail("Key not added.")
 			}
 		})
 	}

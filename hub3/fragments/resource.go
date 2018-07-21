@@ -134,6 +134,7 @@ type ScrollResultV4 struct {
 // QueryFacet contains all the information for an ElasticSearch Aggregation
 type QueryFacet struct {
 	Name        string       `json:"name"`
+	Field       string       `json:"field"`
 	IsSelected  bool         `json:"isSelected"`
 	I18n        string       `json:"i18N,omitempty"`
 	Total       int64        `json:"total"`

@@ -326,7 +326,7 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 	result.Items = records
 
 	if !searchRequest.Paging {
-		q, bcb, err := searchRequest.NewUserQuery()
+		q, _, err := searchRequest.NewUserQuery()
 		if err != nil {
 			log.Printf("Unable to create User Query")
 			return
@@ -335,7 +335,12 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		result.Query = q
 
 		// decode Aggregations
-		aggs, err := searchRequest.DecodeFacets(res, bcb)
+		fb, err := fragments.NewFacetURIBuilder(searchRequest.GetQuery(), searchRequest.GetQueryFilter())
+		if err != nil {
+			log.Printf("Unable to create facet URI builder: %#v", err)
+			return
+		}
+		aggs, err := searchRequest.DecodeFacets(res, fb)
 		if err != nil {
 			log.Printf("Unable to decode facets: %#v", err)
 			return
