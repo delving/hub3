@@ -19,6 +19,7 @@ import (
 	fmt "fmt"
 	"log"
 	"net/url"
+	"sort"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
@@ -83,13 +84,14 @@ type FragmentGraph struct {
 	Resources  []*FragmentResource       `json:"resources,omitempty"`
 	Summary    *ResultSummary            `json:"summary,omitempty"`
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
+	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
 type ResourceEntryHighlight struct {
 	SearchLabel string `json:"searchLabel"`
-	Value       string `json:"value"`
+	MarkDown    string `json:"markdown"`
 }
 
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry
@@ -111,16 +113,28 @@ func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
 	return m
 }
 
+// Collapsed holds each entry of a FieldCollapse elasticsearch result
+type Collapsed struct {
+	Field    string           `json:"field"`
+	Title    string           `json:"title"`
+	HitCount int64            `json:"hitCount"`
+	Items    []*FragmentGraph `json:"items"`
+}
+
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager  *ScrollPager     `json:"pager"`
-	Items  []*FragmentGraph `json:"items,omitempty"`
-	Facets []*QueryFacet    `json:"facets,omitempty"`
+	Pager     *ScrollPager     `json:"pager"`
+	Query     *Query           `json:"query"`
+	Items     []*FragmentGraph `json:"items,omitempty"`
+	Collapsed []*Collapsed     `json:"collapse,omitempty"`
+	Peek      map[string]int64 `json:"peek,omitempty"`
+	Facets    []*QueryFacet    `json:"facets,omitempty"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation
 type QueryFacet struct {
 	Name        string       `json:"name"`
+	Field       string       `json:"field"`
 	IsSelected  bool         `json:"isSelected"`
 	I18n        string       `json:"i18N,omitempty"`
 	Total       int64        `json:"total"`
@@ -129,7 +143,7 @@ type QueryFacet struct {
 	Links       []*FacetLink `json:"links"`
 }
 
-// FaceLink contains all the information for creating a filter for this facet
+// FacetLink contains all the information for creating a filter for this facet
 type FacetLink struct {
 	URL           string `json:"url"`
 	IsSelected    bool   `json:"isSelected"`
@@ -173,6 +187,10 @@ func (fr *FragmentResource) SetEntries(rm *ResourceMap) error {
 			fr.Entries = append(fr.Entries, re)
 		}
 	}
+	// sort entries by order
+	sort.Slice(fr.Entries[:], func(i, j int) bool {
+		return fr.Entries[i].Order < fr.Entries[j].Order
+	})
 	return nil
 }
 
@@ -202,6 +220,7 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		Predicate:   predicate,
 		Level:       level,
 		SearchLabel: label,
+		Order:       fe.Order,
 	}
 
 	if re.ID != "" {
@@ -309,6 +328,7 @@ type FragmentEntry struct {
 	EntryType string `json:"entrytype"`
 	Triple    string `json:"triple"`
 	Resolved  bool   `json:"resolved"`
+	Order     int    `json:"order"`
 }
 
 // ResourceEntry contains all the indexed entries for FragmentResources
@@ -326,6 +346,7 @@ type ResourceEntry struct {
 	DateRange   string            `json:"dateRange,omitempty"`
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
+	Order       int               `json:"order"`
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
@@ -350,12 +371,17 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 	}
 
 	for t := range g.IterTriples() {
-		err := AppendTriple(rm.resources, t, false)
+		err := rm.AppendTriple(t, false)
 		if err != nil {
 			return rm, err
 		}
 	}
 	return rm, nil
+}
+
+// NewEmptyResourceMap returns an initialised ResourceMap
+func NewEmptyResourceMap() *ResourceMap {
+	return &ResourceMap{make(map[string]*FragmentResource)}
 }
 
 // ResolveObjectIDs queries the fragmentstore for additional context
@@ -370,14 +396,14 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	req := NewFragmentRequest()
 	req.Subject = objectIDs
 	req.ExcludeHubID = excludeHubID
-	frags, err := req.Find(ctx, index.ESClient())
+	frags, _, err := req.Find(ctx, index.ESClient())
 	if err != nil {
 		log.Printf("unable to find fragments: %s", err.Error())
 		return err
 	}
 	for _, f := range frags {
 		t := f.CreateTriple()
-		err = AppendTriple(rm.resources, t, true)
+		err = rm.AppendTriple(t, true)
 		if err != nil {
 			return err
 		}
@@ -457,8 +483,11 @@ func debrack(s string) string {
 }
 
 // CreateFragmentEntry creates a FragmentEntry from a triple
-func CreateFragmentEntry(t *r.Triple, resolved bool) (*FragmentEntry, string) {
+func CreateFragmentEntry(t *r.Triple, resolved bool, order int) (*FragmentEntry, string) {
 	entry := &FragmentEntry{Triple: t.String()}
+	entry.Order = order
+	entry.Resolved = resolved
+
 	switch o := t.Object.(type) {
 	case *r.Resource:
 		id := r.GetResourceID(o)
@@ -482,18 +511,22 @@ func CreateFragmentEntry(t *r.Triple, resolved bool) (*FragmentEntry, string) {
 			entry.Language = o.Language
 		}
 	}
-	entry.Resolved = resolved
 	return entry, ""
 }
 
 // AppendTriple appends a triple to a subject map
-func AppendTriple(resources map[string]*FragmentResource, t *r.Triple, resolved bool) error {
+func (rm *ResourceMap) AppendTriple(t *r.Triple, resolved bool) error {
+	return rm.AppendOrderedTriple(t, resolved, 0)
+}
+
+// AppendOrderedTriple appends a triple to a subject map
+func (rm *ResourceMap) AppendOrderedTriple(t *r.Triple, resolved bool, order int) error {
 	id := t.GetSubjectID()
-	fr, ok := resources[id]
+	fr, ok := rm.resources[id]
 	if !ok {
 		fr = &FragmentResource{}
 		fr.ID = id
-		resources[id] = fr
+		rm.resources[id] = fr
 		fr.predicates = make(map[string][]*FragmentEntry)
 	}
 
@@ -510,7 +543,8 @@ func AppendTriple(resources map[string]*FragmentResource, t *r.Triple, resolved 
 	if !ok {
 		predicates = []*FragmentEntry{}
 	}
-	entry, fragID := CreateFragmentEntry(t, resolved)
+
+	entry, fragID := CreateFragmentEntry(t, resolved, order)
 	if fragID != "" {
 		if fragID != id {
 			ctx := fr.NewContext(p, fragID)
@@ -560,6 +594,17 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 
 	}
 	return fg.Summary
+}
+
+// NewFields returns a map of the triples sorted by their searchLabel
+func (fg *FragmentGraph) NewFields() map[string][]string {
+	fg.Fields = make(map[string][]string)
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			fg.Fields[entry.SearchLabel] = append(fg.Fields[entry.SearchLabel], entry.Value)
+		}
+	}
+	return fg.Fields
 }
 
 // NewJSONLD creates a JSON-LD version of the FragmentGraph
@@ -672,6 +717,7 @@ func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 		Revision: fg.Meta.Revision,
 		HubID:    fg.Meta.HubID,
 		DocType:  docType,
+		Modified: NowInMillis(),
 	}
 	return h
 }
@@ -734,6 +780,9 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 	lodKey, _ := fr.CreateLodKey()
 
+	// TODO add statistics path
+	// type is searchLabel
+	// @about is extra entry
 	// add type links
 	for _, ttype := range fr.Types {
 		frag := &Fragment{
@@ -766,6 +815,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 				DataType:   entry.DataType,
 				Language:   entry.Language,
 				ObjectType: entry.EntryType,
+				Order:      int32(entry.Order),
 			}
 			frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 			if entry.ID != "" {
@@ -779,7 +829,6 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			if lodKey != "" {
 				frag.LodKey = lodKey
 			}
-
 			fragments = append(fragments, frag)
 		}
 	}
@@ -814,5 +863,3 @@ func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
 }
 
 // AddGraphExternalContext
-
-// InlineFragmentResources

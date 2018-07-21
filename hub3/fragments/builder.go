@@ -83,94 +83,6 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 	return fb.fg
 }
 
-// CreateFragment creates a fragment from a triple
-//func (fb *FragmentBuilder) CreateFragment(triple *r.Triple) (*Fragment, error) {
-//f := &Fragment{}
-//f.Subject = triple.Subject.RawValue()
-//f.Predicate = triple.Predicate.RawValue()
-//label, _ := c.Config.NameSpaceMap.GetSearchLabel(f.GetPredicate())
-//f.SearchLabel = label
-//f.Object = triple.Object.RawValue()
-//f.Triple = triple.String()
-
-//switch triple.Object.(type) {
-//case *r.Literal:
-//f.ObjectType = ObjectType_LITERAL
-//f.ObjectTypeRaw = "literal"
-//l := triple.Object.(*r.Literal)
-//f.Language = l.Language
-//// Set default datatypes
-//f.DataType = ObjectXSDType_STRING
-//f.XSDRaw, _ = f.GetDataType().GetPrefixLabel()
-//if l.Datatype != nil {
-//xsdType, err := GetObjectXSDType(l.Datatype.String())
-//if err != nil {
-//log.Printf("Unable to get xsdType for %s", l.Datatype.String())
-//break
-//}
-//prefixLabel, err := xsdType.GetPrefixLabel()
-//if err != nil {
-//log.Printf(
-//"Unable to get xsdType prefix label for %s (%s)",
-//l.Datatype.String(),
-//xsdType.String(),
-//)
-//break
-//}
-//f.XSDRaw = prefixLabel
-//f.DataType = xsdType
-//}
-//case *r.Resource, *r.BlankNode:
-//f.ObjectType = ObjectType_RESOURCE
-//f.ObjectTypeRaw = "resource"
-//if f.IsTypeLink() {
-//f.AddTags("typelink")
-//}
-////f.TypeLink = f.IsTypeLink()
-////if fg.Graph.Len() == 0 {
-////log.Printf("Warn: Graph is empty can't do linking checks\n")
-////break
-////}
-////f.GraphExternalLink = fg.IsGraphExternal(triple.Object)
-////isDomainExternal, err := fg.IsDomainExternal(f.Object)
-////if err != nil {
-////log.Printf("Unable to parse object domain: %#v", err)
-////break
-////}
-////f.DomainExternalLink = isDomainExternal
-//default:
-//return f, fmt.Errorf("unknown object type: %#v", triple.Object)
-//}
-//return f, nil
-//}
-
-//// CreateFragments creates and stores all the fragments
-//func (fb *FragmentBuilder) CreateFragments(p *elastic.BulkProcessor, nestFragments bool, compact bool) error {
-//if (&r.Graph{}) == fb.Graph || fb.Graph.Len() == 0 {
-//return fmt.Errorf("cannot store fragments from empty graph")
-//}
-//for t := range fb.Graph.IterTriples() {
-//frag, err := fb.CreateFragment(t)
-//if !compact {
-//err := frag.AddHeader(fb)
-//if err != nil {
-//log.Printf("Unable to add header to fragment due to %v", err)
-//return err
-//}
-//}
-//if err != nil {
-//log.Printf("Unable to create fragment due to %v.", err)
-//return err
-//}
-//// nest fragments as opposed to using a parent child construction in ElasticSearch.
-//// even though this would reduce the size of the index, it comes at the price of search performance.
-//if nestFragments {
-//fb.fg.Fragments = append(fb.fg.Fragments, frag)
-//}
-//}
-//return nil
-//}
-
 // Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	rm, err := fb.ResourceMap()
@@ -204,18 +116,6 @@ func (fb *FragmentBuilder) GetRDF() ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-// IndexFragments updates the Fragments for standalone indexing and adds them to the Elasti BulkProcessorService
-//func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
-//for _, frag := range fb.fg.Fragments {
-//err := frag.AddHeader(fb)
-//if err != nil {
-//return err
-//}
-//frag.AddTo(p)
-//}
-//return nil
-//}
-
 // IsDomainExternal checks if the object link points to another domain
 func (fb *FragmentBuilder) IsDomainExternal(obj string) (bool, error) {
 	u, err := url.Parse(obj)
@@ -239,6 +139,18 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		err = fb.Graph.Parse(rdf, mimeType)
 	case "application/ld+json":
 		err = fb.Graph.Parse(rdf, mimeType)
+	case "application/rdf+xml":
+		triples, err := DecodeRDFXML(rdf)
+		if err != nil {
+			log.Printf("Unable to decode RDF-XML: %v", err)
+			return err
+		}
+		rm, err := NewResourceMapFromXML(triples)
+		if err != nil {
+			log.Printf("Unable to create resourceMap: %v", err)
+			return err
+		}
+		fb.resources = rm
 	default:
 		return fmt.Errorf(
 			"Unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",

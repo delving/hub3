@@ -226,13 +226,15 @@ var _ = Describe("Fragments", func() {
 
 			It("should strip double quotes", func() {
 				fr := NewFragmentRequest()
-				fr.AssignObject(`"1982"`)
+				fr.Object = `1982`
+				fr.AssignObject()
 				Expect(fr.GetObject()).To(Equal("1982"))
 			})
 
 			It("should set the language when the string contains @ annotation", func() {
 				fr := NewFragmentRequest()
-				fr.AssignObject(`"door"@en`)
+				fr.Object = `"door"@en`
+				fr.AssignObject()
 				Expect(fr.GetObject()).To(Equal("door"))
 				Expect(fr.GetLanguage()).To(Equal("en"))
 			})

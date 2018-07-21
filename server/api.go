@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
@@ -33,6 +34,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
 	"github.com/kiivihal/rdf2go"
+
 	//elastic "github.com/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 
@@ -52,7 +54,7 @@ func init() {
 	bps := index.CreateBulkProcessorService()
 	bp, err = bps.Do(ctx)
 	if err != nil {
-		log.Fatalf("Unable to start BulkProcessor: ", err)
+		log.Fatalf("Unable to start BulkProcessor: %s", err)
 	}
 	wp = workerpool.New(10)
 }
@@ -84,7 +86,153 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 	return &httputil.ReverseProxy{Director: director}
 }
 
+func searchLabelStatsValues(w http.ResponseWriter, r *http.Request) {
+	return
+}
+
+func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult, error) {
+
+	fieldPath := fmt.Sprintf("resources.entries.%s", field)
+
+	labelAgg := elastic.NewTermsAggregation().Field(fieldPath).Size(100)
+
+	order := r.URL.Query().Get("order")
+	switch order {
+	case "term":
+		labelAgg = labelAgg.OrderByTermAsc()
+	default:
+		labelAgg = labelAgg.OrderByCountDesc()
+	}
+	searchLabelAgg := elastic.NewNestedAggregation().Path("resources.entries")
+	searchLabelAgg = searchLabelAgg.SubAggregation(field, labelAgg)
+
+	q := elastic.NewBoolQuery()
+	q = q.Must(
+		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+	)
+	spec := r.URL.Query().Get("spec")
+	if spec != "" {
+		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, spec))
+	}
+	res, err := index.ESClient().Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Query(q).
+		Size(0).
+		Aggregation(field, searchLabelAgg).
+		Do(ctx)
+	return res, err
+}
+
+func searchLabelStats(w http.ResponseWriter, r *http.Request) {
+
+	res, err := getResourceEntryStats("searchLabel", r)
+	if err != nil {
+		log.Print("Unable to get statistics for searchLabels")
+		render.PlainText(w, r, err.Error())
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	render.JSON(w, r, res)
+	return
+}
+func predicateStats(w http.ResponseWriter, r *http.Request) {
+
+	res, err := getResourceEntryStats("predicate", r)
+	if err != nil {
+		log.Print("Unable to get statistics for predicate")
+		render.PlainText(w, r, err.Error())
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	render.JSON(w, r, res)
+	return
+}
+func rdfUpload(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("turtle")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	spec := r.FormValue("spec")
+	// todo handle when no spec is given
+	if spec == "" {
+		render.PlainText(w, r, "spec param is required")
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+	ds, created, err := models.GetOrCreateDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", spec)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	if created {
+		err = fragments.SaveDataSet(spec, bp)
+		if err != nil {
+			log.Printf("Unable to Save DataSet Fragment for %s\n", spec)
+			if err != nil {
+				render.PlainText(w, r, err.Error())
+				return
+			}
+		}
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+
+	upl := fragments.NewRDFUploader(c.Config.OrgID, spec, "")
+
+	go func() {
+		defer in.Close()
+		log.Print("Start creating resource map")
+		_, err := upl.Parse(in)
+		if err != nil {
+			log.Printf("Can't read turtle file: %v", err)
+			return
+		}
+		log.Printf("Start saving fragments.")
+		processed, err := upl.IndexFragments(bp, 0)
+		if err != nil {
+			log.Printf("Can't save fragments: %v", err)
+			return
+		}
+		log.Printf("Saved %d fragments for %s", processed, upl.Spec)
+	}()
+
+	render.Status(r, http.StatusCreated)
+	render.PlainText(w, r, "ok")
+	return
+}
+
 func skosUpload(w http.ResponseWriter, r *http.Request) {
+
+	// create byte.buffer from the input file
+	// get dataset param
+	// get dataset object
+	// get subjectClass
+	// create map subject map[string]bool
+	// matcher string for rdf:Type
+	// create resourceMap
+	// use n-triple / turtle parse to build line by line, see rdf2go libraries for Graph
+	// addTriple per line
+	// gather subject per type
+	// check subject map
+	// next
+
+	// alternative approach
+	// store all fragments
+	// get scanner for spec and rdfType to get subjects back
+	// make nested call for elasticsearch: get all objects, do mget on fragments,
+	// parse into resource map
+	// do next level mget on resource objects
+	// parse into resource map
+	// add to elastic bulk processor
 	in, _, err := r.FormFile("skos")
 	if err != nil {
 		render.PlainText(w, r, err.Error())
@@ -208,6 +356,9 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.DefaultSpec = r.FormValue("defaultSpec")
 	conv.ThumbnailURIBase = r.FormValue("thumbnailURIBase")
 	conv.ThumbnailColumn = r.FormValue("thumbnailColumn")
+	conv.ManifestColumn = r.FormValue("manifestColumn")
+	conv.ManifestURIBase = r.FormValue("manifestURIBase")
+	conv.ManifestLocale = r.FormValue("manifestLocale")
 
 	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
 	if err != nil {
@@ -232,8 +383,10 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seen, err := conv.IndexFragments(bp, ds.Revision)
-	log.Printf("Processed %d csv rows\n", seen)
+	triplesCreated, rowsSeen, err := conv.IndexFragments(bp, ds.Revision)
+	conv.RowsProcessed = rowsSeen
+	conv.TriplesCreated = triplesCreated
+	log.Printf("Processed %d csv rows\n", rowsSeen)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
@@ -249,6 +402,28 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	//render.PlainText(w, r, "ok")
 	render.JSON(w, r, conv)
 	return
+}
+
+func bulkSyncStart(w http.ResponseWriter, r *http.Request) {
+
+	//host := r.URL.Query().Get("host")
+	//index := r.URL.Query().Get("index")
+
+}
+
+func bulkSyncList(w http.ResponseWriter, r *http.Request) {
+
+	//host := r.URL.Query().Get("host")
+	//index := r.URL.Query().Get("index")
+
+}
+
+func bulkSyncProgress(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func bulkSyncCancel(w http.ResponseWriter, r *http.Request) {
+
 }
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
@@ -323,7 +498,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 
 	fr := fragments.NewFragmentRequest()
 	fr.LodKey = lodKey
-	frags, err := fr.Find(ctx, index.ESClient())
+	frags, _, err := fr.Find(ctx, index.ESClient())
 	if err != nil || len(frags) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		if err != nil {
@@ -334,12 +509,13 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to find fragments")
 		return
 	}
-	w.Header().Set("Content-Type", "text/n-triples")
+
 	var buffer bytes.Buffer
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
 	w.Write(buffer.Bytes())
+	w.Header().Set("Content-Type", "application/n-triples")
 	return
 
 }
@@ -363,7 +539,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	frags, err := fr.Find(ctx, index.ESClient())
+	frags, totalFrags, err := fr.Find(ctx, index.ESClient())
 	if err != nil || len(frags) == 0 {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
@@ -376,6 +552,34 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	switch fr.Echo {
 	case "raw":
 		render.JSON(w, r, frags)
+		return
+	case "es":
+		src, err := fr.BuildQuery().Source()
+		if err != nil {
+			msg := "Unable to get the query source"
+			log.Printf(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+		render.JSON(w, r, src)
+		return
+	case "searchResponse":
+		res, err := fr.Do(ctx, index.ESClient())
+		if err != nil {
+			msg := fmt.Sprintf("Unable to dump request: %s", err)
+			log.Print(msg)
+			render.JSON(w, r, APIErrorMessage{
+				HTTPStatus: http.StatusBadRequest,
+				Message:    fmt.Sprint(msg),
+				Error:      err,
+			})
+			return
+		}
+		render.JSON(w, r, res)
 		return
 	case "request":
 		dump, err := httputil.DumpRequest(r, true)
@@ -394,24 +598,109 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/n-triples")
 	var buffer bytes.Buffer
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
-	w.Write(buffer.Bytes())
-	//err = frags.Serialize(w, "text/turtle")
+	w.Header().Add("FRAG_COUNT", strconv.Itoa(int(totalFrags)))
+
+	// Add hyperMediaControls
+	hmd := fragments.NewHyperMediaDataSet(r, totalFrags, fr)
+	controls, err := hmd.CreateControls()
 	if err != nil {
-		log.Printf("Unable to list serialize fragments because of: %s", err)
+		msg := fmt.Sprintf("Unable to create media controls: %s", err)
+		log.Print(msg)
 		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintf("Unable to serialize fragments: %s", err),
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprint(msg),
 			Error:      err,
 		})
 		return
-
 	}
+
+	if strings.Contains(r.Header.Get("Accept"), "n-triples") {
+		w.Header().Add("Content-Type", "application/n-triples")
+	} else {
+		w.Header().Add("Content-Type", "text/plain")
+	}
+
+	w.Write(controls)
+	w.Write(buffer.Bytes())
+
 	return
+}
+
+func generateFuzzed(w http.ResponseWriter, r *http.Request) {
+	in, _, err := r.FormFile("file")
+	if err != nil {
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	spec := r.FormValue("spec")
+	number := r.FormValue("number")
+	baseURI := r.FormValue("baseURI")
+	subjectType := r.FormValue("rootType")
+	n, err := strconv.Atoi(number)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	recDef, err := fragments.NewRecDef(in)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	fz, err := fragments.NewFuzzer(recDef)
+	fz.BaseURL = baseURI
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	records, err := fz.CreateRecords(n)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	log.Println(fz.BaseURL)
+	actions := []string{}
+	for idx, rec := range records {
+		hubID := fmt.Sprintf("%s_%s_%d", c.Config.OrgID, spec, idx)
+		action := &hub3.BulkAction{
+			HubID:         hubID,
+			OrgID:         c.Config.OrgID,
+			LocalID:       fmt.Sprintf("%d", idx),
+			Spec:          spec,
+			NamedGraphURI: fmt.Sprintf("%s/graph", fz.NewURI(fmt.Sprintf("%d", idx))),
+			Action:        "index",
+			GraphMimeType: "application/ld+json",
+			SubjectType:   subjectType,
+			RecordType:    "mdr",
+			Graph:         rec,
+		}
+		bytes, err := json.Marshal(action)
+		if err != nil {
+			render.Status(r, http.StatusInternalServerError)
+			log.Printf("Unable to create Bulkactions: %s\n", err.Error())
+			render.PlainText(w, r, err.Error())
+			return
+		}
+		actions = append(actions, string(bytes))
+	}
+	render.PlainText(w, r, strings.Join(actions, "\n"))
+	//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	return
+}
+
+func listDataSetHistogram(w http.ResponseWriter, r *http.Request) {
+	buckets, err := models.NewDataSetHistogram()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	render.JSON(w, r, buckets)
 }
 
 // listDataSets returns a list of all public datasets
@@ -449,7 +738,7 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 		}
 		status := http.StatusInternalServerError
 		render.Status(r, status)
-		log.Println("Unable to create dataset stats: %s", err)
+		log.Printf("Unable to create dataset stats: %s", err)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: status,
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),
@@ -479,7 +768,7 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 		}
 		status := http.StatusInternalServerError
 		render.Status(r, status)
-		log.Println("Unable to get dataset: %s", spec)
+		log.Printf("Unable to get dataset: %s", spec)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: status,
 			Message:    fmt.Sprintf("Can't create stats for %s", spec),

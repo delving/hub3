@@ -16,7 +16,6 @@ package fragments
 
 import (
 	"context"
-	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -40,8 +39,8 @@ const FragmentGraphDocType = "graph"
 // DocType is the default doctype since elasticsearch deprecated mapping types
 const DocType = "doc"
 
-// SIZE of the fragments returned
-const SIZE = 100
+// FRAGMENT_SIZE of the fragments returned
+const FRAGMENT_SIZE = 100
 
 // RDFType is the URI for RDF:type
 const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -66,7 +65,8 @@ func NewFragmentRequest() *FragmentRequest {
 }
 
 // AssignObject cleans the object string and sets the language when applicable
-func (fr *FragmentRequest) AssignObject(o string) {
+func (fr *FragmentRequest) AssignObject() {
+	o := fr.GetObject()
 	if strings.Contains(o, "@") {
 		parts := strings.Split(o, "@")
 		o = parts[0]
@@ -107,6 +107,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Page = int32(page)
 		case "echo":
 			fr.Echo = v[0]
+		case "format":
+			break
 		default:
 			return fmt.Errorf("unknown ")
 		}
@@ -115,11 +117,12 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 }
 
 // GetESPage returns the 0 based page for Elastic Search
+// todo refactor for protobuf
 func (fr FragmentRequest) GetESPage() int {
 	if fr.GetPage() < 2 {
 		return 0
 	}
-	return int((fr.GetPage() * SIZE) - 1)
+	return int((fr.GetPage() * FRAGMENT_SIZE) - 1)
 }
 
 func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
@@ -137,15 +140,14 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
 }
 
-// Find returns a list of matching LodFragments
-func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, error) {
-	fragments := []*Fragment{}
-
+func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
+	fr.AssignObject()
 	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
+	buildQueryClause(q, "language", fr.GetLanguage())
 
 	// support for exclude hubID
 	if fr.ExcludeHubID != "" {
@@ -165,133 +167,45 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 	if len(fr.GetSpec()) != 0 {
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))
 	}
-	if c.Config.DevMode {
-		src, err := q.Source()
-		if err != nil {
-			log.Fatal("Unable get query source")
-			return fragments, err
-			//return &r.Graph{}, err
-		}
-		data, err := json.Marshal(src)
-		if err != nil {
-			log.Fatal("Unable get query source")
-			return fragments, err
-			//return &r.Graph{}, err
-		}
-		log.Printf("fragment query: %s", string(data))
-	}
-	res, err := client.Search().
+	return q
+}
+
+// Do executes the fragments request on elasticsearch
+func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
+	q := fr.BuildQuery()
+	return client.Search().
 		Index(c.Config.ElasticSearch.IndexName).
 		Query(q).
-		Size(SIZE).
+		Size(FRAGMENT_SIZE).
 		From(fr.GetESPage()).
 		Do(ctx)
+}
+
+// Find returns a list of matching LodFragments
+func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, int64, error) {
+	fragments := []*Fragment{}
+
+	res, err := fr.Do(ctx, client)
+
 	if err != nil {
-		return fragments, err
-		//return &r.Graph{}, err
+		return fragments, 0, err
 	}
 
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
-		//return &r.Graph{}, fmt.Errorf("expected response != nil")
-		return fragments, fmt.Errorf("expected response != nil")
+		return fragments, 0, fmt.Errorf("expected response != nil")
 	}
 	if res.Hits.TotalHits == 0 {
 		log.Println("Nothing found for this query.")
-		//return &r.Graph{}, nil
-		return fragments, nil
+		return fragments, 0, nil
 	}
 
 	var frtyp Fragment
 	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
 		frag := item.(Fragment)
 		fragments = append(fragments, &frag)
-		//if fr.Echo != "raw" {
-		//buffer.WriteString(fmt.Sprintln(frag.Triple))
-		//} else {
-		//b, err := json.Marshal(frag)
-		//if err != nil {
-		//return fragments, err
-		//}
-		//buffer.Write(b)
-		//}
-		//triples = append(triples, frag.Triple)
 	}
-	//g := CreateHyperMediaControlGraph(fr.GetSpec(), res.Hits.TotalHits, 1)
-	//g := r.NewGraph("")
-	//err = g.Parse(fragments, "text/turtle")
-	//if err != nil {
-	//log.Printf("unable to parse triples from result: %s", err)
-	//return g, err
-	//}
-	//return g, nil
-	return fragments, nil
-}
-
-// CreateHyperMediaControlGraph creates a graph based on the triple-pattern-fragment spec
-// see http://www.hydra-cg.com/spec/latest/triple-pattern-fragments/#controls
-func CreateHyperMediaControlGraph(spec string, total int64, page int) *r.Graph {
-	g := r.NewGraph("")
-	hits := strconv.Itoa(int(total))
-	subject := r.NewResource(fmt.Sprintf("%s/fragments/%s", c.Config.RDF.BaseURL, spec))
-	g.AddTriple(subject, r.NewResource("http://rdfs.org/ns/void#subset"), subject)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-		r.NewResource("http://www.w3.org/ns/hydra/core#Collection"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-		r.NewResource("http://www.w3.org/ns/hydra/core#PagedCollection"),
-	)
-
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/terms/title"),
-		r.NewLiteralWithLanguage(fmt.Sprintf("Linked Data Fragment of %s", spec), "en"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/terms/description"),
-		r.NewLiteralWithLanguage(
-			fmt.Sprintf(
-				"Triple Pattern Fragment of the '%s' dataset containing triples matching the pattern { ?s ?p ?o  }.",
-				spec,
-			),
-			"en"),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://purl.org/dc/term/source"),
-		subject,
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#totalItems"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://rdfs.org/ns/void#triples"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://rdfs.org/ns/void#triples"),
-		r.NewLiteralWithDatatype(hits, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#itemsPerPage"),
-		r.NewLiteralWithDatatype("100", r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
-	)
-	g.AddTriple(
-		subject,
-		r.NewResource("http://www.w3.org/ns/hydra/core#firstPage"),
-		r.NewLiteral("1"),
-	)
-	return g
+	return fragments, res.Hits.TotalHits, nil
 }
 
 // CreateHash creates an xxhash-based hash of a string

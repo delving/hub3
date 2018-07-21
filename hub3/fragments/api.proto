@@ -30,6 +30,7 @@ enum ItemFormatType {
   FRAGMENTGRAPH = 1;
   GROUPED = 2;
   JSONLD = 3;
+  FLAT = 4;
 }
 
 enum ResponseBlockType {
@@ -54,24 +55,33 @@ message QueryFilter {
   ContextQueryFilter Level1 = 1;
   ContextQueryFilter Level2 = 2;
   string SearchLabel = 3;
+  string TypeClass = 6;
   string Value = 4;
   bool Exclude = 5;
+  // Path is the full query path 
+}
+
+message FacetField {
+  string field = 1;
+  bool asc = 2;
+  bool byName = 3;
+  int32 size = 4;
+  bool byId = 5;
+  string name = 6;
 }
 
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
   ResponseFormatType responseFormatType = 2;
-  // number of results returned
-  // rows
   int32 responseSize = 3;
   int32 start = 4;
   int32 page = 5;
-  map<string, QueryFilter> QueryFilter = 6;
-  map<string, QueryFilter> HiddenQueryFilter = 7;
+  repeated QueryFilter QueryFilter = 6;
+  repeated QueryFilter HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
-  repeated string FacetField  = 10;
+  repeated FacetField facetField  = 10;
   int32 FacetLimit = 11;
   bool FacetBoolType = 12;
   string sortBy = 13;
@@ -91,6 +101,11 @@ message SearchRequest {
   bytes searchAfter = 23;
   ItemFormatType itemFormat = 24;
   bool Paging = 25;
+  string collapseOn = 26;
+  int32 collapseSize = 27;
+  string collapseSort = 28;
+  string peek = 29;
+  bool sortAsc = 30;
 }
 
 enum GeoType {
@@ -152,6 +167,13 @@ message ScrollPager {
   int32 cursor = 2;
   int64 total = 3;
   int32 rows = 4;
+}
+
+message FragmentPager {
+  bytes firstPage = 1;
+  bytes previousPage = 2;
+  bytes currentPage = 3;
+  bytes nextPage = 4;
 }
 
 message Pagination {
@@ -465,6 +487,9 @@ message Header {
   string entryURI = 7;
   // the graph name of the graph stored
   string namedGraphURI = 8;
+  // miliseconds since epoch
+  int64 modified = 9;
+
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments
@@ -497,51 +522,11 @@ message Fragment {
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;
-}
 
-message FragmentGen1 {
-  // meta block
-  string orgID = 1;
-  string spec = 2; 
-  int32 revision = 3;
-  string hubID = 4;
 
-  // RDF core
-  string subject = 5;
-  repeated string subjectClass = 6;
+  // path is used for generating statistics 
+  string path = 16;
 
-  string predicate = 7;
-  string searchLabel = 8;
-
-  string object = 9;
-  ObjectType   objectType = 10;
-  string language = 11;
-  string objectContentType = 12;
-  ObjectXSDType dataType = 13;
-  string XSDRaw = 14;
-  string objectTypeRaw = 29; 
-
-  string namedGraphURI = 15;
-  string triple = 16;
-
-  // RDF graph position
-  int32 level = 17;
-  string referrerSubject = 18;
-  string referrerPredicate = 19;
-  string referrerSearchLabel = 20;
-  repeated string referrerSubjectClass = 21;
-
-  // Content Index
-  string latLong = 22;
-  string date = 23;
-  string dateRange = 24;
-  int32 integer = 25;
-  int32 integerRange = 26;
-  int32 referrerResourceSortOrder = 27;
-
-// content tags
-// example values linkGraphExternal prefLabel linkDomainExternal thumbnail date
-  repeated string tags = 28;
-  string docType = 30;
-  string lodKey = 31;
+  // order is the insert order of the source of the fragments
+  int32 order = 17;
 }

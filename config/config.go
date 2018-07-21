@@ -58,6 +58,7 @@ type RawConfig struct {
 	PostHook      `json:"postHook"`
 	Cache         `json:"cache"`
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
+	SiteMap       `json:"siteMap"`
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -81,6 +82,7 @@ type ElasticSearch struct {
 	OrgIDKey    string   `json:"orgIDKey"`
 	UserName    string   `json:"userName"`
 	Password    string   `json:"password"`
+	FacetSize   int      `json:"facetSize"`
 }
 
 func (es ElasticSearch) HasAuthentication() bool {
@@ -173,6 +175,14 @@ type LOD struct {
 	HTMLRedirectRegex string `json:"redirectregex"`  // the regular expression to convert the subject uri to the uri for the external Page view
 }
 
+// SiteMap holds all the configuration for the sitemap generation
+type SiteMap struct {
+	Enabled bool   `json:"enabled"`
+	BaseDir string `json:"baseDir"`
+	BaseURL string `json:"baseURL"`
+	Gzip    bool   `json:"gzip"`
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -191,6 +201,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.SpecKey", "meta.spec")
 	viper.SetDefault("ElasticSearch.RevisionKey", "meta.revision")
 	viper.SetDefault("ElasticSearch.OrgIDKey", "meta.orgID")
+	viper.SetDefault("ElasticSearch.FacetSize", 50)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
@@ -260,6 +271,9 @@ func setDefaults() {
 	viper.SetDefault("LOD.singleEndpoint", "")
 	viper.SetDefault("LOD.resource", "resource")
 	viper.SetDefault("LOD.redirectregex", "")
+
+	// sitemap
+	viper.SetDefault("SiteMap.Enabled", false)
 }
 
 func cleanConfig() {

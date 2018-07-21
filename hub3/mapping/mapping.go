@@ -46,7 +46,8 @@ var ESMapping = `{
 						"tags": {"type": "keyword"},
 						"docType": {"type": "keyword"},
 						"namedGraphURI": {"type": "keyword"},
-						"entryURI": {"type": "keyword"}
+						"entryURI": {"type": "keyword"},
+						"modified": {"type": "date"}
 					}
 				},
 				"subject": {"type": "keyword"},
@@ -58,6 +59,8 @@ var ESMapping = `{
 				"lodKey": {"type": "keyword"},
 				"objectType": {"type": "keyword"},
 				"recordType": {"type": "short"},
+				"order": {"type": "integer"},
+				"path": {"type": "keyword"},
 
 				"resources": {
 					"type": "nested",
@@ -97,6 +100,8 @@ var ESMapping = `{
 								"predicate": {"type": "keyword", "ignore_above": 256},
 								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
+								"order": {"type": "integer"},
+
 								"tags": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",

@@ -26,6 +26,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/index"
 	w "github.com/gammazero/workerpool"
+
 	//elastic "github.com/olivere/elastic"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -108,16 +109,17 @@ type DataSetStats struct {
 // DataSet contains all the known informantion for a RAPID metadata dataset
 type DataSet struct {
 	//MapToPrefix string    `json:"mapToPrefix"`
-	Spec       string    `json:"spec" storm:"id,index,unique"`
-	URI        string    `json:"uri" storm:"unique,index"`
-	Revision   int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
-	Modified   time.Time `json:"modified" storm:"index"`
-	Created    time.Time `json:"created"`
-	Deleted    bool      `json:"deleted"`
-	OrgID      string    `json:"orgID"`
-	Access     `json:"access" storm:"inline"`
-	Tags       []string `json:"tags"`
-	RecordType string   `json:"recordType"` //
+	Spec             string    `json:"spec" storm:"id,index,unique"`
+	URI              string    `json:"uri" storm:"unique,index"`
+	Revision         int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
+	FragmentRevision int       `json:"fragmentRevision"`
+	Modified         time.Time `json:"modified" storm:"index"`
+	Created          time.Time `json:"created"`
+	Deleted          bool      `json:"deleted"`
+	OrgID            string    `json:"orgID"`
+	Access           `json:"access" storm:"inline"`
+	Tags             []string `json:"tags"`
+	RecordType       string   `json:"recordType"` //
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -162,6 +164,7 @@ func GetDataSet(spec string) (DataSet, error) {
 // CreateDataSet creates and returns a DataSet
 func CreateDataSet(spec string) (DataSet, bool, error) {
 	ds := NewDataset(spec)
+	ds.Revision = 1
 	err := ds.Save()
 	return ds, true, err
 }
@@ -208,6 +211,28 @@ func (ds DataSet) Delete(ctx context.Context, wp *w.WorkerPool) error {
 		return err
 	}
 	return orm.DeleteStruct(&ds)
+}
+
+// NewDataSetHistogram returns a histogram for dates that items in the index are modified
+func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
+	ctx := context.Background()
+	specAgg := elastic.NewTermsAggregation().Field("meta.spec").Size(100).OrderByCountDesc()
+	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").Interval("1D").
+		SubAggregation("spec", specAgg)
+	q := elastic.NewMatchAllQuery()
+	res, err := index.ESClient().Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Query(q).
+		Size(0).
+		Aggregation("modified", agg).
+		Do(ctx)
+	if err != nil {
+		log.Printf("unable to render Modified histogram: %s", err)
+		return nil, err
+	}
+	aggMod, _ := res.Aggregations.DateHistogram("modified")
+
+	return aggMod.Buckets, nil
 }
 
 // indexRecordRevisionsBySpec counts all the records stored in the Index for a Dataset

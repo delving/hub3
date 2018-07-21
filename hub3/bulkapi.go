@@ -30,6 +30,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
+
 	//elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
 	elastic "gopkg.in/olivere/elastic.v5"
@@ -38,13 +39,17 @@ import (
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
 	HubID         string                 `json:"hubId"`
+	OrgID         string                 `json:"orgID"`
 	Spec          string                 `json:"dataset"`
+	LocalID       string                 `json:"localID"`
 	NamedGraphURI string                 `json:"graphUri"`
 	RecordType    string                 `json:"type"`
 	Action        string                 `json:"action"`
 	ContentHash   string                 `json:"contentHash"`
 	Graph         string                 `json:"graph"`
 	RDF           string                 `json:"rdf"`
+	GraphMimeType string                 `json:"graphMimeType"`
+	SubjectType   string                 `json:"subjectType"`
 	p             *elastic.BulkProcessor `json:"p"`
 	wp            *workerpool.WorkerPool `json:"wp"`
 }
@@ -139,7 +144,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 		//}
 		err = action.Execute(ctx, &response)
 		if err != nil {
-			log.Printf("Processing error: %#v", err)
+			log.Printf("Processing error: %v", err)
 			return response, err
 		}
 		response.TotalReceived++
@@ -372,14 +377,17 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 	fg.Meta.Revision = int32(revision)
 	fg.Meta.NamedGraphURI = action.NamedGraphURI
 	fg.Meta.EntryURI = fg.GetAboutURI()
+	fg.Meta.Modified = fragments.NowInMillis()
 	//fg.RecordType = fragments.RecordType_NARTHEX
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 	fb := fragments.NewFragmentBuilder(fg)
-	mimeType := c.Config.RDF.DefaultFormat
-	err := fb.ParseGraph(strings.NewReader(action.Graph), mimeType)
+	if action.GraphMimeType == "" {
+		action.GraphMimeType = c.Config.RDF.DefaultFormat
+	}
+	err := fb.ParseGraph(strings.NewReader(action.Graph), action.GraphMimeType)
 	if err != nil {
 		log.Printf("Unable to parse the graph: %s", err)
-		return fb, fmt.Errorf("Source RDF is not in format: %s", mimeType)
+		return fb, fmt.Errorf("Source RDF is not in format: %s", action.GraphMimeType)
 	}
 	return fb, nil
 }
@@ -415,6 +423,7 @@ func (action BulkAction) RDFSave(response *BulkActionResponse) []error {
 		Type("text").
 		Send(action.Graph).
 		End()
+	defer resp.Body.Close()
 	if errs != nil {
 		log.Fatal(errs)
 	}

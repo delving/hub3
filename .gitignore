@@ -22,6 +22,10 @@ utils
 rapidctl/build/*
 rapidctl/rapidctl
 
+# assets
+server/assets/assets_vfsdata.go
+
+
 # TLS cache
 .cache
 
@@ -73,3 +77,4 @@ example
 target/
 *.log
 rapid-*.toml
+auth/

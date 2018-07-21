@@ -16,6 +16,7 @@ package server
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -23,6 +24,9 @@ import (
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/index"
+	"github.com/delving/rapid-saas/hub3/models"
+	"github.com/delving/rapid-saas/server/assets"
 	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
@@ -81,7 +85,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	})
 
 	// setup fileserver for public directory
-	n.Use(negroni.NewStatic(http.Dir(c.Config.HTTP.StaticDir)))
+	n.Use(negroni.NewStatic(assets.Assets))
 
 	// Setup Router
 	r := chi.NewRouter()
@@ -108,32 +112,46 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 
-	// static fileserver
-	FileServer(r, "/static", getAbsolutePathToFileDir("public"))
+	// stats dashboard
+	r.Get("/api/stats/bySearchLabel", searchLabelStats)
+	//r.Get("/api/stats/bySearchLabel/{:label}", searchLabelStatsValues)
+	r.Get("/api/stats/byPredicate", predicateStats)
+	//r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
 
-	// dashboard
+	// stastic serving on vfsgen files
 	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/scroll-api.html")
+		http.Redirect(w, r, "/api/_docs", http.StatusSeeOther)
+	})
+	r.Get("/api/_docs", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "api-docs.html")
+		return
+	})
+	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "explore/sparql.html")
+		return
+	})
+	r.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "explore/ldf.html")
 		return
 	})
 
 	// gaf ZVT
-	r.Get("/gaf/search-alt/*", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/gaf/index.html")
-		return
-	})
+	//r.Get("/gaf/search-alt/*", func(w http.ResponseWriter, r *http.Request) {
+	//http.ServeFile(w, r, "./public/gaf/index.html")
+	//return
+	//})
 	//r.Get("/gaf/search-alt", func(w http.ResponseWriter, r *http.Request) {
 	//http.ServeFile(w, r, "./public/gaf/index.html")
 	//return
 	//})
-	r.Get("/gaf/search-cache/*", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/gaf/index-cache.html")
-		return
-	})
-	r.Get("/gaf/search-cache", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./public/gaf/index-cache.html")
-		return
-	})
+	//r.Get("/gaf/search-cache/*", func(w http.ResponseWriter, r *http.Request) {
+	//http.ServeFile(w, r, "./public/gaf/index-cache.html")
+	//return
+	//})
+	//r.Get("/gaf/search-cache", func(w http.ResponseWriter, r *http.Request) {
+	//http.ServeFile(w, r, "./public/gaf/index-cache.html")
+	//return
+	//})
 
 	// WebResource & imageproxy configuration
 	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
@@ -167,8 +185,13 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// Narthex endpoint
 	r.Post("/api/rdf/bulk", bulkAPI)
+	r.Get("/api/bulk/sync", bulkSyncList)
+	r.Post("/api/bulk/sync", bulkSyncStart)
+	r.Get("/api/bulk/sync/{:id}", bulkSyncProgress)
+	r.Delete("/api/bulk/sync/{:id}", bulkSyncCancel)
 	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
+	r.Post("/api/index/fuzzed", generateFuzzed)
 
 	// CSV upload endpoint
 	r.Post("/api/rdf/csv", csvUpload)
@@ -177,6 +200,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// SKOS sync endpoint
 	r.Get("/api/rdf/skos", skosSync)
 	r.Post("/api/rdf/skos", skosUpload)
+
+	// RDF upload endpoint
+	r.Post("/api/rdf/source", rdfUpload)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
@@ -189,6 +215,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// datasets
 	r.Get("/api/datasets", listDataSets)
+	r.Get("/api/datasets/histogram", listDataSetHistogram)
 	r.Post("/api/datasets", createDataSet)
 	r.Get("/api/datasets/{spec}", getDataSet)
 	r.Get("/api/datasets/{spec}/stats", getDataSetStats)
@@ -196,8 +223,8 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Post("/api/datasets/{spec}", createDataSet)
 	r.Delete("/api/datasets/{spec}", deleteDataset)
 
+	// fragments
 	r.Get("/api/fragments", listFragments)
-
 	r.Get("/fragments/{spec}", listFragments)
 	r.Get("/fragments", listFragments)
 
@@ -210,6 +237,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// introspection
 	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
+		r.Mount("/debug", mw.Profiler())
 	}
 
 	if c.Config.Cache.Enabled {
@@ -250,7 +278,19 @@ func IntrospectionRouter(chiRouter chi.Router) http.Handler {
 		w.Write([]byte(docgen.JSONRoutesDoc(chiRouter)))
 		return
 	})
+	r.Delete("/reset", resetAll)
 	return r
+}
+
+func resetAll(w http.ResponseWriter, r *http.Request) {
+	// reset elasticsearch
+	err := index.IndexReset("")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	// reset Key Value Store
+	models.ResetStorm()
+	return
 }
 
 func getAbsolutePathToFileDir(relativePath string) http.Dir {
@@ -277,4 +317,25 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fs.ServeHTTP(w, r)
 	}))
+}
+
+func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
+	file, err := assets.Assets.Open(filePath)
+	if err != nil {
+		log.Printf("Unable to open file %s: %v", filePath, err)
+		render.Status(r, http.StatusNotFound)
+		render.PlainText(w, r, "")
+		return err
+	}
+	defer file.Close()
+
+	body, err := ioutil.ReadAll(file)
+	if err != nil {
+		log.Printf("Unable to read file %s: %v", filePath, err)
+		render.Status(r, http.StatusNotFound)
+		render.PlainText(w, r, "")
+		return err
+	}
+	render.HTML(w, r, string(body))
+	return nil
 }

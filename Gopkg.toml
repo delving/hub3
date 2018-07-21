@@ -1,0 +1,146 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  name = "github.com/OneOfOne/xxhash"
+  version = "~1.2.0"
+
+[[constraint]]
+  name = "github.com/allegro/bigcache"
+  version = "~1.1.0"
+
+[[constraint]]
+  name = "github.com/asdine/storm"
+  version = "~1.1.0"
+
+[[constraint]]
+  name = "github.com/caltechlibrary/ead2002"
+  version = "0.0.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/die-net/lrucache"
+
+[[constraint]]
+  name = "github.com/evalphobia/logrus_sentry"
+  version = "0.4.2"
+
+[[constraint]]
+  name = "github.com/go-chi/chi"
+  version = "~3.3.1"
+
+[[constraint]]
+  name = "github.com/go-chi/cors"
+  version = "~1.0.0"
+
+[[constraint]]
+  name = "github.com/go-chi/docgen"
+  version = "~1.0.2"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/kiivihal/rdf2go"
+  version = "0.1.2"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/knakk/rdf"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/knakk/sparql"
+
+[[constraint]]
+  name = "github.com/labstack/gommon"
+  version = "0.2.3"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/linkeddata/gojsonld"
+
+[[constraint]]
+  name = "github.com/olivere/elastic"
+  version = "~6.1.5"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "~1.4.0"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "~1.3.0"
+
+[[constraint]]
+  name = "github.com/parnurzeal/gorequest"
+  version = "0.2.15"
+
+[[constraint]]
+  name = "github.com/peterbourgon/diskv"
+  version = "~2.0.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/phyber/negroni-gzip"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.0.4"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/thoas/stats"
+
+[[constraint]]
+  name = "github.com/urfave/negroni"
+  version = "0.3.0"
+
+[[constraint]]
+  name = "github.com/zbindenren/negroni-prometheus"
+  version = "0.1.1"
+
+[[constraint]]
+  name = "gopkg.in/olivere/elastic.v5"
+  version = "5.0.62"
+
+[prune]
+  go-tests = true
+  unused-packages = true
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/shurcooL/vfsgen"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.0"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.2.2"

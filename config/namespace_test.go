@@ -154,10 +154,11 @@ var _ = Describe("Namespace", func() {
 				Expect(label).To(Equal("dc_subject"))
 			})
 
-			It("should throw an error when namespace is not found", func() {
+			It("Add a default prefix when namespace is not found", func() {
 				dcSubject := "http://purl.org/dc/elements/1.3/subject"
-				_, err := nsMap.GetSearchLabel(dcSubject)
-				Expect(err).To(HaveOccurred())
+				label, err := nsMap.GetSearchLabel(dcSubject)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(label).To(HaveSuffix("_subject"))
 			})
 		})
 

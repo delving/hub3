@@ -22,8 +22,13 @@ type CSVConvertor struct {
 	ObjectResourceColumns []string  `json:"objectResourceColumns"`
 	ThumbnailURIBase      string    `json:"thumbnailURIBase"`
 	ThumbnailColumn       string    `json:"thumbnailColumn"`
+	ManifestURIBase       string    `json:"manifestURIBase"`
+	ManifestColumn        string    `json:"manifestColumn"`
+	ManifestLocale        string    `json:"manifestLocale"`
 	DefaultSpec           string    `json:"defaultSpec"`
-	InputFile             io.Reader `json:"inputFile"`
+	InputFile             io.Reader `json:"-"`
+	RowsProcessed         int       `json:"rowsProcessed"`
+	TriplesCreated        int       `json:"triplesCreated"`
 }
 
 // NewCSVConvertor creates a CSV convertor from an net/http Form
@@ -32,7 +37,7 @@ func NewCSVConvertor() *CSVConvertor {
 }
 
 // IndexFragments stores the fragments generated from the CSV into ElasticSearch
-func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) (int, error) {
+func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) (int, int, error) {
 
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
@@ -41,71 +46,73 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 		DocType:  "csvUpload",
 		Spec:     con.DefaultSpec,
 		Tags:     []string{"csvUpload"},
+		Modified: NowInMillis(),
 	}
 
-	rm, err := con.Convert()
+	rm, rowsProcessed, err := con.Convert()
 
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
-	seen := 0
+	triplesProcessed := 0
 	for k, fr := range rm.Resources() {
 		fg.Meta.EntryURI = k
 		fg.Meta.NamedGraphURI = fmt.Sprintf("%s/graph", k)
 		frags, err := fr.CreateFragments(fg)
 		if err != nil {
-			return 0, err
+			return 0, 0, err
 		}
 
 		for _, frag := range frags {
 			frag.Meta.AddTags("csvUpload")
 			err := frag.AddTo(p)
 			if err != nil {
-				return 0, err
+				return 0, 0, err
 			}
-			seen = seen + 1
+			triplesProcessed = triplesProcessed + 1
 		}
 	}
-	return seen, nil
+	return triplesProcessed, rowsProcessed, nil
 }
 
 //Convert converts the CSV InputFile to an RDF ResourceMap
-func (con *CSVConvertor) Convert() (*ResourceMap, error) {
+func (con *CSVConvertor) Convert() (*ResourceMap, int, error) {
 	rm := &ResourceMap{make(map[string]*FragmentResource)}
 
-	triples, err := con.CreateTriples()
+	triples, rowsProcessed, err := con.CreateTriples()
 	if err != nil {
-		return rm, err
+		return rm, 0, err
 	}
 
 	if len(triples) == 0 {
-		return rm, fmt.Errorf("the list of triples cannot be empty")
+		return rm, 0, fmt.Errorf("the list of triples cannot be empty")
 	}
 
 	for _, t := range triples {
-		err := AppendTriple(rm.resources, t, false)
+		err := rm.AppendTriple(t, false)
 		if err != nil {
-			return rm, err
+			return rm, 0, err
 		}
 	}
 
-	return rm, nil
+	return rm, rowsProcessed, nil
 
 }
 
 // CreateTriples converts a csv file to a list of Triples
-func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
+func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 
 	records, err := con.GetReader()
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	var header []string
 	var headerMap map[int]r.Term
 	var subjectColumnIdx int
 	var thumbnailColumnIdx int
+	var manifestColumnIdx int
 
 	triples := []*r.Triple{}
 
@@ -118,7 +125,7 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 				con.SubjectColumn,
 			)
 			if err != nil {
-				return nil, err
+				return nil, 0, err
 			}
 			if con.ThumbnailColumn != "" {
 				thumbnailColumnIdx, err = con.GetSubjectColumn(
@@ -126,7 +133,16 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 					con.ThumbnailColumn,
 				)
 				if err != nil {
-					return nil, err
+					return nil, 0, err
+				}
+			}
+			if con.ManifestColumn != "" {
+				manifestColumnIdx, err = con.GetSubjectColumn(
+					header,
+					con.ManifestColumn,
+				)
+				if err != nil {
+					return nil, 0, err
 				}
 			}
 			continue
@@ -137,9 +153,6 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 
 		for idx, column := range row {
 
-			if idx == subjectColumnIdx {
-				continue
-			}
 			if con.ThumbnailColumn != "" && idx == thumbnailColumnIdx {
 				thumbnail := r.NewTriple(
 					s,
@@ -150,19 +163,44 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, error) {
 						fmt.Sprintf("%s/%s", con.ThumbnailURIBase, column),
 					),
 				)
-				triples = append(triples, thumbnail)
+				manifest := r.NewTriple(
+					s,
+					r.NewResource(
+						fmt.Sprintf("%s/manifest", con.PredicateURIBase),
+					),
+					r.NewLiteral(
+						fmt.Sprintf("%s/%s", strings.TrimSuffix(con.ManifestURIBase, "s"), column),
+					),
+				)
+				triples = append(triples, thumbnail, manifest)
+				continue
+			}
+			if con.ManifestColumn != "" && idx == manifestColumnIdx {
+				if con.ManifestLocale == "" {
+					con.ManifestLocale = "nl_nl"
+				}
+				manifest := r.NewTriple(
+					s,
+					r.NewResource(
+						fmt.Sprintf("%s/manifests", con.PredicateURIBase),
+					),
+					r.NewLiteral(
+						fmt.Sprintf("%s/%s/%s", con.ManifestURIBase, column, con.ManifestLocale),
+					),
+				)
+				triples = append(triples, manifest)
 				continue
 			}
 			p := headerMap[idx]
 			triples = append(triples, con.CreateTriple(s, p, column))
 			if err != nil {
-				return nil, err
+				return nil, 0, err
 			}
 		}
 
 	}
 
-	return triples, nil
+	return triples, len(records), nil
 }
 
 // CreateHeader creates a map based on column id for the predicates

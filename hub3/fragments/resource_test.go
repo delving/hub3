@@ -55,70 +55,70 @@ var _ = Describe("Resource", func() {
 	Describe("when appending a triple", func() {
 
 		It("should add the subject to the resource map", func() {
-			rm := make(map[string]*FragmentResource)
-			Expect(rm).To(BeEmpty())
+			rm := NewEmptyResourceMap()
+			Expect(rm.Resources()).To(BeEmpty())
 			t := r.NewTriple(
 				NSRef("1"),
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t, false))
+			err := rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(rm).To(HaveLen(1))
-			Expect(rm).To(HaveKey(t.GetSubjectID()))
-			fr, ok := rm[t.GetSubjectID()]
+			Expect(rm.Resources()).To(HaveLen(1))
+			Expect(rm.Resources()).To(HaveKey(t.GetSubjectID()))
+			fr, ok := rm.Resources()[t.GetSubjectID()]
 			Expect(ok).To(BeTrue())
 			Expect(fr.Types).To(HaveLen(1))
 		})
 
 		It("should add the subject only once", func() {
-			rm := make(map[string]*FragmentResource)
-			Expect(rm).To(BeEmpty())
+			rm := NewEmptyResourceMap()
+			Expect(rm.Resources()).To(BeEmpty())
 			t := r.NewTriple(
 				NSRef("1"),
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t, false))
+			err := rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
-			err = (AppendTriple(rm, t, false))
+			err = rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(rm).To(HaveLen(1))
+			Expect(rm.Resources()).To(HaveLen(1))
 		})
 
 		It("should add not add objectIDS for rdfType", func() {
-			rm := make(map[string]*FragmentResource)
-			Expect(rm).To(BeEmpty())
+			rm := NewEmptyResourceMap()
+			Expect(rm.Resources()).To(BeEmpty())
 			subject := NSRef("1")
 			t := r.NewTriple(
 				subject,
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			err := (AppendTriple(rm, t, false))
+			err := rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
 
-			entry, ok := rm[r.GetResourceID(subject)]
+			entry, ok := rm.Resources()[r.GetResourceID(subject)]
 			Expect(ok).To(BeTrue())
 			Expect(entry.ObjectIDs()).To(HaveLen(0))
 		})
 
 		It("should add objectIDS for resources", func() {
-			rm := make(map[string]*FragmentResource)
-			Expect(rm).To(BeEmpty())
+			rm := NewEmptyResourceMap()
+			Expect(rm.Resources()).To(BeEmpty())
 			subject := NSRef("1")
 			t := r.NewTriple(
 				subject,
 				NSRef("title"),
 				NSRef("myBook"),
 			)
-			err := (AppendTriple(rm, t, false))
+			err := rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
 
-			err = (AppendTriple(rm, t, false))
+			err = rm.AppendTriple(t, false)
 			Expect(err).ToNot(HaveOccurred())
 
-			entry, ok := rm[r.GetResourceID(subject)]
+			entry, ok := rm.Resources()[r.GetResourceID(subject)]
 			Expect(ok).To(BeTrue())
 			Expect(entry.ObjectIDs()).To(HaveLen(1))
 		})
@@ -133,7 +133,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				NSRef("book"),
 			)
-			entry, id := CreateFragmentEntry(t, false)
+			entry, id := CreateFragmentEntry(t, false, 0)
 			Expect(id).ToNot(BeEmpty())
 			Expect(id).To(Equal(r.GetResourceID(t.Object)))
 			Expect(entry.ID).To(Equal(id))
@@ -150,7 +150,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewBlankNode("book"),
 			)
-			entry, id := CreateFragmentEntry(t, false)
+			entry, id := CreateFragmentEntry(t, false, 0)
 			Expect(id).ToNot(BeEmpty())
 			Expect(id).To(Equal(r.GetResourceID(t.Object)))
 			Expect(id).To(HavePrefix("_:"))
@@ -168,7 +168,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteral("book"),
 			)
-			entry, id := CreateFragmentEntry(t, false)
+			entry, id := CreateFragmentEntry(t, false, 0)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
@@ -184,7 +184,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteralWithLanguage("book", "en"),
 			)
-			entry, id := CreateFragmentEntry(t, false)
+			entry, id := CreateFragmentEntry(t, false, 0)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
@@ -200,7 +200,7 @@ var _ = Describe("Resource", func() {
 				r.NewResource(RDFType),
 				r.NewLiteralWithDatatype("1", r.NewResource("http://www.w3.org/2001/XMLSchema#decimal")),
 			)
-			entry, id := CreateFragmentEntry(t, false)
+			entry, id := CreateFragmentEntry(t, false, 0)
 			Expect(id).To(BeEmpty())
 			Expect(entry.ID).To(BeEmpty())
 
