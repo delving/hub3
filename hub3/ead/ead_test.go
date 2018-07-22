@@ -1,6 +1,7 @@
 package ead_test
 
 import (
+	"context"
 	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
@@ -15,6 +16,24 @@ import (
 
 var _ = Describe("Ead", func() {
 
+	Describe("when creating a node configuration", func() {
+
+		It("should initialise the NodeCounter", func() {
+			cfg := NewNodeConfig(context.Background(), true)
+			Expect(cfg).ToNot(BeNil())
+			Expect(cfg.Counter).ToNot(BeNil())
+		})
+
+		It("should increment the counter by one", func() {
+			cfg := NewNodeConfig(context.Background(), true)
+			Expect(cfg.Counter.GetCount()).To(BeZero())
+			cfg.Counter.Increment()
+			Expect(cfg.Counter.GetCount()).ToNot(BeZero())
+			Expect(cfg.Counter.GetCount()).To(Equal(uint64(1)))
+		})
+
+	})
+
 	Describe("when converting to Nodes", func() {
 
 		Context("for the dsc", func() {
@@ -23,7 +42,8 @@ var _ = Describe("Ead", func() {
 
 			It("should have a type", func() {
 				Expect(err).ToNot(HaveOccurred())
-				nl, seen, err := dsc.NewNodeList()
+				cfg := NewNodeConfig(context.Background(), false)
+				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetType()).To(Equal("combined"))
@@ -35,7 +55,8 @@ var _ = Describe("Ead", func() {
 
 			It("should have a header", func() {
 				Expect(err).ToNot(HaveOccurred())
-				nl, seen, err := dsc.NewNodeList()
+				cfg := NewNodeConfig(context.Background(), false)
+				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetLabel()).To(HaveLen(1))
@@ -46,7 +67,8 @@ var _ = Describe("Ead", func() {
 
 			It("should have c-levels", func() {
 				Expect(dsc.Nested).To(HaveLen(1))
-				nl, seen, err := dsc.NewNodeList()
+				cfg := NewNodeConfig(context.Background(), false)
+				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetNodes()).To(HaveLen(1))
@@ -57,12 +79,12 @@ var _ = Describe("Ead", func() {
 		Context("for the c01", func() {
 			c01 := new(Cc01)
 			err := parseUtil(c01, "ead.2.xml")
+			cfg := NewNodeConfig(context.Background(), false)
 			var node *Node
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				var counter uint64
-				node, err = c01.NewNode(&counter, false)
+				node, err = c01.NewNode(cfg)
 				Expect(node.Order).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -87,7 +109,7 @@ var _ = Describe("Ead", func() {
 			})
 		})
 
-		Context("for the did", func() {
+		Context("for the date did", func() {
 			did := new(Cdid)
 			err := parseUtil(did, "ead.diddate.xml")
 			var header *Header
@@ -325,7 +347,8 @@ func TestEADLosslessSave(t *testing.T) {
 	ead, err := ReadEAD("./test_data/ead/test_nodes.ead.xml")
 	//ead, err := ReadEAD("/mnt/usb1/ead-production/NL-HaNA_2.09.09.ead.xml")
 	assert.NoError(t, err)
-	nl, _, err := ead.Carchdesc.Cdsc.NewNodeList()
+	cfg := NewNodeConfig(context.Background(), false)
+	nl, _, err := ead.Carchdesc.Cdsc.NewNodeList(cfg)
 	//assert.Equal(t, seen, uint64(0))
 	assert.NoError(t, err)
 
@@ -357,7 +380,8 @@ func TestEADLosslessSparseSave(t *testing.T) {
 	ead, err := ReadEAD("./test_data/ead/test_nodes.ead.xml")
 	//ead, err := ReadEAD("/mnt/usb1/ead-production/NL-HaNA_2.09.09.ead.xml")
 	assert.NoError(t, err)
-	nl, _, err := ead.Carchdesc.Cdsc.NewSparseNodeList()
+	cfg := NewNodeConfig(context.Background(), true)
+	nl, _, err := ead.Carchdesc.Cdsc.NewNodeList(cfg)
 	assert.NoError(t, err)
 	assert.NotNil(t, nl)
 
