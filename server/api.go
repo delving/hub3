@@ -28,6 +28,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3"
+	"github.com/delving/rapid-saas/hub3/ead"
 	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/delving/rapid-saas/hub3/harvesting"
 	"github.com/delving/rapid-saas/hub3/index"
@@ -150,6 +151,25 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, res)
 	return
 }
+
+func eadUpload(w http.ResponseWriter, r *http.Request) {
+	spec := r.FormValue("spec")
+	if spec == "" {
+		render.PlainText(w, r, "spec param is required")
+		render.Status(r, http.StatusBadRequest)
+		return
+	}
+
+	nodes, err := ead.ProcessUpload(r, spec)
+	if spec == "" {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	render.PlainText(w, r, fmt.Sprintf("Processed %d for dataset %s", nodes, spec))
+	return
+}
+
 func rdfUpload(w http.ResponseWriter, r *http.Request) {
 	in, _, err := r.FormFile("turtle")
 	if err != nil {

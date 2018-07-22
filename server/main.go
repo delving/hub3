@@ -204,6 +204,9 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	// RDF upload endpoint
 	r.Post("/api/rdf/source", rdfUpload)
 
+	// EAD endpoint
+	r.Post("/api/ead", eadUpload)
+
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
 

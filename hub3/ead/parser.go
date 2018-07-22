@@ -1,8 +1,21 @@
 package ead
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
+	"io"
 	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"path"
+
+	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/models"
+	proto "github.com/golang/protobuf/proto"
 )
 
 // ReadEAD reads an ead2002 XML from a path
@@ -19,6 +32,87 @@ func eadParse(src []byte) (*Cead, error) {
 	ead := new(Cead)
 	err := xml.Unmarshal(src, ead)
 	return ead, err
+}
+
+func ProcessUpload(r *http.Request, spec string) (uint64, error) {
+
+	ds, _, err := models.GetOrCreateDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", spec)
+		return uint64(0), err
+	}
+
+	err = ds.IncrementRevision()
+	if err != nil {
+		log.Printf("Unable to increment %s\n", spec)
+		return uint64(0), err
+	}
+	basePath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s", spec))
+	f, err := os.Create(basePath + ".xml")
+	defer f.Close()
+
+	if err != nil {
+		log.Printf("Unable to create output file %s; %s", spec, err)
+		return uint64(0), err
+	}
+
+	in, header, err := r.FormFile("ead")
+	if err != nil {
+		return uint64(0), err
+	}
+	defer in.Close()
+
+	buf := bytes.NewBuffer(make([]byte, 0, header.Size))
+	_, err = io.Copy(f, io.TeeReader(in, buf))
+
+	if err != nil {
+		return uint64(0), err
+	}
+
+	cead, err := eadParse(buf.Bytes())
+	if err != nil {
+		return uint64(0), err
+	}
+
+	cfg := NewNodeConfig(context.Background(), true)
+	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	b, err := json.Marshal(nl)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	err = ioutil.WriteFile(basePath+".sparse.nodelist.json", b, 0644)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	// save protobuf
+	b, err = proto.Marshal(nl)
+	if err != nil {
+		return uint64(0), err
+	}
+	err = ioutil.WriteFile(basePath+".sparse.nodelist.pb", b, 0644)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	// write the header and archDesc without the cLevels
+	cead.Carchdesc.Cdsc = nil
+	b, err = json.Marshal(cead)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	err = ioutil.WriteFile(basePath+".headers.json", b, 0644)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	return cfg.Counter.GetCount(), nil
 }
 
 ///////////////////////////
