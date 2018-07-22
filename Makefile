@@ -119,6 +119,7 @@ release-public:
 
 protobuffer:
 	@make pb.api
+	@make pb.ead
 	@make pb.webresource
 
 pb.webresource:
@@ -126,6 +127,9 @@ pb.webresource:
 
 pb.api:
 	@protoc --go_out=. hub3/fragments/api.proto
+
+pb.ead:
+	@protoc --go_out=. hub3/ead/ead.proto
 
 cqlsh:
 	@docker exec -it cassandra0 cqlsh
