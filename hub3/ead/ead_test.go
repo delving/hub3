@@ -1,12 +1,16 @@
 package ead_test
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
+	"testing"
 
 	. "github.com/delving/rapid-saas/hub3/ead"
+	proto "github.com/golang/protobuf/proto"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/assert"
 )
 
 var _ = Describe("Ead", func() {
@@ -19,7 +23,8 @@ var _ = Describe("Ead", func() {
 
 			It("should have a type", func() {
 				Expect(err).ToNot(HaveOccurred())
-				nl, err := dsc.NewNodeList()
+				nl, seen, err := dsc.NewNodeList()
+				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetType()).To(Equal("combined"))
 				//Expect(nl.GetNodes()).ToNot(HaveLen(1))
@@ -30,7 +35,8 @@ var _ = Describe("Ead", func() {
 
 			It("should have a header", func() {
 				Expect(err).ToNot(HaveOccurred())
-				nl, err := dsc.NewNodeList()
+				nl, seen, err := dsc.NewNodeList()
+				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetLabel()).To(HaveLen(1))
 				sourceHeader := dsc.Chead[0].Head
@@ -39,8 +45,9 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have c-levels", func() {
-				Expect(dsc.Cc01).To(HaveLen(1))
-				nl, err := dsc.NewNodeList()
+				Expect(dsc.Nested).To(HaveLen(1))
+				nl, seen, err := dsc.NewNodeList()
+				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.GetNodes()).To(HaveLen(1))
 				// TODO add nil check
@@ -54,7 +61,9 @@ var _ = Describe("Ead", func() {
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				node, err = c01.NewNode()
+				var counter uint64
+				node, err = c01.NewNode(&counter, false)
+				Expect(node.Order).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 			})
 
@@ -80,12 +89,33 @@ var _ = Describe("Ead", func() {
 
 		Context("for the did", func() {
 			did := new(Cdid)
+			err := parseUtil(did, "ead.diddate.xml")
+			var header *Header
+
+			It("should not throw an error on create", func() {
+				Expect(err).ToNot(HaveOccurred())
+				header, err = did.NewHeader(false)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header).ToNot(BeNil())
+			})
+
+			It("should have date as label", func() {
+				Expect(header.GetLabel()).ToNot(ContainElement("1839"))
+			})
+
+			It("should have date as label", func() {
+				Expect(header.GetDateAsLabel()).To(BeTrue())
+			})
+		})
+
+		Context("for the did", func() {
+			did := new(Cdid)
 			err := parseUtil(did, "ead.did.xml")
 			var header *Header
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				header, err = did.NewHeader()
+				header, err = did.NewHeader(false)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(header).ToNot(BeNil())
 			})
@@ -175,7 +205,7 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should extract the nodeIDs", func() {
-					nodeIDs, inventoryNumber, err := did.NewNodeIDs()
+					nodeIDs, inventoryNumber, err := did.NewNodeIDs(false)
 					Expect(err).ToNot(HaveOccurred())
 					Expect(nodeIDs).ToNot(BeEmpty())
 					Expect(inventoryNumber).ToNot(BeEmpty())
@@ -183,6 +213,7 @@ var _ = Describe("Ead", func() {
 			})
 
 		})
+
 	})
 
 	//Context("when being load from file", func() {
@@ -274,7 +305,7 @@ func parseUtil(node interface{}, fName string) error {
 //false,
 //},
 //}
-//for _, tt := range tests {
+//for _, tt := range tests {k
 //t.Run(tt.name, func(t *testing.T) {
 //cdsc := new(Cdsc)
 //parseEAD(t, cdsc, tt.fName)
@@ -289,3 +320,62 @@ func parseUtil(node interface{}, fName string) error {
 //})
 //}
 //}
+
+func TestEADLosslessSave(t *testing.T) {
+	ead, err := ReadEAD("./test_data/ead/test_nodes.ead.xml")
+	//ead, err := ReadEAD("/mnt/usb1/ead-production/NL-HaNA_2.09.09.ead.xml")
+	assert.NoError(t, err)
+	nl, _, err := ead.Carchdesc.Cdsc.NewNodeList()
+	//assert.Equal(t, seen, uint64(0))
+	assert.NoError(t, err)
+
+	// save cdsc
+	b, err := json.Marshal(ead.Carchdesc.Cdsc)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.orig.json", b, 0644)
+	assert.NoError(t, err)
+
+	// save json
+	b, err = json.Marshal(nl)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.nodelist.json", b, 0644)
+	assert.NoError(t, err)
+
+	// save protobuf
+	b, err = proto.Marshal(nl)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.nodelist.pb", b, 0644)
+	assert.NoError(t, err)
+
+	//Expect(err).ToNot(HaveOccurred())
+
+	// save protobuf
+
+}
+
+func TestEADLosslessSparseSave(t *testing.T) {
+	ead, err := ReadEAD("./test_data/ead/test_nodes.ead.xml")
+	//ead, err := ReadEAD("/mnt/usb1/ead-production/NL-HaNA_2.09.09.ead.xml")
+	assert.NoError(t, err)
+	nl, _, err := ead.Carchdesc.Cdsc.NewSparseNodeList()
+	assert.NoError(t, err)
+	assert.NotNil(t, nl)
+
+	// save cdsc
+	b, err := json.Marshal(ead.Carchdesc.Cdsc)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.orig.json", b, 0644)
+	assert.NoError(t, err)
+
+	// save json
+	b, err = json.Marshal(nl)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.sparse.nodelist.json", b, 0644)
+	assert.NoError(t, err)
+
+	// save protobuf
+	b, err = proto.Marshal(nl)
+	assert.NoError(t, err)
+	err = ioutil.WriteFile("/tmp/ead.sparse.nodelist.pb", b, 0644)
+	assert.NoError(t, err)
+}

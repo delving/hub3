@@ -106,26 +106,33 @@ type Cblockquote struct {
 }
 
 type Cc01 struct {
-	XMLName   xml.Name `xml:"c01,omitempty" json:"c01,omitempty"`
-	Attrlevel string   `xml:"level,attr"  json:",omitempty"`
-	Cc02      []*Cc02  `xml:"c02,omitempty" json:"c02,omitempty"`
-	Cdid      *Cdid    `xml:"did,omitempty" json:"did,omitempty"`
+	XMLName         xml.Name         `xml:"c01,omitempty" json:"c01,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc02          `xml:"c02,omitempty" json:"c02,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc02 struct {
-	XMLName   xml.Name `xml:"c02,omitempty" json:"c02,omitempty"`
-	Attrlevel string   `xml:"level,attr"  json:",omitempty"`
-	Cc03      []*Cc03  `xml:"c03,omitempty" json:"c03,omitempty"`
-	Cdid      *Cdid    `xml:"did,omitempty" json:"did,omitempty"`
+	XMLName         xml.Name         `xml:"c02,omitempty" json:"c02,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc03          `xml:"c03,omitempty" json:"c03,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc03 struct {
-	XMLName        xml.Name       `xml:"c03,omitempty" json:"c03,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc04           []*Cc04        `xml:"c04,omitempty" json:"c04,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c03,omitempty" json:"c03,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc04          `xml:"c04,omitempty" json:"c04,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc04 struct {
@@ -133,7 +140,7 @@ type Cc04 struct {
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
 	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
 	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
-	Cc05            []*Cc05          `xml:"c05,omitempty" json:"c05,omitempty"`
+	Nested          []*Cc05          `xml:"c05,omitempty" json:"c05,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
@@ -143,70 +150,79 @@ type Cc05 struct {
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
 	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
 	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
-	Cc06            []*Cc06          `xml:"c06,omitempty" json:"c06,omitempty"`
+	Nested          []*Cc06          `xml:"c06,omitempty" json:"c06,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc06 struct {
-	XMLName        xml.Name       `xml:"c06,omitempty" json:"c06,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc07           []*Cc07        `xml:"c07,omitempty" json:"c07,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c06,omitempty" json:"c06,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc07          `xml:"c07,omitempty" json:"c07,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc07 struct {
-	XMLName        xml.Name       `xml:"c07,omitempty" json:"c07,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc08           []*Cc08        `xml:"c08,omitempty" json:"c08,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c07,omitempty" json:"c07,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc08          `xml:"c08,omitempty" json:"c08,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc08 struct {
-	XMLName        xml.Name       `xml:"c08,omitempty" json:"c08,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc09           []*Cc09        `xml:"c09,omitempty" json:"c09,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c08,omitempty" json:"c08,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc09          `xml:"c09,omitempty" json:"c09,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc09 struct {
-	XMLName        xml.Name       `xml:"c09,omitempty" json:"c09,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc10           []*Cc10        `xml:"c10,omitempty" json:"c10,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c09,omitempty" json:"c09,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc10          `xml:"c10,omitempty" json:"c10,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc10 struct {
-	XMLName        xml.Name       `xml:"c10,omitempty" json:"c10,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc11           []*Cc11        `xml:"c11,omitempty" json:"c11,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c10,omitempty" json:"c10,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc11          `xml:"c11,omitempty" json:"c11,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc11 struct {
-	XMLName        xml.Name       `xml:"c11,omitempty" json:"c11,omitempty"`
-	Attrlevel      string         `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel string         `xml:"otherlevel,attr"  json:",omitempty"`
-	Cc12           []*Cc12        `xml:"c12,omitempty" json:"c12,omitempty"`
-	Cdid           *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent  *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c11,omitempty" json:"c11,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cc12 struct {
-	XMLName       xml.Name       `xml:"c12,omitempty" json:"c12,omitempty"`
-	Attrlevel     string         `xml:"level,attr"  json:",omitempty"`
-	Cdid          *Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Cscopecontent *Cscopecontent `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
 type Cchange struct {
@@ -306,7 +322,7 @@ type Cdid struct {
 type Cdsc struct {
 	XMLName  xml.Name `xml:"dsc,omitempty" json:"dsc,omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
-	Cc01     []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"`
+	Nested   []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 }
 

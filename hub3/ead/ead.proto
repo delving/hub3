@@ -16,8 +16,8 @@ message Node {
   Header Header = 3;
   string HTML = 5;
   repeated Node Nodes = 4;
-  int32 Order = 8;
-  repeated string ParentIDS = 9;
+  uint64 Order = 8;
+  repeated string ParentIDs = 9;
 }
 
 message Header {
