@@ -59,6 +59,7 @@ type RawConfig struct {
 	Cache         `json:"cache"`
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 	SiteMap       `json:"siteMap"`
+	EAD           `json:"ead"`
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -183,6 +184,10 @@ type SiteMap struct {
 	Gzip    bool   `json:"gzip"`
 }
 
+type EAD struct {
+	CacheDir string `json:"cacheDir"`
+}
+
 func setDefaults() {
 
 	// setting defaults
@@ -274,6 +279,9 @@ func setDefaults() {
 
 	// sitemap
 	viper.SetDefault("SiteMap.Enabled", false)
+
+	// ead
+	viper.SetDefault("EAD.CacheDir", "/tmp/ead")
 }
 
 func cleanConfig() {

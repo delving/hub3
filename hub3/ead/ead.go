@@ -3,8 +3,23 @@ package ead
 import (
 	"context"
 	"encoding/xml"
+	"log"
+	"os"
 	"sync/atomic"
+
+	c "github.com/delving/rapid-saas/config"
 )
+
+func init() {
+	path := c.Config.EAD.CacheDir
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err = os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			log.Fatalf("Unable to create cache dir; %s", err)
+		}
+	}
+
+}
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
