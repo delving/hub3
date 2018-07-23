@@ -684,7 +684,12 @@ func generateFuzzed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(fz.BaseURL)
+	typeLabel, err := c.Config.NameSpaceMap.GetSearchLabel(subjectType)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	actions := []string{}
 	for idx, rec := range records {
 		hubID := fmt.Sprintf("%s_%s_%d", c.Config.OrgID, spec, idx)
@@ -693,7 +698,7 @@ func generateFuzzed(w http.ResponseWriter, r *http.Request) {
 			OrgID:         c.Config.OrgID,
 			LocalID:       fmt.Sprintf("%d", idx),
 			Spec:          spec,
-			NamedGraphURI: fmt.Sprintf("%s/graph", fz.NewURI(fmt.Sprintf("%d", idx))),
+			NamedGraphURI: fmt.Sprintf("%s/graph", fz.NewURI(typeLabel, idx)),
 			Action:        "index",
 			GraphMimeType: "application/ld+json",
 			SubjectType:   subjectType,

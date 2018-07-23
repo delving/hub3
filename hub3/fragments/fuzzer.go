@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	fmt "fmt"
 	"io"
+	"math/rand"
 	"strings"
 
 	"github.com/delving/rapid-saas/config"
@@ -25,7 +26,7 @@ func (fz *Fuzzer) CreateRecords(n int) ([]string, error) {
 	records := []string{}
 	for i := 0; i < n; i++ {
 		ld := []map[string]interface{}{}
-		fr := &FuzzRecord{fz, NewEmptyResourceMap()}
+		fr := &FuzzRecord{fz, i, NewEmptyResourceMap()}
 		err := fr.AddTriples()
 		if err != nil {
 			return nil, err
@@ -43,14 +44,15 @@ func (fz *Fuzzer) CreateRecords(n int) ([]string, error) {
 }
 
 type FuzzRecord struct {
-	fz *Fuzzer
-	rm *ResourceMap `json:"rm"`
+	fz   *Fuzzer
+	seed int
+	rm   *ResourceMap `json:"rm"`
 }
 
 func (fr *FuzzRecord) AddTriples() error {
 	order := 0
 	for _, rsc := range fr.fz.resource {
-		subject := fr.fz.NewURI(fmt.Sprintf("%d", order))
+		subject := fr.fz.NewURI(rsc.SearchLabel, fr.seed)
 		// add type
 		t := r.NewTriple(
 			r.NewResource(subject),
@@ -88,29 +90,28 @@ func (fz *Fuzzer) ExpandNameSpace(xmlLabel string) (string, error) {
 }
 
 // NewURI created new Fuzzed URI. When the label is given that is used for the URI
-func (fz *Fuzzer) NewURI(label string) string {
-	if label == "" {
-		var s string
-		fz.f.Fuzz(&s)
-		label = s
-	}
-	uri := fmt.Sprintf("%s%s", fz.BaseURL, label)
+func (fz *Fuzzer) NewURI(label string, key int) string {
+	uri := fmt.Sprintf("%s/%s/%d", strings.TrimSuffix(fz.BaseURL, "/"), label, key)
 	return uri
 }
 
 // NewString creates a new fuzzed string
-func (fz *Fuzzer) NewString() string {
-	var s string
-	fz.f.Fuzz(&s)
-	return s
+func (fz *Fuzzer) NewString(label string) string {
+	if label == "" {
+		var s string
+		fz.f.Fuzz(&s)
+		return s
+	}
+	return fmt.Sprintf("%s %d", label, rand.Intn(10))
 }
 
 // FuzzResource holds all the information to generate a Fuzzed RDF-resource
 type FuzzResource struct {
-	Subject    string       `json:"subject"`
-	Type       string       `json:"type"`
-	Predicates []*FuzzEntry `json:"predicates"`
-	Order      int          `json:"order"`
+	Subject     string       `json:"subject"`
+	Type        string       `json:"type"`
+	SearchLabel string       `json:"searchLabel"`
+	Predicates  []*FuzzEntry `json:"predicates"`
+	Order       int          `json:"order"`
 }
 
 // NewFuzzResource creates a FuzzResource
@@ -122,6 +123,12 @@ func (fz *Fuzzer) NewFuzzResource(order int, elem *Celem) (*FuzzResource, error)
 			return nil, err
 		}
 		fr.Type = rType
+		searchLabel, err := fz.nm.GetSearchLabel(rType)
+		if err != nil {
+			return nil, err
+		}
+		fr.SearchLabel = searchLabel
+
 	}
 
 	for idx, cElem := range elem.Celem {
@@ -144,18 +151,20 @@ func (fz *Fuzzer) NewFuzzEntry(order int, elem *Celem) (*FuzzEntry, error) {
 		return nil, err
 	}
 	fe := &FuzzEntry{
-		Predicate: predicate,
-		Tags:      tags,
-		Order:     order,
+		Predicate:   predicate,
+		Tags:        tags,
+		Order:       order,
+		SearchLabel: strings.Replace(elem.Attrtag, ":", "_", 0),
 	}
 	return fe, nil
 }
 
 // FuzzEntry holds all the information to generate a Fuzzed Triple
 type FuzzEntry struct {
-	Predicate string   `json:"predicate"`
-	Tags      []string `json:"tags"`
-	Order     int      `json:"order"`
+	Predicate   string   `json:"predicate"`
+	Tags        []string `json:"tags"`
+	Order       int      `json:"order"`
+	SearchLabel string   `json:"searchLabel"`
 }
 
 // CreateTriples creates fuzzed Triples for a FuzzEntry
@@ -168,13 +177,13 @@ func (fz *Fuzzer) CreateTriples(subject string, fe *FuzzEntry) []*r.Triple {
 			t = r.NewTriple(
 				r.NewResource(subject),
 				r.NewResource(fe.Predicate),
-				r.NewResource(fz.NewURI("")),
+				r.NewResource(fz.NewURI(fe.SearchLabel, rand.Intn(10))),
 			)
 		case "xml:lang":
 			t = r.NewTriple(
 				r.NewResource(subject),
 				r.NewResource(fe.Predicate),
-				r.NewLiteral(fz.NewString()),
+				r.NewLiteral(fz.NewString(fe.SearchLabel)),
 			)
 		}
 		if t != nil {
