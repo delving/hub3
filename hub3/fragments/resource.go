@@ -242,7 +242,7 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			// TODO add validation for the values here
 			for _, label := range labels {
 				switch label {
-				case "date":
+				case "isoDate":
 					re.Date = re.Value
 					//log.Printf("Date value: %s", re.Date)
 				case "dateRange":
