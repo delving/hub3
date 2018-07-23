@@ -50,7 +50,7 @@ func (nc *NodeCounter) GetCount() uint64 {
 	return atomic.LoadUint64(&nc.counter)
 }
 
-// newNodeList converts the Archival Description Level to a Nodelist
+// NewNodeList converts the Archival Description Level to a Nodelist
 // Nodelist is an optimized lossless Protocol Buffer container.
 func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	nl := &NodeList{}
@@ -67,6 +67,39 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Nodes = append(nl.Nodes, node)
 	}
 	return nl, cfg.Counter.GetCount(), nil
+}
+
+// Sparse creates a sparse version of the list of Archive Nodes
+func (nl *NodeList) Sparse() {
+	Sparsify(nl.Nodes)
+}
+
+// Sparse creates a sparse version of Header
+func (h *Header) Sparse() {
+	if h.GetDateAsLabel() {
+		h.DateAsLabel = false
+		for _, date := range h.GetDate() {
+			h.Label = append(h.Label, date.GetLabel())
+		}
+	}
+	h.Date = nil
+	h.ID = nil
+	h.Physdesc = ""
+}
+
+// Sparsify is a recursive function that creates a Sparse representation
+// of a list of Nodes. This is mostly used to efficiently create Tree Views
+// of the Archive C-Levels
+func Sparsify(nodes []*Node) {
+	for _, n := range nodes {
+		n.HTML = ""
+		n.CTag = ""
+		n.Header.Sparse()
+		if len(n.Nodes) != 0 {
+			Sparsify(n.Nodes)
+		}
+
+	}
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID

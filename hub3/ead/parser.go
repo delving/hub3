@@ -74,13 +74,35 @@ func ProcessUpload(r *http.Request, spec string) (uint64, error) {
 		return uint64(0), err
 	}
 
-	cfg := NewNodeConfig(context.Background(), true)
+	cfg := NewNodeConfig(context.Background(), false)
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {
 		return uint64(0), err
 	}
 
 	b, err := json.Marshal(nl)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	err = ioutil.WriteFile(basePath+".nodelist.json", b, 0644)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	// save protobuf
+	b, err = proto.Marshal(nl)
+	if err != nil {
+		return uint64(0), err
+	}
+	err = ioutil.WriteFile(basePath+".nodelist.pb", b, 0644)
+	if err != nil {
+		return uint64(0), err
+	}
+
+	// write the sparse versions
+	nl.Sparse()
+	b, err = json.Marshal(nl)
 	if err != nil {
 		return uint64(0), err
 	}
