@@ -50,6 +50,7 @@ tesu.db
 # coverage
 report
 *.coverprofile
+coverage.out
 
 # harvested data
 *_ids.txt
