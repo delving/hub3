@@ -186,6 +186,7 @@ var defaultNameSpaces = map[string]string{
 	"tib":         "http://schemas.delving.eu/resource/ns/tib/",
 	"wgs84_pos":   "http://www.w3.org/2003/01/geo/wgs84_pos#",
 	"naa":         "http://archief.nl/def/",
+	"ead-rdf":     "http://archief.nl/def/ead/",
 }
 
 // setDefaultNameSpaces sets the default namespaces that are supported

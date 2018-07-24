@@ -74,7 +74,11 @@ func ProcessUpload(r *http.Request, spec string) (uint64, error) {
 		return uint64(0), err
 	}
 
-	cfg := NewNodeConfig(context.Background(), false)
+	cfg := NewNodeConfig(context.Background())
+	cfg.Spec = spec
+	cfg.OrgID = c.Config.OrgID
+	cfg.Revision = int32(ds.Revision)
+
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {
 		return uint64(0), err
@@ -231,6 +235,30 @@ type Cc01 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+type CLevel interface {
+	GetXMLName() xml.Name
+	GetAttrlevel() string
+	GetAttrotherlevel() string
+	GetCaccessrestrict() *Caccessrestrict
+	GetNested() []CLevel
+	GetCdid() *Cdid
+	GetScopeContent() *Cscopecontent
+}
+
+func (c Cc01) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc01) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc01) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc01) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc01) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc01) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc01) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc02 struct {
 	XMLName         xml.Name         `xml:"c02,omitempty" json:"c02,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -239,6 +267,20 @@ type Cc02 struct {
 	Nested          []*Cc03          `xml:"c03,omitempty" json:"c03,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc02) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc02) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc02) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc02) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc02) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc02) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc02) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cc03 struct {
@@ -251,6 +293,20 @@ type Cc03 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+func (c Cc03) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc03) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc03) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc03) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc03) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc03) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc03) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc04 struct {
 	XMLName         xml.Name         `xml:"c04,omitempty" json:"c04,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -259,6 +315,20 @@ type Cc04 struct {
 	Nested          []*Cc05          `xml:"c05,omitempty" json:"c05,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc04) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc04) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc04) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc04) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc04) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc04) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc04) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cc05 struct {
@@ -271,6 +341,20 @@ type Cc05 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+func (c Cc05) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc05) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc05) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc05) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc05) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc05) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc05) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc06 struct {
 	XMLName         xml.Name         `xml:"c06,omitempty" json:"c06,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -279,6 +363,20 @@ type Cc06 struct {
 	Nested          []*Cc07          `xml:"c07,omitempty" json:"c07,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc06) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc06) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc06) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc06) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc06) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc06) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc06) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cc07 struct {
@@ -291,6 +389,20 @@ type Cc07 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+func (c Cc07) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc07) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc07) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc07) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc07) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc07) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc07) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc08 struct {
 	XMLName         xml.Name         `xml:"c08,omitempty" json:"c08,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -299,6 +411,20 @@ type Cc08 struct {
 	Nested          []*Cc09          `xml:"c09,omitempty" json:"c09,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc08) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc08) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc08) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc08) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc08) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc08) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc08) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cc09 struct {
@@ -311,6 +437,20 @@ type Cc09 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+func (c Cc09) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc09) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc09) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc09) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc09) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc09) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc09) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc10 struct {
 	XMLName         xml.Name         `xml:"c10,omitempty" json:"c10,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -319,6 +459,20 @@ type Cc10 struct {
 	Nested          []*Cc11          `xml:"c11,omitempty" json:"c11,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc10) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc10) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc10) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc10) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc10) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc10) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc10) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cc11 struct {
@@ -331,6 +485,20 @@ type Cc11 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+func (c Cc11) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc11) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc11) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc11) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc11) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc11) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc11) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type Cc12 struct {
 	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
@@ -339,6 +507,212 @@ type Cc12 struct {
 	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
 	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc12) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc12) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc12) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc12) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc12) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc12) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc12) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc13 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc13) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc13) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc13) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc13) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc13) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc13) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc13) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc14 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc14) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc14) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc14) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc14) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc14) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc14) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc14) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc15 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc15) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc15) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc15) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc15) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc15) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc15) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc15) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc16 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc16) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc16) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc16) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc16) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc16) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc16) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc16) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc17 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc17) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc17) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc17) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc17) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc17) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc17) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc17) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc18 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc18) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc18) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc18) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc18) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc18) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc18) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc18) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc19 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc19) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc19) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc19) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc19) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc19) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc19) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc19) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
+type Cc20 struct {
+	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Nested          []*Cc12          `xml:"c12,omitempty" json:"c12,omitempty"`
+	Cdid            *Cdid            `xml:"did,omitempty" json:"did,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc20) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc20) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc20) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc20) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc20) GetCdid() *Cdid                       { return c.Cdid }
+func (c Cc20) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc20) GetNested() []CLevel {
+	levels := make([]CLevel, len(c.Nested))
+	for i, v := range c.Nested {
+		levels[i] = CLevel(v)
+	}
+	return levels
 }
 
 type Cchange struct {

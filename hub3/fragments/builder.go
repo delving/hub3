@@ -83,27 +83,31 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 	return fb.fg
 }
 
-// Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
+// Doc is a helper function to return an index document
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
-	rm, err := fb.ResourceMap()
-	if err != nil {
-		log.Printf("Unable to create resources: %s", err)
-		return fb.fg
+	return fb.fg.SetResources(fb.resources)
+}
+
+// Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
+func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
+	if rm == nil {
+		log.Print("Unable to access resources, returning raw fragmentgraph.")
+		return fg
 	}
-	err = rm.ResolveObjectIDs(fb.fg.Meta.HubID)
+	err := rm.ResolveObjectIDs(fg.Meta.HubID)
 	if err != nil {
 		log.Printf("Unable to resolve fragment resources: %s", err)
-		return fb.fg
+		return fg
 	}
 
-	err = rm.SetContextLevels(fb.fg.GetAboutURI())
+	err = rm.SetContextLevels(fg.GetAboutURI())
 	if err != nil {
 		log.Printf("Unable to set context: %s", err)
-		return fb.fg
+		return fg
 	}
 
-	fb.fg.Resources = rm.ResourcesList()
-	return fb.fg
+	fg.Resources = rm.ResourcesList()
+	return fg
 }
 
 // GetRDF returns a byte Array for the Flat JSON-LD serialized RDF

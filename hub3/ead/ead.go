@@ -3,6 +3,7 @@ package ead
 import (
 	"context"
 	"encoding/xml"
+	"fmt"
 	"log"
 	"os"
 	"sync/atomic"
@@ -23,15 +24,18 @@ func init() {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Sparse  bool
-	Counter *NodeCounter
+	Counter  *NodeCounter
+	OrgID    string
+	Spec     string
+	Revision int32
+	labels   map[string]string
 }
 
 // NewNodeConfig creates a new NodeConfig
-func NewNodeConfig(ctx context.Context, sparse bool) *NodeConfig {
+func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
 		Counter: &NodeCounter{},
-		Sparse:  sparse,
+		labels:  make(map[string]string),
 	}
 }
 
@@ -60,7 +64,7 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	}
 
 	for _, nn := range dsc.Nested {
-		node, err := nn.NewNode(cfg)
+		node, err := NewNode(nn, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -85,6 +89,14 @@ func (h *Header) Sparse() {
 	h.Date = nil
 	h.ID = nil
 	h.Physdesc = ""
+}
+
+// GetTreeLabel returns the label that needs to be shown with the tree
+func (h *Header) GetTreeLabel() string {
+	if len(h.Label) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%s %s", h.GetInventoryNumber(), h.Label[0])
 }
 
 // Sparsify is a recursive function that creates a Sparse representation
@@ -114,7 +126,7 @@ func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 }
 
 // NewNodeIDs extract Unit Identifiers from the EAD did
-func (cdid *Cdid) NewNodeIDs(sparse bool) ([]*NodeID, string, error) {
+func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 	ids := []*NodeID{}
 	var invertoryNumber string
 	for _, unitid := range cdid.Cunitid {
@@ -126,9 +138,7 @@ func (cdid *Cdid) NewNodeIDs(sparse bool) ([]*NodeID, string, error) {
 		case "ABS", "series_code", "":
 			invertoryNumber = id.GetID()
 		}
-		if !sparse {
-			ids = append(ids, id)
-		}
+		ids = append(ids, id)
 	}
 	return ids, invertoryNumber, nil
 }
@@ -145,9 +155,9 @@ func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 }
 
 // NewHeader creates an Archival Header
-func (cdid *Cdid) NewHeader(sparse bool) (*Header, error) {
+func (cdid *Cdid) NewHeader() (*Header, error) {
 	header := &Header{}
-	if cdid.Cphysdesc != nil && !sparse {
+	if cdid.Cphysdesc != nil {
 		header.Physdesc = cdid.Cphysdesc.PhyscDesc
 	}
 
@@ -159,30 +169,22 @@ func (cdid *Cdid) NewHeader(sparse bool) (*Header, error) {
 				if err != nil {
 					return nil, err
 				}
-				switch sparse {
-				case true:
-					header.Label = append(header.Label, nodeDate.GetLabel())
-					header.DateAsLabel = false
-				case false:
-					header.Date = append(header.Date, nodeDate)
-				}
+				header.Date = append(header.Date, nodeDate)
 			}
 			continue
 		}
 		header.Label = append(header.Label, label.Title)
 	}
 
-	if !sparse {
-		for _, date := range cdid.Cunitdate {
-			nodeDate, err := date.NewNodeDate()
-			if err != nil {
-				return nil, err
-			}
-			header.Date = append(header.Date, nodeDate)
+	for _, date := range cdid.Cunitdate {
+		nodeDate, err := date.NewNodeDate()
+		if err != nil {
+			return nil, err
 		}
+		header.Date = append(header.Date, nodeDate)
 	}
 
-	nodeIDs, inventoryID, err := cdid.NewNodeIDs(sparse)
+	nodeIDs, inventoryID, err := cdid.NewNodeIDs()
 	if err != nil {
 		return nil, err
 	}
@@ -195,75 +197,26 @@ func (cdid *Cdid) NewHeader(sparse bool) (*Header, error) {
 }
 
 // NewNode converts EAD c01 to a Archival Node
-func (c *Cc01) NewNode(cfg *NodeConfig) (*Node, error) {
+func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	cfg.Counter.Increment()
 	node := &Node{
-		CTag:    c.XMLName.Local,
-		Depth:   int32(1),
-		Type:    c.Attrlevel,
-		SubType: c.Attrotherlevel,
-		Order:   cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDS := []string{header.GetInventoryNumber()}
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDS, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc02) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
+		CTag:      c.GetXMLName().Local,
 		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
+		Type:      c.GetAttrlevel(),
+		SubType:   c.GetAttrotherlevel(),
 		ParentIDs: parentIDs,
 		Order:     cfg.Counter.GetCount(),
 	}
 
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
+	header, err := c.GetCdid().NewHeader()
 	if err != nil {
 		return nil, err
 	}
 	node.Header = header
 
 	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
+	if c.GetScopeContent() != nil {
+		html, err := xml.Marshal(c.GetScopeContent().Cp)
 		if err != nil {
 			return nil, err
 		}
@@ -271,11 +224,13 @@ func (c *Cc02) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 
 	// add nested
+	cfg.labels[header.GetInventoryNumber()] = header.GetTreeLabel()
 	parentIDs = append(parentIDs, header.GetInventoryNumber())
 
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
+	nested := c.GetNested()
+	if len(nested) != 0 {
+		for _, nn := range nested {
+			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
 				return nil, err
 			}
@@ -286,461 +241,45 @@ func (c *Cc02) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
 }
 
 // NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc03) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
+//func (c *Cc02) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
+//cfg.Counter.Increment()
+//node := &Node{
+//CTag:      c.XMLName.Local,
+//Depth:     int32(len(parentIDs) + 1),
+//Type:      c.Attrlevel,
+//SubType:   c.Attrotherlevel,
+//ParentIDs: parentIDs,
+//Order:     cfg.Counter.GetCount(),
+//}
 
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
+//// add header
+//header, err := c.Cdid.NewHeader()
+//if err != nil {
+//return nil, err
+//}
+//node.Header = header
 
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
+//// add scope content
+//if c.Cscopecontent != nil {
+//html, err := xml.Marshal(c.Cscopecontent.Cp)
+//if err != nil {
+//return nil, err
+//}
+//node.HTML = string(html)
+//}
 
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
+//// add nested
+//cfg.labels[header.GetInventoryNumber()] = header.GetTreeLabel()
+//parentIDs = append(parentIDs, header.GetInventoryNumber())
 
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc04) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc05) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc06) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc07) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc08) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc09) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc10) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc11) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	if len(c.Nested) != 0 {
-		for _, nn := range c.Nested {
-			n, err := nn.NewNode(parentIDs, cfg)
-			if err != nil {
-				return nil, err
-			}
-			node.Nodes = append(node.Nodes, n)
-		}
-	}
-	return node, nil
-}
-
-// NewNode converts EAD nested cLevel to an Archival Node
-func (c *Cc12) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-	cfg.Counter.Increment()
-	node := &Node{
-		CTag:      c.XMLName.Local,
-		Depth:     int32(len(parentIDs) + 1),
-		Type:      c.Attrlevel,
-		SubType:   c.Attrotherlevel,
-		ParentIDs: parentIDs,
-		Order:     cfg.Counter.GetCount(),
-	}
-
-	// add header
-	if cfg.Sparse {
-		node.CTag = ""
-	}
-	header, err := c.Cdid.NewHeader(cfg.Sparse)
-	if err != nil {
-		return nil, err
-	}
-	node.Header = header
-
-	// add scope content
-	if c.Cscopecontent != nil && !cfg.Sparse {
-		html, err := xml.Marshal(c.Cscopecontent.Cp)
-		if err != nil {
-			return nil, err
-		}
-		node.HTML = string(html)
-	}
-
-	// add nested
-	//parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-	//if len(c.Nested) != 0 {
-	//for _, nn := range c.Nested {
-	//n, err := nn.NewNode(parentIDs, cfg)
-	//if err != nil {
-	//return nil, err
-	//}
-	//node.Nodes = append(node.Nodes, n)
-	//}
-	//}
-	return node, nil
-}
+//if len(c.Nested) != 0 {
+//for _, nn := range c.Nested {
+//n, err := NewNode(nn, parentIDs, cfg)
+//if err != nil {
+//return nil, err
+//}
+//node.Nodes = append(node.Nodes, n)
+//}
+//}
+//return node, nil
+//}

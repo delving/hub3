@@ -2,16 +2,12 @@ package ead_test
 
 import (
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
-	"testing"
 
 	. "github.com/delving/rapid-saas/hub3/ead"
-	proto "github.com/golang/protobuf/proto"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/stretchr/testify/assert"
 )
 
 var _ = Describe("Ead", func() {
@@ -19,13 +15,13 @@ var _ = Describe("Ead", func() {
 	Describe("when creating a node configuration", func() {
 
 		It("should initialise the NodeCounter", func() {
-			cfg := NewNodeConfig(context.Background(), true)
+			cfg := NewNodeConfig(context.Background())
 			Expect(cfg).ToNot(BeNil())
 			Expect(cfg.Counter).ToNot(BeNil())
 		})
 
 		It("should increment the counter by one", func() {
-			cfg := NewNodeConfig(context.Background(), true)
+			cfg := NewNodeConfig(context.Background())
 			Expect(cfg.Counter.GetCount()).To(BeZero())
 			cfg.Counter.Increment()
 			Expect(cfg.Counter.GetCount()).ToNot(BeZero())
@@ -42,7 +38,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have a type", func() {
 				Expect(err).ToNot(HaveOccurred())
-				cfg := NewNodeConfig(context.Background(), false)
+				cfg := NewNodeConfig(context.Background())
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
@@ -55,7 +51,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have a header", func() {
 				Expect(err).ToNot(HaveOccurred())
-				cfg := NewNodeConfig(context.Background(), false)
+				cfg := NewNodeConfig(context.Background())
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
@@ -67,7 +63,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have c-levels", func() {
 				Expect(dsc.Nested).To(HaveLen(1))
-				cfg := NewNodeConfig(context.Background(), false)
+				cfg := NewNodeConfig(context.Background())
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
@@ -79,12 +75,13 @@ var _ = Describe("Ead", func() {
 		Context("for the c01", func() {
 			c01 := new(Cc01)
 			err := parseUtil(c01, "ead.2.xml")
-			cfg := NewNodeConfig(context.Background(), false)
+			cfg := NewNodeConfig(context.Background())
 			var node *Node
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				node, err = c01.NewNode(cfg)
+				Expect(c01.GetXMLName().Local).To(Equal("c01"))
+				node, err = NewNode(c01, []string{}, cfg)
 				Expect(node.Order).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -101,7 +98,8 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have a type", func() {
-				Expect(node.GetType()).To(Equal("series"))
+				Expect(c01.GetAttrlevel()).To(Equal("series"))
+				//Expect(node.GetType()).To(Equal("series"))
 			})
 
 			It("should have a subType", func() {
@@ -116,7 +114,7 @@ var _ = Describe("Ead", func() {
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				header, err = did.NewHeader(false)
+				header, err = did.NewHeader()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(header).ToNot(BeNil())
 			})
@@ -137,7 +135,7 @@ var _ = Describe("Ead", func() {
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				header, err = did.NewHeader(false)
+				header, err = did.NewHeader()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(header).ToNot(BeNil())
 			})
@@ -227,7 +225,7 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should extract the nodeIDs", func() {
-					nodeIDs, inventoryNumber, err := did.NewNodeIDs(false)
+					nodeIDs, inventoryNumber, err := did.NewNodeIDs()
 					Expect(err).ToNot(HaveOccurred())
 					Expect(nodeIDs).ToNot(BeEmpty())
 					Expect(inventoryNumber).ToNot(BeEmpty())
