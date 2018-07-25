@@ -43,4 +43,5 @@ message NodeDate {
   string Era = 2;
   string Normal = 3;
   string Label = 4;
+  string Type = 5;
 }

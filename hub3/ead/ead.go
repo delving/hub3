@@ -31,6 +31,12 @@ type NodeConfig struct {
 	labels   map[string]string
 }
 
+// AddLabel adds a cLevel id and its label to the label map
+// This map is used to resolve the label for each clevel for rendering the tree
+func (nc *NodeConfig) AddLabel(id, label string) {
+	nc.labels[id] = label
+}
+
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
@@ -150,6 +156,7 @@ func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 		Era:      date.Attrera,
 		Normal:   date.Attrnormal,
 		Label:    date.Date,
+		Type:     date.Attrtype,
 	}
 	return nDate, nil
 }

@@ -88,7 +88,7 @@ func (fb *FragmentBuilder) Doc() *FragmentGraph {
 	return fb.fg.SetResources(fb.resources)
 }
 
-// Doc returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
+// SetResources returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
 func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 	if rm == nil {
 		log.Print("Unable to access resources, returning raw fragmentgraph.")

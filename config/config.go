@@ -226,7 +226,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.SparqlPath", "/%s/sparql")
 	viper.SetDefault("RDF.SparqlUpdatePath", "/%s/update")
 	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
-	viper.SetDefault("RDF.BaseUrl", "data.rapid.org")
+	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
 	viper.SetDefault("RDF.BaseScheme", "http")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
