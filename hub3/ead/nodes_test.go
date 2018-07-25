@@ -30,7 +30,7 @@ var _ = Describe("Nodes", func() {
 				nl, _, err = dsc.NewNodeList(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl).ToNot(BeNil())
-				fg, _ := nl.Nodes[0].FragmentGraph(cfg)
+				fg, _, _ := nl.Nodes[0].FragmentGraph(cfg)
 				h = fg.Meta
 				Expect(h).ToNot(BeNil())
 			})
@@ -52,7 +52,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should have an EAD docType", func() {
-				Expect(h.GetDocType()).To(Equal("ead"))
+				Expect(h.GetDocType()).To(Equal("graph"))
 			})
 
 			It("should set a modified time", func() {
@@ -89,7 +89,7 @@ var _ = Describe("Nodes", func() {
 			It("should convert only the main body to RDF", func() {
 				node := nl.Nodes[0]
 				Expect(node.GetType()).To(Equal("series"))
-				fr, err := node.FragmentGraph(cfg)
+				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
 				Expect(s).To(Equal("http://data.rapid.org/archive/test_spec/A"))
@@ -97,7 +97,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should set the meta header", func() {
 				node := nl.Nodes[0]
-				fr, err := node.FragmentGraph(cfg)
+				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				h := fr.Meta
 				Expect(h).ToNot(BeNil())
@@ -105,7 +105,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should have resources", func() {
 				node := nl.Nodes[0]
-				fr, err := node.FragmentGraph(cfg)
+				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fr).ToNot(BeNil())
 				// TODO enable later again
@@ -128,7 +128,7 @@ var _ = Describe("Nodes", func() {
 
 			It("it should not throw an error", func() {
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(c03, parentIDs, 0, cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(node).ToNot(BeNil())
 			})
@@ -137,7 +137,7 @@ var _ = Describe("Nodes", func() {
 				s := "urn:123"
 				triples := node.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(25))
+				Expect(triples).To(HaveLen(26))
 			})
 
 		})
@@ -150,11 +150,12 @@ var _ = Describe("Nodes", func() {
 			cfg.Spec = "test_spec"
 			cfg.Revision = int32(38)
 			var h *Header
+			var node *Node
 
 			It("it should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
 				parentIDs := []string{"c1", "c2"}
-				node, err := NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(c03, parentIDs, 0, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				h = node.GetHeader()
@@ -162,7 +163,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should generate a subject", func() {
-				s := h.GetSubject(cfg)
+				s := node.GetSubject(cfg)
 				Expect(s).ToNot(BeEmpty())
 			})
 
@@ -178,7 +179,7 @@ var _ = Describe("Nodes", func() {
 				})
 
 				It("should have triples", func() {
-					s := r.NewResource(h.GetSubject(cfg))
+					s := r.NewResource(node.GetSubject(cfg))
 					triples := date.Triples(s, cfg)
 					Expect(triples).ToNot(BeEmpty())
 					Expect(triples).To(HaveLen(6))
@@ -197,7 +198,7 @@ var _ = Describe("Nodes", func() {
 				})
 
 				It("should have an Triples", func() {
-					s := r.NewResource(h.GetSubject(cfg))
+					s := r.NewResource(node.GetSubject(cfg))
 					triples := id.Triples(s, cfg)
 					Expect(triples).ToNot(BeEmpty())
 					Expect(triples).To(HaveLen(5))
@@ -206,7 +207,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should have a list of triples", func() {
-				s := h.GetSubject(cfg)
+				s := node.GetSubject(cfg)
 				triples := h.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
 				Expect(triples).To(HaveLen(16))

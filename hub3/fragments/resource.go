@@ -873,15 +873,20 @@ func (fe *FragmentEntry) GetXSDLabel() string {
 	return strings.Replace(fe.DataType, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1)
 }
 
-// IndexFragments updates the Fragments for standalone indexing and adds them to the Elasti BulkProcessorService
+// IndexFragments updates the Fragments for standalone indexing and adds them to the Elastic BulkProcessorService
 func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
 	rm, err := fb.ResourceMap()
 	if err != nil {
 		return err
 	}
+	return IndexFragments(rm, fb.FragmentGraph(), p)
+}
+
+// IndexFragments updates the Fragments for standalone indexing and adds them to the Elastic BulkProcessorService
+func IndexFragments(rm *ResourceMap, fg *FragmentGraph, p *elastic.BulkProcessor) error {
 
 	for _, fr := range rm.Resources() {
-		fragments, err := fr.CreateFragments(fb.FragmentGraph())
+		fragments, err := fr.CreateFragments(fg)
 		if err != nil {
 			return err
 		}

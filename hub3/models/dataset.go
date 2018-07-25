@@ -155,23 +155,23 @@ func NewDataset(spec string) DataSet {
 }
 
 // GetDataSet returns a DataSet object when found
-func GetDataSet(spec string) (DataSet, error) {
+func GetDataSet(spec string) (*DataSet, error) {
 	var ds DataSet
 	err := orm.One("Spec", spec, &ds)
-	return ds, err
+	return &ds, err
 }
 
 // CreateDataSet creates and returns a DataSet
-func CreateDataSet(spec string) (DataSet, bool, error) {
+func CreateDataSet(spec string) (*DataSet, bool, error) {
 	ds := NewDataset(spec)
 	ds.Revision = 1
 	err := ds.Save()
-	return ds, true, err
+	return &ds, true, err
 }
 
 // GetOrCreateDataSet returns a DataSet object from the Storm ORM.
 // If none is present it will create one
-func GetOrCreateDataSet(spec string) (DataSet, bool, error) {
+func GetOrCreateDataSet(spec string) (*DataSet, bool, error) {
 	ds, err := GetDataSet(spec)
 	if err != nil {
 		return CreateDataSet(spec)
@@ -180,15 +180,14 @@ func GetOrCreateDataSet(spec string) (DataSet, bool, error) {
 }
 
 // IncrementRevision bumps the latest revision of the DataSet
-func (ds *DataSet) IncrementRevision() error {
+func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 	err := orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
 	if err != nil {
 		log.Printf("Unable to update field in dataset: %s", ds.Spec)
-		return err
+		return nil, err
 	}
 	freshDs, err := GetDataSet(ds.Spec)
-	ds = &freshDs
-	return err
+	return freshDs, err
 }
 
 // ListDataSets returns an array of Datasets stored in Storm ORM
@@ -564,7 +563,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		log.Print("Orphan wait timer expired")
 
 		// enqueue posthooks first
-		if ds.validForPostHook() {
+		if ds.validForPostHook() && wp != nil {
 			err := CreateDeletePostHooks(ctx, q, wp)
 			if err != nil {
 				logger.Errorf("unable to create delete posthooks: %#v", err)

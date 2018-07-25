@@ -15,16 +15,16 @@ func newSubject(cfg *NodeConfig, id string) string {
 }
 
 // FragmentGraph returns the archival node as a FragmentGraph
-func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, error) {
+func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
 	rm := fragments.NewEmptyResourceMap()
-	id := n.GetHeader().GetInventoryNumber()
-	subject := n.GetHeader().GetSubject(cfg)
+	id := n.GetPath()
+	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
 		OrgID:         cfg.OrgID,
 		Spec:          cfg.Spec,
 		Revision:      cfg.Revision,
 		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
-		DocType:       FragmentGraphDocType,
+		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
 		Modified:      fragments.NowInMillis(),
@@ -33,16 +33,17 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, error) 
 
 	for idx, t := range n.Triples(subject, cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header
 	fg.SetResources(rm)
-	return fg, nil
+	return fg, rm, nil
 }
 
+// Triples create a list of RDF triples from a NodeID
 func (ni *NodeID) Triples(referrer r.Term, cfg *NodeConfig) []*r.Triple {
 	s := r.NewAnonNode()
 	triples := []*r.Triple{
@@ -74,8 +75,8 @@ func (ni *NodeID) Triples(referrer r.Term, cfg *NodeConfig) []*r.Triple {
 
 // GetSubject creates subject URI for the parent Node
 // the header itself is an anonymous BlankNode
-func (h *Header) GetSubject(cfg *NodeConfig) string {
-	id := h.GetInventoryNumber()
+func (n *Node) GetSubject(cfg *NodeConfig) string {
+	id := n.GetPath()
 	return newSubject(cfg, id)
 }
 
@@ -187,6 +188,7 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 	}
 
 	t(s, "cLevel", n.GetCTag(), r.NewLiteral)
+	t(s, "branchID", n.GetBranchID(), r.NewLiteral)
 	t(s, "cType", n.GetType(), r.NewLiteral)
 	t(s, "cSubtype", n.GetSubType(), r.NewLiteral)
 	t(s, "scopecontent", n.GetHTML(), r.NewLiteral)

@@ -9,6 +9,8 @@ import (
 	"sync/atomic"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/fragments"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 func init() {
@@ -69,8 +71,8 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
-	for _, nn := range dsc.Nested {
-		node, err := NewNode(nn, []string{}, cfg)
+	for idx, nn := range dsc.Nested {
+		node, err := NewNode(nn, []string{}, idx, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -82,6 +84,47 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 // Sparse creates a sparse version of the list of Archive Nodes
 func (nl *NodeList) Sparse() {
 	Sparsify(nl.Nodes)
+}
+
+// ESSave saves the list of Archive Nodes to ElasticSearch
+func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
+	for _, n := range nl.GetNodes() {
+		err := n.ESSave(cfg, p)
+		if err != nil {
+			return err
+		}
+	}
+	log.Printf("Unique labels %d; cLevel counter %d", len(cfg.labels), cfg.Counter.GetCount())
+	return nil
+}
+
+// ESSave stores a Fragments and a FragmentGraph in ElasticSearch
+func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
+	fg, rm, err := n.FragmentGraph(cfg)
+	if err != nil {
+		return err
+	}
+	//log.Printf("node: %#v", n)
+	//log.Printf("hubID: %s", fg.Meta.HubID)
+	r := elastic.NewBulkIndexRequest().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(fragments.DocType).
+		RetryOnConflict(3).
+		Id(fg.Meta.HubID).
+		Doc(fg)
+	p.Add(r)
+	err = fragments.IndexFragments(rm, fg, p)
+	if err != nil {
+		return err
+	}
+
+	for _, n := range n.GetNodes() {
+		err := n.ESSave(cfg, p)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Sparse creates a sparse version of Header
@@ -203,8 +246,19 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	return header, nil
 }
 
+func (n *Node) setPath(parentIDs []string) ([]string, error) {
+	if len(parentIDs) > 0 {
+		n.BranchID = parentIDs[len(parentIDs)-1]
+		n.Path = fmt.Sprintf("%s-%s", n.BranchID, n.GetHeader().GetInventoryNumber())
+	} else {
+		n.Path = n.GetHeader().GetInventoryNumber()
+	}
+	ids := append(parentIDs, n.Path)
+	return ids, nil
+}
+
 // NewNode converts EAD c01 to a Archival Node
-func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
+func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, error) {
 	cfg.Counter.Increment()
 	node := &Node{
 		CTag:      c.GetXMLName().Local,
@@ -219,6 +273,9 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	if header.GetInventoryNumber() == "" {
+		header.InventoryNumber = fmt.Sprintf("%d", order)
+	}
 	node.Header = header
 
 	// add scope content
@@ -230,14 +287,23 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.HTML = string(html)
 	}
 
+	parentIDs, err = node.setPath(parentIDs)
+	if err != nil {
+		return nil, err
+	}
+
 	// add nested
-	cfg.labels[header.GetInventoryNumber()] = header.GetTreeLabel()
-	parentIDs = append(parentIDs, header.GetInventoryNumber())
+	_, ok := cfg.labels[node.Path]
+	if ok {
+		return nil, fmt.Errorf("Found duplicate unique key for %s", header.GetInventoryNumber())
+
+	}
+	cfg.labels[node.Path] = header.GetTreeLabel()
 
 	nested := c.GetNested()
 	if len(nested) != 0 {
-		for _, nn := range nested {
-			n, err := NewNode(nn, parentIDs, cfg)
+		for idx, nn := range nested {
+			n, err := NewNode(nn, parentIDs, idx, cfg)
 			if err != nil {
 				return nil, err
 			}
@@ -246,47 +312,3 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 	return node, nil
 }
-
-// NewNode converts EAD nested cLevel to an Archival Node
-//func (c *Cc02) NewNode(parentIDs []string, cfg *NodeConfig) (*Node, error) {
-//cfg.Counter.Increment()
-//node := &Node{
-//CTag:      c.XMLName.Local,
-//Depth:     int32(len(parentIDs) + 1),
-//Type:      c.Attrlevel,
-//SubType:   c.Attrotherlevel,
-//ParentIDs: parentIDs,
-//Order:     cfg.Counter.GetCount(),
-//}
-
-//// add header
-//header, err := c.Cdid.NewHeader()
-//if err != nil {
-//return nil, err
-//}
-//node.Header = header
-
-//// add scope content
-//if c.Cscopecontent != nil {
-//html, err := xml.Marshal(c.Cscopecontent.Cp)
-//if err != nil {
-//return nil, err
-//}
-//node.HTML = string(html)
-//}
-
-//// add nested
-//cfg.labels[header.GetInventoryNumber()] = header.GetTreeLabel()
-//parentIDs = append(parentIDs, header.GetInventoryNumber())
-
-//if len(c.Nested) != 0 {
-//for _, nn := range c.Nested {
-//n, err := NewNode(nn, parentIDs, cfg)
-//if err != nil {
-//return nil, err
-//}
-//node.Nodes = append(node.Nodes, n)
-//}
-//}
-//return node, nil
-//}

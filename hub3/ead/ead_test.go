@@ -81,7 +81,7 @@ var _ = Describe("Ead", func() {
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(c01.GetXMLName().Local).To(Equal("c01"))
-				node, err = NewNode(c01, []string{}, cfg)
+				node, err = NewNode(c01, []string{}, 0, cfg)
 				Expect(node.Order).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 			})

@@ -160,8 +160,8 @@ func eadUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes, err := ead.ProcessUpload(r, spec)
-	if spec == "" {
+	nodes, err := ead.ProcessUpload(r, spec, bp)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -200,7 +200,7 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = ds.IncrementRevision()
+	ds, err = ds.IncrementRevision()
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
@@ -311,7 +311,7 @@ func skosSync(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = ds.IncrementRevision()
+	ds, err = ds.IncrementRevision()
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
@@ -397,7 +397,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = ds.IncrementRevision()
+	ds, err = ds.IncrementRevision()
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return

@@ -18,7 +18,8 @@ message Node {
   repeated Node Nodes = 4;
   uint64 Order = 8;
   repeated string ParentIDs = 9;
-  repeated string ParentLabels = 10;
+  string Path = 10;
+  string BranchID = 11;
 }
 
 message Header {

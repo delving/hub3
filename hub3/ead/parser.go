@@ -16,6 +16,7 @@ import (
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/models"
 	proto "github.com/golang/protobuf/proto"
+	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // ReadEAD reads an ead2002 XML from a path
@@ -34,7 +35,7 @@ func eadParse(src []byte) (*Cead, error) {
 	return ead, err
 }
 
-func ProcessUpload(r *http.Request, spec string) (uint64, error) {
+func ProcessUpload(r *http.Request, spec string, p *elastic.BulkProcessor) (uint64, error) {
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
 	if err != nil {
@@ -42,7 +43,7 @@ func ProcessUpload(r *http.Request, spec string) (uint64, error) {
 		return uint64(0), err
 	}
 
-	err = ds.IncrementRevision()
+	ds, err = ds.IncrementRevision()
 	if err != nil {
 		log.Printf("Unable to increment %s\n", spec)
 		return uint64(0), err
@@ -71,6 +72,7 @@ func ProcessUpload(r *http.Request, spec string) (uint64, error) {
 
 	cead, err := eadParse(buf.Bytes())
 	if err != nil {
+		log.Printf("Error during parsing; %s", err)
 		return uint64(0), err
 	}
 
@@ -81,7 +83,22 @@ func ProcessUpload(r *http.Request, spec string) (uint64, error) {
 
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {
+		log.Printf("Error during parsing; %s", err)
 		return uint64(0), err
+	}
+
+	if p != nil {
+		go func() {
+			err := nl.ESSave(cfg, p)
+			if err != nil {
+				log.Printf("Unable to save nodes; %s", err)
+			}
+
+			_, err = ds.DropOrphans(context.TODO(), p, nil)
+			if err != nil {
+				log.Printf("Unable to drop orphans; %s", err)
+			}
+		}()
 	}
 
 	b, err := json.Marshal(nl)

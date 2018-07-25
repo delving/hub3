@@ -186,7 +186,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 	response.SpecRevision = ds.Revision
 	switch action.Action {
 	case "increment_revision":
-		err = ds.IncrementRevision()
+		ds, err = ds.IncrementRevision()
 		if err != nil {
 			log.Printf("Unable to increment DataSet for %s\n", action.Spec)
 			return err
