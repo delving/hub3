@@ -598,10 +598,43 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 
 // NewFields returns a map of the triples sorted by their searchLabel
 func (fg *FragmentGraph) NewFields() map[string][]string {
-	fg.Fields = make(map[string][]string)
+	fieldMap := make(map[string]map[string]struct{})
 	for _, rsc := range fg.Resources {
 		for _, entry := range rsc.Entries {
-			fg.Fields[entry.SearchLabel] = append(fg.Fields[entry.SearchLabel], entry.Value)
+			var entryKey string
+			switch entry.EntryType {
+			case "Resource":
+				entryKey = entry.ID
+			default:
+				entryKey = entry.Value
+			}
+			if entryKey == "" {
+				continue
+			}
+
+			nd, ok := fieldMap[entry.SearchLabel]
+			if !ok {
+				fd := make(map[string]struct{})
+				fd[entryKey] = struct{}{}
+				fieldMap[entry.SearchLabel] = fd
+				continue
+			}
+			_, ok = nd[entryKey]
+			if !ok {
+				nd[entryKey] = struct{}{}
+			}
+		}
+	}
+	fg.Fields = make(map[string][]string)
+	for k, v := range fieldMap {
+		fields := []string{}
+		for vk := range v {
+			if vk != "" {
+				fields = append(fields, vk)
+			}
+		}
+		if len(fields) > 0 {
+			fg.Fields[k] = fields
 		}
 	}
 	return fg.Fields
