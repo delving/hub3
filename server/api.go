@@ -874,3 +874,38 @@ func listNameSpaces(w http.ResponseWriter, r *http.Request) {
 	//render.JSON(w, r, c.Config.NameSpaces)
 	return
 }
+
+func treeList(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+	return
+}
+
+func treeStats(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+	stats, err := fragments.CreateTreeStats(r.Context(), spec)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// todo return 4040 if stats.Leafs == 0
+	render.JSON(w, r, stats)
+	return
+}

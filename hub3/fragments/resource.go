@@ -78,9 +78,22 @@ type ResourceMap struct {
 	resources map[string]*FragmentResource `json:"resources"`
 }
 
+// Tree holds all the core information for building Navigational Trees from RDF graphs
+type Tree struct {
+	FBranch  string `json:"fBranch"`
+	SBranch  string `json:"sBranch"`
+	Label    string `json:"label"`
+	CLeaf    string `json:"cLeaf"`
+	Type     string `json:"type"`
+	HubID    string `json:"hubID"`
+	Children int    `json:"children"`
+	Depth    int    `json:"depth"`
+}
+
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
 	Meta       *Header                   `json:"meta"`
+	Tree       *Tree                     `json:"tree,omitempty"`
 	Resources  []*FragmentResource       `json:"resources,omitempty"`
 	Summary    *ResultSummary            `json:"summary,omitempty"`
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`

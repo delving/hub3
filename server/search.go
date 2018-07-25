@@ -443,6 +443,7 @@ func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error)
 	if err := json.Unmarshal(*hit, r); err != nil {
 		return nil, err
 	}
+	r.Tree = nil
 	return r, nil
 }
 

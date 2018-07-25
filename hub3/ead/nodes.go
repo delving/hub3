@@ -14,6 +14,22 @@ func newSubject(cfg *NodeConfig, id string) string {
 	return fmt.Sprintf("%s/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
 }
 
+// getFirstBranch returs the first parent of the current node
+func (n *Node) getFirstBranch() string {
+	if len(n.ParentIDs) < 1 {
+		return ""
+	}
+	return n.ParentIDs[len(n.ParentIDs)-1]
+}
+
+// getSecondBranch returs the second parent of the current node
+func (n *Node) getSecondBranch() string {
+	if len(n.ParentIDs) < 2 {
+		return ""
+	}
+	return n.ParentIDs[len(n.ParentIDs)-2]
+}
+
 // FragmentGraph returns the archival node as a FragmentGraph
 func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
 	rm := fragments.NewEmptyResourceMap()
@@ -37,8 +53,20 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		}
 	}
 
+	// TODO move to own function later
+	tree := &fragments.Tree{}
+	tree.HubID = header.HubID
+	tree.Children = len(n.Nodes)
+	tree.Type = n.GetType()
+	tree.CLeaf = id
+	tree.Label = n.GetHeader().GetTreeLabel()
+	tree.FBranch = n.getFirstBranch()
+	tree.SBranch = n.getSecondBranch()
+	tree.Depth = len(n.ParentIDs)
+
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header
+	fg.Tree = tree
 	fg.SetResources(rm)
 	return fg, rm, nil
 }

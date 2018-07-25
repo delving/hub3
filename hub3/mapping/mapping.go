@@ -50,6 +50,19 @@ var ESMapping = `{
 						"modified": {"type": "date"}
 					}
 				},
+				"tree": {
+					"type": "object",
+					"properties": {
+						"depth": {"type": "integer"},
+						"children": {"type": "integer"},
+						"hubID": {"type": "keyword"},
+						"type": {"type": "keyword"},
+						"cLeaf": {"type": "keyword"},
+						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+						"sBranch": {"type": "keyword"},
+						"fBranch": {"type": "keyword"}
+					}
+				},
 				"subject": {"type": "keyword"},
 				"predicate": {"type": "keyword"},
 				"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},

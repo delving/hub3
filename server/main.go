@@ -187,8 +187,8 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Post("/api/rdf/bulk", bulkAPI)
 	r.Get("/api/bulk/sync", bulkSyncList)
 	r.Post("/api/bulk/sync", bulkSyncStart)
-	r.Get("/api/bulk/sync/{:id}", bulkSyncProgress)
-	r.Delete("/api/bulk/sync/{:id}", bulkSyncCancel)
+	r.Get("/api/bulk/sync/{id}", bulkSyncProgress)
+	r.Delete("/api/bulk/sync/{id}", bulkSyncCancel)
 	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
 	r.Post("/api/index/fuzzed", generateFuzzed)
@@ -206,6 +206,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// EAD endpoint
 	r.Post("/api/ead", eadUpload)
+
+	// Tree reconstruction endpoint
+	r.Get("/api/tree/{spec}", treeList)
+	r.Get("/api/tree/{spec}/stats", treeStats)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())
