@@ -310,6 +310,14 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 			rec.NewJSONLD()
 			rec.Resources = nil
 		}
+	case fragments.ItemFormatType_TREE:
+		leafs := []*fragments.Tree{}
+		for _, rec := range records {
+			leafs = append(leafs, rec.Tree)
+
+		}
+		records = nil
+		result.Tree = leafs
 	case fragments.ItemFormatType_GROUPED:
 		for _, rec := range records {
 			_, err = rec.NewGrouped()
@@ -443,7 +451,6 @@ func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error)
 	if err := json.Unmarshal(*hit, r); err != nil {
 		return nil, err
 	}
-	r.Tree = nil
 	return r, nil
 }
 

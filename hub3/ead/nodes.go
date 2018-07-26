@@ -2,6 +2,7 @@ package ead
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
@@ -11,23 +12,25 @@ import (
 const FragmentGraphDocType = "ead"
 
 func newSubject(cfg *NodeConfig, id string) string {
-	return fmt.Sprintf("%s/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
+	return fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
 }
 
 // getFirstBranch returs the first parent of the current node
 func (n *Node) getFirstBranch() string {
-	if len(n.ParentIDs) < 1 {
+	parents := strings.Split(n.GetPath(), "-")
+	if len(parents) < 2 {
 		return ""
 	}
-	return n.ParentIDs[len(n.ParentIDs)-1]
+	return strings.Join(parents[:len(parents)-1], "-")
 }
 
 // getSecondBranch returs the second parent of the current node
 func (n *Node) getSecondBranch() string {
-	if len(n.ParentIDs) < 2 {
+	parents := strings.Split(n.GetPath(), "-")
+	if len(parents) < 3 {
 		return ""
 	}
-	return n.ParentIDs[len(n.ParentIDs)-2]
+	return strings.Join(parents[:len(parents)-2], "-")
 }
 
 // FragmentGraph returns the archival node as a FragmentGraph
@@ -58,11 +61,11 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.HubID = header.HubID
 	tree.Children = len(n.Nodes)
 	tree.Type = n.GetType()
-	tree.CLeaf = id
+	tree.CLevel = id
 	tree.Label = n.GetHeader().GetTreeLabel()
-	tree.FBranch = n.getFirstBranch()
-	tree.SBranch = n.getSecondBranch()
-	tree.Depth = len(n.ParentIDs)
+	tree.Leaf = n.getFirstBranch()
+	tree.Parent = n.getSecondBranch()
+	tree.Depth = len(n.ParentIDs) + 1
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header

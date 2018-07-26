@@ -57,10 +57,10 @@ var ESMapping = `{
 						"children": {"type": "integer"},
 						"hubID": {"type": "keyword"},
 						"type": {"type": "keyword"},
-						"cLeaf": {"type": "keyword"},
+						"cLevel": {"type": "keyword"},
 						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
-						"sBranch": {"type": "keyword"},
-						"fBranch": {"type": "keyword"}
+						"parent": {"type": "keyword"},
+						"leaf": {"type": "keyword"}
 					}
 				},
 				"subject": {"type": "keyword"},

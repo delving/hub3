@@ -169,7 +169,7 @@ var _ = Describe("Dataset", func() {
 		It("should update the revision of the dataset by one", func() {
 			ds, _, _ := GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(1))
-			err := ds.IncrementRevision()
+			_, err := ds.IncrementRevision()
 			Expect(err).ToNot(HaveOccurred())
 			ds, _, _ = GetOrCreateDataSet("test3")
 			Expect(ds.Revision).To(Equal(2))

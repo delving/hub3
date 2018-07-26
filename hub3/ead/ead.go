@@ -2,6 +2,7 @@ package ead
 
 import (
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"log"
@@ -10,6 +11,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
+	"github.com/pkg/errors"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
@@ -293,9 +295,14 @@ func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, e
 	}
 
 	// add nested
-	_, ok := cfg.labels[node.Path]
+	prevLabel, ok := cfg.labels[node.Path]
 	if ok {
-		return nil, fmt.Errorf("Found duplicate unique key for %s", header.GetInventoryNumber())
+		data, err := json.MarshalIndent(node, " ", " ")
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
+		}
+
+		return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 
 	}
 	cfg.labels[node.Path] = header.GetTreeLabel()

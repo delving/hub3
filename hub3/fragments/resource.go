@@ -40,18 +40,6 @@ func init() {
 	ctx = context.Background()
 }
 
-// FragmentReferrerContext holds the referrer in formation for creating new fragments
-//type FragmentReferrerContext struct {
-//Subject      string   `json:"subject"`
-//SubjectClass []string `json:"subjectClass"`
-//Predicate    string   `json:"predicate"`
-//SearchLabel  string   `json:"searchLabel"`
-//Level        int      `json:"level"`
-//ObjectID     string   `json:"objectID"`
-//// todo: decide if the sortKey belongs here
-////SortKey         int      `json:"sortKey"`
-//}
-
 // NewContext returns the context for the current fragmentresource
 func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentReferrerContext {
 	searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
@@ -80,10 +68,10 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	FBranch  string `json:"fBranch"`
-	SBranch  string `json:"sBranch"`
+	Leaf     string `json:"leaf"`
+	Parent   string `json:"parent"`
 	Label    string `json:"label"`
-	CLeaf    string `json:"cLeaf"`
+	CLevel   string `json:"cLevel"`
 	Type     string `json:"type"`
 	HubID    string `json:"hubID"`
 	Children int    `json:"children"`
@@ -92,7 +80,7 @@ type Tree struct {
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
-	Meta       *Header                   `json:"meta"`
+	Meta       *Header                   `json:"meta,omitempty"`
 	Tree       *Tree                     `json:"tree,omitempty"`
 	Resources  []*FragmentResource       `json:"resources,omitempty"`
 	Summary    *ResultSummary            `json:"summary,omitempty"`
@@ -142,6 +130,7 @@ type ScrollResultV4 struct {
 	Collapsed []*Collapsed     `json:"collapse,omitempty"`
 	Peek      map[string]int64 `json:"peek,omitempty"`
 	Facets    []*QueryFacet    `json:"facets,omitempty"`
+	Tree      []*Tree          `json:"tree,omitempty"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation
@@ -651,6 +640,11 @@ func (fg *FragmentGraph) NewFields() map[string][]string {
 		}
 	}
 	return fg.Fields
+}
+
+// Return the output as navigation tree
+func (fg *FragmentGraph) NewTree() *Tree {
+	return fg.Tree
 }
 
 // NewJSONLD creates a JSON-LD version of the FragmentGraph

@@ -31,6 +31,7 @@ enum ItemFormatType {
   GROUPED = 2;
   JSONLD = 3;
   FLAT = 4;
+  TREE = 5;
 }
 
 enum ResponseBlockType {
@@ -70,6 +71,14 @@ message FacetField {
   string name = 6;
 }
 
+
+message TreeQuery {
+  string cLevel = 1;
+  string leaf = 2;
+  string parent = 3;
+  string type = 4;
+}
+
 message SearchRequest {
   // Will output a summary result set. Any valid Lucene or Solr Query syntax will work.
   string query = 1;
@@ -106,6 +115,7 @@ message SearchRequest {
   string collapseSort = 28;
   string peek = 29;
   bool sortAsc = 30;
+  TreeQuery tree = 31;
 }
 
 enum GeoType {

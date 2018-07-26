@@ -17,6 +17,7 @@ type TreeStats struct {
 	Depth    []StatCounter
 	Children []StatCounter
 	Type     []StatCounter
+	PhysDesc []StatCounter
 }
 
 // StatCounter holds value counters for statistics overviews
@@ -63,6 +64,22 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 	childAgg := elastic.NewTermsAggregation().Field("tree.children").Size(100).OrderByCountDesc()
 	typeAgg := elastic.NewTermsAggregation().Field("tree.type").Size(100).OrderByCountDesc()
 
+	fub, err := NewFacetURIBuilder("", []*QueryFilter{})
+	if err != nil {
+		return nil, err
+	}
+
+	//resourceFields := []string{"ead-rdf_physdesc"}
+	physDescField, err := NewFacetField("ead-rdf_physdesc")
+	if err != nil {
+		return nil, err
+	}
+	physDescAgg, err := CreateAggregationBySearchLabel(
+		"resources.entries",
+		physDescField,
+		false,
+		fub,
+	)
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, spec),
@@ -76,6 +93,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 		Aggregation("depth", depthAgg).
 		Aggregation("children", childAgg).
 		Aggregation("type", typeAgg).
+		Aggregation("physdesc", physDescAgg).
 		Do(ctx)
 	if err != nil {
 		log.Printf("Unable to get TreeStat for dataset %s; %s", spec, err)
@@ -105,6 +123,27 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 			tree.Type = counter
 		}
 	}
+
+	physdescCounter := []StatCounter{}
+	ct, ok := aggs.Nested("physdesc")
+	if ok {
+		facet, ok := ct.Filter("filter")
+		if ok {
+			inner, ok := facet.Filter("inner")
+			if ok {
+				value, ok := inner.Terms("value")
+				if ok {
+					for _, keyCount := range value.Buckets {
+						physdescCounter = append(physdescCounter, StatCounter{
+							Value:    fmt.Sprintf("%s", keyCount.Key),
+							DocCount: int(keyCount.DocCount),
+						})
+					}
+				}
+			}
+		}
+	}
+	tree.PhysDesc = physdescCounter
 
 	return tree, nil
 }

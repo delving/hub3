@@ -92,6 +92,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		return sr, nil
 	}
 
+	tree := &TreeQuery{}
+
 	sr := DefaultSearchRequest(&c.Config)
 	for p, v := range params {
 		switch p {
@@ -147,6 +149,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_JSONLD
 			case "flat":
 				sr.ItemFormat = ItemFormatType_FLAT
+			case "tree":
+				sr.ItemFormat = ItemFormatType_TREE
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
@@ -175,8 +179,19 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.CollapseSize = int32(size)
 		case "peek":
 			sr.Peek = params.Get(p)
+		case "byLeaf":
+			sr.Tree = tree
+			tree.Leaf = params.Get(p)
+		case "byParent":
+			sr.Tree = tree
+			tree.Parent = params.Get(p)
+		case "byType":
+			sr.Tree = tree
+			tree.Type = params.Get(p)
 		}
-
+	}
+	if sr.Tree != nil {
+		sr.ResponseSize = int32(100)
 	}
 	return sr, nil
 }
@@ -372,6 +387,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		query = query.Must(nq)
 
 	}
+
 	if strings.HasPrefix(sr.GetSortBy(), "random") {
 		randomFunc := elastic.NewRandomFunction()
 
@@ -389,6 +405,15 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			AddScoreFunc(randomFunc).
 			Query(query)
 		return query, nil
+	}
+
+	if sr.Tree != nil {
+		if sr.Tree.GetLeaf() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
+		}
+		if sr.Tree.GetParent() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.parent", sr.Tree.GetParent()))
+		}
 	}
 
 	return query, nil
@@ -411,6 +436,11 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
 func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *FacetField, fub *FacetURIBuilder) (elastic.Aggregation, error) {
+	return CreateAggregationBySearchLabel(path, facet, sr.FacetAndBoolType, fub)
+}
+
+// CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
+func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBoolType bool, fub *FacetURIBuilder) (elastic.Aggregation, error) {
 	nestedPath := fmt.Sprintf("%s.searchLabel", path)
 	fieldTermQuery := elastic.NewTermQuery(nestedPath, facet.GetField())
 
@@ -431,7 +461,7 @@ func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *Face
 
 	// Add Filters as nested path
 	filteredQuery := elastic.NewBoolQuery().Must(fieldTermQuery)
-	facetFilters, err := fub.CreateFacetFilterQuery(path, facet.GetField(), sr.FacetAndBoolType)
+	facetFilters, err := fub.CreateFacetFilterQuery(path, facet.GetField(), facetAndBoolType)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create FacetFilterQuery")
 	}
@@ -531,6 +561,12 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		s = s.Size(0)
 		s = s.Aggregation(sr.Peek, agg)
 		return s.Query(query), nil, err
+	}
+
+	if sr.Tree != nil {
+		fsc := elastic.NewFetchSourceContext(true)
+		fsc.Include("tree")
+		s = s.FetchSourceContext(fsc)
 	}
 
 	// Add aggregations
