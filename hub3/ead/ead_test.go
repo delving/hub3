@@ -2,8 +2,10 @@ package ead_test
 
 import (
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"io/ioutil"
+	"path/filepath"
 
 	. "github.com/delving/rapid-saas/hub3/ead"
 	. "github.com/onsi/ginkgo"
@@ -236,51 +238,67 @@ var _ = Describe("Ead", func() {
 
 	})
 
-	//Context("when being load from file", func() {
+	Context("when being load from file", func() {
 
-	//It("should create an EAD object", func() {
-	//path, err := filepath.Abs("./test_data/ead/NL-HaNA_2.08.22.ead.xml")
-	////Expect(err).ToNot(HaveOccurred())
-	////rawEAD, err := ioutil.ReadFile(path)
-	//Expect(err).ToNot(HaveOccurred())
-	////Expect(rawEAD).ToNot(BeNil())
-	//ead, err := ReadEAD(path)
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(ead).ToNot(BeNil())
-	////fmt.Printf("%#v\n", ead.ArchDesc.DSC.Value)
-	////fmt.Printf("%s\n", ead.String())
-	////fmt.Printf("%s\n", ead.ToXML())
-	//})
+		It("should create an EAD object", func() {
+			path, err := filepath.Abs("./test_data/ead/NL-HaNA_2.08.22.ead.xml")
+			//Expect(err).ToNot(HaveOccurred())
+			//rawEAD, err := ioutil.ReadFile(path)
+			Expect(err).ToNot(HaveOccurred())
+			//Expect(rawEAD).ToNot(BeNil())
+			ead, err := ReadEAD(path)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ead).ToNot(BeNil())
+			//fmt.Printf("%#v\n", ead.ArchDesc.DSC.Value)
+			//fmt.Printf("%s\n", ead.String())
+			//fmt.Printf("%s\n", ead.ToXML())
+		})
 
-	//It("should read all the files in a directory", func() {
-	//path, err := filepath.Abs("/mnt/usb1/ead-production/")
-	//Expect(err).ToNot(HaveOccurred())
-	//files, err := ioutil.ReadDir(path)
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(files).ToNot(BeEmpty())
-	////for _, f := range files {
-	////if strings.HasSuffix(f.Name(), "ead.xml") {
-	//////ead, err := ReadEAD(fmt.Sprintf("/mnt/usb1/ead-production/%s", f.Name()))
-	//////Expect(err).ToNot(HaveOccurred())
-	//////Expect(ead).ToNot(BeNil())
-	////fmt.Printf("%s\n", f.Name())
-	////}
-	////}
-	//})
+		//It("should read all the files in a directory", func() {
+		//path, err := filepath.Abs("/mnt/usb1/ead-production/")
+		//Expect(err).ToNot(HaveOccurred())
+		//files, err := ioutil.ReadDir(path)
+		//Expect(err).ToNot(HaveOccurred())
+		//Expect(files).ToNot(BeEmpty())
+		//for _, f := range files {
+		//if strings.HasSuffix(f.Name(), "ead.xml") {
+		//ead, err := ReadEAD(fmt.Sprintf("/mnt/usb1/ead-production/%s", f.Name()))
+		//Expect(err).ToNot(HaveOccurred())
+		//Expect(ead).ToNot(BeNil())
+		//fmt.Printf("%s\n", f.Name())
+		//cfg := NewNodeConfig(context.Background())
+		//cfg.Spec = strings.TrimSuffix(f.Name(), ".ead.xml")
+		//cfg.OrgID = c.Config.OrgID
+		////cfg.Revision = int32(ds.Revision)
+		//basePath := fmt.Sprintf("%s/%s", c.Config.EAD.CacheDir, cfg.Spec)
 
-	//It("should serialize it to JSON", func() {
-	//path, err := filepath.Abs("/mnt/usb1/ead-production/NL-HaNA_2.08.28.ead.xml")
-	//Expect(err).ToNot(HaveOccurred())
-	//ead, err := ReadEAD(path)
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(ead).ToNot(BeNil())
-	//b, err := json.Marshal(ead)
-	//Expect(err).ToNot(HaveOccurred())
-	//err = ioutil.WriteFile("/tmp/test.ead", b, 0644)
-	//Expect(err).ToNot(HaveOccurred())
+		//nl, _, err := ead.Carchdesc.Cdsc.NewNodeList(cfg)
+		//Expect(nl).ToNot(BeNil())
+		//Expect(err).ToNot(HaveOccurred())
+		//Expect(ead).ToNot(BeNil())
+		//if len(cfg.Errors) > 0 {
+		//d, err := cfg.ErrorToCSV()
+		//Expect(err).ToNot(HaveOccurred())
+		//err = ioutil.WriteFile(basePath+".duplicate.csv", d, 0644)
+		//Expect(err).ToNot(HaveOccurred())
+		//}
+		//}
+		//}
+		//})
 
-	//})
-	//})
+		It("should serialize it to JSON", func() {
+			path, err := filepath.Abs("/mnt/usb1/ead-production/NL-HaNA_2.08.28.ead.xml")
+			Expect(err).ToNot(HaveOccurred())
+			ead, err := ReadEAD(path)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(ead).ToNot(BeNil())
+			b, err := json.Marshal(ead)
+			Expect(err).ToNot(HaveOccurred())
+			err = ioutil.WriteFile("/tmp/test.ead", b, 0644)
+			Expect(err).ToNot(HaveOccurred())
+
+		})
+	})
 
 })
 

@@ -1,19 +1,22 @@
 package ead
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"strings"
 	"sync/atomic"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
-	"github.com/pkg/errors"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
+
+const pathSep string = "~"
 
 func init() {
 	path := c.Config.EAD.CacheDir
@@ -33,6 +36,40 @@ type NodeConfig struct {
 	Spec     string
 	Revision int32
 	labels   map[string]string
+	Errors   []*DuplicateError
+}
+
+type DuplicateError struct {
+	Path     string `json:"path"`
+	Spec     string `json:"spec"`
+	Order    int    `json:"order"`
+	Key      string `json:"key"`
+	Label    string `json:"label"`
+	DupKey   string `json:"dupKey"`
+	DupLabel string `json:"dupLabel"`
+	CType    string `json:"cType"`
+	Depth    int32  `json:"depth"`
+}
+
+func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
+	var b bytes.Buffer
+	s := func(input string) string {
+		re := regexp.MustCompile(`\r?\n`)
+		return re.ReplaceAllString(input, " ")
+	}
+
+	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth\n")
+	for idx, de := range nc.Errors {
+		b.WriteString(
+			fmt.Sprintf(
+				"%d,%s,%d,%s,%s,\"%s\",%s,\"%s\",%s,%d\n",
+				idx, strings.TrimSpace(de.Spec), de.Order, de.Path, de.Key, s(de.Label),
+				de.DupKey, s(de.DupLabel), de.CType, de.Depth,
+			),
+		)
+	}
+
+	return b.Bytes(), nil
 }
 
 // AddLabel adds a cLevel id and its label to the label map
@@ -106,8 +143,6 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	if err != nil {
 		return err
 	}
-	//log.Printf("node: %#v", n)
-	//log.Printf("hubID: %s", fg.Meta.HubID)
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type(fragments.DocType).
@@ -115,6 +150,7 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 		Id(fg.Meta.HubID).
 		Doc(fg)
 	p.Add(r)
+
 	err = fragments.IndexFragments(rm, fg, p)
 	if err != nil {
 		return err
@@ -251,7 +287,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 func (n *Node) setPath(parentIDs []string) ([]string, error) {
 	if len(parentIDs) > 0 {
 		n.BranchID = parentIDs[len(parentIDs)-1]
-		n.Path = fmt.Sprintf("%s-%s", n.BranchID, n.GetHeader().GetInventoryNumber())
+		n.Path = fmt.Sprintf("%s%s%s", n.BranchID, pathSep, n.GetHeader().GetInventoryNumber())
 	} else {
 		n.Path = n.GetHeader().GetInventoryNumber()
 	}
@@ -297,14 +333,27 @@ func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, e
 	// add nested
 	prevLabel, ok := cfg.labels[node.Path]
 	if ok {
-		data, err := json.MarshalIndent(node, " ", " ")
-		if err != nil {
-			return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
+		//data, err := json.MarshalIndent(node, " ", " ")
+		//if err != nil {
+		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
+		//}
+		de := &DuplicateError{
+			Path:     node.GetPath(),
+			Order:    order,
+			Spec:     cfg.Spec,
+			Key:      header.GetInventoryNumber(),
+			Label:    prevLabel,
+			DupKey:   header.GetInventoryNumber(),
+			DupLabel: header.GetTreeLabel(),
+			CType:    node.GetType(),
+			Depth:    node.GetDepth(),
 		}
+		cfg.Errors = append(cfg.Errors, de)
 
-		return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
-
+		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
+		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
 	}
+
 	cfg.labels[node.Path] = header.GetTreeLabel()
 
 	nested := c.GetNested()

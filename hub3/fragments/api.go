@@ -182,6 +182,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byLeaf":
 			sr.Tree = tree
 			tree.Leaf = params.Get(p)
+		case "byDepth":
+			sr.Tree = tree
+			tree.Depth = params.Get(p)
 		case "byParent":
 			sr.Tree = tree
 			tree.Parent = params.Get(p)
@@ -375,16 +378,34 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 	if sr.GetQuery() != "" {
 		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "meta.spec:", 1)
-		qs := elastic.NewQueryStringQuery(rawQuery)
-		qs = qs.DefaultField("resources.entries.@value")
-		nq := elastic.NewNestedQuery("resources.entries", qs)
+		if strings.Contains(rawQuery, "meta.spec") {
+			all := []string{}
+			for _, part := range strings.Split(rawQuery, " ") {
+				if strings.HasPrefix(part, "meta.spec:") {
+					spec := strings.TrimPrefix(part, "meta.spec:")
+					query = query.Must(elastic.NewTermQuery("meta.spec", spec))
+					continue
+				}
+				all = append(all, part)
+			}
+			rawQuery = strings.Join(all, " ")
+		}
+		if rawQuery != "" {
+			//qs := elastic.NewQueryStringQuery(rawQuery)
+			qs := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
+				MinimumShouldMatch("2<70%")
+				//Operator("and").
+			//qs = qs.DefaultField("resources.entries.@value")
+			nq := elastic.NewNestedQuery("resources.entries", qs)
 
-		// inner hits
-		hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
-		innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
-		nq = nq.InnerHit(innerValue)
+			// inner hits
+			hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
+			innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
+			nq = nq.InnerHit(innerValue)
 
-		query = query.Must(nq)
+			query = query.Must(nq)
+
+		}
 
 	}
 
@@ -413,6 +434,12 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if sr.Tree.GetParent() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.parent", sr.Tree.GetParent()))
+		}
+		if sr.Tree.GetDepth() != "" {
+			query = query.Must(elastic.NewMatchQuery("tree.depth", sr.Tree.GetDepth()))
+		}
+		if sr.Tree.GetType() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
 		}
 	}
 

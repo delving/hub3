@@ -61,7 +61,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should set the entryURI", func() {
 				Expect(h.GetEntryURI()).ToNot(BeEmpty())
-				Expect(h.GetEntryURI()).To(Equal("http://data.rapid.org/archive/test-spec/A"))
+				Expect(h.GetEntryURI()).To(Equal("http://data.rapid.org/NL-HaNA/archive/test-spec/A"))
 			})
 
 			It("should have a NamedGraphURI", func() {
@@ -92,7 +92,7 @@ var _ = Describe("Nodes", func() {
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
-				Expect(s).To(Equal("http://data.rapid.org/archive/test_spec/A"))
+				Expect(s).To(Equal("http://data.rapid.org/NL-HaNA/archive/test_spec/A"))
 			})
 
 			It("should set the meta header", func() {
@@ -137,7 +137,7 @@ var _ = Describe("Nodes", func() {
 				s := "urn:123"
 				triples := node.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(26))
+				Expect(triples).To(HaveLen(28))
 			})
 
 		})
@@ -180,7 +180,7 @@ var _ = Describe("Nodes", func() {
 
 				It("should have triples", func() {
 					s := r.NewResource(node.GetSubject(cfg))
-					triples := date.Triples(s, cfg)
+					triples := date.Triples(s, 0, cfg)
 					Expect(triples).ToNot(BeEmpty())
 					Expect(triples).To(HaveLen(6))
 				})
@@ -199,7 +199,7 @@ var _ = Describe("Nodes", func() {
 
 				It("should have an Triples", func() {
 					s := r.NewResource(node.GetSubject(cfg))
-					triples := id.Triples(s, cfg)
+					triples := id.Triples(s, 0, cfg)
 					Expect(triples).ToNot(BeEmpty())
 					Expect(triples).To(HaveLen(5))
 				})
@@ -210,7 +210,7 @@ var _ = Describe("Nodes", func() {
 				s := node.GetSubject(cfg)
 				triples := h.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(16))
+				Expect(triples).To(HaveLen(22))
 			})
 
 		})

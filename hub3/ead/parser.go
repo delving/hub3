@@ -12,9 +12,11 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"time"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/models"
+	"github.com/go-chi/render"
 	proto "github.com/golang/protobuf/proto"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
@@ -35,7 +37,7 @@ func eadParse(src []byte) (*Cead, error) {
 	return ead, err
 }
 
-func ProcessUpload(r *http.Request, spec string, p *elastic.BulkProcessor) (uint64, error) {
+func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elastic.BulkProcessor) (uint64, error) {
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
 	if err != nil {
@@ -87,8 +89,20 @@ func ProcessUpload(r *http.Request, spec string, p *elastic.BulkProcessor) (uint
 		return uint64(0), err
 	}
 
+	render.PlainText(w, r, fmt.Sprintf("Processed %d for dataset %s\n", cfg.Counter.GetCount(), spec))
+	log.Printf("nr of errors: %d", len(cfg.Errors))
+	if len(cfg.Errors) > 0 {
+		render.PlainText(w, r, fmt.Sprintf("Duplicate inventory numbers %d for dataset %s\n", len(cfg.Errors), spec))
+		d, err := cfg.ErrorToCSV()
+		if err != nil {
+			return uint64(0), err
+		}
+		w.Write(d)
+	}
+
 	if p != nil {
 		go func() {
+			start := time.Now()
 			err := nl.ESSave(cfg, p)
 			if err != nil {
 				log.Printf("Unable to save nodes; %s", err)
@@ -98,6 +112,8 @@ func ProcessUpload(r *http.Request, spec string, p *elastic.BulkProcessor) (uint
 			if err != nil {
 				log.Printf("Unable to drop orphans; %s", err)
 			}
+			end := time.Since(start)
+			log.Printf("saving %s with %d records took: %s", spec, cfg.Counter.GetCount(), end)
 		}()
 	}
 

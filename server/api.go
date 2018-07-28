@@ -160,13 +160,12 @@ func eadUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nodes, err := ead.ProcessUpload(r, spec, bp)
+	_, err := ead.ProcessUpload(r, w, spec, bp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	render.PlainText(w, r, fmt.Sprintf("Processed %d for dataset %s", nodes, spec))
 	return
 }
 
@@ -534,8 +533,12 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 	for _, frag := range frags {
 		buffer.WriteString(fmt.Sprintln(frag.Triple))
 	}
+	if strings.Contains(r.Header.Get("Accept"), "n-triples") {
+		w.Header().Add("Content-Type", "application/n-triples")
+	} else {
+		w.Header().Add("Content-Type", "text/plain")
+	}
 	w.Write(buffer.Bytes())
-	w.Header().Set("Content-Type", "application/n-triples")
 	return
 
 }
@@ -886,6 +889,22 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	if err != nil {
+		log.Println("Unable to create Search request")
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, err.Error())
+		return
+	}
+	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
+	searchRequest.AddQueryFilter(fmt.Sprintf("spec:%s", spec))
+	if searchRequest.Tree == nil {
+		searchRequest.Tree = &fragments.TreeQuery{
+			Depth: "1",
+		}
+	}
+	processSearchRequest(w, r, searchRequest)
+	return
 	return
 }
 
@@ -905,7 +924,11 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// todo return 4040 if stats.Leafs == 0
+	// todo return 404 if stats.Leafs == 0
+	if stats.Leafs == 0 {
+		render.Status(r, http.StatusNotFound)
+		return
+	}
 	render.JSON(w, r, stats)
 	return
 }

@@ -17,20 +17,20 @@ func newSubject(cfg *NodeConfig, id string) string {
 
 // getFirstBranch returs the first parent of the current node
 func (n *Node) getFirstBranch() string {
-	parents := strings.Split(n.GetPath(), "-")
+	parents := strings.Split(n.GetPath(), pathSep)
 	if len(parents) < 2 {
 		return ""
 	}
-	return strings.Join(parents[:len(parents)-1], "-")
+	return strings.Join(parents[:len(parents)-1], pathSep)
 }
 
 // getSecondBranch returs the second parent of the current node
 func (n *Node) getSecondBranch() string {
-	parents := strings.Split(n.GetPath(), "-")
+	parents := strings.Split(n.GetPath(), pathSep)
 	if len(parents) < 3 {
 		return ""
 	}
-	return strings.Join(parents[:len(parents)-2], "-")
+	return strings.Join(parents[:len(parents)-2], pathSep)
 }
 
 // FragmentGraph returns the archival node as a FragmentGraph
@@ -75,8 +75,8 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 }
 
 // Triples create a list of RDF triples from a NodeID
-func (ni *NodeID) Triples(referrer r.Term, cfg *NodeConfig) []*r.Triple {
-	s := r.NewAnonNode()
+func (ni *NodeID) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Triple {
+	s := r.NewResource(fmt.Sprintf("%s/%d", referrer.RawValue(), order))
 	triples := []*r.Triple{
 		r.NewTriple(
 			referrer,
@@ -114,7 +114,7 @@ func (n *Node) GetSubject(cfg *NodeConfig) string {
 // Triples converts the EAD Did to RDF triples
 func (h *Header) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 
-	s := r.NewAnonNode()
+	s := r.NewResource(subject + "/did")
 	triples := []*r.Triple{
 		r.NewTriple(
 			r.NewResource(subject),
@@ -143,16 +143,20 @@ func (h *Header) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 	for _, label := range h.GetLabel() {
 		t(s, "idUnittitle", label, r.NewLiteral)
 	}
-	for _, nodeID := range h.GetID() {
-		triples = append(triples, nodeID.Triples(s, cfg)...)
+	for idx, nodeID := range h.GetID() {
+		triples = append(triples, nodeID.Triples(s, idx, cfg)...)
+	}
+
+	for idx, nodeDate := range h.GetDate() {
+		triples = append(triples, nodeDate.Triples(s, idx, cfg)...)
 	}
 
 	return triples
 }
 
 // Triples returns all the triples for a NodeDate
-func (nd *NodeDate) Triples(referrer r.Term, cfg *NodeConfig) []*r.Triple {
-	s := r.NewAnonNode()
+func (nd *NodeDate) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Triple {
+	s := r.NewResource(fmt.Sprintf("%s/%d", referrer.RawValue(), order))
 	triples := []*r.Triple{
 		r.NewTriple(
 			referrer,
@@ -226,36 +230,5 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 
 	triples = append(triples, n.GetHeader().Triples(subject, cfg)...)
 
-	parentSubject := s
-	for i := len(n.ParentIDs) - 1; i >= 0; i-- {
-		objectSubject := r.NewResource(newSubject(cfg, n.ParentIDs[i]))
-		parent := r.NewTriple(
-			parentSubject,
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "hasParent")),
-			objectSubject,
-		)
-
-		parentSubject = objectSubject
-		label, ok := cfg.labels[n.ParentIDs[i]]
-		if ok {
-			objectLabel := r.NewTriple(
-				parentSubject,
-				r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"),
-				r.NewLiteral(label),
-			)
-			triples = append(triples, parent, objectLabel)
-			continue
-		}
-		triples = append(triples, parent)
-	}
-
 	return triples
 }
-
-// store recursive function on nodelist for fragments and fragment graph
-
-// create fragmentGraph
-
-// node to triples
-
-// create subject URI function: base, tentant, spec, inventoryID

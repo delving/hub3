@@ -78,7 +78,6 @@ func getBytes(key interface{}) ([]byte, error) {
 }
 
 func getScrollResult(w http.ResponseWriter, r *http.Request) {
-
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
@@ -86,6 +85,11 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, err.Error())
 		return
 	}
+	processSearchRequest(w, r, searchRequest)
+	return
+}
+
+func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
 
 	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
@@ -513,7 +517,7 @@ func decodeHighlights(r *fragments.FragmentGraph, hit *elastic.SearchHit) error 
 					r.Highlights,
 					&fragments.ResourceEntryHighlight{
 						SearchLabel: re.SearchLabel,
-						MarkDown:    hlEntry[0],
+						MarkDown:    hlEntry,
 					},
 				)
 
