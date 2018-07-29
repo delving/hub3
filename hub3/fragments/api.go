@@ -393,7 +393,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if rawQuery != "" {
 			//qs := elastic.NewQueryStringQuery(rawQuery)
 			qs := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
-				MinimumShouldMatch("2<70%")
+				MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
 				//Operator("and").
 			//qs = qs.DefaultField("resources.entries.@value")
 			nq := elastic.NewNestedQuery("resources.entries", qs)

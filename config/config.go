@@ -71,19 +71,20 @@ type PostHook struct {
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
-	Urls        []string `json:"urls"`
-	Enabled     bool     `json:"enabled"`
-	IndexName   string   `json:"indexName"`
-	Proxy       bool     `json:"proxy"`
-	Fragments   bool     `json:"fragments"`
-	IndexV1     bool     `json:"indexV1"` // exclusive with v2 indexing
-	EnableTrace bool     `json:"enableTrace"`
-	SpecKey     string   `json:"specKey"`
-	RevisionKey string   `json:"revisionKey"`
-	OrgIDKey    string   `json:"orgIDKey"`
-	UserName    string   `json:"userName"`
-	Password    string   `json:"password"`
-	FacetSize   int      `json:"facetSize"`
+	Urls               []string `json:"urls"`
+	Enabled            bool     `json:"enabled"`
+	IndexName          string   `json:"indexName"`
+	Proxy              bool     `json:"proxy"`
+	Fragments          bool     `json:"fragments"`
+	IndexV1            bool     `json:"indexV1"` // exclusive with v2 indexing
+	EnableTrace        bool     `json:"enableTrace"`
+	SpecKey            string   `json:"specKey"`
+	RevisionKey        string   `json:"revisionKey"`
+	OrgIDKey           string   `json:"orgIDKey"`
+	UserName           string   `json:"userName"`
+	Password           string   `json:"password"`
+	FacetSize          int      `json:"facetSize"`
+	MimimumShouldMatch string   `json:"mimimumShouldMatch"`
 }
 
 func (es ElasticSearch) HasAuthentication() bool {
@@ -207,6 +208,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.RevisionKey", "meta.revision")
 	viper.SetDefault("ElasticSearch.OrgIDKey", "meta.orgID")
 	viper.SetDefault("ElasticSearch.FacetSize", 50)
+	viper.SetDefault("ElasticSearch.MimimumShouldMatch", "2<70%")
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

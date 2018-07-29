@@ -32,6 +32,8 @@ orgIDKey = "meta.orgID"
 # username and password for packx security
 userName = ""
 password = ""
+# configuration for MimimumShouldMatch
+minimumShouldMatch = "2<70%"
 
 [posthook]
 # specs to exclude from posthook
@@ -151,6 +153,7 @@ singleEndpoint = "NL-.*"
 # used for title of a resource
 title = [
     "http://purl.org/dc/elements/1.1/title",
+    "http://archief.nl/def/ead/idUnittitle",
 ]
 label = [
     "http://purl.org/dc/elements/1.1/title",
@@ -187,7 +190,7 @@ subject = [
     "http://purl.org/dc/elements/1.1/subject",
 ]
 date = [
-    "http://purl.org/dc/elements/1.1/date",
+    #"http://purl.org/dc/elements/1.1/date",
 ]
 collection = [
     "http://schemas.delving.eu/nave/terms/collection",
@@ -203,6 +206,7 @@ objectID = [
     "http://schemas.delving.eu/nave/terms/objectNumber",
     "http://schemas.delving.eu/nave/terms/objectNummer",
     "http://purl.org/dc/elements/1.1/identifier",
+    "http://archief.nl/def/ead/idInventorynr",
 ]
 creator = [
     "http://purl.org/dc/elements/1.1/creator",
