@@ -68,14 +68,37 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf     string `json:"leaf"`
-	Parent   string `json:"parent"`
-	Label    string `json:"label"`
-	CLevel   string `json:"cLevel"`
-	Type     string `json:"type"`
-	HubID    string `json:"hubID"`
-	Children int    `json:"children"`
-	Depth    int    `json:"depth"`
+	Leaf     string  `json:"leaf"`
+	Parent   string  `json:"parent"`
+	Label    string  `json:"label"`
+	CLevel   string  `json:"cLevel"`
+	Type     string  `json:"type"`
+	HubID    string  `json:"hubID"`
+	Children int     `json:"children"`
+	Depth    int     `json:"depth"`
+	Inline   []*Tree `json:"inline"`
+}
+
+// InlineTree creates a nested tree from an Array of *Tree
+func InlineTree(nodes []*Tree) ([]*Tree, error) {
+	rootNodes := []*Tree{}
+	nodeMap := make(map[string]*Tree)
+	for _, n := range nodes {
+		if n.Depth == 1 {
+			rootNodes = append(rootNodes, n)
+		}
+		nodeMap[n.CLevel] = n
+	}
+
+	log.Printf("source nodes %d; map keys %d", len(nodes), len(nodeMap))
+	for _, n := range nodeMap {
+		target, ok := nodeMap[n.Leaf]
+		if ok {
+			target.Inline = append(target.Inline, n)
+		}
+	}
+
+	return rootNodes, nil
 }
 
 // FragmentGraph is a container for all entries of an RDF Named Graph

@@ -78,6 +78,7 @@ message TreeQuery {
   string parent = 3;
   string type = 4;
   string depth = 5;
+  bool fillTree = 6;
 }
 
 message SearchRequest {

@@ -182,6 +182,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byLeaf":
 			sr.Tree = tree
 			tree.Leaf = params.Get(p)
+			tree.FillTree = strings.ToLower(params.Get("fillTree")) == "true"
 		case "byDepth":
 			sr.Tree = tree
 			tree.Depth = params.Get(p)
@@ -428,7 +429,8 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		return query, nil
 	}
 
-	if sr.Tree != nil {
+	// todo move this into a separate function
+	if sr.Tree != nil && !sr.Tree.GetFillTree() {
 		if sr.Tree.GetLeaf() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
 		}
@@ -441,6 +443,23 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if sr.Tree.GetType() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
 		}
+	}
+	if sr.Tree != nil && sr.Tree.GetFillTree() {
+		parents := strings.Split(sr.Tree.GetLeaf(), "~")
+		treeQuery := elastic.NewBoolQuery()
+		var path string
+		for idx, leaf := range parents {
+			if idx == 0 {
+				treeQuery = treeQuery.Should(elastic.NewMatchQuery("tree.depth", 1))
+				path = leaf
+				treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.leaf", path))
+				continue
+			}
+			path = fmt.Sprintf("%s~%s", path, leaf)
+			treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.leaf", path))
+		}
+		query = query.Must(treeQuery)
+
 	}
 
 	return query, nil

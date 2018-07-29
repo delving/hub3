@@ -321,6 +321,16 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 		}
 		records = nil
+		if searchRequest.Tree.GetFillTree() {
+			result.Tree, err = fragments.InlineTree(leafs)
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				log.Printf("Unable to render grouped TreeNodes: %s\n", err.Error())
+				render.PlainText(w, r, err.Error())
+				return
+			}
+			break
+		}
 		result.Tree = leafs
 	case fragments.ItemFormatType_GROUPED:
 		for _, rec := range records {
