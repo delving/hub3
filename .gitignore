@@ -79,3 +79,4 @@ target/
 *.log
 rapid-*.toml
 auth/
+hub3/parser
