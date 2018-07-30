@@ -80,8 +80,27 @@ type Tree struct {
 	Inline      []*Tree `json:"inline",omitempty"`
 }
 
+func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
+	expandedIDs := make(map[string]bool)
+	parents := strings.Split(tq.GetLeaf(), "~")
+	var path string
+	for idx, leaf := range parents {
+		if idx == 0 {
+			path = leaf
+			expandedIDs[path] = true
+			continue
+		}
+		path = fmt.Sprintf("%s~%s", path, leaf)
+		expandedIDs[path] = true
+	}
+	if !lastNode.HasChildren {
+		expandedIDs[lastNode.CLevel] = false
+	}
+	return expandedIDs
+}
+
 // InlineTree creates a nested tree from an Array of *Tree
-func InlineTree(nodes []*Tree) ([]*Tree, error) {
+func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
 	rootNodes := []*Tree{}
 	nodeMap := make(map[string]*Tree)
 	for _, n := range nodes {
@@ -91,14 +110,22 @@ func InlineTree(nodes []*Tree) ([]*Tree, error) {
 		nodeMap[n.CLevel] = n
 	}
 
-	for _, n := range nodeMap {
+	for _, n := range nodes {
 		target, ok := nodeMap[n.Leaf]
 		if ok {
 			target.Inline = append(target.Inline, n)
 		}
 	}
+	if tq.GetLeaf() == "" {
+		return rootNodes, nil, nil
+	}
 
-	return rootNodes, nil
+	lastNode, ok := nodeMap[tq.GetLeaf()]
+	if !ok {
+		return nil, nil, fmt.Errorf("Unable to find node %s in map", tq.GetLeaf())
+	}
+	header := &TreeHeader{ExpandedIDs: tq.expandedIDs(lastNode)}
+	return rootNodes, header, nil
 }
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
@@ -147,13 +174,19 @@ type Collapsed struct {
 
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager     *ScrollPager     `json:"pager"`
-	Query     *Query           `json:"query"`
-	Items     []*FragmentGraph `json:"items,omitempty"`
-	Collapsed []*Collapsed     `json:"collapse,omitempty"`
-	Peek      map[string]int64 `json:"peek,omitempty"`
-	Facets    []*QueryFacet    `json:"facets,omitempty"`
-	Tree      []*Tree          `json:"tree,omitempty"`
+	Pager      *ScrollPager     `json:"pager"`
+	Query      *Query           `json:"query"`
+	Items      []*FragmentGraph `json:"items,omitempty"`
+	Collapsed  []*Collapsed     `json:"collapse,omitempty"`
+	Peek       map[string]int64 `json:"peek,omitempty"`
+	Facets     []*QueryFacet    `json:"facets,omitempty"`
+	Tree       []*Tree          `json:"tree,omitempty"`
+	TreeHeader *TreeHeader      `json:"treeHeader,omitempty"`
+}
+
+// TreeHeader contains rendering hints for the consumer of the TreeView API
+type TreeHeader struct {
+	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation

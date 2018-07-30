@@ -322,7 +322,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 		records = nil
 		if searchRequest.Tree.GetFillTree() {
-			result.Tree, err = fragments.InlineTree(leafs)
+			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree)
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				log.Printf("Unable to render grouped TreeNodes: %s\n", err.Error())
