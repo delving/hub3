@@ -54,10 +54,11 @@ var ESMapping = `{
 					"type": "object",
 					"properties": {
 						"depth": {"type": "integer"},
-						"children": {"type": "integer"},
+						"childCount": {"type": "integer"},
 						"hubID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
+						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"}

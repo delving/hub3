@@ -889,6 +889,13 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	nodeID := chi.URLParam(r, "nodeID")
+	if nodeID != "" {
+		q := r.URL.Query()
+		q.Add("byLeaf", nodeID)
+		r.URL.RawQuery = q.Encode()
+		//r.URL.Query().Add("byLeaf", nodeID)
+	}
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
@@ -900,7 +907,7 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 	searchRequest.AddQueryFilter(fmt.Sprintf("spec:%s", spec))
 	if searchRequest.Tree == nil {
 		searchRequest.Tree = &fragments.TreeQuery{
-			Depth: "1",
+			Depth: []string{"1", "2"},
 		}
 	}
 	processSearchRequest(w, r, searchRequest)

@@ -77,8 +77,9 @@ message TreeQuery {
   string leaf = 2;
   string parent = 3;
   string type = 4;
-  string depth = 5;
+  repeated string depth = 5;
   bool fillTree = 6;
+  string childCount = 7;
 }
 
 message SearchRequest {

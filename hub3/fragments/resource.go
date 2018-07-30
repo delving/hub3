@@ -68,15 +68,16 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf     string  `json:"leaf"`
-	Parent   string  `json:"parent"`
-	Label    string  `json:"label"`
-	CLevel   string  `json:"cLevel"`
-	Type     string  `json:"type"`
-	HubID    string  `json:"hubID"`
-	Children int     `json:"children"`
-	Depth    int     `json:"depth"`
-	Inline   []*Tree `json:"inline"`
+	Leaf        string  `json:"leaf,omitempty"`
+	Parent      string  `json:"parent,omitempty"`
+	Label       string  `json:"label"`
+	CLevel      string  `json:"cLevel"`
+	Type        string  `json:"type"`
+	HubID       string  `json:"hubID"`
+	ChildCount  int     `json:"childCount"`
+	Depth       int     `json:"depth"`
+	HasChildren bool    `json:"hasChildren"`
+	Inline      []*Tree `json:"inline",omitempty"`
 }
 
 // InlineTree creates a nested tree from an Array of *Tree
@@ -90,7 +91,6 @@ func InlineTree(nodes []*Tree) ([]*Tree, error) {
 		nodeMap[n.CLevel] = n
 	}
 
-	log.Printf("source nodes %d; map keys %d", len(nodes), len(nodeMap))
 	for _, n := range nodeMap {
 		target, ok := nodeMap[n.Leaf]
 		if ok {

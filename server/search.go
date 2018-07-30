@@ -317,8 +317,8 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
 		for _, rec := range records {
+			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
 			leafs = append(leafs, rec.Tree)
-
 		}
 		records = nil
 		if searchRequest.Tree.GetFillTree() {

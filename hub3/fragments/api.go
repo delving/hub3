@@ -185,7 +185,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.FillTree = strings.ToLower(params.Get("fillTree")) == "true"
 		case "byDepth":
 			sr.Tree = tree
-			tree.Depth = params.Get(p)
+			tree.Depth = v
+		case "byChildCount":
+			sr.Tree = tree
+			tree.ChildCount = params.Get(p)
 		case "byParent":
 			sr.Tree = tree
 			tree.Parent = params.Get(p)
@@ -195,7 +198,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		}
 	}
 	if sr.Tree != nil {
-		sr.ResponseSize = int32(100)
+		sr.ResponseSize = int32(1000)
 	}
 	return sr, nil
 }
@@ -429,21 +432,6 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		return query, nil
 	}
 
-	// todo move this into a separate function
-	if sr.Tree != nil && !sr.Tree.GetFillTree() {
-		if sr.Tree.GetLeaf() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
-		}
-		if sr.Tree.GetParent() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.parent", sr.Tree.GetParent()))
-		}
-		if sr.Tree.GetDepth() != "" {
-			query = query.Must(elastic.NewMatchQuery("tree.depth", sr.Tree.GetDepth()))
-		}
-		if sr.Tree.GetType() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
-		}
-	}
 	if sr.Tree != nil && sr.Tree.GetFillTree() {
 		parents := strings.Split(sr.Tree.GetLeaf(), "~")
 		treeQuery := elastic.NewBoolQuery()
@@ -459,6 +447,35 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.leaf", path))
 		}
 		query = query.Must(treeQuery)
+
+	}
+
+	// todo move this into a separate function
+	if sr.Tree != nil && !sr.Tree.GetFillTree() {
+		if sr.Tree.GetLeaf() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
+		}
+		if sr.Tree.GetParent() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.parent", sr.Tree.GetParent()))
+		}
+		if sr.Tree.GetChildCount() != "" {
+			query = query.Must(elastic.NewMatchQuery("tree.childCount", sr.Tree.GetChildCount()))
+		}
+		switch len(sr.Tree.GetDepth()) {
+		case 1:
+			query = query.Must(elastic.NewMatchQuery("tree.depth", sr.Tree.GetDepth()[0]))
+		case 0:
+		default:
+			q := elastic.NewBoolQuery()
+			for _, d := range sr.Tree.GetDepth() {
+				q = q.Should(elastic.NewMatchQuery("tree.depth", d))
+			}
+			query = query.Must(q)
+			sr.Tree.FillTree = true
+		}
+		if sr.Tree.GetType() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
+		}
 
 	}
 

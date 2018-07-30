@@ -59,7 +59,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	// TODO move to own function later
 	tree := &fragments.Tree{}
 	tree.HubID = header.HubID
-	tree.Children = len(n.Nodes)
+	tree.ChildCount = len(n.Nodes)
 	tree.Type = n.GetType()
 	tree.CLevel = id
 	tree.Label = n.GetHeader().GetTreeLabel()

@@ -61,7 +61,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 
 	// Aggregations
 	depthAgg := elastic.NewTermsAggregation().Field("tree.depth").Size(30).OrderByCountDesc()
-	childAgg := elastic.NewTermsAggregation().Field("tree.children").Size(100).OrderByCountDesc()
+	childAgg := elastic.NewTermsAggregation().Field("tree.childCount").Size(100).OrderByCountDesc()
 	typeAgg := elastic.NewTermsAggregation().Field("tree.type").Size(100).OrderByCountDesc()
 
 	fub, err := NewFacetURIBuilder("", []*QueryFilter{})
