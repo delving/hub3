@@ -173,7 +173,6 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 					),
 				)
 				triples = append(triples, thumbnail, manifest)
-				continue
 			}
 			if con.ManifestColumn != "" && idx == manifestColumnIdx {
 				if con.ManifestLocale == "" {
@@ -189,7 +188,6 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 					),
 				)
 				triples = append(triples, manifest)
-				continue
 			}
 			p := headerMap[idx]
 			triples = append(triples, con.CreateTriple(s, p, column))
