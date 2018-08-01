@@ -645,7 +645,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	// Add post filters
 
 	postFilter := elastic.NewBoolQuery()
-	log.Printf("%#v", sr.QueryFilter)
 	for _, qf := range sr.QueryFilter {
 		switch qf.SearchLabel {
 		case "spec", "delving_spec", "delving_spec.raw", "meta.spec":

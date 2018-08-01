@@ -324,9 +324,6 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			m, _ := url.ParseQuery(qs)
 			sr, _ := fragments.NewSearchRequest(m)
 			err := sr.AddQueryFilter(fmt.Sprintf("spec:%s", searchRequest.Tree.GetSpec()))
-			log.Printf("%s", sr)
-			log.Printf("%#v", records[0].Tree)
-			log.Printf("%#v", searchRequest.Tree)
 			s, _, err := sr.ElasticSearchService(index.ESClient())
 			if err != nil {
 				log.Printf("Unable to create Search Service: %v", err)

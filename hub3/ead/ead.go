@@ -250,6 +250,9 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	}
 
 	for _, label := range cdid.Cunittitle {
+		// todo interpolation of date and title is not correct at the moment.
+		dates := []string{}
+		parts := strings.Split(strings.TrimSpace(label.Title), "  ")
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
 			for _, date := range label.Cunitdate {
@@ -258,10 +261,25 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 					return nil, err
 				}
 				header.Date = append(header.Date, nodeDate)
+				dates = append(dates, nodeDate.GetLabel())
 			}
-			continue
 		}
-		header.Label = append(header.Label, label.Title)
+		var newLabel string
+		switch len(parts) {
+		case 1:
+			if len(dates) == 1 {
+				newLabel = fmt.Sprintf("%s %s", parts[0], dates[0])
+				break
+			}
+			newLabel = fmt.Sprintf("%s", parts[0])
+		case 2:
+			if len(dates) == 1 {
+				newLabel = fmt.Sprintf("%s %s %s", parts[0], dates[0], parts[1])
+				break
+			}
+			newLabel = strings.Join(parts, " ")
+		}
+		header.Label = append(header.Label, newLabel)
 	}
 
 	for _, date := range cdid.Cunitdate {

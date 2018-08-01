@@ -122,7 +122,8 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have date as label", func() {
-				Expect(header.GetLabel()).ToNot(ContainElement("1839"))
+				Expect(header.GetLabel()).To(HaveLen(1))
+				Expect(header.GetLabel()).To(ContainElement("ca. 1839 new books."))
 			})
 
 			It("should have date as label", func() {
