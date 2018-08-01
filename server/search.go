@@ -22,6 +22,7 @@ import (
 	log "log"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"reflect"
 	"strconv"
 	"strings"
@@ -316,6 +317,37 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
+		if searchRequest.Tree.GetLabel() != "" && len(records) > 0 {
+			// todo make new records
+			leaf := records[0].Tree.CLevel
+			qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
+			m, _ := url.ParseQuery(qs)
+			sr, _ := fragments.NewSearchRequest(m)
+			err := sr.AddQueryFilter(fmt.Sprintf("spec:%s", searchRequest.Tree.GetSpec()))
+			log.Printf("%s", sr)
+			log.Printf("%#v", records[0].Tree)
+			log.Printf("%#v", searchRequest.Tree)
+			s, _, err := sr.ElasticSearchService(index.ESClient())
+			if err != nil {
+				log.Printf("Unable to create Search Service: %v", err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res, err := s.Do(ctx)
+			if err != nil {
+				return
+			}
+			if res == nil {
+				log.Printf("expected response != nil; got: %v", res)
+				return
+			}
+			records, _, err = decodeFragmentGraphs(res)
+			if err != nil {
+				return
+			}
+			searchRequest.Tree.FillTree = true
+			searchRequest.Tree.Leaf = leaf
+		}
 		for _, rec := range records {
 			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
 			leafs = append(leafs, rec.Tree)

@@ -905,13 +905,16 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 	}
 	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
 	searchRequest.AddQueryFilter(fmt.Sprintf("spec:%s", spec))
-	if searchRequest.Tree == nil {
+	switch searchRequest.Tree {
+	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{
 			Depth: []string{"1", "2"},
+			Spec:  spec,
 		}
+	default:
+		searchRequest.Tree.Spec = spec
 	}
 	processSearchRequest(w, r, searchRequest)
-	return
 	return
 }
 

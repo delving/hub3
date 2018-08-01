@@ -195,9 +195,12 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byType":
 			sr.Tree = tree
 			tree.Type = params.Get(p)
+		case "byLabel":
+			sr.Tree = tree
+			tree.Label = params.Get(p)
 		}
 	}
-	if sr.Tree != nil {
+	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
 		sr.ResponseSize = int32(1000)
 	}
 	return sr, nil
@@ -461,6 +464,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if sr.Tree.GetChildCount() != "" {
 			query = query.Must(elastic.NewMatchQuery("tree.childCount", sr.Tree.GetChildCount()))
 		}
+		if sr.Tree.GetLabel() != "" {
+			q := elastic.NewMatchQuery("tree.label", sr.Tree.GetLabel())
+			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+			query = query.Must(q)
+		}
 		switch len(sr.Tree.GetDepth()) {
 		case 1:
 			query = query.Must(elastic.NewMatchQuery("tree.depth", sr.Tree.GetDepth()[0]))
@@ -567,6 +575,8 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	switch {
 	case strings.HasPrefix(sr.GetSortBy(), "random"), sr.GetSortBy() == "":
 		fieldSort = elastic.NewFieldSort("_score")
+	case strings.HasPrefix(sr.GetSortBy(), "tree."):
+		fieldSort = elastic.NewFieldSort(sr.GetSortBy())
 	default:
 		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", sr.GetSortBy())
 		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").
@@ -632,6 +642,25 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		s = s.FetchSourceContext(fsc)
 	}
 
+	// Add post filters
+
+	postFilter := elastic.NewBoolQuery()
+	log.Printf("%#v", sr.QueryFilter)
+	for _, qf := range sr.QueryFilter {
+		switch qf.SearchLabel {
+		case "spec", "delving_spec", "delving_spec.raw", "meta.spec":
+			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
+			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
+		default:
+			f, err := qf.ElasticFilter()
+			if err != nil {
+				return s, fub, err
+			}
+			postFilter = postFilter.Must(f)
+		}
+	}
+	s = s.PostFilter(postFilter)
+
 	// Add aggregations
 	if sr.Paging {
 		return s.Query(query), nil, err
@@ -645,24 +674,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	for facetField, agg := range aggs {
 		s = s.Aggregation(facetField, agg)
 	}
-
-	// Add post filters
-
-	postFilter := elastic.NewBoolQuery()
-	for _, qf := range sr.QueryFilter {
-		switch qf.SearchLabel {
-		case "spec", "delving_spec", "delving_spec.raw":
-			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
-			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
-		default:
-			f, err := qf.ElasticFilter()
-			if err != nil {
-				return s, fub, err
-			}
-			postFilter = postFilter.Must(f)
-		}
-	}
-	s = s.PostFilter(postFilter)
 
 	return s.Query(query), fub, err
 }

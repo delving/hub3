@@ -80,6 +80,8 @@ message TreeQuery {
   repeated string depth = 5;
   bool fillTree = 6;
   string childCount = 7;
+  string label = 8;
+  string spec = 9;
 }
 
 message SearchRequest {

@@ -124,7 +124,10 @@ func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
 	if !ok {
 		return nil, nil, fmt.Errorf("Unable to find node %s in map", tq.GetLeaf())
 	}
-	header := &TreeHeader{ExpandedIDs: tq.expandedIDs(lastNode)}
+	header := &TreeHeader{
+		ExpandedIDs: tq.expandedIDs(lastNode),
+		ActiveID:    tq.GetLeaf(),
+	}
 	return rootNodes, header, nil
 }
 
@@ -187,6 +190,7 @@ type ScrollResultV4 struct {
 // TreeHeader contains rendering hints for the consumer of the TreeView API
 type TreeHeader struct {
 	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
+	ActiveID    string          `json:"activeID"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation
