@@ -398,11 +398,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			rawQuery = strings.Join(all, " ")
 		}
 		if rawQuery != "" {
-			//qs := elastic.NewQueryStringQuery(rawQuery)
-			qs := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
-				MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
-				//Operator("and").
-			//qs = qs.DefaultField("resources.entries.@value")
+			qs := elastic.NewQueryStringQuery(rawQuery)
+			//nq := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
+			//MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+			//Operator("and").
+			qs = qs.DefaultField("resources.entries.@value")
 			nq := elastic.NewNestedQuery("resources.entries", qs)
 
 			// inner hits
