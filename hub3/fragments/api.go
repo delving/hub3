@@ -399,18 +399,22 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if rawQuery != "" {
 			qs := elastic.NewQueryStringQuery(rawQuery)
+			qs = qs.DefaultField("full_text").MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+			query = query.Must(qs)
+
+			// TODO enable nested search and highlighing again
 			//nq := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
 			//MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
 			//Operator("and").
-			qs = qs.DefaultField("resources.entries.@value")
-			nq := elastic.NewNestedQuery("resources.entries", qs)
+			//qs = qs.DefaultField("resources.entries.@value")
+			//nq := elastic.NewNestedQuery("resources.entries", qs)
 
-			// inner hits
-			hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
-			innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
-			nq = nq.InnerHit(innerValue)
+			//// inner hits
+			//hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
+			//innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
+			//nq = nq.InnerHit(innerValue)
 
-			query = query.Must(nq)
+			//query = query.Must(nq)
 
 		}
 

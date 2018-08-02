@@ -75,6 +75,7 @@ var ESMapping = `{
 				"recordType": {"type": "short"},
 				"order": {"type": "integer"},
 				"path": {"type": "keyword"},
+				"full_text": {"type": "text"},
 
 				"resources": {
 					"type": "nested",
@@ -101,6 +102,7 @@ var ESMapping = `{
 								"@id": {"type": "keyword"},
 								"@value": {
 									"type": "text",
+									"copy_to": "full_text",
 									"fields": {
 										"keyword": {"type": "keyword", "ignore_above": 256},
 										"trigram": {"type": "text", "analyzer": "trigram"},
