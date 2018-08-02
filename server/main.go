@@ -209,7 +209,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// Tree reconstruction endpoint
 	r.Get("/api/tree/{spec}", treeList)
-	r.Get("/api/tree/{spec}/{nodeID}", treeList)
+	r.Get("/api/tree/{spec}/{nodeID:.*$}", treeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 
 	// Search endpoint

@@ -891,8 +891,15 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 	}
 	nodeID := chi.URLParam(r, "nodeID")
 	if nodeID != "" {
+		id, err := url.QueryUnescape(nodeID)
+		if err != nil {
+			log.Println("Unable to unescape QueryParameters.")
+			render.Status(r, http.StatusBadRequest)
+			render.PlainText(w, r, err.Error())
+			return
+		}
 		q := r.URL.Query()
-		q.Add("byLeaf", nodeID)
+		q.Add("byLeaf", id)
 		r.URL.RawQuery = q.Encode()
 		//r.URL.Query().Add("byLeaf", nodeID)
 	}
