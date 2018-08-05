@@ -134,6 +134,14 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		serveHTML(w, r, "explore/ldf.html")
 		return
 	})
+	r.Get("/archives", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "ead-viewer/index.html")
+		return
+	})
+	r.Get("/archives/*", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "ead-viewer/index.html")
+		return
+	})
 
 	// gaf ZVT
 	//r.Get("/gaf/search-alt/*", func(w http.ResponseWriter, r *http.Request) {
