@@ -25,17 +25,21 @@ clean-build:
 	@make clean
 	mkdir -p build
 
+create-assets:
+	@go run -tags=dev server/assets/assets_generate.go
+	mv assets_vfsdata.go server/assets/
+
 run:
 	@go run main.go
 
 build:
 	@make clean-build
-	@create-assets
+	@make create-assets
 	@go build -a -o build/$(NAME) -ldflags=$(LDFLAGS) $(MODULE)
 
 gox-build:
 	@make clean-build
-	@create-assets
+	@make create-assets
 	cd build 
 	@make build 
 	gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags=$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
@@ -44,9 +48,6 @@ gox-build:
 run-dev:
 	gin -buildArgs "-i -tags=dev -ldflags '${LDFLAGS}'" run http
 
-create-assets:
-	go run -tags=dev server/assets/assets_generate.go
-	mv assets_vfsdata.go server/assets/
 
 test:
 	@go test  ./...
@@ -119,6 +120,7 @@ release-public:
 
 protobuffer:
 	@make pb.api
+	@make pb.viewconfig
 	@make pb.ead
 	@make pb.webresource
 
@@ -127,6 +129,9 @@ pb.webresource:
 
 pb.api:
 	@protoc --go_out=. hub3/fragments/api.proto
+
+pb.viewconfig:
+	@protoc --go_out=. hub3/fragments/viewconfig.proto
 
 pb.ead:
 	@protoc --go_out=. hub3/ead/ead.proto
