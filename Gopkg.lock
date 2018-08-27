@@ -47,12 +47,6 @@
   revision = "9da31745363232bc1e27dbab3569e77383a51585"
 
 [[projects]]
-  name = "github.com/caltechlibrary/ead2002"
-  packages = ["."]
-  revision = "5bc395d40160fe16c8b740f2bf568479055fc944"
-  version = "0.0.1"
-
-[[projects]]
   name = "github.com/certifi/gocertifi"
   packages = ["."]
   revision = "deb3ae2ef2610fde3330947281941c562861188b"
@@ -192,6 +186,12 @@
   name = "github.com/google/gofuzz"
   packages = ["."]
   revision = "24818f796faf91cd76ec7bddd72458fbced7a6c1"
+
+[[projects]]
+  name = "github.com/gorilla/schema"
+  packages = ["."]
+  revision = "d0e4c24cff97ae983e9847e0ed5a02dc10013d41"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/gregjones/httpcache"
@@ -521,19 +521,8 @@
   revision = "aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5"
 
 [[projects]]
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
   name = "github.com/stretchr/testify"
-  packages = [
-    ".",
-    "assert",
-    "http",
-    "mock"
-  ]
+  packages = ["assert"]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
 
@@ -684,16 +673,6 @@
   version = "v0.0.2"
 
 [[projects]]
-  name = "gopkg.in/olivere/elastic.v5"
-  packages = [
-    ".",
-    "config",
-    "uritemplates"
-  ]
-  revision = "52741dc2ce53629cbe1e673869040d886cba2cd5"
-  version = "v5.0.70"
-
-[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
@@ -716,6 +695,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7e7aaef27985c48d419eda0ae1293b3d171ea5011434e1467f6a843fea3787d4"
+  inputs-digest = "9aa145e012618f42c42b0f7d219d18321ce0d422f05cf427cb6e24d709c34bf8"
   solver-name = "gps-cdcl"
   solver-version = 1

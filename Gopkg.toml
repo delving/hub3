@@ -144,3 +144,7 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.2.2"
+
+[[constraint]]
+  name = "github.com/gorilla/schema"
+  version = "1.0.2"
