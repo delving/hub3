@@ -1,0 +1,114 @@
+// Run 'make protobuffer' from the root directory to generate 'viewconfig.pb.go'.
+syntax = "proto3";
+package fragments;
+
+enum DataSetType {
+  SINGLE = 0;
+  MULTIPLE = 1;
+  QUERY = 2;
+}
+
+enum ResultType {
+  GRID  = 0;
+  TABLE = 1;
+  MAP = 2;
+  ARCHIVE = 3;
+}
+
+enum FieldType {
+  LITERAL = 0;
+  RESOURCE = 1;
+  DATE = 2;
+  POINT = 3;
+  DIGITAL_OBJECT = 4;
+  MANIFEST = 5;
+}
+
+enum InlineType {
+  NONE = 0; 
+  URI_ONLY = 4; // show row object resource URI
+  LABEL = 1;
+  MODAL = 2;
+  INLINE_DETAIL_BLOCK = 3;
+}
+
+message DataSetConfig {
+  string ID = 11;
+  string title = 1;
+  string markdown = 2;
+  DataSetType dataSetType = 3;
+  repeated FacetField facets = 4;
+  repeated string spec = 5;
+  repeated string excludeSpec = 10;
+  DetailViewConfig viewConfig = 6;
+  ResultViewConfig resultConfig = 7;
+  DataSetFilter filter = 8;
+  string orgID = 9;
+}
+
+message DataSetFilter {
+  repeated QueryFilter queryFilter = 1;
+  string query = 2;
+}
+
+message ResultViewConfig {
+  ResultType resultType = 1;
+  PresentationField fields = 2;
+  bool inline = 3;
+}
+
+message PresentationField {
+  I18NLabel i18nLabel = 1;
+  bool clickable = 2;
+  bool searchable = 7;
+  string predicate = 3;
+  bool single = 4;
+  int32 order = 5;
+  FieldType fieldType = 6;
+  InlineType inlineType = 8;
+  string inlineCSS = 9;
+}
+
+message DetailViewConfig {
+  repeated DetailBlock blocks = 1;
+  string entryType = 2;
+}
+
+message I18NLabel {
+  string lang = 1;
+  string  name = 2;
+}
+
+message DetailBlock {
+  I18NLabel i18nLabel = 1;
+  string resourceLabel = 2; // label of link
+  int32 order = 3;
+  string resourceType = 4;
+  repeated PresentationField fields = 5;
+  string inlineCSS = 6;
+}
+
+// search configuration
+message ContextQueryFilter {
+  string SearchLabel = 1;
+  string TypeClass = 2;
+}
+
+message QueryFilter {
+  ContextQueryFilter Level1 = 1;
+  ContextQueryFilter Level2 = 2;
+  string SearchLabel = 3;
+  string TypeClass = 6;
+  string Value = 4;
+  bool Exclude = 5;
+}
+
+message FacetField {
+  string field = 1;
+  bool asc = 2;
+  bool byName = 3;
+  int32 size = 4;
+  bool byId = 5;
+  string name = 6;
+  int32 order = 7;
+}
