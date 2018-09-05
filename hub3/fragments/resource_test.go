@@ -234,14 +234,14 @@ var _ = Describe("Resource", func() {
 			})
 			It("should throw an error when the subject is unknown", func() {
 				Expect(rm).ToNot(BeNil())
-				err := rm.SetContextLevels("urn:unknown")
+				_, err := rm.SetContextLevels("urn:unknown")
 				Expect(err).To(HaveOccurred())
 			})
 
 			config.InitConfig()
 			It("should determine its level by the number of context is has", func() {
 				Expect(rm).ToNot(BeNil())
-				err := rm.SetContextLevels(subject)
+				_, err := rm.SetContextLevels(subject)
 				Expect(err).ToNot(HaveOccurred())
 
 				providedCHO, ok := rm.GetResource("http://data.jck.nl/resource/document/jhm-foto/F900893")

@@ -35,9 +35,12 @@ type FragmentBuilder struct {
 }
 
 // ResourcesList returns a list of FragmentResource
-func (rm *ResourceMap) ResourcesList() []*FragmentResource {
+func (rm *ResourceMap) ResourcesList(resources map[string]*FragmentResource) []*FragmentResource {
 	rs := []*FragmentResource{}
-	for _, entry := range rm.resources {
+	if resources == nil {
+		resources = rm.resources
+	}
+	for _, entry := range resources {
 		err := entry.SetEntries(rm)
 		if err != nil {
 			log.Printf("Unable to set entries: %s", err)
@@ -100,13 +103,13 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 		return fg
 	}
 
-	err = rm.SetContextLevels(fg.GetAboutURI())
+	resources, err := rm.SetContextLevels(fg.GetAboutURI())
 	if err != nil {
 		log.Printf("Unable to set context: %s", err)
 		return fg
 	}
 
-	fg.Resources = rm.ResourcesList()
+	fg.Resources = rm.ResourcesList(resources)
 	return fg
 }
 

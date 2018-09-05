@@ -25,7 +25,7 @@ import (
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/index"
 	r "github.com/kiivihal/rdf2go"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 const (
@@ -334,18 +334,21 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 }
 
 // SetContextLevels sets FragmentReferrerContext to each level from the root
-func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
+func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
 	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
-		return fmt.Errorf("Subject %s is not part of the graph", subjectURI)
+		return nil, fmt.Errorf("Subject %s is not part of the graph", subjectURI)
 	}
 
+	linkedObjects := map[string]*FragmentResource{}
+	linkedObjects[subjectURI] = subject
 	for _, level1 := range subject.objectIDs {
 		level2Resource, ok := rm.GetResource(level1.ObjectID)
 		if !ok {
 			log.Printf("unknown target URI: %s", level1.ObjectID)
 			continue
 		}
+		linkedObjects[level1.ObjectID] = level2Resource
 		level1.Level = 1
 		if len(level1.GetSubjectClass()) == 0 {
 			level1.SubjectClass = subject.Types
@@ -361,6 +364,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 				log.Printf("unknown target URI: %s", level2.ObjectID)
 				continue
 			}
+			linkedObjects[level2.ObjectID] = level3Resource
 			if len(level2.GetSubjectClass()) == 0 {
 				level2.SubjectClass = level2Resource.Types
 			}
@@ -368,7 +372,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) error {
 		}
 	}
 
-	return nil
+	return linkedObjects, nil
 }
 
 // AppendContext adds the referrerContext to the FragmentResource
@@ -725,15 +729,26 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 
 	// create the resource map
 	for _, fr := range fg.Resources {
+		log.Printf("%#v", fr.ID)
 		rm.resources[fr.ID] = fr
 	}
 
+	// inlining check
+
 	// set the inlines
 	for _, fr := range fg.Resources {
+	Loop:
 		for _, entry := range fr.Entries {
 			if entry.ID != "" && fr.ID != entry.ID {
+
 				target, ok := rm.GetResource(entry.ID)
 				if ok {
+					//log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
+					for _, c := range fr.Context {
+						if target.ID == c.GetObjectID() {
+							continue Loop
+						}
+					}
 					entry.Inline = target
 				}
 			}

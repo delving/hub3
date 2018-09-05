@@ -31,7 +31,7 @@ func (fz *Fuzzer) CreateRecords(n int) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		for _, rsc := range fr.rm.ResourcesList() {
+		for _, rsc := range fr.rm.ResourcesList(nil) {
 			ld = append(ld, rsc.GenerateJSONLD())
 		}
 		graph, err := json.Marshal(ld)
