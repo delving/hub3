@@ -18,7 +18,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/go-chi/render"
 	proto "github.com/golang/protobuf/proto"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic"
 )
 
 // ReadEAD reads an ead2002 XML from a path

@@ -27,8 +27,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	w "github.com/gammazero/workerpool"
 
-	//elastic "github.com/olivere/elastic"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -676,7 +675,7 @@ func (ds DataSet) DropAll(ctx context.Context, wp *w.WorkerPool) (bool, error) {
 	}
 	err = orm.DeleteStruct(&ds)
 	if err != nil {
-		logger.Errorf("Unable to delete dataset %s from storage")
+		logger.Errorf("Unable to delete dataset %s from storage", ds.Spec)
 		return false, err
 	}
 	return ok, err

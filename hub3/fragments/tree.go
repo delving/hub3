@@ -7,7 +7,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/index"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // TreeStats holds all the information for a navigation tree for a Dataset

@@ -123,7 +123,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have date as label", func() {
 				Expect(header.GetLabel()).To(HaveLen(1))
-				Expect(header.GetLabel()).To(ContainElement("ca. 1839 new books."))
+				Expect(header.GetLabel()[0]).To(ContainSubstring("ca. 1839"))
 			})
 
 			It("should have date as label", func() {
@@ -288,7 +288,7 @@ var _ = Describe("Ead", func() {
 		//})
 
 		It("should serialize it to JSON", func() {
-			path, err := filepath.Abs("/mnt/usb1/ead-production/NL-HaNA_2.08.28.ead.xml")
+			path, err := filepath.Abs("./test_data/ead/NL-HaNA_2.08.22.ead.xml")
 			Expect(err).ToNot(HaveOccurred())
 			ead, err := ReadEAD(path)
 			Expect(err).ToNot(HaveOccurred())

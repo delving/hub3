@@ -25,8 +25,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
-	//"github.com/olivere/elastic"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic"
 
 	"github.com/parnurzeal/gorequest"
 )

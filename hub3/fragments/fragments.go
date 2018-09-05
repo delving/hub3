@@ -26,8 +26,7 @@ import (
 	"github.com/OneOfOne/xxhash"
 	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
-	//elastic "github.com/olivere/elastic"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // FragmentDocType is the ElasticSearch doctype for the Fragment

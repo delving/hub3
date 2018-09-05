@@ -8,7 +8,7 @@ import (
 
 	"github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // CSVConvertor holds all values to convert a CSV to RDF

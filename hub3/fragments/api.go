@@ -29,8 +29,8 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	proto "github.com/golang/protobuf/proto"
+	elastic "github.com/olivere/elastic"
 	"github.com/pkg/errors"
-	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults

@@ -30,28 +30,27 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
+	"github.com/olivere/elastic"
 
-	//elastic "github.com/olivere/elastic"
 	"github.com/parnurzeal/gorequest"
-	elastic "gopkg.in/olivere/elastic.v5"
 )
 
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
-	HubID         string                 `json:"hubId"`
-	OrgID         string                 `json:"orgID"`
-	Spec          string                 `json:"dataset"`
-	LocalID       string                 `json:"localID"`
-	NamedGraphURI string                 `json:"graphUri"`
-	RecordType    string                 `json:"type"`
-	Action        string                 `json:"action"`
-	ContentHash   string                 `json:"contentHash"`
-	Graph         string                 `json:"graph"`
-	RDF           string                 `json:"rdf"`
-	GraphMimeType string                 `json:"graphMimeType"`
-	SubjectType   string                 `json:"subjectType"`
-	p             *elastic.BulkProcessor `json:"p"`
-	wp            *workerpool.WorkerPool `json:"wp"`
+	HubID         string `json:"hubId"`
+	OrgID         string `json:"orgID"`
+	Spec          string `json:"dataset"`
+	LocalID       string `json:"localID"`
+	NamedGraphURI string `json:"graphUri"`
+	RecordType    string `json:"type"`
+	Action        string `json:"action"`
+	ContentHash   string `json:"contentHash"`
+	Graph         string `json:"graph"`
+	RDF           string `json:"rdf"`
+	GraphMimeType string `json:"graphMimeType"`
+	SubjectType   string `json:"subjectType"`
+	p             *elastic.BulkProcessor
+	wp            *workerpool.WorkerPool
 }
 
 // SparqlUpdate contains the elements to perform a SPARQL update query

@@ -26,8 +26,7 @@ import (
 
 	"github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/mapping"
-	//elastic "github.com/olivere/elastic"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 // CustomRetrier for configuring the retrier for the ElasticSearch client.

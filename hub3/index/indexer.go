@@ -24,8 +24,7 @@ import (
 	"time"
 
 	"github.com/delving/rapid-saas/config"
-	//elastic "github.com/olivere/elastic"
-	elastic "gopkg.in/olivere/elastic.v5"
+	elastic "github.com/olivere/elastic"
 )
 
 var (
@@ -33,6 +32,22 @@ var (
 	processor *elastic.BulkProcessor
 	once      sync.Once
 )
+
+// BulkProcessor is an interface for oliver/elastice BulkProcessor.
+type BulkProcessor interface {
+	Start(ctx context.Context) error
+	Stop() error
+	Close() error
+	Stats() elastic.BulkProcessorStats
+	Add(request BulkableRequest)
+	Flush() error
+}
+
+// BulkableRequest is a generic interface to bulkable requests.
+type BulkableRequest interface {
+	fmt.Stringer
+	Source() ([]string, error)
+}
 
 // CreateBulkProcessor creates an Elastic BulkProcessorService
 func CreateBulkProcessor(ctx context.Context) *elastic.BulkProcessor {
@@ -58,7 +73,7 @@ func CreateBulkProcessorService() *elastic.BulkProcessorService {
 
 }
 
-func beforeFn(executionID int64, requests []elastic.BulkableRequest) {
+func beforeFn(executionID int64, requests []BulkableRequest) {
 	//log.Println("starting bulk.")
 }
 

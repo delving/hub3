@@ -29,7 +29,6 @@ var _ = Describe("Webresource", func() {
 
 	c.InitConfig()
 	var tmpDir string
-	var relTmpDir string
 
 	writeFile := func(folder string, filename string, content string, mode os.FileMode) {
 		path := filepath.Join(tmpDir, folder)
@@ -49,7 +48,7 @@ var _ = Describe("Webresource", func() {
 
 		cwd, err := os.Getwd()
 		Ω(err).ShouldNot(HaveOccurred())
-		relTmpDir, err = filepath.Rel(cwd, tmpDir)
+		_, err = filepath.Rel(cwd, tmpDir)
 		Ω(err).ShouldNot(HaveOccurred())
 
 		//go files in the root directory (no tests)

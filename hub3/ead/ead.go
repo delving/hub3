@@ -13,7 +13,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
-	elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic"
 )
 
 const pathSep string = "~"
