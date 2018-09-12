@@ -14,42 +14,36 @@
 
 package fragments
 
-import (
-	"testing"
+//func TestObjectTypeConversions(t *testing.T) {
+//gt := g.NewGomegaWithT(t)
+//for s, i := range ObjectXSDType_value {
+//var ok bool
+//origInt, ok := ObjectXSDType_value[s]
+//gt.Expect(ok).To(g.BeTrue())
+//gt.Expect(origInt).To(g.Equal(i))
 
-	g "github.com/onsi/gomega"
-)
+//ot, ok := int2ObjectXSDType[i]
+//gt.Expect(ok).To(g.BeTrue())
+//gt.Expect(ot).ToNot(g.BeNil())
 
-func TestObjectTypeConversions(t *testing.T) {
-	gt := g.NewGomegaWithT(t)
-	for s, i := range ObjectXSDType_value {
-		var ok bool
-		origInt, ok := ObjectXSDType_value[s]
-		gt.Expect(ok).To(g.BeTrue())
-		gt.Expect(origInt).To(g.Equal(i))
+//label, err := ot.GetLabel()
+//gt.Expect(err).ToNot(g.HaveOccurred())
+//gt.Expect(label).ToNot(g.BeEmpty())
+//gt.Expect(label).To(g.HavePrefix("%s", "http://www.w3.org/2001/XMLSchema#"))
 
-		ot, ok := int2ObjectXSDType[i]
-		gt.Expect(ok).To(g.BeTrue())
-		gt.Expect(ot).ToNot(g.BeNil())
+//rawLabel, ok := objectXSDType2XSDLabel[i]
+//gt.Expect(ok).To(g.BeTrue())
+//gt.Expect(rawLabel).ToNot(g.BeNil())
+//gt.Expect(rawLabel).To(g.Equal(label))
 
-		label, err := ot.GetLabel()
-		gt.Expect(err).ToNot(g.HaveOccurred())
-		gt.Expect(label).ToNot(g.BeEmpty())
-		gt.Expect(label).To(g.HavePrefix("%s", "http://www.w3.org/2001/XMLSchema#"))
+//ot2, err := GetObjectXSDType(label)
+//gt.Expect(err).ToNot(g.HaveOccurred())
+//gt.Expect(ot2).ToNot(g.BeNil())
+//gt.Expect(ot).To(g.Equal(ot2))
 
-		rawLabel, ok := objectXSDType2XSDLabel[i]
-		gt.Expect(ok).To(g.BeTrue())
-		gt.Expect(rawLabel).ToNot(g.BeNil())
-		gt.Expect(rawLabel).To(g.Equal(label))
-
-		ot2, err := GetObjectXSDType(label)
-		gt.Expect(err).ToNot(g.HaveOccurred())
-		gt.Expect(ot2).ToNot(g.BeNil())
-		gt.Expect(ot).To(g.Equal(ot2))
-
-		s2, ok := ObjectXSDType_name[int32(ot2)]
-		gt.Expect(ok).To(g.BeTrue())
-		gt.Expect(s2).ToNot(g.BeNil())
-		gt.Expect(s).To(g.Equal(s))
-	}
-}
+//s2, ok := ObjectXSDType_name[int32(ot2)]
+//gt.Expect(ok).To(g.BeTrue())
+//gt.Expect(s2).ToNot(g.BeNil())
+//gt.Expect(s).To(g.Equal(s))
+//}
+//}

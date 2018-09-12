@@ -252,18 +252,18 @@ var _ = Describe("Builder", func() {
 
 			})
 
-			Context("when getting the ObjectXSDType", func() {
+			//Context("when getting the ObjectXSDType", func() {
 
-				It("should return the XSD label", func() {
+			//It("should return the XSD label", func() {
 
-				})
+			//})
 
-				It("should trim <>", func() {
-					t, err := GetObjectXSDType("<http://www.w3.org/2001/XMLSchema#date>")
-					Expect(err).ToNot(HaveOccurred())
-					Expect(t).ToNot(BeNil())
-				})
-			})
+			//It("should trim <>", func() {
+			//t, err := GetObjectXSDType("<http://www.w3.org/2001/XMLSchema#date>")
+			//Expect(err).ToNot(HaveOccurred())
+			//Expect(t).ToNot(BeNil())
+			//})
+			//})
 
 			Context("when receiving a triple with a literal object", func() {
 

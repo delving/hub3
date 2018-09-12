@@ -329,7 +329,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			bc.Value = qf.GetValue()
 			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
-	case "qf[]":
+	case "qf[]", "qf":
 		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
 		href := fmt.Sprintf("qf[]=%s", qfs)
 		bc.Href = href

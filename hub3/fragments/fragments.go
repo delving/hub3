@@ -247,45 +247,45 @@ func (f Fragment) AddTo(p *elastic.BulkProcessor) error {
 	return nil
 }
 
-// GetLabel retrieves the XSD label of the ObjectXSDType
-func (t ObjectXSDType) GetLabel() (string, error) {
-	label, ok := objectXSDType2XSDLabel[int32(t)]
-	if !ok {
-		return "", fmt.Errorf("%s has no xsd label", t.String())
-	}
-	return label, nil
-}
+//// GetLabel retrieves the XSD label of the ObjectXSDType
+//func (t ObjectXSDType) GetLabel() (string, error) {
+//label, ok := objectXSDType2XSDLabel[int32(t)]
+//if !ok {
+//return "", fmt.Errorf("%s has no xsd label", t.String())
+//}
+//return label, nil
+//}
 
-// GetPrefixLabel retrieves the XSD label of the ObjectXSDType with xsd: prefix.
-func (t ObjectXSDType) GetPrefixLabel() (string, error) {
-	label, err := t.GetLabel()
-	if err != nil {
-		return "", err
-	}
-	return strings.Replace(label, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
-}
+//// GetPrefixLabel retrieves the XSD label of the ObjectXSDType with xsd: prefix.
+//func (t ObjectXSDType) GetPrefixLabel() (string, error) {
+//label, err := t.GetLabel()
+//if err != nil {
+//return "", err
+//}
+//return strings.Replace(label, "http://www.w3.org/2001/XMLSchema#", "xsd:", 1), nil
+//}
 
-// GetObjectXSDType returns the ObjectXSDType from a valid XSD label
-func GetObjectXSDType(label string) (ObjectXSDType, error) {
-	if len(xsdLabel2ObjectXSDType) == 0 {
-		for k, v := range objectXSDType2XSDLabel {
-			xsdLabel2ObjectXSDType[v] = k
-		}
-	}
-	if strings.HasPrefix(label, "<") || strings.HasSuffix(label, ">") {
-		label = strings.TrimPrefix(label, "<")
-		label = strings.TrimSuffix(label, ">")
-	}
-	typeInt, ok := xsdLabel2ObjectXSDType[label]
-	if !ok {
-		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
-	}
-	t, ok := int2ObjectXSDType[typeInt]
-	if !ok {
-		return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
-	}
-	return t, nil
-}
+//// GetObjectXSDType returns the ObjectXSDType from a valid XSD label
+//func GetObjectXSDType(label string) (ObjectXSDType, error) {
+//if len(xsdLabel2ObjectXSDType) == 0 {
+//for k, v := range objectXSDType2XSDLabel {
+//xsdLabel2ObjectXSDType[v] = k
+//}
+//}
+//if strings.HasPrefix(label, "<") || strings.HasSuffix(label, ">") {
+//label = strings.TrimPrefix(label, "<")
+//label = strings.TrimSuffix(label, ">")
+//}
+//typeInt, ok := xsdLabel2ObjectXSDType[label]
+//if !ok {
+//return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
+//}
+//t, ok := int2ObjectXSDType[typeInt]
+//if !ok {
+//return ObjectXSDType_STRING, fmt.Errorf("xsd:label %s has no ObjectXSDType", label)
+//}
+//return t, nil
+//}
 
 // SaveDataSet creates a fragment entry for a Dataset
 func SaveDataSet(spec string, p *elastic.BulkProcessor) error {

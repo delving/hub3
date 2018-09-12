@@ -2,10 +2,12 @@
 syntax = "proto3";
 package fragments;
 
+import "hub3/fragments/api.proto";
+
 enum DataSetType {
   SINGLE = 0;
   MULTIPLE = 1;
-  QUERY = 2;
+  BYQUERY= 2;
 }
 
 enum ResultType {
@@ -25,7 +27,7 @@ enum FieldType {
 }
 
 enum InlineType {
-  NONE = 0; 
+  NONE = 0;
   URI_ONLY = 4; // show row object resource URI
   LABEL = 1;
   MODAL = 2;

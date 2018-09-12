@@ -18,7 +18,6 @@ import (
 	"bytes"
 	fmt "fmt"
 	"io/ioutil"
-	"log"
 	"net/url"
 
 	c "github.com/delving/rapid-saas/config"
@@ -50,19 +49,19 @@ func NSRef(uri string) r.Term {
 }
 
 // Literal is a utility function to create a RDF literal
-func Literal(value string, language string, dataType ObjectXSDType) r.Term {
-	if language != "" {
-		return r.NewLiteralWithLanguage(value, language)
-	}
-	if dataType != ObjectXSDType_STRING {
-		t, err := dataType.GetLabel()
-		if err != nil {
-			log.Println("Unable to get label for this type")
-		}
-		return r.NewLiteralWithDatatype(value, r.NewResource(t))
-	}
-	return r.NewLiteral(value)
-}
+//func Literal(value string, language string, dataType ObjectXSDType) r.Term {
+//if language != "" {
+//return r.NewLiteralWithLanguage(value, language)
+//}
+//if dataType != ObjectXSDType_STRING {
+//t, err := dataType.GetLabel()
+//if err != nil {
+//log.Println("Unable to get label for this type")
+//}
+//return r.NewLiteralWithDatatype(value, r.NewResource(t))
+//}
+//return r.NewLiteral(value)
+//}
 
 func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg := NewFragmentGraph()
@@ -166,47 +165,47 @@ var _ = Describe("Fragments", func() {
 		})
 	})
 
-	Describe("ObjectXSDType conversions", func() {
+	//Describe("ObjectXSDType conversions", func() {
 
-		Context("when converting to label", func() {
+	//Context("when converting to label", func() {
 
-			It("should return the xsd label when found", func() {
-				label, err := ObjectXSDType_BOOLEAN.GetLabel()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(label).ToNot(BeEmpty())
-				Expect(label).To(Equal("http://www.w3.org/2001/XMLSchema#boolean"))
-			})
+	//It("should return the xsd label when found", func() {
+	//label, err := ObjectXSDType_BOOLEAN.GetLabel()
+	//Expect(err).ToNot(HaveOccurred())
+	//Expect(label).ToNot(BeEmpty())
+	//Expect(label).To(Equal("http://www.w3.org/2001/XMLSchema#boolean"))
+	//})
 
-			It("should return an error when no label could be found", func() {
-				const ObjectXSDType_ERROR ObjectXSDType = 100
-				label, err := ObjectXSDType_ERROR.GetLabel()
-				Expect(err).To(HaveOccurred())
-				Expect(label).To(BeEmpty())
-			})
-		})
+	//It("should return an error when no label could be found", func() {
+	//const ObjectXSDType_ERROR ObjectXSDType = 100
+	//label, err := ObjectXSDType_ERROR.GetLabel()
+	//Expect(err).To(HaveOccurred())
+	//Expect(label).To(BeEmpty())
+	//})
+	//})
 
-		Context("when requesting a prefix label", func() {
+	//Context("when requesting a prefix label", func() {
 
-			It("should shorten the namespace to xsd", func() {
-				label, err := ObjectXSDType_BOOLEAN.GetPrefixLabel()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(label).ToNot(BeEmpty())
-				Expect(label).To(Equal("xsd:boolean"))
+	//It("should shorten the namespace to xsd", func() {
+	//label, err := ObjectXSDType_BOOLEAN.GetPrefixLabel()
+	//Expect(err).ToNot(HaveOccurred())
+	//Expect(label).ToNot(BeEmpty())
+	//Expect(label).To(Equal("xsd:boolean"))
 
-			})
-		})
+	//})
+	//})
 
-		Context("when converting from a label", func() {
+	//Context("when converting from a label", func() {
 
-			It("should return the ObjectXSDType", func() {
-				t, err := GetObjectXSDType("http://www.w3.org/2001/XMLSchema#boolean")
-				Expect(err).ToNot(HaveOccurred())
-				Expect(t).ToNot(BeNil())
-				Expect(t).To(Equal(ObjectXSDType_BOOLEAN))
-			})
-		})
+	//It("should return the ObjectXSDType", func() {
+	//t, err := GetObjectXSDType("http://www.w3.org/2001/XMLSchema#boolean")
+	//Expect(err).ToNot(HaveOccurred())
+	//Expect(t).ToNot(BeNil())
+	//Expect(t).To(Equal(ObjectXSDType_BOOLEAN))
+	//})
+	//})
 
-	})
+	//})
 
 	Describe("hasher", func() {
 
