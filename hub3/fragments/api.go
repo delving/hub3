@@ -33,6 +33,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	qfKey   = "qf"
+	qfIDKey = "qf.id"
+)
+
 // DefaultSearchRequest takes an Config Objects and sets the defaults
 func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 	sr := &SearchRequest{
@@ -99,9 +104,16 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
-		case "qf", "qf[]":
+		case qfKey, "qf[]":
 			for _, qf := range v {
-				err := sr.AddQueryFilter(qf)
+				err := sr.AddQueryFilter(qf, false)
+				if err != nil {
+					return sr, err
+				}
+			}
+		case qfIDKey, "qf.id[]":
+			for _, qf := range v {
+				err := sr.AddQueryFilter(qf, true)
 				if err != nil {
 					return sr, err
 				}
@@ -220,8 +232,8 @@ func RandSeq(n int) string {
 // FacetURIBuilder is used for creating facet filter fields
 // TODO implement pop and push for creating facets links
 type FacetURIBuilder struct {
-	query   string                             `json:"query"`
-	filters map[string]map[string]*QueryFilter `json:"filters"`
+	query   string
+	filters map[string]map[string]*QueryFilter
 }
 
 // NewFacetURIBuilder creates a builder for Facet links
@@ -266,16 +278,25 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 		fields = append(fields, fmt.Sprintf("q=%s", fub.query))
 	}
 	for f, values := range fub.filters {
-		for k := range values {
+		for k, qf := range values {
 			if f == field && k == value {
 				selected = true
 				continue
 			}
-			fields = append(fields, fmt.Sprintf("qf=%s:%s", f, k))
+			key := qfKey
+			if qf.GetID() {
+				key = qfIDKey
+			}
+			fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, f, k))
 		}
 	}
 	if !selected {
-		fields = append(fields, fmt.Sprintf("qf=%s:%s", field, value))
+		key := qfKey
+		if strings.HasSuffix(field, ".id") {
+			key = qfIDKey
+			field = strings.TrimSuffix(field, ".id")
+		}
+		fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, field, value))
 	}
 	return strings.Join(fields, "&"), selected
 }
@@ -329,9 +350,12 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			bc.Value = qf.GetValue()
 			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
-	case "qf[]", "qf":
+	case "qf[]", qfKey, qfIDKey, "qf.id[]":
+		if !strings.HasSuffix(param, "[]") {
+			param = fmt.Sprintf("%s[]", param)
+		}
 		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
-		href := fmt.Sprintf("qf[]=%s", qfs)
+		href := fmt.Sprintf("%s=%s", param, qfs)
 		bc.Href = href
 		if bcb.GetPath() != "" {
 			bc.Href = bcb.GetPath() + "&" + bc.Href
@@ -370,7 +394,11 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 		bcb.AppendBreadCrumb("query", &QueryFilter{Value: sr.GetQuery()})
 	}
 	for _, qf := range sr.GetQueryFilter() {
-		bcb.AppendBreadCrumb("qf[]", qf)
+		fieldKey := "qf[]"
+		if qf.GetID() {
+			fieldKey = "qf.id[]"
+		}
+		bcb.AppendBreadCrumb(fieldKey, qf)
 	}
 	q.BreadCrumbs = bcb.crumbs
 	return q, bcb, nil
@@ -504,7 +532,11 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 		if err != nil {
 			return nil, err
 		}
-		aggs[facetField.GetField()] = agg
+		fieldName := facetField.GetField()
+		if facetField.ById {
+			fieldName = fmt.Sprintf("%s.id", fieldName)
+		}
+		aggs[fieldName] = agg
 	}
 	return aggs, nil
 }
@@ -850,7 +882,11 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 
 	// resource.entries queries
 	labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
-	fieldQuery := elastic.NewTermQuery("resources.entries.@value.keyword", qf.Value)
+	fieldKey := "resources.entries.@value.keyword"
+	if qf.ID {
+		fieldKey = "resources.entries.@id"
+	}
+	fieldQuery := elastic.NewTermQuery(fieldKey, qf.Value)
 
 	qs := elastic.NewBoolQuery()
 	qs = qs.Must(labelQ, fieldQuery)
@@ -892,10 +928,13 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 // AddQueryFilter adds a QueryFilter to the SearchRequest
 // The raw query from the QueryString are added here. This function converts
 // this string to a QueryFilter.
-func (sr *SearchRequest) AddQueryFilter(filter string) error {
+func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	qf, err := NewQueryFilter(filter)
 	if err != nil {
 		return err
+	}
+	if id {
+		qf.ID = true
 	}
 	sr.QueryFilter = append(sr.QueryFilter, qf)
 	return nil
@@ -933,6 +972,7 @@ func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuil
 						for _, b := range value.Buckets {
 							key := fmt.Sprintf("%s", b.Key)
 							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
+
 							if isSelected && !qf.IsSelected {
 								qf.IsSelected = true
 							}
