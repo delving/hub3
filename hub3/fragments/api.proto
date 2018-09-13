@@ -60,6 +60,7 @@ message QueryFilter {
   string Value = 4;
   bool Exclude = 5;
   bool ID = 7;
+  bool Exists = 8;
   // Path is the full query path 
 }
 

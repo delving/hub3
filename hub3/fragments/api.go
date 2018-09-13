@@ -118,6 +118,14 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 					return sr, err
 				}
 			}
+		case "qf.exist", "qf.exist[]":
+			for _, qf := range v {
+				err := sr.AddFieldExistFilter(qf)
+				if err != nil {
+					return sr, err
+				}
+
+			}
 		case "facet.field":
 			for _, ff := range v {
 				facet, err := NewFacetField(ff)
@@ -283,6 +291,11 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 				selected = true
 				continue
 			}
+			if qf.GetExists() {
+				fields = append(fields, fmt.Sprintf("qf.exist[]=%s", f))
+				continue
+			}
+
 			key := qfKey
 			if qf.GetID() {
 				key = qfIDKey
@@ -364,6 +377,20 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 		bc.Display = qfs
 		bc.Field = qf.GetSearchLabel()
 		bc.Value = qf.GetValue()
+	case "qf.exist[]", "qf.exist":
+		if !strings.HasSuffix(param, "[]") {
+			param = fmt.Sprintf("%s[]", param)
+		}
+		qfs := fmt.Sprintf("%s", qf.GetSearchLabel())
+		href := fmt.Sprintf("%s=%s", param, qfs)
+		bc.Href = href
+		if bcb.GetPath() != "" {
+			bc.Href = bcb.GetPath() + "&" + bc.Href
+		}
+		bcb.hrefPath = append(bcb.hrefPath, href)
+		bc.Display = qfs
+		bc.Field = qf.GetSearchLabel()
+		//bc.Value = qf.GetValue()
 	}
 	last := bcb.GetLast()
 	if last != nil {
@@ -397,6 +424,9 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 		fieldKey := "qf[]"
 		if qf.GetID() {
 			fieldKey = "qf.id[]"
+		}
+		if qf.Exists {
+			fieldKey = "qf.exist[]"
 		}
 		bcb.AppendBreadCrumb(fieldKey, qf)
 	}
@@ -882,6 +912,12 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 
 	// resource.entries queries
 	labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
+	if qf.Exists {
+		qs := elastic.NewBoolQuery()
+		qs = qs.Must(labelQ)
+		nq := elastic.NewNestedQuery("resources.entries", qs)
+		return nq, nil
+	}
 	fieldKey := "resources.entries.@value.keyword"
 	if qf.ID {
 		fieldKey = "resources.entries.@id"
@@ -936,6 +972,17 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	if id {
 		qf.ID = true
 	}
+	sr.QueryFilter = append(sr.QueryFilter, qf)
+	return nil
+}
+
+// AddFieldExistFilter adds a query to filter on records where this fields exists.
+// This query for now works on any field level. It is not possible to specify
+// context path.
+func (sr *SearchRequest) AddFieldExistFilter(filter string) error {
+	qf := &QueryFilter{}
+	qf.Exists = true
+	qf.SearchLabel = filter
 	sr.QueryFilter = append(sr.QueryFilter, qf)
 	return nil
 }
