@@ -340,6 +340,10 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(path, filterField string, andQ
 			if err != nil {
 				return q, errors.Wrap(err, "Unable to build filter query")
 			}
+			if qf.Exclude {
+				q = q.MustNot(filterQuery)
+				continue
+			}
 			q = q.Must(filterQuery)
 		}
 	}
@@ -368,6 +372,9 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			param = fmt.Sprintf("%s[]", param)
 		}
 		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
+		if qf.Exclude {
+			qfs = fmt.Sprintf("-%s", qfs)
+		}
 		href := fmt.Sprintf("%s=%s", param, qfs)
 		bc.Href = href
 		if bcb.GetPath() != "" {
@@ -709,7 +716,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	// Add post filters
-
 	postFilter := elastic.NewBoolQuery()
 	for _, qf := range sr.QueryFilter {
 		switch qf.SearchLabel {
@@ -720,6 +726,11 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 			f, err := qf.ElasticFilter()
 			if err != nil {
 				return s, fub, err
+			}
+			if qf.Exclude {
+				// TODO: replace this with HiddenQueryFilter later
+				postFilter = postFilter.MustNot(f)
+				continue
 			}
 			postFilter = postFilter.Must(f)
 		}
@@ -835,6 +846,11 @@ func validateTypeClass(tc string) string {
 func NewQueryFilter(filter string) (*QueryFilter, error) {
 	qf := &QueryFilter{}
 
+	if strings.HasPrefix(filter, "-") {
+		qf.Exclude = true
+		filter = strings.TrimPrefix(filter, "-")
+	}
+
 	// fill empty type classes
 	filter = strings.Replace(filter, "[]", `[a]`, -1)
 
@@ -918,6 +934,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		nq := elastic.NewNestedQuery("resources.entries", qs)
 		return nq, nil
 	}
+
 	fieldKey := "resources.entries.@value.keyword"
 	if qf.ID {
 		fieldKey = "resources.entries.@id"
