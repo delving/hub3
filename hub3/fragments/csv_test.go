@@ -3,7 +3,7 @@ package fragments_test
 import (
 	"os"
 
-	"github.com/deiu/rdf2go"
+	"github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -69,6 +69,24 @@ var _ = Describe("CSV", func() {
 				uri, typeTriple := conv.CreateSubjectResource("1234")
 				Expect(uri.String()).To(Equal("<http://data.rapid.nl/resource/1234>"))
 				Expect(typeTriple.Object.String()).To(Equal(rdf2go.NewResource(conv.SubjectClass).String()))
+			})
+
+			It("should create a triple for non-empty values", func() {
+				conv := CSVConvertor{
+					//InputFile:     in,
+					Separator:      ";",
+					SubjectColumn:  "handle-uuid",
+					SubjectClass:   "http://www.europeana.eu/schemas/edm/WebResource",
+					SubjectURIBase: "http://data.rapid.nl/resource/",
+				}
+				t := conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), "not empty")
+				Expect(t).ToNot(BeNil())
+
+				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), "")
+				Expect(t).To(BeNil())
+
+				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), " ")
+				Expect(t).To(BeNil())
 			})
 
 			It("should parse a file", func() {

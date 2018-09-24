@@ -190,7 +190,10 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 				triples = append(triples, manifest)
 			}
 			p := headerMap[idx]
-			triples = append(triples, con.CreateTriple(s, p, column))
+			t := con.CreateTriple(s, p, column)
+			if t != nil {
+				triples = append(triples, t)
+			}
 			if err != nil {
 				return nil, 0, err
 			}
@@ -214,10 +217,14 @@ func (con *CSVConvertor) CreateHeader(row []string) map[int]r.Term {
 
 // CreateTriple creates a rdf2go.Triple from the CSV column
 func (con *CSVConvertor) CreateTriple(subject r.Term, predicate r.Term, column string) *r.Triple {
+	c := strings.TrimSpace(column)
+	if len(c) == 0 {
+		return nil
+	}
 	return r.NewTriple(
 		subject,
 		predicate,
-		r.NewLiteral(column),
+		r.NewLiteral(c),
 	)
 }
 
