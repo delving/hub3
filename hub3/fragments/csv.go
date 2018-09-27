@@ -152,6 +152,9 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 		triples = append(triples, sType)
 
 		for idx, column := range row {
+			if len(strings.TrimSpace(column)) == 0 {
+				continue
+			}
 
 			if con.ThumbnailColumn != "" && idx == thumbnailColumnIdx {
 				thumbnail := r.NewTriple(
