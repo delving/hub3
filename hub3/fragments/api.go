@@ -220,9 +220,11 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.Label = params.Get(p)
 		}
 	}
+
 	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
 		sr.ResponseSize = int32(1000)
 	}
+
 	return sr, nil
 }
 
@@ -545,7 +547,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		default:
 			q := elastic.NewBoolQuery()
 			for _, d := range sr.Tree.GetDepth() {
-				q = q.Should(elastic.NewMatchQuery("tree.depth", d))
+				q = q.Should(elastic.NewTermQuery("tree.depth", d))
 			}
 			query = query.Must(q)
 			sr.Tree.FillTree = true
@@ -553,7 +555,6 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if sr.Tree.GetType() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
 		}
-
 	}
 
 	return query, nil
@@ -660,6 +661,10 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		} else {
 			fieldSort = fieldSort.Desc()
 		}
+	}
+
+	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
+		sr.ResponseSize = int32(1000)
 	}
 
 	s := ec.Search().

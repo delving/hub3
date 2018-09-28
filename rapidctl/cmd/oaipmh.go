@@ -19,6 +19,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/kiivihal/goharvest/oai"
@@ -81,10 +82,32 @@ var (
 		Run: listRecords,
 	}
 
-	url     string
-	verbose bool
-	spec    string
-	prefix  string
+	// listGetRecordCmd subcommand harvest all Records to a file
+	listGetRecordCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "listget",
+		Short: "store records listed with the listIdentifiers command and store them individually",
+
+		Run: listGetRecords,
+	}
+
+	// getRecordCmd subcommand gets a single records and saves it to a file
+	getRecordCmd = &cobra.Command{
+		Hidden: false,
+
+		Use:   "record",
+		Short: "get a single record for an identifier and a MetadataPrefix",
+
+		Run: getRecord,
+	}
+
+	url        string
+	verbose    bool
+	spec       string
+	prefix     string
+	identifier string
+	outputPath string
 )
 
 func init() {
@@ -95,7 +118,14 @@ func init() {
 	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 
+	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
+	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+
+	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
+	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
+
 	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
+	oaipmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
 	oaipmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
 
 	oaipmhCmd.AddCommand(identifyCmd)
@@ -103,6 +133,9 @@ func init() {
 	oaipmhCmd.AddCommand(listMetadataFormatsCmd)
 	oaipmhCmd.AddCommand(listIdentifiersCmd)
 	oaipmhCmd.AddCommand(listRecordsCmd)
+	oaipmhCmd.AddCommand(listGetRecordCmd)
+	oaipmhCmd.AddCommand(getRecordCmd)
+
 }
 
 // Print the OAI Response object to stdout
@@ -165,16 +198,24 @@ func listMetadataFormats(ccmd *cobra.Command, args []string) {
 	})
 }
 
-// listidentifiers writes all identifiers to a file
-func listIdentifiers(ccmd *cobra.Command, args []string) {
+func getPath(fname string) string {
+	if outputPath != "" {
+		sep := string(os.PathSeparator)
+		return fmt.Sprintf("%s%s%s", strings.TrimSuffix(outputPath, sep), sep, fname)
+	}
+	return fname
+}
+
+func getIDs() []string {
 	req := (&oai.Request{
 		BaseURL:        url,
 		Verb:           "ListIdentifiers",
 		Set:            spec,
 		MetadataPrefix: prefix,
 	})
-
-	file, err := os.Create(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
+	ids := []string{}
+	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
+	file, err := os.Create(fname)
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}
@@ -186,8 +227,49 @@ func listIdentifiers(ccmd *cobra.Command, args []string) {
 			fmt.Printf("\rharvested: %d\n", seen)
 		}
 		fmt.Fprintln(file, header.Identifier)
+		ids = append(ids, header.Identifier)
 	})
+	return ids
 
+}
+
+// listidentifiers writes all identifiers to a file
+func listIdentifiers(ccmd *cobra.Command, args []string) {
+	getIDs()
+	return
+}
+
+func getRecord(ccmd *cobra.Command, args []string) {
+	storeRecord(identifier, prefix)
+}
+
+func storeRecord(identifier string, prefix string) string {
+	req := (&oai.Request{
+		BaseURL:        url,
+		Verb:           "GetRecord",
+		MetadataPrefix: prefix,
+		Identifier:     identifier,
+	})
+	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
+	if err != nil {
+		log.Fatal("Cannot create file", err)
+	}
+	var record string
+	req.Harvest(func(r *oai.Response) {
+		record = r.GetRecord.Record.Metadata.GoString()
+		fmt.Fprintln(file, record)
+	})
+	return record
+}
+
+func listGetRecords(ccmd *cobra.Command, args []string) {
+	ids := getIDs()
+	bar := pb.New(len(ids))
+	bar.Start()
+	for _, identifier := range ids {
+		storeRecord(identifier, prefix)
+		bar.Increment()
+	}
 }
 
 // listRecords writes all Records to a file
@@ -198,7 +280,7 @@ func listRecords(ccmd *cobra.Command, args []string) {
 		Set:            spec,
 		MetadataPrefix: prefix,
 	})
-	file, err := os.Create(fmt.Sprintf("%s_%s_records.xml", spec, prefix))
+	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_records.xml", spec, prefix)))
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}

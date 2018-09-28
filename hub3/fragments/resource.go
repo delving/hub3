@@ -77,7 +77,7 @@ type Tree struct {
 	ChildCount  int     `json:"childCount"`
 	Depth       int     `json:"depth"`
 	HasChildren bool    `json:"hasChildren"`
-	Inline      []*Tree `json:"inline",omitempty"`
+	Inline      []*Tree `json:"inline,omitempty"`
 }
 
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
@@ -103,6 +103,7 @@ func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
 func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
 	rootNodes := []*Tree{}
 	nodeMap := make(map[string]*Tree)
+
 	for _, n := range nodes {
 		if n.Depth == 1 {
 			rootNodes = append(rootNodes, n)
