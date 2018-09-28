@@ -268,6 +268,34 @@ type Cc01 struct {
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 }
 
+type Cc struct {
+	XMLName         xml.Name         `xml:"c,omitempty" json:"c,omitempty"`
+	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Cc              []*Cc            `xml:"c,omitempty" json:"c,omitempty"`
+	Ccustodhist     *Ccustodhist     `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
+	Cdid            []*Cdid          `xml:"did,omitempty" json:"did,omitempty"`
+	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
+	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
+	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+}
+
+func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
+func (c Cc) GetAttrlevel() string                 { return c.Attrlevel }
+func (c Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
+func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc) GetNested() []CLevel                  { return c.Nested() }
+func (c Cc) Nested() []CLevel {
+	levels := make([]CLevel, len(c.Cc))
+	for i, v := range c.Cc {
+		levels[i] = CLevel(v)
+	}
+	return levels
+}
+
 type CLevel interface {
 	GetXMLName() xml.Name
 	GetAttrlevel() string
@@ -846,6 +874,7 @@ type Cdsc struct {
 	XMLName  xml.Name `xml:"dsc,omitempty" json:"dsc,omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	Nested   []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"`
+	Cc       []*Cc    `xml:"c,omitempty" json:"c,omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 }
 

@@ -117,6 +117,14 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		}
 		nl.Nodes = append(nl.Nodes, node)
 	}
+
+	for idx, nn := range dsc.Cc {
+		node, err := NewNode(nn, []string{}, idx, cfg)
+		if err != nil {
+			return nil, 0, err
+		}
+		nl.Nodes = append(nl.Nodes, node)
+	}
 	return nl, cfg.Counter.GetCount(), nil
 }
 

@@ -303,6 +303,7 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 	}
 	fb, err := action.createFragmentBuilder(response.SpecRevision)
 	if err != nil {
+		log.Printf("Unable to build fragmentBuilder: %v", err)
 		return err
 	}
 	// get remote webresources

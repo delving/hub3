@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 
@@ -250,7 +251,7 @@ var _ = Describe("Ead", func() {
 			ead, err := ReadEAD(path)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ead).ToNot(BeNil())
-			//fmt.Printf("%#v\n", ead.ArchDesc.DSC.Value)
+			fmt.Printf("%#v\n", ead.Ceadheader.Ceadid.EadID)
 			//fmt.Printf("%s\n", ead.String())
 			//fmt.Printf("%s\n", ead.ToXML())
 		})
