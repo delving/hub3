@@ -154,11 +154,6 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 
 func eadUpload(w http.ResponseWriter, r *http.Request) {
 	spec := r.FormValue("spec")
-	if spec == "" {
-		render.PlainText(w, r, "spec param is required")
-		render.Status(r, http.StatusBadRequest)
-		return
-	}
 
 	_, err := ead.ProcessUpload(r, w, spec, bp)
 	if err != nil {

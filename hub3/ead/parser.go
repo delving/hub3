@@ -39,21 +39,8 @@ func eadParse(src []byte) (*Cead, error) {
 
 func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elastic.BulkProcessor) (uint64, error) {
 
-	ds, _, err := models.GetOrCreateDataSet(spec)
-	if err != nil {
-		log.Printf("Unable to get DataSet for %s\n", spec)
-		return uint64(0), err
-	}
-
-	ds, err = ds.IncrementRevision()
-	if err != nil {
-		log.Printf("Unable to increment %s\n", spec)
-		return uint64(0), err
-	}
-	basePath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s", spec))
-	f, err := os.Create(basePath + ".xml")
+	f, err := ioutil.TempFile(c.Config.EAD.CacheDir, "*")
 	defer f.Close()
-
 	if err != nil {
 		log.Printf("Unable to create output file %s; %s", spec, err)
 		return uint64(0), err
@@ -75,6 +62,26 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	cead, err := eadParse(buf.Bytes())
 	if err != nil {
 		log.Printf("Error during parsing; %s", err)
+		return uint64(0), err
+	}
+
+	if spec == "" {
+		spec = cead.Ceadheader.Ceadid.EadID
+	}
+
+	f.Close()
+	basePath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s", spec))
+	os.Rename(f.Name(), fmt.Sprintf("%s.xml", basePath))
+
+	ds, _, err := models.GetOrCreateDataSet(spec)
+	if err != nil {
+		log.Printf("Unable to get DataSet for %s\n", spec)
+		return uint64(0), err
+	}
+
+	ds, err = ds.IncrementRevision()
+	if err != nil {
+		log.Printf("Unable to increment %s\n", spec)
 		return uint64(0), err
 	}
 
