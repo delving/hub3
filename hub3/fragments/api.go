@@ -647,6 +647,8 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	var fieldSort *elastic.FieldSort
 
 	switch {
+	case sr.Tree != nil && sr.GetSortBy() == "":
+		fieldSort = elastic.NewFieldSort("tree.cLevel")
 	case strings.HasPrefix(sr.GetSortBy(), "random"), sr.GetSortBy() == "":
 		fieldSort = elastic.NewFieldSort("_score")
 	case strings.HasPrefix(sr.GetSortBy(), "tree."):
