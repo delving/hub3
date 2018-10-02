@@ -437,8 +437,10 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 		return rm, fmt.Errorf("The graph cannot be empty")
 	}
 
+	seen := 0
 	for t := range g.IterTriples() {
-		err := rm.AppendTriple(t, false)
+		seen++
+		err := rm.AppendOrderedTriple(t, false, seen)
 		if err != nil {
 			return rm, err
 		}
@@ -463,6 +465,8 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	if len(objectIDs) == 0 {
 		return nil
 	}
+	//log.Printf("IDs to be resolved: %#v", objectIDs)
+
 	req := NewFragmentRequest()
 	req.Subject = objectIDs
 	req.ExcludeHubID = excludeHubID
@@ -473,6 +477,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	}
 	for _, f := range frags {
 		t := f.CreateTriple()
+		//log.Printf("resolved triple: %#v", t)
 		err = rm.AppendTriple(t, true)
 		if err != nil {
 			return err

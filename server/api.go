@@ -612,7 +612,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to list fragments because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprint("No fragmenst for query were found."),
+			Message:    fmt.Sprint("No fragments for query were found."),
 			Error:      err,
 		})
 		return

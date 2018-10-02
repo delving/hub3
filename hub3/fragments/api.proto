@@ -316,6 +316,7 @@ message FragmentRequest {
   string echo = 9;
   string lodKey = 10;
   string excludeHubID = 11;
+  string hubID = 12;
 }
 
 /*enum ObjectType {*/

@@ -98,6 +98,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Graph = v[0]
 		case "exclude":
 			fr.ExcludeHubID = v[0]
+		case "hubid":
+			fr.HubID = v[0]
 		case "page":
 			page, err := strconv.ParseInt(v[0], 10, 32)
 			if err != nil {
@@ -151,6 +153,11 @@ func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	// support for exclude hubID
 	if fr.ExcludeHubID != "" {
 		key := fmt.Sprintf("-%s", fr.ExcludeHubID)
+		buildQueryClause(q, "meta.hubID", key)
+	}
+
+	if fr.HubID != "" {
+		key := fmt.Sprintf("%s", fr.HubID)
 		buildQueryClause(q, "meta.hubID", key)
 	}
 

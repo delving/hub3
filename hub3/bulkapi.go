@@ -125,6 +125,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 	for scanner.Scan() {
 		line = scanner.Bytes()
 		var action BulkAction
+		//log.Printf("bulkAction: \n %s\n", line)
 		err := json.Unmarshal(line, &action)
 		if err != nil {
 			response.JSONErrors++
@@ -313,11 +314,12 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 			return err
 		}
 	}
-	// cleanup the graph and sort rdf webresources
-	fb.GetSortedWebResources()
 
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {
+		// cleanup the graph and sort rdf webresources
+		fb.GetSortedWebResources()
+
 		indexDoc, err := fragments.CreateV1IndexDoc(fb)
 		if err != nil {
 			log.Printf("Unable to create index doc: %s", err)
