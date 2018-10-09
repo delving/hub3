@@ -161,7 +161,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 			return response, errs[0]
 		}
 	}
-	log.Printf("%#v", response)
+	//log.Printf("%#v", response)
 	return response, nil
 
 }

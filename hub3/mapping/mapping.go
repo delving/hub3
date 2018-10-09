@@ -185,6 +185,7 @@ var V1ESMapping = `
                 },
                 "date_detection": "false",
                 "properties": {
+					"full_text": {"type": "text"},
                     "id": {"type": "integer"},
                     "absolute_url": {"type": "keyword"},
                     "point": { "type": "geo_point" },
@@ -230,7 +231,10 @@ var V1ESMapping = `
                     {"uri": { "match": "id", "mapping": { "type": "keyword" } }},
                     {"point": { "match": "point", "mapping": { "type": "geo_point" }}},
                     {"geo_hash": { "match": "delving_geohash", "mapping": { "type": "geo_point" } }},
-                    {"value": { "match": "value", "mapping": { "type": "text" } }},
+                    {"value": {
+						"match": "value",
+						"mapping": { "type": "text" }
+					}},
                     {"raw": {
 						"match": "raw",
 						"mapping": {"type": "keyword", "ignore_above": 1024}
