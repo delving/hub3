@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
@@ -19,6 +20,7 @@ import (
 	"github.com/go-chi/render"
 	proto "github.com/golang/protobuf/proto"
 	"github.com/olivere/elastic"
+	"github.com/pkg/errors"
 )
 
 // ReadEAD reads an ead2002 XML from a path
@@ -83,6 +85,17 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	if err != nil {
 		log.Printf("Unable to increment %s\n", spec)
 		return uint64(0), err
+	}
+
+	// set basics for ead
+	ds.Label = cead.Ceadheader.GetTitle()
+	// TODO enable again for born digital as well
+	//ds.Owner = cead.Ceadheader.GetOwner()
+	//ds.Abstract = cead.Carchdesc.GetAbstract()
+	ds.Period = cead.Carchdesc.GetPeriods()
+	err = ds.Save()
+	if err != nil {
+		return uint64(0), errors.Wrapf(err, "Unable to save dataset")
 	}
 
 	cfg := NewNodeConfig(context.Background())
@@ -186,10 +199,18 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 ///////////////////////////
 
 type Cabstract struct {
-	XMLName   xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
-	Attrlabel string   `xml:"label,attr"  json:",omitempty"`
-	Clb       []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
-	Abstract  string   `xml:",chardata" json:",omitempty"`
+	XMLName     xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
+	Attrlabel   string   `xml:"label,attr"  json:",omitempty"`
+	Clb         []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
+	RawAbstract []byte   `xml:",innerxml" json:",omitempty"`
+}
+
+// Abstract returns the Abstract split on EAD '<lb/>', i.e. line-break
+func (ca Cabstract) Abstract() []string {
+	return strings.Split(
+		fmt.Sprintf("%s", ca.RawAbstract),
+		"<lb/>",
+	)
 }
 
 type Caccessrestrict struct {
@@ -865,6 +886,7 @@ type Cdescrules struct {
 type Cdid struct {
 	XMLName       xml.Name       `xml:"did,omitempty" json:"did,omitempty"`
 	Cabstract     *Cabstract     `xml:"abstract,omitempty" json:"abstract,omitempty"`
+	Cdao          *Cdao          `xml:"dao,omitempty" json:"dao,omitempty"`
 	Chead         []*Chead       `xml:"head,omitempty" json:"head,omitempty"`
 	Clangmaterial *Clangmaterial `xml:"langmaterial,omitempty" json:"langmaterial,omitempty"`
 	Cmaterialspec *Cmaterialspec `xml:"materialspec,omitempty" json:"materialspec,omitempty"`
@@ -875,6 +897,16 @@ type Cdid struct {
 	Cunitdate     []*Cunitdate   `xml:"unitdate,omitempty" json:"unitdate,omitempty"`
 	Cunitid       []*Cunitid     `xml:"unitid,omitempty" json:"unitid,omitempty"`
 	Cunittitle    []*Cunittitle  `xml:"unittitle,omitempty" json:"unittitle,omitempty"`
+}
+
+type Cdao struct {
+	XMLName      xml.Name `xml:"dao,omitempty" json:"dao,omitempty"`
+	Attractuate  string   `xml:"actuate,attr"  json:",omitempty"`
+	Attraudience string   `xml:"audience,attr"  json:",omitempty"`
+	Attrhref     string   `xml:"href,attr"  json:",omitempty"`
+	Attrlinktype string   `xml:"linktype,attr"  json:",omitempty"`
+	Attrrole     string   `xml:"role,attr"  json:",omitempty"`
+	Attrshow     string   `xml:"show,attr"  json:",omitempty"`
 }
 
 type Cdsc struct {
@@ -904,6 +936,26 @@ type Ceadheader struct {
 	Cfiledesc              *Cfiledesc     `xml:"filedesc,omitempty" json:"filedesc,omitempty"`
 	Cprofiledesc           *Cprofiledesc  `xml:"profiledesc,omitempty" json:"profiledesc,omitempty"`
 	Crevisiondesc          *Crevisiondesc `xml:"revisiondesc,omitempty" json:"revisiondesc,omitempty"`
+}
+
+func (eh Ceadheader) GetTitle() string {
+	return eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper
+}
+
+func (eh Ceadheader) GetOwner() string {
+	return eh.Cfiledesc.Cpublicationstmt.Cpublisher.Publisher
+}
+
+func (ad Carchdesc) GetAbstract() []string {
+	return ad.Cdid.Cabstract.Abstract()
+}
+
+func (ad Carchdesc) GetPeriods() []string {
+	dates := []string{}
+	for _, date := range ad.Cdid.Cunitdate {
+		dates = append(dates, date.Date)
+	}
+	return dates
 }
 
 type Ceadid struct {
@@ -1185,7 +1237,12 @@ type Cunittitle struct {
 	Attrlabel string       `xml:"label,attr"  json:",omitempty"`
 	Attrtype  string       `xml:"type,attr"  json:",omitempty"`
 	Cunitdate []*Cunitdate `xml:"unitdate,omitempty" json:"unitdate,omitempty"`
-	Title     string       `xml:",chardata" json:",omitempty"`
+	RawTitle  []byte       `xml:",innerxml" json:",omitempty"`
+}
+
+func (ut Cunittitle) Title() string {
+	// TODO abb bluemonday cleaning of XML
+	return strings.TrimSpace(fmt.Sprintf("%s", ut.RawTitle))
 }
 
 type Cuserestrict struct {

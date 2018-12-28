@@ -68,16 +68,18 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf        string  `json:"leaf,omitempty"`
-	Parent      string  `json:"parent,omitempty"`
-	Label       string  `json:"label"`
-	CLevel      string  `json:"cLevel"`
-	Type        string  `json:"type"`
-	HubID       string  `json:"hubID"`
-	ChildCount  int     `json:"childCount"`
-	Depth       int     `json:"depth"`
-	HasChildren bool    `json:"hasChildren"`
-	Inline      []*Tree `json:"inline,omitempty"`
+	Leaf             string  `json:"leaf,omitempty"`
+	Parent           string  `json:"parent,omitempty"`
+	Label            string  `json:"label"`
+	CLevel           string  `json:"cLevel"`
+	Type             string  `json:"type"`
+	HubID            string  `json:"hubID"`
+	ChildCount       int     `json:"childCount"`
+	Depth            int     `json:"depth"`
+	HasChildren      bool    `json:"hasChildren"`
+	HasDigitalObject string  `json:"hasDigitalObject"`
+	DaoLink          string  `json:"daoLink,omitempty"`
+	Inline           []*Tree `json:"inline,omitempty"`
 }
 
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {

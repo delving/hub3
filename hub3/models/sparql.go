@@ -151,7 +151,7 @@ func UpdateViaSparql(update string) []error {
 		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
 		End()
 	if errs != nil {
-		log.Fatal(errs)
+		log.Fatalf("errors for query %s: %#v", postURL, errs)
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		log.Println(body)

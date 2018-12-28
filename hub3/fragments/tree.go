@@ -20,6 +20,15 @@ type TreeStats struct {
 	PhysDesc []StatCounter
 }
 
+// TreeDescription describes the meta-information for an Archival Finding Aid tree
+type TreeDescription struct {
+	Name        string   `json:"name"`
+	InventoryID string   `json:"inventoryID"`
+	Abstract    []string `json:"abstract"`
+	Owner       string   `json:"owner"`
+	Period      []string `json:"period"`
+}
+
 // StatCounter holds value counters for statistics overviews
 type StatCounter struct {
 	Value    string `json:"value"`

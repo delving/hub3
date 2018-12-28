@@ -62,7 +62,9 @@ var ESMapping = `{
 						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
 						"parent": {"type": "keyword"},
-						"leaf": {"type": "keyword"}
+						"leaf": {"type": "keyword"},
+						"daoLink": {"type": "keyword"},
+						"hasDigitalObject": {"type": "keyword"}
 					}
 				},
 				"subject": {"type": "keyword"},

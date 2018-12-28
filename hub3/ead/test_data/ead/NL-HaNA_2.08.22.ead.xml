@@ -266,7 +266,7 @@ De belangrijkste taken van de Agent op het beleidsterrein waren:<list mark="bull
         <c02 level="file">
           <did>
             <unitid identifier="1310978" type="ABS">8</unitid>
-            <unitid audience="internal" type="handle">http://proxy.handle.net/10648/f181c51c-95b7-4dc1-834a-be50fac778ca</unitid>
+            <unitid audience="internal" type="haministeriendle">http://proxy.handle.net/10648/f181c51c-95b7-4dc1-834a-be50fac778ca</unitid>
             <unittitle>Agenda,</unittitle>
             <unitdate calendar="gregorian" era="ce" normal="1841">1841</unitdate>
           </did>

@@ -250,6 +250,9 @@ func (con *CSVConvertor) CreateSubjectResource(subjectID string) (r.Term, *r.Tri
 // GetReader returns a nested array of strings
 func (con *CSVConvertor) GetReader() ([][]string, error) {
 	r := csv.NewReader(con.InputFile)
+	if con.Separator == "" {
+		return nil, fmt.Errorf("Separator cannot be empty")
+	}
 	r.Comma = []rune(con.Separator)[0]
 	r.Comment = '#'
 

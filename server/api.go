@@ -424,6 +424,12 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.ManifestURIBase = r.FormValue("manifestURIBase")
 	conv.ManifestLocale = r.FormValue("manifestLocale")
 
+	if conv.Separator == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, "Separator is a required field. When ';' is the separator you can escape it as '%3B'")
+		return
+	}
+
 	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", conv.DefaultSpec)
@@ -967,6 +973,31 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		searchRequest.Tree.Spec = spec
 	}
 	processSearchRequest(w, r, searchRequest)
+	return
+}
+
+func treeDescription(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	ds, err := models.GetDataSet(spec)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintln("archive not found"),
+			Error:      nil,
+		})
+		return
+	}
+
+	desc := &fragments.TreeDescription{}
+	desc.Name = ds.Label
+	desc.Abstract = ds.Abstract
+	desc.InventoryID = ds.Spec
+	desc.Owner = ds.Owner
+	desc.Period = ds.Period
+
+	render.JSON(w, r, desc)
+
 	return
 }
 
