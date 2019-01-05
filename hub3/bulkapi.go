@@ -326,7 +326,7 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		// add to posthook worker from v1
 		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
 		g := fb.SortedGraph
-		ph := models.NewPostHookJob(g, action.Spec, false, subject)
+		ph := models.NewPostHookJob(g, action.Spec, false, subject, action.HubID)
 		if ph.Valid() {
 			action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
