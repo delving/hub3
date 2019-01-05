@@ -248,25 +248,6 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	return s
 }
 
-//'slug': self.hub_id,
-//'spec': self.get_spec_name(),
-//'thumbnail': thumbnail if thumbnail else "",
-//'preview': "detail/foldout/{}/{}".format(doc_type, self.hub_id),
-//'caption': bindings.get_about_caption if bindings.get_about_caption else "",
-//'about_uri': self.source_uri,
-//'source_uri': self.source_uri,
-//'graph_name': self.named_graph,
-//'created_at': datetime.now().isoformat(),
-//'modified_at': datetime.now().isoformat(),
-//'source_graph': self.rdf_string(),
-//'proxy_resource_graph': None,
-//'web_resource_graph': None,
-//'content_hash': content_hash,
-//'hasGeoHash': "true" if bindings.has_geo() else ""false"",
-//'hasDigitalObject': "true" if thumbnail else ""false"",
-//'hasLandingePage': "true" if 'edm_isShownAt' in index_doc else ""false"",
-//'hasDeepZoom': "true" if 'nave_deepZoom' in index_doc else ""false"",
-
 // NewGraphFromTurtle creates a RDF graph from the 'text/turtle' format
 func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 	g := r.NewGraph("")
@@ -569,7 +550,6 @@ func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *SortedGraph) {
 	isShownBy := fb.GetObject(wr, GetNaveField("thumbLarge"))
 	if isShownBy == nil {
-		//ld, _ := g.GenerateJSONLD()
 		log.Printf("should find thumbLarge: %s, %s \n %s", wr.String(), s.String(), "")
 	}
 	if isShownBy != nil {
@@ -694,10 +674,6 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		if err != nil {
 			return indexDoc, err
 		}
-		if fieldsContains(fields, entry) {
-			fb.SortedGraph.Remove(t)
-			continue
-		}
 		indexDoc[searchLabel] = append(fields, entry)
 	}
 	indexDoc["delving_spec"] = IndexEntry{
@@ -713,11 +689,6 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	indexDoc["system"] = NewSystem(indexDoc, fb)
 	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
 
-	//_, ok := indexDoc["edm_isShownBy"]
-	//if !ok {
-	//log.Printf("indexdoc: %#v", indexDoc["system"])
-	//time.Sleep(10 * time.Second)
-	//}
 	return indexDoc, nil
 }
 
