@@ -307,13 +307,6 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		log.Printf("Unable to build fragmentBuilder: %v", err)
 		return err
 	}
-	// get remote webresources
-	if c.Config.WebResource.ResolveRemoteWebResources {
-		err = fb.ResolveWebResources()
-		if err != nil {
-			return err
-		}
-	}
 
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {

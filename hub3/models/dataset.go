@@ -556,7 +556,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
 
 	go func() {
-		// block for 2 seconds to allow cluster to be in sync
+		// block for 15 seconds to allow cluster to be in sync
 		timer := time.NewTimer(time.Second * 15)
 		<-timer.C
 		log.Print("Orphan wait timer expired")
