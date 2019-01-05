@@ -1,4 +1,3 @@
-// Copyright © 2017 Delving B.V. <info@delving.eu>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,22 +72,47 @@ func (sg *SortedGraph) Remove(t *r.Triple) {
 	sg.triples = triples
 }
 
+func containsString(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
 // GenerateJSONLD creates a interfaggce based model of the RDF Graph.
 // This can be used to create various JSON-LD output formats, e.g.
 // expand, flatten, compacted, etc.
-func (g *SortedGraph) GenerateJSONLD() ([]map[string]interface{}, error) {
+func (sg *SortedGraph) GenerateJSONLD() ([]map[string]interface{}, error) {
 	m := map[string]*r.LdEntry{}
 	entries := []map[string]interface{}{}
+	orderedSubjects := []string{}
 
-	for _, t := range g.triples {
+	for _, t := range sg.triples {
+		s := t.GetSubjectID()
+		if !containsString(orderedSubjects, s) {
+			orderedSubjects = append(orderedSubjects, s)
+		}
 		err := r.AppendTriple(m, t)
 		if err != nil {
 			return entries, err
 		}
 	}
-	for _, v := range m {
-		entries = append(entries, v.AsEntry())
+
+	//log.Printf("subjects: %#v", orderedSubjects)
+	// this most be sorted
+	for _, v := range orderedSubjects {
+		//log.Printf("v range: %s", v)
+		ldEntry, ok := m[v]
+		if ok {
+			//log.Printf("ldentry: %#v", ldEntry.AsEntry())
+			entries = append(entries, ldEntry.AsEntry())
+		}
 	}
+
+	//log.Printf("graph: \n%#v", entries)
+
 	return entries, nil
 }
 
@@ -329,9 +353,28 @@ func (fb *FragmentBuilder) ResolveWebResources() error {
 	return nil
 }
 
+type WebTriples struct {
+	triples map[string][]*r.Triple
+}
+
+func NewWebTriples() *WebTriples {
+	return &WebTriples{triples: make(map[string][]*r.Triple)}
+}
+
+func (wt *WebTriples) Append(s string, t *r.Triple) {
+	wto, ok := wt.triples[s]
+	if !ok {
+		wt.triples[s] = []*r.Triple{t}
+		return
+	}
+	wt.triples[s] = append(wto, t)
+	return
+}
+
 // CleanWebResourceGraph remove mapped webresources when urns are used for WebResource Subjects
-func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, map[string]ResourceSortOrder, []r.Term) {
+func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, map[string]ResourceSortOrder, []r.Term, *WebTriples) {
 	resources := make(map[string]ResourceSortOrder)
+	webTriples := NewWebTriples()
 	aggregates := []r.Term{}
 
 	cleanGraph := &SortedGraph{}
@@ -362,16 +405,12 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, ma
 				Key:   s,
 				Value: order,
 			}
-			//cleanGraph.Add(triple)
 			continue
 		case r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type").String():
 			o := triple.Object.String()
 			if o == GetEDMField("WebResource").String() {
 				if !strings.HasSuffix(s, "__>") {
-					cleanGraph.Add(triple)
-					//if hasUrns {
-					//continue
-					//}
+					webTriples.Append(s, triple)
 					_, ok := resources[s]
 					if !ok {
 						resources[s] = ResourceSortOrder{
@@ -394,24 +433,24 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, ma
 			if hasUrns && subjectIsBNode {
 				continue
 			}
-			cleanGraph.Add(triple)
+			webTriples.Append(s, triple)
 		case GetNaveField("thumbSmall").String(), GetNaveField("thumbnail").String(), GetNaveField("thumbLarge").String():
 			if hasUrns && subjectIsBNode {
 				continue
 			}
-			cleanGraph.Add(triple)
+			webTriples.Append(s, triple)
 		case GetNaveField("deepZoomUrl").String():
 			if hasUrns && subjectIsBNode {
 				continue
 			}
-			cleanGraph.Add(triple)
+			webTriples.Append(s, triple)
 		default:
 			cleanGraph.Add(triple)
 		}
 
 	}
 
-	return cleanGraph, resources, aggregates
+	return cleanGraph, resources, aggregates, webTriples
 }
 
 // GetSortedWebResources returns a list of subjects sorted by nave:resourceSortOrder.
@@ -430,7 +469,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 		}
 	}
 
-	cleanGraph, resources, aggregates := fb.CleanWebResourceGraph(hasUrns)
+	cleanGraph, resources, aggregates, webTriples := fb.CleanWebResourceGraph(hasUrns)
 
 	var ss []ResourceSortOrder
 	for _, v := range resources {
@@ -471,9 +510,15 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 
 			sortOrder := r.NewTriple(
 				r.NewResource(s.CleanKey()),
-				GetEDMField("resourceSortOrder"),
+				GetNaveField("resourceSortOrder"),
 				r.NewLiteral(fmt.Sprintf("%d", s.Value)),
 			)
+			wt, ok := webTriples.triples[s.Key]
+			if ok {
+				for _, t := range wt {
+					cleanGraph.Add(t)
+				}
+			}
 
 			//log.Printf("sortOrder: %#v", s)
 			//log.Printf("sort triple: %#v", sortOrder.String())
