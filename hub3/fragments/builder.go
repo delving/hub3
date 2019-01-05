@@ -24,6 +24,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 // FragmentBuilder holds all the information to build and store Fragments
@@ -33,6 +34,7 @@ type FragmentBuilder struct {
 	SortedGraph    *SortedGraph
 	ResourceLabels map[string]string
 	resources      *ResourceMap
+	sanitizer      *bluemonday.Policy
 }
 
 // ResourcesList returns a list of FragmentResource
@@ -70,6 +72,7 @@ func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 		fg:             fg,
 		Graph:          r.NewGraph(""),
 		ResourceLabels: map[string]string{},
+		sanitizer:      bluemonday.UGCPolicy(),
 	}
 }
 

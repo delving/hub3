@@ -719,6 +719,10 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 		if len(value) > 32765 {
 			value = value[:32000]
 		}
+
+		// protect against XSS attacks in literals
+		value = fb.sanitizer.Sanitize(value)
+
 		ie.Value = value
 		ie.Raw = value
 		if len(ie.Raw) > 256 {

@@ -44,7 +44,7 @@ func NewPostHookJob(sg *fragments.SortedGraph, spec string, delete bool, subject
 }
 
 func (ph *PostHookJob) addNarthexDefaults(hubID string) {
-	log.Printf("adding defaults for %s", ph.Subject)
+	//log.Printf("adding defaults for %s", ph.Subject)
 	parts := strings.Split(hubID, "_")
 	localID := parts[2]
 	s := r.NewResource(ph.Subject + "/about")
