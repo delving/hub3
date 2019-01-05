@@ -30,6 +30,7 @@ import (
 type FragmentBuilder struct {
 	fg             *FragmentGraph
 	Graph          *r.Graph
+	SortedGraph    *SortedGraph
 	ResourceLabels map[string]string
 	resources      *ResourceMap
 }

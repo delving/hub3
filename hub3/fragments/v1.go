@@ -15,12 +15,15 @@
 package fragments
 
 import (
+	"bytes"
+	"encoding/json"
 	fmt "fmt"
 	"io"
 	"log"
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
@@ -37,6 +40,78 @@ var request *gorequest.SuperAgent
 
 func init() {
 	request = gorequest.New()
+}
+
+type SortedGraph struct {
+	triples []*r.Triple
+	lock    sync.Mutex
+}
+
+// AddTriple add triple to the list of triples in the sortedGraph.
+// Note: there is not deduplication
+func (sg *SortedGraph) Add(t *r.Triple) {
+	sg.triples = append(sg.triples, t)
+}
+
+func (sg *SortedGraph) Triples() []*r.Triple {
+	return sg.triples
+}
+
+// AddTriple is used to add a triple made of individual S, P, O objects
+func (sg *SortedGraph) AddTriple(s r.Term, p r.Term, o r.Term) {
+	sg.triples = append(sg.triples, r.NewTriple(s, p, o))
+}
+
+// Remove removes a triples from the SortedGraph
+func (sg *SortedGraph) Remove(t *r.Triple) {
+	triples := []*r.Triple{}
+	for _, tt := range sg.triples {
+		if t != tt {
+			triples = append(triples, tt)
+		}
+	}
+	sg.triples = triples
+}
+
+// GenerateJSONLD creates a interfaggce based model of the RDF Graph.
+// This can be used to create various JSON-LD output formats, e.g.
+// expand, flatten, compacted, etc.
+func (g *SortedGraph) GenerateJSONLD() ([]map[string]interface{}, error) {
+	m := map[string]*r.LdEntry{}
+	entries := []map[string]interface{}{}
+
+	for _, t := range g.triples {
+		err := r.AppendTriple(m, t)
+		if err != nil {
+			return entries, err
+		}
+	}
+	for _, v := range m {
+		entries = append(entries, v.AsEntry())
+	}
+	return entries, nil
+}
+
+func (g *SortedGraph) SerializeFlatJSONLD(w io.Writer) error {
+	entries, err := g.GenerateJSONLD()
+	if err != nil {
+		return err
+	}
+	bytes, err := json.Marshal(entries)
+	if err != nil {
+		return err
+	}
+	fmt.Fprint(w, string(bytes))
+	return nil
+}
+
+func (sg *SortedGraph) GetRDF() ([]byte, error) {
+	var b bytes.Buffer
+	err := sg.SerializeFlatJSONLD(&b)
+	if err != nil {
+		return nil, err
+	}
+	return b.Bytes(), nil
 }
 
 // IndexEntry holds info for earch triple in the V1 API
@@ -122,7 +197,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	nowString := fmt.Sprintf(now.Format(time.RFC3339))
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
-	rdf, err := fb.GetRDF()
+	rdf, err := fb.SortedGraph.GetRDF()
 	if err == nil {
 		s.SourceGraph = string(rdf)
 	} else {
@@ -255,11 +330,11 @@ func (fb *FragmentBuilder) ResolveWebResources() error {
 }
 
 // CleanWebResourceGraph remove mapped webresources when urns are used for WebResource Subjects
-func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*r.Graph, map[string]ResourceSortOrder, []r.Term) {
+func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, map[string]ResourceSortOrder, []r.Term) {
 	resources := make(map[string]ResourceSortOrder)
 	aggregates := []r.Term{}
 
-	cleanGraph := r.NewGraph("")
+	cleanGraph := &SortedGraph{}
 
 	seen := 0
 	for triple := range fb.Graph.IterTriples() {
@@ -417,7 +492,7 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 		)
 	}
 
-	fb.Graph = cleanGraph
+	fb.SortedGraph = cleanGraph
 
 	return ss
 }
@@ -443,7 +518,7 @@ func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 }
 
 // AddDefaults add default thumbnail fields to a edm:WebResource
-func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *r.Graph) {
+func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *SortedGraph) {
 	isShownBy := fb.GetObject(wr, GetNaveField("thumbLarge"))
 	if isShownBy == nil {
 		//ld, _ := g.GenerateJSONLD()
@@ -553,7 +628,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	}
 
 	var triples []*r.Triple
-	for t := range fb.Graph.IterTriples() {
+	for _, t := range fb.SortedGraph.Triples() {
 		triples = append(triples, t)
 	}
 
@@ -573,7 +648,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 			return indexDoc, err
 		}
 		if fieldsContains(fields, entry) {
-			fb.Graph.Remove(t)
+			fb.SortedGraph.Remove(t)
 			continue
 		}
 		indexDoc[searchLabel] = append(fields, entry)
