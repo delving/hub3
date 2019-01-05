@@ -142,8 +142,6 @@ var ESMapping = `{
 var V1ESMapping = `
 {
     "settings": {
-		"number_of_shards":3,
-		"number_of_replicas":2,
         "analysis": {
             "filter": {
                 "dutch_stop": {
