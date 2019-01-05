@@ -15,8 +15,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/labstack/gommon/log"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -58,31 +56,28 @@ var _ = Describe("Sparql", func() {
 
 	Describe("Executing a SPARQL query", func() {
 
-		Context("Ask", func() {
+		//Context("Ask", func() {
 
-			It("should return a boolean", func() {
-				ask, err := AskSPARQL("ASK {<urn:123> ?p ?o}")
-				Expect(err).To(BeNil())
-				Expect(ask).To(Equal(false))
-			})
+		//It("should return a boolean", func() {
+		//ask, err := AskSPARQL("ASK {<urn:123> ?p ?o}")
+		//Expect(err).To(BeNil())
+		//Expect(ask).To(Equal(false))
+		//})
 
-			It("should return a result", func() {
+		//It("should return a result", func() {
 
-				res, err := SparqlRepo.Query("ASK { ?s ?p ?o } LIMIT 1")
-				if err != nil {
-					log.Fatal(err)
-				}
-				Expect(err).To(BeNil())
-				Expect(res).ToNot(BeNil())
-				//fmt.Printf("results: %#v", res.Results)
-				//fmt.Println(res.Results.Bindings)
-				for i, m := range res.Results.Bindings {
-					s := m["s"]
-					fmt.Printf("%d %s %s\n", i, s.Type, s.Value)
-				}
-				//fmt.Println(res.Results.Bindings)
-			})
-		})
+		//res, err := SparqlRepo.Query("ASK { ?s ?p ?o } LIMIT 1")
+		//Expect(err).To(BeNil())
+		//Expect(res).ToNot(BeNil())
+		////fmt.Printf("results: %#v", res.Results)
+		////fmt.Println(res.Results.Bindings)
+		//for i, m := range res.Results.Bindings {
+		//s := m["s"]
+		//fmt.Printf("%d %s %s\n", i, s.Type, s.Value)
+		//}
+		////fmt.Println(res.Results.Bindings)
+		//})
+		//})
 
 		Context("Describe", func() {
 			It("should return sparql bindings", func() {
