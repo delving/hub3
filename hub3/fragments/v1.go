@@ -428,7 +428,10 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, ma
 		case GetEDMField("hasView").String():
 			continue
 		case GetEDMField("isShownBy").String(), GetEDMField("object").String():
-			continue
+			if hasUrns {
+				continue
+			}
+			cleanGraph.Add(triple)
 		case GetNaveField("thumbnail").String(), GetNaveField("smallThumbnail").String(), GetNaveField("largeThumbnail").String():
 			if hasUrns && subjectIsBNode {
 				continue
@@ -568,7 +571,6 @@ func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *SortedGraph) {
 	if isShownBy == nil {
 		//ld, _ := g.GenerateJSONLD()
 		log.Printf("should find thumbLarge: %s, %s \n %s", wr.String(), s.String(), "")
-		time.Sleep(100 * time.Second)
 	}
 	if isShownBy != nil {
 		g.AddTriple(s, GetEDMField("isShownBy"), isShownBy)
