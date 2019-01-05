@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/delving/rapid-saas/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -34,7 +35,8 @@ var _ = Describe("Posthook", func() {
 				g := r.NewGraph(subject)
 				err = g.Parse(strings.NewReader(content), "text/turtle")
 				Expect(err).ToNot(HaveOccurred())
-				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
+				sg := fragments.NewSortedGraph(g)
+				posthook := NewPostHookJob(sg, "enb-83-beeldmateriaal", false, subject, "orgID_spec_hubID")
 				Expect(posthook).ToNot(BeNil())
 				Expect(posthook.Graph.Len()).ToNot(Equal(0))
 				jsonld, err := posthook.String()
@@ -44,7 +46,7 @@ var _ = Describe("Posthook", func() {
 			})
 
 			It("should update triple for ebuCore uris", func() {
-				g := r.NewGraph("")
+				g := &fragments.SortedGraph{}
 				t := r.NewTriple(
 					r.NewResource(subject),
 					r.NewResource("urn:ebu:metadata-schema:ebuCore_2014/hasMimeType"),
@@ -57,7 +59,7 @@ var _ = Describe("Posthook", func() {
 
 				var b bytes.Buffer
 				Expect(b.Len()).To(Equal(0))
-				err := g.Serialize(&b, "application/ld+json")
+				err := g.SerializeFlatJSONLD(&b)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(b.Len()).ToNot(Equal(0))
 				Expect(b.String()).ToNot(ContainSubstring("ebuCore_2014"))
@@ -65,7 +67,7 @@ var _ = Describe("Posthook", func() {
 			})
 
 			It("should update triple for date uris", func() {
-				g := r.NewGraph("")
+				g := &fragments.SortedGraph{}
 				t := r.NewTriple(
 					r.NewResource(subject),
 					r.NewResource("http://purl.org/dc/terms/created"),
@@ -78,7 +80,7 @@ var _ = Describe("Posthook", func() {
 
 				var b bytes.Buffer
 				Expect(b.Len()).To(Equal(0))
-				err := g.Serialize(&b, "application/ld+json")
+				err := g.SerializeFlatJSONLD(&b)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(b.Len()).ToNot(Equal(0))
 				Expect(b.String()).To(ContainSubstring("createdRaw"))
@@ -90,8 +92,9 @@ var _ = Describe("Posthook", func() {
 				g := r.NewGraph(subject)
 				err = g.Parse(strings.NewReader(content), "text/turtle")
 				Expect(err).ToNot(HaveOccurred())
+				sg := fragments.NewSortedGraph(g)
 				Expect(g.Len()).ToNot(Equal(0))
-				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
+				posthook := NewPostHookJob(sg, "enb-83-beeldmateriaal", false, subject, "orgID_spec_hubID")
 				Expect(posthook).ToNot(BeNil())
 				Expect(posthook.Graph.Len()).ToNot(Equal(0))
 				//posthook.cleanPostHookGraph()
@@ -109,7 +112,8 @@ var _ = Describe("Posthook", func() {
 				g := r.NewGraph(subject)
 				err = g.Parse(strings.NewReader(content), "text/turtle")
 				Expect(err).ToNot(HaveOccurred())
-				posthook := NewPostHookJob(g, "enb-83-beeldmateriaal", false, subject)
+				sg := fragments.NewSortedGraph(g)
+				posthook := NewPostHookJob(sg, "enb-83-beeldmateriaal", false, subject, "orgID_spec_hubID")
 				Expect(posthook).ToNot(BeNil())
 				Expect(posthook.Graph.Len()).ToNot(Equal(0))
 
