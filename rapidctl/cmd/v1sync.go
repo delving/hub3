@@ -23,7 +23,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/delving/rapid-saas/hub3/fragments/mapping"
+	"github.com/delving/rapid-saas/hub3/mapping"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
