@@ -199,11 +199,11 @@ func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder) *Legacy {
 		Collection: fb.fg.Meta.GetSpec(),
 	}
 	var ok bool
-	_, ok = indexDoc["nave_GeoHash"]
+	_, ok = indexDoc["nave_geoHash"]
 	l.HasGeoHash = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownBy"]
 	l.HasDigitalObject = strconv.FormatBool(ok)
-	_, ok = indexDoc["nave_DeepZoomUrl"]
+	_, ok = indexDoc["nave_deepZoomUrl"]
 	l.HasDeepZoom = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownAt"]
 	l.HasLandingPage = strconv.FormatBool(ok)
@@ -262,11 +262,11 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 			s.Thumbnail = thumbs[0].Value
 		}
 	}
-	_, ok = indexDoc["nave_GeoHash"]
+	_, ok = indexDoc["nave_geoHash"]
 	s.HasGeoHash = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownBy"]
 	s.HasDigitalObject = strconv.FormatBool(ok)
-	_, ok = indexDoc["nave_DeepZoomUrl"]
+	_, ok = indexDoc["nave_deepZoomUrl"]
 	s.HasDeepZoom = strconv.FormatBool(ok)
 	_, ok = indexDoc["edm_isShownAt"]
 	s.HasLandingPage = strconv.FormatBool(ok)
@@ -505,6 +505,14 @@ func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
 		return ss[i].Value < ss[j].Value
 	})
 
+	if len(ss) == 0 {
+		for _, wt := range webTriples.triples {
+			for _, t := range wt {
+				cleanGraph.Add(t)
+			}
+		}
+	}
+
 	for _, s := range ss {
 		if len(subj.String()) > 0 {
 			if s.Value == 1 && hasUrns {
@@ -705,6 +713,11 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 		Type:  "Literal",
 		Value: fb.fg.Meta.GetSpec(),
 		Raw:   fb.fg.Meta.GetSpec(),
+	}
+	indexDoc["nave_id"] = IndexEntry{
+		Type:  "Literal",
+		Value: fb.fg.Meta.GetHubID(),
+		Raw:   fb.fg.Meta.GetHubID(),
 	}
 	indexDoc["spec"] = fb.fg.Meta.GetSpec()
 	indexDoc["orgID"] = fb.fg.Meta.GetOrgID()
