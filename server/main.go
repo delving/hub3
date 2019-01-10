@@ -220,6 +220,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Get("/api/tree/{spec}/{nodeID:.*$}", treeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", treeDescription)
+	r.Get("/api/ead/{spec}/download", treeDownload)
 
 	// Search endpoint
 	r.Mount("/api/search", SearchResource{}.Routes())

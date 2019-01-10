@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 
@@ -973,6 +974,24 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		searchRequest.Tree.Spec = spec
 	}
 	processSearchRequest(w, r, searchRequest)
+	return
+}
+
+func treeDownload(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
+	http.ServeFile(w, r, eadPath)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	return
 }
 
