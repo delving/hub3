@@ -1014,6 +1014,7 @@ func treeDescription(w http.ResponseWriter, r *http.Request) {
 	desc.InventoryID = ds.Spec
 	desc.Owner = ds.Owner
 	desc.Period = ds.Period
+	desc.HTML = ds.HTML
 
 	render.JSON(w, r, desc)
 

@@ -57,6 +57,7 @@ var ESMapping = `{
 						"depth": {"type": "integer"},
 						"childCount": {"type": "integer"},
 						"hubID": {"type": "keyword"},
+						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},

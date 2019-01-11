@@ -84,6 +84,7 @@ message TreeQuery {
   string childCount = 7;
   string label = 8;
   string spec = 9;
+  string unitID = 10;
 }
 
 message SearchRequest {

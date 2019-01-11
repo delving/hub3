@@ -315,7 +315,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
-		if searchRequest.Tree.GetLabel() != "" && len(records) > 0 {
+		if searchRequest.Tree.IsExpanded() && len(records) > 0 {
 			// todo make new records
 			leaf := records[0].Tree.CLevel
 			qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)

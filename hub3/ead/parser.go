@@ -19,9 +19,16 @@ import (
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/go-chi/render"
 	proto "github.com/golang/protobuf/proto"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/olivere/elastic"
 	"github.com/pkg/errors"
 )
+
+var sanitizer *bluemonday.Policy
+
+func init() {
+	sanitizer = bluemonday.UGCPolicy()
+}
 
 // ReadEAD reads an ead2002 XML from a path
 func ReadEAD(path string) (*Cead, error) {
@@ -90,9 +97,10 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	// set basics for ead
 	ds.Label = cead.Ceadheader.GetTitle()
 	// TODO enable again for born digital as well
-	//ds.Owner = cead.Ceadheader.GetOwner()
-	//ds.Abstract = cead.Carchdesc.GetAbstract()
+	ds.Owner = cead.Ceadheader.GetOwner()
+	ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
+	ds.HTML = "<h1>beschrijving</h1> rest van de archdesc"
 	err = ds.Save()
 	if err != nil {
 		return uint64(0), errors.Wrapf(err, "Unable to save dataset")
@@ -1241,8 +1249,7 @@ type Cunittitle struct {
 }
 
 func (ut Cunittitle) Title() string {
-	// TODO abb bluemonday cleaning of XML
-	return strings.TrimSpace(fmt.Sprintf("%s", ut.RawTitle))
+	return sanitizer.Sanitize(strings.TrimSpace(fmt.Sprintf("%s", ut.RawTitle)))
 }
 
 type Cuserestrict struct {
