@@ -2,6 +2,7 @@ package ead
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/delving/rapid-saas/config"
@@ -13,6 +14,12 @@ const FragmentGraphDocType = "ead"
 
 func newSubject(cfg *NodeConfig, id string) string {
 	return fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
+}
+
+// getUnitID returns the first parent of the current node
+func (n *Node) getUnitID() string {
+	parents := strings.Split(n.GetPath(), pathSep)
+	return parents[len(parents)-1]
 }
 
 // getFirstBranch returs the first parent of the current node
@@ -63,9 +70,12 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.Type = n.GetType()
 	tree.CLevel = id
 	tree.Label = n.GetHeader().GetTreeLabel()
+	tree.UnitID = n.getUnitID()
 	tree.Leaf = n.getFirstBranch()
 	tree.Parent = n.getSecondBranch()
 	tree.Depth = len(n.ParentIDs) + 1
+	tree.HasDigitalObject = strconv.FormatBool(n.GetHeader().GetHasDigitalObject())
+	tree.DaoLink = n.GetHeader().GetDaoLink()
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header

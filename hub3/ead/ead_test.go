@@ -110,6 +110,30 @@ var _ = Describe("Ead", func() {
 			})
 		})
 
+		Context("for the complex date did", func() {
+			did := new(Cdid)
+			err := parseUtil(did, "ead.diddate2.xml")
+			var header *Header
+
+			It("should not throw an error on create", func() {
+				Expect(err).ToNot(HaveOccurred())
+				header, err = did.NewHeader()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(header).ToNot(BeNil())
+			})
+
+			It("should have date as label", func() {
+				Expect(header.GetLabel()).To(HaveLen(1))
+				Expect(header.GetLabel()[0]).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
+				Expect(header.GetTreeLabel()).To(Equal("1 Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
+			})
+
+			It("should not have date as label", func() {
+				Expect(header.GetDateAsLabel()).To(BeFalse())
+			})
+
+		})
+
 		Context("for the date did", func() {
 			did := new(Cdid)
 			err := parseUtil(did, "ead.diddate.xml")
@@ -124,7 +148,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have date as label", func() {
 				Expect(header.GetLabel()).To(HaveLen(1))
-				Expect(header.GetLabel()[0]).To(ContainSubstring("ca. 1839"))
+				Expect(header.GetLabel()[0]).To(Equal("ca. 1839 new books."))
 			})
 
 			It("should have date as label", func() {

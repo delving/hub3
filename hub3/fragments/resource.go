@@ -68,16 +68,25 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf        string  `json:"leaf,omitempty"`
-	Parent      string  `json:"parent,omitempty"`
-	Label       string  `json:"label"`
-	CLevel      string  `json:"cLevel"`
-	Type        string  `json:"type"`
-	HubID       string  `json:"hubID"`
-	ChildCount  int     `json:"childCount"`
-	Depth       int     `json:"depth"`
-	HasChildren bool    `json:"hasChildren"`
-	Inline      []*Tree `json:"inline,omitempty"`
+	Leaf             string  `json:"leaf,omitempty"`
+	Parent           string  `json:"parent,omitempty"`
+	Label            string  `json:"label"`
+	CLevel           string  `json:"cLevel"`
+	UnitID           string  `json:"unitID"`
+	Type             string  `json:"type"`
+	HubID            string  `json:"hubID"`
+	ChildCount       int     `json:"childCount"`
+	Depth            int     `json:"depth"`
+	HasChildren      bool    `json:"hasChildren"`
+	HasDigitalObject string  `json:"hasDigitalObject"`
+	DaoLink          string  `json:"daoLink,omitempty"`
+	Inline           []*Tree `json:"inline,omitempty"`
+}
+
+// IsExpanded returns if the tree query contains a query that puts the active ID
+// expanded in the tree
+func (tq *TreeQuery) IsExpanded() bool {
+	return tq.Label != "" || tq.UnitID != ""
 }
 
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
@@ -128,6 +137,7 @@ func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
 	header := &TreeHeader{
 		ExpandedIDs: tq.expandedIDs(lastNode),
 		ActiveID:    tq.GetLeaf(),
+		UnitID:      tq.GetUnitID(),
 	}
 	return rootNodes, header, nil
 }
@@ -192,6 +202,7 @@ type ScrollResultV4 struct {
 type TreeHeader struct {
 	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
 	ActiveID    string          `json:"activeID"`
+	UnitID      string          `json:"unitID"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation

@@ -27,6 +27,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
+	"github.com/microcosm-cc/bluemonday"
 
 	"github.com/olivere/elastic"
 	// TODO replace with dep injection later
@@ -36,8 +37,10 @@ import (
 )
 
 var request *gorequest.SuperAgent
+var sanitizer *bluemonday.Policy
 
 func init() {
+	sanitizer = bluemonday.UGCPolicy()
 	request = gorequest.New()
 }
 

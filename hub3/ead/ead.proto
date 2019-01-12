@@ -2,6 +2,14 @@
 syntax = "proto3";
 package ead;
 
+message FindingAidDescription {
+    string ID = 1;
+    string Name = 2;
+    string Summary = 3;
+    repeated string Period = 4;
+    string Institution = 5;
+}
+
 message NodeList {
   string Type = 1;
   repeated string Label = 2;
@@ -30,6 +38,8 @@ message Header {
   repeated NodeDate Date = 4;
   string Physdesc = 5;
   bool DateAsLabel = 6;
+  bool HasDigitalObject = 9;
+  string DaoLink = 8;
 }
 
 message NodeID {

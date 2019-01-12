@@ -218,6 +218,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byLabel":
 			sr.Tree = tree
 			tree.Label = params.Get(p)
+		case "byUnitID":
+			sr.Tree = tree
+			tree.UnitID = params.Get(p)
 		}
 	}
 
@@ -539,6 +542,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			q := elastic.NewMatchQuery("tree.label", sr.Tree.GetLabel())
 			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
 			query = query.Must(q)
+		}
+		if sr.Tree.GetUnitID() != "" {
+			query = query.Must(elastic.NewTermQuery("tree.unitID", sr.Tree.GetUnitID()))
 		}
 		switch len(sr.Tree.GetDepth()) {
 		case 1:

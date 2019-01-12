@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"strconv"
 	"strings"
 
@@ -423,6 +424,12 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.ManifestColumn = r.FormValue("manifestColumn")
 	conv.ManifestURIBase = r.FormValue("manifestURIBase")
 	conv.ManifestLocale = r.FormValue("manifestLocale")
+
+	if conv.Separator == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, "Separator is a required field. When ';' is the separator you can escape it as '%3B'")
+		return
+	}
 
 	ds, created, err := models.GetOrCreateDataSet(conv.DefaultSpec)
 	if err != nil {
@@ -967,6 +974,50 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		searchRequest.Tree.Spec = spec
 	}
 	processSearchRequest(w, r, searchRequest)
+	return
+}
+
+func treeDownload(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
+	http.ServeFile(w, r, eadPath)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
+	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	return
+}
+
+func treeDescription(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	ds, err := models.GetDataSet(spec)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintln("archive not found"),
+			Error:      nil,
+		})
+		return
+	}
+
+	desc := &fragments.TreeDescription{}
+	desc.Name = ds.Label
+	desc.Abstract = ds.Abstract
+	desc.InventoryID = ds.Spec
+	desc.Owner = ds.Owner
+	desc.Period = ds.Period
+	desc.HTML = ds.HTML
+
+	render.JSON(w, r, desc)
+
 	return
 }
 

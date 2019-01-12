@@ -57,12 +57,15 @@ var ESMapping = `{
 						"depth": {"type": "integer"},
 						"childCount": {"type": "integer"},
 						"hubID": {"type": "keyword"},
+						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
 						"parent": {"type": "keyword"},
-						"leaf": {"type": "keyword"}
+						"leaf": {"type": "keyword"},
+						"daoLink": {"type": "keyword"},
+						"hasDigitalObject": {"type": "keyword"}
 					}
 				},
 				"subject": {"type": "keyword"},

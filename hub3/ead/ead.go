@@ -26,7 +26,6 @@ func init() {
 			log.Fatalf("Unable to create cache dir; %s", err)
 		}
 	}
-
 }
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
@@ -164,6 +163,7 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 		return err
 	}
 
+	// recursion on itself for nested nodes on deeper levels
 	for _, n := range n.GetNodes() {
 		err := n.ESSave(cfg, p)
 		if err != nil {
@@ -257,10 +257,14 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		header.Physdesc = cdid.Cphysdesc.PhyscDesc
 	}
 
+	if cdid.Cdao != nil {
+		header.HasDigitalObject = true
+		header.DaoLink = cdid.Cdao.Attrhref
+	}
+
 	for _, label := range cdid.Cunittitle {
 		// todo interpolation of date and title is not correct at the moment.
 		dates := []string{}
-		parts := strings.Split(strings.TrimSpace(label.Title), "  ")
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
 			for _, date := range label.Cunitdate {
@@ -272,22 +276,25 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 				dates = append(dates, nodeDate.GetLabel())
 			}
 		}
-		var newLabel string
-		switch len(parts) {
-		case 1:
-			if len(dates) == 1 {
-				newLabel = fmt.Sprintf("%s %s", parts[0], dates[0])
-				break
-			}
-			newLabel = fmt.Sprintf("%s", parts[0])
-		case 2:
-			if len(dates) == 1 {
-				newLabel = fmt.Sprintf("%s %s %s", parts[0], dates[0], parts[1])
-				break
-			}
-			newLabel = strings.Join(parts, " ")
-		}
-		header.Label = append(header.Label, newLabel)
+
+		//parts := strings.Split(strings.TrimSpace(label.Title), "  ")
+		//var newLabel string
+		//switch len(parts) {
+		//case 1:
+		//if len(dates) == 1 {
+		//newLabel = fmt.Sprintf("%s %s", parts[0], dates[0])
+		//break
+		//}
+		//newLabel = fmt.Sprintf("%s", parts[0])
+		//case 2:
+		//if len(dates) == 1 {
+		//newLabel = fmt.Sprintf("%s %s %s", parts[0], dates[0], parts[1])
+		//break
+		//}
+		//newLabel = strings.Join(parts, " ")
+		//}
+		//log.Printf("%s => %s (%#v)", label.Title, header.Label, dates)
+		header.Label = append(header.Label, label.Title())
 	}
 
 	for _, date := range cdid.Cunitdate {
