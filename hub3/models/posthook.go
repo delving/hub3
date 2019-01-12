@@ -12,6 +12,7 @@ import (
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
 	ld "github.com/linkeddata/gojsonld"
@@ -20,7 +21,7 @@ import (
 
 // PostHookJob  holds the info for building a crea
 type PostHookJob struct {
-	Graph   *r.Graph
+	Graph   *fragments.SortedGraph
 	Spec    string
 	Deleted bool
 	Subject string
@@ -33,12 +34,40 @@ type PostHookJobFactory struct {
 }
 
 // NewPostHookJob creates a new PostHookJob and populates the rdf2go Graph
-func NewPostHookJob(g *r.Graph, spec string, delete bool, subject string) *PostHookJob {
-	ph := &PostHookJob{g, spec, delete, subject}
+func NewPostHookJob(sg *fragments.SortedGraph, spec string, delete bool, subject, hubID string) *PostHookJob {
+	ph := &PostHookJob{sg, spec, delete, subject}
 	if !delete {
 		ph.cleanPostHookGraph()
+		ph.addNarthexDefaults(hubID)
 	}
 	return ph
+}
+
+func (ph *PostHookJob) addNarthexDefaults(hubID string) {
+	//log.Printf("adding defaults for %s", ph.Subject)
+	parts := strings.Split(hubID, "_")
+	localID := parts[2]
+	s := r.NewResource(ph.Subject + "/about")
+	ph.Graph.AddTriple(
+		s,
+		r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#"),
+		r.NewResource("http://xmlns.com/foaf/0.1/Document"),
+	)
+	ph.Graph.AddTriple(
+		s,
+		r.NewResource("http://schemas.delving.eu/narthex/terms/hubId"),
+		r.NewLiteral(hubID),
+	)
+	ph.Graph.AddTriple(
+		s,
+		r.NewResource("http://schemas.delving.eu/narthex/terms/spec"),
+		r.NewLiteral(ph.Spec),
+	)
+	ph.Graph.AddTriple(
+		s,
+		r.NewResource("http://schemas.delving.eu/narthex/terms/localId"),
+		r.NewLiteral(localID),
+	)
 }
 
 // Valid determines if the posthok is valid to apply.
@@ -63,7 +92,8 @@ func ApplyPostHookJob(ph *PostHookJob) {
 		err := ph.Post(u)
 		if err != nil {
 			log.Println(err)
-			log.Printf("Unable to send %s to %s", ph.Subject, u)
+			//} else {
+			//log.Printf("stored: %s", ph.Subject)		log.Printf("Unable to send %s to %s", ph.Subject, u)
 		}
 	}
 }
@@ -144,7 +174,7 @@ var dateFields = []ld.Term{
 	ns.rdagr2.Get("dateOfDeath"),
 }
 
-func cleanDates(g *r.Graph, t *r.Triple) bool {
+func cleanDates(sg *fragments.SortedGraph, t *r.Triple) bool {
 	for _, date := range dateFields {
 		if t.Predicate.RawValue() == date.RawValue() {
 			newTriple := r.NewTriple(
@@ -152,20 +182,20 @@ func cleanDates(g *r.Graph, t *r.Triple) bool {
 				r.NewResource(fmt.Sprintf("%sRaw", t.Predicate.RawValue())),
 				t.Object,
 			)
-			g.Add(newTriple)
+			sg.Add(newTriple)
 			return true
 		}
 	}
 	return false
 }
 
-func cleanEbuCore(g *r.Graph, t *r.Triple) bool {
+func cleanEbuCore(sg *fragments.SortedGraph, t *r.Triple) bool {
 	uri := t.Predicate.RawValue()
 	if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
 		uri := strings.TrimLeft(uri, "urn:ebu:metadata-schema:ebuCore_2014")
 		uri = strings.TrimLeft(uri, "/")
 		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
-		g.AddTriple(
+		sg.AddTriple(
 			t.Subject,
 			r.NewResource(uri),
 			t.Object,
@@ -251,8 +281,8 @@ func (ph *PostHookJob) sortWebResources() (bytes.Buffer, error) {
 
 // cleanPostHookGraph applies post hook clean actions to the graph
 func (ph *PostHookJob) cleanPostHookGraph() {
-	newGraph := r.NewGraph("")
-	for t := range ph.Graph.IterTriples() {
+	newGraph := &fragments.SortedGraph{}
+	for _, t := range ph.Graph.Triples() {
 		if !cleanDates(newGraph, t) && !cleanEbuCore(newGraph, t) {
 			newGraph.Add(t)
 		}
@@ -269,9 +299,18 @@ func (ph PostHookJob) Bytes() (bytes.Buffer, error) {
 
 // Bytes returns the PostHookJob as an JSON-LD string
 func (ph PostHookJob) String() (string, error) {
-	b, err := ph.sortWebResources()
+	var b bytes.Buffer
+
+	entries, err := ph.Graph.GenerateJSONLD()
 	if err != nil {
 		return "", err
 	}
+
+	// write bytes
+	bytes, err := json.Marshal(entries)
+	if err != nil {
+		return "", err
+	}
+	fmt.Fprint(&b, string(bytes))
 	return b.String(), nil
 }

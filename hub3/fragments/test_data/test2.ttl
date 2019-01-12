@@ -42,10 +42,12 @@
     edm:isShownBy <http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000> ;
     edm:object <http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500> ;
     ore:aggregates [ a nave:DelvingResource ;
-            nave:allowDeepZoom "true" ;
-            nave:allowLinkedOpenData "true" ;
-            nave:allowSourceDownload "false" ;
-            nave:featured "false" ;
+            nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi" ;
+            nave:thumbLarge "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000" ;
+            nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500" ;
+            nave:deepZoomUrl "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi" ;
+            nave:thumbnail "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000" ;
+            nave:thumbSmall "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500" ;
             nave:public "true" ],
         [ a nave:BrabantCloudResource ;
             nave:collection "Fotocollectie" ;

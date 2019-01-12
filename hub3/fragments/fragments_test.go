@@ -78,7 +78,7 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	rev := int32(1)
 	ng := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893/graph"
 	fg := testFragmentGraph(spec, rev, ng)
-	fg.Meta.EntryURI = "http://www.openarchives.org/ore/terms/Aggregation"
+	fg.Meta.EntryURI = "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 	fb := NewFragmentBuilder(fg)
 	dat, err := ioutil.ReadFile("test_data/enb_test_2.jsonld")
 	if err != nil {

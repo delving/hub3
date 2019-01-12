@@ -16,6 +16,7 @@ package fragments_test
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"strings"
 
@@ -63,7 +64,7 @@ var _ = Describe("V1", func() {
 				g, err := NewGraphFromTurtle(turtle)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(g).ToNot(BeNil())
-				Expect(g.Len()).To(Equal(65))
+				Expect(g.Len()).To(Equal(67))
 			})
 
 			It("Should throw an error when receiving invalid RDF", func() {
@@ -91,6 +92,7 @@ var _ = Describe("V1", func() {
 			It("should return a map", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
+				_ = fb.GetSortedWebResources()
 				indexDoc, err := CreateV1IndexDoc(fb)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(indexDoc).ToNot(BeEmpty())
@@ -164,16 +166,24 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				wr := fb.GetSortedWebResources()
 				Expect(wr).ToNot(BeEmpty())
-				triples := fb.Graph.All(nil, GetEDMField("hasView"), nil)
+				triples := fb.SortedGraph.ByPredicate(GetEDMField("hasView"))
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(3))
 				//fmt.Printf("%#v\n", triples[0].String())
-				triples = fb.Graph.All(nil, GetEDMField("isShownBy"), nil)
+				triples = fb.SortedGraph.ByPredicate(GetEDMField("isShownBy"))
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(1))
 				triple := triples[0]
-				//fmt.Println(triple)
+				fmt.Println(triple)
 				Expect(triple.Subject.(*r.Resource).RawValue()).To(HaveSuffix("F900893"))
+			})
+
+			It("should remove derivatives from BlankNodes when WebResources are urns", func() {
+				fb, err := testDataGraph(false)
+				Expect(err).ToNot(HaveOccurred())
+				graphLength := fb.Graph.Len()
+				Expect(graphLength).To(Equal(65))
+
 			})
 
 			It("should rerender blanknodes in cleaned up graph", func() {
@@ -187,7 +197,7 @@ var _ = Describe("V1", func() {
 
 				wr := fb.GetSortedWebResources()
 				Expect(wr).ToNot(BeEmpty())
-				Expect(fb.Graph.Len()).To(Equal(69))
+				//Expect(fb.Graph.Len()).To(Equal(70))
 
 				// have brabantcloud resource
 				bType := r.NewResource("http://schemas.delving.eu/nave/terms/BrabantCloudResource")

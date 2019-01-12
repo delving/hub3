@@ -21,6 +21,7 @@ dist
 utils
 rapidctl/build/*
 rapidctl/rapidctl
+rapidctl/main
 
 # assets
 server/assets/assets_vfsdata.go

@@ -307,13 +307,6 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		log.Printf("Unable to build fragmentBuilder: %v", err)
 		return err
 	}
-	// get remote webresources
-	if c.Config.WebResource.ResolveRemoteWebResources {
-		err = fb.ResolveWebResources()
-		if err != nil {
-			return err
-		}
-	}
 
 	var r *elastic.BulkIndexRequest
 	if v1StylingIndexing {
@@ -332,8 +325,8 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		}
 		// add to posthook worker from v1
 		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
-		g := fb.Graph
-		ph := models.NewPostHookJob(g, action.Spec, false, subject)
+		g := fb.SortedGraph
+		ph := models.NewPostHookJob(g, action.Spec, false, subject, action.HubID)
 		if ph.Valid() {
 			action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
 			//action.wp.Submit(func() { log.Println(ph.Subject) })
