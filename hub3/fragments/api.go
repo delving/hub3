@@ -29,6 +29,7 @@ import (
 
 	c "github.com/delving/rapid-saas/config"
 	proto "github.com/golang/protobuf/proto"
+	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic"
 	"github.com/pkg/errors"
 )
@@ -221,6 +222,14 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
+		case "cursorHint":
+			sr.Tree = tree
+			hint, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int for %s", v, p)
+				return sr, err
+			}
+			tree.CursorHint = int32(hint)
 		}
 	}
 
@@ -991,6 +1000,12 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 	return mainQuery, nil
 }
 
+// Equal determines equality between Query Filters
+func (qf *QueryFilter) Equal(oqf *QueryFilter) bool {
+	// TODO replace with property by property comparison
+	return qf.AsString() == oqf.AsString()
+}
+
 // AddQueryFilter adds a QueryFilter to the SearchRequest
 // The raw query from the QueryString are added here. This function converts
 // this string to a QueryFilter.
@@ -1001,6 +1016,12 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	}
 	if id {
 		qf.ID = true
+	}
+	// todo replace later with map lookup that can be reused
+	for _, v := range sr.QueryFilter {
+		if cmp.Equal(qf, v) {
+			return nil
+		}
 	}
 	sr.QueryFilter = append(sr.QueryFilter, qf)
 	return nil

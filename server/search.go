@@ -322,6 +322,11 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			m, _ := url.ParseQuery(qs)
 			sr, _ := fragments.NewSearchRequest(m)
 			err := sr.AddQueryFilter(fmt.Sprintf("spec:%s", searchRequest.Tree.GetSpec()), false)
+			if err != nil {
+				log.Printf("Unable to add QueryFilter: %v", err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
 			s, _, err := sr.ElasticSearchService(index.ESClient())
 			if err != nil {
 				log.Printf("Unable to create Search Service: %v", err)
@@ -347,6 +352,10 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
 			leafs = append(leafs, rec.Tree)
 		}
+		// add cursor hint
+		if searchRequest.Tree.CursorHint != 0 {
+			result.Pager.Cursor = searchRequest.Tree.CursorHint
+		} 
 		records = nil
 		if searchRequest.Tree.GetFillTree() {
 			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree)

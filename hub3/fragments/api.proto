@@ -85,6 +85,7 @@ message TreeQuery {
   string label = 8;
   string spec = 9;
   string unitID = 10;
+  int32 cursorHint = 11;
 }
 
 message SearchRequest {
