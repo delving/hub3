@@ -963,7 +963,7 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
-	searchRequest.AddQueryFilter(fmt.Sprintf("spec:%s", spec), false)
+	searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), false)
 	switch searchRequest.Tree {
 	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{
