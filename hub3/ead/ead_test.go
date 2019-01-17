@@ -125,7 +125,7 @@ var _ = Describe("Ead", func() {
 			It("should have date as label", func() {
 				Expect(header.GetLabel()).To(HaveLen(1))
 				Expect(header.GetLabel()[0]).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
-				Expect(header.GetTreeLabel()).To(Equal("1 Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
+				Expect(header.GetTreeLabel()).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
 			})
 
 			It("should not have date as label", func() {

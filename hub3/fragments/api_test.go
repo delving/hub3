@@ -36,7 +36,7 @@ var _ = Describe("Apiutils", func() {
 			sr := DefaultSearchRequest(&c.Config)
 
 			It("should marshal to a string", func() {
-				output, err := SearchRequestToHex(sr)
+				output, err := sr.SearchRequestToHex()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(output).ToNot(BeNil())
 				Expect(output).To(Equal("1810"))
@@ -48,7 +48,7 @@ var _ = Describe("Apiutils", func() {
 					ResponseSize: int32(20),
 					FacetLimit:   int32(100),
 				}
-				output, err := SearchRequestToHex(sr)
+				output, err := sr.SearchRequestToHex()
 				Expect(err).ToNot(HaveOccurred())
 				input := "0a12526170696420526f636b732047c3b6c3b66418145864"
 				Expect(output).To(Equal(input))
@@ -222,7 +222,7 @@ func Test_qfSplit(t *testing.T) {
 func BenchmarkSearchRequestToHex(b *testing.B) {
 	sr := &SearchRequest{Query: "TestQuery"}
 	for n := 0; n < b.N; n++ {
-		SearchRequestToHex(sr)
+		sr.SearchRequestToHex()
 	}
 }
 

@@ -191,7 +191,7 @@ func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
 		return ""
 	}
-	return fmt.Sprintf("%s %s", h.GetInventoryNumber(), h.Label[0])
+	return fmt.Sprintf("%s", h.Label[0])
 }
 
 // Sparsify is a recursive function that creates a Sparse representation
