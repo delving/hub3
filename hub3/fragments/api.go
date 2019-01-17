@@ -207,7 +207,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.Parent = params.Get(p)
 		case "byType":
 			sr.Tree = tree
-			tree.Type = params.Get(p)
+			tree.Type = v
 		case "byLabel":
 			sr.Tree = tree
 			tree.Label = params.Get(p)
@@ -560,8 +560,17 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 			sr.Tree.FillTree = true
 		}
-		if sr.Tree.GetType() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.type", sr.Tree.GetType()))
+		switch len(sr.Tree.GetType()) {
+		case 1:
+			query = query.Must(elastic.NewMatchQuery("tree.type", sr.Tree.GetType()[0]))
+		case 0:
+		default:
+			q := elastic.NewBoolQuery()
+			for _, d := range sr.Tree.GetType() {
+				q = q.Should(elastic.NewTermQuery("tree.type", d))
+			}
+			query = query.Must(q)
+			sr.Tree.FillTree = true
 		}
 	}
 

@@ -78,7 +78,7 @@ message TreeQuery {
   string cLevel = 1;
   string leaf = 2;
   string parent = 3;
-  string type = 4;
+  repeated string type = 4;
   repeated string depth = 5;
   bool fillTree = 6;
   string childCount = 7;
