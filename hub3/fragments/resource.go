@@ -17,6 +17,7 @@ package fragments
 import (
 	"context"
 	fmt "fmt"
+	"io"
 	"log"
 	"net/url"
 	"sort"
@@ -26,6 +27,7 @@ import (
 	"github.com/delving/rapid-saas/hub3/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -83,10 +85,92 @@ type Tree struct {
 	Inline           []*Tree `json:"inline,omitempty"`
 }
 
+// TreeNavigator possible remove
+type TreeNavigator struct {
+	Cursor  int               `json:"cursor"`
+	Total   int               `json:"total"`
+	CLevel  string            `json:"cLevel"`
+	Entries map[string]string `json:"entries"` // key is the CLevel
+}
+
 // IsExpanded returns if the tree query contains a query that puts the active ID
 // expanded in the tree
 func (tq *TreeQuery) IsExpanded() bool {
 	return tq.Label != "" || tq.UnitID != ""
+}
+
+// IsNavigatedQuery returns if there is both a query and active ID
+func (tq *TreeQuery) IsNavigatedQuery() bool {
+	return tq.Label != "" && tq.UnitID != ""
+}
+
+// GetPreviousScrollIDs returns scrollIDs up to the cLevel
+// This information can be used to construct the previous search results when
+// both the UnitID and the Label are being queried
+func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, pager *ScrollPager) ([]string, error) {
+	previous := []string{}
+	query := elastic.NewBoolQuery()
+
+	matchSuffix := fmt.Sprintf("_%s", cLevel)
+
+	q := elastic.NewMatchQuery("tree.label", sr.Tree.GetLabel())
+	q = q.MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+	query = query.Must(q)
+	query = query.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, tq.Spec))
+
+	idSort := elastic.NewFieldSort("meta.hubID")
+	fieldSort := elastic.NewFieldSort("tree.cLevel")
+
+	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.IndexName).
+		SortBy(fieldSort, idSort).
+		Size(100).
+		FetchSource(false).
+		Query(query)
+
+	cursor := 0
+
+	sr.Tree.UnitID = ""
+	sr.Tree.Leaf = ""
+
+	for {
+		results, err := scroll.Do(context.Background())
+		if err == io.EOF {
+			return previous, nil // all results retrieved
+		}
+		if err != nil {
+			return nil, err // something went wrong
+		}
+
+		for _, hit := range results.Hits.Hits {
+			cursor++
+
+			log.Printf("hit => %#v", hit)
+			if strings.HasSuffix(hit.Id, matchSuffix) {
+				log.Printf("found it: %s ", matchSuffix)
+				pager.Cursor = int32(cursor)
+				pager.Total = results.TotalHits()
+				sr.CalculatedTotal = results.TotalHits()
+				return previous, nil // all results retrieved
+			}
+
+			searchAfterBin, err := sr.CreateBinKey(hit.Sort)
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to create bytes for search after key")
+			}
+
+			sr.Start = int32(cursor)
+			sr.SearchAfter = searchAfterBin
+			log.Printf("%d => %#v", cursor, sr)
+			hexRequest, err := sr.SearchRequestToHex()
+			if err != nil {
+				return nil, errors.Wrap(err, "unable to create bytes for search after key")
+			}
+
+			previous = append(previous, hexRequest)
+		}
+	}
+
+	return previous, nil
 }
 
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
@@ -200,9 +284,10 @@ type ScrollResultV4 struct {
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API
 type TreeHeader struct {
-	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
-	ActiveID    string          `json:"activeID"`
-	UnitID      string          `json:"unitID"`
+	ExpandedIDs       map[string]bool `json:"expandedIDs,omitempty"`
+	ActiveID          string          `json:"activeID"`
+	UnitID            string          `json:"unitID"`
+	PreviousScrollIDs []string        `json:"previousScrollIDs"`
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation

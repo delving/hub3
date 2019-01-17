@@ -15,8 +15,6 @@
 package server
 
 import (
-	"bytes"
-	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	log "log"
@@ -64,16 +62,6 @@ func (rs SearchResource) Routes() chi.Router {
 	})
 
 	return r
-}
-
-func getBytes(key interface{}) ([]byte, error) {
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(key)
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
 }
 
 func getScrollResult(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +146,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	records, searchAfter, err := decodeFragmentGraphs(res)
-	searchAfterBin, err := getBytes(searchAfter)
+	searchAfterBin, err := searchRequest.CreateBinKey(searchAfter)
 	if err != nil {
 		log.Printf("Unable to encode searchAfter")
 		return
@@ -210,6 +198,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 		sa, err := srNext.DecodeSearchAfter()
 		if err != nil {
+			log.Printf("unable to decode searchAfter: %#v", err)
 			http.Error(w, "unable to decode next SearchAfter", http.StatusInternalServerError)
 			return
 		}
@@ -321,7 +310,10 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
 			m, _ := url.ParseQuery(qs)
 			sr, _ := fragments.NewSearchRequest(m)
-			err := sr.AddQueryFilter(fmt.Sprintf("spec:%s", searchRequest.Tree.GetSpec()), false)
+			err := sr.AddQueryFilter(
+				fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+				false,
+			)
 			if err != nil {
 				log.Printf("Unable to add QueryFilter: %v", err)
 				http.Error(w, err.Error(), http.StatusBadRequest)
@@ -355,13 +347,27 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		// add cursor hint
 		if searchRequest.Tree.CursorHint != 0 {
 			result.Pager.Cursor = searchRequest.Tree.CursorHint
-		} 
+		}
 		records = nil
 		if searchRequest.Tree.GetFillTree() {
 			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree)
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				log.Printf("Unable to render grouped TreeNodes: %s\n", err.Error())
+				render.PlainText(w, r, err.Error())
+				return
+			}
+
+			if searchRequest.Tree.IsNavigatedQuery() {
+				result.TreeHeader.PreviousScrollIDs, err = searchRequest.Tree.GetPreviousScrollIDs(
+					result.TreeHeader.ActiveID,
+					searchRequest,
+					pager,
+				)
+			}
+			if err != nil {
+				render.Status(r, http.StatusInternalServerError)
+				log.Printf("Unable to render previousScrollIDs: %s\n", err.Error())
 				render.PlainText(w, r, err.Error())
 				return
 			}

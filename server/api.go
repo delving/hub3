@@ -953,7 +953,6 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 		q := r.URL.Query()
 		q.Add("byLeaf", id)
 		r.URL.RawQuery = q.Encode()
-		//r.URL.Query().Add("byLeaf", nodeID)
 	}
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {

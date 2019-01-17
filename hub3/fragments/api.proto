@@ -125,6 +125,7 @@ message SearchRequest {
   string peek = 29;
   bool sortAsc = 30;
   TreeQuery tree = 31;
+  int64 calculatedTotal = 32;
 }
 
 enum GeoType {

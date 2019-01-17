@@ -47,14 +47,6 @@ func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 	return sr
 }
 
-// SearchRequestToHex converts the SearchRequest to a hex string
-func SearchRequestToHex(sr *SearchRequest) (string, error) {
-	output, err := proto.Marshal(sr)
-	if err != nil {
-	}
-	return fmt.Sprintf("%x", output), nil
-}
-
 // SearchRequestFromHex creates a SearchRequest object from a string
 func SearchRequestFromHex(s string) (*SearchRequest, error) {
 	decoded, err := hex.DecodeString(s)
@@ -234,6 +226,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	}
 
 	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
+		// set hard max to number of nodes of 1000
 		sr.ResponseSize = int32(1000)
 	}
 
@@ -645,13 +638,31 @@ func getInterface(bts []byte, data interface{}) error {
 	return err
 }
 
+// SearchRequestToHex converts the SearchRequest to a hex string
+func (sr *SearchRequest) SearchRequestToHex() (string, error) {
+	output, err := proto.Marshal(sr)
+	if err != nil {
+	}
+	return fmt.Sprintf("%x", output), nil
+}
+
+func (sr *SearchRequest) CreateBinKey(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 // DecodeSearchAfter returns an interface array decoded from []byte
 func (sr *SearchRequest) DecodeSearchAfter() ([]interface{}, error) {
 	var sa []interface{}
 	err := getInterface(sr.SearchAfter, &sa)
 	if err != nil {
 		log.Printf("Unable to decode interface: %s", err)
-		return sa, err
+		return sa, errors.Wrap(err, "Unable to decode interface")
 	}
 	return sa, nil
 }
@@ -839,13 +850,16 @@ func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 
 	sp.Rows = sr.GetResponseSize()
 	sp.Total = total
+	if sr.CalculatedTotal != 0 {
+		sp.Total = sr.CalculatedTotal
+	}
 
 	// return empty ScrollID if there is no next page
 	if sr.GetStart() >= int32(total) {
 		return sp, nil
 	}
 
-	hex, err := SearchRequestToHex(sr)
+	hex, err := sr.SearchRequestToHex()
 	if err != nil {
 		return nil, err
 	}
