@@ -83,6 +83,7 @@ type Tree struct {
 	HasDigitalObject string  `json:"hasDigitalObject"`
 	DaoLink          string  `json:"daoLink,omitempty"`
 	Inline           []*Tree `json:"inline,omitempty"`
+	SortKey          uint64  `json:"sortKey"`
 }
 
 // TreeNavigator possible remove

@@ -56,6 +56,7 @@ var ESMapping = `{
 					"properties": {
 						"depth": {"type": "integer"},
 						"childCount": {"type": "integer"},
+						"sortKey": {"type": "integer"},
 						"hubID": {"type": "keyword"},
 						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},

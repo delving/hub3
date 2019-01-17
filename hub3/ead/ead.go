@@ -109,16 +109,16 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
-	for idx, nn := range dsc.Nested {
-		node, err := NewNode(nn, []string{}, idx, cfg)
+	for _, nn := range dsc.Nested {
+		node, err := NewNode(nn, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
 		nl.Nodes = append(nl.Nodes, node)
 	}
 
-	for idx, nn := range dsc.Cc {
-		node, err := NewNode(nn, []string{}, idx, cfg)
+	for _, nn := range dsc.Cc {
+		node, err := NewNode(nn, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -329,7 +329,7 @@ func (n *Node) setPath(parentIDs []string) ([]string, error) {
 }
 
 // NewNode converts EAD c01 to a Archival Node
-func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, error) {
+func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	cfg.Counter.Increment()
 	node := &Node{
 		CTag:      c.GetXMLName().Local,
@@ -345,7 +345,7 @@ func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, e
 		return nil, err
 	}
 	if header.GetInventoryNumber() == "" {
-		header.InventoryNumber = fmt.Sprintf("%d", order)
+		header.InventoryNumber = fmt.Sprintf("%d", node.GetOrder())
 	}
 	node.Header = header
 
@@ -372,7 +372,7 @@ func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, e
 		//}
 		de := &DuplicateError{
 			Path:     node.GetPath(),
-			Order:    order,
+			Order:    int(node.GetOrder()),
 			Spec:     cfg.Spec,
 			Key:      header.GetInventoryNumber(),
 			Label:    prevLabel,
@@ -391,8 +391,8 @@ func NewNode(c CLevel, parentIDs []string, order int, cfg *NodeConfig) (*Node, e
 
 	nested := c.GetNested()
 	if len(nested) != 0 {
-		for idx, nn := range nested {
-			n, err := NewNode(nn, parentIDs, idx, cfg)
+		for _, nn := range nested {
+			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
 				return nil, err
 			}

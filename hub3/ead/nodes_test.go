@@ -128,7 +128,7 @@ var _ = Describe("Nodes", func() {
 
 			It("it should not throw an error", func() {
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, 0, cfg)
+				node, err = NewNode(c03, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(node).ToNot(BeNil())
 			})
@@ -155,7 +155,7 @@ var _ = Describe("Nodes", func() {
 			It("it should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, 0, cfg)
+				node, err = NewNode(c03, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				h = node.GetHeader()
