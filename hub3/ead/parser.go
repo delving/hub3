@@ -97,8 +97,8 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	// set basics for ead
 	ds.Label = cead.Ceadheader.GetTitle()
 	// TODO enable again for born digital as well
-	ds.Owner = cead.Ceadheader.GetOwner()
-	ds.Abstract = cead.Carchdesc.GetAbstract()
+	//ds.Owner = cead.Ceadheader.GetOwner()
+	//ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
 	ds.HTML = "<h1>beschrijving</h1> rest van de archdesc"
 	err = ds.Save()
