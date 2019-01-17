@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync/atomic"
 
@@ -277,23 +278,6 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 			}
 		}
 
-		//parts := strings.Split(strings.TrimSpace(label.Title), "  ")
-		//var newLabel string
-		//switch len(parts) {
-		//case 1:
-		//if len(dates) == 1 {
-		//newLabel = fmt.Sprintf("%s %s", parts[0], dates[0])
-		//break
-		//}
-		//newLabel = fmt.Sprintf("%s", parts[0])
-		//case 2:
-		//if len(dates) == 1 {
-		//newLabel = fmt.Sprintf("%s %s %s", parts[0], dates[0], parts[1])
-		//break
-		//}
-		//newLabel = strings.Join(parts, " ")
-		//}
-		//log.Printf("%s => %s (%#v)", label.Title, header.Label, dates)
 		header.Label = append(header.Label, label.Title())
 	}
 
@@ -317,12 +301,20 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	return header, nil
 }
 
+func (n *Node) getPathID() string {
+	eadID := n.GetHeader().GetInventoryNumber()
+	if eadID == "" {
+		return strconv.FormatUint(n.Order, 10)
+	}
+	return eadID
+}
+
 func (n *Node) setPath(parentIDs []string) ([]string, error) {
 	if len(parentIDs) > 0 {
 		n.BranchID = parentIDs[len(parentIDs)-1]
-		n.Path = fmt.Sprintf("%s%s%s", n.BranchID, pathSep, n.GetHeader().GetInventoryNumber())
+		n.Path = fmt.Sprintf("%s%s%s", n.BranchID, pathSep, n.getPathID())
 	} else {
-		n.Path = n.GetHeader().GetInventoryNumber()
+		n.Path = n.getPathID()
 	}
 	ids := append(parentIDs, n.Path)
 	return ids, nil
@@ -343,9 +335,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	header, err := c.GetCdid().NewHeader()
 	if err != nil {
 		return nil, err
-	}
-	if header.GetInventoryNumber() == "" {
-		header.InventoryNumber = fmt.Sprintf("%d", node.GetOrder())
 	}
 	node.Header = header
 
