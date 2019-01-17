@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"html"
 	"log"
 	"os"
 	"regexp"
@@ -201,7 +202,7 @@ func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
 		return ""
 	}
-	return fmt.Sprintf("%s", h.Label[0])
+	return html.UnescapeString(fmt.Sprintf("%s", h.Label[0]))
 }
 
 // Sparsify is a recursive function that creates a Sparse representation
