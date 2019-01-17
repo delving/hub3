@@ -2,7 +2,6 @@ package ead
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/delving/rapid-saas/config"
@@ -74,7 +73,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.Leaf = n.getFirstBranch()
 	tree.Parent = n.getSecondBranch()
 	tree.Depth = len(n.ParentIDs) + 1
-	tree.HasDigitalObject = strconv.FormatBool(n.GetHeader().GetHasDigitalObject())
+	tree.HasDigitalObject = n.GetHeader().GetHasDigitalObject()
 	tree.DaoLink = n.GetHeader().GetDaoLink()
 	tree.SortKey = n.GetOrder()
 

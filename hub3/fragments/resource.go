@@ -80,7 +80,7 @@ type Tree struct {
 	ChildCount       int     `json:"childCount"`
 	Depth            int     `json:"depth"`
 	HasChildren      bool    `json:"hasChildren"`
-	HasDigitalObject string  `json:"hasDigitalObject"`
+	HasDigitalObject bool    `json:"hasDigitalObject"`
 	DaoLink          string  `json:"daoLink,omitempty"`
 	Inline           []*Tree `json:"inline,omitempty"`
 	SortKey          uint64  `json:"sortKey"`
@@ -145,9 +145,8 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 		for _, hit := range results.Hits.Hits {
 			cursor++
 
-			log.Printf("hit => %#v", hit)
 			if strings.HasSuffix(hit.Id, matchSuffix) {
-				log.Printf("found it: %s ", matchSuffix)
+				//log.Printf("found it: %s ", matchSuffix)
 				pager.Cursor = int32(cursor)
 				pager.Total = results.TotalHits()
 				sr.CalculatedTotal = results.TotalHits()
@@ -161,7 +160,6 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 
 			sr.Start = int32(cursor)
 			sr.SearchAfter = searchAfterBin
-			log.Printf("%d => %#v", cursor, sr)
 			hexRequest, err := sr.SearchRequestToHex()
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
