@@ -27,7 +27,6 @@ type TreeDescription struct {
 	Abstract    []string `json:"abstract"`
 	Owner       string   `json:"owner"`
 	Period      []string `json:"period"`
-	HTML        string   `json:"html"`
 }
 
 // StatCounter holds value counters for statistics overviews
