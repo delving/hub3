@@ -76,6 +76,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.HasDigitalObject = n.GetHeader().GetHasDigitalObject()
 	tree.DaoLink = n.GetHeader().GetDaoLink()
 	tree.SortKey = n.GetOrder()
+	tree.Periods = n.GetHeader().GetPeriods()
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header

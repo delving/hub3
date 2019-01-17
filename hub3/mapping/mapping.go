@@ -66,6 +66,7 @@ var ESMapping = `{
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},
+						"periods": {"type": "keyword"},
 						"hasDigitalObject": {"type": "boolean"}
 					}
 				},

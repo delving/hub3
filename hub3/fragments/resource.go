@@ -70,20 +70,21 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf             string  `json:"leaf,omitempty"`
-	Parent           string  `json:"parent,omitempty"`
-	Label            string  `json:"label"`
-	CLevel           string  `json:"cLevel"`
-	UnitID           string  `json:"unitID"`
-	Type             string  `json:"type"`
-	HubID            string  `json:"hubID"`
-	ChildCount       int     `json:"childCount"`
-	Depth            int     `json:"depth"`
-	HasChildren      bool    `json:"hasChildren"`
-	HasDigitalObject bool    `json:"hasDigitalObject"`
-	DaoLink          string  `json:"daoLink,omitempty"`
-	Inline           []*Tree `json:"inline,omitempty"`
-	SortKey          uint64  `json:"sortKey"`
+	Leaf             string   `json:"leaf,omitempty"`
+	Parent           string   `json:"parent,omitempty"`
+	Label            string   `json:"label"`
+	CLevel           string   `json:"cLevel"`
+	UnitID           string   `json:"unitID"`
+	Type             string   `json:"type"`
+	HubID            string   `json:"hubID"`
+	ChildCount       int      `json:"childCount"`
+	Depth            int      `json:"depth"`
+	HasChildren      bool     `json:"hasChildren"`
+	HasDigitalObject bool     `json:"hasDigitalObject"`
+	DaoLink          string   `json:"daoLink,omitempty"`
+	Inline           []*Tree  `json:"inline,omitempty"`
+	SortKey          uint64   `json:"sortKey"`
+	Periods          []string `json:"periods"`
 }
 
 // TreeNavigator possible remove

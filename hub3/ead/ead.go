@@ -187,6 +187,15 @@ func (h *Header) Sparse() {
 	h.Physdesc = ""
 }
 
+// GetPeriods return a list of human readable periods from the EAD unitDate
+func (h *Header) GetPeriods() []string {
+	periods := []string{}
+	for _, date := range h.GetDate() {
+		periods = append(periods, date.GetLabel())
+	}
+	return periods
+}
+
 // GetTreeLabel returns the label that needs to be shown with the tree
 func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
