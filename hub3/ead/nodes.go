@@ -15,12 +15,6 @@ func newSubject(cfg *NodeConfig, id string) string {
 	return fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
 }
 
-// getUnitID returns the first parent of the current node
-func (n *Node) getUnitID() string {
-	parents := strings.Split(n.GetPath(), pathSep)
-	return parents[len(parents)-1]
-}
-
 // getFirstBranch returs the first parent of the current node
 func (n *Node) getFirstBranch() string {
 	parents := strings.Split(n.GetPath(), pathSep)
@@ -69,7 +63,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.Type = n.GetType()
 	tree.CLevel = id
 	tree.Label = n.GetHeader().GetTreeLabel()
-	tree.UnitID = n.getUnitID()
+	tree.UnitID = n.GetHeader().GetInventoryNumber()
 	tree.Leaf = n.getFirstBranch()
 	tree.Parent = n.getSecondBranch()
 	tree.Depth = len(n.ParentIDs) + 1
