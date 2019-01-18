@@ -132,9 +132,10 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	cursor := 0
 
 	sr.Tree.UnitID = ""
-	//sr.Tree.Leaf = ""
+	sr.Tree.Leaf = ""
 	sr.SearchAfter = nil
-
+	sr.Tree.Depth = []string{}
+	sr.Tree.FillTree = false
 	for {
 		results, err := scroll.Do(context.Background())
 		if err == io.EOF {
@@ -145,37 +146,28 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 		}
 
 		for _, hit := range results.Hits.Hits {
-
-			sr.CalculatedTotal = results.TotalHits()
+			//sr.CalculatedTotal = results.TotalHits()
 
 			nextSearchAfter, err := sr.CreateBinKey(hit.Sort)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
 			}
 
-			//if cursor == 0 {
-			//sr.SearchAfter = nextSearchAfter
-			//cursor++
-			//continue
-			//}
-
 			sr.Start = int32(cursor)
+			sr.SearchAfter = nextSearchAfter
 			hexRequest, err := sr.SearchRequestToHex()
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
 			}
-			log.Printf("%#v", sr)
-			log.Printf("http://localhost:3000/api/tree/1.05.12.01?qs=%s", hexRequest)
 
-			previous = append(previous, hexRequest)
 			if strings.HasSuffix(hit.Id, matchSuffix) {
 				//log.Printf("found it: %s ", matchSuffix)
 				pager.Cursor = int32(cursor)
+				pager.ScrollID = hexRequest
 				pager.Total = results.TotalHits()
 				return previous, nil // all results retrieved
 			}
-			//sr.SearchAfter = nextSearchAfter
-			_ = nextSearchAfter
+			previous = append(previous, hexRequest)
 			cursor++
 		}
 	}
