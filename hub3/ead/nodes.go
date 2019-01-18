@@ -11,6 +11,8 @@ import (
 
 const FragmentGraphDocType = "ead"
 
+const CLevelLeader = "@"
+
 func newSubject(cfg *NodeConfig, id string) string {
 	return fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
 }
@@ -21,7 +23,7 @@ func (n *Node) getFirstBranch() string {
 	if len(parents) < 2 {
 		return ""
 	}
-	return strings.Join(parents[:len(parents)-1], pathSep)
+	return fmt.Sprintf("%s%s", CLevelLeader, strings.Join(parents[:len(parents)-1], pathSep))
 }
 
 // getSecondBranch returs the second parent of the current node
@@ -30,7 +32,7 @@ func (n *Node) getSecondBranch() string {
 	if len(parents) < 3 {
 		return ""
 	}
-	return strings.Join(parents[:len(parents)-2], pathSep)
+	return fmt.Sprintf("%s%s", CLevelLeader, strings.Join(parents[:len(parents)-2], pathSep))
 }
 
 // FragmentGraph returns the archival node as a FragmentGraph
@@ -61,7 +63,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.HubID = header.HubID
 	tree.ChildCount = len(n.Nodes)
 	tree.Type = n.GetType()
-	tree.CLevel = id
+	tree.CLevel = fmt.Sprintf("%s%s", CLevelLeader, id)
 	tree.Label = n.GetHeader().GetTreeLabel()
 	tree.UnitID = n.GetHeader().GetInventoryNumber()
 	tree.Leaf = n.getFirstBranch()
