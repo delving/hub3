@@ -546,7 +546,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 		}
 		if sr.Tree.GetUnitID() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.unitID", sr.Tree.GetUnitID()))
+			if strings.Contains(sr.Tree.GetUnitID(), "~") {
+				query = query.Must(elastic.NewTermQuery("tree.cLevel", sr.Tree.GetUnitID()))
+			} else {
+				query = query.Must(elastic.NewTermQuery("tree.unitID", sr.Tree.GetUnitID()))
+			}
 		}
 		switch len(sr.Tree.GetDepth()) {
 		case 1:

@@ -314,9 +314,9 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 func (n *Node) getPathID() string {
 	eadID := n.GetHeader().GetInventoryNumber()
 	if eadID == "" {
-		return strconv.FormatUint(n.Order, 10)
+		eadID = strconv.FormatUint(n.Order, 10)
 	}
-	return eadID
+	return fmt.Sprintf("%s", eadID)
 }
 
 func (n *Node) setPath(parentIDs []string) ([]string, error) {
