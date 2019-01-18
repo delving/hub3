@@ -121,7 +121,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	query = query.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, tq.Spec))
 
 	idSort := elastic.NewFieldSort("meta.hubID")
-	fieldSort := elastic.NewFieldSort("tree.cLevel")
+	fieldSort := elastic.NewFieldSort("tree.sortKey")
 
 	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.IndexName).
 		SortBy(fieldSort, idSort).
@@ -176,6 +176,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
 	expandedIDs := make(map[string]bool)
 	parents := strings.Split(tq.GetLeaf(), "~")
+
 	var path string
 	for idx, leaf := range parents {
 		if idx == 0 {
