@@ -60,6 +60,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// logger
 	l := negroni.NewLogger()
+	l.SetFormat("{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}} {{.Request.URL.RawQuery}}\n")
 	n.Use(l)
 
 	// compress the responses
