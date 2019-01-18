@@ -994,6 +994,23 @@ func treeDownload(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func treeDescriptionApi(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
+	cead, err := ead.ReadEAD(eadPath)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintln("archive not found"),
+			Error:      nil,
+		})
+		return
+	}
+	render.JSON(w, r, cead.Carchdesc.Cdescgrp)
+	return
+}
+
 func treeDescription(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	ds, err := models.GetDataSet(spec)
