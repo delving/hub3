@@ -100,7 +100,6 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	//ds.Owner = cead.Ceadheader.GetOwner()
 	//ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
-	ds.HTML = "<h1>beschrijving</h1> rest van de archdesc"
 	err = ds.Save()
 	if err != nil {
 		return uint64(0), errors.Wrapf(err, "Unable to save dataset")

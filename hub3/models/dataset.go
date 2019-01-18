@@ -123,7 +123,6 @@ type DataSet struct {
 	Owner            string   `json:"owner"`
 	Abstract         []string `json:"abstract"`
 	Period           []string `json:"period"`
-	HTML             string   `json:"html"`
 }
 
 // Access determines the which types of access are enabled for this dataset
