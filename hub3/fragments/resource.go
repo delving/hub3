@@ -65,7 +65,7 @@ func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentRefe
 
 // ResourceMap is a convenience structure to hold the resourceMap data and functions
 type ResourceMap struct {
-	resources map[string]*FragmentResource `json:"resources"`
+	resources map[string]*FragmentResource
 }
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
@@ -171,8 +171,6 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			cursor++
 		}
 	}
-
-	return previous, nil
 }
 
 func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
@@ -317,14 +315,14 @@ type FacetLink struct {
 // FragmentResource holds all the conttext information for a resource
 // It works together with the FragmentBuilder to create the linked fragments
 type FragmentResource struct {
-	ID                   string                      `json:"id"`
-	Types                []string                    `json:"types"`
-	GraphExternalContext []*FragmentReferrerContext  `json:"graphExternalContext"`
-	Context              []*FragmentReferrerContext  `json:"context"`
-	predicates           map[string][]*FragmentEntry `json:"predicates"`
-	objectIDs            []*FragmentReferrerContext  `json:"objectIDs"`
-	Entries              []*ResourceEntry            `json:"entries"`
-	Tags                 []string                    `json:"tags,omitempty"`
+	ID                   string                     `json:"id"`
+	Types                []string                   `json:"types"`
+	GraphExternalContext []*FragmentReferrerContext `json:"graphExternalContext"`
+	Context              []*FragmentReferrerContext `json:"context"`
+	Entries              []*ResourceEntry           `json:"entries"`
+	Tags                 []string                   `json:"tags,omitempty"`
+	predicates           map[string][]*FragmentEntry
+	objectIDs            []*FragmentReferrerContext
 }
 
 // ObjectIDs returns an array of FragmentReferrerContext
@@ -814,7 +812,7 @@ func (fg *FragmentGraph) NewFields() map[string][]string {
 	return fg.Fields
 }
 
-// Return the output as navigation tree
+// NewTree returns the output as navigation tree
 func (fg *FragmentGraph) NewTree() *Tree {
 	return fg.Tree
 }
