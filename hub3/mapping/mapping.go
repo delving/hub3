@@ -123,6 +123,7 @@ var ESMapping = `{
 								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
 								"order": {"type": "integer"},
+								"integer": {"type": "integer"},
 
 								"tags": {"type": "keyword"},
 								"isoDate": {

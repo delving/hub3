@@ -692,6 +692,17 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		fieldSort = elastic.NewFieldSort("_score")
 	case strings.HasPrefix(sr.GetSortBy(), "tree."):
 		fieldSort = elastic.NewFieldSort(sr.GetSortBy())
+	case strings.HasSuffix(sr.GetSortBy(), "_int"):
+		field := strings.TrimSuffix(sr.GetSortBy(), "_int")
+		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", field)
+		fieldSort = elastic.NewFieldSort("resources.entries.integer").
+			NestedPath("resources.entries").
+			NestedFilter(sortNestedQuery)
+		if sr.SortAsc {
+			fieldSort = fieldSort.Asc()
+		} else {
+			fieldSort = fieldSort.Desc()
+		}
 	default:
 		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", sr.GetSortBy())
 		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").

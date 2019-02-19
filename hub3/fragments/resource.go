@@ -21,6 +21,7 @@ import (
 	"log"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 
 	c "github.com/delving/rapid-saas/config"
@@ -395,6 +396,16 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		re.AddTags("resolved")
 	}
 
+	switch re.DataType {
+	case "http://www.w3.org/2001/XMLSchema#integer":
+		i, err := strconv.Atoi(re.Value)
+		if err != nil {
+			log.Printf("unable to convert to int: %#v", err)
+			return re, err
+		}
+		re.Integer = i
+	}
+
 	labels, ok := c.Config.RDFTagMap.Get(predicate)
 	if ok {
 		re.AddTags(labels...)
@@ -508,6 +519,7 @@ type ResourceEntry struct {
 	Tags        []string          `json:"tags,omitempty"`
 	Date        string            `json:"date,omitempty"`
 	DateRange   string            `json:"dateRange,omitempty"`
+	Integer     int               `json:"integer,omitempty"`
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
 	Order       int               `json:"order"`
@@ -678,6 +690,12 @@ func CreateFragmentEntry(t *r.Triple, resolved bool, order int) (*FragmentEntry,
 			if o.Datatype.String() != "<http://www.w3.org/2001/XMLSchema#string>" {
 				entry.DataType = debrack(o.Datatype.String())
 			}
+			switch o.Datatype.String() {
+			case "<http://www.w3.org/2001/XMLSchema#string>":
+			default:
+				entry.DataType = debrack(o.Datatype.String())
+			}
+
 		}
 		if len(o.Language) > 0 {
 			entry.Language = o.Language

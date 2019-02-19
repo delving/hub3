@@ -21,6 +21,7 @@ type CSVConvertor struct {
 	SubjectURIBase        string    `json:"subjectURIBase"`
 	ObjectURIFormat       string    `json:"objectURIFormat"`
 	ObjectResourceColumns []string  `json:"objectResourceColumns"`
+	ObjectIntegerColumns  []string  `json:"objectIntegerColumns"`
 	ThumbnailURIBase      string    `json:"thumbnailURIBase"`
 	ThumbnailColumn       string    `json:"thumbnailColumn"`
 	ManifestURIBase       string    `json:"manifestURIBase"`
@@ -30,11 +31,18 @@ type CSVConvertor struct {
 	InputFile             io.Reader `json:"-"`
 	RowsProcessed         int       `json:"rowsProcessed"`
 	TriplesCreated        int       `json:"triplesCreated"`
+	integerMap            map[int]bool
+	resourceMap           map[int]bool
+	headerMap             map[int]r.Term
 }
 
 // NewCSVConvertor creates a CSV convertor from an net/http Form
 func NewCSVConvertor() *CSVConvertor {
-	return &CSVConvertor{}
+	return &CSVConvertor{
+		headerMap:   make(map[int]r.Term),
+		integerMap:  make(map[int]bool),
+		resourceMap: make(map[int]bool),
+	}
 }
 
 // IndexFragments stores the fragments generated from the CSV into ElasticSearch
@@ -139,7 +147,6 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 	}
 
 	var header []string
-	var headerMap map[int]r.Term
 	var subjectColumnIdx int
 	var thumbnailColumnIdx int
 	var manifestColumnIdx int
@@ -149,7 +156,7 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 	for idx, row := range records {
 		if idx == 0 {
 			header = row
-			headerMap = con.CreateHeader(header)
+			con.CreateHeader(header)
 			subjectColumnIdx, err = con.GetSubjectColumn(
 				header,
 				con.SubjectColumn,
@@ -222,8 +229,7 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 				)
 				triples = append(triples, manifest)
 			}
-			p := headerMap[idx]
-			t := con.CreateTriple(s, p, column)
+			t := con.CreateTriple(s, idx, column)
 			if t != nil {
 				triples = append(triples, t)
 			}
@@ -238,21 +244,41 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 }
 
 // CreateHeader creates a map based on column id for the predicates
-func (con *CSVConvertor) CreateHeader(row []string) map[int]r.Term {
-	m := make(map[int]r.Term)
+func (con *CSVConvertor) CreateHeader(row []string) {
 	for idx, column := range row {
-		m[idx] = r.NewResource(
+		con.headerMap[idx] = r.NewResource(
 			fmt.Sprintf("%s/%s", strings.TrimSuffix(con.PredicateURIBase, "/"), strings.ToLower(column)),
 		)
+		if stringInSlice(column, con.ObjectResourceColumns) {
+			con.resourceMap[idx] = true
+		}
+		if stringInSlice(column, con.ObjectIntegerColumns) {
+			con.integerMap[idx] = true
+		}
 	}
-	return m
+	return
 }
 
 // CreateTriple creates a rdf2go.Triple from the CSV column
-func (con *CSVConvertor) CreateTriple(subject r.Term, predicate r.Term, column string) *r.Triple {
+func (con *CSVConvertor) CreateTriple(subject r.Term, idx int, column string) *r.Triple {
 	c := strings.TrimSpace(column)
+	predicate := con.headerMap[idx]
 	if len(c) == 0 {
 		return nil
+	}
+	if con.integerMap[idx] {
+		return r.NewTriple(
+			subject,
+			predicate,
+			r.NewLiteralWithDatatype(c, r.NewResource("http://www.w3.org/2001/XMLSchema#integer")),
+		)
+	}
+	if con.ObjectURIFormat != "" && con.resourceMap[idx] {
+		return r.NewTriple(
+			subject,
+			predicate,
+			r.NewResource(fmt.Sprintf("%s%s", con.ObjectURIFormat, column)),
+		)
 	}
 	return r.NewTriple(
 		subject,
@@ -306,3 +332,11 @@ func (con *CSVConvertor) GetSubjectColumn(headers []string, columnLabel string) 
 
 // func Valid bool
 // todo add curl example
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}

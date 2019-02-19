@@ -416,7 +416,8 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	conv.Separator = r.FormValue("separator")
 	conv.PredicateURIBase = r.FormValue("predicateURIBase")
 	conv.SubjectColumn = r.FormValue("subjectColumn")
-	conv.ObjectResourceColumns = []string{r.FormValue("objectResourceColumns")}
+	conv.ObjectResourceColumns = strings.Split(r.FormValue("objectResourceColumns"), ",")
+	conv.ObjectIntegerColumns = strings.Split(r.FormValue("objectIntegerColumns"), ",")
 	conv.ObjectURIFormat = r.FormValue("objectURIFormat")
 	conv.DefaultSpec = r.FormValue("defaultSpec")
 	conv.ThumbnailURIBase = r.FormValue("thumbnailURIBase")
