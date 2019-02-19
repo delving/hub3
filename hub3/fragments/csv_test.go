@@ -42,15 +42,16 @@ var _ = Describe("CSV", func() {
 			It("should create a header map", func() {
 				in, err := os.Open("test_data/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
-				conv := CSVConvertor{
-					InputFile:        in,
-					Separator:        ";",
-					SubjectColumn:    "handle-uuid",
-					PredicateURIBase: "http://data.rapid.nl/def/",
-				}
+				conv := NewCSVConvertor()
+				conv.InputFile = in
+				conv.Separator = ";"
+				conv.SubjectColumn = "handle-uuid"
+				conv.PredicateURIBase = "http=//data.rapid.nl/def/"
+
 				records, err := conv.GetReader()
 				Expect(err).ToNot(HaveOccurred())
-				hMap := conv.CreateHeader(records[0])
+				conv.CreateHeader(records[0])
+				hMap := conv.HeaderMap()
 				Expect(hMap).ToNot(BeEmpty())
 				Expect(hMap[0].String()).To(HaveSuffix(">"))
 				Expect(hMap[0].String()).To(ContainSubstring("data.rapid.nl/def/"))
@@ -72,31 +73,29 @@ var _ = Describe("CSV", func() {
 			})
 
 			It("should create a triple for non-empty values", func() {
-				conv := CSVConvertor{
-					//InputFile:     in,
-					Separator:      ";",
-					SubjectColumn:  "handle-uuid",
-					SubjectClass:   "http://www.europeana.eu/schemas/edm/WebResource",
-					SubjectURIBase: "http://data.rapid.nl/resource/",
-				}
-				t := conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), "not empty")
+				conv := NewCSVConvertor()
+				conv.Separator = ";"
+				conv.SubjectColumn = "handle-uuid"
+				conv.SubjectClass = "http://www.europeana.eu/schemas/edm/WebResource"
+				conv.SubjectURIBase = "http://data.rapid.nl/resource/"
+
+				t := conv.CreateTriple(rdf2go.NewResource("urn:s"), 0, "not empty")
 				Expect(t).ToNot(BeNil())
 
-				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), "")
+				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), 0, "")
 				Expect(t).To(BeNil())
 
-				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), rdf2go.NewResource("urn:p"), " ")
+				t = conv.CreateTriple(rdf2go.NewResource("urn:s"), 0, " ")
 				Expect(t).To(BeNil())
 			})
 
 			It("should parse a file", func() {
 				in, err := os.Open("test_data/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
-				conv := CSVConvertor{
-					InputFile:     in,
-					Separator:     ";",
-					SubjectColumn: "handle-uuid",
-				}
+				conv := NewCSVConvertor()
+				conv.InputFile = in
+				conv.Separator = ";"
+				conv.SubjectColumn = "handle-uuid"
 				Expect(conv.InputFile).ToNot(BeNil())
 				triples, totalRows, err := conv.CreateTriples()
 				Expect(err).ToNot(HaveOccurred())

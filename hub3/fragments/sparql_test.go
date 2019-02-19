@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-package hub3
+package fragments
 
 import (
 	"strings"
@@ -20,7 +20,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Bulkapi", func() {
+var _ = Describe("Sparql", func() {
 
 	Describe("When reading a io.Reader", func() {
 

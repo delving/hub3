@@ -47,6 +47,11 @@ func NewCSVConvertor() *CSVConvertor {
 	}
 }
 
+// HeaderMap gives access to a read-only version of the header map
+func (con CSVConvertor) HeaderMap() map[int]r.Term {
+	return con.headerMap
+}
+
 // IndexFragments stores the fragments generated from the CSV into ElasticSearch
 func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) (int, int, error) {
 
