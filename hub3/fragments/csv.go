@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/delving/rapid-saas/config"
+	c "github.com/delving/rapid-saas/config"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic"
 )
@@ -34,6 +34,7 @@ type CSVConvertor struct {
 	integerMap            map[int]bool
 	resourceMap           map[int]bool
 	headerMap             map[int]r.Term
+	storeRDF              bool
 }
 
 // NewCSVConvertor creates a CSV convertor from an net/http Form
@@ -42,6 +43,7 @@ func NewCSVConvertor() *CSVConvertor {
 		headerMap:   make(map[int]r.Term),
 		integerMap:  make(map[int]bool),
 		resourceMap: make(map[int]bool),
+		storeRDF:    c.Config.RDF.RDFStoreEnabled,
 	}
 }
 
@@ -50,7 +52,7 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
-		OrgID:    config.Config.OrgID,
+		OrgID:    c.Config.OrgID,
 		Revision: int32(revision),
 		DocType:  "csvUpload",
 		Spec:     con.DefaultSpec,
@@ -82,33 +84,39 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 			if err != nil {
 				return 0, 0, err
 			}
-			_, err = triples.WriteString(frag.Triple + "\n")
-			if err != nil {
-				return 0, 0, err
+			if con.storeRDF {
+				_, err = triples.WriteString(frag.Triple + "\n")
+				if err != nil {
+					return 0, 0, err
+				}
 			}
 			triplesProcessed = triplesProcessed + 1
 		}
-		su := SparqlUpdate{
-			Triples:       triples.String(),
-			NamedGraphURI: fg.Meta.NamedGraphURI,
-			Spec:          fg.Meta.Spec,
-			SpecRevision:  revision,
-		}
-		triples.Reset()
-		sparqlUpdates = append(sparqlUpdates, su)
-		if len(sparqlUpdates) >= 250 {
-			// insert the triples
-			_, errs := RDFBulkInsert(sparqlUpdates)
-			if len(errs) != 0 {
-				return 0, 0, errs[0]
+		if con.storeRDF {
+			su := SparqlUpdate{
+				Triples:       triples.String(),
+				NamedGraphURI: fg.Meta.NamedGraphURI,
+				Spec:          fg.Meta.Spec,
+				SpecRevision:  revision,
 			}
-			sparqlUpdates = []SparqlUpdate{}
+			triples.Reset()
+			sparqlUpdates = append(sparqlUpdates, su)
+			if len(sparqlUpdates) >= 250 {
+				// insert the triples
+				_, errs := RDFBulkInsert(sparqlUpdates)
+				if len(errs) != 0 {
+					return 0, 0, errs[0]
+				}
+				sparqlUpdates = []SparqlUpdate{}
+			}
 		}
 	}
 
-	_, errs := RDFBulkInsert(sparqlUpdates)
-	if len(errs) != 0 {
-		return 0, 0, errs[0]
+	if len(sparqlUpdates) != 0 {
+		_, errs := RDFBulkInsert(sparqlUpdates)
+		if len(errs) != 0 {
+			return 0, 0, errs[0]
+		}
 	}
 
 	return triplesProcessed, rowsProcessed, nil
