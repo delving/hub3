@@ -23,7 +23,6 @@ import (
 	"io"
 	"log"
 	"strings"
-	"text/template"
 
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/fragments"
@@ -53,61 +52,16 @@ type BulkAction struct {
 	wp            *workerpool.WorkerPool
 }
 
-// SparqlUpdate contains the elements to perform a SPARQL update query
-type SparqlUpdate struct {
-	Triples       string `json:"triples"`
-	NamedGraphURI string `json:"graphUri"`
-	Spec          string `json:"datasetSpec"`
-	SpecRevision  int    `json:"specRevision"`
-}
-
-// TripleCount counts the number of Ntriples in a string
-func (su SparqlUpdate) TripleCount() (int, error) {
-	r := strings.NewReader(su.Triples)
-	return lineCounter(r)
-}
-
-func lineCounter(r io.Reader) (int, error) {
-	scanner := bufio.NewScanner(r)
-	lineCount := 0
-	for scanner.Scan() {
-		lineCount++
-	}
-	return lineCount, nil
-}
-
-func executeTemplate(tmplString string, name string, model interface{}) string {
-	tmpl, err := template.New(name).Parse(tmplString)
-	if err != nil {
-		panic(err)
-	}
-	var b bytes.Buffer
-	err = tmpl.Execute(&b, model)
-	if err != nil {
-		panic(err)
-	}
-	return b.String()
-}
-
-func (su SparqlUpdate) String() string {
-	t := `GRAPH <{{.NamedGraphURI}}> {
-		<{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}" .
-		<{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/specRevision> "{{.SpecRevision}}"^^<http://www.w3.org/2001/XMLSchema#integer> .
-		{{ .Triples }}
-	}`
-	return executeTemplate(t, "update", su)
-}
-
 // BulkActionResponse is the datastructure where we keep the BulkAction statistics
 type BulkActionResponse struct {
-	Spec               string         `json:"spec"`
-	SpecRevision       int            `json:"specRevision"`       // version of the records stored
-	TotalReceived      int            `json:"totalReceived"`      // originally json was total_received
-	ContentHashMatches int            `json:"contentHashMatches"` // originally json was content_hash_matches
-	RecordsStored      int            `json:"recordsStored"`      // originally json was records_stored
-	JSONErrors         int            `json:"jsonErrors"`
-	TriplesStored      int            `json:"triplesStored"`
-	SparqlUpdates      []SparqlUpdate `json:"sparqlUpdates"` // store all the triples here for bulk insert
+	Spec               string                   `json:"spec"`
+	SpecRevision       int                      `json:"specRevision"`       // version of the records stored
+	TotalReceived      int                      `json:"totalReceived"`      // originally json was total_received
+	ContentHashMatches int                      `json:"contentHashMatches"` // originally json was content_hash_matches
+	RecordsStored      int                      `json:"recordsStored"`      // originally json was records_stored
+	JSONErrors         int                      `json:"jsonErrors"`
+	TriplesStored      int                      `json:"triplesStored"`
+	SparqlUpdates      []fragments.SparqlUpdate `json:"sparqlUpdates"` // store all the triples here for bulk insert
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
@@ -118,7 +72,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 	scanner.Buffer(buf, 1024*1024)
 
 	response := BulkActionResponse{
-		SparqlUpdates: []SparqlUpdate{},
+		SparqlUpdates: []fragments.SparqlUpdate{},
 		TotalReceived: 0,
 	}
 	var line []byte
@@ -234,32 +188,10 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 
 // RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
 func (r *BulkActionResponse) RDFBulkInsert() []error {
-	nrGraphs := len(r.SparqlUpdates)
-	if nrGraphs == 0 {
-		log.Println("No graphs to store")
-		return nil
-	}
-	strs := make([]string, nrGraphs)
-	graphs := make([]string, nrGraphs)
-	triplesStored := 0
-	for i, v := range r.SparqlUpdates {
-		strs[i] = v.String()
-		graphs[i] = fmt.Sprintf("DROP GRAPH <%s>;", v.NamedGraphURI)
-		count, err := v.TripleCount()
-		if err != nil {
-			log.Printf("Unable to count triples: %s", err)
-			return []error{fmt.Errorf("Unable to count triples for %s because :%s", strs[i], err)}
-		}
-		triplesStored += count
-	}
-	sparqlInsert := fmt.Sprintf("%s INSERT DATA {%s}", strings.Join(graphs, "\n"), strings.Join(strs, "\n"))
-	errs := models.UpdateViaSparql(sparqlInsert)
-	if errs != nil {
-		return errs
-	}
-	r.TriplesStored = triplesStored
 	// remove sparqlUpdates because they are no longer needed
-	r.SparqlUpdates = []SparqlUpdate{}
+	triplesStored, errs := fragments.RDFBulkInsert(r.SparqlUpdates)
+	r.SparqlUpdates = []fragments.SparqlUpdate{}
+	r.TriplesStored = triplesStored
 	return errs
 }
 
@@ -398,7 +330,7 @@ func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse, g *r
 	var b bytes.Buffer
 	g.Serialize(&b, "text/turtle")
 
-	su := SparqlUpdate{
+	su := fragments.SparqlUpdate{
 		Triples:       b.String(),
 		NamedGraphURI: action.NamedGraphURI,
 		Spec:          action.Spec,

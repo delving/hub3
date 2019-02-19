@@ -1,6 +1,7 @@
 package fragments
 
 import (
+	"bytes"
 	"encoding/csv"
 	fmt "fmt"
 	"io"
@@ -55,6 +56,9 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 		return 0, 0, err
 	}
 
+	sparqlUpdates := []SparqlUpdate{}
+	var triples bytes.Buffer
+
 	triplesProcessed := 0
 	for k, fr := range rm.Resources() {
 		fg.Meta.EntryURI = k
@@ -70,9 +74,35 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 			if err != nil {
 				return 0, 0, err
 			}
+			_, err = triples.WriteString(frag.Triple + "\n")
+			if err != nil {
+				return 0, 0, err
+			}
 			triplesProcessed = triplesProcessed + 1
 		}
+		su := SparqlUpdate{
+			Triples:       triples.String(),
+			NamedGraphURI: fg.Meta.NamedGraphURI,
+			Spec:          fg.Meta.Spec,
+			SpecRevision:  revision,
+		}
+		triples.Reset()
+		sparqlUpdates = append(sparqlUpdates, su)
+		if len(sparqlUpdates) >= 250 {
+			// insert the triples
+			_, errs := RDFBulkInsert(sparqlUpdates)
+			if len(errs) != 0 {
+				return 0, 0, errs[0]
+			}
+			sparqlUpdates = []SparqlUpdate{}
+		}
 	}
+
+	_, errs := RDFBulkInsert(sparqlUpdates)
+	if len(errs) != 0 {
+		return 0, 0, errs[0]
+	}
+
 	return triplesProcessed, rowsProcessed, nil
 }
 

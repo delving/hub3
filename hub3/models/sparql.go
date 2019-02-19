@@ -17,16 +17,13 @@ package models
 import (
 	"bytes"
 	"fmt"
-	"log"
-	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/delving/rapid-saas/config"
+	"github.com/delving/rapid-saas/hub3/fragments"
 	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
-	"github.com/parnurzeal/gorequest"
 	"github.com/sirupsen/logrus"
 )
 
@@ -136,32 +133,6 @@ func buildRepo(endPoint string) *sparql.Repo {
 	return repo
 }
 
-// UpdateViaSparql is a post to sparql function that tasks a valid SPARQL update query
-func UpdateViaSparql(update string) []error {
-	request := gorequest.New()
-	postURL := config.Config.GetSparqlUpdateEndpoint("")
-
-	parameters := url.Values{}
-	parameters.Add("update", update)
-	updateQuery := parameters.Encode()
-
-	resp, body, errs := request.Post(postURL).
-		Send(updateQuery).
-		Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8").
-		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
-		End()
-	if errs != nil {
-		log.Fatalf("errors for query %s: %#v", postURL, errs)
-	}
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		log.Println(body)
-		log.Println(resp)
-		log.Printf("unable to store sparqlUpdate: %s", update)
-		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
-	}
-	return errs
-}
-
 // DeleteAllGraphsBySpec issues an SPARQL Update query to delete all graphs for a DataSet from the triple store
 func DeleteAllGraphsBySpec(spec string) (bool, error) {
 	query, err := queryBank.Prepare("deleteAllGraphsBySpec", struct{ Spec string }{spec})
@@ -170,7 +141,7 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 		return false, err
 	}
 	logger.Info(query)
-	errs := UpdateViaSparql(query)
+	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
 		logger.WithField("query", query).Errorf("Unable query endpoint: %s", errs)
 		return false, errs[0]
@@ -190,7 +161,7 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 		return false, err
 	}
 	logger.Info(query)
-	errs := UpdateViaSparql(query)
+	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
 		logger.WithField("query", query).Errorf("Unable query endpoint: %s", errs)
 		return false, errs[0]
