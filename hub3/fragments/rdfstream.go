@@ -116,6 +116,7 @@ func (upl *RDFUploader) createFragmentGraph(subject string) (*FragmentGraph, err
 
 func (upl *RDFUploader) SaveFragmentGraphs(p *elastic.BulkProcessor) (int, error) {
 	var seen int
+	// TODO store sparql updates
 	for _, s := range upl.subjects {
 		seen++
 		fg, err := upl.createFragmentGraph(s)

@@ -211,7 +211,6 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// todo handle when no form.Spec is given
 	ds, created, err := models.GetOrCreateDataSet(form.Spec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", form.Spec)
@@ -253,13 +252,13 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("Start saving fragments.")
-		//processed, err := upl.IndexFragments(bp)
-		//if err != nil {
-		//log.Printf("Can't save fragments: %v", err)
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
-		//log.Printf("Saved %d fragments for %s", processed, upl.Spec)
+		processedFragments, err := upl.IndexFragments(bp)
+		if err != nil {
+			log.Printf("Can't save fragments: %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		log.Printf("Saved %d fragments for %s", processedFragments, upl.Spec)
 		processed, err := upl.SaveFragmentGraphs(bp)
 		if err != nil {
 			log.Printf("Can't save records: %v", err)
