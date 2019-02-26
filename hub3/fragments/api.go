@@ -779,6 +779,9 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		case "spec", "delving_spec", "delving_spec.raw", "meta.spec":
 			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
 			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
+		case "tags", "meta.tags":
+			qf.SearchLabel = "meta.tags"
+			postFilter = postFilter.Must(elastic.NewTermQuery(qf.SearchLabel, qf.Value))
 		default:
 			f, err := qf.ElasticFilter()
 			if err != nil {
