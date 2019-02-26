@@ -43,7 +43,7 @@ func gafApeProxy(w http.ResponseWriter, r *http.Request) {
 
 // runGafApeQuery sends a gaf query to the gaf-endpoint specified in the configuration
 func runGafApeQuery(r *http.Request) (body []byte, statusCode int, contentType string, err error) {
-	gafBaseURL := "https://acpt.nationaalarchief.nl"
+	gafBaseURL := "https://test.nationaalarchief.nl"
 	fullPath := fmt.Sprintf("%s%s", gafBaseURL, r.URL.Path)
 	log.Printf("path %#v", fullPath)
 	req, err := http.NewRequest("POST", fullPath, r.Body)
