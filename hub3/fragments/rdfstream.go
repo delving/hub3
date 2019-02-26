@@ -1,6 +1,7 @@
 package fragments
 
 import (
+	"bytes"
 	fmt "fmt"
 	"io"
 	"log"
@@ -147,6 +148,8 @@ func (upl *RDFUploader) IndexFragments(p *elastic.BulkProcessor) (int, error) {
 	}
 
 	triplesProcessed := 0
+	sparqlUpdates := []SparqlUpdate{}
+
 	for k, fr := range upl.rm.Resources() {
 		fg.Meta.EntryURI = k
 		fg.Meta.NamedGraphURI = fmt.Sprintf("%s/graph", k)
@@ -155,13 +158,47 @@ func (upl *RDFUploader) IndexFragments(p *elastic.BulkProcessor) (int, error) {
 			return 0, err
 		}
 
+		var triples bytes.Buffer
+
 		for _, frag := range frags {
+			if c.Config.RDF.RDFStoreEnabled {
+				_, err = triples.WriteString(frag.Triple + "\n")
+				if err != nil {
+					return 0, err
+				}
+			}
 			frag.Meta.AddTags("sourceUpload")
 			err := frag.AddTo(p)
 			if err != nil {
 				return 0, err
 			}
 			triplesProcessed++
+		}
+		revision := int(fg.Meta.Revision)
+		if c.Config.RDF.RDFStoreEnabled {
+			su := SparqlUpdate{
+				Triples:       triples.String(),
+				NamedGraphURI: fg.Meta.NamedGraphURI,
+				Spec:          fg.Meta.Spec,
+				SpecRevision:  revision,
+			}
+			triples.Reset()
+			sparqlUpdates = append(sparqlUpdates, su)
+			if len(sparqlUpdates) >= 250 {
+				// insert the triples
+				_, errs := RDFBulkInsert(sparqlUpdates)
+				if len(errs) != 0 {
+					return 0, errs[0]
+				}
+				sparqlUpdates = []SparqlUpdate{}
+			}
+		}
+	}
+
+	if len(sparqlUpdates) != 0 {
+		_, errs := RDFBulkInsert(sparqlUpdates)
+		if len(errs) != 0 {
+			return 0, errs[0]
 		}
 	}
 	return triplesProcessed, nil
