@@ -1,0 +1,8 @@
+@include font-face(FedraSansBook, "#{$zvt-fonts-path}/fedra/FedraSansAltStd-Book", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSansBookItalic, "#{$zvt-fonts-path}/fedra/FedraSansAltStd-BookItalic", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSansMedium, "#{$zvt-fonts-path}/fedra/FedraSansAltStd-Medium", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSansMediumItalic, "#{$zvt-fonts-path}/fedra/FedraSansAltStd-MediumItalic", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSerifBook, "#{$zvt-fonts-path}/fedra/FedraSerifAStdBook", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSerifBookItalic, "#{$zvt-fonts-path}/fedra/FedraSerifAStdBookItalic", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSerifMedium, "#{$zvt-fonts-path}/fedra/FedraSerifAStdMedium", normal, normal, woff woff2 ttf svg eot);
+@include font-face(FedraSerifMediumItalic, "#{$zvt-fonts-path}/fedra/FedraSerifAStdMediumItalic", normal, normal, woff woff2 ttf svg eot);

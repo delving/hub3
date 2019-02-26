@@ -1,0 +1,40 @@
+{
+  "localization": {
+    "label": "Nederlands (NL)",
+    "locales" : [
+      {
+        "name":"nl",
+        "label": "Nederlands (NL)"
+      },
+      {
+        "name":"fy-NL",
+        "label": "Frysk (FY)"
+      },
+      {
+        "name":"en-GB",
+        "label": "English (GB)"
+      }
+    ]
+  },
+  "options": {
+    "headerPanelEnabled": true,
+    "pagingEnabled": false
+  },
+  "modules": {
+    "headerPanel": {
+      "options": {
+        "localeToggleEnabled": false
+      }
+    },
+    "footerPanel": {
+      "options": {
+        "downloadEnabled": false
+      }
+    },
+    "moreInfoRightPanel": {
+      "options": {
+        "panelOpen": true
+      }
+    }
+  }
+}
