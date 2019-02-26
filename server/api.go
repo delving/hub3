@@ -84,6 +84,9 @@ func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httput
 			// explicitly disable User-Agent so it's not set to default value
 			req.Header.Set("User-Agent", "")
 		}
+		log.Printf("proxy request: %#v", req)
+		log.Printf("proxy request: %#v", req.URL.String())
+		log.Printf("proxy request: %#v", req.Body)
 	}
 	return &httputil.ReverseProxy{Director: director}
 }

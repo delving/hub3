@@ -1,0 +1,24 @@
+.btn-transparent {
+  line-height: 24px;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 0 .5rem;
+  i {
+    vertical-align: top;
+    line-height: inherit;
+  }
+}
+
+.text-truncate {
+  width: 100%;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+app-search-box {
+  display: block;
+}

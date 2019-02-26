@@ -140,6 +140,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 		result := &fragments.ScrollResultV4{}
 		result.Collapsed = records
+		result.Pager = &fragments.ScrollPager{Total: res.TotalHits()}
 		render.JSON(w, r, result)
 		return
 
