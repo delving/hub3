@@ -2,8 +2,8 @@ package fragments
 
 import (
 	fmt "fmt"
+	"io"
 	"log"
-	"mime/multipart"
 	"strings"
 
 	rdf "github.com/deiu/gon3"
@@ -13,9 +13,9 @@ import (
 )
 
 // parseTurtleFile creates a graph from an uploaded file
-func parseTurtleFile(f multipart.File) (*rdf.Graph, error) {
+func parseTurtleFile(r io.Reader) (*rdf.Graph, error) {
 	parser := rdf.NewParser("")
-	g, err := parser.Parse(f)
+	g, err := parser.Parse(r)
 	return g, err
 }
 
@@ -76,8 +76,8 @@ func NewRDFUploader(orgID, spec, subjectClass, typePredicate, idSplitter string,
 	}
 }
 
-func (upl *RDFUploader) Parse(f multipart.File) (*ResourceMap, error) {
-	g, err := parseTurtleFile(f)
+func (upl *RDFUploader) Parse(r io.Reader) (*ResourceMap, error) {
+	g, err := parseTurtleFile(r)
 	if err != nil {
 		return nil, err
 	}

@@ -16,9 +16,11 @@ package server
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -194,9 +196,27 @@ func (ruf *rdfUploadForm) isValid() error {
 var decoder = schema.NewDecoder()
 
 func rdfUpload(w http.ResponseWriter, r *http.Request) {
-	in, _, err := r.FormFile("turtle")
+	in, header, err := r.FormFile("rdf")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	defer in.Close()
+
+	var reader io.Reader
+	switch header.Header.Get("Content-Type") {
+	case "application/gzip":
+		reader, err = gzip.NewReader(in)
+		if err != nil {
+			log.Printf("Unable to create gzip reader: %s", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	case "text/turtle":
+		reader = in
+	default:
+		log.Println("only text/turtle is supported at the moment")
+		http.Error(w, "only text/turte is suppurted at the moment", http.StatusBadRequest)
 		return
 	}
 
@@ -247,9 +267,8 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 	)
 
 	go func() {
-		defer in.Close()
 		log.Print("Start creating resource map")
-		_, err := upl.Parse(in)
+		_, err := upl.Parse(reader)
 		if err != nil {
 			log.Printf("Can't read turtle file: %v", err)
 			return
