@@ -148,6 +148,8 @@ singleEndpoint = "NL-.*"
 
 # Default namespaces can be found in config/namespace.go
 
+[ead]
+searchURL = "https://test.nationaalarchief.nl"
 
 [rdftag]
 # used for title of a resource
