@@ -53,6 +53,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	resp, statusCode, contentType, err := runSparqlQuery(query)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, string(resp))
 		return
 	}
 	w.Header().Set("Content-Type", contentType)
@@ -83,11 +84,17 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 	resp, err := netClient.Do(req)
 	if err != nil {
 		log.Errorf("Error in sparql query: %s", err)
+		if strings.Contains(err.Error(), "connection refused") {
+			body = []byte("triple store unavailable")
+		}
+		statusCode = http.StatusBadRequest
+		return
 	}
-	body, err = ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Errorf("Unable to read the response body with error: %s", err)
+		return
 	}
 	statusCode = resp.StatusCode
 	contentType = resp.Header.Get("Content-Type")
