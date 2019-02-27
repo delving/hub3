@@ -112,16 +112,16 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 		log.Printf("Unable to set context: %s", err)
 		return fg
 	}
-	unlinked := []string{}
-	for key, _ := range rm.Resources() {
-		_, ok := resources[key]
-		if !ok {
-			unlinked = append(unlinked, key)
-		}
-	}
-	if len(unlinked) != 0 {
-		log.Printf("unlinked resources: %#v", unlinked)
-	}
+	//unlinked := []string{}
+	//for key, _ := range rm.Resources() {
+	//_, ok := resources[key]
+	//if !ok {
+	//unlinked = append(unlinked, key)
+	//}
+	//}
+	//if len(unlinked) != 0 {
+	//log.Printf("unlinked resources: %#v", unlinked)
+	//}
 	fg.Resources = rm.ResourcesList(resources)
 	return fg
 }
