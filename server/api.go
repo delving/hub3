@@ -288,7 +288,7 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("Saved %d records for %s", processed, upl.Spec)
-		ds.DropOrphans(r.Context(), bp, nil)
+		ds.DropOrphans(context.Background(), bp, nil)
 	}()
 
 	render.Status(r, http.StatusCreated)
