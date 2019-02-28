@@ -204,7 +204,8 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 	defer in.Close()
 
 	var reader io.Reader
-	switch header.Header.Get("Content-Type") {
+	contentType := strings.Split(header.Header.Get("Content-Type"), ";")[0]
+	switch contentType {
 	case "application/gzip":
 		reader, err = gzip.NewReader(in)
 		if err != nil {
@@ -216,7 +217,11 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 		reader = in
 	default:
 		log.Println("only text/turtle is supported at the moment")
-		http.Error(w, "only text/turte is suppurted at the moment", http.StatusBadRequest)
+		http.Error(
+			w,
+			fmt.Sprintf("only text/turtle is suppurted at the moment: %s", contentType),
+			http.StatusBadRequest,
+		)
 		return
 	}
 
