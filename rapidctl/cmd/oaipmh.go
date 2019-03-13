@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -24,6 +25,7 @@ import (
 
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
+	"golang.org/x/sync/errgroup"
 	pb "gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -263,13 +265,74 @@ func storeRecord(identifier string, prefix string) string {
 }
 
 func listGetRecords(ccmd *cobra.Command, args []string) {
-	ids := getIDs()
-	bar := pb.New(len(ids))
+	ctx := context.Background()
+	g, ctx := errgroup.WithContext(ctx)
+	ids := make(chan string)
+
+	bar := pb.New(0)
 	bar.Start()
-	for _, identifier := range ids {
-		storeRecord(identifier, prefix)
-		bar.Increment()
+
+	g.Go(func() error {
+		defer close(ids)
+		seen := 0
+
+		req := (&oai.Request{
+			BaseURL:        url,
+			Verb:           "ListIdentifiers",
+			Set:            spec,
+			MetadataPrefix: prefix,
+		})
+		req.HarvestIdentifiers(func(header *oai.Header) {
+			seen++
+			//if seen%250 == 0 {
+			//fmt.Printf("\rharvested: %d\n", seen)
+			//}
+			//log.Printf("seen %d: %s\n", seen, header.Identifier)
+			select {
+			case ids <- header.Identifier:
+				//case <-ctx.Done():
+				//return ctx.Err()
+			}
+		})
+		//log.Printf("total seen: %d", seen)
+		return nil
+	})
+
+	//c := make(chan string)
+	const numDigesters = 5
+	for i := 0; i < numDigesters; i++ {
+		g.Go(func() error {
+			for id := range ids {
+				id := id
+				//log.Printf("consuming id: %s", id)
+				//time.Sleep(100 * time.Millisecond)
+				storeRecord(id, prefix)
+				bar.Increment()
+				//select {
+				//case c <- id:
+
+				//case <-ctx.Done():
+				//return ctx.Err()
+				//}
+			}
+			return nil
+		})
 	}
+	go func() {
+		g.Wait()
+		//close(c)
+	}()
+
+	// Check whether any of the goroutines failed. Since g is accumulating the
+	// errors, we don't need to send them (or check for them) in the individual
+	// results sent on the channel.
+	if err := g.Wait(); err != nil {
+		log.Println(err)
+		bar.Finish()
+		return
+	}
+	bar.Finish()
+	return
 }
 
 // listRecords writes all Records to a file
