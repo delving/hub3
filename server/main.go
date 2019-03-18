@@ -228,6 +228,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 
 	// EAD endpoint
 	r.Post("/api/ead", eadUpload)
+	r.Get("/api/ead/{hubID}", eadManifest)
 
 	// Tree reconstruction endpoint
 	r.Get("/api/tree/{spec}", treeList)

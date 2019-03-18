@@ -2,6 +2,7 @@ package fragments
 
 import (
 	"context"
+	"encoding/json"
 	fmt "fmt"
 	"log"
 
@@ -57,6 +58,45 @@ func createStatCounters(aggs elastic.Aggregations, name string) ([]StatCounter, 
 		})
 	}
 	return counters, nil
+}
+
+func TreeNode(ctx context.Context, hubID string) (*Tree, error) {
+	q := elastic.NewBoolQuery()
+	q = q.Must(
+		elastic.NewTermQuery("tree.hubID", hubID),
+	)
+	res, err := index.ESClient().Search().
+		Index(c.Config.ElasticSearch.IndexName).
+		Query(q).
+		Size(10).
+		Do(ctx)
+	if err != nil {
+		log.Printf("Unable to get hubID %s; %s", hubID, err)
+		return nil, err
+	}
+	if res == nil {
+		log.Printf("expected response != nil; got: %v", res)
+		return nil, err
+	}
+	if res.TotalHits() == int64(0) {
+		log.Printf("Unable to get hubID %s; %s", hubID, err)
+		return nil, fmt.Errorf("hudId %s not found", hubID)
+
+	}
+	fg, err := decodeFragmentGraph(res.Hits.Hits[0].Source)
+	if err != nil {
+		return nil, err
+	}
+
+	return fg.Tree, nil
+}
+
+func decodeFragmentGraph(hit *json.RawMessage) (*FragmentGraph, error) {
+	r := new(FragmentGraph)
+	if err := json.Unmarshal(*hit, r); err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // CreateTreeStats creates a statistics overview

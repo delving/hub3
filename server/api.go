@@ -1038,6 +1038,44 @@ func treeDescriptionApi(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func eadManifest(w http.ResponseWriter, r *http.Request) {
+	hubID := chi.URLParam(r, "hubID")
+	parts := strings.Split(hubID, "_")
+	if len(parts) != 3 {
+		http.Error(w, fmt.Sprintf("badly formatted hubID: %v", hubID), http.StatusBadRequest)
+		return
+	}
+	spec := parts[1]
+	ds, err := models.GetDataSet(spec)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("dataset not found: %v", spec), http.StatusNotFound)
+		return
+	}
+
+	if ds.Label == "" {
+		http.Error(w, fmt.Sprintf("dataset is not an archive: %v", spec), http.StatusBadRequest)
+		return
+	}
+
+	treeNode, err := fragments.TreeNode(r.Context(), hubID)
+	if err != nil || treeNode == nil {
+		//if err != nil {
+		http.Error(w, fmt.Sprintf("hubID %v not found", hubID), http.StatusNotFound)
+		return
+	}
+	log.Println(treeNode)
+
+	manifest := &ead.Manifest{}
+	manifest.InventoryID = ds.Spec
+	manifest.ArchiveName = ds.Label
+	manifest.UnitID = treeNode.UnitID
+	manifest.UnitTitle = treeNode.Label
+
+	render.JSON(w, r, manifest)
+
+	return
+}
+
 func treeDescription(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	ds, err := models.GetDataSet(spec)

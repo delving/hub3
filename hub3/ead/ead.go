@@ -30,6 +30,14 @@ func init() {
 	}
 }
 
+// Manifest holds all the information for an archive to create a IIIF manifest.
+type Manifest struct {
+	InventoryID string `json:"inventoryID"`
+	ArchiveName string `json:"archiveName"`
+	UnitID      string `json:"unitID"`
+	UnitTitle   string `json:"unitTitle"`
+}
+
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
 	Counter  *NodeCounter
