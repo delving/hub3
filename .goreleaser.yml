@@ -79,9 +79,9 @@ nfpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   config_files:
-    #"deploy/rapid.service": "/lib/systemd/system/rapid.service"
-    #"deploy/rapid-syslog.conf": "/etc/rsyslog.d/rapid-syslog.conf"
-    #"rapid.toml": "/etc/default/rapid.toml"
+    "deploy/rapid.service": "/lib/systemd/system/rapid.service"
+    "deploy/rapid-syslog.conf": "/etc/rsyslog.d/rapid-syslog.conf"
+    "rapid.toml": "/etc/default/rapid.toml"
 
 sign:
   # name of the signature file.
