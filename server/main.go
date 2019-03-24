@@ -129,7 +129,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
-		serveHTML(w, r, "explore/sparql.html")
+		serveHTML(w, r, "yasgui/yasgui.html")
 		return
 	})
 	r.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
