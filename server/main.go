@@ -140,6 +140,13 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		serveHTML(w, r, "comunica/index.html")
 		return
 	})
+
+	r.Get("/assets/*", func(w http.ResponseWriter, r *http.Request) {
+		prefixedPath := fmt.Sprintf("/zvt/%s", r.URL)
+		log.Println(prefixedPath)
+		http.Redirect(w, r, prefixedPath, http.StatusSeeOther)
+
+	})
 	r.Get("/archives", func(w http.ResponseWriter, r *http.Request) {
 		serveHTML(w, r, "zvt/index.html")
 		return
