@@ -11,6 +11,7 @@ rapid.iml
 *.tmp
 
 # build and vendor
+main
 rapid
 rapid-saas
 gin-bin
@@ -23,9 +24,8 @@ rapidctl/build/*
 rapidctl/rapidctl
 rapidctl/main
 
-# assets
-server/assets/assets_vfsdata.go
-
+# assets: don't commit generated bundled static resources
+pkg/server/http/assets/filesystem_vfsdata.go
 
 # TLS cache
 .cache
@@ -46,7 +46,6 @@ results.bin
 # Data Storage
 # Boltdb
 rapid.db
-tesu.db
 
 # coverage
 report

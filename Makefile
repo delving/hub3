@@ -26,8 +26,7 @@ clean-build:
 	mkdir -p build
 
 create-assets:
-	@go run -tags=dev server/assets/assets_generate.go
-	mv assets_vfsdata.go server/assets/
+	@go generate ./...
 
 run:
 	@go run main.go
@@ -42,12 +41,11 @@ gox-build:
 	@make clean-build
 	@make create-assets
 	@make build 
-	gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags="$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
+	@gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags="$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
 	ls -la ./build/
 
 run-dev:
 	gin -buildArgs "-i -tags=dev -ldflags '${LDFLAGS}'" run http
-
 
 test:
 	@go test  ./...

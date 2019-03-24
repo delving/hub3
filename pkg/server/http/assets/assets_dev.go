@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 )
 
-// Assets contains project assets.
-var Assets http.FileSystem = getAbsolutePathToFileDir("public")
+// FileSystem contains the embedded static resources from the "third_parties" directory.
+var FileSystem http.FileSystem = getAbsolutePathToFileDir("third_party")
 
 func getAbsolutePathToFileDir(relativePath string) http.Dir {
 	workDir, _ := os.Getwd()

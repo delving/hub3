@@ -26,7 +26,8 @@ import (
 	c "github.com/delving/rapid-saas/config"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
-	"github.com/delving/rapid-saas/server/assets"
+	"github.com/delving/rapid-saas/pkg/server/http/assets"
+
 	"github.com/phyber/negroni-gzip/gzip"
 
 	"github.com/go-chi/chi"
@@ -86,7 +87,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	})
 
 	// setup fileserver for public directory
-	n.Use(negroni.NewStatic(assets.Assets))
+	n.Use(negroni.NewStatic(assets.FileSystem))
 
 	// Setup Router
 	r := chi.NewRouter()
@@ -354,7 +355,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 }
 
 func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
-	file, err := assets.Assets.Open(filePath)
+	file, err := assets.FileSystem.Open(filePath)
 	if err != nil {
 		log.Printf("Unable to open file %s: %v", filePath, err)
 		render.Status(r, http.StatusNotFound)

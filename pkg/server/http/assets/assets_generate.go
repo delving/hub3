@@ -4,16 +4,19 @@ package main
 
 import (
 	"log"
+	"net/http"
 
-	"github.com/delving/rapid-saas/server/assets"
 	"github.com/shurcooL/vfsgen"
 )
 
+var FileSystem http.FileSystem = http.Dir("../../../../third_party")
+
 func main() {
-	err := vfsgen.Generate(assets.Assets, vfsgen.Options{
+
+	err := vfsgen.Generate(FileSystem, vfsgen.Options{
 		PackageName:  "assets",
 		BuildTags:    "!dev",
-		VariableName: "Assets",
+		VariableName: "FileSystem",
 	})
 	if err != nil {
 		log.Fatalln(err)
