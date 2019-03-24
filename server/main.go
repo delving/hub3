@@ -132,8 +132,12 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		serveHTML(w, r, "yasgui/yasgui.html")
 		return
 	})
+	r.Get("/explore/scripts/ldf-client-worker.min.js", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/comunica/scripts/ldf-client-worker.min.js", http.StatusSeeOther)
+
+	})
 	r.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
-		serveHTML(w, r, "explore/ldf.html")
+		serveHTML(w, r, "comunica/index.html")
 		return
 	})
 	r.Get("/archives", func(w http.ResponseWriter, r *http.Request) {
