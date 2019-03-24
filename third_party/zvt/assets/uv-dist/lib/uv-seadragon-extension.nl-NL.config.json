@@ -52,7 +52,7 @@
     "clickToZoomEnabled": true,
     "searchWithinEnabled": true,
     "termsOfUseEnabled": true,
-    "theme": "uv-nl-NL-theme",
+    "theme": "uv-en-gb-theme",
     "tokenStorage": "session",
     "useArrowKeysToNavigate": false,
     "zoomToSearchResultEnabled": false,
@@ -118,24 +118,24 @@
         "selectionEnabled": false
       },
       "content": {
-        "currentViewAsJpg": "Current view {0} x {1}px (jpg)",
-        "currentViewAsJpgExplanation": "Opens in a new window",
-        "download": "Download",
-        "downloadSelection": "Download Selection",
-        "downloadSelectionExplanation": "Opens a dialogue to select which pages to download.",
-        "editSettings": "Edit Settings",
-        "entireDocument": "Entire document ({0})",
-        "entireFileAsOriginal": "Entire file",
-        "noneAvailable": "No download options are available.",
-        "pagingNote": "Please turn off Two Page View for additional options.",
-        "preview": "Preview",
-        "title": "Download",
-        "wholeImageHighRes": "Whole image {0} x {1}px ({2})",
-        "wholeImageHighResExplanation": "Opens in a new window.",
-        "wholeImagesHighRes": "Whole images ({0})",
-        "wholeImagesHighResExplanation": "Opens in two new windows.",
-        "wholeImageLowResAsJpg": "Whole image {0} x {1}px (jpg)",
-        "wholeImageLowResAsJpgExplanation": "Opens in a new window."
+        "currentViewAsJpg" : "Huidig zicht {0} x {1}px (jpg)",
+        "currentViewAsJpgExplanation" : "Opent in een nieuw venster",
+        "download" : "Download",
+        "downloadSelection" : "Download Selectie",
+        "downloadSelectionExplanation" : "Opent een venster om een selectie van pagina's te maken om te downloaden.",
+        "editSettings" : "Bewerk instellingen",
+        "entireDocument" : "Geheel document ({0})",
+        "entireFileAsOriginal" : "Geheel bestand ({0})",
+        "noneAvailable" : "Geen download opties zijn beschikbaar.",
+        "pagingNote" : "Zet AUB Twee-pagina weergave uit voor meer opties.",
+        "preview" : "Voorbeeld",
+        "title" : "Download",
+        "wholeImageHighRes" : "Gehele afbeelding {0} x {1}px ({2})",
+        "wholeImageHighResExplanation" : "Opent in een nieuw venster.",
+        "wholeImagesHighRes" : "Gehele afbeeldingen ({0})",
+        "wholeImagesHighResExplanation" : "Opent in twee nieuwe vensters.",
+        "wholeImageLowResAsJpg" : "Gehele afbeelding {0} x {1}px (jpg)",
+        "wholeImageLowResAsJpgExplanation" : "Opent in een nieuw venster."
       }
     },
     "footerPanel": {
@@ -150,18 +150,18 @@
         "moreInfoEnabled": true,
         "openEnabled": false,
         "printEnabled": false,
-        "shareEnabled": true
+        "shareEnabled": false
       },
       "content": {
-        "bookmark": "Add to bookmarks",
-        "download": "Download",
-        "embed": "Embed",
-        "exitFullScreen": "Exit Full Screen",
+        "bookmark" : "Voeg toe aan favorieten.",
+        "download" : "Download",
+        "embed" : "Embed",
+        "exitFullScreen" : "Verlaat volledig scherm.",
         "feedback": "Feedback",
-        "fullScreen": "Full Screen",
+        "fullScreen" : "Volledig scherm",
         "moreInfo": "Meer informatie",
-        "open": "Open",
-        "share": "Share"
+        "open" : "Open",
+        "share" : "Delen"
       }
     },
     "genericDialogue": {
@@ -204,24 +204,23 @@
         "textLimitType": "lines"
       },
       "content": {
-        "attribution": "Attribution",
-        "collapse": "Collapse Information",
-        "collapseFull": "Collapse Gallery",
-        "description": "Description",
-        "expand": "Expand Information",
-        "expandFull": "Expand Gallery",
-        "holdingText": "Your module goes here!",
-        "less": "less",
-        "license": "License",
-        "logo": "Logo",
-        "more": "more",
-        "noData": "No data to display",
-        "page": "Page",
+        "attribution" : "Toelichting",
+        "collapse" : "Verberg Informatie",
+        "collapseFull" : "Verberg Galerij",
+        "description" : "Beschrijving",
+        "expand" : "Toon Informatie",
+        "expandFull" : "Toon Galerij",
+        "holdingText" : "Uw module kan hier komen!",
+        "less" : "minder",
+        "license" : "Licentie",
+        "logo" : "Logo",
+        "more" : "meer",
+        "noData" : "Geen data om weer te geven",
         "title": "Meer informatie",
-        "manifestHeader": "About the item",
-        "canvasHeader": "About the image",
-        "copyToClipboard": "Copy to clipboard",
-        "copiedToClipboard": "Copied to clipboard"
+        "manifestHeader": "Over het item",
+        "canvasHeader": "Over de afbeelding",
+        "copyToClipboard": "Kopieer naar klembord",
+        "copiedToClipboard": "Gekopieerd naar het klembord"        
       }
     },
     "multiSelectDialogue": {
@@ -296,14 +295,14 @@
         "visibilityRatio": 0.5
       },
       "content": {
-        "attribution": "Attribution",
-        "goHome": "Go Home",
-        "imageUnavailable": "Image Unavailable",
-        "next": "Next",
-        "previous": "Previous",
-        "rotateRight": "Rotate Right",
-        "zoomIn": "Zoom In",
-        "zoomOut": "Zoom Out"
+        "attribution" : "Toelichting",
+        "goHome" : "Ga Naar Begin",
+        "imageUnavailable" : "Afbeelding niet beschikbaar",
+        "next" : "Volgene",
+        "previous" : "Vorige",
+        "rotateRight" : "Roteer Rechts",
+        "zoomIn" : "Zoom In",
+        "zoomOut" : "Zoom Out"
       }
     },
     "searchFooterPanel": {
@@ -334,14 +333,14 @@
       }
     },
     "settingsDialogue": {
-      "content": {
-        "locale": "Locale",
-        "navigatorEnabled": "Navigator Enabled",
-        "clickToZoomEnabled": "Mouse Click To Zoom",
-        "pagingEnabled": "Two Page View",
-        "preserveViewport": "Preserve Zoom",
-        "title": "Settings",
-        "website": "<a href='https://github.com/universalviewer/universalviewer#contributors'>more info</a>"
+      "content" : {
+        "locale" : "Taal",
+        "navigatorEnabled" : "Navigator Aan",
+        "clickToZoomEnabled": "Gebruik muisklik om te zoomen",
+        "pagingEnabled" : "Twee-pagina Weergave",
+        "preserveViewport" : "Behoud Zoom",
+        "title" : "Instellingen",
+        "website" : "<a href='https://github.com/universalviewer/universalviewer#contributors'>meer info</a>"
       }
     },
     "shareDialogue": {
@@ -351,15 +350,15 @@
         "shareFrameEnabled": true
       },
       "content": {
-        "customSize": "custom",
-        "embed": "Embed",
-        "embedInstructions": "To embed this item in your own website, copy and paste the code below.",
-        "height": "Height",
-        "iiif": "IIIF Manifest",
-        "share": "Share",
-        "shareInstructions": "To share this item, copy the URL below.",
-        "size": "Size:",
-        "width": "Width"
+        "customSize" : "Specifiek",
+        "embed" : "Embed",
+        "embedInstructions" : "Om deze viewer te embedden kopieer en plak onderstaande code in uw website.",
+        "height" : "Hoogte",
+        "iiif" : "IIIF Manifest",
+        "share" : "Delen",
+        "shareInstructions" : "Om te delen kopieer onderstaande URL.",
+        "size" : "Afmetingen:",
+        "width" : "Breedte"
       }
     },
     "authDialogue": {
@@ -381,11 +380,11 @@
       }
     },
     "mobileFooterPanel": {
-      "content": {
-        "rotateRight": "Rotate Right",
-        "moreInfo": "Meer Informatie",
-        "zoomIn": "Zoom In",
-        "zoomOut": "Zoom Out"
+      "content" : {
+        "rotateRight" : "Roteer Rechts",
+        "moreInfo" : "Meer Informatie",
+        "zoomIn" : "Zoom In",
+        "zoomOut" : "Zoom Uit"
       }
     },
     "restrictedDialogue": {
@@ -400,10 +399,6 @@
       {
         "name": "nl-NL",
         "label": "Nederlands (NL)"
-      },
-      {
-        "name": "en-GB",
-        "label": "English (GB)"
       }
     ]
   },

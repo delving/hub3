@@ -36,6 +36,7 @@
     "DESCRIPTION-ARCHIVE": "Archive description",
     "ACCESS-NUMBER": "Access number",
     "INVENTORY": "Inventory",
+    "INVENTORIES": "Archives",
     "INVENTORY-DESC": "Inventory description",
     "TERM-FOUND-IN-DESCRIPTION": "Detail result in the description of this archive reference",
     "LOAD-MORE-NODES": "Load more nodes",
@@ -105,6 +106,7 @@
     "COMPONENTS": "Components",
     "EAD-UNAVAILABLE": "This archive is currently unavailable.",
     "DOWNLOAD-XML": "Download Inventory of the Archive as an XML",
+    "DOWNLOAD-PDF": "Download Inventory of the Archive as an PDF",
     "SHOW-DESCRIPTIVE-UNIT-BUTTON-TEXT":  "Detailed results"
   },
   "PAGE-ARCHIVES-DETAILS-HUB": {

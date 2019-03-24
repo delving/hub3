@@ -10,24 +10,24 @@
     "openTemplate": "http://universalviewer.io?manifest={0}",
     "pessimisticAccessControl": false,
     "rightPanelEnabled": true,
-    "theme": "uv-en-GB-theme"
+    "theme": "uv-en-gb-theme"
   },
   "modules": {
     "shareDialogue": {
       "options": {
         "embedTemplate": "<iframe src=\"{0}\" width=\"{1}\" height=\"{2}\" allowfullscreen frameborder=\"0\"></iframe>"
       },
-      "content": {
-        "customSize": "custom",
-        "embed": "Embed",
-        "embedInstructions": "To embed this item in your own website, copy and paste the code below.",
-        "height": "Height",
-        "iiif": "IIIF Manifest",
-        "share": "Share",
-        "shareInstructions": "To share this item, copy the URL below.",
-        "size": "Size:",
-        "width": "Width"
-      }
+      "content" : {
+				"customSize" : "Specifiek",
+				"embed" : "Embed",
+				"embedInstructions" : "Om deze viewer te embedden kopieer en plak onderstaande code in uw website.",
+				"height" : "Hoogte",
+				"iiif" : "IIIF Manifest",
+				"share" : "Delen",
+				"shareInstructions" : "Kopieer onderstaande link om dit item te kunnen delen.",
+				"size" : "Afmetingen:",
+				"width" : "Breedte"
+			}
     },
     "footerPanel": {
       "options": {
@@ -36,18 +36,18 @@
         "feedbackEnabled": false,
         "minimiseButtons": true,
         "openEnabled": false,
-        "shareEnabled": true
+        "shareEnabled": false
       },
       "content": {
-        "bookmark": "Add to bookmarks",
-        "download": "Download",
-        "embed": "Embed",
-        "exitFullScreen": "Exit Full Screen",
+        "bookmark" : "Voeg toe aan favorieten.",
+				"download" : "Download",
+				"embed" : "Embed",
+        "exitFullScreen" : "Verlaat volledig scherm.",
         "feedback": "Feedback",
-        "fullScreen": "Full Screen",
+        "fullScreen" : "Volledig scherm",
         "moreInfo": "Meer informatie",
-        "open": "Open",
-        "share": "Share"
+				"open" : "Open",
+        "share" : "Delen"
       }
     },
     "genericDialogue": {
@@ -57,13 +57,13 @@
     },
     "headerPanel": {
       "content": {
-        "close": "Close",
+        "close": "Sluiten",
         "help": "Help"
       }
     },
     "helpDialogue": {
       "content": {
-        "text": "placeholder text",
+        "text": "placeholder tekst",
         "title": "Help"
       }
     },
@@ -77,31 +77,30 @@
         "panelAnimationDuration": 250,
         "panelCollapsedWidth": 30,
         "panelExpandedWidth": 255,
-        uv-mediaelement-extension.en-GB.config.json
+        "panelOpen": true,
         "rtlLanguageCodes": "ar, ara, dv, div, he, heb, ur, urd",
         "showAllLanguages": false,
         "textLimit": 4,
         "textLimitType": "lines"
       },
       "content": {
-        "attribution": "Attribution",
-        "collapse": "Collapse Information",
-        "collapseFull": "Collapse Gallery",
-        "description": "Description",
-        "expand": "Expand Information",
-        "expandFull": "Expand Gallery",
-        "holdingText": "Your module goes here!",
-        "less": "less",
-        "license": "License",
-        "logo": "Logo",
-        "more": "more",
-        "noData": "No data to display",
-        "page": "Page",
+        "attribution" : "Toelichting",
+				"collapse" : "Verberg Informatie",
+				"collapseFull" : "Verberg Galerij",
+				"description" : "Beschrijving",
+				"expand" : "Toon Informatie",
+				"expandFull" : "Toon Galerij",
+				"holdingText" : "Uw module kan hier komen!",
+				"less" : "minder",
+				"license" : "Licentie",
+				"logo" : "Logo",
+				"more" : "meer",
+				"noData" : "Geen data om weer te geven",
         "title": "Meer informatie",
-        "manifestHeader": "About the item",
-        "canvasHeader": "About the image",
-        "copyToClipboard": "Copy to clipboard",
-        "copiedToClipboard": "Copied to clipboard"
+        "manifestHeader": "Over het item",
+        "canvasHeader": "Over de afbeelding",
+        "copyToClipboard": "Kopieer naar klembord",
+        "copiedToClipboard": "Gekopieerd naar het klembord"        
       }
     },
     "pdfCenterPanel": {
@@ -133,42 +132,42 @@
     },
     "dialogue": {
       "content": {
-        "close": "Close"
+        "close": "Sluiten"
       }
     },
     "downloadDialogue": {
       "content": {
-        "download": "Download",
-        "entireFileAsOriginal": "Entire file",
-        "noneAvailable": "No download options are available.",
-        "preview": "Preview",
-        "title": "Download"
+        "download" : "Download",
+				"entireFileAsOriginal" : "Geheel bestand ({0})",
+				"noneAvailable" : "Geen download opties zijn beschikbaar.",
+				"preview" : "Voorbeeld",
+				"title" : "Download"
       }
     },
     "pdfHeaderPanel": {
       "content": {
-        "emptyValue": "Please enter a value",
-        "first": "First",
-        "go": "Go",
-        "last": "Last",
-        "next": "Next",
+        "emptyValue": "Voer een getal in",
+        "first": "Eerste",
+        "go": "Ga",
+        "last": "Laatste",
+        "next": "Volgende",
         "of": "of {0}",
-        "previous": "Previous"
+        "previous": "Vorige"
       }
     },
     "loginDialogue": {
       "content": {
         "login": "Login",
-        "cancel": "Cancel"
+        "cancel": "Annuleren"
       }
     },
     "settingsDialogue": {
       "content": {
-        "locale": "Locale",
-        "pagingEnabled": "Two Page View",
-        "preserveViewport": "Preserve Zoom",
-        "title": "Settings",
-        "website": "<a href='https://github.com/universalviewer/universalviewer'>more info</a>"
+        "locale" : "Taal",
+				"pagingEnabled" : "Two Page View",
+				"preserveViewport" : "Behoud zoom",
+				"title" : "Instellingen",
+				"website" : "<a href='https://github.com/universalviewer/universalviewer'>Meer informatie</a>"
       }
     },
     "contentLeftPanel": {}
@@ -179,18 +178,14 @@
       {
         "name": "nl-NL",
         "label": "Nederlands (NL)"
-      },
-      {
-        "name": "en-GB",
-        "label": "English (GB)"
       }
     ]
   },
   "content": {
-    "authCORSError": "Your browser does not support CORS, please upgrade to view this content.",
-    "authorisationFailedMessage": "Your log-in attempt did not appear to be successful. Please try again.",
-    "degradedResourceMessage": "Please log in to view at full quality.",
-    "degradedResourceLogin": "log in",
-    "forbiddenResourceMessage": "Your current access rights are insufficient to view this image"
+    "authCORSError" : "Uw browser ondersteunt geen CORS, upgrade uw brwoser om deze pagina correct te kunnen weergeven.",
+		"authorisationFailedMessage" : "Uw poging om in te loggen blijkt niet succesvol, probeer het nog eens.",
+		"degradedResourceMessage" : "Log in om de volledige kwaliteit te kunnen bezichtigen.",
+		"degradedResourceLogin" : "log in",
+		"forbiddenResourceMessage" : "Uw huidige rechten zijn nier voldoende om deze afbeelding te bekijken."
   }
 }

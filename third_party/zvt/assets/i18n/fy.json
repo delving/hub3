@@ -36,6 +36,7 @@
     "DESCRIPTION-ARCHIVE": "Beskriuwing fan it argyf",
     "ACCESS-NUMBER": "Koade",
     "INVENTORY": "Ynventaris",
+    "INVENTORIES": "Ynventarissen",
     "INVENTORY-DESC": "Ynventaris beskriuwing",
     "TERM-FOUND-IN-DESCRIPTION": "Der is in gefolch fan 'e beskriuwing",
     "LOAD-MORE-NODES": "Moar nodes laden",
@@ -51,7 +52,7 @@
     "SEARCH-WITHOUT-FILTERS-LABEL": "sykje sûnder filters",
     "NO-BACKEND-AVAILABLE": "In flater is foarkommen. Dizze boarne is op it stuit net beskikber.",
     "NO-FILTERS-AVAILABLE": "Gjin Fjilters beschikbar",
-    "RESULTS-PER-PAGE": "Gevonden",
+    "RESULTS-PER-PAGE": "Resultaten",
     "APPEND-TITLE-STARTPAGE":" - sykskerm",
     "APPEND-TITLE-RESULTPAGE": " - resultats",
     "APPEND-TITLE-CONTENTPAGE":  " - ynhâld",
@@ -73,13 +74,13 @@
     "PAGE-LINK": "Afbeeldingen"
   },
   "PAGE-ARCHIVES-SEARCH-RESULT": {
-    "PAGE-TITLE": "Archieven",
-    "PAGE-LINK": "Archieven",
+    "PAGE-TITLE": "Ynventarissen",
+    "PAGE-LINK": "Ynventarissen",
     "DETAILED-RESULTS": "Detailresultaten"
   },
   "PAGE-ARCHIVES-SEARCH-RESULT-HUB": {
-    "PAGE-TITLE": "Archieven HUB",
-    "PAGE-LINK": "Archieven",
+    "PAGE-TITLE": "Ynventarissen hub",
+    "PAGE-LINK": "Ynventarissen hub",
     "DETAILED-RESULTS": "Detailresultaten"
   },
   "PAGE-ARCHIVES-DETAILS": {
@@ -105,6 +106,7 @@
     "COMPONENTS": "Komponinten",
     "EAD-UNAVAILABLE": "Dit argyf is op it stuit net beskikber.",
     "DOWNLOAD-XML": "Download Inventaris fan it argyf as XML",
+    "DOWNLOAD-PDF": "Download Inventaris fan it argyf as PDF",
     "SHOW-DESCRIPTIVE-UNIT-BUTTON-TEXT": "Detailresultaten"
   },
   "PAGE-ARCHIVES-DETAILS-HUB": {

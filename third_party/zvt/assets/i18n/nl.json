@@ -36,6 +36,7 @@
     "DESCRIPTION-ARCHIVE": "Archive beschrijving",
     "ACCESS-NUMBER": "Toegangsnummer",
     "INVENTORY": "Inventaris",
+    "INVENTORIES": "Inventarissen",
     "INVENTORY-DESC": "Inventaris beschrijving",
     "TERM-FOUND-IN-DESCRIPTION": "Detailresultaat in de beschrijving van deze inventaris",
     "LOAD-MORE-NODES": "Meer nodes laden",
@@ -51,7 +52,7 @@
     "SEARCH-WITHOUT-FILTERS-LABEL": "zoek zonder filters",
     "NO-BACKEND-AVAILABLE": "Er is een fout opgetreden. Deze bron is momenteel niet beschikbaar.",
     "NO-FILTERS-AVAILABLE": "Geen filters beschikbaar",
-    "RESULTS-PER-PAGE": "Gevonden",
+    "RESULTS-PER-PAGE": "Resultaten",
     "APPEND-TITLE-STARTPAGE":" - zoekscherm",
     "APPEND-TITLE-RESULTPAGE": " - resultaten",
     "APPEND-TITLE-CONTENTPAGE": " - inhoud",
@@ -73,13 +74,13 @@
     "PAGE-LINK": "Afbeeldingen"
   },
   "PAGE-ARCHIVES-SEARCH-RESULT": {
-    "PAGE-TITLE": "Archieven",
-    "PAGE-LINK": "Archieven",
+    "PAGE-TITLE": "Inventarissen",
+    "PAGE-LINK": "Inventarissen",
     "DETAILED-RESULTS": "Detailresultaten"
   },
   "PAGE-ARCHIVES-SEARCH-RESULT-HUB": {
-    "PAGE-TITLE": "Archieven hub",
-    "PAGE-LINK": "Archieven hub",
+    "PAGE-TITLE": "Inventarissen hub",
+    "PAGE-LINK": "Inventarissen hub",
     "DETAILED-RESULTS": "Detailresultaten"
   },
   "PAGE-ARCHIVES-DETAILS": {
@@ -94,10 +95,10 @@
     "DESCRIPTION": "Beschrijving",
     "DESCRIPTION-ARCHIVE": "Beschrijving van het archief",
     "DESCRIPTION-ARCHIVE-INVENTORY": "Archiefinventaris",
-    "ARCHIVE-NUMBER": "Archief Nr.",
+    "ARCHIVE-NUMBER": "Nr. archiefinventaris",
     "DESCRIPTION-ARCHIVE-NAME": "Archiefnaam",
     "DESCRIPTION-SUMMARY": "Samenvatting",
-    "DESCRIPTION-INSTITUTE": "Institute",
+    "DESCRIPTION-INSTITUTE": "Instituut",
     "DESCRIPTION-ARCHIVE-FORMATION": "Archiefvorming",
     "DESCRIPTION-CONTENT-STRUCTURE": "Inhoud en structuur van het archief",
     "DESCRIPTION-INSTRUCTIONS": "Aanwijzigingen voor de gebruiker",
@@ -105,6 +106,7 @@
     "COMPONENTS": "Bestanddelen",
     "EAD-UNAVAILABLE": "Dit archief is momenteel niet beschikbaar.",
     "DOWNLOAD-XML": "Download Inventaris van het Archief als XML",
+    "DOWNLOAD-PDF": "Download Inventaris van het Archief als PDF",
     "SHOW-DESCRIPTIVE-UNIT-BUTTON-TEXT": "Detailresultaten"
   },
   "PAGE-ARCHIVES-DETAILS-HUB": {
@@ -119,10 +121,10 @@
     "DESCRIPTION": "Beschrijving",
     "DESCRIPTION-ARCHIVE": "Beschrijving van het archief",
     "DESCRIPTION-ARCHIVE-INVENTORY": "Archiefinventaris",
-    "ARCHIVE-NUMBER": "Archief Nr.",
+    "ARCHIVE-NUMBER": "Nr. archiefinventaris",
     "DESCRIPTION-ARCHIVE-NAME": "Archiefnaam",
     "DESCRIPTION-SUMMARY": "Samenvatting",
-    "DESCRIPTION-INSTITUTE": "Institute",
+    "DESCRIPTION-INSTITUTE": "Instituut",
     "DESCRIPTION-ARCHIVE-FORMATION": "Archiefvorming",
     "DESCRIPTION-CONTENT-STRUCTURE": "Inhoud en structuur van het archief",
     "DESCRIPTION-INSTRUCTIONS": "Aanwijzigingen voor de gebruiker",
