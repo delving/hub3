@@ -33,7 +33,6 @@ import (
 	"github.com/delving/rapid-saas/hub3"
 	"github.com/delving/rapid-saas/hub3/ead"
 	"github.com/delving/rapid-saas/hub3/fragments"
-	"github.com/delving/rapid-saas/hub3/harvesting"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
@@ -45,7 +44,6 @@ import (
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/kiivihal/goharvest/oai"
 )
 
 var bp *elastic.BulkProcessor
@@ -497,32 +495,10 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusCreated)
-	//render.PlainText(w, r, "ok")
 	render.JSON(w, r, conv)
 	return
 }
 
-func bulkSyncStart(w http.ResponseWriter, r *http.Request) {
-
-	//host := r.URL.Query().Get("host")
-	//index := r.URL.Query().Get("index")
-
-}
-
-func bulkSyncList(w http.ResponseWriter, r *http.Request) {
-
-	//host := r.URL.Query().Get("host")
-	//index := r.URL.Query().Get("index")
-
-}
-
-func bulkSyncProgress(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func bulkSyncCancel(w http.ResponseWriter, r *http.Request) {
-
-}
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
@@ -539,31 +515,6 @@ func bulkAPI(w http.ResponseWriter, r *http.Request) {
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, response)
 	return
-}
-
-// bindPMHRequest the query parameters to the OAI-Request
-func bindPMHRequest(r *http.Request) oai.Request {
-	baseURL := fmt.Sprintf("http://%s%s", r.Host, r.URL.Path)
-	q := r.URL.Query()
-	req := oai.Request{
-		Verb:            q.Get("verb"),
-		MetadataPrefix:  q.Get("metadataPrefix"),
-		Set:             q.Get("set"),
-		From:            q.Get("from"),
-		Until:           q.Get("until"),
-		Identifier:      q.Get("identifier"),
-		ResumptionToken: q.Get("resumptionToken"),
-		BaseURL:         baseURL,
-	}
-	return req
-}
-
-// oaiPmhEndpoint processed OAI-PMH request and returns the results
-func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
-	req := bindPMHRequest(r)
-	log.Println(req)
-	resp := harvesting.ProcessVerb(&req)
-	render.XML(w, r, resp)
 }
 
 // RenderLODResource returns a list of matching fragments
