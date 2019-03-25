@@ -149,34 +149,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 
-	r.Post("/gaf/search/json", gafApeProxy)
-	r.Post("/gaf/search/descendants/*", gafApeProxy)
-	r.Post("/gaf/search/descendantsWithAncestors/*", gafApeProxy)
-	r.Post("/gaf/search/children/*", gafApeProxy)
-	r.Post("/gaf/search/ead/*", gafApeProxy)
-	r.Post("/gaf/urlrewrite/getapeid", gafApeProxy)
-	r.Get("/gaf/api/search/v1/hub", getScrollResult)
-	r.Get("/gaf/api/search/v1/tree/{spec}/desc", treeDescription)
-	r.Get("/gaf/api//search/v1/tree/{spec}/desc", treeDescription)
-	r.Get("/gaf/api//search/v1/tree/{spec}", treeList)
-	r.Get("/gaf/api/search/v1/tree/{spec}", treeList)
-	r.Get("/gaf/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
-
-
-	// WebResource & imageproxy configuration
-	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
-	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
-
-	if c.Config.WebResource.Enabled {
-		r.Mount("/thumbnail", ThumbnailResource{}.Routes())
-		r.Mount("/deepzoom", DeepZoomResource{}.Routes())
-		r.Mount("/explore", ExploreResource{}.Routes())
-		r.Mount("/api/webresource", WebResourceAPIResource{}.Routes())
-		// legacy route
-		r.Get("/iip/deepzoom/mnt/tib/tiles/{orgId}/{spec}/{localId}.tif.dzi", renderDeepZoom)
-		// render cached directories
-		FileServer(r, "/webresource", getAbsolutePathToFileDir(c.Config.WebResource.CacheResourceDir))
-	}
+	//r.Mount("/gaf", x.ZVTResource{}.Routes())
 
 	// Narthex endpoint
 	r.Post("/api/rdf/bulk", bulkAPI)
@@ -214,7 +187,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Mount("/sparql", SparqlResource{}.Routes())
 
 	// RDF indexing endpoint
-	r.Mount("/api/es", IndexResource{}.Routes())
+	//r.Mount("/api/es", IndexResource{}.Routes())
 
 	// datasets
 	r.Get("/api/datasets", listDataSets)
@@ -241,11 +214,6 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	if c.Config.DevMode {
 		r.Mount("/introspect", IntrospectionRouter(r))
 		r.Mount("/debug", mw.Profiler())
-	}
-
-	if c.Config.Cache.Enabled {
-		r.Mount("/api/cache", CacheResource{}.Routes())
-		r.Handle(fmt.Sprintf("%s/*", c.Config.Cache.APIPrefix), cacheHandler())
 	}
 
 	n.UseHandler(r)
