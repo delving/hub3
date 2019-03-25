@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	c "github.com/delving/rapid/config"
+	c "github.com/delving/rapid-saas/config"
 
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/go-chi/chi"
