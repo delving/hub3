@@ -63,7 +63,7 @@ func newDB(dbName string) *storm.DB {
 	}
 	exPath := filepath.Dir(ex)
 	log.Printf("Running from %s\n", exPath)
-	log.Printf("Using Storm/BoltDB path: %s\n", db.Path)
+	log.Printf("Using Storm/BoltDB path: %s\n", db.Bolt.Path())
 	//defer db.Close()
 	return db
 }
