@@ -33,7 +33,6 @@ import (
 	"github.com/delving/rapid-saas/hub3"
 	"github.com/delving/rapid-saas/hub3/ead"
 	"github.com/delving/rapid-saas/hub3/fragments"
-	"github.com/delving/rapid-saas/hub3/harvesting"
 	"github.com/delving/rapid-saas/hub3/index"
 	"github.com/delving/rapid-saas/hub3/models"
 	"github.com/gammazero/workerpool"
@@ -45,7 +44,6 @@ import (
 	"github.com/asdine/storm"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/kiivihal/goharvest/oai"
 )
 
 var bp *elastic.BulkProcessor
@@ -53,6 +51,13 @@ var wp *workerpool.WorkerPool
 var ctx context.Context
 
 func init() {
+	wp = workerpool.New(10)
+}
+
+func bulkProcessor() *elastic.BulkProcessor {
+	if bp != nil {
+		return bp
+	}
 	var err error
 	ctx = context.Background()
 	bps := index.CreateBulkProcessorService()
@@ -60,7 +65,7 @@ func init() {
 	if err != nil {
 		log.Fatalf("Unable to start BulkProcessor: %#v", err)
 	}
-	wp = workerpool.New(10)
+	return bp
 }
 
 // APIErrorMessage contains the default API error messages
@@ -161,7 +166,7 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 func eadUpload(w http.ResponseWriter, r *http.Request) {
 	spec := r.FormValue("spec")
 
-	_, err := ead.ProcessUpload(r, w, spec, bp)
+	_, err := ead.ProcessUpload(r, w, spec, bulkProcessor())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -246,7 +251,7 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if created {
-		err = fragments.SaveDataSet(form.Spec, bp)
+		err = fragments.SaveDataSet(form.Spec, bulkProcessor())
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", form.Spec)
 			if err != nil {
@@ -279,21 +284,21 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("Start saving fragments.")
-		processedFragments, err := upl.IndexFragments(bp)
+		processedFragments, err := upl.IndexFragments(bulkProcessor())
 		if err != nil {
 			log.Printf("Can't save fragments: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		log.Printf("Saved %d fragments for %s", processedFragments, upl.Spec)
-		processed, err := upl.SaveFragmentGraphs(bp)
+		processed, err := upl.SaveFragmentGraphs(bulkProcessor())
 		if err != nil {
 			log.Printf("Can't save records: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		log.Printf("Saved %d records for %s", processed, upl.Spec)
-		ds.DropOrphans(context.Background(), bp, nil)
+		ds.DropOrphans(context.Background(), bulkProcessor(), nil)
 	}()
 
 	render.Status(r, http.StatusCreated)
@@ -372,7 +377,7 @@ func skosSync(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if created {
-		err = fragments.SaveDataSet(spec, bp)
+		err = fragments.SaveDataSet(spec, bulkProcessor())
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", spec)
 			if err != nil {
@@ -465,7 +470,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if created {
-		err = fragments.SaveDataSet(conv.DefaultSpec, bp)
+		err = fragments.SaveDataSet(conv.DefaultSpec, bulkProcessor())
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", conv.DefaultSpec)
 			if err != nil {
@@ -481,7 +486,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	triplesCreated, rowsSeen, err := conv.IndexFragments(bp, ds.Revision)
+	triplesCreated, rowsSeen, err := conv.IndexFragments(bulkProcessor(), ds.Revision)
 	conv.RowsProcessed = rowsSeen
 	conv.TriplesCreated = triplesCreated
 	log.Printf("Processed %d csv rows\n", rowsSeen)
@@ -490,44 +495,21 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = ds.DropOrphans(ctx, bp, wp)
+	_, err = ds.DropOrphans(ctx, bulkProcessor(), wp)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
 	}
 
 	render.Status(r, http.StatusCreated)
-	//render.PlainText(w, r, "ok")
 	render.JSON(w, r, conv)
 	return
-}
-
-func bulkSyncStart(w http.ResponseWriter, r *http.Request) {
-
-	//host := r.URL.Query().Get("host")
-	//index := r.URL.Query().Get("index")
-
-}
-
-func bulkSyncList(w http.ResponseWriter, r *http.Request) {
-
-	//host := r.URL.Query().Get("host")
-	//index := r.URL.Query().Get("index")
-
-}
-
-func bulkSyncProgress(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func bulkSyncCancel(w http.ResponseWriter, r *http.Request) {
-
 }
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(ctx, r.Body, bp, wp)
+	response, err := hub3.ReadActions(ctx, r.Body, bulkProcessor(), wp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)
@@ -539,31 +521,6 @@ func bulkAPI(w http.ResponseWriter, r *http.Request) {
 	render.Status(r, http.StatusCreated)
 	render.JSON(w, r, response)
 	return
-}
-
-// bindPMHRequest the query parameters to the OAI-Request
-func bindPMHRequest(r *http.Request) oai.Request {
-	baseURL := fmt.Sprintf("http://%s%s", r.Host, r.URL.Path)
-	q := r.URL.Query()
-	req := oai.Request{
-		Verb:            q.Get("verb"),
-		MetadataPrefix:  q.Get("metadataPrefix"),
-		Set:             q.Get("set"),
-		From:            q.Get("from"),
-		Until:           q.Get("until"),
-		Identifier:      q.Get("identifier"),
-		ResumptionToken: q.Get("resumptionToken"),
-		BaseURL:         baseURL,
-	}
-	return req
-}
-
-// oaiPmhEndpoint processed OAI-PMH request and returns the results
-func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
-	req := bindPMHRequest(r)
-	log.Println(req)
-	resp := harvesting.ProcessVerb(&req)
-	render.XML(w, r, resp)
 }
 
 // RenderLODResource returns a list of matching fragments
@@ -929,7 +886,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		var created bool
 		ds, created, err = models.CreateDataSet(spec)
 		if created {
-			err = fragments.SaveDataSet(spec, bp)
+			err = fragments.SaveDataSet(spec, bulkProcessor())
 		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)

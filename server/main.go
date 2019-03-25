@@ -121,13 +121,6 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	//r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
 
 	// stastic serving on vfsgen files
-	r.Get("/api/search/v2/_docs", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api/_docs", http.StatusSeeOther)
-	})
-	r.Get("/api/_docs", func(w http.ResponseWriter, r *http.Request) {
-		serveHTML(w, r, "api-docs.html")
-		return
-	})
 	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
 		serveHTML(w, r, "yasgui/yasgui.html")
 		return
@@ -156,73 +149,10 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		return
 	})
 
-	r.Post("/gaf/search/json", gafApeProxy)
-	r.Post("/gaf/search/descendants/*", gafApeProxy)
-	r.Post("/gaf/search/descendantsWithAncestors/*", gafApeProxy)
-	r.Post("/gaf/search/children/*", gafApeProxy)
-	r.Post("/gaf/search/ead/*", gafApeProxy)
-	r.Post("/gaf/urlrewrite/getapeid", gafApeProxy)
-	r.Get("/gaf/api/search/v1/hub", getScrollResult)
-	r.Get("/gaf/api/search/v1/tree/{spec}/desc", treeDescription)
-	r.Get("/gaf/api//search/v1/tree/{spec}/desc", treeDescription)
-	r.Get("/gaf/api//search/v1/tree/{spec}", treeList)
-	r.Get("/gaf/api/search/v1/tree/{spec}", treeList)
-	r.Get("/gaf/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
-
-	// gaf ZVT
-	//r.Get("/gaf/search-alt/*", func(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "./public/gaf/index.html")
-	//return
-	//})
-	//r.Get("/gaf/search-alt", func(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "./public/gaf/index.html")
-	//return
-	//})
-	//r.Get("/gaf/search-cache/*", func(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "./public/gaf/index-cache.html")
-	//return
-	//})
-	//r.Get("/gaf/search-cache", func(w http.ResponseWriter, r *http.Request) {
-	//http.ServeFile(w, r, "./public/gaf/index-cache.html")
-	//return
-	//})
-
-	// WebResource & imageproxy configuration
-	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
-	r.With(StripPrefix).Get(proxyPrefix, serveProxyImage)
-
-	if c.Config.WebResource.Enabled {
-		r.Mount("/thumbnail", ThumbnailResource{}.Routes())
-		r.Mount("/deepzoom", DeepZoomResource{}.Routes())
-		r.Mount("/explore", ExploreResource{}.Routes())
-		r.Mount("/api/webresource", WebResourceAPIResource{}.Routes())
-		// legacy route
-		r.Get("/iip/deepzoom/mnt/tib/tiles/{orgId}/{spec}/{localId}.tif.dzi", renderDeepZoom)
-		// render cached directories
-		FileServer(r, "/webresource", getAbsolutePathToFileDir(c.Config.WebResource.CacheResourceDir))
-	}
-	//r.Get("/deepzoom", func(w http.ResponseWriter, r *http.Request) {
-	//cmd := exec.Command("vips", "dzsave", "/tmp/webresource/dev-org-id/test2/source/123.jpg", "/tmp/123")
-	//stdoutStderr, err := cmd.Output()
-	//if err != nil {
-	//log.Println("Something went wrong")
-	//fmt.Printf("%s\n", stdoutStderr)
-	//log.Println(err)
-	//}
-	//w.Write([]byte("zoomed"))
-	//})
-
-	// API configuration
-	if c.Config.OAIPMH.Enabled {
-		r.Get("/api/oai-pmh", oaiPmhEndpoint)
-	}
+	//r.Mount("/gaf", x.ZVTResource{}.Routes())
 
 	// Narthex endpoint
 	r.Post("/api/rdf/bulk", bulkAPI)
-	r.Get("/api/bulk/sync", bulkSyncList)
-	r.Post("/api/bulk/sync", bulkSyncStart)
-	r.Get("/api/bulk/sync/{id}", bulkSyncProgress)
-	r.Delete("/api/bulk/sync/{id}", bulkSyncCancel)
 	// TODO remove later
 	r.Post("/api/index/bulk", bulkAPI)
 	r.Post("/api/index/fuzzed", generateFuzzed)
@@ -257,7 +187,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Mount("/sparql", SparqlResource{}.Routes())
 
 	// RDF indexing endpoint
-	r.Mount("/api/es", IndexResource{}.Routes())
+	//r.Mount("/api/es", IndexResource{}.Routes())
 
 	// datasets
 	r.Get("/api/datasets", listDataSets)
@@ -286,25 +216,12 @@ func Start(buildInfo *c.BuildVersionInfo) {
 		r.Mount("/debug", mw.Profiler())
 	}
 
-	if c.Config.Cache.Enabled {
-		r.Mount("/api/cache", CacheResource{}.Routes())
-		r.Handle(fmt.Sprintf("%s/*", c.Config.Cache.APIPrefix), cacheHandler())
-	}
-
 	n.UseHandler(r)
 	log.Printf("Using port: %d", c.Config.Port)
 	err := http.ListenAndServe(fmt.Sprintf(":%d", c.Config.Port), n)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// TODO: graceful shutdown with flushing and closing connections.
-	//// Start the server
-	//log.Infof("Using port: %d", c.Config.Port)
-	//e.Server.Addr = fmt.Sprintf(":%d", c.Config.Port)
-
-	//// Serve it like a boss
-	//e.Logger.Fatal(gracehttp.Serve(e.Server))
-
 }
 
 // StripPrefix removes the leading '/' from the HTTP path

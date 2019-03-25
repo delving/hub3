@@ -15,10 +15,40 @@
 package harvesting
 
 import (
-	"github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/models"
+	"fmt"
+	"net/http"
+
+	"github.com/go-chi/render"
 	"github.com/kiivihal/goharvest/oai"
 )
+
+// bindPMHRequest the query parameters to the OAI-Request
+func bindPMHRequest(r *http.Request) oai.Request {
+	baseURL := fmt.Sprintf("http://%s%s", r.Host, r.URL.Path)
+	q := r.URL.Query()
+	req := oai.Request{
+		Verb:            q.Get("verb"),
+		MetadataPrefix:  q.Get("metadataPrefix"),
+		Set:             q.Get("set"),
+		From:            q.Get("from"),
+		Until:           q.Get("until"),
+		Identifier:      q.Get("identifier"),
+		ResumptionToken: q.Get("resumptionToken"),
+		BaseURL:         baseURL,
+	}
+	return req
+}
+
+// oaiPmhEndpoint processed OAI-PMH request and returns the results
+//
+// example
+//		r.Get("/api/oai-pmh", oaiPmhEndpoint)
+func oaiPmhEndpoint(w http.ResponseWriter, r *http.Request) {
+	req := bindPMHRequest(r)
+	//log.Println(req)
+	resp := ProcessVerb(&req)
+	render.XML(w, r, resp)
+}
 
 // ProcessVerb processes different OAI-PMH verbs
 func ProcessVerb(r *oai.Request) interface{} {
@@ -59,10 +89,10 @@ func ProcessVerb(r *oai.Request) interface{} {
 // renderIdentify returns the identify response of the repository
 func renderIdentify(r *oai.Request) interface{} {
 	return oai.Identify{
-		RepositoryName:    config.Config.OAIPMH.RepositoryName,
-		BaseURL:           r.BaseURL,
-		ProtocolVersion:   "2.0",
-		AdminEmail:        config.Config.OAIPMH.AdminEmails,
+		//RepositoryName:    config.Config.OAIPMH.RepositoryName,
+		BaseURL:         r.BaseURL,
+		ProtocolVersion: "2.0",
+		//AdminEmail:        config.Config.OAIPMH.AdminEmails,
 		DeletedRecord:     "persistent",
 		EarliestDatestamp: "1970-01-01T00:00:00Z",
 		Granularity:       "YYYY-MM-DDThh:mm:ssZ",
@@ -72,23 +102,23 @@ func renderIdentify(r *oai.Request) interface{} {
 // renderListSets returns a list of all the publicly available sets
 func renderListSets(r *oai.Request) interface{} {
 	sets := []oai.Set{}
-	datasets, err := models.ListDataSets()
-	if err != nil {
-		logger.Errorln("Unable to retrieve datasets from the storage layer.")
-		return sets
-	}
-	for _, ds := range datasets {
-		if ds.Access.OAIPMH {
-			sets = append(
-				sets,
-				oai.Set{
-					SetSpec:        ds.Spec,
-					SetName:        ds.Spec,                                // todo change to name if it has one later
-					SetDescription: oai.Description{Body: []byte(ds.Spec)}, // TODO change to description from ds later.
-				},
-			)
-		}
-	}
+	//datasets, err := models.ListDataSets()
+	//if err != nil {
+	//logger.Errorln("Unable to retrieve datasets from the storage layer.")
+	//return sets
+	//}
+	//for _, ds := range datasets {
+	//if ds.Access.OAIPMH {
+	//sets = append(
+	//sets,
+	//oai.Set{
+	//SetSpec:        ds.Spec,
+	//SetName:        ds.Spec,                                // todo change to name if it has one later
+	//SetDescription: oai.Description{Body: []byte(ds.Spec)}, // TODO change to description from ds later.
+	//},
+	//)
+	//}
+	//}
 	return oai.ListSets{
 		Set: sets,
 	}

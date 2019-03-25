@@ -148,7 +148,6 @@ func dump(resp *oai.Response) {
 
 // identify returns the XML response from a remote OAI-PMH endpoint
 func identify(ccmd *cobra.Command, args []string) {
-	fmt.Println(url)
 	if url == "" {
 		fmt.Println("Error: -u or --url is required and must be a valid URL.")
 		return

@@ -138,12 +138,13 @@ func getCachedRequest(r *http.Request) (cr *CachedResponse, err error) {
 	log.Printf(r.URL.String(), r.Method)
 
 	resp, err := netClient.Do(r)
-	defer resp.Body.Close()
 
 	// TODO handle context cancelled properly
 	if err != nil || resp.Body == nil {
 		log.Printf("Error in proxy query: %s", err)
+		return nil, err
 	}
+	defer resp.Body.Close()
 	cr = &CachedResponse{}
 	cr.Body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {

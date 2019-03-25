@@ -24,9 +24,7 @@ import (
 var httpCmd = &cobra.Command{
 	Use:   "http",
 	Short: "Start the webserver process",
-	Long: `Starting the webserver https process.
-
-You can find an overview of available endpoints on https://localhost:443/endpoints`,
+	Long: `Starting the webserver http process.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Start(buildInfo)
 	},
@@ -37,13 +35,4 @@ func init() {
 
 	httpCmd.Flags().IntP("port", "p", 3001, "Port to run Application server on")
 	viper.BindPFlag("port", httpCmd.Flags().Lookup("port"))
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// httpCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// httpCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

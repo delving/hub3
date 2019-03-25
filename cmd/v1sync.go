@@ -16,10 +16,14 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"io"
+	"io/ioutil"
 	stdlog "log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -49,6 +53,7 @@ var (
 	sourceIndex    string
 	sourceUserName string
 	sourcePassword string
+	backup         bool
 
 	targetUserName string
 	targetPassword string
@@ -68,6 +73,7 @@ func init() {
 	v1syncCmd.Flags().StringVarP(&sourceIndex, "sourceIndex", "i", "", "source indexname")
 	v1syncCmd.Flags().StringVarP(&sourceUserName, "sourceUser", "", "", "source username for ElasticSearch")
 	v1syncCmd.Flags().StringVarP(&sourcePassword, "sourcePassword", "", "", "source password ElasticSearch")
+	v1syncCmd.Flags().BoolVarP(&backup, "backup", "", false, "backup records to disk")
 
 	v1syncCmd.Flags().StringVarP(&targetURL, "targetURL", "t", "", "target URL for ElasticSearch")
 	v1syncCmd.Flags().StringVarP(&targetUserName, "user", "u", "", "target username for ElasticSearch")
@@ -78,8 +84,8 @@ func init() {
 	// set required
 	v1syncCmd.MarkFlagRequired("sourceURL")
 	v1syncCmd.MarkFlagRequired("sourceIndex")
-	v1syncCmd.MarkFlagRequired("orgID")
-	v1syncCmd.MarkFlagRequired("targetURL")
+	//v1syncCmd.MarkFlagRequired("orgID")
+	//v1syncCmd.MarkFlagRequired("targetURL")
 
 	RootCmd.AddCommand(v1syncCmd)
 
@@ -106,6 +112,9 @@ func getESClient(url, user, password string) (*elastic.Client, error) {
 }
 
 func createBulkProcessor(ctx context.Context) (*elastic.BulkProcessor, error) {
+	if backup {
+		return nil, nil
+	}
 	client, err := getESClient(targetURL, targetUserName, targetPassword)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to create target ES client")
@@ -127,6 +136,9 @@ func createBulkProcessor(ctx context.Context) (*elastic.BulkProcessor, error) {
 	indices, _ = client.IndexNames()
 	stdlog.Printf("target indices: %#v", indices)
 
+	if backup {
+		return nil, nil
+	}
 	return client.BulkProcessor().
 		Name("ES bulk worker").
 		Workers(4).
@@ -191,12 +203,17 @@ func synchronise() error {
 		g.Go(func() error {
 			for hit := range hits {
 				//stdlog.Printf("hit: \n %#v", hit)
-				r := elastic.NewBulkIndexRequest().
-					Index(targetOrgID).
-					Type(hit.Type).
-					Id(hit.Id).
-					Doc(hit.Source)
-				p.Add(r)
+				switch backup {
+				case true:
+					storeHit(hit)
+				case false:
+					r := elastic.NewBulkIndexRequest().
+						Index(targetOrgID).
+						Type(hit.Type).
+						Id(hit.Id).
+						Doc(hit.Source)
+					p.Add(r)
+				}
 
 				bar.Increment()
 
@@ -216,18 +233,35 @@ func synchronise() error {
 		return err
 	}
 
-	err = p.Flush()
-	if err != nil {
-		return errors.Wrap(err, "unable to flush records to index")
-	}
-	err = p.Close()
-	if err != nil {
-		return errors.Wrap(err, "unable to close bulk processor")
+	if !backup {
+		err = p.Flush()
+		if err != nil {
+			return errors.Wrap(err, "unable to flush records to index")
+		}
+		err = p.Close()
+		if err != nil {
+			return errors.Wrap(err, "unable to close bulk processor")
+		}
+
 	}
 
 	// Done.
 	bar.Finish()
 	return nil
+}
+
+func storeHit(hit *elastic.SearchHit) error {
+	outputDir := filepath.Join("/tmp", hit.Index)
+	err := os.MkdirAll(outputDir, os.ModePerm)
+	if err != nil {
+		return err
+	}
+	b, err := json.Marshal(hit)
+	if err != nil {
+		return err
+	}
+	fname := filepath.Join(outputDir, fmt.Sprintf("%s.json", hit.Id))
+	return ioutil.WriteFile(fname, b, 0644)
 }
 
 // NewCustomRetrier creates custom retrier for elasticsearch
