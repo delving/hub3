@@ -7,9 +7,32 @@ import (
 	"time"
 
 	c "github.com/delving/rapid-saas/config"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
 )
+
+// SparqlResource is a struct for the Search routes
+type ZVTResource struct{}
+
+// Routes returns the chi.Router
+func (rs ZVTResource) Routes() chi.Router {
+	r := chi.NewRouter()
+	r.Post("/search/json", gafApeProxy)
+	r.Post("/search/descendants/*", gafApeProxy)
+	r.Post("/search/descendantsWithAncestors/*", gafApeProxy)
+	r.Post("/search/children/*", gafApeProxy)
+	r.Post("/search/ead/*", gafApeProxy)
+	r.Post("/urlrewrite/getapeid", gafApeProxy)
+	// todo enable later again
+	//r.Get("/api/search/v1/hub", getScrollResult)
+	//r.Get("/api/search/v1/tree/{spec}/desc", treeDescription)
+	//r.Get("/api//search/v1/tree/{spec}/desc", treeDescription)
+	//r.Get("/api//search/v1/tree/{spec}", treeList)
+	//r.Get("/api/search/v1/tree/{spec}", treeList)
+	//r.Get("/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
+	return r
+}
 
 var labelsEN = map[string]interface{}{
 	"lang":                          "en",
