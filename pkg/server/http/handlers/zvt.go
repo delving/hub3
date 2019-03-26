@@ -1,37 +1,39 @@
-package server
+package handlers
 
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
 	c "github.com/delving/hub3/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/labstack/gommon/log"
 )
 
-// SparqlResource is a struct for the Search routes
-type ZVTResource struct{}
+func RegisterZVT(r chi.Router) {
+	r.Get("/archives", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "zvt/index.html")
+		return
+	})
+	r.Get("/archives/*", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "zvt/index.html")
+		return
+	})
 
-// Routes returns the chi.Router
-func (rs ZVTResource) Routes() chi.Router {
-	r := chi.NewRouter()
-	r.Post("/search/json", gafApeProxy)
-	r.Post("/search/descendants/*", gafApeProxy)
-	r.Post("/search/descendantsWithAncestors/*", gafApeProxy)
-	r.Post("/search/children/*", gafApeProxy)
-	r.Post("/search/ead/*", gafApeProxy)
-	r.Post("/urlrewrite/getapeid", gafApeProxy)
-	// todo enable later again
-	//r.Get("/api/search/v1/hub", getScrollResult)
-	//r.Get("/api/search/v1/tree/{spec}/desc", treeDescription)
-	//r.Get("/api//search/v1/tree/{spec}/desc", treeDescription)
-	//r.Get("/api//search/v1/tree/{spec}", treeList)
-	//r.Get("/api/search/v1/tree/{spec}", treeList)
-	//r.Get("/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
-	return r
+	r.Post("/gaf/search/json", gafApeProxy)
+	r.Post("/gaf/search/descendants/*", gafApeProxy)
+	r.Post("/gaf/search/descendantsWithAncestors/*", gafApeProxy)
+	r.Post("/gaf/search/children/*", gafApeProxy)
+	r.Post("/gaf/search/ead/*", gafApeProxy)
+	r.Post("/gaf/urlrewrite/getapeid", gafApeProxy)
+	r.Get("/gaf/api/search/v1/hub", getScrollResult)
+	r.Get("/gaf/api/search/v1/tree/{spec}/desc", treeDescription)
+	r.Get("/gaf/api//search/v1/tree/{spec}/desc", treeDescription)
+	r.Get("/gaf/api//search/v1/tree/{spec}", treeList)
+	r.Get("/gaf/api/search/v1/tree/{spec}", treeList)
+	r.Get("/gaf/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
 }
 
 var labelsEN = map[string]interface{}{
@@ -238,7 +240,7 @@ func runGafApeQuery(r *http.Request) (body []byte, statusCode int, contentType s
 	log.Printf("path %#v", fullPath)
 	req, err := http.NewRequest("POST", fullPath, r.Body)
 	if err != nil {
-		log.Errorf("Unable to create gaf request %s", err)
+		log.Printf("Unable to create gaf request %s", err)
 		return
 	}
 	req.Header.Set("Accept", "application/json")
@@ -249,13 +251,13 @@ func runGafApeQuery(r *http.Request) (body []byte, statusCode int, contentType s
 	}
 	resp, err := netClient.Do(req)
 	if err != nil {
-		log.Errorf("Error in gaf query: %s", err)
+		log.Printf("Error in gaf query: %s", err)
 		return
 	}
 	body, err = ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		log.Errorf("Unable to read the response body with error: %s", err)
+		log.Printf("Unable to read the response body with error: %s", err)
 		return
 	}
 	statusCode = resp.StatusCode

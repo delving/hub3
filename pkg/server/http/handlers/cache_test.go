@@ -1,4 +1,4 @@
-package server_test
+package handlers_test
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/delving/hub3/config"
-	. "github.com/delving/hub3/server/x"
+	. "github.com/delving/hub3/pkg/server/http/handlers"
 )
 
 var _ = Describe("Cache", func() {

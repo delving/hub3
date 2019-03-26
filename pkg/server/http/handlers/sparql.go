@@ -1,8 +1,9 @@
-package server
+package handlers
 
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -10,20 +11,17 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/labstack/gommon/log"
 )
 
-// SparqlResource is a struct for the Search routes
-type SparqlResource struct{}
+func RegisterSparql(r chi.Router) {
 
-// Routes returns the chi.Router
-func (rs SparqlResource) Routes() chi.Router {
-	r := chi.NewRouter()
+	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
+		serveHTML(w, r, "yasgui/yasgui.html")
+		return
+	})
+	r.Get("/sparql", sparqlProxy)
+	r.Post("/sparql", sparqlProxy)
 
-	r.Get("/", sparqlProxy)
-	r.Post("/", sparqlProxy)
-
-	return r
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +47,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !strings.Contains(strings.ToLower(query), "limit ") {
 		query = fmt.Sprintf("%s LIMIT 25", query)
 	}
-	log.Info(query)
+	log.Println(query)
 	resp, statusCode, contentType, err := runSparqlQuery(query)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
@@ -68,10 +66,10 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
 func runSparqlQuery(query string) (body []byte, statusCode int, contentType string, err error) {
-	log.Debugf("Sparql Query: %s", query)
+	log.Printf("Sparql Query: %s", query)
 	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(""), nil)
 	if err != nil {
-		log.Errorf("Unable to create sparql request %s", err)
+		log.Printf("Unable to create sparql request %s", err)
 	}
 	req.Header.Set("Accept", "application/sparql-results+json")
 	q := req.URL.Query()
@@ -83,7 +81,7 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 	}
 	resp, err := netClient.Do(req)
 	if err != nil {
-		log.Errorf("Error in sparql query: %s", err)
+		log.Printf("Error in sparql query: %s", err)
 		if strings.Contains(err.Error(), "connection refused") {
 			body = []byte("triple store unavailable")
 		}
@@ -93,7 +91,7 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 	defer resp.Body.Close()
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Errorf("Unable to read the response body with error: %s", err)
+		log.Printf("Unable to read the response body with error: %s", err)
 		return
 	}
 	statusCode = resp.StatusCode

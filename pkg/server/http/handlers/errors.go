@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package handlers
 
 import (
 	"net/http"
@@ -66,3 +66,16 @@ func ErrRender(err error) render.Renderer {
 
 // ErrNotFound is a 404 convenience variable
 var ErrNotFound = &ErrResponse{HTTPStatusCode: 404, StatusText: "Resource not found."}
+
+// APIErrorMessage contains the default API error messages
+type APIErrorMessage struct {
+	HTTPStatus int    `json:"code"`
+	Message    string `json:"type"`
+	Error      error  `json:"error"`
+}
+
+// ErrorMessage is a placeholder for disabled endpoints
+type ErrorMessage struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+}

@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server imageproxy proxies requests for remote images
-package server
+package handlers
 
 import (
 	"fmt"
@@ -27,6 +26,7 @@ import (
 
 	"github.com/die-net/lrucache"
 	"github.com/die-net/lrucache/twotier"
+	"github.com/go-chi/chi"
 	"github.com/gregjones/httpcache/diskcache"
 	"github.com/peterbourgon/diskv"
 	"willnorris.com/go/imageproxy"
@@ -38,8 +38,7 @@ const defaultMemorySize = 100
 
 var p *imageproxy.Proxy
 
-// setup proxy in init function
-func init() {
+func RegisterImageProxy(r chi.Router) {
 	u, err := url.Parse("memory:200:1h")
 	if err != nil {
 		log.Fatal(err)
@@ -53,6 +52,17 @@ func init() {
 	p = imageproxy.NewProxy(nil, cache)
 	p.Whitelist = c.Config.ImageProxy.Whitelist
 	p.ScaleUp = c.Config.ImageProxy.ScaleUp
+
+	// WebResource & imageproxy configuration
+	proxyPrefix := fmt.Sprintf("/%s/*", c.Config.ImageProxy.ProxyPrefix)
+	r.With(stripPrefix).Get(proxyPrefix, serveProxyImage)
+
+}
+
+// stripPrefix removes the leading '/' from the HTTP path
+func stripPrefix(h http.Handler) http.Handler {
+	proxyPrefix := fmt.Sprintf("/%s", c.Config.ImageProxy.ProxyPrefix)
+	return http.StripPrefix(proxyPrefix, h)
 }
 
 // create handler fuction to serve the proxied images

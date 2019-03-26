@@ -1,4 +1,4 @@
-package server
+package handlers
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -16,7 +17,6 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/labstack/gommon/log"
 )
 
 var httpCache *bigcache.BigCache
@@ -29,31 +29,20 @@ type CachedResponse struct {
 	ContentType string
 }
 
-func init() {
-	if c.Config.Cache.Enabled {
-		eviction := time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute
-		config := bigcache.DefaultConfig(eviction)
-		config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
-		config.MaxEntrySize = c.Config.Cache.MaxEntrySize
-		cache, err := bigcache.NewBigCache(config)
-		if err != nil {
-			log.Fatalf("Unable to start bigCache implementation: %#v", err)
-		}
-		httpCache = cache
+func RegisterCache(r chi.Router) {
+	// init the big cache
+	eviction := time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute
+	config := bigcache.DefaultConfig(eviction)
+	config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
+	config.MaxEntrySize = c.Config.Cache.MaxEntrySize
+	cache, err := bigcache.NewBigCache(config)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Unable to start bigCache implementation: %#v", err))
 	}
-}
+	httpCache = cache
 
-// CacheResource is a struct for the Search routes
-type CacheResource struct{}
-
-// Routes returns the chi.Router
-func (rs CacheResource) Routes() chi.Router {
-	r := chi.NewRouter()
-
-	r.Get("/stats", cacheStats)
-	//r.Get(fmt.Sprintf("%s", c.Config.Cache.APIPrefix), parqlProxy)
-
-	return r
+	r.Get("/api/cache/stats", cacheStats)
+	r.Handle(fmt.Sprintf("%s/*", c.Config.Cache.APIPrefix), cacheHandler())
 }
 
 // PrepareCacheRequest modifies the request for the remote call
