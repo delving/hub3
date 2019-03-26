@@ -1,0 +1,25 @@
+syntax = "proto3";
+package namespacepb;
+
+import "google/api/annotations.proto";
+
+// The namespace service definition
+service Namespace {
+    // Requests searchLabel for URI
+    rpc SearchLabel (SearchLabelRequest) returns (SearchLabelResponse) {
+        option (google.api.http) = {
+            post: "/namespace/searchlabel"
+            body: "*"
+        };
+    }
+}
+
+// SearchLabelRequest message containing the URI to be turned into a searchLabel
+message SearchLabelRequest {
+    string uri = 1;
+}
+
+// SearchLabelResponse message contains extracted searchLabel
+message SearchLabelResponse {
+    string label = 2;
+}
