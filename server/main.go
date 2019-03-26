@@ -23,10 +23,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/index"
-	"github.com/delving/rapid-saas/hub3/models"
-	"github.com/delving/rapid-saas/pkg/server/http/assets"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/pkg/server/http/assets"
 
 	"github.com/phyber/negroni-gzip/gzip"
 
@@ -72,7 +72,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	n.Use(s)
 
 	// stats prometheus
-	m := negroniprometheus.NewMiddleware("rapid")
+	m := negroniprometheus.NewMiddleware("hub3")
 	n.Use(m)
 
 	// configure CORS, see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
@@ -105,7 +105,7 @@ func Start(buildInfo *c.BuildVersionInfo) {
 	r.Handle("/metrics", prometheus.Handler())
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		render.PlainText(w, r, "You are rocking rapid!")
+		render.PlainText(w, r, "You are rocking hub3!")
 	})
 
 	r.Get("/version", func(w http.ResponseWriter, r *http.Request) {

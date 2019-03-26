@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/delving/rapid-saas/config"
+	"github.com/delving/hub3/config"
 	elastic "github.com/olivere/elastic"
 )
 
@@ -61,7 +61,7 @@ func CreateBulkProcessor(ctx context.Context) *elastic.BulkProcessor {
 // CreateBulkProcessorService creates a service instance
 func CreateBulkProcessorService() *elastic.BulkProcessorService {
 	return ESClient().BulkProcessor().
-		Name("RAPID-backgroundworker").
+		Name("Hub3-backgroundworker").
 		Workers(4).
 		BulkActions(1000).               // commit if # requests >= 1000
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB

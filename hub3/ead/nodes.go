@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/fragments"
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 )
 

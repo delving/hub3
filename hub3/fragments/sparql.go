@@ -12,7 +12,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/delving/rapid-saas/config"
+	"github.com/delving/hub3/config"
 	"github.com/parnurzeal/gorequest"
 )
 

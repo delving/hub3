@@ -5,8 +5,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	c "github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	c "github.com/delving/hub3/config"
+	. "github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("Builder", func() {

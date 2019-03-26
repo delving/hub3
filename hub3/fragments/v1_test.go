@@ -20,8 +20,8 @@ import (
 	"io/ioutil"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	c "github.com/delving/hub3/config"
+	. "github.com/delving/hub3/hub3/fragments"
 
 	"os"
 
@@ -105,10 +105,10 @@ var _ = Describe("V1", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				urn := "urn:spec/localID"
-				url := fb.MediaManagerURL(urn, "rapid")
+				url := fb.MediaManagerURL(urn, "hub3")
 				Expect(url).ToNot(BeEmpty())
 				Expect(url).To(HaveSuffix("localID"))
-				Expect(url).To(ContainSubstring("rapid"))
+				Expect(url).To(ContainSubstring("hub3"))
 			})
 
 			It("should return a list of WebResource subjects", func() {
@@ -282,7 +282,7 @@ var _ = Describe("V1", func() {
 		t := r.NewTriple(
 			r.NewResource("urn:1"),
 			r.NewResource(dcSubject),
-			r.NewResource("urn:rapid"),
+			r.NewResource("urn:hub3"),
 		)
 		fb, _ := testDataGraph(false)
 		err := fb.SetResourceLabels()
@@ -293,9 +293,9 @@ var _ = Describe("V1", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie).ToNot(BeNil())
 			Expect(ie.Type).To(Equal("URIRef"))
-			Expect(ie.ID).To(Equal("urn:rapid"))
-			Expect(ie.Value).To(Equal("urn:rapid"))
-			Expect(ie.Raw).To(Equal("urn:rapid"))
+			Expect(ie.ID).To(Equal("urn:hub3"))
+			Expect(ie.Value).To(Equal("urn:hub3"))
+			Expect(ie.Raw).To(Equal("urn:hub3"))
 		})
 
 		It("should add label when a resource object has a skos:prefLabel", func() {
@@ -363,7 +363,7 @@ var _ = Describe("V1", func() {
 		t := r.NewTriple(
 			r.NewResource("urn:1"),
 			r.NewResource(dcSubject),
-			r.NewLiteralWithLanguage("rapid", "nl"),
+			r.NewLiteralWithLanguage("hub3", "nl"),
 		)
 		fb, _ := testDataGraph(false)
 		ie, err := fb.CreateV1IndexEntry(t)

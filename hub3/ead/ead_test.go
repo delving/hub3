@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
-	. "github.com/delving/rapid-saas/hub3/ead"
+	. "github.com/delving/hub3/hub3/ead"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

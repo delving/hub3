@@ -1,8 +1,8 @@
 package fragments_test
 
 import (
-	"github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	"github.com/delving/hub3/config"
+	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -311,7 +311,7 @@ var _ = Describe("Resource", func() {
 			header := fb.FragmentGraph().CreateHeader("fragment")
 
 			It("should set the OrgID", func() {
-				Expect(header.OrgID).To(Equal("rapid"))
+				Expect(header.OrgID).To(Equal("hub3"))
 			})
 
 			It("should set the spec", func() {

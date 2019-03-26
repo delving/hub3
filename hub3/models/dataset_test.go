@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	"github.com/gammazero/workerpool"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

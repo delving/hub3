@@ -31,7 +31,7 @@ import (
 	"github.com/peterbourgon/diskv"
 	"willnorris.com/go/imageproxy"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 )
 
 const defaultMemorySize = 100

@@ -1,4 +1,4 @@
-module github.com/delving/rapid-saas
+module github.com/delving/hub3
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect

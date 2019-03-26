@@ -6,7 +6,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	. "github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("Hypermedia", func() {

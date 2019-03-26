@@ -196,7 +196,7 @@ func setDefaults() {
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
 	viper.SetDefault("HTTP.staticDir", "public")
-	viper.SetDefault("orgId", "rapid")
+	viper.SetDefault("orgId", "hub3")
 
 	// elastic
 	viper.SetDefault("ElasticSearch.urls", []string{"http://localhost:9200"})
@@ -230,7 +230,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.SparqlPath", "/%s/sparql")
 	viper.SetDefault("RDF.SparqlUpdatePath", "/%s/update")
 	viper.SetDefault("RDF.GraphStorePath", "/%s/data")
-	viper.SetDefault("RDF.BaseUrl", "http://data.rapid.org")
+	viper.SetDefault("RDF.BaseUrl", "http://data.hub3.org")
 	viper.SetDefault("RDF.BaseScheme", "http")
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
@@ -248,7 +248,7 @@ func setDefaults() {
 
 	// oai-pmh
 	viper.SetDefault("OAIPMH.enabled", true)
-	viper.SetDefault("OAIPMH.RepositoryName", "rapid")
+	viper.SetDefault("OAIPMH.RepositoryName", "hub3")
 	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
 
 	// image proxy
@@ -308,14 +308,14 @@ func InitConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".rapid" (without extension).
+		// Search config in home directory with name ".hub3" (without extension).
 		viper.AddConfigPath("/etc/default/")
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(".")
-		viper.SetConfigName("rapid")
+		viper.SetConfigName("hub3")
 	}
 
-	viper.SetEnvPrefix("RAPID")
+	viper.SetEnvPrefix("HUB3")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
 

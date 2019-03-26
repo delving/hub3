@@ -16,7 +16,7 @@ package config_test
 import (
 	"fmt"
 
-	. "github.com/delving/rapid-saas/config"
+	. "github.com/delving/hub3/config"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -71,7 +71,7 @@ var _ = Describe("Config", func() {
 
 			It("should use the sparql path from the configuration", func() {
 				Expect(Config.RDF.SparqlPath).To(ContainSubstring("%s"))
-				Expect(endpoint).To(ContainSubstring("/rapid/sparql"))
+				Expect(endpoint).To(ContainSubstring("/hub3/sparql"))
 			})
 
 			It("should should inject the orgId from the configuration when dbName is empty", func() {
@@ -82,10 +82,10 @@ var _ = Describe("Config", func() {
 
 		Context("when a dbname is specified", func() {
 
-			endpoint := Config.GetSparqlEndpoint("rapid2")
+			endpoint := Config.GetSparqlEndpoint("hub32")
 			It("should use dbName to inject into the sparql path", func() {
 				orgID := Config.OrgID
-				Expect(endpoint).To(ContainSubstring("/rapid2/"))
+				Expect(endpoint).To(ContainSubstring("/hub32/"))
 				Expect(endpoint).ToNot(ContainSubstring(fmt.Sprintf("/%s/", orgID)))
 			})
 		})

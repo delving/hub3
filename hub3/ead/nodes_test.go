@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/delving/rapid-saas/hub3/ead"
-	"github.com/delving/rapid-saas/hub3/fragments"
+	. "github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("Nodes", func() {
@@ -61,7 +61,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should set the entryURI", func() {
 				Expect(h.GetEntryURI()).ToNot(BeEmpty())
-				Expect(h.GetEntryURI()).To(Equal("http://data.rapid.org/NL-HaNA/archive/test-spec/A"))
+				Expect(h.GetEntryURI()).To(Equal("http://data.hub3.org/NL-HaNA/archive/test-spec/A"))
 			})
 
 			It("should have a NamedGraphURI", func() {
@@ -92,7 +92,7 @@ var _ = Describe("Nodes", func() {
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
-				Expect(s).To(Equal("http://data.rapid.org/NL-HaNA/archive/test_spec/A"))
+				Expect(s).To(Equal("http://data.hub3.org/NL-HaNA/archive/test_spec/A"))
 			})
 
 			It("should set the meta header", func() {

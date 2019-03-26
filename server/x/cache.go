@@ -13,7 +13,7 @@ import (
 
 	"github.com/OneOfOne/xxhash"
 	"github.com/allegro/bigcache"
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"

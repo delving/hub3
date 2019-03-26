@@ -22,9 +22,9 @@ import (
 	"log"
 	"time"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/fragments"
-	"github.com/delving/rapid-saas/hub3/index"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/hub3/index"
 	w "github.com/gammazero/workerpool"
 
 	elastic "github.com/olivere/elastic"
@@ -105,7 +105,7 @@ type DataSetStats struct {
 	VocabularyEnrichmentStats `json:"vocabularyEnrichmentStats"`
 }
 
-// DataSet contains all the known informantion for a RAPID metadata dataset
+// DataSet contains all the known informantion for a hub3 metadata dataset
 type DataSet struct {
 	//MapToPrefix string    `json:"mapToPrefix"`
 	Spec             string    `json:"spec" storm:"id,index,unique"`
@@ -672,7 +672,7 @@ func (ds DataSet) DropRecords(ctx context.Context, wp *w.WorkerPool) (bool, erro
 	return ok, err
 }
 
-// DropAll drops the dataset from the Rapid storages completely (BoltDB, Triple Store, Search Index)
+// DropAll drops the dataset from the Hub3 storages completely (BoltDB, Triple Store, Search Index)
 func (ds DataSet) DropAll(ctx context.Context, wp *w.WorkerPool) (bool, error) {
 	ok, err := ds.DropRecords(ctx, wp)
 	if !ok || err != nil {

@@ -1,6 +1,6 @@
 # Intellij
 .idea
-rapid.iml
+hub3.iml
 
 # Apple
 .DS_Store
@@ -12,17 +12,13 @@ rapid.iml
 
 # build and vendor
 main
-rapid
-rapid-saas
+hub3
 gin-bin
 *.rpm
 *.deb
 build/*
 dist
 utils
-rapidctl/build/*
-rapidctl/rapidctl
-rapidctl/main
 
 # assets: don't commit generated bundled static resources
 pkg/server/http/assets/filesystem_vfsdata.go
@@ -33,8 +29,6 @@ pkg/server/http/assets/filesystem_vfsdata.go
 # do not commit vendored files
 vendor/*/
 
-# do not commit files stored by npm
-node_modules
 
 # jupyter notebooks
 *.ipynb
@@ -45,7 +39,7 @@ results.bin
 
 # Data Storage
 # Boltdb
-rapid.db
+hub3.db
 
 # coverage
 report
@@ -66,17 +60,11 @@ public/tests
 # scratch pad
 _scratch
 
-## ELM
-# elm-package generated files
-elm-stuff/
-# elm-repl generated files
-repl-temp-*
-
 # don't commit examples for now
 example
 
 target/
 *.log
-rapid-*.toml
+hub3-*.toml
 auth/
 hub3/parser

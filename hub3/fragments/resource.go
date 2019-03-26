@@ -24,8 +24,8 @@ import (
 	"strconv"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/index"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic"
 	"github.com/pkg/errors"

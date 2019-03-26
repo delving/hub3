@@ -19,7 +19,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/delving/rapid-saas/config"
+	. "github.com/delving/hub3/config"
 )
 
 var _ = Describe("Sparql", func() {

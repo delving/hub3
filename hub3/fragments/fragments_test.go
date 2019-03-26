@@ -20,8 +20,8 @@ import (
 	"io/ioutil"
 	"net/url"
 
-	c "github.com/delving/rapid-saas/config"
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	c "github.com/delving/hub3/config"
+	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -29,7 +29,7 @@ import (
 
 // testGraph creates a dummy graph for testing
 func testGraph() *r.Graph {
-	baseUri := "http://rapid.org/resource"
+	baseUri := "http://hub3.org/resource"
 
 	g := r.NewGraph(baseUri)
 	g.Add(r.NewTriple(r.NewResource("a"), r.NewResource("b"), r.NewResource("c")))
@@ -65,7 +65,7 @@ func NSRef(uri string) r.Term {
 
 func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg := NewFragmentGraph()
-	fg.Meta.OrgID = "rapid"
+	fg.Meta.OrgID = "hub3"
 	fg.Meta.Spec = spec
 	fg.Meta.Revision = rev
 	fg.Meta.NamedGraphURI = ng
@@ -212,8 +212,8 @@ var _ = Describe("Fragments", func() {
 		Context("When given a string", func() {
 
 			It("should return a short hash", func() {
-				hash := CreateHash("rapid rocks.")
-				Expect(hash).To(Equal("a5b3be36c0f378a1"))
+				hash := CreateHash("hub3 rocks.")
+				Expect(hash).To(Equal("70658c1aa1aa862e"))
 			})
 		})
 

@@ -1,9 +1,9 @@
 .PHONY: package
 
-NAME:=rapid-saas
+NAME:=hub3
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
-DESCRIPTION:="RAPID Linked Open Data Platform"
-MODULE:=github.com/delving/rapid-saas
+DESCRIPTION:="Hub3: Linked Open Data Platform"
+MODULE:=github.com/delving/hub3
 
 GO ?= go
 TEMPDIR:=$(shell mktemp -d)
@@ -16,7 +16,7 @@ LDFLAGS:=-X main.Version=$(VERSION) -X main.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S
 print-%  : ; @echo $* = $($*)
 
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/rapid.db hub3/models/rapid.db dist server/assets/assets_vfsdata.go
+	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/hub3.db hub3/models/hub3.db dist server/assets/assets_vfsdata.go
 
 clean-harvesting:
 	rm -rf *_ids.txt *_records.xml
@@ -70,7 +70,7 @@ docker-stop:
 
 docker-remove:
 	@make docker-stop
-	@sh -c "docker image list -q rapid | xargs docker image rm -f"
+	@sh -c "docker image list -q hub3| xargs docker image rm -f"
 
 docker-clean-build:
 	@make docker-remove; 
@@ -90,7 +90,7 @@ compose-clean:
 goreport:
 	@mkdir -p report
 	@rm -rf report/*
-	@goreporter -p ../rapid-saas -r report -e vendor,rapidctl,cmd,utils -f html
+	@goreporter -p ../hub3 -r report -e vendor,cmd,utils -f html
 
 setup-npm:
 	# used for getting dependencies to render swagger specifications

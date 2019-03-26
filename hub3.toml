@@ -1,5 +1,5 @@
 # The default orgId
-orgId = "rapid"
+orgId = "hub3"
 
 [http]
 # all the configuration for the http sub-command
@@ -12,7 +12,7 @@ enabled = true
 # the urls where we can find elasticsearch
 urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId
-indexName = "rapid"
+indexName = "hub3"
 # if _mapping and _search proxies should be enabled
 proxy = true 
 # Store fragments 
@@ -67,7 +67,7 @@ dataPath = "/%s/data"
 # A list of RDF entry points. 
 routedEntryPoints = ["http://localhost:3000"]
 # The base url used for minting RDF URI's
-baseUrl = "http://data.rapid.org"
+baseUrl = "http://data.hub3.org"
 # Enable the sparql endpoint proxy (Read-Only)
 sparqlEnabled = true 
 # Default format for importing in the bulk API, "text/turtle", "application/rdf+xml" or "application/ld+json"

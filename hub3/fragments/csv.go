@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic"
 )

@@ -1,6 +1,6 @@
 package mapping
 
-// ESMapping is the default mapping for the RDF records enabled by rapid
+// ESMapping is the default mapping for the RDF records enabled by hub3
 var ESMapping = `{
 	"settings": {
 		"index": {

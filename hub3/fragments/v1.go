@@ -25,7 +25,7 @@ import (
 	"sync"
 	"time"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 

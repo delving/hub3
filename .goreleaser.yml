@@ -2,7 +2,7 @@
 # Build customization
 builds:
   - main: main.go
-    binary: rapid
+    binary: hub3
     goos:
       - darwin
       - linux
@@ -18,7 +18,7 @@ builds:
       - CGO_ENABLED=0
 
 dockers:
-  - image: delvingbv/rapid
+  - image: delvingbv/hub3
 
 nfpm: 
   # This is parsed with the Go template engine and the following variables
@@ -38,7 +38,7 @@ nfpm:
   vendor: Delving B.V.
   # Your app's homepage.
   # Default is empty.
-  homepage: https://www.delving.eu/rapid/
+  homepage: https://www.delving.eu/
 
   # Your app's maintainer (probably you).
   # Default is empty.
@@ -46,7 +46,7 @@ nfpm:
 
   # Your app's description.
   # Default is empty.
-  description: RAPID Linked Open Data platform
+  description: Hub3 Linked Open Data platform
 
   # Your app's license.
   # Default is empty.
@@ -66,7 +66,7 @@ nfpm:
     # - svn
 
   # Override default /usr/local/bin destination for binaries
-  bindir: /opt/hub3/rapid
+  bindir: /opt/hub3/hub3
 
   # Files or directories to add to your package (beyond the binary).
   # Keys are source paths to get the files from.
@@ -79,9 +79,9 @@ nfpm:
   # Keys are source paths to get the files from.
   # Values are the destination locations of the files in the package.
   config_files:
-    "deploy/rapid.service": "/lib/systemd/system/rapid.service"
-    "deploy/rapid-syslog.conf": "/etc/rsyslog.d/rapid-syslog.conf"
-    "rapid.toml": "/etc/default/rapid.toml"
+    "deploy/hub3.service": "/lib/systemd/system/hub3.service"
+    "deploy/hub3-syslog.conf": "/etc/rsyslog.d/hub3-syslog.conf"
+
 
 sign:
   # name of the signature file.

@@ -42,13 +42,13 @@ func CloseStorm() {
 
 func ResetStorm() {
 	CloseStorm()
-	os.Remove("rapid.db")
+	os.Remove("hub3.db")
 	orm = newDB("")
 }
 
 func newDB(dbName string) *storm.DB {
 	if dbName == "" {
-		dbName = "rapid.db"
+		dbName = "hub3.db"
 	}
 	if !strings.HasSuffix(dbName, ".db") {
 		dbName = fmt.Sprintf("%s.db", dbName)

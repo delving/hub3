@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/delving/rapid-saas/hub3/fragments"
+	. "github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("CSV", func() {
@@ -46,7 +46,7 @@ var _ = Describe("CSV", func() {
 				conv.InputFile = in
 				conv.Separator = ";"
 				conv.SubjectColumn = "handle-uuid"
-				conv.PredicateURIBase = "http=//data.rapid.nl/def/"
+				conv.PredicateURIBase = "http=//data.hub3.nl/def/"
 
 				records, err := conv.GetReader()
 				Expect(err).ToNot(HaveOccurred())
@@ -54,7 +54,7 @@ var _ = Describe("CSV", func() {
 				hMap := conv.HeaderMap()
 				Expect(hMap).ToNot(BeEmpty())
 				Expect(hMap[0].String()).To(HaveSuffix(">"))
-				Expect(hMap[0].String()).To(ContainSubstring("data.rapid.nl/def/"))
+				Expect(hMap[0].String()).To(ContainSubstring("data.hub3.nl/def/"))
 
 			})
 
@@ -64,11 +64,11 @@ var _ = Describe("CSV", func() {
 					Separator:      ";",
 					SubjectColumn:  "handle-uuid",
 					SubjectClass:   "http://www.europeana.eu/schemas/edm/WebResource",
-					SubjectURIBase: "http://data.rapid.nl/resource/",
+					SubjectURIBase: "http://data.hub3.nl/resource/",
 				}
 
 				uri, typeTriple := conv.CreateSubjectResource("1234")
-				Expect(uri.String()).To(Equal("<http://data.rapid.nl/resource/1234>"))
+				Expect(uri.String()).To(Equal("<http://data.hub3.nl/resource/1234>"))
 				Expect(typeTriple.Object.String()).To(Equal(rdf2go.NewResource(conv.SubjectClass).String()))
 			})
 
@@ -77,7 +77,7 @@ var _ = Describe("CSV", func() {
 				conv.Separator = ";"
 				conv.SubjectColumn = "handle-uuid"
 				conv.SubjectClass = "http://www.europeana.eu/schemas/edm/WebResource"
-				conv.SubjectURIBase = "http://data.rapid.nl/resource/"
+				conv.SubjectURIBase = "http://data.hub3.nl/resource/"
 
 				t := conv.CreateTriple(rdf2go.NewResource("urn:s"), 0, "not empty")
 				Expect(t).ToNot(BeNil())

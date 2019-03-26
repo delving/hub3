@@ -27,7 +27,7 @@ import (
 	"strconv"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	proto "github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic"

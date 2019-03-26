@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	"github.com/google/go-cmp/cmp"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -44,18 +44,18 @@ var _ = Describe("Apiutils", func() {
 
 			It("should marshal from a string", func() {
 				sr := &SearchRequest{
-					Query:        "Rapid Rocks Gööd",
+					Query:        "hub3 Rocks Gööd",
 					ResponseSize: int32(20),
 					FacetLimit:   int32(100),
 				}
 				output, err := sr.SearchRequestToHex()
 				Expect(err).ToNot(HaveOccurred())
-				input := "0a12526170696420526f636b732047c3b6c3b66418145864"
+				input := "0a116875623320526f636b732047c3b6c3b66418145864"
 				Expect(output).To(Equal(input))
 				newSr, err := SearchRequestFromHex(input)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(newSr.GetResponseSize()).To(Equal(int32(20)))
-				Expect(newSr.GetQuery()).To(Equal("Rapid Rocks Gööd"))
+				Expect(newSr.GetQuery()).To(Equal("hub3 Rocks Gööd"))
 			})
 
 		})
@@ -64,11 +64,11 @@ var _ = Describe("Apiutils", func() {
 
 			It("should set the query", func() {
 				params := make(map[string][]string)
-				params["q"] = []string{"rapid"}
+				params["q"] = []string{"hub3"}
 				sr, err := NewSearchRequest(params)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
-				Expect(sr.GetQuery()).To(Equal("rapid"))
+				Expect(sr.GetQuery()).To(Equal("hub3"))
 
 			})
 

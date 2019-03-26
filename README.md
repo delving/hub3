@@ -1,8 +1,6 @@
-# Delving RAPID
+# Delving Hub3
 
-RAPID is a recursive acronym that stands for *Rapid API Delving*. 
-
-The goal of RAPID is to provide *an API Framework that makes it easy and predictable for webdevelopers to work with arbitrarily structured RDF and leverage semantic network technology*.
+The goal of Hub3 is to provide *an API Framework that makes it easy and predictable for webdevelopers to work with arbitrarily structured RDF and leverage semantic network technology*.
 
 The core functionality that it aims to provide can be summarised by the acronym *SILAS*:
 
@@ -16,24 +14,19 @@ Part of the design is to require as little external dependencies outside the com
 
 ## Install
 
-RAPID is written in Golang, so you have to setup your Golang environment first, see [Golang Installation].
+Hub3 is written in Golang, so you have to setup your Golang environment first, see [Golang Installation].
 
 After that you can glone it from bitbucket:
 
-    $ git clone git@github.com:delving/rapid-saas.git $GOPATH/src/github.com/delving
+    $ git clone git@github.com:delving/hub3.git $GOPATH/src/github.com/delving
 
 Or use `go get`
 
-    $ go get github.com/delving/rapid-saas
-
-In order to get the dependencies, install [glide]:
-
-    $ curl https://glide.sh/get | sh
-    $ glide install
+    $ go get github.com/delving/hub3
 
 Start the server with the default configuration.
 
-    $ rapid http
+    $ hub3 http
 
 For development setup, see [Develop](./docs/development.md).
 

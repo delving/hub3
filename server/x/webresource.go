@@ -20,8 +20,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/mediamanager"
+	c "github.com/delving/hub3/config"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/labstack/gommon/log"
@@ -90,10 +89,10 @@ func (rs ExploreResource) Routes() chi.Router {
 		return
 	})
 	r.Get("/index", func(w http.ResponseWriter, r *http.Request) {
-		err := mediamanager.IndexWebResources(bp)
-		if err != nil {
-			log.Printf("Unable to index webresources: %s", err)
-		}
+		//err := mediamanager.IndexWebResources(bp)
+		//if err != nil {
+		//log.Printf("Unable to index webresources: %s", err)
+		//}
 		return
 	})
 	return r

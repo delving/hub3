@@ -24,8 +24,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/mapping"
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/mapping"
 	elastic "github.com/olivere/elastic"
 )
 

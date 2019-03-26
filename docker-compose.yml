@@ -8,7 +8,7 @@ services:
       #- "9300:9300"
     environment:
       - discovery.type=single-node 
-      - cluster.name=rapid_cluster
+      - cluster.name=hub3_cluster
       #- bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
     ulimits:

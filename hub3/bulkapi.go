@@ -24,9 +24,9 @@ import (
 	"log"
 	"strings"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/fragments"
-	"github.com/delving/rapid-saas/hub3/models"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/olivere/elastic"

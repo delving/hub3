@@ -24,7 +24,7 @@ import (
 	"strings"
 
 	"github.com/OneOfOne/xxhash"
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic"
 )
@@ -312,7 +312,7 @@ func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
 	return nil
 }
 
-// ESSettings are the default settings for a Rapid index
+// ESSettings are the default settings for a Hub3 index
 var ESSettings = `{
 	"settings":{
 		"number_of_shards":3,

@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/models"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
 	proto "github.com/golang/protobuf/proto"
 	"github.com/microcosm-cc/bluemonday"

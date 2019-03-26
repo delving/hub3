@@ -6,8 +6,8 @@ import (
 	fmt "fmt"
 	"log"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/index"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/index"
 	elastic "github.com/olivere/elastic"
 )
 

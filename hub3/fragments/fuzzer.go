@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/delving/rapid-saas/config"
+	"github.com/delving/hub3/config"
 	fuzz "github.com/google/gofuzz"
 	r "github.com/kiivihal/rdf2go"
 )

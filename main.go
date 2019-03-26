@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/delving/rapid-saas/cmd"
+import "github.com/delving/hub3/cmd"
 
 var (
 	// Version of the application. (Injected at build time)

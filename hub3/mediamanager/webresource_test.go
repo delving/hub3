@@ -20,7 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
-	c "github.com/delving/rapid-saas/config"
+	c "github.com/delving/hub3/config"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -42,7 +42,7 @@ var _ = Describe("Webresource", func() {
 
 	BeforeEach(func() {
 		var err error
-		tmpDir, err = ioutil.TempDir("/tmp", "rapid")
+		tmpDir, err = ioutil.TempDir("/tmp", "hub3")
 		c.Config.WebResource.WebResourceDir = tmpDir
 		Ω(err).ShouldNot(HaveOccurred())
 

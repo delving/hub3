@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/delving/rapid-saas/config"
+	"github.com/delving/hub3/config"
 
 	"github.com/spf13/cobra"
 )
@@ -27,8 +27,8 @@ var buildInfo *config.BuildVersionInfo
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "rapid",
-	Short: "RAPID: A Golang-based Linked Open Data discovery platform.",
+	Use:   "hub3",
+	Short: "Hub3: A Golang-based Linked Open Data discovery platform.",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -56,7 +56,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	RootCmd.PersistentFlags().StringVar(&config.CfgFile, "config", "", "config file (default is $HOME/.rapid.yaml)")
+	RootCmd.PersistentFlags().StringVar(&config.CfgFile, "config", "", "config file (default is $HOME/.hub3.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"github.com/delving/rapid-saas/server"
+	"github.com/delving/hub3/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -24,7 +24,7 @@ import (
 var httpCmd = &cobra.Command{
 	Use:   "http",
 	Short: "Start the webserver process",
-	Long: `Starting the webserver http process.`,
+	Long:  `Starting the webserver http process.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Start(buildInfo)
 	},

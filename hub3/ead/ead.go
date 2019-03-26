@@ -13,8 +13,8 @@ import (
 	"strings"
 	"sync/atomic"
 
-	c "github.com/delving/rapid-saas/config"
-	"github.com/delving/rapid-saas/hub3/fragments"
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
 	"github.com/olivere/elastic"
 )
 
