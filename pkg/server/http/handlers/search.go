@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package handlers
 
 import (
 	"encoding/json"
@@ -36,11 +36,7 @@ import (
 	elastic "github.com/olivere/elastic"
 )
 
-// SearchResource is a struct for the Search routes
-type SearchResource struct{}
-
-// Routes returns the chi.Router
-func (rs SearchResource) Routes() chi.Router {
+func RegisterSearch(router chi.Router) {
 	r := chi.NewRouter()
 
 	// throttle queries on elasticsearch
@@ -61,7 +57,8 @@ func (rs SearchResource) Routes() chi.Router {
 		return
 	})
 
-	return r
+	router.Mount("/api/search", r)
+
 }
 
 func getScrollResult(w http.ResponseWriter, r *http.Request) {

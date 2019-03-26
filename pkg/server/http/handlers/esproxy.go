@@ -1,7 +1,8 @@
-package server
+package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -11,15 +12,12 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/labstack/gommon/log"
 )
 
-type IndexResource struct{}
-
-func (rs IndexResource) Routes() chi.Router {
+func RegisterElasticSearchProxy(router chi.Router) {
 	r := chi.NewRouter()
 
-	r.Get("/stats", rs.Get) // GET
+	//r.Get("/stats", rs.Get) // GET
 	r.Get("/indexes", func(w http.ResponseWriter, r *http.Request) {
 		indexes, err := index.ListIndexes()
 		if err != nil {
@@ -36,15 +34,15 @@ func (rs IndexResource) Routes() chi.Router {
 		r.Handle("/_mapping", NewSingleFinalPathHostReverseProxy(es, "_mapping"))
 	}
 
-	return r
+	router.Mount("/api/es", r)
 }
 
 // Get returns JSON formatted statistics for the BulkProcessor
-func (rs IndexResource) Get(w http.ResponseWriter, r *http.Request) {
-	//stats := index.BulkIndexStatistics(bp)
-	//render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
-	return
-}
+//func (rs IndexResource) Get(w http.ResponseWriter, r *http.Request) {
+////stats := index.BulkIndexStatistics(bp)
+////render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
+//return
+//}
 
 // NewSingleFinalPathHostReverseProxy proxies QueryString of the request url to the target url
 func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httputil.ReverseProxy {
