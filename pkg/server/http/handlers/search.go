@@ -85,7 +85,7 @@ func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	// suggestion
 	//s.Suggester(elastic.NewSuggestField)
 
-	res, err := s.Do(ctx)
+	res, err := s.Do(r.Context())
 	echoRequest := r.URL.Query().Get("echo")
 	if err != nil {
 		if echoRequest != "" {

@@ -58,7 +58,7 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	log.Printf("Get stats for spec %s", spec)
-	stats, err := models.CreateDataSetStats(ctx, spec)
+	stats, err := models.CreateDataSetStats(r.Context(), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
