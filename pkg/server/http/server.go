@@ -27,7 +27,11 @@ type Server interface {
 	ListenAndServe() error
 }
 
-func NewServer() (Server, error) {
+// ServerOptionFunc is a function that configures a Server.
+// It is used in NewServer.
+type ServerOptionFunc func(*server) error
+
+func NewServer(options ...ServerOptionFunc) (Server, error) {
 	s := &server{}
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -35,24 +39,58 @@ func NewServer() (Server, error) {
 	s.n = negroniWithDefaults()
 	s.r = chiWithDefaults()
 
+	// Run the options on it
+	for _, option := range options {
+		if err := option(s); err != nil {
+			return nil, err
+		}
+	}
+
 	s.r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, "You are rocking hub3!")
 	})
 
-	s.r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%+v\n", s.buildInfo)
-		render.JSON(w, r, s.buildInfo)
-		return
-	})
-
 	// introspection
 	if c.Config.DevMode {
-		handlers.RegisterIntrospection(s.r)
 	}
-
 	s.n.UseHandler(s.r)
 
 	return s, nil
+}
+
+// RouterCallBack
+type RouterCallBack func(router chi.Router)
+
+// SetRouters
+func SetRouters(rb ...RouterCallBack) ServerOptionFunc {
+	return func(s *server) error {
+		for _, f := range rb {
+			f(s.r)
+		}
+		return nil
+	}
+}
+
+// SetBuildInfo
+func SetBuildInfo(info *c.BuildVersionInfo) ServerOptionFunc {
+	return func(s *server) error {
+		s.buildInfo = info
+		s.r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Printf("%+v\n", s.buildInfo)
+			render.JSON(w, r, s.buildInfo)
+			return
+		})
+		return nil
+	}
+}
+
+func SetIntroSpection(enabled bool) ServerOptionFunc {
+	return func(s *server) error {
+		if enabled {
+			handlers.RegisterIntrospection(s.r)
+		}
+		return nil
+	}
 }
 
 func chiWithDefaults() chi.Router {
