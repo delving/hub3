@@ -28,7 +28,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func RegisterLOD(r *chi.Mux) {
+func RegisterLOD(r chi.Router) {
 	if c.Config.LOD.SingleEndpoint != "" {
 		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.SingleEndpoint), RenderLODResource)
 	} else {
