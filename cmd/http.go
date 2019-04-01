@@ -1,4 +1,4 @@
-// Copyright © 2017 Delving B.V. <info@delving>
+// Copyright © 2019 Delving B.V. <info@delving>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import (
 	"log"
 
 	"github.com/delving/hub3/pkg/server/http"
+	"github.com/delving/hub3/pkg/server/http/handlers"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -28,8 +29,24 @@ var httpCmd = &cobra.Command{
 	Short: "Start the webserver process",
 	Long:  `Starting the webserver http process.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// TODO creater New server via func
-		server, err := http.NewServer()
+
+		routers := []http.RouterCallBack{
+			handlers.RegisterBulkIndexer,
+			handlers.RegisterCSV,
+			handlers.RegisterDatasets,
+			handlers.RegisterStaticAssets,
+			handlers.RegisterEAD,
+			handlers.RegisterElasticSearchProxy,
+			handlers.RegisterLOD,
+			handlers.RegisterLinkedDataFragments,
+			handlers.RegisterZVT,
+			handlers.RegisterSparql,
+		}
+		server, err := http.NewServer(
+			http.SetBuildInfo(buildInfo),
+			http.SetIntroSpection(true),
+			http.SetRouters(routers...),
+		)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,7 +54,6 @@ var httpCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		//server.Start(buildInfo)
 	},
 }
 
