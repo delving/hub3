@@ -85,6 +85,7 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 			response.JSONErrors++
 			log.Println("Unable to unmarshal JSON.")
 			log.Print(err)
+			log.Printf("%s", line)
 			continue
 		}
 		action.p = p
