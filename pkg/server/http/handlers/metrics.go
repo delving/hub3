@@ -1,12 +1,9 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/thoas/stats"
+	//"github.com/thoas/stats"
 )
 
 var (
@@ -19,15 +16,15 @@ const (
 )
 
 func RegisterMetrics(r chi.Router) {
-	stats := stats.New()
-	r.Use(StatsMiddleware(stats))
+	//stats := stats.New()
+	//r.Use(StatsMiddleware(stats))
 
-	// stats page
-	r.Get("/api/stats/http", func(w http.ResponseWriter, r *http.Request) {
-		stats := stats.Data()
-		render.JSON(w, r, stats)
-		return
-	})
+	//// stats page
+	//r.Get("/api/stats/http", func(w http.ResponseWriter, r *http.Request) {
+	//stats := stats.Data()
+	//render.JSON(w, r, stats)
+	//return
+	//})
 
 	r.Handle("/metrics", prometheus.Handler())
 
@@ -80,13 +77,13 @@ func NewPrometheuusMiddleware(name string, buckets ...float64) *prometheusMiddle
 //}
 //}
 
-func StatsMiddleware(middleware *stats.Stats) func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			beginning, recorder := middleware.Begin(w)
-			next.ServeHTTP(w, r)
-			middleware.End(beginning, stats.WithRecorder(recorder))
-		}
-		return http.HandlerFunc(fn)
-	}
-}
+//func StatsMiddleware(middleware *stats.Stats) func(http.Handler) http.Handler {
+//return func(next http.Handler) http.Handler {
+//fn := func(w http.ResponseWriter, r *http.Request) {
+//beginning, recorder := middleware.Begin(w)
+//next.ServeHTTP(w, r)
+//middleware.End(beginning, stats.WithRecorder(recorder))
+//}
+//return http.HandlerFunc(fn)
+//}
+//}
