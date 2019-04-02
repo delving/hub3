@@ -50,9 +50,6 @@ func NewServer(options ...ServerOptionFunc) (Server, error) {
 		render.PlainText(w, r, "You are rocking hub3!")
 	})
 
-	// introspection
-	if c.Config.DevMode {
-	}
 	s.n.UseHandler(s.r)
 
 	return s, nil
