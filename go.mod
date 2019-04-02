@@ -71,11 +71,9 @@ require (
 	github.com/spf13/pflag v0.0.0-20171106142849-4c012f6dcd95 // indirect
 	github.com/spf13/viper v0.0.0-20171227194143-aafc9e6bc7b7
 	github.com/stretchr/testify v1.2.2
-	github.com/thoas/stats v0.0.0-20170926101542-37829025d224
 	github.com/urfave/negroni v0.3.0
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
-	github.com/zbindenren/negroni-prometheus v0.1.1
 	golang.org/x/image v0.0.0-20171214225156-12117c17ca67 // indirect
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
 	golang.org/x/sys v0.0.0-20180126165840-ff2a66f350ce // indirect
