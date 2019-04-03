@@ -20,9 +20,6 @@ build/*
 dist
 utils
 
-# assets: don't commit generated bundled static resources
-pkg/server/http/assets/filesystem_vfsdata.go
-
 # TLS cache
 .cache
 
