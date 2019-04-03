@@ -20,6 +20,7 @@ type server struct {
 	n         *negroni.Negroni
 	r         chi.Router
 	buildInfo *c.BuildVersionInfo
+	port      int
 }
 
 type Server interface {
@@ -58,7 +59,7 @@ func NewServer(options ...ServerOptionFunc) (Server, error) {
 // RouterCallBack
 type RouterCallBack func(router chi.Router)
 
-// SetRouters
+// SetRouters adds all HTTP routes for the server.
 func SetRouters(rb ...RouterCallBack) ServerOptionFunc {
 	return func(s *server) error {
 		for _, f := range rb {
@@ -68,7 +69,7 @@ func SetRouters(rb ...RouterCallBack) ServerOptionFunc {
 	}
 }
 
-// SetBuildInfo
+// SetBuildInfo adds a version handler for showing build information at '/version'.
 func SetBuildInfo(info *c.BuildVersionInfo) ServerOptionFunc {
 	return func(s *server) error {
 		s.buildInfo = info
@@ -81,11 +82,20 @@ func SetBuildInfo(info *c.BuildVersionInfo) ServerOptionFunc {
 	}
 }
 
+// SetIntroSpection enables introspection handlers.
 func SetIntroSpection(enabled bool) ServerOptionFunc {
 	return func(s *server) error {
 		if enabled {
 			handlers.RegisterIntrospection(s.r)
 		}
+		return nil
+	}
+}
+
+// SetPort sets the port on which the server will listen to TCP traffic.
+func SetPort(port int) ServerOptionFunc {
+	return func(s *server) error {
+		s.port = port
 		return nil
 	}
 }
@@ -136,8 +146,8 @@ func negroniWithDefaults() *negroni.Negroni {
 }
 
 func (s server) ListenAndServe() error {
-	log.Printf("Using port: %d", c.Config.Port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", c.Config.Port), s.n)
+	log.Printf("Using port: %d", s.port)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.n)
 	// TODO catch ctrl-c for graceful shutdown
 	if err != nil {
 		log.Fatal(err)
