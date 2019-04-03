@@ -4,7 +4,6 @@ This package contains source for rendering webcontent. All these files are inclu
 
 * Yasgui sparql viewer, see [link](https://about.yasgui.org/).
 * Linked Data Fragments viewer, see [link](http://linkeddatafragments.org/).
-* Dutch National Archive Archival explorer proof-of-concept (currently not publicly available).
 
 Each directory of a third party library has a `version.json` file that tracks the following information (yasgui used as example):
 
