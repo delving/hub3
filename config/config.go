@@ -322,10 +322,19 @@ func InitConfig() {
 	setDefaults()
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	err := viper.ReadInConfig()
+	if err == nil {
 		log.Printf("Using config file: %s", viper.ConfigFileUsed())
+	} else {
+		log.Printf("Unable to read config file %s", viper.ConfigFileUsed())
+		switch v := err.(type) {
+		case viper.ConfigParseError:
+			log.Fatalf("config parse error: %#v", v.Error())
+		default:
+			log.Printf("config parse error: %#v", err)
+		}
 	}
-	err := viper.Unmarshal(&Config)
+	err = viper.Unmarshal(&Config)
 	if err != nil {
 		log.Fatal(
 			fmt.Sprintf("unable to decode into struct, %v", err),
