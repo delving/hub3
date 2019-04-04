@@ -17,6 +17,7 @@ package cmd
 import (
 	"log"
 
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/pkg/server/http"
 	"github.com/delving/hub3/pkg/server/http/handlers"
 	"github.com/spf13/cobra"
@@ -46,6 +47,7 @@ var httpCmd = &cobra.Command{
 			http.SetBuildInfo(buildInfo),
 			http.SetIntroSpection(true),
 			http.SetRouters(routers...),
+			http.SetPort(config.Config.HTTP.Port),
 		)
 		if err != nil {
 			log.Fatal(err)
