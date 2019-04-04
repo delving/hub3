@@ -69,11 +69,12 @@ func getScrollResult(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, err.Error())
 		return
 	}
-	processSearchRequest(w, r, searchRequest)
+	ProcessSearchRequest(w, r, searchRequest)
 	return
 }
 
-func processSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
+//
+func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
 
 	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {

@@ -28,7 +28,7 @@ func RegisterBulkIndexer(r chi.Router) {
 	r.Post("/api/index/bulk", bulkAPI)
 }
 
-func bulkProcessor() *elastic.BulkProcessor {
+func BulkProcessor() *elastic.BulkProcessor {
 	if bp != nil {
 		return bp
 	}
@@ -45,7 +45,7 @@ func bulkProcessor() *elastic.BulkProcessor {
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(ctx, r.Body, bulkProcessor(), wp)
+	response, err := hub3.ReadActions(ctx, r.Body, BulkProcessor(), wp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)

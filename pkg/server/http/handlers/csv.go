@@ -82,7 +82,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if created {
-		err = fragments.SaveDataSet(conv.DefaultSpec, bulkProcessor())
+		err = fragments.SaveDataSet(conv.DefaultSpec, BulkProcessor())
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", conv.DefaultSpec)
 			if err != nil {
@@ -98,7 +98,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	triplesCreated, rowsSeen, err := conv.IndexFragments(bulkProcessor(), ds.Revision)
+	triplesCreated, rowsSeen, err := conv.IndexFragments(BulkProcessor(), ds.Revision)
 	conv.RowsProcessed = rowsSeen
 	conv.TriplesCreated = triplesCreated
 	log.Printf("Processed %d csv rows\n", rowsSeen)
@@ -107,7 +107,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = ds.DropOrphans(ctx, bulkProcessor(), wp)
+	_, err = ds.DropOrphans(ctx, BulkProcessor(), wp)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
