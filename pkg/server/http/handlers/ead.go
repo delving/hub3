@@ -34,7 +34,7 @@ func RegisterEAD(r chi.Router) {
 func eadUpload(w http.ResponseWriter, r *http.Request) {
 	spec := r.FormValue("spec")
 
-	_, err := ead.ProcessUpload(r, w, spec, bulkProcessor())
+	_, err := ead.ProcessUpload(r, w, spec, BulkProcessor())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -85,7 +85,7 @@ func treeList(w http.ResponseWriter, r *http.Request) {
 	default:
 		searchRequest.Tree.Spec = spec
 	}
-	processSearchRequest(w, r, searchRequest)
+	ProcessSearchRequest(w, r, searchRequest)
 	return
 }
 

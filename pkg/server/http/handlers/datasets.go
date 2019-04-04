@@ -156,7 +156,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		var created bool
 		ds, created, err = models.CreateDataSet(spec)
 		if created {
-			err = fragments.SaveDataSet(spec, bulkProcessor())
+			err = fragments.SaveDataSet(spec, BulkProcessor())
 		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)

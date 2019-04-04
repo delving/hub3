@@ -98,7 +98,7 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if created {
-		err = fragments.SaveDataSet(form.Spec, bulkProcessor())
+		err = fragments.SaveDataSet(form.Spec, BulkProcessor())
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", form.Spec)
 			if err != nil {
@@ -131,21 +131,21 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("Start saving fragments.")
-		processedFragments, err := upl.IndexFragments(bulkProcessor())
+		processedFragments, err := upl.IndexFragments(BulkProcessor())
 		if err != nil {
 			log.Printf("Can't save fragments: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		log.Printf("Saved %d fragments for %s", processedFragments, upl.Spec)
-		processed, err := upl.SaveFragmentGraphs(bulkProcessor())
+		processed, err := upl.SaveFragmentGraphs(BulkProcessor())
 		if err != nil {
 			log.Printf("Can't save records: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		log.Printf("Saved %d records for %s", processed, upl.Spec)
-		ds.DropOrphans(context.Background(), bulkProcessor(), nil)
+		ds.DropOrphans(context.Background(), BulkProcessor(), nil)
 	}()
 
 	render.Status(r, http.StatusCreated)
