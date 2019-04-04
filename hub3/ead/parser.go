@@ -47,6 +47,7 @@ func eadParse(src []byte) (*Cead, error) {
 }
 
 func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elastic.BulkProcessor) (uint64, error) {
+	os.MkdirAll(c.Config.EAD.CacheDir, os.ModePerm)
 
 	f, err := ioutil.TempFile(c.Config.EAD.CacheDir, "*")
 	defer f.Close()
