@@ -84,7 +84,7 @@ type ElasticSearch struct {
 	UserName           string   `json:"userName"`
 	Password           string   `json:"password"`
 	FacetSize          int      `json:"facetSize"`
-	MimimumShouldMatch string   `json:"mimimumShouldMatch"`
+	MinimumShouldMatch string   `json:"minimumShouldMatch"`
 }
 
 func (es ElasticSearch) HasAuthentication() bool {
