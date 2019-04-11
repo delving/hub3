@@ -53,3 +53,42 @@ func ExampleSplitURI() {
 	fmt.Println(namespace.SplitURI("http://purl.org/dc/elements/1.1/title"))
 	// output: http://purl.org/dc/elements/1.1/ title
 }
+
+func TestNameSpace_GetID(t *testing.T) {
+	type fields struct {
+		UUID      string
+		Base      namespace.URI
+		Prefix    string
+		BaseAlt   []namespace.URI
+		PrefixAlt []string
+		Schema    string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+	}{
+		{
+			"known uuid",
+			fields{UUID: "123", Prefix: "dc"},
+		},
+		{
+			"unknown uuid",
+			fields{Prefix: "dc"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ns := &namespace.NameSpace{
+				UUID:      tt.fields.UUID,
+				Base:      tt.fields.Base,
+				Prefix:    tt.fields.Prefix,
+				BaseAlt:   tt.fields.BaseAlt,
+				PrefixAlt: tt.fields.PrefixAlt,
+				Schema:    tt.fields.Schema,
+			}
+			if got := ns.GetID(); got == "" {
+				t.Errorf("NameSpace.GetID() = %v, it should not be empty", got)
+			}
+		})
+	}
+}

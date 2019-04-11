@@ -1,12 +1,20 @@
 package namespace
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/segmentio/ksuid"
+)
 
 // URI represents a NameSpace URI.
 type URI string
 
 // NameSpace is a container for URI conversions for RDF- and XML-namespaces.
 type NameSpace struct {
+
+	// UUID is the unique identifier of a namespace
+	UUID string `json:"uuid"`
+
 	// Base is the default base-URI for a namespace
 	Base URI `json:"base"`
 
@@ -16,7 +24,7 @@ type NameSpace struct {
 	// BaseAlt are alternative base-URI for the same prefix.
 	// Sometimes historically the base-URIs for a namespace changes and we still
 	// have to correctly resolve both.
-	BaseAlt []URI `json:"alternatives"`
+	BaseAlt []URI `json:"baseAlt"`
 
 	// PrefixAlt are altenative prefixes for the default base URI.
 	// Different content-providers and organisations have at time selected alternative
@@ -49,4 +57,14 @@ func SplitURI(uri string) (base string, name string) {
 	}
 
 	return "", uri
+}
+
+// GetID returns a string representation of a UUID.
+// When no UUID is sit, this function will generate it and update the NameSpace.
+func (ns *NameSpace) GetID() string {
+	if ns.UUID == "" {
+		uuid := ksuid.New()
+		ns.UUID = uuid.String()
+	}
+	return ns.UUID
 }
