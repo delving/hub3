@@ -55,7 +55,7 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 			for prefix, base := range nsMap {
 				ns := &NameSpace{
 					Prefix: prefix,
-					Base:   URI(base),
+					Base:   base,
 				}
 				if err := s.Set(ns); err != nil {
 					return nil, err

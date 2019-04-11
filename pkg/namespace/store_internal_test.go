@@ -20,42 +20,42 @@ func TestMemoryStore(t *testing.T) {
 	}{
 		{
 			"add first",
-			&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dc"},
+			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
 			store.Set,
 			1,
 			false,
 		},
 		{
 			"add duplicate",
-			&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dc"},
+			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
 			store.Set,
 			1,
 			false,
 		},
-		{
-			"add alternative prefix",
-			&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dce"},
-			store.Set,
-			1,
-			false,
-		},
+		//{
+		//"replace prefix",
+		//&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dce"},
+		//store.Set,
+		//1,
+		//false,
+		//},
 		{
 			"add second",
-			&NameSpace{Base: URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), Prefix: "rdf"},
+			&NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"},
 			store.Set,
 			2,
 			false,
 		},
 		{
 			"delete first",
-			&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dc"},
+			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
 			store.Delete,
 			1,
 			false,
 		},
 		{
 			"delete second",
-			&NameSpace{Base: URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), Prefix: "rdf"},
+			&NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"},
 			store.Delete,
 			0,
 			false,
@@ -80,8 +80,8 @@ func TestGetFromMemoryStore(t *testing.T) {
 	if store.Len() != 0 {
 		t.Errorf("memoryStore should be empty when initialised; got %d", store.Len())
 	}
-	rdf := &NameSpace{Base: URI("http://www.w3.org/1999/02/22-rdf-syntax-ns#"), Prefix: "rdf"}
-	dc := &NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dc"}
+	rdf := &NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
 	unknown := &NameSpace{Prefix: "unknown"}
 
 	err := store.Set(dc)
@@ -106,7 +106,7 @@ func TestGetFromMemoryStore(t *testing.T) {
 		t.Errorf("GetWithPrefix expected %#v; got %#v", dc, ns1)
 	}
 
-	ns2, err := store.GetWithBase(rdf.Base.String())
+	ns2, err := store.GetWithBase(rdf.Base)
 	if err != nil {
 		t.Errorf("Unexpected error retrieving namespace: %#v", err)
 	}

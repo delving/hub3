@@ -9,7 +9,7 @@ import (
 func TestService_SearchLabel(t *testing.T) {
 
 	dc := &namespace.NameSpace{
-		Base:   namespace.URI("http://purl.org/dc/elements/1.1/"),
+		Base:   "http://purl.org/dc/elements/1.1/",
 		Prefix: "dc",
 	}
 	type args struct {

@@ -12,6 +12,10 @@ type Store interface {
 	// When the object already exists it is overwritten.
 	Set(ns *NameSpace) error
 
+	// Add either the Base and Prefix alternatives depending on which one
+	// is found first. When neither is found a new NameSpace is created.
+	//Add(prefix, base string) error
+
 	// Delete removes the NameSpace from the store.
 	//
 	// Delete matches by the Prefix of the Namespace.
@@ -36,6 +40,7 @@ type memoryStore struct {
 	sync.RWMutex
 	prefix2base map[string]*NameSpace
 	base2prefix map[string]*NameSpace
+	//namespaces  map[string]bool
 }
 
 // newMemoryStore creates an in-memory namespace.Store.
@@ -46,7 +51,8 @@ func newMemoryStore() Store {
 	}
 }
 
-// Len returns the number of stored namespaces
+// Len returns the number of stored namespaces.
+// Alternatives Base or Prefixes don't count towards the total.
 func (ms *memoryStore) Len() int {
 	return len(ms.prefix2base)
 }
@@ -69,9 +75,9 @@ func (ms *memoryStore) Delete(ns *NameSpace) error {
 		delete(ms.prefix2base, ns.Prefix)
 	}
 
-	_, ok = ms.base2prefix[ns.Base.String()]
+	_, ok = ms.base2prefix[ns.Base]
 	if ok {
-		delete(ms.base2prefix, ns.Base.String())
+		delete(ms.base2prefix, ns.Base)
 	}
 	return nil
 }
