@@ -2,10 +2,10 @@ package namespace_test
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/delving/hub3/pkg/namespace"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestSplitURI(t *testing.T) {
@@ -114,12 +114,12 @@ func TestNameSpace_Merge(t *testing.T) {
 	}{
 		{
 			"merge without overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
 			args{&namespace.NameSpace{
 				Base:      "http://purl.org/dc/elements/1.2/",
 				Prefix:    "dce",
-				BaseAlt:   []string{"http://purl.org/dc/elements/1.2/"},
-				PrefixAlt: []string{"dce"},
+				BaseAlt:   []string{},
+				PrefixAlt: []string{},
 			}},
 			[]string{"dc", "dce"},
 			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
@@ -127,12 +127,12 @@ func TestNameSpace_Merge(t *testing.T) {
 		},
 		{
 			"merge with prefix overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
 			args{&namespace.NameSpace{
 				Base:      "http://purl.org/dc/elements/1.2/",
 				Prefix:    "dc",
-				BaseAlt:   []string{"http://purl.org/dc/elements/1.2/", "http://purl.org/dc/elements/1.1/"},
-				PrefixAlt: []string{"dc"},
+				BaseAlt:   []string{},
+				PrefixAlt: []string{},
 			}},
 			[]string{"dc"},
 			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
@@ -140,12 +140,12 @@ func TestNameSpace_Merge(t *testing.T) {
 		},
 		{
 			"merge with base overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
 			args{&namespace.NameSpace{
 				Base:      "http://purl.org/dc/elements/1.1/",
 				Prefix:    "dce",
-				BaseAlt:   []string{"http://purl.org/dc/elements/1.1/"},
-				PrefixAlt: []string{"dce"},
+				BaseAlt:   []string{},
+				PrefixAlt: []string{},
 			}},
 			[]string{"dc", "dce"},
 			[]string{"http://purl.org/dc/elements/1.1/"},
@@ -163,11 +163,11 @@ func TestNameSpace_Merge(t *testing.T) {
 			if err := ns.Merge(tt.args.other); (err != nil) != tt.wantErr {
 				t.Errorf("NameSpace.Merge() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(tt.prefixAlt, ns.PrefixAlt) {
-				t.Errorf("NameSpace.Merge() got %v; want %v", ns.PrefixAlt, tt.prefixAlt)
+			if !cmp.Equal(tt.prefixAlt, ns.Prefixes()) {
+				t.Errorf("NameSpace.Merge() got %v; want %v", ns.Prefixes(), tt.prefixAlt)
 			}
-			if !reflect.DeepEqual(tt.baseAlt, ns.BaseAlt) {
-				t.Errorf("NameSpace.Merge() got %v; want %v", ns.BaseAlt, tt.baseAlt)
+			if !cmp.Equal(tt.baseAlt, ns.BaseURIs()) {
+				t.Errorf("NameSpace.Merge() got %v; want %v", ns.BaseURIs(), tt.baseAlt)
 			}
 			if ns.Prefix != tt.fields.Prefix {
 				t.Errorf("NameSpace.Merge() should not change Prefix got %v; want %v", ns.Prefix, tt.fields.Prefix)

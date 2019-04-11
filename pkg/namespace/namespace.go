@@ -1,6 +1,7 @@
 package namespace
 
 import (
+	"sort"
 	"strings"
 
 	"github.com/segmentio/ksuid"
@@ -59,6 +60,26 @@ func SplitURI(uri string) (base string, name string) {
 	return "", uri
 }
 
+// Prefixes returns all namespace prefix linked to this NameSpace.
+// This includes the default Prefix and all alternative prefixes.
+func (ns NameSpace) Prefixes() []string {
+	prefixes := append(ns.PrefixAlt, ns.Prefix)
+	sort.Slice(prefixes, func(i, j int) bool {
+		return prefixes[i] < prefixes[j]
+	})
+	return prefixes
+}
+
+// BaseURIs returns all namespace base-URIs linked to this NameSpace.
+// This includes the default Base and all alternative base-URIs.
+func (ns NameSpace) BaseURIs() []string {
+	baseURIs := append(ns.BaseAlt, ns.Base)
+	sort.Slice(baseURIs, func(i, j int) bool {
+		return baseURIs[i] < baseURIs[j]
+	})
+	return baseURIs
+}
+
 // GetID returns a string representation of a UUID.
 // When no UUID is sit, this function will generate it and update the NameSpace.
 func (ns *NameSpace) GetID() string {
@@ -72,16 +93,18 @@ func (ns *NameSpace) GetID() string {
 // Merge merges the values of two NameSpace objects.
 // The prefixes and alternative base URIs of the other NameSpace are merged into ns.
 func (ns *NameSpace) Merge(other *NameSpace) error {
-	ns.PrefixAlt = mergeSlice(ns.PrefixAlt, other.PrefixAlt)
-	ns.BaseAlt = mergeSlice(ns.BaseAlt, other.BaseAlt)
+	ns.PrefixAlt = mergeSlice(ns.PrefixAlt, other.Prefixes(), ns.Prefix)
+	ns.BaseAlt = mergeSlice(ns.BaseAlt, other.BaseURIs(), ns.Base)
 	return nil
 }
 
-func mergeSlice(first, second []string) []string {
+func mergeSlice(first, second []string, exclude string) []string {
 	keys := map[string]bool{}
 	for _, items := range [][]string{first, second} {
 		for _, p := range items {
-			keys[p] = true
+			if p != exclude {
+				keys[p] = true
+			}
 		}
 	}
 
