@@ -11,6 +11,9 @@ func TestMemoryStore(t *testing.T) {
 		t.Errorf("memoryStore should be empty when initialised; got %d", store.Len())
 	}
 
+	dc := &NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	rdf := &NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+
 	tests := []struct {
 		name     string
 		ns       *NameSpace
@@ -20,42 +23,35 @@ func TestMemoryStore(t *testing.T) {
 	}{
 		{
 			"add first",
-			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
+			dc,
 			store.Set,
 			1,
 			false,
 		},
 		{
-			"add duplicate",
-			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
+			"set duplicate",
+			dc,
 			store.Set,
 			1,
 			false,
 		},
-		//{
-		//"replace prefix",
-		//&NameSpace{Base: URI("http://purl.org/dc/elements/1.1/"), Prefix: "dce"},
-		//store.Set,
-		//1,
-		//false,
-		//},
 		{
 			"add second",
-			&NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"},
+			rdf,
 			store.Set,
 			2,
 			false,
 		},
 		{
 			"delete first",
-			&NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"},
+			dc,
 			store.Delete,
 			1,
 			false,
 		},
 		{
 			"delete second",
-			&NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"},
+			rdf,
 			store.Delete,
 			0,
 			false,

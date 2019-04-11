@@ -60,6 +60,32 @@ func SplitURI(uri string) (base string, name string) {
 	return "", uri
 }
 
+// AddPrefix adds a prefix to the list of prefix alternatives.
+//
+// When the prefix is already present in PrefixAlt no error is thrown.
+func (ns *NameSpace) AddPrefix(prefix string) error {
+	for _, p := range ns.PrefixAlt {
+		if p == prefix {
+			return nil
+		}
+	}
+	ns.PrefixAlt = append(ns.PrefixAlt, prefix)
+	return nil
+}
+
+// AddBase adds a base-URI to the list of base alternatives.
+//
+// When the base-URI is already present in BaseAlt no error is thrown.
+func (ns *NameSpace) AddBase(base string) error {
+	for _, b := range ns.BaseAlt {
+		if b == base {
+			return nil
+		}
+	}
+	ns.BaseAlt = append(ns.BaseAlt, base)
+	return nil
+}
+
 // Prefixes returns all namespace prefix linked to this NameSpace.
 // This includes the default Prefix and all alternative prefixes.
 func (ns NameSpace) Prefixes() []string {

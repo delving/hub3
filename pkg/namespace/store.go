@@ -14,7 +14,7 @@ type Store interface {
 
 	// Add either the Base and Prefix alternatives depending on which one
 	// is found first. When neither is found a new NameSpace is created.
-	//Add(prefix, base string) error
+	Add(prefix, base string) (*NameSpace, error)
 
 	// Delete removes the NameSpace from the store.
 	//
@@ -40,7 +40,7 @@ type memoryStore struct {
 	sync.RWMutex
 	prefix2base map[string]*NameSpace
 	base2prefix map[string]*NameSpace
-	//namespaces  map[string]bool
+	namespaces  map[string]*NameSpace
 }
 
 // newMemoryStore creates an in-memory namespace.Store.
@@ -48,37 +48,106 @@ func newMemoryStore() Store {
 	return &memoryStore{
 		prefix2base: make(map[string]*NameSpace),
 		base2prefix: make(map[string]*NameSpace),
+		namespaces:  make(map[string]*NameSpace),
 	}
 }
 
 // Len returns the number of stored namespaces.
 // Alternatives Base or Prefixes don't count towards the total.
 func (ms *memoryStore) Len() int {
-	return len(ms.prefix2base)
+	return len(ms.namespaces)
 }
 
 // Set stores the NameSpace in the Store
 func (ms *memoryStore) Set(ns *NameSpace) error {
+	err := ms.Delete(ns)
 	ms.Lock()
 	defer ms.Unlock()
-	ms.prefix2base[ns.Prefix] = ns
-	ms.base2prefix[string(ns.Base)] = ns
+	if err != nil {
+		return err
+	}
+
+	for _, prefix := range ns.Prefixes() {
+		ms.prefix2base[prefix] = ns
+	}
+	for _, base := range ns.BaseURIs() {
+		ms.base2prefix[base] = ns
+	}
+	id := ns.GetID()
+	ms.namespaces[id] = ns
 	return nil
+}
+
+// Add adds the prefix and base to a NameSpace.
+// If nor prefix, base are previously stored a new NameSpace is created.
+func (ms *memoryStore) Add(prefix, base string) (*NameSpace, error) {
+	ns, err := ms.GetWithPrefix(prefix)
+	if err != nil {
+		if err != ErrNameSpaceNotFound {
+			return nil, err
+		}
+	}
+	if ns != nil {
+		err = ns.AddBase(base)
+		if err != nil {
+			return nil, err
+		}
+		return ns, nil
+	}
+
+	ns, err = ms.GetWithBase(base)
+	if err != nil {
+		if err != ErrNameSpaceNotFound {
+			return nil, err
+		}
+	}
+	if ns != nil {
+		err = ns.AddPrefix(prefix)
+		if err != nil {
+			return nil, err
+		}
+		return ns, nil
+
+	}
+
+	ns = &NameSpace{
+		Prefix: prefix,
+		Base:   base,
+	}
+	err = ms.Set(ns)
+	if err != nil {
+		return nil, err
+	}
+
+	return ns, nil
 }
 
 // Delete removes a NameSpace from the store
 func (ms *memoryStore) Delete(ns *NameSpace) error {
 	ms.Lock()
 	defer ms.Unlock()
-	_, ok := ms.prefix2base[ns.Prefix]
+	id := ns.GetID()
+
+	_, ok := ms.namespaces[id]
 	if ok {
-		delete(ms.prefix2base, ns.Prefix)
+		delete(ms.namespaces, id)
+	}
+	// drop all prefixes
+	for _, p := range ns.Prefixes() {
+		_, ok := ms.prefix2base[p]
+		if ok {
+			delete(ms.prefix2base, p)
+		}
 	}
 
-	_, ok = ms.base2prefix[ns.Base]
-	if ok {
-		delete(ms.base2prefix, ns.Base)
+	// drop all base-URIs
+	for _, b := range ns.BaseURIs() {
+		_, ok := ms.base2prefix[b]
+		if ok {
+			delete(ms.base2prefix, b)
+		}
 	}
+
 	return nil
 }
 

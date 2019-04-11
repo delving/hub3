@@ -45,6 +45,13 @@ func TestService_SearchLabel(t *testing.T) {
 				t.Errorf("Service.SearchLabel() unexpected error = %v", err)
 				return
 			}
+			// add alternative
+			err = s.Add("dce", dc.Base)
+			if err != nil {
+				t.Errorf("Service.SearchLabel() unexpected error = %v", err)
+				return
+			}
+
 			got, err := s.SearchLabel(tt.args.uri)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.SearchLabel() error = %v, wantErr %v", err, tt.wantErr)
@@ -80,7 +87,7 @@ func TestNewService(t *testing.T) {
 					namespace.WithDefaults(),
 				},
 			},
-			2188,
+			2014,
 			false,
 		},
 	}

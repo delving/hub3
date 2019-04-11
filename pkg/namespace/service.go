@@ -53,11 +53,7 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 	if s.loadDefaults {
 		for _, nsMap := range []map[string]string{defaultNS, customNS} {
 			for prefix, base := range nsMap {
-				ns := &NameSpace{
-					Prefix: prefix,
-					Base:   base,
-				}
-				if err := s.Set(ns); err != nil {
+				if err := s.Add(prefix, base); err != nil {
 					return nil, err
 				}
 			}
@@ -106,6 +102,16 @@ func (s *Service) Len() int {
 func (s *Service) Set(ns *NameSpace) error {
 	s.checkStore()
 	return s.store.Set(ns)
+}
+
+// Add adds the prefix and base-URI to the namespace service.
+// When either the prefix or the base-URI is already present in the service the
+// unknown is stored as an alternative. If neither is present a new NameSpace
+// is created.
+func (s *Service) Add(prefix, base string) error {
+	s.checkStore()
+	_, err := s.store.Add(prefix, base)
+	return err
 }
 
 // SearchLabel returns the URI in a short namespaced form.
