@@ -471,7 +471,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if rawQuery != "" {
 			qs := elastic.NewQueryStringQuery(rawQuery)
-			qs = qs.DefaultField("full_text").MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+			qs = qs.DefaultField("full_text").MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 
 			// TODO enable nested search and highlighing again
@@ -542,7 +542,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if sr.Tree.GetLabel() != "" {
 			q := elastic.NewMatchQuery("tree.label", sr.Tree.GetLabel())
-			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
+			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(q)
 		}
 		if sr.Tree.GetUnitID() != "" {
