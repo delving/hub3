@@ -2,6 +2,7 @@ package namespace_test
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/delving/hub3/pkg/namespace"
@@ -57,9 +58,9 @@ func ExampleSplitURI() {
 func TestNameSpace_GetID(t *testing.T) {
 	type fields struct {
 		UUID      string
-		Base      namespace.URI
+		Base      string
 		Prefix    string
-		BaseAlt   []namespace.URI
+		BaseAlt   []string
 		PrefixAlt []string
 		Schema    string
 	}
@@ -88,6 +89,91 @@ func TestNameSpace_GetID(t *testing.T) {
 			}
 			if got := ns.GetID(); got == "" {
 				t.Errorf("NameSpace.GetID() = %v, it should not be empty", got)
+			}
+		})
+	}
+}
+
+func TestNameSpace_Merge(t *testing.T) {
+	type fields struct {
+		Base      string
+		Prefix    string
+		BaseAlt   []string
+		PrefixAlt []string
+	}
+	type args struct {
+		other *namespace.NameSpace
+	}
+	tests := []struct {
+		name      string
+		fields    fields
+		args      args
+		prefixAlt []string
+		baseAlt   []string
+		wantErr   bool
+	}{
+		{
+			"merge without overlap",
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			args{&namespace.NameSpace{
+				Base:      "http://purl.org/dc/elements/1.2/",
+				Prefix:    "dce",
+				BaseAlt:   []string{"http://purl.org/dc/elements/1.2/"},
+				PrefixAlt: []string{"dce"},
+			}},
+			[]string{"dc", "dce"},
+			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
+			false,
+		},
+		{
+			"merge with prefix overlap",
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			args{&namespace.NameSpace{
+				Base:      "http://purl.org/dc/elements/1.2/",
+				Prefix:    "dc",
+				BaseAlt:   []string{"http://purl.org/dc/elements/1.2/", "http://purl.org/dc/elements/1.1/"},
+				PrefixAlt: []string{"dc"},
+			}},
+			[]string{"dc"},
+			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
+			false,
+		},
+		{
+			"merge with base overlap",
+			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{"http://purl.org/dc/elements/1.1/"}, []string{"dc"}},
+			args{&namespace.NameSpace{
+				Base:      "http://purl.org/dc/elements/1.1/",
+				Prefix:    "dce",
+				BaseAlt:   []string{"http://purl.org/dc/elements/1.1/"},
+				PrefixAlt: []string{"dce"},
+			}},
+			[]string{"dc", "dce"},
+			[]string{"http://purl.org/dc/elements/1.1/"},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ns := &namespace.NameSpace{
+				Base:      tt.fields.Base,
+				Prefix:    tt.fields.Prefix,
+				BaseAlt:   tt.fields.BaseAlt,
+				PrefixAlt: tt.fields.PrefixAlt,
+			}
+			if err := ns.Merge(tt.args.other); (err != nil) != tt.wantErr {
+				t.Errorf("NameSpace.Merge() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if !reflect.DeepEqual(tt.prefixAlt, ns.PrefixAlt) {
+				t.Errorf("NameSpace.Merge() got %v; want %v", ns.PrefixAlt, tt.prefixAlt)
+			}
+			if !reflect.DeepEqual(tt.baseAlt, ns.BaseAlt) {
+				t.Errorf("NameSpace.Merge() got %v; want %v", ns.BaseAlt, tt.baseAlt)
+			}
+			if ns.Prefix != tt.fields.Prefix {
+				t.Errorf("NameSpace.Merge() should not change Prefix got %v; want %v", ns.Prefix, tt.fields.Prefix)
+			}
+			if ns.Base != tt.fields.Base {
+				t.Errorf("NameSpace.Merge() should not change Base got %v; want %v", ns.Base, tt.fields.Base)
 			}
 		})
 	}

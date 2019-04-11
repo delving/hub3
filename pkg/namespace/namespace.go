@@ -16,7 +16,7 @@ type NameSpace struct {
 	UUID string `json:"uuid"`
 
 	// Base is the default base-URI for a namespace
-	Base URI `json:"base"`
+	Base string `json:"base"`
 
 	// Prefix is the default short version that identifies the base-URI
 	Prefix string `json:"prefix"`
@@ -24,7 +24,7 @@ type NameSpace struct {
 	// BaseAlt are alternative base-URI for the same prefix.
 	// Sometimes historically the base-URIs for a namespace changes and we still
 	// have to correctly resolve both.
-	BaseAlt []URI `json:"baseAlt"`
+	BaseAlt []string `json:"baseAlt"`
 
 	// PrefixAlt are altenative prefixes for the default base URI.
 	// Different content-providers and organisations have at time selected alternative
@@ -67,4 +67,29 @@ func (ns *NameSpace) GetID() string {
 		ns.UUID = uuid.String()
 	}
 	return ns.UUID
+}
+
+// Merge merges the values of two NameSpace objects.
+// The prefixes and alternative base URIs of the other NameSpace are merged into ns.
+func (ns *NameSpace) Merge(other *NameSpace) error {
+	ns.PrefixAlt = mergeSlice(ns.PrefixAlt, other.PrefixAlt)
+	ns.BaseAlt = mergeSlice(ns.BaseAlt, other.BaseAlt)
+	return nil
+}
+
+func mergeSlice(first, second []string) []string {
+	keys := map[string]bool{}
+	for _, items := range [][]string{first, second} {
+		for _, p := range items {
+			keys[p] = true
+		}
+	}
+
+	i := 0
+	merged := make([]string, len(keys))
+	for k := range keys {
+		merged[i] = k
+		i++
+	}
+	return merged
 }
