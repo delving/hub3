@@ -324,7 +324,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-			res, err := s.Do(ctx)
+			res, err := s.Do(r.Context())
 			if err != nil {
 				return
 			}
@@ -426,7 +426,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	res, err := index.ESClient().Get().
 		Index(config.Config.ElasticSearch.IndexName).
 		Id(id).
-		Do(ctx)
+		Do(r.Context())
 	if err != nil {
 		log.Println("Unable to get search result.")
 		log.Println(err)
