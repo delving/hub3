@@ -62,7 +62,15 @@ var ESMapping = `{
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
-						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+						"label": {
+							"type": "text",
+							"fields": {
+								"keyword": {"type": "keyword", "ignore_above": 256}
+								"trigram": {"type": "text", "analyzer": "trigram"},
+								"reverse": {"type": "text", "analyzer": "reverse"},
+								"suggest": {"type": "completion"}
+							}
+						},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},
