@@ -33,7 +33,9 @@ func RegisterZVT(r chi.Router) {
 	r.Get("/gaf/api//search/v1/tree/{spec}/desc", treeDescription)
 	r.Get("/gaf/api//search/v1/tree/{spec}", treeList)
 	r.Get("/gaf/api/search/v1/tree/{spec}", treeList)
+	r.Get("/gaf/api/search/v1/tree/{spec}/stats", treeStats)
 	r.Get("/gaf/api//search/v1/tree/{spec}/{nodeID:.*$}", treeList)
+	r.Get("/gaf/api/search/v1/tree/{spec}/{nodeID:.*$}", treeList)
 }
 
 var labelsEN = map[string]interface{}{
