@@ -103,7 +103,7 @@ func SetPort(port int) ServerOptionFunc {
 func chiWithDefaults() chi.Router {
 	// configure CORS, see https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 	cors := cors.New(cors.Options{
-		//AllowedOrigins: []string{"*"},
+		AllowedOrigins:   []string{"*"},
 		AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
