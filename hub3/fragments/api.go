@@ -541,8 +541,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(elastic.NewMatchQuery("tree.childCount", sr.Tree.GetChildCount()))
 		}
 		if sr.Tree.GetLabel() != "" {
-			q := elastic.NewMatchQuery("tree.label", sr.Tree.GetLabel())
-			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+			q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
+			q = q.DefaultField("tree.label")
+			if !isAdvancedSearch(sr.Tree.GetLabel()) {
+				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+			}
 			query = query.Must(q)
 		}
 		if sr.Tree.GetUnitID() != "" {
@@ -579,6 +582,25 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	}
 
 	return query, nil
+}
+
+// isAdvancedSearch checks if the query contains Lucene QueryString
+// advanced search query syntax.
+func isAdvancedSearch(query string) bool {
+	parts := strings.Fields(query)
+	for _, p := range parts {
+		switch true {
+		case "AND" == p:
+			return true
+		case "OR" == p:
+			return true
+		case strings.HasPrefix(p, "-"):
+			return true
+		case strings.HasPrefix(p, "+"):
+			return true
+		}
+	}
+	return false
 }
 
 // Aggregations returns the aggregations for the SearchRequest

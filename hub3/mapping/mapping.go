@@ -4,8 +4,6 @@ package mapping
 var ESMapping = `{
 	"settings": {
 		"index": {
-			"number_of_shards": 3,
-			"number_of_replicas":2,
 			"mapping.total_fields.limit": 1000,
 			"mapping.depth.limit": 20,
 			"mapping.nested_fields.limit": 50,
@@ -62,7 +60,15 @@ var ESMapping = `{
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
-						"label": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+						"label": {
+							"type": "text",
+							"fields": {
+								"keyword": {"type": "keyword", "ignore_above": 256},
+								"trigram": {"type": "text", "analyzer": "trigram"},
+								"reverse": {"type": "text", "analyzer": "reverse"},
+								"suggest": {"type": "completion"}
+							}
+						},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},

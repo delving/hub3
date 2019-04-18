@@ -1,7 +1,6 @@
 module github.com/delving/hub3
 
 require (
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/DataDog/zstd v1.3.5 // indirect
 	github.com/OneOfOne/xxhash v1.2.2
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
@@ -63,6 +62,7 @@ require (
 	github.com/prometheus/procfs v0.0.0-20180408092902-8b1c2da0d56d // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
+	github.com/segmentio/ksuid v1.0.2
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.0.2 // indirect
 	github.com/spf13/cast v1.1.0 // indirect
@@ -75,9 +75,12 @@ require (
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	golang.org/x/image v0.0.0-20171214225156-12117c17ca67 // indirect
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6
-	golang.org/x/sys v0.0.0-20180126165840-ff2a66f350ce // indirect
+	golang.org/x/sys v0.0.0-20190410235845-0ad05ae3009d // indirect
 	google.golang.org/appengine v1.5.0 // indirect
+	google.golang.org/genproto v0.0.0-20190415143225-d1146b9035b9
+	google.golang.org/grpc v1.20.0
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.0-20171129124420-c112833d014c

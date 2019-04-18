@@ -462,3 +462,29 @@ func TestFacetURIBuilder_AddFilter(t *testing.T) {
 		})
 	}
 }
+
+func Test_isAdvancedSearch(t *testing.T) {
+	type args struct {
+		query string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"simple query", args{query: "one word"}, false},
+		{"AND query", args{query: "this AND that"}, true},
+		{"lower case and", args{query: "this and that"}, false},
+		{"OR query", args{query: "this OR that"}, true},
+		{"lower case or", args{query: "this or that"}, false},
+		{"exclude query", args{query: "this -that"}, true},
+		{"include query", args{query: "this +that"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isAdvancedSearch(tt.args.query); got != tt.want {
+				t.Errorf("isAdvancedSearch() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
