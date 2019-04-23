@@ -9,8 +9,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
 )
 
@@ -166,14 +164,6 @@ func (c *namespaceClient) SearchLabel(ctx context.Context, in *SearchLabelReques
 type NamespaceServer interface {
 	// Requests searchLabel for URI
 	SearchLabel(context.Context, *SearchLabelRequest) (*SearchLabelResponse, error)
-}
-
-// UnimplementedNamespaceServer can be embedded to have forward compatible implementations.
-type UnimplementedNamespaceServer struct {
-}
-
-func (*UnimplementedNamespaceServer) SearchLabel(ctx context.Context, req *SearchLabelRequest) (*SearchLabelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SearchLabel not implemented")
 }
 
 func RegisterNamespaceServer(s *grpc.Server, srv NamespaceServer) {
