@@ -23,7 +23,7 @@ const pathSep string = "~"
 func init() {
 	path := c.Config.EAD.CacheDir
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err = os.Mkdir(path, os.ModePerm)
+		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
 			log.Fatalf("Unable to create cache dir; %s", err)
 		}

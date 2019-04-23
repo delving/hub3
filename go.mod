@@ -20,7 +20,7 @@ require (
 	github.com/go-chi/cors v1.0.0
 	github.com/go-chi/docgen v1.0.2
 	github.com/go-chi/render v0.0.0-20171231234154-8c8c7a43d054
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.3.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a // indirect
 	github.com/google/go-cmp v0.2.0
@@ -63,6 +63,8 @@ require (
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/segmentio/ksuid v1.0.2
+	github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414 // indirect
+	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.0.2 // indirect
 	github.com/spf13/cast v1.1.0 // indirect

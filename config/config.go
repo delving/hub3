@@ -404,6 +404,7 @@ type BuildVersionInfo struct {
 	Commit     string `json:"commit"`
 	BuildAgent string `json:"buildAgent"`
 	BuildDate  string `json:"buildDate"`
+	BuildID    string `json:"buildID"`
 }
 
 // NewBuildVersionInfo creates a BuildVersionInfo struct
