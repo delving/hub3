@@ -83,6 +83,8 @@ type Tree struct {
 	HasChildren      bool     `json:"hasChildren"`
 	HasDigitalObject bool     `json:"hasDigitalObject"`
 	DaoLink          string   `json:"daoLink,omitempty"`
+	ManifestLink     string   `json:"manifestLink,omitempty"`
+	MimeTypes        []string `json:"mimeTypes,omitempty"`
 	Inline           []*Tree  `json:"inline,omitempty"`
 	SortKey          uint64   `json:"sortKey"`
 	Periods          []string `json:"periods"`

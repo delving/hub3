@@ -108,7 +108,7 @@ func (nc *NodeCounter) Increment() {
 // GetCount returns the snapshot of the current count
 func (nc *NodeCounter) GetCount() uint64 {
 	return atomic.LoadUint64(&nc.counter)
-
+}
 
 // NewNodeList converts the Archival Description Level to a Nodelist
 // Nodelist is an optimized lossless Protocol Buffer container.

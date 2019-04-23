@@ -60,18 +60,12 @@ var ESMapping = `{
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
-						"label": {
-							"type": "text",
-							"fields": {
-								"keyword": {"type": "keyword", "ignore_above": 256},
-								"trigram": {"type": "text", "analyzer": "trigram"},
-								"reverse": {"type": "text", "analyzer": "reverse"},
-								"suggest": {"type": "completion"}
-							}
-						},
+						"label": {"type": "text"},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},
+						"manifestLink": {"type": "keyword"},
+						"mimeType": {"type": "keyword"},
 						"periods": {"type": "keyword"},
 						"hasDigitalObject": {"type": "boolean"}
 					}
@@ -119,7 +113,16 @@ var ESMapping = `{
 										"keyword": {"type": "keyword", "ignore_above": 256},
 										"trigram": {"type": "text", "analyzer": "trigram"},
 										"reverse": {"type": "text", "analyzer": "reverse"},
-										"suggest": {"type": "completion"}
+										"suggest": {
+											"type": "completion",
+											"contexts": [
+												{ "name": "spec", "type": "category" },
+												{ "name": "specType", "type": "category" },
+												{ "name": "rdfType", "type": "category" },
+												{ "name": "searchLabel", "type": "category" },
+												{ "name": "orgID", "type": "category" }
+											]
+										}
 									}
 								},
 								"@language": {"type": "keyword", "ignore_above": 256},
