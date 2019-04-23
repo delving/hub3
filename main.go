@@ -25,8 +25,10 @@ var (
 	BuildAgent string
 	// GitHash of the current build. (Injected at build time.)
 	GitHash string
+	// BuildID is de build ID injected during a Continueus Integration Job
+	BuildID string
 )
 
 func main() {
-	cmd.Execute(Version, BuildStamp, BuildAgent, GitHash)
+	cmd.Execute(Version, BuildStamp, BuildAgent, GitHash, BuildID)
 }

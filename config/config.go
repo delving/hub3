@@ -404,10 +404,11 @@ type BuildVersionInfo struct {
 	Commit     string `json:"commit"`
 	BuildAgent string `json:"buildAgent"`
 	BuildDate  string `json:"buildDate"`
+	BuildID    string `json:"buildID"`
 }
 
 // NewBuildVersionInfo creates a BuildVersionInfo struct
-func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVersionInfo {
+func NewBuildVersionInfo(version, commit, buildagent, builddate, buildID string) *BuildVersionInfo {
 	if version == "" {
 		version = "devBuild"
 	}
@@ -416,6 +417,7 @@ func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVe
 		Commit:     commit,
 		BuildAgent: buildagent,
 		BuildDate:  builddate,
+		BuildID:    buildID,
 	}
 }
 
