@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -11,14 +10,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func RegisterStaticAssets(r chi.Router) {
-
-	r.Get("/assets/*", func(w http.ResponseWriter, r *http.Request) {
-		prefixedPath := fmt.Sprintf("/zvt/%s", r.URL)
-		log.Println(prefixedPath)
-		http.Redirect(w, r, prefixedPath, http.StatusSeeOther)
-	})
-}
+func RegisterStaticAssets(r chi.Router) {}
 
 func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
 	file, err := assets.FileSystem.Open(filePath)
