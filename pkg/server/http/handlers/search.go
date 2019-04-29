@@ -42,7 +42,7 @@ func RegisterSearch(router chi.Router) {
 	// throttle queries on elasticsearch
 	r.Use(middleware.Throttle(100))
 
-	r.Get("/v2", getScrollResult)
+	r.Get("/v2", GetScrollResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
 		return
@@ -61,7 +61,7 @@ func RegisterSearch(router chi.Router) {
 
 }
 
-func getScrollResult(w http.ResponseWriter, r *http.Request) {
+func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")

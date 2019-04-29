@@ -23,10 +23,10 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/{hubID}", eadManifest)
 
 	// Tree reconstruction endpoint
-	r.Get("/api/tree/{spec}", treeList)
-	r.Get("/api/tree/{spec}/{nodeID:.*$}", treeList)
+	r.Get("/api/tree/{spec}", TreeList)
+	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
-	r.Get("/api/tree/{spec}/desc", treeDescription)
+	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", treeDownload)
 	r.Get("/api/ead/{spec}/archdesc", treeDescriptionApi)
 }
@@ -43,7 +43,7 @@ func eadUpload(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func treeList(w http.ResponseWriter, r *http.Request) {
+func TreeList(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
@@ -162,7 +162,7 @@ func eadManifest(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func treeDescription(w http.ResponseWriter, r *http.Request) {
+func TreeDescription(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	ds, err := models.GetDataSet(spec)
 	if err != nil {
