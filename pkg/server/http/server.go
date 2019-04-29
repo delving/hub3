@@ -59,6 +59,14 @@ func NewServer(options ...ServerOptionFunc) (Server, error) {
 // RouterCallBack
 type RouterCallBack func(router chi.Router)
 
+// SetStaticAssets registers static assets to be used as middleware.
+func SetStaticAssets(assets http.FileSystem) ServerOptionFunc {
+	return func(s *server) error {
+		s.n.Use(negroni.NewStatic(assets))
+		return nil
+	}
+}
+
 // SetRouters adds all HTTP routes for the server.
 func SetRouters(rb ...RouterCallBack) ServerOptionFunc {
 	return func(s *server) error {
