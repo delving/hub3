@@ -61,6 +61,8 @@ var ESMapping = `{
 						"cLevel": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text"},
+						"title": {"type": "text"},
+						"description": {"type": "text"},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},
