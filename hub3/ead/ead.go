@@ -114,6 +114,9 @@ func (nc *NodeCounter) GetCount() uint64 {
 // Nodelist is an optimized lossless Protocol Buffer container.
 func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	nl := &NodeList{}
+	if dsc == nil {
+		return nl, 0, nil
+	}
 	nl.Type = dsc.Attrtype
 	for _, label := range dsc.Chead {
 		nl.Label = append(nl.Label, label.Head)
