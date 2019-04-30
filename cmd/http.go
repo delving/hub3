@@ -40,7 +40,6 @@ var httpCmd = &cobra.Command{
 			handlers.RegisterElasticSearchProxy,
 			handlers.RegisterLOD,
 			handlers.RegisterLinkedDataFragments,
-			handlers.RegisterZVT,
 			handlers.RegisterSparql,
 			handlers.RegisterSearch,
 		}
