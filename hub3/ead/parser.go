@@ -3,7 +3,6 @@ package ead
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -18,7 +17,6 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
-	proto "github.com/golang/protobuf/proto"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/olivere/elastic"
 	"github.com/pkg/errors"
@@ -145,60 +143,6 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 		}()
 	}
 
-	b, err := json.Marshal(nl)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	err = ioutil.WriteFile(basePath+".nodelist.json", b, 0644)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	// save protobuf
-	b, err = proto.Marshal(nl)
-	if err != nil {
-		return uint64(0), err
-	}
-	err = ioutil.WriteFile(basePath+".nodelist.pb", b, 0644)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	// write the sparse versions
-	nl.Sparse()
-	b, err = json.Marshal(nl)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	err = ioutil.WriteFile(basePath+".sparse.nodelist.json", b, 0644)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	// save protobuf
-	b, err = proto.Marshal(nl)
-	if err != nil {
-		return uint64(0), err
-	}
-	err = ioutil.WriteFile(basePath+".sparse.nodelist.pb", b, 0644)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	// write the header and archDesc without the cLevels
-	cead.Carchdesc.Cdsc = nil
-	b, err = json.Marshal(cead)
-	if err != nil {
-		return uint64(0), err
-	}
-
-	err = ioutil.WriteFile(basePath+".headers.json", b, 0644)
-	if err != nil {
-		return uint64(0), err
-	}
-
 	return cfg.Counter.GetCount(), nil
 }
 
@@ -215,6 +159,9 @@ type Cabstract struct {
 
 // Abstract returns the Abstract split on EAD '<lb/>', i.e. line-break
 func (ca Cabstract) Abstract() []string {
+	if len(ca.RawAbstract) == 0 {
+		return []string{}
+	}
 	return strings.Split(
 		fmt.Sprintf("%s", ca.RawAbstract),
 		"<lb/>",
