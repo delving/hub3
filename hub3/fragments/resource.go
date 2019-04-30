@@ -88,6 +88,8 @@ type Tree struct {
 	Inline           []*Tree  `json:"inline,omitempty"`
 	SortKey          uint64   `json:"sortKey"`
 	Periods          []string `json:"periods"`
+	Title            string   `json:"title,omitempty"`
+	Description      string   `json:"description,omitempty"`
 }
 
 // TreeNavigator possible remove
