@@ -7,27 +7,8 @@ var ESMapping = `{
 			"mapping.total_fields.limit": 1000,
 			"mapping.depth.limit": 20,
 			"mapping.nested_fields.limit": 50,
-			"analysis": {
-				"analyzer": {
-					"trigram": {
-						"type": "custom",
-						"tokenizer": "standard",
-						"filter": ["standard", "shingle"]
-					},
-					"reverse": {
-						"type": "custom",
-						"tokenizer": "standard",
-						"filter": ["standard", "reverse"]
-					}
-				},
-				"filter": {
-					"shingle": {
-						"type": "shingle",
-						"min_shingle_size": 2,
-						"max_shingle_size": 3
-					}
-				}
-			}
+			"number_of_shards": 1,
+			"number_of_replicas": 1
 		}
 	},
 	"mappings":{
@@ -59,6 +40,7 @@ var ESMapping = `{
 						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
+						"inventoryID": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text"},
 						"title": {"type": "text"},
@@ -74,7 +56,30 @@ var ESMapping = `{
 				},
 				"subject": {"type": "keyword"},
 				"predicate": {"type": "keyword"},
-				"object": {"type": "text", "fields": {"keyword": {"type": "keyword", "ignore_above": 256}}},
+				"object": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"ignore_above": 256
+						},
+						"suggest": {
+							"type": "completion",
+							"contexts": [
+								{ "name": "spec", "type": "category", "path": "meta.spec" },
+								{ "name": "specType", "type": "category", "path": "_specType" },
+								{ "name": "rdfType", "type": "category", "path": "_rdfType" },
+								{ "name": "objectType", "type": "category", "path": "objectType" },
+								{ "name": "language", "type": "category", "path": "language" },
+								{ "name": "searchLabel", "type": "category", "path": "searchLabel" },
+								{ "name": "orgID", "type": "category", "path": "meta.orgID"}
+							]
+						}
+					}
+				},
+				"_specType": {"type": "keyword", "index": false, "store": false},
+				"_rdfType": {"type": "keyword", "index": false, "store": false},
+				"searchLabel": {"type": "keyword", "ignore_above": 256},
 				"language": {"type": "keyword"},
 				"dataType": {"type": "keyword"},
 				"triple": {"type": "keyword", "index": "false", "store": "true"},
@@ -112,26 +117,14 @@ var ESMapping = `{
 									"type": "text",
 									"copy_to": "full_text",
 									"fields": {
-										"keyword": {"type": "keyword", "ignore_above": 256},
-										"trigram": {"type": "text", "analyzer": "trigram"},
-										"reverse": {"type": "text", "analyzer": "reverse"},
-										"suggest": {
-											"type": "completion",
-											"contexts": [
-												{ "name": "spec", "type": "category" },
-												{ "name": "specType", "type": "category" },
-												{ "name": "rdfType", "type": "category" },
-												{ "name": "searchLabel", "type": "category" },
-												{ "name": "orgID", "type": "category" }
-											]
-										}
+										"keyword": {"type": "keyword", "ignore_above": 256}
 									}
 								},
+								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"@language": {"type": "keyword", "ignore_above": 256},
 								"@type": {"type": "keyword", "ignore_above": 256},
 								"entrytype": {"type": "keyword", "ignore_above": 256},
 								"predicate": {"type": "keyword", "ignore_above": 256},
-								"searchLabel": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
 								"order": {"type": "integer"},
 								"integer": {"type": "integer"},
