@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -23,6 +24,8 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/pkg/server/http/handlers"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -106,6 +109,7 @@ var (
 
 	url        string
 	verbose    bool
+	storeEAD   bool
 	spec       string
 	prefix     string
 	identifier string
@@ -122,6 +126,7 @@ func init() {
 
 	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listGetRecordCmd.Flags().BoolVarP(&storeEAD, "storeEAD", "", false, "Process and store EAD records")
 
 	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
 	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
@@ -241,6 +246,7 @@ func listIdentifiers(ccmd *cobra.Command, args []string) {
 }
 
 func getRecord(ccmd *cobra.Command, args []string) {
+	os.MkdirAll(outputPath, os.ModePerm)
 	storeRecord(identifier, prefix)
 }
 
@@ -251,13 +257,23 @@ func storeRecord(identifier string, prefix string) string {
 		MetadataPrefix: prefix,
 		Identifier:     identifier,
 	})
-	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
-	if err != nil {
-		log.Fatal("Cannot create file", err)
-	}
 	var record string
 	req.Harvest(func(r *oai.Response) {
+		if storeEAD {
+			rawBody := r.GetRecord.Record.Metadata.Body
+			headerSize := int64(len(rawBody))
+			b := bytes.NewReader(rawBody)
+			_, err := ead.ProcessEAD(b, headerSize, "", handlers.BulkProcessor())
+			if err != nil {
+				log.Printf("unable to process EAD: %#v", err)
+			}
+			return
+		}
 		record = r.GetRecord.Record.Metadata.GoString()
+		file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
+		if err != nil {
+			log.Fatal("Cannot create file", err)
+		}
 		fmt.Fprintln(file, record)
 	})
 	return record
@@ -296,6 +312,8 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		//log.Printf("total seen: %d", seen)
 		return nil
 	})
+
+	os.MkdirAll(outputPath, os.ModePerm)
 
 	//c := make(chan string)
 	const numDigesters = 5
