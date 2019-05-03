@@ -93,7 +93,10 @@ func ensureESIndex(index string, reset bool) {
 		if config.Config.ElasticSearch.IndexV1 {
 			indexMapping = mapping.V1ESMapping
 		}
-		createIndex, err := client.CreateIndex(index).BodyJson(indexMapping).Do(ctx)
+		createIndex, err := client.
+			CreateIndex(index).
+			BodyJson(indexMapping).
+			Do(ctx)
 		if err != nil {
 			// Handle error
 			stdlog.Fatal(err)
