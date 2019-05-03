@@ -471,7 +471,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if rawQuery != "" {
 			qs := elastic.NewQueryStringQuery(rawQuery)
-			qs = qs.DefaultField("full_text").MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+			qs = qs.
+				DefaultField("full_text").
+				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 
 			// TODO enable nested search and highlighing again

@@ -90,6 +90,7 @@ type Tree struct {
 	Periods          []string `json:"periods"`
 	Title            string   `json:"title,omitempty"`
 	Description      string   `json:"description,omitempty"`
+	InventoryID      string   `json:"inventoryID"`
 }
 
 // TreeNavigator possible remove
