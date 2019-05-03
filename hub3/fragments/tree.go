@@ -19,6 +19,7 @@ type TreeStats struct {
 	Children []StatCounter
 	Type     []StatCounter
 	PhysDesc []StatCounter
+	MimeType []StatCounter
 }
 
 // TreeDescription describes the meta-information for an Archival Finding Aid tree
@@ -112,6 +113,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 	depthAgg := elastic.NewTermsAggregation().Field("tree.depth").Size(30).OrderByCountDesc()
 	childAgg := elastic.NewTermsAggregation().Field("tree.childCount").Size(100).OrderByCountDesc()
 	typeAgg := elastic.NewTermsAggregation().Field("tree.type").Size(100).OrderByCountDesc()
+	mimeTypeAgg := elastic.NewTermsAggregation().Field("tree.mimeType").Size(100).OrderByCountDesc()
 
 	fub, err := NewFacetURIBuilder("", []*QueryFilter{})
 	if err != nil {
@@ -143,6 +145,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 		Aggregation("children", childAgg).
 		Aggregation("type", typeAgg).
 		Aggregation("physdesc", physDescAgg).
+		Aggregation("mimeType", mimeTypeAgg).
 		Do(ctx)
 	if err != nil {
 		log.Printf("Unable to get TreeStat for dataset %s; %s", spec, err)
@@ -155,7 +158,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 	tree.Leafs = res.Hits.TotalHits
 
 	aggs := res.Aggregations
-	buckets := []string{"depth", "children", "type"}
+	buckets := []string{"depth", "children", "type", "mimeType"}
 
 	for _, a := range buckets {
 		counter, err := createStatCounters(aggs, a)
@@ -170,6 +173,8 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 			tree.Children = counter
 		case "type":
 			tree.Type = counter
+		case "mimeType":
+			tree.MimeType = counter
 		}
 	}
 

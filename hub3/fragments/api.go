@@ -214,6 +214,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
+		case "byMimeType":
+			sr.Tree = tree
+			tree.MimeType = v
 		case "cursorHint":
 			sr.Tree = tree
 			hint, err := strconv.Atoi(params.Get(p))
@@ -577,6 +580,18 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			q := elastic.NewBoolQuery()
 			for _, d := range sr.Tree.GetType() {
 				q = q.Should(elastic.NewTermQuery("tree.type", d))
+			}
+			query = query.Must(q)
+			sr.Tree.FillTree = true
+		}
+		switch len(sr.Tree.GetMimeType()) {
+		case 1:
+			query = query.Must(elastic.NewMatchQuery("tree.mimeType", sr.Tree.GetMimeType()[0]))
+		case 0:
+		default:
+			q := elastic.NewBoolQuery()
+			for _, d := range sr.Tree.GetMimeType() {
+				q = q.Should(elastic.NewTermQuery("tree.mimeType", d))
 			}
 			query = query.Must(q)
 			sr.Tree.FillTree = true
