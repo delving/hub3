@@ -40,12 +40,14 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter  *NodeCounter
-	OrgID    string
-	Spec     string
-	Revision int32
-	labels   map[string]string
-	Errors   []*DuplicateError
+	Counter    *NodeCounter
+	OrgID      string
+	Spec       string
+	Revision   int32
+	labels     map[string]string
+	MimeTypes  map[string][]string
+	Errors     []*DuplicateError
+	CreateTree func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 }
 
 type DuplicateError struct {
@@ -153,7 +155,12 @@ func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 			return err
 		}
 	}
-	log.Printf("Unique labels %d; cLevel counter %d", len(cfg.labels), cfg.Counter.GetCount())
+	log.Printf(
+		"Spec %s; Unique labels %d; cLevel counter %d",
+		cfg.Spec,
+		len(cfg.labels),
+		cfg.Counter.GetCount(),
+	)
 	return nil
 }
 

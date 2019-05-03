@@ -58,9 +58,17 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		}
 	}
 
-	// TODO move to own function later
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = cfg.CreateTree(cfg, n, header.HubID, id)
+	fg.SetResources(rm)
+	return fg, rm, nil
+}
+
+func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree {
+
 	tree := &fragments.Tree{}
-	tree.HubID = header.HubID
+	tree.HubID = hubID
 	tree.ChildCount = len(n.Nodes)
 	tree.Type = n.GetType()
 	tree.CLevel = fmt.Sprintf("%s%s", CLevelLeader, id)
@@ -73,12 +81,10 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	tree.DaoLink = n.GetHeader().GetDaoLink()
 	tree.SortKey = n.GetOrder()
 	tree.Periods = n.GetHeader().GetPeriods()
+	tree.MimeTypes = []string{}
+	tree.ManifestLink = ""
 
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = tree
-	fg.SetResources(rm)
-	return fg, rm, nil
+	return tree
 }
 
 // Triples create a list of RDF triples from a NodeID
