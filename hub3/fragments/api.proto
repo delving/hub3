@@ -86,6 +86,7 @@ message TreeQuery {
   string spec = 9;
   string unitID = 10;
   int32 cursorHint = 11;
+  repeated string mimeType = 12;
 }
 
 message SearchRequest {

@@ -3,9 +3,11 @@
 
 package ead
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,14 +18,14 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type FindingAidDescription struct {
-	ID                   string   `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=Name" json:"Name,omitempty"`
-	Summary              string   `protobuf:"bytes,3,opt,name=Summary" json:"Summary,omitempty"`
-	Period               []string `protobuf:"bytes,4,rep,name=Period" json:"Period,omitempty"`
-	Institution          string   `protobuf:"bytes,5,opt,name=Institution" json:"Institution,omitempty"`
+	ID                   string   `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=Name,proto3" json:"Name,omitempty"`
+	Summary              string   `protobuf:"bytes,3,opt,name=Summary,proto3" json:"Summary,omitempty"`
+	Period               []string `protobuf:"bytes,4,rep,name=Period,proto3" json:"Period,omitempty"`
+	Institution          string   `protobuf:"bytes,5,opt,name=Institution,proto3" json:"Institution,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -33,16 +35,17 @@ func (m *FindingAidDescription) Reset()         { *m = FindingAidDescription{} }
 func (m *FindingAidDescription) String() string { return proto.CompactTextString(m) }
 func (*FindingAidDescription) ProtoMessage()    {}
 func (*FindingAidDescription) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{0}
+	return fileDescriptor_d39de0d80e8ab629, []int{0}
 }
+
 func (m *FindingAidDescription) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_FindingAidDescription.Unmarshal(m, b)
 }
 func (m *FindingAidDescription) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_FindingAidDescription.Marshal(b, m, deterministic)
 }
-func (dst *FindingAidDescription) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_FindingAidDescription.Merge(dst, src)
+func (m *FindingAidDescription) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FindingAidDescription.Merge(m, src)
 }
 func (m *FindingAidDescription) XXX_Size() int {
 	return xxx_messageInfo_FindingAidDescription.Size(m)
@@ -89,9 +92,9 @@ func (m *FindingAidDescription) GetInstitution() string {
 }
 
 type NodeList struct {
-	Type                 string   `protobuf:"bytes,1,opt,name=Type" json:"Type,omitempty"`
-	Label                []string `protobuf:"bytes,2,rep,name=Label" json:"Label,omitempty"`
-	Nodes                []*Node  `protobuf:"bytes,3,rep,name=Nodes" json:"Nodes,omitempty"`
+	Type                 string   `protobuf:"bytes,1,opt,name=Type,proto3" json:"Type,omitempty"`
+	Label                []string `protobuf:"bytes,2,rep,name=Label,proto3" json:"Label,omitempty"`
+	Nodes                []*Node  `protobuf:"bytes,3,rep,name=Nodes,proto3" json:"Nodes,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -101,16 +104,17 @@ func (m *NodeList) Reset()         { *m = NodeList{} }
 func (m *NodeList) String() string { return proto.CompactTextString(m) }
 func (*NodeList) ProtoMessage()    {}
 func (*NodeList) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{1}
+	return fileDescriptor_d39de0d80e8ab629, []int{1}
 }
+
 func (m *NodeList) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeList.Unmarshal(m, b)
 }
 func (m *NodeList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_NodeList.Marshal(b, m, deterministic)
 }
-func (dst *NodeList) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeList.Merge(dst, src)
+func (m *NodeList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeList.Merge(m, src)
 }
 func (m *NodeList) XXX_Size() int {
 	return xxx_messageInfo_NodeList.Size(m)
@@ -143,17 +147,17 @@ func (m *NodeList) GetNodes() []*Node {
 }
 
 type Node struct {
-	CTag                 string   `protobuf:"bytes,1,opt,name=CTag" json:"CTag,omitempty"`
-	Depth                int32    `protobuf:"varint,7,opt,name=Depth" json:"Depth,omitempty"`
-	Type                 string   `protobuf:"bytes,2,opt,name=Type" json:"Type,omitempty"`
-	SubType              string   `protobuf:"bytes,6,opt,name=SubType" json:"SubType,omitempty"`
-	Header               *Header  `protobuf:"bytes,3,opt,name=Header" json:"Header,omitempty"`
-	HTML                 string   `protobuf:"bytes,5,opt,name=HTML" json:"HTML,omitempty"`
-	Nodes                []*Node  `protobuf:"bytes,4,rep,name=Nodes" json:"Nodes,omitempty"`
-	Order                uint64   `protobuf:"varint,8,opt,name=Order" json:"Order,omitempty"`
-	ParentIDs            []string `protobuf:"bytes,9,rep,name=ParentIDs" json:"ParentIDs,omitempty"`
-	Path                 string   `protobuf:"bytes,10,opt,name=Path" json:"Path,omitempty"`
-	BranchID             string   `protobuf:"bytes,11,opt,name=BranchID" json:"BranchID,omitempty"`
+	CTag                 string   `protobuf:"bytes,1,opt,name=CTag,proto3" json:"CTag,omitempty"`
+	Depth                int32    `protobuf:"varint,7,opt,name=Depth,proto3" json:"Depth,omitempty"`
+	Type                 string   `protobuf:"bytes,2,opt,name=Type,proto3" json:"Type,omitempty"`
+	SubType              string   `protobuf:"bytes,6,opt,name=SubType,proto3" json:"SubType,omitempty"`
+	Header               *Header  `protobuf:"bytes,3,opt,name=Header,proto3" json:"Header,omitempty"`
+	HTML                 string   `protobuf:"bytes,5,opt,name=HTML,proto3" json:"HTML,omitempty"`
+	Nodes                []*Node  `protobuf:"bytes,4,rep,name=Nodes,proto3" json:"Nodes,omitempty"`
+	Order                uint64   `protobuf:"varint,8,opt,name=Order,proto3" json:"Order,omitempty"`
+	ParentIDs            []string `protobuf:"bytes,9,rep,name=ParentIDs,proto3" json:"ParentIDs,omitempty"`
+	Path                 string   `protobuf:"bytes,10,opt,name=Path,proto3" json:"Path,omitempty"`
+	BranchID             string   `protobuf:"bytes,11,opt,name=BranchID,proto3" json:"BranchID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -163,16 +167,17 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{2}
+	return fileDescriptor_d39de0d80e8ab629, []int{2}
 }
+
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
 }
 func (m *Node) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Node.Marshal(b, m, deterministic)
 }
-func (dst *Node) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Node.Merge(dst, src)
+func (m *Node) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Node.Merge(m, src)
 }
 func (m *Node) XXX_Size() int {
 	return xxx_messageInfo_Node.Size(m)
@@ -261,15 +266,15 @@ func (m *Node) GetBranchID() string {
 }
 
 type Header struct {
-	Type                 string      `protobuf:"bytes,1,opt,name=Type" json:"Type,omitempty"`
-	InventoryNumber      string      `protobuf:"bytes,7,opt,name=InventoryNumber" json:"InventoryNumber,omitempty"`
-	ID                   []*NodeID   `protobuf:"bytes,2,rep,name=ID" json:"ID,omitempty"`
-	Label                []string    `protobuf:"bytes,3,rep,name=Label" json:"Label,omitempty"`
-	Date                 []*NodeDate `protobuf:"bytes,4,rep,name=Date" json:"Date,omitempty"`
-	Physdesc             string      `protobuf:"bytes,5,opt,name=Physdesc" json:"Physdesc,omitempty"`
-	DateAsLabel          bool        `protobuf:"varint,6,opt,name=DateAsLabel" json:"DateAsLabel,omitempty"`
-	HasDigitalObject     bool        `protobuf:"varint,9,opt,name=HasDigitalObject" json:"HasDigitalObject,omitempty"`
-	DaoLink              string      `protobuf:"bytes,8,opt,name=DaoLink" json:"DaoLink,omitempty"`
+	Type                 string      `protobuf:"bytes,1,opt,name=Type,proto3" json:"Type,omitempty"`
+	InventoryNumber      string      `protobuf:"bytes,7,opt,name=InventoryNumber,proto3" json:"InventoryNumber,omitempty"`
+	ID                   []*NodeID   `protobuf:"bytes,2,rep,name=ID,proto3" json:"ID,omitempty"`
+	Label                []string    `protobuf:"bytes,3,rep,name=Label,proto3" json:"Label,omitempty"`
+	Date                 []*NodeDate `protobuf:"bytes,4,rep,name=Date,proto3" json:"Date,omitempty"`
+	Physdesc             string      `protobuf:"bytes,5,opt,name=Physdesc,proto3" json:"Physdesc,omitempty"`
+	DateAsLabel          bool        `protobuf:"varint,6,opt,name=DateAsLabel,proto3" json:"DateAsLabel,omitempty"`
+	HasDigitalObject     bool        `protobuf:"varint,9,opt,name=HasDigitalObject,proto3" json:"HasDigitalObject,omitempty"`
+	DaoLink              string      `protobuf:"bytes,8,opt,name=DaoLink,proto3" json:"DaoLink,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
@@ -279,16 +284,17 @@ func (m *Header) Reset()         { *m = Header{} }
 func (m *Header) String() string { return proto.CompactTextString(m) }
 func (*Header) ProtoMessage()    {}
 func (*Header) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{3}
+	return fileDescriptor_d39de0d80e8ab629, []int{3}
 }
+
 func (m *Header) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Header.Unmarshal(m, b)
 }
 func (m *Header) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Header.Marshal(b, m, deterministic)
 }
-func (dst *Header) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Header.Merge(dst, src)
+func (m *Header) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Header.Merge(m, src)
 }
 func (m *Header) XXX_Size() int {
 	return xxx_messageInfo_Header.Size(m)
@@ -363,10 +369,10 @@ func (m *Header) GetDaoLink() string {
 }
 
 type NodeID struct {
-	TypeID               string   `protobuf:"bytes,1,opt,name=TypeID" json:"TypeID,omitempty"`
-	Type                 string   `protobuf:"bytes,2,opt,name=Type" json:"Type,omitempty"`
-	Audience             string   `protobuf:"bytes,3,opt,name=Audience" json:"Audience,omitempty"`
-	ID                   string   `protobuf:"bytes,4,opt,name=ID" json:"ID,omitempty"`
+	TypeID               string   `protobuf:"bytes,1,opt,name=TypeID,proto3" json:"TypeID,omitempty"`
+	Type                 string   `protobuf:"bytes,2,opt,name=Type,proto3" json:"Type,omitempty"`
+	Audience             string   `protobuf:"bytes,3,opt,name=Audience,proto3" json:"Audience,omitempty"`
+	ID                   string   `protobuf:"bytes,4,opt,name=ID,proto3" json:"ID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -376,16 +382,17 @@ func (m *NodeID) Reset()         { *m = NodeID{} }
 func (m *NodeID) String() string { return proto.CompactTextString(m) }
 func (*NodeID) ProtoMessage()    {}
 func (*NodeID) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{4}
+	return fileDescriptor_d39de0d80e8ab629, []int{4}
 }
+
 func (m *NodeID) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeID.Unmarshal(m, b)
 }
 func (m *NodeID) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_NodeID.Marshal(b, m, deterministic)
 }
-func (dst *NodeID) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeID.Merge(dst, src)
+func (m *NodeID) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeID.Merge(m, src)
 }
 func (m *NodeID) XXX_Size() int {
 	return xxx_messageInfo_NodeID.Size(m)
@@ -425,11 +432,11 @@ func (m *NodeID) GetID() string {
 }
 
 type NodeDate struct {
-	Calendar             string   `protobuf:"bytes,1,opt,name=Calendar" json:"Calendar,omitempty"`
-	Era                  string   `protobuf:"bytes,2,opt,name=Era" json:"Era,omitempty"`
-	Normal               string   `protobuf:"bytes,3,opt,name=Normal" json:"Normal,omitempty"`
-	Label                string   `protobuf:"bytes,4,opt,name=Label" json:"Label,omitempty"`
-	Type                 string   `protobuf:"bytes,5,opt,name=Type" json:"Type,omitempty"`
+	Calendar             string   `protobuf:"bytes,1,opt,name=Calendar,proto3" json:"Calendar,omitempty"`
+	Era                  string   `protobuf:"bytes,2,opt,name=Era,proto3" json:"Era,omitempty"`
+	Normal               string   `protobuf:"bytes,3,opt,name=Normal,proto3" json:"Normal,omitempty"`
+	Label                string   `protobuf:"bytes,4,opt,name=Label,proto3" json:"Label,omitempty"`
+	Type                 string   `protobuf:"bytes,5,opt,name=Type,proto3" json:"Type,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -439,16 +446,17 @@ func (m *NodeDate) Reset()         { *m = NodeDate{} }
 func (m *NodeDate) String() string { return proto.CompactTextString(m) }
 func (*NodeDate) ProtoMessage()    {}
 func (*NodeDate) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ead_8fb5720aefcca038, []int{5}
+	return fileDescriptor_d39de0d80e8ab629, []int{5}
 }
+
 func (m *NodeDate) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeDate.Unmarshal(m, b)
 }
 func (m *NodeDate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_NodeDate.Marshal(b, m, deterministic)
 }
-func (dst *NodeDate) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_NodeDate.Merge(dst, src)
+func (m *NodeDate) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_NodeDate.Merge(m, src)
 }
 func (m *NodeDate) XXX_Size() int {
 	return xxx_messageInfo_NodeDate.Size(m)
@@ -503,9 +511,9 @@ func init() {
 	proto.RegisterType((*NodeDate)(nil), "ead.NodeDate")
 }
 
-func init() { proto.RegisterFile("hub3/ead/ead.proto", fileDescriptor_ead_8fb5720aefcca038) }
+func init() { proto.RegisterFile("hub3/ead/ead.proto", fileDescriptor_d39de0d80e8ab629) }
 
-var fileDescriptor_ead_8fb5720aefcca038 = []byte{
+var fileDescriptor_d39de0d80e8ab629 = []byte{
 	// 546 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x54, 0xd1, 0x8e, 0xd3, 0x3a,
 	0x10, 0x55, 0x93, 0xb4, 0xdb, 0x4c, 0x74, 0x2f, 0x2b, 0x0b, 0x90, 0xb5, 0x20, 0x11, 0xc2, 0x4b,

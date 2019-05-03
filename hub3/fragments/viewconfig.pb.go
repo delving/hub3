@@ -3,9 +3,11 @@
 
 package fragments
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type DataSetType int32
 
@@ -31,6 +33,7 @@ var DataSetType_name = map[int32]string{
 	1: "MULTIPLE",
 	2: "BYQUERY",
 }
+
 var DataSetType_value = map[string]int32{
 	"SINGLE":   0,
 	"MULTIPLE": 1,
@@ -40,8 +43,9 @@ var DataSetType_value = map[string]int32{
 func (x DataSetType) String() string {
 	return proto.EnumName(DataSetType_name, int32(x))
 }
+
 func (DataSetType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{0}
+	return fileDescriptor_15a99035a5d046e2, []int{0}
 }
 
 type ResultType int32
@@ -59,6 +63,7 @@ var ResultType_name = map[int32]string{
 	2: "MAP",
 	3: "ARCHIVE",
 }
+
 var ResultType_value = map[string]int32{
 	"GRID":    0,
 	"TABLE":   1,
@@ -69,8 +74,9 @@ var ResultType_value = map[string]int32{
 func (x ResultType) String() string {
 	return proto.EnumName(ResultType_name, int32(x))
 }
+
 func (ResultType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{1}
+	return fileDescriptor_15a99035a5d046e2, []int{1}
 }
 
 type FieldType int32
@@ -92,6 +98,7 @@ var FieldType_name = map[int32]string{
 	4: "DIGITAL_OBJECT",
 	5: "MANIFEST",
 }
+
 var FieldType_value = map[string]int32{
 	"LITERAL":        0,
 	"RESOURCE":       1,
@@ -104,8 +111,9 @@ var FieldType_value = map[string]int32{
 func (x FieldType) String() string {
 	return proto.EnumName(FieldType_name, int32(x))
 }
+
 func (FieldType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{2}
+	return fileDescriptor_15a99035a5d046e2, []int{2}
 }
 
 type InlineType int32
@@ -125,6 +133,7 @@ var InlineType_name = map[int32]string{
 	2: "MODAL",
 	3: "INLINE_DETAIL_BLOCK",
 }
+
 var InlineType_value = map[string]int32{
 	"NONE":                0,
 	"URI_ONLY":            4,
@@ -136,22 +145,23 @@ var InlineType_value = map[string]int32{
 func (x InlineType) String() string {
 	return proto.EnumName(InlineType_name, int32(x))
 }
+
 func (InlineType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{3}
+	return fileDescriptor_15a99035a5d046e2, []int{3}
 }
 
 type DataSetConfig struct {
-	ID                   string            `protobuf:"bytes,11,opt,name=ID" json:"ID,omitempty"`
-	Title                string            `protobuf:"bytes,1,opt,name=title" json:"title,omitempty"`
-	Markdown             string            `protobuf:"bytes,2,opt,name=markdown" json:"markdown,omitempty"`
-	DataSetType          DataSetType       `protobuf:"varint,3,opt,name=dataSetType,enum=fragments.DataSetType" json:"dataSetType,omitempty"`
-	Facets               []*FacetField     `protobuf:"bytes,4,rep,name=facets" json:"facets,omitempty"`
-	Spec                 []string          `protobuf:"bytes,5,rep,name=spec" json:"spec,omitempty"`
-	ExcludeSpec          []string          `protobuf:"bytes,10,rep,name=excludeSpec" json:"excludeSpec,omitempty"`
-	ViewConfig           *DetailViewConfig `protobuf:"bytes,6,opt,name=viewConfig" json:"viewConfig,omitempty"`
-	ResultConfig         *ResultViewConfig `protobuf:"bytes,7,opt,name=resultConfig" json:"resultConfig,omitempty"`
-	Filter               *DataSetFilter    `protobuf:"bytes,8,opt,name=filter" json:"filter,omitempty"`
-	OrgID                string            `protobuf:"bytes,9,opt,name=orgID" json:"orgID,omitempty"`
+	ID                   string            `protobuf:"bytes,11,opt,name=ID,proto3" json:"ID,omitempty"`
+	Title                string            `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Markdown             string            `protobuf:"bytes,2,opt,name=markdown,proto3" json:"markdown,omitempty"`
+	DataSetType          DataSetType       `protobuf:"varint,3,opt,name=dataSetType,proto3,enum=fragments.DataSetType" json:"dataSetType,omitempty"`
+	Facets               []*FacetField     `protobuf:"bytes,4,rep,name=facets,proto3" json:"facets,omitempty"`
+	Spec                 []string          `protobuf:"bytes,5,rep,name=spec,proto3" json:"spec,omitempty"`
+	ExcludeSpec          []string          `protobuf:"bytes,10,rep,name=excludeSpec,proto3" json:"excludeSpec,omitempty"`
+	ViewConfig           *DetailViewConfig `protobuf:"bytes,6,opt,name=viewConfig,proto3" json:"viewConfig,omitempty"`
+	ResultConfig         *ResultViewConfig `protobuf:"bytes,7,opt,name=resultConfig,proto3" json:"resultConfig,omitempty"`
+	Filter               *DataSetFilter    `protobuf:"bytes,8,opt,name=filter,proto3" json:"filter,omitempty"`
+	OrgID                string            `protobuf:"bytes,9,opt,name=orgID,proto3" json:"orgID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
@@ -161,16 +171,17 @@ func (m *DataSetConfig) Reset()         { *m = DataSetConfig{} }
 func (m *DataSetConfig) String() string { return proto.CompactTextString(m) }
 func (*DataSetConfig) ProtoMessage()    {}
 func (*DataSetConfig) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{0}
+	return fileDescriptor_15a99035a5d046e2, []int{0}
 }
+
 func (m *DataSetConfig) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DataSetConfig.Unmarshal(m, b)
 }
 func (m *DataSetConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DataSetConfig.Marshal(b, m, deterministic)
 }
-func (dst *DataSetConfig) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DataSetConfig.Merge(dst, src)
+func (m *DataSetConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DataSetConfig.Merge(m, src)
 }
 func (m *DataSetConfig) XXX_Size() int {
 	return xxx_messageInfo_DataSetConfig.Size(m)
@@ -259,8 +270,8 @@ func (m *DataSetConfig) GetOrgID() string {
 }
 
 type DataSetFilter struct {
-	QueryFilter          []*QueryFilter `protobuf:"bytes,1,rep,name=queryFilter" json:"queryFilter,omitempty"`
-	Query                string         `protobuf:"bytes,2,opt,name=query" json:"query,omitempty"`
+	QueryFilter          []*QueryFilter `protobuf:"bytes,1,rep,name=queryFilter,proto3" json:"queryFilter,omitempty"`
+	Query                string         `protobuf:"bytes,2,opt,name=query,proto3" json:"query,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
 	XXX_sizecache        int32          `json:"-"`
@@ -270,16 +281,17 @@ func (m *DataSetFilter) Reset()         { *m = DataSetFilter{} }
 func (m *DataSetFilter) String() string { return proto.CompactTextString(m) }
 func (*DataSetFilter) ProtoMessage()    {}
 func (*DataSetFilter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{1}
+	return fileDescriptor_15a99035a5d046e2, []int{1}
 }
+
 func (m *DataSetFilter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DataSetFilter.Unmarshal(m, b)
 }
 func (m *DataSetFilter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DataSetFilter.Marshal(b, m, deterministic)
 }
-func (dst *DataSetFilter) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DataSetFilter.Merge(dst, src)
+func (m *DataSetFilter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DataSetFilter.Merge(m, src)
 }
 func (m *DataSetFilter) XXX_Size() int {
 	return xxx_messageInfo_DataSetFilter.Size(m)
@@ -305,9 +317,9 @@ func (m *DataSetFilter) GetQuery() string {
 }
 
 type ResultViewConfig struct {
-	ResultType           ResultType         `protobuf:"varint,1,opt,name=resultType,enum=fragments.ResultType" json:"resultType,omitempty"`
-	Fields               *PresentationField `protobuf:"bytes,2,opt,name=fields" json:"fields,omitempty"`
-	Inline               bool               `protobuf:"varint,3,opt,name=inline" json:"inline,omitempty"`
+	ResultType           ResultType         `protobuf:"varint,1,opt,name=resultType,proto3,enum=fragments.ResultType" json:"resultType,omitempty"`
+	Fields               *PresentationField `protobuf:"bytes,2,opt,name=fields,proto3" json:"fields,omitempty"`
+	Inline               bool               `protobuf:"varint,3,opt,name=inline,proto3" json:"inline,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
 	XXX_unrecognized     []byte             `json:"-"`
 	XXX_sizecache        int32              `json:"-"`
@@ -317,16 +329,17 @@ func (m *ResultViewConfig) Reset()         { *m = ResultViewConfig{} }
 func (m *ResultViewConfig) String() string { return proto.CompactTextString(m) }
 func (*ResultViewConfig) ProtoMessage()    {}
 func (*ResultViewConfig) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{2}
+	return fileDescriptor_15a99035a5d046e2, []int{2}
 }
+
 func (m *ResultViewConfig) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ResultViewConfig.Unmarshal(m, b)
 }
 func (m *ResultViewConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ResultViewConfig.Marshal(b, m, deterministic)
 }
-func (dst *ResultViewConfig) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ResultViewConfig.Merge(dst, src)
+func (m *ResultViewConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ResultViewConfig.Merge(m, src)
 }
 func (m *ResultViewConfig) XXX_Size() int {
 	return xxx_messageInfo_ResultViewConfig.Size(m)
@@ -359,15 +372,15 @@ func (m *ResultViewConfig) GetInline() bool {
 }
 
 type PresentationField struct {
-	I18NLabel            *I18NLabel `protobuf:"bytes,1,opt,name=i18nLabel" json:"i18nLabel,omitempty"`
-	Clickable            bool       `protobuf:"varint,2,opt,name=clickable" json:"clickable,omitempty"`
-	Searchable           bool       `protobuf:"varint,7,opt,name=searchable" json:"searchable,omitempty"`
-	Predicate            string     `protobuf:"bytes,3,opt,name=predicate" json:"predicate,omitempty"`
-	Single               bool       `protobuf:"varint,4,opt,name=single" json:"single,omitempty"`
-	Order                int32      `protobuf:"varint,5,opt,name=order" json:"order,omitempty"`
-	FieldType            FieldType  `protobuf:"varint,6,opt,name=fieldType,enum=fragments.FieldType" json:"fieldType,omitempty"`
-	InlineType           InlineType `protobuf:"varint,8,opt,name=inlineType,enum=fragments.InlineType" json:"inlineType,omitempty"`
-	InlineCSS            string     `protobuf:"bytes,9,opt,name=inlineCSS" json:"inlineCSS,omitempty"`
+	I18NLabel            *I18NLabel `protobuf:"bytes,1,opt,name=i18nLabel,proto3" json:"i18nLabel,omitempty"`
+	Clickable            bool       `protobuf:"varint,2,opt,name=clickable,proto3" json:"clickable,omitempty"`
+	Searchable           bool       `protobuf:"varint,7,opt,name=searchable,proto3" json:"searchable,omitempty"`
+	Predicate            string     `protobuf:"bytes,3,opt,name=predicate,proto3" json:"predicate,omitempty"`
+	Single               bool       `protobuf:"varint,4,opt,name=single,proto3" json:"single,omitempty"`
+	Order                int32      `protobuf:"varint,5,opt,name=order,proto3" json:"order,omitempty"`
+	FieldType            FieldType  `protobuf:"varint,6,opt,name=fieldType,proto3,enum=fragments.FieldType" json:"fieldType,omitempty"`
+	InlineType           InlineType `protobuf:"varint,8,opt,name=inlineType,proto3,enum=fragments.InlineType" json:"inlineType,omitempty"`
+	InlineCSS            string     `protobuf:"bytes,9,opt,name=inlineCSS,proto3" json:"inlineCSS,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
 	XXX_unrecognized     []byte     `json:"-"`
 	XXX_sizecache        int32      `json:"-"`
@@ -377,16 +390,17 @@ func (m *PresentationField) Reset()         { *m = PresentationField{} }
 func (m *PresentationField) String() string { return proto.CompactTextString(m) }
 func (*PresentationField) ProtoMessage()    {}
 func (*PresentationField) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{3}
+	return fileDescriptor_15a99035a5d046e2, []int{3}
 }
+
 func (m *PresentationField) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PresentationField.Unmarshal(m, b)
 }
 func (m *PresentationField) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_PresentationField.Marshal(b, m, deterministic)
 }
-func (dst *PresentationField) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PresentationField.Merge(dst, src)
+func (m *PresentationField) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PresentationField.Merge(m, src)
 }
 func (m *PresentationField) XXX_Size() int {
 	return xxx_messageInfo_PresentationField.Size(m)
@@ -461,8 +475,8 @@ func (m *PresentationField) GetInlineCSS() string {
 }
 
 type DetailViewConfig struct {
-	Blocks               []*DetailBlock `protobuf:"bytes,1,rep,name=blocks" json:"blocks,omitempty"`
-	EntryType            string         `protobuf:"bytes,2,opt,name=entryType" json:"entryType,omitempty"`
+	Blocks               []*DetailBlock `protobuf:"bytes,1,rep,name=blocks,proto3" json:"blocks,omitempty"`
+	EntryType            string         `protobuf:"bytes,2,opt,name=entryType,proto3" json:"entryType,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
 	XXX_sizecache        int32          `json:"-"`
@@ -472,16 +486,17 @@ func (m *DetailViewConfig) Reset()         { *m = DetailViewConfig{} }
 func (m *DetailViewConfig) String() string { return proto.CompactTextString(m) }
 func (*DetailViewConfig) ProtoMessage()    {}
 func (*DetailViewConfig) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{4}
+	return fileDescriptor_15a99035a5d046e2, []int{4}
 }
+
 func (m *DetailViewConfig) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DetailViewConfig.Unmarshal(m, b)
 }
 func (m *DetailViewConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DetailViewConfig.Marshal(b, m, deterministic)
 }
-func (dst *DetailViewConfig) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DetailViewConfig.Merge(dst, src)
+func (m *DetailViewConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DetailViewConfig.Merge(m, src)
 }
 func (m *DetailViewConfig) XXX_Size() int {
 	return xxx_messageInfo_DetailViewConfig.Size(m)
@@ -507,8 +522,8 @@ func (m *DetailViewConfig) GetEntryType() string {
 }
 
 type I18NLabel struct {
-	Lang                 string   `protobuf:"bytes,1,opt,name=lang" json:"lang,omitempty"`
-	Name                 string   `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Lang                 string   `protobuf:"bytes,1,opt,name=lang,proto3" json:"lang,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -518,16 +533,17 @@ func (m *I18NLabel) Reset()         { *m = I18NLabel{} }
 func (m *I18NLabel) String() string { return proto.CompactTextString(m) }
 func (*I18NLabel) ProtoMessage()    {}
 func (*I18NLabel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{5}
+	return fileDescriptor_15a99035a5d046e2, []int{5}
 }
+
 func (m *I18NLabel) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_I18NLabel.Unmarshal(m, b)
 }
 func (m *I18NLabel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_I18NLabel.Marshal(b, m, deterministic)
 }
-func (dst *I18NLabel) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_I18NLabel.Merge(dst, src)
+func (m *I18NLabel) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_I18NLabel.Merge(m, src)
 }
 func (m *I18NLabel) XXX_Size() int {
 	return xxx_messageInfo_I18NLabel.Size(m)
@@ -553,12 +569,12 @@ func (m *I18NLabel) GetName() string {
 }
 
 type DetailBlock struct {
-	I18NLabel            *I18NLabel           `protobuf:"bytes,1,opt,name=i18nLabel" json:"i18nLabel,omitempty"`
-	ResourceLabel        string               `protobuf:"bytes,2,opt,name=resourceLabel" json:"resourceLabel,omitempty"`
-	Order                int32                `protobuf:"varint,3,opt,name=order" json:"order,omitempty"`
-	ResourceType         string               `protobuf:"bytes,4,opt,name=resourceType" json:"resourceType,omitempty"`
-	Fields               []*PresentationField `protobuf:"bytes,5,rep,name=fields" json:"fields,omitempty"`
-	InlineCSS            string               `protobuf:"bytes,6,opt,name=inlineCSS" json:"inlineCSS,omitempty"`
+	I18NLabel            *I18NLabel           `protobuf:"bytes,1,opt,name=i18nLabel,proto3" json:"i18nLabel,omitempty"`
+	ResourceLabel        string               `protobuf:"bytes,2,opt,name=resourceLabel,proto3" json:"resourceLabel,omitempty"`
+	Order                int32                `protobuf:"varint,3,opt,name=order,proto3" json:"order,omitempty"`
+	ResourceType         string               `protobuf:"bytes,4,opt,name=resourceType,proto3" json:"resourceType,omitempty"`
+	Fields               []*PresentationField `protobuf:"bytes,5,rep,name=fields,proto3" json:"fields,omitempty"`
+	InlineCSS            string               `protobuf:"bytes,6,opt,name=inlineCSS,proto3" json:"inlineCSS,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
@@ -568,16 +584,17 @@ func (m *DetailBlock) Reset()         { *m = DetailBlock{} }
 func (m *DetailBlock) String() string { return proto.CompactTextString(m) }
 func (*DetailBlock) ProtoMessage()    {}
 func (*DetailBlock) Descriptor() ([]byte, []int) {
-	return fileDescriptor_viewconfig_7266a6f9e7592284, []int{6}
+	return fileDescriptor_15a99035a5d046e2, []int{6}
 }
+
 func (m *DetailBlock) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DetailBlock.Unmarshal(m, b)
 }
 func (m *DetailBlock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_DetailBlock.Marshal(b, m, deterministic)
 }
-func (dst *DetailBlock) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_DetailBlock.Merge(dst, src)
+func (m *DetailBlock) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DetailBlock.Merge(m, src)
 }
 func (m *DetailBlock) XXX_Size() int {
 	return xxx_messageInfo_DetailBlock.Size(m)
@@ -631,6 +648,10 @@ func (m *DetailBlock) GetInlineCSS() string {
 }
 
 func init() {
+	proto.RegisterEnum("fragments.DataSetType", DataSetType_name, DataSetType_value)
+	proto.RegisterEnum("fragments.ResultType", ResultType_name, ResultType_value)
+	proto.RegisterEnum("fragments.FieldType", FieldType_name, FieldType_value)
+	proto.RegisterEnum("fragments.InlineType", InlineType_name, InlineType_value)
 	proto.RegisterType((*DataSetConfig)(nil), "fragments.DataSetConfig")
 	proto.RegisterType((*DataSetFilter)(nil), "fragments.DataSetFilter")
 	proto.RegisterType((*ResultViewConfig)(nil), "fragments.ResultViewConfig")
@@ -638,17 +659,11 @@ func init() {
 	proto.RegisterType((*DetailViewConfig)(nil), "fragments.DetailViewConfig")
 	proto.RegisterType((*I18NLabel)(nil), "fragments.I18NLabel")
 	proto.RegisterType((*DetailBlock)(nil), "fragments.DetailBlock")
-	proto.RegisterEnum("fragments.DataSetType", DataSetType_name, DataSetType_value)
-	proto.RegisterEnum("fragments.ResultType", ResultType_name, ResultType_value)
-	proto.RegisterEnum("fragments.FieldType", FieldType_name, FieldType_value)
-	proto.RegisterEnum("fragments.InlineType", InlineType_name, InlineType_value)
 }
 
-func init() {
-	proto.RegisterFile("hub3/fragments/viewconfig.proto", fileDescriptor_viewconfig_7266a6f9e7592284)
-}
+func init() { proto.RegisterFile("hub3/fragments/viewconfig.proto", fileDescriptor_15a99035a5d046e2) }
 
-var fileDescriptor_viewconfig_7266a6f9e7592284 = []byte{
+var fileDescriptor_15a99035a5d046e2 = []byte{
 	// 860 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x55, 0x5f, 0x6f, 0xdb, 0x54,
 	0x14, 0x9f, 0xe3, 0xc4, 0x8d, 0x8f, 0xb7, 0xca, 0x5c, 0xb6, 0x61, 0x8d, 0x09, 0xa2, 0x88, 0x87,

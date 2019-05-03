@@ -3,10 +3,12 @@
 
 package mediamanager
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	timestamp "github.com/golang/protobuf/ptypes/timestamp"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -17,7 +19,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type DownloadType int32
 
@@ -36,6 +38,7 @@ var DownloadType_name = map[int32]string{
 	3: "RDF",
 	4: "JSON",
 }
+
 var DownloadType_value = map[string]int32{
 	"Thumbnail": 0,
 	"DeepZoom":  1,
@@ -47,19 +50,20 @@ var DownloadType_value = map[string]int32{
 func (x DownloadType) String() string {
 	return proto.EnumName(DownloadType_name, int32(x))
 }
+
 func (DownloadType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_webresource_5ae2a1b762f54da0, []int{0}
+	return fileDescriptor_7dd30c0aee089b7f, []int{0}
 }
 
 type WebResourceRequest struct {
-	OrgID                string   `protobuf:"bytes,1,opt,name=orgID" json:"orgID,omitempty"`
-	Spec                 string   `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
-	HubID                string   `protobuf:"bytes,3,opt,name=hubID" json:"hubID,omitempty"`
-	MimeType             string   `protobuf:"bytes,4,opt,name=mimeType" json:"mimeType,omitempty"`
-	SourcePath           string   `protobuf:"bytes,5,opt,name=sourcePath" json:"sourcePath,omitempty"`
-	DownloadType         string   `protobuf:"bytes,6,opt,name=DownloadType" json:"DownloadType,omitempty"`
-	Dimension            string   `protobuf:"bytes,7,opt,name=dimension" json:"dimension,omitempty"`
-	Urn                  string   `protobuf:"bytes,8,opt,name=urn" json:"urn,omitempty"`
+	OrgID                string   `protobuf:"bytes,1,opt,name=orgID,proto3" json:"orgID,omitempty"`
+	Spec                 string   `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	HubID                string   `protobuf:"bytes,3,opt,name=hubID,proto3" json:"hubID,omitempty"`
+	MimeType             string   `protobuf:"bytes,4,opt,name=mimeType,proto3" json:"mimeType,omitempty"`
+	SourcePath           string   `protobuf:"bytes,5,opt,name=sourcePath,proto3" json:"sourcePath,omitempty"`
+	DownloadType         string   `protobuf:"bytes,6,opt,name=DownloadType,proto3" json:"DownloadType,omitempty"`
+	Dimension            string   `protobuf:"bytes,7,opt,name=dimension,proto3" json:"dimension,omitempty"`
+	Urn                  string   `protobuf:"bytes,8,opt,name=urn,proto3" json:"urn,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -69,16 +73,17 @@ func (m *WebResourceRequest) Reset()         { *m = WebResourceRequest{} }
 func (m *WebResourceRequest) String() string { return proto.CompactTextString(m) }
 func (*WebResourceRequest) ProtoMessage()    {}
 func (*WebResourceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_webresource_5ae2a1b762f54da0, []int{0}
+	return fileDescriptor_7dd30c0aee089b7f, []int{0}
 }
+
 func (m *WebResourceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WebResourceRequest.Unmarshal(m, b)
 }
 func (m *WebResourceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_WebResourceRequest.Marshal(b, m, deterministic)
 }
-func (dst *WebResourceRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_WebResourceRequest.Merge(dst, src)
+func (m *WebResourceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WebResourceRequest.Merge(m, src)
 }
 func (m *WebResourceRequest) XXX_Size() int {
 	return xxx_messageInfo_WebResourceRequest.Size(m)
@@ -146,17 +151,17 @@ func (m *WebResourceRequest) GetUrn() string {
 }
 
 type WebResource struct {
-	OrgID                string               `protobuf:"bytes,1,opt,name=orgID" json:"orgID,omitempty"`
-	Spec                 string               `protobuf:"bytes,2,opt,name=spec" json:"spec,omitempty"`
-	HubID                []string             `protobuf:"bytes,3,rep,name=hubID" json:"hubID,omitempty"`
-	Derivatives          map[string]string    `protobuf:"bytes,4,rep,name=derivatives" json:"derivatives,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	ObjectNumber         string               `protobuf:"bytes,5,opt,name=objectNumber" json:"objectNumber,omitempty"`
-	Alternatives         []string             `protobuf:"bytes,6,rep,name=alternatives" json:"alternatives,omitempty"`
-	SourcePath           string               `protobuf:"bytes,7,opt,name=sourcePath" json:"sourcePath,omitempty"`
-	SourceExtension      string               `protobuf:"bytes,8,opt,name=sourceExtension" json:"sourceExtension,omitempty"`
-	SourceMimeType       string               `protobuf:"bytes,9,opt,name=sourceMimeType" json:"sourceMimeType,omitempty"`
-	LastModified         *timestamp.Timestamp `protobuf:"bytes,10,opt,name=lastModified" json:"lastModified,omitempty"`
-	SourceSize           int64                `protobuf:"varint,11,opt,name=sourceSize" json:"sourceSize,omitempty"`
+	OrgID                string               `protobuf:"bytes,1,opt,name=orgID,proto3" json:"orgID,omitempty"`
+	Spec                 string               `protobuf:"bytes,2,opt,name=spec,proto3" json:"spec,omitempty"`
+	HubID                []string             `protobuf:"bytes,3,rep,name=hubID,proto3" json:"hubID,omitempty"`
+	Derivatives          map[string]string    `protobuf:"bytes,4,rep,name=derivatives,proto3" json:"derivatives,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	ObjectNumber         string               `protobuf:"bytes,5,opt,name=objectNumber,proto3" json:"objectNumber,omitempty"`
+	Alternatives         []string             `protobuf:"bytes,6,rep,name=alternatives,proto3" json:"alternatives,omitempty"`
+	SourcePath           string               `protobuf:"bytes,7,opt,name=sourcePath,proto3" json:"sourcePath,omitempty"`
+	SourceExtension      string               `protobuf:"bytes,8,opt,name=sourceExtension,proto3" json:"sourceExtension,omitempty"`
+	SourceMimeType       string               `protobuf:"bytes,9,opt,name=sourceMimeType,proto3" json:"sourceMimeType,omitempty"`
+	LastModified         *timestamp.Timestamp `protobuf:"bytes,10,opt,name=lastModified,proto3" json:"lastModified,omitempty"`
+	SourceSize           int64                `protobuf:"varint,11,opt,name=sourceSize,proto3" json:"sourceSize,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
@@ -166,16 +171,17 @@ func (m *WebResource) Reset()         { *m = WebResource{} }
 func (m *WebResource) String() string { return proto.CompactTextString(m) }
 func (*WebResource) ProtoMessage()    {}
 func (*WebResource) Descriptor() ([]byte, []int) {
-	return fileDescriptor_webresource_5ae2a1b762f54da0, []int{1}
+	return fileDescriptor_7dd30c0aee089b7f, []int{1}
 }
+
 func (m *WebResource) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_WebResource.Unmarshal(m, b)
 }
 func (m *WebResource) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_WebResource.Marshal(b, m, deterministic)
 }
-func (dst *WebResource) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_WebResource.Merge(dst, src)
+func (m *WebResource) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_WebResource.Merge(m, src)
 }
 func (m *WebResource) XXX_Size() int {
 	return xxx_messageInfo_WebResource.Size(m)
@@ -264,17 +270,17 @@ func (m *WebResource) GetSourceSize() int64 {
 }
 
 func init() {
+	proto.RegisterEnum("mediamanager.DownloadType", DownloadType_name, DownloadType_value)
 	proto.RegisterType((*WebResourceRequest)(nil), "mediamanager.WebResourceRequest")
 	proto.RegisterType((*WebResource)(nil), "mediamanager.WebResource")
 	proto.RegisterMapType((map[string]string)(nil), "mediamanager.WebResource.DerivativesEntry")
-	proto.RegisterEnum("mediamanager.DownloadType", DownloadType_name, DownloadType_value)
 }
 
 func init() {
-	proto.RegisterFile("hub3/mediamanager/webresource.proto", fileDescriptor_webresource_5ae2a1b762f54da0)
+	proto.RegisterFile("hub3/mediamanager/webresource.proto", fileDescriptor_7dd30c0aee089b7f)
 }
 
-var fileDescriptor_webresource_5ae2a1b762f54da0 = []byte{
+var fileDescriptor_7dd30c0aee089b7f = []byte{
 	// 471 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x92, 0xcf, 0x6e, 0xd3, 0x40,
 	0x10, 0xc6, 0x71, 0xec, 0xe6, 0xcf, 0x38, 0x80, 0xb5, 0xe2, 0xb0, 0x8a, 0x10, 0x44, 0x41, 0x42,
