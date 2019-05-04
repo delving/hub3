@@ -11,10 +11,12 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
 	"github.com/microcosm-cc/bluemonday"
@@ -25,7 +27,7 @@ import (
 var sanitizer *bluemonday.Policy
 
 func init() {
-	sanitizer = bluemonday.UGCPolicy()
+	sanitizer = bluemonday.StrictPolicy()
 }
 
 // ReadEAD reads an ead2002 XML from a path
@@ -214,6 +216,82 @@ type Cead struct {
 	Attraudience string      `xml:"audience,attr"  json:",omitempty"`
 	Ceadheader   *Ceadheader `xml:"eadheader,omitempty" json:"eadheader,omitempty"`
 	Carchdesc    *Carchdesc  `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
+}
+
+// SaveDescription stores the FragmentGraph of the EAD description in ElasticSearch
+func (cead *Cead) SaveDescription(cfg *NodeConfig, p *elastic.BulkProcessor) error {
+	fg, _, err := cead.DescriptionGraph(cfg)
+	if err != nil {
+		return err
+	}
+
+	r := elastic.NewBulkIndexRequest().
+		Index(c.Config.ElasticSearch.IndexName).
+		Type(fragments.DocType).
+		RetryOnConflict(3).
+		Id(fg.Meta.HubID).
+		Doc(fg)
+	p.Add(r)
+
+	return nil
+}
+
+// DescriptionGraph returns the graph of the Description section (archdesc, descgroups, desc/did) as a FragmentGraph
+func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
+	rm := fragments.NewEmptyResourceMap()
+	id := "desc"
+	subject := newSubject(cfg, id)
+	header := &fragments.Header{
+		OrgID:         cfg.OrgID,
+		Spec:          cfg.Spec,
+		Revision:      cfg.Revision,
+		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
+		DocType:       fragments.FragmentGraphDocType,
+		EntryURI:      subject,
+		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
+		Modified:      fragments.NowInMillis(),
+		Tags:          []string{"eadDesc"},
+	}
+
+	description := cead.Ceadheader.Raw
+	description = append(description, cead.Carchdesc.Cdid.Raw...)
+	for _, dscGrp := range cead.Carchdesc.Cdescgrp {
+		description = append(description, dscGrp.Raw...)
+	}
+	for _, bioghist := range cead.Carchdesc.Cbioghist {
+		description = append(description, bioghist.Raw...)
+	}
+	if cead.Carchdesc.Cuserestrict != nil {
+		description = append(description, cead.Carchdesc.Cuserestrict.Raw...)
+	}
+
+	// strip all tags
+	r := regexp.MustCompile(`\s+`)
+	description = r.ReplaceAll(description, []byte(" "))
+	description = sanitizer.SanitizeBytes(description)
+
+	// TODO store triples later
+	//for idx, t := range n.Triples(subject, cfg) {
+	//if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
+	//return nil, nil, err
+	//}
+	//}
+	tree := &fragments.Tree{}
+
+	tree.HubID = header.HubID
+	tree.ChildCount = 0
+	tree.InventoryID = cfg.Spec
+	tree.Title = cead.Ceadheader.GetTitle()
+	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
+	tree.Description = string(description)
+
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = tree
+
+	// only set resources when the full graph is filled.
+	//fg.SetResources(rm)
+	return fg, rm, nil
 }
 
 /////////////////////////
@@ -407,12 +485,14 @@ type Cappraisal struct {
 }
 
 type Carchdesc struct {
-	XMLName   xml.Name    `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
-	Attrlevel string      `xml:"level,attr"  json:",omitempty"`
-	Attrtype  string      `xml:"type,attr"  json:",omitempty"`
-	Cdescgrp  []*Cdescgrp `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
-	Cdid      *Cdid       `xml:"did,omitempty" json:"did,omitempty"`
-	Cdsc      *Cdsc       `xml:"dsc,omitempty" json:"dsc,omitempty"`
+	XMLName      xml.Name      `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
+	Attrlevel    string        `xml:"level,attr"  json:",omitempty"`
+	Attrtype     string        `xml:"type,attr"  json:",omitempty"`
+	Cdescgrp     []*Cdescgrp   `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
+	Cdid         *Cdid         `xml:"did,omitempty" json:"did,omitempty"`
+	Cdsc         *Cdsc         `xml:"dsc,omitempty" json:"dsc,omitempty"`
+	Cbioghist    []*Cbioghist  `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
+	Cuserestrict *Cuserestrict `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
 }
 
 type Carrangement struct {
@@ -432,6 +512,7 @@ type Cbioghist struct {
 	Cbioghist []*Cbioghist `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
 	Chead     []*Chead     `xml:"head,omitempty" json:"head,omitempty"`
 	Cp        []*Cp        `xml:"p,omitempty" json:"p,omitempty"`
+	Raw       []byte       `xml:",innerxml" json:",omitempty"`
 }
 
 type Cblockquote struct {
@@ -496,6 +577,7 @@ type Cdescgrp struct {
 	Cprocessinfo     *Cprocessinfo     `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
 	Crelatedmaterial *Crelatedmaterial `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
 	Cuserestrict     *Cuserestrict     `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
+	Raw              []byte            `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdid struct {
@@ -512,6 +594,7 @@ type Cdid struct {
 	Cunitdate     []*Cunitdate   `xml:"unitdate,omitempty" json:"unitdate,omitempty"`
 	Cunitid       []*Cunitid     `xml:"unitid,omitempty" json:"unitid,omitempty"`
 	Cunittitle    []*Cunittitle  `xml:"unittitle,omitempty" json:"unittitle,omitempty"`
+	Raw           []byte         `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdao struct {
@@ -762,6 +845,7 @@ type Cuserestrict struct {
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 ///////////////////////////
