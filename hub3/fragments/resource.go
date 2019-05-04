@@ -91,6 +91,7 @@ type Tree struct {
 	Title            string   `json:"title,omitempty"`
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`
+	AgencyCode       string   `json:"agencyCode,omitempty"`
 }
 
 // TreeNavigator possible remove

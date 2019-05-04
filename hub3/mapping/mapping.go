@@ -40,6 +40,7 @@ var ESMapping = `{
 						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
+						"agencyCode": {"type": "keyword"},
 						"inventoryID": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
 						"label": {"type": "text"},
