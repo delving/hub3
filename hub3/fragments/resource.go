@@ -85,9 +85,11 @@ type Tree struct {
 	DaoLink          string   `json:"daoLink,omitempty"`
 	ManifestLink     string   `json:"manifestLink,omitempty"`
 	MimeTypes        []string `json:"mimeType,omitempty"`
+	DOCount          int      `json:"doCount"`
 	Inline           []*Tree  `json:"inline,omitempty"`
 	SortKey          uint64   `json:"sortKey"`
 	Periods          []string `json:"periods"`
+	Content          []string `json:"content,omitempty"`
 	Title            string   `json:"title,omitempty"`
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`
