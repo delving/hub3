@@ -177,6 +177,7 @@ type CLevel interface {
 	GetNested() []CLevel
 	GetCdid() *Cdid
 	GetScopeContent() *Cscopecontent
+	GetOdd() []*Codd
 }
 
 type Cc struct {
@@ -198,6 +199,7 @@ func (c Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
 func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
 func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c Cc) GetOdd() []*Codd                      { return c.Codd }
 func (c Cc) GetNested() []CLevel                  { return c.Nested() }
 func (c Cc) Nested() []CLevel {
 	levels := make([]CLevel, len(c.Cc))
@@ -280,6 +282,7 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 
 	tree.HubID = header.HubID
 	tree.ChildCount = 0
+	tree.Type = "desc"
 	tree.InventoryID = cfg.Spec
 	tree.Title = cead.Ceadheader.GetTitle()
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode

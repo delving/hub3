@@ -3,7 +3,6 @@ package ead
 import (
 	"bytes"
 	"context"
-	"encoding/xml"
 	"fmt"
 	"html"
 	"log"
@@ -366,13 +365,16 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 	node.Header = header
 
-	// add scope content
-	if c.GetScopeContent() != nil {
-		html, err := xml.Marshal(c.GetScopeContent().Cp)
-		if err != nil {
-			return nil, err
+	// add content
+	if c.GetOdd() != nil {
+		html := []string{}
+		for _, o := range c.GetOdd() {
+			html = append(html, string(o.Raw))
 		}
-		node.HTML = string(html)
+
+		// todo add better cleaning of the structured html
+		node.HTML = strings.Join(html, "\n")
+		node.HTML = sanitizer.Sanitize(node.HTML)
 	}
 
 	parentIDs, err = node.setPath(parentIDs)

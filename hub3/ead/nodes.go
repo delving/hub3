@@ -2,6 +2,7 @@ package ead
 
 import (
 	"fmt"
+	"html"
 	"strings"
 
 	"github.com/delving/hub3/config"
@@ -83,6 +84,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Periods = n.GetHeader().GetPeriods()
 	tree.MimeTypes = []string{}
 	tree.ManifestLink = ""
+	tree.Content = []string{html.UnescapeString(n.HTML)}
 
 	return tree
 }
