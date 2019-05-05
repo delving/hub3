@@ -27,7 +27,7 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", TreeDescription)
-	r.Get("/api/ead/{spec}/download", treeDownload)
+	r.Get("/api/ead/{spec}/download", EADDownload)
 	r.Get("/api/ead/{spec}/archdesc", treeDescriptionApi)
 }
 
@@ -89,7 +89,22 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func treeDownload(w http.ResponseWriter, r *http.Request) {
+// PDFDownload is a handler that returns a stored PDF for an EAD Archive
+func PDFDownload(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
+		return
+	}
+	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.pdf", spec))
+	http.ServeFile(w, r, eadPath)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", spec))
+	w.Header().Set("Content-Type", "application/pdf")
+	return
+}
+
+// EADDownload is a handler that returns a stored XML for an EAD Archive
+func EADDownload(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
