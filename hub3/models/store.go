@@ -46,6 +46,10 @@ func ResetStorm() {
 	orm = newDB("")
 }
 
+func ORM() *storm.DB {
+	return orm
+}
+
 func newDB(dbName string) *storm.DB {
 	if dbName == "" {
 		dbName = "hub3.db"
