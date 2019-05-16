@@ -85,6 +85,7 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 
 		for _, frag := range frags {
 			frag.Meta.AddTags("csvUpload")
+
 			err := frag.AddTo(p)
 			if err != nil {
 				return 0, 0, err
@@ -222,22 +223,28 @@ func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
 						fmt.Sprintf("%s/manifest", con.PredicateURIBase),
 					),
 					r.NewLiteral(
-						fmt.Sprintf("%s/%s", strings.TrimSuffix(con.ManifestURIBase, "s"), column),
+						fmt.Sprintf(
+							"%s/%s/hubID/",
+							strings.TrimSuffix(con.ManifestURIBase, "s"),
+							strings.TrimSpace(column),
+						),
 					),
 				)
 				triples = append(triples, thumbnail, manifest)
 			}
 			if con.ManifestColumn != "" && idx == manifestColumnIdx {
-				if con.ManifestLocale == "" {
-					con.ManifestLocale = "nl_nl"
-				}
 				manifest := r.NewTriple(
 					s,
 					r.NewResource(
 						fmt.Sprintf("%s/manifests", con.PredicateURIBase),
 					),
 					r.NewLiteral(
-						fmt.Sprintf("%s/%s/%s", con.ManifestURIBase, column, con.ManifestLocale),
+						fmt.Sprintf(
+							"%s/%s/hubID/%s",
+							con.ManifestURIBase,
+							strings.TrimSpace(column),
+							con.ManifestLocale,
+						),
 					),
 				)
 				triples = append(triples, manifest)

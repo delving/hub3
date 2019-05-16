@@ -107,8 +107,8 @@ func UpdateViaSparql(update string) []error {
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		//log.Println(body)
-		//log.Println(resp)
 		log.Printf("unable to store sparqlUpdate: %s", update)
+		log.Println(resp)
 		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
 	}
 	return errs

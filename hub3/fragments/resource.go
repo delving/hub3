@@ -597,6 +597,16 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	}
 	for _, f := range frags {
 		t := f.CreateTriple()
+		switch t.Predicate.RawValue() {
+		case "http://archief.nl/def/manifest", "http://archief.nl/def/manifests":
+			link := strings.Replace(
+				t.Object.RawValue(),
+				"/hubID",
+				fmt.Sprintf("/%s", excludeHubID),
+				1,
+			)
+			t.Object = r.NewLiteral(link)
+		}
 		//log.Printf("resolved triple: %#v", t)
 		err = rm.AppendTriple(t, true)
 		if err != nil {
