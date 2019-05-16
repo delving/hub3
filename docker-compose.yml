@@ -23,5 +23,7 @@ services:
       - "3030:3030"
     environment:
       - ADMIN_PASSWORD=pw123
+    command:
+        ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
 networks:
   esnet:
