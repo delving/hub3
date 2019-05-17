@@ -48,13 +48,20 @@ var ESMapping = `{
 						"title": {"type": "text"},
 						"description": {"type": "text"},
 						"content": {"type": "text"},
+						"access": {
+							"type": "text",
+							"fields": {
+								"keyword": {"type": "keyword", "ignore_above": 512}
+							}
+						},
 						"parent": {"type": "keyword"},
 						"leaf": {"type": "keyword"},
 						"daoLink": {"type": "keyword"},
 						"manifestLink": {"type": "keyword"},
 						"mimeType": {"type": "keyword"},
 						"periods": {"type": "keyword"},
-						"hasDigitalObject": {"type": "boolean"}
+						"hasDigitalObject": {"type": "boolean"},
+						"hasRestriction": {"type": "boolean"}
 					}
 				},
 				"subject": {"type": "keyword"},
