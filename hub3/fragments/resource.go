@@ -82,6 +82,7 @@ type Tree struct {
 	Depth            int      `json:"depth"`
 	HasChildren      bool     `json:"hasChildren"`
 	HasDigitalObject bool     `json:"hasDigitalObject"`
+	HasRestriction   bool     `json:"hasRestriction"`
 	DaoLink          string   `json:"daoLink,omitempty"`
 	ManifestLink     string   `json:"manifestLink,omitempty"`
 	MimeTypes        []string `json:"mimeType,omitempty"`
@@ -90,6 +91,7 @@ type Tree struct {
 	SortKey          uint64   `json:"sortKey"`
 	Periods          []string `json:"periods"`
 	Content          []string `json:"content,omitempty"`
+	Access           string   `json:"access,omitempty"`
 	Title            string   `json:"title,omitempty"`
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`

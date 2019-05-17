@@ -211,6 +211,12 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byLabel":
 			sr.Tree = tree
 			tree.Label = params.Get(p)
+		case "hasDigitalObject":
+			sr.Tree = tree
+			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
+		case "hasRestriction":
+			sr.Tree = tree
+			tree.HasRestriction = strings.ToLower(params.Get("hasRestriction")) == "true"
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
@@ -545,6 +551,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if sr.Tree.GetChildCount() != "" {
 			query = query.Must(elastic.NewMatchQuery("tree.childCount", sr.Tree.GetChildCount()))
 		}
+		// todo add filtering for hasRestriction and HasDigitalObject
 		if sr.Tree.GetLabel() != "" {
 			q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
 			q = q.DefaultField("tree.label")
