@@ -227,7 +227,7 @@ func (h *Header) GetTreeLabel() string {
 // of the Archive C-Levels
 func Sparsify(nodes []*Node) {
 	for _, n := range nodes {
-		n.HTML = ""
+		n.HTML = []string{}
 		n.CTag = ""
 		n.Header.Sparse()
 		if len(n.Nodes) != 0 {
@@ -369,12 +369,15 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	if c.GetOdd() != nil {
 		html := []string{}
 		for _, o := range c.GetOdd() {
-			html = append(html, string(o.Raw))
+			html = append(html, sanitizer.Sanitize(string(o.Raw)))
 		}
 
-		// todo add better cleaning of the structured html
-		node.HTML = strings.Join(html, "\n")
-		node.HTML = sanitizer.Sanitize(node.HTML)
+		node.HTML = html
+	}
+
+	// add accessrestrict
+	if c.GetCaccessrestrict() != nil {
+		node.Access = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
 	}
 
 	parentIDs, err = node.setPath(parentIDs)

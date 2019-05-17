@@ -22,12 +22,13 @@ message Node {
   string Type = 2;
   string SubType = 6;
   Header Header = 3;
-  string HTML = 5;
+  repeated string HTML = 5;
   repeated Node Nodes = 4;
   uint64 Order = 8;
   repeated string ParentIDs = 9;
   string Path = 10;
   string BranchID = 11;
+  string Access = 12;
 }
 
 message Header {

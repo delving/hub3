@@ -460,6 +460,7 @@ type Caccessrestrict struct {
 	Chead        []*Chead      `xml:"head,omitempty" json:"head,omitempty"`
 	Clegalstatus *Clegalstatus `xml:"legalstatus,omitempty" json:"legalstatus,omitempty"`
 	Cp           []*Cp         `xml:"p,omitempty" json:"p,omitempty"`
+	Raw          []byte        `xml:",innerxml" json:",omitempty"`
 }
 
 type Caccruals struct {

@@ -42,10 +42,15 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	id := n.GetPath()
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
-		OrgID:         cfg.OrgID,
-		Spec:          cfg.Spec,
-		Revision:      cfg.Revision,
-		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
+		OrgID:    cfg.OrgID,
+		Spec:     cfg.Spec,
+		Revision: cfg.Revision,
+		HubID: fmt.Sprintf(
+			"%s_%s_%s",
+			cfg.OrgID,
+			cfg.Spec,
+			strings.ReplaceAll(id, "/", "-"),
+		),
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
@@ -84,7 +89,12 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Periods = n.GetHeader().GetPeriods()
 	tree.MimeTypes = []string{}
 	tree.ManifestLink = ""
-	tree.Content = []string{html.UnescapeString(n.HTML)}
+	tree.Content = []string{}
+	for _, n := range n.HTML {
+		tree.Content = append(tree.Content, html.UnescapeString(n))
+	}
+	tree.Access = n.Access
+	tree.HasRestriction = n.Access != ""
 
 	return tree
 }
@@ -241,7 +251,10 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 	t(s, "branchID", n.GetBranchID(), r.NewLiteral)
 	t(s, "cType", n.GetType(), r.NewLiteral)
 	t(s, "cSubtype", n.GetSubType(), r.NewLiteral)
-	t(s, "scopecontent", n.GetHTML(), r.NewLiteral)
+	for _, html := range n.GetHTML() {
+		t(s, "scopecontent", html, r.NewLiteral)
+
+	}
 
 	triples = append(triples, n.GetHeader().Triples(subject, cfg)...)
 
