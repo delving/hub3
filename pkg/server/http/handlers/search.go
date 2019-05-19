@@ -303,6 +303,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
+
+		// traditional collapsed tree view
 		if searchRequest.Tree.IsExpanded() && len(records) > 0 {
 			// todo make new records
 			leaf := records[0].Tree.CLevel
@@ -339,6 +341,49 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			searchRequest.Tree.FillTree = true
 			searchRequest.Tree.Leaf = leaf
 		}
+
+		if len(records) == 0 {
+			break
+		}
+		// get paging header for first node returned on the page
+		firstNode := records[0]
+		lastNode := records[len(records)-1]
+		if firstNode.Tree.SortKey != 1 {
+			qs := fmt.Sprintf("byUnitID=%s&allParents=true", firstNode.Tree.Leaf)
+			m, _ := url.ParseQuery(qs)
+			sr, _ := fragments.NewSearchRequest(m)
+			err := sr.AddQueryFilter(
+				fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+				false,
+			)
+			if err != nil {
+				log.Printf("Unable to add QueryFilter: %v", err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			s, _, err := sr.ElasticSearchService(index.ESClient())
+			if err != nil {
+				log.Printf("Unable to create Search Service: %v", err)
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			res, err := s.Do(r.Context())
+			if err != nil {
+				return
+			}
+			if res == nil {
+				log.Printf("expected response != nil; got: %v", res)
+				return
+			}
+			parents, _, err := decodeFragmentGraphs(res)
+			if err != nil {
+				return
+			}
+			for _, parent := range parents {
+				leafs = append(leafs, parent.Tree)
+			}
+		}
+
 		for _, rec := range records {
 			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
 			leafs = append(leafs, rec.Tree)
@@ -348,13 +393,21 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			result.Pager.Cursor = searchRequest.Tree.CursorHint
 		}
 		records = nil
-		if searchRequest.Tree.GetFillTree() {
-			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree)
+		if searchRequest.Tree.GetFillTree() || searchRequest.Tree.GetPage() != 0 {
+			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree, res.TotalHits())
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				log.Printf("Unable to render grouped TreeNodes: %s\n", err.Error())
 				render.PlainText(w, r, err.Error())
 				return
+			}
+
+			// update paging
+			if result.TreeHeader.Paging != nil {
+				paging := result.TreeHeader.Paging
+				paging.ResultFirst = firstNode.Tree.PageEntry()
+				paging.ResultLast = lastNode.Tree.PageEntry()
+				paging.SameLeaf = paging.ResultFirst.SameLeaf(paging.ResultLast)
 			}
 
 			if searchRequest.Tree.IsNavigatedQuery() {
