@@ -98,6 +98,16 @@ type Tree struct {
 	AgencyCode       string   `json:"agencyCode,omitempty"`
 }
 
+// TreePageEntry creates a paging entry for a tree element.
+func (t *Tree) PageEntry() *TreePageEntry {
+	return &TreePageEntry{
+		CLevel:      t.CLevel,
+		SortKey:     int32(t.SortKey),
+		ExpandedIDs: expandedIDs(t),
+	}
+
+}
+
 // TreeNavigator possible remove
 type TreeNavigator struct {
 	Cursor  int               `json:"cursor"`
@@ -109,7 +119,7 @@ type TreeNavigator struct {
 // IsExpanded returns if the tree query contains a query that puts the active ID
 // expanded in the tree
 func (tq *TreeQuery) IsExpanded() bool {
-	return tq.Label != "" || tq.UnitID != ""
+	return (tq.Label != "" || tq.UnitID != "") && tq.GetPage() == 0
 }
 
 // IsNavigatedQuery returns if there is both a query and active ID
@@ -187,9 +197,9 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	}
 }
 
-func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
+func expandedIDs(node *Tree) map[string]bool {
 	expandedIDs := make(map[string]bool)
-	parents := strings.Split(tq.GetLeaf(), "~")
+	parents := strings.Split(node.CLevel, "~")
 
 	var path string
 	for idx, leaf := range parents {
@@ -201,14 +211,14 @@ func (tq *TreeQuery) expandedIDs(lastNode *Tree) map[string]bool {
 		path = fmt.Sprintf("%s~%s", path, leaf)
 		expandedIDs[path] = true
 	}
-	if !lastNode.HasChildren {
-		expandedIDs[lastNode.CLevel] = false
+	if !node.HasChildren {
+		expandedIDs[node.CLevel] = false
 	}
 	return expandedIDs
 }
 
 // InlineTree creates a nested tree from an Array of *Tree
-func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
+func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, *TreeHeader, error) {
 	rootNodes := []*Tree{}
 	nodeMap := make(map[string]*Tree)
 
@@ -225,18 +235,30 @@ func InlineTree(nodes []*Tree, tq *TreeQuery) ([]*Tree, *TreeHeader, error) {
 			target.Inline = append(target.Inline, n)
 		}
 	}
-	if tq.GetLeaf() == "" {
-		return rootNodes, nil, nil
+
+	paging := &TreePaging{
+		PageSize:       tq.GetPageSize(),
+		HitsTotalCount: int32(total),
 	}
 
-	lastNode, ok := nodeMap[tq.GetLeaf()]
-	if !ok {
-		return nil, nil, fmt.Errorf("Unable to find node %s in map", tq.GetLeaf())
+	if tq.GetPage() != 0 {
+		paging.PageCurrent = []int32{tq.GetPage()}
+		paging.calculatePaging()
 	}
+
 	header := &TreeHeader{
-		ExpandedIDs: tq.expandedIDs(lastNode),
-		ActiveID:    tq.GetLeaf(),
-		UnitID:      tq.GetUnitID(),
+		Paging: paging,
+	}
+
+	// leaf based searching
+	if tq.GetLeaf() != "" {
+		activeNode, ok := nodeMap[tq.GetLeaf()]
+		if !ok {
+			return nil, nil, fmt.Errorf("Unable to find node %s in map", tq.GetLeaf())
+		}
+		header.ExpandedIDs = expandedIDs(activeNode)
+		header.ActiveID = tq.GetLeaf()
+		paging.ResultActive = activeNode.PageEntry()
 	}
 	return rootNodes, header, nil
 }
@@ -299,10 +321,88 @@ type ScrollResultV4 struct {
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API
 type TreeHeader struct {
-	ExpandedIDs       map[string]bool `json:"expandedIDs,omitempty"`
 	ActiveID          string          `json:"activeID"`
-	UnitID            string          `json:"unitID"`
-	PreviousScrollIDs []string        `json:"previousScrollIDs"`
+	ExpandedIDs       map[string]bool `json:"expandedIDs,omitempty"`
+	PreviousScrollIDs []string        `json:"previousScrollIDs,omitempty"`
+	Paging            *TreePaging     `json:"paging,omitempty"`
+}
+
+// TreePaging contains rendering hints for Paging through a Tree and Tree search-results
+type TreePaging struct {
+	PageSize        int32                    `json:"pageSize,omitempty"`
+	NrPages         int32                    `json:"nrPages,omitempty"`
+	HasNext         bool                     `json:"hasNext"`
+	HasPrevious     bool                     `json:"hasPrevious"`
+	PageNext        int32                    `json:"pageNext,omitempty"`
+	PagePrevious    int32                    `json:"pagePrevious,omitempty"`
+	PageCurrent     []int32                  `json:"pageCurrent,omitempty"`
+	PageFirst       int32                    `json:"pageFirst,omitempty"`
+	PageLast        int32                    `json:"pageLast,omitempty"`
+	ResultFirst     *TreePageEntry           `json:"resultFirst,omitempty"`
+	ResultLast      *TreePageEntry           `json:"resultLast,omitempty"`
+	ResultActive    *TreePageEntry           `json:"resultActive,omitempty"`
+	HitsOnPage      map[int32]*TreePageEntry `json:"hitsOnPage,omitempty"`
+	HitsOnPageCount int32                    `json:"hitsOnPageCount,omitempty"`
+	HitsTotalCount  int32                    `json:"hitsTotalCount,omitempty"`
+	ActiveHit       int32                    `json:"activeHit,omitempty"`
+	SameLeaf        bool                     `json:"sameLeaf"`
+}
+
+func (tp *TreePaging) calculatePaging() {
+	if tp.HitsTotalCount == 0 {
+		tp.NrPages = 0
+		return
+	}
+	if tp.HitsTotalCount < tp.PageSize {
+		tp.PageCurrent = []int32{1}
+		tp.NrPages = 1
+		return
+	}
+	pages := tp.HitsTotalCount / tp.PageSize
+	if tp.HitsTotalCount%tp.PageSize != 0 {
+		pages++
+	}
+	tp.NrPages = pages
+	tp.setFirstLastPage()
+	if tp.PageFirst != int32(1) {
+		tp.HasPrevious = true
+		tp.PagePrevious = tp.PageFirst - 1
+	}
+	if tp.PageLast != tp.NrPages {
+		tp.HasNext = true
+		tp.PageNext = tp.PageLast + 1
+	}
+	return
+}
+
+func (tp *TreePaging) setFirstLastPage() {
+	max := tp.PageCurrent[0]
+	min := tp.PageCurrent[0]
+	for _, value := range tp.PageCurrent {
+		if max < value {
+			max = value
+		}
+		if min > value {
+			min = value
+		}
+	}
+	tp.PageFirst = min
+	tp.PageLast = max
+	return
+}
+
+// TreePageEntry contains information how to merge pages from different responses.
+type TreePageEntry struct {
+	CLevel      string          `json:"cLevel"`
+	SortKey     int32           `json:"sortKey"`
+	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
+}
+
+// SameLeaf determines if two TreePageEntry are in the same tree leaf.
+func (tpe *TreePageEntry) SameLeaf(other *TreePageEntry) bool {
+	first := strings.Split(tpe.CLevel, "~")
+	second := strings.Split(other.CLevel, "~")
+	return strings.Join(first[:len(first)-1], "~") == strings.Join(second[:len(second)-1], "~")
 }
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation

@@ -35,14 +35,15 @@ import (
 )
 
 const (
-	qfKey   = "qf"
-	qfIDKey = "qf.id"
+	qfKey        = "qf"
+	qfIDKey      = "qf.id"
+	responseSize = int32(16)
 )
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults
 func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 	sr := &SearchRequest{
-		ResponseSize: int32(16),
+		ResponseSize: responseSize,
 	}
 	return sr
 }
@@ -90,7 +91,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		return sr, nil
 	}
 
-	tree := &TreeQuery{}
+	tree := &TreeQuery{
+		PageSize: 250,
+	}
 
 	sr := DefaultSearchRequest(&c.Config)
 	for p, v := range params {
@@ -117,7 +120,6 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				if err != nil {
 					return sr, err
 				}
-
 			}
 		case "facet.field":
 			for _, ff := range v {
@@ -220,6 +222,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
+			tree.AllParents = strings.ToLower(params.Get("allParents")) == "true"
 		case "byMimeType":
 			sr.Tree = tree
 			tree.MimeType = v
@@ -231,12 +234,31 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			tree.CursorHint = int32(hint)
+		case "page":
+			sr.Tree = tree
+			hint, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int for %s", v, p)
+				return sr, err
+			}
+			tree.Page = int32(hint)
+		case "pageSize":
+			sr.Tree = tree
+			hint, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int for %s", v, p)
+				return sr, err
+			}
+			tree.PageSize = int32(hint)
 		}
 	}
 
-	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
-		// set hard max to number of nodes of 1000
-		sr.ResponseSize = int32(1000)
+	if sr.Tree != nil && sr.GetResponseSize() != int32(1) && sr.Page != 0 {
+		rows := params.Get("rows")
+		if rows == "" {
+			// set hard max to number of nodes of 1000
+			sr.ResponseSize = int32(1000)
+		}
 	}
 
 	return sr, nil
@@ -540,8 +562,27 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 	}
 
+	if sr.Tree != nil && sr.Tree.GetAllParents() {
+		parents := strings.Split(sr.Tree.GetUnitID(), "~")
+		treeQuery := elastic.NewBoolQuery()
+		var path string
+		for idx, leaf := range parents {
+			if idx == 0 {
+				path = leaf
+				treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.cLevel", path))
+				continue
+			}
+
+			path = fmt.Sprintf("%s~%s", path, leaf)
+			treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.cLevel", path))
+		}
+		query = query.Must(treeQuery)
+	}
+
 	// todo move this into a separate function
-	if sr.Tree != nil && !sr.Tree.GetFillTree() {
+	if sr.Tree != nil && !sr.Tree.GetFillTree() && !sr.Tree.GetAllParents() {
+		// exclude description
+		query = query.Must(elastic.NewMatchQuery("meta.tags", "ead"))
 		if sr.Tree.GetLeaf() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
 		}
@@ -552,6 +593,12 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(elastic.NewMatchQuery("tree.childCount", sr.Tree.GetChildCount()))
 		}
 		// todo add filtering for hasRestriction and HasDigitalObject
+		if sr.Tree.HasRestriction {
+			query = query.Must(elastic.NewMatchQuery("tree.hasRestriction", "true"))
+		}
+		if sr.Tree.HasDigitalObject {
+			query = query.Must(elastic.NewMatchQuery("tree.hasDigitalObject", "true"))
+		}
 		if sr.Tree.GetLabel() != "" {
 			q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
 			q = q.DefaultField("tree.label")
@@ -705,6 +752,22 @@ func (sr *SearchRequest) SearchRequestToHex() (string, error) {
 	return fmt.Sprintf("%x", output), nil
 }
 
+// DeepCopy create a deepCopy of the SearchRequest.
+// This is used to calculate next ScrollID values without change the current values of the request.
+func (sr *SearchRequest) DeepCopy() (*SearchRequest, error) {
+	output, err := proto.Marshal(sr)
+	if err != nil {
+		return nil, err
+	}
+	newSr := &SearchRequest{}
+	err = proto.Unmarshal(output, newSr)
+	if err != nil {
+		return nil, err
+	}
+
+	return newSr, nil
+}
+
 func (sr *SearchRequest) CreateBinKey(key interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)
@@ -761,22 +824,36 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 	}
 
-	if sr.Tree != nil && sr.GetResponseSize() != int32(1) {
+	if sr.Tree != nil && sr.GetResponseSize() != 1 {
 		sr.ResponseSize = int32(1000)
+		if sr.Tree.Page != 0 {
+			sr.ResponseSize = sr.Tree.GetPageSize()
+		}
 	}
 
 	s := ec.Search().
 		Index(c.Config.ElasticSearch.IndexName).
-		Size(int(sr.GetResponseSize())).
-		SortBy(fieldSort, idSort)
+		Size(int(sr.GetResponseSize()))
 
-	if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
-		sa, err := sr.DecodeSearchAfter()
-		if err != nil {
-			return nil, nil, err
+	if sr.Tree != nil && sr.Tree.GetPage() != 0 {
+		s = s.SortBy(fieldSort)
+		if sr.Tree.GetPage() != 0 {
+			searchAfterPage := sr.Tree.GetPage() - int32(1)
+			searchAfterCursor := (searchAfterPage * sr.Tree.GetPageSize())
+			if searchAfterPage > 0 {
+				s = s.SearchAfter(searchAfterCursor)
+			}
+
 		}
-		s = s.SearchAfter(sa...)
-
+	} else {
+		s = s.SortBy(fieldSort, idSort)
+		if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
+			sa, err := sr.DecodeSearchAfter()
+			if err != nil {
+				return nil, nil, err
+			}
+			s = s.SearchAfter(sa...)
+		}
 	}
 
 	query, err := sr.ElasticQuery()
@@ -911,31 +988,41 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 
 	sp := NewScrollPager()
+	nextSr, err := sr.DeepCopy()
+	if err != nil {
+		return nil, err
+	}
 
 	// if no results return empty pager
 	if total == 0 {
 		return sp, nil
 	}
-	sp.Cursor = sr.GetStart()
+	sp.Cursor = nextSr.GetStart()
 
 	// set the next cursor
-	sr.Start = sr.GetStart() + sr.GetResponseSize()
+	nextSr.Start = nextSr.GetStart() + nextSr.GetResponseSize()
 
-	sp.Rows = sr.GetResponseSize()
+	// if paging set next page
+	if nextSr.Tree != nil && nextSr.Tree.GetPage() != 0 {
+		nextSr.Tree.Page = nextSr.Tree.Page + int32(1)
+	}
+
+	sp.Rows = nextSr.GetResponseSize()
 	sp.Total = total
-	if sr.CalculatedTotal != 0 {
-		sp.Total = sr.CalculatedTotal
+	if nextSr.CalculatedTotal != 0 {
+		sp.Total = nextSr.CalculatedTotal
 	}
 
 	// return empty ScrollID if there is no next page
-	if sr.GetStart() >= int32(total) {
+	if nextSr.GetStart() >= int32(total) {
 		return sp, nil
 	}
 
-	hex, err := sr.SearchRequestToHex()
+	hex, err := nextSr.SearchRequestToHex()
 	if err != nil {
 		return nil, err
 	}
+
 	sp.ScrollID = hex
 	return sp, nil
 }
