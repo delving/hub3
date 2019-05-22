@@ -64,7 +64,12 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		q := r.URL.Query()
-		q.Add("byLeaf", id)
+		isPaging := q.Get("paging") == "true"
+		if isPaging {
+			q.Add("byUnitID", id)
+		} else {
+			q.Add("byLeaf", id)
+		}
 		r.URL.RawQuery = q.Encode()
 	}
 	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())

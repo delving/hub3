@@ -304,42 +304,110 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
 
+		searching := &fragments.TreeSearching{
+			IsSearch: searchRequest.Tree.IsSearch,
+			ByLabel:  searchRequest.Tree.Label,
+			ByUnitID: searchRequest.Tree.UnitID,
+		}
+		paging := &fragments.TreePaging{
+			PageSize:       searchRequest.Tree.GetPageSize(),
+			HitsTotalCount: int32(res.TotalHits()),
+		}
+
 		// traditional collapsed tree view
 		if searchRequest.Tree.IsExpanded() && len(records) > 0 {
-			// todo make new records
-			leaf := records[0].Tree.CLevel
-			qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
-			m, _ := url.ParseQuery(qs)
-			sr, _ := fragments.NewSearchRequest(m)
-			err := sr.AddQueryFilter(
-				fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
-				false,
-			)
-			if err != nil {
-				log.Printf("Unable to add QueryFilter: %v", err)
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
+			searching.HitsTotal = int32(res.TotalHits())
+
+			if searchRequest.Tree.IsPaging && searchRequest.Tree.IsSearch {
+
+				leaf := records[0].Tree
+				//log.Printf("sortKey: %d (%s)", leaf.SortKey, leaf.CLevel)
+				pages, err := searchRequest.Tree.SearchPages(int32(leaf.SortKey))
+				if err != nil {
+					log.Printf("Unable to get searchPages: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				//log.Printf("searchPages: %#v", pages)
+				var pageParam string
+				for _, page := range pages {
+					pageParam = fmt.Sprintf("%s&page=%d", pageParam, page)
+				}
+				//log.Printf("searchParams: %#v", pageParam)
+				qs := fmt.Sprintf("paging=true%s", pageParam)
+				m, _ := url.ParseQuery(qs)
+				sr, _ := fragments.NewSearchRequest(m)
+				err = sr.AddQueryFilter(
+					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+					false,
+				)
+				if err != nil {
+					log.Printf("Unable to add QueryFilter: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				s, _, err := sr.ElasticSearchService(index.ESClient())
+				if err != nil {
+					log.Printf("Unable to create Search Service: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				res, err := s.Do(r.Context())
+				if err != nil {
+					return
+				}
+				if res == nil {
+					log.Printf("expected response != nil; got: %v", res)
+					return
+				}
+				paging.HitsTotalCount = int32(res.TotalHits())
+				searching.SetPreviousNext(searchRequest.Start)
+				records, _, err = decodeFragmentGraphs(res)
+				if err != nil {
+					return
+				}
+
+				// todo set page
+				searchRequest.Tree.Page = pages
+				searchRequest.Tree.Leaf = leaf.CLevel
 			}
-			s, _, err := sr.ElasticSearchService(index.ESClient())
-			if err != nil {
-				log.Printf("Unable to create Search Service: %v", err)
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
+			if !searchRequest.Tree.IsPaging {
+				leaf := records[0].Tree.CLevel
+				qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
+				m, _ := url.ParseQuery(qs)
+				sr, _ := fragments.NewSearchRequest(m)
+				err := sr.AddQueryFilter(
+					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+					false,
+				)
+				if err != nil {
+					log.Printf("Unable to add QueryFilter: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				s, _, err := sr.ElasticSearchService(index.ESClient())
+				if err != nil {
+					log.Printf("Unable to create Search Service: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+				res, err := s.Do(r.Context())
+				if err != nil {
+					return
+				}
+				if res == nil {
+					log.Printf("expected response != nil; got: %v", res)
+					return
+				}
+				paging.HitsTotalCount = int32(res.TotalHits())
+				searching.SetPreviousNext(searchRequest.Start)
+				records, _, err = decodeFragmentGraphs(res)
+				if err != nil {
+					return
+				}
+				searchRequest.Tree.FillTree = true
+				searchRequest.Tree.Leaf = leaf
 			}
-			res, err := s.Do(r.Context())
-			if err != nil {
-				return
-			}
-			if res == nil {
-				log.Printf("expected response != nil; got: %v", res)
-				return
-			}
-			records, _, err = decodeFragmentGraphs(res)
-			if err != nil {
-				return
-			}
-			searchRequest.Tree.FillTree = true
-			searchRequest.Tree.Leaf = leaf
 		}
 
 		if len(records) == 0 {
@@ -348,7 +416,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		// get paging header for first node returned on the page
 		firstNode := records[0]
 		lastNode := records[len(records)-1]
-		if firstNode.Tree.SortKey != 1 {
+		if firstNode.Tree.SortKey != 1 && searchRequest.Tree.IsPaging {
 			qs := fmt.Sprintf("byUnitID=%s&allParents=true", firstNode.Tree.Leaf)
 			m, _ := url.ParseQuery(qs)
 			sr, _ := fragments.NewSearchRequest(m)
@@ -393,13 +461,39 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			result.Pager.Cursor = searchRequest.Tree.CursorHint
 		}
 		records = nil
-		if searchRequest.Tree.GetFillTree() || searchRequest.Tree.GetPage() != 0 {
-			result.Tree, result.TreeHeader, err = fragments.InlineTree(leafs, searchRequest.Tree, res.TotalHits())
+		if searchRequest.Tree.GetFillTree() || searchRequest.Tree.IsPaging {
+			var nodeMap map[string]*fragments.Tree
+			result.Tree, nodeMap, err = fragments.InlineTree(leafs, searchRequest.Tree, res.TotalHits())
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
 				log.Printf("Unable to render grouped TreeNodes: %s\n", err.Error())
 				render.PlainText(w, r, err.Error())
 				return
+			}
+
+			tq := searchRequest.Tree
+			result.TreeHeader = &fragments.TreeHeader{}
+
+			if tq.IsPaging {
+				paging.PageCurrent = tq.GetPage()
+				paging.IsSearch = tq.IsSearch
+				paging.CalculatePaging()
+				result.TreeHeader.Paging = paging
+			}
+
+			// leaf based searching
+			if tq.GetLeaf() != "" {
+				activeNode, ok := nodeMap[tq.GetLeaf()]
+				if !ok {
+					render.Status(r, http.StatusInternalServerError)
+					errMsg := fmt.Sprintf("Unable to find node %s in map", tq.GetLeaf())
+					log.Println(errMsg)
+					render.PlainText(w, r, errMsg)
+					return
+				}
+				result.TreeHeader.ExpandedIDs = fragments.ExpandedIDs(activeNode)
+				result.TreeHeader.ActiveID = tq.GetLeaf()
+				paging.ResultActive = activeNode.PageEntry()
 			}
 
 			// update paging
@@ -408,6 +502,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				paging.ResultFirst = firstNode.Tree.PageEntry()
 				paging.ResultLast = lastNode.Tree.PageEntry()
 				paging.SameLeaf = paging.ResultFirst.SameLeaf(paging.ResultLast)
+			}
+			if searchRequest.Tree.IsSearch {
+				result.TreeHeader.Searching = searching
 			}
 
 			if searchRequest.Tree.IsNavigatedQuery() {
