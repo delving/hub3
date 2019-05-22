@@ -103,7 +103,7 @@ func (t *Tree) PageEntry() *TreePageEntry {
 	return &TreePageEntry{
 		CLevel:      t.CLevel,
 		SortKey:     int32(t.SortKey),
-		ExpandedIDs: expandedIDs(t),
+		ExpandedIDs: ExpandedIDs(t),
 	}
 
 }
@@ -119,12 +119,62 @@ type TreeNavigator struct {
 // IsExpanded returns if the tree query contains a query that puts the active ID
 // expanded in the tree
 func (tq *TreeQuery) IsExpanded() bool {
-	return (tq.Label != "" || tq.UnitID != "") && tq.GetPage() == 0
+	return (tq.Label != "" || tq.UnitID != "") || tq.IsPaging
 }
 
 // IsNavigatedQuery returns if there is both a query and active ID
 func (tq *TreeQuery) IsNavigatedQuery() bool {
 	return tq.Label != "" && tq.UnitID != ""
+}
+
+// PreviousCurrentNextPage returns the previous and next page based on the TreeQuery.
+//
+// This does not take max boundaries based on number of records returned into account.
+func (tq *TreeQuery) PreviousCurrentNextPage() (int32, int32, int32) {
+	sort.Slice(tq.Page, func(i, j int) bool { return tq.Page[i] < tq.Page[j] })
+	if len(tq.Page) == 0 {
+		return int32(0), int32(1), int32(2)
+	}
+	max := tq.Page[0]
+	min := tq.Page[0]
+	for _, value := range tq.Page {
+		if max < value {
+			max = value
+		}
+		if min > value {
+			min = value
+		}
+	}
+	return min - 1, min, max + 1
+}
+
+// TreePagingSize returns the relative size of the paging window based on the number of pages.
+// This is used to set the ElasticSearch responseSize.
+func (tq *TreeQuery) TreePagingSize() int32 {
+	nrPages := len(tq.GetPage())
+	if nrPages == 0 {
+		return tq.GetPageSize()
+	}
+	return int32(nrPages) * tq.GetPageSize()
+}
+
+// SearchPages returns the active search pages for a given sortKey
+func (tq *TreeQuery) SearchPages(sortKey int32) ([]int32, error) {
+	pages := []int32{}
+	if sortKey == 0 {
+		return pages, fmt.Errorf("can't set search page for 0")
+	}
+	pageNr := (sortKey / tq.GetPageSize()) + 1
+	pages = append(pages, pageNr)
+	relativePlace := (sortKey % tq.GetPageSize())
+	closeToNext := (tq.GetPageSize() - relativePlace) < 25
+	if closeToNext {
+		extraPages := (relativePlace / tq.GetPageSize()) + 1
+		for i := int32(1); i <= extraPages; i++ {
+			pages = append(pages, pageNr+int32(i))
+		}
+	}
+	return pages, nil
 }
 
 // GetPreviousScrollIDs returns scrollIDs up to the cLevel
@@ -197,7 +247,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	}
 }
 
-func expandedIDs(node *Tree) map[string]bool {
+func ExpandedIDs(node *Tree) map[string]bool {
 	expandedIDs := make(map[string]bool)
 	parents := strings.Split(node.CLevel, "~")
 
@@ -218,7 +268,7 @@ func expandedIDs(node *Tree) map[string]bool {
 }
 
 // InlineTree creates a nested tree from an Array of *Tree
-func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, *TreeHeader, error) {
+func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, map[string]*Tree, error) {
 	rootNodes := []*Tree{}
 	nodeMap := make(map[string]*Tree)
 
@@ -236,31 +286,7 @@ func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, *TreeHeader
 		}
 	}
 
-	paging := &TreePaging{
-		PageSize:       tq.GetPageSize(),
-		HitsTotalCount: int32(total),
-	}
-
-	if tq.GetPage() != 0 {
-		paging.PageCurrent = []int32{tq.GetPage()}
-		paging.calculatePaging()
-	}
-
-	header := &TreeHeader{
-		Paging: paging,
-	}
-
-	// leaf based searching
-	if tq.GetLeaf() != "" {
-		activeNode, ok := nodeMap[tq.GetLeaf()]
-		if !ok {
-			return nil, nil, fmt.Errorf("Unable to find node %s in map", tq.GetLeaf())
-		}
-		header.ExpandedIDs = expandedIDs(activeNode)
-		header.ActiveID = tq.GetLeaf()
-		paging.ResultActive = activeNode.PageEntry()
-	}
-	return rootNodes, header, nil
+	return rootNodes, nodeMap, nil
 }
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
@@ -315,16 +341,36 @@ type ScrollResultV4 struct {
 	Collapsed  []*Collapsed     `json:"collapse,omitempty"`
 	Peek       map[string]int64 `json:"peek,omitempty"`
 	Facets     []*QueryFacet    `json:"facets,omitempty"`
-	Tree       []*Tree          `json:"tree,omitempty"`
 	TreeHeader *TreeHeader      `json:"treeHeader,omitempty"`
+	Tree       []*Tree          `json:"tree,omitempty"`
 }
 
-// TreeHeader contains rendering hints for the consumer of the TreeView API
+// TreeHeader contains rendering hints for the consumer of the TreeView API.
 type TreeHeader struct {
 	ActiveID          string          `json:"activeID"`
 	ExpandedIDs       map[string]bool `json:"expandedIDs,omitempty"`
 	PreviousScrollIDs []string        `json:"previousScrollIDs,omitempty"`
 	Paging            *TreePaging     `json:"paging,omitempty"`
+	Searching         *TreeSearching  `json:"searching,omitempty"`
+}
+
+// TreeSearching contains rendering hints for the search results in the TreeView API.
+type TreeSearching struct {
+	IsSearch    bool   `json:"isSearch"`
+	HitsTotal   int32  `json:"hitsTotal"`
+	CurrentHit  int32  `json:"currentHit"`
+	HasNext     bool   `json:"hasNext"`
+	HasPrevious bool   `json:"hasPrevious"`
+	ByLabel     string `json:"byLabel,omitempty"`
+	ByUnitID    string `json:"byUnitID,omitempty"`
+}
+
+// SetPreviousNext calculate previous and next search paging
+func (ts *TreeSearching) SetPreviousNext(start int32) {
+	cursor := start + 1
+	ts.CurrentHit = cursor
+	ts.HasNext = ts.CurrentHit < ts.HitsTotal
+	ts.HasPrevious = start > 0
 }
 
 // TreePaging contains rendering hints for Paging through a Tree and Tree search-results
@@ -336,8 +382,8 @@ type TreePaging struct {
 	PageNext        int32                    `json:"pageNext,omitempty"`
 	PagePrevious    int32                    `json:"pagePrevious,omitempty"`
 	PageCurrent     []int32                  `json:"pageCurrent,omitempty"`
-	PageFirst       int32                    `json:"pageFirst,omitempty"`
-	PageLast        int32                    `json:"pageLast,omitempty"`
+	PageFirst       int32                    `json:"-"`
+	PageLast        int32                    `json:"-"`
 	ResultFirst     *TreePageEntry           `json:"resultFirst,omitempty"`
 	ResultLast      *TreePageEntry           `json:"resultLast,omitempty"`
 	ResultActive    *TreePageEntry           `json:"resultActive,omitempty"`
@@ -346,9 +392,12 @@ type TreePaging struct {
 	HitsTotalCount  int32                    `json:"hitsTotalCount,omitempty"`
 	ActiveHit       int32                    `json:"activeHit,omitempty"`
 	SameLeaf        bool                     `json:"sameLeaf"`
+	IsSearch        bool                     `json:"isSearch"`
 }
 
-func (tp *TreePaging) calculatePaging() {
+// CalculatePaging calculates all the paging information.
+// This applies to searching and normal paging.
+func (tp *TreePaging) CalculatePaging() {
 	if tp.HitsTotalCount == 0 {
 		tp.NrPages = 0
 		return
@@ -376,8 +425,8 @@ func (tp *TreePaging) calculatePaging() {
 }
 
 func (tp *TreePaging) setFirstLastPage() {
-	max := tp.PageCurrent[0]
-	min := tp.PageCurrent[0]
+	max := int32(1)
+	min := int32(1)
 	for _, value := range tp.PageCurrent {
 		if max < value {
 			max = value
@@ -388,6 +437,10 @@ func (tp *TreePaging) setFirstLastPage() {
 	}
 	tp.PageFirst = min
 	tp.PageLast = max
+	if len(tp.PageCurrent) == 0 {
+		tp.PageCurrent = []int32{min}
+
+	}
 	return
 }
 

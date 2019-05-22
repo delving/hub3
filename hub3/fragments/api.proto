@@ -89,9 +89,11 @@ message TreeQuery {
   repeated string mimeType = 12;
   bool hasRestriction = 13;
   bool hasDigitalObject = 14;
-  int32 page = 15;
+  repeated int32 page = 15;
   int32 pageSize = 16;
   bool allParents = 17;
+  bool isPaging = 18;
+  bool isSearch = 19;
 }
 
 message SearchRequest {

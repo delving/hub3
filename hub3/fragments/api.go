@@ -212,16 +212,21 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.Type = v
 		case "byLabel":
 			sr.Tree = tree
+			tree.IsSearch = true
 			tree.Label = params.Get(p)
 		case "hasDigitalObject":
 			sr.Tree = tree
 			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
+		case "paging":
+			sr.Tree = tree
+			tree.IsPaging = strings.ToLower(params.Get("paging")) == "true"
 		case "hasRestriction":
 			sr.Tree = tree
 			tree.HasRestriction = strings.ToLower(params.Get("hasRestriction")) == "true"
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
+			tree.IsSearch = true
 			tree.AllParents = strings.ToLower(params.Get("allParents")) == "true"
 		case "byMimeType":
 			sr.Tree = tree
@@ -236,12 +241,16 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.CursorHint = int32(hint)
 		case "page":
 			sr.Tree = tree
-			hint, err := strconv.Atoi(params.Get(p))
-			if err != nil {
-				log.Printf("unable to convert %v to int for %s", v, p)
-				return sr, err
+			tree.Page = []int32{}
+			for _, page := range v {
+				hint, err := strconv.Atoi(page)
+				if err != nil {
+					log.Printf("unable to convert %v to int for %s", v, p)
+					return sr, err
+				}
+				tree.Page = append(tree.Page, int32(hint))
 			}
-			tree.Page = int32(hint)
+			tree.IsPaging = true
 		case "pageSize":
 			sr.Tree = tree
 			hint, err := strconv.Atoi(params.Get(p))
@@ -826,8 +835,8 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	if sr.Tree != nil && sr.GetResponseSize() != 1 {
 		sr.ResponseSize = int32(1000)
-		if sr.Tree.Page != 0 {
-			sr.ResponseSize = sr.Tree.GetPageSize()
+		if sr.Tree.IsPaging {
+			sr.ResponseSize = sr.Tree.TreePagingSize()
 		}
 	}
 
@@ -835,15 +844,14 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		Index(c.Config.ElasticSearch.IndexName).
 		Size(int(sr.GetResponseSize()))
 
-	if sr.Tree != nil && sr.Tree.GetPage() != 0 {
+	if sr.Tree != nil && sr.Tree.IsPaging && !sr.Tree.IsSearch {
 		s = s.SortBy(fieldSort)
-		if sr.Tree.GetPage() != 0 {
-			searchAfterPage := sr.Tree.GetPage() - int32(1)
-			searchAfterCursor := (searchAfterPage * sr.Tree.GetPageSize())
-			if searchAfterPage > 0 {
-				s = s.SearchAfter(searchAfterCursor)
-			}
-
+		_, current, _ := sr.Tree.PreviousCurrentNextPage()
+		log.Printf("current page: %d", current)
+		searchAfterPage := current - int32(1)
+		searchAfterCursor := (searchAfterPage * sr.Tree.GetPageSize())
+		if searchAfterPage > 0 {
+			s = s.SearchAfter(searchAfterCursor)
 		}
 	} else {
 		s = s.SortBy(fieldSort, idSort)
@@ -1003,8 +1011,9 @@ func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
 	nextSr.Start = nextSr.GetStart() + nextSr.GetResponseSize()
 
 	// if paging set next page
-	if nextSr.Tree != nil && nextSr.Tree.GetPage() != 0 {
-		nextSr.Tree.Page = nextSr.Tree.Page + int32(1)
+	if nextSr.Tree != nil && nextSr.Tree.IsPaging && !nextSr.Tree.IsSearch {
+		_, _, next := sr.Tree.PreviousCurrentNextPage()
+		nextSr.Tree.Page = []int32{next}
 	}
 
 	sp.Rows = nextSr.GetResponseSize()
