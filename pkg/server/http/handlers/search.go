@@ -520,6 +520,20 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				render.PlainText(w, r, err.Error())
 				return
 			}
+
+			switch searchRequest.Tree.GetPageMode() {
+			case "append":
+				log.Println("appending")
+				page := paging.ResultFirst.CreateTreePage(nodeMap, result.Tree, true)
+				result.TreePage = page
+				result.Tree = nil
+			case "prepend":
+				log.Println("prepending")
+				page := paging.ResultLast.CreateTreePage(nodeMap, result.Tree, false)
+				result.TreePage = page
+				result.Tree = nil
+			}
+
 			break
 		}
 		result.Tree = leafs
