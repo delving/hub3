@@ -94,6 +94,7 @@ message TreeQuery {
   bool allParents = 17;
   bool isPaging = 18;
   bool isSearch = 19;
+  string pageMode = 20;
 }
 
 message SearchRequest {

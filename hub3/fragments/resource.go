@@ -103,6 +103,7 @@ func (t *Tree) PageEntry() *TreePageEntry {
 	return &TreePageEntry{
 		CLevel:      t.CLevel,
 		SortKey:     int32(t.SortKey),
+		Depth:       int32(t.Depth),
 		ExpandedIDs: ExpandedIDs(t),
 	}
 
@@ -335,14 +336,15 @@ type Collapsed struct {
 
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager      *ScrollPager     `json:"pager"`
-	Query      *Query           `json:"query"`
-	Items      []*FragmentGraph `json:"items,omitempty"`
-	Collapsed  []*Collapsed     `json:"collapse,omitempty"`
-	Peek       map[string]int64 `json:"peek,omitempty"`
-	Facets     []*QueryFacet    `json:"facets,omitempty"`
-	TreeHeader *TreeHeader      `json:"treeHeader,omitempty"`
-	Tree       []*Tree          `json:"tree,omitempty"`
+	Pager      *ScrollPager       `json:"pager"`
+	Query      *Query             `json:"query"`
+	Items      []*FragmentGraph   `json:"items,omitempty"`
+	Collapsed  []*Collapsed       `json:"collapse,omitempty"`
+	Peek       map[string]int64   `json:"peek,omitempty"`
+	Facets     []*QueryFacet      `json:"facets,omitempty"`
+	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
+	Tree       []*Tree            `json:"tree,omitempty"`
+	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -382,8 +384,8 @@ type TreePaging struct {
 	PageNext        int32                    `json:"pageNext,omitempty"`
 	PagePrevious    int32                    `json:"pagePrevious,omitempty"`
 	PageCurrent     []int32                  `json:"pageCurrent,omitempty"`
-	PageFirst       int32                    `json:"-"`
-	PageLast        int32                    `json:"-"`
+	PageFirst       int32                    `json:"pageFirst"`
+	PageLast        int32                    `json:"pageLast"`
 	ResultFirst     *TreePageEntry           `json:"resultFirst,omitempty"`
 	ResultLast      *TreePageEntry           `json:"resultLast,omitempty"`
 	ResultActive    *TreePageEntry           `json:"resultActive,omitempty"`
@@ -425,8 +427,15 @@ func (tp *TreePaging) CalculatePaging() {
 }
 
 func (tp *TreePaging) setFirstLastPage() {
-	max := int32(1)
-	min := int32(1)
+	if len(tp.PageCurrent) == 0 {
+		tp.PageFirst = int32(1)
+		tp.PageLast = int32(1)
+		return
+	}
+	sort.Slice(tp.PageCurrent, func(i, j int) bool { return tp.PageCurrent[i] < tp.PageCurrent[j] })
+	min := tp.PageCurrent[0]
+	max := tp.PageCurrent[0]
+
 	for _, value := range tp.PageCurrent {
 		if max < value {
 			max = value
@@ -437,10 +446,6 @@ func (tp *TreePaging) setFirstLastPage() {
 	}
 	tp.PageFirst = min
 	tp.PageLast = max
-	if len(tp.PageCurrent) == 0 {
-		tp.PageCurrent = []int32{min}
-
-	}
 	return
 }
 
@@ -449,6 +454,62 @@ type TreePageEntry struct {
 	CLevel      string          `json:"cLevel"`
 	SortKey     int32           `json:"sortKey"`
 	ExpandedIDs map[string]bool `json:"expandedIDs,omitempty"`
+	Depth       int32           `json:"depth"`
+}
+
+// CreateTreePage creates a paging entry that can be used to merge the EAD tree between
+// different paging request.
+func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*Tree, appending bool) map[string][]*Tree {
+
+	page := make(map[string][]*Tree)
+
+	rootLevelNodes := []*Tree{}
+
+	switch appending {
+	case true:
+		for _, rootNode := range rootNodes {
+			if int32(rootNode.SortKey) >= tpe.SortKey && !strings.HasPrefix(tpe.CLevel, rootNode.CLevel) {
+				rootLevelNodes = append(rootLevelNodes, rootNode)
+			}
+		}
+	case false:
+		for _, rootNode := range rootNodes {
+			log.Printf("prepend rootNode: %#v", rootNode)
+			if int32(rootNode.SortKey) <= tpe.SortKey && !strings.HasPrefix(tpe.CLevel, rootNode.CLevel) {
+				rootLevelNodes = append(rootLevelNodes, rootNode)
+			}
+		}
+	}
+	if len(rootLevelNodes) != 0 {
+		page["root"] = rootLevelNodes
+	}
+
+	for levelID := range tpe.ExpandedIDs {
+		if levelID != tpe.CLevel {
+			node, ok := nodeMap[levelID]
+			levelNodes := []*Tree{}
+			if ok {
+				switch appending {
+				case true:
+					for _, subNode := range node.Inline {
+						if int32(subNode.SortKey) >= tpe.SortKey {
+							levelNodes = append(levelNodes, subNode)
+						}
+					}
+				case false:
+					log.Printf("prepending sortKey: %#v", tpe.SortKey)
+					for _, subNode := range node.Inline {
+						log.Printf("prepending subnode: %#v", int32(subNode.SortKey))
+						if tpe.SortKey >= int32(subNode.SortKey) {
+							levelNodes = append(levelNodes, subNode)
+						}
+					}
+				}
+			}
+			page[levelID] = levelNodes
+		}
+	}
+	return page
 }
 
 // SameLeaf determines if two TreePageEntry are in the same tree leaf.

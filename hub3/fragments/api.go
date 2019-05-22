@@ -218,8 +218,13 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.Tree = tree
 			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
 		case "paging":
+			if strings.ToLower(params.Get("paging")) == "true" {
+				sr.Tree = tree
+				tree.IsPaging = true
+			}
+		case "pageMode":
 			sr.Tree = tree
-			tree.IsPaging = strings.ToLower(params.Get("paging")) == "true"
+			tree.PageMode = params.Get(p)
 		case "hasRestriction":
 			sr.Tree = tree
 			tree.HasRestriction = strings.ToLower(params.Get("hasRestriction")) == "true"
@@ -847,7 +852,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	if sr.Tree != nil && sr.Tree.IsPaging && !sr.Tree.IsSearch {
 		s = s.SortBy(fieldSort)
 		_, current, _ := sr.Tree.PreviousCurrentNextPage()
-		log.Printf("current page: %d", current)
 		searchAfterPage := current - int32(1)
 		searchAfterCursor := (searchAfterPage * sr.Tree.GetPageSize())
 		if searchAfterPage > 0 {
