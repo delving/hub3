@@ -380,6 +380,10 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Access = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
 	}
 
+	if c.GetMaterial() != "" {
+		node.Material = c.GetMaterial()
+	}
+
 	parentIDs, err = node.setPath(parentIDs)
 	if err != nil {
 		return nil, err

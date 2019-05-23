@@ -19,6 +19,7 @@ func (c Cc01) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc01) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc01) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc01) GetOdd() []*Codd                      { return nil }
+func (c Cc01) GetMaterial() string                  { return "" }
 func (c Cc01) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -44,6 +45,7 @@ func (c Cc02) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc02) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc02) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc02) GetOdd() []*Codd                      { return nil }
+func (c Cc02) GetMaterial() string                  { return "" }
 func (c Cc02) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -69,6 +71,7 @@ func (c Cc03) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc03) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc03) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc03) GetOdd() []*Codd                      { return nil }
+func (c Cc03) GetMaterial() string                  { return "" }
 func (c Cc03) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -94,6 +97,7 @@ func (c Cc04) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc04) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc04) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc04) GetOdd() []*Codd                      { return nil }
+func (c Cc04) GetMaterial() string                  { return "" }
 func (c Cc04) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -119,6 +123,7 @@ func (c Cc05) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc05) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc05) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc05) GetOdd() []*Codd                      { return nil }
+func (c Cc05) GetMaterial() string                  { return "" }
 func (c Cc05) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -144,6 +149,7 @@ func (c Cc06) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc06) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc06) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc06) GetOdd() []*Codd                      { return nil }
+func (c Cc06) GetMaterial() string                  { return "" }
 func (c Cc06) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -169,6 +175,7 @@ func (c Cc07) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc07) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc07) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc07) GetOdd() []*Codd                      { return nil }
+func (c Cc07) GetMaterial() string                  { return "" }
 func (c Cc07) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -194,6 +201,7 @@ func (c Cc08) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc08) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc08) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc08) GetOdd() []*Codd                      { return nil }
+func (c Cc08) GetMaterial() string                  { return "" }
 func (c Cc08) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -219,6 +227,7 @@ func (c Cc09) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc09) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc09) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc09) GetOdd() []*Codd                      { return nil }
+func (c Cc09) GetMaterial() string                  { return "" }
 func (c Cc09) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -244,6 +253,7 @@ func (c Cc10) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc10) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc10) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc10) GetOdd() []*Codd                      { return nil }
+func (c Cc10) GetMaterial() string                  { return "" }
 func (c Cc10) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -269,6 +279,7 @@ func (c Cc11) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc11) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc11) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc11) GetOdd() []*Codd                      { return nil }
+func (c Cc11) GetMaterial() string                  { return "" }
 func (c Cc11) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -294,6 +305,7 @@ func (c Cc12) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc12) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc12) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc12) GetOdd() []*Codd                      { return nil }
+func (c Cc12) GetMaterial() string                  { return "" }
 func (c Cc12) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -319,6 +331,7 @@ func (c Cc13) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc13) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc13) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc13) GetOdd() []*Codd                      { return nil }
+func (c Cc13) GetMaterial() string                  { return "" }
 func (c Cc13) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -344,6 +357,7 @@ func (c Cc14) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc14) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc14) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc14) GetOdd() []*Codd                      { return nil }
+func (c Cc14) GetMaterial() string                  { return "" }
 func (c Cc14) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -369,6 +383,7 @@ func (c Cc15) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc15) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc15) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc15) GetOdd() []*Codd                      { return nil }
+func (c Cc15) GetMaterial() string                  { return "" }
 func (c Cc15) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -394,6 +409,7 @@ func (c Cc16) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc16) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc16) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc16) GetOdd() []*Codd                      { return nil }
+func (c Cc16) GetMaterial() string                  { return "" }
 func (c Cc16) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -419,6 +435,7 @@ func (c Cc17) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc17) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc17) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc17) GetOdd() []*Codd                      { return nil }
+func (c Cc17) GetMaterial() string                  { return "" }
 func (c Cc17) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -444,6 +461,7 @@ func (c Cc18) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc18) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc18) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc18) GetOdd() []*Codd                      { return nil }
+func (c Cc18) GetMaterial() string                  { return "" }
 func (c Cc18) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -469,6 +487,7 @@ func (c Cc19) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc19) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc19) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc19) GetOdd() []*Codd                      { return nil }
+func (c Cc19) GetMaterial() string                  { return "" }
 func (c Cc19) GetNested() []CLevel {
 	levels := make([]CLevel, len(c.Nested))
 	for i, v := range c.Nested {
@@ -494,6 +513,7 @@ func (c Cc20) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc20) GetCdid() *Cdid                       { return c.Cdid }
 func (c Cc20) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc20) GetOdd() []*Codd                      { return nil }
+func (c Cc20) GetMaterial() string                  { return "" }
 func (c Cc20) GetNested() []CLevel {
 	levels := make([]CLevel, 0)
 	return levels

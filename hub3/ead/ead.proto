@@ -29,6 +29,7 @@ message Node {
   string Path = 10;
   string BranchID = 11;
   string Access = 12;
+  string Material = 13;
 }
 
 message Header {

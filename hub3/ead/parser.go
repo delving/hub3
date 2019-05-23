@@ -178,6 +178,7 @@ type CLevel interface {
 	GetCdid() *Cdid
 	GetScopeContent() *Cscopecontent
 	GetOdd() []*Codd
+	GetMaterial() string
 }
 
 type Cc struct {
@@ -191,6 +192,7 @@ type Cc struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
 }
 
 func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
@@ -207,6 +209,18 @@ func (c Cc) Nested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc) GetMaterial() string {
+	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess.Cp) > 0 {
+		return c.Ccontrolaccess.Cp[0].P
+	}
+	cdid := c.GetCdid()
+
+	if cdid.Cphysdesc != nil && cdid.Cphysdesc.Cphysfacet != nil {
+		log.Printf("physfacet: %#v", cdid.Cphysdesc.Cphysfacet.PhysFacet)
+		return cdid.Cphysdesc.Cphysfacet.PhysFacet
+	}
+	return ""
 }
 
 ///////////////////////////
@@ -541,6 +555,8 @@ type Ccontrolaccess struct {
 	XMLName      xml.Name    `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
 	Attraudience string      `xml:"audience,attr"  json:",omitempty"`
 	Csubject     []*Csubject `xml:"subject,omitempty" json:"subject,omitempty"`
+	Cnote        *Cnote      `xml:"note,omitempty" json:"note,omitempty"`
+	Cp           []*Cp       `xml:"p,omitempty" json:"p,omitempty"`
 }
 
 type Ccorpname struct {
@@ -725,11 +741,18 @@ type Cp struct {
 }
 
 type Cphysdesc struct {
-	XMLName   xml.Name   `xml:"physdesc,omitempty" json:"physdesc,omitempty"`
-	Attrlabel string     `xml:"label,attr"  json:",omitempty"`
-	Cextent   []*Cextent `xml:"extent,omitempty" json:"extent,omitempty"`
-	PhyscDesc string     `xml:",chardata" json:",omitempty"`
-	Raw       []byte     `xml:",innerxml" json:",omitempty"`
+	XMLName    xml.Name    `xml:"physdesc,omitempty" json:"physdesc,omitempty"`
+	Attrlabel  string      `xml:"label,attr"  json:",omitempty"`
+	Cextent    []*Cextent  `xml:"extent,omitempty" json:"extent,omitempty"`
+	PhyscDesc  string      `xml:",chardata" json:",omitempty"`
+	Cphysfacet *Cphysfacet `xml:"physfacet,omitempty" json:"physfacet,omitempty"`
+	Raw        []byte      `xml:",innerxml" json:",omitempty"`
+}
+
+type Cphysfacet struct {
+	XMLName   xml.Name `xml:"physfacet,omitempty" json:"physfacet,omitempty"`
+	Attrtype  string   `xml:"type,attr"  json:",omitempty"`
+	PhysFacet string   `xml:",chardata" json:",omitempty"`
 }
 
 type Cphysloc struct {
