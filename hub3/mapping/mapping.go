@@ -44,7 +44,13 @@ var ESMapping = `{
 						"agencyCode": {"type": "keyword"},
 						"inventoryID": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
-						"label": {"type": "text"},
+						"label": {
+							"type": "text",
+							"fields": {
+								"keyword": {"type": "keyword", "ignore_above": 512},
+								"suggest": { "type": "completion"}
+							}
+						},
 						"title": {"type": "text"},
 						"description": {"type": "text"},
 						"content": {"type": "text"},
