@@ -38,6 +38,7 @@ var ESMapping = `{
 						"sortKey": {"type": "integer"},
 						"doCount": {"type": "integer"},
 						"hubID": {"type": "keyword"},
+						"material": {"type": "keyword"},
 						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
