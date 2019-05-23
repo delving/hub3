@@ -96,6 +96,7 @@ type Tree struct {
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`
 	AgencyCode       string   `json:"agencyCode,omitempty"`
+	Material         string   `json:"material,omitempty"`
 }
 
 // TreePageEntry creates a paging entry for a tree element.
