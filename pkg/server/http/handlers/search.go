@@ -448,6 +448,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 			for _, parent := range parents {
+				parent.Tree.HasChildren = parent.Tree.ChildCount != 0
 				leafs = append(leafs, parent.Tree)
 			}
 		}
