@@ -283,7 +283,9 @@ func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, map[string]
 
 	for _, n := range nodes {
 		target, ok := nodeMap[n.Leaf]
+		n.HasChildren = len(n.Inline) != 0
 		if ok {
+			target.HasChildren = true
 			target.Inline = append(target.Inline, n)
 		}
 	}
