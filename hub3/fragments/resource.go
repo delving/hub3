@@ -99,6 +99,39 @@ type Tree struct {
 	Material         string   `json:"material,omitempty"`
 }
 
+// DeepCopy creates a deep-copy of a Tree.
+func (t *Tree) DeepCopy() *Tree {
+	target := &Tree{
+		Leaf:             t.Leaf,
+		Parent:           t.Parent,
+		Label:            t.Label,
+		CLevel:           t.CLevel,
+		UnitID:           t.UnitID,
+		Type:             t.Type,
+		HubID:            t.HubID,
+		ChildCount:       t.ChildCount,
+		Depth:            t.Depth,
+		HasChildren:      t.HasChildren,
+		HasDigitalObject: t.HasDigitalObject,
+		HasRestriction:   t.HasRestriction,
+		DaoLink:          t.DaoLink,
+		ManifestLink:     t.ManifestLink,
+		MimeTypes:        t.MimeTypes,
+		DOCount:          t.DOCount,
+		Inline:           t.Inline,
+		SortKey:          t.SortKey,
+		Periods:          t.Periods,
+		Content:          t.Content,
+		Access:           t.Access,
+		Title:            t.Title,
+		Description:      t.Description,
+		InventoryID:      t.InventoryID,
+		AgencyCode:       t.AgencyCode,
+		Material:         t.Material,
+	}
+	return target
+}
+
 // TreePageEntry creates a paging entry for a tree element.
 func (t *Tree) PageEntry() *TreePageEntry {
 	return &TreePageEntry{
@@ -462,7 +495,7 @@ type TreePageEntry struct {
 
 // CreateTreePage creates a paging entry that can be used to merge the EAD tree between
 // different paging request.
-func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*Tree, appending bool) map[string][]*Tree {
+func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*Tree, appending bool, sortFrom int32) map[string][]*Tree {
 
 	page := make(map[string][]*Tree)
 
@@ -477,42 +510,63 @@ func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*
 		}
 	case false:
 		for _, rootNode := range rootNodes {
-			log.Printf("prepend rootNode: %#v", rootNode)
-			if int32(rootNode.SortKey) <= tpe.SortKey && !strings.HasPrefix(tpe.CLevel, rootNode.CLevel) {
+
+			if int32(rootNode.SortKey) <= tpe.SortKey && int32(rootNode.SortKey) < sortFrom {
+				rootNode = rootNode.DeepCopy()
+				rootNode.Inline = []*Tree{}
 				rootLevelNodes = append(rootLevelNodes, rootNode)
 			}
 		}
 	}
+
 	if len(rootLevelNodes) != 0 {
 		page["root"] = rootLevelNodes
 	}
 
-	for levelID := range tpe.ExpandedIDs {
-		if levelID != tpe.CLevel {
-			node, ok := nodeMap[levelID]
-			levelNodes := []*Tree{}
-			if ok {
-				switch appending {
-				case true:
+	switch appending {
+	case true:
+		for levelID := range tpe.ExpandedIDs {
+			if levelID != tpe.CLevel {
+				node, ok := nodeMap[levelID]
+				levelNodes := []*Tree{}
+				if ok {
 					for _, subNode := range node.Inline {
 						if int32(subNode.SortKey) >= tpe.SortKey {
 							levelNodes = append(levelNodes, subNode)
 						}
 					}
-				case false:
-					log.Printf("prepending sortKey: %#v", tpe.SortKey)
-					for _, subNode := range node.Inline {
-						log.Printf("prepending subnode: %#v", int32(subNode.SortKey))
-						if tpe.SortKey >= int32(subNode.SortKey) {
-							levelNodes = append(levelNodes, subNode)
-						}
-					}
 				}
+				page[levelID] = levelNodes
 			}
-			page[levelID] = levelNodes
 		}
+	case false:
+		for _, rootNode := range rootNodes {
+			tpe.recurseNodes(rootNode, page, sortFrom)
+		}
+
 	}
+
 	return page
+}
+func (tpe *TreePageEntry) recurseNodes(node *Tree, page map[string][]*Tree, sortFrom int32) {
+	for _, subNode := range node.Inline {
+		children, ok := page[subNode.Leaf]
+		if !ok {
+			children = []*Tree{}
+		}
+		_, ok = tpe.ExpandedIDs[subNode.CLevel]
+		if !ok {
+			children = append(children, subNode)
+			page[subNode.Leaf] = children
+			continue
+		}
+
+		pagingNode := subNode.DeepCopy()
+		pagingNode.Inline = []*Tree{}
+		children = append(children, pagingNode)
+		page[subNode.Leaf] = children
+		tpe.recurseNodes(subNode, page, sortFrom)
+	}
 }
 
 // SameLeaf determines if two TreePageEntry are in the same tree leaf.
