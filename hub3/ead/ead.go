@@ -384,12 +384,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Material = c.GetMaterial()
 	}
 
-	parentIDs, err = node.setPath(parentIDs)
-	if err != nil {
-		return nil, err
-	}
-
-	// add nested
 	prevLabel, ok := cfg.labels[node.Path]
 	if ok {
 		//data, err := json.MarshalIndent(node, " ", " ")
@@ -413,8 +407,14 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
 	}
 
+	parentIDs, err = node.setPath(parentIDs)
+	if err != nil {
+		return nil, err
+	}
+
 	cfg.labels[node.Path] = header.GetTreeLabel()
 
+	// add nested
 	nested := c.GetNested()
 	if len(nested) != 0 {
 		for _, nn := range nested {
