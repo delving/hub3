@@ -384,6 +384,11 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Material = c.GetMaterial()
 	}
 
+	parentIDs, err = node.setPath(parentIDs)
+	if err != nil {
+		return nil, err
+	}
+
 	prevLabel, ok := cfg.labels[node.Path]
 	if ok {
 		//data, err := json.MarshalIndent(node, " ", " ")
@@ -405,11 +410,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
-	}
-
-	parentIDs, err = node.setPath(parentIDs)
-	if err != nil {
-		return nil, err
 	}
 
 	cfg.labels[node.Path] = header.GetTreeLabel()
