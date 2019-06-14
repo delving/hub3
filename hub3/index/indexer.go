@@ -62,7 +62,7 @@ func CreateBulkProcessor(ctx context.Context) *elastic.BulkProcessor {
 func CreateBulkProcessorService() *elastic.BulkProcessorService {
 	return ESClient().BulkProcessor().
 		Name("Hub3-backgroundworker").
-		Workers(4).
+		Workers(config.Config.ElasticSearch.Workers).
 		BulkActions(1000).               // commit if # requests >= 1000
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
 		FlushInterval(30 * time.Second). // commit every 30s
