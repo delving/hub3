@@ -31,6 +31,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic"
 	"github.com/pkg/errors"
+	"github.com/segmentio/ksuid"
 )
 
 const (
@@ -41,8 +42,10 @@ const (
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults
 func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
+	id := ksuid.New()
 	sr := &SearchRequest{
 		ResponseSize: responseSize,
+		SessionID:    id.String(),
 	}
 	return sr
 }
@@ -846,6 +849,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	s := ec.Search().
 		Index(c.Config.ElasticSearch.IndexName).
+		Preference(sr.GetSessionID()).
 		Size(int(sr.GetResponseSize()))
 
 	if sr.Tree != nil && sr.Tree.IsPaging && !sr.Tree.IsSearch {
