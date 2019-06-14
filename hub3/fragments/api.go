@@ -1,5 +1,4 @@
 // Copyright © 2017 Delving B.V. <info@delving.eu>
-//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -812,7 +811,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	case sr.Tree != nil && sr.GetSortBy() == "":
 		fieldSort = elastic.NewFieldSort("tree.sortKey")
 	case strings.HasPrefix(sr.GetSortBy(), "random"), sr.GetSortBy() == "":
-		fieldSort = elastic.NewFieldSort("_score")
+		fieldSort = elastic.NewFieldSort("_score").Desc()
 	case strings.HasPrefix(sr.GetSortBy(), "tree."):
 		fieldSort = elastic.NewFieldSort(sr.GetSortBy())
 	case strings.HasSuffix(sr.GetSortBy(), "_int"):
