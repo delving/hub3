@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	log "log"
@@ -24,6 +25,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 	"unsafe"
 
 	"github.com/delving/hub3/config"
@@ -35,6 +37,10 @@ import (
 	"github.com/go-chi/render"
 	elastic "github.com/olivere/elastic"
 )
+
+type contextKey string
+
+const retryKey contextKey = "retry"
 
 func RegisterSearch(router chi.Router) {
 	r := chi.NewRouter()
@@ -127,7 +133,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		result.Peek = peek
 		render.JSON(w, r, result)
 		return
-
 	}
 
 	if searchRequest.CollapseOn != "" {
@@ -141,7 +146,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		result.Pager = &fragments.ScrollPager{Total: res.TotalHits()}
 		render.JSON(w, r, result)
 		return
-
 	}
 
 	records, searchAfter, err := decodeFragmentGraphs(res)
@@ -168,6 +172,25 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.GetCursor())))
 	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.GetTotal())))
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
+
+	// workaround warmer issue ES
+	if len(res.Hits.Hits) == 0 && pager.GetCursor() < int32(pager.GetTotal()) {
+		log.Printf("bad response from ES retrying the request")
+		time.Sleep(1 * time.Second)
+		retryCount := r.Context().Value(retryKey)
+		if retryCount == nil {
+			retryCount = interface{}(0)
+		}
+		if retryCount.(int) > 3 {
+			msg := "empty response from elasticsearch. failed after 3 tries"
+			log.Println(msg)
+			http.Error(w, msg, http.StatusInternalServerError)
+			return
+		}
+		ctx := context.WithValue(r.Context(), retryKey, retryCount.(int)+1)
+		http.Redirect(w, r.WithContext(ctx), r.URL.RequestURI(), http.StatusSeeOther)
+		return
+	}
 
 	// Echo requests when requested
 	if echoRequest != "" {
