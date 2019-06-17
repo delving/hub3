@@ -86,6 +86,7 @@ type ElasticSearch struct {
 	FacetSize          int      `json:"facetSize"`
 	MinimumShouldMatch string   `json:"minimumShouldMatch"`
 	Workers            int      `json:"workers"`
+	EnableSearchAfter  bool     `json:"enableSearchAfter"`
 }
 
 func (es ElasticSearch) HasAuthentication() bool {
@@ -213,6 +214,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.FacetSize", 50)
 	viper.SetDefault("ElasticSearch.MimimumShouldMatch", "2<70%")
 	viper.SetDefault("ElasticSearch.workers", 1)
+	viper.SetDefault("ElasticSearch.EnableSearchAfter", false)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
