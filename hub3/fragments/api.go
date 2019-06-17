@@ -867,7 +867,11 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 			if err != nil {
 				return nil, nil, err
 			}
-			s = s.SearchAfter(sa...)
+			if c.Config.ElasticSearch.EnableSearchAfter {
+				s = s.SearchAfter(sa...)
+			} else {
+				s = s.From(int(sr.GetStart()))
+			}
 		}
 	}
 
