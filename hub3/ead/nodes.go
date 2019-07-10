@@ -49,7 +49,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 			"%s_%s_%s",
 			cfg.OrgID,
 			cfg.Spec,
-			strings.ReplaceAll(id, "/", "-"),
+			strings.Replace(id, "/", "-", 0),
 		),
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
