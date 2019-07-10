@@ -26,6 +26,7 @@ type server struct {
 type Server interface {
 	Flush() error
 	ListenAndServe() error
+	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
 // ServerOptionFunc is a function that configures a Server.
@@ -161,6 +162,11 @@ func (s server) ListenAndServe() error {
 		log.Fatal(err)
 	}
 	return nil
+}
+
+func (s server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.n.ServeHTTP(w, r)
+	return
 }
 
 func (s server) Flush() error {
