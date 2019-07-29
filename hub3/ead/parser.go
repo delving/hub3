@@ -30,6 +30,14 @@ func init() {
 	sanitizer = bluemonday.StrictPolicy()
 }
 
+func sanitizeXML(b []byte) []byte {
+	return bytes.TrimSpace(sanitizer.SanitizeBytes(b))
+}
+
+func sanitizeXMLAsString(b []byte) string {
+	return string(sanitizeXML(b))
+}
+
 // ReadEAD reads an ead2002 XML from a path
 func ReadEAD(path string) (*Cead, error) {
 	rawEAD, err := ioutil.ReadFile(path)
@@ -333,7 +341,7 @@ type Ceadheader struct {
 }
 
 func (eh Ceadheader) GetTitle() string {
-	return eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper
+	return string(eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper)
 }
 
 func (eh Ceadheader) GetOwner() string {
@@ -365,22 +373,22 @@ type Ctitlestmt struct {
 
 type Ctitleproper struct {
 	XMLName     xml.Name `xml:"titleproper,omitempty" json:"titleproper,omitempty"`
-	TitleProper string   `xml:",chardata" json:",omitempty"`
+	TitleProper []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cauthor struct {
 	XMLName xml.Name `xml:"author,omitempty" json:"author,omitempty"`
-	Author  string   `xml:",chardata" json:",omitempty"`
+	Author  []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Ceditionstmt struct {
 	XMLName  xml.Name    `xml:"editionstmt,omitempty" json:"editionstmt,omitempty"`
-	Cedition *[]Cedition `xml:"edition,omitempty" json:"edition,omitempty"`
+	Cedition []*Cedition `xml:"edition,omitempty" json:"edition,omitempty"`
 }
 
 type Cedition struct {
 	XMLName xml.Name `xml:"edition,omitempty" json:"edition,omitempty"`
-	Edition string   `xml:",chardata" json:",omitempty"`
+	Edition []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cprofiledesc struct {
@@ -393,13 +401,13 @@ type Cprofiledesc struct {
 type Ccreation struct {
 	XMLName      xml.Name `xml:"creation,omitempty" json:"creation,omitempty"`
 	Attraudience string   `xml:"audience,attr"  json:",omitempty"`
-	Creation     string   `xml:",innerxml" json:",omitempty"`
+	Creation     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Clangusage struct {
 	XMLName   xml.Name   `xml:"langusage,omitempty" json:"langusage,omitempty"`
 	Clanguage *Clanguage `xml:"language,omitempty" json:"language,omitempty"`
-	LangUsage string     `xml:",innerxml" json:",omitempty"`
+	LangUsage []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdescrules struct {
@@ -430,10 +438,10 @@ type Citem struct {
 }
 
 type Cabstract struct {
-	XMLName     xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
-	Attrlabel   string   `xml:"label,attr"  json:",omitempty"`
-	Clb         []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
-	RawAbstract []byte   `xml:",innerxml" json:",omitempty"`
+	XMLName   xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
+	Attrlabel string   `xml:"label,attr"  json:",omitempty"`
+	Clb       []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
+	Raw       []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 //////////////////////////////////////////////////
@@ -456,15 +464,26 @@ func (ad Carchdesc) GetPeriods() []string {
 	return dates
 }
 
-// Abstract returns the Abstract split on EAD '<lb/>', i.e. line-break
+// Abstract returns the Abstract split on EAD '<lb />', i.e. line-break
 func (ca Cabstract) Abstract() []string {
-	if len(ca.RawAbstract) == 0 {
+	if len(ca.Raw) == 0 {
 		return []string{}
 	}
-	return strings.Split(
-		fmt.Sprintf("%s", ca.RawAbstract),
-		"<lb/>",
+	raw := bytes.ReplaceAll(ca.Raw, []byte("extref"), []byte("a"))
+	parts := strings.Split(
+		fmt.Sprintf("%s", raw),
+		"<lb />",
 	)
+	trimmed := []string{}
+	for _, p := range parts {
+		t := strings.TrimSpace(p)
+		if len(t) != 0 {
+			trimmed = append(trimmed, t)
+		}
+	}
+
+	return trimmed
+
 }
 
 type Caccessrestrict struct {
@@ -671,6 +690,7 @@ type Clangmaterial struct {
 	Attrlabel string     `xml:"label,attr"  json:",omitempty"`
 	Clanguage *Clanguage `xml:"language,omitempty" json:"language,omitempty"`
 	Lang      string     `xml:",chardata" json:",omitempty"`
+	Raw       []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Clanguage struct {
@@ -703,6 +723,7 @@ type Cmaterialspec struct {
 	XMLName      xml.Name `xml:"materialspec,omitempty" json:"materialspec,omitempty"`
 	Attrlabel    string   `xml:"label,attr"  json:",omitempty"`
 	MaterialSpec string   `xml:",chardata" json:",omitempty"`
+	Raw          []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cnote struct {
@@ -724,6 +745,7 @@ type Corigination struct {
 	Attrlabel   string     `xml:"label,attr"  json:",omitempty"`
 	Ccorpname   *Ccorpname `xml:"corpname,omitempty" json:"corpname,omitempty"`
 	Origination string     `xml:",chardata" json:",omitempty"`
+	Raw         []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Cp struct {
@@ -759,6 +781,7 @@ type Cphysloc struct {
 	XMLName  xml.Name `xml:"physloc,omitempty" json:"physloc,omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	PhysLoc  string   `xml:",chardata" json:",omitempty"`
+	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cphystech struct {
@@ -813,6 +836,7 @@ type Crepository struct {
 	XMLName    xml.Name `xml:"repository,omitempty" json:"repository,omitempty"`
 	Attrlabel  string   `xml:"label,attr"  json:",omitempty"`
 	Repository string   `xml:",chardata" json:",omitempty"`
+	Raw        []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cscopecontent struct {
