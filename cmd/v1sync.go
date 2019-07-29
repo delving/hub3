@@ -92,12 +92,18 @@ func init() {
 }
 
 func getESClient(url, user, password string) (*elastic.Client, error) {
+	timeout := time.Duration(5 * time.Second)
+	client := &http.Client{
+		Timeout: timeout,
+	}
+
 	options := []elastic.ClientOptionFunc{
 		elastic.SetURL(url),                                                      // set elastic urs from config
 		elastic.SetSniff(false),                                                  // disable sniffing
 		elastic.SetHealthcheckInterval(10 * time.Second),                         // do healthcheck every 10 seconds
 		elastic.SetRetrier(NewCustomRetrier()),                                   // set custom retrier that tries 5 times. Default is 0
 		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
+		elastic.SetHttpClient(client),
 	}
 
 	if user != "" && password != "" {
@@ -141,9 +147,9 @@ func createBulkProcessor(ctx context.Context) (*elastic.BulkProcessor, error) {
 	}
 	return client.BulkProcessor().
 		Name("ES bulk worker").
-		Workers(4).
-		BulkActions(2000).               // commit if # requests >= 1000
+		Workers(2).
 		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
+		BulkActions(1000).               // commit if # requests >= 1000
 		FlushInterval(30 * time.Second). // commit every 30s
 		Do(ctx)
 }
