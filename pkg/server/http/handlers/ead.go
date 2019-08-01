@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"path"
+	"path/filepath"
+	"strconv"
 	"strings"
 
 	c "github.com/delving/hub3/config"
@@ -28,7 +32,8 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
-	r.Get("/api/ead/{spec}/archdesc", treeDescriptionApi)
+	r.Get("/api/ead/{spec}/desc", treeDescriptionApi)
+	r.Get("/api/ead/desc-test", descTest)
 }
 
 func eadUpload(w http.ResponseWriter, r *http.Request) {
@@ -129,18 +134,80 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 
 func treeDescriptionApi(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
-	cead, err := ead.ReadEAD(eadPath)
+	description := filepath.Join(
+		c.Config.EAD.CacheDir,
+		fmt.Sprintf("%s.json", spec),
+	)
+
+	params := r.URL.Query()
+	var start int
+	var end int
+	var query string
+	var echo string
+	var err error
+
+	for k, _ := range params {
+		switch k {
+		case "start":
+			start, err = strconv.Atoi(params.Get(k))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		case "end":
+			end, err = strconv.Atoi(params.Get(k))
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		case "query":
+			query = params.Get(k)
+		case "echo":
+			echo = params.Get(k)
+		}
+	}
+
+	b, err := ioutil.ReadFile(description)
 	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintln("archive not found"),
-			Error:      nil,
-		})
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	render.JSON(w, r, cead.Carchdesc.Cdescgrp)
+
+	// Apply search
+	if query != "" {
+		dc := ead.NewDescriptionCounter(b)
+		text, replaced, hits, err := dc.HighlightQuery(query, b)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if echo == "hits" {
+			log.Printf("hits: %#v", hits)
+			render.JSON(w, r, hits)
+			return
+		}
+
+		if replaced != 0 {
+			b = text
+		}
+	}
+
+	var desc ead.Description
+	json.Unmarshal(b, &desc)
+
+	if start != 0 || end != 0 {
+		if end != 0 {
+			if end >= desc.NrItems {
+				http.Error(w, "end is out of bounds", http.StatusBadRequest)
+				return
+			}
+			desc.Item = desc.Item[start:end]
+		} else {
+			desc.Item = desc.Item[start:]
+		}
+	}
+	render.JSON(w, r, desc)
+
 	return
 }
 
@@ -184,25 +251,23 @@ func eadManifest(w http.ResponseWriter, r *http.Request) {
 
 func TreeDescription(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	ds, err := models.GetDataSet(spec)
-	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintln("archive not found"),
-			Error:      nil,
-		})
-		return
-	}
+	//ds, err := models.GetDataSet(spec)
+	//if err != nil {
+	//render.Status(r, http.StatusNotFound)
+	//render.JSON(w, r, APIErrorMessage{
+	//HTTPStatus: http.StatusNotFound,
+	//Message:    fmt.Sprintln("archive not found"),
+	//Error:      nil,
+	//})
+	//return
+	//}
 
-	desc := &fragments.TreeDescription{}
-	desc.Name = ds.Label
-	desc.Abstract = ds.Abstract
-	desc.InventoryID = ds.Spec
-	desc.Owner = ds.Owner
-	desc.Period = ds.Period
+	description := filepath.Join(
+		c.Config.EAD.CacheDir,
+		fmt.Sprintf("%s.json", spec),
+	)
 
-	render.JSON(w, r, desc)
+	http.ServeFile(w, r, description)
 
 	return
 }
@@ -229,5 +294,21 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, stats)
+	return
+}
+
+func descTest(w http.ResponseWriter, r *http.Request) {
+	archive, err := ead.ReadEAD("hub3/ead/test_data/1.04.02_ead_header.xml")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	desc, err := ead.NewDescription(archive)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	render.JSON(w, r, desc)
 	return
 }
