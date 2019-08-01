@@ -32,7 +32,7 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
-	r.Get("/api/ead/{spec}/desc", treeDescriptionApi)
+	r.Get("/api/ead/{spec}/desc", TreeDescriptionApi)
 	r.Get("/api/ead/desc-test", descTest)
 }
 
@@ -132,7 +132,7 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func treeDescriptionApi(w http.ResponseWriter, r *http.Request) {
+func TreeDescriptionApi(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	description := filepath.Join(
 		c.Config.EAD.CacheDir,
