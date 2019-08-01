@@ -45,11 +45,11 @@ var _ = Describe("Ead", func() {
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(nl.GetType()).To(Equal("combined"))
-				//Expect(nl.GetNodes()).ToNot(HaveLen(1))
-				Expect(nl.GetLabel()).To(HaveLen(1))
+				Expect(nl.Type).To(Equal("combined"))
+				//Expect(nl.Nodes).ToNot(HaveLen(1))
+				Expect(nl.Label).To(HaveLen(1))
 				Expect(dsc.Chead[0].Head).To(HavePrefix("Beschrijving"))
-				Expect(nl.GetLabel()[0]).To(HavePrefix("Beschrijving"))
+				Expect(nl.Label[0]).To(HavePrefix("Beschrijving"))
 			})
 
 			It("should have a header", func() {
@@ -58,10 +58,10 @@ var _ = Describe("Ead", func() {
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(nl.GetLabel()).To(HaveLen(1))
+				Expect(nl.Label).To(HaveLen(1))
 				sourceHeader := dsc.Chead[0].Head
-				Expect(nl.GetLabel()[0]).To(HavePrefix("Beschrijving"))
-				Expect(nl.GetLabel()[0]).To(Equal(sourceHeader))
+				Expect(nl.Label[0]).To(HavePrefix("Beschrijving"))
+				Expect(nl.Label[0]).To(Equal(sourceHeader))
 			})
 
 			It("should have c-levels", func() {
@@ -70,7 +70,7 @@ var _ = Describe("Ead", func() {
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
-				Expect(nl.GetNodes()).To(HaveLen(1))
+				Expect(nl.Nodes).To(HaveLen(1))
 				// TODO add nil check
 			})
 		})
@@ -91,22 +91,22 @@ var _ = Describe("Ead", func() {
 
 			It("should have a cTag", func() {
 				Expect(node).ToNot(BeNil())
-				Expect(node.GetCTag()).ToNot(BeEmpty())
-				Expect(node.GetCTag()).To(Equal("c01"))
-				Expect(node.GetDepth()).To(Equal(int32(1)))
+				Expect(node.CTag).ToNot(BeEmpty())
+				Expect(node.CTag).To(Equal("c01"))
+				Expect(node.Depth).To(Equal(int32(1)))
 			})
 
 			It("should set the depth", func() {
-				Expect(node.GetDepth()).To(Equal(int32(1)))
+				Expect(node.Depth).To(Equal(int32(1)))
 			})
 
 			It("should have a type", func() {
 				Expect(c01.GetAttrlevel()).To(Equal("series"))
-				//Expect(node.GetType()).To(Equal("series"))
+				//Expect(node.Type).To(Equal("series"))
 			})
 
 			It("should have a subType", func() {
-				Expect(node.GetSubType()).To(BeEmpty())
+				Expect(node.SubType).To(BeEmpty())
 			})
 		})
 
@@ -123,13 +123,13 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have date as label", func() {
-				Expect(header.GetLabel()).To(HaveLen(1))
-				Expect(header.GetLabel()[0]).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
+				Expect(header.Label).To(HaveLen(1))
+				Expect(header.Label[0]).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
 				Expect(header.GetTreeLabel()).To(Equal("Octrooi verleend door de Staten-Generaal betreffende de alleenhandel ten oosten van Kaap de Goede Hoop en ten westen van de Straat van Magallanes voor de duur van 21 jaar"))
 			})
 
 			It("should not have date as label", func() {
-				Expect(header.GetDateAsLabel()).To(BeFalse())
+				Expect(header.DateAsLabel).To(BeFalse())
 			})
 
 		})
@@ -147,12 +147,12 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have date as label", func() {
-				Expect(header.GetLabel()).To(HaveLen(1))
-				Expect(header.GetLabel()[0]).To(Equal("ca. 1839 new books."))
+				Expect(header.Label).To(HaveLen(1))
+				Expect(header.Label[0]).To(Equal("ca. 1839 new books."))
 			})
 
 			It("should have date as label", func() {
-				Expect(header.GetDateAsLabel()).To(BeTrue())
+				Expect(header.DateAsLabel).To(BeTrue())
 			})
 		})
 
@@ -169,19 +169,19 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have a physdesc", func() {
-				Expect(header.GetPhysdesc()).ToNot(BeEmpty())
+				Expect(header.Physdesc).ToNot(BeEmpty())
 			})
 
 			It("should have not have date as label", func() {
-				Expect(header.GetDateAsLabel()).To(BeFalse())
+				Expect(header.DateAsLabel).To(BeFalse())
 			})
 
 			It("should have a label", func() {
-				Expect(header.GetLabel()).ToNot(BeEmpty())
+				Expect(header.Label).ToNot(BeEmpty())
 			})
 
 			It("should have a date", func() {
-				Expect(header.GetDate()).ToNot(BeEmpty())
+				Expect(header.Date).ToNot(BeEmpty())
 			})
 
 			Context("when extracting a NodeDate", func() {
@@ -195,19 +195,19 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should have an calendar", func() {
-					Expect(nDate.GetCalendar()).To(Equal(unitDate.Attrcalendar))
+					Expect(nDate.Calendar).To(Equal(unitDate.Attrcalendar))
 				})
 
 				It("should have an era", func() {
-					Expect(nDate.GetEra()).To(Equal(unitDate.Attrera))
+					Expect(nDate.Era).To(Equal(unitDate.Attrera))
 				})
 
 				It("should have a normal string", func() {
-					Expect(nDate.GetNormal()).To(Equal(unitDate.Attrnormal))
+					Expect(nDate.Normal).To(Equal(unitDate.Attrnormal))
 				})
 
 				It("should have the date as string", func() {
-					Expect(nDate.GetLabel()).To(Equal(unitDate.Date))
+					Expect(nDate.Label).To(Equal(unitDate.Date))
 				})
 
 			})
@@ -224,11 +224,11 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should have a Type", func() {
-					Expect(id.GetType()).To(Equal(unitID.Attrtype))
+					Expect(id.Type).To(Equal(unitID.Attrtype))
 				})
 
 				It("should have an audience", func() {
-					Expect(id.GetAudience()).To(Equal(unitID.Attraudience))
+					Expect(id.Audience).To(Equal(unitID.Attraudience))
 				})
 
 			})
@@ -245,11 +245,11 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should have a TypeID", func() {
-					Expect(id.GetTypeID()).To(Equal(unitID.Attridentifier))
+					Expect(id.TypeID).To(Equal(unitID.Attridentifier))
 				})
 
 				It("should have a Type", func() {
-					Expect(id.GetType()).To(Equal(unitID.Attrtype))
+					Expect(id.Type).To(Equal(unitID.Attrtype))
 				})
 
 				It("should extract the nodeIDs", func() {

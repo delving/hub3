@@ -88,7 +88,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should convert only the main body to RDF", func() {
 				node := nl.Nodes[0]
-				Expect(node.GetType()).To(Equal("series"))
+				Expect(node.Type).To(Equal("series"))
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
@@ -158,7 +158,7 @@ var _ = Describe("Nodes", func() {
 				node, err = NewNode(c03, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
-				h = node.GetHeader()
+				h = node.Header
 				Expect(h).ToNot(BeNil())
 			})
 
@@ -171,7 +171,7 @@ var _ = Describe("Nodes", func() {
 				var date *NodeDate
 
 				It("should have a date", func() {
-					dates := h.GetDate()
+					dates := h.Date
 					Expect(dates).ToNot(BeEmpty())
 					Expect(dates).To(HaveLen(1))
 					date = dates[0]
@@ -190,7 +190,7 @@ var _ = Describe("Nodes", func() {
 				var id *NodeID
 
 				It("should have unitIDs", func() {
-					ids := h.GetID()
+					ids := h.ID
 					Expect(ids).ToNot(BeEmpty())
 					Expect(ids).To(HaveLen(2))
 					id = ids[0]

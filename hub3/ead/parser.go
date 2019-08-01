@@ -3,6 +3,7 @@ package ead
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -117,6 +118,26 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	cfg.Spec = spec
 	cfg.OrgID = c.Config.OrgID
 	cfg.Revision = int32(ds.Revision)
+
+	// create desciption
+	desc, err := NewDescription(cead)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to create description")
+	}
+
+	jsonOutput, err := json.MarshalIndent(desc, "", " ")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to marshall description to JSON")
+	}
+
+	err = ioutil.WriteFile(
+		fmt.Sprintf("%s.json", basePath),
+		jsonOutput,
+		0644,
+	)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to JSON description to disc")
+	}
 
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {

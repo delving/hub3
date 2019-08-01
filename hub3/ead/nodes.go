@@ -14,13 +14,61 @@ const FragmentGraphDocType = "ead"
 
 const CLevelLeader = "@"
 
+// Node holds all the clevel information.
+type Node struct {
+	CTag      string
+	Depth     int32
+	Type      string
+	SubType   string
+	Header    *Header
+	HTML      []string
+	Nodes     []*Node
+	Order     uint64
+	ParentIDs []string
+	Path      string
+	BranchID  string
+	Access    string
+	Material  string
+}
+
+type NodeList struct {
+	Type  string
+	Label []string
+	Nodes []*Node
+}
+
+type Header struct {
+	Type             string
+	InventoryNumber  string
+	ID               []*NodeID
+	Label            []string
+	Date             []*NodeDate
+	Physdesc         string
+	DateAsLabel      bool
+	HasDigitalObject bool
+	DaoLink          string
+}
+type NodeDate struct {
+	Calendar string
+	Era      string
+	Normal   string
+	Label    string
+	Type     string
+}
+type NodeID struct {
+	TypeID   string
+	Type     string
+	Audience string
+	ID       string
+}
+
 func newSubject(cfg *NodeConfig, id string) string {
 	return fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", config.Config.RDF.BaseURL, cfg.Spec, id)
 }
 
 // getFirstBranch returs the first parent of the current node
 func (n *Node) getFirstBranch() string {
-	parents := strings.Split(n.GetPath(), pathSep)
+	parents := strings.Split(n.Path, pathSep)
 	if len(parents) < 2 {
 		return ""
 	}
@@ -29,7 +77,7 @@ func (n *Node) getFirstBranch() string {
 
 // getSecondBranch returs the second parent of the current node
 func (n *Node) getSecondBranch() string {
-	parents := strings.Split(n.GetPath(), pathSep)
+	parents := strings.Split(n.Path, pathSep)
 	if len(parents) < 3 {
 		return ""
 	}
@@ -39,7 +87,7 @@ func (n *Node) getSecondBranch() string {
 // FragmentGraph returns the archival node as a FragmentGraph
 func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
 	rm := fragments.NewEmptyResourceMap()
-	id := n.GetPath()
+	id := n.Path
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
 		OrgID:    cfg.OrgID,
@@ -76,17 +124,17 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree := &fragments.Tree{}
 	tree.HubID = hubID
 	tree.ChildCount = len(n.Nodes)
-	tree.Type = n.GetType()
+	tree.Type = n.Type
 	tree.CLevel = fmt.Sprintf("%s%s", CLevelLeader, id)
-	tree.Label = n.GetHeader().GetTreeLabel()
-	tree.UnitID = n.GetHeader().GetInventoryNumber()
+	tree.Label = n.Header.GetTreeLabel()
+	tree.UnitID = n.Header.InventoryNumber
 	tree.Leaf = n.getFirstBranch()
 	tree.Parent = n.getSecondBranch()
 	tree.Depth = len(n.ParentIDs) + 1
-	tree.HasDigitalObject = n.GetHeader().GetHasDigitalObject()
-	tree.DaoLink = n.GetHeader().GetDaoLink()
-	tree.SortKey = n.GetOrder()
-	tree.Periods = n.GetHeader().GetPeriods()
+	tree.HasDigitalObject = n.Header.HasDigitalObject
+	tree.DaoLink = n.Header.DaoLink
+	tree.SortKey = n.Order
+	tree.Periods = n.Header.GetPeriods()
 	tree.MimeTypes = []string{}
 	tree.ManifestLink = ""
 	tree.Content = []string{}
@@ -122,17 +170,17 @@ func (ni *NodeID) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Trip
 		}
 		return
 	}
-	t(s, "typeID", ni.GetTypeID(), r.NewLiteral)
-	t(s, "type", ni.GetType(), r.NewLiteral)
-	t(s, "audience", ni.GetAudience(), r.NewLiteral)
-	t(s, "identifier", ni.GetID(), r.NewLiteral)
+	t(s, "typeID", ni.TypeID, r.NewLiteral)
+	t(s, "type", ni.Type, r.NewLiteral)
+	t(s, "audience", ni.Audience, r.NewLiteral)
+	t(s, "identifier", ni.ID, r.NewLiteral)
 	return triples
 }
 
 // GetSubject creates subject URI for the parent Node
 // the header itself is an anonymous BlankNode
 func (n *Node) GetSubject(cfg *NodeConfig) string {
-	id := n.GetPath()
+	id := n.Path
 	return newSubject(cfg, id)
 }
 
@@ -160,19 +208,19 @@ func (h *Header) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		return
 	}
 
-	t(s, "idUnittype", h.GetType(), r.NewLiteral)
-	t(s, "idDateAsLabel", fmt.Sprintf("%t", h.GetDateAsLabel()), r.NewLiteral)
-	t(s, "idInventorynr", h.GetInventoryNumber(), r.NewLiteral)
-	t(s, "physdesc", h.GetPhysdesc(), r.NewLiteral)
+	t(s, "idUnittype", h.Type, r.NewLiteral)
+	t(s, "idDateAsLabel", fmt.Sprintf("%t", h.DateAsLabel), r.NewLiteral)
+	t(s, "idInventorynr", h.InventoryNumber, r.NewLiteral)
+	t(s, "physdesc", h.Physdesc, r.NewLiteral)
 
-	for _, label := range h.GetLabel() {
+	for _, label := range h.Label {
 		t(s, "idUnittitle", label, r.NewLiteral)
 	}
-	for idx, nodeID := range h.GetID() {
+	for idx, nodeID := range h.ID {
 		triples = append(triples, nodeID.Triples(s, idx, cfg)...)
 	}
 
-	for idx, nodeDate := range h.GetDate() {
+	for idx, nodeDate := range h.Date {
 		triples = append(triples, nodeDate.Triples(s, idx, cfg)...)
 	}
 
@@ -203,10 +251,10 @@ func (nd *NodeDate) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Tr
 		return
 	}
 
-	t(s, "dateCalendar", nd.GetCalendar(), r.NewLiteral)
-	t(s, "dateEra", nd.GetEra(), r.NewLiteral)
-	t(s, "dateNormal", nd.GetNormal(), r.NewLiteral)
-	t(s, "dateType", nd.GetType(), r.NewLiteral)
+	t(s, "dateCalendar", nd.Calendar, r.NewLiteral)
+	t(s, "dateEra", nd.Era, r.NewLiteral)
+	t(s, "dateNormal", nd.Normal, r.NewLiteral)
+	t(s, "dateType", nd.Type, r.NewLiteral)
 	return triples
 }
 
@@ -236,7 +284,7 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		r.NewTriple(
 			s,
 			r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"),
-			r.NewLiteral(n.GetHeader().GetTreeLabel()),
+			r.NewLiteral(n.Header.GetTreeLabel()),
 		),
 	}
 	t := func(s r.Term, p, o string, oType convert) {
@@ -247,16 +295,16 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		return
 	}
 
-	t(s, "cLevel", n.GetCTag(), r.NewLiteral)
-	t(s, "branchID", n.GetBranchID(), r.NewLiteral)
-	t(s, "cType", n.GetType(), r.NewLiteral)
-	t(s, "cSubtype", n.GetSubType(), r.NewLiteral)
-	for _, html := range n.GetHTML() {
+	t(s, "cLevel", n.CTag, r.NewLiteral)
+	t(s, "branchID", n.BranchID, r.NewLiteral)
+	t(s, "cType", n.Type, r.NewLiteral)
+	t(s, "cSubtype", n.SubType, r.NewLiteral)
+	for _, html := range n.HTML {
 		t(s, "scopecontent", html, r.NewLiteral)
 
 	}
 
-	triples = append(triples, n.GetHeader().Triples(subject, cfg)...)
+	triples = append(triples, n.Header.Triples(subject, cfg)...)
 
 	return triples
 }

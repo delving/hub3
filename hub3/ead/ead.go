@@ -141,14 +141,9 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	return nl, cfg.Counter.GetCount(), nil
 }
 
-// Sparse creates a sparse version of the list of Archive Nodes
-func (nl *NodeList) Sparse() {
-	Sparsify(nl.Nodes)
-}
-
 // ESSave saves the list of Archive Nodes to ElasticSearch
 func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
-	for _, n := range nl.GetNodes() {
+	for _, n := range nl.Nodes {
 		err := n.ESSave(cfg, p)
 		if err != nil {
 			return err
@@ -183,7 +178,7 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	}
 
 	// recursion on itself for nested nodes on deeper levels
-	for _, n := range n.GetNodes() {
+	for _, n := range n.Nodes {
 		err := n.ESSave(cfg, p)
 		if err != nil {
 			return err
@@ -194,10 +189,10 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 
 // Sparse creates a sparse version of Header
 func (h *Header) Sparse() {
-	if h.GetDateAsLabel() {
+	if h.DateAsLabel {
 		h.DateAsLabel = false
-		for _, date := range h.GetDate() {
-			h.Label = append(h.Label, date.GetLabel())
+		for _, date := range h.Date {
+			h.Label = append(h.Label, date.Label)
 		}
 	}
 	h.Date = nil
@@ -208,8 +203,8 @@ func (h *Header) Sparse() {
 // GetPeriods return a list of human readable periods from the EAD unitDate
 func (h *Header) GetPeriods() []string {
 	periods := []string{}
-	for _, date := range h.GetDate() {
-		periods = append(periods, date.GetLabel())
+	for _, date := range h.Date {
+		periods = append(periods, date.Label)
 	}
 	return periods
 }
@@ -220,21 +215,6 @@ func (h *Header) GetTreeLabel() string {
 		return ""
 	}
 	return html.UnescapeString(fmt.Sprintf("%s", h.Label[0]))
-}
-
-// Sparsify is a recursive function that creates a Sparse representation
-// of a list of Nodes. This is mostly used to efficiently create Tree Views
-// of the Archive C-Levels
-func Sparsify(nodes []*Node) {
-	for _, n := range nodes {
-		n.HTML = []string{}
-		n.CTag = ""
-		n.Header.Sparse()
-		if len(n.Nodes) != 0 {
-			Sparsify(n.Nodes)
-		}
-
-	}
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID
@@ -257,9 +237,9 @@ func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		switch id.GetType() {
+		switch id.Type {
 		case "ABS", "series_code", "":
-			invertoryNumber = id.GetID()
+			invertoryNumber = id.ID
 		}
 		ids = append(ids, id)
 	}
@@ -301,7 +281,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 					return nil, err
 				}
 				header.Date = append(header.Date, nodeDate)
-				dates = append(dates, nodeDate.GetLabel())
+				dates = append(dates, nodeDate.Label)
 			}
 		}
 
@@ -329,7 +309,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 }
 
 func (n *Node) getPathID() string {
-	eadID := n.GetHeader().GetInventoryNumber()
+	eadID := n.Header.InventoryNumber
 	if eadID == "" {
 		eadID = strconv.FormatUint(n.Order, 10)
 	}
@@ -396,15 +376,15 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
 		//}
 		de := &DuplicateError{
-			Path:     node.GetPath(),
-			Order:    int(node.GetOrder()),
+			Path:     node.Path,
+			Order:    int(node.Order),
 			Spec:     cfg.Spec,
-			Key:      header.GetInventoryNumber(),
+			Key:      header.InventoryNumber,
 			Label:    prevLabel,
-			DupKey:   header.GetInventoryNumber(),
+			DupKey:   header.InventoryNumber,
 			DupLabel: header.GetTreeLabel(),
-			CType:    node.GetType(),
-			Depth:    node.GetDepth(),
+			CType:    node.Type,
+			Depth:    node.Depth,
 		}
 		cfg.Errors = append(cfg.Errors, de)
 
