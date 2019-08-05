@@ -1,5 +1,32 @@
 package mapping
 
+// ESMappingUpdate contains updates to the original model that are incremental,
+// but will lead to index errors when these fields are not present due to the
+// 'strict' on dynamic creating of new fields in the index.
+var ESMappingUpdate = `{
+  "properties": {
+    "tree": {
+      "properties": {
+        "physDesc": {
+          "type": "keyword"
+        }
+      }
+    },
+		"resources": {
+			"type": "nested",
+			"properties": {
+				"entries": {
+					"type": "nested",
+					"properties": {
+						"level": {"type": "integer"}
+					}
+				}
+			}
+		}
+  }
+}
+`
+
 // ESMapping is the default mapping for the RDF records enabled by hub3
 var ESMapping = `{
 	"settings": {
