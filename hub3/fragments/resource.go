@@ -97,6 +97,7 @@ type Tree struct {
 	InventoryID      string   `json:"inventoryID,omitempty"`
 	AgencyCode       string   `json:"agencyCode,omitempty"`
 	Material         string   `json:"material,omitempty"`
+	PhysDesc         string   `json:"physDesc,omitempty"`
 }
 
 // DeepCopy creates a deep-copy of a Tree.
