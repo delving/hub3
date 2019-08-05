@@ -111,7 +111,7 @@ func ensureESIndex(index string, reset bool) {
 	// add mapping updates
 	updateIndex, err := elastic.NewIndicesPutMappingService(client).
 		Index(index).
-		Type("_doc").
+		Type("doc").
 		BodyString(mapping.ESMappingUpdate).
 		Do(ctx)
 	if err != nil {
