@@ -32,7 +32,7 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
-	r.Get("/api/ead/{spec}/desc", TreeDescriptionApi)
+	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
 	r.Get("/api/ead/desc-test", descTest)
 }
 
@@ -132,7 +132,7 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func TreeDescriptionApi(w http.ResponseWriter, r *http.Request) {
+func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	description := filepath.Join(
 		c.Config.EAD.CacheDir,
@@ -146,7 +146,7 @@ func TreeDescriptionApi(w http.ResponseWriter, r *http.Request) {
 	var echo string
 	var err error
 
-	for k, _ := range params {
+	for k := range params {
 		switch k {
 		case "start":
 			start, err = strconv.Atoi(params.Get(k))
@@ -251,23 +251,25 @@ func eadManifest(w http.ResponseWriter, r *http.Request) {
 
 func TreeDescription(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	//ds, err := models.GetDataSet(spec)
-	//if err != nil {
-	//render.Status(r, http.StatusNotFound)
-	//render.JSON(w, r, APIErrorMessage{
-	//HTTPStatus: http.StatusNotFound,
-	//Message:    fmt.Sprintln("archive not found"),
-	//Error:      nil,
-	//})
-	//return
-	//}
+	ds, err := models.GetDataSet(spec)
+	if err != nil {
+		render.Status(r, http.StatusNotFound)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintln("archive not found"),
+			Error:      nil,
+		})
+		return
+	}
 
-	description := filepath.Join(
-		c.Config.EAD.CacheDir,
-		fmt.Sprintf("%s.json", spec),
-	)
+	desc := &fragments.TreeDescription{}
+	desc.Name = ds.Label
+	desc.Abstract = ds.Abstract
+	desc.InventoryID = ds.Spec
+	desc.Owner = ds.Owner
+	desc.Period = ds.Period
 
-	http.ServeFile(w, r, description)
+	render.JSON(w, r, desc)
 
 	return
 }
