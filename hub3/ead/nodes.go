@@ -143,7 +143,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	}
 	tree.Access = n.Access
 	tree.HasRestriction = n.Access != ""
-
+	tree.PhysDesc = n.Header.Physdesc
 	return tree
 }
 
