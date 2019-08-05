@@ -106,31 +106,22 @@ func ensureESIndex(index string, reset bool) {
 			// Not acknowledged
 		}
 
-		// TODO: enable index updates later
-		//if !config.Config.ElasticSearch.IndexV1 {
-		//resp, err := client.IndexPutSettings(index).BodyJson(mapping.ESSettings).Do(ctx)
-		//if err != nil {
-		//// Handle error
-		//stdlog.Fatal(err)
-		//}
-		//if !resp.Acknowledged {
-		//stdlog.Println(createIndex.Acknowledged)
-		//// Not acknowledged
-		//}
-		//}
+	}
+
+	// add mapping updates
+	updateIndex, err := elastic.NewIndicesPutMappingService(client).
+		Index(index).
+		Type("_doc").
+		BodyString(mapping.ESMappingUpdate).
+		Do(ctx)
+	if err != nil {
+		stdlog.Fatal(err)
 		return
 	}
-	// TODO: enable index updates later
-	//service := client.IndexPutSettings(index)
-	//updateIndex, err := service.BodyJson(mapping).Do(ctx)
-	//if err != nil {
-	//stdlog.Fatal(err)
-	//return
-	//}
-	//if !updateIndex.Acknowledged {
-	//stdlog.Println(updateIndex.Acknowledged)
-	//// Not acknowledged
-	//}
+	if !updateIndex.Acknowledged {
+		stdlog.Println(updateIndex.Acknowledged)
+		// Not acknowledged
+	}
 	return
 }
 
