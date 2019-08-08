@@ -23,6 +23,7 @@ var _ = Describe("Nodes", func() {
 			cfg.OrgID = "test"
 			cfg.Spec = "test-spec"
 			cfg.Revision = int32(38)
+			cfg.CreateTree = CreateTree
 			var h *fragments.Header
 
 			It("should not throw an error", func() {
@@ -78,6 +79,7 @@ var _ = Describe("Nodes", func() {
 			cfg.OrgID = "test"
 			cfg.Spec = "test_spec"
 			cfg.Revision = int32(38)
+			cfg.CreateTree = CreateTree
 
 			It("should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -137,7 +139,7 @@ var _ = Describe("Nodes", func() {
 				s := "urn:123"
 				triples := node.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(28))
+				Expect(triples).To(HaveLen(27))
 			})
 
 		})

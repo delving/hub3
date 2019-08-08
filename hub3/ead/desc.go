@@ -24,6 +24,7 @@ type Description struct {
 	Section    []*SectionInfo `json:"sections,omitempty"`
 	NrSections int            `json:"nrSections,omitempty"`
 	NrItems    int            `json:"nrItems,omitempty"`
+	NrHits     int            `json:"nrHits"`
 	Item       []*DataItem    `json:"item,omitempty"`
 }
 

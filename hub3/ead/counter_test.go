@@ -3,7 +3,7 @@ package ead
 import "testing"
 
 func TestDescriptionCounter_countForQuery(t *testing.T) {
-	dc := newDescriptionCounter([]byte("Inventaris van het archief van de voc Verenigde Oost-Indische Compagnie (VOC), 1602-1795 (1811)"))
+	dc := NewDescriptionCounter([]byte("Inventaris van het archief van de voc Verenigde Oost-Indische Compagnie (VOC), 1602-1795 (1811)"))
 	//log.Printf("%#v", dc)
 	type fields struct {
 		counter map[string]int
@@ -65,7 +65,7 @@ func TestDescriptionCounter_countForQuery(t *testing.T) {
 			dc := DescriptionCounter{
 				counter: tt.fields.counter,
 			}
-			if got, _ := dc.countForQuery(tt.args.query); got != tt.want {
+			if got, _ := dc.CountForQuery(tt.args.query); got != tt.want {
 				t.Errorf("DescriptionCounter.countForQuery() = %v, want %v", got, tt.want)
 			}
 		})
