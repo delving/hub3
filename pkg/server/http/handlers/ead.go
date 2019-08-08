@@ -160,7 +160,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
-		case "query":
+		case "query", "q":
 			query = params.Get(k)
 		case "echo":
 			echo = params.Get(k)
@@ -173,6 +173,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var searchHits int
 	// Apply search
 	if query != "" {
 		dc := ead.NewDescriptionCounter(b)
@@ -181,6 +182,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		searchHits = replaced
 		if echo == "hits" {
 			log.Printf("hits: %#v", hits)
 			render.JSON(w, r, hits)
@@ -194,6 +196,8 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 
 	var desc ead.Description
 	json.Unmarshal(b, &desc)
+
+	desc.NrHits = searchHits
 
 	if start != 0 || end != 0 {
 		if end != 0 {
