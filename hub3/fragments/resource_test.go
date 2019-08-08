@@ -1,6 +1,9 @@
 package fragments_test
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
@@ -362,3 +365,84 @@ var _ = Describe("Resource", func() {
 	})
 
 })
+
+func TestCreateDateRange(t *testing.T) {
+	type args struct {
+		period string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    IndexRange
+		wantErr bool
+	}{
+		{"simple year",
+			args{period: "1980"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1980-12-31",
+			},
+			false,
+		},
+		{"/ period",
+			args{period: "1980/1985"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1985-12-31",
+			},
+			false,
+		},
+		{"padded / period",
+			args{period: "1980 / 1985"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1985-12-31",
+			},
+			false,
+		},
+		{"full year period",
+			args{period: "1793-05-13/1794-01-11"},
+			IndexRange{
+				Greater: "1793-05-13",
+				Less:    "1794-01-11",
+			},
+			false,
+		},
+		{"mixed years",
+			args{period: "1793-05/1794"},
+			IndexRange{
+				Greater: "1793-05-01",
+				Less:    "1794-12-31",
+			},
+			false,
+		},
+		//{"- period",
+		//args{period: "1980-1985"},
+		//IndexRange{
+		//Greater: "1980-01-01",
+		//Less:    "1985-12-31",
+		//},
+		//false,
+		//},
+		//{"padded - period",
+		//args{period: "1980 - 1985"},
+		//IndexRange{
+		//Greater: "1980-01-01",
+		//Less:    "1985-12-31",
+		//},
+		//false,
+		//},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CreateDateRange(tt.args.period)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateDateRange() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateDateRange() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

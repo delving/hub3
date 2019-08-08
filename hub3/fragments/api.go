@@ -35,9 +35,10 @@ import (
 )
 
 const (
-	qfKey        = "qf"
-	qfIDKey      = "qf.id"
-	responseSize = int32(16)
+	qfKey          = "qf"
+	qfIDKey        = "qf.id"
+	qfDateRangeKey = "qf.dateRange"
+	responseSize   = int32(16)
 )
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults
@@ -72,6 +73,12 @@ func NewFacetField(field string) (*FacetField, error) {
 	err := json.Unmarshal([]byte(field), &ff)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to unmarshal facetfield")
+	}
+	if ff.Field == "" {
+		return nil, errors.Wrap(err, "Unable to unmarshal facetfield: field cannot be empty")
+	}
+	if ff.Name == "" {
+		ff.Name = ff.Field
 	}
 
 	return &ff, nil
@@ -116,6 +123,21 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 					return sr, err
 				}
 			}
+		case qfDateRangeKey, "qf.dateRange[]":
+			for _, qf := range v {
+				err := sr.AddDateRangeFilter(qf)
+				if err != nil {
+					return sr, err
+				}
+			}
+		case "qf.date", "qf.date[]":
+			for _, qf := range v {
+				err := sr.AddDateFilter(qf)
+				if err != nil {
+					return sr, err
+				}
+			}
+
 		case "qf.exist", "qf.exist[]":
 			for _, qf := range v {
 				err := sr.AddFieldExistFilter(qf)
@@ -345,16 +367,19 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 				selected = true
 				continue
 			}
-			if qf.GetExists() {
+			filterKey := qfKey
+			switch qf.GetType() {
+			case QueryFilterType_EXISTS:
 				fields = append(fields, fmt.Sprintf("qf.exist[]=%s", f))
 				continue
+			case QueryFilterType_ID:
+				filterKey = qfIDKey
+			case QueryFilterType_DATERANGE:
+				filterKey = "qf.dateRange"
+			case QueryFilterType_ISODATE:
+				filterKey = "qf.date"
 			}
-
-			key := qfKey
-			if qf.GetID() {
-				key = qfIDKey
-			}
-			fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, f, k))
+			fields = append(fields, fmt.Sprintf("%s[]=%s:%s", filterKey, f, k))
 		}
 	}
 	if !selected {
@@ -743,12 +768,56 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 
 	filteredQuery = filteredQuery.Must(facetFilters)
 
-	filterAgg := elastic.NewFilterAggregation().Filter(fieldTermQuery).SubAggregation("value", labelAgg)
+	facetFilterAgg := elastic.NewFilterAggregation().
+		Filter(facetFilters)
 
-	testAgg := elastic.NewNestedAggregation().Path(path)
-	testAgg = testAgg.SubAggregation("inner", filterAgg)
+	switch facet.GetType() {
+	case FacetType_MINMAX:
+		field := fmt.Sprintf("resources.entries.%s", facet.GetAggField())
+		minAgg := elastic.NewMinAggregation().Field(field)
+		maxAgg := elastic.NewMaxAggregation().Field(field)
 
-	facetFilterAgg := elastic.NewFilterAggregation().Filter(facetFilters).SubAggregation("filter", testAgg)
+		filterAgg := elastic.NewFilterAggregation().
+			Filter(fieldTermQuery).
+			SubAggregation("minval", minAgg).
+			SubAggregation("maxval", maxAgg)
+
+		innerAgg := elastic.NewNestedAggregation().
+			Path(path).
+			SubAggregation("inner", filterAgg)
+		facetFilterAgg = facetFilterAgg.SubAggregation("filter", innerAgg)
+
+	case FacetType_HISTOGRAM:
+		if facet.DateInterval == "" {
+			facet.DateInterval = "1y"
+		}
+
+		field := fmt.Sprintf("resources.entries.%s", "isoDate")
+		minAgg := elastic.NewMinAggregation().Field(field)
+		maxAgg := elastic.NewMaxAggregation().Field(field)
+		histAgg := elastic.NewDateHistogramAggregation().
+			Field(field).
+			Interval(facet.DateInterval)
+
+		filterAgg := elastic.NewFilterAggregation().
+			Filter(fieldTermQuery).
+			SubAggregation("minval", minAgg).
+			SubAggregation("maxval", maxAgg).
+			SubAggregation("histogram", histAgg)
+
+		innerAgg := elastic.NewNestedAggregation().
+			Path(path).
+			SubAggregation("inner", filterAgg)
+		facetFilterAgg = facetFilterAgg.SubAggregation("filter", innerAgg)
+		log.Printf("using histogram")
+	default:
+		filterAgg := elastic.NewFilterAggregation().
+			Filter(fieldTermQuery).
+			SubAggregation("value", labelAgg)
+		testAgg := elastic.NewNestedAggregation().Path(path)
+		testAgg = testAgg.SubAggregation("inner", filterAgg)
+		facetFilterAgg = facetFilterAgg.SubAggregation("filter", testAgg)
+	}
 
 	return facetFilterAgg, nil
 }
@@ -1062,6 +1131,15 @@ func validateTypeClass(tc string) string {
 func NewQueryFilter(filter string) (*QueryFilter, error) {
 	qf := &QueryFilter{}
 
+	// TODO serialize
+	if strings.HasPrefix(filter, "{") {
+		err := json.Unmarshal([]byte(filter), &qf)
+		if err != nil {
+			return nil, errors.Wrap(err, "Unable to unmarshal query filter")
+		}
+		return qf, nil
+	}
+
 	if strings.HasPrefix(filter, "-") {
 		qf.Exclude = true
 		filter = strings.TrimPrefix(filter, "-")
@@ -1151,11 +1229,28 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		return nq, nil
 	}
 
-	fieldKey := "resources.entries.@value.keyword"
-	if qf.ID {
-		fieldKey = "resources.entries.@id"
+	var fieldQuery elastic.Query
+	switch qf.GetType() {
+	case QueryFilterType_DATERANGE:
+		fieldKey := "resources.entries.dateRange"
+		rq := elastic.NewRangeQuery(fieldKey)
+		if qf.Gte != "" {
+			rq = rq.Gte(qf.Gte)
+		}
+		if qf.Lte != "" {
+			rq = rq.Lte(qf.Lte)
+		}
+		fieldQuery = rq
+	case QueryFilterType_ISODATE:
+		fieldKey := "resources.entries.isoDate"
+		fieldQuery = elastic.NewTermQuery(fieldKey, qf.Value)
+	default:
+		fieldKey := "resources.entries.@value.keyword"
+		if qf.ID {
+			fieldKey = "resources.entries.@id"
+		}
+		fieldQuery = elastic.NewTermQuery(fieldKey, qf.Value)
 	}
-	fieldQuery := elastic.NewTermQuery(fieldKey, qf.Value)
 
 	qs := elastic.NewBoolQuery()
 	qs = qs.Must(labelQ, fieldQuery)
@@ -1208,8 +1303,10 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	if err != nil {
 		return err
 	}
+	qf.Type = QueryFilterType_TEXT
 	if id {
 		qf.ID = true
+		qf.Type = QueryFilterType_ID
 	}
 	// todo replace later with map lookup that can be reused
 	for _, v := range sr.QueryFilter {
@@ -1221,12 +1318,51 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	return nil
 }
 
+// AddDateFilter adds a filter for Date Querying.
+func (sr *SearchRequest) AddDateFilter(filter string) error {
+	qf, err := NewQueryFilter(filter)
+	if err != nil {
+		return err
+	}
+	qf.Type = QueryFilterType_ISODATE
+
+	sr.QueryFilter = append(sr.QueryFilter, qf)
+	return nil
+}
+
+// AddDateRangeFilter extracts a start and end date from the QueryFilter.Value
+// add appends it to the QueryFilter Array.
+func (sr *SearchRequest) AddDateRangeFilter(filter string) error {
+	qf, err := NewQueryFilter(filter)
+	if err != nil {
+		return err
+	}
+	qf.Type = QueryFilterType_DATERANGE
+	parts := strings.Split(qf.Value, "~")
+	if len(parts) != 2 {
+		return fmt.Errorf(
+			"The date range value %s must include ~ to separate start and end",
+			qf.Value,
+		)
+	}
+	if parts[0] != "" {
+		qf.Gte = parts[0]
+	}
+	if parts[1] != "" {
+		qf.Lte = parts[1]
+	}
+
+	sr.QueryFilter = append(sr.QueryFilter, qf)
+	return nil
+}
+
 // AddFieldExistFilter adds a query to filter on records where this fields exists.
 // This query for now works on any field level. It is not possible to specify
 // context path.
 func (sr *SearchRequest) AddFieldExistFilter(filter string) error {
 	qf := &QueryFilter{}
 	qf.Exists = true
+	qf.Type = QueryFilterType_EXISTS
 	qf.SearchLabel = filter
 	sr.QueryFilter = append(sr.QueryFilter, qf)
 	return nil
@@ -1236,6 +1372,13 @@ func (sr *SearchRequest) AddFieldExistFilter(filter string) error {
 // The raw query from the QueryString are added here.
 func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
 	return nil
+}
+
+func getKeyAsString(raw *json.RawMessage) string {
+	return strings.Trim(
+		fmt.Sprintf("%s", *raw),
+		"\"",
+	)
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
@@ -1252,15 +1395,28 @@ func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuil
 			if ok {
 				inner, ok := facet.Filter("inner")
 				if ok {
+					var valid bool
+					qf := &QueryFacet{
+						Name:  k, // todo add get by name to fb
+						Field: k,
+						Total: inner.DocCount,
+						Links: []*FacetLink{},
+					}
+					maxAgg, ok := inner.Max("maxval")
+					if ok {
+
+						qf.Max = getKeyAsString(maxAgg.Aggregations["value_as_string"])
+						valid = true
+					}
+					minAgg, ok := inner.Max("minval")
+					if ok {
+						qf.Min = getKeyAsString(minAgg.Aggregations["value_as_string"])
+						valid = true
+					}
 					value, ok := inner.Terms("value")
 					if ok {
-						qf := &QueryFacet{
-							Name:      k,
-							Field:     k,
-							Total:     inner.DocCount,
-							OtherDocs: value.SumOfOtherDocCount,
-							Links:     []*FacetLink{},
-						}
+						valid = true
+						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := fmt.Sprintf("%s", b.Key)
 							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
@@ -1277,9 +1433,32 @@ func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuil
 							}
 							qf.Links = append(qf.Links, fl)
 						}
+					}
+					histogram, ok := inner.Histogram("histogram")
+					if ok {
+						valid = true
+						for _, b := range histogram.Buckets {
+							key := *b.KeyAsString
+							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
+
+							if isSelected && !qf.IsSelected {
+								qf.IsSelected = true
+							}
+							fl := &FacetLink{
+								URL:           url,
+								IsSelected:    isSelected,
+								Value:         key,
+								Count:         b.DocCount,
+								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+							}
+							qf.Links = append(qf.Links, fl)
+						}
+					}
+					if valid {
 						aggs = append(aggs, qf)
 					}
 				}
+
 			}
 		}
 	}

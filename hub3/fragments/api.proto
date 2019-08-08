@@ -42,6 +42,22 @@ enum ResponseBlockType {
   PAGINATION = 4;
 }
 
+enum FacetType {
+    TERMS = 0;
+    HISTOGRAM = 1;
+    MINMAX = 2;
+}
+
+enum QueryFilterType {
+    TEXT = 0;
+    ID = 1;
+    EXCLUDE = 2;
+    EXISTS = 3;
+    RANGE = 4;
+    DATERANGE = 5;
+    ISODATE = 6;
+}
+
 
 message FilterValue {
   repeated string value = 1;
@@ -61,6 +77,9 @@ message QueryFilter {
   bool Exclude = 5;
   bool ID = 7;
   bool Exists = 8;
+  QueryFilterType type = 9;
+  string lte = 10;
+  string gte = 11;
   // Path is the full query path 
 }
 
@@ -71,6 +90,9 @@ message FacetField {
   int32 size = 4;
   bool byId = 5;
   string name = 6;
+  FacetType type = 7;
+  string dateInterval = 8;
+  string aggField = 9;
 }
 
 

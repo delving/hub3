@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
@@ -586,6 +587,9 @@ type QueryFacet struct {
 	Total       int64        `json:"total"`
 	MissingDocs int64        `json:"missingDocs"`
 	OtherDocs   int64        `json:"otherDocs"`
+	Min         string       `json:"min,omitempty"`
+	Max         string       `json:"max,omitempty"`
+	Type        string       `json:"type,omitempty"`
 	Links       []*FacetLink `json:"links"`
 }
 
@@ -699,10 +703,20 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			for _, label := range labels {
 				switch label {
 				case "isoDate":
-					re.Date = re.Value
-					//log.Printf("Date value: %s", re.Date)
+					re.Date = append(re.Date, re.Value)
 				case "dateRange":
-					re.DateRange = re.Value
+					indexRange, err := CreateDateRange(re.Value)
+					if err != nil {
+						log.Printf("Unable to create dateRange for: %#v", re.Value)
+						continue
+					}
+					re.DateRange = &indexRange
+					if indexRange.Greater != "" {
+						re.Date = append(re.Date, indexRange.Greater)
+					}
+					if indexRange.Less != "" {
+						re.Date = append(re.Date, indexRange.Less)
+					}
 				case "latLong":
 					re.LatLong = re.Value
 				}
@@ -710,6 +724,86 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		}
 	}
 	return re, nil
+}
+
+// CreateDateRange creates a date indexRange
+func CreateDateRange(period string) (IndexRange, error) {
+	ir := IndexRange{}
+	parts := strings.FieldsFunc(period, splitPeriod)
+	switch len(parts) {
+	case 1:
+		// start and end year
+		ir.Greater, _ = padYears(parts[0], true)
+		ir.Less, _ = padYears(parts[0], false)
+	case 2:
+		ir.Greater, _ = padYears(parts[0], true)
+		ir.Less, _ = padYears(parts[1], false)
+	default:
+		return ir, fmt.Errorf("Unable to create data range for: %#v", parts)
+	}
+
+	return ir, nil
+}
+
+func padYears(year string, start bool) (string, error) {
+	parts := strings.Split(year, "-")
+	switch len(parts) {
+	case 3:
+		return year, nil
+	case 2:
+		year := parts[0]
+		month := parts[1]
+		switch start {
+		case true:
+			return fmt.Sprintf("%s-%s-01", year, month), nil
+		case false:
+			switch parts[1] {
+			case "01", "03", "05", "07", "08", "10", "12":
+				return fmt.Sprintf("%s-%s-31", year, month), nil
+			case "02":
+				return fmt.Sprintf("%s-%s-29", year, month), nil
+			default:
+				return fmt.Sprintf("%s-%s-30", year, month), nil
+			}
+		}
+	case 1:
+		year := parts[0]
+		switch len(year) {
+		case 4:
+			switch start {
+			case true:
+				return fmt.Sprintf("%s-01-01", year), nil
+			case false:
+				return fmt.Sprintf("%s-12-31", year), nil
+			}
+		default:
+			// try to hyphenate the date
+			date, err := hyphenateDate(year)
+			if err != nil {
+				return "", err
+			}
+			return padYears(date, start)
+		}
+	}
+	return "", fmt.Errorf("unsupported case for padding: %s", year)
+}
+
+// hyphenateDate converts a string of date string into the hyphenated form.
+// Only YYYYMMDD and YYYYMM are supported.
+func hyphenateDate(date string) (string, error) {
+	switch len(date) {
+	case 4:
+		return date, nil
+	case 6:
+		return fmt.Sprintf("%s-%s", date[:4], date[4:]), nil
+	case 8:
+		return fmt.Sprintf("%s-%s-%s", date[:4], date[4:6], date[6:]), nil
+	}
+	return "", fmt.Errorf("Unable to hyphenate date string: %#v", date)
+}
+
+func splitPeriod(c rune) bool {
+	return !unicode.IsNumber(c) && c != '-'
 }
 
 // GetLabel returns the label and language for a resource
@@ -802,12 +896,18 @@ type ResourceEntry struct {
 	SearchLabel string            `json:"searchLabel,omitempty"`
 	Level       int32             `json:"level"`
 	Tags        []string          `json:"tags,omitempty"`
-	Date        string            `json:"date,omitempty"`
-	DateRange   string            `json:"dateRange,omitempty"`
+	Date        []string          `json:"isoDate,omitempty"`
+	DateRange   *IndexRange       `json:"dateRange,omitempty"`
 	Integer     int               `json:"integer,omitempty"`
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
 	Order       int               `json:"order"`
+}
+
+// DateRange is used for indexing date ranges.
+type IndexRange struct {
+	Greater string `json:"gte"`
+	Less    string `json:"lte"`
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation

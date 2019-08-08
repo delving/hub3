@@ -39,7 +39,7 @@ var _ = Describe("Apiutils", func() {
 				output, err := sr.SearchRequestToHex()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(output).ToNot(BeNil())
-				Expect(output).To(Equal("1810"))
+				Expect(output).To(HavePrefix("1810"))
 			})
 
 			It("should marshal from a string", func() {
