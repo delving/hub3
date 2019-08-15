@@ -134,7 +134,7 @@ func (t *Tree) DeepCopy() *Tree {
 	return target
 }
 
-// TreePageEntry creates a paging entry for a tree element.
+// PageEntry creates a paging entry for a tree element.
 func (t *Tree) PageEntry() *TreePageEntry {
 	return &TreePageEntry{
 		CLevel:      t.CLevel,
@@ -284,6 +284,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	}
 }
 
+// ExpandedIDs expands all the parent identifiers in a CLevel path and returns it as a map.
 func ExpandedIDs(node *Tree) map[string]bool {
 	expandedIDs := make(map[string]bool)
 	parents := strings.Split(node.CLevel, "~")
@@ -497,7 +498,11 @@ type TreePageEntry struct {
 
 // CreateTreePage creates a paging entry that can be used to merge the EAD tree between
 // different paging request.
-func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*Tree, appending bool, sortFrom int32) map[string][]*Tree {
+func (tpe *TreePageEntry) CreateTreePage(
+	nodeMap map[string]*Tree,
+	rootNodes []*Tree,
+	appending bool,
+	sortFrom int32) map[string][]*Tree {
 
 	page := make(map[string][]*Tree)
 
@@ -904,7 +909,7 @@ type ResourceEntry struct {
 	Order       int               `json:"order"`
 }
 
-// DateRange is used for indexing date ranges.
+// IndexRange is used for indexing ranges.
 type IndexRange struct {
 	Greater string `json:"gte"`
 	Less    string `json:"lte"`

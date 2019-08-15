@@ -1333,14 +1333,25 @@ func (sr *SearchRequest) AddDateFilter(filter string) error {
 // AddDateRangeFilter extracts a start and end date from the QueryFilter.Value
 // add appends it to the QueryFilter Array.
 func (sr *SearchRequest) AddDateRangeFilter(filter string) error {
-	qf, err := NewQueryFilter(filter)
+	qf, err := NewDateRangeFilter(filter)
 	if err != nil {
 		return err
+	}
+
+	sr.QueryFilter = append(sr.QueryFilter, qf)
+	return nil
+}
+
+// NewDateRangeFilter creates a new QueryFilter from the input string.
+func NewDateRangeFilter(filter string) (*QueryFilter, error) {
+	qf, err := NewQueryFilter(filter)
+	if err != nil {
+		return nil, err
 	}
 	qf.Type = QueryFilterType_DATERANGE
 	parts := strings.Split(qf.Value, "~")
 	if len(parts) != 2 {
-		return fmt.Errorf(
+		return nil, fmt.Errorf(
 			"The date range value %s must include ~ to separate start and end",
 			qf.Value,
 		)
@@ -1352,8 +1363,8 @@ func (sr *SearchRequest) AddDateRangeFilter(filter string) error {
 		qf.Lte = parts[1]
 	}
 
-	sr.QueryFilter = append(sr.QueryFilter, qf)
-	return nil
+	return qf, nil
+
 }
 
 // AddFieldExistFilter adds a query to filter on records where this fields exists.

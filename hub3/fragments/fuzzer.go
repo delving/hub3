@@ -15,10 +15,10 @@ import (
 
 // Fuzzer is the builder for building fuzzed records based on a record definition
 type Fuzzer struct {
-	nm       *config.NameSpaceMap `json:"nm"`
-	resource []*FuzzResource      `json:"resource"`
-	BaseURL  string               `json:"BaseURL"`
-	f        *fuzz.Fuzzer         `json:"f"`
+	nm       *config.NameSpaceMap
+	resource []*FuzzResource
+	BaseURL  string
+	f        *fuzz.Fuzzer
 }
 
 // CreateRecords for n number of fuzzed records
@@ -46,7 +46,7 @@ func (fz *Fuzzer) CreateRecords(n int) ([]string, error) {
 type FuzzRecord struct {
 	fz   *Fuzzer
 	seed int
-	rm   *ResourceMap `json:"rm"`
+	rm   *ResourceMap
 }
 
 func (fr *FuzzRecord) AddTriples() error {
