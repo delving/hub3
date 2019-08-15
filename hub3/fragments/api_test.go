@@ -488,3 +488,85 @@ func Test_isAdvancedSearch(t *testing.T) {
 		})
 	}
 }
+
+func TestNewDateRangeFilter(t *testing.T) {
+	type args struct {
+		filter string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *QueryFilter
+		wantErr bool
+	}{
+		{
+			"full date",
+			args{filter: "ead-rdf_normalDate:1600~1750"},
+			&QueryFilter{
+				SearchLabel: "ead-rdf_normalDate",
+				Value:       "1600~1750",
+				Type:        QueryFilterType_DATERANGE,
+				Lte:         "1750",
+				Gte:         "1600",
+			},
+			false,
+		},
+		{
+			"only start date",
+			args{filter: "ead-rdf_normalDate:1600~"},
+			&QueryFilter{
+				SearchLabel: "ead-rdf_normalDate",
+				Value:       "1600~",
+				Type:        QueryFilterType_DATERANGE,
+				Gte:         "1600",
+			},
+			false,
+		},
+		{
+			"only end date",
+			args{filter: "ead-rdf_normalDate:~1750"},
+			&QueryFilter{
+				SearchLabel: "ead-rdf_normalDate",
+				Value:       "~1750",
+				Type:        QueryFilterType_DATERANGE,
+				Lte:         "1750",
+			},
+			false,
+		},
+		{
+			"null values should be removed",
+			args{filter: "ead-rdf_normalDate:null~1750"},
+			&QueryFilter{
+				SearchLabel: "ead-rdf_normalDate",
+				Value:       "~1750",
+				Type:        QueryFilterType_DATERANGE,
+				Lte:         "1750",
+			},
+			false,
+		},
+		{
+			"empty range with ~ not allowed",
+			args{filter: "ead-rdf_normalDate:~"},
+			nil,
+			true,
+		},
+		{
+			"empty range not allowed",
+			args{filter: "ead-rdf_normalDate:"},
+			nil,
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := NewDateRangeFilter(tt.args.filter)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("NewDateRangeFilter() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewDateRangeFilter() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

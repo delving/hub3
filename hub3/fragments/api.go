@@ -1344,10 +1344,23 @@ func (sr *SearchRequest) AddDateRangeFilter(filter string) error {
 
 // NewDateRangeFilter creates a new QueryFilter from the input string.
 func NewDateRangeFilter(filter string) (*QueryFilter, error) {
+	// sometimes javascript front-ends send null for empty filters, so these need to be removed.
+	if strings.Contains(filter, "null") {
+		filter = strings.ReplaceAll(filter, "null", "")
+	}
+
 	qf, err := NewQueryFilter(filter)
 	if err != nil {
 		return nil, err
 	}
+
+	if qf.Value == "~" || qf.Value == "" {
+		return nil, fmt.Errorf(
+			"date range %s cannot be without a start and end",
+			filter,
+		)
+	}
+
 	qf.Type = QueryFilterType_DATERANGE
 	parts := strings.Split(qf.Value, "~")
 	if len(parts) != 2 {
