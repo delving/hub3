@@ -21,6 +21,7 @@ func init() {
 	wp = workerpool.New(10)
 }
 
+// RegisterBulkIndexer registers routes for the BulkIndexer API.
 func RegisterBulkIndexer(r chi.Router) {
 	// Narthex endpoint
 	r.Post("/api/rdf/bulk", bulkAPI)
@@ -28,6 +29,7 @@ func RegisterBulkIndexer(r chi.Router) {
 	r.Post("/api/index/bulk", bulkAPI)
 }
 
+// BulkProcessor creates a new BulkProcessor.
 func BulkProcessor() *elastic.BulkProcessor {
 	if bp != nil {
 		return bp

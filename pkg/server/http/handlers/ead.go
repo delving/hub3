@@ -85,7 +85,14 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
-	searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), false)
+	err = searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), false)
+	if err != nil {
+		log.Println("Unable to add QueryFilter")
+		render.Status(r, http.StatusBadRequest)
+		render.PlainText(w, r, err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	switch searchRequest.Tree {
 	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{
@@ -195,7 +202,11 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var desc ead.Description
-	json.Unmarshal(b, &desc)
+	err = json.Unmarshal(b, &desc)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	desc.NrHits = searchHits
 
