@@ -373,6 +373,23 @@ type Collapsed struct {
 	Items    []*FragmentGraph `json:"items"`
 }
 
+// NewTreeFilter creates QueryFilter for Tree
+func NewTreeFilter(filter string) (*QueryFilter, error) {
+	qf := &QueryFilter{}
+	qf.Type = QueryFilterType_TREEITEM
+	qf.SearchLabel = filter
+	return qf, nil
+}
+
+// ScrollPager holds all paging information for a search result.
+type ScrollPager struct {
+	// scrollID is serialized version SearchRequest
+	ScrollID string `json:"scrollID"`
+	Cursor   int32  `json:"cursor"`
+	Total    int64  `json:"total"`
+	Rows     int32  `json:"rows"`
+}
+
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`

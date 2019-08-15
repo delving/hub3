@@ -56,6 +56,7 @@ enum QueryFilterType {
     RANGE = 4;
     DATERANGE = 5;
     ISODATE = 6;
+    TREEITEM = 7;
 }
 
 
@@ -213,13 +214,6 @@ message PaginationLink {
   int32 pageNumber = 3;
 }
 
-message ScrollPager {
-  // scrollID is serialized version SearchRequest
-  string scrollID = 1;
-  int32 cursor = 2;
-  int64 total = 3;
-  int32 rows = 4;
-}
 
 message FragmentPager {
   bytes firstPage = 1;
@@ -262,28 +256,6 @@ message FaceLink {
   string value = 3;
   int32 count = 4;
   string displayString = 5;
-}
-
-
-// V3
-
-
-message SearchResultWrapperV3 {
-  SearchResultV3 result = 1;
-}
-
-// Full SearchResult
-message SearchResultV3 {
-  Query query = 1; 
-  SearchRequest request = 2;
-  Pagination pagination = 3;
-  repeated fragments.FragmentGraphDoc items = 4; 
-  repeated Facet facets = 5;
-}
-
-message ScrollResultV3 {
-  ScrollPager pager = 1;
-  repeated fragments.FragmentGraphDoc items = 5;
 }
 
 // V1 

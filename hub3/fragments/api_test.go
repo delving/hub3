@@ -148,11 +148,11 @@ var _ = Describe("Apiutils", func() {
 
 				id, err := sr.NextScrollID(200)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(id.GetCursor()).To(Equal(int32(0)))
-				Expect(id.GetRows()).To(Equal(int32(16)))
-				Expect(id.GetScrollID()).ToNot(BeEmpty())
+				Expect(id.Cursor).To(Equal(int32(0)))
+				Expect(id.Rows).To(Equal(int32(16)))
+				Expect(id.ScrollID).ToNot(BeEmpty())
 
-				srFromID, err := SearchRequestFromHex(id.GetScrollID())
+				srFromID, err := SearchRequestFromHex(id.ScrollID)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(srFromID.GetStart()).To(Equal(int32(16)))
 			})
@@ -165,7 +165,7 @@ var _ = Describe("Apiutils", func() {
 
 				id, err := sr.NextScrollID(12)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(id.GetScrollID()).To(BeEmpty())
+				Expect(id.ScrollID).To(BeEmpty())
 
 			})
 		})
