@@ -168,13 +168,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	// Add scrollID pager information to the header
-	w.Header().Add("P_SCROLL_ID", pager.GetScrollID())
-	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.GetCursor())))
-	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.GetTotal())))
-	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.GetRows())))
+	w.Header().Add("P_SCROLL_ID", pager.ScrollID)
+	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.Cursor)))
+	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.Total)))
+	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.Rows)))
 
 	// workaround warmer issue ES
-	if len(res.Hits.Hits) == 0 && pager.GetCursor() < int32(pager.GetTotal()) {
+	if len(res.Hits.Hits) == 0 && pager.Cursor < int32(pager.Total) {
 		log.Printf("bad response from ES retrying the request")
 		time.Sleep(1 * time.Second)
 		retryCount := r.Context().Value(retryKey)
@@ -208,7 +208,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	switch echoRequest {
 	case "nextScrollID", "searchAfter":
-		srNext, err := fragments.SearchRequestFromHex(pager.GetScrollID())
+		srNext, err := fragments.SearchRequestFromHex(pager.ScrollID)
 		if err != nil {
 			http.Error(w, "unable to decode nextScrollID", http.StatusInternalServerError)
 			return
