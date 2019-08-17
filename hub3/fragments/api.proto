@@ -46,6 +46,9 @@ enum FacetType {
     TERMS = 0;
     HISTOGRAM = 1;
     MINMAX = 2;
+    TREEFACET = 3;
+    TAGS = 4;
+    METATAGS = 5;
 }
 
 enum QueryFilterType {
@@ -57,6 +60,7 @@ enum QueryFilterType {
     DATERANGE = 5;
     ISODATE = 6;
     TREEITEM = 7;
+    ENTRYTAG = 8;
 }
 
 
