@@ -7,9 +7,8 @@ var ESMappingUpdate = `{
   "properties": {
     "tree": {
       "properties": {
-        "physDesc": {
-          "type": "keyword"
-        }
+        "physDesc": {"type": "keyword"},
+        "periodDesc": { "type": "keyword"}
       }
     },
 		"resources": {
