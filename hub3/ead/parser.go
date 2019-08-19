@@ -330,6 +330,7 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	tree.Title = cead.Ceadheader.GetTitle()
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
 	tree.Description = string(description)
+	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header
@@ -480,6 +481,16 @@ func (ad Carchdesc) GetPeriods() []string {
 	for _, date := range ad.Cdid.Cunitdate {
 		if date.Date != "" {
 			dates = append(dates, date.Date)
+		}
+	}
+	return dates
+}
+
+func (ad Carchdesc) GetNormalPeriods() []string {
+	dates := []string{}
+	for _, date := range ad.Cdid.Cunitdate {
+		if date.Attrnormal != "" {
+			dates = append(dates, date.Attrnormal)
 		}
 	}
 	return dates
