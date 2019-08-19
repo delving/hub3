@@ -791,7 +791,6 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 	}
 
 	// Add Filters as nested path
-	filteredQuery := elastic.NewBoolQuery().Must(fieldTermQuery)
 	facetFilters, err := fub.CreateFacetFilterQuery(path, facet.GetField(), facetAndBoolType)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create FacetFilterQuery")
@@ -864,7 +863,6 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 			Path(path).
 			SubAggregation("inner", filterAgg)
 		facetFilterAgg = facetFilterAgg.SubAggregation("filter", innerAgg)
-		log.Printf("using histogram")
 	default:
 		filterAgg := elastic.NewFilterAggregation().
 			Filter(fieldTermQuery).

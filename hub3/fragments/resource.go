@@ -97,6 +97,7 @@ type Tree struct {
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`
 	AgencyCode       string   `json:"agencyCode,omitempty"`
+	PeriodDesc       []string `json:"periodDesc,omitempty"`
 	Material         string   `json:"material,omitempty"`
 	PhysDesc         string   `json:"physDesc,omitempty"`
 }
