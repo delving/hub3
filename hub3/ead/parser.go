@@ -20,6 +20,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
+	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/olivere/elastic"
 	"github.com/pkg/errors"
@@ -311,16 +312,11 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	}
 
 	// strip all tags
-	r := regexp.MustCompile(`\s+`)
-	description = r.ReplaceAll(description, []byte(" "))
+	regex := regexp.MustCompile(`\s+`)
+	description = regex.ReplaceAll(description, []byte(" "))
 	description = sanitizer.SanitizeBytes(description)
 
-	// TODO store triples later
-	//for idx, t := range n.Triples(subject, cfg) {
-	//if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
-	//return nil, nil, err
-	//}
-	//}
+	// TODO store triples later from n.Triples
 	tree := &fragments.Tree{}
 
 	tree.HubID = header.HubID
@@ -332,12 +328,32 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	tree.Description = string(description)
 	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
 
+	s := r.NewResource(subject)
+	t := func(s r.Term, p, o string, oType convert, idx int) {
+		t := addNonEmptyTriple(s, p, o, oType)
+		if t != nil {
+			err := rm.AppendOrderedTriple(t, false, idx)
+			if err != nil {
+				log.Printf("unable to add triple: %#v", err)
+			}
+		}
+		return
+	}
+
+	// add total clevels
+	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), r.NewLiteral, 0)
+
+	// add period desc for range search from the archdesc > did > date
+	for idx, p := range tree.PeriodDesc {
+		t(s, "periodDesc", p, r.NewLiteral, idx)
+	}
+
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header
 	fg.Tree = tree
 
 	// only set resources when the full graph is filled.
-	//fg.SetResources(rm)
+	fg.SetResources(rm)
 	return fg, rm, nil
 }
 
