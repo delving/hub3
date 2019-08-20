@@ -76,13 +76,11 @@ func (dc DescriptionCounter) HighlightQuery(query string, text []byte) ([]byte, 
 			text,
 			[]byte(fmt.Sprintf("\"%s", k)),
 			[]byte(fmt.Sprintf(`"<em class=\"dchl\">%s</em>`, k)),
-			//[]byte(fmt.Sprintf("+++%s+++", k)),
 		)
 		text = bytes.ReplaceAll(
 			text,
 			[]byte(fmt.Sprintf(" %s", k)),
 			[]byte(fmt.Sprintf(` <em class=\"dchl\">%s</em>`, k)),
-			//[]byte(fmt.Sprintf("+++%s+++", k)),
 		)
 	}
 	return text, seen, hits, nil

@@ -29,6 +29,7 @@ type Node struct {
 	BranchID  string
 	Access    string
 	Material  string
+	CLevel    CLevel
 }
 
 type NodeList struct {

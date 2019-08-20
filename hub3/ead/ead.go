@@ -337,6 +337,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		SubType:   c.GetAttrotherlevel(),
 		ParentIDs: parentIDs,
 		Order:     cfg.Counter.GetCount(),
+		CLevel:    c,
 	}
 
 	header, err := c.GetCdid().NewHeader()
