@@ -152,6 +152,8 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	var query string
 	var echo string
 	var err error
+	var partial bool
+	var notFilter bool
 
 	for k := range params {
 		switch k {
@@ -171,6 +173,10 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 			query = params.Get(k)
 		case "echo":
 			echo = params.Get(k)
+		case "partial":
+			partial = strings.ToLower(params.Get(k)) == "true"
+		case "filter":
+			notFilter = strings.ToLower(params.Get(k)) == "false"
 		}
 	}
 
@@ -181,31 +187,32 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var searchHits int
-	// Apply search
-	if query != "" {
-		dc := ead.NewDescriptionCounter(b)
-		text, replaced, hits, err := dc.HighlightQuery(query, b)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		searchHits = replaced
-		if echo == "hits" {
-			log.Printf("hits: %#v", hits)
-			render.JSON(w, r, hits)
-			return
-		}
-
-		if replaced != 0 {
-			b = text
-		}
-	}
 
 	var desc ead.Description
 	err = json.Unmarshal(b, &desc)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	if query != "" {
+		dq := ead.NewDescriptionQuery(query)
+		if partial {
+			dq.Partial = true
+		}
+		if notFilter {
+			dq.Filter = false
+		}
+		desc.Item = dq.FilterMatches(desc.Item)
+		if echo == "hits" {
+			render.JSON(w, r, dq.Hits)
+			return
+		}
+		desc.Summary = dq.HightlightSummary(desc.Summary)
+		searchHits = dq.Seen
+		desc.NrItems = len(desc.Item)
+		desc.NrSections = 0
+		desc.Section = []*ead.SectionInfo{}
 	}
 
 	desc.NrHits = searchHits
