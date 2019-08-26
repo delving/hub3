@@ -216,12 +216,12 @@ type queryItem struct {
 
 // DescriptionQuery can be used to query and highlight matches in the ead.Description
 type DescriptionQuery struct {
-	items     []*queryItem
-	Seen      int
-	Hits      map[string]int
-	Partial   bool
-	NotFilter bool
-	regex     map[string]*regexp.Regexp
+	items   []*queryItem
+	Seen    int
+	Hits    map[string]int
+	Partial bool
+	Filter  bool
+	regex   map[string]*regexp.Regexp
 }
 
 func newQueryItem(word string) (*queryItem, bool) {
@@ -250,8 +250,9 @@ func newQueryItem(word string) (*queryItem, bool) {
 func NewDescriptionQuery(query string) *DescriptionQuery {
 	words := strings.Fields(query)
 	dq := &DescriptionQuery{
-		Hits:  make(map[string]int),
-		regex: make(map[string]*regexp.Regexp),
+		Hits:   make(map[string]int),
+		regex:  make(map[string]*regexp.Regexp),
+		Filter: true,
 	}
 	for _, word := range words {
 		queryItem, ok := newQueryItem(word)
@@ -268,7 +269,7 @@ func (dq *DescriptionQuery) FilterMatches(items []*DataItem) []*DataItem {
 	matches := []*DataItem{}
 	for _, item := range items {
 		text, ok := dq.highlightQuery(item.Text)
-		if !ok && !dq.NotFilter {
+		if !ok && dq.Filter {
 			continue
 		}
 		item.Text = text
