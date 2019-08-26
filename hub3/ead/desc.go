@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"log"
 	"strings"
 	"sync/atomic"
 )
@@ -26,6 +27,7 @@ type Description struct {
 	NrItems    int            `json:"nrItems,omitempty"`
 	NrHits     int            `json:"nrHits"`
 	Item       []*DataItem    `json:"item,omitempty"`
+	counter    *DescriptionCounter
 }
 
 // SectionInfo holds meta information about each section so that it could
@@ -131,23 +133,24 @@ type Profile struct {
 	Language string `json:"language,omitempty"`
 }
 
-// descCounter is a concurrency safe counter for number of Nodes processed
-type descCounter struct {
+// itemCounter is a concurrency safe counter for number of Nodes processed
+type itemCounter struct {
 	counter uint64
 }
 
 // Increment increments the count by one
-func (dc *descCounter) Increment() {
+func (dc *itemCounter) Increment() {
 	atomic.AddUint64(&dc.counter, 1)
 }
 
 // GetCount returns the snapshot of the current count
-func (dc *descCounter) GetCount() uint64 {
+func (dc *itemCounter) GetCount() uint64 {
 	return atomic.LoadUint64(&dc.counter)
 }
 
 type itemBuilder struct {
-	counter  descCounter
+	counter  itemCounter
+	desc     *DescriptionCounter
 	items    []*DataItem
 	q        *Deque
 	sections []*DataItem
@@ -155,6 +158,7 @@ type itemBuilder struct {
 
 func (ib *itemBuilder) append(item *DataItem) {
 	ib.counter.Increment()
+
 	item.Order = ib.counter.GetCount()
 	ib.items = append(ib.items, item)
 	ib.q.PushBack(item)
@@ -403,6 +407,10 @@ func (ib *itemBuilder) addText(text []byte) error {
 			return nil
 		}
 		elem.Text = string(text)
+		err := ib.desc.add(elem)
+		if err != nil {
+			log.Printf("error adding item: %#v", err)
+		}
 	}
 	return nil
 }
@@ -457,6 +465,7 @@ outer:
 			text := bytes.TrimSpace(se)
 			if len(text) != 0 {
 				ib.addText(text)
+
 			}
 		default:
 		}
@@ -482,7 +491,8 @@ func queuePath(q *Deque) string {
 
 func newItemBuilder(ctx context.Context) *itemBuilder {
 	return &itemBuilder{
-		counter: descCounter{},
+		counter: itemCounter{},
+		desc:    NewDescriptionCounter(),
 		items:   nil,
 		q:       new(Deque),
 	}
@@ -503,6 +513,7 @@ func NewDescription(ead *Cead) (*Description, error) {
 
 	if len(ead.Carchdesc.Cdescgrp) > 0 {
 		ib := newItemBuilder(context.Background())
+
 		for idx, grp := range ead.Carchdesc.Cdescgrp {
 			section := &DataItem{
 				Type:    Section,
@@ -530,6 +541,7 @@ func NewDescription(ead *Cead) (*Description, error) {
 			desc.NrSections = len(desc.Section)
 			desc.NrItems = len(desc.Item)
 		}
+		desc.counter = ib.desc
 	}
 
 	return desc, nil
