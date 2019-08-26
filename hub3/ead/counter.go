@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -21,16 +20,14 @@ const (
 
 // DescriptionCounter holds a type-frequency list for the EAD description.
 type DescriptionCounter struct {
-	Counter     map[string]int             `json:"counter"`
-	DataItemIdx map[string]map[uint64]bool `json:"dataItemIdx"`
+	Counter map[string]int `json:"counter"`
 }
 
 // NewDescriptionCounter creates a type-frequency list for the description.
 // The input consist of the EAD description stripped of all XML tags.
 func NewDescriptionCounter() *DescriptionCounter {
 	dc := &DescriptionCounter{
-		Counter:     make(map[string]int),
-		DataItemIdx: make(map[string]map[uint64]bool),
+		Counter: make(map[string]int),
 	}
 	return dc
 }
@@ -85,36 +82,10 @@ func (dc *DescriptionCounter) countWord(word string, order uint64) error {
 	cleanWord := strings.Trim(strings.ToLower(word), ".,;:[]()?")
 
 	dc.Counter[cleanWord]++
-	dc.addDataItemIdx(cleanWord, order)
 
 	if strings.Contains(cleanWord, "-") {
 		for _, p := range strings.Split(cleanWord, "-") {
 			dc.Counter[p]++
-			dc.addDataItemIdx(p, order)
-		}
-	}
-	return nil
-}
-
-func (dc *DescriptionCounter) addDataItemIdx(word string, order uint64) {
-	if order < uint64(1) {
-		return
-	}
-
-	key, ok := dc.DataItemIdx[word]
-	if ok {
-		key[order] = true
-		return
-	}
-	dc.DataItemIdx[word] = map[uint64]bool{order: true}
-}
-
-func (dc *DescriptionCounter) add(item *DataItem) error {
-	words := strings.Fields(item.Text)
-	for _, word := range words {
-		err := dc.countWord(string(word), item.Order)
-		if err != nil {
-			return err
 		}
 	}
 	return nil
@@ -157,56 +128,6 @@ func (dc DescriptionCounter) CountForQuery(query string) (int, map[string]int) {
 	}
 
 	return seen, hits
-}
-
-// GetDataItemIdx returns an sorted but deduplicated list of all the DataItem.Order
-// keys for the search result.
-func (dc *DescriptionCounter) GetDataItemIdx(keys map[string]int) []uint64 {
-	if len(dc.DataItemIdx) == 0 {
-		return []uint64{}
-	}
-
-	ids := make(map[uint64]bool)
-	itemIdx := []uint64{}
-
-	for k := range keys {
-		indices, ok := dc.DataItemIdx[k]
-		if !ok {
-			continue
-		}
-
-		for idx := range indices {
-			_, ok := ids[idx]
-			if !ok {
-				itemIdx = append(itemIdx, idx)
-			}
-		}
-	}
-
-	sort.Slice(itemIdx, func(i, j int) bool { return itemIdx[i] < itemIdx[j] })
-	return itemIdx
-
-}
-
-// HighlightQuery surrounds all matches for the query in the text with emphasis tags.
-func (dc DescriptionCounter) HighlightQuery(query string, text []byte) ([]byte, int, map[string]int, error) {
-	seen, hits := dc.CountForQuery(query)
-	if seen == 0 {
-		return text, 0, hits, nil
-	}
-	for k := range hits {
-		text = bytes.ReplaceAll(
-			text,
-			[]byte(fmt.Sprintf("\"%s", k)),
-			[]byte(fmt.Sprintf(`"<em class=\"dchl\">%s</em>`, k)),
-		)
-		text = bytes.ReplaceAll(
-			text,
-			[]byte(fmt.Sprintf(" %s", k)),
-			[]byte(fmt.Sprintf(` <em class=\"dchl\">%s</em>`, k)),
-		)
-	}
-	return text, seen, hits, nil
 }
 
 type queryItem struct {

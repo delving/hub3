@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"log"
 	"strings"
 	"sync/atomic"
 )
@@ -407,10 +406,6 @@ func (ib *itemBuilder) addText(text []byte) error {
 			return nil
 		}
 		elem.Text = string(text)
-		err := ib.desc.add(elem)
-		if err != nil {
-			log.Printf("error adding item: %#v", err)
-		}
 	}
 	return nil
 }
