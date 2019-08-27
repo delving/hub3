@@ -43,6 +43,7 @@ type NodeConfig struct {
 	OrgID      string
 	Spec       string
 	Revision   int32
+	PeriodDesc []string
 	labels     map[string]string
 	MimeTypes  map[string][]string
 	Errors     []*DuplicateError

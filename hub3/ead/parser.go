@@ -137,7 +137,14 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		0644,
 	)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to JSON description to disc")
+		return nil, errors.Wrapf(err, "Unable to JSON description to disk")
+	}
+
+	// save description
+	err = cead.SaveDescription(cfg, p)
+	if err != nil {
+		log.Printf("Unable to save description for %s; %#v", spec, err)
+		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
 	}
 
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
@@ -327,6 +334,9 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
 	tree.Description = string(description)
 	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
+
+	// add periodDesc to nodeConfig so they can be applied to each cLevel
+	cfg.PeriodDesc = tree.PeriodDesc
 
 	s := r.NewResource(subject)
 	t := func(s r.Term, p, o string, oType convert, idx int) {

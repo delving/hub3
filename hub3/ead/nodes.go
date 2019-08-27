@@ -296,13 +296,17 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		return
 	}
 
+	// TODO(kiivihal) add order to triples
 	t(s, "cLevel", n.CTag, r.NewLiteral)
 	t(s, "branchID", n.BranchID, r.NewLiteral)
 	t(s, "cType", n.Type, r.NewLiteral)
 	t(s, "cSubtype", n.SubType, r.NewLiteral)
 	for _, html := range n.HTML {
 		t(s, "scopecontent", html, r.NewLiteral)
+	}
 
+	for _, p := range cfg.PeriodDesc {
+		t(s, "periodDesc", p, r.NewLiteral)
 	}
 
 	triples = append(triples, n.Header.Triples(subject, cfg)...)
