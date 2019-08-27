@@ -211,8 +211,11 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		desc.Summary = dq.HightlightSummary(desc.Summary)
 		searchHits = dq.Seen
 		desc.NrItems = len(desc.Item)
-		desc.NrSections = 0
-		desc.Section = []*ead.SectionInfo{}
+
+		if !notFilter {
+			desc.NrSections = 0
+			desc.Section = []*ead.SectionInfo{}
+		}
 	}
 
 	desc.NrHits = searchHits
