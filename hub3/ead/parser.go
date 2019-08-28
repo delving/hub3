@@ -254,7 +254,6 @@ func (c Cc) GetMaterial() string {
 	cdid := c.GetCdid()
 
 	if cdid.Cphysdesc != nil && cdid.Cphysdesc.Cphysfacet != nil {
-		log.Printf("physfacet: %#v", cdid.Cphysdesc.Cphysfacet.PhysFacet)
 		return cdid.Cphysdesc.Cphysfacet.PhysFacet
 	}
 	return ""
@@ -388,12 +387,20 @@ type Ceadheader struct {
 	Raw                    []byte         `xml:",innerxml" json:",omitempty"`
 }
 
+// GetTitle returns the title of the EAD
 func (eh Ceadheader) GetTitle() string {
-	return string(eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper)
+	if eh.Cfiledesc != nil && eh.Cfiledesc.Ctitlestmt != nil && eh.Cfiledesc.Ctitlestmt.Ctitleproper != nil {
+		return string(eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper)
+	}
+	return ""
 }
 
+// GetOwner returns the owner of the EAD
 func (eh Ceadheader) GetOwner() string {
-	return eh.Cfiledesc.Cpublicationstmt.Cpublisher.Publisher
+	if eh.Cfiledesc != nil && eh.Cfiledesc.Cpublicationstmt != nil && eh.Cfiledesc.Cpublicationstmt.Cpublisher != nil {
+		return eh.Cfiledesc.Cpublicationstmt.Cpublisher.Publisher
+	}
+	return ""
 }
 
 type Ceadid struct {
