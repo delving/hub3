@@ -150,12 +150,7 @@ func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 			return err
 		}
 	}
-	log.Printf(
-		"Spec %s; Unique labels %d; cLevel counter %d",
-		cfg.Spec,
-		len(cfg.labels),
-		cfg.Counter.GetCount(),
-	)
+	// todo store cfg.Counter.GetCount() in dataset
 	return nil
 }
 
@@ -173,9 +168,11 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 		Doc(fg)
 	p.Add(r)
 
-	err = fragments.IndexFragments(rm, fg, p)
-	if err != nil {
-		return err
+	if c.Config.ElasticSearch.Fragments {
+		err := fragments.IndexFragments(rm, fg, p)
+		if err != nil {
+			return err
+		}
 	}
 
 	// recursion on itself for nested nodes on deeper levels
