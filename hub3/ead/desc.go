@@ -172,7 +172,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		// do nothing
 		return nil
 	case "emph":
-		ib.addTextPrevious("<em>")
+		ib.addTextPrevious(" <em>")
 		return nil
 	case "bioghist", "custodhist", "acqinfo", "scopecontent", "phystech", "otherfindaid", "odd":
 		id.Type = SubSection
@@ -350,7 +350,7 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 	switch ee.Name.Local {
 	case "head":
 	case "emph":
-		ib.addTextPrevious("</em>")
+		ib.addTextPrevious("</em> ")
 	case "lb":
 		last, _ := ib.q.Back()
 		if last != nil {
