@@ -19,8 +19,10 @@ proxy = true
 fragments = true
 # index in V1 mode (will disable fragments and v2 style indexing)
 indexV1 = false
-# Enable trace logging of elasticsearch
+# Enable trace logging of ElasticSearch 
 enableTrace = false
+# Enable info logging of ElasticSearch
+enableInfo = false
 # key to use for searching and deleting spec (spec.raw for v5 style index)
 # For v2 style indexing using meta.spec
 specKey = "meta.spec"
@@ -39,6 +41,10 @@ workers = 1
 # use searchAfter API, see https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-search-after.html
 # this is only applied to the v2 search API endpoint
 enableSearchAfter = false
+# shard configuration for rdf and fragments index
+shards = 1
+# replicas configuration for rdf and fragments index
+replicas = 0
 
 [posthook]
 # specs to exclude from posthook
@@ -227,7 +233,10 @@ latLong = [
     "http://schemas.delving.eu/nave/terms/GeoHash",
     "http://schemas.delving.eu/nave/terms/geoHash",
 ]
-dateRange = []
+dateRange = [
+    "http://archief.nl/def/ead/dateNormal",
+    "http://archief.nl/def/ead/periodDesc",
+]
 isoDate = [
     #"http://schemas.delving.eu/nave/terms/date",
 ]
