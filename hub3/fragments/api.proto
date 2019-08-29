@@ -546,16 +546,26 @@ message Fragment {
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
   string triple = 13;
-  // the type of the
+  // the type of the object
   string objectType = 14;
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;
 
+  // path is used for generating statistics. It is repeated because @type, @lang
+  // and @xsd:type must be added in addition to the normal fields.
+  repeated string path = 16;
 
-  // path is used for generating statistics 
-  string path = 16;
+  // nestedPath is used for generating statistics with the graph path. 
+  // It is repeated because @type, @lang and @xsd:type must be added in addition to the normal fields.
+  repeated string nestedPath = 20;
 
   // order is the insert order of the source of the fragments
   int32 order = 17;
+
+  // resourceType is the RDF type of the resource
+  repeated string resourceType = 18;
+
+  // level shows the relative depth to the root RDF subject
+  int32 level = 19;
 }

@@ -630,6 +630,29 @@ type FragmentResource struct {
 	objectIDs            []*FragmentReferrerContext
 }
 
+// ContextPath returns a string that can be used to reconstruct the path hierarchy
+// for statistics. The values are separated by a forward slash.
+func (fr *FragmentResource) ContextPath() string {
+	var path []string
+	for _, context := range fr.Context {
+
+		// just take the first rdf:type the rest are shown in @rdf:type
+		rdfType := "rdf_Description"
+		if len(context.GetSubjectClass()) != 0 {
+			rdfType = context.GetSubjectClass()[0]
+			searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(rdfType)
+			if err != nil {
+				log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
+			}
+			if searchLabel != "" {
+				rdfType = searchLabel
+			}
+		}
+		path = append(path, rdfType, context.GetSearchLabel())
+	}
+	return strings.Join(path, "/")
+}
+
 // ObjectIDs returns an array of FragmentReferrerContext
 func (fr *FragmentResource) ObjectIDs() []*FragmentReferrerContext {
 	return fr.objectIDs
@@ -1003,6 +1026,72 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 		}
 	}
 	return nil
+}
+
+// SetPath sets the full context path for the Fragment that can be used
+// for statistics aggregations.
+func (f *Fragment) SetPath(contextPath string) {
+	rdfType := "rdf_Description"
+	if len(f.GetResourceType()) > 0 {
+		rdfType = f.GetResourceType()[0]
+		searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(rdfType)
+		if err != nil {
+			log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
+		}
+		if searchLabel != "" {
+			rdfType = searchLabel
+		}
+	}
+	typePath := fmt.Sprintf("%s/%s", contextPath, rdfType)
+	path := fmt.Sprintf("%s/%s", typePath, f.SearchLabel)
+	typedLabel := fmt.Sprintf("%s/%s", rdfType, f.SearchLabel)
+	switch {
+	case f.Predicate == RDFType:
+		f.NestedPath = append(
+			f.NestedPath,
+			fmt.Sprintf("%s/@rdf:about", typePath),
+			fmt.Sprintf("%s/@rdf:type", typePath),
+		)
+		f.Path = append(
+			f.Path,
+			fmt.Sprintf("%s/@rdf:about", rdfType),
+			fmt.Sprintf("%s/@rdf:type", rdfType),
+		)
+	case f.ObjectType == resource:
+		f.NestedPath = append(
+			f.NestedPath,
+			fmt.Sprintf("%s/@rdf:resource", path),
+		)
+		f.Path = append(
+			f.Path,
+			fmt.Sprintf("%s/@rdf:resource", typedLabel),
+		)
+	default:
+		if f.Language != "" {
+			f.NestedPath = append(
+				f.NestedPath,
+				fmt.Sprintf("%s/@xml:lang", path),
+			)
+			f.Path = append(
+				f.Path,
+				fmt.Sprintf("%s/@xml:lang", typedLabel),
+			)
+		}
+		if f.DataType != "" {
+			f.NestedPath = append(
+				f.NestedPath,
+				fmt.Sprintf("%s/@xsd:type", path),
+			)
+			f.Path = append(
+				f.Path,
+				fmt.Sprintf("%s/@xsd:type", typedLabel),
+			)
+		}
+		f.NestedPath = append(f.NestedPath, path)
+		f.Path = append(f.Path, typedLabel)
+	}
+
+	return
 }
 
 // CreateTriple creates a *rdf2go.Triple from a Fragment
@@ -1429,18 +1518,26 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 	lodKey, _ := fr.CreateLodKey()
 
-	// TODO add statistics path
-	// type is searchLabel
-	// @about is extra entry
-	// add type links
+	typeLabel, err := c.Config.NameSpaceMap.GetSearchLabel(RDFType)
+	if err != nil {
+		log.Printf("Unable to create search label for %s  due to %s\n", RDFType, err)
+		typeLabel = ""
+	}
+	path := fr.ContextPath()
+	types := []string{}
 	for _, ttype := range fr.Types {
+		types = append(types, ttype)
 		frag := &Fragment{
-			Meta:       fg.CreateHeader(FragmentDocType),
-			Subject:    fg.NormalisedResource(fr.ID),
-			Predicate:  RDFType,
-			Object:     ttype,
-			ObjectType: resource,
+			Meta:         fg.CreateHeader(FragmentDocType),
+			Subject:      fg.NormalisedResource(fr.ID),
+			Predicate:    RDFType,
+			Object:       ttype,
+			ObjectType:   resource,
+			ResourceType: types,
+			SearchLabel:  typeLabel,
+			Level:        fr.GetLevel(),
 		}
+		frag.SetPath(path)
 		frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 		if strings.HasPrefix(fr.ID, "_:") {
 			frag.Triple = fmt.Sprintf("%s <%s> <%s> .", frag.Subject, RDFType, ttype)
@@ -1457,15 +1554,26 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	// add entries
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
-			frag := &Fragment{
-				Meta:       fg.CreateHeader(FragmentDocType),
-				Subject:    fg.NormalisedResource(fr.ID),
-				Predicate:  predicate,
-				DataType:   entry.DataType,
-				Language:   entry.Language,
-				ObjectType: entry.EntryType,
-				Order:      int32(entry.Order),
+
+			label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
+			if err != nil {
+				log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+				label = ""
 			}
+
+			frag := &Fragment{
+				Meta:         fg.CreateHeader(FragmentDocType),
+				Subject:      fg.NormalisedResource(fr.ID),
+				Predicate:    predicate,
+				DataType:     entry.DataType,
+				Language:     entry.Language,
+				ObjectType:   entry.EntryType,
+				Order:        int32(entry.Order),
+				ResourceType: types,
+				SearchLabel:  label,
+				Level:        fr.GetLevel(),
+			}
+			frag.SetPath(path)
 			frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 			if entry.ID != "" {
 				frag.Object = fg.NormalisedResource(entry.ID)
