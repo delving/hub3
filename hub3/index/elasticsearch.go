@@ -21,12 +21,17 @@ import (
 	stdlog "log"
 	"net/http"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/mapping"
 	elastic "github.com/olivere/elastic"
+)
+
+const (
+	fragmentIndexFmt = "%s_frag"
 )
 
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
@@ -54,7 +59,8 @@ func ESClient() *elastic.Client {
 			// setup ElasticSearch client
 			client = createESClient()
 			//defer client.Stop()
-			ensureESIndex("", false)
+			ensureESIndex(config.Config.ElasticSearch.IndexName, false)
+			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.IndexName), false)
 		} else {
 			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
@@ -64,6 +70,7 @@ func ESClient() *elastic.Client {
 
 func IndexReset(index string) error {
 	ensureESIndex(index, true)
+	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
 	return nil
 }
 
@@ -93,9 +100,18 @@ func ensureESIndex(index string, reset bool) {
 		if config.Config.ElasticSearch.IndexV1 {
 			indexMapping = mapping.V1ESMapping
 		}
+		if strings.HasSuffix(index, "_frag") {
+			indexMapping = mapping.ESFragmentMapping
+		}
 		createIndex, err := client.
 			CreateIndex(index).
-			BodyJson(indexMapping).
+			BodyJson(
+				fmt.Sprintf(
+					indexMapping,
+					config.Config.ElasticSearch.Shards,
+					config.Config.ElasticSearch.Replicas,
+				),
+			).
 			Do(ctx)
 		if err != nil {
 			// Handle error
@@ -138,7 +154,6 @@ func createESClient() *elastic.Client {
 		elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
 		// todo replace with logrus logger later
 		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
-		elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)),          // info log
 	}
 
 	if config.Config.ElasticSearch.HasAuthentication() {
@@ -147,6 +162,9 @@ func createESClient() *elastic.Client {
 	}
 	if config.Config.ElasticSearch.EnableTrace {
 		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
+	}
+	if config.Config.ElasticSearch.EnableInfo {
+		options = append(options, elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags))) // info log
 	}
 	if client == nil {
 		c, err := elastic.NewClient(options...)
