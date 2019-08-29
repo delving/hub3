@@ -522,7 +522,7 @@ func (ad Carchdesc) GetPeriods() []string {
 func (ad Carchdesc) GetNormalPeriods() []string {
 	dates := []string{}
 	for _, date := range ad.Cdid.Cunitdate {
-		if date.Attrnormal != "" {
+		if date.Attrnormal != "" && date.Attrtype != "bulk" {
 			dates = append(dates, date.Attrnormal)
 		}
 	}
