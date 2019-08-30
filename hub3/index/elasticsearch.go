@@ -69,6 +69,9 @@ func ESClient() *elastic.Client {
 }
 
 func IndexReset(index string) error {
+	if index == "" {
+		index = config.Config.ElasticSearch.IndexName
+	}
 	ensureESIndex(index, true)
 	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
 	return nil
@@ -81,7 +84,7 @@ func ensureESIndex(index string, reset bool) {
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {
 		// Handle error
-		stdlog.Fatal(err)
+		stdlog.Fatalf("unable to find index for %s: %#v", index, err)
 	}
 	if exists && reset {
 		deleteIndex, err := ESClient().DeleteIndex(index).Do(ctx)
