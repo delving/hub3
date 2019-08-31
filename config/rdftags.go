@@ -34,6 +34,8 @@ type RDFTag struct {
 	LatLong          []string `json:"latLong"`
 	IsoDate          []string `json:"isoDate"`
 	DateRange        []string `json:"dateRange"`
+	Integer          []string `json:"integer"`
+	IntegerRange     []string `json:"integerRange"`
 }
 
 // RDFTagMap contains all the URIs that trigger indexing labels
