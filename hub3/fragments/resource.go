@@ -731,6 +731,13 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			return re, err
 		}
 		re.Integer = i
+	case "http://www.w3.org/2001/XMLSchema#float":
+		i, err := strconv.ParseFloat(re.Value, 32)
+		if err != nil {
+			log.Printf("unable to convert to float: %#v", err)
+			return re, err
+		}
+		re.Float = i
 	}
 
 	labels, ok := c.Config.RDFTagMap.Get(predicate)
@@ -757,6 +764,14 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 					}
 				case "latLong":
 					re.LatLong = re.Value
+				case "integer":
+					i, err := strconv.Atoi(re.Value)
+					if err != nil {
+						log.Printf("Unable to create integer for: %#v", re.Value)
+						continue
+					}
+					log.Printf("extracting integer from tag: %s", re.Value)
+					re.Integer = i
 				}
 			}
 		}
@@ -937,6 +952,8 @@ type ResourceEntry struct {
 	Date        []string          `json:"isoDate,omitempty"`
 	DateRange   *IndexRange       `json:"dateRange,omitempty"`
 	Integer     int               `json:"integer,omitempty"`
+	Float       float64           `json:"float,omitempty"`
+	IntRange    *IndexRange       `json:"intRange,omitempty"`
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
 	Order       int               `json:"order"`
