@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
@@ -109,10 +110,6 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	//ds.Owner = cead.Ceadheader.GetOwner()
 	//ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
-	err = ds.Save()
-	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to save dataset")
-	}
 
 	cfg := NewNodeConfig(context.Background())
 	cfg.CreateTree = CreateTree
@@ -141,16 +138,36 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	}
 
 	// save description
-	err = cead.SaveDescription(cfg, p)
-	if err != nil {
-		log.Printf("Unable to save description for %s; %#v", spec, err)
-		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
+	var unitInfo *UnitInfo
+	if desc.Summary.FindingAid != nil && desc.Summary.FindingAid.UnitInfo != nil {
+		unitInfo = desc.Summary.FindingAid.UnitInfo
+		ds.Length = unitInfo.Length
+		ds.Files = unitInfo.Files
+		ds.Abstract = unitInfo.Abstract
+		ds.Language = unitInfo.Language
+		ds.Material = unitInfo.Material
+		ds.ArchiveCreator = unitInfo.Origin
 	}
 
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {
 		log.Printf("Error during parsing; %s", err)
 		return cfg, err
+	}
+
+	ds.MetsFiles = int(cfg.MetsCounter.GetCount())
+	ds.Clevels = int(cfg.Counter.GetCount())
+	ds.Description = string(cead.RawDescription())
+
+	err = ds.Save()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to save dataset")
+	}
+
+	err = cead.SaveDescription(cfg, unitInfo, p)
+	if err != nil {
+		log.Printf("Unable to save description for %s; %#v", spec, err)
+		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
 	}
 
 	if p != nil {
@@ -271,8 +288,8 @@ type Cead struct {
 }
 
 // SaveDescription stores the FragmentGraph of the EAD description in ElasticSearch
-func (cead *Cead) SaveDescription(cfg *NodeConfig, p *elastic.BulkProcessor) error {
-	fg, _, err := cead.DescriptionGraph(cfg)
+func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elastic.BulkProcessor) error {
+	fg, _, err := cead.DescriptionGraph(cfg, unitInfo)
 	if err != nil {
 		return err
 	}
@@ -288,23 +305,8 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, p *elastic.BulkProcessor) err
 	return nil
 }
 
-// DescriptionGraph returns the graph of the Description section (archdesc, descgroups, desc/did) as a FragmentGraph
-func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
-	rm := fragments.NewEmptyResourceMap()
-	id := "desc"
-	subject := newSubject(cfg, id)
-	header := &fragments.Header{
-		OrgID:         cfg.OrgID,
-		Spec:          cfg.Spec,
-		Revision:      cfg.Revision,
-		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
-		DocType:       fragments.FragmentGraphDocType,
-		EntryURI:      subject,
-		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
-		Tags:          []string{"eadDesc"},
-	}
-
+// RawDescription returns the EAD description stripped of all markup.
+func (cead *Cead) RawDescription() []byte {
 	description := cead.Ceadheader.Raw
 	description = append(description, cead.Carchdesc.Cdid.Raw...)
 	for _, dscGrp := range cead.Carchdesc.Cdescgrp {
@@ -320,7 +322,25 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	// strip all tags
 	regex := regexp.MustCompile(`\s+`)
 	description = regex.ReplaceAll(description, []byte(" "))
-	description = sanitizer.SanitizeBytes(description)
+	return sanitizer.SanitizeBytes(description)
+}
+
+// DescriptionGraph returns the graph of the Description section (archdesc, descgroups, desc/did) as a FragmentGraph
+func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
+	rm := fragments.NewEmptyResourceMap()
+	id := "desc"
+	subject := newSubject(cfg, id)
+	header := &fragments.Header{
+		OrgID:         cfg.OrgID,
+		Spec:          cfg.Spec,
+		Revision:      cfg.Revision,
+		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
+		DocType:       fragments.FragmentGraphDocType,
+		EntryURI:      subject,
+		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
+		Modified:      fragments.NowInMillis(),
+		Tags:          []string{"eadDesc"},
+	}
 
 	// TODO store triples later from n.Triples
 	tree := &fragments.Tree{}
@@ -331,7 +351,7 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	tree.InventoryID = cfg.Spec
 	tree.Title = cead.Ceadheader.GetTitle()
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
-	tree.Description = string(description)
+	tree.Description = string(cead.RawDescription())
 	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
 
 	// add periodDesc to nodeConfig so they can be applied to each cLevel
@@ -349,8 +369,37 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 		return
 	}
 
+	intType := func(value string) r.Term {
+		return r.NewLiteralWithDatatype(value, r.NewResource("http://www.w3.org/2001/XMLSchema#integer"))
+	}
+	extractDigit := func(value string) string {
+		parts := strings.Fields(value)
+		for _, part := range parts {
+			runes := []rune(value)
+			if unicode.IsDigit(runes[0]) {
+				return strings.ReplaceAll(part, ",", ".")
+			}
+		}
+
+		return ""
+	}
+	floatType := func(value string) r.Term {
+		return r.NewLiteralWithDatatype(value, r.NewResource("http://www.w3.org/2001/XMLSchema#float"))
+	}
 	// add total clevels
-	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), r.NewLiteral, 0)
+	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType, 0)
+	if unitInfo != nil {
+		t(s, "files", extractDigit(unitInfo.Files), intType, 0)
+		t(s, "length", extractDigit(unitInfo.Length), floatType, 0)
+		for _, abstract := range unitInfo.Abstract {
+			t(s, "abstract", abstract, r.NewLiteral, 0)
+		}
+		t(s, "material", unitInfo.Material, r.NewLiteral, 0)
+		t(s, "language", unitInfo.Language, r.NewLiteral, 0)
+		for _, origin := range unitInfo.Origin {
+			t(s, "origin", origin, r.NewLiteral, 0)
+		}
+	}
 
 	// add period desc for range search from the archdesc > did > date
 	for idx, p := range tree.PeriodDesc {
@@ -535,9 +584,11 @@ func (ca Cabstract) Abstract() []string {
 		return []string{}
 	}
 	raw := bytes.ReplaceAll(ca.Raw, []byte("extref"), []byte("a"))
+	raw = bytes.ReplaceAll(raw, []byte(" />"), []byte("/>"))
+
 	parts := strings.Split(
 		fmt.Sprintf("%s", raw),
-		"<lb />",
+		"<lb/>",
 	)
 	trimmed := []string{}
 	for _, p := range parts {
