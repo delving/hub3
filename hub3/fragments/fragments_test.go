@@ -213,7 +213,7 @@ var _ = Describe("Fragments", func() {
 
 			It("should return a short hash", func() {
 				hash := CreateHash("hub3 rocks.")
-				Expect(hash).To(Equal("70658c1aa1aa862e"))
+				Expect(hash).To(Equal("8099033550905050670"))
 			})
 		})
 
