@@ -39,15 +39,16 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter    *NodeCounter
-	OrgID      string
-	Spec       string
-	Revision   int32
-	PeriodDesc []string
-	labels     map[string]string
-	MimeTypes  map[string][]string
-	Errors     []*DuplicateError
-	CreateTree func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter     *NodeCounter
+	MetsCounter *MetsCounter
+	OrgID       string
+	Spec        string
+	Revision    int32
+	PeriodDesc  []string
+	labels      map[string]string
+	MimeTypes   map[string][]string
+	Errors      []*DuplicateError
+	CreateTree  func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 }
 
 type DuplicateError struct {
@@ -92,9 +93,25 @@ func (nc *NodeConfig) AddLabel(id, label string) {
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
-		Counter: &NodeCounter{},
-		labels:  make(map[string]string),
+		Counter:     &NodeCounter{},
+		MetsCounter: &MetsCounter{},
+		labels:      make(map[string]string),
 	}
+}
+
+// MetsCounter is a concurrency safe counter for number of Mets-files processed
+type MetsCounter struct {
+	counter uint64
+}
+
+// Increment increments the count by one
+func (mc *MetsCounter) Increment() {
+	atomic.AddUint64(&mc.counter, 1)
+}
+
+// GetCount returns the snapshot of the current count
+func (mc *MetsCounter) GetCount() uint64 {
+	return atomic.LoadUint64(&mc.counter)
 }
 
 // NodeCounter is a concurrency safe counter for number of Nodes processed
@@ -343,6 +360,9 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 	node.Header = header
+	if header.DaoLink != "" {
+		cfg.MetsCounter.Increment()
+	}
 
 	// add content
 	if c.GetOdd() != nil {
