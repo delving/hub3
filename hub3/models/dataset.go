@@ -123,6 +123,14 @@ type DataSet struct {
 	Owner            string   `json:"owner"`
 	Abstract         []string `json:"abstract"`
 	Period           []string `json:"period"`
+	Length           string   `json:"length"`
+	Files            string   `json:"files"`
+	Language         string   `json:"language"`
+	Material         string   `json:"material"`
+	ArchiveCreator   []string `json:"archiveCreator"`
+	MetsFiles        int      `json:"metsFiles"`
+	Description      string   `json:"description"`
+	Clevels          int      `json:"clevels"`
 }
 
 // Access determines the which types of access are enabled for this dataset
