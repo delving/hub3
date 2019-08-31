@@ -17,6 +17,8 @@ var ESMappingUpdate = `{
 				"entries": {
 					"type": "nested",
 					"properties": {
+						"intRange": {"type": "integer_range"},
+						"float": {"type": "float"},
 						"level": {"type": "integer"}
 					}
 				}
