@@ -246,10 +246,18 @@ func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
 		unit.Files, _ = dq.highlightQuery(unit.Files)
 		unit.Length, _ = dq.highlightQuery(unit.Length)
 		unit.Material, _ = dq.highlightQuery(unit.Material)
-		unit.Origin, _ = dq.highlightQuery(unit.Origin)
 		unit.Physical, _ = dq.highlightQuery(unit.Physical)
 		unit.PhysicalLocation, _ = dq.highlightQuery(unit.PhysicalLocation)
 		unit.Repository, _ = dq.highlightQuery(unit.Repository)
+
+		var origins []string
+		for _, o := range unit.Origin {
+			origin, _ := dq.highlightQuery(o)
+			origins = append(origins, origin)
+		}
+		if len(origins) != 0 {
+			unit.Origin = origins
+		}
 
 		var dates []string
 		for _, d := range unit.Date {

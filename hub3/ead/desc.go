@@ -111,7 +111,7 @@ type UnitInfo struct {
 	Material         string   `json:"material,omitempty"`
 	Repository       string   `json:"repository,omitempty"`
 	PhysicalLocation string   `json:"physicalLocation,omitempty"`
-	Origin           string   `json:"origin,omitempty"`
+	Origin           []string `json:"origin,omitempty"`
 	Abstract         []string `json:"abstract,omitempty"`
 }
 
@@ -679,7 +679,17 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 		}
 
 		if did.Corigination != nil {
-			unit.Origin = sanitizeXMLAsString(did.Corigination.Raw)
+			parts := bytes.Split(did.Corigination.Raw, []byte("<corpname>"))
+			for _, part := range parts {
+				if len(bytes.TrimSpace(part)) == 0 {
+					continue
+				}
+
+				unit.Origin = append(
+					unit.Origin,
+					sanitizeXMLAsString(bytes.ReplaceAll(part, []byte(" , "), []byte(" "))),
+				)
+			}
 		}
 
 		if did.Cabstract != nil {
