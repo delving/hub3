@@ -456,7 +456,6 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 	}
 
 	sort.Slice(fieldFilters, func(i, j int) bool { return fieldFilters[i] < fieldFilters[j] })
-	log.Printf("field-filters: %#v", fieldFilters)
 
 	for _, field := range fieldFilters {
 		qfs := fub.filters[field]
@@ -473,7 +472,6 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 		}
 
 		sort.Slice(filters, func(i, j int) bool { return filters[i] < filters[j] })
-		log.Printf("filters: %#v", filters)
 
 		for _, k := range filters {
 			qf := qfs[k]
