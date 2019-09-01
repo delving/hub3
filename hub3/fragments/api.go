@@ -380,15 +380,30 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 	if fub.query != "" {
 		fields = append(fields, fmt.Sprintf("q=%s", fub.query))
 	}
-	for f, values := range fub.filters {
-		for k, qf := range values {
+
+	// todo replace with sort at builder level
+	var filters []string
+	for k := range fub.filters {
+		filters = append(filters, k)
+	}
+	sort.Slice(filters, func(i, j int) bool { return filters[i] < filters[j] })
+	for _, f := range filters {
+		values := fub.filters[f]
+		var filterValues []string
+		for k := range values {
+			filterValues = append(filterValues, k)
+		}
+		sort.Slice(filterValues, func(i, j int) bool { return filterValues[i] < filterValues[j] })
+
+		for _, k := range filterValues {
+			qf := values[k]
 			if f == field && k == value {
 				selected = true
 				continue
 			}
 
 			// set tree filter type
-			if strings.HasPrefix(f, "tree.") {
+			if strings.HasPrefix(f, "tree.") || strings.HasPrefix(qf.GetSearchLabel(), "tree.") {
 				qf.Type = QueryFilterType_TREEITEM
 			}
 
@@ -408,13 +423,21 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 				if strings.HasPrefix(f, "tree.") {
 					f = strings.TrimPrefix(f, "tree.")
 				}
+				if strings.HasPrefix(field, "tree.") {
+					matchField := strings.TrimPrefix(field, "tree.")
+					if f == matchField && k == value {
+						selected = true
+						continue
+					}
+				}
 			}
 			fields = append(fields, fmt.Sprintf("%s[]=%s:%s", filterKey, f, k))
 		}
 	}
 	if !selected {
 		key := qfKey
-		if strings.HasSuffix(field, ".id") {
+		switch {
+		case strings.HasSuffix(field, ".id"):
 			key = qfIDKey
 			field = strings.TrimSuffix(field, ".id")
 		}
@@ -423,39 +446,54 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 	return strings.Join(fields, "&"), selected
 }
 
-// CreateFacetFilterQuery creates an elasticsearch Query
-func (fub FacetURIBuilder) CreateFacetFilterQuery(path, filterField string, andQuery bool) (elastic.Query, error) {
+// CreateFacetFilterQuery creates an elasticsearch Query to filter facets
+// for the Facet Aggregation specified by 'filterfield'.
+func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery bool) (elastic.Query, error) {
 	q := elastic.NewBoolQuery()
-	for field, qfs := range fub.filters {
+	var fieldFilters []string
+	for k := range fub.filters {
+		fieldFilters = append(fieldFilters, k)
+	}
+
+	sort.Slice(fieldFilters, func(i, j int) bool { return fieldFilters[i] < fieldFilters[j] })
+	log.Printf("field-filters: %#v", fieldFilters)
+
+	for _, field := range fieldFilters {
+		qfs := fub.filters[field]
+		// skip filter field. this allows for all available options to be shown
 		if filterField == field {
-			if andQuery {
-				for _, qf := range qfs {
-					filterQuery, err := qf.ElasticFilter()
-					if err != nil {
-						return q, errors.Wrap(err, "Unable to build filter query")
-					}
-					switch qf.Exclude {
-					case false:
-						q = q.Should(filterQuery)
-					case true:
-						q = q.MustNot(filterQuery)
-					}
-				}
-				continue
-			}
+			continue
 		}
-		// TODO implement should queries
-		for _, qf := range qfs {
+
+		fieldQ := elastic.NewBoolQuery()
+		var active bool
+		var filters []string
+		for k := range qfs {
+			filters = append(filters, k)
+		}
+
+		sort.Slice(filters, func(i, j int) bool { return filters[i] < filters[j] })
+		log.Printf("filters: %#v", filters)
+
+		for _, k := range filters {
+			qf := qfs[k]
 			filterQuery, err := qf.ElasticFilter()
 			if err != nil {
 				return q, errors.Wrap(err, "Unable to build filter query")
 			}
-			if qf.Exclude {
-				q = q.MustNot(filterQuery)
-				continue
+			switch andQuery {
+			case true:
+				fieldQ = fieldQ.Must(filterQuery)
+			case false:
+				fieldQ = fieldQ.Should(filterQuery)
 			}
-			q = q.Must(filterQuery)
+			active = true
 		}
+
+		if !active {
+			continue
+		}
+		q = q.Must(fieldQ)
 	}
 	return q, nil
 }
@@ -791,7 +829,7 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 	}
 
 	// Add Filters as nested path
-	facetFilters, err := fub.CreateFacetFilterQuery(path, facet.GetField(), facetAndBoolType)
+	facetFilters, err := fub.CreateFacetFilterQuery(facet.GetField(), facetAndBoolType)
 	if err != nil {
 		return nil, errors.Wrap(err, "Unable to create FacetFilterQuery")
 	}
@@ -1037,29 +1075,10 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	// Add post filters
-	postFilter := elastic.NewBoolQuery()
-	for _, qf := range sr.QueryFilter {
-		var tq elastic.Query
-		switch qf.SearchLabel {
-		case "spec", "delving_spec", "delving_spec.raw", "meta.spec":
-			qf.SearchLabel = c.Config.ElasticSearch.SpecKey
-			tq = elastic.NewTermQuery(qf.SearchLabel, qf.Value)
-		case "meta.tags", "meta.tag":
-			qf.SearchLabel = "meta.tags"
-			tq = elastic.NewTermQuery(qf.SearchLabel, qf.Value)
-		default:
-			var err error
-			tq, err = qf.ElasticFilter()
-			if err != nil {
-				return s, fub, err
-			}
-		}
-		if qf.Exclude {
-			// TODO: replace this with HiddenQueryFilter later
-			postFilter = postFilter.MustNot(tq)
-			continue
-		}
-		postFilter = postFilter.Must(tq)
+	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+	if err != nil {
+		log.Printf("unable to create postfilter: %#v", err)
+		return s, nil, err
 	}
 	s = s.PostFilter(postFilter)
 
@@ -1269,6 +1288,16 @@ func TypeClassAsURI(uri string) (string, error) {
 	return fmt.Sprintf("%s/%s", base, label), nil
 }
 
+func (qf *QueryFilter) SetExclude(q *elastic.BoolQuery, qs ...elastic.Query) *elastic.BoolQuery {
+	switch qf.Exclude {
+	case true:
+		q = q.MustNot(qs...)
+	case false:
+		q = q.Must(qs...)
+	}
+	return q
+}
+
 // ElasticFilter creates an elasticsearch filter from the QueryFilter
 func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 
@@ -1278,11 +1307,37 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 	labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
 	if qf.Exists {
 		qs := elastic.NewBoolQuery()
-		qs = qs.Must(labelQ)
+		qs = qf.SetExclude(qs, labelQ)
 		nq := elastic.NewNestedQuery("resources.entries", qs)
 		return nq, nil
 	}
 
+	// object queries
+	switch qf.SearchLabel {
+	case "spec", "delving_spec", "delving_spec.raw", "meta.spec":
+		qf.SearchLabel = c.Config.ElasticSearch.SpecKey
+		return qf.SetExclude(
+			elastic.NewBoolQuery(),
+			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
+		), nil
+	case "meta.tags", "meta.tag":
+		qf.SearchLabel = "meta.tags"
+		return qf.SetExclude(
+			elastic.NewBoolQuery(),
+			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
+		), nil
+	}
+
+	// support meta. and tree. filter queries
+	switch {
+	case strings.HasPrefix(qf.SearchLabel, "meta."), strings.HasPrefix(qf.SearchLabel, "tree."):
+		return qf.SetExclude(
+			elastic.NewBoolQuery(),
+			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
+		), nil
+	}
+
+	// nested queries
 	var fieldQuery elastic.Query
 	switch qf.GetType() {
 	case QueryFilterType_DATERANGE:
@@ -1299,16 +1354,16 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		fieldKey := "resources.entries.isoDate"
 		fieldQuery = elastic.NewTermQuery(fieldKey, qf.Value)
 	case QueryFilterType_TREEITEM:
-		return elastic.NewBoolQuery().Must(
+		q := elastic.NewBoolQuery()
+		return qf.SetExclude(
+			q,
 			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
 		), nil
 	case QueryFilterType_ENTRYTAG:
 		fieldQuery = elastic.NewTermQuery("resources.entries.tags", qf.Value)
-		qs := elastic.NewBoolQuery().Must(fieldQuery)
-		nq := elastic.NewNestedQuery("resources.entries", qs)
-		mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
-		nestedBoolQuery = nestedBoolQuery.Must(nq)
-		return mainQuery, nil
+		qs := elastic.NewBoolQuery()
+		qs = qf.SetExclude(qs, fieldQuery)
+		return elastic.NewNestedQuery("resources.entries", qs), nil
 	default:
 		fieldKey := "resources.entries.@value.keyword"
 		if qf.ID {
@@ -1318,11 +1373,15 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 	}
 
 	qs := elastic.NewBoolQuery()
-	qs = qs.Must(labelQ, fieldQuery)
+	qs = qf.SetExclude(qs, labelQ, fieldQuery)
 	nq := elastic.NewNestedQuery("resources.entries", qs)
 
-	mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
+	if qf.GetTypeClass() == "" && qf.GetLevel2() == nil {
+		return nq, nil
+	}
+
 	nestedBoolQuery = nestedBoolQuery.Must(nq)
+	mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
 
 	// resource.types query
 	if qf.GetTypeClass() != "" {
@@ -1506,6 +1565,11 @@ func getKeyAsString(raw *json.RawMessage) string {
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
 func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
+	return DecodeFacets(res, fb)
+}
+
+// DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
+func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
 	if res == nil || res.TotalHits() == 0 {
 		return nil, nil
 	}

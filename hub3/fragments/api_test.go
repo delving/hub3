@@ -1,8 +1,11 @@
 package fragments
 
 import (
+	"encoding/json"
 	fmt "fmt"
+	"io/ioutil"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -566,6 +569,346 @@ func TestNewDateRangeFilter(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewDateRangeFilter() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFacetURIBuilder_CreateFacetFilterQuery(t *testing.T) {
+	type fields struct {
+		filters []string
+	}
+	type args struct {
+		filterField string
+		andQuery    bool
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"default query is empty bool",
+			fields{
+				filters: []string{},
+			},
+			args{
+				filterField: "dc_subject",
+				andQuery:    false,
+			},
+			`./testdata/queries/0_empty_bool_query.json`,
+			false,
+		},
+		{
+			"single same filter",
+			fields{
+				filters: []string{
+					"dc_subject:boerderij",
+				},
+			},
+			args{
+				filterField: "dc_subject",
+				andQuery:    false,
+			},
+			`./testdata/queries/0_empty_bool_query.json`,
+			false,
+		},
+		{
+			"single different filter",
+			fields{
+				filters: []string{
+					"ead-rdf_cType:series",
+				},
+			},
+			args{
+				filterField: "dc_date",
+				andQuery:    false,
+			},
+			"./testdata/queries/3_combined_nested_single_filter.json",
+			false,
+		},
+		{
+			"double different filter",
+			fields{
+				filters: []string{
+					"ead-rdf_cType:series",
+					"ead-rdf_cType:file",
+				},
+			},
+			args{
+				filterField: "dc_date",
+				andQuery:    false,
+			},
+			"./testdata/queries/4_combined_nested_double_filter.json",
+			false,
+		},
+		{
+			"double different AND filter",
+			fields{
+				filters: []string{
+					"ead-rdf_cType:series",
+					"ead-rdf_cType:file",
+				},
+			},
+			args{
+				filterField: "dc_date",
+				andQuery:    true,
+			},
+			"./testdata/queries/8_combined_nested_double_AND_filter.json",
+			false,
+		},
+		{
+			"combined two filter fields one selected",
+			fields{
+				filters: []string{
+					"ead-rdf_cType:series",
+					"ead-rdf_cType:file",
+					"dc_date:1977",
+				},
+			},
+			args{
+				filterField: "dc_date",
+				andQuery:    false,
+			},
+			"./testdata/queries/4_combined_nested_double_filter.json",
+			false,
+		},
+		{
+			"combined two filter fields; none selected",
+			fields{
+				filters: []string{
+					"dc_date:1977",
+					"ead-rdf_cType:series",
+					"ead-rdf_cType:file",
+				},
+			},
+			args{
+				filterField: "dc_subject",
+				andQuery:    false,
+			},
+			"./testdata/queries/5_combined_nested_mixed_query.json",
+			false,
+		},
+		{
+			"single different exclude filter",
+			fields{
+				filters: []string{
+					"-ead-rdf_cType:series",
+				},
+			},
+			args{
+				filterField: "dc_date",
+				andQuery:    false,
+			},
+			"./testdata/queries/6_combined_nested_single_exclude_filter.json",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fub, err := NewFacetURIBuilder("", []*QueryFilter{})
+			if err != nil {
+				t.Errorf("FacetURIBuilder.NewFacetURIBuilder should not throw error: %#v", err)
+				return
+			}
+
+			// add filters
+			for _, filter := range tt.fields.filters {
+				qf, err := NewQueryFilter(filter)
+				if err != nil {
+					t.Errorf("NewQueryFilter should not throw error: %#v", err)
+					return
+				}
+				err = fub.AddFilter(qf)
+				if err != nil {
+					t.Errorf("FacetURIBuilder.AddFilter() should not throw error: %#v", err)
+					return
+				}
+			}
+
+			got, err := fub.CreateFacetFilterQuery(tt.args.filterField, tt.args.andQuery)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("FacetURIBuilder.CreateFacetFilterQuery() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			src, _ := got.Source()
+			queryMap, _ := json.MarshalIndent(src, "", "    ")
+			jsonQuery, _ := ioutil.ReadFile(tt.want)
+
+			if diff := cmp.Diff(trimRedundantWhiteSpace(jsonQuery), trimRedundantWhiteSpace(queryMap)); diff != "" {
+				t.Errorf("FacetURIBuilder.CreateFacetFilterQuery() %s mismatch (-want +got):\n%s", tt.name, diff)
+			}
+			//queryMap := make(map[string]interface{})
+			//_ = json.Unmarshal(jsonQuery, &queryMap)
+
+			//if diff := cmp.Diff(src, queryMap); diff != "" {
+			//t.Errorf("FacetURIBuilder.CreateFacetFilterQuery() %s mismatch (-want +got):\n%s", tt.name, diff)
+			//}
+		})
+	}
+}
+
+func trimRedundantWhiteSpace(text []byte) string {
+	singleSpacePattern := regexp.MustCompile(`\s+`)
+	noReturns := strings.ReplaceAll(string(text), "\n", "")
+	return singleSpacePattern.ReplaceAllString(noReturns, " ")
+}
+
+func TestQueryFilter_ElasticFilter(t *testing.T) {
+	type fields struct {
+		qf     string
+		exists bool
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    string
+		wantErr bool
+	}{
+		{
+			"simple query",
+			fields{qf: "ead-rdf_cType:series", exists: false},
+			"./testdata/queries/1_nested_single_filter.json",
+			false,
+		},
+		{
+			"exists query",
+			fields{qf: "ead-rdf_cType", exists: true},
+			"./testdata/queries/2_nested_exist_query.json",
+			false,
+		},
+		{
+			"simple query",
+			fields{qf: "-ead-rdf_cType:series", exists: false},
+			"./testdata/queries/7_nested_single_exclude_filter.json",
+			false,
+		},
+		// TODO add unit tests for type and nested queries
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var qf *QueryFilter
+			var err error
+			switch tt.fields.exists {
+			case false:
+				qf, err = NewQueryFilter(tt.fields.qf)
+				if err != nil {
+					t.Errorf("NewQueryFilter should not throw error: %#v", err)
+					return
+				}
+			case true:
+				qf = &QueryFilter{
+					SearchLabel: tt.fields.qf,
+					Exists:      true,
+				}
+			}
+
+			got, err := qf.ElasticFilter()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("QueryFilter.ElasticFilter() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			src, _ := got.Source()
+			queryMap, _ := json.MarshalIndent(src, "", "    ")
+			jsonQuery, _ := ioutil.ReadFile(tt.want)
+			if diff := cmp.Diff(string(jsonQuery), string(queryMap)+"\n"); diff != "" {
+				t.Errorf("QueryFilter.ElasticFilter() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestFacetURIBuilder_CreateFacetFilterURI(t *testing.T) {
+	type fields struct {
+		filters []string
+	}
+	type args struct {
+		field string
+		value string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
+		want1  bool
+	}{
+		{
+			"no filter query",
+			fields{
+				filters: []string{},
+			},
+			args{field: "ead-rdf_cType", value: "series"},
+			"qf[]=ead-rdf_cType:series",
+			false,
+		},
+		{
+			"filter query; selected",
+			fields{
+				filters: []string{
+					"ead-rdf_cType:series",
+				},
+			},
+			args{field: "ead-rdf_cType", value: "series"},
+			"",
+			true,
+		},
+		{
+			"triple filter, same searchLabel; selected",
+			fields{
+				filters: []string{
+					"ead-rdf_files:123 inventories",
+					"ead-rdf_cType:series",
+					"ead-rdf_cType:file",
+				},
+			},
+			args{field: "ead-rdf_cType", value: "series"},
+			"qf[]=ead-rdf_cType:file&qf[]=ead-rdf_files:123 inventories",
+			true,
+		},
+		{
+			"tree: double filter, same searchLabel; selected",
+			fields{
+				filters: []string{
+					"tree.type:series",
+					"tree.type:file",
+					"tree.type:otherlevel",
+				},
+			},
+			args{field: "tree.type", value: "series"},
+			"qf.tree[]=type:file&qf.tree[]=type:otherlevel",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fub, err := NewFacetURIBuilder("", []*QueryFilter{})
+			if err != nil {
+				t.Errorf("FacetURIBuilder.NewFacetURIBuilder should not throw error: %#v", err)
+				return
+			}
+
+			// add filters
+			for _, filter := range tt.fields.filters {
+				qf, err := NewQueryFilter(filter)
+				if err != nil {
+					t.Errorf("NewQueryFilter should not throw error: %#v", err)
+					return
+				}
+				err = fub.AddFilter(qf)
+				if err != nil {
+					t.Errorf("FacetURIBuilder.AddFilter() should not throw error: %#v", err)
+					return
+				}
+			}
+			got, got1 := fub.CreateFacetFilterURI(tt.args.field, tt.args.value)
+			if got != tt.want {
+				t.Errorf("FacetURIBuilder.CreateFacetFilterURI() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("FacetURIBuilder.CreateFacetFilterURI() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
