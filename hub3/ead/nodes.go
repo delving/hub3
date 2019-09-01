@@ -140,7 +140,10 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.ManifestLink = ""
 	tree.Content = []string{}
 	for _, n := range n.HTML {
-		tree.Content = append(tree.Content, html.UnescapeString(n))
+		tree.Content = append(
+			tree.Content,
+			strings.TrimSpace(html.UnescapeString(n)),
+		)
 	}
 	tree.Access = n.Access
 	tree.HasRestriction = n.Access != ""
