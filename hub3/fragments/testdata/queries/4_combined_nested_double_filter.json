@@ -1,0 +1,52 @@
+{
+    "bool": {
+        "must": {
+            "bool": {
+                "should": [
+                    {
+                        "nested": {
+                            "path": "resources.entries",
+                            "query": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "term": {
+                                                "resources.entries.searchLabel": "ead-rdf_cType"
+                                            }
+                                        },
+                                        {
+                                            "term": {
+                                                "resources.entries.@value.keyword": "file"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "nested": {
+                            "path": "resources.entries",
+                            "query": {
+                                "bool": {
+                                    "must": [
+                                        {
+                                            "term": {
+                                                "resources.entries.searchLabel": "ead-rdf_cType"
+                                            }
+                                        },
+                                        {
+                                            "term": {
+                                                "resources.entries.@value.keyword": "series"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

@@ -17,7 +17,7 @@ var _ = Describe("Rdf", func() {
 	Context("when parsing from an io.Reader", func() {
 
 		It("should extract a list of triples", func() {
-			dat, err := os.Open("test_data/1.rdf")
+			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
 			triples, err := DecodeRDFXML(dat)
 			Expect(err).ToNot(HaveOccurred())
@@ -28,7 +28,7 @@ var _ = Describe("Rdf", func() {
 	Context("when converting a list of triples", func() {
 
 		It("should create a fragments.ResourceMap", func() {
-			dat, err := os.Open("test_data/1.rdf")
+			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
 			triples, err := DecodeRDFXML(dat)
 			Expect(err).ToNot(HaveOccurred())

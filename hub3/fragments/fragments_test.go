@@ -80,7 +80,7 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	fg := testFragmentGraph(spec, rev, ng)
 	fg.Meta.EntryURI = "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 	fb := NewFragmentBuilder(fg)
-	dat, err := ioutil.ReadFile("test_data/enb_test_2.jsonld")
+	dat, err := ioutil.ReadFile("testdata/enb_test_2.jsonld")
 	if err != nil {
 		return fb, err
 	}

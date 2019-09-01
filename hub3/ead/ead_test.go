@@ -267,7 +267,7 @@ var _ = Describe("Ead", func() {
 	Context("when being load from file", func() {
 
 		It("should create an EAD object", func() {
-			path, err := filepath.Abs("./test_data/ead/NL-HaNA_2.08.22.ead.xml")
+			path, err := filepath.Abs("./testdata/ead/NL-HaNA_2.08.22.ead.xml")
 			//Expect(err).ToNot(HaveOccurred())
 			//rawEAD, err := ioutil.ReadFile(path)
 			Expect(err).ToNot(HaveOccurred())
@@ -313,7 +313,7 @@ var _ = Describe("Ead", func() {
 		//})
 
 		It("should serialize it to JSON", func() {
-			path, err := filepath.Abs("./test_data/ead/NL-HaNA_2.08.22.ead.xml")
+			path, err := filepath.Abs("./testdata/ead/NL-HaNA_2.08.22.ead.xml")
 			Expect(err).ToNot(HaveOccurred())
 			ead, err := ReadEAD(path)
 			Expect(err).ToNot(HaveOccurred())
@@ -329,7 +329,7 @@ var _ = Describe("Ead", func() {
 })
 
 func parseUtil(node interface{}, fName string) error {
-	dat, err := ioutil.ReadFile("test_data/ead/" + fName)
+	dat, err := ioutil.ReadFile("testdata/ead/" + fName)
 	if err != nil {
 		return err
 	}

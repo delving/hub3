@@ -32,7 +32,7 @@ import (
 
 func getTestGraph() (*r.Graph, error) {
 
-	turtle, err := os.Open("test_data/test2.ttl")
+	turtle, err := os.Open("testdata/test2.ttl")
 	if err != nil {
 		return &r.Graph{}, err
 	}
@@ -58,7 +58,7 @@ var _ = Describe("V1", func() {
 		Context("When given RDF as an io.Reader", func() {
 
 			It("Should create a graph", func() {
-				turtle, err := os.Open("test_data/test2.ttl")
+				turtle, err := os.Open("testdata/test2.ttl")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(turtle).ToNot(BeNil())
 				g, err := NewGraphFromTurtle(turtle)
@@ -213,7 +213,7 @@ var _ = Describe("V1", func() {
 
 			It("should produce valid json-ld", func() {
 				g := r.NewGraph("")
-				dat, err := ioutil.ReadFile("test_data/test_nave_normalised.jsonld")
+				dat, err := ioutil.ReadFile("testdata/test_nave_normalised.jsonld")
 				Expect(err).ToNot(HaveOccurred())
 				err = g.Parse(bytes.NewReader(dat), "application/ld+json")
 				Expect(err).ToNot(HaveOccurred())
