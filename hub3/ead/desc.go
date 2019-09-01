@@ -76,7 +76,8 @@ type DataItem struct {
 
 	// nested blocks
 	//Inner []DataItem `json:"inner,omitempty"`
-	Depth int `json:"depth,omitempty"`
+	Depth     int    `json:"depth,omitempty"`
+	ParentIDS string `json:"parentIDS"`
 
 	//FlowType between data items
 	FlowType FlowType `json:"flowType"`
@@ -155,10 +156,26 @@ type itemBuilder struct {
 	sections []*DataItem
 }
 
+// ParentIDs returns a ~ separated list of order identifiers
+func (ib *itemBuilder) ParentIDs() string {
+	var parentIDs []string
+	for _, i := range ib.q.List() {
+		if i == nil {
+			continue
+		}
+		item := i.(*DataItem)
+		parentIDs = append(
+			parentIDs,
+			fmt.Sprintf("%d", item.Order),
+		)
+	}
+	return strings.Join(parentIDs, "~")
+}
 func (ib *itemBuilder) append(item *DataItem) {
 	ib.counter.Increment()
 
 	item.Order = ib.counter.GetCount()
+	item.ParentIDS = ib.ParentIDs()
 	ib.items = append(ib.items, item)
 	ib.q.PushBack(item)
 	item.Depth = ib.q.Len()
