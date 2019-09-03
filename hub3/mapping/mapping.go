@@ -52,7 +52,6 @@ var ESMapping = `{
 		}
 	},
 	"mappings":{
-		"doc": {
 			"dynamic": "strict",
 			"date_detection" : false,
 			"properties": {
@@ -180,7 +179,7 @@ var ESMapping = `{
 				}
 			}
 		}
-}}`
+}`
 
 // ESFragmentMapping is the default mapping for the RDF fragments in hub3
 var ESFragmentMapping = `{
@@ -201,7 +200,6 @@ var ESFragmentMapping = `{
 		}
 	},
 	"mappings":{
-		"doc": {
 			"dynamic": "strict",
 			"date_detection" : false,
 			"properties": {
@@ -258,7 +256,7 @@ var ESFragmentMapping = `{
 						}
 					}
 				}
-}}}}`
+}}}`
 
 // V1ESMapping has the legacy mapping for V1 indexes. It should only be used when indexV1 is enabled in the
 // configuration.

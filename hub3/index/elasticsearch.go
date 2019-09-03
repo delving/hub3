@@ -108,6 +108,7 @@ func ensureESIndex(index string, reset bool) {
 		}
 		createIndex, err := client.
 			CreateIndex(index).
+			IncludeTypeName(false).
 			BodyJson(
 				fmt.Sprintf(
 					indexMapping,
@@ -128,9 +129,11 @@ func ensureESIndex(index string, reset bool) {
 	}
 
 	// add mapping updates
+	// TODO on upgrade to 7 remove _doc type
 	updateIndex, err := elastic.NewIndicesPutMappingService(client).
 		Index(index).
-		Type("doc").
+		IncludeTypeName(true).
+		Type("_doc").
 		BodyString(mapping.ESMappingUpdate).
 		Do(ctx)
 	if err != nil {

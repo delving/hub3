@@ -36,7 +36,7 @@ const FragmentDocType = "fragment"
 const FragmentGraphDocType = "graph"
 
 // DocType is the default doctype since elasticsearch deprecated mapping types
-const DocType = "doc"
+const DocType = "_doc"
 
 // FRAGMENT_SIZE of the fragments returned
 const FRAGMENT_SIZE = 100
