@@ -233,6 +233,7 @@ type CLevel interface {
 	GetScopeContent() *Cscopecontent
 	GetOdd() []*Codd
 	GetMaterial() string
+	GetRaw() []byte
 }
 
 type Cc struct {
@@ -247,6 +248,7 @@ type Cc struct {
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
@@ -275,6 +277,7 @@ func (c Cc) GetMaterial() string {
 	}
 	return ""
 }
+func (c Cc) GetRaw() []byte { return c.Raw }
 
 ///////////////////////////
 /// structs

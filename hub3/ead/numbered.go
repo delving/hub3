@@ -13,6 +13,7 @@ type Cc01 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc01) GetXMLName() xml.Name                 { return c.XMLName }
@@ -30,6 +31,7 @@ func (c Cc01) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc01) GetRaw() []byte { return c.Raw }
 
 type Cc02 struct {
 	XMLName         xml.Name         `xml:"c02,omitempty" json:"c02,omitempty"`
@@ -42,6 +44,7 @@ type Cc02 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc02) GetXMLName() xml.Name                 { return c.XMLName }
@@ -59,6 +62,7 @@ func (c Cc02) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc02) GetRaw() []byte { return c.Raw }
 
 type Cc03 struct {
 	XMLName         xml.Name         `xml:"c03,omitempty" json:"c03,omitempty"`
@@ -71,6 +75,7 @@ type Cc03 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc03) GetXMLName() xml.Name                 { return c.XMLName }
@@ -88,6 +93,7 @@ func (c Cc03) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc03) GetRaw() []byte { return c.Raw }
 
 type Cc04 struct {
 	XMLName         xml.Name         `xml:"c04,omitempty" json:"c04,omitempty"`
@@ -100,6 +106,7 @@ type Cc04 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc04) GetXMLName() xml.Name                 { return c.XMLName }
@@ -117,6 +124,7 @@ func (c Cc04) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc04) GetRaw() []byte { return c.Raw }
 
 type Cc05 struct {
 	XMLName         xml.Name         `xml:"c05,omitempty" json:"c05,omitempty"`
@@ -129,6 +137,7 @@ type Cc05 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc05) GetXMLName() xml.Name                 { return c.XMLName }
@@ -146,6 +155,7 @@ func (c Cc05) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc05) GetRaw() []byte { return c.Raw }
 
 type Cc06 struct {
 	XMLName         xml.Name         `xml:"c06,omitempty" json:"c06,omitempty"`
@@ -158,6 +168,7 @@ type Cc06 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc06) GetXMLName() xml.Name                 { return c.XMLName }
@@ -175,6 +186,7 @@ func (c Cc06) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc06) GetRaw() []byte { return c.Raw }
 
 type Cc07 struct {
 	XMLName         xml.Name         `xml:"c07,omitempty" json:"c07,omitempty"`
@@ -187,6 +199,7 @@ type Cc07 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc07) GetXMLName() xml.Name                 { return c.XMLName }
@@ -204,6 +217,7 @@ func (c Cc07) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc07) GetRaw() []byte { return c.Raw }
 
 type Cc08 struct {
 	XMLName         xml.Name         `xml:"c08,omitempty" json:"c08,omitempty"`
@@ -216,6 +230,7 @@ type Cc08 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc08) GetXMLName() xml.Name                 { return c.XMLName }
@@ -233,6 +248,7 @@ func (c Cc08) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc08) GetRaw() []byte { return c.Raw }
 
 type Cc09 struct {
 	XMLName         xml.Name         `xml:"c09,omitempty" json:"c09,omitempty"`
@@ -245,6 +261,7 @@ type Cc09 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc09) GetXMLName() xml.Name                 { return c.XMLName }
@@ -262,6 +279,7 @@ func (c Cc09) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc09) GetRaw() []byte { return c.Raw }
 
 type Cc10 struct {
 	XMLName         xml.Name         `xml:"c10,omitempty" json:"c10,omitempty"`
@@ -274,6 +292,7 @@ type Cc10 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc10) GetXMLName() xml.Name                 { return c.XMLName }
@@ -291,6 +310,7 @@ func (c Cc10) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc10) GetRaw() []byte { return c.Raw }
 
 type Cc11 struct {
 	XMLName         xml.Name         `xml:"c11,omitempty" json:"c11,omitempty"`
@@ -303,6 +323,7 @@ type Cc11 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc11) GetXMLName() xml.Name                 { return c.XMLName }
@@ -320,6 +341,7 @@ func (c Cc11) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc11) GetRaw() []byte { return c.Raw }
 
 type Cc12 struct {
 	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
@@ -332,6 +354,7 @@ type Cc12 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc12) GetXMLName() xml.Name                 { return c.XMLName }
@@ -349,6 +372,7 @@ func (c Cc12) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc12) GetRaw() []byte { return c.Raw }
 
 type Cc13 struct {
 	XMLName         xml.Name         `xml:"c13,omitempty" json:"c13,omitempty"`
@@ -361,6 +385,7 @@ type Cc13 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc13) GetXMLName() xml.Name                 { return c.XMLName }
@@ -378,6 +403,7 @@ func (c Cc13) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc13) GetRaw() []byte { return c.Raw }
 
 type Cc14 struct {
 	XMLName         xml.Name         `xml:"c14,omitempty" json:"c14,omitempty"`
@@ -390,6 +416,7 @@ type Cc14 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc14) GetXMLName() xml.Name                 { return c.XMLName }
@@ -407,6 +434,7 @@ func (c Cc14) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc14) GetRaw() []byte { return c.Raw }
 
 type Cc15 struct {
 	XMLName         xml.Name         `xml:"c15,omitempty" json:"c15,omitempty"`
@@ -419,6 +447,7 @@ type Cc15 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc15) GetXMLName() xml.Name                 { return c.XMLName }
@@ -436,6 +465,7 @@ func (c Cc15) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc15) GetRaw() []byte { return c.Raw }
 
 type Cc16 struct {
 	XMLName         xml.Name         `xml:"c16,omitempty" json:"c16,omitempty"`
@@ -448,6 +478,7 @@ type Cc16 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc16) GetXMLName() xml.Name                 { return c.XMLName }
@@ -465,6 +496,7 @@ func (c Cc16) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc16) GetRaw() []byte { return c.Raw }
 
 type Cc17 struct {
 	XMLName         xml.Name         `xml:"c17,omitempty" json:"c17,omitempty"`
@@ -477,6 +509,7 @@ type Cc17 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc17) GetXMLName() xml.Name                 { return c.XMLName }
@@ -494,6 +527,7 @@ func (c Cc17) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc17) GetRaw() []byte { return c.Raw }
 
 type Cc18 struct {
 	XMLName         xml.Name         `xml:"c18,omitempty" json:"c18,omitempty"`
@@ -506,6 +540,7 @@ type Cc18 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc18) GetXMLName() xml.Name                 { return c.XMLName }
@@ -523,6 +558,7 @@ func (c Cc18) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc18) GetRaw() []byte { return c.Raw }
 
 type Cc19 struct {
 	XMLName         xml.Name         `xml:"c19,omitempty" json:"c19,omitempty"`
@@ -535,6 +571,7 @@ type Cc19 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc19) GetXMLName() xml.Name                 { return c.XMLName }
@@ -552,6 +589,7 @@ func (c Cc19) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc19) GetRaw() []byte { return c.Raw }
 
 type Cc20 struct {
 	XMLName         xml.Name         `xml:"c20,omitempty" json:"c20,omitempty"`
@@ -564,6 +602,7 @@ type Cc20 struct {
 	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
 	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
 	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Raw             []byte           `xml:",innerxml" json:",omitempty"`
 }
 
 func (c Cc20) GetXMLName() xml.Name                 { return c.XMLName }
@@ -578,3 +617,4 @@ func (c Cc20) GetNested() []CLevel {
 	levels := make([]CLevel, 0)
 	return levels
 }
+func (c Cc20) GetRaw() []byte { return c.Raw }
