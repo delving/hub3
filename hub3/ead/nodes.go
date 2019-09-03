@@ -3,6 +3,7 @@ package ead
 import (
 	"fmt"
 	"html"
+	"regexp"
 	"strings"
 
 	"github.com/delving/hub3/config"
@@ -298,6 +299,16 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		}
 		return
 	}
+
+	// until full EAD is mapped to RDF include text of the cLevel
+	regex := regexp.MustCompile(`\s+`)
+	fullText := regex.ReplaceAll(n.CLevel.GetRaw(), []byte(" "))
+	t(
+		s,
+		"fullText",
+		string(sanitizer.SanitizeBytes(fullText)),
+		r.NewLiteral,
+	)
 
 	// TODO(kiivihal) add order to triples
 	t(s, "cLevel", n.CTag, r.NewLiteral)
