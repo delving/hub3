@@ -356,6 +356,14 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 	tree.Description = string(cead.RawDescription())
 	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
 
+	if len(tree.PeriodDesc) == 0 {
+		de := &DuplicateError{
+			Spec:  cfg.Spec,
+			Error: "ead period is empty",
+		}
+		cfg.Errors = append(cfg.Errors, de)
+	}
+
 	// add periodDesc to nodeConfig so they can be applied to each cLevel
 	cfg.PeriodDesc = tree.PeriodDesc
 

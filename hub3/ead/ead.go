@@ -61,6 +61,7 @@ type DuplicateError struct {
 	DupLabel string `json:"dupLabel"`
 	CType    string `json:"cType"`
 	Depth    int32  `json:"depth"`
+	Error    string
 }
 
 func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
@@ -70,13 +71,13 @@ func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
 		return re.ReplaceAllString(input, " ")
 	}
 
-	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth\n")
+	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth,error\n")
 	for idx, de := range nc.Errors {
 		b.WriteString(
 			fmt.Sprintf(
-				"%d,%s,%d,%s,%s,\"%s\",%s,\"%s\",%s,%d\n",
+				"%d,%s,%d,%s,%s,\"%s\",%s,\"%s\",%s,%d,%#v\n",
 				idx, strings.TrimSpace(de.Spec), de.Order, de.Path, de.Key, s(de.Label),
-				de.DupKey, s(de.DupLabel), de.CType, de.Depth,
+				de.DupKey, s(de.DupLabel), de.CType, de.Depth, de.Error,
 			),
 		)
 	}
@@ -273,6 +274,24 @@ func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 	return nDate, nil
 }
 
+// ValidDateNormal returns if the range in Normal is valid.
+func (nd *NodeDate) ValidDateNormal() error {
+	if nd.Normal == "" {
+		return nil
+	}
+
+	if strings.Contains(nd.Normal, "/") {
+		nd.Normal = strings.TrimPrefix(strings.TrimSuffix(nd.Normal, "/"), "/")
+		parts := strings.Split(nd.Normal, "/")
+
+		if len(parts) == 2 && parts[0] > parts[1] {
+			return fmt.Errorf("first date %s is later than second date %s", parts[0], parts[1])
+		}
+	}
+
+	return nil
+}
+
 // NewHeader creates an Archival Header
 func (cdid *Cdid) NewHeader() (*Header, error) {
 	header := &Header{}
@@ -389,24 +408,42 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	prevLabel, ok := cfg.labels[node.Path]
+	// check valid date
+	for _, d := range node.Header.Date {
+		if err := d.ValidDateNormal(); err != nil {
+			de := &DuplicateError{
+				Path:     node.Path,
+				Order:    int(node.Order),
+				Spec:     cfg.Spec,
+				Key:      header.InventoryNumber,
+				Label:    header.GetTreeLabel(),
+				DupLabel: d.Normal,
+				CType:    node.Type,
+				Depth:    node.Depth,
+				Error:    err.Error(),
+			}
+			cfg.Errors = append(cfg.Errors, de)
+		}
+	}
+
+	_, ok := cfg.labels[node.Path]
 	if ok {
 		//data, err := json.MarshalIndent(node, " ", " ")
 		//if err != nil {
 		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
 		//}
-		de := &DuplicateError{
-			Path:     node.Path,
-			Order:    int(node.Order),
-			Spec:     cfg.Spec,
-			Key:      header.InventoryNumber,
-			Label:    prevLabel,
-			DupKey:   header.InventoryNumber,
-			DupLabel: header.GetTreeLabel(),
-			CType:    node.Type,
-			Depth:    node.Depth,
-		}
-		cfg.Errors = append(cfg.Errors, de)
+		//de := &DuplicateError{
+		//Path:     node.Path,
+		//Order:    int(node.Order),
+		//Spec:     cfg.Spec,
+		//Key:      header.InventoryNumber,
+		//Label:    prevLabel,
+		//DupKey:   header.InventoryNumber,
+		//DupLabel: header.GetTreeLabel(),
+		//CType:    node.Type,
+		//Depth:    node.Depth,
+		//}
+		//cfg.Errors = append(cfg.Errors, de)
 
 		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)

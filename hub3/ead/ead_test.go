@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"path/filepath"
+	"testing"
 
 	. "github.com/delving/hub3/hub3/ead"
 	. "github.com/onsi/ginkgo"
@@ -339,4 +340,64 @@ func parseUtil(node interface{}, fName string) error {
 		return err
 	}
 	return nil
+}
+
+func TestNodeDate_ValidDateNormal(t *testing.T) {
+	type fields struct {
+		Calendar string
+		Era      string
+		Normal   string
+		Label    string
+		Type     string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			"correct date range",
+			fields{Normal: "1990-01-01/1995-10-31"},
+			false,
+		},
+		{
+			"correct year range",
+			fields{Normal: "1990/1995"},
+			false,
+		},
+		{
+			"single date",
+			fields{Normal: "1990-01-01"},
+			false,
+		},
+		{
+			"wrong range",
+			fields{Normal: "2000-12-01/1990-01-01"},
+			true,
+		},
+		{
+			"partial start",
+			fields{Normal: "1990-01-01/"},
+			false,
+		},
+		{
+			"partial end",
+			fields{Normal: "/1990-01-01"},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			nd := &NodeDate{
+				Calendar: tt.fields.Calendar,
+				Era:      tt.fields.Era,
+				Normal:   tt.fields.Normal,
+				Label:    tt.fields.Label,
+				Type:     tt.fields.Type,
+			}
+			if err := nd.ValidDateNormal(); (err != nil) != tt.wantErr {
+				t.Errorf("NodeDate.ValidDateNormal() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
 }
