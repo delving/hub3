@@ -366,12 +366,13 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	// add content
 	if c.GetOdd() != nil {
-		html := []string{}
 		for _, o := range c.GetOdd() {
-			html = append(html, sanitizer.Sanitize(string(o.Raw)))
+			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
 		}
+	}
 
-		node.HTML = html
+	if c.GetScopeContent() != nil {
+		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
 	}
 
 	// add accessrestrict
