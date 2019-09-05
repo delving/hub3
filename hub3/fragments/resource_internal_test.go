@@ -46,7 +46,7 @@ func Test_padYears(t *testing.T) {
 				year:  "1990-02",
 				start: false,
 			},
-			"1990-02-29",
+			"1990-02-28",
 			false,
 		},
 		{

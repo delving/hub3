@@ -416,6 +416,14 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
+		{"feb year",
+			args{period: "1778/1781-02"},
+			IndexRange{
+				Greater: "1778-01-01",
+				Less:    "1781-02-28",
+			},
+			false,
+		},
 		//{"- period",
 		//args{period: "1980-1985"},
 		//IndexRange{
@@ -442,6 +450,94 @@ func TestCreateDateRange(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("CreateDateRange() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIndexRange_Valid(t *testing.T) {
+	type fields struct {
+		Greater string
+		Less    string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			"simple",
+			fields{
+				Less:    "zzz",
+				Greater: "aaa",
+			},
+			false,
+		},
+		{
+			"simple reverse",
+			fields{
+				Less:    "aaa",
+				Greater: "zzz",
+			},
+			true,
+		},
+		{
+			"date correct",
+			fields{
+				Less:    "1900-10-11",
+				Greater: "1850-01-01",
+			},
+			false,
+		},
+		{
+			"date incorrect",
+			fields{
+				Greater: "1900-10-11",
+				Less:    "1850-01-01",
+			},
+			true,
+		},
+		{
+			"date partial",
+			fields{
+				Less:    "1900-10-11",
+				Greater: "1850",
+			},
+			false,
+		},
+		{
+			"numeric",
+			fields{
+				Less:    "1000",
+				Greater: "1",
+			},
+			false,
+		},
+		{
+			"partial less empty",
+			fields{
+				Less:    "",
+				Greater: "100",
+			},
+			true,
+		},
+		{
+			"partial greater empty",
+			fields{
+				Less:    "100",
+				Greater: "",
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ir := IndexRange{
+				Greater: tt.fields.Greater,
+				Less:    tt.fields.Less,
+			}
+			if err := ir.Valid(); (err != nil) != tt.wantErr {
+				t.Errorf("IndexRange.Valid() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

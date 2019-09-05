@@ -795,6 +795,10 @@ func CreateDateRange(period string) (IndexRange, error) {
 		return ir, fmt.Errorf("Unable to create data range for: %#v", parts)
 	}
 
+	if err := ir.Valid(); err != nil {
+		return ir, err
+	}
+
 	return ir, nil
 }
 
@@ -814,7 +818,7 @@ func padYears(year string, start bool) (string, error) {
 			case "01", "03", "05", "07", "08", "10", "12":
 				return fmt.Sprintf("%s-%s-31", year, month), nil
 			case "02":
-				return fmt.Sprintf("%s-%s-29", year, month), nil
+				return fmt.Sprintf("%s-%s-28", year, month), nil
 			default:
 				return fmt.Sprintf("%s-%s-30", year, month), nil
 			}
@@ -963,6 +967,14 @@ type ResourceEntry struct {
 type IndexRange struct {
 	Greater string `json:"gte"`
 	Less    string `json:"lte"`
+}
+
+// Valid checks if Less is smaller than Greater.
+func (ir IndexRange) Valid() error {
+	if ir.Greater > ir.Less {
+		return fmt.Errorf("%s should not be greater than %s", ir.Less, ir.Greater)
+	}
+	return nil
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
