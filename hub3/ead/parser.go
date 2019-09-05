@@ -232,6 +232,7 @@ type CLevel interface {
 	GetCdid() *Cdid
 	GetScopeContent() *Cscopecontent
 	GetOdd() []*Codd
+	GetPhystech() []*Cphystech
 	GetMaterial() string
 }
 
@@ -256,6 +257,7 @@ func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
 func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc) GetOdd() []*Codd                      { return c.Codd }
+func (c Cc) GetPhystech() []*Cphystech            { return c.Cphystech }
 func (c Cc) GetNested() []CLevel                  { return c.Nested() }
 func (c Cc) Nested() []CLevel {
 	levels := make([]CLevel, len(c.Cc))
