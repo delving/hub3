@@ -170,6 +170,25 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
 	}
 
+	// write error log
+	if len(cfg.Errors) != 0 {
+		errs, err := cfg.ErrorToCSV()
+		if err != nil {
+			log.Printf("unable to get error csv: %#v", err)
+			return nil, err
+		}
+
+		err = ioutil.WriteFile(
+			fmt.Sprintf("%s_err.csv", basePath),
+			errs,
+			0644,
+		)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to EAD erros to disk")
+		}
+
+	}
+
 	if p != nil {
 		go func() {
 			start := time.Now()
