@@ -133,6 +133,12 @@ func Test_newQueryItem(t *testing.T) {
 			nil,
 			false,
 		},
+		{
+			"diacritics query",
+			args{"Geünieerde"},
+			&queryItem{text: "geünieerde", wildcard: false, flat: "geunieerde"},
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -219,6 +225,30 @@ func Test_descriptionQuery_highlightQuery(t *testing.T) {
 			false,
 		},
 		{
+			"diacritics: diacritic to diacritic",
+			fields{query: "Geünieerde"},
+			args{text: "de Geünieerde Provintiën"},
+			`de <em class="dchl">Geünieerde</em> Provintiën`,
+			true,
+			false,
+		},
+		{
+			"diacritics: diacritic to normalised",
+			fields{query: "Geünieerde"},
+			args{text: "de Geunieerde Provintiën"},
+			`de <em class="dchl">Geunieerde</em> Provintiën`,
+			true,
+			false,
+		},
+		{
+			"diacritics: normalised to diacritic",
+			fields{query: "Geunieerde"},
+			args{text: "de Geünieerde Provintiën"},
+			`de <em class="dchl">Geünieerde</em> Provintiën`,
+			true,
+			false,
+		},
+		{
 			"no match",
 			fields{query: "leiden"},
 			args{text: "De boot in Amsterdam"},
@@ -235,10 +265,10 @@ func Test_descriptionQuery_highlightQuery(t *testing.T) {
 			}
 			got, got1 := dq.highlightQuery(tt.args.text)
 			if got != tt.want {
-				t.Errorf("descriptionQuery.highlightQuery() got = %v, want %v", got, tt.want)
+				t.Errorf("descriptionQuery.highlightQuery() %s; got = %v, want %v", tt.name, got, tt.want)
 			}
 			if got1 != tt.want1 {
-				t.Errorf("descriptionQuery.highlightQuery() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("descriptionQuery.highlightQuery() %s; got1 = %v, want %v", tt.name, got1, tt.want1)
 			}
 		})
 	}
@@ -252,42 +282,163 @@ func Test_descriptionQuery_match(t *testing.T) {
 		word string
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   bool
+		name     string
+		fields   fields
+		args     args
+		wantWord string
+		want     bool
 	}{
 		{
 			"simple query",
 			fields{query: "de"},
 			args{word: "De"},
+			"de",
 			true,
 		},
 		{
 			"lowercase match",
 			fields{query: "De"},
 			args{word: "de"},
+			"de",
 			true,
 		},
 		{
 			"wildcard match multi world",
 			fields{query: "amster* de"},
 			args{word: "Amsterdam"},
+			"amsterdam",
 			true,
 		},
 		{
 			"no match",
 			fields{query: "amster*"},
 			args{word: "de"},
+			"",
 			false,
+		},
+		{
+			"diacritics match ",
+			fields{query: "geunieerde"},
+			args{word: "Geünieerde"},
+			"geünieerde",
+			true,
+		},
+		{
+			"inverted diacritics match ",
+			fields{query: "geünieerde"},
+			args{word: "Geunieerde"},
+			"geunieerde",
+			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			dq := NewDescriptionQuery(tt.fields.query)
-			_, got := dq.match(tt.args.word)
+			gotWord, got := dq.match(tt.args.word)
 			if got != tt.want {
-				t.Errorf("descriptionQuery.match() = %v, want %v", got, tt.want)
+				t.Errorf("descriptionQuery.match() %s = %v, want %v", tt.name, got, tt.want)
+			}
+			if gotWord != tt.wantWord {
+				t.Errorf("descriptionQuery.match() %s = %v, want %v", tt.name, gotWord, tt.wantWord)
+			}
+		})
+	}
+}
+
+func Test_queryItem_equal(t *testing.T) {
+	type fields struct {
+		text          string
+		wildcard      bool
+		partial       bool
+		diacriticFold bool
+		flat          string
+		must          bool
+	}
+	type args struct {
+		word string
+	}
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		wantWord string
+		want     bool
+	}{
+		{
+			"no match",
+			fields{
+				text: "panorama",
+			},
+			args{word: "panoramas"},
+			"",
+			false,
+		},
+		{
+			"direct match",
+			fields{
+				text: "panorama",
+			},
+			args{word: "panorama"},
+			"panorama",
+			true,
+		},
+		{
+			"wildcard match",
+			fields{
+				text:     "pano",
+				wildcard: true,
+			},
+			args{word: "panorama"},
+			"panorama",
+			true,
+		},
+		{
+			"partial match",
+			fields{
+				text:    "oram",
+				partial: true,
+			},
+			args{word: "panorama"},
+			"oram",
+			true,
+		},
+		{
+			"diacritics on query",
+			fields{
+				text:          "geünieerde",
+				diacriticFold: true,
+				flat:          "geunieerde",
+			},
+			args{word: "geunieerde"},
+			"geunieerde",
+			true,
+		},
+		{
+			"diacritics on input",
+			fields{
+				text: "geunieerde",
+			},
+			args{word: "geünieerde"},
+			"geünieerde",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			qi := &queryItem{
+				text:          tt.fields.text,
+				wildcard:      tt.fields.wildcard,
+				partial:       tt.fields.partial,
+				diacriticFold: tt.fields.diacriticFold,
+				flat:          tt.fields.flat,
+				must:          tt.fields.must,
+			}
+			gotWord, got := qi.equal(tt.args.word)
+			if got != tt.want {
+				t.Errorf("queryItem.equal() %s = got %v, want %v", tt.name, got, tt.want)
+			}
+			if gotWord != tt.wantWord {
+				t.Errorf("queryItem.equal() %s = gotWord %v, wantWord %v", tt.name, gotWord, tt.wantWord)
 			}
 		})
 	}

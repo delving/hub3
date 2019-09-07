@@ -7,8 +7,11 @@ import (
 	"io"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/pkg/errors"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -131,8 +134,12 @@ func (dc DescriptionCounter) CountForQuery(query string) (int, map[string]int) {
 }
 
 type queryItem struct {
-	text     string
-	wildcard bool
+	text          string
+	wildcard      bool
+	partial       bool
+	diacriticFold bool
+	flat          string // query text without diacritics
+	must          bool   // word is required for match count. Default OR
 }
 
 // DescriptionQuery can be used to query and highlight matches in the ead.Description
@@ -145,12 +152,17 @@ type DescriptionQuery struct {
 	regex   map[string]*regexp.Regexp
 }
 
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
 func newQueryItem(word string) (*queryItem, bool) {
 	switch word {
 	case "AND", "OR", "NOT":
 		return nil, false
 	}
 	word = strings.Trim(strings.ToLower(word), `"()`)
+
 	if strings.HasPrefix(word, "-") {
 		return nil, false
 	}
@@ -159,9 +171,17 @@ func newQueryItem(word string) (*queryItem, bool) {
 		word = strings.TrimSuffix(word, "*")
 		hasSuffix = true
 	}
+
 	queryItem := &queryItem{
 		text:     word,
 		wildcard: hasSuffix,
+	}
+
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	flatWord, _, _ := transform.String(t, word)
+	if flatWord != word {
+		queryItem.flat = flatWord
+		queryItem.diacriticFold = true
 	}
 	return queryItem, true
 }
@@ -320,31 +340,47 @@ func (dq *DescriptionQuery) highlightQuery(text string) (string, bool) {
 	return text, len(found) != 0
 }
 
+// equal takes a lowercase word and compares it to the text of the queryItem
+func (qi *queryItem) equal(word string) (string, bool) {
+	var matcher func(s, t string) bool
+	matchWord := qi.text
+	switch {
+	case qi.wildcard:
+		matcher = strings.HasPrefix
+		matchWord = word
+	case qi.partial:
+		matcher = strings.Contains
+	default:
+		matcher = strings.EqualFold
+	}
+
+	// remove diacritics
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	flatWord, _, _ := transform.String(t, word)
+	if flatWord != word {
+		matchWord = word
+	}
+
+	switch {
+	case qi.diacriticFold && matcher(flatWord, qi.flat):
+		return word, true
+	case matcher(flatWord, qi.text):
+		return matchWord, true
+	default:
+		return "", false
+	}
+}
+
 func (dq *DescriptionQuery) match(word string) (string, bool) {
 	word = strings.Trim(strings.ToLower(word), `"().,;`)
-	var isMatch bool
-	var matchWord string
+
 	for _, q := range dq.items {
-		switch q.wildcard {
-		case true:
-			isMatch = strings.HasPrefix(word, q.text)
-			matchWord = word
-		case false:
-			isMatch = word == q.text
-			if dq.Partial {
-				isMatch = strings.Contains(word, q.text)
-			}
-			matchWord = q.text
-		}
-		if isMatch {
-			break
+		if matchWord, ok := q.equal(word); ok {
+			dq.Seen++
+			dq.Hits[matchWord]++
+			return matchWord, true
 		}
 	}
 
-	if isMatch {
-		dq.Seen++
-		dq.Hits[matchWord]++
-	}
-
-	return matchWord, isMatch
+	return "", false
 }
