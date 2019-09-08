@@ -339,6 +339,10 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	}
 	header.ID = append(header.ID, nodeIDs...)
 
+	if cdid.Cphysloc != nil {
+		header.Physloc = string(cdid.Cphysloc.Raw)
+	}
+
 	return header, nil
 }
 
@@ -371,7 +375,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		SubType:   c.GetAttrotherlevel(),
 		ParentIDs: parentIDs,
 		Order:     cfg.Counter.GetCount(),
-		CLevel:    c,
 	}
 
 	header, err := c.GetCdid().NewHeader()
@@ -395,12 +398,21 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 
 	// add accessrestrict
-	if c.GetCaccessrestrict() != nil {
-		node.Access = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+	if ar := c.GetCaccessrestrict(); ar != nil {
+		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+		for _, p := range ar.Cp {
+			if p.Cref != nil && p.Cref.Cdate != nil {
+				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
+			}
+		}
 	}
 
 	if c.GetMaterial() != "" {
 		node.Material = c.GetMaterial()
+	}
+
+	for _, p := range c.GetPhystech() {
+		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
 	}
 
 	parentIDs, err = node.setPath(parentIDs)

@@ -16,20 +16,21 @@ const CLevelLeader = "@"
 
 // Node holds all the clevel information.
 type Node struct {
-	CTag      string
-	Depth     int32
-	Type      string
-	SubType   string
-	Header    *Header
-	HTML      []string
-	Nodes     []*Node
-	Order     uint64
-	ParentIDs []string
-	Path      string
-	BranchID  string
-	Access    string
-	Material  string
-	CLevel    CLevel
+	CTag               string
+	Depth              int32
+	Type               string
+	SubType            string
+	Header             *Header
+	HTML               []string
+	Nodes              []*Node
+	Order              uint64
+	ParentIDs          []string
+	Path               string
+	BranchID           string
+	AccessRestrict     string
+	AccessRestrictYear string
+	Material           string
+	Phystech           []string
 }
 
 type NodeList struct {
@@ -45,6 +46,7 @@ type Header struct {
 	Label            []string
 	Date             []*NodeDate
 	Physdesc         string
+	Physloc          string
 	DateAsLabel      bool
 	HasDigitalObject bool
 	DaoLink          string
@@ -145,8 +147,8 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 			strings.TrimSpace(html.UnescapeString(n)),
 		)
 	}
-	tree.Access = n.Access
-	tree.HasRestriction = n.Access != ""
+	tree.Access = n.AccessRestrict
+	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
 	return tree
 }

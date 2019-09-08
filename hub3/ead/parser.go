@@ -315,6 +315,9 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elasti
 		return err
 	}
 
+	if p == nil {
+		return nil
+	}
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type(fragments.DocType).
@@ -905,6 +908,7 @@ type Cp struct {
 	Cref        *Cref        `xml:"ref,omitempty" json:"ref,omitempty"`
 	Ctitle      []*Ctitle    `xml:"title,omitempty" json:"title,omitempty"`
 	P           string       `xml:",chardata" json:",omitempty"`
+	Raw         []byte       `xml:",innerxml" json:",omitempty"`
 }
 
 type Cphysdesc struct {
