@@ -150,6 +150,11 @@ func ListIndexes() ([]string, error) {
 }
 
 func createESClient() *elastic.Client {
+	timeout := time.Duration(5 * time.Second)
+	httpclient := &http.Client{
+		Timeout: timeout,
+	}
+
 	options := []elastic.ClientOptionFunc{
 		elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
 		elastic.SetSniff(false),                             // disable sniffing
@@ -157,6 +162,7 @@ func createESClient() *elastic.Client {
 		elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
 		// todo replace with logrus logger later
 		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
+		elastic.SetHttpClient(httpclient),
 	}
 
 	if config.Config.ElasticSearch.HasAuthentication() {
