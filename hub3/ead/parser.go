@@ -86,6 +86,9 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 
 	if spec == "" {
 		spec = cead.Ceadheader.Ceadid.EadID
+		if strings.Contains(spec, "/") {
+			spec = strings.ReplaceAll(spec, "/", ".")
+		}
 	}
 
 	f.Close()
@@ -134,7 +137,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		0644,
 	)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to JSON description to disk")
+		return nil, errors.Wrapf(err, "Unable to save JSON description to disk")
 	}
 
 	// save description
