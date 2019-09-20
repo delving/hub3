@@ -24,7 +24,7 @@ var _ = Describe("CSV", func() {
 			})
 
 			It("should get the subject column from a list of headers", func() {
-				in, err := os.Open("test_data/UUIDsMemorixNaarHub3_new.csv")
+				in, err := os.Open("testdata/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
 				conv := CSVConvertor{
 					SubjectColumn: "handle-uuid",
@@ -40,7 +40,7 @@ var _ = Describe("CSV", func() {
 			})
 
 			It("should create a header map", func() {
-				in, err := os.Open("test_data/UUIDsMemorixNaarHub3_new.csv")
+				in, err := os.Open("testdata/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
 				conv := NewCSVConvertor()
 				conv.InputFile = in
@@ -90,7 +90,7 @@ var _ = Describe("CSV", func() {
 			})
 
 			It("should parse a file", func() {
-				in, err := os.Open("test_data/UUIDsMemorixNaarHub3_new.csv")
+				in, err := os.Open("testdata/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
 				conv := NewCSVConvertor()
 				conv.InputFile = in

@@ -12,7 +12,6 @@ hub3.iml
 
 # build and vendor
 main
-hub3
 gin-bin
 *.rpm
 *.deb

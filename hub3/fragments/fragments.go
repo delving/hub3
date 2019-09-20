@@ -180,7 +180,7 @@ func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
 	q := fr.BuildQuery()
 	return client.Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.FragmentIndexName()).
 		Query(q).
 		Size(FRAGMENT_SIZE).
 		From(fr.GetESPage()).
@@ -217,7 +217,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 // CreateHash creates an xxhash-based hash of a string
 func CreateHash(input string) string {
 	hash := xxhash.Checksum64([]byte(input))
-	return fmt.Sprintf("%016x", hash)
+	return fmt.Sprintf("%d", hash)
 }
 
 // Quad returns a RDF Quad from the Fragment
@@ -237,7 +237,7 @@ func (f *Fragment) ID() string {
 // submitted to the ElasticSearch BulkIndexService
 func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.FragmentIndexName()).
 		Type(DocType).
 		Id(f.ID()).
 		Doc(f)

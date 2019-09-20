@@ -42,6 +42,27 @@ enum ResponseBlockType {
   PAGINATION = 4;
 }
 
+enum FacetType {
+    TERMS = 0;
+    HISTOGRAM = 1;
+    MINMAX = 2;
+    TREEFACET = 3;
+    TAGS = 4;
+    METATAGS = 5;
+}
+
+enum QueryFilterType {
+    TEXT = 0;
+    ID = 1;
+    EXCLUDE = 2;
+    EXISTS = 3;
+    RANGE = 4;
+    DATERANGE = 5;
+    ISODATE = 6;
+    TREEITEM = 7;
+    ENTRYTAG = 8;
+}
+
 
 message FilterValue {
   repeated string value = 1;
@@ -61,6 +82,9 @@ message QueryFilter {
   bool Exclude = 5;
   bool ID = 7;
   bool Exists = 8;
+  QueryFilterType type = 9;
+  string lte = 10;
+  string gte = 11;
   // Path is the full query path 
 }
 
@@ -71,6 +95,9 @@ message FacetField {
   int32 size = 4;
   bool byId = 5;
   string name = 6;
+  FacetType type = 7;
+  string dateInterval = 8;
+  string aggField = 9;
 }
 
 
@@ -191,13 +218,6 @@ message PaginationLink {
   int32 pageNumber = 3;
 }
 
-message ScrollPager {
-  // scrollID is serialized version SearchRequest
-  string scrollID = 1;
-  int32 cursor = 2;
-  int64 total = 3;
-  int32 rows = 4;
-}
 
 message FragmentPager {
   bytes firstPage = 1;
@@ -240,28 +260,6 @@ message FaceLink {
   string value = 3;
   int32 count = 4;
   string displayString = 5;
-}
-
-
-// V3
-
-
-message SearchResultWrapperV3 {
-  SearchResultV3 result = 1;
-}
-
-// Full SearchResult
-message SearchResultV3 {
-  Query query = 1; 
-  SearchRequest request = 2;
-  Pagination pagination = 3;
-  repeated fragments.FragmentGraphDoc items = 4; 
-  repeated Facet facets = 5;
-}
-
-message ScrollResultV3 {
-  ScrollPager pager = 1;
-  repeated fragments.FragmentGraphDoc items = 5;
 }
 
 // V1 
@@ -548,16 +546,26 @@ message Fragment {
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
   string triple = 13;
-  // the type of the
+  // the type of the object
   string objectType = 14;
 
   // the relative key that is used to resolve a SPARQL describe for a Subject
   string lodKey = 15;
 
+  // path is used for generating statistics. It is repeated because @type, @lang
+  // and @xsd:type must be added in addition to the normal fields.
+  repeated string path = 16;
 
-  // path is used for generating statistics 
-  string path = 16;
+  // nestedPath is used for generating statistics with the graph path. 
+  // It is repeated because @type, @lang and @xsd:type must be added in addition to the normal fields.
+  repeated string nestedPath = 20;
 
   // order is the insert order of the source of the fragments
   int32 order = 17;
+
+  // resourceType is the RDF type of the resource
+  repeated string resourceType = 18;
+
+  // level shows the relative depth to the root RDF subject
+  int32 level = 19;
 }

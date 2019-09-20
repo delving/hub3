@@ -23,6 +23,7 @@ var _ = Describe("Nodes", func() {
 			cfg.OrgID = "test"
 			cfg.Spec = "test-spec"
 			cfg.Revision = int32(38)
+			cfg.CreateTree = CreateTree
 			var h *fragments.Header
 
 			It("should not throw an error", func() {
@@ -78,6 +79,7 @@ var _ = Describe("Nodes", func() {
 			cfg.OrgID = "test"
 			cfg.Spec = "test_spec"
 			cfg.Revision = int32(38)
+			cfg.CreateTree = CreateTree
 
 			It("should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -88,7 +90,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should convert only the main body to RDF", func() {
 				node := nl.Nodes[0]
-				Expect(node.GetType()).To(Equal("series"))
+				Expect(node.Type).To(Equal("series"))
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
@@ -137,7 +139,7 @@ var _ = Describe("Nodes", func() {
 				s := "urn:123"
 				triples := node.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(28))
+				Expect(triples).To(HaveLen(27))
 			})
 
 		})
@@ -158,7 +160,7 @@ var _ = Describe("Nodes", func() {
 				node, err = NewNode(c03, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
-				h = node.GetHeader()
+				h = node.Header
 				Expect(h).ToNot(BeNil())
 			})
 
@@ -171,7 +173,7 @@ var _ = Describe("Nodes", func() {
 				var date *NodeDate
 
 				It("should have a date", func() {
-					dates := h.GetDate()
+					dates := h.Date
 					Expect(dates).ToNot(BeEmpty())
 					Expect(dates).To(HaveLen(1))
 					date = dates[0]
@@ -190,7 +192,7 @@ var _ = Describe("Nodes", func() {
 				var id *NodeID
 
 				It("should have unitIDs", func() {
-					ids := h.GetID()
+					ids := h.ID
 					Expect(ids).ToNot(BeEmpty())
 					Expect(ids).To(HaveLen(2))
 					id = ids[0]

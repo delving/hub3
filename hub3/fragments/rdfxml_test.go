@@ -17,7 +17,7 @@ var _ = Describe("Rdf", func() {
 	Context("when parsing from an io.Reader", func() {
 
 		It("should extract a list of triples", func() {
-			dat, err := os.Open("test_data/1.rdf")
+			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
 			triples, err := DecodeRDFXML(dat)
 			Expect(err).ToNot(HaveOccurred())
@@ -28,7 +28,7 @@ var _ = Describe("Rdf", func() {
 	Context("when converting a list of triples", func() {
 
 		It("should create a fragments.ResourceMap", func() {
-			dat, err := os.Open("test_data/1.rdf")
+			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
 			triples, err := DecodeRDFXML(dat)
 			Expect(err).ToNot(HaveOccurred())
@@ -48,6 +48,14 @@ var _ = Describe("Rdf", func() {
 })
 
 func TestTripleConversion(t *testing.T) {
+
+	tr := func(s rdf.Subject, p rdf.Predicate, o rdf.Object) rdf.Triple {
+		return rdf.Triple{
+			Subj: s,
+			Pred: p,
+			Obj:  o,
+		}
+	}
 
 	s := "http://example.com/subject"
 	p := "http://example.com/predicate"
@@ -77,13 +85,13 @@ func TestTripleConversion(t *testing.T) {
 		input  rdf.Triple
 		output *r.Triple
 	}{
-		{"bnode object", rdf.Triple{iS, iP, iB}, r.NewTriple(oS, oP, oB)},
-		{"bnode subject", rdf.Triple{iB, iP, iB}, r.NewTriple(oB, oP, oB)},
-		{"bnode subject with Literal", rdf.Triple{iB, iP, iL}, r.NewTriple(oB, oP, oL)},
-		{"literal object", rdf.Triple{iS, iP, iL}, r.NewTriple(oS, oP, oL)},
-		{"literal language object", rdf.Triple{iS, iP, iLL}, r.NewTriple(oS, oP, oLL)},
-		{"typed literal object", rdf.Triple{iS, iP, iTL}, r.NewTriple(oS, oP, oTL)},
-		{"resource object", rdf.Triple{iS, iP, iS}, r.NewTriple(oS, oP, oS)},
+		{"bnode object", tr(iS, iP, iB), r.NewTriple(oS, oP, oB)},
+		{"bnode subject", tr(iB, iP, iB), r.NewTriple(oB, oP, oB)},
+		{"bnode subject with Literal", tr(iB, iP, iL), r.NewTriple(oB, oP, oL)},
+		{"literal object", tr(iS, iP, iL), r.NewTriple(oS, oP, oL)},
+		{"literal language object", tr(iS, iP, iLL), r.NewTriple(oS, oP, oLL)},
+		{"typed literal object", tr(iS, iP, iTL), r.NewTriple(oS, oP, oTL)},
+		{"resource object", tr(iS, iP, iS), r.NewTriple(oS, oP, oS)},
 	}
 
 	for _, tc := range tt {

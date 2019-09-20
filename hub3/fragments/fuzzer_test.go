@@ -20,7 +20,7 @@ var _ = Describe("Naa", func() {
 	Context("when parsing a record definition", func() {
 
 		It("should read the whole model", func() {
-			path, err := filepath.Abs("./test_data/naa_0.0.5_record-definition.xml")
+			path, err := filepath.Abs("./testdata/naa_0.0.5_record-definition.xml")
 			Expect(err).ToNot(HaveOccurred())
 			f, err := os.Open(path)
 			Expect(err).ToNot(HaveOccurred())
@@ -44,7 +44,7 @@ var _ = Describe("Naa", func() {
 })
 
 func TestNewRecDef(t *testing.T) {
-	//path, err := filepath.Abs("./test_data/naa_0.0.5_record-definition.xml")
+	//path, err := filepath.Abs("./testdata/naa_0.0.5_record-definition.xml")
 	//assert.NoError(t, err, "Unable to create absolute path")
 	//raw, err := ioutil.ReadFile(path)
 	//assert.NoError(t, err, "Unable to open test data")

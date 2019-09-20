@@ -29,9 +29,16 @@ func RegisterElasticSearchProxy(router chi.Router) {
 	// Anything we don't do in Go, we pass to the old platform
 	es, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
 	es.Path = fmt.Sprintf("/%s/", c.Config.ElasticSearch.IndexName)
+	esCat, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
+	esCat.Path = "/_cat/"
+
 	if c.Config.ElasticSearch.Proxy {
 		r.Handle("/_search", NewSingleFinalPathHostReverseProxy(es, "_search"))
 		r.Handle("/_mapping", NewSingleFinalPathHostReverseProxy(es, "_mapping"))
+		r.Handle("/_cat", NewSingleFinalPathHostReverseProxy(esCat, ""))
+		r.Handle("/_cat/shards", NewSingleFinalPathHostReverseProxy(esCat, "shards"))
+		r.Handle("/_cat/nodes", NewSingleFinalPathHostReverseProxy(esCat, "nodes"))
+		r.Handle("/_cat/indices", NewSingleFinalPathHostReverseProxy(esCat, "indices"))
 	}
 
 	router.Mount("/api/es", r)

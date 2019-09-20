@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/pkg/server/http/assets"
@@ -14,6 +15,7 @@ import (
 	"github.com/go-chi/render"
 	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/urfave/negroni"
+	"go.elastic.co/apm/module/apmchi"
 )
 
 type server struct {
@@ -127,6 +129,9 @@ func chiWithDefaults() chi.Router {
 	r.Use(mw.StripSlashes)
 	r.Use(mw.Heartbeat("/ping"))
 
+	if os.Getenv("ELASTIC_APM_SERVER_URL") != "" {
+		r.Use(apmchi.Middleware())
+	}
 	return r
 
 }

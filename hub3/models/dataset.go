@@ -123,6 +123,14 @@ type DataSet struct {
 	Owner            string   `json:"owner"`
 	Abstract         []string `json:"abstract"`
 	Period           []string `json:"period"`
+	Length           string   `json:"length"`
+	Files            string   `json:"files"`
+	Language         string   `json:"language"`
+	Material         string   `json:"material"`
+	ArchiveCreator   []string `json:"archiveCreator"`
+	MetsFiles        int      `json:"metsFiles"`
+	Description      string   `json:"description"`
+	Clevels          int      `json:"clevels"`
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -350,7 +358,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.FragmentIndexName()).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -565,7 +573,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		// block for 15 seconds to allow cluster to be in sync
 		timer := time.NewTimer(time.Second * 15)
 		<-timer.C
-		log.Print("Orphan wait timer expired")
+		//log.Print("Orphan wait timer expired")
 
 		// enqueue posthooks first
 		if ds.validForPostHook() && wp != nil {
@@ -577,7 +585,10 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 		}
 
 		res, err := index.ESClient().DeleteByQuery().
-			Index(c.Config.ElasticSearch.IndexName).
+			Index(
+				c.Config.ElasticSearch.IndexName,
+				c.Config.ElasticSearch.FragmentIndexName(),
+			).
 			Query(q).
 			Conflicts("proceed"). // default is abort
 			Do(ctx)
@@ -591,7 +602,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 			//return fmt.Errorf("expected response != nil")
 			return
 		}
-		log.Printf("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
+		//log.Printf("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
 
 	}()
 	return 0, nil
@@ -609,7 +620,10 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 		}
 	}
 	res, err := index.ESClient().DeleteByQuery().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(
+			c.Config.ElasticSearch.IndexName,
+			c.Config.ElasticSearch.FragmentIndexName(),
+		).
 		Query(q).
 		Do(ctx)
 	if err != nil {
@@ -632,7 +646,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 		log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
 		return false, err
 	}
-	log.Printf("Flushed remaining items on the index queue.")
+	//log.Printf("Flushed remaining items on the index queue.")
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {

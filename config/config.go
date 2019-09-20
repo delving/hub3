@@ -78,6 +78,7 @@ type ElasticSearch struct {
 	Fragments          bool     `json:"fragments"`
 	IndexV1            bool     `json:"indexV1"` // exclusive with v2 indexing
 	EnableTrace        bool     `json:"enableTrace"`
+	EnableInfo         bool     `json:"enableInfo"`
 	SpecKey            string   `json:"specKey"`
 	RevisionKey        string   `json:"revisionKey"`
 	OrgIDKey           string   `json:"orgIDKey"`
@@ -86,9 +87,17 @@ type ElasticSearch struct {
 	FacetSize          int      `json:"facetSize"`
 	MinimumShouldMatch string   `json:"minimumShouldMatch"`
 	Workers            int      `json:"workers"`
+	Shards             int      `json:"shards"`
+	Replicas           int      `json:"replicas"`
 	EnableSearchAfter  bool     `json:"enableSearchAfter"`
 }
 
+// FragmentIndexName returns the name of the Fragment index.
+func (es ElasticSearch) FragmentIndexName() string {
+	return fmt.Sprintf("%s_frag", es.IndexName)
+}
+
+// HasAuthentication returns if ElasticSearch has authentication enabled.
 func (es ElasticSearch) HasAuthentication() bool {
 	return len(es.UserName) > 0 && len(es.Password) > 0
 }
@@ -208,6 +217,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Fragments", true)
 	viper.SetDefault("ElasticSearch.IndexV1", false)
 	viper.SetDefault("ElasticSearch.EnableTrace", false)
+	viper.SetDefault("ElasticSearch.EnableInfo", false)
 	viper.SetDefault("ElasticSearch.SpecKey", "meta.spec")
 	viper.SetDefault("ElasticSearch.RevisionKey", "meta.revision")
 	viper.SetDefault("ElasticSearch.OrgIDKey", "meta.orgID")
@@ -215,6 +225,8 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.MimimumShouldMatch", "2<70%")
 	viper.SetDefault("ElasticSearch.workers", 1)
 	viper.SetDefault("ElasticSearch.EnableSearchAfter", false)
+	viper.SetDefault("ElasticSearch.Shards", 1)
+	viper.SetDefault("ElasticSearch.Replicas", 0)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

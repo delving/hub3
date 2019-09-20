@@ -23,6 +23,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
@@ -96,7 +97,9 @@ type Tree struct {
 	Description      string   `json:"description,omitempty"`
 	InventoryID      string   `json:"inventoryID,omitempty"`
 	AgencyCode       string   `json:"agencyCode,omitempty"`
+	PeriodDesc       []string `json:"periodDesc,omitempty"`
 	Material         string   `json:"material,omitempty"`
+	PhysDesc         string   `json:"physDesc,omitempty"`
 }
 
 // DeepCopy creates a deep-copy of a Tree.
@@ -132,7 +135,7 @@ func (t *Tree) DeepCopy() *Tree {
 	return target
 }
 
-// TreePageEntry creates a paging entry for a tree element.
+// PageEntry creates a paging entry for a tree element.
 func (t *Tree) PageEntry() *TreePageEntry {
 	return &TreePageEntry{
 		CLevel:      t.CLevel,
@@ -282,6 +285,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	}
 }
 
+// ExpandedIDs expands all the parent identifiers in a CLevel path and returns it as a map.
 func ExpandedIDs(node *Tree) map[string]bool {
 	expandedIDs := make(map[string]bool)
 	parents := strings.Split(node.CLevel, "~")
@@ -368,6 +372,15 @@ type Collapsed struct {
 	Title    string           `json:"title"`
 	HitCount int64            `json:"hitCount"`
 	Items    []*FragmentGraph `json:"items"`
+}
+
+// ScrollPager holds all paging information for a search result.
+type ScrollPager struct {
+	// scrollID is serialized version SearchRequest
+	ScrollID string `json:"scrollID"`
+	Cursor   int32  `json:"cursor"`
+	Total    int64  `json:"total"`
+	Rows     int32  `json:"rows"`
 }
 
 // ScrollResultV4 intermediate non-protobuf search results
@@ -495,7 +508,11 @@ type TreePageEntry struct {
 
 // CreateTreePage creates a paging entry that can be used to merge the EAD tree between
 // different paging request.
-func (tpe *TreePageEntry) CreateTreePage(nodeMap map[string]*Tree, rootNodes []*Tree, appending bool, sortFrom int32) map[string][]*Tree {
+func (tpe *TreePageEntry) CreateTreePage(
+	nodeMap map[string]*Tree,
+	rootNodes []*Tree,
+	appending bool,
+	sortFrom int32) map[string][]*Tree {
 
 	page := make(map[string][]*Tree)
 
@@ -585,6 +602,9 @@ type QueryFacet struct {
 	Total       int64        `json:"total"`
 	MissingDocs int64        `json:"missingDocs"`
 	OtherDocs   int64        `json:"otherDocs"`
+	Min         string       `json:"min,omitempty"`
+	Max         string       `json:"max,omitempty"`
+	Type        string       `json:"type,omitempty"`
 	Links       []*FacetLink `json:"links"`
 }
 
@@ -608,6 +628,29 @@ type FragmentResource struct {
 	Tags                 []string                   `json:"tags,omitempty"`
 	predicates           map[string][]*FragmentEntry
 	objectIDs            []*FragmentReferrerContext
+}
+
+// ContextPath returns a string that can be used to reconstruct the path hierarchy
+// for statistics. The values are separated by a forward slash.
+func (fr *FragmentResource) ContextPath() string {
+	var path []string
+	for _, context := range fr.Context {
+
+		// just take the first rdf:type the rest are shown in @rdf:type
+		rdfType := "rdf_Description"
+		if len(context.GetSubjectClass()) != 0 {
+			rdfType = context.GetSubjectClass()[0]
+			searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(rdfType)
+			if err != nil {
+				log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
+			}
+			if searchLabel != "" {
+				rdfType = searchLabel
+			}
+		}
+		path = append(path, rdfType, context.GetSearchLabel())
+	}
+	return strings.Join(path, "/")
 }
 
 // ObjectIDs returns an array of FragmentReferrerContext
@@ -688,6 +731,13 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			return re, err
 		}
 		re.Integer = i
+	case "http://www.w3.org/2001/XMLSchema#float":
+		i, err := strconv.ParseFloat(re.Value, 32)
+		if err != nil {
+			log.Printf("unable to convert to float: %#v", err)
+			return re, err
+		}
+		re.Float = i
 	}
 
 	labels, ok := c.Config.RDFTagMap.Get(predicate)
@@ -698,17 +748,119 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			for _, label := range labels {
 				switch label {
 				case "isoDate":
-					re.Date = re.Value
-					//log.Printf("Date value: %s", re.Date)
+					re.Date = append(re.Date, re.Value)
 				case "dateRange":
-					re.DateRange = re.Value
+					indexRange, err := CreateDateRange(re.Value)
+					if err != nil {
+						log.Printf("Unable to create dateRange for: %#v", re.Value)
+						continue
+					}
+					re.DateRange = &indexRange
+					if indexRange.Greater != "" {
+						re.Date = append(re.Date, indexRange.Greater)
+					}
+					if indexRange.Less != "" {
+						re.Date = append(re.Date, indexRange.Less)
+					}
 				case "latLong":
 					re.LatLong = re.Value
+				case "integer":
+					i, err := strconv.Atoi(re.Value)
+					if err != nil {
+						log.Printf("Unable to create integer for: %#v", re.Value)
+						continue
+					}
+					log.Printf("extracting integer from tag: %s", re.Value)
+					re.Integer = i
 				}
 			}
 		}
 	}
 	return re, nil
+}
+
+// CreateDateRange creates a date indexRange
+func CreateDateRange(period string) (IndexRange, error) {
+	ir := IndexRange{}
+	parts := strings.FieldsFunc(period, splitPeriod)
+	switch len(parts) {
+	case 1:
+		// start and end year
+		ir.Greater, _ = padYears(parts[0], true)
+		ir.Less, _ = padYears(parts[0], false)
+	case 2:
+		ir.Greater, _ = padYears(parts[0], true)
+		ir.Less, _ = padYears(parts[1], false)
+	default:
+		return ir, fmt.Errorf("Unable to create data range for: %#v", parts)
+	}
+
+	if err := ir.Valid(); err != nil {
+		return ir, err
+	}
+
+	return ir, nil
+}
+
+func padYears(year string, start bool) (string, error) {
+	parts := strings.Split(year, "-")
+	switch len(parts) {
+	case 3:
+		return year, nil
+	case 2:
+		year := parts[0]
+		month := parts[1]
+		switch start {
+		case true:
+			return fmt.Sprintf("%s-%s-01", year, month), nil
+		case false:
+			switch parts[1] {
+			case "01", "03", "05", "07", "08", "10", "12":
+				return fmt.Sprintf("%s-%s-31", year, month), nil
+			case "02":
+				return fmt.Sprintf("%s-%s-28", year, month), nil
+			default:
+				return fmt.Sprintf("%s-%s-30", year, month), nil
+			}
+		}
+	case 1:
+		year := parts[0]
+		switch len(year) {
+		case 4:
+			switch start {
+			case true:
+				return fmt.Sprintf("%s-01-01", year), nil
+			case false:
+				return fmt.Sprintf("%s-12-31", year), nil
+			}
+		default:
+			// try to hyphenate the date
+			date, err := hyphenateDate(year)
+			if err != nil {
+				return "", err
+			}
+			return padYears(date, start)
+		}
+	}
+	return "", fmt.Errorf("unsupported case for padding: %s", year)
+}
+
+// hyphenateDate converts a string of date string into the hyphenated form.
+// Only YYYYMMDD and YYYYMM are supported.
+func hyphenateDate(date string) (string, error) {
+	switch len(date) {
+	case 4:
+		return date, nil
+	case 6:
+		return fmt.Sprintf("%s-%s", date[:4], date[4:]), nil
+	case 8:
+		return fmt.Sprintf("%s-%s-%s", date[:4], date[4:6], date[6:]), nil
+	}
+	return "", fmt.Errorf("Unable to hyphenate date string: %#v", date)
+}
+
+func splitPeriod(c rune) bool {
+	return !unicode.IsNumber(c) && c != '-'
 }
 
 // GetLabel returns the label and language for a resource
@@ -801,12 +953,28 @@ type ResourceEntry struct {
 	SearchLabel string            `json:"searchLabel,omitempty"`
 	Level       int32             `json:"level"`
 	Tags        []string          `json:"tags,omitempty"`
-	Date        string            `json:"date,omitempty"`
-	DateRange   string            `json:"dateRange,omitempty"`
+	Date        []string          `json:"isoDate,omitempty"`
+	DateRange   *IndexRange       `json:"dateRange,omitempty"`
 	Integer     int               `json:"integer,omitempty"`
+	Float       float64           `json:"float,omitempty"`
+	IntRange    *IndexRange       `json:"intRange,omitempty"`
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
 	Order       int               `json:"order"`
+}
+
+// IndexRange is used for indexing ranges.
+type IndexRange struct {
+	Greater string `json:"gte"`
+	Less    string `json:"lte"`
+}
+
+// Valid checks if Less is smaller than Greater.
+func (ir IndexRange) Valid() error {
+	if ir.Greater > ir.Less {
+		return fmt.Errorf("%s should not be greater than %s", ir.Less, ir.Greater)
+	}
+	return nil
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
@@ -887,6 +1055,72 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 		}
 	}
 	return nil
+}
+
+// SetPath sets the full context path for the Fragment that can be used
+// for statistics aggregations.
+func (f *Fragment) SetPath(contextPath string) {
+	rdfType := "rdf_Description"
+	if len(f.GetResourceType()) > 0 {
+		rdfType = f.GetResourceType()[0]
+		searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(rdfType)
+		if err != nil {
+			log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
+		}
+		if searchLabel != "" {
+			rdfType = searchLabel
+		}
+	}
+	typePath := fmt.Sprintf("%s/%s", contextPath, rdfType)
+	path := fmt.Sprintf("%s/%s", typePath, f.SearchLabel)
+	typedLabel := fmt.Sprintf("%s/%s", rdfType, f.SearchLabel)
+	switch {
+	case f.Predicate == RDFType:
+		f.NestedPath = append(
+			f.NestedPath,
+			fmt.Sprintf("%s/@rdf:about", typePath),
+			fmt.Sprintf("%s/@rdf:type", typePath),
+		)
+		f.Path = append(
+			f.Path,
+			fmt.Sprintf("%s/@rdf:about", rdfType),
+			fmt.Sprintf("%s/@rdf:type", rdfType),
+		)
+	case f.ObjectType == resource:
+		f.NestedPath = append(
+			f.NestedPath,
+			fmt.Sprintf("%s/@rdf:resource", path),
+		)
+		f.Path = append(
+			f.Path,
+			fmt.Sprintf("%s/@rdf:resource", typedLabel),
+		)
+	default:
+		if f.Language != "" {
+			f.NestedPath = append(
+				f.NestedPath,
+				fmt.Sprintf("%s/@xml:lang", path),
+			)
+			f.Path = append(
+				f.Path,
+				fmt.Sprintf("%s/@xml:lang", typedLabel),
+			)
+		}
+		if f.DataType != "" {
+			f.NestedPath = append(
+				f.NestedPath,
+				fmt.Sprintf("%s/@xsd:type", path),
+			)
+			f.Path = append(
+				f.Path,
+				fmt.Sprintf("%s/@xsd:type", typedLabel),
+			)
+		}
+		f.NestedPath = append(f.NestedPath, path)
+		f.Path = append(f.Path, typedLabel)
+	}
+
+	return
 }
 
 // CreateTriple creates a *rdf2go.Triple from a Fragment
@@ -1313,18 +1547,26 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 	lodKey, _ := fr.CreateLodKey()
 
-	// TODO add statistics path
-	// type is searchLabel
-	// @about is extra entry
-	// add type links
+	typeLabel, err := c.Config.NameSpaceMap.GetSearchLabel(RDFType)
+	if err != nil {
+		log.Printf("Unable to create search label for %s  due to %s\n", RDFType, err)
+		typeLabel = ""
+	}
+	path := fr.ContextPath()
+	types := []string{}
 	for _, ttype := range fr.Types {
+		types = append(types, ttype)
 		frag := &Fragment{
-			Meta:       fg.CreateHeader(FragmentDocType),
-			Subject:    fg.NormalisedResource(fr.ID),
-			Predicate:  RDFType,
-			Object:     ttype,
-			ObjectType: resource,
+			Meta:         fg.CreateHeader(FragmentDocType),
+			Subject:      fg.NormalisedResource(fr.ID),
+			Predicate:    RDFType,
+			Object:       ttype,
+			ObjectType:   resource,
+			ResourceType: types,
+			SearchLabel:  typeLabel,
+			Level:        fr.GetLevel(),
 		}
+		frag.SetPath(path)
 		frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 		if strings.HasPrefix(fr.ID, "_:") {
 			frag.Triple = fmt.Sprintf("%s <%s> <%s> .", frag.Subject, RDFType, ttype)
@@ -1341,15 +1583,26 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	// add entries
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
-			frag := &Fragment{
-				Meta:       fg.CreateHeader(FragmentDocType),
-				Subject:    fg.NormalisedResource(fr.ID),
-				Predicate:  predicate,
-				DataType:   entry.DataType,
-				Language:   entry.Language,
-				ObjectType: entry.EntryType,
-				Order:      int32(entry.Order),
+
+			label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
+			if err != nil {
+				log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+				label = ""
 			}
+
+			frag := &Fragment{
+				Meta:         fg.CreateHeader(FragmentDocType),
+				Subject:      fg.NormalisedResource(fr.ID),
+				Predicate:    predicate,
+				DataType:     entry.DataType,
+				Language:     entry.Language,
+				ObjectType:   entry.EntryType,
+				Order:        int32(entry.Order),
+				ResourceType: types,
+				SearchLabel:  label,
+				Level:        fr.GetLevel(),
+			}
+			frag.SetPath(path)
 			frag.Meta.NamedGraphURI = fg.Meta.NamedGraphURI
 			if entry.ID != "" {
 				frag.Object = fg.NormalisedResource(entry.ID)

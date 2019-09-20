@@ -1,6 +1,9 @@
 package fragments_test
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
@@ -362,3 +365,180 @@ var _ = Describe("Resource", func() {
 	})
 
 })
+
+func TestCreateDateRange(t *testing.T) {
+	type args struct {
+		period string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    IndexRange
+		wantErr bool
+	}{
+		{"simple year",
+			args{period: "1980"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1980-12-31",
+			},
+			false,
+		},
+		{"/ period",
+			args{period: "1980/1985"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1985-12-31",
+			},
+			false,
+		},
+		{"padded / period",
+			args{period: "1980 / 1985"},
+			IndexRange{
+				Greater: "1980-01-01",
+				Less:    "1985-12-31",
+			},
+			false,
+		},
+		{"full year period",
+			args{period: "1793-05-13/1794-01-11"},
+			IndexRange{
+				Greater: "1793-05-13",
+				Less:    "1794-01-11",
+			},
+			false,
+		},
+		{"mixed years",
+			args{period: "1793-05/1794"},
+			IndexRange{
+				Greater: "1793-05-01",
+				Less:    "1794-12-31",
+			},
+			false,
+		},
+		{"feb year",
+			args{period: "1778/1781-02"},
+			IndexRange{
+				Greater: "1778-01-01",
+				Less:    "1781-02-28",
+			},
+			false,
+		},
+		//{"- period",
+		//args{period: "1980-1985"},
+		//IndexRange{
+		//Greater: "1980-01-01",
+		//Less:    "1985-12-31",
+		//},
+		//false,
+		//},
+		//{"padded - period",
+		//args{period: "1980 - 1985"},
+		//IndexRange{
+		//Greater: "1980-01-01",
+		//Less:    "1985-12-31",
+		//},
+		//false,
+		//},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := CreateDateRange(tt.args.period)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("CreateDateRange() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("CreateDateRange() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIndexRange_Valid(t *testing.T) {
+	type fields struct {
+		Greater string
+		Less    string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			"simple",
+			fields{
+				Less:    "zzz",
+				Greater: "aaa",
+			},
+			false,
+		},
+		{
+			"simple reverse",
+			fields{
+				Less:    "aaa",
+				Greater: "zzz",
+			},
+			true,
+		},
+		{
+			"date correct",
+			fields{
+				Less:    "1900-10-11",
+				Greater: "1850-01-01",
+			},
+			false,
+		},
+		{
+			"date incorrect",
+			fields{
+				Greater: "1900-10-11",
+				Less:    "1850-01-01",
+			},
+			true,
+		},
+		{
+			"date partial",
+			fields{
+				Less:    "1900-10-11",
+				Greater: "1850",
+			},
+			false,
+		},
+		{
+			"numeric",
+			fields{
+				Less:    "1000",
+				Greater: "1",
+			},
+			false,
+		},
+		{
+			"partial less empty",
+			fields{
+				Less:    "",
+				Greater: "100",
+			},
+			true,
+		},
+		{
+			"partial greater empty",
+			fields{
+				Less:    "100",
+				Greater: "",
+			},
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ir := IndexRange{
+				Greater: tt.fields.Greater,
+				Less:    tt.fields.Less,
+			}
+			if err := ir.Valid(); (err != nil) != tt.wantErr {
+				t.Errorf("IndexRange.Valid() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}

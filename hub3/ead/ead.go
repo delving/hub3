@@ -39,14 +39,16 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter    *NodeCounter
-	OrgID      string
-	Spec       string
-	Revision   int32
-	labels     map[string]string
-	MimeTypes  map[string][]string
-	Errors     []*DuplicateError
-	CreateTree func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter     *NodeCounter
+	MetsCounter *MetsCounter
+	OrgID       string
+	Spec        string
+	Revision    int32
+	PeriodDesc  []string
+	labels      map[string]string
+	MimeTypes   map[string][]string
+	Errors      []*DuplicateError
+	CreateTree  func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 }
 
 type DuplicateError struct {
@@ -59,6 +61,7 @@ type DuplicateError struct {
 	DupLabel string `json:"dupLabel"`
 	CType    string `json:"cType"`
 	Depth    int32  `json:"depth"`
+	Error    string
 }
 
 func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
@@ -68,13 +71,13 @@ func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
 		return re.ReplaceAllString(input, " ")
 	}
 
-	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth\n")
+	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth,error\n")
 	for idx, de := range nc.Errors {
 		b.WriteString(
 			fmt.Sprintf(
-				"%d,%s,%d,%s,%s,\"%s\",%s,\"%s\",%s,%d\n",
+				"%d,%s,%d,%s,%s,\"%s\",%s,\"%s\",%s,%d,%#v\n",
 				idx, strings.TrimSpace(de.Spec), de.Order, de.Path, de.Key, s(de.Label),
-				de.DupKey, s(de.DupLabel), de.CType, de.Depth,
+				de.DupKey, s(de.DupLabel), de.CType, de.Depth, de.Error,
 			),
 		)
 	}
@@ -91,9 +94,25 @@ func (nc *NodeConfig) AddLabel(id, label string) {
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
-		Counter: &NodeCounter{},
-		labels:  make(map[string]string),
+		Counter:     &NodeCounter{},
+		MetsCounter: &MetsCounter{},
+		labels:      make(map[string]string),
 	}
+}
+
+// MetsCounter is a concurrency safe counter for number of Mets-files processed
+type MetsCounter struct {
+	counter uint64
+}
+
+// Increment increments the count by one
+func (mc *MetsCounter) Increment() {
+	atomic.AddUint64(&mc.counter, 1)
+}
+
+// GetCount returns the snapshot of the current count
+func (mc *MetsCounter) GetCount() uint64 {
+	return atomic.LoadUint64(&mc.counter)
 }
 
 // NodeCounter is a concurrency safe counter for number of Nodes processed
@@ -141,25 +160,15 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	return nl, cfg.Counter.GetCount(), nil
 }
 
-// Sparse creates a sparse version of the list of Archive Nodes
-func (nl *NodeList) Sparse() {
-	Sparsify(nl.Nodes)
-}
-
 // ESSave saves the list of Archive Nodes to ElasticSearch
 func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
-	for _, n := range nl.GetNodes() {
+	for _, n := range nl.Nodes {
 		err := n.ESSave(cfg, p)
 		if err != nil {
 			return err
 		}
 	}
-	log.Printf(
-		"Spec %s; Unique labels %d; cLevel counter %d",
-		cfg.Spec,
-		len(cfg.labels),
-		cfg.Counter.GetCount(),
-	)
+	// todo store cfg.Counter.GetCount() in dataset
 	return nil
 }
 
@@ -177,13 +186,15 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 		Doc(fg)
 	p.Add(r)
 
-	err = fragments.IndexFragments(rm, fg, p)
-	if err != nil {
-		return err
+	if c.Config.ElasticSearch.Fragments {
+		err := fragments.IndexFragments(rm, fg, p)
+		if err != nil {
+			return err
+		}
 	}
 
 	// recursion on itself for nested nodes on deeper levels
-	for _, n := range n.GetNodes() {
+	for _, n := range n.Nodes {
 		err := n.ESSave(cfg, p)
 		if err != nil {
 			return err
@@ -194,10 +205,10 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 
 // Sparse creates a sparse version of Header
 func (h *Header) Sparse() {
-	if h.GetDateAsLabel() {
+	if h.DateAsLabel {
 		h.DateAsLabel = false
-		for _, date := range h.GetDate() {
-			h.Label = append(h.Label, date.GetLabel())
+		for _, date := range h.Date {
+			h.Label = append(h.Label, date.Label)
 		}
 	}
 	h.Date = nil
@@ -208,8 +219,8 @@ func (h *Header) Sparse() {
 // GetPeriods return a list of human readable periods from the EAD unitDate
 func (h *Header) GetPeriods() []string {
 	periods := []string{}
-	for _, date := range h.GetDate() {
-		periods = append(periods, date.GetLabel())
+	for _, date := range h.Date {
+		periods = append(periods, date.Label)
 	}
 	return periods
 }
@@ -220,21 +231,6 @@ func (h *Header) GetTreeLabel() string {
 		return ""
 	}
 	return html.UnescapeString(fmt.Sprintf("%s", h.Label[0]))
-}
-
-// Sparsify is a recursive function that creates a Sparse representation
-// of a list of Nodes. This is mostly used to efficiently create Tree Views
-// of the Archive C-Levels
-func Sparsify(nodes []*Node) {
-	for _, n := range nodes {
-		n.HTML = []string{}
-		n.CTag = ""
-		n.Header.Sparse()
-		if len(n.Nodes) != 0 {
-			Sparsify(n.Nodes)
-		}
-
-	}
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID
@@ -257,9 +253,9 @@ func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		switch id.GetType() {
+		switch id.Type {
 		case "ABS", "series_code", "":
-			invertoryNumber = id.GetID()
+			invertoryNumber = id.ID
 		}
 		ids = append(ids, id)
 	}
@@ -276,6 +272,24 @@ func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 		Type:     date.Attrtype,
 	}
 	return nDate, nil
+}
+
+// ValidDateNormal returns if the range in Normal is valid.
+func (nd *NodeDate) ValidDateNormal() error {
+	if nd.Normal == "" {
+		return nil
+	}
+
+	if strings.Contains(nd.Normal, "/") {
+		nd.Normal = strings.TrimPrefix(strings.TrimSuffix(nd.Normal, "/"), "/")
+		parts := strings.Split(nd.Normal, "/")
+
+		if len(parts) == 2 && parts[0] > parts[1] {
+			return fmt.Errorf("first date %s is later than second date %s", parts[0], parts[1])
+		}
+	}
+
+	return nil
 }
 
 // NewHeader creates an Archival Header
@@ -301,7 +315,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 					return nil, err
 				}
 				header.Date = append(header.Date, nodeDate)
-				dates = append(dates, nodeDate.GetLabel())
+				dates = append(dates, nodeDate.Label)
 			}
 		}
 
@@ -325,11 +339,15 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	}
 	header.ID = append(header.ID, nodeIDs...)
 
+	if cdid.Cphysloc != nil {
+		header.Physloc = string(cdid.Cphysloc.Raw)
+	}
+
 	return header, nil
 }
 
 func (n *Node) getPathID() string {
-	eadID := n.GetHeader().GetInventoryNumber()
+	eadID := n.Header.InventoryNumber
 	if eadID == "" {
 		eadID = strconv.FormatUint(n.Order, 10)
 	}
@@ -364,24 +382,37 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 	node.Header = header
+	if header.DaoLink != "" {
+		cfg.MetsCounter.Increment()
+	}
 
 	// add content
 	if c.GetOdd() != nil {
-		html := []string{}
 		for _, o := range c.GetOdd() {
-			html = append(html, sanitizer.Sanitize(string(o.Raw)))
+			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
 		}
+	}
 
-		node.HTML = html
+	if c.GetScopeContent() != nil {
+		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
 	}
 
 	// add accessrestrict
-	if c.GetCaccessrestrict() != nil {
-		node.Access = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+	if ar := c.GetCaccessrestrict(); ar != nil {
+		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+		for _, p := range ar.Cp {
+			if p.Cref != nil && p.Cref.Cdate != nil {
+				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
+			}
+		}
 	}
 
 	if c.GetMaterial() != "" {
 		node.Material = c.GetMaterial()
+	}
+
+	for _, p := range c.GetPhystech() {
+		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
 	}
 
 	parentIDs, err = node.setPath(parentIDs)
@@ -389,24 +420,42 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 
-	prevLabel, ok := cfg.labels[node.Path]
+	// check valid date
+	for _, d := range node.Header.Date {
+		if err := d.ValidDateNormal(); err != nil {
+			de := &DuplicateError{
+				Path:     node.Path,
+				Order:    int(node.Order),
+				Spec:     cfg.Spec,
+				Key:      header.InventoryNumber,
+				Label:    header.GetTreeLabel(),
+				DupLabel: d.Normal,
+				CType:    node.Type,
+				Depth:    node.Depth,
+				Error:    err.Error(),
+			}
+			cfg.Errors = append(cfg.Errors, de)
+		}
+	}
+
+	_, ok := cfg.labels[node.Path]
 	if ok {
 		//data, err := json.MarshalIndent(node, " ", " ")
 		//if err != nil {
 		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
 		//}
-		de := &DuplicateError{
-			Path:     node.GetPath(),
-			Order:    int(node.GetOrder()),
-			Spec:     cfg.Spec,
-			Key:      header.GetInventoryNumber(),
-			Label:    prevLabel,
-			DupKey:   header.GetInventoryNumber(),
-			DupLabel: header.GetTreeLabel(),
-			CType:    node.GetType(),
-			Depth:    node.GetDepth(),
-		}
-		cfg.Errors = append(cfg.Errors, de)
+		//de := &DuplicateError{
+		//Path:     node.Path,
+		//Order:    int(node.Order),
+		//Spec:     cfg.Spec,
+		//Key:      header.InventoryNumber,
+		//Label:    prevLabel,
+		//DupKey:   header.InventoryNumber,
+		//DupLabel: header.GetTreeLabel(),
+		//CType:    node.Type,
+		//Depth:    node.Depth,
+		//}
+		//cfg.Errors = append(cfg.Errors, de)
 
 		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)

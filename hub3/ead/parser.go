@@ -3,6 +3,7 @@ package ead
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -14,11 +15,13 @@ import (
 	"regexp"
 	"strings"
 	"time"
+	"unicode"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
+	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/olivere/elastic"
 	"github.com/pkg/errors"
@@ -28,6 +31,14 @@ var sanitizer *bluemonday.Policy
 
 func init() {
 	sanitizer = bluemonday.StrictPolicy()
+}
+
+func sanitizeXML(b []byte) []byte {
+	return bytes.TrimSpace(sanitizer.SanitizeBytes(b))
+}
+
+func sanitizeXMLAsString(b []byte) string {
+	return string(sanitizeXML(b))
 }
 
 // ReadEAD reads an ead2002 XML from a path
@@ -99,10 +110,6 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	//ds.Owner = cead.Ceadheader.GetOwner()
 	//ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
-	err = ds.Save()
-	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to save dataset")
-	}
 
 	cfg := NewNodeConfig(context.Background())
 	cfg.CreateTree = CreateTree
@@ -110,10 +117,76 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	cfg.OrgID = c.Config.OrgID
 	cfg.Revision = int32(ds.Revision)
 
+	// create desciption
+	desc, err := NewDescription(cead)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to create description")
+	}
+
+	jsonOutput, err := json.MarshalIndent(desc, "", " ")
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to marshall description to JSON")
+	}
+
+	err = ioutil.WriteFile(
+		fmt.Sprintf("%s.json", basePath),
+		jsonOutput,
+		0644,
+	)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to JSON description to disk")
+	}
+
+	// save description
+	var unitInfo *UnitInfo
+	if desc.Summary.FindingAid != nil && desc.Summary.FindingAid.UnitInfo != nil {
+		unitInfo = desc.Summary.FindingAid.UnitInfo
+		ds.Length = unitInfo.Length
+		ds.Files = unitInfo.Files
+		ds.Abstract = unitInfo.Abstract
+		ds.Language = unitInfo.Language
+		ds.Material = unitInfo.Material
+		ds.ArchiveCreator = unitInfo.Origin
+	}
+
 	nl, _, err := cead.Carchdesc.Cdsc.NewNodeList(cfg)
 	if err != nil {
 		log.Printf("Error during parsing; %s", err)
 		return cfg, err
+	}
+
+	ds.MetsFiles = int(cfg.MetsCounter.GetCount())
+	ds.Clevels = int(cfg.Counter.GetCount())
+	ds.Description = string(cead.RawDescription())
+
+	err = ds.Save()
+	if err != nil {
+		return nil, errors.Wrapf(err, "Unable to save dataset")
+	}
+
+	err = cead.SaveDescription(cfg, unitInfo, p)
+	if err != nil {
+		log.Printf("Unable to save description for %s; %#v", spec, err)
+		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
+	}
+
+	// write error log
+	if len(cfg.Errors) != 0 {
+		errs, err := cfg.ErrorToCSV()
+		if err != nil {
+			log.Printf("unable to get error csv: %#v", err)
+			return nil, err
+		}
+
+		err = ioutil.WriteFile(
+			fmt.Sprintf("%s_err.csv", basePath),
+			errs,
+			0644,
+		)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Unable to EAD erros to disk")
+		}
+
 	}
 
 	if p != nil {
@@ -178,6 +251,7 @@ type CLevel interface {
 	GetCdid() *Cdid
 	GetScopeContent() *Cscopecontent
 	GetOdd() []*Codd
+	GetPhystech() []*Cphystech
 	GetMaterial() string
 }
 
@@ -202,6 +276,7 @@ func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
 func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
 func (c Cc) GetOdd() []*Codd                      { return c.Codd }
+func (c Cc) GetPhystech() []*Cphystech            { return c.Cphystech }
 func (c Cc) GetNested() []CLevel                  { return c.Nested() }
 func (c Cc) Nested() []CLevel {
 	levels := make([]CLevel, len(c.Cc))
@@ -217,7 +292,6 @@ func (c Cc) GetMaterial() string {
 	cdid := c.GetCdid()
 
 	if cdid.Cphysdesc != nil && cdid.Cphysdesc.Cphysfacet != nil {
-		log.Printf("physfacet: %#v", cdid.Cphysdesc.Cphysfacet.PhysFacet)
 		return cdid.Cphysdesc.Cphysfacet.PhysFacet
 	}
 	return ""
@@ -235,12 +309,15 @@ type Cead struct {
 }
 
 // SaveDescription stores the FragmentGraph of the EAD description in ElasticSearch
-func (cead *Cead) SaveDescription(cfg *NodeConfig, p *elastic.BulkProcessor) error {
-	fg, _, err := cead.DescriptionGraph(cfg)
+func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elastic.BulkProcessor) error {
+	fg, _, err := cead.DescriptionGraph(cfg, unitInfo)
 	if err != nil {
 		return err
 	}
 
+	if p == nil {
+		return nil
+	}
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
 		Type(fragments.DocType).
@@ -252,8 +329,28 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, p *elastic.BulkProcessor) err
 	return nil
 }
 
+// RawDescription returns the EAD description stripped of all markup.
+func (cead *Cead) RawDescription() []byte {
+	description := cead.Ceadheader.Raw
+	description = append(description, cead.Carchdesc.Cdid.Raw...)
+	for _, dscGrp := range cead.Carchdesc.Cdescgrp {
+		description = append(description, dscGrp.Raw...)
+	}
+	for _, bioghist := range cead.Carchdesc.Cbioghist {
+		description = append(description, bioghist.Raw...)
+	}
+	if cead.Carchdesc.Cuserestrict != nil {
+		description = append(description, cead.Carchdesc.Cuserestrict.Raw...)
+	}
+
+	// strip all tags
+	regex := regexp.MustCompile(`\s+`)
+	description = regex.ReplaceAll(description, []byte(" "))
+	return sanitizer.SanitizeBytes(description)
+}
+
 // DescriptionGraph returns the graph of the Description section (archdesc, descgroups, desc/did) as a FragmentGraph
-func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
+func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
 	rm := fragments.NewEmptyResourceMap()
 	id := "desc"
 	subject := newSubject(cfg, id)
@@ -269,29 +366,7 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 		Tags:          []string{"eadDesc"},
 	}
 
-	description := cead.Ceadheader.Raw
-	description = append(description, cead.Carchdesc.Cdid.Raw...)
-	for _, dscGrp := range cead.Carchdesc.Cdescgrp {
-		description = append(description, dscGrp.Raw...)
-	}
-	for _, bioghist := range cead.Carchdesc.Cbioghist {
-		description = append(description, bioghist.Raw...)
-	}
-	if cead.Carchdesc.Cuserestrict != nil {
-		description = append(description, cead.Carchdesc.Cuserestrict.Raw...)
-	}
-
-	// strip all tags
-	r := regexp.MustCompile(`\s+`)
-	description = r.ReplaceAll(description, []byte(" "))
-	description = sanitizer.SanitizeBytes(description)
-
-	// TODO store triples later
-	//for idx, t := range n.Triples(subject, cfg) {
-	//if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
-	//return nil, nil, err
-	//}
-	//}
+	// TODO store triples later from n.Triples
 	tree := &fragments.Tree{}
 
 	tree.HubID = header.HubID
@@ -300,14 +375,75 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *
 	tree.InventoryID = cfg.Spec
 	tree.Title = cead.Ceadheader.GetTitle()
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
-	tree.Description = string(description)
+	tree.Description = string(cead.RawDescription())
+	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
+
+	if len(tree.PeriodDesc) == 0 {
+		de := &DuplicateError{
+			Spec:  cfg.Spec,
+			Error: "ead period is empty",
+		}
+		cfg.Errors = append(cfg.Errors, de)
+	}
+
+	// add periodDesc to nodeConfig so they can be applied to each cLevel
+	cfg.PeriodDesc = tree.PeriodDesc
+
+	s := r.NewResource(subject)
+	t := func(s r.Term, p, o string, oType convert, idx int) {
+		t := addNonEmptyTriple(s, p, o, oType)
+		if t != nil {
+			err := rm.AppendOrderedTriple(t, false, idx)
+			if err != nil {
+				log.Printf("unable to add triple: %#v", err)
+			}
+		}
+		return
+	}
+
+	intType := func(value string) r.Term {
+		return r.NewLiteralWithDatatype(value, r.NewResource("http://www.w3.org/2001/XMLSchema#integer"))
+	}
+	extractDigit := func(value string) string {
+		parts := strings.Fields(value)
+		for _, part := range parts {
+			runes := []rune(value)
+			if unicode.IsDigit(runes[0]) {
+				return strings.ReplaceAll(part, ",", ".")
+			}
+		}
+
+		return ""
+	}
+	floatType := func(value string) r.Term {
+		return r.NewLiteralWithDatatype(value, r.NewResource("http://www.w3.org/2001/XMLSchema#float"))
+	}
+	// add total clevels
+	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType, 0)
+	if unitInfo != nil {
+		t(s, "files", extractDigit(unitInfo.Files), intType, 0)
+		t(s, "length", extractDigit(unitInfo.Length), floatType, 0)
+		for _, abstract := range unitInfo.Abstract {
+			t(s, "abstract", abstract, r.NewLiteral, 0)
+		}
+		t(s, "material", unitInfo.Material, r.NewLiteral, 0)
+		t(s, "language", unitInfo.Language, r.NewLiteral, 0)
+		for _, origin := range unitInfo.Origin {
+			t(s, "origin", origin, r.NewLiteral, 0)
+		}
+	}
+
+	// add period desc for range search from the archdesc > did > date
+	for idx, p := range tree.PeriodDesc {
+		t(s, "periodDesc", p, r.NewLiteral, idx)
+	}
 
 	fg := fragments.NewFragmentGraph()
 	fg.Meta = header
 	fg.Tree = tree
 
 	// only set resources when the full graph is filled.
-	//fg.SetResources(rm)
+	fg.SetResources(rm)
 	return fg, rm, nil
 }
 
@@ -332,12 +468,20 @@ type Ceadheader struct {
 	Raw                    []byte         `xml:",innerxml" json:",omitempty"`
 }
 
+// GetTitle returns the title of the EAD
 func (eh Ceadheader) GetTitle() string {
-	return eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper
+	if eh.Cfiledesc != nil && eh.Cfiledesc.Ctitlestmt != nil && eh.Cfiledesc.Ctitlestmt.Ctitleproper != nil {
+		return string(eh.Cfiledesc.Ctitlestmt.Ctitleproper.TitleProper)
+	}
+	return ""
 }
 
+// GetOwner returns the owner of the EAD
 func (eh Ceadheader) GetOwner() string {
-	return eh.Cfiledesc.Cpublicationstmt.Cpublisher.Publisher
+	if eh.Cfiledesc != nil && eh.Cfiledesc.Cpublicationstmt != nil && eh.Cfiledesc.Cpublicationstmt.Cpublisher != nil {
+		return eh.Cfiledesc.Cpublicationstmt.Cpublisher.Publisher
+	}
+	return ""
 }
 
 type Ceadid struct {
@@ -365,22 +509,22 @@ type Ctitlestmt struct {
 
 type Ctitleproper struct {
 	XMLName     xml.Name `xml:"titleproper,omitempty" json:"titleproper,omitempty"`
-	TitleProper string   `xml:",chardata" json:",omitempty"`
+	TitleProper []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cauthor struct {
 	XMLName xml.Name `xml:"author,omitempty" json:"author,omitempty"`
-	Author  string   `xml:",chardata" json:",omitempty"`
+	Author  []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Ceditionstmt struct {
 	XMLName  xml.Name    `xml:"editionstmt,omitempty" json:"editionstmt,omitempty"`
-	Cedition *[]Cedition `xml:"edition,omitempty" json:"edition,omitempty"`
+	Cedition []*Cedition `xml:"edition,omitempty" json:"edition,omitempty"`
 }
 
 type Cedition struct {
 	XMLName xml.Name `xml:"edition,omitempty" json:"edition,omitempty"`
-	Edition string   `xml:",chardata" json:",omitempty"`
+	Edition []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cprofiledesc struct {
@@ -393,13 +537,13 @@ type Cprofiledesc struct {
 type Ccreation struct {
 	XMLName      xml.Name `xml:"creation,omitempty" json:"creation,omitempty"`
 	Attraudience string   `xml:"audience,attr"  json:",omitempty"`
-	Creation     string   `xml:",innerxml" json:",omitempty"`
+	Creation     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Clangusage struct {
 	XMLName   xml.Name   `xml:"langusage,omitempty" json:"langusage,omitempty"`
 	Clanguage *Clanguage `xml:"language,omitempty" json:"language,omitempty"`
-	LangUsage string     `xml:",innerxml" json:",omitempty"`
+	LangUsage []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdescrules struct {
@@ -430,10 +574,10 @@ type Citem struct {
 }
 
 type Cabstract struct {
-	XMLName     xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
-	Attrlabel   string   `xml:"label,attr"  json:",omitempty"`
-	Clb         []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
-	RawAbstract []byte   `xml:",innerxml" json:",omitempty"`
+	XMLName   xml.Name `xml:"abstract,omitempty" json:"abstract,omitempty"`
+	Attrlabel string   `xml:"label,attr"  json:",omitempty"`
+	Clb       []*Clb   `xml:"lb,omitempty" json:"lb,omitempty"`
+	Raw       []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 //////////////////////////////////////////////////
@@ -456,15 +600,38 @@ func (ad Carchdesc) GetPeriods() []string {
 	return dates
 }
 
-// Abstract returns the Abstract split on EAD '<lb/>', i.e. line-break
+func (ad Carchdesc) GetNormalPeriods() []string {
+	dates := []string{}
+	for _, date := range ad.Cdid.Cunitdate {
+		if date.Attrnormal != "" && date.Attrtype != "bulk" {
+			dates = append(dates, date.Attrnormal)
+		}
+	}
+	return dates
+}
+
+// Abstract returns the Abstract split on EAD '<lb />', i.e. line-break
 func (ca Cabstract) Abstract() []string {
-	if len(ca.RawAbstract) == 0 {
+	if len(ca.Raw) == 0 {
 		return []string{}
 	}
-	return strings.Split(
-		fmt.Sprintf("%s", ca.RawAbstract),
+	raw := bytes.ReplaceAll(ca.Raw, []byte("extref"), []byte("a"))
+	raw = bytes.ReplaceAll(raw, []byte(" />"), []byte("/>"))
+
+	parts := strings.Split(
+		fmt.Sprintf("%s", raw),
 		"<lb/>",
 	)
+	trimmed := []string{}
+	for _, p := range parts {
+		t := strings.TrimSpace(p)
+		if len(t) != 0 {
+			trimmed = append(trimmed, t)
+		}
+	}
+
+	return trimmed
+
 }
 
 type Caccessrestrict struct {
@@ -671,6 +838,7 @@ type Clangmaterial struct {
 	Attrlabel string     `xml:"label,attr"  json:",omitempty"`
 	Clanguage *Clanguage `xml:"language,omitempty" json:"language,omitempty"`
 	Lang      string     `xml:",chardata" json:",omitempty"`
+	Raw       []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Clanguage struct {
@@ -703,6 +871,7 @@ type Cmaterialspec struct {
 	XMLName      xml.Name `xml:"materialspec,omitempty" json:"materialspec,omitempty"`
 	Attrlabel    string   `xml:"label,attr"  json:",omitempty"`
 	MaterialSpec string   `xml:",chardata" json:",omitempty"`
+	Raw          []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cnote struct {
@@ -724,6 +893,7 @@ type Corigination struct {
 	Attrlabel   string     `xml:"label,attr"  json:",omitempty"`
 	Ccorpname   *Ccorpname `xml:"corpname,omitempty" json:"corpname,omitempty"`
 	Origination string     `xml:",chardata" json:",omitempty"`
+	Raw         []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 type Cp struct {
@@ -738,6 +908,7 @@ type Cp struct {
 	Cref        *Cref        `xml:"ref,omitempty" json:"ref,omitempty"`
 	Ctitle      []*Ctitle    `xml:"title,omitempty" json:"title,omitempty"`
 	P           string       `xml:",chardata" json:",omitempty"`
+	Raw         []byte       `xml:",innerxml" json:",omitempty"`
 }
 
 type Cphysdesc struct {
@@ -759,6 +930,7 @@ type Cphysloc struct {
 	XMLName  xml.Name `xml:"physloc,omitempty" json:"physloc,omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	PhysLoc  string   `xml:",chardata" json:",omitempty"`
+	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cphystech struct {
@@ -813,6 +985,7 @@ type Crepository struct {
 	XMLName    xml.Name `xml:"repository,omitempty" json:"repository,omitempty"`
 	Attrlabel  string   `xml:"label,attr"  json:",omitempty"`
 	Repository string   `xml:",chardata" json:",omitempty"`
+	Raw        []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cscopecontent struct {

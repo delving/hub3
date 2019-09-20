@@ -1,5 +1,33 @@
 package mapping
 
+// ESMappingUpdate contains updates to the original model that are incremental,
+// but will lead to index errors when these fields are not present due to the
+// 'strict' on dynamic creating of new fields in the index.
+var ESMappingUpdate = `{
+  "properties": {
+    "tree": {
+      "properties": {
+        "physDesc": {"type": "keyword"},
+        "periodDesc": { "type": "keyword"}
+      }
+    },
+		"resources": {
+			"type": "nested",
+			"properties": {
+				"entries": {
+					"type": "nested",
+					"properties": {
+						"intRange": {"type": "integer_range"},
+						"float": {"type": "float"},
+						"level": {"type": "integer"}
+					}
+				}
+			}
+		}
+  }
+}
+`
+
 // ESMapping is the default mapping for the RDF records enabled by hub3
 var ESMapping = `{
 	"settings": {
@@ -7,8 +35,8 @@ var ESMapping = `{
 			"mapping.total_fields.limit": 1000,
 			"mapping.depth.limit": 20,
 			"mapping.nested_fields.limit": 50,
-			"number_of_shards": 1,
-			"number_of_replicas": 1
+			"number_of_shards": %d,
+			"number_of_replicas": %d
 		}
 	},
 	"mappings":{
@@ -42,6 +70,7 @@ var ESMapping = `{
 						"unitID": {"type": "keyword"},
 						"type": {"type": "keyword"},
 						"cLevel": {"type": "keyword"},
+						"physDesc": {"type": "keyword"},
 						"agencyCode": {"type": "keyword"},
 						"inventoryID": {"type": "keyword"},
 						"hasChildren": {"type": "boolean"},
@@ -71,42 +100,8 @@ var ESMapping = `{
 						"hasRestriction": {"type": "boolean"}
 					}
 				},
-				"subject": {"type": "keyword"},
-				"predicate": {"type": "keyword"},
-				"object": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						},
-						"suggest": {
-							"type": "completion",
-							"contexts": [
-								{ "name": "spec", "type": "category", "path": "meta.spec" },
-								{ "name": "specType", "type": "category", "path": "_specType" },
-								{ "name": "rdfType", "type": "category", "path": "_rdfType" },
-								{ "name": "objectType", "type": "category", "path": "objectType" },
-								{ "name": "language", "type": "category", "path": "language" },
-								{ "name": "searchLabel", "type": "category", "path": "searchLabel" },
-								{ "name": "orgID", "type": "category", "path": "meta.orgID"}
-							]
-						}
-					}
-				},
-				"_specType": {"type": "keyword", "index": false, "store": false},
-				"_rdfType": {"type": "keyword", "index": false, "store": false},
-				"searchLabel": {"type": "keyword", "ignore_above": 256},
-				"language": {"type": "keyword"},
-				"dataType": {"type": "keyword"},
-				"triple": {"type": "keyword", "index": "false", "store": "true"},
-				"lodKey": {"type": "keyword"},
-				"objectType": {"type": "keyword"},
 				"recordType": {"type": "short"},
-				"order": {"type": "integer"},
-				"path": {"type": "keyword"},
 				"full_text": {"type": "text"},
-
 				"resources": {
 					"type": "nested",
 					"properties": {
@@ -145,7 +140,6 @@ var ESMapping = `{
 								"level": {"type": "integer"},
 								"order": {"type": "integer"},
 								"integer": {"type": "integer"},
-
 								"tags": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",
@@ -163,6 +157,84 @@ var ESMapping = `{
 			}
 		}
 }}`
+
+// ESFragmentMapping is the default mapping for the RDF fragments in hub3
+var ESFragmentMapping = `{
+	"settings": {
+		"index": {
+			"mapping.total_fields.limit": 1000,
+			"mapping.depth.limit": 20,
+			"mapping.nested_fields.limit": 50,
+			"number_of_shards": %d,
+			"number_of_replicas": %d
+		},
+		"analysis": {
+			"analyzer": {
+				"path_hierarchy": {
+					"tokenizer": "path_hierarchy"
+				}
+			}
+		}
+	},
+	"mappings":{
+		"doc": {
+			"dynamic": "strict",
+			"date_detection" : false,
+			"properties": {
+				"meta": {
+					"type": "object",
+					"properties": {
+						"spec": {"type": "keyword"},
+						"orgID": {"type": "keyword"},
+						"hubID": {"type": "keyword"},
+						"revision": {"type": "long"},
+						"tags": {"type": "keyword"},
+						"docType": {"type": "keyword"},
+						"namedGraphURI": {"type": "keyword"},
+						"entryURI": {"type": "keyword"},
+						"modified": {"type": "date"}
+					}
+				},
+				"subject": {"type": "keyword"},
+				"predicate": {"type": "keyword"},
+				"searchLabel": {"type": "keyword", "ignore_above": 256},
+				"object": {
+					"type": "text",
+					"fields": {
+						"keyword": {
+							"type": "keyword",
+							"ignore_above": 256
+						}
+					}
+				},
+				"language": {"type": "keyword"},
+				"dataType": {"type": "keyword"},
+				"triple": {"type": "keyword", "index": "false", "store": "true"},
+				"lodKey": {"type": "keyword"},
+				"objectType": {"type": "keyword"},
+				"recordType": {"type": "short"},
+				"order": {"type": "integer"},
+				"level": {"type": "integer"},
+				"resourceType": {"type": "keyword"},
+				"nestedPath": {
+					"type": "text",
+					"analyzer": "path_hierarchy",
+					"fields": {
+						"keyword": {
+							"type": "keyword"
+						}
+					}
+				},
+				"path": {
+					"type": "text",
+					"analyzer": "path_hierarchy",
+					"fields": {
+						"keyword": {
+							"type": "keyword"
+						}
+					}
+				}
+}}}}`
 
 // V1ESMapping has the legacy mapping for V1 indexes. It should only be used when indexV1 is enabled in the
 // configuration.

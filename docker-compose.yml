@@ -1,7 +1,17 @@
 version: '3'
 services:
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.8.2
+    container_name: kibana
+    environment:
+      SERVER_NAME: localhost
+      ELASTICSEARCH_URL: http://elasticsearch6:9200/
+    ports:
+      - 5601:5601
+    networks:
+      - esnet
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.2
     container_name: elasticsearch6
     ports:
       - "9200:9200"
