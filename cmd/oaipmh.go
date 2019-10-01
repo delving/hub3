@@ -117,6 +117,8 @@ var (
 )
 
 func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	RootCmd.AddCommand(oaipmhCmd)
 
 	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
@@ -364,6 +366,8 @@ func listRecords(ccmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}
+	defer file.Close()
+
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -392,4 +396,5 @@ func listRecords(ccmd *cobra.Command, args []string) {
 		fmt.Fprintln(file, r.Metadata.GoString())
 		fmt.Fprintln(file, "</pocket>")
 	})
+	fmt.Fprintln(file, "</pockets>")
 }
