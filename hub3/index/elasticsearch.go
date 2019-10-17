@@ -134,7 +134,7 @@ func ensureESIndex(index string, reset bool) {
 		BodyString(mapping.ESMappingUpdate).
 		Do(ctx)
 	if err != nil {
-		stdlog.Fatalf("unable to patch ES mapping: %#v", err)
+		stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err)
 		return
 	}
 	if !updateIndex.Acknowledged {
