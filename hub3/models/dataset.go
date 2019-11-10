@@ -100,6 +100,7 @@ type DataSetStats struct {
 	IndexStats                `json:"index"`
 	RDFStoreStats             `json:"rdfStore"`
 	LODFragmentStats          `json:"lodFragmentStats"`
+	DaoStats                  `json:"daoStats"`
 	WebResourceStats          `json:"webResourceStats"`
 	NarthexStats              `json:"narthexStats"`
 	VocabularyEnrichmentStats `json:"vocabularyEnrichmentStats"`
@@ -131,6 +132,7 @@ type DataSet struct {
 	MetsFiles        int      `json:"metsFiles"`
 	Description      string   `json:"description"`
 	Clevels          int      `json:"clevels"`
+	DaoStats         `json:"daoStats" storm:"inline"`
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -138,6 +140,14 @@ type Access struct {
 	OAIPMH bool `json:"oaipmh"`
 	Search bool `json:"search"`
 	LOD    bool `json:"lod"`
+}
+
+// DaoStats holds the stats for EAD digital objects extracted from METS links.
+type DaoStats struct {
+	ExtractedLinks uint64   `json:"extractedLinks"`
+	RetrieveErrors uint64   `json:"retrieveErrors"`
+	DigitalObjects uint64   `json:"digitalObjects"`
+	Errors         []string `json:"errors"`
 }
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
@@ -341,7 +351,7 @@ func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCou
 // createLodFragmentStats queries the Fragment Store and returns LODFragmentStats struct
 func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats, error) {
 	revisions := []DataSetRevisions{}
-	fStats := LODFragmentStats{Enabled: true}
+	fStats := LODFragmentStats{Enabled: c.Config.ElasticSearch.Fragments}
 
 	if !c.Config.ElasticSearch.Enabled {
 		return fStats, fmt.Errorf("FragmentStatsBySpec should not be called when elasticsearch is not enabled")
@@ -406,7 +416,6 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		}
 	}
 	fStats.StoredFragments = int(res.Hits.TotalHits)
-	fStats.Enabled = true
 	fStats.Revisions = revisions
 	return fStats, nil
 }
@@ -486,6 +495,7 @@ func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) 
 		RDFStoreStats:    storeStats,
 		LODFragmentStats: lodFragmentStats,
 		CurrentRevision:  ds.Revision,
+		DaoStats:         ds.DaoStats,
 	}, nil
 }
 
