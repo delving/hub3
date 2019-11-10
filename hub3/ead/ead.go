@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"html"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
@@ -39,16 +41,25 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter     *NodeCounter
-	MetsCounter *MetsCounter
-	OrgID       string
-	Spec        string
-	Revision    int32
-	PeriodDesc  []string
-	labels      map[string]string
-	MimeTypes   map[string][]string
-	Errors      []*DuplicateError
-	CreateTree  func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter       *NodeCounter
+	MetsCounter   *MetsCounter
+	OrgID         string
+	Spec          string
+	Title         []string
+	TitleShort    string
+	Revision      int32
+	PeriodDesc    []string
+	labels        map[string]string
+	MimeTypes     map[string][]string
+	Errors        []*DuplicateError
+	Client        *http.Client
+	BulkProcessor BulkProcessor
+	CreateTree    func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+}
+
+// BulkProcessor is an interface for oliver/elastice BulkProcessor.
+type BulkProcessor interface {
+	Add(request elastic.BulkableRequest)
 }
 
 type DuplicateError struct {
@@ -96,13 +107,17 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
 		Counter:     &NodeCounter{},
 		MetsCounter: &MetsCounter{},
+		Client:      &http.Client{Timeout: 10 * time.Second},
 		labels:      make(map[string]string),
 	}
 }
 
 // MetsCounter is a concurrency safe counter for number of Mets-files processed
 type MetsCounter struct {
-	counter uint64
+	counter        uint64
+	digitalObjects uint64
+	errors         uint64
+	inError        []string
 }
 
 // Increment increments the count by one
@@ -110,9 +125,38 @@ func (mc *MetsCounter) Increment() {
 	atomic.AddUint64(&mc.counter, 1)
 }
 
+// IncrementDigitalObject increments the count by one
+func (mc *MetsCounter) IncrementDigitalObject(delta uint64) {
+	atomic.AddUint64(&mc.digitalObjects, delta)
+}
+
 // GetCount returns the snapshot of the current count
 func (mc *MetsCounter) GetCount() uint64 {
 	return atomic.LoadUint64(&mc.counter)
+}
+
+// GetDigitalObjectCount returns the snapshot of the current count
+func (mc *MetsCounter) GetDigitalObjectCount() uint64 {
+	return atomic.LoadUint64(&mc.digitalObjects)
+}
+
+// IncrementError increments the error count by one
+func (mc *MetsCounter) IncrementError() {
+	atomic.AddUint64(&mc.errors, 1)
+}
+
+// GetErrorCount returns the snapshot of the current error count
+func (mc *MetsCounter) GetErrorCount() uint64 {
+	return atomic.LoadUint64(&mc.errors)
+}
+
+func (mc *MetsCounter) AppendError(err string) {
+	mc.IncrementError()
+	mc.inError = append(mc.inError, err)
+}
+
+func (mc *MetsCounter) GetErrors() []string {
+	return mc.inError
 }
 
 // NodeCounter is a concurrency safe counter for number of Nodes processed
