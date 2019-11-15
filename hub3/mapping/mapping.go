@@ -11,19 +11,31 @@ var ESMappingUpdate = `{
         "periodDesc": { "type": "keyword"}
       }
     },
-		"resources": {
-			"type": "nested",
-			"properties": {
-				"entries": {
-					"type": "nested",
-					"properties": {
-						"intRange": {"type": "integer_range"},
-						"float": {"type": "float"},
-						"level": {"type": "integer"}
-					}
+	"protobuf": {
+		"type": "object",
+		"properties": {
+			"messageType": {"type": "keyword"},
+			"data": {
+				"type": "keyword",
+				"store": "true",
+				"index": "false",
+				"doc_values": "false"
+			}
+		}
+	},
+	"resources": {
+		"type": "nested",
+		"properties": {
+			"entries": {
+				"type": "nested",
+				"properties": {
+					"intRange": {"type": "integer_range"},
+					"float": {"type": "float"},
+					"level": {"type": "integer"}
 				}
 			}
 		}
+	}
   }
 }
 `
@@ -56,6 +68,18 @@ var ESMapping = `{
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
 						"modified": {"type": "date"}
+					}
+				},
+				"protobuf": {
+					"type": "object",
+					"properties": {
+						"type": {"type": "keyword"},
+						"data": {
+							"type": "keyword",
+							"store": "true",
+							"index": "false",
+							"doc_values": "false"
+						}
 					}
 				},
 				"tree": {
