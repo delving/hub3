@@ -339,6 +339,7 @@ type FragmentGraph struct {
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
+	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
@@ -383,6 +384,12 @@ type ScrollPager struct {
 	Rows     int32  `json:"rows"`
 }
 
+// ProtoBuf holds a protobuf encode version of the messageType.
+type ProtoBuf struct {
+	MessageType string `json:"messageType"`
+	Data        string `json:"data"`
+}
+
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`
@@ -394,6 +401,7 @@ type ScrollResultV4 struct {
 	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
 	Tree       []*Tree            `json:"tree,omitempty"`
 	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
+	ProtoBuf   *ProtoBuf          `json:"protobuf,omitempty"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
