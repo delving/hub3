@@ -105,10 +105,12 @@ func (nc *NodeConfig) AddLabel(id, label string) {
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
-		Counter:     &NodeCounter{},
-		MetsCounter: &MetsCounter{},
-		Client:      &http.Client{Timeout: 10 * time.Second},
-		labels:      make(map[string]string),
+		Counter: &NodeCounter{},
+		MetsCounter: &MetsCounter{
+			uniqueCounter: map[string]int{},
+		},
+		Client: &http.Client{Timeout: 10 * time.Second},
+		labels: make(map[string]string),
 	}
 }
 
@@ -118,11 +120,18 @@ type MetsCounter struct {
 	digitalObjects uint64
 	errors         uint64
 	inError        []string
+	uniqueCounter  map[string]int
 }
 
 // Increment increments the count by one
-func (mc *MetsCounter) Increment() {
+func (mc *MetsCounter) Increment(daoLink string) {
 	atomic.AddUint64(&mc.counter, 1)
+	mc.uniqueCounter[daoLink]++
+}
+
+// GetUniqueCounter returns the map of unique METS links.
+func (mc *MetsCounter) GetUniqueCounter() map[string]int {
+	return mc.uniqueCounter
 }
 
 // IncrementDigitalObject increments the count by one
@@ -427,7 +436,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 	node.Header = header
 	if header.DaoLink != "" {
-		cfg.MetsCounter.Increment()
+		cfg.MetsCounter.Increment(header.DaoLink)
 	}
 
 	// add content
