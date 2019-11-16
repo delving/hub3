@@ -92,8 +92,8 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	}
 
 	f.Close()
-	basePath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s", spec))
-	os.Rename(f.Name(), fmt.Sprintf("%s.xml", basePath))
+	basePath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s", spec))
+	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
 	if err != nil {
@@ -135,7 +135,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	}
 
 	err = ioutil.WriteFile(
-		fmt.Sprintf("%s.json", basePath),
+		fmt.Sprintf("%s/%s.json", basePath, spec),
 		jsonOutput,
 		0644,
 	)
@@ -185,7 +185,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		}
 
 		err = ioutil.WriteFile(
-			fmt.Sprintf("%s_err.csv", basePath),
+			fmt.Sprintf("%s/%s_err.csv", basePath, spec),
 			errs,
 			0644,
 		)
