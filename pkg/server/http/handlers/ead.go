@@ -32,6 +32,7 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
+	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
 	r.Get("/api/ead/desc-test", descTest)
 }
@@ -113,10 +114,29 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
 		return
 	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.pdf", spec))
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.pdf", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", spec))
 	w.Header().Set("Content-Type", "application/pdf")
+	return
+}
+
+// MetsDownload is a handler that returns a stored METS XML for an inventory.
+func METSDownload(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
+		return
+	}
+	inventoryID := chi.URLParam(r, "inventoryID")
+	if inventoryID == "" {
+		http.Error(w, "inventoryID cannot be empty", http.StatusBadRequest)
+		return
+	}
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
+	http.ServeFile(w, r, eadPath)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
+	w.Header().Set("Content-Type", "application/xml")
 	return
 }
 
@@ -132,7 +152,7 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.xml", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
