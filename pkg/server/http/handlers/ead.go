@@ -163,6 +163,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	description := filepath.Join(
 		c.Config.EAD.CacheDir,
+		spec,
 		fmt.Sprintf("%s.json", spec),
 	)
 
