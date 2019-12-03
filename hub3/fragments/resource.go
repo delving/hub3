@@ -28,7 +28,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 )
 

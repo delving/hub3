@@ -23,7 +23,7 @@ import (
 	"github.com/go-chi/render"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 )
 
@@ -92,7 +92,8 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	}
 
 	f.Close()
-	basePath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s", spec))
+	basePath := path.Join(c.Config.EAD.CacheDir, spec)
+	os.MkdirAll(basePath, os.ModePerm)
 	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
@@ -326,7 +327,6 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elasti
 	}
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DocType).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)

@@ -27,7 +27,7 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/mapping"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 const (
@@ -108,7 +108,6 @@ func ensureESIndex(index string, reset bool) {
 		}
 		createIndex, err := client.
 			CreateIndex(index).
-			IncludeTypeName(false).
 			BodyJson(
 				fmt.Sprintf(
 					indexMapping,
@@ -129,11 +128,8 @@ func ensureESIndex(index string, reset bool) {
 	}
 
 	// add mapping updates
-	// TODO on upgrade to 7 remove _doc type
 	updateIndex, err := elastic.NewIndicesPutMappingService(client).
 		Index(index).
-		IncludeTypeName(true).
-		Type("_doc").
 		BodyString(mapping.ESMappingUpdate).
 		Do(ctx)
 	if err != nil {

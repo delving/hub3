@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"github.com/delving/hub3/config"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 var (
@@ -60,17 +60,17 @@ func CreateBulkProcessor(ctx context.Context) *elastic.BulkProcessor {
 
 // CreateBulkProcessorService creates a service instance
 func CreateBulkProcessorService() *elastic.BulkProcessorService {
+	log.Println("Creating bulk processor service....")
 	return ESClient().BulkProcessor().
 		Name("Hub3-backgroundworker").
 		Workers(config.Config.ElasticSearch.Workers).
-		BulkActions(1000).               // commit if # requests >= 1000
-		BulkSize(2 << 20).               // commit if size of requests >= 2 MB
+		BulkActions(10000).              // commit if # requests >= 1000
+		BulkSize(10 << 20).              // commit if size of requests >= 2 MB
 		FlushInterval(30 * time.Second). // commit every 30s
 		//After(elastic.BulkAfterFunc{afterFn}). // after Execution callback
 		After(afterFn). // after Execution callback
 		//Before(beforeFn).
 		Stats(true) // enable statistics
-
 }
 
 func beforeFn(executionID int64, requests []BulkableRequest) {

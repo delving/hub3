@@ -16,7 +16,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 const pathSep string = "~"
@@ -233,7 +233,6 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	}
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DocType).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)

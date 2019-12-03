@@ -10,7 +10,7 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 func RegisterContentStats(r chi.Router) {
@@ -66,7 +66,7 @@ func searchLabelStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
 	return
 }
@@ -79,7 +79,7 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
 	return
 }

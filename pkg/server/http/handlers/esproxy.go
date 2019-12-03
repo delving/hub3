@@ -17,7 +17,7 @@ import (
 func RegisterElasticSearchProxy(router chi.Router) {
 	r := chi.NewRouter()
 
-	//r.Get("/stats", rs.Get) // GET
+	r.Get("/stats", BulkStats) // GET
 	r.Get("/indexes", func(w http.ResponseWriter, r *http.Request) {
 		indexes, err := index.ListIndexes()
 		if err != nil {
@@ -45,11 +45,12 @@ func RegisterElasticSearchProxy(router chi.Router) {
 }
 
 // Get returns JSON formatted statistics for the BulkProcessor
-//func (rs IndexResource) Get(w http.ResponseWriter, r *http.Request) {
-////stats := index.BulkIndexStatistics(bp)
-////render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
-//return
-//}
+func BulkStats(w http.ResponseWriter, r *http.Request) {
+	stats := index.BulkIndexStatistics(BulkProcessor())
+	log.Printf("bulkSize: %d", bps.BulkSize)
+	render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
+	return
+}
 
 // NewSingleFinalPathHostReverseProxy proxies QueryString of the request url to the target url
 func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httputil.ReverseProxy {

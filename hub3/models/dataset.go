@@ -27,7 +27,7 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	w "github.com/gammazero/workerpool"
 
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -294,7 +294,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		log.Printf("Unable to get IndexRevisionStats for the dataset: %s", err)
 		return 0, revisions, counter, tagCounter, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		return 0, revisions, counter, tagCounter, fmt.Errorf("expected response != nil")
@@ -328,7 +328,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		})
 	}
 
-	totalHits := res.Hits.TotalHits
+	totalHits := res.Hits.TotalHits.Value
 	return int(totalHits), revisions, counter, tagCounter, err
 }
 
@@ -382,7 +382,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		log.Printf("Unable to get FragmentStatsBySpec for the dataset: %s", ds.Spec)
 		return fStats, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		return fStats, fmt.Errorf("expected response != nil")
@@ -417,7 +417,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			fStats.Tags = counter
 		}
 	}
-	fStats.StoredFragments = int(res.Hits.TotalHits)
+	fStats.StoredFragments = int(res.Hits.TotalHits.Value)
 	fStats.Revisions = revisions
 	return fStats, nil
 }
@@ -537,7 +537,7 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 		for _, hit := range results.Hits.Hits {
 			//log.Printf("%#v", hit.Id)
 			item := make(map[string]interface{})
-			err := json.Unmarshal(*hit.Source, &item)
+			err := json.Unmarshal(hit.Source, &item)
 			if err != nil {
 				log.Printf("unmarschalling error: %#v", err)
 				return err

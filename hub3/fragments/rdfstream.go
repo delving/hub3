@@ -10,7 +10,7 @@ import (
 	rdf "github.com/deiu/gon3"
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // parseTurtleFile creates a graph from an uploaded file
@@ -126,7 +126,6 @@ func (upl *RDFUploader) SaveFragmentGraphs(p *elastic.BulkProcessor) (int, error
 		}
 		r := elastic.NewBulkIndexRequest().
 			Index(c.Config.ElasticSearch.IndexName).
-			Type(DocType).
 			RetryOnConflict(3).
 			Id(fg.Meta.HubID).
 			Doc(fg)

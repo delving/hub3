@@ -22,7 +22,7 @@ indexV1 = false
 # Enable trace logging of ElasticSearch 
 enableTrace = false
 # Enable info logging of ElasticSearch
-enableInfo = false
+enableInfo = true
 # key to use for searching and deleting spec (spec.raw for v5 style index)
 # For v2 style indexing using meta.spec
 specKey = "meta.spec"

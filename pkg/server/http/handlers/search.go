@@ -35,7 +35,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 type contextKey string
@@ -689,17 +689,17 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func decodeFragmentGraph(hit *json.RawMessage) (*fragments.FragmentGraph, error) {
+func decodeFragmentGraph(hit json.RawMessage) (*fragments.FragmentGraph, error) {
 	r := new(fragments.FragmentGraph)
-	if err := json.Unmarshal(*hit, r); err != nil {
+	if err := json.Unmarshal(hit, r); err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-func decodeResourceEntry(hit *json.RawMessage) (*fragments.ResourceEntry, error) {
+func decodeResourceEntry(hit json.RawMessage) (*fragments.ResourceEntry, error) {
 	re := new(fragments.ResourceEntry)
-	if err := json.Unmarshal(*hit, re); err != nil {
+	if err := json.Unmarshal(hit, re); err != nil {
 		return nil, err
 	}
 	return re, nil
@@ -720,7 +720,7 @@ func decodeCollapsed(res *elastic.SearchResult, sr *fragments.SearchRequest) ([]
 		}
 
 		collapseInner := hit.InnerHits["collapse"]
-		coll.HitCount = collapseInner.Hits.TotalHits
+		coll.HitCount = collapseInner.Hits.TotalHits.Value
 		for _, inner := range collapseInner.Hits.Hits {
 			r, err := decodeFragmentGraph(inner.Source)
 

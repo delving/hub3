@@ -29,7 +29,7 @@ import (
 	c "github.com/delving/hub3/config"
 	proto "github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 )
@@ -1554,9 +1554,9 @@ func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
 	return nil
 }
 
-func getKeyAsString(raw *json.RawMessage) string {
+func getKeyAsString(raw json.RawMessage) string {
 	return strings.Trim(
-		fmt.Sprintf("%s", *raw),
+		fmt.Sprintf("%s", raw),
 		"\"",
 	)
 }

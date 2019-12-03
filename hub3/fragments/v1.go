@@ -29,9 +29,7 @@ import (
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 
-	"github.com/olivere/elastic"
-	// TODO replace with dep injection later
-	//elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/parnurzeal/gorequest"
 )
