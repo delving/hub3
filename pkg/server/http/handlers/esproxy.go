@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 
 	c "github.com/delving/hub3/config"
 
@@ -26,51 +27,49 @@ func RegisterElasticSearchProxy(router chi.Router) {
 		render.PlainText(w, r, fmt.Sprint("indexes:", indexes))
 		return
 	})
-	// Anything we don't do in Go, we pass to the old platform
-	es, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
-	es.Path = fmt.Sprintf("/%s/", c.Config.ElasticSearch.IndexName)
-	esCat, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
-	esCat.Path = "/_cat/"
 
 	if c.Config.ElasticSearch.Proxy {
-		r.Handle("/_search", NewSingleFinalPathHostReverseProxy(es, "_search"))
-		r.Handle("/_mapping", NewSingleFinalPathHostReverseProxy(es, "_mapping"))
-		r.Handle("/_cat", NewSingleFinalPathHostReverseProxy(esCat, ""))
-		r.Handle("/_cat/shards", NewSingleFinalPathHostReverseProxy(esCat, "shards"))
-		r.Handle("/_cat/nodes", NewSingleFinalPathHostReverseProxy(esCat, "nodes"))
-		r.Handle("/_cat/indices", NewSingleFinalPathHostReverseProxy(esCat, "indices"))
+		r.HandleFunc("/*", esProxy)
 	}
 
 	router.Mount("/api/es", r)
 }
 
+func esProxy(w http.ResponseWriter, r *http.Request) {
+	// parse the url
+	url, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
+
+	// create the reverse proxy
+	proxy := httputil.NewSingleHostReverseProxy(url)
+
+	// strip prefix from path
+	r.URL.Path = strings.TrimPrefix(r.URL.EscapedPath(), "/api/es")
+
+	switch {
+	case r.Method != "GET":
+		http.Error(w, fmt.Sprintf("method %s is not allowed on esProxy", r.Method), http.StatusBadRequest)
+		return
+	case r.URL.Path == "/":
+		// root is allowed to provide version
+	case !strings.HasPrefix(r.URL.EscapedPath(), "/_cat"):
+		http.Error(w, fmt.Sprintf("path %s is not allowed on esProxy", r.URL.EscapedPath()), http.StatusBadRequest)
+		return
+	}
+
+	// Update the headers to allow for SSL redirection
+	r.URL.Host = url.Host
+	r.URL.Scheme = url.Scheme
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
+	r.Host = url.Host
+
+	// Note that ServeHttp is non blocking and uses a go routine under the hood
+	proxy.ServeHTTP(w, r)
+
+}
+
 // Get returns JSON formatted statistics for the BulkProcessor
 func BulkStats(w http.ResponseWriter, r *http.Request) {
 	stats := index.BulkIndexStatistics(BulkProcessor())
-	log.Printf("bulkSize: %d", bps.BulkSize)
 	render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
 	return
-}
-
-// NewSingleFinalPathHostReverseProxy proxies QueryString of the request url to the target url
-func NewSingleFinalPathHostReverseProxy(target *url.URL, relPath string) *httputil.ReverseProxy {
-	targetQuery := target.RawQuery
-	director := func(req *http.Request) {
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.URL.Path = target.Path + relPath
-		if targetQuery == "" || req.URL.RawQuery == "" {
-			req.URL.RawQuery = targetQuery + req.URL.RawQuery
-		} else {
-			req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
-		}
-		if _, ok := req.Header["User-Agent"]; !ok {
-			// explicitly disable User-Agent so it's not set to default value
-			req.Header.Set("User-Agent", "")
-		}
-		log.Printf("proxy request: %#v", req)
-		log.Printf("proxy request: %#v", req.URL.String())
-		log.Printf("proxy request: %#v", req.Body)
-	}
-	return &httputil.ReverseProxy{Director: director}
 }
