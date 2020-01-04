@@ -78,8 +78,8 @@ func beforeFn(executionID int64, requests []BulkableRequest) {
 }
 
 func afterFn(executionID int64, requests []elastic.BulkableRequest, response *elastic.BulkResponse, err error) {
-	if response.Errors {
-		log.Println("Errors in bulk request")
+	if response != nil && response.Errors {
+		log.Println("Errors in response")
 		for _, item := range response.Failed() {
 			log.Printf("errored item: %#v errors: %#v", item, item.Error)
 		}
