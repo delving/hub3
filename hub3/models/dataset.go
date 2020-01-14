@@ -243,7 +243,7 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 		SubAggregation("spec", specAgg)
 	q := elastic.NewMatchAllQuery()
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		Query(q).
 		Size(0).
 		Aggregation("modified", agg).
@@ -283,7 +283,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -514,11 +514,11 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 // CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
 // to be delete to the PostHook workerpool.
 func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPool) error {
-	index.ESClient().Flush(c.Config.ElasticSearch.IndexName)
+	index.ESClient().Flush(c.Config.ElasticSearch.GetIndexName())
 	timer := time.NewTimer(time.Second * 5)
 	<-timer.C
 	scroll := index.ESClient().Scroll().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		//StoredFields("system.source_uri", "entryURI").
 		Query(q).
 		Size(100)
@@ -598,7 +598,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 
 		res, err := index.ESClient().DeleteByQuery().
 			Index(
-				c.Config.ElasticSearch.IndexName,
+				c.Config.ElasticSearch.GetIndexName(),
 				c.Config.ElasticSearch.FragmentIndexName(),
 			).
 			Query(q).
@@ -633,7 +633,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 	}
 	res, err := index.ESClient().DeleteByQuery().
 		Index(
-			c.Config.ElasticSearch.IndexName,
+			c.Config.ElasticSearch.GetIndexName(),
 			c.Config.ElasticSearch.FragmentIndexName(),
 		).
 		Query(q).

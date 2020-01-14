@@ -235,7 +235,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	idSort := elastic.NewFieldSort("meta.hubID")
 	fieldSort := elastic.NewFieldSort("tree.sortKey")
 
-	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.IndexName).
+	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.GetIndexName()).
 		SortBy(fieldSort, idSort).
 		Size(100).
 		FetchSource(false).

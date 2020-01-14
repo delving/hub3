@@ -1006,7 +1006,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	s := ec.Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		Preference(sr.GetSessionID()).
 		Size(int(sr.GetResponseSize()))
 

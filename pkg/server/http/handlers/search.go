@@ -612,7 +612,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	res, err := index.ESClient().Get().
-		Index(config.Config.ElasticSearch.IndexName).
+		Index(config.Config.ElasticSearch.GetIndexName()).
 		Id(id).
 		Do(r.Context())
 	if err != nil {

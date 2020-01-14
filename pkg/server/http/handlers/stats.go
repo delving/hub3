@@ -49,7 +49,7 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, spec))
 	}
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		Query(q).
 		Size(0).
 		Aggregation(field, searchLabelAgg).

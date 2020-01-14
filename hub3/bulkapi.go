@@ -275,7 +275,7 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 		// index FragmentGraph
 		r = elastic.NewBulkIndexRequest().
-			Index(c.Config.ElasticSearch.IndexName).
+			Index(c.Config.ElasticSearch.GetIndexName()).
 			RetryOnConflict(3).
 			Id(action.HubID).
 			Doc(fb.Doc())

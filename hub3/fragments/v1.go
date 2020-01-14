@@ -785,7 +785,7 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 
 // CreateESAction creates bulkAPIRequest from map[string]interface{}
 func CreateESAction(indexDoc map[string]interface{}, id string) (*elastic.BulkIndexRequest, error) {
-	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.IndexName)
+	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.GetIndexName())
 	r := elastic.NewBulkIndexRequest().
 		Index(v1Index).
 		Type("void_edmrecord").

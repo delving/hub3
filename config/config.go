@@ -94,12 +94,18 @@ type ElasticSearch struct {
 
 // FragmentIndexName returns the name of the Fragment index.
 func (es ElasticSearch) FragmentIndexName() string {
-	return fmt.Sprintf("%s_frag", es.IndexName)
+	return fmt.Sprintf("%s_frag", es.GetIndexName())
 }
 
 // HasAuthentication returns if ElasticSearch has authentication enabled.
 func (es ElasticSearch) HasAuthentication() bool {
 	return len(es.UserName) > 0 && len(es.Password) > 0
+}
+
+// GetIndexName returns the lowercased indexname.
+// This inforced correct behaviour when creating an index in ElasticSearch.
+func (es ElasticSearch) GetIndexName() string {
+	return strings.ToLower(es.IndexName)
 }
 
 // Logging holds all the logging and path configuration

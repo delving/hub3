@@ -326,7 +326,7 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elasti
 		return nil
 	}
 	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)

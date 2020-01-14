@@ -59,8 +59,8 @@ func ESClient() *elastic.Client {
 			// setup ElasticSearch client
 			client = createESClient()
 			//defer client.Stop()
-			ensureESIndex(config.Config.ElasticSearch.IndexName, false)
-			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.IndexName), false)
+			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
+			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
 			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
@@ -70,7 +70,7 @@ func ESClient() *elastic.Client {
 
 func IndexReset(index string) error {
 	if index == "" {
-		index = config.Config.ElasticSearch.IndexName
+		index = config.Config.ElasticSearch.GetIndexName()
 	}
 	ensureESIndex(index, true)
 	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
@@ -79,7 +79,7 @@ func IndexReset(index string) error {
 
 func ensureESIndex(index string, reset bool) {
 	if index == "" {
-		index = config.Config.ElasticSearch.IndexName
+		index = config.Config.ElasticSearch.GetIndexName()
 	}
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {

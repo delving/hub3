@@ -136,7 +136,14 @@ func Test_newQueryItem(t *testing.T) {
 		{
 			"diacritics query",
 			args{"Geünieerde"},
-			&queryItem{text: "geünieerde", wildcard: false, flat: "geunieerde"},
+			&queryItem{
+				text:          "geünieerde",
+				wildcard:      false,
+				partial:       false,
+				diacriticFold: true,
+				flat:          "geunieerde",
+				must:          false,
+			},
 			true,
 		},
 	}
