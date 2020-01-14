@@ -90,6 +90,7 @@ type ElasticSearch struct {
 	Shards             int      `json:"shards"`
 	Replicas           int      `json:"replicas"`
 	EnableSearchAfter  bool     `json:"enableSearchAfter"`
+	TrackTotalHits     bool     `json:"trackTotalHits"`
 }
 
 // FragmentIndexName returns the name of the Fragment index.
@@ -233,6 +234,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.EnableSearchAfter", false)
 	viper.SetDefault("ElasticSearch.Shards", 1)
 	viper.SetDefault("ElasticSearch.Replicas", 0)
+	viper.SetDefault("ElasticSearch.TrackTotalHits", true)
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)

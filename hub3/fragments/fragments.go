@@ -178,6 +178,7 @@ func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elas
 	q := fr.BuildQuery()
 	return client.Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(FRAGMENT_SIZE).
 		From(fr.GetESPage()).

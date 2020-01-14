@@ -68,6 +68,7 @@ func TreeNode(ctx context.Context, hubID string) (*Tree, error) {
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(10).
 		Do(ctx)
@@ -139,6 +140,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("depth", depthAgg).

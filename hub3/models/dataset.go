@@ -244,6 +244,7 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 	q := elastic.NewMatchAllQuery()
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("modified", agg).
@@ -284,6 +285,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -371,6 +373,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).

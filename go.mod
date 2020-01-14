@@ -44,15 +44,14 @@ require (
 	github.com/moul/http2curl v0.0.0-20170919181001-9ac6cf4d929b // indirect
 	github.com/muesli/smartcrop v0.0.0-20171215203440-9032446b30f6 // indirect
 	github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5 // indirect
-	github.com/olivere/elastic v6.2.26+incompatible
-	github.com/olivere/elastic/v7 v7.0.9
+	github.com/olivere/elastic/v7 v7.0.10
 	github.com/onsi/ginkgo v1.7.0
 	github.com/onsi/gomega v1.4.3
 	github.com/parnurzeal/gorequest v0.2.15
 	github.com/pelletier/go-toml v1.1.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.0
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
 	github.com/prometheus/procfs v0.0.4 // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
@@ -65,7 +64,7 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec // indirect
 	github.com/spf13/pflag v0.0.0-20171106142849-4c012f6dcd95 // indirect
 	github.com/spf13/viper v0.0.0-20171227194143-aafc9e6bc7b7
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 	github.com/urfave/negroni v0.3.0
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
