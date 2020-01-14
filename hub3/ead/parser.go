@@ -127,7 +127,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		return nil, errors.Wrapf(err, "Unable to create description")
 	}
 
-	cfg.Title = desc.Summary.FindingAid.Title
+	cfg.Title = []string{desc.Summary.File.Title}
 	cfg.TitleShort = desc.Summary.FindingAid.ShortTitle
 
 	jsonOutput, err := json.MarshalIndent(desc, "", " ")
