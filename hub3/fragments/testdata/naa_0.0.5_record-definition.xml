@@ -8,10 +8,10 @@
 		<namespace prefix="hg" uri="http://rdf.histograph.io/"/>
 		<namespace prefix="sd" uri="http://www.w3.org/ns/sparql-service-description#"/>
 		<namespace prefix="vs" uri="http://www.w3.org/2003/06/sw-vocab-status/ns#"/>
-		<namespace prefix="pnv" uri="http://archief.nl/pnv/def/"/>
+		<namespace prefix="pnv" uri="https://archief.nl/pnv/def/"/>
 		<namespace prefix="dbo" uri="http://dbpedia.org/ontology/"/>
 		<namespace prefix="edm" uri="http://www.europeana.eu/schemas/edm/"/>
-		<namespace prefix="naa" uri="http://archief.nl/def/"/>
+		<namespace prefix="naa" uri="https://archief.nl/def/"/>
 		<namespace prefix="ore" uri="http://www.openarchives.org/ore/terms/"/>
 		<namespace prefix="org" uri="http://www.w3.org/ns/org#"/>
 		<namespace prefix="owl" uri="http://www.w3.org/2002/07/owl#"/>
@@ -373,7 +373,7 @@
 			<elem tag="ore:aggregates" attrs="rdf:resource"/>
 			<!-- Maker van de aggregatie / record  -->
 			<elem tag="dcterms:creator" attrs="rdf:resource"/>
-			<!-- Wat voor soort (type) aggregatie het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <http://archief.nl/def/TypePhotoAggregation> -->
+			<!-- Wat voor soort (type) aggregatie het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <https://archief.nl/def/TypePhotoAggregation> -->
 			<elem tag="dcterms:type" attrs="rdf:resource,xml:lang"/>
 			<elem tag="naa:isAggregationType" attrs="rdf:resource,xml:lang"/>
 			<!-- Wanneer de aggregatie gemaakt is -->
@@ -394,7 +394,7 @@
 			<elem tag="rdfs:label" attrs="xml:lang"/>
 			<elem tag="skos:prefLabel" attrs="xml:lang"/>
 			<elem tag="skos:altLabel" attrs="xml:lang"/>
-			<!-- Wat voor soort type entiteit het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <http://archief.nl/def/TypePhotograph>  -->
+			<!-- Wat voor soort type entiteit het is. Bij voorkeur gecontrolleerde termen gebruiken bv. <https://archief.nl/def/TypePhotograph>  -->
 			<elem tag="naa:isEntityType" attrs="rdf:resource,xml:lang"/>
 			<!-- MAIS toegangscode / nummer archiefinventaris / toegangsnummer-->
 			<elem tag="naa:catalogReferenceNumber" attrs="xml:lang"/>
@@ -420,7 +420,7 @@
 			<elem tag="bf:otherEdition" attrs="xml:lang"/>
 			<!-- MAIS Informatie aanbieder beschrijving -->
 			<elem tag="dc:publisher" attrs="xml:lang"/>
-			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <http://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
+			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <https://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
 			<elem tag="dcterms:publisher" attrs="rdf:resource,xml:lang"/>
 			<!-- MAIS Licentie methode -->
 			<elem tag="dc:license" attrs="xml:lang"/>
@@ -485,7 +485,7 @@
 			<elem tag="dcterms:created" attrs="rdf:datatype,xml:lang"/>
 			<!-- MAIS Informatie aanbieder beschrijving -->
 			<elem tag="dc:publisher" attrs="xml:lang"/>
-			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <http://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
+			<!-- MAIS Informatie aanbieder beschrijving. Verwijzing naar de organisatie die verantwoordelijk is voor het publiceren. Gebruik bij voorkeur een gecontrolleerde term bv. <https://archief.nl/NL-HaNA/organisatie/id/NationaalArchief> -->
 			<elem tag="dcterms:publisher" attrs="rdf:resource,xml:lang"/>
 			<elem tag="rdfs:comment" attrs="xml:lang"/>
 			<!-- Tijdsaanduiding aangepast in combinatie met type 6-7-2018-->

@@ -166,7 +166,7 @@ searchURL = "https://test.nationaalarchief.nl"
 # used for title of a resource
 title = [
     "http://purl.org/dc/elements/1.1/title",
-    "http://archief.nl/def/ead/idUnittitle",
+    "https://archief.nl/def/ead/idUnittitle",
 ]
 label = [
     "http://purl.org/dc/elements/1.1/title",
@@ -181,7 +181,7 @@ label = [
 
 thumbnail = [
     "http://xmlns.com/foaf/0.1/depiction",
-    "http://archief.nl/def/thumbnail",
+    "https://archief.nl/def/thumbnail",
     "http://schemas.delving.eu/nave/terms/thumbnail",
     "http://schemas.delving.eu/nave/terms/thumbSmall",
     "http://schemas.delving.eu/nave/terms/thumbLarge",
@@ -219,7 +219,7 @@ objectID = [
     "http://schemas.delving.eu/nave/terms/objectNumber",
     "http://schemas.delving.eu/nave/terms/objectNummer",
     "http://purl.org/dc/elements/1.1/identifier",
-    "http://archief.nl/def/ead/idInventorynr",
+    "https://archief.nl/def/ead/idInventorynr",
 ]
 creator = [
     "http://purl.org/dc/elements/1.1/creator",
@@ -234,8 +234,8 @@ latLong = [
     "http://schemas.delving.eu/nave/terms/geoHash",
 ]
 dateRange = [
-    "http://archief.nl/def/ead/dateNormal",
-    "http://archief.nl/def/ead/periodDesc",
+    "https://archief.nl/def/ead/dateNormal",
+    "https://archief.nl/def/ead/periodDesc",
 ]
 isoDate = [
     #"http://schemas.delving.eu/nave/terms/date",
@@ -291,7 +291,7 @@ base = "http://www.europeana.eu/schemas/edm/"
 
 [[namespaces]]
 prefix="naa" 
-base = "http://archief.nl/def/"
+base = "https://archief.nl/def/"
 
 [[namespaces]]
 prefix="ore" 

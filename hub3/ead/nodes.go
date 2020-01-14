@@ -159,13 +159,13 @@ func (ni *NodeID) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Trip
 	triples := []*r.Triple{
 		r.NewTriple(
 			referrer,
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "unitid")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "unitid")),
 			s,
 		),
 		r.NewTriple(
 			s,
 			r.NewResource(fragments.RDFType),
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "Unitid")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "Unitid")),
 		),
 	}
 
@@ -197,13 +197,13 @@ func (h *Header) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 	triples := []*r.Triple{
 		r.NewTriple(
 			r.NewResource(subject),
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "hasDid")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "hasDid")),
 			s,
 		),
 		r.NewTriple(
 			s,
 			r.NewResource(fragments.RDFType),
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "Did")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "Did")),
 		),
 	}
 	t := func(s r.Term, p, o string, oType convert) {
@@ -239,13 +239,13 @@ func (nd *NodeDate) Triples(referrer r.Term, order int, cfg *NodeConfig) []*r.Tr
 	triples := []*r.Triple{
 		r.NewTriple(
 			referrer,
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "unitdate")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "unitdate")),
 			s,
 		),
 		r.NewTriple(
 			s,
 			r.NewResource(fragments.RDFType),
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "Unitdate")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "Unitdate")),
 		),
 	}
 
@@ -272,7 +272,7 @@ func addNonEmptyTriple(s r.Term, p, o string, oType convert) *r.Triple {
 	}
 	return r.NewTriple(
 		s,
-		r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", p)),
+		r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", p)),
 		oType(o),
 	)
 }
@@ -285,7 +285,7 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 		r.NewTriple(
 			s,
 			r.NewResource(fragments.RDFType),
-			r.NewResource(fmt.Sprintf("http://archief.nl/def/ead/%s", "Clevel")),
+			r.NewResource(fmt.Sprintf("https://archief.nl/def/ead/%s", "Clevel")),
 		),
 		r.NewTriple(
 			s,

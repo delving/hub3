@@ -1048,7 +1048,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	for _, f := range frags {
 		t := f.CreateTriple()
 		switch t.Predicate.RawValue() {
-		case "http://archief.nl/def/manifest", "http://archief.nl/def/manifests":
+		case "https://archief.nl/def/manifest", "https://archief.nl/def/manifests":
 			link := strings.Replace(
 				t.Object.RawValue(),
 				"/hubID",
