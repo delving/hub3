@@ -253,6 +253,7 @@ type CLevel interface {
 	GetXMLName() xml.Name
 	GetAttrlevel() string
 	GetAttrotherlevel() string
+	GetAttraltrender() string
 	GetCaccessrestrict() *Caccessrestrict
 	GetNested() []CLevel
 	GetCdid() *Cdid
@@ -266,6 +267,7 @@ type Cc struct {
 	XMLName         xml.Name         `xml:"c,omitempty" json:"c,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
 	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Attraltrender   string           `xml:"altrender,attr"  json:",omitempty"`
 	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
 	Cc              []*Cc            `xml:"c,omitempty" json:"c,omitempty"`
 	Ccustodhist     *Ccustodhist     `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
@@ -279,6 +281,7 @@ type Cc struct {
 func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
 func (c Cc) GetAttrlevel() string                 { return c.Attrlevel }
 func (c Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc) GetAttraltrender() string             { return c.Attraltrender }
 func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
 func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
@@ -301,6 +304,7 @@ func (c Cc) GetMaterial() string {
 	if cdid.Cphysdesc != nil && cdid.Cphysdesc.Cphysfacet != nil {
 		return cdid.Cphysdesc.Cphysfacet.PhysFacet
 	}
+
 	return ""
 }
 

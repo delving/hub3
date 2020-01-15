@@ -50,6 +50,7 @@ type Header struct {
 	DateAsLabel      bool
 	HasDigitalObject bool
 	DaoLink          string
+	AltRender        string
 }
 type NodeDate struct {
 	Calendar string

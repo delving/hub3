@@ -282,7 +282,7 @@ func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
 		return ""
 	}
-	return html.UnescapeString(fmt.Sprintf("%s", h.Label[0]))
+	return html.UnescapeString(h.Label[0])
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID
@@ -436,6 +436,10 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	node.Header = header
 	if header.DaoLink != "" {
 		cfg.MetsCounter.Increment(header.DaoLink)
+	}
+
+	if c.GetAttraltrender() != "" {
+		node.Header.AltRender = c.GetAttraltrender()
 	}
 
 	// add content
