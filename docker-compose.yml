@@ -30,6 +30,7 @@ services:
       - esnet
   fuseki:
     image: stain/jena-fuseki:latest
+    container_name: fuseki-zvt
     ports:
       - "3030:3030"
     environment:
