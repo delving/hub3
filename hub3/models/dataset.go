@@ -661,7 +661,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 		log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
 		return false, err
 	}
-	//log.Printf("Flushed remaining items on the index queue.")
+	// log.Printf("Flushed remaining items on the index queue.")
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
@@ -670,13 +670,13 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 		}
 	}
 	if c.Config.ElasticSearch.Enabled {
-		_, err = ds.deleteIndexOrphans(ctx, wp)
+		_, err := ds.deleteIndexOrphans(ctx, wp)
 		if err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
 			return false, err
 		}
 	}
-	return ok, err
+	return ok, nil
 }
 
 // DropRecords Drops all records linked to the dataset from the storage layers

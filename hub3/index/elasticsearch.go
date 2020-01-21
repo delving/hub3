@@ -149,7 +149,7 @@ func ListIndexes() ([]string, error) {
 }
 
 func createESClient() *elastic.Client {
-	timeout := time.Duration(5 * time.Second)
+	timeout := time.Duration(time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second)
 	httpclient := &http.Client{
 		Timeout: timeout,
 	}
