@@ -442,6 +442,10 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Header.AltRender = c.GetAttraltrender()
 	}
 
+	if c.GetGenreform() != "" {
+		node.Header.Genreform = c.GetGenreform()
+	}
+
 	// add content
 	if c.GetOdd() != nil {
 		for _, o := range c.GetOdd() {

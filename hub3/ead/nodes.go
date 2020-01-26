@@ -51,6 +51,7 @@ type Header struct {
 	HasDigitalObject bool
 	DaoLink          string
 	AltRender        string
+	Genreform        string
 }
 type NodeDate struct {
 	Calendar string
@@ -307,6 +308,8 @@ func (n *Node) Triples(subject string, cfg *NodeConfig) []*r.Triple {
 	t(s, "branchID", n.BranchID, r.NewLiteral)
 	t(s, "cType", n.Type, r.NewLiteral)
 	t(s, "cSubtype", n.SubType, r.NewLiteral)
+	t(s, "genreform", n.Header.Genreform, r.NewLiteral)
+
 	for _, html := range n.HTML {
 		t(s, "scopecontent", html, r.NewLiteral)
 	}

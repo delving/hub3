@@ -33,6 +33,13 @@ func (c Cc01) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc01) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc02 struct {
 	XMLName         xml.Name         `xml:"c02,omitempty" json:"c02,omitempty"`
@@ -64,6 +71,13 @@ func (c Cc02) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc02) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc03 struct {
@@ -97,6 +111,13 @@ func (c Cc03) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc03) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc04 struct {
 	XMLName         xml.Name         `xml:"c04,omitempty" json:"c04,omitempty"`
@@ -128,6 +149,13 @@ func (c Cc04) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc04) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc05 struct {
@@ -161,6 +189,13 @@ func (c Cc05) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc05) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc06 struct {
 	XMLName         xml.Name         `xml:"c06,omitempty" json:"c06,omitempty"`
@@ -192,6 +227,13 @@ func (c Cc06) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc06) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc07 struct {
@@ -225,6 +267,13 @@ func (c Cc07) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc07) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc08 struct {
 	XMLName         xml.Name         `xml:"c08,omitempty" json:"c08,omitempty"`
@@ -256,6 +305,13 @@ func (c Cc08) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc08) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc09 struct {
@@ -289,6 +345,13 @@ func (c Cc09) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc09) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc10 struct {
 	XMLName         xml.Name         `xml:"c10,omitempty" json:"c10,omitempty"`
@@ -320,6 +383,13 @@ func (c Cc10) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc10) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc11 struct {
@@ -353,6 +423,13 @@ func (c Cc11) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc11) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc12 struct {
 	XMLName         xml.Name         `xml:"c12,omitempty" json:"c12,omitempty"`
@@ -384,6 +461,13 @@ func (c Cc12) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc12) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc13 struct {
@@ -417,6 +501,13 @@ func (c Cc13) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc13) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc14 struct {
 	XMLName         xml.Name         `xml:"c14,omitempty" json:"c14,omitempty"`
@@ -448,6 +539,13 @@ func (c Cc14) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc14) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc15 struct {
@@ -481,6 +579,13 @@ func (c Cc15) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc15) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc16 struct {
 	XMLName         xml.Name         `xml:"c16,omitempty" json:"c16,omitempty"`
@@ -512,6 +617,13 @@ func (c Cc16) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc16) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc17 struct {
@@ -545,6 +657,13 @@ func (c Cc17) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc17) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc18 struct {
 	XMLName         xml.Name         `xml:"c18,omitempty" json:"c18,omitempty"`
@@ -576,6 +695,13 @@ func (c Cc18) GetNested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc18) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 
 type Cc19 struct {
@@ -609,6 +735,13 @@ func (c Cc19) GetNested() []CLevel {
 	}
 	return levels
 }
+func (c Cc19) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 
 type Cc20 struct {
 	XMLName         xml.Name         `xml:"c20,omitempty" json:"c20,omitempty"`
@@ -637,4 +770,11 @@ func (c Cc20) GetMaterial() string                  { return "" }
 func (c Cc20) GetNested() []CLevel {
 	levels := make([]CLevel, 0)
 	return levels
+}
+func (c Cc20) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }

@@ -254,6 +254,7 @@ type CLevel interface {
 	GetAttrlevel() string
 	GetAttrotherlevel() string
 	GetAttraltrender() string
+	GetGenreform() string
 	GetCaccessrestrict() *Caccessrestrict
 	GetNested() []CLevel
 	GetCdid() *Cdid
@@ -294,6 +295,13 @@ func (c Cc) Nested() []CLevel {
 		levels[i] = CLevel(v)
 	}
 	return levels
+}
+func (c Cc) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
 }
 func (c Cc) GetMaterial() string {
 	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess.Cp) > 0 {
@@ -734,6 +742,13 @@ type Ccontrolaccess struct {
 	Csubject     []*Csubject `xml:"subject,omitempty" json:"subject,omitempty"`
 	Cnote        *Cnote      `xml:"note,omitempty" json:"note,omitempty"`
 	Cp           []*Cp       `xml:"p,omitempty" json:"p,omitempty"`
+	Cgenreform   *Cgenreform `xml:"genreform,omitempty" json:"genreform,omitempty"`
+}
+
+type Cgenreform struct {
+	XMLName   xml.Name `xml:"genreform,omitempty" json:"genreform,omitempty"`
+	Attrtype  string   `xml:"type,attr"  json:",omitempty"`
+	Genreform string   `xml:",chardata" json:",omitempty"`
 }
 
 type Ccorpname struct {
