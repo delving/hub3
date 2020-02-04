@@ -382,6 +382,13 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		header.Date = append(header.Date, nodeDate)
 	}
 
+	for _, unitID := range cdid.Cunitid {
+		// Mark the header as Born Digital when we find a BD type unitid.
+		if strings.ToLower(unitID.Attrtype) == "bd" {
+			header.AltRender = "Born Digital"
+		}
+	}
+
 	nodeIDs, inventoryID, err := cdid.NewNodeIDs()
 	if err != nil {
 		return nil, err
