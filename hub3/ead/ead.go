@@ -298,20 +298,20 @@ func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 
 // NewNodeIDs extract Unit Identifiers from the EAD did
 func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
-	ids := []*NodeID{}
-	var invertoryNumber string
+	var ids []*NodeID
+	var inventoryID string
 	for _, unitid := range cdid.Cunitid {
 		id, err := unitid.NewNodeID()
 		if err != nil {
 			return nil, "", err
 		}
 		switch id.Type {
-		case "ABS", "series_code", "":
-			invertoryNumber = id.ID
+		case "ABS", "series_code", "blank", "analoog", "BD", "":
+			inventoryID = id.ID
 		}
 		ids = append(ids, id)
 	}
-	return ids, invertoryNumber, nil
+	return ids, inventoryID, nil
 }
 
 // NewNodeDate extract date infomation frme the EAD unitdate
@@ -400,7 +400,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 
 func (n *Node) getPathID() string {
 	eadID := n.Header.InventoryNumber
-	if eadID == "" {
+	if eadID == "" || strings.HasPrefix(eadID, "---") {
 		eadID = strconv.FormatUint(n.Order, 10)
 	}
 	return fmt.Sprintf("%s", eadID)
