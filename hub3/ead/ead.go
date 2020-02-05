@@ -346,7 +346,10 @@ func (nd *NodeDate) ValidDateNormal() error {
 
 // NewHeader creates an Archival Header
 func (cdid *Cdid) NewHeader() (*Header, error) {
-	header := &Header{}
+	header := &Header{
+		Genreform: c.Config.EAD.GenreFormDefault,
+	}
+
 	if cdid.Cphysdesc != nil {
 		header.Physdesc = cdid.Cphysdesc.PhyscDesc
 	}

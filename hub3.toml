@@ -161,6 +161,7 @@ singleEndpoint = "NL-.*"
 
 [ead]
 searchURL = "https://test.nationaalarchief.nl"
+genreFormDefault = "other/unknown"
 
 [rdftag]
 # used for title of a resource

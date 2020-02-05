@@ -206,8 +206,9 @@ type SiteMap struct {
 
 // EAD holds all the configuration for the EAD endpoint
 type EAD struct {
-	CacheDir  string `json:"cacheDir"`
-	SearchURL string `json:"searchURL"`
+	CacheDir         string `json:"cacheDir"`
+	SearchURL        string `json:"searchURL"`
+	GenreFormDefault string `json:"genreFormDefault"`
 }
 
 func setDefaults() {
