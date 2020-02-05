@@ -139,7 +139,7 @@ var _ = Describe("Nodes", func() {
 				s := "urn:123"
 				triples := node.Triples(s, cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(29))
+				Expect(triples).To(HaveLen(28))
 			})
 
 		})

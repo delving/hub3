@@ -49,6 +49,14 @@ var ESMapping = `{
 			"mapping.nested_fields.limit": 50,
 			"number_of_shards": %d,
 			"number_of_replicas": %d
+		},
+		"analysis": {
+			"analyzer": {
+				"default": {
+					"tokenizer": "standard",
+					"filter" : ["lowercase","asciifolding"]
+				}
+			}
 		}
 	},
 	"mappings":{
