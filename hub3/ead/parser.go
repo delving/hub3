@@ -65,11 +65,11 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	os.MkdirAll(c.Config.EAD.CacheDir, os.ModePerm)
 
 	f, err := ioutil.TempFile(c.Config.EAD.CacheDir, "*")
-	defer f.Close()
 	if err != nil {
 		log.Printf("Unable to create output file %s; %s", spec, err)
 		return nil, err
 	}
+	defer f.Close()
 
 	buf := bytes.NewBuffer(make([]byte, 0, headerSize))
 	_, err = io.Copy(f, io.TeeReader(r, buf))

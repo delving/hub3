@@ -15,7 +15,6 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -29,11 +28,9 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}", TreeList)
 	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
-	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
 	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
-	r.Get("/api/ead/desc-test", descTest)
 }
 
 func eadUpload(w http.ResponseWriter, r *http.Request) {
@@ -256,31 +253,6 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func TreeDescription(w http.ResponseWriter, r *http.Request) {
-	spec := chi.URLParam(r, "spec")
-	ds, err := models.GetDataSet(spec)
-	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintln("archive not found"),
-			Error:      nil,
-		})
-		return
-	}
-
-	desc := &fragments.TreeDescription{}
-	desc.Name = ds.Label
-	desc.Abstract = ds.Abstract
-	desc.InventoryID = ds.Spec
-	desc.Owner = ds.Owner
-	desc.Period = ds.Period
-
-	render.JSON(w, r, desc)
-
-	return
-}
-
 func treeStats(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
@@ -303,21 +275,5 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, stats)
-	return
-}
-
-func descTest(w http.ResponseWriter, r *http.Request) {
-	archive, err := ead.ReadEAD("hub3/ead/test_data/1.04.02_ead_header.xml")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	desc, err := ead.NewDescription(archive)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	render.JSON(w, r, desc)
 	return
 }
