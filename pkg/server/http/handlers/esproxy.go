@@ -46,11 +46,15 @@ func esProxy(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = strings.TrimPrefix(r.URL.EscapedPath(), "/api/es")
 
 	switch {
+	case strings.HasSuffix(r.URL.EscapedPath(), "/_analyze") && r.Method == "POST":
+		// allow post requests on analyze
 	case r.Method != "GET":
 		http.Error(w, fmt.Sprintf("method %s is not allowed on esProxy", r.Method), http.StatusBadRequest)
 		return
 	case r.URL.Path == "/":
 		// root is allowed to provide version
+	case strings.HasPrefix(r.URL.EscapedPath(), fmt.Sprintf("/%s", c.Config.ElasticSearch.GetIndexName())):
+		// direct access on get is allowed via the proxy
 	case !strings.HasPrefix(r.URL.EscapedPath(), "/_cat"):
 		http.Error(w, fmt.Sprintf("path %s is not allowed on esProxy", r.URL.EscapedPath()), http.StatusBadRequest)
 		return
