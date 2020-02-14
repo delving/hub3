@@ -525,7 +525,7 @@ func (tpe *TreePageEntry) CreateTreePage(
 
 	page := make(map[string][]*Tree)
 
-	rootLevelNodes := []*Tree{}
+	var rootLevelNodes []*Tree
 
 	switch appending {
 	case true:
@@ -536,8 +536,9 @@ func (tpe *TreePageEntry) CreateTreePage(
 		}
 	case false:
 		for _, rootNode := range rootNodes {
-
-			if int32(rootNode.SortKey) <= tpe.SortKey && int32(rootNode.SortKey) < sortFrom {
+			// Return more root nodes in prepend mode because it is possible they fall out of sort key range making
+			// it impossible to prepend new nodes when they do not have a parent.
+			if int32(rootNode.SortKey) <= tpe.SortKey {
 				rootNode = rootNode.DeepCopy()
 				rootNode.Inline = []*Tree{}
 				rootLevelNodes = append(rootLevelNodes, rootNode)
