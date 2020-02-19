@@ -26,7 +26,7 @@ import (
 	"github.com/OneOfOne/xxhash"
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // FragmentDocType is the ElasticSearch doctype for the Fragment
@@ -34,9 +34,6 @@ const FragmentDocType = "fragment"
 
 // FragmentGraphDocType is the ElasticSearch doctype for the FragmentGraph
 const FragmentGraphDocType = "graph"
-
-// DocType is the default doctype since elasticsearch deprecated mapping types
-const DocType = "doc"
 
 // FRAGMENT_SIZE of the fragments returned
 const FRAGMENT_SIZE = 100
@@ -181,6 +178,7 @@ func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elas
 	q := fr.BuildQuery()
 	return client.Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(FRAGMENT_SIZE).
 		From(fr.GetESPage()).
@@ -201,7 +199,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 		log.Printf("expected response != nil; got: %v", res)
 		return fragments, 0, fmt.Errorf("expected response != nil")
 	}
-	if res.Hits.TotalHits == 0 {
+	if res.Hits.TotalHits.Value == 0 {
 		log.Println("Nothing found for this query.")
 		return fragments, 0, nil
 	}
@@ -211,7 +209,7 @@ func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*
 		frag := item.(Fragment)
 		fragments = append(fragments, &frag)
 	}
-	return fragments, res.Hits.TotalHits, nil
+	return fragments, res.Hits.TotalHits.Value, nil
 }
 
 // CreateHash creates an xxhash-based hash of a string
@@ -238,7 +236,6 @@ func (f *Fragment) ID() string {
 func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
 	r := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
-		Type(DocType).
 		Id(f.ID()).
 		Doc(f)
 	return r, nil

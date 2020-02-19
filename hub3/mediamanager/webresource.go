@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 
 	c "github.com/delving/hub3/config"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 const (

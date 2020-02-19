@@ -27,7 +27,7 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	w "github.com/gammazero/workerpool"
 
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -100,6 +100,7 @@ type DataSetStats struct {
 	IndexStats                `json:"index"`
 	RDFStoreStats             `json:"rdfStore"`
 	LODFragmentStats          `json:"lodFragmentStats"`
+	DaoStats                  `json:"daoStats"`
 	WebResourceStats          `json:"webResourceStats"`
 	NarthexStats              `json:"narthexStats"`
 	VocabularyEnrichmentStats `json:"vocabularyEnrichmentStats"`
@@ -131,6 +132,7 @@ type DataSet struct {
 	MetsFiles        int      `json:"metsFiles"`
 	Description      string   `json:"description"`
 	Clevels          int      `json:"clevels"`
+	DaoStats         `json:"daoStats" storm:"inline"`
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -138,6 +140,16 @@ type Access struct {
 	OAIPMH bool `json:"oaipmh"`
 	Search bool `json:"search"`
 	LOD    bool `json:"lod"`
+}
+
+// DaoStats holds the stats for EAD digital objects extracted from METS links.
+type DaoStats struct {
+	ExtractedLinks uint64         `json:"extractedLinks"`
+	RetrieveErrors uint64         `json:"retrieveErrors"`
+	DigitalObjects uint64         `json:"digitalObjects"`
+	Errors         []string       `json:"errors"`
+	UniqueLinks    uint64         `json:"uniqueLinks"`
+	DuplicateLinks map[string]int `json:"duplicateLinks"`
 }
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
@@ -231,7 +243,8 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 		SubAggregation("spec", specAgg)
 	q := elastic.NewMatchAllQuery()
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("modified", agg).
@@ -271,7 +284,8 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -282,7 +296,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		log.Printf("Unable to get IndexRevisionStats for the dataset: %s", err)
 		return 0, revisions, counter, tagCounter, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		return 0, revisions, counter, tagCounter, fmt.Errorf("expected response != nil")
@@ -316,7 +330,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		})
 	}
 
-	totalHits := res.Hits.TotalHits
+	totalHits := res.Hits.TotalHits.Value
 	return int(totalHits), revisions, counter, tagCounter, err
 }
 
@@ -341,7 +355,7 @@ func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCou
 // createLodFragmentStats queries the Fragment Store and returns LODFragmentStats struct
 func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats, error) {
 	revisions := []DataSetRevisions{}
-	fStats := LODFragmentStats{Enabled: true}
+	fStats := LODFragmentStats{Enabled: c.Config.ElasticSearch.Fragments}
 
 	if !c.Config.ElasticSearch.Enabled {
 		return fStats, fmt.Errorf("FragmentStatsBySpec should not be called when elasticsearch is not enabled")
@@ -359,6 +373,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("revisions", revisionAgg).
@@ -370,7 +385,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		log.Printf("Unable to get FragmentStatsBySpec for the dataset: %s", ds.Spec)
 		return fStats, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	if res == nil {
 		log.Printf("expected response != nil; got: %v", res)
 		return fStats, fmt.Errorf("expected response != nil")
@@ -405,8 +420,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			fStats.Tags = counter
 		}
 	}
-	fStats.StoredFragments = int(res.Hits.TotalHits)
-	fStats.Enabled = true
+	fStats.StoredFragments = int(res.Hits.TotalHits.Value)
 	fStats.Revisions = revisions
 	return fStats, nil
 }
@@ -486,6 +500,7 @@ func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) 
 		RDFStoreStats:    storeStats,
 		LODFragmentStats: lodFragmentStats,
 		CurrentRevision:  ds.Revision,
+		DaoStats:         ds.DaoStats,
 	}, nil
 }
 
@@ -502,11 +517,11 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 // CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
 // to be delete to the PostHook workerpool.
 func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPool) error {
-	index.ESClient().Flush(c.Config.ElasticSearch.IndexName)
+	index.ESClient().Flush(c.Config.ElasticSearch.GetIndexName())
 	timer := time.NewTimer(time.Second * 5)
 	<-timer.C
 	scroll := index.ESClient().Scroll().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		//StoredFields("system.source_uri", "entryURI").
 		Query(q).
 		Size(100)
@@ -525,7 +540,7 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPoo
 		for _, hit := range results.Hits.Hits {
 			//log.Printf("%#v", hit.Id)
 			item := make(map[string]interface{})
-			err := json.Unmarshal(*hit.Source, &item)
+			err := json.Unmarshal(hit.Source, &item)
 			if err != nil {
 				log.Printf("unmarschalling error: %#v", err)
 				return err
@@ -586,7 +601,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 
 		res, err := index.ESClient().DeleteByQuery().
 			Index(
-				c.Config.ElasticSearch.IndexName,
+				c.Config.ElasticSearch.GetIndexName(),
 				c.Config.ElasticSearch.FragmentIndexName(),
 			).
 			Query(q).
@@ -621,7 +636,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 	}
 	res, err := index.ESClient().DeleteByQuery().
 		Index(
-			c.Config.ElasticSearch.IndexName,
+			c.Config.ElasticSearch.GetIndexName(),
 			c.Config.ElasticSearch.FragmentIndexName(),
 		).
 		Query(q).
@@ -646,7 +661,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 		log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
 		return false, err
 	}
-	//log.Printf("Flushed remaining items on the index queue.")
+	// log.Printf("Flushed remaining items on the index queue.")
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
@@ -655,13 +670,13 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 		}
 	}
 	if c.Config.ElasticSearch.Enabled {
-		_, err = ds.deleteIndexOrphans(ctx, wp)
+		_, err := ds.deleteIndexOrphans(ctx, wp)
 		if err != nil {
 			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
 			return false, err
 		}
 	}
-	return ok, err
+	return ok, nil
 }
 
 // DropRecords Drops all records linked to the dataset from the storage layers

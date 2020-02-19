@@ -23,7 +23,7 @@ import (
 	"github.com/go-chi/render"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 )
 
@@ -65,11 +65,11 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	os.MkdirAll(c.Config.EAD.CacheDir, os.ModePerm)
 
 	f, err := ioutil.TempFile(c.Config.EAD.CacheDir, "*")
-	defer f.Close()
 	if err != nil {
 		log.Printf("Unable to create output file %s; %s", spec, err)
 		return nil, err
 	}
+	defer f.Close()
 
 	buf := bytes.NewBuffer(make([]byte, 0, headerSize))
 	_, err = io.Copy(f, io.TeeReader(r, buf))
@@ -86,11 +86,15 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 
 	if spec == "" {
 		spec = cead.Ceadheader.Ceadid.EadID
+		if strings.Contains(spec, "/") {
+			spec = strings.ReplaceAll(spec, "/", ".")
+		}
 	}
 
 	f.Close()
-	basePath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s", spec))
-	os.Rename(f.Name(), fmt.Sprintf("%s.xml", basePath))
+	basePath := path.Join(c.Config.EAD.CacheDir, spec)
+	os.MkdirAll(basePath, os.ModePerm)
+	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
 	if err != nil {
@@ -123,18 +127,21 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		return nil, errors.Wrapf(err, "Unable to create description")
 	}
 
+	cfg.Title = []string{desc.Summary.File.Title}
+	cfg.TitleShort = desc.Summary.FindingAid.ShortTitle
+
 	jsonOutput, err := json.MarshalIndent(desc, "", " ")
 	if err != nil {
 		return nil, errors.Wrapf(err, "Unable to marshall description to JSON")
 	}
 
 	err = ioutil.WriteFile(
-		fmt.Sprintf("%s.json", basePath),
+		fmt.Sprintf("%s/%s.json", basePath, spec),
 		jsonOutput,
 		0644,
 	)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to JSON description to disk")
+		return nil, errors.Wrapf(err, "Unable to save JSON description to disk")
 	}
 
 	// save description
@@ -179,7 +186,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		}
 
 		err = ioutil.WriteFile(
-			fmt.Sprintf("%s_err.csv", basePath),
+			fmt.Sprintf("%s/%s_err.csv", basePath, spec),
 			errs,
 			0644,
 		)
@@ -246,6 +253,8 @@ type CLevel interface {
 	GetXMLName() xml.Name
 	GetAttrlevel() string
 	GetAttrotherlevel() string
+	GetAttraltrender() string
+	GetGenreform() string
 	GetCaccessrestrict() *Caccessrestrict
 	GetNested() []CLevel
 	GetCdid() *Cdid
@@ -259,6 +268,7 @@ type Cc struct {
 	XMLName         xml.Name         `xml:"c,omitempty" json:"c,omitempty"`
 	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
 	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
+	Attraltrender   string           `xml:"altrender,attr"  json:",omitempty"`
 	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
 	Cc              []*Cc            `xml:"c,omitempty" json:"c,omitempty"`
 	Ccustodhist     *Ccustodhist     `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
@@ -272,6 +282,7 @@ type Cc struct {
 func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
 func (c Cc) GetAttrlevel() string                 { return c.Attrlevel }
 func (c Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c Cc) GetAttraltrender() string             { return c.Attraltrender }
 func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
 func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
 func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
@@ -285,6 +296,13 @@ func (c Cc) Nested() []CLevel {
 	}
 	return levels
 }
+func (c Cc) GetGenreform() string {
+	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
+		return c.Ccontrolaccess.Cgenreform.Genreform
+	}
+
+	return ""
+}
 func (c Cc) GetMaterial() string {
 	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess.Cp) > 0 {
 		return c.Ccontrolaccess.Cp[0].P
@@ -294,6 +312,7 @@ func (c Cc) GetMaterial() string {
 	if cdid.Cphysdesc != nil && cdid.Cphysdesc.Cphysfacet != nil {
 		return cdid.Cphysdesc.Cphysfacet.PhysFacet
 	}
+
 	return ""
 }
 
@@ -319,8 +338,7 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elasti
 		return nil
 	}
 	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DocType).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
@@ -724,6 +742,13 @@ type Ccontrolaccess struct {
 	Csubject     []*Csubject `xml:"subject,omitempty" json:"subject,omitempty"`
 	Cnote        *Cnote      `xml:"note,omitempty" json:"note,omitempty"`
 	Cp           []*Cp       `xml:"p,omitempty" json:"p,omitempty"`
+	Cgenreform   *Cgenreform `xml:"genreform,omitempty" json:"genreform,omitempty"`
+}
+
+type Cgenreform struct {
+	XMLName   xml.Name `xml:"genreform,omitempty" json:"genreform,omitempty"`
+	Attrtype  string   `xml:"type,attr"  json:",omitempty"`
+	Genreform string   `xml:",chardata" json:",omitempty"`
 }
 
 type Ccorpname struct {

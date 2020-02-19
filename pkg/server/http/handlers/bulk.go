@@ -10,10 +10,11 @@ import (
 	"github.com/gammazero/workerpool"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 var bp *elastic.BulkProcessor
+var bps *elastic.BulkProcessorService
 var wp *workerpool.WorkerPool
 var ctx context.Context
 

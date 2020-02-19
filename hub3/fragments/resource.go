@@ -28,7 +28,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 )
 
@@ -235,7 +235,8 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	idSort := elastic.NewFieldSort("meta.hubID")
 	fieldSort := elastic.NewFieldSort("tree.sortKey")
 
-	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.IndexName).
+	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		SortBy(fieldSort, idSort).
 		Size(100).
 		FetchSource(false).
@@ -339,6 +340,7 @@ type FragmentGraph struct {
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
+	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
@@ -383,6 +385,12 @@ type ScrollPager struct {
 	Rows     int32  `json:"rows"`
 }
 
+// ProtoBuf holds a protobuf encode version of the messageType.
+type ProtoBuf struct {
+	MessageType string `json:"messageType"`
+	Data        string `json:"data"`
+}
+
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`
@@ -394,6 +402,7 @@ type ScrollResultV4 struct {
 	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
 	Tree       []*Tree            `json:"tree,omitempty"`
 	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
+	ProtoBuf   *ProtoBuf          `json:"protobuf,omitempty"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -1039,7 +1048,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	for _, f := range frags {
 		t := f.CreateTriple()
 		switch t.Predicate.RawValue() {
-		case "http://archief.nl/def/manifest", "http://archief.nl/def/manifests":
+		case "https://archief.nl/def/manifest", "https://archief.nl/def/manifests":
 			link := strings.Replace(
 				t.Object.RawValue(),
 				"/hubID",

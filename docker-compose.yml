@@ -1,24 +1,25 @@
 version: '3'
 services:
   kibana:
-    image: docker.elastic.co/kibana/kibana:6.8.2
-    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.5.0
+    container_name: kibana7
     environment:
       SERVER_NAME: localhost
-      ELASTICSEARCH_URL: http://elasticsearch6:9200/
+      ELASTICSEARCH_URL: http://elasticsearch7:9200/
     ports:
       - 5601:5601
     networks:
       - esnet
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.2
-    container_name: elasticsearch6
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+    container_name: elasticsearch7
     ports:
       - "9200:9200"
       #- "9300:9300"
     environment:
       - discovery.type=single-node 
       - cluster.name=hub3_cluster
+      - xpack.security.enabled=false
       #- bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
     ulimits:
@@ -29,6 +30,7 @@ services:
       - esnet
   fuseki:
     image: stain/jena-fuseki:latest
+    container_name: fuseki-zvt
     ports:
       - "3030:3030"
     environment:

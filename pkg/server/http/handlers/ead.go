@@ -15,7 +15,6 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -24,16 +23,14 @@ func RegisterEAD(r chi.Router) {
 
 	// EAD endpoint
 	r.Post("/api/ead", eadUpload)
-	r.Get("/api/ead/{hubID}", eadManifest)
 
 	// Tree reconstruction endpoint
 	r.Get("/api/tree/{spec}", TreeList)
 	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
-	r.Get("/api/tree/{spec}/desc", TreeDescription)
 	r.Get("/api/ead/{spec}/download", EADDownload)
+	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
-	r.Get("/api/ead/desc-test", descTest)
 }
 
 func eadUpload(w http.ResponseWriter, r *http.Request) {
@@ -113,10 +110,29 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
 		return
 	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.pdf", spec))
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.pdf", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", spec))
 	w.Header().Set("Content-Type", "application/pdf")
+	return
+}
+
+// MetsDownload is a handler that returns a stored METS XML for an inventory.
+func METSDownload(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
+		return
+	}
+	inventoryID := chi.URLParam(r, "inventoryID")
+	if inventoryID == "" {
+		http.Error(w, "inventoryID cannot be empty", http.StatusBadRequest)
+		return
+	}
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
+	http.ServeFile(w, r, eadPath)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
+	w.Header().Set("Content-Type", "application/xml")
 	return
 }
 
@@ -132,7 +148,7 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, fmt.Sprintf("%s.xml", spec))
+	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.xml", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
@@ -143,6 +159,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	description := filepath.Join(
 		c.Config.EAD.CacheDir,
+		spec,
 		fmt.Sprintf("%s.json", spec),
 	)
 
@@ -236,69 +253,6 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func eadManifest(w http.ResponseWriter, r *http.Request) {
-	hubID := chi.URLParam(r, "hubID")
-	parts := strings.Split(hubID, "_")
-	if len(parts) != 3 {
-		http.Error(w, fmt.Sprintf("badly formatted hubID: %v", hubID), http.StatusBadRequest)
-		return
-	}
-	spec := parts[1]
-	ds, err := models.GetDataSet(spec)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("dataset not found: %v", spec), http.StatusNotFound)
-		return
-	}
-
-	if ds.Label == "" {
-		http.Error(w, fmt.Sprintf("dataset is not an archive: %v", spec), http.StatusBadRequest)
-		return
-	}
-
-	treeNode, err := fragments.TreeNode(r.Context(), hubID)
-	if err != nil || treeNode == nil {
-		//if err != nil {
-		http.Error(w, fmt.Sprintf("hubID %v not found", hubID), http.StatusNotFound)
-		return
-	}
-	log.Println(treeNode)
-
-	manifest := &ead.Manifest{}
-	manifest.InventoryID = ds.Spec
-	manifest.ArchiveName = ds.Label
-	manifest.UnitID = treeNode.UnitID
-	manifest.UnitTitle = treeNode.Label
-
-	render.JSON(w, r, manifest)
-
-	return
-}
-
-func TreeDescription(w http.ResponseWriter, r *http.Request) {
-	spec := chi.URLParam(r, "spec")
-	ds, err := models.GetDataSet(spec)
-	if err != nil {
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprintln("archive not found"),
-			Error:      nil,
-		})
-		return
-	}
-
-	desc := &fragments.TreeDescription{}
-	desc.Name = ds.Label
-	desc.Abstract = ds.Abstract
-	desc.InventoryID = ds.Spec
-	desc.Owner = ds.Owner
-	desc.Period = ds.Period
-
-	render.JSON(w, r, desc)
-
-	return
-}
-
 func treeStats(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
@@ -321,21 +275,5 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, stats)
-	return
-}
-
-func descTest(w http.ResponseWriter, r *http.Request) {
-	archive, err := ead.ReadEAD("hub3/ead/test_data/1.04.02_ead_header.xml")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	desc, err := ead.NewDescription(archive)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	render.JSON(w, r, desc)
 	return
 }

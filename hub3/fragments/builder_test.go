@@ -356,7 +356,7 @@ var _ = Describe("Builder", func() {
 			//m := h.(map[string]interface{})
 			//Expect(m["index"]).To(HaveKeyWithValue("_id", f.ID()))
 			//Expect(m["index"]).To(HaveKeyWithValue("_type", DocType))
-			//Expect(m["index"]).To(HaveKeyWithValue("_index", c.Config.ElasticSearch.IndexName))
+			//Expect(m["index"]).To(HaveKeyWithValue("_index", c.Config.ElasticSearch.GetIndexName()))
 			//})
 
 			//It("should have a valid body", func() {

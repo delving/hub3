@@ -29,7 +29,7 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/parnurzeal/gorequest"
 )
@@ -275,8 +275,7 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 
 		// index FragmentGraph
 		r = elastic.NewBulkIndexRequest().
-			Index(c.Config.ElasticSearch.IndexName).
-			Type(fragments.DocType).
+			Index(c.Config.ElasticSearch.GetIndexName()).
 			RetryOnConflict(3).
 			Id(action.HubID).
 			Doc(fb.Doc())

@@ -8,7 +8,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // TreeStats holds all the information for a navigation tree for a Dataset
@@ -67,7 +67,8 @@ func TreeNode(ctx context.Context, hubID string) (*Tree, error) {
 		elastic.NewTermQuery("tree.hubID", hubID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(10).
 		Do(ctx)
@@ -92,9 +93,9 @@ func TreeNode(ctx context.Context, hubID string) (*Tree, error) {
 	return fg.Tree, nil
 }
 
-func decodeFragmentGraph(hit *json.RawMessage) (*FragmentGraph, error) {
+func decodeFragmentGraph(hit json.RawMessage) (*FragmentGraph, error) {
 	r := new(FragmentGraph)
-	if err := json.Unmarshal(*hit, r); err != nil {
+	if err := json.Unmarshal(hit, r); err != nil {
 		return nil, err
 	}
 	return r, nil
@@ -138,7 +139,8 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation("depth", depthAgg).
@@ -155,7 +157,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 		log.Printf("expected response != nil; got: %v", res)
 		return nil, err
 	}
-	tree.Leafs = res.Hits.TotalHits
+	tree.Leafs = res.Hits.TotalHits.Value
 
 	aggs := res.Aggregations
 	buckets := []string{"depth", "children", "type", "mimeType"}

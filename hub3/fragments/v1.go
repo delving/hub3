@@ -29,9 +29,7 @@ import (
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 
-	"github.com/olivere/elastic"
-	// TODO replace with dep injection later
-	//elastic "gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/parnurzeal/gorequest"
 )
@@ -787,7 +785,7 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 
 // CreateESAction creates bulkAPIRequest from map[string]interface{}
 func CreateESAction(indexDoc map[string]interface{}, id string) (*elastic.BulkIndexRequest, error) {
-	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.IndexName)
+	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.GetIndexName())
 	r := elastic.NewBulkIndexRequest().
 		Index(v1Index).
 		Type("void_edmrecord").

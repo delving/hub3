@@ -9,7 +9,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // CSVConvertor holds all values to convert a CSV to RDF

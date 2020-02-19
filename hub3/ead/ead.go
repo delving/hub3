@@ -6,15 +6,17 @@ import (
 	"fmt"
 	"html"
 	"log"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 const pathSep string = "~"
@@ -39,16 +41,25 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter     *NodeCounter
-	MetsCounter *MetsCounter
-	OrgID       string
-	Spec        string
-	Revision    int32
-	PeriodDesc  []string
-	labels      map[string]string
-	MimeTypes   map[string][]string
-	Errors      []*DuplicateError
-	CreateTree  func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter       *NodeCounter
+	MetsCounter   *MetsCounter
+	OrgID         string
+	Spec          string
+	Title         []string
+	TitleShort    string
+	Revision      int32
+	PeriodDesc    []string
+	labels        map[string]string
+	MimeTypes     map[string][]string
+	Errors        []*DuplicateError
+	Client        *http.Client
+	BulkProcessor BulkProcessor
+	CreateTree    func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+}
+
+// BulkProcessor is an interface for oliver/elastice BulkProcessor.
+type BulkProcessor interface {
+	Add(request elastic.BulkableRequest)
 }
 
 type DuplicateError struct {
@@ -94,25 +105,67 @@ func (nc *NodeConfig) AddLabel(id, label string) {
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
-		Counter:     &NodeCounter{},
-		MetsCounter: &MetsCounter{},
-		labels:      make(map[string]string),
+		Counter: &NodeCounter{},
+		MetsCounter: &MetsCounter{
+			uniqueCounter: map[string]int{},
+		},
+		Client: &http.Client{Timeout: 10 * time.Second},
+		labels: make(map[string]string),
 	}
 }
 
 // MetsCounter is a concurrency safe counter for number of Mets-files processed
 type MetsCounter struct {
-	counter uint64
+	counter        uint64
+	digitalObjects uint64
+	errors         uint64
+	inError        []string
+	uniqueCounter  map[string]int
 }
 
 // Increment increments the count by one
-func (mc *MetsCounter) Increment() {
+func (mc *MetsCounter) Increment(daoLink string) {
 	atomic.AddUint64(&mc.counter, 1)
+	mc.uniqueCounter[daoLink]++
+}
+
+// GetUniqueCounter returns the map of unique METS links.
+func (mc *MetsCounter) GetUniqueCounter() map[string]int {
+	return mc.uniqueCounter
+}
+
+// IncrementDigitalObject increments the count by one
+func (mc *MetsCounter) IncrementDigitalObject(delta uint64) {
+	atomic.AddUint64(&mc.digitalObjects, delta)
 }
 
 // GetCount returns the snapshot of the current count
 func (mc *MetsCounter) GetCount() uint64 {
 	return atomic.LoadUint64(&mc.counter)
+}
+
+// GetDigitalObjectCount returns the snapshot of the current count
+func (mc *MetsCounter) GetDigitalObjectCount() uint64 {
+	return atomic.LoadUint64(&mc.digitalObjects)
+}
+
+// IncrementError increments the error count by one
+func (mc *MetsCounter) IncrementError() {
+	atomic.AddUint64(&mc.errors, 1)
+}
+
+// GetErrorCount returns the snapshot of the current error count
+func (mc *MetsCounter) GetErrorCount() uint64 {
+	return atomic.LoadUint64(&mc.errors)
+}
+
+func (mc *MetsCounter) AppendError(err string) {
+	mc.IncrementError()
+	mc.inError = append(mc.inError, err)
+}
+
+func (mc *MetsCounter) GetErrors() []string {
+	return mc.inError
 }
 
 // NodeCounter is a concurrency safe counter for number of Nodes processed
@@ -179,8 +232,7 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 		return err
 	}
 	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.IndexName).
-		Type(fragments.DocType).
+		Index(c.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
@@ -230,7 +282,7 @@ func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
 		return ""
 	}
-	return html.UnescapeString(fmt.Sprintf("%s", h.Label[0]))
+	return html.UnescapeString(h.Label[0])
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID
@@ -246,20 +298,20 @@ func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 
 // NewNodeIDs extract Unit Identifiers from the EAD did
 func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
-	ids := []*NodeID{}
-	var invertoryNumber string
+	var ids []*NodeID
+	var inventoryID string
 	for _, unitid := range cdid.Cunitid {
 		id, err := unitid.NewNodeID()
 		if err != nil {
 			return nil, "", err
 		}
 		switch id.Type {
-		case "ABS", "series_code", "":
-			invertoryNumber = id.ID
+		case "ABS", "series_code", "blank", "analoog", "BD", "":
+			inventoryID = id.ID
 		}
 		ids = append(ids, id)
 	}
-	return ids, invertoryNumber, nil
+	return ids, inventoryID, nil
 }
 
 // NewNodeDate extract date infomation frme the EAD unitdate
@@ -294,7 +346,10 @@ func (nd *NodeDate) ValidDateNormal() error {
 
 // NewHeader creates an Archival Header
 func (cdid *Cdid) NewHeader() (*Header, error) {
-	header := &Header{}
+	header := &Header{
+		Genreform: c.Config.EAD.GenreFormDefault,
+	}
+
 	if cdid.Cphysdesc != nil {
 		header.Physdesc = cdid.Cphysdesc.PhyscDesc
 	}
@@ -330,6 +385,13 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		header.Date = append(header.Date, nodeDate)
 	}
 
+	for _, unitID := range cdid.Cunitid {
+		// Mark the header as Born Digital when we find a BD type unitid.
+		if strings.ToLower(unitID.Attrtype) == "bd" {
+			header.AltRender = "Born Digital"
+		}
+	}
+
 	nodeIDs, inventoryID, err := cdid.NewNodeIDs()
 	if err != nil {
 		return nil, err
@@ -348,7 +410,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 
 func (n *Node) getPathID() string {
 	eadID := n.Header.InventoryNumber
-	if eadID == "" {
+	if eadID == "" || strings.HasPrefix(eadID, "---") {
 		eadID = strconv.FormatUint(n.Order, 10)
 	}
 	return fmt.Sprintf("%s", eadID)
@@ -383,7 +445,15 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 	node.Header = header
 	if header.DaoLink != "" {
-		cfg.MetsCounter.Increment()
+		cfg.MetsCounter.Increment(header.DaoLink)
+	}
+
+	if c.GetAttraltrender() != "" {
+		node.Header.AltRender = c.GetAttraltrender()
+	}
+
+	if c.GetGenreform() != "" {
+		node.Header.Genreform = c.GetGenreform()
 	}
 
 	// add content

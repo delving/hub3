@@ -10,7 +10,7 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 func RegisterContentStats(r chi.Router) {
@@ -49,7 +49,8 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, spec))
 	}
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.IndexName).
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
 		Aggregation(field, searchLabelAgg).
@@ -66,7 +67,7 @@ func searchLabelStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
 	return
 }
@@ -79,7 +80,7 @@ func predicateStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		return
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits)
+	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
 	return
 }

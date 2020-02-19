@@ -261,6 +261,61 @@ var _ = Describe("Ead", func() {
 				})
 			})
 
+			Context("when extracting nodeIDs from various types", func () {
+				var createUnitIDs = func (id string, nodeType string) []*Cunitid {
+					var cus []*Cunitid
+					cu := &Cunitid{
+						ID: id,
+						Attrtype: nodeType,
+					}
+					cus = append(cus, cu)
+					return cus
+				}
+				tests := []struct {
+					name   string
+					cdid    Cdid
+					wantID string
+				}{
+					{
+						"Should extract series_code type unit id",
+						Cdid{Cunitid: createUnitIDs("100", "series_code")},
+						"100",
+					},
+					{
+						"Should not extract unknown type",
+						Cdid{Cunitid: createUnitIDs("69", "unknown_type")},
+						"",
+					},
+					{
+						"Should extract dashes from blank types",
+						Cdid{Cunitid: createUnitIDs("---", "blank")},
+						"---",
+					},
+					{
+						"Should extract analoog",
+						Cdid{Cunitid: createUnitIDs("10000", "analoog")},
+						"10000",
+					},
+					{
+						"Should extract Born Digital type",
+						Cdid{Cunitid: createUnitIDs("DC-2015/446", "BD")},
+						"DC-2015/446",
+					},
+					{
+						"Should extract from empty type even when silly",
+						Cdid{Cunitid: createUnitIDs("miauw", "")},
+						"miauw",
+					},
+				}
+				for _, tt := range tests {
+					tt := tt
+					It(tt.name, func () {
+						_, inventoryID, _ := tt.cdid.NewNodeIDs()
+						Expect(inventoryID).To(Equal(tt.wantID))
+					})
+				}
+			})
+
 		})
 
 	})

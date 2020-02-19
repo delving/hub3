@@ -185,8 +185,9 @@ var defaultNameSpaces = map[string]string{
 	"skos":        "http://www.w3.org/2004/02/skos/core#",
 	"tib":         "http://schemas.delving.eu/resource/ns/tib/",
 	"wgs84_pos":   "http://www.w3.org/2003/01/geo/wgs84_pos#",
-	"naa":         "http://archief.nl/def/",
-	"ead-rdf":     "http://archief.nl/def/ead/",
+	"naa":         "https://archief.nl/def/",
+	"ead-rdf":     "https://archief.nl/def/ead/",
+	"ead-mets":    "https://archief.nl/def/mets/",
 }
 
 // setDefaultNameSpaces sets the default namespaces that are supported

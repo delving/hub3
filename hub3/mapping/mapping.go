@@ -11,19 +11,31 @@ var ESMappingUpdate = `{
         "periodDesc": { "type": "keyword"}
       }
     },
-		"resources": {
-			"type": "nested",
-			"properties": {
-				"entries": {
-					"type": "nested",
-					"properties": {
-						"intRange": {"type": "integer_range"},
-						"float": {"type": "float"},
-						"level": {"type": "integer"}
-					}
+	"protobuf": {
+		"type": "object",
+		"properties": {
+			"messageType": {"type": "keyword"},
+			"data": {
+				"type": "keyword",
+				"store": "true",
+				"index": "false",
+				"doc_values": "false"
+			}
+		}
+	},
+	"resources": {
+		"type": "nested",
+		"properties": {
+			"entries": {
+				"type": "nested",
+				"properties": {
+					"intRange": {"type": "integer_range"},
+					"float": {"type": "float"},
+					"level": {"type": "integer"}
 				}
 			}
 		}
+	}
   }
 }
 `
@@ -37,10 +49,17 @@ var ESMapping = `{
 			"mapping.nested_fields.limit": 50,
 			"number_of_shards": %d,
 			"number_of_replicas": %d
+		},
+		"analysis": {
+			"analyzer": {
+				"default": {
+					"tokenizer": "standard",
+					"filter" : ["lowercase","asciifolding"]
+				}
+			}
 		}
 	},
 	"mappings":{
-		"doc": {
 			"dynamic": "strict",
 			"date_detection" : false,
 			"properties": {
@@ -56,6 +75,18 @@ var ESMapping = `{
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
 						"modified": {"type": "date"}
+					}
+				},
+				"protobuf": {
+					"type": "object",
+					"properties": {
+						"type": {"type": "keyword"},
+						"data": {
+							"type": "keyword",
+							"store": "true",
+							"index": "false",
+							"doc_values": "false"
+						}
 					}
 				},
 				"tree": {
@@ -156,7 +187,7 @@ var ESMapping = `{
 				}
 			}
 		}
-}}`
+}`
 
 // ESFragmentMapping is the default mapping for the RDF fragments in hub3
 var ESFragmentMapping = `{
@@ -177,7 +208,6 @@ var ESFragmentMapping = `{
 		}
 	},
 	"mappings":{
-		"doc": {
 			"dynamic": "strict",
 			"date_detection" : false,
 			"properties": {
@@ -234,7 +264,7 @@ var ESFragmentMapping = `{
 						}
 					}
 				}
-}}}}`
+}}}`
 
 // V1ESMapping has the legacy mapping for V1 indexes. It should only be used when indexV1 is enabled in the
 // configuration.

@@ -27,7 +27,7 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/mapping"
-	elastic "github.com/olivere/elastic"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 const (
@@ -59,8 +59,8 @@ func ESClient() *elastic.Client {
 			// setup ElasticSearch client
 			client = createESClient()
 			//defer client.Stop()
-			ensureESIndex(config.Config.ElasticSearch.IndexName, false)
-			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.IndexName), false)
+			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
+			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
 			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
@@ -70,7 +70,7 @@ func ESClient() *elastic.Client {
 
 func IndexReset(index string) error {
 	if index == "" {
-		index = config.Config.ElasticSearch.IndexName
+		index = config.Config.ElasticSearch.GetIndexName()
 	}
 	ensureESIndex(index, true)
 	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
@@ -79,7 +79,7 @@ func IndexReset(index string) error {
 
 func ensureESIndex(index string, reset bool) {
 	if index == "" {
-		index = config.Config.ElasticSearch.IndexName
+		index = config.Config.ElasticSearch.GetIndexName()
 	}
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {
@@ -130,11 +130,10 @@ func ensureESIndex(index string, reset bool) {
 	// add mapping updates
 	updateIndex, err := elastic.NewIndicesPutMappingService(client).
 		Index(index).
-		Type("doc").
 		BodyString(mapping.ESMappingUpdate).
 		Do(ctx)
 	if err != nil {
-		stdlog.Fatalf("unable to patch ES mapping: %#v", err)
+		stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err)
 		return
 	}
 	if !updateIndex.Acknowledged {
@@ -150,7 +149,7 @@ func ListIndexes() ([]string, error) {
 }
 
 func createESClient() *elastic.Client {
-	timeout := time.Duration(5 * time.Second)
+	timeout := time.Duration(time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second)
 	httpclient := &http.Client{
 		Timeout: timeout,
 	}

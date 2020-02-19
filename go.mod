@@ -6,7 +6,6 @@ require (
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.1.0
 	github.com/asdine/storm v1.1.0
-	github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973 // indirect
 	github.com/boltdb/bolt v0.0.0-20171120010307-9da317453632 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
@@ -15,7 +14,6 @@ require (
 	github.com/elastic/go-sysinfo v1.1.0 // indirect
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
-	github.com/fsnotify/fsnotify v1.4.7 // indirect
 	github.com/gammazero/workerpool v0.0.0-20180103203609-079e51c30502
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/go-chi/cors v1.0.0
@@ -24,7 +22,7 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a // indirect
-	github.com/google/go-cmp v0.3.0
+	github.com/google/go-cmp v0.3.1
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf
 	github.com/gorilla/schema v1.0.2
 	github.com/gregjones/httpcache v0.0.0-20171119193500-2bcd89a1743f
@@ -40,24 +38,21 @@ require (
 	github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b // indirect
 	github.com/mattn/go-colorable v0.0.0-20180115155639-6cc8b475d468 // indirect
 	github.com/mattn/go-isatty v0.0.0-20171107050531-6ca4dbf54d38 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
 	github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc // indirect
 	github.com/moul/http2curl v0.0.0-20170919181001-9ac6cf4d929b // indirect
 	github.com/muesli/smartcrop v0.0.0-20171215203440-9032446b30f6 // indirect
 	github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5 // indirect
-	github.com/olivere/elastic v6.2.23+incompatible
-	github.com/onsi/ginkgo v1.4.0
-	github.com/onsi/gomega v1.3.0
+	github.com/olivere/elastic/v7 v7.0.10
+	github.com/onsi/ginkgo v1.7.0
+	github.com/onsi/gomega v1.4.3
 	github.com/parnurzeal/gorequest v0.2.15
 	github.com/pelletier/go-toml v1.1.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
-	github.com/pkg/errors v0.8.1
-	github.com/prometheus/client_golang v0.0.0-20180416233856-82f5ff156b29
-	github.com/prometheus/client_model v0.0.0-20171117100541-99fa1f4be8e5 // indirect
-	github.com/prometheus/common v0.0.0-20180413074202-d0f7cd64bda4 // indirect
+	github.com/pkg/errors v0.9.0
+	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
 	github.com/prometheus/procfs v0.0.4 // indirect
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
@@ -69,7 +64,7 @@ require (
 	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec // indirect
 	github.com/spf13/pflag v0.0.0-20171106142849-4c012f6dcd95 // indirect
 	github.com/spf13/viper v0.0.0-20171227194143-aafc9e6bc7b7
-	github.com/stretchr/testify v1.3.0
+	github.com/stretchr/testify v1.4.0
 	github.com/urfave/negroni v0.3.0
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
@@ -79,8 +74,8 @@ require (
 	golang.org/x/sys v0.0.0-20190907184412-d223b2b6db03 // indirect
 	golang.org/x/text v0.3.2
 	google.golang.org/appengine v1.5.0 // indirect
-	google.golang.org/genproto v0.0.0-20190415143225-d1146b9035b9
-	google.golang.org/grpc v1.20.0
+	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
+	google.golang.org/grpc v1.20.1
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.0-20171129124420-c112833d014c
 	gopkg.in/cheggaaa/pb.v2 v2.0.6 // indirect
