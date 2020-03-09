@@ -137,6 +137,19 @@ type RDF struct {
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 	Tags              string   `json:"tags" mapstructure:"tags"`
 	DefaultFormat     string   `json:"defaultFormat"`
+	RDFStoreTags      []string `json:"rdfStoreTags"` // the tags that trigger storage in the triple-store
+}
+
+func (rdf *RDF) HasStoreTag(tags []string) bool {
+	for _, tag := range tags {
+		for _, storeTag := range rdf.RDFStoreTags {
+			if strings.EqualFold(tag, storeTag) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // Cache is the configuration of the BigCache implementation
@@ -262,6 +275,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
 	viper.SetDefault("RDF.DefaultFormat", "application/ld+json")
+	viper.SetDefault("RDF.RDFStoreTags", []string{"narthex", "mdr"})
 
 	// rdftags
 	viper.SetDefault("RDFTag.Label", []string{

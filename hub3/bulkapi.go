@@ -290,7 +290,9 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 	action.p.Add(r)
 
 	if c.Config.RDF.RDFStoreEnabled {
-		action.CreateRDFBulkRequest(response, fb.Graph)
+		if c.Config.RDF.HasStoreTag(fb.FragmentGraph().Meta.Tags) {
+			action.CreateRDFBulkRequest(response, fb.Graph)
+		}
 	}
 
 	return nil
