@@ -133,6 +133,7 @@ type DataSet struct {
 	Description      string   `json:"description"`
 	Clevels          int      `json:"clevels"`
 	DaoStats         `json:"daoStats" storm:"inline"`
+	Fingerprint      string `json:"fingerPrint"`
 }
 
 // Access determines the which types of access are enabled for this dataset
