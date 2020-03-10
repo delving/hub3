@@ -22,7 +22,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/delving/hub3/logger"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
 
@@ -60,6 +62,7 @@ type RawConfig struct {
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 	SiteMap       `json:"siteMap"`
 	EAD           `json:"ead"`
+	Logger        *zerolog.Logger
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -114,6 +117,7 @@ func (es ElasticSearch) GetIndexName() string {
 type Logging struct {
 	DevMode   bool   `json:"devmode"`
 	SentryDSN string `json:"sentrydsn"`
+	Level     string `json:"level"`
 }
 
 // HTTP holds all the configuration for the http server subcommand
@@ -254,6 +258,7 @@ func setDefaults() {
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
+	viper.SetDefault("Logging.level", "info")
 
 	// cache
 	viper.SetDefault("Cache.enabled", false)
@@ -384,6 +389,14 @@ func InitConfig() {
 
 	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
 	Config.RDFTagMap = NewRDFTagMap(&Config)
+
+	logCfg := logger.Config{
+		LogLevel: logger.ParseLogLevel(Config.Logging.Level),
+	}
+
+	log := logger.NewLogger(logCfg)
+	Config.Logger = &log
+
 	cleanConfig()
 }
 

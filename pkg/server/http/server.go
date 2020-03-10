@@ -7,6 +7,7 @@ import (
 	"os"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/middleware"
 	"github.com/delving/hub3/pkg/server/http/assets"
 	"github.com/delving/hub3/pkg/server/http/handlers"
 	"github.com/go-chi/chi"
@@ -127,6 +128,7 @@ func chiWithDefaults() chi.Router {
 	r := chi.NewRouter()
 	r.Use(cors.Handler)
 	r.Use(mw.StripSlashes)
+	r.Use(middleware.RequestLogger(c.Config.Logger))
 	r.Use(mw.Heartbeat("/ping"))
 
 	if os.Getenv("ELASTIC_APM_SERVER_URL") != "" {
@@ -146,9 +148,9 @@ func negroniWithDefaults() *negroni.Negroni {
 	n.Use(recovery)
 
 	// logger
-	l := negroni.NewLogger()
-	l.SetFormat("{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}} {{.Request.URL.RawQuery}}\n")
-	n.Use(l)
+	// l := negroni.NewLogger()
+	// l.SetFormat("{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}} {{.Request.URL.RawQuery}}\n")
+	// n.Use(l)
 
 	// compress the responses
 	n.Use(gzip.Gzip(gzip.DefaultCompression))

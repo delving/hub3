@@ -29,6 +29,7 @@ require (
 	github.com/gregjones/httpcache v0.0.0-20171119193500-2bcd89a1743f
 	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20180416075113-db30333e48f7
 	github.com/kiivihal/rdf2go v0.1.2
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
@@ -37,6 +38,7 @@ require (
 	github.com/labstack/gommon v0.0.0-20170925052817-57409ada9da0
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b // indirect
+	github.com/matryer/is v1.3.0
 	github.com/mattn/go-colorable v0.0.0-20180115155639-6cc8b475d468 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v1.1.0
@@ -54,6 +56,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
 	github.com/prometheus/procfs v0.0.4 // indirect
+	github.com/rs/zerolog v1.18.0
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/segmentio/ksuid v1.0.2
