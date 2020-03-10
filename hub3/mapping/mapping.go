@@ -292,6 +292,10 @@ var V1ESMapping = `
                 }
             },
             "analyzer": {
+				"default": {
+					"tokenizer": "standard",
+					"filter" : ["lowercase","asciifolding"]
+				},
                 "dutch": {
                     "tokenizer":  "standard",
                     "filter": [
