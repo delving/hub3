@@ -25,6 +25,7 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 var sanitizer *bluemonday.Policy
@@ -92,15 +93,19 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	}
 
 	f.Close()
-	basePath := path.Join(c.Config.EAD.CacheDir, spec)
-	os.MkdirAll(basePath, os.ModePerm)
-	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
 	ds, _, err := models.GetOrCreateDataSet(spec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", spec)
 		return nil, err
 	}
+	// check for cache entry
+	hash := plumbing.ComputeHash(plumbing.BlobObject, buf.Bytes())
+	ds.Fingerprint = hash.String()
+
+	basePath := path.Join(c.Config.EAD.CacheDir, spec)
+	os.MkdirAll(basePath, os.ModePerm)
+	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
 	ds, err = ds.IncrementRevision()
 	if err != nil {

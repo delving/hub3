@@ -423,6 +423,7 @@ type TreeSearching struct {
 	HasPrevious bool   `json:"hasPrevious"`
 	ByLabel     string `json:"byLabel,omitempty"`
 	ByUnitID    string `json:"byUnitID,omitempty"`
+	ByQuery     string `json:"byQuery,omitempty"`
 }
 
 // SetPreviousNext calculate previous and next search paging

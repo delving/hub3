@@ -331,6 +331,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			IsSearch: searchRequest.Tree.IsSearch,
 			ByLabel:  searchRequest.Tree.Label,
 			ByUnitID: searchRequest.Tree.UnitID,
+			ByQuery:  searchRequest.Tree.Query,
 		}
 		paging := &fragments.TreePaging{
 			PageSize:       searchRequest.Tree.GetPageSize(),

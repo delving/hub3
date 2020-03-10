@@ -41,20 +41,21 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter       *NodeCounter
-	MetsCounter   *MetsCounter
-	OrgID         string
-	Spec          string
-	Title         []string
-	TitleShort    string
-	Revision      int32
-	PeriodDesc    []string
-	labels        map[string]string
-	MimeTypes     map[string][]string
-	Errors        []*DuplicateError
-	Client        *http.Client
-	BulkProcessor BulkProcessor
-	CreateTree    func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter          *NodeCounter
+	MetsCounter      *MetsCounter
+	OrgID            string
+	Spec             string
+	Title            []string
+	TitleShort       string
+	Revision         int32
+	PeriodDesc       []string
+	labels           map[string]string
+	MimeTypes        map[string][]string
+	Errors           []*DuplicateError
+	Client           *http.Client
+	BulkProcessor    BulkProcessor
+	CreateTree       func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	ContentIdentical bool
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.
@@ -460,16 +461,19 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	if c.GetOdd() != nil {
 		for _, o := range c.GetOdd() {
 			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
+			// node.HTML = append(node.HTML, string(o.Raw))
 		}
 	}
 
 	if c.GetScopeContent() != nil {
-		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
+		// node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
+		node.HTML = append(node.HTML, string(c.GetScopeContent().Raw))
 	}
 
 	// add accessrestrict
 	if ar := c.GetCaccessrestrict(); ar != nil {
-		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+		// node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
+		node.AccessRestrict = strings.TrimSpace(string(c.GetCaccessrestrict().Raw))
 		for _, p := range ar.Cp {
 			if p.Cref != nil && p.Cref.Cdate != nil {
 				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
@@ -482,7 +486,8 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 
 	for _, p := range c.GetPhystech() {
-		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
+		node.Phystech = append(node.Phystech, string(p.Raw))
+		// node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
 	}
 
 	parentIDs, err = node.setPath(parentIDs)

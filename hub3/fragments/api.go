@@ -257,6 +257,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.Tree = tree
 			tree.IsSearch = true
 			tree.Label = params.Get(p)
+		case "byQuery":
+			sr.Tree = tree
+			tree.IsSearch = true
+			sr.Tree.Query = params.Get(p)
 		case "hasDigitalObject":
 			sr.Tree = tree
 			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
@@ -706,6 +710,27 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if sr.Tree.HasDigitalObject {
 			query = query.Must(elastic.NewMatchQuery("tree.hasDigitalObject", "true"))
+		}
+		if sr.Tree.GetQuery() != "" {
+
+			q := elastic.NewQueryStringQuery(sr.Tree.GetQuery())
+			q = q.
+				FieldWithBoost("tree.title", 6.0).
+				FieldWithBoost("tree.inventoryID", 3.0).
+				FieldWithBoost("tree.label", 2.0).
+				FieldWithBoost("tree.agencyCode", 1.5).
+				FieldWithBoost("tree.unitID", 1.5).
+				FieldWithBoost("tree.description", 1.0).
+				Field("tree.content").
+				Field("tree.periods").
+				Field("tree.material").
+				Field("tree.physDesc")
+
+			if !isAdvancedSearch(sr.Tree.GetQuery()) {
+				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+			}
+
+			query = query.Must(q)
 		}
 		if sr.Tree.GetLabel() != "" {
 			q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
