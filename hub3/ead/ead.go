@@ -461,19 +461,16 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	if c.GetOdd() != nil {
 		for _, o := range c.GetOdd() {
 			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
-			// node.HTML = append(node.HTML, string(o.Raw))
 		}
 	}
 
 	if c.GetScopeContent() != nil {
-		// node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
-		node.HTML = append(node.HTML, string(c.GetScopeContent().Raw))
+		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
 	}
 
 	// add accessrestrict
 	if ar := c.GetCaccessrestrict(); ar != nil {
-		// node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
-		node.AccessRestrict = strings.TrimSpace(string(c.GetCaccessrestrict().Raw))
+		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
 		for _, p := range ar.Cp {
 			if p.Cref != nil && p.Cref.Cdate != nil {
 				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
@@ -486,8 +483,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 
 	for _, p := range c.GetPhystech() {
-		node.Phystech = append(node.Phystech, string(p.Raw))
-		// node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
+		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
 	}
 
 	parentIDs, err = node.setPath(parentIDs)
