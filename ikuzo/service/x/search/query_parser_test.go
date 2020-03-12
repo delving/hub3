@@ -339,7 +339,7 @@ func TestQueryParser_runParser(t *testing.T) {
 			args{"word~", QueryTerm{}, false},
 			QueryTerm{
 				shouldClauses: []*QueryTerm{
-					{Value: "word", Fuzzy: 4},
+					{Value: "word", Fuzzy: 2},
 				},
 			},
 			false,
@@ -400,7 +400,28 @@ func TestQueryParser_runParser(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"analyzer for value",
+			args{"övergångsställE", QueryTerm{}, false},
+			QueryTerm{
+				shouldClauses: []*QueryTerm{
+					{Value: "overgangsstalle"},
+				},
+			},
+			false,
+		},
+		{
+			"analyzer not for field",
+			args{"Title:övergångsställE", QueryTerm{}, false},
+			QueryTerm{
+				shouldClauses: []*QueryTerm{
+					{Field: "Title", Value: "overgangsstalle"},
+				},
+			},
+			false,
+		},
 	}
+
 	for _, tt := range tests {
 		tt := tt
 
@@ -840,13 +861,13 @@ func TestQueryTerm_setWildcard(t *testing.T) {
 	}
 }
 
-func TestQueryTerm_HasClauses(t *testing.T) {
+func TestQueryTerm_isBoolQuery(t *testing.T) {
 	is := is.New(t)
 
 	// term with empty clauses
 	t.Run("only term query", func(t *testing.T) {
 		qt := &QueryTerm{Field: "title", Value: "value"}
-		if qt.HasClauses() == true {
+		if qt.isBoolQuery() == true {
 			t.Errorf("QueryTerm.HasClauses() only term query, should have no clauses")
 		}
 	})
@@ -893,7 +914,7 @@ func TestQueryTerm_HasClauses(t *testing.T) {
 		is.NoErr(err)
 
 		t.Run(tt.name, func(t *testing.T) {
-			if got := qt.HasClauses(); got != tt.want {
+			if got := qt.isBoolQuery(); got != tt.want {
 				t.Errorf("QueryTerm.HasClauses() %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
@@ -914,4 +935,113 @@ func TestQueryTerm_ClauseGetters(t *testing.T) {
 	is.Equal(len(qt.mustClauses), len(qt.Must()))
 
 	is.Equal(len(qt.mustNotClauses), len(qt.MustNot()))
+}
+
+func TestQueryType_String(t *testing.T) {
+	tests := []struct {
+		name string
+		qt   QueryType
+		want string
+	}{
+		{"bool query", BoolQuery, "BoolQuery"},
+		{"fuzzy query", FuzzyQuery, "FuzzyQuery"},
+		{"phrase query", PhraseQuery, "PhraseQuery"},
+		{"term query", TermQuery, "TermQuery"},
+		{"wildcard query", WildCardQuery, "WildCardQuery"},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.qt.String(); got != tt.want {
+				t.Errorf("QueryType.String() %s = %v, want %v", tt.name, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestQueryTerm_Type(t *testing.T) {
+	type fields struct {
+		Field          string
+		Value          string
+		Prohibited     bool
+		Phrase         bool
+		SuffixWildcard bool
+		PrefixWildcard bool
+		Boost          float64
+		Fuzzy          int
+		Slop           int
+		mustClauses    []*QueryTerm
+		mustNotClauses []*QueryTerm
+		shouldClauses  []*QueryTerm
+		nested         *QueryTerm
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   QueryType
+	}{
+		{
+			"bool query",
+			fields{mustNotClauses: []*QueryTerm{{Value: "word"}}},
+			BoolQuery,
+		},
+		{
+			"term query",
+			fields{Value: "word"},
+			TermQuery,
+		},
+		{
+			"prohibited term query",
+			fields{Value: "word", Prohibited: true},
+			TermQuery,
+		},
+		{
+			"phrase query",
+			fields{Value: "two words", Phrase: true},
+			PhraseQuery,
+		},
+		{
+			"prefix wildcard query",
+			fields{Value: "words", PrefixWildcard: true},
+			WildCardQuery,
+		},
+		{
+			"suffix wildcard query",
+			fields{Value: "words", SuffixWildcard: true},
+			WildCardQuery,
+		},
+		{
+			"fuzzy query",
+			fields{Value: "words", Fuzzy: 2},
+			FuzzyQuery,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			qt := &QueryTerm{
+				Field:          tt.fields.Field,
+				Value:          tt.fields.Value,
+				Prohibited:     tt.fields.Prohibited,
+				Phrase:         tt.fields.Phrase,
+				SuffixWildcard: tt.fields.SuffixWildcard,
+				PrefixWildcard: tt.fields.PrefixWildcard,
+				Boost:          tt.fields.Boost,
+				Fuzzy:          tt.fields.Fuzzy,
+				Slop:           tt.fields.Slop,
+				mustClauses:    tt.fields.mustClauses,
+				mustNotClauses: tt.fields.mustNotClauses,
+				shouldClauses:  tt.fields.shouldClauses,
+				nested:         tt.fields.nested,
+			}
+			if got := qt.Type(); got != tt.want {
+				t.Errorf("QueryTerm.Type() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

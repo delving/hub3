@@ -5,6 +5,7 @@ require (
 	github.com/OneOfOne/xxhash v1.2.2
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.1.0
+	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
 	github.com/asdine/storm v1.1.0
 	github.com/boltdb/bolt v0.0.0-20171120010307-9da317453632 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect

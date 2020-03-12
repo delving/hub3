@@ -19,7 +19,29 @@ const (
 	NotOperator      Operator = "NOT"
 	OrOperator       Operator = "OR"
 	WildCardOperator Operator = "*"
+
+	fuzzinesDefault = 2
 )
+
+type QueryType int
+
+const (
+	BoolQuery QueryType = iota
+	FuzzyQuery
+	PhraseQuery
+	TermQuery
+	WildCardQuery
+)
+
+func (qt QueryType) String() string {
+	return [...]string{
+		"BoolQuery",
+		"FuzzyQuery",
+		"PhraseQuery",
+		"TermQuery",
+		"WildCardQuery",
+	}[qt]
+}
 
 type QueryTerm struct {
 	Field          string
@@ -37,9 +59,25 @@ type QueryTerm struct {
 	nested         *QueryTerm
 }
 
-// HasClauses returns true if the QueryTerm has a nested QueryTerm in a Boolean
+// Type returns the type of the Query.
+func (qt *QueryTerm) Type() QueryType {
+	switch {
+	case qt.isBoolQuery():
+		return BoolQuery
+	case qt.Phrase:
+		return PhraseQuery
+	case qt.PrefixWildcard, qt.SuffixWildcard:
+		return WildCardQuery
+	case qt.Fuzzy != 0:
+		return FuzzyQuery
+	}
+
+	return TermQuery
+}
+
+// isBoolQuery returns true if the QueryTerm has a nested QueryTerm in a Boolean
 // clause.
-func (qt *QueryTerm) HasClauses() bool {
+func (qt *QueryTerm) isBoolQuery() bool {
 	if len(qt.shouldClauses) > 0 {
 		return true
 	}
@@ -116,7 +154,7 @@ func (qt *QueryTerm) setFuzziness(qp *QueryParser) error {
 		}
 
 		// default fuzzy is length of the term
-		qt.Fuzzy = len(qt.Value)
+		qt.Fuzzy = fuzzinesDefault
 	}
 
 	return nil
@@ -208,6 +246,7 @@ type QueryOption func(*QueryParser) error
 type QueryParser struct {
 	defaultAND bool
 	s          *scanner.Scanner
+	a          Analyzer
 }
 
 func NewQueryParser(options ...QueryOption) (*QueryParser, error) {
@@ -257,6 +296,9 @@ func (qp *QueryParser) appendQuery(parent *QueryTerm, op Operator, qt *QueryTerm
 		qp.appendQuery(parent, op, qt.nested.copy())
 		qt.nested = nil
 	}
+
+	// normalise the value
+	qt.Value = qp.a.Transform(qt.Value)
 
 	switch op {
 	case AndOperator:
