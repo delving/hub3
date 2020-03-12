@@ -1,0 +1,1134 @@
+[
+{
+"@id": "",
+"@type": [
+"doc:Document",
+"doc:Fragment",
+"doc:Module",
+"doc:Unit"
+],
+"doc:encodes": [
+{
+"@id": "#1",
+"@type": [
+"schema-org:WebAPI",
+"doc:RootDomainElement",
+"doc:DomainElement"
+],
+"schema-org:name": [
+{
+"@value": "Ikuzo API"
+}
+],
+"raml-http:server": [
+{
+"@id": "#19",
+"@type": [
+"raml-http:Server",
+"doc:DomainElement"
+],
+"raml-http:url": [
+{
+"@value": "http://localhost:3000/{version}"
+}
+],
+"raml-http:variable": [
+{
+"@id": "#20",
+"@type": [
+"raml-http:Parameter",
+"doc:DomainElement"
+],
+"schema-org:name": [
+{
+"@value": "version"
+}
+],
+"hydra:required": [
+{
+"@value": true
+}
+],
+"raml-http:binding": [
+{
+"@value": "path"
+}
+],
+"raml-http:schema": [
+{
+"@id": "#21",
+"@type": [
+"raml-shapes:ScalarShape",
+"shacl:Shape",
+"raml-shapes:Shape",
+"doc:DomainElement"
+],
+"shacl:datatype": [
+{
+"@id": "http://www.w3.org/2001/XMLSchema#string"
+}
+],
+"shacl:name": [
+{
+"@value": "version"
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#20/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:synthesized-field": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#20"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "true"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#19/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "raml-http:url"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(4,0)-(5,0)]"
+}
+]
+}
+],
+"sourcemaps:synthesized-field": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#19"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "true"
+}
+]
+}
+]
+}
+]
+}
+],
+"schema-org:version": [
+{
+"@value": "v1"
+}
+],
+"raml-http:endpoint": [
+{
+"@id": "#2",
+"@type": [
+"raml-http:EndPoint",
+"doc:DomainElement"
+],
+"raml-http:path": [
+{
+"@value": "/organisations"
+}
+],
+"hydra:supportedOperation": [
+{
+"@id": "#3",
+"@type": [
+"hydra:Operation",
+"doc:DomainElement"
+],
+"hydra:method": [
+{
+"@value": "get"
+}
+],
+"schema-org:description": [
+{
+"@value": "List organisations."
+}
+],
+"hydra:returns": [
+{
+"@id": "#4",
+"@type": [
+"raml-http:Response",
+"doc:DomainElement"
+],
+"schema-org:name": [
+{
+"@value": "200"
+}
+],
+"hydra:statusCode": [
+{
+"@value": "200"
+}
+],
+"raml-http:payload": [
+{
+"@id": "#5",
+"@type": [
+"raml-http:Payload",
+"doc:DomainElement"
+],
+"raml-http:mediaType": [
+{
+"@value": "application/json"
+}
+],
+"raml-http:schema": [
+{
+"@id": "#6",
+"@type": [
+"raml-shapes:AnyShape",
+"shacl:Shape",
+"raml-shapes:Shape"
+],
+"shacl:name": [
+{
+"@value": "schema"
+}
+],
+"doc:examples": [
+{
+"@id": "#7",
+"@type": [
+"doc:Example",
+"doc:DomainElement"
+],
+"doc:strict": [
+{
+"@value": true
+}
+],
+"doc:structuredValue": [
+{
+"@id": "#8",
+"@type": [
+"data:Object",
+"data:Node",
+"doc:DomainElement"
+],
+"data:data": [
+{
+"@id": "#9",
+"@type": [
+"data:Object",
+"data:Node",
+"doc:DomainElement"
+],
+"data:author": [
+{
+"@id": "#10",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "Mary Roach",
+"@type": "xsd:string"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#10/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#10"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(22,36)-(22,48)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:datetime": [
+{
+"@id": "#11",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "1341533193",
+"@type": "xsd:integer"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#11/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#11"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(20,38)-(20,48)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:description": [
+{
+"@id": "#12",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "null",
+"@type": "xsd:nil"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#12/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#12"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(19,41)-(19,45)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:genre": [
+{
+"@id": "#13",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "science",
+"@type": "xsd:string"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#13/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#13"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(21,35)-(21,44)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:id": [
+{
+"@id": "#14",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "SbBGk",
+"@type": "xsd:string"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#14/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#14"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(17,32)-(17,39)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:link": [
+{
+"@id": "#15",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "http://e-bookmobile.com/books/Stiff",
+"@type": "xsd:string"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#15/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#15"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(23,34)-(23,71)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:title": [
+{
+"@id": "#16",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "Stiff: The Curious Lives of Human Cadavers",
+"@type": "xsd:string"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#16/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#16"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(18,35)-(18,79)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#9/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:data-node-properties": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#9"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "author->[(22,26)-(22,36)]#genre->[(21,26)-(21,35)]#description->[(19,26)-(19,41)]#datetime->[(20,26)-(20,38)]#id->[(17,26)-(17,32)]#link->[(23,26)-(23,34)]#title->[(18,26)-(18,35)]"
+}
+]
+}
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "data:title"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(18,35)-(18,79)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:id"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(17,32)-(17,39)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:description"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(19,41)-(19,45)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:author"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(22,36)-(22,48)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#9"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(16,32)-(24,25)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:datetime"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(20,38)-(20,48)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:genre"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(21,35)-(21,44)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:link"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(23,34)-(23,71)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:status": [
+{
+"@id": "#17",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "200",
+"@type": "xsd:integer"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#17/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#17"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(26,34)-(26,37)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"data:success": [
+{
+"@id": "#18",
+"@type": [
+"data:Scalar",
+"data:Node",
+"doc:DomainElement"
+],
+"data:value": [
+{
+"@value": "true",
+"@type": "xsd:boolean"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#18/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#18"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(25,35)-(25,39)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#8/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:parsed-json-example": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#8"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "{\n    \"data\": {\n      \"id\": \"SbBGk\",\n      \"title\": \"Stiff: The Curious Lives of Human Cadavers\",\n      \"description\": null,\n      \"datetime\": 1341533193,\n      \"genre\": \"science\",\n      \"author\": \"Mary Roach\",\n      \"link\": \"http://e-bookmobile.com/books/Stiff\"\n    },\n    \"success\": true,\n    \"status\": 200\n  }\n"
+}
+]
+}
+],
+"sourcemaps:data-node-properties": [
+{
+"sourcemaps:element": [
+{
+"@value": "data:data"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "author->[(22,26)-(22,36)]#genre->[(21,26)-(21,35)]#description->[(19,26)-(19,41)]#datetime->[(20,26)-(20,38)]#id->[(17,26)-(17,32)]#link->[(23,26)-(23,34)]#title->[(18,26)-(18,35)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#8"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "data->[(16,24)-(16,32)]#success->[(25,24)-(25,35)]#status->[(26,24)-(26,34)]"
+}
+]
+}
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "data:success"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(25,35)-(25,39)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:data"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(16,32)-(24,25)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#8"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(15,20)-(27,23)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "data:status"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(26,34)-(26,37)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"shacl:raw": [
+{
+"@value": "{\n    \"data\": {\n      \"id\": \"SbBGk\",\n      \"title\": \"Stiff: The Curious Lives of Human Cadavers\",\n      \"description\": null,\n      \"datetime\": 1341533193,\n      \"genre\": \"science\",\n      \"author\": \"Mary Roach\",\n      \"link\": \"http://e-bookmobile.com/books/Stiff\"\n    },\n    \"success\": true,\n    \"status\": 200\n  }\n"
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#7/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:synthesized-field": [
+{
+"sourcemaps:element": [
+{
+"@value": "doc:strict"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "true"
+}
+]
+}
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "shacl:raw"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(14,21)-(28,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#7"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(14,20)-(28,0)]"
+}
+]
+}
+],
+"sourcemaps:tracked-element": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#7"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "amf://id#5"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#6/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:auto-generated-name": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#6"
+}
+],
+"sourcemaps:value": [
+{
+"@value": ""
+}
+]
+}
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#6"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(13,10)-(28,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#5/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#5"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(13,10)-(28,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#4/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "raml-http:payload"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(12,8)-(28,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#4"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(11,6)-(28,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#3/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "hydra:returns"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(10,4)-(28,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#3"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(8,2)-(28,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "schema-org:description"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(9,4)-(10,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#2/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#2"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(7,0)-(28,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"sourcemaps:sources": [
+{
+"@id": "#1/source-map",
+"@type": [
+"sourcemaps:SourceMap"
+],
+"sourcemaps:source-vendor": [
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#1"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "RAML 1.0"
+}
+]
+}
+],
+"sourcemaps:lexical": [
+{
+"sourcemaps:element": [
+{
+"@value": "schema-org:version"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(5,0)-(7,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "schema-org:name"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(3,0)-(4,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "amf://id#1"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(3,0)-(28,0)]"
+}
+]
+},
+{
+"sourcemaps:element": [
+{
+"@value": "raml-http:server"
+}
+],
+"sourcemaps:value": [
+{
+"@value": "[(4,0)-(5,0)]"
+}
+]
+}
+]
+}
+]
+}
+],
+"@context": {
+"@base": "amf://id",
+"raml-http": "http://a.ml/vocabularies/http#",
+"shacl": "http://www.w3.org/ns/shacl#",
+"raml-shapes": "http://a.ml/vocabularies/shapes#",
+"data": "http://a.ml/vocabularies/data#",
+"doc": "http://a.ml/vocabularies/document#",
+"sourcemaps": "http://a.ml/vocabularies/document-source-maps#",
+"schema-org": "http://schema.org/",
+"xsd": "http://www.w3.org/2001/XMLSchema#",
+"hydra": "http://www.w3.org/ns/hydra/core#"
+}
+}
+]
