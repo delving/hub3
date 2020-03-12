@@ -14,7 +14,7 @@
 
 package main
 
-import "github.com/delving/hub3/cmd"
+import "github.com/delving/hub3/hub3/hub3ctl/cmd"
 
 var (
 	// Version of the application. (Injected at build time)

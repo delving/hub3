@@ -22,7 +22,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/delving/hub3/logger"
+	"github.com/delving/hub3/ikuzo/logger"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
