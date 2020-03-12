@@ -7,7 +7,7 @@ import (
 	"os"
 
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/middleware"
+	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/pkg/server/http/assets"
 	"github.com/delving/hub3/pkg/server/http/handlers"
 	"github.com/go-chi/chi"
