@@ -9,11 +9,6 @@ import (
 	"sync/atomic"
 )
 
-const (
-	devStart = 76
-	devEnd   = devStart + 100
-)
-
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
 // 'archdesc/descgroups'.
 //
@@ -548,7 +543,6 @@ func NewDescription(ead *Cead) (*Description, error) {
 			desc.Section = append(desc.Section, info)
 		}
 		if ib.counter.GetCount() > uint64(0) {
-			//desc.Item = ib.items[devStart:devEnd]
 			desc.Item = ib.items
 			desc.NrSections = len(desc.Section)
 			desc.NrItems = len(desc.Item)

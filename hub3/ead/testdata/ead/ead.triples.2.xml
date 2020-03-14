@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<c level="file">
+  <did>
+    <unitid identifier="66920508" type="ABS">A</unitid>
+  </did>
+  <odd>
+    <p>Op de titelpagina in pen de handtekening ' <persname>R.W. v. Pabst</persname> '</p>
+  </odd>
+  <scopecontent>
+    <p>Eerste en tweede deel in &#xE9;&#xE9;n band<lb/>Bevat 44 kaarten in koperdruk</p>
+  </scopecontent>
+  <altformavail>
+    <p>Zie facsimile studiezaal: GEO F 515</p>
+  </altformavail>
+  <phystech type="ABS">
+    <p>Niet raadpleegbaar</p>
+  </phystech>
+  <controlaccess audience="internal">
+    <genreform type="filtering">kaart</genreform>
+  </controlaccess>
+  <accessrestrict id="accessrestrict">
+    <head>Openbaarheidsbeperkingen</head>
+    <legalstatus type="ABS">Volledig openbaar.</legalstatus>
+  </accessrestrict>
+  <accruals>
+    <p>Deze doos is nog niet overgedragen</p>
+  </accruals>
+  <custodhist>
+    <p>Niet bekend</p>
+  </custodhist>
+  <acqinfo>
+    <p>Aanwinsten: 1866 A IV</p>
+  </acqinfo>
+  <altformavail>
+    <p>Kaart 1: gefacsimileerd in </p>
+  </altformavail>
+  <userestrict>
+    <p>Dit archief wordt gedigitaliseerd.</p>
+  </userestrict>
+  <appraisal audience="internal">
+    <p>
+      <num type="Handeling">020.2-0017-02</num>
+    </p>
+  </appraisal>
+  <bioghist>
+    <list type="simple">
+      <item>Grondslag: Wet overheidsaansprakelijkheid Bezettingshandelingen, art. 7, 8. </item>
+    </list>
+  </bioghist>
+  <bibliography>
+    <p>Zie: Marc Hameleers</p>
+  </bibliography>
+  <relatedmaterial>
+    <p>Uit dit deel werd in 1989 blad AKF 16A1 afgezonderd.</p>
+  </relatedmaterial>
+  <arrangement>
+    <p>Geordend op jaar van verschijnen.</p>
+  </arrangement>
+  <separatedmaterial>
+    <p>Gedeeltelijk (minuut-commissie) overgebracht</p>
+  </separatedmaterial>
+  <processinfo>
+    <p>Details van deze beschrijvingen zijn in de index op zaaknamen verwerkt.</p>
+  </processinfo>
+  <otherfindaid>
+    <p>Lijsten van Aangenomen Manschappen<lb/>1814-1829 [1904-1906] (oud nr. 2.12.09).</p>
+  </otherfindaid>
+  <originalsloc>
+    <p>TNA CO 116/67</p>
+  </originalsloc>
+  <fileplan>
+    <p>example</p>
+  </fileplan>
+  <descgrp>
+    <p>example</p>
+  </descgrp>
+</c>

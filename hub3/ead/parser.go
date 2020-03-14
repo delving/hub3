@@ -43,8 +43,8 @@ func sanitizeXMLAsString(b []byte) string {
 }
 
 // ReadEAD reads an ead2002 XML from a path
-func ReadEAD(path string) (*Cead, error) {
-	rawEAD, err := ioutil.ReadFile(path)
+func ReadEAD(fpath string) (*Cead, error) {
+	rawEAD, err := ioutil.ReadFile(fpath)
 	if err != nil {
 		return nil, err
 	}
@@ -267,48 +267,64 @@ type CLevel interface {
 	GetOdd() []*Codd
 	GetPhystech() []*Cphystech
 	GetMaterial() string
+	Triples(subject r.Term) ([]*r.Triple, error)
 }
 
 type Cc struct {
-	XMLName         xml.Name         `xml:"c,omitempty" json:"c,omitempty"`
-	Attrlevel       string           `xml:"level,attr"  json:",omitempty"`
-	Attrotherlevel  string           `xml:"otherlevel,attr"  json:",omitempty"`
-	Attraltrender   string           `xml:"altrender,attr"  json:",omitempty"`
-	Caccessrestrict *Caccessrestrict `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
-	Cc              []*Cc            `xml:"c,omitempty" json:"c,omitempty"`
-	Ccustodhist     *Ccustodhist     `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
-	Cdid            []*Cdid          `xml:"did,omitempty" json:"did,omitempty"`
-	Codd            []*Codd          `xml:"odd,omitempty" json:"odd,omitempty"`
-	Cphystech       []*Cphystech     `xml:"phystech,omitempty" json:"phystech,omitempty"`
-	Cscopecontent   *Cscopecontent   `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
-	Ccontrolaccess  *Ccontrolaccess  `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	XMLName            xml.Name              `xml:"c,omitempty" json:"c,omitempty"`
+	Attrlevel          string                `xml:"level,attr"  json:",omitempty"`
+	Attrotherlevel     string                `xml:"otherlevel,attr"  json:",omitempty"`
+	Attraltrender      string                `xml:"altrender,attr"  json:",omitempty"`
+	Caccessrestrict    *Caccessrestrict      `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Caccruals          *Caccruals            `xml:"accruals,omitempty" json:"accruals,omitempty"`
+	Cacqinfo           []*Cacqinfo           `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
+	Caltformavail      *Caltformavail        `xml:"altformavail,omitempty" json:"altformavail,omitempty"`
+	Cappraisal         *Cappraisal           `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
+	Carrangement       *Carrangement         `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
+	Cbibliography      *Cbibliography        `xml:"bibliography,omitempty" json:"bibliography,omitempty"`
+	Cbioghist          []*Cbioghist          `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
+	Cc                 []*Cc                 `xml:"c,omitempty" json:"c,omitempty"`
+	Ccontrolaccess     *Ccontrolaccess       `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Ccustodhist        *Ccustodhist          `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
+	Cdescgrp           []*Cdescgrp           `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
+	Cdid               []*Cdid               `xml:"did,omitempty" json:"did,omitempty"`
+	Cfileplan          *Cfileplan            `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
+	Codd               []*Codd               `xml:"odd,omitempty" json:"odd,omitempty"`
+	Coriginalsloc      *Coriginalsloc        `xml:"originalsloc,omitempty" json:"originalsloc,omitempty"`
+	Cotherfindaid      []*Cotherfindaid      `xml:"otherfindaid,omitempty" json:"otherfindaid,omitempty"`
+	Cphystech          []*Cphystech          `xml:"phystech,omitempty" json:"phystech,omitempty"`
+	Cprocessinfo       *Cprocessinfo         `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
+	Crelatedmaterial   *Crelatedmaterial     `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
+	Cscopecontent      *Cscopecontent        `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	Cseparatedmaterial []*Cseparatedmaterial `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
+	Cuserestrict       *Cuserestrict         `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
 }
 
-func (c Cc) GetXMLName() xml.Name                 { return c.XMLName }
-func (c Cc) GetAttrlevel() string                 { return c.Attrlevel }
-func (c Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
-func (c Cc) GetAttraltrender() string             { return c.Attraltrender }
-func (c Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
-func (c Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
-func (c Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
-func (c Cc) GetOdd() []*Codd                      { return c.Codd }
-func (c Cc) GetPhystech() []*Cphystech            { return c.Cphystech }
-func (c Cc) GetNested() []CLevel                  { return c.Nested() }
-func (c Cc) Nested() []CLevel {
+func (c *Cc) GetXMLName() xml.Name                 { return c.XMLName }
+func (c *Cc) GetAttrlevel() string                 { return c.Attrlevel }
+func (c *Cc) GetAttrotherlevel() string            { return c.Attrotherlevel }
+func (c *Cc) GetAttraltrender() string             { return c.Attraltrender }
+func (c *Cc) GetCaccessrestrict() *Caccessrestrict { return c.Caccessrestrict }
+func (c *Cc) GetCdid() *Cdid                       { return c.Cdid[0] }
+func (c *Cc) GetScopeContent() *Cscopecontent      { return c.Cscopecontent }
+func (c *Cc) GetOdd() []*Codd                      { return c.Codd }
+func (c *Cc) GetPhystech() []*Cphystech            { return c.Cphystech }
+func (c *Cc) GetNested() []CLevel                  { return c.Nested() }
+func (c *Cc) Nested() []CLevel {
 	levels := make([]CLevel, len(c.Cc))
 	for i, v := range c.Cc {
 		levels[i] = CLevel(v)
 	}
 	return levels
 }
-func (c Cc) GetGenreform() string {
+func (c *Cc) GetGenreform() string {
 	if c.Ccontrolaccess != nil && c.Ccontrolaccess.Cgenreform != nil {
 		return c.Ccontrolaccess.Cgenreform.Genreform
 	}
 
 	return ""
 }
-func (c Cc) GetMaterial() string {
+func (c *Cc) GetMaterial() string {
 	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess.Cp) > 0 {
 		return c.Ccontrolaccess.Cp[0].P
 	}
@@ -671,12 +687,14 @@ type Caccruals struct {
 	XMLName xml.Name `xml:"accruals,omitempty" json:"accruals,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cacqinfo struct {
 	XMLName xml.Name `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Caltformavail struct {
@@ -684,12 +702,14 @@ type Caltformavail struct {
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cappraisal struct {
 	XMLName xml.Name `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Carchdesc struct {
@@ -707,6 +727,7 @@ type Carrangement struct {
 	XMLName xml.Name `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cbibref struct {
@@ -748,6 +769,7 @@ type Ccontrolaccess struct {
 	Cnote        *Cnote      `xml:"note,omitempty" json:"note,omitempty"`
 	Cp           []*Cp       `xml:"p,omitempty" json:"p,omitempty"`
 	Cgenreform   *Cgenreform `xml:"genreform,omitempty" json:"genreform,omitempty"`
+	Raw          []byte      `xml:",innerxml" json:",omitempty"`
 }
 
 type Cgenreform struct {
@@ -766,6 +788,7 @@ type Ccustodhist struct {
 	Cacqinfo []*Cacqinfo `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
 	Chead    []*Chead    `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp       `xml:"p,omitempty" json:"p,omitempty"`
+	Raw      []byte      `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdate struct {
@@ -777,24 +800,28 @@ type Cdate struct {
 }
 
 type Cdescgrp struct {
-	XMLName          xml.Name          `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
-	Attrtype         string            `xml:"type,attr"  json:",omitempty"`
-	Caccessrestrict  *Caccessrestrict  `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
-	Caccruals        *Caccruals        `xml:"accruals,omitempty" json:"accruals,omitempty"`
-	Caltformavail    *Caltformavail    `xml:"altformavail,omitempty" json:"altformavail,omitempty"`
-	Cappraisal       *Cappraisal       `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
-	Carrangement     *Carrangement     `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
-	Cbioghist        []*Cbioghist      `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
-	Ccontrolaccess   *Ccontrolaccess   `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
-	Ccustodhist      *Ccustodhist      `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
-	Chead            []*Chead          `xml:"head,omitempty" json:"head,omitempty"`
-	Codd             []*Codd           `xml:"odd,omitempty" json:"odd,omitempty"`
-	Cphystech        *Cphystech        `xml:"phystech,omitempty" json:"phystech,omitempty"`
-	Cprefercite      *Cprefercite      `xml:"prefercite,omitempty" json:"prefercite,omitempty"`
-	Cprocessinfo     *Cprocessinfo     `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
-	Crelatedmaterial *Crelatedmaterial `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
-	Cuserestrict     *Cuserestrict     `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
-	Raw              []byte            `xml:",innerxml" json:",omitempty"`
+	XMLName            xml.Name            `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
+	Attrtype           string              `xml:"type,attr"  json:",omitempty"`
+	Caccessrestrict    *Caccessrestrict    `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	Caccruals          *Caccruals          `xml:"accruals,omitempty" json:"accruals,omitempty"`
+	Caltformavail      *Caltformavail      `xml:"altformavail,omitempty" json:"altformavail,omitempty"`
+	Cappraisal         *Cappraisal         `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
+	Carrangement       *Carrangement       `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
+	Cbioghist          []*Cbioghist        `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
+	Ccontrolaccess     *Ccontrolaccess     `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
+	Ccustodhist        *Ccustodhist        `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
+	Chead              []*Chead            `xml:"head,omitempty" json:"head,omitempty"`
+	Codd               []*Codd             `xml:"odd,omitempty" json:"odd,omitempty"`
+	Cotherfindaid      []*Cotherfindaid    `xml:"otherfindaid,omitempty" json:"otherfindaid,omitempty"`
+	Cphystech          *Cphystech          `xml:"phystech,omitempty" json:"phystech,omitempty"`
+	Cprefercite        *Cprefercite        `xml:"prefercite,omitempty" json:"prefercite,omitempty"`
+	Cprocessinfo       *Cprocessinfo       `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
+	Crelatedmaterial   *Crelatedmaterial   `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
+	Cscopecontent      []*Cscopecontent    `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	Cseparatedmaterial *Cseparatedmaterial `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
+	Cuserestrict       *Cuserestrict       `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
+	Cfileplan          *Cfileplan          `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
+	Raw                []byte              `xml:",innerxml" json:",omitempty"`
 }
 
 type Cdid struct {
@@ -942,12 +969,18 @@ type Cp struct {
 }
 
 type Cphysdesc struct {
-	XMLName    xml.Name    `xml:"physdesc,omitempty" json:"physdesc,omitempty"`
-	Attrlabel  string      `xml:"label,attr"  json:",omitempty"`
-	Cextent    []*Cextent  `xml:"extent,omitempty" json:"extent,omitempty"`
-	PhyscDesc  string      `xml:",chardata" json:",omitempty"`
-	Cphysfacet *Cphysfacet `xml:"physfacet,omitempty" json:"physfacet,omitempty"`
-	Raw        []byte      `xml:",innerxml" json:",omitempty"`
+	XMLName     xml.Name       `xml:"physdesc,omitempty" json:"physdesc,omitempty"`
+	Attrlabel   string         `xml:"label,attr"  json:",omitempty"`
+	Cextent     []*Cextent     `xml:"extent,omitempty" json:"extent,omitempty"`
+	PhyscDesc   string         `xml:",chardata" json:",omitempty"`
+	Cphysfacet  *Cphysfacet    `xml:"physfacet,omitempty" json:"physfacet,omitempty"`
+	Cdimensions []*Cdimensions `xml:"dimensions,omitempty" json:"dimensions,omitempty"`
+	Raw         []byte         `xml:",innerxml" json:",omitempty"`
+}
+
+type Cdimensions struct {
+	XMLName   xml.Name `xml:"dimensions,omitempty" json:"dimensions,omitempty"`
+	Dimension string   `xml:",chardata" json:",omitempty"`
 }
 
 type Cphysfacet struct {
@@ -981,6 +1014,7 @@ type Cprocessinfo struct {
 	XMLName xml.Name `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Cpublicationstmt struct {
@@ -1009,6 +1043,7 @@ type Crelatedmaterial struct {
 	XMLName xml.Name `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
 	Chead   []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
 }
 
 type Crepository struct {
@@ -1066,7 +1101,7 @@ type Cunittitle struct {
 	RawTitle  []byte       `xml:",innerxml" json:",omitempty"`
 }
 
-func (ut Cunittitle) Title() string {
+func (ut *Cunittitle) Title() string {
 	return sanitizer.Sanitize(strings.TrimSpace(fmt.Sprintf("%s", ut.RawTitle)))
 }
 
@@ -1076,6 +1111,39 @@ type Cuserestrict struct {
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
 	Raw      []byte   `xml:",innerxml" json:",omitempty"`
+}
+
+type Cbibliography struct {
+	XMLName xml.Name `xml:"bibliography,omitempty" json:"bibliography,omitempty"`
+	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+}
+
+type Cseparatedmaterial struct {
+	XMLName xml.Name `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
+	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
+}
+
+type Cotherfindaid struct {
+	XMLName xml.Name `xml:"otherfindaid,omitempty" json:"otherfindaid,omitempty"`
+	Chead   *Chead   `xml:"head,omitempty" json:"head,omitempty"`
+	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
+}
+
+type Coriginalsloc struct {
+	XMLName xml.Name `xml:"originalsloc,omitempty" json:"originalsloc,omitempty"`
+	Cp      []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
+	Raw     []byte   `xml:",innerxml" json:",omitempty"`
+}
+
+type Cfileplan struct {
+	XMLName   xml.Name   `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
+	Cfileplan *Cfileplan `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
+	Chead     *Chead     `xml:"head,omitempty" json:"head,omitempty"`
+	Clist     *Clist     `xml:"list,omitempty" json:"list,omitempty"`
+	Cp        []*Cp      `xml:"p,omitempty" json:"p,omitempty"`
+	Raw       []byte     `xml:",innerxml" json:",omitempty"`
 }
 
 ///////////////////////////

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<c level="file">
+  <did>
+    <unitid identifier="66920508" type="ABS">A</unitid>
+    <unitid audience="internal" type="handle">http://hdl.handle.net/10648/7ae8aae5-6d91-4094-80fd-c0015ccfd0c0</unitid>
+    <unittitle>Spieghel der Zeevaerdt, ... (etc.) door <persname>Lucas Jansz Waghenaer</persname>.</unittitle>
+    <unitdate calendar="gregorian" era="ce" normal="1584/1585">1584-1585.</unitdate>
+    <physdesc>
+      <extent>1 deel</extent>
+      <dimensions>39,5 x 28,5 x 4 cm</dimensions>
+      <physfacet>Folio</physfacet>
+        1 katern
+    </physdesc>
+    <physloc type="ABS">Ontbreekt</physloc>
+    <langmaterial label="Taal van het archiefmateriaal: ">Het merendeel der stukken is in het <language langcode="dut" scriptcode="Latn">Nederlands</language> </langmaterial>
+    <materialspec label="Soort archiefmateriaal: ">Normale geschreven, getypte en gedrukte documenten, geen bijzondere handschriften.</materialspec>
+    <repository label="Archiefbewaarplaats: ">Nationaal Archief, Den Haag</repository>
+    <origination label="Archiefvormers: ">
+        <corpname>Centrale Dienst voor Sibbekunde</corpname>
+    </origination>
+    <abstract label="Samenvatting van de inhoud van het archief: ">Het archief bevat o.a.</abstract>
+    <dao linktype="simple" href="http://example.com/format/xml/findingaid/1.11.01.01/file/112" actuate="onrequest" show="shownone" audience="internal" role="METS"/>
+  </did>
+</c>

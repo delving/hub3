@@ -1,6 +1,10 @@
 package ead
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+
+	r "github.com/kiivihal/rdf2go"
+)
 
 type Cc01 struct {
 	XMLName         xml.Name         `xml:"c01,omitempty" json:"c01,omitempty"`
@@ -39,6 +43,9 @@ func (c Cc01) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc01) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc02 struct {
@@ -79,6 +86,9 @@ func (c Cc02) GetGenreform() string {
 
 	return ""
 }
+func (c Cc02) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc03 struct {
 	XMLName         xml.Name         `xml:"c03,omitempty" json:"c03,omitempty"`
@@ -117,6 +127,9 @@ func (c Cc03) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc03) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc04 struct {
@@ -157,6 +170,9 @@ func (c Cc04) GetGenreform() string {
 
 	return ""
 }
+func (c Cc04) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc05 struct {
 	XMLName         xml.Name         `xml:"c05,omitempty" json:"c05,omitempty"`
@@ -195,6 +211,9 @@ func (c Cc05) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc05) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc06 struct {
@@ -235,6 +254,9 @@ func (c Cc06) GetGenreform() string {
 
 	return ""
 }
+func (c Cc06) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc07 struct {
 	XMLName         xml.Name         `xml:"c07,omitempty" json:"c07,omitempty"`
@@ -273,6 +295,9 @@ func (c Cc07) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc07) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc08 struct {
@@ -313,6 +338,9 @@ func (c Cc08) GetGenreform() string {
 
 	return ""
 }
+func (c Cc08) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc09 struct {
 	XMLName         xml.Name         `xml:"c09,omitempty" json:"c09,omitempty"`
@@ -351,6 +379,9 @@ func (c Cc09) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc09) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc10 struct {
@@ -391,6 +422,9 @@ func (c Cc10) GetGenreform() string {
 
 	return ""
 }
+func (c Cc10) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc11 struct {
 	XMLName         xml.Name         `xml:"c11,omitempty" json:"c11,omitempty"`
@@ -429,6 +463,9 @@ func (c Cc11) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc11) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc12 struct {
@@ -469,6 +506,9 @@ func (c Cc12) GetGenreform() string {
 
 	return ""
 }
+func (c Cc12) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc13 struct {
 	XMLName         xml.Name         `xml:"c13,omitempty" json:"c13,omitempty"`
@@ -507,6 +547,9 @@ func (c Cc13) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc13) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc14 struct {
@@ -547,6 +590,9 @@ func (c Cc14) GetGenreform() string {
 
 	return ""
 }
+func (c Cc14) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc15 struct {
 	XMLName         xml.Name         `xml:"c15,omitempty" json:"c15,omitempty"`
@@ -585,6 +631,9 @@ func (c Cc15) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc15) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc16 struct {
@@ -625,6 +674,9 @@ func (c Cc16) GetGenreform() string {
 
 	return ""
 }
+func (c Cc16) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc17 struct {
 	XMLName         xml.Name         `xml:"c17,omitempty" json:"c17,omitempty"`
@@ -663,6 +715,9 @@ func (c Cc17) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc17) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }
 
 type Cc18 struct {
@@ -703,6 +758,9 @@ func (c Cc18) GetGenreform() string {
 
 	return ""
 }
+func (c Cc18) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc19 struct {
 	XMLName         xml.Name         `xml:"c19,omitempty" json:"c19,omitempty"`
@@ -742,6 +800,9 @@ func (c Cc19) GetGenreform() string {
 
 	return ""
 }
+func (c Cc19) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
+}
 
 type Cc20 struct {
 	XMLName         xml.Name         `xml:"c20,omitempty" json:"c20,omitempty"`
@@ -777,4 +838,7 @@ func (c Cc20) GetGenreform() string {
 	}
 
 	return ""
+}
+func (c Cc20) Triples(subject r.Term) ([]*r.Triple, error) {
+	return []*r.Triple{}, nil
 }

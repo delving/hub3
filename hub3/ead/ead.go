@@ -16,6 +16,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
+	r "github.com/kiivihal/rdf2go"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -352,7 +353,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	}
 
 	if cdid.Cphysdesc != nil {
-		header.Physdesc = cdid.Cphysdesc.PhyscDesc
+		header.Physdesc = sanitizeXMLAsString(cdid.Cphysdesc.Raw)
 	}
 
 	if cdid.Cdao != nil {
@@ -457,17 +458,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Header.Genreform = c.GetGenreform()
 	}
 
-	// add content
-	if c.GetOdd() != nil {
-		for _, o := range c.GetOdd() {
-			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
-		}
-	}
-
-	if c.GetScopeContent() != nil {
-		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
-	}
-
 	// add accessrestrict
 	if ar := c.GetCaccessrestrict(); ar != nil {
 		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
@@ -511,28 +501,26 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	_, ok := cfg.labels[node.Path]
 	if ok {
-		//data, err := json.MarshalIndent(node, " ", " ")
-		//if err != nil {
-		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
-		//}
-		//de := &DuplicateError{
-		//Path:     node.Path,
-		//Order:    int(node.Order),
-		//Spec:     cfg.Spec,
-		//Key:      header.InventoryNumber,
-		//Label:    prevLabel,
-		//DupKey:   header.InventoryNumber,
-		//DupLabel: header.GetTreeLabel(),
-		//CType:    node.Type,
-		//Depth:    node.Depth,
-		//}
-		//cfg.Errors = append(cfg.Errors, de)
-
-		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
 	}
 
 	cfg.labels[node.Path] = header.GetTreeLabel()
+
+	subject := r.NewResource(node.GetSubject(cfg))
+
+	didTriples, err := c.GetCdid().Triples(subject)
+	if err != nil {
+		return nil, err
+	}
+
+	node.triples = append(node.triples, didTriples...)
+
+	cLevelTriples, err := c.Triples(subject)
+	if err != nil {
+		return nil, err
+	}
+
+	node.triples = append(node.triples, cLevelTriples...)
 
 	// add nested
 	nested := c.GetNested()
