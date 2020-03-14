@@ -35,10 +35,12 @@ func RegisterCache(r chi.Router) {
 	config := bigcache.DefaultConfig(eviction)
 	config.HardMaxCacheSize = c.Config.Cache.HardMaxCacheSize
 	config.MaxEntrySize = c.Config.Cache.MaxEntrySize
+
 	cache, err := bigcache.NewBigCache(config)
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Unable to start bigCache implementation: %#v", err))
 	}
+
 	httpCache = cache
 
 	r.Get("/api/cache/stats", cacheStats)

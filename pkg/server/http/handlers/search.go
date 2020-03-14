@@ -29,6 +29,7 @@ import (
 	"unsafe"
 
 	"github.com/delving/hub3/config"
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
@@ -361,6 +362,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				qs := fmt.Sprintf("paging=true%s", pageParam)
 				m, _ := url.ParseQuery(qs)
 				sr, _ := fragments.NewSearchRequest(m)
+				sr.Tree.WithFields = searchRequest.Tree.WithFields
+
 				err = sr.AddQueryFilter(
 					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 					false,
@@ -395,11 +398,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				searchRequest.Tree.Page = pages
 				searchRequest.Tree.Leaf = leaf.CLevel
 			}
+
 			if !searchRequest.Tree.IsPaging {
 				leaf := records[0].Tree.CLevel
 				qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
 				m, _ := url.ParseQuery(qs)
 				sr, _ := fragments.NewSearchRequest(m)
+				sr.Tree.WithFields = searchRequest.Tree.WithFields
+
 				err := sr.AddQueryFilter(
 					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 					false,
@@ -444,6 +450,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			qs := fmt.Sprintf("byUnitID=%s&allParents=true", firstNode.Tree.Leaf)
 			m, _ := url.ParseQuery(qs)
 			sr, _ := fragments.NewSearchRequest(m)
+			sr.Tree.WithFields = searchRequest.Tree.WithFields
+
 			err := sr.AddQueryFilter(
 				fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 				false,
@@ -471,14 +479,25 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			if err != nil {
 				return
 			}
+
 			for _, parent := range parents {
 				parent.Tree.HasChildren = parent.Tree.ChildCount != 0
+				if sr.Tree.WithFields {
+					parent.Tree.Fields = parent.NewFields(c.Config.EAD.TreeFields...)
+					parent.Tree.Content = []string{}
+				}
+
 				leafs = append(leafs, parent.Tree)
 			}
 		}
 
 		for _, rec := range records {
 			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
+			if searchRequest.Tree.WithFields {
+				rec.Tree.Fields = rec.NewFields(c.Config.EAD.TreeFields...)
+				rec.Tree.Content = []string{}
+			}
+
 			leafs = append(leafs, rec.Tree)
 		}
 		// add cursor hint

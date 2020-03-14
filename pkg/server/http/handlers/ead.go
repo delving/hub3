@@ -249,8 +249,6 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	render.JSON(w, r, desc)
-
-	return
 }
 
 func treeStats(w http.ResponseWriter, r *http.Request) {
