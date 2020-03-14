@@ -123,6 +123,7 @@ message TreeQuery {
   bool isSearch = 19;
   string pageMode = 20;
   string query = 21;
+  bool withFields = 22;
 }
 
 message SearchRequest {

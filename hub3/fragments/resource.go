@@ -72,34 +72,36 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf             string   `json:"leaf,omitempty"`
-	Parent           string   `json:"parent,omitempty"`
-	Label            string   `json:"label"`
-	CLevel           string   `json:"cLevel"`
-	UnitID           string   `json:"unitID"`
-	Type             string   `json:"type"`
-	HubID            string   `json:"hubID"`
-	ChildCount       int      `json:"childCount"`
-	Depth            int      `json:"depth"`
-	HasChildren      bool     `json:"hasChildren"`
-	HasDigitalObject bool     `json:"hasDigitalObject"`
-	HasRestriction   bool     `json:"hasRestriction"`
-	DaoLink          string   `json:"daoLink,omitempty"`
-	ManifestLink     string   `json:"manifestLink,omitempty"`
-	MimeTypes        []string `json:"mimeType,omitempty"`
-	DOCount          int      `json:"doCount"`
-	Inline           []*Tree  `json:"inline,omitempty"`
-	SortKey          uint64   `json:"sortKey"`
-	Periods          []string `json:"periods"`
-	Content          []string `json:"content,omitempty"`
-	Access           string   `json:"access,omitempty"`
-	Title            string   `json:"title,omitempty"`
-	Description      string   `json:"description,omitempty"`
-	InventoryID      string   `json:"inventoryID,omitempty"`
-	AgencyCode       string   `json:"agencyCode,omitempty"`
-	PeriodDesc       []string `json:"periodDesc,omitempty"`
-	Material         string   `json:"material,omitempty"`
-	PhysDesc         string   `json:"physDesc,omitempty"`
+	Leaf             string              `json:"leaf,omitempty"`
+	Parent           string              `json:"parent,omitempty"`
+	Label            string              `json:"label"`
+	CLevel           string              `json:"cLevel"`
+	UnitID           string              `json:"unitID"`
+	Type             string              `json:"type"`
+	HubID            string              `json:"hubID"`
+	ChildCount       int                 `json:"childCount"`
+	Depth            int                 `json:"depth"`
+	HasChildren      bool                `json:"hasChildren"`
+	HasDigitalObject bool                `json:"hasDigitalObject"`
+	HasRestriction   bool                `json:"hasRestriction"`
+	DaoLink          string              `json:"daoLink,omitempty"`
+	ManifestLink     string              `json:"manifestLink,omitempty"`
+	MimeTypes        []string            `json:"mimeType,omitempty"`
+	DOCount          int                 `json:"doCount"`
+	Inline           []*Tree             `json:"inline,omitempty"`
+	SortKey          uint64              `json:"sortKey"`
+	Periods          []string            `json:"periods"`
+	Content          []string            `json:"content,omitempty"`
+	RawContent       []string            `json:"rawContent,omitempty"`
+	Access           string              `json:"access,omitempty"`
+	Title            string              `json:"title,omitempty"`
+	Description      string              `json:"description,omitempty"`
+	InventoryID      string              `json:"inventoryID,omitempty"`
+	AgencyCode       string              `json:"agencyCode,omitempty"`
+	PeriodDesc       []string            `json:"periodDesc,omitempty"`
+	Material         string              `json:"material,omitempty"`
+	PhysDesc         string              `json:"physDesc,omitempty"`
+	Fields           map[string][]string `json:"fields,omitempty"`
 }
 
 // DeepCopy creates a deep-copy of a Tree.
@@ -131,6 +133,7 @@ func (t *Tree) DeepCopy() *Tree {
 		InventoryID:      t.InventoryID,
 		AgencyCode:       t.AgencyCode,
 		Material:         t.Material,
+		Fields:           t.Fields,
 	}
 	return target
 }
@@ -157,12 +160,12 @@ type TreeNavigator struct {
 // IsExpanded returns if the tree query contains a query that puts the active ID
 // expanded in the tree
 func (tq *TreeQuery) IsExpanded() bool {
-	return (tq.Label != "" || tq.UnitID != "") || tq.IsPaging
+	return (tq.Label != "" || tq.UnitID != "" || tq.Query != "") || tq.IsPaging
 }
 
 // IsNavigatedQuery returns if there is both a query and active ID
 func (tq *TreeQuery) IsNavigatedQuery() bool {
-	return tq.Label != "" && tq.UnitID != ""
+	return (tq.Label != "" || tq.Query != "") && tq.UnitID != ""
 }
 
 // PreviousCurrentNextPage returns the previous and next page based on the TreeQuery.
@@ -1326,8 +1329,14 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 }
 
 // NewFields returns a map of the triples sorted by their searchLabel
-func (fg *FragmentGraph) NewFields() map[string][]string {
+func (fg *FragmentGraph) NewFields(fields ...string) map[string][]string {
 	fieldMap := make(map[string]map[string]struct{})
+
+	includeMap := make(map[string]bool)
+	for _, field := range fields {
+		includeMap[field] = true
+	}
+
 	for _, rsc := range fg.Resources {
 		for _, entry := range rsc.Entries {
 			var entryKey string
@@ -1337,7 +1346,13 @@ func (fg *FragmentGraph) NewFields() map[string][]string {
 			default:
 				entryKey = entry.Value
 			}
+
 			if entryKey == "" {
+				continue
+			}
+
+			_, ok := includeMap[entry.SearchLabel]
+			if !ok {
 				continue
 			}
 

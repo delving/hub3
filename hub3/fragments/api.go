@@ -260,7 +260,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byQuery":
 			sr.Tree = tree
 			tree.IsSearch = true
-			sr.Tree.Query = params.Get(p)
+			tree.Query = params.Get(p)
+		case "withFields":
+			sr.Tree = tree
+			tree.WithFields = strings.EqualFold(params.Get(p), "true")
 		case "hasDigitalObject":
 			sr.Tree = tree
 			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
@@ -317,8 +320,8 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	if sr.Tree != nil && sr.GetResponseSize() != int32(1) && sr.Page != 0 {
 		rows := params.Get("rows")
 		if rows == "" {
-			// set hard max to number of nodes of 1000
-			sr.ResponseSize = int32(1000)
+			// set hard max to number of nodes of 250
+			sr.ResponseSize = int32(250)
 		}
 	}
 
@@ -711,8 +714,8 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if sr.Tree.HasDigitalObject {
 			query = query.Must(elastic.NewMatchQuery("tree.hasDigitalObject", "true"))
 		}
-		if sr.Tree.GetQuery() != "" {
 
+		if sr.Tree.GetQuery() != "" {
 			q := elastic.NewQueryStringQuery(sr.Tree.GetQuery())
 			q = q.
 				FieldWithBoost("tree.title", 6.0).
@@ -721,10 +724,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 				FieldWithBoost("tree.agencyCode", 1.5).
 				FieldWithBoost("tree.unitID", 1.5).
 				FieldWithBoost("tree.description", 1.0).
-				Field("tree.content").
-				Field("tree.periods").
-				Field("tree.material").
-				Field("tree.physDesc")
+				Field("tree.rawContent")
 
 			if !isAdvancedSearch(sr.Tree.GetQuery()) {
 				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
@@ -1087,6 +1087,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		if err != nil {
 			return nil, nil, err
 		}
+
 		s = s.Size(0)
 		s = s.Aggregation(sr.Peek, agg)
 		return s.Query(query), nil, err
@@ -1095,6 +1096,11 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	if sr.Tree != nil {
 		fsc := elastic.NewFetchSourceContext(true)
 		fsc.Include("tree")
+		fsc.Exclude("tree.rawContent")
+
+		if sr.Tree.WithFields {
+			fsc.Include("resources")
+		}
 		s = s.FetchSourceContext(fsc)
 	}
 
