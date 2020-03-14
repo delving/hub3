@@ -8,7 +8,8 @@ var ESMappingUpdate = `{
     "tree": {
       "properties": {
         "physDesc": {"type": "keyword"},
-        "periodDesc": { "type": "keyword"}
+        "periodDesc": { "type": "keyword"},
+		"rawContent": {"type": "text", "store": false}
       }
     },
 	"protobuf": {
@@ -17,9 +18,9 @@ var ESMappingUpdate = `{
 			"messageType": {"type": "keyword"},
 			"data": {
 				"type": "keyword",
-				"store": "true",
-				"index": "false",
-				"doc_values": "false"
+				"store": true,
+				"index": false,
+				"doc_values": false
 			}
 		}
 	},
@@ -83,9 +84,9 @@ var ESMapping = `{
 						"type": {"type": "keyword"},
 						"data": {
 							"type": "keyword",
-							"store": "true",
-							"index": "false",
-							"doc_values": "false"
+							"store": true,
+							"index": false,
+							"doc_values": false
 						}
 					}
 				},
@@ -115,6 +116,7 @@ var ESMapping = `{
 						"title": {"type": "text"},
 						"description": {"type": "text"},
 						"content": {"type": "text"},
+						"rawContent": {"type": "text", "store": false},
 						"access": {
 							"type": "text",
 							"fields": {
@@ -239,7 +241,7 @@ var ESFragmentMapping = `{
 				},
 				"language": {"type": "keyword"},
 				"dataType": {"type": "keyword"},
-				"triple": {"type": "keyword", "index": "false", "store": "true"},
+				"triple": {"type": "keyword", "index": false, "store": true},
 				"lodKey": {"type": "keyword"},
 				"objectType": {"type": "keyword"},
 				"recordType": {"type": "short"},
@@ -312,9 +314,9 @@ var V1ESMapping = `
         "_default_":
             {
                 "_all": {
-                    "enabled": "true"
+                    "enabled": true
                 },
-                "date_detection": "false",
+                "date_detection": false,
                 "properties": {
 					"full_text": {"type": "text"},
                     "id": {"type": "integer"},
@@ -332,7 +334,7 @@ var V1ESMapping = `
                             "modified_at": {"format": "dateOptionalTime", "type": "date"},
 							"slug": {"fields": {"raw": { "type": "keyword"}}, "type": "text"},
                             "geohash": { "type": "geo_point" },
-                            "source_graph": { "index": "false", "type": "text", "doc_values": "false" },
+                            "source_graph": { "index": false, "type": "text", "doc_values": false },
 							"source_uri": {"fields": {"raw": { "type": "keyword"}}, "type": "text"},
 							"spec": {"fields": {"raw": { "type": "keyword"}}, "type": "text"},
 							"thumbnail": {"fields": {"raw": { "type": "keyword"}}, "type": "text"}
@@ -371,8 +373,8 @@ var V1ESMapping = `
 						"mapping": {"type": "keyword", "ignore_above": 1024}
 					}},
                     {"id": { "match": "id", "mapping": { "type": "keyword" } }},
-                    {"graphs": { "match": "*_graph", "mapping": { "type": "text", "index": "false" } }},
-                    {"inline": { "match": "inline", "mapping": { "type": "object", "include_in_parent": "true" } }},
+                    {"graphs": { "match": "*_graph", "mapping": { "type": "text", "index": false } }},
+                    {"inline": { "match": "inline", "mapping": { "type": "object", "include_in_parent": true } }},
                     {"strings": {
                         "match_mapping_type": "string",
                         "mapping": {"type": "text", "fields": {"raw": {"type": "keyword", "ignore_above": 1024 }}}

@@ -58,13 +58,13 @@ func ESClient() *elastic.Client {
 
 			// setup ElasticSearch client
 			client = createESClient()
-			//defer client.Stop()
 			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
 			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
 			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
 		}
 	}
+
 	return client
 }
 
@@ -72,8 +72,10 @@ func IndexReset(index string) error {
 	if index == "" {
 		index = config.Config.ElasticSearch.GetIndexName()
 	}
+
 	ensureESIndex(index, true)
 	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
+
 	return nil
 }
 
@@ -81,19 +83,23 @@ func ensureESIndex(index string, reset bool) {
 	if index == "" {
 		index = config.Config.ElasticSearch.GetIndexName()
 	}
+
 	exists, err := ESClient().IndexExists(index).Do(ctx)
 	if err != nil {
 		// Handle error
 		stdlog.Fatalf("unable to find index for %s: %#v", index, err)
 	}
+
 	if exists && reset {
 		deleteIndex, err := ESClient().DeleteIndex(index).Do(ctx)
 		if err != nil {
 			stdlog.Fatal(err)
 		}
+
 		if !deleteIndex.Acknowledged {
 			stdlog.Printf("Unable to delete index %s", index)
 		}
+
 		exists = false
 	}
 
@@ -103,9 +109,11 @@ func ensureESIndex(index string, reset bool) {
 		if config.Config.ElasticSearch.IndexV1 {
 			indexMapping = mapping.V1ESMapping
 		}
+
 		if strings.HasSuffix(index, "_frag") {
 			indexMapping = mapping.ESFragmentMapping
 		}
+
 		createIndex, err := client.
 			CreateIndex(index).
 			BodyJson(
@@ -116,31 +124,31 @@ func ensureESIndex(index string, reset bool) {
 				),
 			).
 			Do(ctx)
+
 		if err != nil {
 			// Handle error
 			stdlog.Fatal(err)
 		}
+
 		if !createIndex.Acknowledged {
 			stdlog.Println(createIndex.Acknowledged)
-			// Not acknowledged
+		}
+	} else {
+		// add mapping updates
+		config.Config.Logger.Info().Msg("updating elasticsearch service")
+		updateIndex, err := elastic.NewIndicesPutMappingService(client).
+			Index(index).
+			BodyString(mapping.ESMappingUpdate).
+			Do(ctx)
+		if err != nil {
+			stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err.Error())
+			return
 		}
 
+		if !updateIndex.Acknowledged {
+			stdlog.Println(updateIndex.Acknowledged)
+		}
 	}
-
-	// add mapping updates
-	updateIndex, err := elastic.NewIndicesPutMappingService(client).
-		Index(index).
-		BodyString(mapping.ESMappingUpdate).
-		Do(ctx)
-	if err != nil {
-		stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err)
-		return
-	}
-	if !updateIndex.Acknowledged {
-		stdlog.Println(updateIndex.Acknowledged)
-		// Not acknowledged
-	}
-	return
 }
 
 // ListIndexes returns a list of all the ElasticSearch Indices.
@@ -149,17 +157,16 @@ func ListIndexes() ([]string, error) {
 }
 
 func createESClient() *elastic.Client {
-	timeout := time.Duration(time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second)
+	timeout := time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second
 	httpclient := &http.Client{
 		Timeout: timeout,
 	}
 
 	options := []elastic.ClientOptionFunc{
-		elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
-		elastic.SetSniff(false),                             // disable sniffing
-		elastic.SetHealthcheckInterval(10 * time.Second),    // do healthcheck every 10 seconds
-		elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
-		// todo replace with logrus logger later
+		elastic.SetURL(config.Config.ElasticSearch.Urls...),                      // set elastic urs from config
+		elastic.SetSniff(false),                                                  // disable sniffing
+		elastic.SetHealthcheckInterval(10 * time.Second),                         // do healthcheck every 10 seconds
+		elastic.SetRetrier(NewCustomRetrier()),                                   // set custom retrier that tries 5 times. Default is 0
 		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
 		elastic.SetHttpClient(httpclient),
 	}
@@ -168,20 +175,24 @@ func createESClient() *elastic.Client {
 		es := config.Config.ElasticSearch
 		options = append(options, elastic.SetBasicAuth(es.UserName, es.Password))
 	}
+
 	if config.Config.ElasticSearch.EnableTrace {
 		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
 	}
+
 	if config.Config.ElasticSearch.EnableInfo {
 		options = append(options, elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags))) // info log
 	}
+
 	if client == nil {
 		c, err := elastic.NewClient(options...)
 		if err != nil {
 			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
 		}
-		client = c
 
+		client = c
 	}
+
 	return client
 }
 
@@ -201,7 +212,7 @@ func (r *CustomRetrier) Retry(
 	err error) (time.Duration, bool, error) {
 	// Fail hard on a specific error
 	if err == syscall.ECONNREFUSED {
-		return 0, false, errors.New("Elasticsearch or network down")
+		return 0, false, errors.New("elasticsearch or network down")
 	}
 
 	// Stop after 5 retries
@@ -211,5 +222,6 @@ func (r *CustomRetrier) Retry(
 
 	// Let the backoff strategy decide how long to wait and whether to stop
 	wait, stop := r.backoff.Next(retry)
+
 	return wait, stop, nil
 }
