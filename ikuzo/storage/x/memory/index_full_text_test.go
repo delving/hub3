@@ -5,9 +5,9 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/service/x/search"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
-	"github.com/delving/hub3/ikuzo/service/x/search"
 )
 
 var appendTests = []struct {
@@ -35,10 +35,10 @@ var appendTests = []struct {
 		false,
 	},
 	{
-		"empty string cannot be indexed",
+		"empty string after normalisation will not throw error",
 		[]byte(".,;:"),
 		0,
-		true,
+		false,
 	},
 }
 
@@ -51,7 +51,7 @@ func TestTextIndex_appendBytes(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ti := NewTextIndex()
 
-			if err := ti.appendBytes(tt.text); (err != nil) != tt.wantErr {
+			if err := ti.AppendBytes(tt.text); (err != nil) != tt.wantErr {
 				t.Errorf("TextIndex.appendBytes() %s; error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
 
@@ -69,7 +69,7 @@ func TestTextIndex_appendString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ti := NewTextIndex()
 
-			if err := ti.appendString(string(tt.text)); (err != nil) != tt.wantErr {
+			if err := ti.AppendString(string(tt.text)); (err != nil) != tt.wantErr {
 				t.Errorf("TextIndex.appendBytes() %s; error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
 
@@ -85,7 +85,7 @@ func TestTextIndex_reset(t *testing.T) {
 
 	is.Equal(ti.size(), 0)
 
-	err := ti.appendString("some words")
+	err := ti.AppendString("some words")
 	is.NoErr(err)
 
 	is.Equal(ti.size(), 2)
@@ -308,7 +308,7 @@ func TestTextIndex_search(t *testing.T) {
 	// test prohibited
 	t.Run("mustNot should always have search.QueryTerm.Prohibited == true", func(t *testing.T) {
 		ti := NewTextIndex()
-		err := ti.appendString("something")
+		err := ti.AppendString("something")
 		is.NoErr(err)
 
 		queryParser, err := search.NewQueryParser()
@@ -336,7 +336,7 @@ func TestTextIndex_search(t *testing.T) {
 			queryParser, err := search.NewQueryParser()
 			is.NoErr(err)
 
-			err = ti.appendString(tt.args.text)
+			err = ti.AppendString(tt.args.text)
 			is.NoErr(err)
 
 			query, err := queryParser.Parse(tt.args.query)
@@ -508,7 +508,7 @@ func TestTextIndex_matchCustom(t *testing.T) {
 		},
 		{
 			"phrase query (match) with slop",
-			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen helden, ware piraten."},
+			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen hélden, ware piraten."},
 			args{
 				&search.QueryTerm{Value: "helden ware", Phrase: true, Slop: 1},
 				newSearchHits(),
@@ -528,7 +528,7 @@ func TestTextIndex_matchCustom(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ti.reset()
 
-			err := ti.appendString(tt.fields.text)
+			err := ti.AppendString(tt.fields.text)
 			is.NoErr(err)
 
 			if got := tt.matchFn(tt.args.qt, tt.args.hits); got != tt.want {
@@ -624,7 +624,7 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			queryParser, err := search.NewQueryParser()
 			is.NoErr(err)
 
-			err = ti.appendString(tt.args.text)
+			err = ti.AppendString(tt.args.text)
 			is.NoErr(err)
 
 			query, err := queryParser.Parse(tt.args.query)
@@ -636,6 +636,50 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 
 			if diff := cmp.Diff(tt.wantHits, tt.args.hits, cmp.AllowUnexported(SearchHits{})); diff != "" {
 				t.Errorf("TextIndex.search() %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
+	}
+}
+
+func TestSearchHits_Total(t *testing.T) {
+	type fields struct {
+		hits map[string]int
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   int
+	}{
+		{
+			"no results",
+			fields{hits: map[string]int{}},
+			0,
+		},
+		{
+			"no results",
+			fields{hits: map[string]int{
+				"one":       1,
+				"two times": 2,
+				"many":      10,
+			}},
+			13,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			sh := &SearchHits{
+				hits: tt.fields.hits,
+			}
+			if got := sh.Total(); got != tt.want {
+				t.Errorf("SearchHits.Total() = %v, want %v", got, tt.want)
+			}
+
+			if diff := cmp.Diff(sh.hits, sh.Hits(), cmp.AllowUnexported(SearchHits{})); diff != "" {
+				t.Errorf("SearchHits.Total() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
 	}

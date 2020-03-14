@@ -44,8 +44,8 @@ func NewTextIndex() *TextIndex {
 	}
 }
 
-// appendBytes extract words from bytes and updates the TextIndex.
-func (ti *TextIndex) appendBytes(b []byte) error {
+// AppendBytes extract words from bytes and updates the TextIndex.
+func (ti *TextIndex) AppendBytes(b []byte) error {
 	words := bytes.Fields(b)
 	for idx, word := range words {
 		err := ti.addTerm(string(word), idx)
@@ -57,8 +57,8 @@ func (ti *TextIndex) appendBytes(b []byte) error {
 	return nil
 }
 
-// appendBytes extract words from bytes and updates the TextIndex.
-func (ti *TextIndex) appendString(text string) error {
+// AppendBytes extract words from bytes and updates the TextIndex.
+func (ti *TextIndex) AppendString(text string) error {
 	words := strings.Fields(text)
 	for idx, word := range words {
 		err := ti.addTerm(word, idx)
@@ -90,10 +90,14 @@ func (ti *TextIndex) setTermVector(term string, pos int, split bool) {
 }
 
 func (ti *TextIndex) addTerm(word string, pos int) error {
+	if word == "" {
+		return fmt.Errorf("cannot index empty string")
+	}
+
 	analyzedTerm := ti.a.Transform(word)
 
 	if analyzedTerm == "" {
-		return fmt.Errorf("cannot index empty string")
+		return nil
 	}
 
 	ti.setTermVector(analyzedTerm, pos, false)
@@ -119,6 +123,19 @@ func newSearchHits() *SearchHits {
 
 func (sh *SearchHits) appendTerm(term string, count int) {
 	sh.hits[term] = count
+}
+
+func (sh *SearchHits) Total() int {
+	var total int
+	for _, hitCount := range sh.hits {
+		total += hitCount
+	}
+
+	return total
+}
+
+func (sh *SearchHits) Hits() map[string]int {
+	return sh.hits
 }
 
 func (ti *TextIndex) match(qt *search.QueryTerm, hits *SearchHits) bool {
