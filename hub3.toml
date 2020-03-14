@@ -16,7 +16,7 @@ indexName = "hub3"
 # if _mapping and _search proxies should be enabled
 proxy = true 
 # Store fragments 
-fragments = true
+fragments = false
 # index in V1 mode (will disable fragments and v2 style indexing)
 indexV1 = false
 # Enable trace logging of ElasticSearch 
@@ -65,7 +65,7 @@ sentrydsn = ""
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = true
+rdfStoreEnabled = true 
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
@@ -129,10 +129,10 @@ deepzoom = true
 proxyPrefix = "imageproxy"
 
 [cache]
-# Enable HTTP cache
-enabled = false
 # Lifetime of objects in the cache in minutes
 lifeWindowMinutes = 10
+# Enable HTTP cache
+enabled = false
 # APIPrefix to be used for caching. 
 apiPrefix = "/api/cache/http"
 # strip prefix determines if cache prefix should be included in the proxy request
@@ -164,6 +164,46 @@ singleEndpoint = "NL-.*"
 [ead]
 searchURL = "https://test.nationaalarchief.nl"
 genreFormDefault = "other/unknown"
+treeFields = [
+    # did
+    "ead-rdf_unittitle",
+    "ead-rdf_unitID",
+    "ead-rdf_unitDate",
+    "ead-rdf_physdesc",
+    "ead-rdf_physdescExtent",
+    "ead-rdf_physdescDimension",
+    "ead-rdf_physdescPhysfacet",
+    "ead-rdf_physloc",
+    "ead-rdf_materialspec",
+    "ead-rdf_origination",
+    "ead-rdf_abstract",
+    "ead-rdf_langmaterial",
+    "ead-rdf_dao",
+    # clevel
+    "ead-rdf_accessrestrict",
+    "ead-rdf_controlaccess",
+    "ead-rdf_odd",
+    "ead-rdf_scopecontent",
+    "ead-rdf_phystech",
+    "ead-rdf_custodhist",
+    "ead-rdf_altformavail",
+    "ead-rdf_acqinfo",
+    "ead-rdf_userestrict",
+    "ead-rdf_accruals",
+    "ead-rdf_appraisal",
+    "ead-rdf_bioghist",
+    "ead-rdf_relatedmaterial",
+    "ead-rdf_arrangement",
+    "ead-rdf_separatedmaterial",
+    "ead-rdf_processinfo",
+    "ead-rdf_otherfindaid",
+    "ead-rdf_originalsloc",
+    "ead-rdf_fileplan",
+    "ead-rdf_descgrp",
+    # should be removed
+    "ead-rdf_genreform",
+]
+
 
 [rdftag]
 # used for title of a resource
