@@ -2,6 +2,7 @@
 package memory
 
 import (
+	"bytes"
 	"errors"
 	"testing"
 
@@ -390,7 +391,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchTerm,
 			true,
-			&SearchHits{hits: map[string]int{"held": 1}},
+			&SearchHits{
+				hits:           map[string]int{"held": 1},
+				matchPositions: map[int]bool{1: true},
+			},
 		},
 		{
 			"no match",
@@ -401,7 +405,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchTerm,
 			false,
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 		},
 		{
 			"prohibited query",
@@ -412,7 +419,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchTerm,
 			false,
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 		},
 		{
 			"prefix query",
@@ -423,7 +433,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchWildcard,
 			true,
-			&SearchHits{hits: map[string]int{"zeeheldenkwartier": 1}},
+			&SearchHits{
+				hits:           map[string]int{"zeeheldenkwartier": 1},
+				matchPositions: map[int]bool{0: true},
+			},
 		},
 		{
 			"suffix query",
@@ -434,7 +447,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchWildcard,
 			true,
-			&SearchHits{hits: map[string]int{"zeeheldenkwartier": 1, "kwartier": 1}},
+			&SearchHits{
+				hits:           map[string]int{"zeeheldenkwartier": 1, "kwartier": 1},
+				matchPositions: map[int]bool{0: true, 2: true},
+			},
 		},
 		{
 			"fuzzy query",
@@ -445,7 +461,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchFuzzy,
 			true,
-			&SearchHits{hits: map[string]int{"batauia": 1}},
+			&SearchHits{
+				hits:           map[string]int{"batauia": 1},
+				matchPositions: map[int]bool{0: true},
+			},
 		},
 		{
 			"fuzzy query (no match)",
@@ -456,7 +475,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchFuzzy,
 			false,
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 		},
 		{
 			"phrase query (no match)",
@@ -467,7 +489,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			false,
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 		},
 		{
 			"single word phrase query (match)",
@@ -478,9 +503,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{hits: map[string]int{
-				"de": 2,
-			}},
+			&SearchHits{
+				hits:           map[string]int{"de": 2},
+				matchPositions: map[int]bool{3: true, 6: true},
+			},
 		},
 		{
 			"phrase query (match)",
@@ -491,9 +517,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{hits: map[string]int{
-				"ware helden": 2,
-			}},
+			&SearchHits{
+				hits:           map[string]int{"ware helden": 2},
+				matchPositions: map[int]bool{0: true, 1: true, 8: true, 9: true},
+			},
 		},
 		{
 			"phrase query (no match) without slop",
@@ -504,7 +531,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			false,
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 		},
 		{
 			"phrase query (match) with slop",
@@ -515,10 +545,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{hits: map[string]int{
-				"ware helden": 2,
-				"helden ware": 1,
-			}},
+			&SearchHits{
+				hits:           map[string]int{"ware helden": 2, "helden ware": 1},
+				matchPositions: map[int]bool{0: true, 1: true, 8: true, 9: true, 12: true, 13: true},
+			},
 		},
 	}
 
@@ -565,7 +595,10 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"vredespaleis",
 				newSearchHits(),
 			},
-			&SearchHits{hits: map[string]int{"vrede": 0}},
+			&SearchHits{
+				hits:           map[string]int{"vrede": 0},
+				matchPositions: map[int]bool{},
+			},
 			false,
 			false,
 		},
@@ -576,7 +609,10 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"vredespaleis",
 				newSearchHits(),
 			},
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 			true,
 			true,
 		},
@@ -587,7 +623,10 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"word something ガンダムバルバトス word3",
 				newSearchHits(),
 			},
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 			true,
 			true,
 		},
@@ -598,7 +637,10 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"word something ガンダムバルバトス word3",
 				newSearchHits(),
 			},
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 			true,
 			true,
 		},
@@ -609,7 +651,10 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"word1 something ガンダムバルバトス word3",
 				newSearchHits(),
 			},
-			&SearchHits{hits: map[string]int{}},
+			&SearchHits{
+				hits:           map[string]int{},
+				matchPositions: map[int]bool{},
+			},
 			true,
 			true,
 		},
@@ -682,5 +727,81 @@ func TestSearchHits_Total(t *testing.T) {
 				t.Errorf("SearchHits.Total() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
+	}
+}
+
+func TestSearchHits_Merge(t *testing.T) {
+	type fields struct {
+		hits map[string]int
+	}
+
+	type args struct {
+		hits map[string]int
+	}
+
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		wantHits map[string]int
+	}{
+		{
+			"source only merge",
+			fields{hits: map[string]int{"word": 1}},
+			args{hits: map[string]int{}},
+			map[string]int{"word": 1},
+		},
+		{
+			"partial merge",
+			fields{hits: map[string]int{"word": 1}},
+			args{hits: map[string]int{"word": 1, "words": 2}},
+			map[string]int{"word": 2, "words": 2},
+		},
+		{
+			"target only merge",
+			fields{hits: map[string]int{}},
+			args{hits: map[string]int{"word": 1, "words": 2}},
+			map[string]int{"word": 1, "words": 2},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			src := &SearchHits{
+				hits: tt.fields.hits,
+			}
+
+			target := newSearchHits()
+			target.hits = tt.args.hits
+
+			src.Merge(target)
+
+			if diff := cmp.Diff(tt.wantHits, src.Hits(), cmp.AllowUnexported(SearchHits{})); diff != "" {
+				t.Errorf("SearchHits.Merge() %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
+	}
+}
+
+func TestTextIndexSerialization(t *testing.T) {
+	is := is.New(t)
+
+	ti := NewTextIndex()
+	err := ti.AppendString("One two three. One two. One two three")
+	is.NoErr(err)
+
+	var buf bytes.Buffer
+
+	err = ti.writeTo(&buf)
+	is.NoErr(err)
+
+	newTi := NewTextIndex()
+	err = newTi.readFrom(&buf)
+	is.NoErr(err)
+
+	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, TermVector{})); diff != "" {
+		t.Errorf("TextIndex serialization = mismatch (-want +got):\n%s", diff)
 	}
 }

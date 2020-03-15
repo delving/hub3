@@ -62,7 +62,7 @@ type QueryTerm struct {
 // Type returns the type of the Query.
 func (qt *QueryTerm) Type() QueryType {
 	switch {
-	case qt.isBoolQuery():
+	case qt.IsBoolQuery():
 		return BoolQuery
 	case qt.Phrase:
 		return PhraseQuery
@@ -77,7 +77,7 @@ func (qt *QueryTerm) Type() QueryType {
 
 // isBoolQuery returns true if the QueryTerm has a nested QueryTerm in a Boolean
 // clause.
-func (qt *QueryTerm) isBoolQuery() bool {
+func (qt *QueryTerm) IsBoolQuery() bool {
 	if len(qt.shouldClauses) > 0 {
 		return true
 	}
@@ -247,8 +247,10 @@ type QueryParser struct {
 	defaultAND bool
 	s          *scanner.Scanner
 	a          Analyzer
+	fields     []string
 }
 
+// NewQueryParser returns a QueryParser that can be used to parse user queries.
 func NewQueryParser(options ...QueryOption) (*QueryParser, error) {
 	var s scanner.Scanner
 	// set custom tokenization rune
@@ -268,6 +270,7 @@ func NewQueryParser(options ...QueryOption) (*QueryParser, error) {
 	return qp, nil
 }
 
+// SetDefaultOperator sets the default boolean search operator for the query
 func SetDefaultOperator(op Operator) QueryOption {
 	return func(qp *QueryParser) error {
 		switch op {
@@ -281,6 +284,19 @@ func SetDefaultOperator(op Operator) QueryOption {
 
 		return nil
 	}
+}
+
+// SetFields sets the default search fields for the query
+func SetFields(field ...string) QueryOption {
+	return func(qp *QueryParser) error {
+		qp.fields = field
+		return nil
+	}
+}
+
+// Fields returns the default search fields for the query
+func (qp *QueryParser) Fields() []string {
+	return qp.fields
 }
 
 func (qp *QueryParser) appendQuery(parent *QueryTerm, op Operator, qt *QueryTerm) {

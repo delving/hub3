@@ -2,8 +2,10 @@ package memory
 
 import (
 	"bytes"
+	"encoding/gob"
 	"errors"
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 
@@ -14,19 +16,19 @@ var (
 	ErrSearchNoMatch = errors.New("the search query does not match the index")
 )
 
-type termVector struct {
-	position map[int]bool
-	split    bool // replace with elasticsearch term for synonym in same position
+type TermVector struct {
+	Positions map[int]bool
+	Split     bool // replace with elasticsearch term for synonym in same position
 }
 
-func newTermVector() *termVector {
-	return &termVector{
-		position: make(map[int]bool),
+func newTermVector() *TermVector {
+	return &TermVector{
+		Positions: make(map[int]bool),
 	}
 }
 
-func (tv *termVector) size() int {
-	return len(tv.position)
+func (tv *TermVector) Size() int {
+	return len(tv.Positions)
 }
 
 // TestIndex is a single document full-text index.
@@ -34,13 +36,13 @@ func (tv *termVector) size() int {
 // and appends to the known state. It is not replaced. To reset the index to
 // an empty state you have to call the reset method.
 type TextIndex struct {
-	terms map[string]*termVector
+	terms map[string]*TermVector
 	a     search.Analyzer
 }
 
 func NewTextIndex() *TextIndex {
 	return &TextIndex{
-		terms: make(map[string]*termVector),
+		terms: make(map[string]*TermVector),
 	}
 }
 
@@ -59,7 +61,7 @@ func (ti *TextIndex) AppendBytes(b []byte) error {
 
 // AppendBytes extract words from bytes and updates the TextIndex.
 func (ti *TextIndex) AppendString(text string) error {
-	words := strings.Fields(text)
+	words := ti.TokenizeString(text)
 	for idx, word := range words {
 		err := ti.addTerm(word, idx)
 		if err != nil {
@@ -70,8 +72,12 @@ func (ti *TextIndex) AppendString(text string) error {
 	return nil
 }
 
+func (ti *TextIndex) TokenizeString(text string) []string {
+	return strings.Fields(text)
+}
+
 func (ti *TextIndex) reset() {
-	ti.terms = make(map[string]*termVector)
+	ti.terms = make(map[string]*TermVector)
 }
 
 func (ti *TextIndex) size() int {
@@ -83,10 +89,10 @@ func (ti *TextIndex) setTermVector(term string, pos int, split bool) {
 	if !ok {
 		tv = newTermVector()
 		ti.terms[term] = tv
-		tv.split = split
+		tv.Split = split
 	}
 
-	tv.position[pos] = true
+	tv.Positions[pos] = true
 }
 
 func (ti *TextIndex) addTerm(word string, pos int) error {
@@ -109,33 +115,6 @@ func (ti *TextIndex) addTerm(word string, pos int) error {
 	}
 
 	return nil
-}
-
-type SearchHits struct {
-	hits map[string]int
-}
-
-func newSearchHits() *SearchHits {
-	return &SearchHits{
-		hits: make(map[string]int),
-	}
-}
-
-func (sh *SearchHits) appendTerm(term string, count int) {
-	sh.hits[term] = count
-}
-
-func (sh *SearchHits) Total() int {
-	var total int
-	for _, hitCount := range sh.hits {
-		total += hitCount
-	}
-
-	return total
-}
-
-func (sh *SearchHits) Hits() map[string]int {
-	return sh.hits
 }
 
 func (ti *TextIndex) match(qt *search.QueryTerm, hits *SearchHits) bool {
@@ -165,7 +144,7 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *SearchHits) bool {
 			return false
 		}
 
-		hits.appendTerm(qt.Value, term.size())
+		hits.appendTerm(qt.Value, term.Size(), term.Positions)
 
 		return true
 	}
@@ -186,7 +165,7 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *SearchHits) bool {
 				var posMatch bool
 
 				for _, nextPos := range search.ValidPhrasePosition(pos, qt.Slop) {
-					_, ok := term.position[nextPos]
+					_, ok := term.Positions[nextPos]
 					if ok {
 						phrasePositions[nextPos] = word
 						posMatch = true
@@ -205,7 +184,7 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *SearchHits) bool {
 		}
 
 		nextPositions = []int{}
-		for pos := range term.position {
+		for pos := range term.Positions {
 			nextPositions = append(nextPositions, pos)
 		}
 
@@ -215,10 +194,17 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *SearchHits) bool {
 	matches := len(phrasePositions)
 
 	if matches != 0 {
+		wordPositions := map[int]bool{}
+		for pos := range phrasePositions {
+			wordPositions[pos] = true
+		}
+
+		hits.apppendPositions(wordPositions)
+
 		phraseHits := sortAndCountPhrases(words, phrasePositions)
 
 		for k, v := range phraseHits {
-			hits.appendTerm(k, v)
+			hits.appendTerm(k, v, map[int]bool{})
 		}
 	}
 
@@ -265,7 +251,7 @@ func (ti *TextIndex) matchFuzzy(qt *search.QueryTerm, hits *SearchHits) bool {
 		if ok {
 			hasMatch = true
 
-			hits.appendTerm(k, v.size())
+			hits.appendTerm(k, v.Size(), v.Positions)
 		}
 	}
 
@@ -288,7 +274,7 @@ func (ti *TextIndex) matchWildcard(qt *search.QueryTerm, hits *SearchHits) bool 
 		if matcher(k, qt.Value) {
 			hasMatch = true
 
-			hits.appendTerm(k, v.size())
+			hits.appendTerm(k, v.Size(), v.Positions)
 		}
 	}
 
@@ -307,11 +293,15 @@ func (ti *TextIndex) matchTerm(qt *search.QueryTerm, hits *SearchHits) bool {
 
 	var count int
 
-	if ok {
-		count = term.size()
+	if term == nil {
+		term = newTermVector()
 	}
 
-	hits.appendTerm(qt.Value, count)
+	if ok {
+		count = term.Size()
+	}
+
+	hits.appendTerm(qt.Value, count, term.Positions)
 
 	return true
 }
@@ -408,22 +398,84 @@ func (ti *TextIndex) search(query *search.QueryTerm, hits *SearchHits) error {
 	return nil
 }
 
-// func (dc *DescriptionCounter) writeTo(w io.Writer) error {
+func (ti *TextIndex) writeTo(w io.Writer) error {
+	e := gob.NewEncoder(w)
 
-// jsonOutput, err := json.MarshalIndent(dc, "", " ")
-// if err != nil {
-// return fmt.Errorf("nable to marshall description to JSON; %w", err)
-// }
+	err := e.Encode(ti.terms)
+	if err != nil {
+		return fmt.Errorf("unable to marshall TextIndex to GOB; %w", err)
+	}
 
-// _, err = w.Write(jsonOutput)
-// if err != nil {
-// return fmt.Errorf("unable to write json; %w", err)
-// }
+	return nil
+}
 
-// return nil
-// }
+func (ti *TextIndex) readFrom(r io.Reader) error {
+	var terms map[string]*TermVector
 
-// func (dc *DescriptionCounter) readFrom(r io.Reader) error {
-// d := json.NewDecoder(r)
-// return d.Decode(dc)
-// }
+	d := gob.NewDecoder(r)
+
+	err := d.Decode(&terms)
+	if err != nil {
+		return err
+	}
+
+	ti.terms = terms
+
+	return nil
+}
+
+type SearchHits struct {
+	hits           map[string]int
+	matchPositions map[int]bool
+}
+
+func newSearchHits() *SearchHits {
+	return &SearchHits{
+		hits:           make(map[string]int),
+		matchPositions: map[int]bool{},
+	}
+}
+
+func (sh *SearchHits) apppendPositions(positions map[int]bool) {
+	sh.mergePositions(positions)
+}
+
+func (sh *SearchHits) appendTerm(term string, count int, positions map[int]bool) {
+	sh.hits[term] = count
+	sh.mergePositions(positions)
+}
+
+func (sh *SearchHits) Total() int {
+	var total int
+	for _, hitCount := range sh.hits {
+		total += hitCount
+	}
+
+	return total
+}
+
+func (sh *SearchHits) Hits() map[string]int {
+	return sh.hits
+}
+
+func (sh *SearchHits) Merge(searchHits *SearchHits) {
+	for key, count := range searchHits.hits {
+		v, ok := sh.hits[key]
+		if ok {
+			sh.hits[key] = v + count
+			continue
+		}
+
+		sh.hits[key] = count
+	}
+}
+func (sh *SearchHits) mergePositions(positions map[int]bool) {
+	for key := range positions {
+		_, ok := sh.matchPositions[key]
+		if ok {
+			continue
+		}
+
+		sh.matchPositions[key] = true
+	}
+}

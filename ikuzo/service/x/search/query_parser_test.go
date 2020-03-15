@@ -449,6 +449,53 @@ func TestQueryParser_runParser(t *testing.T) {
 	}
 }
 
+func TestSetFields(t *testing.T) {
+	is := is.New(t)
+
+	qt, err := NewQueryParser()
+	is.NoErr(err)
+	is.Equal(qt.defaultAND, false)
+
+	tests := []struct {
+		name    string
+		want    []string
+		wantErr bool
+	}{
+		{
+			"when empty no fields should be set",
+			[]string{},
+			false,
+		},
+		{
+			"one field",
+			[]string{"one"},
+			false,
+		},
+		{
+			"two fields with boost",
+			[]string{"one^1.2", "two"},
+			false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			qt, err := NewQueryParser(SetFields(tt.want...))
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("QueryParser.SetDefaultOperator() %s error = %v, wantErr %v", tt.name, err, tt.wantErr)
+				return
+			}
+
+			if diff := cmp.Diff(tt.want, qt.Fields(), cmp.AllowUnexported(QueryTerm{})); diff != "" {
+				t.Errorf("SetFields(); %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
+	}
+}
+
 func TestSetDefaultOperator(t *testing.T) {
 	is := is.New(t)
 
@@ -861,13 +908,13 @@ func TestQueryTerm_setWildcard(t *testing.T) {
 	}
 }
 
-func TestQueryTerm_isBoolQuery(t *testing.T) {
+func TestQueryTerm_IsBoolQuery(t *testing.T) {
 	is := is.New(t)
 
 	// term with empty clauses
 	t.Run("only term query", func(t *testing.T) {
 		qt := &QueryTerm{Field: "title", Value: "value"}
-		if qt.isBoolQuery() == true {
+		if qt.IsBoolQuery() == true {
 			t.Errorf("QueryTerm.HasClauses() only term query, should have no clauses")
 		}
 	})
@@ -914,7 +961,7 @@ func TestQueryTerm_isBoolQuery(t *testing.T) {
 		is.NoErr(err)
 
 		t.Run(tt.name, func(t *testing.T) {
-			if got := qt.isBoolQuery(); got != tt.want {
+			if got := qt.IsBoolQuery(); got != tt.want {
 				t.Errorf("QueryTerm.HasClauses() %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
