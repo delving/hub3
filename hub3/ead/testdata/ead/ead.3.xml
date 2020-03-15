@@ -1,15 +1,15 @@
-<c01 level="series">
+<c level="series">
     <did>
         <unitid type="series_code">G.</unitid>
         <unittitle>Aanvulling 2009</unittitle>
     </did>
-    <c02 level="subseries">
+    <c level="subseries">
         <did>
             <unitid type="series_code">5.</unitid>
             <unittitle>Nederlandsche Grootboek-bank 
             <unitdate calendar="gregorian" era="ce" /></unittitle>
         </did>
-        <c03 level="file">
+        <c level="file">
             <did>
                 <unitid identifier="3464776" type="ABS">331</unitid>
                 <unitid audience="internal" type="handle">http://proxy.handle.net/10648/f4c4c64a-fe32-447e-8e29-2d578401f910</unitid>
@@ -20,8 +20,8 @@
             <scopecontent>
                 <p>De oprichting van de bank werd goedgekeurd bij Koninklijk Besluit van 24 april 1889, nr. 23.</p>
             </scopecontent>
-        </c03>
-        <c03 level="file">
+        </c>
+        <c level="file">
             <did>
                 <unitid identifier="3464777" type="ABS">332</unitid>
                 <unitid audience="internal" type="handle">http://proxy.handle.net/10648/07d2b367-1c1e-4723-9e7c-db380b34b197</unitid>
@@ -32,8 +32,8 @@
             <scopecontent>
                 <p>Bevat nog enkele toegevoegde stukken van later datum.</p>
             </scopecontent>
-        </c03>
-        <c03 level="file">
+        </c>
+        <c level="file">
             <did>
                 <unitid identifier="3464778" type="ABS">333</unitid>
                 <unitid audience="internal" type="handle">http://proxy.handle.net/10648/6da7ae92-2d6d-4fef-a09c-b11155d7cdd8</unitid>
@@ -41,6 +41,6 @@
                 <unitdate calendar="gregorian" era="ce" normal="1907/1918" type="inclusive">1907-1908, 1918</unitdate>
                 <physdesc>1 omslag</physdesc>
             </did>
-        </c03>
-    </c02>
-</c01>
+        </c>
+    </c>
+</c>

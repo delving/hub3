@@ -17,7 +17,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
-	"github.com/olivere/elastic/v7"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 const pathSep string = "~"
@@ -189,6 +189,7 @@ func (nc *NodeCounter) GetCount() uint64 {
 // Nodelist is an optimized lossless Protocol Buffer container.
 func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	nl := &NodeList{}
+
 	if dsc == nil {
 		return nl, 0, nil
 	}
@@ -197,21 +198,24 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
-	for _, nn := range dsc.Nested {
-		node, err := NewNode(nn, []string{}, cfg)
-		if err != nil {
-			return nil, 0, err
-		}
-		nl.Nodes = append(nl.Nodes, node)
-	}
+	// TODO(kiivihal): determine if to support numbered clevels
+	// for _, nn := range dsc.Nested {
+	// node, err := NewNode(nn, []string{}, cfg)
+	// if err != nil {
+	// return nil, 0, err
+	// }
+	// nl.Nodes = append(nl.Nodes, node)
+	// }
 
 	for _, nn := range dsc.Cc {
 		node, err := NewNode(nn, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
+
 		nl.Nodes = append(nl.Nodes, node)
 	}
+
 	return nl, cfg.Counter.GetCount(), nil
 }
 
@@ -233,12 +237,13 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	if err != nil {
 		return err
 	}
-	r := elastic.NewBulkIndexRequest().
+
+	req := elastic.NewBulkIndexRequest().
 		Index(c.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
-	p.Add(r)
+	p.Add(req)
 
 	if c.Config.ElasticSearch.Fragments {
 		err := fragments.IndexFragments(rm, fg, p)
@@ -290,7 +295,7 @@ func (h *Header) GetTreeLabel() string {
 // NewNodeID converts a unitid field from the EAD did to a NodeID
 func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 	id := &NodeID{
-		ID:       ui.ID,
+		ID:       ui.Unitid,
 		TypeID:   ui.Attridentifier,
 		Type:     ui.Attrtype,
 		Audience: ui.Attraudience,
@@ -307,22 +312,25 @@ func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
+
 		switch id.Type {
 		case "ABS", "series_code", "blank", "analoog", "BD", "":
 			inventoryID = id.ID
 		}
+
 		ids = append(ids, id)
 	}
+
 	return ids, inventoryID, nil
 }
 
-// NewNodeDate extract date infomation frme the EAD unitdate
+// NewNodeDate extract date information frme the EAD unitdate
 func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 	nDate := &NodeDate{
 		Calendar: date.Attrcalendar,
 		Era:      date.Attrera,
 		Normal:   date.Attrnormal,
-		Label:    date.Date,
+		Label:    date.Unitdate,
 		Type:     date.Attrtype,
 	}
 	return nDate, nil
@@ -352,18 +360,19 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		Genreform: c.Config.EAD.GenreFormDefault,
 	}
 
-	if cdid.Cphysdesc != nil {
-		header.Physdesc = sanitizeXMLAsString(cdid.Cphysdesc.Raw)
+	if len(cdid.Cphysdesc) != 0 {
+		header.Physdesc = sanitizeXMLAsString(cdid.Cphysdesc[0].Raw)
 	}
 
-	if cdid.Cdao != nil {
+	if len(cdid.Cdao) != 0 {
 		header.HasDigitalObject = true
-		header.DaoLink = cdid.Cdao.Attrhref
+		header.DaoLink = cdid.Cdao[0].Attrhref
 	}
 
 	for _, label := range cdid.Cunittitle {
 		// todo interpolation of date and title is not correct at the moment.
 		dates := []string{}
+
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
 			for _, date := range label.Cunitdate {
@@ -371,6 +380,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 				if err != nil {
 					return nil, err
 				}
+
 				header.Date = append(header.Date, nodeDate)
 				dates = append(dates, nodeDate.Label)
 			}
@@ -384,12 +394,13 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		header.Date = append(header.Date, nodeDate)
 	}
 
 	for _, unitID := range cdid.Cunitid {
 		// Mark the header as Born Digital when we find a BD type unitid.
-		if strings.ToLower(unitID.Attrtype) == "bd" {
+		if strings.EqualFold(unitID.Attrtype, "bd") {
 			header.AltRender = "Born Digital"
 		}
 	}
@@ -401,10 +412,11 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	if inventoryID != "" {
 		header.InventoryNumber = inventoryID
 	}
+
 	header.ID = append(header.ID, nodeIDs...)
 
-	if cdid.Cphysloc != nil {
-		header.Physloc = string(cdid.Cphysloc.Raw)
+	if len(cdid.Cphysloc) != 0 {
+		header.Physloc = string(cdid.Cphysloc[0].Raw)
 	}
 
 	return header, nil
@@ -460,11 +472,15 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	// add accessrestrict
 	if ar := c.GetCaccessrestrict(); ar != nil {
-		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
-		for _, p := range ar.Cp {
-			if p.Cref != nil && p.Cref.Cdate != nil {
-				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
+		if len(c.GetCaccessrestrict()) != 0 {
+			arFirst := c.GetCaccessrestrict()[0]
+			node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(arFirst.Raw)))
+			for _, p := range arFirst.Cp {
+				if len(p.Cref) != 0 && len(p.Cref[0].Cdate) != 0 {
+					node.AccessRestrictYear = p.Cref[0].Cdate[0].Attrnormal
+				}
 			}
+
 		}
 	}
 

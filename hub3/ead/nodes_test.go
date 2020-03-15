@@ -117,8 +117,8 @@ var _ = Describe("Nodes", func() {
 		})
 
 		Context("when creating triples with parents", func() {
-			c03 := new(Cc03)
-			err := parseUtil(c03, "ead.4.xml")
+			cc := new(Cc)
+			err := parseUtil(cc, "ead.4.xml")
 			cfg := NewNodeConfig(context.Background())
 			cfg.AddLabel("c1", "c1 label")
 			cfg.AddLabel("c2", "c2 label")
@@ -129,7 +129,7 @@ var _ = Describe("Nodes", func() {
 
 			It("it should not throw an error", func() {
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(cc, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(node).ToNot(BeNil())
 			})
@@ -137,14 +137,14 @@ var _ = Describe("Nodes", func() {
 			It("should have parentIDS", func() {
 				triples := node.Triples(cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(7))
+				Expect(triples).To(HaveLen(11))
 			})
 
 		})
 
 		Context("when creating triples from a Header", func() {
-			c03 := new(Cc03)
-			err := parseUtil(c03, "ead.4.xml")
+			cc := new(Cc)
+			err := parseUtil(cc, "ead.4.xml")
 			cfg := NewNodeConfig(context.Background())
 			cfg.OrgID = "test"
 			cfg.Spec = "test_spec"
@@ -155,7 +155,7 @@ var _ = Describe("Nodes", func() {
 			It("it should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(cc, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				h = node.Header

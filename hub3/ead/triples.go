@@ -17,7 +17,7 @@ const (
 
 var space = regexp.MustCompile(`\s+`)
 
-func EADResource(label string) r.Term {
+func NewResource(label string) r.Term {
 	return r.NewResource(fmt.Sprintf("%s/%s", eadDomainNS, label))
 }
 
@@ -33,9 +33,8 @@ func NewSubject(spec, eadType, id string) string {
 	)
 }
 
-func (did *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
+func (cdid *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
 	triples := []*r.Triple{}
-	// TODO add type triple
 
 	t := func(s r.Term, p, o string, oType convert) {
 		t := addNonEmptyTriple(s, p, o, oType)
@@ -49,60 +48,61 @@ func (did *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
 		return string(bytes.TrimSpace(space.ReplaceAll(b, []byte(" "))))
 	}
 
-	for _, id := range did.Cunitid {
+	for _, id := range cdid.Cunitid {
 		if id.Attraudience != "internal" {
-			t(s, "unitID", id.ID, r.NewLiteral)
+			t(s, "unitID", id.Unitid, r.NewLiteral)
 		}
 	}
 
-	for _, title := range did.Cunittitle {
-		t(s, "unitTitle", str(title.RawTitle), r.NewLiteral)
+	for _, title := range cdid.Cunittitle {
+		t(s, "unitTitle", str(title.Raw), r.NewLiteral)
 	}
 
-	for _, date := range did.Cunitdate {
-		t(s, "unitDate", date.Date, r.NewLiteral)
+	for _, date := range cdid.Cunitdate {
+		t(s, "unitDate", date.Unitdate, r.NewLiteral)
 	}
 
-	if physDesc := did.Cphysdesc; physDesc != nil {
+	for _, physDesc := range cdid.Cphysdesc {
 		for _, extend := range physDesc.Cextent {
 			t(s, "physdescExtent", extend.Extent, r.NewLiteral)
 		}
 
-		for _, dimension := range physDesc.Cdimensions {
-			t(s, "physdescDimension", dimension.Dimension, r.NewLiteral)
+		for _, physFacet := range physDesc.Cphysfacet {
+			t(s, "physdescPhysfacet", physFacet.Physfacet, r.NewLiteral)
 		}
 
-		if physDesc.Cphysfacet != nil {
-			t(s, "physdescPhysfacet", physDesc.Cphysfacet.PhysFacet, r.NewLiteral)
+		for _, dimensions := range physDesc.Cdimensions {
+			t(s, "physdescDimension", dimensions.Dimensions, r.NewLiteral)
 		}
 
-		if physDesc.PhyscDesc != "" {
-			t(s, "physdesc", strings.TrimSpace(physDesc.PhyscDesc), r.NewLiteral)
+		if physDesc.Physdesc != "" {
+			t(s, "physdesc", strings.TrimSpace(physDesc.Physdesc), r.NewLiteral)
 		}
+
 	}
 
-	if did.Cphysloc != nil {
-		t(s, "physloc", did.Cphysloc.PhysLoc, r.NewLiteral)
+	for _, physloc := range cdid.Cphysloc {
+		t(s, "physloc", physloc.Physloc, r.NewLiteral)
 	}
 
-	if did.Cmaterialspec != nil {
-		t(s, "materialspec", str(did.Cmaterialspec.Raw), r.NewLiteral)
+	for _, materialspec := range cdid.Cmaterialspec {
+		t(s, "materialspec", str(materialspec.Raw), r.NewLiteral)
 	}
 
-	if did.Corigination != nil {
-		t(s, "origination", str(did.Corigination.Raw), r.NewLiteral)
+	if cdid.Corigination != nil {
+		t(s, "origination", str(cdid.Corigination.Raw), r.NewLiteral)
 	}
 
-	if did.Cabstract != nil {
-		t(s, "abstract", str(did.Cabstract.Raw), r.NewLiteral)
+	if cdid.Cabstract != nil {
+		t(s, "abstract", str(cdid.Cabstract.Raw), r.NewLiteral)
 	}
 
-	if did.Clangmaterial != nil {
-		t(s, "langmaterial", str(did.Clangmaterial.Raw), r.NewLiteral)
+	if cdid.Clangmaterial != nil {
+		t(s, "langmaterial", str(cdid.Clangmaterial.Raw), r.NewLiteral)
 	}
 
-	if did.Cdao != nil {
-		t(s, "dao", did.Cdao.Attrhref, r.NewLiteral)
+	for _, dao := range cdid.Cdao {
+		t(s, "dao", dao.Attrhref, r.NewLiteral)
 	}
 
 	return triples, nil
@@ -115,18 +115,18 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 	triples := []*r.Triple{
 		r.NewTriple(
 			s,
-			EADResource("hasDid"),
+			NewResource("hasDid"),
 			didSubject,
 		),
 		r.NewTriple(
 			didSubject,
 			r.NewResource(fragments.RDFType),
-			EADResource("Did"),
+			NewResource("Did"),
 		),
 		r.NewTriple(
 			s,
 			r.NewResource(fragments.RDFType),
-			EADResource("Clevel"),
+			NewResource("Clevel"),
 		),
 	}
 
@@ -142,68 +142,68 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 		return string(bytes.TrimSpace(space.ReplaceAll(b, []byte(" "))))
 	}
 
-	if cc.Caccessrestrict != nil {
-		t(s, "accessrestrict", str(cc.Caccessrestrict.Raw), r.NewLiteral)
+	for _, accessrestrict := range cc.Caccessrestrict {
+		t(s, "accessrestrict", str(accessrestrict.Raw), r.NewLiteral)
 	}
 
-	if cc.Ccontrolaccess != nil {
-		t(s, "controlaccess", str(cc.Ccontrolaccess.Raw), r.NewLiteral)
+	for _, controlaccess := range cc.Ccontrolaccess {
+		t(s, "controlaccess", str(controlaccess.Raw), r.NewLiteral)
 	}
 
 	for _, odd := range cc.Codd {
 		t(s, "odd", str(odd.Raw), r.NewLiteral)
 	}
 
-	if cc.Cscopecontent != nil {
-		t(s, "scopecontent", str(cc.Cscopecontent.Raw), r.NewLiteral)
+	for _, scopecontent := range cc.Cscopecontent {
+		t(s, "scopecontent", str(scopecontent.Raw), r.NewLiteral)
 	}
 
 	for _, phystech := range cc.Cphystech {
 		t(s, "phystech", str(phystech.Raw), r.NewLiteral)
 	}
 
-	if cc.Ccustodhist != nil {
-		t(s, "custodhist", str(cc.Ccustodhist.Raw), r.NewLiteral)
+	for _, custodhist := range cc.Ccustodhist {
+		t(s, "custodhist", str(custodhist.Raw), r.NewLiteral)
 	}
 
-	if cc.Caltformavail != nil {
-		t(s, "altformavail", str(cc.Caltformavail.Raw), r.NewLiteral)
+	for _, altformavail := range cc.Caltformavail {
+		t(s, "altformavail", str(altformavail.Raw), r.NewLiteral)
 	}
 
 	for _, info := range cc.Cacqinfo {
 		t(s, "acqinfo", str(info.Raw), r.NewLiteral)
 	}
 
-	if cc.Cuserestrict != nil {
-		t(s, "userestrict", str(cc.Cuserestrict.Raw), r.NewLiteral)
+	for _, userestrict := range cc.Cuserestrict {
+		t(s, "userestrict", str(userestrict.Raw), r.NewLiteral)
 	}
 
-	if cc.Caccruals != nil {
-		t(s, "accruals", str(cc.Caccruals.Raw), r.NewLiteral)
+	for _, accruals := range cc.Caccruals {
+		t(s, "accruals", str(accruals.Raw), r.NewLiteral)
 	}
 
-	if cc.Cappraisal != nil {
-		t(s, "appraisal", str(cc.Cappraisal.Raw), r.NewLiteral)
+	for _, appraisal := range cc.Cappraisal {
+		t(s, "appraisal", str(appraisal.Raw), r.NewLiteral)
 	}
 
 	for _, bioghist := range cc.Cbioghist {
 		t(s, "bioghist", str(bioghist.Raw), r.NewLiteral)
 	}
 
-	if cc.Crelatedmaterial != nil {
-		t(s, "relatedmaterial", str(cc.Crelatedmaterial.Raw), r.NewLiteral)
+	for _, relatedmaterial := range cc.Crelatedmaterial {
+		t(s, "relatedmaterial", str(relatedmaterial.Raw), r.NewLiteral)
 	}
 
-	if cc.Carrangement != nil {
-		t(s, "arrangement", str(cc.Carrangement.Raw), r.NewLiteral)
+	for _, arrangement := range cc.Carrangement {
+		t(s, "arrangement", str(arrangement.Raw), r.NewLiteral)
 	}
 
 	for _, separatedmaterial := range cc.Cseparatedmaterial {
 		t(s, "separatedmaterial", str(separatedmaterial.Raw), r.NewLiteral)
 	}
 
-	if cc.Cprocessinfo != nil {
-		t(s, "processinfo", str(cc.Cprocessinfo.Raw), r.NewLiteral)
+	for _, processinfo := range cc.Cprocessinfo {
+		t(s, "processinfo", str(processinfo.Raw), r.NewLiteral)
 	}
 
 	for _, other := range cc.Cotherfindaid {

@@ -81,7 +81,7 @@ var ESMapping = `{
 				"protobuf": {
 					"type": "object",
 					"properties": {
-						"type": {"type": "keyword"},
+						"messageType": {"type": "keyword"},
 						"data": {
 							"type": "keyword",
 							"store": true,

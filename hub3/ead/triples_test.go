@@ -34,8 +34,8 @@ func TestDidTriples(t *testing.T) {
 			"Spieghel der Zeevaerdt, ... (etc.) door <persname>Lucas Jansz Waghenaer</persname>."),
 		trip(subject, "unitDate", "1584-1585."),
 		trip(subject, "physdescExtent", "1 deel"),
-		trip(subject, "physdescDimension", "39,5 x 28,5 x 4 cm"),
 		trip(subject, "physdescPhysfacet", "Folio"),
+		trip(subject, "physdescDimension", "39,5 x 28,5 x 4 cm"),
 		trip(subject, "physdesc", "1 katern"),
 		trip(subject, "physloc", "Ontbreekt"),
 		trip(subject, "materialspec", "Normale geschreven, getypte en gedrukte documenten, geen bijzondere handschriften."),
@@ -67,7 +67,7 @@ func TestClevelTriples(t *testing.T) {
 	trip := func(s r.Term, p, o string) *r.Triple {
 		return &r.Triple{
 			Subject:   s,
-			Predicate: ead.EADResource(p),
+			Predicate: ead.NewResource(p),
 			Object:    r.NewLiteral(o),
 		}
 	}
@@ -75,18 +75,18 @@ func TestClevelTriples(t *testing.T) {
 	want := []*r.Triple{
 		r.NewTriple(
 			subject,
-			ead.EADResource("hasDid"),
+			ead.NewResource("hasDid"),
 			didSubject,
 		),
 		r.NewTriple(
 			didSubject,
 			r.NewResource(fragments.RDFType),
-			ead.EADResource("Did"),
+			ead.NewResource("Did"),
 		),
 		r.NewTriple(
 			subject,
 			r.NewResource(fragments.RDFType),
-			ead.EADResource("Clevel"),
+			ead.NewResource("Clevel"),
 		),
 		trip(subject, "accessrestrict",
 			"<head>Openbaarheidsbeperkingen</head> <legalstatus type=\"ABS\">Volledig openbaar.</legalstatus>"),
@@ -98,6 +98,7 @@ func TestClevelTriples(t *testing.T) {
 			"<p>Eerste en tweede deel in &#xE9;&#xE9;n band<lb/>Bevat 44 kaarten in koperdruk</p>"),
 		trip(subject, "phystech", "<p>Niet raadpleegbaar</p>"),
 		trip(subject, "custodhist", "<p>Niet bekend</p>"),
+		trip(subject, "altformavail", "<p>Zie facsimile studiezaal: GEO F 515</p>"),
 		trip(subject, "altformavail", "<p>Kaart 1: gefacsimileerd in </p>"),
 		trip(subject, "acqinfo", "<p>Aanwinsten: 1866 A IV</p>"),
 		trip(subject, "userestrict", "<p>Dit archief wordt gedigitaliseerd.</p>"),

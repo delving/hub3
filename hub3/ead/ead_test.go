@@ -66,7 +66,7 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have c-levels", func() {
-				Expect(dsc.Nested).To(HaveLen(1))
+				Expect(dsc.Cc).To(HaveLen(1))
 				cfg := NewNodeConfig(context.Background())
 				nl, seen, err := dsc.NewNodeList(cfg)
 				Expect(seen).To(Equal(uint64(1)))
@@ -77,15 +77,15 @@ var _ = Describe("Ead", func() {
 		})
 
 		Context("for the c01", func() {
-			c01 := new(Cc01)
-			err := parseUtil(c01, "ead.2.xml")
+			cc := new(Cc)
+			err := parseUtil(cc, "ead.2.xml")
 			cfg := NewNodeConfig(context.Background())
 			var node *Node
 
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
-				Expect(c01.GetXMLName().Local).To(Equal("c01"))
-				node, err = NewNode(c01, []string{}, cfg)
+				Expect(cc.GetXMLName().Local).To(Equal("c"))
+				node, err = NewNode(cc, []string{}, cfg)
 				Expect(node.Order).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 			})
@@ -93,7 +93,7 @@ var _ = Describe("Ead", func() {
 			It("should have a cTag", func() {
 				Expect(node).ToNot(BeNil())
 				Expect(node.CTag).ToNot(BeEmpty())
-				Expect(node.CTag).To(Equal("c01"))
+				Expect(node.CTag).To(Equal("c"))
 				Expect(node.Depth).To(Equal(int32(1)))
 			})
 
@@ -102,7 +102,7 @@ var _ = Describe("Ead", func() {
 			})
 
 			It("should have a type", func() {
-				Expect(c01.GetAttrlevel()).To(Equal("series"))
+				Expect(cc.GetAttrlevel()).To(Equal("series"))
 				//Expect(node.Type).To(Equal("series"))
 			})
 
@@ -208,7 +208,7 @@ var _ = Describe("Ead", func() {
 				})
 
 				It("should have the date as string", func() {
-					Expect(nDate.Label).To(Equal(unitDate.Date))
+					Expect(nDate.Label).To(Equal(unitDate.Unitdate))
 				})
 
 			})
@@ -221,7 +221,7 @@ var _ = Describe("Ead", func() {
 				It("should have an ID", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(id).ToNot(BeNil())
-					Expect(id.ID).To(Equal(unitID.ID))
+					Expect(id.ID).To(Equal(unitID.Unitid))
 				})
 
 				It("should have a Type", func() {
@@ -242,7 +242,7 @@ var _ = Describe("Ead", func() {
 				It("should have an ID", func() {
 					Expect(err).ToNot(HaveOccurred())
 					Expect(id).ToNot(BeNil())
-					Expect(id.ID).To(Equal(unitID.ID))
+					Expect(id.ID).To(Equal(unitID.Unitid))
 				})
 
 				It("should have a TypeID", func() {
@@ -261,11 +261,11 @@ var _ = Describe("Ead", func() {
 				})
 			})
 
-			Context("when extracting nodeIDs from various types", func () {
-				var createUnitIDs = func (id string, nodeType string) []*Cunitid {
+			Context("when extracting nodeIDs from various types", func() {
+				var createUnitIDs = func(id string, nodeType string) []*Cunitid {
 					var cus []*Cunitid
 					cu := &Cunitid{
-						ID: id,
+						Unitid:   id,
 						Attrtype: nodeType,
 					}
 					cus = append(cus, cu)
@@ -273,7 +273,7 @@ var _ = Describe("Ead", func() {
 				}
 				tests := []struct {
 					name   string
-					cdid    Cdid
+					cdid   Cdid
 					wantID string
 				}{
 					{
@@ -309,7 +309,7 @@ var _ = Describe("Ead", func() {
 				}
 				for _, tt := range tests {
 					tt := tt
-					It(tt.name, func () {
+					It(tt.name, func() {
 						_, inventoryID, _ := tt.cdid.NewNodeIDs()
 						Expect(inventoryID).To(Equal(tt.wantID))
 					})
@@ -376,7 +376,10 @@ var _ = Describe("Ead", func() {
 			Expect(ead).ToNot(BeNil())
 			b, err := json.Marshal(ead)
 			Expect(err).ToNot(HaveOccurred())
-			err = ioutil.WriteFile("/tmp/test.ead", b, 0644)
+			f, err := ioutil.TempFile("/tmp", "test.ead")
+			Expect(err).ToNot(HaveOccurred())
+
+			_, err = fmt.Fprint(f, b)
 			Expect(err).ToNot(HaveOccurred())
 
 		})

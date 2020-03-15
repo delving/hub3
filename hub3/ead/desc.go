@@ -558,10 +558,10 @@ func newProfile(header *Ceadheader) *Profile {
 	if header.Cprofiledesc != nil {
 		profile := new(Profile)
 		if header.Cprofiledesc.Clangusage != nil {
-			profile.Language = sanitizeXMLAsString(header.Cprofiledesc.Clangusage.LangUsage)
+			profile.Language = sanitizeXMLAsString(header.Cprofiledesc.Clangusage.Raw)
 		}
 		if header.Cprofiledesc.Ccreation != nil {
-			profile.Creation = sanitizeXMLAsString(header.Cprofiledesc.Ccreation.Creation)
+			profile.Creation = sanitizeXMLAsString(header.Cprofiledesc.Ccreation.Raw)
 		}
 		return profile
 	}
@@ -576,35 +576,33 @@ func newFile(header *Ceadheader) *File {
 		if fileDesc.Ctitlestmt != nil {
 			if fileDesc.Ctitlestmt.Ctitleproper != nil {
 				file.Title = sanitizeXMLAsString(
-					fileDesc.Ctitlestmt.Ctitleproper.TitleProper,
+					fileDesc.Ctitlestmt.Ctitleproper.Raw,
 				)
 			}
 			if fileDesc.Ctitlestmt.Cauthor != nil {
 				file.Author = sanitizeXMLAsString(
-					fileDesc.Ctitlestmt.Cauthor.Author,
+					fileDesc.Ctitlestmt.Cauthor.Raw,
 				)
 			}
 		}
 		if fileDesc.Ceditionstmt != nil {
-			for _, edition := range fileDesc.Ceditionstmt.Cedition {
-				file.Edition = append(
-					file.Edition,
-					sanitizeXMLAsString(edition.Edition),
-				)
-			}
+			file.Edition = append(
+				file.Edition,
+				sanitizeXMLAsString(fileDesc.Ceditionstmt.Raw),
+			)
 		}
 		if fileDesc.Cpublicationstmt != nil {
 			if fileDesc.Cpublicationstmt.Cpublisher != nil {
 				file.Publisher = fileDesc.Cpublicationstmt.Cpublisher.Publisher
 			}
-			if fileDesc.Cpublicationstmt.Cdate != nil {
-				file.PublicationDate = fileDesc.Cpublicationstmt.Cdate.Date
+			if fileDesc.Cpublicationstmt.Cdate != nil && len(fileDesc.Cpublicationstmt.Cdate) != 0 {
+				file.PublicationDate = fileDesc.Cpublicationstmt.Cdate[0].Date
 			}
 			if len(fileDesc.Cpublicationstmt.Cp) > 0 {
 				for _, p := range fileDesc.Cpublicationstmt.Cp {
-					if p.Attrid == "copyright" && p.Cextref != nil {
-						file.Copyright = p.Cextref.ExtRef
-						file.CopyrightURI = p.Cextref.Attrhref
+					if p.Attrid == "copyright" && len(p.Cextref) != 0 {
+						file.Copyright = p.Cextref[0].Extref
+						file.CopyrightURI = p.Cextref[0].Attrhref
 					}
 				}
 			}
@@ -629,16 +627,16 @@ func newFindingAid(header *Ceadheader) *FindingAid {
 
 // AddUnit adds the DID information from the ArchDesc to the FindingAid.
 func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
-	if archdesc.Cdid != nil && fa != nil {
-		did := archdesc.Cdid
+	if len(archdesc.Cdid) != 0 && fa != nil {
+		did := archdesc.Cdid[0]
 		for _, title := range did.Cunittitle {
 			if title.Attrtype == "short" {
-				fa.ShortTitle = sanitizeXMLAsString(title.RawTitle)
+				fa.ShortTitle = sanitizeXMLAsString(title.Raw)
 				continue
 			}
 			fa.Title = append(
 				fa.Title,
-				sanitizeXMLAsString(title.RawTitle),
+				sanitizeXMLAsString(title.Raw),
 			)
 		}
 
@@ -646,23 +644,23 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 
 		// only write one ID, only clevel unitids have more than one
 		for _, unitid := range did.Cunitid {
-			unit.ID = unitid.ID
+			unit.ID = unitid.Unitid
 		}
 
 		for _, date := range did.Cunitdate {
 			if date != nil {
 				switch date.Attrtype {
 				case "bulk":
-					unit.DateBulk = date.Date
+					unit.DateBulk = date.Unitdate
 				default:
-					unit.Date = append(unit.Date, date.Date)
+					unit.Date = append(unit.Date, date.Unitdate)
 				}
 			}
 
 		}
 
-		if did.Cphysdesc != nil {
-			for _, extent := range did.Cphysdesc.Cextent {
+		if len(did.Cphysdesc) != 0 {
+			for _, extent := range did.Cphysdesc[0].Cextent {
 				switch extent.Attrunit {
 				case "files":
 					unit.Files = extent.Extent
@@ -670,23 +668,23 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 					unit.Length = extent.Extent
 				}
 			}
-			unit.Physical = sanitizeXMLAsString(did.Cphysdesc.Raw)
+			unit.Physical = sanitizeXMLAsString(did.Cphysdesc[0].Raw)
 		}
 
 		if did.Clangmaterial != nil {
 			unit.Language = sanitizeXMLAsString(did.Clangmaterial.Raw)
 		}
 
-		if did.Cmaterialspec != nil {
-			unit.Material = sanitizeXMLAsString(did.Cmaterialspec.Raw)
+		if len(did.Cmaterialspec) != 0 {
+			unit.Material = sanitizeXMLAsString(did.Cmaterialspec[0].Raw)
 		}
 
 		if did.Crepository != nil {
 			unit.Repository = sanitizeXMLAsString(did.Crepository.Raw)
 		}
 
-		if did.Cphysloc != nil {
-			unit.PhysicalLocation = sanitizeXMLAsString(did.Cphysloc.Raw)
+		if len(did.Cphysloc) != 0 {
+			unit.PhysicalLocation = sanitizeXMLAsString(did.Cphysloc[0].Raw)
 		}
 
 		if did.Corigination != nil {
@@ -704,7 +702,7 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 		}
 
 		if did.Cabstract != nil {
-			unit.Abstract = did.Cabstract.Abstract()
+			unit.Abstract = did.Cabstract.CleanAbstract()
 		}
 
 		fa.UnitInfo = unit

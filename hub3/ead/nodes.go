@@ -144,7 +144,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.ManifestLink = ""
 	tree.RawContent = []string{}
 	for _, t := range n.triples {
-		if t.Predicate.RawValue() != EADResource("unitTitle").RawValue() {
+		if t.Predicate.RawValue() != NewResource("unitTitle").RawValue() {
 			tree.RawContent = append(tree.RawContent, t.Object.RawValue())
 		}
 	}
@@ -170,7 +170,7 @@ func addNonEmptyTriple(s r.Term, p, o string, oType convert) *r.Triple {
 	}
 	return r.NewTriple(
 		s,
-		EADResource(p),
+		NewResource(p),
 		oType(o),
 	)
 }
