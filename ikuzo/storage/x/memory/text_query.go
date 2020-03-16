@@ -16,7 +16,7 @@ const (
 type TextQuery struct {
 	ti         *TextIndex
 	q          *search.QueryTerm
-	hits       *SearchHits
+	Hits       *SearchHits
 	EmStartTag string
 	EmEndTag   string
 }
@@ -25,10 +25,26 @@ func NewTextQuery(q *search.QueryTerm) *TextQuery {
 	return &TextQuery{
 		q:          q,
 		ti:         NewTextIndex(),
-		hits:       newSearchHits(),
+		Hits:       newSearchHits(),
 		EmStartTag: startTag,
 		EmEndTag:   endTag,
 	}
+}
+
+func NewTextQueryFromString(query string) (*TextQuery, error) {
+	qp, err := search.NewQueryParser()
+	if err != nil {
+		return nil, err
+	}
+
+	q, err := qp.Parse(query)
+	if err != nil {
+		return nil, err
+	}
+
+	tq := NewTextQuery(q)
+
+	return tq, nil
 }
 
 func (tq *TextQuery) Highlight(text string) (string, bool) {
@@ -45,7 +61,7 @@ func (tq *TextQuery) Highlight(text string) (string, bool) {
 		return text, false
 	}
 
-	tq.hits.Merge(hits)
+	tq.Hits.Merge(hits)
 
 	return tq.hightlightWithVectors(text, hits.matchPositions), true
 }

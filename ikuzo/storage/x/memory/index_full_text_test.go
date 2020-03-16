@@ -550,6 +550,20 @@ func TestTextIndex_matchCustom(t *testing.T) {
 				matchPositions: map[int]bool{0: true, 1: true, 8: true, 9: true, 12: true, 13: true},
 			},
 		},
+		{
+			"phrase query (match) with punctuation",
+			fields{"zijn zoon, mr. Joan Blaeu, door"},
+			args{
+				&search.QueryTerm{Value: "mr joan blaeu", Phrase: true},
+				newSearchHits(),
+			},
+			ti.matchPhrase,
+			true,
+			&SearchHits{
+				hits:           map[string]int{"mr joan blaeu": 1},
+				matchPositions: map[int]bool{2: true, 3: true, 4: true},
+			},
+		},
 	}
 
 	for _, tt := range tests {

@@ -53,7 +53,7 @@ func TestQueryParser_runParser(t *testing.T) {
 		},
 		{
 			"phrase query",
-			args{"\"multiple words\"", QueryTerm{}, false},
+			args{"\"multiple. words\"", QueryTerm{}, false},
 			QueryTerm{
 				shouldClauses: []*QueryTerm{
 					{Value: "multiple words", Phrase: true},

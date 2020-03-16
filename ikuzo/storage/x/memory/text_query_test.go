@@ -4,7 +4,6 @@ package memory
 import (
 	"testing"
 
-	"github.com/delving/hub3/ikuzo/service/x/search"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
 )
@@ -62,13 +61,8 @@ func TestTextQuery_Highlight(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			qp, err := search.NewQueryParser()
+			tq, err := NewTextQueryFromString(tt.fields.q)
 			is.NoErr(err)
-
-			q, err := qp.Parse(tt.fields.q)
-			is.NoErr(err)
-
-			tq := NewTextQuery(q)
 
 			got, got1 := tq.Highlight(tt.args.text)
 			if diff := cmp.Diff(tt.want, got); diff != "" {

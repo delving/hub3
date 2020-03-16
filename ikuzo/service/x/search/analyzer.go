@@ -3,7 +3,7 @@ package search
 import "strings"
 
 const (
-	trimCharacters = ".,;:[]()?"
+	trimCharacters = "\".,;:[]()?"
 )
 
 // Analyzer is the default analyzer for Search actions.
@@ -20,4 +20,14 @@ func (a *Analyzer) Transform(text string) string {
 		),
 		trimCharacters,
 	)
+}
+
+func (a *Analyzer) TransformPhrase(text string) string {
+	cleanWords := []string{}
+
+	for _, word := range strings.Fields(text) {
+		cleanWords = append(cleanWords, a.Transform(word))
+	}
+
+	return strings.Join(cleanWords, " ")
 }

@@ -313,8 +313,7 @@ func (qp *QueryParser) appendQuery(parent *QueryTerm, op Operator, qt *QueryTerm
 		qt.nested = nil
 	}
 
-	// normalise the value
-	qt.Value = qp.a.Transform(qt.Value)
+	qt.Value = qp.a.TransformPhrase(qt.Value)
 
 	switch op {
 	case AndOperator:
