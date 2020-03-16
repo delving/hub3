@@ -21,7 +21,6 @@ type Description struct {
 	NrItems    int            `json:"nrItems,omitempty"`
 	NrHits     int            `json:"nrHits"`
 	Item       []*DataItem    `json:"item,omitempty"`
-	counter    *DescriptionCounter
 }
 
 // SectionInfo holds meta information about each section so that it could
@@ -145,7 +144,6 @@ func (dc *itemCounter) GetCount() uint64 {
 
 type itemBuilder struct {
 	counter  itemCounter
-	desc     *DescriptionCounter
 	items    []*DataItem
 	q        *Deque
 	sections []*DataItem
@@ -499,7 +497,6 @@ func queuePath(q *Deque) string {
 func newItemBuilder(ctx context.Context) *itemBuilder {
 	return &itemBuilder{
 		counter: itemCounter{},
-		desc:    NewDescriptionCounter(),
 		items:   nil,
 		q:       new(Deque),
 	}
@@ -547,7 +544,6 @@ func NewDescription(ead *Cead) (*Description, error) {
 			desc.NrSections = len(desc.Section)
 			desc.NrItems = len(desc.Item)
 		}
-		desc.counter = ib.desc
 	}
 
 	return desc, nil

@@ -1,213 +1,30 @@
 package ead
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"regexp"
-	"strings"
-	"unicode"
-
-	"github.com/pkg/errors"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
-
-const (
-	regex          = `(?i)(^|\W)(%s)(\W|$)`
-	replace        = `$1<em class="dchl">$2</em>$3`
-	partialRegex   = `(?i)(%s)`
-	partialReplace = `<em class="dchl">$1</em>`
-)
-
-// DescriptionCounter holds a type-frequency list for the EAD description.
-type DescriptionCounter struct {
-	Counter map[string]int `json:"counter"`
-}
-
-// NewDescriptionCounter creates a type-frequency list for the description.
-// The input consist of the EAD description stripped of all XML tags.
-func NewDescriptionCounter() *DescriptionCounter {
-	dc := &DescriptionCounter{
-		Counter: make(map[string]int),
-	}
-	return dc
-}
-
-func (dc *DescriptionCounter) writeTo(w io.Writer) error {
-
-	jsonOutput, err := json.MarshalIndent(dc, "", " ")
-	if err != nil {
-		return errors.Wrapf(err, "Unable to marshall description to JSON")
-	}
-
-	_, err = w.Write(jsonOutput)
-	if err != nil {
-		return errors.Wrapf(err, "Unable to write json")
-	}
-
-	return nil
-}
-
-func (dc *DescriptionCounter) readFrom(r io.Reader) error {
-	d := json.NewDecoder(r)
-	return d.Decode(dc)
-}
-
-// AppendBytes extract words from bytes and updates the type-frequency counter.
-func (dc *DescriptionCounter) AppendBytes(b []byte) error {
-	words := bytes.Fields(b)
-	for _, word := range words {
-		err := dc.countWord(string(word), 0)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// AppendString extract words from a string and updates the type-frequency counter.
-func (dc *DescriptionCounter) AppendString(s string) error {
-	words := strings.Fields(s)
-	for _, word := range words {
-		err := dc.countWord(string(word), 0)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (dc *DescriptionCounter) countWord(word string, order uint64) error {
-	cleanWord := strings.Trim(strings.ToLower(word), ".,;:[]()?")
-
-	dc.Counter[cleanWord]++
-
-	if strings.Contains(cleanWord, "-") {
-		for _, p := range strings.Split(cleanWord, "-") {
-			dc.Counter[p]++
-		}
-	}
-	return nil
-}
-
-// CountForQuery takes a query string and returns a count and a result map.
-// Internally, the type-frequency list is used to quickly count the number of hits,
-// apply boolean search parameters, and expand wild-card queries.
-//
-//  This function should be used to get a quick hit count for a search query.
-func (dc DescriptionCounter) CountForQuery(query string) (int, map[string]int) {
-	words := strings.Fields(query)
-	seen := 0
-	hits := map[string]int{}
-	for _, word := range words {
-		switch word {
-		case "AND", "OR", "NOT":
-			continue
-		}
-		word = strings.Trim(strings.ToLower(word), `"()`)
-		if strings.HasPrefix(word, "-") {
-			continue
-		}
-		count, ok := dc.Counter[word]
-		if ok {
-			seen += count
-			hits[word] += count
-
-		}
-
-		if strings.HasSuffix(word, "*") {
-			prefix := strings.TrimSuffix(word, "*")
-			for k, count := range dc.Counter {
-				if strings.HasPrefix(k, prefix) {
-					seen += count
-					hits[k] += count
-				}
-			}
-		}
-	}
-
-	return seen, hits
-}
-
-type queryItem struct {
-	text          string
-	wildcard      bool
-	partial       bool
-	diacriticFold bool
-	flat          string // query text without diacritics
-	must          bool   // word is required for match count. Default OR
-}
 
 // DescriptionQuery can be used to query and highlight matches in the ead.Description
 type DescriptionQuery struct {
-	items   []*queryItem
-	Seen    int
-	Hits    map[string]int
-	Partial bool
-	Filter  bool
-	regex   map[string]*regexp.Regexp
-}
-
-func isMn(r rune) bool {
-	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
-}
-
-func newQueryItem(word string) (*queryItem, bool) {
-	switch word {
-	case "AND", "OR", "NOT":
-		return nil, false
-	}
-	word = strings.Trim(strings.ToLower(word), `"()`)
-
-	if strings.HasPrefix(word, "-") {
-		return nil, false
-	}
-	var hasSuffix bool
-	if strings.HasSuffix(word, "*") {
-		word = strings.TrimSuffix(word, "*")
-		hasSuffix = true
-	}
-
-	queryItem := &queryItem{
-		text:     word,
-		wildcard: hasSuffix,
-	}
-
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	flatWord, _, _ := transform.String(t, word)
-	if flatWord != word {
-		queryItem.flat = flatWord
-		queryItem.diacriticFold = true
-	}
-	return queryItem, true
+	tq     *memory.TextQuery
+	Filter bool
 }
 
 // NewDescriptionQuery returns a DescriptionQuery that can be used to filter
 // and hightlight DataItems.
 func NewDescriptionQuery(query string) *DescriptionQuery {
-	words := strings.Fields(query)
-	dq := &DescriptionQuery{
-		Hits:   make(map[string]int),
-		regex:  make(map[string]*regexp.Regexp),
+	tq, _ := memory.NewTextQueryFromString(query)
+
+	return &DescriptionQuery{
+		tq:     tq,
 		Filter: true,
 	}
-	for _, word := range words {
-		queryItem, ok := newQueryItem(word)
-		if ok {
-			dq.items = append(dq.items, queryItem)
-		}
-	}
-
-	return dq
 }
 
 // FilterMatches filters a []DataItem for query matches and highlights them.
 func (dq *DescriptionQuery) FilterMatches(items []*DataItem) []*DataItem {
 	matches := []*DataItem{}
+
 	for _, item := range items {
 		text, ok := dq.highlightQuery(item.Text)
 		if !ok && dq.Filter {
@@ -216,7 +33,16 @@ func (dq *DescriptionQuery) FilterMatches(items []*DataItem) []*DataItem {
 		item.Text = text
 		matches = append(matches, item)
 	}
+
 	return matches
+}
+
+func (dq *DescriptionQuery) Seen() int {
+	return dq.tq.Hits.Total()
+}
+
+func (dq *DescriptionQuery) Hits() *memory.SearchHits {
+	return dq.tq.Hits
 }
 
 // HightlightSummary applied query highlights to the ead.Summary.
@@ -302,85 +128,6 @@ func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
 	return s
 }
 
-func (dq *DescriptionQuery) regexInput() string {
-	if dq.Partial {
-		return partialRegex
-	}
-	return regex
-}
-
-func (dq *DescriptionQuery) regexOutput() string {
-	if dq.Partial {
-		return partialReplace
-	}
-	return replace
-}
-
 func (dq *DescriptionQuery) highlightQuery(text string) (string, bool) {
-	found := map[string]bool{}
-	for _, word := range strings.Fields(text) {
-		partialMatch, ok := dq.match(word)
-		if ok {
-			found[partialMatch] = true
-		}
-	}
-
-	for word := range found {
-		r, ok := dq.regex[word]
-		if !ok {
-			r = regexp.MustCompile(fmt.Sprintf(dq.regexInput(), word))
-			dq.regex[word] = r
-		}
-		text = r.ReplaceAllString(
-			text,
-			dq.regexOutput(),
-		)
-	}
-
-	return text, len(found) != 0
-}
-
-// equal takes a lowercase word and compares it to the text of the queryItem
-func (qi *queryItem) equal(word string) (string, bool) {
-	var matcher func(s, t string) bool
-	matchWord := qi.text
-	switch {
-	case qi.wildcard:
-		matcher = strings.HasPrefix
-		matchWord = word
-	case qi.partial:
-		matcher = strings.Contains
-	default:
-		matcher = strings.EqualFold
-	}
-
-	// remove diacritics
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
-	flatWord, _, _ := transform.String(t, word)
-	if flatWord != word {
-		matchWord = word
-	}
-
-	switch {
-	case qi.diacriticFold && matcher(flatWord, qi.flat):
-		return word, true
-	case matcher(flatWord, qi.text):
-		return matchWord, true
-	default:
-		return "", false
-	}
-}
-
-func (dq *DescriptionQuery) match(word string) (string, bool) {
-	word = strings.Trim(strings.ToLower(word), `"().,;`)
-
-	for _, q := range dq.items {
-		if matchWord, ok := q.equal(word); ok {
-			dq.Seen++
-			dq.Hits[matchWord]++
-			return matchWord, true
-		}
-	}
-
-	return "", false
+	return dq.tq.Highlight(text)
 }

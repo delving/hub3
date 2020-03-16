@@ -169,8 +169,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	var query string
 	var echo string
 	var err error
-	var partial bool
-	var notFilter bool
+	var filter bool
 
 	for k := range params {
 		switch k {
@@ -190,10 +189,8 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 			query = params.Get(k)
 		case "echo":
 			echo = params.Get(k)
-		case "partial":
-			partial = strings.ToLower(params.Get(k)) == "true"
 		case "filter":
-			notFilter = strings.ToLower(params.Get(k)) == "false"
+			filter = strings.EqualFold(params.Get(k), "true")
 		}
 	}
 
@@ -214,22 +211,20 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 
 	if query != "" {
 		dq := ead.NewDescriptionQuery(query)
-		if partial {
-			dq.Partial = true
-		}
-		if notFilter {
-			dq.Filter = false
-		}
+		dq.Filter = filter
+
 		desc.Item = dq.FilterMatches(desc.Item)
+
 		if echo == "hits" {
-			render.JSON(w, r, dq.Hits)
+			render.JSON(w, r, dq.Hits().Hits())
 			return
 		}
+
 		desc.Summary = dq.HightlightSummary(desc.Summary)
-		searchHits = dq.Seen
+		searchHits = dq.Seen()
 		desc.NrItems = len(desc.Item)
 
-		if !notFilter {
+		if filter {
 			desc.NrSections = 0
 			desc.Section = []*ead.SectionInfo{}
 		}
@@ -240,8 +235,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	if start != 0 || end != 0 {
 		if end != 0 {
 			if end >= desc.NrItems {
-				http.Error(w, "end is out of bounds", http.StatusBadRequest)
-				return
+				end = desc.NrItems
 			}
 			desc.Item = desc.Item[start:end]
 		} else {
