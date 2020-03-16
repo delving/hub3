@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/asdine/storm"
+	"github.com/delving/hub3/config"
 )
 
 // orm is the storm db entry point
@@ -66,8 +67,10 @@ func newDB(dbName string) *storm.DB {
 		log.Fatal(err)
 	}
 	exPath := filepath.Dir(ex)
-	log.Printf("Running from %s\n", exPath)
-	log.Printf("Using Storm/BoltDB path: %s\n", db.Bolt.Path())
+	config.Config.Logger.Info().
+		Str("full_path", exPath).
+		Str("db_name", db.Bolt.Path()).
+		Msg("starting boldDB")
 	//defer db.Close()
 	return db
 }

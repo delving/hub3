@@ -62,6 +62,7 @@ excludeSpec = [
 [logging]
 devmode = true
 sentrydsn = ""
+level = "info"
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)

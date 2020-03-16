@@ -1,4 +1,4 @@
-// nolint:gocritic,scopelint
+// nolint:gocritic
 package logger
 
 import (
@@ -174,6 +174,74 @@ func TestLevel_toZeroLog(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.l.toZeroLog(); !cmp.Equal(got, tt.want) {
 				t.Errorf("Level.toZeroLog() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseLogLevel(t *testing.T) {
+	type args struct {
+		level string
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want Level
+	}{
+		{
+			"unknown",
+			args{"unknown"},
+			InfoLevel,
+		},
+		{
+			"info",
+			args{"info"},
+			InfoLevel,
+		},
+		{
+			"disabled",
+			args{"disabled"},
+			Disabled,
+		},
+		{
+			"trace",
+			args{"trace"},
+			TraceLevel,
+		},
+		{
+			"debug",
+			args{"debug"},
+			DebugLevel,
+		},
+		{
+			"warn",
+			args{"warn"},
+			WarnLevel,
+		},
+		{
+			"panic",
+			args{"panic"},
+			PanicLevel,
+		},
+		{
+			"error",
+			args{"error"},
+			ErrorLevel,
+		},
+		{
+			"fatal",
+			args{"fatal"},
+			FatalLevel,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ParseLogLevel(tt.args.level); got != tt.want {
+				t.Errorf("ParseLogLevel() = %v, want %v", got, tt.want)
 			}
 		})
 	}

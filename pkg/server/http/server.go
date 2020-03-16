@@ -147,11 +147,6 @@ func negroniWithDefaults() *negroni.Negroni {
 	recovery.Formatter = &negroni.HTMLPanicFormatter{}
 	n.Use(recovery)
 
-	// logger
-	// l := negroni.NewLogger()
-	// l.SetFormat("{{.StartTime}} | {{.Status}} | \t {{.Duration}} | {{.Hostname}} | {{.Method}} {{.Path}} {{.Request.URL.RawQuery}}\n")
-	// n.Use(l)
-
 	// compress the responses
 	n.Use(gzip.Gzip(gzip.DefaultCompression))
 
@@ -162,7 +157,9 @@ func negroniWithDefaults() *negroni.Negroni {
 }
 
 func (s server) ListenAndServe() error {
-	log.Printf("Using port: %d", s.port)
+	c.Config.Logger.Info().
+		Int("port", s.port).
+		Msg("listering on port")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.n)
 	// TODO catch ctrl-c for graceful shutdown
 	if err != nil {

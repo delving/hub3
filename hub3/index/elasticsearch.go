@@ -20,13 +20,13 @@ import (
 	"fmt"
 	stdlog "log"
 	"net/http"
-	"os"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/mapping"
+	"github.com/delving/hub3/ikuzo/logger"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -37,10 +37,6 @@ const (
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
 type CustomRetrier struct {
 	backoff elastic.Backoff
-}
-
-func init() {
-	stdlog.SetFlags(stdlog.LstdFlags | stdlog.Lshortfile)
 }
 
 var (
@@ -61,7 +57,9 @@ func ESClient() *elastic.Client {
 			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
 			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
-			stdlog.Fatal("FATAL: trying to call elasticsearch when not enabled.")
+			config.Config.Logger.Fatal().
+				Str("component", "elasticsearch").
+				Msg("FATAL: trying to call elasticsearch when not enabled.")
 		}
 	}
 
@@ -162,12 +160,14 @@ func createESClient() *elastic.Client {
 		Timeout: timeout,
 	}
 
+	errLog := logger.NewWrapError(config.Config.Logger)
+
 	options := []elastic.ClientOptionFunc{
-		elastic.SetURL(config.Config.ElasticSearch.Urls...),                      // set elastic urs from config
-		elastic.SetSniff(false),                                                  // disable sniffing
-		elastic.SetHealthcheckInterval(10 * time.Second),                         // do healthcheck every 10 seconds
-		elastic.SetRetrier(NewCustomRetrier()),                                   // set custom retrier that tries 5 times. Default is 0
-		elastic.SetErrorLog(stdlog.New(os.Stderr, "ELASTIC ", stdlog.LstdFlags)), // error log
+		elastic.SetURL(config.Config.ElasticSearch.Urls...), // set elastic urs from config
+		elastic.SetSniff(false),                             // disable sniffing
+		elastic.SetHealthcheckInterval(10 * time.Second),    // do healthcheck every 10 seconds
+		elastic.SetRetrier(NewCustomRetrier()),              // set custom retrier that tries 5 times. Default is 0
+		elastic.SetErrorLog(errLog),                         // error log
 		elastic.SetHttpClient(httpclient),
 	}
 
@@ -177,11 +177,13 @@ func createESClient() *elastic.Client {
 	}
 
 	if config.Config.ElasticSearch.EnableTrace {
-		options = append(options, elastic.SetTraceLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags)))
+		traceLog := logger.NewWrapTrace(config.Config.Logger)
+		options = append(options, elastic.SetTraceLog(traceLog))
 	}
 
 	if config.Config.ElasticSearch.EnableInfo {
-		options = append(options, elastic.SetInfoLog(stdlog.New(os.Stdout, "", stdlog.LstdFlags))) // info log
+		infoLog := logger.NewWrapInfo(config.Config.Logger)
+		options = append(options, elastic.SetInfoLog(infoLog)) // info log
 	}
 
 	if client == nil {
