@@ -285,7 +285,9 @@ func (c *Cc) Nested() []CLevel {
 
 func (c *Cc) GetGenreform() string {
 	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess) != 0 {
-		return c.Ccontrolaccess[0].Cgenreform.Genreform
+		if c.Ccontrolaccess[0].Cgenreform != nil {
+			return c.Ccontrolaccess[0].Cgenreform.Genreform
+		}
 	}
 
 	return ""
