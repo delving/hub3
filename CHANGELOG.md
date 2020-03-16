@@ -1,5 +1,16 @@
 # Changelog
 
+## development
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.2...master
+
+## v0.1.2 (2020-03-16)
+
+- minor fixes
+    - update to elasticsearch mapping fields
+    - fix for access error on EAD genreform.
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.1...v0.1.2
+
 ## v0.1.1 (2020-03-16)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.0...v0.1.1
