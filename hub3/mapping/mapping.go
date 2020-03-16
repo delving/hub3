@@ -116,6 +116,7 @@ var ESMapping = `{
 						"title": {"type": "text"},
 						"description": {"type": "text"},
 						"content": {"type": "text"},
+						"periodDesc": { "type": "keyword"},
 						"rawContent": {"type": "text", "store": false},
 						"access": {
 							"type": "text",
@@ -182,6 +183,8 @@ var ESMapping = `{
 									"type": "date_range",
 									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
 								},
+								"intRange": {"type": "integer_range"},
+								"float": {"type": "float"},
 								"latLong": {"type": "geo_point"}
 							}
 						}
