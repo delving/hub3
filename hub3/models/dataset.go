@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	c "github.com/delving/hub3/config"
@@ -714,5 +716,13 @@ func (ds DataSet) DropAll(ctx context.Context, wp *w.WorkerPool) (bool, error) {
 		log.Printf("Unable to delete dataset %s from storage", ds.Spec)
 		return false, err
 	}
+
+	cachePath := filepath.Join(c.Config.EAD.CacheDir, ds.Spec)
+
+	err = os.RemoveAll(cachePath)
+	if err != nil {
+		return false, fmt.Errorf("unable to delete EAD cache at %s; %#w", cachePath, err)
+	}
+
 	return ok, err
 }
