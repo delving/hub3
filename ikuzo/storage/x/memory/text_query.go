@@ -3,7 +3,6 @@ package memory
 import (
 	"errors"
 	"log"
-	"strings"
 
 	"github.com/delving/hub3/ikuzo/service/x/search"
 )
@@ -16,7 +15,7 @@ const (
 type TextQuery struct {
 	ti         *TextIndex
 	q          *search.QueryTerm
-	Hits       *SearchHits
+	Hits       *search.Matches
 	EmStartTag string
 	EmEndTag   string
 }
@@ -25,7 +24,7 @@ func NewTextQuery(q *search.QueryTerm) *TextQuery {
 	return &TextQuery{
 		q:          q,
 		ti:         NewTextIndex(),
-		Hits:       newSearchHits(),
+		Hits:       search.NewMatches(),
 		EmStartTag: startTag,
 		EmEndTag:   endTag,
 	}
@@ -63,22 +62,12 @@ func (tq *TextQuery) Highlight(text string) (string, bool) {
 
 	tq.Hits.Merge(hits)
 
-	return tq.hightlightWithVectors(text, hits.matchPositions), true
+	return tq.hightlightWithVectors(text, hits.WordPositions()), true
 }
 
 func (tq *TextQuery) hightlightWithVectors(text string, positions map[int]bool) string {
-	words := []string{}
+	tok := search.NewTokenizer()
+	tokens := tok.ParseString(text)
 
-	for idx, word := range strings.Fields(text) {
-		if _, ok := positions[idx]; !ok {
-			words = append(words, word)
-			continue
-		}
-
-		words = append(words, tq.EmStartTag+word+tq.EmEndTag)
-	}
-
-	return strings.Join(words, " ")
+	return tokens.Highlight(positions, tq.EmStartTag, tq.EmEndTag)
 }
-
-// Highlight(text string) (string, bool)

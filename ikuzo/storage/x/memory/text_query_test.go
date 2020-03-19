@@ -99,7 +99,7 @@ func Test_hightlightWithVectors(t *testing.T) {
 			"one word highlight",
 			args{
 				text:      "hello world",
-				positions: map[int]bool{1: true},
+				positions: map[int]bool{2: true},
 			},
 			"hello <em class=\"dchl\">world</em>",
 		},

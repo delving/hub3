@@ -11,6 +11,23 @@ import (
 	"github.com/matryer/is"
 )
 
+func newTestMatch(hits map[string]int, positions []int) *search.Matches {
+	matches := search.NewMatches()
+
+	pos := map[int]bool{}
+	for _, p := range positions {
+		pos[p] = true
+	}
+
+	matches.ApppendPositions(pos)
+
+	for term, count := range hits {
+		matches.AppendTerm(term, count, map[int]bool{})
+	}
+
+	return matches
+}
+
 var appendTests = []struct {
 	name    string
 	text    []byte
@@ -353,7 +370,7 @@ func TestTextIndex_search(t *testing.T) {
 				t.Errorf("TextIndex.search() %s error = %v, wantNoMatchErr %v", tt.name, err, tt.wantErr)
 			}
 
-			if diff := cmp.Diff(tt.want, got.hits); diff != "" {
+			if diff := cmp.Diff(tt.want, got.TermFrequency()); diff != "" {
 				t.Errorf("TextIndex.search() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
@@ -371,198 +388,186 @@ func TestTextIndex_matchCustom(t *testing.T) {
 
 	type args struct {
 		qt   *search.QueryTerm
-		hits *SearchHits
+		hits *search.Matches
 	}
 
 	tests := []struct {
 		name     string
 		fields   fields
 		args     args
-		matchFn  func(qt *search.QueryTerm, hits *SearchHits) bool
+		matchFn  func(qt *search.QueryTerm, hits *search.Matches) bool
 		want     bool
-		wantHits *SearchHits
+		wantHits *search.Matches
 	}{
 		{
 			"simple match",
 			fields{"zeeheldenkwartier held kwartier"},
 			args{
 				&search.QueryTerm{Value: "held"},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchTerm,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"held": 1},
-				matchPositions: map[int]bool{1: true},
-			},
+			newTestMatch(
+				map[string]int{"held": 1},
+				[]int{2},
+			),
 		},
 		{
 			"no match",
 			fields{"zeeheldenkwartier held kwartier"},
 			args{
 				&search.QueryTerm{Value: "zeestraat"},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchTerm,
 			false,
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			newTestMatch(
+				map[string]int{},
+				[]int{},
+			),
 		},
 		{
 			"prohibited query",
 			fields{"zeeheldenkwartier held kwartier"},
 			args{
 				&search.QueryTerm{Value: "held", Prohibited: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchTerm,
 			false,
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 		},
 		{
 			"prefix query",
 			fields{"zeeheldenkwartier held kwartier"},
 			args{
 				&search.QueryTerm{Value: "zee", PrefixWildcard: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchWildcard,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"zeeheldenkwartier": 1},
-				matchPositions: map[int]bool{0: true},
-			},
+			newTestMatch(
+				map[string]int{"zeeheldenkwartier": 1},
+				[]int{1},
+			),
 		},
 		{
 			"suffix query",
 			fields{"zeeheldenkwartier held kwartier"},
 			args{
 				&search.QueryTerm{Value: "kwartier", SuffixWildcard: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchWildcard,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"zeeheldenkwartier": 1, "kwartier": 1},
-				matchPositions: map[int]bool{0: true, 2: true},
-			},
+			newTestMatch(
+				map[string]int{"zeeheldenkwartier": 1, "kwartier": 1},
+				[]int{1, 3},
+			),
 		},
 		{
 			"fuzzy query",
 			fields{"batauia"},
 			args{
 				&search.QueryTerm{Value: "batavia", Fuzzy: 1},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchFuzzy,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"batauia": 1},
-				matchPositions: map[int]bool{0: true},
-			},
+			newTestMatch(
+				map[string]int{"batauia": 1},
+				[]int{1},
+			),
 		},
 		{
 			"fuzzy query (no match)",
 			fields{"Betuwe"},
 			args{
 				&search.QueryTerm{Value: "batavia", Fuzzy: 1},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchFuzzy,
 			false,
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 		},
 		{
 			"phrase query (no match)",
 			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen piraten."},
 			args{
 				&search.QueryTerm{Value: "ware held", Phrase: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			false,
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 		},
 		{
 			"single word phrase query (match)",
 			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen helden maar piraten."},
 			args{
 				&search.QueryTerm{Value: "de", Phrase: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"de": 2},
-				matchPositions: map[int]bool{3: true, 6: true},
-			},
+			newTestMatch(
+				map[string]int{"de": 2},
+				[]int{4, 7},
+			),
 		},
 		{
 			"phrase query (match)",
 			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen helden maar ware piraten."},
 			args{
 				&search.QueryTerm{Value: "ware helden", Phrase: true, Slop: 0},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"ware helden": 2},
-				matchPositions: map[int]bool{0: true, 1: true, 8: true, 9: true},
-			},
+			newTestMatch(
+				map[string]int{"ware helden": 2},
+				[]int{1, 2, 9, 10},
+			),
 		},
 		{
 			"phrase query (no match) without slop",
 			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen helden, ware piraten."},
 			args{
 				&search.QueryTerm{Value: "helden van zee", Phrase: true, Slop: 0},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			false,
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 		},
 		{
 			"phrase query (match) with slop",
 			fields{"ware helden van de zee, enteren de VOC. Ware helden zijn geen hélden, ware piraten."},
 			args{
 				&search.QueryTerm{Value: "helden ware", Phrase: true, Slop: 1},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"ware helden": 2, "helden ware": 1},
-				matchPositions: map[int]bool{0: true, 1: true, 8: true, 9: true, 12: true, 13: true},
-			},
+			newTestMatch(
+				map[string]int{"ware helden": 2, "helden ware": 1},
+				[]int{1, 2, 9, 10, 13, 14},
+			),
 		},
 		{
 			"phrase query (match) with punctuation",
 			fields{"zijn zoon, mr. Joan Blaeu, door"},
 			args{
 				&search.QueryTerm{Value: "mr joan blaeu", Phrase: true},
-				newSearchHits(),
+				search.NewMatches(),
 			},
 			ti.matchPhrase,
 			true,
-			&SearchHits{
-				hits:           map[string]int{"mr joan blaeu": 1},
-				matchPositions: map[int]bool{2: true, 3: true, 4: true},
-			},
+			newTestMatch(
+				map[string]int{"mr joan blaeu": 1},
+				[]int{3, 4, 5},
+			),
 		},
 	}
 
@@ -579,7 +584,7 @@ func TestTextIndex_matchCustom(t *testing.T) {
 				t.Errorf("TextIndex.match custom %s = %v, want %v", tt.name, got, tt.want)
 			}
 
-			if diff := cmp.Diff(tt.wantHits, tt.args.hits, cmp.AllowUnexported(SearchHits{})); diff != "" {
+			if diff := cmp.Diff(tt.wantHits, tt.args.hits, cmp.AllowUnexported(search.Matches{})); diff != "" {
 				t.Errorf("TextIndex.match custom %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
@@ -592,13 +597,13 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 	type args struct {
 		query string
 		text  string
-		hits  *SearchHits
+		hits  *search.Matches
 	}
 
 	tests := []struct {
 		name           string
 		args           args
-		wantHits       *SearchHits
+		wantHits       *search.Matches
 		wantErr        bool
 		wantNoMatchErr bool
 	}{
@@ -607,12 +612,12 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			args{
 				"-vrede",
 				"vredespaleis",
-				newSearchHits(),
+				search.NewMatches(),
 			},
-			&SearchHits{
-				hits:           map[string]int{"vrede": 0},
-				matchPositions: map[int]bool{},
-			},
+			newTestMatch(
+				map[string]int{"vrede": 0},
+				[]int{},
+			),
 			false,
 			false,
 		},
@@ -621,12 +626,9 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			args{
 				"-vredespaleis",
 				"vredespaleis",
-				newSearchHits(),
+				search.NewMatches(),
 			},
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 			true,
 			true,
 		},
@@ -635,12 +637,9 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			args{
 				"-word AND (-something AND word OR word3)",
 				"word something ガンダムバルバトス word3",
-				newSearchHits(),
+				search.NewMatches(),
 			},
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 			true,
 			true,
 		},
@@ -649,12 +648,9 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			args{
 				"word1 OR (word2 OR (word4 OR word5))",
 				"word something ガンダムバルバトス word3",
-				newSearchHits(),
+				search.NewMatches(),
 			},
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 			true,
 			true,
 		},
@@ -663,12 +659,9 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 			args{
 				"word AND NOT (word2 AND word3))",
 				"word1 something ガンダムバルバトス word3",
-				newSearchHits(),
+				search.NewMatches(),
 			},
-			&SearchHits{
-				hits:           map[string]int{},
-				matchPositions: map[int]bool{},
-			},
+			search.NewMatches(),
 			true,
 			true,
 		},
@@ -693,107 +686,8 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				t.Errorf("TextIndex.search() %s; error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			}
 
-			if diff := cmp.Diff(tt.wantHits, tt.args.hits, cmp.AllowUnexported(SearchHits{})); diff != "" {
+			if diff := cmp.Diff(tt.wantHits, tt.args.hits, cmp.AllowUnexported(search.Matches{})); diff != "" {
 				t.Errorf("TextIndex.search() %s = mismatch (-want +got):\n%s", tt.name, diff)
-			}
-		})
-	}
-}
-
-func TestSearchHits_Total(t *testing.T) {
-	type fields struct {
-		hits map[string]int
-	}
-
-	tests := []struct {
-		name   string
-		fields fields
-		want   int
-	}{
-		{
-			"no results",
-			fields{hits: map[string]int{}},
-			0,
-		},
-		{
-			"no results",
-			fields{hits: map[string]int{
-				"one":       1,
-				"two times": 2,
-				"many":      10,
-			}},
-			13,
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-
-		t.Run(tt.name, func(t *testing.T) {
-			sh := &SearchHits{
-				hits: tt.fields.hits,
-			}
-			if got := sh.Total(); got != tt.want {
-				t.Errorf("SearchHits.Total() = %v, want %v", got, tt.want)
-			}
-
-			if diff := cmp.Diff(sh.hits, sh.Hits(), cmp.AllowUnexported(SearchHits{})); diff != "" {
-				t.Errorf("SearchHits.Total() %s = mismatch (-want +got):\n%s", tt.name, diff)
-			}
-		})
-	}
-}
-
-func TestSearchHits_Merge(t *testing.T) {
-	type fields struct {
-		hits map[string]int
-	}
-
-	type args struct {
-		hits map[string]int
-	}
-
-	tests := []struct {
-		name     string
-		fields   fields
-		args     args
-		wantHits map[string]int
-	}{
-		{
-			"source only merge",
-			fields{hits: map[string]int{"word": 1}},
-			args{hits: map[string]int{}},
-			map[string]int{"word": 1},
-		},
-		{
-			"partial merge",
-			fields{hits: map[string]int{"word": 1}},
-			args{hits: map[string]int{"word": 1, "words": 2}},
-			map[string]int{"word": 2, "words": 2},
-		},
-		{
-			"target only merge",
-			fields{hits: map[string]int{}},
-			args{hits: map[string]int{"word": 1, "words": 2}},
-			map[string]int{"word": 1, "words": 2},
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-
-		t.Run(tt.name, func(t *testing.T) {
-			src := &SearchHits{
-				hits: tt.fields.hits,
-			}
-
-			target := newSearchHits()
-			target.hits = tt.args.hits
-
-			src.Merge(target)
-
-			if diff := cmp.Diff(tt.wantHits, src.Hits(), cmp.AllowUnexported(SearchHits{})); diff != "" {
-				t.Errorf("SearchHits.Merge() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
 	}
@@ -815,7 +709,7 @@ func TestTextIndexSerialization(t *testing.T) {
 	err = newTi.readFrom(&buf)
 	is.NoErr(err)
 
-	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, TermVector{})); diff != "" {
+	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, search.TermVector{})); diff != "" {
 		t.Errorf("TextIndex serialization = mismatch (-want +got):\n%s", diff)
 	}
 }
