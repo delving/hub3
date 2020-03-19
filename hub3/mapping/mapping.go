@@ -55,6 +55,7 @@ var ESMapping = `{
 			"analyzer": {
 				"default": {
 					"tokenizer": "standard",
+					"char_filter":  ["html_strip"],
 					"filter" : ["lowercase","asciifolding"]
 				}
 			}
