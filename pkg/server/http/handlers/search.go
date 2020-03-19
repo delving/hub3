@@ -33,6 +33,7 @@ import (
 	"github.com/delving/hub3/hub3"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
@@ -309,10 +310,24 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
 
+	var textQuery *memory.TextQuery
+
+	if searchRequest.Query != "" {
+		var textQueryErr error
+
+		textQuery, textQueryErr = memory.NewTextQueryFromString(searchRequest.Query)
+		if textQueryErr != nil {
+			log.Printf("unable to build text query: %s\n", err.Error())
+			http.Error(w, textQueryErr.Error(), http.StatusInternalServerError)
+			return
+		}
+
+	}
+
 	switch searchRequest.ItemFormat {
 	case fragments.ItemFormatType_FLAT:
 		for _, rec := range records {
-			rec.NewFields()
+			rec.NewFields(textQuery)
 			rec.Resources = nil
 		}
 	case fragments.ItemFormatType_SUMMARY:
@@ -337,6 +352,17 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		paging := &fragments.TreePaging{
 			PageSize:       searchRequest.Tree.GetPageSize(),
 			HitsTotalCount: int32(res.TotalHits()),
+		}
+
+		if searchRequest.Tree.Query != "" {
+			var textQueryErr error
+
+			textQuery, textQueryErr = memory.NewTextQueryFromString(searchRequest.Tree.Query)
+			if textQueryErr != nil {
+				log.Printf("unable to build text query: %s\n", err.Error())
+				http.Error(w, textQueryErr.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		// traditional collapsed tree view
@@ -483,7 +509,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			for _, parent := range parents {
 				parent.Tree.HasChildren = parent.Tree.ChildCount != 0
 				if sr.Tree.WithFields {
-					parent.Tree.Fields = parent.NewFields(c.Config.EAD.TreeFields...)
+					parent.Tree.Fields = parent.NewFields(textQuery, c.Config.EAD.TreeFields...)
 					parent.Tree.Content = []string{}
 				}
 
@@ -494,7 +520,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		for _, rec := range records {
 			rec.Tree.HasChildren = rec.Tree.ChildCount != 0
 			if searchRequest.Tree.WithFields {
-				rec.Tree.Fields = rec.NewFields(c.Config.EAD.TreeFields...)
+				rec.Tree.Fields = rec.NewFields(textQuery, c.Config.EAD.TreeFields...)
 				rec.Tree.Content = []string{}
 			}
 
@@ -665,7 +691,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 	switch r.URL.Query().Get("itemFormat") {
 	case "flat":
-		record.NewFields()
+		record.NewFields(nil)
 		record.Resources = nil
 	case "jsonld":
 		record.NewJSONLD()

@@ -216,7 +216,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		desc.Item = dq.FilterMatches(desc.Item)
 
 		if echo == "hits" {
-			render.JSON(w, r, dq.Hits().Hits())
+			render.JSON(w, r, dq.Hits().TermFrequency())
 			return
 		}
 

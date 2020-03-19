@@ -81,8 +81,8 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, stats)
-	return
 
+	return
 }
 
 // getDataSet returns a dataset when found or a 404
@@ -109,15 +109,15 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 			Error:      err,
 		})
 		return
-
 	}
+
 	render.JSON(w, r, ds)
 	return
 }
 
 func deleteDataset(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	fmt.Printf("spec is %s", spec)
+
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
 		render.Status(r, http.StatusNotFound)
@@ -125,7 +125,13 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ok, err := ds.DropAll(ctx, wp)
-	if !ok || err != nil {
+	if err != nil {
+		render.Status(r, http.StatusBadRequest)
+		log.Printf("Unable to delete request because: %s", err)
+		return
+	}
+
+	if !ok {
 		render.Status(r, http.StatusBadRequest)
 		log.Printf("Unable to delete request because: %s", err)
 		return

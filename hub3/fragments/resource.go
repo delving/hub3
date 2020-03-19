@@ -27,6 +27,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -1329,7 +1330,7 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 }
 
 // NewFields returns a map of the triples sorted by their searchLabel
-func (fg *FragmentGraph) NewFields(fields ...string) map[string][]string {
+func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[string][]string {
 	fieldMap := make(map[string]map[string]struct{})
 
 	includeMap := make(map[string]bool)
@@ -1374,6 +1375,14 @@ func (fg *FragmentGraph) NewFields(fields ...string) map[string][]string {
 		fields := []string{}
 		for vk := range v {
 			if vk != "" {
+				if tq != nil {
+					text, ok := tq.Highlight(vk)
+					if ok {
+						log.Printf("highlight: %s", text)
+					}
+					fields = append(fields, text)
+					continue
+				}
 				fields = append(fields, vk)
 			}
 		}
