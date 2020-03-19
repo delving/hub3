@@ -35,15 +35,15 @@ func NewTokenizer() *Tokenizer {
 	return &Tokenizer{}
 }
 
-func (t *Tokenizer) ParseString(text string) []Token {
+func (t *Tokenizer) ParseString(text string) *TokenStream {
 	return t.parse(strings.NewReader(text))
 }
 
-func (t *Tokenizer) ParseBytes(b []byte) []Token {
+func (t *Tokenizer) ParseBytes(b []byte) *TokenStream {
 	return t.parse(bytes.NewReader(b))
 }
 
-func (t *Tokenizer) ParseReader(r io.Reader) []Token {
+func (t *Tokenizer) ParseReader(r io.Reader) *TokenStream {
 	return t.parse(r)
 }
 
@@ -55,7 +55,7 @@ func (t *Tokenizer) resetScanner() {
 	t.tokenPos = 0
 }
 
-func (t *Tokenizer) parse(r io.Reader) []Token {
+func (t *Tokenizer) parse(r io.Reader) *TokenStream {
 	t.resetScanner()
 	t.s.Init(r)
 
@@ -64,7 +64,7 @@ func (t *Tokenizer) parse(r io.Reader) []Token {
 		tokens = append(tokens, t.runParser(tok))
 	}
 
-	return tokens
+	return &TokenStream{tokens: tokens}
 }
 
 func (t *Tokenizer) takeTag(text string) string {
@@ -116,6 +116,7 @@ func (t *Tokenizer) runParser(tok rune) Token {
 
 	if len(text) == 1 && unicode.IsPunct(tok) {
 		token.Punctuation = true
+		token.Ignored = true
 	}
 
 	if !token.Ignored {
@@ -128,4 +129,61 @@ func (t *Tokenizer) runParser(tok rune) Token {
 	}
 
 	return token
+}
+
+type TokenStream struct {
+	tokens []Token
+}
+
+func (ts *TokenStream) Highlight(positions map[int]bool) string {
+	var str strings.Builder
+
+	var inHighlight bool
+
+	var insertSpace bool
+
+	for _, token := range ts.tokens {
+		if len(positions) == 0 {
+			str.WriteString(token.RawText)
+
+			if token.TrailingSpace {
+				str.WriteString(" ")
+			}
+
+			continue
+		}
+
+		_, ok := positions[token.WordPosition]
+		if !ok && inHighlight && !token.Ignored {
+			str.WriteString("</em>")
+		}
+
+		if insertSpace {
+			insertSpace = false
+
+			str.WriteString(" ")
+		}
+
+		if ok && !inHighlight {
+			inHighlight = true
+
+			str.WriteString("<em>")
+		}
+
+		str.WriteString(token.RawText)
+
+		if token.TrailingSpace {
+			insertSpace = true
+		}
+
+		if !ok && inHighlight && !token.Ignored {
+			inHighlight = false
+		}
+	}
+
+	if inHighlight {
+		str.WriteString("</em>")
+	}
+
+	return str.String()
 }
