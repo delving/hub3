@@ -1,6 +1,7 @@
 package ead
 
 import (
+	"github.com/delving/hub3/ikuzo/service/x/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
 
@@ -30,6 +31,7 @@ func (dq *DescriptionQuery) FilterMatches(items []*DataItem) []*DataItem {
 		if !ok && dq.Filter {
 			continue
 		}
+
 		item.Text = text
 		matches = append(matches, item)
 	}
@@ -41,7 +43,7 @@ func (dq *DescriptionQuery) Seen() int {
 	return dq.tq.Hits.Total()
 }
 
-func (dq *DescriptionQuery) Hits() *memory.SearchHits {
+func (dq *DescriptionQuery) Hits() *search.Matches {
 	return dq.tq.Hits
 }
 
@@ -58,11 +60,14 @@ func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
 		s.File.PublicationDate, _ = dq.highlightQuery(s.File.PublicationDate)
 		s.File.Publisher, _ = dq.highlightQuery(s.File.Publisher)
 		s.File.Title, _ = dq.highlightQuery(s.File.Title)
+
 		var editions []string
+
 		for _, e := range s.File.Edition {
 			edition, _ := dq.highlightQuery(e)
 			editions = append(editions, edition)
 		}
+
 		if len(editions) != 0 {
 			s.File.Edition = editions
 		}
@@ -73,11 +78,14 @@ func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
 		s.FindingAid.Country, _ = dq.highlightQuery(s.FindingAid.Country)
 		s.FindingAid.ID, _ = dq.highlightQuery(s.FindingAid.ID)
 		s.FindingAid.ShortTitle, _ = dq.highlightQuery(s.FindingAid.ShortTitle)
+
 		var titles []string
+
 		for _, t := range s.FindingAid.Title {
 			title, _ := dq.highlightQuery(t)
 			titles = append(titles, title)
 		}
+
 		if len(titles) != 0 {
 			s.FindingAid.Title = titles
 		}
@@ -97,31 +105,38 @@ func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
 		unit.Repository, _ = dq.highlightQuery(unit.Repository)
 
 		var origins []string
+
 		for _, o := range unit.Origin {
 			origin, _ := dq.highlightQuery(o)
 			origins = append(origins, origin)
 		}
+
 		if len(origins) != 0 {
 			unit.Origin = origins
 		}
 
 		var dates []string
+
 		for _, d := range unit.Date {
 			date, _ := dq.highlightQuery(d)
 			dates = append(dates, date)
 		}
+
 		if len(dates) != 0 {
 			unit.Date = dates
 		}
 
 		var abstracts []string
+
 		for _, a := range unit.Abstract {
 			abstract, _ := dq.highlightQuery(a)
 			abstracts = append(abstracts, abstract)
 		}
+
 		if len(abstracts) != 0 {
 			unit.Abstract = abstracts
 		}
+
 		s.FindingAid.UnitInfo = unit
 	}
 

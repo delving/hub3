@@ -4,13 +4,16 @@ import (
 	"testing"
 )
 
+// nolint:funlen
 func Test_descriptionQuery_highlightQuery(t *testing.T) {
 	type fields struct {
 		query string
 	}
+
 	type args struct {
 		text string
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -50,14 +53,14 @@ func Test_descriptionQuery_highlightQuery(t *testing.T) {
 			"multi word phrase",
 			fields{query: "Henny van Schie"},
 			args{text: "Henny van Schie, rol"},
-			`<em class="dchl">Henny</em> <em class="dchl">van</em> <em class="dchl">Schie,</em> rol`,
+			`<em class="dchl">Henny van Schie,</em> rol`,
 			true,
 		},
 		{
 			"multi word match phrase",
 			fields{query: "\"Henny van Schie\""},
 			args{text: "Henny van Schie, rol"},
-			`<em class="dchl">Henny</em> <em class="dchl">van</em> <em class="dchl">Schie,</em> rol`,
+			`<em class="dchl">Henny van Schie,</em> rol`,
 			true,
 		},
 		{
@@ -92,14 +95,14 @@ func Test_descriptionQuery_highlightQuery(t *testing.T) {
 			"multiword match with period",
 			fields{query: "mr. Joan Blaeu"},
 			args{text: "zijn zoon, mr. Joan Blaeu, "},
-			"zijn zoon, <em class=\"dchl\">mr.</em> <em class=\"dchl\">Joan</em> <em class=\"dchl\">Blaeu,</em>",
+			"zijn zoon, <em class=\"dchl\">mr. Joan Blaeu,</em>",
 			true,
 		},
 		{
 			"phrase match with period",
 			fields{query: "\"mr. Joan Blaeu\""},
 			args{text: "zijn zoon, mr. Joan Blaeu, "},
-			"zijn zoon, <em class=\"dchl\">mr.</em> <em class=\"dchl\">Joan</em> <em class=\"dchl\">Blaeu,</em>",
+			"zijn zoon, <em class=\"dchl\">mr. Joan Blaeu,</em>",
 			true,
 		},
 	}
@@ -125,6 +128,7 @@ func Test_descriptionQuery_match(t *testing.T) {
 	type fields struct {
 		query string
 	}
+
 	type args struct {
 		word string
 	}
@@ -179,6 +183,8 @@ func Test_descriptionQuery_match(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			dq := NewDescriptionQuery(tt.fields.query)
 			gotWord, got := dq.highlightQuery(tt.args.word)
