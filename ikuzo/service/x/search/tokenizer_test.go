@@ -220,7 +220,7 @@ func TestTokenStream_Highlight(t *testing.T) {
 			tok := NewTokenizer()
 			tokens := tok.ParseString(tt.fields.text)
 
-			got := tokens.Highlight(tt.args.positions)
+			got := tokens.Highlight(tt.args.positions, "", "")
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("TokenStream.Highlight() %s = mismatch (-want +got):\n%s", tt.name, diff)

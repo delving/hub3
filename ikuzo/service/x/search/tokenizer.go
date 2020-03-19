@@ -135,7 +135,43 @@ type TokenStream struct {
 	tokens []Token
 }
 
-func (ts *TokenStream) Highlight(positions map[int]bool) string {
+func (ts *TokenStream) Tokens() []Token {
+	return ts.tokens
+}
+
+func (ts *TokenStream) String() string {
+	var str strings.Builder
+
+	for _, token := range ts.tokens {
+		str.WriteString(token.RawText)
+
+		if token.TrailingSpace {
+			str.WriteString(" ")
+		}
+	}
+
+	return str.String()
+}
+
+func setDefaultTags(startTag, endTag string) (start, end string) {
+	if startTag == "" {
+		startTag = "<em>"
+	}
+
+	if endTag == "" {
+		endTag = "</em>"
+	}
+
+	return startTag, endTag
+}
+
+func (ts *TokenStream) Highlight(positions map[int]bool, startTag, endTag string) string {
+	if len(positions) == 0 {
+		return ts.String()
+	}
+
+	startTag, endTag = setDefaultTags(startTag, endTag)
+
 	var str strings.Builder
 
 	var inHighlight bool
@@ -143,19 +179,9 @@ func (ts *TokenStream) Highlight(positions map[int]bool) string {
 	var insertSpace bool
 
 	for _, token := range ts.tokens {
-		if len(positions) == 0 {
-			str.WriteString(token.RawText)
-
-			if token.TrailingSpace {
-				str.WriteString(" ")
-			}
-
-			continue
-		}
-
 		_, ok := positions[token.WordPosition]
 		if !ok && inHighlight && !token.Ignored {
-			str.WriteString("</em>")
+			str.WriteString(endTag)
 		}
 
 		if insertSpace {
@@ -167,7 +193,7 @@ func (ts *TokenStream) Highlight(positions map[int]bool) string {
 		if ok && !inHighlight {
 			inHighlight = true
 
-			str.WriteString("<em>")
+			str.WriteString(startTag)
 		}
 
 		str.WriteString(token.RawText)
@@ -182,7 +208,7 @@ func (ts *TokenStream) Highlight(positions map[int]bool) string {
 	}
 
 	if inHighlight {
-		str.WriteString("</em>")
+		str.WriteString(endTag)
 	}
 
 	return str.String()
