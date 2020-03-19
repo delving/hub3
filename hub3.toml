@@ -62,7 +62,7 @@ excludeSpec = [
 [logging]
 devmode = true
 sentrydsn = ""
-level = "info"
+level = "debug"
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
@@ -167,7 +167,7 @@ searchURL = "https://test.nationaalarchief.nl"
 genreFormDefault = "other/unknown"
 treeFields = [
     # did
-    "ead-rdf_unittitle",
+    "ead-rdf_unitTitle",
     "ead-rdf_unitID",
     "ead-rdf_unitDate",
     "ead-rdf_physdesc",
