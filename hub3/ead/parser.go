@@ -226,7 +226,11 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 	if err != nil {
 		return uint64(0), err
 	}
+
 	defer in.Close()
+	defer func() {
+		err = r.MultipartForm.RemoveAll()
+	}()
 
 	cfg, err := ProcessEAD(in, header.Size, spec, p)
 	if err != nil {
