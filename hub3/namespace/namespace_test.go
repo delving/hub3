@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/delving/hub3/pkg/namespace"
+	"github.com/delving/hub3/hub3/namespace"
 	"github.com/google/go-cmp/cmp"
 )
 

@@ -3,7 +3,7 @@ package namespace_test
 import (
 	"testing"
 
-	"github.com/delving/hub3/pkg/namespace"
+	"github.com/delving/hub3/hub3/namespace"
 )
 
 func TestService_SearchLabel(t *testing.T) {

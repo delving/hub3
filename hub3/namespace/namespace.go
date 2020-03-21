@@ -70,7 +70,9 @@ func (ns *NameSpace) AddPrefix(prefix string) error {
 		}
 	}
 	ns.PrefixAlt = append(ns.PrefixAlt, prefix)
+
 	return nil
+
 }
 
 // AddBase adds a base-URI to the list of base alternatives.

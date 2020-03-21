@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/delving/hub3/pkg/server/http/assets"
+	"github.com/delving/hub3/hub3/server/http/assets"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )

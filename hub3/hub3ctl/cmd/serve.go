@@ -20,8 +20,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/delving/hub3/pkg/namespace"
-	pb "github.com/delving/hub3/pkg/server/grpc/pb/namespacepb"
+	"github.com/delving/hub3/hub3/namespace"
+	pb "github.com/delving/hub3/hub3/server/grpc/pb/namespacepb"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc"
 )

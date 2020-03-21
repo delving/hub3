@@ -25,7 +25,7 @@ import (
 	"syscall"
 
 	"github.com/delving/hub3/hub3/ead"
-	"github.com/delving/hub3/pkg/server/http/handlers"
+	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"

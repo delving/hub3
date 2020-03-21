@@ -8,8 +8,8 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/middleware"
-	"github.com/delving/hub3/pkg/server/http/assets"
-	"github.com/delving/hub3/pkg/server/http/handlers"
+	"github.com/delving/hub3/hub3/server/http/assets"
+	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"

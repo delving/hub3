@@ -8,7 +8,7 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/delving/hub3/config"
-	. "github.com/delving/hub3/pkg/server/http/handlers"
+	. "github.com/delving/hub3/hub3/server/http/handlers"
 )
 
 var _ = Describe("Cache", func() {

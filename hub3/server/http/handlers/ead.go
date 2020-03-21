@@ -24,6 +24,9 @@ func RegisterEAD(r chi.Router) {
 	// EAD endpoint
 	r.Post("/api/ead", eadUpload)
 
+	r.Get("/api/ead/search", eadSearch)
+	r.Get("/api/ead/search/{inventoryID}", eadInventorySearch)
+
 	// Tree reconstruction endpoint
 	r.Get("/api/tree/{spec}", TreeList)
 	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
@@ -268,4 +271,24 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 	}
 	render.JSON(w, r, stats)
 	return
+}
+
+func eadSearch(w http.ResponseWriter, r *http.Request) {
+	resp, err := ead.PerformClusteredSearch(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, resp)
+}
+
+func eadInventorySearch(w http.ResponseWriter, r *http.Request) {
+	resp, err := ead.PerformDetailSearch(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	render.JSON(w, r, resp)
 }
