@@ -51,6 +51,7 @@ type Header struct {
 	DaoLink          string
 	AltRender        string
 	Genreform        string
+	Attridentifier   string
 }
 type NodeDate struct {
 	Calendar string

@@ -403,6 +403,10 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		if strings.EqualFold(unitID.Attrtype, "bd") {
 			header.AltRender = "Born Digital"
 		}
+
+		if unitID.Attridentifier != "" {
+			header.Attridentifier = unitID.Attridentifier
+		}
 	}
 
 	nodeIDs, inventoryID, err := cdid.NewNodeIDs()
