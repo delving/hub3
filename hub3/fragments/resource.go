@@ -1313,6 +1313,7 @@ func (fr *FragmentResource) GetLevel() int32 {
 			highestLevel = ctx.GetLevel()
 		}
 	}
+
 	return int32(highestLevel + 1)
 }
 
@@ -1331,7 +1332,11 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 
 // NewFields returns a map of the triples sorted by their searchLabel
 func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[string][]string {
-	fieldMap := make(map[string]map[string]struct{})
+	if tq != nil {
+		tq.Reset()
+	}
+
+	fieldMap := make(map[string]map[string]bool)
 
 	includeMap := make(map[string]bool)
 	for _, field := range fields {
@@ -1359,37 +1364,80 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 
 			nd, ok := fieldMap[entry.SearchLabel]
 			if !ok {
-				fd := make(map[string]struct{})
-				fd[entryKey] = struct{}{}
+				fd := make(map[string]bool)
+				fd[entryKey] = true
 				fieldMap[entry.SearchLabel] = fd
 				continue
 			}
 			_, ok = nd[entryKey]
 			if !ok {
-				nd[entryKey] = struct{}{}
+				nd[entryKey] = true
 			}
 		}
 	}
 	fg.Fields = make(map[string][]string)
-	for k, v := range fieldMap {
-		fields := []string{}
-		for vk := range v {
-			if vk != "" {
+	var docID int
+
+	type hlEntry struct {
+		searchLabel string
+		docID       int
+		text        string
+	}
+
+	hlFields := []hlEntry{}
+
+	for searchLabel, rawFields := range fieldMap {
+
+		for field := range rawFields {
+
+			if field != "" {
+				docID++
 				if tq != nil {
-					text, ok := tq.Highlight(vk)
-					if ok {
-						log.Printf("highlight: %s", text)
+					indexErr := tq.AppendString(field, docID)
+					if indexErr != nil {
+						log.Printf("index error: %#v", indexErr)
 					}
-					fields = append(fields, text)
-					continue
 				}
-				fields = append(fields, vk)
+				hlFields = append(hlFields, hlEntry{
+					searchLabel: searchLabel,
+					docID:       docID,
+					text:        field,
+				})
 			}
 		}
-		if len(fields) > 0 {
-			fg.Fields[k] = fields
+
+	}
+
+	// keep fields by docID
+	sort.Slice(hlFields, func(i, j int) bool {
+		return hlFields[i].docID < hlFields[j].docID
+	})
+
+	if tq != nil {
+		_, searchErr := tq.PerformSearch()
+		if searchErr != nil {
+			log.Printf("unable to do field search = %+v\n", searchErr)
 		}
 	}
+
+	flatFields := map[string][]string{}
+	for _, field := range hlFields {
+		var text string
+		if tq != nil {
+			text, _ = tq.Highlight(field.text, field.docID)
+		} else {
+			text = field.text
+		}
+
+		fieldValue, ok := flatFields[field.searchLabel]
+		if !ok {
+			fieldValue = []string{}
+		}
+		flatFields[field.searchLabel] = append(fieldValue, text)
+
+	}
+	fg.Fields = flatFields
+
 	return fg.Fields
 }
 
@@ -1424,7 +1472,6 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 	Loop:
 		for _, entry := range fr.Entries {
 			if entry.ID != "" && fr.ID != entry.ID {
-
 				target, ok := rm.GetResource(entry.ID)
 				if ok {
 					//log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
@@ -1525,10 +1572,10 @@ func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 }
 
 // AddTags adds a tag string to the tags array of the Header
-func (h *Header) AddTags(tags ...string) {
+func (m *Header) AddTags(tags ...string) {
 	for _, tag := range tags {
-		if !contains(h.Tags, tag) {
-			h.Tags = append(h.Tags, tag)
+		if !contains(m.Tags, tag) {
+			m.Tags = append(m.Tags, tag)
 		}
 	}
 }
