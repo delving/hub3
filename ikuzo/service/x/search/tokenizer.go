@@ -3,14 +3,15 @@ package search
 import (
 	"bytes"
 	"io"
+	"log"
 	"strings"
 	"text/scanner"
 	"unicode"
 )
 
 type Token struct {
-	Position      int
-	WordPosition  int
+	Vector        int
+	TermVector    int
 	OffsetStart   int
 	OffsetEnd     int
 	Ignored       bool
@@ -18,46 +19,64 @@ type Token struct {
 	Normal        string
 	TrailingSpace bool
 	Punctuation   bool
+	DocID         int
 }
 
-func (t Token) incWordPos() bool {
+func (t *Token) isTermVector() bool {
 	return !t.Punctuation && !t.Ignored
 }
 
+func (t *Token) GetTermVector() Vector {
+	return Vector{
+		Location: t.TermVector,
+		DocID:    t.DocID,
+	}
+}
+
 type Tokenizer struct {
-	s        *scanner.Scanner
-	a        Analyzer
-	wordPos  int
-	tokenPos int
+	s           *scanner.Scanner
+	a           Analyzer
+	termVector  int
+	tokenVector int
+	docID       int
 }
 
 func NewTokenizer() *Tokenizer {
 	return &Tokenizer{}
 }
 
-func (t *Tokenizer) ParseString(text string) *TokenStream {
-	return t.parse(strings.NewReader(text))
+func (t *Tokenizer) ParseString(text string, docID int) *TokenStream {
+	return t.Parse(strings.NewReader(text), docID)
 }
 
-func (t *Tokenizer) ParseBytes(b []byte) *TokenStream {
-	return t.parse(bytes.NewReader(b))
-}
-
-func (t *Tokenizer) ParseReader(r io.Reader) *TokenStream {
-	return t.parse(r)
+func (t *Tokenizer) ParseBytes(b []byte, docID int) *TokenStream {
+	return t.Parse(bytes.NewReader(b), docID)
 }
 
 func (t *Tokenizer) resetScanner() {
 	var s scanner.Scanner
 	t.s = &s
 	t.s.IsIdentRune = isIdentRune
-	t.wordPos = 0
-	t.tokenPos = 0
+	t.termVector = 0
+	t.tokenVector = 0
+	t.s.Error = func(s *scanner.Scanner, msg string) {
+		log.Printf("scan error: %s", msg)
+	}
 }
 
-func (t *Tokenizer) parse(r io.Reader) *TokenStream {
+// Parse creates a stream of tokens from an io.Reader.
+// Each time Parse is called the document count is auto-incremented if a document
+// identifier of 0 is given. Otherwise each call to Parse would effectively create
+// the same vectors as the previous runs.
+func (t *Tokenizer) Parse(r io.Reader, docID int) *TokenStream {
 	t.resetScanner()
 	t.s.Init(r)
+
+	if docID == 0 {
+		t.docID++
+	} else {
+		t.docID = docID
+	}
 
 	tokens := []Token{}
 	for tok := t.s.Scan(); tok != scanner.EOF; tok = t.s.Scan() {
@@ -89,7 +108,7 @@ func (t *Tokenizer) takeTag(text string) string {
 }
 
 func (t *Tokenizer) runParser(tok rune) Token {
-	t.tokenPos++
+	t.tokenVector++
 	text := t.s.TokenText()
 
 	var ignored bool
@@ -104,10 +123,11 @@ func (t *Tokenizer) runParser(tok rune) Token {
 
 	token := Token{
 		RawText:     text,
-		Position:    t.tokenPos,
+		Vector:      t.tokenVector,
 		OffsetStart: pos.Offset,
 		OffsetEnd:   pos.Offset + (len(text) - 1),
 		Ignored:     ignored,
+		DocID:       t.docID,
 	}
 
 	if unicode.IsSpace(t.s.Peek()) {
@@ -123,9 +143,9 @@ func (t *Tokenizer) runParser(tok rune) Token {
 		token.Normal = t.a.Transform(token.RawText)
 	}
 
-	if token.incWordPos() {
-		t.wordPos++
-		token.WordPosition = t.wordPos
+	if token.isTermVector() {
+		t.termVector++
+		token.TermVector = t.termVector
 	}
 
 	return token
@@ -153,20 +173,8 @@ func (ts *TokenStream) String() string {
 	return str.String()
 }
 
-func setDefaultTags(startTag, endTag string) (start, end string) {
-	if startTag == "" {
-		startTag = "<em>"
-	}
-
-	if endTag == "" {
-		endTag = "</em>"
-	}
-
-	return startTag, endTag
-}
-
-func (ts *TokenStream) Highlight(positions map[int]bool, startTag, endTag string) string {
-	if len(positions) == 0 {
+func (ts *TokenStream) Highlight(vectors *Vectors, startTag, endTag string) string {
+	if vectors != nil && vectors.Size() == 0 {
 		return ts.String()
 	}
 
@@ -179,7 +187,7 @@ func (ts *TokenStream) Highlight(positions map[int]bool, startTag, endTag string
 	var insertSpace bool
 
 	for _, token := range ts.tokens {
-		_, ok := positions[token.WordPosition]
+		ok := vectors.HasVector(token.GetTermVector())
 		if !ok && inHighlight && !token.Ignored {
 			str.WriteString(endTag)
 		}
@@ -212,4 +220,16 @@ func (ts *TokenStream) Highlight(positions map[int]bool, startTag, endTag string
 	}
 
 	return str.String()
+}
+
+func setDefaultTags(startTag, endTag string) (start, end string) {
+	if startTag == "" {
+		startTag = "<em>"
+	}
+
+	if endTag == "" {
+		endTag = "</em>"
+	}
+
+	return startTag, endTag
 }

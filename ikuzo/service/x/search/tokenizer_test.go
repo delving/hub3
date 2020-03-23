@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/matryer/is"
 )
 
 type targs struct {
@@ -22,7 +21,7 @@ var tokenTests = []struct {
 		targs{"word"},
 		&TokenStream{
 			[]Token{
-				{Position: 1, WordPosition: 1, OffsetStart: 0, OffsetEnd: 3, RawText: "word", Normal: "word"},
+				{Vector: 1, TermVector: 1, OffsetStart: 0, OffsetEnd: 3, RawText: "word", Normal: "word", DocID: 1},
 			},
 		},
 	},
@@ -32,12 +31,13 @@ var tokenTests = []struct {
 		&TokenStream{
 			[]Token{
 				{
-					Position:     1,
-					WordPosition: 1,
-					OffsetStart:  0,
-					OffsetEnd:    6,
-					RawText:      "Word...",
-					Normal:       "word",
+					Vector:      1,
+					TermVector:  1,
+					OffsetStart: 0,
+					OffsetEnd:   6,
+					RawText:     "Word...",
+					Normal:      "word",
+					DocID:       1,
 				},
 			},
 		},
@@ -48,12 +48,13 @@ var tokenTests = []struct {
 		&TokenStream{
 			[]Token{
 				{
-					Position:    1,
+					Vector:      1,
 					OffsetStart: 0,
 					OffsetEnd:   2,
 					RawText:     "<p>",
 					Normal:      "",
 					Ignored:     true,
+					DocID:       1,
 				},
 			},
 		},
@@ -64,12 +65,13 @@ var tokenTests = []struct {
 		&TokenStream{
 			[]Token{
 				{
-					Position:    1,
+					Vector:      1,
 					OffsetStart: 0,
 					OffsetEnd:   28,
 					RawText:     "<p href=\"http://example.com\">",
 					Normal:      "",
 					Ignored:     true,
+					DocID:       1,
 				},
 			},
 		},
@@ -80,17 +82,92 @@ var tokenTests = []struct {
 		&TokenStream{
 			[]Token{
 				{
-					Position:    1,
+					Vector:      1,
 					OffsetStart: 0,
 					OffsetEnd:   28,
 					RawText:     "<p href=\"http://example.com\">",
 					Normal:      "",
 					Ignored:     true,
+					DocID:       1,
 				},
-				{Position: 2, WordPosition: 1, OffsetStart: 29, OffsetEnd: 31, RawText: "mr.", Normal: "mr", TrailingSpace: true},
-				{Position: 3, WordPosition: 2, OffsetStart: 33, OffsetEnd: 36, RawText: "Joan", Normal: "joan", TrailingSpace: true},
-				{Position: 4, WordPosition: 3, OffsetStart: 38, OffsetEnd: 42, RawText: "Blaeu", Normal: "blaeu"},
-				{Position: 5, OffsetStart: 43, OffsetEnd: 46, Ignored: true, RawText: "</p>"},
+				{Vector: 2, TermVector: 1, OffsetStart: 29, OffsetEnd: 31,
+					RawText: "mr.", Normal: "mr", TrailingSpace: true, DocID: 1},
+				{Vector: 3, TermVector: 2, OffsetStart: 33, OffsetEnd: 36,
+					RawText: "Joan", Normal: "joan", TrailingSpace: true, DocID: 1},
+				{Vector: 4, TermVector: 3, OffsetStart: 38, OffsetEnd: 42,
+					RawText: "Blaeu", Normal: "blaeu", DocID: 1},
+				{Vector: 5, OffsetStart: 43, OffsetEnd: 46, Ignored: true,
+					RawText: "</p>", DocID: 1},
+			},
+		},
+	},
+	{
+		"mixed tags",
+		targs{
+			"<p><persname>Christoffel Plantijn</persname>, <unitdate calendar=\"gregorian\" era=\"ce\" normal=\"1584\"> 1584</unitdate> </p>",
+		},
+		&TokenStream{
+			[]Token{
+				{Vector: 1, OffsetEnd: 2, Ignored: true, RawText: "<p>", DocID: 1},
+				{Vector: 2, OffsetStart: 3, OffsetEnd: 12, Ignored: true, RawText: "<persname>", DocID: 1},
+				{
+					Vector:        3,
+					TermVector:    1,
+					OffsetStart:   13,
+					OffsetEnd:     23,
+					RawText:       "Christoffel",
+					Normal:        "christoffel",
+					TrailingSpace: true,
+					DocID:         1},
+				{
+					Vector:      4,
+					TermVector:  2,
+					OffsetStart: 25,
+					OffsetEnd:   32,
+					RawText:     "Plantijn",
+					Normal:      "plantijn",
+					DocID:       1},
+				{
+					Vector:      5,
+					OffsetStart: 33,
+					OffsetEnd:   43,
+					Ignored:     true,
+					RawText:     "</persname>",
+					DocID:       1},
+				{
+					Vector:        6,
+					OffsetStart:   44,
+					OffsetEnd:     44,
+					Ignored:       true,
+					RawText:       ",",
+					TrailingSpace: true,
+					Punctuation:   true,
+					DocID:         1},
+				{
+					Vector:        7,
+					OffsetStart:   46,
+					OffsetEnd:     100,
+					Ignored:       true,
+					RawText:       `<unitdate calendar="gregorian" era="ce" normal="1584"> `,
+					TrailingSpace: true,
+					DocID:         1},
+				{
+					Vector:      8,
+					TermVector:  3,
+					OffsetStart: 101,
+					OffsetEnd:   104,
+					RawText:     "1584",
+					Normal:      "1584",
+					DocID:       1},
+				{
+					Vector:        9,
+					OffsetStart:   105,
+					OffsetEnd:     116,
+					Ignored:       true,
+					RawText:       "</unitdate> ",
+					TrailingSpace: true,
+					DocID:         1},
+				{Vector: 10, OffsetStart: 117, OffsetEnd: 120, Ignored: true, RawText: "</p>", DocID: 1},
 			},
 		},
 	},
@@ -99,43 +176,43 @@ var tokenTests = []struct {
 		targs{"Really, are you serious?"},
 		&TokenStream{
 			[]Token{
-				{Position: 1, WordPosition: 1, OffsetEnd: 5, RawText: "Really", Normal: "really"},
+				{Vector: 1, TermVector: 1, OffsetEnd: 5, RawText: "Really", Normal: "really", DocID: 1},
 				{
-					Position:      2,
+					Vector:        2,
 					OffsetStart:   6,
 					OffsetEnd:     6,
 					RawText:       ",",
 					TrailingSpace: true,
 					Punctuation:   true,
 					Ignored:       true,
-				},
+					DocID:         1},
 				{
-					Position:      3,
-					WordPosition:  2,
+					Vector:        3,
+					TermVector:    2,
 					OffsetStart:   8,
 					OffsetEnd:     10,
 					RawText:       "are",
 					Normal:        "are",
 					TrailingSpace: true,
-				},
+					DocID:         1},
 				{
-					Position:      4,
-					WordPosition:  3,
+					Vector:        4,
+					TermVector:    3,
 					OffsetStart:   12,
 					OffsetEnd:     14,
 					RawText:       "you",
 					Normal:        "you",
 					TrailingSpace: true,
-				},
+					DocID:         1},
 				{
-					Position:     5,
-					WordPosition: 4,
-					OffsetStart:  16,
-					OffsetEnd:    22,
-					RawText:      "serious",
-					Normal:       "serious",
-				},
-				{Position: 6, OffsetStart: 23, OffsetEnd: 23, RawText: "?", Punctuation: true, Ignored: true},
+					Vector:      5,
+					TermVector:  4,
+					OffsetStart: 16,
+					OffsetEnd:   22,
+					RawText:     "serious",
+					Normal:      "serious",
+					DocID:       1},
+				{Vector: 6, OffsetStart: 23, OffsetEnd: 23, RawText: "?", Punctuation: true, Ignored: true, DocID: 1},
 			},
 		},
 	},
@@ -148,7 +225,7 @@ func TestTokenizer_parse(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tok := NewTokenizer()
 
-			got := tok.ParseString(tt.args.text)
+			got := tok.Parse(strings.NewReader(tt.args.text), 0)
 
 			if diff := cmp.Diff(tt.want, got, cmp.AllowUnexported(TokenStream{})); diff != "" {
 				t.Errorf("tokenizer.parse() %s = mismatch (-want +got):\n%s", tt.name, diff)
@@ -159,17 +236,20 @@ func TestTokenizer_parse(t *testing.T) {
 
 // nolint:gocritic
 func TestTokenizer_Parsers(t *testing.T) {
-	is := is.New(t)
-
-	want := &TokenStream{[]Token{{Position: 1, WordPosition: 1, OffsetStart: 0, OffsetEnd: 3, RawText: "word", Normal: "word"}}}
+	want := &TokenStream{[]Token{{Vector: 1, TermVector: 1, OffsetStart: 0, OffsetEnd: 3,
+		RawText: "word", Normal: "word", DocID: 1}}}
 
 	tok := NewTokenizer()
 
-	got := tok.ParseBytes([]byte("word"))
-	is.Equal(got, want)
+	got := tok.ParseBytes([]byte("word"), 1)
+	if diff := cmp.Diff(want, got, cmp.AllowUnexported(TokenStream{})); diff != "" {
+		t.Errorf("tokenizer.parse() %s = mismatch (-want +got):\n%s", "parseBytes", diff)
+	}
 
-	got = tok.ParseReader(strings.NewReader("word"))
-	is.Equal(got, want)
+	got = tok.ParseString("word", 1)
+	if diff := cmp.Diff(want, got, cmp.AllowUnexported(TokenStream{})); diff != "" {
+		t.Errorf("tokenizer.parse() %s = mismatch (-want +got):\n%s", "parseString", diff)
+	}
 }
 
 func TestTokenStream_Highlight(t *testing.T) {
@@ -178,7 +258,7 @@ func TestTokenStream_Highlight(t *testing.T) {
 	}
 
 	type args struct {
-		positions map[int]bool
+		positions []int
 	}
 
 	tests := []struct {
@@ -196,20 +276,26 @@ func TestTokenStream_Highlight(t *testing.T) {
 		{
 			"two words first hit",
 			fields{text: "two words"},
-			args{map[int]bool{1: true}},
+			args{[]int{1}},
 			"<em>two</em> words",
 		},
 		{
 			"two words second hit",
 			fields{text: "two words"},
-			args{map[int]bool{2: true}},
+			args{[]int{2}},
 			"two <em>words</em>",
 		},
 		{
 			"phrase hit",
 			fields{text: "two, words. no hit!"},
-			args{map[int]bool{1: true, 2: true}},
+			args{[]int{1, 2}},
 			"<em>two, words.</em> no hit!",
+		},
+		{
+			"phrase hit",
+			fields{text: "<p>two, words.</p> no hit!"},
+			args{[]int{1, 2}},
+			"<p><em>two, words.</p> </em> no hit!",
 		},
 	}
 
@@ -218,9 +304,15 @@ func TestTokenStream_Highlight(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			tok := NewTokenizer()
-			tokens := tok.ParseString(tt.fields.text)
+			tokens := tok.Parse(strings.NewReader(tt.fields.text), 0)
 
-			got := tokens.Highlight(tt.args.positions, "", "")
+			terms := NewVectors()
+
+			for _, v := range tt.args.positions {
+				terms.Add(1, v)
+			}
+
+			got := tokens.Highlight(terms, "", "")
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("TokenStream.Highlight() %s = mismatch (-want +got):\n%s", tt.name, diff)

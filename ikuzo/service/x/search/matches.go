@@ -2,40 +2,31 @@ package search
 
 type Matches struct {
 	termFrequency map[string]int
-	wordPositions map[int]bool
+	termVectors   *Vectors
 }
 
 func NewMatches() *Matches {
 	return &Matches{
 		termFrequency: make(map[string]int),
-		wordPositions: map[int]bool{},
+		termVectors:   NewVectors(),
 	}
 }
 
-func (m *Matches) ApppendPositions(positions map[int]bool) {
-	m.mergePositions(positions)
-}
-
-func (m *Matches) AppendTerm(term string, count int, positions map[int]bool) {
-	m.termFrequency[term] = count
-	m.mergePositions(positions)
-}
-
-func (m *Matches) Total() int {
-	var total int
-	for _, hitCount := range m.termFrequency {
-		total += hitCount
+func (m *Matches) AppendTerm(term string, tv *Vectors) {
+	if tv.Size() == 0 {
+		return
 	}
 
-	return total
+	m.termFrequency[term] = tv.Size()
+	m.mergeVectors(tv)
 }
 
-func (m *Matches) TermFrequency() map[string]int {
-	return m.termFrequency
+func (m *Matches) DocCount() int {
+	return m.termVectors.DocCount()
 }
 
-func (m *Matches) WordPositions() map[int]bool {
-	return m.wordPositions
+func (m *Matches) HasDocID(docID int) bool {
+	return m.termVectors.HasDoc(docID)
 }
 
 func (m *Matches) Merge(matches *Matches) {
@@ -48,15 +39,31 @@ func (m *Matches) Merge(matches *Matches) {
 
 		m.termFrequency[key] = count
 	}
+
+	m.mergeVectors(matches.termVectors)
 }
 
-func (m *Matches) mergePositions(positions map[int]bool) {
-	for key := range positions {
-		_, ok := m.wordPositions[key]
-		if ok {
-			continue
-		}
+func (m *Matches) mergeVectors(tv *Vectors) {
+	m.termVectors.Merge(tv)
+}
 
-		m.wordPositions[key] = true
+func (m *Matches) TermFrequency() map[string]int {
+	return m.termFrequency
+}
+
+func (m *Matches) TermCount() int {
+	return len(m.termFrequency)
+}
+
+func (m *Matches) Total() int {
+	var total int
+	for _, hitCount := range m.termFrequency {
+		total += hitCount
 	}
+
+	return total
+}
+
+func (m *Matches) Vectors() *Vectors {
+	return m.termVectors
 }

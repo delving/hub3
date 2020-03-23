@@ -21,16 +21,21 @@ func IsPhraseMatch(pos1, pos2, slop int) (bool, error) {
 
 // ValidPhrasePosition returns a list of valid positions from the source position
 // to determine if the term is part of a phrase.
-func ValidPhrasePosition(pos, slop int) []int {
+func ValidPhrasePosition(vector Vector, slop int) []Vector {
 	if slop == 0 {
-		return []int{pos, pos + 1}
+		return []Vector{
+			vector,
+			{DocID: vector.DocID, Location: vector.Location + 1},
+		}
 	}
 
-	valid := []int{}
+	valid := []Vector{}
+
+	pos := vector.Location
 
 	for i := pos - slop; i <= pos+slop; i++ {
-		if i >= 0 {
-			valid = append(valid, i)
+		if i > 0 {
+			valid = append(valid, Vector{DocID: vector.DocID, Location: i})
 		}
 	}
 

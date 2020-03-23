@@ -76,34 +76,62 @@ func TestIsPhraseMatch(t *testing.T) {
 
 func TestValidPhrasePosition(t *testing.T) {
 	type args struct {
-		pos  int
-		slop int
+		vector Vector
+		slop   int
 	}
 
 	tests := []struct {
 		name string
 		args args
-		want []int
+		want []Vector
 	}{
 		{
 			"no slop",
-			args{pos: 1, slop: 0},
-			[]int{1, 2},
+			args{vector: Vector{DocID: 1, Location: 1}, slop: 0},
+			[]Vector{
+				{DocID: 1, Location: 1},
+				{DocID: 1, Location: 2},
+			},
 		},
 		{
 			"slop 1",
-			args{pos: 1, slop: 1},
-			[]int{0, 1, 2},
+			args{vector: Vector{DocID: 1, Location: 1}, slop: 1},
+			[]Vector{
+				{DocID: 1, Location: 1},
+				{DocID: 1, Location: 2},
+			},
+		},
+		{
+			"slop 1; start 5",
+			args{vector: Vector{DocID: 1, Location: 5}, slop: 1},
+			[]Vector{
+				{DocID: 1, Location: 4},
+				{DocID: 1, Location: 5},
+				{DocID: 1, Location: 6},
+			},
 		},
 		{
 			"slop 3",
-			args{pos: 1, slop: 3},
-			[]int{0, 1, 2, 3, 4},
+			args{vector: Vector{DocID: 1, Location: 1}, slop: 3},
+			[]Vector{
+				{DocID: 1, Location: 1},
+				{DocID: 1, Location: 2},
+				{DocID: 1, Location: 3},
+				{DocID: 1, Location: 4},
+			},
 		},
 		{
 			"slop 3; start 10",
-			args{pos: 10, slop: 3},
-			[]int{7, 8, 9, 10, 11, 12, 13},
+			args{vector: Vector{DocID: 1, Location: 10}, slop: 3},
+			[]Vector{
+				{DocID: 1, Location: 7},
+				{DocID: 1, Location: 8},
+				{DocID: 1, Location: 9},
+				{DocID: 1, Location: 10},
+				{DocID: 1, Location: 11},
+				{DocID: 1, Location: 12},
+				{DocID: 1, Location: 13},
+			},
 		},
 	}
 
@@ -111,7 +139,7 @@ func TestValidPhrasePosition(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			got := ValidPhrasePosition(tt.args.pos, tt.args.slop)
+			got := ValidPhrasePosition(tt.args.vector, tt.args.slop)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("ValidPhrasePosition() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
