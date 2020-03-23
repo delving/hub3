@@ -11,18 +11,40 @@ import (
 	"github.com/matryer/is"
 )
 
-func newTestMatch(hits map[string]int, positions []int) *search.Matches {
+type termVector struct {
+	term    string
+	vectors []testVector
+}
+
+type testVector struct {
+	inPhrase bool
+	DocID    int
+	Location int
+}
+
+func (tv testVector) searchVector() search.Vector {
+	return search.Vector{
+		DocID:    tv.DocID,
+		Location: tv.Location,
+	}
+}
+
+func createMatches(vectors []termVector) *search.Matches {
 	matches := search.NewMatches()
 
-	pos := map[int]bool{}
-	for _, p := range positions {
-		pos[p] = true
-	}
+	for _, v := range vectors {
+		tv := search.NewVectors()
 
-	matches.ApppendPositions(pos)
+		for _, vector := range v.vectors {
+			if vector.inPhrase {
+				tv.AddPhraseVector(vector.searchVector())
+				continue
+			}
 
-	for term, count := range hits {
-		matches.AppendTerm(term, count, map[int]bool{})
+			tv.AddVector(vector.searchVector())
+		}
+
+		matches.AppendTerm(v.term, tv)
 	}
 
 	return matches
@@ -49,7 +71,7 @@ var appendTests = []struct {
 	{
 		"one word with hyphen",
 		[]byte("two-words"),
-		3,
+		1, // TODO should these be split
 		false,
 	},
 	{
@@ -78,6 +100,23 @@ func TestTextIndex_appendBytes(t *testing.T) {
 	}
 }
 
+func TestTextIndex_reset(t *testing.T) {
+	is := is.New(t)
+
+	ti := NewTextIndex()
+
+	is.Equal(ti.size(), 0)
+
+	err := ti.AppendString("some words")
+	is.NoErr(err)
+
+	is.Equal(ti.size(), 2)
+
+	ti.reset()
+
+	is.Equal(ti.size(), 0)
+}
+
 func TestTextIndex_appendString(t *testing.T) {
 	is := is.New(t)
 
@@ -94,23 +133,6 @@ func TestTextIndex_appendString(t *testing.T) {
 			is.Equal(ti.size(), tt.want)
 		})
 	}
-}
-
-func TestTextIndex_reset(t *testing.T) {
-	is := is.New(t)
-
-	ti := NewTextIndex()
-
-	is.Equal(ti.size(), 0)
-
-	err := ti.AppendString("some words")
-	is.NoErr(err)
-
-	is.Equal(ti.size(), 2)
-
-	ti.reset()
-
-	is.Equal(ti.size(), 0)
 }
 
 type searchArgs struct {
@@ -162,7 +184,7 @@ var searchTests = []struct {
 			text:  "zero to nine",
 		},
 		map[string]int{
-			"ten": 0,
+			// "ten": 0,
 		},
 		false,
 		false,
@@ -370,7 +392,7 @@ func TestTextIndex_search(t *testing.T) {
 				t.Errorf("TextIndex.search() %s error = %v, wantNoMatchErr %v", tt.name, err, tt.wantErr)
 			}
 
-			if diff := cmp.Diff(tt.want, got.TermFrequency()); diff != "" {
+			if diff := cmp.Diff(tt.want, got.TermFrequency(), cmp.AllowUnexported(search.Matches{}, search.Vectors{})); diff != "" {
 				t.Errorf("TextIndex.search() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
@@ -408,9 +430,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchTerm,
 			true,
-			newTestMatch(
-				map[string]int{"held": 1},
-				[]int{2},
+			createMatches(
+				[]termVector{
+					{"held", []testVector{{DocID: 1, Location: 2}}},
+				},
 			),
 		},
 		{
@@ -422,10 +445,7 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchTerm,
 			false,
-			newTestMatch(
-				map[string]int{},
-				[]int{},
-			),
+			createMatches([]termVector{}),
 		},
 		{
 			"prohibited query",
@@ -447,10 +467,9 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchWildcard,
 			true,
-			newTestMatch(
-				map[string]int{"zeeheldenkwartier": 1},
-				[]int{1},
-			),
+			createMatches([]termVector{
+				{"zeeheldenkwartier", []testVector{{DocID: 1, Location: 1}}},
+			}),
 		},
 		{
 			"suffix query",
@@ -461,10 +480,10 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchWildcard,
 			true,
-			newTestMatch(
-				map[string]int{"zeeheldenkwartier": 1, "kwartier": 1},
-				[]int{1, 3},
-			),
+			createMatches([]termVector{
+				{"zeeheldenkwartier", []testVector{{DocID: 1, Location: 1}}},
+				{"kwartier", []testVector{{DocID: 1, Location: 3}}},
+			}),
 		},
 		{
 			"fuzzy query",
@@ -475,10 +494,9 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchFuzzy,
 			true,
-			newTestMatch(
-				map[string]int{"batauia": 1},
-				[]int{1},
-			),
+			createMatches([]termVector{
+				{"batauia", []testVector{{DocID: 1, Location: 1}}},
+			}),
 		},
 		{
 			"fuzzy query (no match)",
@@ -511,10 +529,12 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			newTestMatch(
-				map[string]int{"de": 2},
-				[]int{4, 7},
-			),
+			createMatches([]termVector{
+				{"de", []testVector{
+					{DocID: 1, Location: 4},
+					{DocID: 1, Location: 7},
+				}},
+			}),
 		},
 		{
 			"phrase query (match)",
@@ -525,10 +545,14 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			newTestMatch(
-				map[string]int{"ware helden": 2},
-				[]int{1, 2, 9, 10},
-			),
+			createMatches([]termVector{
+				{"ware helden", []testVector{
+					{DocID: 1, Location: 1, inPhrase: true},
+					{DocID: 1, Location: 2},
+					{DocID: 1, Location: 9, inPhrase: true},
+					{DocID: 1, Location: 10},
+				}},
+			}),
 		},
 		{
 			"phrase query (no match) without slop",
@@ -550,10 +574,18 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			newTestMatch(
-				map[string]int{"ware helden": 2, "helden ware": 1},
-				[]int{1, 2, 9, 10, 13, 14},
-			),
+			createMatches([]termVector{
+				{"ware helden", []testVector{
+					{DocID: 1, Location: 1, inPhrase: true},
+					{DocID: 1, Location: 2},
+					{DocID: 1, Location: 9, inPhrase: true},
+					{DocID: 1, Location: 10},
+				}},
+				{"helden ware", []testVector{
+					{DocID: 1, Location: 13, inPhrase: true},
+					{DocID: 1, Location: 14},
+				}},
+			}),
 		},
 		{
 			"phrase query (match) with punctuation",
@@ -564,10 +596,13 @@ func TestTextIndex_matchCustom(t *testing.T) {
 			},
 			ti.matchPhrase,
 			true,
-			newTestMatch(
-				map[string]int{"mr joan blaeu": 1},
-				[]int{3, 4, 5},
-			),
+			createMatches([]termVector{
+				{"mr joan blaeu", []testVector{
+					{DocID: 1, Location: 3, inPhrase: true},
+					{DocID: 1, Location: 4, inPhrase: true},
+					{DocID: 1, Location: 5},
+				}},
+			}),
 		},
 	}
 
@@ -614,10 +649,8 @@ func TestTextIndex_searchMustNot(t *testing.T) {
 				"vredespaleis",
 				search.NewMatches(),
 			},
-			newTestMatch(
-				map[string]int{"vrede": 0},
-				[]int{},
-			),
+			// TODO(kiivihal): determine if not matches should come back as 0. probably not.
+			createMatches([]termVector{}),
 			false,
 			false,
 		},
@@ -705,11 +738,55 @@ func TestTextIndexSerialization(t *testing.T) {
 	err = ti.writeTo(&buf)
 	is.NoErr(err)
 
-	newTi := NewTextIndex()
-	err = newTi.readFrom(&buf)
+	newTi, err := readFrom(&buf)
 	is.NoErr(err)
 
-	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, search.TermVector{})); diff != "" {
+	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, search.Vector{})); diff != "" {
 		t.Errorf("TextIndex serialization = mismatch (-want +got):\n%s", diff)
+	}
+}
+
+func TestTextIndex_setDocID(t *testing.T) {
+	type args struct {
+		docID []int
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			"no docIDs",
+			args{},
+			1,
+		},
+		{
+			"single docIDs",
+			args{[]int{10}},
+			10,
+		},
+		{
+			"multiple docIDs",
+			args{[]int{10, 11}},
+			10,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			ti := NewTextIndex()
+			got := ti.setDocID(tt.args.docID...)
+
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("TextIndex.setDocID() %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+
+			if diff := cmp.Diff(ti.DocCount, got); diff != "" {
+				t.Errorf("TextIndex.DocCount %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
 	}
 }

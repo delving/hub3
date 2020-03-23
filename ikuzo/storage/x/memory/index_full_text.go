@@ -20,22 +20,60 @@ var (
 // and appends to the known state. It is not replaced. To reset the index to
 // an empty state you have to call the reset method.
 type TextIndex struct {
-	terms map[string]*search.TermVector
-	a     search.Analyzer
+	Terms    map[string]*search.Vectors
+	a        search.Analyzer
+	DocCount int
+	Docs     map[int]bool
 }
 
 func NewTextIndex() *TextIndex {
 	return &TextIndex{
-		terms: make(map[string]*search.TermVector),
+		Terms: make(map[string]*search.Vectors),
+		Docs:  make(map[int]bool),
 	}
 }
 
+func (ti *TextIndex) reset() {
+	ti.Terms = make(map[string]*search.Vectors)
+	ti.Docs = make(map[int]bool)
+	ti.DocCount = 0
+}
+
+func (ti *TextIndex) setDocID(docID ...int) int {
+	var id int
+
+	if len(docID) == 0 {
+		ti.DocCount++
+		id = ti.DocCount
+		ti.Docs[id] = true
+
+		return id
+	}
+
+	id = docID[0]
+	if id == 0 {
+		return ti.setDocID()
+	}
+
+	ti.DocCount = id
+	ti.Docs[id] = true
+
+	return id
+}
+
+func (ti *TextIndex) hasDocID(docID int) bool {
+	_, ok := ti.Docs[docID]
+	return ok
+}
+
 // AppendBytes extract words from bytes and updates the TextIndex.
-func (ti *TextIndex) AppendBytes(b []byte) error {
+func (ti *TextIndex) AppendBytes(b []byte, docID ...int) error {
+	id := ti.setDocID(docID...)
+
 	tok := search.NewTokenizer()
-	for _, token := range tok.ParseBytes(b).Tokens() {
+	for _, token := range tok.ParseBytes(b, id).Tokens() {
 		if !token.Ignored {
-			err := ti.addTerm(token.Normal, token.WordPosition)
+			err := ti.addTerm(token.Normal, token.TermVector)
 			if err != nil {
 				return err
 			}
@@ -46,11 +84,13 @@ func (ti *TextIndex) AppendBytes(b []byte) error {
 }
 
 // AppendString extract words from bytes and updates the TextIndex.
-func (ti *TextIndex) AppendString(text string) error {
+func (ti *TextIndex) AppendString(text string, docID ...int) error {
+	id := ti.setDocID(docID...)
+
 	tok := search.NewTokenizer()
-	for _, token := range tok.ParseString(text).Tokens() {
+	for _, token := range tok.ParseString(text, id).Tokens() {
 		if !token.Ignored {
-			err := ti.addTerm(token.Normal, token.WordPosition)
+			err := ti.addTerm(token.Normal, token.TermVector)
 			if err != nil {
 				return err
 			}
@@ -60,23 +100,18 @@ func (ti *TextIndex) AppendString(text string) error {
 	return nil
 }
 
-func (ti *TextIndex) reset() {
-	ti.terms = make(map[string]*search.TermVector)
-}
-
 func (ti *TextIndex) size() int {
-	return len(ti.terms)
+	return len(ti.Terms)
 }
 
-func (ti *TextIndex) setTermVector(term string, pos int, split bool) {
-	tv, ok := ti.terms[term]
+func (ti *TextIndex) setTermVector(term string, pos int) {
+	tv, ok := ti.Terms[term]
 	if !ok {
-		tv = search.NewTermVector()
-		ti.terms[term] = tv
-		tv.Split = split
+		tv = search.NewVectors()
+		ti.Terms[term] = tv
 	}
 
-	tv.Positions[pos] = true
+	tv.Add(ti.DocCount, pos)
 }
 
 func (ti *TextIndex) addTerm(word string, pos int) error {
@@ -90,13 +125,14 @@ func (ti *TextIndex) addTerm(word string, pos int) error {
 		return nil
 	}
 
-	ti.setTermVector(analyzedTerm, pos, false)
+	ti.setTermVector(analyzedTerm, pos)
 
-	if strings.Contains(analyzedTerm, "-") {
-		for _, p := range strings.Split(analyzedTerm, "-") {
-			ti.setTermVector(p, pos, true)
-		}
-	}
+	// TODO(kiivihal): remove later. Tokenizer should do this now
+	// if strings.Contains(analyzedTerm, "-") {
+	// for _, p := range strings.Split(analyzedTerm, "-") {
+	// ti.setTermVector(p, pos, true)
+	// }
+	// }
 
 	return nil
 }
@@ -116,19 +152,19 @@ func (ti *TextIndex) match(qt *search.QueryTerm, hits *search.Matches) bool {
 }
 
 func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) bool {
-	var nextPositions []int
+	var nextVectors map[search.Vector]bool
 
-	phrasePositions := map[int]string{}
+	phrasePositions := map[search.Vector]string{}
 
 	words := strings.Fields(qt.Value)
 
 	if len(words) == 1 {
-		term, ok := ti.terms[qt.Value]
+		term, ok := ti.Terms[qt.Value]
 		if !ok {
 			return false
 		}
 
-		hits.AppendTerm(qt.Value, term.Size(), term.Positions)
+		hits.AppendTerm(qt.Value, term)
 
 		return true
 	}
@@ -136,7 +172,7 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) boo
 	var previousTerm string
 
 	for idx, word := range words {
-		term, ok := ti.terms[word]
+		term, ok := ti.Terms[word]
 		if !ok {
 			return false
 		}
@@ -144,21 +180,22 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) boo
 		if idx != 0 {
 			var wordMatch bool
 
-			for _, pos := range nextPositions {
+			for vector := range nextVectors {
 				// posMatch determines if this position can be followed
 				var posMatch bool
 
-				for _, nextPos := range search.ValidPhrasePosition(pos, qt.Slop) {
-					_, ok := term.Positions[nextPos]
+				for _, next := range search.ValidPhrasePosition(vector, qt.Slop) {
+					ok := term.HasVector(next)
+
 					if ok {
-						phrasePositions[nextPos] = word
+						phrasePositions[next] = word
 						posMatch = true
 						wordMatch = true
 					}
 				}
 
 				if posMatch {
-					phrasePositions[pos] = previousTerm
+					phrasePositions[vector] = previousTerm
 				}
 			}
 
@@ -167,10 +204,7 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) boo
 			}
 		}
 
-		nextPositions = []int{}
-		for pos := range term.Positions {
-			nextPositions = append(nextPositions, pos)
-		}
+		nextVectors = term.Locations
 
 		previousTerm = word
 	}
@@ -178,50 +212,58 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) boo
 	matches := len(phrasePositions)
 
 	if matches != 0 {
-		wordPositions := map[int]bool{}
-		for pos := range phrasePositions {
-			wordPositions[pos] = true
-		}
-
-		hits.ApppendPositions(wordPositions)
-
-		phraseHits := sortAndCountPhrases(words, phrasePositions)
-
-		for k, v := range phraseHits {
-			hits.AppendTerm(k, v, map[int]bool{})
+		for term, vectors := range sortAndCountPhrases(words, phrasePositions) {
+			hits.AppendTerm(term, vectors)
 		}
 	}
 
 	return matches != 0
 }
 
-func sortAndCountPhrases(words []string, phrases map[int]string) map[string]int {
-	positions := []int{}
-	phraseSize := len(words)
-	phraseHits := map[string]int{}
+func sortAndCountPhrases(words []string, phrases map[search.Vector]string) map[string]*search.Vectors {
+	phraseHits := map[string]*search.Vectors{}
 
-	for k := range phrases {
-		positions = append(positions, k)
+	vectors := []search.Vector{}
+	phraseSize := len(words)
+
+	for vector := range phrases {
+		vectors = append(vectors, vector)
 	}
 
-	sort.Slice(positions, func(i, j int) bool {
-		return positions[i] < positions[j]
+	sort.Slice(vectors, func(i, j int) bool {
+		return vectors[i].Location < vectors[j].Location
 	})
 
 	phrase := []string{}
 
-	for idx, p := range positions {
-		phrase = append(phrase, phrases[p])
+	prevVectors := []search.Vector{}
+
+	for idx, vector := range vectors {
+		phrase = append(phrase, phrases[vector])
 		if len(phrase) != phraseSize {
-			if idx < len(positions) {
+			if idx < len(vectors) {
+				prevVectors = append(prevVectors, vector)
 				continue
 			}
 		}
 
 		currentPhrase := strings.Join(phrase, " ")
-		phraseHits[currentPhrase]++
+
+		tv, ok := phraseHits[currentPhrase]
+		if !ok {
+			tv = search.NewVectors()
+
+			phraseHits[currentPhrase] = tv
+		}
+
+		for _, v := range prevVectors {
+			tv.AddPhraseVector(v)
+		}
+
+		tv.AddVector(vector)
 
 		phrase = []string{}
+		prevVectors = []search.Vector{}
 	}
 
 	return phraseHits
@@ -230,12 +272,12 @@ func sortAndCountPhrases(words []string, phrases map[int]string) map[string]int 
 func (ti *TextIndex) matchFuzzy(qt *search.QueryTerm, hits *search.Matches) bool {
 	var hasMatch bool
 
-	for k, v := range ti.terms {
+	for k, tv := range ti.Terms {
 		ok, _ := search.IsFuzzyMatch(k, qt.Value, float64(qt.Fuzzy), search.Levenshtein)
 		if ok {
 			hasMatch = true
 
-			hits.AppendTerm(k, v.Size(), v.Positions)
+			hits.AppendTerm(k, tv)
 		}
 	}
 
@@ -254,11 +296,11 @@ func (ti *TextIndex) matchWildcard(qt *search.QueryTerm, hits *search.Matches) b
 
 	var hasMatch bool
 
-	for k, v := range ti.terms {
+	for k, tv := range ti.Terms {
 		if matcher(k, qt.Value) {
 			hasMatch = true
 
-			hits.AppendTerm(k, v.Size(), v.Positions)
+			hits.AppendTerm(k, tv)
 		}
 	}
 
@@ -266,7 +308,7 @@ func (ti *TextIndex) matchWildcard(qt *search.QueryTerm, hits *search.Matches) b
 }
 
 func (ti *TextIndex) matchTerm(qt *search.QueryTerm, hits *search.Matches) bool {
-	term, ok := ti.terms[qt.Value]
+	term, ok := ti.Terms[qt.Value]
 	if ok && qt.Prohibited {
 		return false
 	}
@@ -275,17 +317,11 @@ func (ti *TextIndex) matchTerm(qt *search.QueryTerm, hits *search.Matches) bool 
 		return false
 	}
 
-	var count int
-
 	if term == nil {
-		term = search.NewTermVector()
+		term = search.NewVectors()
 	}
 
-	if ok {
-		count = term.Size()
-	}
-
-	hits.AppendTerm(qt.Value, count, term.Positions)
+	hits.AppendTerm(qt.Value, term)
 
 	return true
 }
@@ -385,7 +421,7 @@ func (ti *TextIndex) search(query *search.QueryTerm, hits *search.Matches) error
 func (ti *TextIndex) writeTo(w io.Writer) error {
 	e := gob.NewEncoder(w)
 
-	err := e.Encode(ti.terms)
+	err := e.Encode(ti)
 	if err != nil {
 		return fmt.Errorf("unable to marshall TextIndex to GOB; %w", err)
 	}
@@ -393,17 +429,15 @@ func (ti *TextIndex) writeTo(w io.Writer) error {
 	return nil
 }
 
-func (ti *TextIndex) readFrom(r io.Reader) error {
-	var terms map[string]*search.TermVector
+func readFrom(r io.Reader) (*TextIndex, error) {
+	var ti TextIndex
 
 	d := gob.NewDecoder(r)
 
-	err := d.Decode(&terms)
+	err := d.Decode(&ti)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	ti.terms = terms
-
-	return nil
+	return &ti, nil
 }

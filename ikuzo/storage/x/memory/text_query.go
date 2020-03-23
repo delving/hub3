@@ -2,7 +2,7 @@ package memory
 
 import (
 	"errors"
-	"log"
+	"fmt"
 
 	"github.com/delving/hub3/ikuzo/service/x/search"
 )
@@ -24,7 +24,6 @@ func NewTextQuery(q *search.QueryTerm) *TextQuery {
 	return &TextQuery{
 		q:          q,
 		ti:         NewTextIndex(),
-		Hits:       search.NewMatches(),
 		EmStartTag: startTag,
 		EmEndTag:   endTag,
 	}
@@ -46,28 +45,49 @@ func NewTextQueryFromString(query string) (*TextQuery, error) {
 	return tq, nil
 }
 
-func (tq *TextQuery) Highlight(text string) (string, bool) {
-	tq.ti.reset()
+func (tq *TextQuery) Reset() {
+	tq.Hits = nil
+	tq.ti = NewTextIndex()
+}
 
-	err := tq.ti.AppendString(text)
-	if err != nil {
-		log.Printf("index error: %#v", err)
-		return "", false
+func (tq *TextQuery) AppendString(text string, docID int) error {
+	if err := tq.ti.AppendString(text, docID); err != nil {
+		return fmt.Errorf("text query index error: %w", err)
 	}
 
+	return nil
+}
+
+func (tq *TextQuery) PerformSearch() (bool, error) {
 	hits, err := tq.ti.Search(tq.q)
 	if errors.Is(err, ErrSearchNoMatch) {
+		return false, nil
+	}
+
+	tq.Hits = hits
+
+	return true, nil
+}
+
+func (tq *TextQuery) Highlight(text string, docID int) (string, bool) {
+	if !tq.ti.hasDocID(docID) || tq.Hits == nil {
 		return text, false
 	}
 
-	tq.Hits.Merge(hits)
-
-	return tq.hightlightWithVectors(text, hits.WordPositions()), true
+	return tq.hightlightWithVectors(text, docID, tq.Hits.Vectors()), true
 }
 
-func (tq *TextQuery) hightlightWithVectors(text string, positions map[int]bool) string {
-	tok := search.NewTokenizer()
-	tokens := tok.ParseString(text)
+func (tq *TextQuery) hightlightWithVectors(text string, docID int, vectors *search.Vectors) string {
+	if !tq.ti.hasDocID(docID) || vectors == nil {
+		return text
+	}
 
-	return tokens.Highlight(positions, tq.EmStartTag, tq.EmEndTag)
+	tok := search.NewTokenizer()
+	tokens := tok.ParseString(text, docID)
+
+	return tokens.Highlight(vectors, tq.EmStartTag, tq.EmEndTag)
+}
+
+func (tq *TextQuery) SetTextIndex(ti *TextIndex) {
+	tq.ti = ti
 }

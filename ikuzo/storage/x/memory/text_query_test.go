@@ -4,6 +4,7 @@ package memory
 import (
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/service/x/search"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
 )
@@ -21,11 +22,11 @@ func TestTextQuery_Highlight(t *testing.T) {
 	}
 
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   string
-		want1  bool
+		name     string
+		fields   fields
+		args     args
+		want     string
+		wantHits bool
 	}{
 		{
 			"no hits",
@@ -63,14 +64,21 @@ func TestTextQuery_Highlight(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tq, err := NewTextQueryFromString(tt.fields.q)
 			is.NoErr(err)
+			id := tq.ti.setDocID()
 
-			got, got1 := tq.Highlight(tt.args.text)
+			err = tq.AppendString(tt.args.text, id)
+			is.NoErr(err)
+
+			_, err = tq.PerformSearch()
+			is.NoErr(err)
+
+			got, got1 := tq.Highlight(tt.args.text, id)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("TextQuery.Highlight() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 
-			if got1 != tt.want1 {
-				t.Errorf("TextQuery.Highlight() got1 = %v, want %v", got1, tt.want1)
+			if got1 != tt.wantHits {
+				t.Errorf("TextQuery.Highlight() %s = got1 %v, want %v", tt.name, got1, tt.wantHits)
 			}
 		})
 	}
@@ -78,8 +86,9 @@ func TestTextQuery_Highlight(t *testing.T) {
 
 func Test_hightlightWithVectors(t *testing.T) {
 	type args struct {
-		text      string
-		positions map[int]bool
+		text    string
+		docID   int
+		vectors []termVector
 	}
 
 	tests := []struct {
@@ -90,16 +99,20 @@ func Test_hightlightWithVectors(t *testing.T) {
 		{
 			"no hightlights",
 			args{
-				text:      "hello world",
-				positions: map[int]bool{},
+				text:    "hello world",
+				docID:   0,
+				vectors: nil,
 			},
 			"hello world",
 		},
 		{
 			"one word highlight",
 			args{
-				text:      "hello world",
-				positions: map[int]bool{2: true},
+				text:  "hello world",
+				docID: 1,
+				vectors: []termVector{
+					{"wold", []testVector{{DocID: 1, Location: 2}}},
+				},
 			},
 			"hello <em class=\"dchl\">world</em>",
 		},
@@ -110,8 +123,16 @@ func Test_hightlightWithVectors(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			tq := NewTextQuery(nil)
+			tq.ti.setDocID()
 
-			got := tq.hightlightWithVectors(tt.args.text, tt.args.positions)
+			tv := search.NewVectors()
+			for _, v := range tt.args.vectors {
+				for _, vector := range v.vectors {
+					tv.AddVector(vector.searchVector())
+				}
+			}
+
+			got := tq.hightlightWithVectors(tt.args.text, 1, tv)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("hightlightWithVectors() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
