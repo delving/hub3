@@ -46,6 +46,11 @@ func TestAnalyzer_Transform(t *testing.T) {
 			args{text: "[(word).,:;?]"},
 			"word",
 		},
+		{
+			"trim single quote",
+			args{text: "'word'"},
+			"word",
+		},
 	}
 
 	for _, tt := range tests {

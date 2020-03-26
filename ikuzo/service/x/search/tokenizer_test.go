@@ -26,6 +26,16 @@ var tokenTests = []struct {
 		},
 	},
 	{
+		"error with single quote",
+		targs{"op 's"},
+		&TokenStream{
+			[]Token{
+				{Vector: 1, TermVector: 1, OffsetStart: 0, OffsetEnd: 1, RawText: "op", Normal: "op", DocID: 1, TrailingSpace: true},
+				{Vector: 2, TermVector: 2, OffsetStart: 3, OffsetEnd: 4, RawText: "'s", Normal: "s", DocID: 1},
+			},
+		},
+	},
+	{
 		"normalized word",
 		targs{"Word..."},
 		&TokenStream{

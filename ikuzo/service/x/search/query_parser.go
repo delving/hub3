@@ -254,7 +254,7 @@ type QueryParser struct {
 func NewQueryParser(options ...QueryOption) (*QueryParser, error) {
 	var s scanner.Scanner
 	// set custom tokenization rune
-	s.IsIdentRune = isIdentRune
+	s.IsIdentRune = isPhraseIdentRune
 
 	qp := &QueryParser{
 		s: &s,
@@ -443,5 +443,11 @@ func (qp *QueryParser) runParser(q *QueryTerm, op Operator, qt *QueryTerm) error
 }
 
 func isIdentRune(ch rune, i int) bool {
-	return ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' && i > 0 || ch == '-' && i > 0 || ch == '/'
+	return ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' && i > 0 ||
+		ch == '-' && i > 0 || ch == '/' || ch == '\'' || ch == '"'
+}
+
+func isPhraseIdentRune(ch rune, i int) bool {
+	return ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' && i > 0 ||
+		ch == '-' && i > 0 || ch == '/' || ch == '\''
 }

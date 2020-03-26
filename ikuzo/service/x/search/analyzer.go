@@ -3,7 +3,7 @@ package search
 import "strings"
 
 const (
-	trimCharacters = "\".,;:[]()?"
+	trimCharacters = "\".,;:[]()?'"
 )
 
 // Analyzer is the default analyzer for Search actions.

@@ -2,6 +2,7 @@ package search
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"log"
 	"strings"
@@ -39,6 +40,7 @@ type Tokenizer struct {
 	termVector  int
 	tokenVector int
 	docID       int
+	errors      []string
 }
 
 func NewTokenizer() *Tokenizer {
@@ -56,11 +58,30 @@ func (t *Tokenizer) ParseBytes(b []byte, docID int) *TokenStream {
 func (t *Tokenizer) resetScanner() {
 	var s scanner.Scanner
 	t.s = &s
-	t.s.IsIdentRune = isIdentRune
 	t.termVector = 0
 	t.tokenVector = 0
-	t.s.Error = func(s *scanner.Scanner, msg string) {
-		log.Printf("scan error: %s", msg)
+	t.s.IsIdentRune = isPhraseIdentRune
+}
+
+func (t *Tokenizer) parseError(docID int) func(s *scanner.Scanner, msg string) {
+	return func(s *scanner.Scanner, msg string) {
+		if t.errors == nil {
+			t.errors = []string{}
+		}
+
+		pos := s.Position
+
+		t.errors = append(
+			t.errors,
+			fmt.Sprintf(
+				"error: %s; %d:%d; docID: %d; tokenText: %s",
+				msg,
+				pos.Line,
+				pos.Column,
+				docID,
+				s.TokenText(),
+			),
+		)
 	}
 }
 
@@ -71,6 +92,7 @@ func (t *Tokenizer) resetScanner() {
 func (t *Tokenizer) Parse(r io.Reader, docID int) *TokenStream {
 	t.resetScanner()
 	t.s.Init(r)
+	t.s.Error = t.parseError(docID)
 
 	if docID == 0 {
 		t.docID++
@@ -81,6 +103,12 @@ func (t *Tokenizer) Parse(r io.Reader, docID int) *TokenStream {
 	tokens := []Token{}
 	for tok := t.s.Scan(); tok != scanner.EOF; tok = t.s.Scan() {
 		tokens = append(tokens, t.runParser(tok))
+	}
+
+	if t.s.ErrorCount != 0 {
+		for _, parseErr := range t.errors {
+			log.Printf("parse error: %s", parseErr)
+		}
 	}
 
 	return &TokenStream{tokens: tokens}
