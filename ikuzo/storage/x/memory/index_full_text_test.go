@@ -735,10 +735,10 @@ func TestTextIndexSerialization(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	err = ti.writeTo(&buf)
+	err = ti.Encode(&buf)
 	is.NoErr(err)
 
-	newTi, err := readFrom(&buf)
+	newTi, err := DecodeTextIndex(&buf)
 	is.NoErr(err)
 
 	if diff := cmp.Diff(ti, newTi, cmp.AllowUnexported(TextIndex{}, search.Vector{})); diff != "" {

@@ -90,7 +90,7 @@ func (ti *TextIndex) AppendString(text string, docID ...int) error {
 	tok := search.NewTokenizer()
 	for _, token := range tok.ParseString(text, id).Tokens() {
 		if !token.Ignored {
-			err := ti.addTerm(token.Normal, token.TermVector)
+			err := ti.addTerm(token.RawText, token.TermVector)
 			if err != nil {
 				return err
 			}
@@ -418,7 +418,7 @@ func (ti *TextIndex) search(query *search.QueryTerm, hits *search.Matches) error
 	return nil
 }
 
-func (ti *TextIndex) writeTo(w io.Writer) error {
+func (ti *TextIndex) Encode(w io.Writer) error {
 	e := gob.NewEncoder(w)
 
 	err := e.Encode(ti)
@@ -429,7 +429,7 @@ func (ti *TextIndex) writeTo(w io.Writer) error {
 	return nil
 }
 
-func readFrom(r io.Reader) (*TextIndex, error) {
+func DecodeTextIndex(r io.Reader) (*TextIndex, error) {
 	var ti TextIndex
 
 	d := gob.NewDecoder(r)
