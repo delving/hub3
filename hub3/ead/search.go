@@ -630,6 +630,8 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 				// MetsFiles:        ds.MetsFiles,
 			}
 
+			var hitHasDescription bool
+
 			inner, ok := hit.InnerHits["collapse"]
 			if ok {
 				archive.CLevelCount = int(inner.Hits.TotalHits.Value)
@@ -647,11 +649,12 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 					if r.Tree.InventoryID != "" {
 						archive.CLevelCount--
 						archive.DescriptionCount = 1
+						hitHasDescription = true
 					}
 				}
 			}
 
-			if req.RawQuery != "" && req.enableDescriptionSearch() {
+			if req.RawQuery != "" && req.enableDescriptionSearch() && hitHasDescription {
 				descriptionIndex, getErr := GetDescriptionIndex(spec)
 				if getErr != nil && !errors.Is(getErr, ErrNoDescriptionIndex) {
 					rlog.Error().Err(getErr).
