@@ -3,10 +3,21 @@ package ead
 import (
 	"bytes"
 	"context"
+	"encoding/gob"
 	"encoding/xml"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
 	"strings"
 	"sync/atomic"
+	"unicode"
+
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	rdf "github.com/kiivihal/rdf2go"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
@@ -143,15 +154,15 @@ func (dc *itemCounter) GetCount() uint64 {
 }
 
 type itemBuilder struct {
-	counter  itemCounter
-	items    []*DataItem
-	q        *Deque
-	sections []*DataItem
+	counter itemCounter
+	items   []*DataItem
+	q       *Deque
 }
 
 // ParentIDs returns a ~ separated list of order identifiers
 func (ib *itemBuilder) ParentIDs() string {
 	var parentIDs []string
+
 	for _, i := range ib.q.List() {
 		if i == nil {
 			continue
@@ -177,6 +188,7 @@ func (ib *itemBuilder) append(item *DataItem) {
 // push updates an DataItem or adds a new one.
 func (ib *itemBuilder) push(se xml.StartElement) error {
 	id := &DataItem{Tag: se.Name.Local}
+
 	switch se.Name.Local {
 	case "head":
 		// do nothing
@@ -200,6 +212,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 	case "title":
 		id.FlowType = Inline
 		err := ib.close()
+
 		if err != nil {
 			return err
 		}
@@ -218,10 +231,12 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		if err != nil {
 			return err
 		}
+
 		err = ib.close()
 		if err != nil {
 			return err
 		}
+
 		id.Type = Note
 		id.FlowType = Inline
 	case "list":
@@ -230,6 +245,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 			return err
 		}
 		id.Type = List
+
 		for _, attr := range se.Attr {
 			switch attr.Name.Local {
 			case "numeration":
@@ -262,6 +278,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		id.Type = ChronItem
 	case "date":
 		id.Type = Date
+
 		for _, attr := range se.Attr {
 			switch attr.Name.Local {
 			case "calendar":
@@ -282,6 +299,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 
 		id.Type = Link
 		id.FlowType = Inline
+
 		for _, attr := range se.Attr {
 			switch attr.Name.Local {
 			case "actuate":
@@ -296,6 +314,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		}
 	default:
 	}
+
 	ib.append(id)
 	return nil
 }
@@ -306,6 +325,7 @@ func (ib *itemBuilder) addFlowType(ft FlowType) error {
 	if !ok {
 		return fmt.Errorf("unable to pop from queue")
 	}
+
 	if last != nil {
 		elem := last.(*DataItem)
 		elem.FlowType = ft
@@ -549,6 +569,180 @@ func NewDescription(ead *Cead) (*Description, error) {
 	return desc, nil
 }
 
+func (desc *Description) getSpec() string {
+	return desc.Summary.FindingAid.ID
+}
+
+func GetDescription(spec string) (*Description, error) {
+	f, err := os.Open(getDescriptionPath(spec))
+	if err != nil {
+		return nil, err
+	}
+
+	return decodeDescription(f)
+}
+
+func (desc *Description) encode(w io.Writer) error {
+	enc := gob.NewEncoder(w)
+	return enc.Encode(desc)
+}
+
+func decodeDescription(r io.Reader) (*Description, error) {
+	var desc Description
+
+	dec := gob.NewDecoder(r)
+	err := dec.Decode(&desc)
+
+	return &desc, err
+}
+
+func (desc *Description) Write() error {
+	err := os.MkdirAll(getDataPath(desc.getSpec()), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+
+	err = desc.encode(&buf)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(
+		getDescriptionPath(desc.getSpec()),
+		buf.Bytes(),
+		0644,
+	)
+}
+
+func (desc *Description) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p BulkProcessor) error {
+	fg, _, err := desc.DescriptionGraph(cfg, unitInfo)
+	if err != nil {
+		return err
+	}
+
+	if p == nil {
+		return nil
+	}
+
+	req := elastic.NewBulkIndexRequest().
+		Index(config.Config.ElasticSearch.GetIndexName()).
+		RetryOnConflict(3).
+		Id(fg.Meta.HubID).
+		Doc(fg)
+	p.Add(req)
+
+	return nil
+}
+
+func (desc *Description) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
+	rm := fragments.NewEmptyResourceMap()
+	id := "desc"
+	subject := newSubject(cfg, id)
+	header := &fragments.Header{
+		OrgID:         cfg.OrgID,
+		Spec:          cfg.Spec,
+		Revision:      cfg.Revision,
+		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
+		DocType:       fragments.FragmentGraphDocType,
+		EntryURI:      subject,
+		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
+		Modified:      fragments.NowInMillis(),
+		Tags:          []string{"eadDesc"},
+	}
+
+	tree := &fragments.Tree{}
+
+	tree.HubID = header.HubID
+	tree.ChildCount = 0
+	tree.Type = "desc"
+	tree.InventoryID = cfg.Spec
+
+	if len(cfg.Title) > 0 {
+		tree.Title = cfg.Title[0]
+	}
+
+	// TODO(kiivihal): replace raw this with <p> blocks. to align search
+	for _, item := range desc.Item {
+		tree.Description = append(tree.Description, item.Text)
+	}
+
+	tree.PeriodDesc = cfg.PeriodDesc
+
+	if len(tree.PeriodDesc) == 0 {
+		de := &DuplicateError{
+			Spec:  cfg.Spec,
+			Error: "ead period is empty",
+		}
+		cfg.Errors = append(cfg.Errors, de)
+	}
+
+	// add periodDesc to nodeConfig so they can be applied to each cLevel
+	cfg.PeriodDesc = tree.PeriodDesc
+
+	s := rdf.NewResource(subject)
+	t := func(s rdf.Term, p, o string, oType convert, idx int) {
+		t := addNonEmptyTriple(s, p, o, oType)
+		if t != nil {
+			err := rm.AppendOrderedTriple(t, false, idx)
+			if err != nil {
+				log.Printf("unable to add triple: %#v", err)
+			}
+		}
+		return
+	}
+
+	intType := func(value string) rdf.Term {
+		return rdf.NewLiteralWithDatatype(value, rdf.NewResource("http://www.w3.org/2001/XMLSchema#integer"))
+	}
+	extractDigit := func(value string) string {
+		parts := strings.Fields(value)
+		for _, part := range parts {
+			runes := []rune(value)
+			if unicode.IsDigit(runes[0]) {
+				return strings.ReplaceAll(part, ",", ".")
+			}
+		}
+
+		return ""
+	}
+	floatType := func(value string) rdf.Term {
+		return rdf.NewLiteralWithDatatype(value, rdf.NewResource("http://www.w3.org/2001/XMLSchema#float"))
+	}
+	// add total clevels
+	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType, 0)
+
+	if unitInfo != nil {
+		t(s, "files", extractDigit(unitInfo.Files), intType, 0)
+		t(s, "length", extractDigit(unitInfo.Length), floatType, 0)
+
+		for _, abstract := range unitInfo.Abstract {
+			t(s, "abstract", abstract, rdf.NewLiteral, 0)
+		}
+
+		t(s, "material", unitInfo.Material, rdf.NewLiteral, 0)
+		t(s, "language", unitInfo.Language, rdf.NewLiteral, 0)
+
+		for _, origin := range unitInfo.Origin {
+			t(s, "origin", origin, rdf.NewLiteral, 0)
+		}
+	}
+
+	// add period desc for range search from the archdesc > did > date
+	for idx, p := range tree.PeriodDesc {
+		t(s, "periodDesc", p, rdf.NewLiteral, idx)
+	}
+
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = tree
+
+	// only set resources when the full graph is filled.
+	fg.SetResources(rm)
+	return fg, rm, nil
+}
+
 // newProfile creates a new *Profile from the eadheader profilestmt.
 func newProfile(header *Ceadheader) *Profile {
 	if header.Cprofiledesc != nil {
@@ -630,6 +824,7 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 				fa.ShortTitle = sanitizeXMLAsString(title.Raw)
 				continue
 			}
+
 			fa.Title = append(
 				fa.Title,
 				sanitizeXMLAsString(title.Raw),
@@ -706,3 +901,99 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 
 	return nil
 }
+
+// HightlightSummary applied query highlights to the ead.Summary.
+// func (dq *DescriptionQuery) HightlightSummary(s Summary) Summary {
+// if s.Profile != nil {
+// s.Profile.Creation, _ = dq.highlightQuery(s.Profile.Creation)
+// s.Profile.Language, _ = dq.highlightQuery(s.Profile.Language)
+// }
+
+// if s.File != nil {
+// s.File.Author, _ = dq.highlightQuery(s.File.Author)
+// s.File.Copyright, _ = dq.highlightQuery(s.File.Copyright)
+// s.File.PublicationDate, _ = dq.highlightQuery(s.File.PublicationDate)
+// s.File.Publisher, _ = dq.highlightQuery(s.File.Publisher)
+// s.File.Title, _ = dq.highlightQuery(s.File.Title)
+
+// var editions []string
+
+// for _, e := range s.File.Edition {
+// edition, _ := dq.highlightQuery(e)
+// editions = append(editions, edition)
+// }
+
+// if len(editions) != 0 {
+// s.File.Edition = editions
+// }
+// }
+
+// if s.FindingAid != nil {
+// s.FindingAid.AgencyCode, _ = dq.highlightQuery(s.FindingAid.AgencyCode)
+// s.FindingAid.Country, _ = dq.highlightQuery(s.FindingAid.Country)
+// s.FindingAid.ID, _ = dq.highlightQuery(s.FindingAid.ID)
+// s.FindingAid.ShortTitle, _ = dq.highlightQuery(s.FindingAid.ShortTitle)
+
+// var titles []string
+
+// for _, t := range s.FindingAid.Title {
+// title, _ := dq.highlightQuery(t)
+// titles = append(titles, title)
+// }
+
+// if len(titles) != 0 {
+// s.FindingAid.Title = titles
+// }
+// }
+
+// if s.FindingAid != nil && s.FindingAid.UnitInfo != nil {
+// unit := s.FindingAid.UnitInfo
+
+// unit.ID, _ = dq.highlightQuery(unit.ID)
+// unit.Language, _ = dq.highlightQuery(unit.Language)
+// unit.DateBulk, _ = dq.highlightQuery(unit.DateBulk)
+// unit.Files, _ = dq.highlightQuery(unit.Files)
+// unit.Length, _ = dq.highlightQuery(unit.Length)
+// unit.Material, _ = dq.highlightQuery(unit.Material)
+// unit.Physical, _ = dq.highlightQuery(unit.Physical)
+// unit.PhysicalLocation, _ = dq.highlightQuery(unit.PhysicalLocation)
+// unit.Repository, _ = dq.highlightQuery(unit.Repository)
+
+// var origins []string
+
+// for _, o := range unit.Origin {
+// origin, _ := dq.highlightQuery(o)
+// origins = append(origins, origin)
+// }
+
+// if len(origins) != 0 {
+// unit.Origin = origins
+// }
+
+// var dates []string
+
+// for _, d := range unit.Date {
+// date, _ := dq.highlightQuery(d)
+// dates = append(dates, date)
+// }
+
+// if len(dates) != 0 {
+// unit.Date = dates
+// }
+
+// var abstracts []string
+
+// for _, a := range unit.Abstract {
+// abstract, _ := dq.highlightQuery(a)
+// abstracts = append(abstracts, abstract)
+// }
+
+// if len(abstracts) != 0 {
+// unit.Abstract = abstracts
+// }
+
+// s.FindingAid.UnitInfo = unit
+// }
+
+// return s
+// }
