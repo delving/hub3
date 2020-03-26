@@ -41,10 +41,25 @@ type Tokenizer struct {
 	tokenVector int
 	docID       int
 	errors      []string
+	phraseAware bool
 }
 
-func NewTokenizer() *Tokenizer {
-	return &Tokenizer{}
+type TokenOption func(tok *Tokenizer)
+
+func NewTokenizer(options ...TokenOption) *Tokenizer {
+	tok := &Tokenizer{}
+
+	for _, option := range options {
+		option(tok)
+	}
+
+	return tok
+}
+
+func SetPhraseAware() TokenOption {
+	return func(tok *Tokenizer) {
+		tok.phraseAware = true
+	}
 }
 
 func (t *Tokenizer) ParseString(text string, docID int) *TokenStream {
@@ -60,7 +75,13 @@ func (t *Tokenizer) resetScanner() {
 	t.s = &s
 	t.termVector = 0
 	t.tokenVector = 0
-	t.s.IsIdentRune = isPhraseIdentRune
+
+	if t.phraseAware {
+		t.s.IsIdentRune = isPhraseIdentRune
+		return
+	}
+
+	t.s.IsIdentRune = isIdentRune
 }
 
 func (t *Tokenizer) parseError(docID int) func(s *scanner.Scanner, msg string) {

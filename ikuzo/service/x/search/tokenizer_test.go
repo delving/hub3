@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/matryer/is"
 )
 
 type targs struct {
@@ -260,6 +261,24 @@ func TestTokenizer_Parsers(t *testing.T) {
 	if diff := cmp.Diff(want, got, cmp.AllowUnexported(TokenStream{})); diff != "" {
 		t.Errorf("tokenizer.parse() %s = mismatch (-want +got):\n%s", "parseString", diff)
 	}
+
+	if diff := cmp.Diff(got.tokens, got.Tokens(), cmp.AllowUnexported(Token{})); diff != "" {
+		t.Errorf("tokenizer.Tokens() %s = mismatch (-want +got):\n%s", "Tokens()", diff)
+	}
+}
+
+// nolint:gocritic
+func TestParseError(t *testing.T) {
+	is := is.New(t)
+
+	tok := NewTokenizer(SetPhraseAware())
+
+	is.Equal(len(tok.errors), 0)
+
+	_ = tok.ParseString("\"word", 1)
+
+	is.Equal(len(tok.errors), tok.s.ErrorCount)
+	is.Equal(len(tok.errors), 1)
 }
 
 func TestTokenStream_Highlight(t *testing.T) {

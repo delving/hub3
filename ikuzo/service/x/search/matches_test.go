@@ -60,6 +60,19 @@ func TestMatches_Merge(t *testing.T) {
 			1,
 		},
 		{
+			"source only merge empty vector",
+			fields{
+				[]testVector{{"word", []Vector{{1, 1}}}},
+			},
+			args{
+				[]testVector{{"word", []Vector{}}},
+			},
+			[]testVector{{"word", []Vector{{1, 1}}}},
+			1,
+			1,
+			1,
+		},
+		{
 			"partial merge",
 			fields{
 				[]testVector{
@@ -144,6 +157,10 @@ func TestMatches_Merge(t *testing.T) {
 			if got := source.DocCount(); got != tt.wantDocCount {
 				t.Errorf("Matches.DocCount() %s = %v, want %v", tt.name, got, tt.wantDocCount)
 			}
+
+			if source.Vectors().Size() != source.termVectors.Size() {
+				t.Errorf("Matches.Vectors() length = %d, want %d", source.Vectors().Size(), source.termVectors.Size())
+			}
 		})
 	}
 }
@@ -187,6 +204,50 @@ func TestMatches_Total(t *testing.T) {
 
 			if diff := cmp.Diff(sh.termFrequency, sh.TermFrequency(), cmp.AllowUnexported(Matches{})); diff != "" {
 				t.Errorf("Matches.Total() %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
+	}
+}
+
+func TestMatches_HasDocID(t *testing.T) {
+	type fields struct {
+		vectors []testVector
+	}
+
+	type args struct {
+		docID int
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			"no match",
+			fields{vectors: []testVector{
+				{"word", []Vector{{1, 1}}}}},
+			args{docID: 10},
+			false,
+		},
+		{
+			"match",
+			fields{vectors: []testVector{
+				{"word", []Vector{{1, 1}}}}},
+			args{docID: 1},
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			m := createMatches(tt.fields.vectors)
+
+			if got := m.HasDocID(tt.args.docID); got != tt.want {
+				t.Errorf("Matches.HasDocID() %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
 	}

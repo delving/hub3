@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/matryer/is"
 )
 
 func TestVector(t *testing.T) {
@@ -198,4 +199,25 @@ func TestVectors_Merge(t *testing.T) {
 			}
 		})
 	}
+}
+
+// nolint:gocritic
+func TestAddPhraseVector(t *testing.T) {
+	is := is.New(t)
+
+	tv := NewVectors()
+
+	vector := Vector{
+		DocID:    1,
+		Location: 1,
+	}
+
+	is.Equal(tv.PhraseVectors, 0)
+
+	tv.AddPhraseVector(vector)
+
+	is.Equal(tv.PhraseVectors, 1)
+
+	tv.AddPhraseVector(vector)
+	is.Equal(tv.PhraseVectors, 1)
 }
