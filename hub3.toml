@@ -31,7 +31,7 @@ specKey = "meta.spec"
 revisionKey = "meta.revision"
 # Key to use for finding the tentant or orgID key. Default meta.orgID
 orgIDKey = "meta.orgID"
-# username and password for packx security
+# username and password for xpack security
 userName = ""
 password = ""
 # configuration for MimimumShouldMatch
