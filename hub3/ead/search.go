@@ -2,7 +2,6 @@ package ead
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -19,10 +18,10 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
-	"github.com/delving/hub3/ikuzo/service/x/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/olivere/elastic/v7"
+	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 )
@@ -652,46 +651,29 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 				}
 			}
 
-			if req.RawQuery != "" && ds.Description != "" && req.enableDescriptionSearch() {
-				descriptionIndex := memory.NewTextIndex()
-
-				appendErr := descriptionIndex.AppendString(ds.Description)
-				if appendErr != nil {
-					rlog.Error().Err(appendErr).
+			if req.RawQuery != "" && req.enableDescriptionSearch() {
+				descriptionIndex, getErr := GetDescriptionIndex(spec)
+				if getErr != nil && !errors.Is(getErr, ErrNoDescriptionIndex) {
+					rlog.Error().Err(getErr).
 						Str("subquery", "description").
-						Msg("error with appending description to TextIndex")
-
-					return nil, appendErr
+						Msg("error with retrieving description index")
+					return nil, getErr
 				}
 
-				queryParser, parseErr := search.NewQueryParser()
-				if parseErr != nil {
-					rlog.Error().Err(parseErr).
-						Str("subquery", "description").
-						Msg("unable to create search.QueryParser.")
+				if descriptionIndex != nil {
+					hits, searchErr := descriptionIndex.SearchWithString(req.RawQuery)
+					if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+						rlog.Error().Err(searchErr).
+							Str("subquery", "description").
+							Msg("unable to search description")
 
-					return nil, parseErr
+						return nil, searchErr
+					}
+
+					archive.DescriptionCount = hits.Total()
+				} else {
+					archive.DescriptionCount = 0
 				}
-
-				query, queryErr := queryParser.Parse(req.RawQuery)
-				if queryErr != nil {
-					rlog.Error().Err(queryErr).
-						Str("subquery", "description").
-						Msg("unable to parse query into search.QueryTerm")
-
-					return nil, queryErr
-				}
-
-				hits, searchErr := descriptionIndex.Search(query)
-				if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
-					rlog.Error().Err(searchErr).
-						Str("subquery", "description").
-						Msg("unable to search description")
-
-					return nil, searchErr
-				}
-
-				archive.DescriptionCount = hits.Total()
 			}
 
 			eadResponse.Archives = append(eadResponse.Archives, archive)

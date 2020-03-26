@@ -96,7 +96,7 @@ type Tree struct {
 	RawContent       []string            `json:"rawContent,omitempty"`
 	Access           string              `json:"access,omitempty"`
 	Title            string              `json:"title,omitempty"`
-	Description      string              `json:"description,omitempty"`
+	Description      []string            `json:"description,omitempty"`
 	InventoryID      string              `json:"inventoryID,omitempty"`
 	AgencyCode       string              `json:"agencyCode,omitempty"`
 	PeriodDesc       []string            `json:"periodDesc,omitempty"`

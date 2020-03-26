@@ -1,20 +1,19 @@
 package handlers
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
 	"path"
-	"path/filepath"
 	"strconv"
 	"strings"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -160,11 +159,6 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 
 func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	description := filepath.Join(
-		c.Config.EAD.CacheDir,
-		spec,
-		fmt.Sprintf("%s.json", spec),
-	)
 
 	params := r.URL.Query()
 	var start int
@@ -197,34 +191,37 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	b, err := ioutil.ReadFile(description)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	var searchHits int
 
-	var desc ead.Description
-	err = json.Unmarshal(b, &desc)
+	desc, err := ead.GetDescription(spec)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	if query != "" {
-		dq := ead.NewDescriptionQuery(query)
-		dq.Filter = filter
-
-		desc.Item = dq.FilterMatches(desc.Item)
-
-		if echo == "hits" {
-			render.JSON(w, r, dq.Hits().TermFrequency())
+		descIndex, getErr := ead.GetDescriptionIndex(spec)
+		if getErr != nil {
+			http.Error(w, getErr.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		desc.Summary = dq.HightlightSummary(desc.Summary)
-		searchHits = dq.Seen()
+		hits, searchErr := descIndex.SearchWithString(query)
+		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+			http.Error(w, getErr.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		desc.Item = descIndex.HighlightMatches(hits, desc.Item, filter)
+
+		if echo == "hits" {
+			render.JSON(w, r, hits.TermFrequency())
+			return
+		}
+
+		// TODO(kiivihal): should we implement search and highlighting for summary
+		// desc.Summary = dq.HightlightSummary(desc.Summary)
+		searchHits = hits.Total()
 		desc.NrItems = len(desc.Item)
 
 		if filter {

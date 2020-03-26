@@ -3,7 +3,6 @@ package ead
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -11,12 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
 	"strings"
 	"time"
 	"unicode"
 
-	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/render"
@@ -30,6 +28,7 @@ import (
 var sanitizer *bluemonday.Policy
 
 func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	sanitizer = bluemonday.StrictPolicy()
 }
 
@@ -62,9 +61,9 @@ func eadParse(src []byte) (*Cead, error) {
 }
 
 func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProcessor) (*NodeConfig, error) {
-	os.MkdirAll(c.Config.EAD.CacheDir, os.ModePerm)
+	os.MkdirAll(config.Config.EAD.CacheDir, os.ModePerm)
 
-	f, err := ioutil.TempFile(c.Config.EAD.CacheDir, "*")
+	f, err := ioutil.TempFile(config.Config.EAD.CacheDir, "*")
 	if err != nil {
 		log.Printf("Unable to create output file %s; %s", spec, err)
 		return nil, err
@@ -102,7 +101,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	hash := plumbing.ComputeHash(plumbing.BlobObject, buf.Bytes())
 	ds.Fingerprint = hash.String()
 
-	basePath := path.Join(c.Config.EAD.CacheDir, spec)
+	basePath := getDataPath(spec)
 	os.MkdirAll(basePath, os.ModePerm)
 	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 
@@ -114,15 +113,12 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 
 	// set basics for ead
 	ds.Label = cead.Ceadheader.GetTitle()
-	// TODO enable again for born digital as well
-	//ds.Owner = cead.Ceadheader.GetOwner()
-	//ds.Abstract = cead.Carchdesc.GetAbstract()
 	ds.Period = cead.Carchdesc.GetPeriods()
 
 	cfg := NewNodeConfig(context.Background())
 	cfg.CreateTree = CreateTree
 	cfg.Spec = spec
-	cfg.OrgID = c.Config.OrgID
+	cfg.OrgID = config.Config.OrgID
 	cfg.Revision = int32(ds.Revision)
 
 	// create desciption
@@ -134,18 +130,20 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	cfg.Title = []string{desc.Summary.File.Title}
 	cfg.TitleShort = desc.Summary.FindingAid.ShortTitle
 
-	jsonOutput, err := json.MarshalIndent(desc, "", " ")
+	descIndex := NewDescriptionIndex(spec)
+	err = descIndex.CreateFrom(desc)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to marshall description to JSON")
+		return nil, fmt.Errorf("unable to create DescriptionIndex; %w", err)
 	}
 
-	err = ioutil.WriteFile(
-		fmt.Sprintf("%s/%s.json", basePath, spec),
-		jsonOutput,
-		0644,
-	)
+	err = descIndex.Write()
 	if err != nil {
-		return nil, errors.Wrapf(err, "Unable to save JSON description to disk")
+		return nil, fmt.Errorf("unable to write DescriptionIndex; %w", err)
+	}
+
+	err = desc.Write()
+	if err != nil {
+		return nil, fmt.Errorf("unable to write description; %w", err)
 	}
 
 	// save description
@@ -168,7 +166,6 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 
 	ds.MetsFiles = int(cfg.MetsCounter.GetCount())
 	ds.Clevels = int(cfg.Counter.GetCount())
-	ds.Description = string(cead.RawDescription())
 
 	err = ds.Save()
 	if err != nil {
@@ -190,7 +187,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		}
 
 		err = ioutil.WriteFile(
-			fmt.Sprintf("%s/%s_err.csv", basePath, spec),
+			fmt.Sprintf("%s/errors.csv", basePath),
 			errs,
 			0644,
 		)
@@ -221,7 +218,6 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 }
 
 func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elastic.BulkProcessor) (uint64, error) {
-
 	in, header, err := r.FormFile("ead")
 	if err != nil {
 		return uint64(0), err
@@ -331,7 +327,7 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elasti
 		return nil
 	}
 	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(config.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
@@ -386,7 +382,7 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 	tree.InventoryID = cfg.Spec
 	tree.Title = cead.Ceadheader.GetTitle()
 	tree.AgencyCode = cead.Ceadheader.Ceadid.Attrmainagencycode
-	tree.Description = string(cead.RawDescription())
+	tree.Description = []string{string(cead.RawDescription())}
 	tree.PeriodDesc = cead.Carchdesc.GetNormalPeriods()
 
 	if len(tree.PeriodDesc) == 0 {
