@@ -11,7 +11,6 @@ require (
 	github.com/asdine/storm v1.1.0
 	github.com/boltdb/bolt v0.0.0-20171120010307-9da317453632 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
-	github.com/cweill/gotests v1.5.3 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
@@ -31,8 +30,6 @@ require (
 	github.com/google/gofuzz v1.0.0
 	github.com/gorilla/schema v1.0.2
 	github.com/gregjones/httpcache v0.0.0-20171119193500-2bcd89a1743f
-	github.com/gregoryv/nexus v0.4.0 // indirect
-	github.com/gregoryv/uncover v0.3.0 // indirect
 	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/justinas/alice v1.2.0
@@ -66,6 +63,7 @@ require (
 	github.com/rs/zerolog v1.18.0
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
+	github.com/sajari/fuzzy v1.0.0
 	github.com/segmentio/ksuid v1.0.2
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.0.2 // indirect
@@ -79,11 +77,12 @@ require (
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	go.elastic.co/apm/module/apmchi v1.5.0
+	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
 	golang.org/x/image v0.0.0-20171214225156-12117c17ca67 // indirect
+	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20190907184412-d223b2b6db03 // indirect
 	golang.org/x/text v0.3.2
-	golang.org/x/tools v0.0.0-20200326174626-c9942794f0d2 // indirect
 	google.golang.org/appengine v1.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
 	google.golang.org/grpc v1.20.1
