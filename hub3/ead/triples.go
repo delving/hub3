@@ -44,6 +44,24 @@ func (cdid *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
 		return
 	}
 
+	extract := func(s r.Term, raw []byte) {
+		e, _ := NewExtractor(raw)
+
+		for _, token := range e.Tokens() {
+			switch token.Type {
+			case Person:
+				t(s, "persname", token.Text, r.NewLiteral)
+			case GeoLocation:
+				t(s, "geogname", token.Text, r.NewLiteral)
+			case DateText:
+				t(s, "datetext", token.Text, r.NewLiteral)
+			case DateIso:
+				t(s, "dateiso", token.Text, r.NewLiteral)
+			}
+		}
+
+	}
+
 	str := func(b []byte) string {
 		return string(bytes.TrimSpace(space.ReplaceAll(b, []byte(" "))))
 	}
@@ -56,6 +74,7 @@ func (cdid *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
 
 	for _, title := range cdid.Cunittitle {
 		t(s, "unitTitle", str(title.Raw), r.NewLiteral)
+		extract(s, title.Raw)
 	}
 
 	for _, date := range cdid.Cunitdate {
@@ -138,6 +157,24 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 		return
 	}
 
+	extract := func(s r.Term, raw []byte) {
+		e, _ := NewExtractor(raw)
+
+		for _, token := range e.Tokens() {
+			switch token.Type {
+			case Person:
+				t(s, "persname", token.Text, r.NewLiteral)
+			case GeoLocation:
+				t(s, "geogname", token.Text, r.NewLiteral)
+			case DateText:
+				t(s, "datetext", token.Text, r.NewLiteral)
+			case DateIso:
+				t(s, "dateiso", token.Text, r.NewLiteral)
+			}
+		}
+
+	}
+
 	str := func(b []byte) string {
 		return string(bytes.TrimSpace(space.ReplaceAll(b, []byte(" "))))
 	}
@@ -152,10 +189,12 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 
 	for _, odd := range cc.Codd {
 		t(s, "odd", str(odd.Raw), r.NewLiteral)
+		extract(s, odd.Raw)
 	}
 
 	for _, scopecontent := range cc.Cscopecontent {
 		t(s, "scopecontent", str(scopecontent.Raw), r.NewLiteral)
+		extract(s, scopecontent.Raw)
 	}
 
 	for _, phystech := range cc.Cphystech {
@@ -188,6 +227,7 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 
 	for _, bioghist := range cc.Cbioghist {
 		t(s, "bioghist", str(bioghist.Raw), r.NewLiteral)
+		extract(s, bioghist.Raw)
 	}
 
 	for _, relatedmaterial := range cc.Crelatedmaterial {

@@ -32,6 +32,7 @@ func TestDidTriples(t *testing.T) {
 		trip(subject, "unitID", "A"),
 		trip(subject, "unitTitle",
 			"Spieghel der Zeevaerdt, ... (etc.) door <persname>Lucas Jansz Waghenaer</persname>."),
+		trip(subject, "persname", "Lucas Jansz Waghenaer"),
 		trip(subject, "unitDate", "1584-1585."),
 		trip(subject, "physdescExtent", "1 deel"),
 		trip(subject, "physdescPhysfacet", "Folio"),

@@ -145,7 +145,13 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.ManifestLink = ""
 	tree.RawContent = []string{}
 	for _, t := range n.triples {
-		if t.Predicate.RawValue() != NewResource("unitTitle").RawValue() {
+		switch t.Predicate.RawValue() {
+		case NewResource("unitTitle").RawValue():
+		case NewResource("geogname").RawValue():
+		case NewResource("persname").RawValue():
+		case NewResource("datetext").RawValue():
+		case NewResource("dateiso").RawValue():
+		default:
 			tree.RawContent = append(tree.RawContent, t.Object.RawValue())
 		}
 	}

@@ -115,6 +115,9 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	ds.Label = cead.Ceadheader.GetTitle()
 	ds.Period = cead.Carchdesc.GetPeriods()
 
+	// description must be set to empty
+	ds.Description = ""
+
 	cfg := NewNodeConfig(context.Background())
 	cfg.CreateTree = CreateTree
 	cfg.Spec = spec
