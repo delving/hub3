@@ -101,7 +101,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 	hash := plumbing.ComputeHash(plumbing.BlobObject, buf.Bytes())
 	ds.Fingerprint = hash.String()
 
-	basePath := getDataPath(spec)
+	basePath := GetDataPath(spec)
 	os.MkdirAll(basePath, os.ModePerm)
 	os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, spec))
 

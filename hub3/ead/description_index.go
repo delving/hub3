@@ -47,7 +47,7 @@ func (di *DescriptionIndex) CreateFrom(desc *Description) error {
 }
 
 func (di *DescriptionIndex) Write() error {
-	err := os.MkdirAll(getDataPath(di.spec), os.ModePerm)
+	err := os.MkdirAll(GetDataPath(di.spec), os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -145,13 +145,13 @@ func GetDescriptionIndex(spec string) (*DescriptionIndex, error) {
 }
 
 func getIndexPath(spec string) string {
-	return path.Join(getDataPath(spec), "description_index.gob")
+	return path.Join(GetDataPath(spec), "description_index.gob")
 }
 
 func getDescriptionPath(spec string) string {
-	return path.Join(getDataPath(spec), "description.gob")
+	return path.Join(GetDataPath(spec), "description.gob")
 }
 
-func getDataPath(spec string) string {
+func GetDataPath(spec string) string {
 	return path.Join(config.Config.EAD.CacheDir, spec)
 }

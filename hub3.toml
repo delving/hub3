@@ -282,6 +282,7 @@ dateRange = [
     "https://archief.nl/def/ead/periodDesc",
 ]
 isoDate = [
+    "https://archief.nl/def/ead/dateiso",
     #"http://schemas.delving.eu/nave/terms/date",
 ]
 

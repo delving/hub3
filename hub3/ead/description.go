@@ -597,7 +597,7 @@ func decodeDescription(r io.Reader) (*Description, error) {
 }
 
 func (desc *Description) Write() error {
-	err := os.MkdirAll(getDataPath(desc.getSpec()), os.ModePerm)
+	err := os.MkdirAll(GetDataPath(desc.getSpec()), os.ModePerm)
 	if err != nil {
 		return err
 	}
