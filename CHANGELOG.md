@@ -2,7 +2,25 @@
 
 ## development
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.2...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.3...master
+
+## v0.1.3 (2020-03-29)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.2...v0.1.3
+
+- Remove EAD cache directory on dataset delete.
+- New search.Tokenizer that integrates with search.Vector and is tag-aware.
+- search.TokenStream supports vector-based highlighting
+- TextIndex and TextQuery use search.Vectors and search.Matches
+- fragments.Resources NewFields() support vector-based highlighting
+- DescriptionIndex and Description now use 'gob' serialisation format for faster retrieval.
+- DescriptionIndex is persisted to disk on upload
+- all search options that interact with ead.Description use persisted DescriptionIndex
+- moved toplevel 'pkg' content to 'hub3' package
+- New fast search.Autocomplete that takes search.TokenStream as input.
+- New search.SpellCheck for spelling suggestions for historic texts
+- Automatic extraction to triples of EAD "<persname>", "<date>", and "<geogname>". These can be used for search or aggregations.
+- ElasticSearch mapping update. 'html_strip' char-filter is part of the default analyzer.
 
 ## v0.1.2 (2020-03-16)
 
