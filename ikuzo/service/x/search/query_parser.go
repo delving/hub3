@@ -147,14 +147,12 @@ func (qt *QueryTerm) setFuzziness(qp *QueryParser) error {
 
 		qt.Fuzzy = fuzzy
 	case unicode.IsSpace(r), r == scanner.EOF:
-		// if phrase query default slop is the number of words
-		if qt.Phrase {
-			qt.Slop = len(strings.Fields(qt.Value))
-			return nil
-		}
-
-		// default fuzzy is length of the term
 		qt.Fuzzy = fuzzinesDefault
+	}
+
+	if qt.Fuzzy > 0 && qt.Phrase {
+		qt.Slop = qt.Fuzzy
+		qt.Fuzzy = 0
 	}
 
 	return nil
@@ -178,11 +176,8 @@ func (qt *QueryTerm) validate() {
 		qt.Value = strings.TrimFunc(qt.Value, func(r rune) bool {
 			return !unicode.IsLetter(r) && !unicode.IsNumber(r)
 		})
-	}
-
-	if qt.Fuzzy > 0 && qt.Phrase {
-		qt.Slop = qt.Fuzzy
-		qt.Fuzzy = 0
+	} else {
+		qt.Phrase = false
 	}
 }
 
@@ -366,8 +361,6 @@ func (qp *QueryParser) processOperators(q *QueryTerm, op Operator, qt *QueryTerm
 		if err := qt.setFuzziness(qp); err != nil {
 			return false, err
 		}
-
-		qt.validate()
 
 		return true, qp.runParser(q, op, qt)
 	case string(WildCardOperator):

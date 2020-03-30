@@ -205,7 +205,7 @@ func TestQueryParser_runParser(t *testing.T) {
 					{
 						mustClauses: []*QueryTerm{
 							{
-								shouldClauses: []*QueryTerm{{Value: "four", Phrase: true}, {Value: "five", Phrase: true}},
+								shouldClauses: []*QueryTerm{{Value: "four", Phrase: true}, {Value: "five", Phrase: false}},
 							},
 							{Value: "two"},
 						},
@@ -375,7 +375,7 @@ func TestQueryParser_runParser(t *testing.T) {
 			args{"\"almost two words\"~", QueryTerm{}, false},
 			QueryTerm{
 				shouldClauses: []*QueryTerm{
-					{Value: "almost two words", Slop: 3, Phrase: true},
+					{Value: "almost two words", Slop: 2, Phrase: true},
 				},
 			},
 			false,
@@ -416,6 +416,17 @@ func TestQueryParser_runParser(t *testing.T) {
 			QueryTerm{
 				shouldClauses: []*QueryTerm{
 					{Field: "Title", Value: "overgangsstalle"},
+				},
+			},
+			false,
+		},
+		{
+			"order of phrase query",
+			args{`"hello there" AND one`, QueryTerm{}, false},
+			QueryTerm{
+				mustClauses: []*QueryTerm{
+					{Value: "hello there", Phrase: true},
+					{Value: "one", Phrase: false},
 				},
 			},
 			false,
