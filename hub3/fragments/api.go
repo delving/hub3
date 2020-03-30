@@ -616,26 +616,11 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			rawQuery = strings.Join(all, " ")
 		}
 		if rawQuery != "" {
-			qs := elastic.NewQueryStringQuery(rawQuery)
+			qs := elastic.NewSimpleQueryStringQuery(rawQuery)
 			qs = qs.
-				DefaultField("full_text").
+				Field("full_text").
 				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
-
-			// TODO enable nested search and highlighing again
-			//nq := elastic.NewMatchQuery("resources.entries.@value", rawQuery).
-			//MinimumShouldMatch(c.Config.ElasticSearch.MimimumShouldMatch)
-			//Operator("and").
-			//qs = qs.DefaultField("resources.entries.@value")
-			//nq := elastic.NewNestedQuery("resources.entries", qs)
-
-			//// inner hits
-			//hl := elastic.NewHighlight().Field("resources.entries.@value").PreTags("**").PostTags("**")
-			//innerValue := elastic.NewInnerHit().Name("highlight").Path("resource.entries").Highlight(hl)
-			//nq = nq.InnerHit(innerValue)
-
-			//query = query.Must(nq)
-
 		}
 
 	}
@@ -716,7 +701,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 
 		if sr.Tree.GetQuery() != "" {
-			q := elastic.NewQueryStringQuery(sr.Tree.GetQuery())
+			q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetQuery())
 			q = q.
 				FieldWithBoost("tree.title", 6.0).
 				FieldWithBoost("tree.inventoryID", 3.0).
@@ -733,8 +718,8 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 		}
 		if sr.Tree.GetLabel() != "" {
-			q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
-			q = q.DefaultField("tree.label")
+			q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetLabel())
+			q = q.Field("tree.label")
 			if !isAdvancedSearch(sr.Tree.GetLabel()) {
 				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			}

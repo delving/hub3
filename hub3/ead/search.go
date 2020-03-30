@@ -312,7 +312,7 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 
 	if sr.RawQuery != "" {
 		// TODO(kiivihal): replace querystring below with search.QueryTerm
-		q := elastic.NewQueryStringQuery(sr.RawQuery)
+		q := elastic.NewSimpleQueryStringQuery(sr.RawQuery)
 
 		q = q.
 			FieldWithBoost("tree.title", 6.0).

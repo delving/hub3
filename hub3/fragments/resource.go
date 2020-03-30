@@ -228,8 +228,8 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 
 	matchSuffix := fmt.Sprintf("_%s", strings.TrimLeft(cLevel, "@"))
 
-	q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
-	q = q.DefaultField("tree.label")
+	q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetLabel())
+	q = q.Field("tree.label")
 	if !isAdvancedSearch(sr.Tree.GetLabel()) {
 		q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 	}
