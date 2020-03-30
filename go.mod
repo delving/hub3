@@ -42,7 +42,7 @@ require (
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b // indirect
 	github.com/matryer/is v1.3.0
-	github.com/mattn/go-colorable v0.0.0-20180115155639-6cc8b475d468 // indirect
+	github.com/mattn/go-colorable v0.1.2 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc // indirect
@@ -65,6 +65,7 @@ require (
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/sajari/fuzzy v1.0.0
 	github.com/segmentio/ksuid v1.0.2
+	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/spf13/afero v1.0.2 // indirect
 	github.com/spf13/cast v1.1.0 // indirect
