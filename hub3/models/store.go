@@ -47,6 +47,10 @@ func ResetStorm() {
 	orm = newDB("")
 }
 
+func ResetEADCache() {
+	os.RemoveAll(config.Config.EAD.CacheDir)
+}
+
 func ORM() *storm.DB {
 	return orm
 }

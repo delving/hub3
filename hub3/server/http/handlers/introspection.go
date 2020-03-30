@@ -34,5 +34,9 @@ func resetAll(w http.ResponseWriter, r *http.Request) {
 	}
 	// reset Key Value Store
 	models.ResetStorm()
+
+	// reset EAD cache
+	models.ResetEADCache()
+
 	return
 }
