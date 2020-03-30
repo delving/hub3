@@ -227,10 +227,10 @@ type EAD struct {
 	SearchURL        string   `json:"searchURL"`
 	GenreFormDefault string   `json:"genreFormDefault"`
 	TreeFields       []string `json:"treeFields"`
+	SearchFields     []string `json:"searchFields"`
 }
 
 func setDefaults() {
-
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
 	viper.SetDefault("HTTP.staticDir", "public")

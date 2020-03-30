@@ -312,19 +312,9 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 
 	if sr.RawQuery != "" {
 		// TODO(kiivihal): replace querystring below with search.QueryTerm
-		q := elastic.NewSimpleQueryStringQuery(sr.RawQuery)
-
-		q = q.
-			FieldWithBoost("tree.title", 6.0).
-			FieldWithBoost("tree.inventoryID", 3.0).
-			FieldWithBoost("tree.label", 2.0).
-			FieldWithBoost("tree.agencyCode", 1.5).
-			FieldWithBoost("tree.unitID", 1.5).
-			FieldWithBoost("tree.description", 1.0).
-			Field("tree.rawContent")
-
-		if !isAdvancedSearch(sr.RawQuery) {
-			q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+		q, err := fragments.QueryFromSearchFields(sr.RawQuery, c.Config.EAD.SearchFields...)
+		if err != nil {
+			return sr, err
 		}
 
 		query = query.Must(q)

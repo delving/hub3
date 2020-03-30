@@ -50,7 +50,9 @@ func ResponseSize(size int) OptionFunc {
 		if size >= s.maxResponseSize {
 			size = s.maxResponseSize
 		}
+
 		s.responseSize = size
+
 		return nil
 	}
 }

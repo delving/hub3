@@ -204,6 +204,16 @@ treeFields = [
     # should be removed
     "ead-rdf_genreform",
 ]
+# searchFields with optional boost. Only tree fields can be selected here.
+searchFields = [
+    "tree.title^6.0",
+    "tree.inventoryID^3.0",
+    "tree.label^2.0",
+    "tree.agencyCode^1.5",
+    "tree.unitID^1.5",
+    "tree.description^1.0",
+    "tree.rawContent",
+]
 
 
 [rdftag]

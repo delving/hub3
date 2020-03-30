@@ -48,6 +48,7 @@ func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 		ResponseSize: responseSize,
 		SessionID:    id.String(),
 	}
+
 	return sr
 }
 
@@ -55,16 +56,20 @@ func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
 func SearchRequestFromHex(s string) (*SearchRequest, error) {
 	decoded, err := hex.DecodeString(s)
 	newSr := &SearchRequest{}
+
 	if err != nil {
 		return newSr, err
 	}
+
 	err = proto.Unmarshal(decoded, newSr)
+
 	return newSr, err
 }
 
 // NewFacetField parses the QueryString and creates a FacetField
 func NewFacetField(field string) (*FacetField, error) {
 	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
+
 	var err error
 
 	switch {
@@ -81,9 +86,11 @@ func NewFacetField(field string) (*FacetField, error) {
 	if ff.Field == "" {
 		return nil, errors.Wrap(err, "Unable to unmarshal facetfield: field cannot be empty")
 	}
+
 	if ff.Name == "" {
 		ff.Name = ff.Field
 	}
+
 	switch {
 	case strings.HasPrefix(ff.Field, "tree."):
 		ff.Type = FacetType_TREEFACET
@@ -102,13 +109,16 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	if hexRequest == "" {
 		hexRequest = params.Get("qs")
 	}
+
 	if hexRequest != "" {
 		sr, err := SearchRequestFromHex(hexRequest)
 		sr.Paging = true
+
 		if err != nil {
 			log.Printf("Unable to parse search request from scrollID: %s", hexRequest)
 			return nil, err
 		}
+
 		return sr, nil
 	}
 
@@ -117,6 +127,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	}
 
 	sr := DefaultSearchRequest(&c.Config)
+
 	for p, v := range params {
 		switch p {
 		case "q", "query":
@@ -175,7 +186,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "facetBoolType":
 			fbt := params.Get(p)
 			if fbt != "" {
-				sr.FacetAndBoolType = strings.ToLower(fbt) == "and"
+				sr.FacetAndBoolType = strings.EqualFold(fbt, "and")
 			}
 		case "format":
 			switch params.Get(p) {
@@ -192,9 +203,11 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				log.Printf("unable to convert %v to int", v)
 				return sr, err
 			}
+
 			if size > 1000 {
 				size = 1000
 			}
+
 			sr.ResponseSize = int32(size)
 		case "itemFormat":
 			format := params.Get("itemFormat")
@@ -240,7 +253,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "byLeaf":
 			sr.Tree = tree
 			tree.Leaf = params.Get(p)
-			tree.FillTree = strings.ToLower(params.Get("fillTree")) == "true"
+			tree.FillTree = strings.EqualFold(params.Get("fillTree"), "true")
 		case "byDepth":
 			sr.Tree = tree
 			tree.Depth = v
@@ -266,9 +279,9 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.WithFields = strings.EqualFold(params.Get(p), "true")
 		case "hasDigitalObject":
 			sr.Tree = tree
-			tree.HasDigitalObject = strings.ToLower(params.Get("hasDigitalObject")) == "true"
+			tree.HasDigitalObject = strings.EqualFold(params.Get("hasDigitalObject"), "true")
 		case "paging":
-			if strings.ToLower(params.Get("paging")) == "true" {
+			if strings.EqualFold(params.Get("paging"), "true") {
 				sr.Tree = tree
 				tree.IsPaging = true
 			}
@@ -277,42 +290,49 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.PageMode = params.Get(p)
 		case "hasRestriction":
 			sr.Tree = tree
-			tree.HasRestriction = strings.ToLower(params.Get("hasRestriction")) == "true"
+			tree.HasRestriction = strings.EqualFold(params.Get("hasRestriction"), "true")
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
 			tree.IsSearch = true
-			tree.AllParents = strings.ToLower(params.Get("allParents")) == "true"
+			tree.AllParents = strings.EqualFold(params.Get("allParents"), "true")
 		case "byMimeType":
 			sr.Tree = tree
 			tree.MimeType = v
 		case "cursorHint":
 			sr.Tree = tree
+
 			hint, err := strconv.Atoi(params.Get(p))
 			if err != nil {
 				log.Printf("unable to convert %v to int for %s", v, p)
 				return sr, err
 			}
+
 			tree.CursorHint = int32(hint)
 		case "page":
 			sr.Tree = tree
 			tree.Page = []int32{}
+
 			for _, page := range v {
 				hint, err := strconv.Atoi(page)
 				if err != nil {
 					log.Printf("unable to convert %v to int for %s", v, p)
 					return sr, err
 				}
+
 				tree.Page = append(tree.Page, int32(hint))
 			}
+
 			tree.IsPaging = true
 		case "pageSize":
 			sr.Tree = tree
+
 			hint, err := strconv.Atoi(params.Get(p))
 			if err != nil {
 				log.Printf("unable to convert %v to int for %s", v, p)
 				return sr, err
 			}
+
 			tree.PageSize = int32(hint)
 		}
 	}
@@ -336,6 +356,7 @@ func RandSeq(n int) string {
 	for i := range b {
 		b[i] = letters[rand.Intn(len(letters))]
 	}
+
 	return string(b)
 }
 
@@ -349,11 +370,13 @@ type FacetURIBuilder struct {
 // NewFacetURIBuilder creates a builder for Facet links
 func NewFacetURIBuilder(query string, filters []*QueryFilter) (*FacetURIBuilder, error) {
 	fub := &FacetURIBuilder{query: query, filters: make(map[string]map[string]*QueryFilter)}
+
 	for _, f := range filters {
 		if err := fub.AddFilter(f); err != nil {
 			return nil, err
 		}
 	}
+
 	return fub, nil
 }
 
@@ -361,11 +384,14 @@ func (fub *FacetURIBuilder) hasQueryFilter(field, value string) bool {
 	if len(fub.filters) == 0 {
 		return false
 	}
+
 	byField, ok := fub.filters[field]
 	if !ok {
 		return false
 	}
+
 	_, ok = byField[value]
+
 	return ok
 }
 
@@ -376,7 +402,9 @@ func (fub *FacetURIBuilder) AddFilter(f *QueryFilter) error {
 		child = map[string]*QueryFilter{}
 		fub.filters[f.GetSearchLabel()] = child
 	}
+
 	child[f.GetValue()] = f
+
 	return nil
 }
 
@@ -384,6 +412,7 @@ func (fub *FacetURIBuilder) AddFilter(f *QueryFilter) error {
 func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bool) {
 	fields := []string{}
 	var selected bool
+
 	if fub.query != "" {
 		fields = append(fields, fmt.Sprintf("q=%s", fub.query))
 	}
@@ -393,17 +422,22 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 	for k := range fub.filters {
 		filters = append(filters, k)
 	}
+
 	sort.Slice(filters, func(i, j int) bool { return filters[i] < filters[j] })
+
 	for _, f := range filters {
-		values := fub.filters[f]
 		var filterValues []string
+
+		values := fub.filters[f]
 		for k := range values {
 			filterValues = append(filterValues, k)
 		}
+
 		sort.Slice(filterValues, func(i, j int) bool { return filterValues[i] < filterValues[j] })
 
 		for _, k := range filterValues {
 			qf := values[k]
+
 			if f == field && k == value {
 				selected = true
 				continue
@@ -701,18 +735,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 
 		if sr.Tree.GetQuery() != "" {
-			q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetQuery())
-			q = q.
-				FieldWithBoost("tree.title", 6.0).
-				FieldWithBoost("tree.inventoryID", 3.0).
-				FieldWithBoost("tree.label", 2.0).
-				FieldWithBoost("tree.agencyCode", 1.5).
-				FieldWithBoost("tree.unitID", 1.5).
-				FieldWithBoost("tree.description", 1.0).
-				Field("tree.rawContent")
-
-			if !isAdvancedSearch(sr.Tree.GetQuery()) {
-				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+			q, err := QueryFromSearchFields(sr.Tree.GetQuery(), c.Config.EAD.SearchFields...)
+			if err != nil {
+				return query, err
 			}
 
 			query = query.Must(q)
@@ -723,6 +748,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			if !isAdvancedSearch(sr.Tree.GetLabel()) {
 				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			}
+
 			query = query.Must(q)
 		}
 		if sr.Tree.GetUnitID() != "" {
@@ -1717,4 +1743,31 @@ func KeyAsString(b *elastic.AggregationBucketKeyItem) string {
 		key = *b.KeyAsString
 	}
 	return key
+}
+
+func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error) {
+	q := elastic.NewSimpleQueryStringQuery(query)
+
+	for _, field := range fields {
+		parts := strings.Split(field, "^")
+		if len(parts) == 1 {
+			q = q.Field(parts[0])
+			continue
+		}
+
+		if len(parts) > 1 {
+			boost, err := strconv.ParseFloat(parts[1], 64)
+			if err != nil {
+				return q, fmt.Errorf("unable to parse boost float for searchField from %s; %w", field, err)
+			}
+
+			q = q.FieldWithBoost(parts[0], boost)
+		}
+	}
+
+	if !isAdvancedSearch(query) {
+		q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+	}
+
+	return q, nil
 }
