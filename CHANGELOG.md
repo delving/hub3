@@ -4,6 +4,16 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.3...master
 
+## v0.1.4 (2020-03-30)
+
+- Remove EAD disk-store on introspect reset
+- Use more robust elastic.SimpleQueryStringQuery for full-text searches
+- Used config.EAD.SearchFields for building EAD full-text queries
+- QueryParser bugfix for wrongly assigned phrase queries.
+- search.QueryTerm to elastic.Query converter
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.3...v0.1.4
+
+
 ## v0.1.3 (2020-03-29)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.2...v0.1.3
