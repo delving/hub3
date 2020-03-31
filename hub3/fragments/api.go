@@ -270,10 +270,12 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.Tree = tree
 			tree.IsSearch = true
 			tree.Label = params.Get(p)
+			sr.ResponseSize = 1
 		case "byQuery":
 			sr.Tree = tree
 			tree.IsSearch = true
 			tree.Query = params.Get(p)
+			sr.ResponseSize = 1
 		case "withFields":
 			sr.Tree = tree
 			tree.WithFields = strings.EqualFold(params.Get(p), "true")
