@@ -208,7 +208,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 
 		hits, searchErr := descIndex.SearchWithString(query)
 		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
-			http.Error(w, getErr.Error(), http.StatusInternalServerError)
+			http.Error(w, searchErr.Error(), http.StatusInternalServerError)
 			return
 		}
 
