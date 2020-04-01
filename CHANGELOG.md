@@ -2,7 +2,12 @@
 
 ## development
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.3...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.5...master
+
+## v0.1.5 (2020-04-01)
+
+- Set ResponseSize to 1 to properly calculate the scrollID and next cursor position when searching through the tree.
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.4...v0.1.5
 
 ## v0.1.4 (2020-03-30)
 
