@@ -1,3 +1,5 @@
+//go:generate go run number_gen.go
+
 package ead
 
 import (
