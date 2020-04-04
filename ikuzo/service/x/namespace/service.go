@@ -3,7 +3,6 @@ package namespace
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/storage/memory"
 )
@@ -236,7 +235,7 @@ func (s *Service) SearchLabel(uri string) (string, error) {
 
 	ns, err := s.store.GetWithBase(base)
 	if err != nil {
-		return "", errors.Wrapf(err, "unable to retrieve namespace for %s", base)
+		return "", fmt.Errorf("unable to retrieve namespace for %s; %w", base, err)
 	}
 
 	return fmt.Sprintf("%s_%s", ns.Prefix, label), nil
