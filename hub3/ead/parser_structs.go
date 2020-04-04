@@ -167,7 +167,6 @@ type Cc struct {
 	Carrangement       []*Carrangement       `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
 	Cbibliography      []*Cbibliography      `xml:"bibliography,omitempty" json:"bibliography,omitempty"`
 	Cbioghist          []*Cbioghist          `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
-	Cc                 []*Cc                 `xml:"c,omitempty" json:"c,omitempty"`
 	Ccontrolaccess     []*Ccontrolaccess     `xml:"controlaccess,omitempty" json:"controlaccess,omitempty"`
 	Ccustodhist        []*Ccustodhist        `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
 	Cdao               []*Cdao               `xml:"dao,omitempty" json:"dao,omitempty"`
@@ -182,6 +181,7 @@ type Cc struct {
 	Cseparatedmaterial []*Cseparatedmaterial `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
 	Cuserestrict       []*Cuserestrict       `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
 
+	Cc []*Cc
 	// not supported by data
 	Cfileplan *Cfileplan  `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
 	Cdescgrp  []*Cdescgrp `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
@@ -363,6 +363,7 @@ type Cdsc struct {
 	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	Cc       []*Cc    `xml:"c,omitempty" json:"c,omitempty"`
+	Numbered []*Cc01  `xml:"c01,omitempty" json:"c,omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
 	// Nested   []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"` // todo: support numbered??

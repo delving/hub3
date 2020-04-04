@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
@@ -23,7 +23,7 @@ import (
 const pathSep string = "~"
 
 func init() {
-	path := c.Config.EAD.CacheDir
+	path := config.Config.EAD.CacheDir
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
@@ -198,14 +198,14 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
-	// TODO(kiivihal): determine if to support numbered clevels
-	// for _, nn := range dsc.Nested {
-	// node, err := NewNode(nn, []string{}, cfg)
-	// if err != nil {
-	// return nil, 0, err
-	// }
-	// nl.Nodes = append(nl.Nodes, node)
-	// }
+	for _, cc := range dsc.Numbered {
+		node, err := NewNode(cc, []string{}, cfg)
+		if err != nil {
+			return nil, 0, err
+		}
+
+		nl.Nodes = append(nl.Nodes, node)
+	}
 
 	for _, nn := range dsc.Cc {
 		node, err := NewNode(nn, []string{}, cfg)
@@ -239,13 +239,13 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	}
 
 	req := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(config.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
 	p.Add(req)
 
-	if c.Config.ElasticSearch.Fragments {
+	if config.Config.ElasticSearch.Fragments {
 		err := fragments.IndexFragments(rm, fg, p)
 		if err != nil {
 			return err
@@ -357,7 +357,7 @@ func (nd *NodeDate) ValidDateNormal() error {
 // NewHeader creates an Archival Header
 func (cdid *Cdid) NewHeader() (*Header, error) {
 	header := &Header{
-		Genreform: c.Config.EAD.GenreFormDefault,
+		Genreform: config.Config.EAD.GenreFormDefault,
 	}
 
 	if len(cdid.Cphysdesc) != 0 {
@@ -441,13 +441,18 @@ func (n *Node) setPath(parentIDs []string) ([]string, error) {
 	} else {
 		n.Path = n.getPathID()
 	}
+
 	ids := append(parentIDs, n.Path)
+
 	return ids, nil
 }
 
 // NewNode converts EAD c01 to a Archival Node
-func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
+func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	cfg.Counter.Increment()
+
+	c := cl.GetCc()
+
 	node := &Node{
 		CTag:      c.GetXMLName().Local,
 		Depth:     int32(len(parentIDs) + 1),
@@ -462,6 +467,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 	node.Header = header
+
 	if header.DaoLink != "" {
 		cfg.MetsCounter.Increment(header.DaoLink)
 	}
@@ -484,7 +490,6 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 					node.AccessRestrictYear = p.Cref[0].Cdate[0].Attrnormal
 				}
 			}
-
 		}
 	}
 
@@ -503,7 +508,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	// check valid date
 	for _, d := range node.Header.Date {
-		if err := d.ValidDateNormal(); err != nil {
+		if validErr := d.ValidDateNormal(); validErr != nil {
 			de := &DuplicateError{
 				Path:     node.Path,
 				Order:    int(node.Order),
@@ -513,7 +518,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 				DupLabel: d.Normal,
 				CType:    node.Type,
 				Depth:    node.Depth,
-				Error:    err.Error(),
+				Error:    validErr.Error(),
 			}
 			cfg.Errors = append(cfg.Errors, de)
 		}
@@ -543,13 +548,14 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	node.triples = append(node.triples, cLevelTriples...)
 
 	// add nested
-	nested := c.GetNested()
+	nested := cl.GetNested()
 	if len(nested) != 0 {
 		for _, nn := range nested {
 			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
 				return nil, err
 			}
+
 			node.Nodes = append(node.Nodes, n)
 		}
 	}

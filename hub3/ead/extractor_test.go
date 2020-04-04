@@ -55,6 +55,7 @@ func TestExtractor_NewExtractor(t *testing.T) {
 			args{input: []byte("<date calendar=\"gregorian\" era=\"ce\" normal=\"1581\">1581</date>")},
 			[]NLPToken{
 				{Text: "1581", Type: DateText},
+				{Text: "1581", Type: DateIso},
 			},
 			false,
 		},

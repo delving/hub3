@@ -14,7 +14,7 @@ import (
 
 	"github.com/OneOfOne/xxhash"
 	"github.com/allegro/bigcache"
-	c "github.com/delving/hub3/config"
+	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
@@ -142,7 +142,7 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 		Filters:         []*fragments.QueryFilter{},
 	}
 
-	rlog := c.Config.Logger.With().
+	rlog := cfg.Config.Logger.With().
 		Str("application", "hub3").
 		Str("search.type", "request builder").
 		Logger()
@@ -262,7 +262,7 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 func (sr *SearchRequest) requestKey() string {
 	jsonBytes, err := json.Marshal(sr)
 	if err != nil {
-		c.Config.Logger.Error().Err(err).
+		cfg.Config.Logger.Error().Err(err).
 			Msg("unable to marshal request key")
 
 		return ""
@@ -286,12 +286,12 @@ func (sr *SearchRequest) enableDescriptionSearch() bool {
 func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchRequest, error) {
 	client := index.ESClient()
 
-	s := client.Search(c.Config.ElasticSearch.GetIndexName()).
-		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits)
+	s := client.Search(cfg.Config.ElasticSearch.GetIndexName()).
+		TrackTotalHits(cfg.Config.ElasticSearch.TrackTotalHits)
 
 	sr, err := newSearchRequest(r.URL.Query())
 	if err != nil {
-		c.Config.Logger.Error().Err(err).
+		cfg.Config.Logger.Error().Err(err).
 			Msg("unable to create ead.SearchRequest")
 
 		return nil, err
@@ -312,7 +312,7 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 
 	if sr.RawQuery != "" {
 		// TODO(kiivihal): replace querystring below with search.QueryTerm
-		q, err := fragments.QueryFromSearchFields(sr.RawQuery, c.Config.EAD.SearchFields...)
+		q, err := fragments.QueryFromSearchFields(sr.RawQuery, cfg.Config.EAD.SearchFields...)
 		if err != nil {
 			return sr, err
 		}
@@ -333,22 +333,22 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 func newBigCache() {
 	config := bigcache.Config{
 		Shards:           1024,
-		HardMaxCacheSize: c.Config.Cache.HardMaxCacheSize,
-		LifeWindow:       time.Duration(c.Config.Cache.LifeWindowMinutes) * time.Minute,
+		HardMaxCacheSize: cfg.Config.Cache.HardMaxCacheSize,
+		LifeWindow:       time.Duration(cfg.Config.Cache.LifeWindowMinutes) * time.Minute,
 		CleanWindow:      5 * time.Minute,
-		MaxEntrySize:     c.Config.Cache.MaxEntrySize,
+		MaxEntrySize:     cfg.Config.Cache.MaxEntrySize,
 	}
 
 	var err error
 
 	httpCache, err = bigcache.NewBigCache(config)
 	if err != nil {
-		c.Config.Logger.Warn().
+		cfg.Config.Logger.Warn().
 			Err(err).
 			Msg("cannot start bigcache running without cache; %#v")
 	}
 
-	rlog := c.Config.Logger.With().Str("test", "sublogger").Logger()
+	rlog := cfg.Config.Logger.With().Str("test", "sublogger").Logger()
 	rlog.Info().Msg("starting bigCache for request caching")
 }
 
@@ -384,7 +384,7 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 	once.Do(newBigCache)
 
 	requestID, _ := hlog.IDFromRequest(r)
-	rlog := c.Config.Logger.With().
+	rlog := cfg.Config.Logger.With().
 		Str("req_id", requestID.String()).
 		Str("searchType", "ead cluster search").
 		Logger()
@@ -723,7 +723,7 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 	inventoryID := chi.URLParam(r, "inventoryID")
 
 	requestID, _ := hlog.IDFromRequest(r)
-	rlog := c.Config.Logger.With().
+	rlog := cfg.Config.Logger.With().
 		Str("req_id", requestID.String()).
 		Str("searchType", "ead detail search").
 		Str("inventoryID", inventoryID).

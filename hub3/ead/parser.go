@@ -253,19 +253,8 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 }
 
 type CLevel interface {
-	GetXMLName() xml.Name
-	GetAttrlevel() string
-	GetAttrotherlevel() string
-	GetAttraltrender() string
-	GetGenreform() string
-	GetCaccessrestrict() []*Caccessrestrict
 	GetNested() []CLevel
-	GetCdid() *Cdid
-	GetScopeContent() []*Cscopecontent
-	GetOdd() []*Codd
-	GetPhystech() []*Cphystech
-	GetMaterial() string
-	Triples(subject r.Term) ([]*r.Triple, error)
+	GetCc() *Cc
 }
 
 func (c *Cc) GetXMLName() xml.Name                   { return c.XMLName }
@@ -277,14 +266,14 @@ func (c *Cc) GetCdid() *Cdid                         { return c.Cdid[0] }
 func (c *Cc) GetScopeContent() []*Cscopecontent      { return c.Cscopecontent }
 func (c *Cc) GetOdd() []*Codd                        { return c.Codd }
 func (c *Cc) GetPhystech() []*Cphystech              { return c.Cphystech }
-func (c *Cc) GetNested() []CLevel                    { return c.Nested() }
-func (c *Cc) Nested() []CLevel {
-	levels := make([]CLevel, len(c.Cc))
-	for i, v := range c.Cc {
-		levels[i] = CLevel(v)
+func (c *Cc) GetNested() []CLevel {
+	nested := []CLevel{}
+	for _, v := range c.Cc {
+		nested = append(nested, v)
 	}
-	return levels
+	return nested
 }
+func (c *Cc) GetCc() *Cc { return c }
 
 func (c *Cc) GetGenreform() string {
 	if c.Ccontrolaccess != nil && len(c.Ccontrolaccess) != 0 {
