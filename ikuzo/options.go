@@ -5,6 +5,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 )
 
@@ -62,6 +63,19 @@ func SetRouters(rb ...RouterFunc) Option {
 func SetOrganisationService(service *organization.Service) Option {
 	return func(s *server) error {
 		s.organizations = service
+		return nil
+	}
+}
+
+// SetRevisionService configures the organization service.
+// When no service is set a default transient memory-based service is used.
+func SetRevisionService(service *revision.Service) Option {
+	return func(s *server) error {
+		s.revision = service
+		s.routerFuncs = append(s.routerFuncs, func(r chi.Router) {
+			r.Handle("/git/{user}/{collection}.git/*", http.StripPrefix("/git", service))
+		})
+
 		return nil
 	}
 }

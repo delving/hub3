@@ -15,7 +15,7 @@ require (
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-sysinfo v1.1.0 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200408073057-6f36a473b19f
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
 	github.com/gammazero/workerpool v0.0.0-20180103203609-079e51c30502
@@ -23,10 +23,11 @@ require (
 	github.com/go-chi/cors v1.0.0
 	github.com/go-chi/docgen v1.0.2
 	github.com/go-chi/render v0.0.0-20171231234154-8c8c7a43d054
-	github.com/golang/protobuf v1.3.2
-	github.com/golang/snappy v0.0.1 // indirect
+	github.com/go-git/go-git/v5 v5.0.0
+	github.com/gogo/protobuf v1.2.0
+	github.com/golang/protobuf v1.4.0-rc.4
 	github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a // indirect
-	github.com/google/go-cmp v0.3.1
+	github.com/google/go-cmp v0.4.0
 	github.com/google/gofuzz v1.0.0
 	github.com/gorilla/schema v1.0.2
 	github.com/gregjones/httpcache v0.0.0-20171119193500-2bcd89a1743f
@@ -49,6 +50,7 @@ require (
 	github.com/moul/http2curl v0.0.0-20170919181001-9ac6cf4d929b // indirect
 	github.com/muesli/smartcrop v0.0.0-20171215203440-9032446b30f6 // indirect
 	github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5 // indirect
+	github.com/nsqio/go-nsq v1.0.8
 	github.com/olivere/elastic/v7 v7.0.10
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
@@ -67,6 +69,7 @@ require (
 	github.com/segmentio/ksuid v1.0.2
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
+	github.com/sosedoff/gitkit v0.2.0
 	github.com/spf13/afero v1.0.2 // indirect
 	github.com/spf13/cast v1.1.0 // indirect
 	github.com/spf13/cobra v0.0.0-20180115160933-0c34d16c3123
@@ -78,15 +81,17 @@ require (
 	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	go.elastic.co/apm/module/apmchi v1.5.0
-	golang.org/x/crypto v0.0.0-20191011191535-87dc89f01550 // indirect
+	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
+	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71 // indirect
 	golang.org/x/image v0.0.0-20171214225156-12117c17ca67 // indirect
-	golang.org/x/net v0.0.0-20200226121028-0de0cce0169b // indirect
+	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20190907184412-d223b2b6db03 // indirect
+	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	golang.org/x/text v0.3.2
 	google.golang.org/appengine v1.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
 	google.golang.org/grpc v1.20.1
+	google.golang.org/protobuf v1.20.1
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.0-20171129124420-c112833d014c
 	gopkg.in/cheggaaa/pb.v2 v2.0.6 // indirect

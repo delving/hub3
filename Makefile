@@ -114,6 +114,11 @@ protobuffer:
 	@make pb.api
 	@make pb.viewconfig
 	@make pb.webresource
+	@make pb.domain
+
+pb.domain:
+	@protoc --go_out=. ikuzo/domain/domainpb/domain.proto
+	@protoc --go_out=. ikuzo/domain/domainpb/index.proto
 
 pb.webresource:
 	@protoc --go_out=. hub3/mediamanager/webresource.proto
@@ -153,7 +158,7 @@ api-console:
 	api-console build -t "RAML 1.0" -a docs/ikuzo/raml/api.raml -o static/api-console
 
 run-dev-ikuzo:
-	gin --path . --build ikuzo -i -buildArgs "-tags=dev -ldflags '${LDFLAGS}'" run serve
+	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${LDFLAGS}'" run serve
 
 ikuzo-generate-assets:
 	go run internal/assets/generate.go

@@ -15,6 +15,7 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
@@ -61,6 +62,8 @@ type server struct {
 	routerFuncs []RouterFunc
 	// service to access the organization store
 	organizations *organization.Service
+	// revision gives access to the file storage
+	revision *revision.Service
 }
 
 // NewServer returns the default server.
