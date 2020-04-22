@@ -2,10 +2,13 @@ package ikuzo
 
 import (
 	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
+	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
 )
 
@@ -73,8 +76,46 @@ func SetRevisionService(service *revision.Service) Option {
 	return func(s *server) error {
 		s.revision = service
 		s.routerFuncs = append(s.routerFuncs, func(r chi.Router) {
-			r.Handle("/git/{user}/{collection}.git/*", http.StripPrefix("/git", service))
+			r.HandleFunc("/git/{user}/{collection}.git/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				p := strings.TrimPrefix(r.URL.Path, "/git")
+				if !service.BareRepo {
+					p = strings.ReplaceAll(p, ".git/", "/.git/")
+				}
+				r2 := new(http.Request)
+				*r2 = *r
+				r2.URL = new(url.URL)
+				*r2.URL = *r.URL
+				r2.URL.Path = p
+				service.ServeHTTP(w, r2)
+			}))
 		})
+
+		return nil
+	}
+}
+
+func SetElasticSearchProxy(proxy *elasticsearch.Proxy) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Handle("/{index}/_search", proxy)
+				r.Handle("/{index}/{documentType}/_search", proxy)
+			},
+		)
+
+		return nil
+	}
+}
+
+func SetBuildVersionInfo(info *BuildVersionInfo) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
+					s.respond(w, r, info, http.StatusOK)
+				})
+			},
+		)
 
 		return nil
 	}

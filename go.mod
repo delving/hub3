@@ -15,6 +15,7 @@ require (
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
 	github.com/docker/go-connections v0.4.0
+	github.com/elastic/go-elasticsearch/v6 v6.8.5
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200408073057-6f36a473b19f
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
@@ -25,7 +26,7 @@ require (
 	github.com/go-chi/render v0.0.0-20171231234154-8c8c7a43d054
 	github.com/go-git/go-git/v5 v5.0.0
 	github.com/gogo/protobuf v1.2.0
-	github.com/golang/protobuf v1.4.0-rc.4
+	github.com/golang/protobuf v1.4.0
 	github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a // indirect
 	github.com/google/go-cmp v0.4.0
 	github.com/google/gofuzz v1.0.0
@@ -34,7 +35,7 @@ require (
 	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/justinas/alice v1.2.0
-	github.com/kiivihal/goharvest v0.0.0-20180416075113-db30333e48f7
+	github.com/kiivihal/goharvest v0.0.0-20190502201718-d93ace331ed0
 	github.com/kiivihal/rdf2go v0.1.2
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20171130200148-b6ee24f8f40f
@@ -42,8 +43,10 @@ require (
 	github.com/labstack/gommon v0.0.0-20170925052817-57409ada9da0
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b // indirect
+	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.3.0
-	github.com/mattn/go-colorable v0.1.2 // indirect
+	github.com/matryer/vice v1.0.0
+	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc // indirect
@@ -78,7 +81,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/testcontainers/testcontainers-go v0.3.1
 	github.com/urfave/negroni v0.3.0
-	github.com/valyala/bytebufferpool v0.0.0-20160817181652-e746df99fe4a // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	go.elastic.co/apm/module/apmchi v1.5.0
 	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
@@ -91,14 +94,14 @@ require (
 	google.golang.org/appengine v1.5.0 // indirect
 	google.golang.org/genproto v0.0.0-20190425155659-357c62f0e4bb
 	google.golang.org/grpc v1.20.1
-	google.golang.org/protobuf v1.20.1
+	google.golang.org/protobuf v1.21.0
 	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.0-20171129124420-c112833d014c
-	gopkg.in/cheggaaa/pb.v2 v2.0.6 // indirect
-	gopkg.in/fatih/color.v1 v1.5.0 // indirect
-	gopkg.in/mattn/go-colorable.v0 v0.0.9 // indirect
-	gopkg.in/mattn/go-isatty.v0 v0.0.3 // indirect
-	gopkg.in/mattn/go-runewidth.v0 v0.0.2 // indirect
+	gopkg.in/cheggaaa/pb.v2 v2.0.7 // indirect
+	gopkg.in/fatih/color.v1 v1.7.0 // indirect
+	gopkg.in/mattn/go-colorable.v0 v0.1.0 // indirect
+	gopkg.in/mattn/go-isatty.v0 v0.0.4 // indirect
+	gopkg.in/mattn/go-runewidth.v0 v0.0.4 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.79
 	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/vmihailenco/msgpack.v2 v2.9.1 // indirect

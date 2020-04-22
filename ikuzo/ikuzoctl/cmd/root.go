@@ -6,14 +6,30 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	// version of the application. (Injected at build time)
+	version = ""
+	// buildStamp is the timestamp of the application. (Injected at build time)
+	buildStamp = "1970-01-01 UTC"
+	// buildAgent is the agent that created the current build. (Injected at build time)
+	buildAgent string
+	// gitHash of the current build. (Injected at build time.)
+	gitHash string
+)
+
+var (
+	cfgFile string
+	cfg     config
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -40,8 +56,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ikuzo.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is hub3.toml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -57,19 +72,38 @@ func initConfig() {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Fatal().Err(err).Msg("unable to find home-dir")
+			// os.Exit(1)
 		}
 
 		// Search config in home directory with name ".ikuzo" (without extension).
+		viper.AddConfigPath("/etc/default")
+		viper.AddConfigPath(".")
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".ikuzo")
+		viper.SetConfigName("hub3")
 	}
 
+	viper.SetEnvPrefix("HUB3")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
+
+	// set default config values
+	setDefaults()
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		log.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file")
+	} else {
+		log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+		switch err.(type) {
+		case viper.ConfigParseError:
+			log.Fatal().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+		default:
+			log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+		}
+	}
+
+	if err := viper.Unmarshal(&cfg); err != nil {
+		log.Fatal().Err(err).Msg("unable to decode configuration into struct")
 	}
 }

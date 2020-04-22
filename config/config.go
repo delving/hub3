@@ -475,6 +475,7 @@ func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVe
 	if version == "" {
 		version = "devBuild"
 	}
+
 	return &BuildVersionInfo{
 		Version:    version,
 		Commit:     commit,
@@ -488,5 +489,6 @@ func (b *BuildVersionInfo) JSON(pretty bool) ([]byte, error) {
 	if pretty {
 		return json.MarshalIndent(b, "", "\t")
 	}
+
 	return json.Marshal(b)
 }

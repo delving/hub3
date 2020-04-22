@@ -29,9 +29,7 @@ func Test_server_handleIndex(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
-	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.Body.String(), `{"name":"Hub3","version":"0.0.1","message":"Ikuzo, Barbatos"}`+"\n")
-	is.Equal(w.Header().Get("Content-Type"), "application/json")
+	is.Equal(w.Code, http.StatusFound)
 }
 
 func Test_server_handleHeartbeat(t *testing.T) {
@@ -326,5 +324,5 @@ func Test_server_recoverer(t *testing.T) {
 
 	w = httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
-	is.Equal(w.Code, http.StatusOK)
+	is.Equal(w.Code, http.StatusFound)
 }

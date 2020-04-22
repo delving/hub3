@@ -1,0 +1,22 @@
+syntax = "proto3";
+package domainpb;
+option go_package = "ikuzo/domain/domainpb";
+
+// IndexMessage is used to queue messages for indexing by ElasticSearch.
+message IndexMessage
+{
+    string OrganisationID = 1;
+    string DatasetID = 2;
+    string RecordID = 3;
+    string IndexName = 4;
+    bool Deleted = 5;
+    Revision Revision = 6;
+    bytes Source = 7;
+}
+
+// Version of the record in the time-revision-store.
+message Revision
+{
+    string SHA = 1;
+    string path = 2;
+}

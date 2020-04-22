@@ -21,6 +21,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -64,6 +65,8 @@ type server struct {
 	organizations *organization.Service
 	// revision gives access to the file storage
 	revision *revision.Service
+	// shutdownHooks are called on server shutdown
+	shutdownHooks []ServiceCancellation
 }
 
 // NewServer returns the default server.
@@ -216,10 +219,22 @@ func (s *server) shutdown(server *http.Server) error {
 
 	log.Info().Msg("stopping web-server")
 	server.SetKeepAlivesEnabled(false)
-	_ = server.Shutdown(ctx)
+
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error { return server.Shutdown(ctx) })
+
+	for _, h := range s.shutdownHooks {
+		h := h
+
+		g.Go(func() error { return h.Shutdown(ctx) })
+	}
 
 	// wait until all background workers are finished
-	s.workers.wg.Wait()
+	if err := g.Wait(); err != nil {
+		return fmt.Errorf("unable to shutdown all workers; %w", err)
+	}
+
 	log.Info().Msg("finished shutting down background processes")
 
 	return nil
@@ -237,23 +252,8 @@ func (s *server) handle404(w http.ResponseWriter, r *http.Request) {
 
 // handleIndex returns default information about the deployment
 func (s *server) handleIndex() http.HandlerFunc {
-	type response struct {
-		Name    string `json:"name"`
-		Version string `json:"version"`
-		Message string `json:"message"`
-	}
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		s.respond(
-			w,
-			r,
-			response{
-				Name:    "Hub3",
-				Version: "0.0.1",
-				Message: "Ikuzo, Barbatos",
-			},
-			http.StatusOK,
-		)
+		http.Redirect(w, r, "/version", http.StatusFound)
 	}
 }
 
@@ -271,8 +271,8 @@ func (s *server) requestLogger(r *http.Request) *zerolog.Logger {
 
 // respond is helper to encode responses from the Server.
 func (s *server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
-	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
 
 	if data != nil {
 		err := json.NewEncoder(w).Encode(data)

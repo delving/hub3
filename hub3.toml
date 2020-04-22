@@ -447,3 +447,7 @@ base = "http://purl.org/vocab/frbr/core#"
 [[namespaces]]
 prefix="odrl" 
 base = "http://www.w3.org/ns/odrl/2/"
+
+[TimeRevisionStore]
+enabled = true
+dataPath = "/tmp/trs"

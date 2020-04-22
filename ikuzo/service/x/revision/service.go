@@ -4,18 +4,24 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/sosedoff/gitkit"
 )
 
 type Service struct {
-	base   string
-	server *gitkit.Server
+	base     string
+	server   *gitkit.Server
+	BareRepo bool
 }
 
 func NewService(path string) (*Service, error) {
 	s := &Service{base: path}
+	if strings.HasSuffix(s.base, "/") {
+		s.base = strings.TrimSuffix(s.base, "/")
+	}
+
 	err := s.setupGitKit()
 
 	return s, err

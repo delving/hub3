@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"github.com/delving/hub3/ikuzo"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -24,17 +23,23 @@ func init() {
 
 // serve configures and runs the ikuzo server as a silo.
 func serve() {
-	revisionSvc, err := revision.NewService("/tmp/hub3")
+	options, err := cfg.Options()
 	if err != nil {
 		log.Fatal().
 			Err(err).
 			Stack().
-			Msg("unable to initialize revision service")
+			Msg("unable to create options")
 	}
 
+	options = append(
+		options,
+		ikuzo.SetBuildVersionInfo(
+			ikuzo.NewBuildVersionInfo(version, gitHash, buildAgent, buildStamp),
+		),
+	)
+
 	svr, err := ikuzo.NewServer(
-		ikuzo.SetPort(3001),
-		ikuzo.SetRevisionService(revisionSvc),
+		options...,
 	)
 
 	if err != nil {

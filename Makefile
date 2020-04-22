@@ -3,21 +3,21 @@
 NAME:=hub3
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
 DESCRIPTION:="Hub3: Linked Open Data Platform"
-MODULE:=github.com/delving/hub3
+MODULE:=github.com/delving/hub3/hub3ctl
 
 GO ?= go
 TEMPDIR:=$(shell mktemp -d)
-VERSION:=$(shell sh -c 'grep "Version = \"" hub3/hub3ctl/cmd/root.go  | cut -d\" -f2')
+VERSION:=$(shell sh -c 'git describe --abbrev=0 --tags')
 GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 
-LDFLAGS:=-X hub3.hub3ctl.Version=123 -X hub3.hub3ctl.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X hub3.hub3ctl.GitHash=`git rev-parse HEAD` -X hub3.hub3ctl.BuildAgent=`git config user.email`
-IKUZOLDFLAGS:=-X ikuzo.ikuzoctl.Version=$(VERSION) -X ikuzo.ikuzoctl.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X ikuzo.ikuzoctl.GitHash=`git rev-parse HEAD` -X ikuzo.ikuzoctl.BuildAgent=`git config user.email`
+
+LDFLAGS:=-X $(MODULE).Version=$(VERSION) -X hub3.hub3ctl.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X hub3.hub3ctl.GitHash=`git rev-parse HEAD` -X hub3.hub3ctl.BuildAgent=`git config user.email`
 
 # var print rule
 print-%  : ; @echo $* = $($*)
 
 clean:
-	rm -rf $(NAME) build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/hub3.db hub3/models/hub3.db dist server/assets/assets_vfsdata.go
+	rm -rf build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/hub3.db hub3/models/hub3.db dist server/assets/assets_vfsdata.go
 
 clean-harvesting:
 	rm -rf *_ids.txt *_records.xml
@@ -45,32 +45,13 @@ test:
 	@richgo test  ./hub3/...
 
 benchmark:
-	@richgo test --bench=. -benchmem ./...
+	@richgo test --bench=. -benchmem ./hub3/...
 
 ginkgo:
 	@ginkgo -r  -skipPackage go_tests
 
 twatch:
 	@ginkgo watch -r -skipPackage go_tests
-
-docker-image:
-	docker build -t $(NAME) .
-
-docker-start:
-	docker run -p 3001:3001 -d $(NAME)
-
-docker-stop:
-	@sh -c "docker ps -a -q --filter ancestor=$(NAME) | xargs docker stop "
-
-docker-remove:
-	@make docker-stop
-	@sh -c "docker image list -q hub3| xargs docker image rm -f"
-
-docker-clean-build:
-	@make docker-remove; 
-	@make docker-image; 
-	@make docker-start; 
-	docker ps -all
 
 compose-up:
 	@docker-compose up
@@ -85,30 +66,6 @@ goreport:
 	@mkdir -p report
 	@rm -rf report/*
 	@goreporter -p ../hub3 -r report -e vendor,cmd,utils -f html
-
-setup-npm:
-	# used for getting dependencies to render swagger specifications
-	@npm install
-
-release:
-	@make create-assets
-	@goreleaser --rm-dist --skip-publish
-	@rpm --addsign dist/*.rpm
-	@debsigs --sign=origin -k E2D6BD239452B1ED15CB99A66C417F6E7521731E dist/*.deb
-
-release-dirty:
-	@make create-assets
-	@goreleaser --rm-dist --skip-publish --snapshot --skip-validate
-	@rpm --addsign dist/*.rpm
-
-release-snapshot:
-	@make create-assets
-	@goreleaser --rm-dist --skip-publish --snapshot
-	@rpm --addsign dist/*.rpm
-
-release-public:
-	@make create-assets
-	@goreleaser --rm-dist --skip-publish
 
 protobuffer:
 	@make pb.api
@@ -129,14 +86,19 @@ pb.api:
 pb.viewconfig:
 	@protoc --go_out=. hub3/fragments/viewconfig.proto
 
-
 pprof-dev:
 	@pprof --http localhost:6060 -seconds 30 http://localhost:3000/debug/pprof/profile
 
 # ikuzo specific make actions 
-
 uncovered-ikuzo:
 	richgo test -coverprofile /tmp/c.out ./... ; uncover /tmp/c.out
+
+IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
+
+IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git rev-parse HEAD` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
+
+build-ikuzo:
+	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
 pre-commit:
 	go mod tidy
@@ -144,7 +106,7 @@ pre-commit:
 	golangci-lint run
 
 test-ikuzo:
-	richgo test -cover ./...
+	richgo test -cover ./ikuzo/...
 	golangci-lint run
 	
 test-no-cache:
@@ -158,8 +120,7 @@ api-console:
 	api-console build -t "RAML 1.0" -a docs/ikuzo/raml/api.raml -o static/api-console
 
 run-dev-ikuzo:
-	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${LDFLAGS}'" run serve
+	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${IKUZOLDFLAGS}'" run serve
 
 ikuzo-generate-assets:
-	go run internal/assets/generate.go
-
+	go run ikuzo/internal/assets/generate.go
