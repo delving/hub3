@@ -4,6 +4,19 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.5...master
 
+## v0.1.6 (2020-04-22) 
+
+- Protobuf definition for primary domain model for metadata
+- Tokenized highlighting is now tag aware.
+- EAD: when paging query returns zero redirect to first page.
+- EAD: Add eadid, filedesc, 'archdesc>did' to the Description DataItems.
+- EAD: Added generator for EAD numbered clevel support.
+- EAD: Enable support for numbered clevels again.
+- EAD: CLI option to update EAD description indices.
+- boyscout: small fixes.
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.5...v0.1.6
+
 ## v0.1.5 (2020-04-01)
 
 - Set ResponseSize to 1 to properly calculate the scrollID and next cursor position when searching through the tree.
