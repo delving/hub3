@@ -306,25 +306,43 @@ func TestTokenStream_Highlight(t *testing.T) {
 			"two words first hit",
 			fields{text: "two words"},
 			args{[]int{1}},
-			"<em>two</em> words",
+			"<em class=\"dhcl\">two</em> words",
 		},
 		{
 			"two words second hit",
 			fields{text: "two words"},
 			args{[]int{2}},
-			"two <em>words</em>",
+			"two <em class=\"dhcl\">words</em>",
 		},
 		{
 			"phrase hit",
 			fields{text: "two, words. no hit!"},
 			args{[]int{1, 2}},
-			"<em>two, words.</em> no hit!",
+			"<em class=\"dhcl\">two, words.</em> no hit!",
 		},
 		{
 			"phrase hit",
 			fields{text: "<p>two, words.</p> no hit!"},
 			args{[]int{1, 2}},
-			"<p><em>two, words.</p> </em> no hit!",
+			"<p><em class=\"dhcl\">two, words.</em></p>  no hit!",
+		},
+		{
+			"phrase hit across tags",
+			fields{text: "<p>two, words.</p> no hit!"},
+			args{[]int{2, 3}},
+			"<p>two, <em class=\"dhcl\">words.</em></p>  <em>no</em> hit!",
+		},
+		{
+			"single hit",
+			fields{text: "<p>two, words.</p> no hit!"},
+			args{[]int{2}},
+			"<p>two, <em class=\"dhcl\">words.</em></p>  no hit!",
+		},
+		{
+			"single hit with tags at end ",
+			fields{text: "<p>two, words.</p>"},
+			args{[]int{2}},
+			"<p>two, <em class=\"dhcl\">words.</em></p>",
 		},
 	}
 
@@ -341,7 +359,7 @@ func TestTokenStream_Highlight(t *testing.T) {
 				terms.Add(1, v)
 			}
 
-			got := tokens.Highlight(terms, "", "")
+			got := tokens.Highlight(terms, "em", "dhcl")
 
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("TokenStream.Highlight() %s = mismatch (-want +got):\n%s", tt.name, diff)

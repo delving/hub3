@@ -17,8 +17,8 @@ var (
 )
 
 const (
-	startHighlightTag = "<em class=\"dchl\">"
-	endHighlightTag   = "</em>"
+	startHighlightTag    = "em"
+	hightlightStyleClass = "dhcl"
 )
 
 type DescriptionIndex struct {
@@ -114,7 +114,7 @@ func (di *DescriptionIndex) HighlightMatches(hits *search.Matches, items []*Data
 		tok := search.NewTokenizer()
 		ts := tok.ParseString(item.Text, int(item.Order))
 
-		item.Text = ts.Highlight(hits.Vectors(), startHighlightTag, endHighlightTag)
+		item.Text = ts.Highlight(hits.Vectors(), startHighlightTag, hightlightStyleClass)
 
 		matches = append(matches, item)
 	}

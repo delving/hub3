@@ -204,6 +204,14 @@ type TokenStream struct {
 	tokens []Token
 }
 
+func (ts *TokenStream) next(idx int) (Token, bool) {
+	if idx > len(ts.tokens) {
+		return Token{}, false
+	}
+
+	return ts.tokens[idx], true
+}
+
 func (ts *TokenStream) Tokens() []Token {
 	return ts.tokens
 }
@@ -222,12 +230,13 @@ func (ts *TokenStream) String() string {
 	return str.String()
 }
 
-func (ts *TokenStream) Highlight(vectors *Vectors, startTag, endTag string) string {
+// TODO(kiivihal): refactor to reduce cyclo complexity
+func (ts *TokenStream) Highlight(vectors *Vectors, tagLabel, emClass string) string {
 	if vectors != nil && vectors.Size() == 0 {
 		return ts.String()
 	}
 
-	startTag, endTag = setDefaultTags(startTag, endTag)
+	startTag, startStyled, endTag := setDefaultTags(tagLabel, emClass)
 
 	var str strings.Builder
 
@@ -235,7 +244,18 @@ func (ts *TokenStream) Highlight(vectors *Vectors, startTag, endTag string) stri
 
 	var insertSpace bool
 
-	for _, token := range ts.tokens {
+	var splitHightlight bool
+
+	for idx, token := range ts.tokens {
+		next, hasNext := ts.next(idx)
+		if hasNext && next.Ignored && !next.Punctuation && inHighlight {
+			str.WriteString(endTag)
+
+			inHighlight = false
+			insertSpace = false
+			splitHightlight = true
+		}
+
 		ok := vectors.HasVector(token.GetTermVector())
 		if !ok && inHighlight && !token.Ignored {
 			str.WriteString(endTag)
@@ -250,7 +270,11 @@ func (ts *TokenStream) Highlight(vectors *Vectors, startTag, endTag string) stri
 		if ok && !inHighlight {
 			inHighlight = true
 
-			str.WriteString(startTag)
+			if !splitHightlight {
+				str.WriteString(startStyled)
+			} else {
+				str.WriteString(startTag)
+			}
 		}
 
 		str.WriteString(token.RawText)
@@ -271,14 +295,19 @@ func (ts *TokenStream) Highlight(vectors *Vectors, startTag, endTag string) stri
 	return str.String()
 }
 
-func setDefaultTags(startTag, endTag string) (start, end string) {
-	if startTag == "" {
-		startTag = "<em>"
+func setDefaultTags(tag, cssClass string) (startTag, startStyled, endTag string) {
+	if tag == "" {
+		tag = "em"
 	}
 
-	if endTag == "" {
-		endTag = "</em>"
+	endTag = fmt.Sprintf("</%s>", tag)
+
+	startTag = fmt.Sprintf("<%s>", tag)
+	startStyled = startTag
+
+	if cssClass != "" {
+		startStyled = fmt.Sprintf("<%s class=\"%s\">", tag, cssClass)
 	}
 
-	return startTag, endTag
+	return startTag, startStyled, endTag
 }

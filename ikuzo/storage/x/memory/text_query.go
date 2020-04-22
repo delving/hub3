@@ -8,24 +8,24 @@ import (
 )
 
 const (
-	startTag = "<em class=\"dchl\">"
-	endTag   = "</em>"
+	startTag   = "em"
+	styleClass = "dchl"
 )
 
 type TextQuery struct {
-	ti         *TextIndex
-	q          *search.QueryTerm
-	Hits       *search.Matches
-	EmStartTag string
-	EmEndTag   string
+	ti           *TextIndex
+	q            *search.QueryTerm
+	Hits         *search.Matches
+	EmStartTag   string
+	EmStyleClass string
 }
 
 func NewTextQuery(q *search.QueryTerm) *TextQuery {
 	return &TextQuery{
-		q:          q,
-		ti:         NewTextIndex(),
-		EmStartTag: startTag,
-		EmEndTag:   endTag,
+		q:            q,
+		ti:           NewTextIndex(),
+		EmStartTag:   startTag,
+		EmStyleClass: styleClass,
 	}
 }
 
@@ -85,7 +85,7 @@ func (tq *TextQuery) hightlightWithVectors(text string, docID int, vectors *sear
 	tok := search.NewTokenizer()
 	tokens := tok.ParseString(text, docID)
 
-	return tokens.Highlight(vectors, tq.EmStartTag, tq.EmEndTag)
+	return tokens.Highlight(vectors, tq.EmStartTag, tq.EmStyleClass)
 }
 
 func (tq *TextQuery) SetTextIndex(ti *TextIndex) {

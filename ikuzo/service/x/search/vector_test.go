@@ -79,6 +79,12 @@ func TestVectors_HasVector(t *testing.T) {
 			args{Vector{DocID: 10, Location: 3}},
 			true,
 		},
+		{
+			"vector list with next",
+			fields{[]Vector{{DocID: 10, Location: 3}, {DocID: 11, Location: 4}}},
+			args{Vector{DocID: 10, Location: 3}},
+			true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -92,11 +98,11 @@ func TestVectors_HasVector(t *testing.T) {
 			}
 
 			if got := tv.HasVector(tt.args.vector); got != tt.want {
-				t.Errorf("Vectors.HasVector() = %v, want %v", got, tt.want)
+				t.Errorf("Vectors.HasVector() %s = %v, want %v", tt.name, got, tt.want)
 			}
 
 			if got := tv.HasDoc(tt.args.vector.DocID); got != tt.want {
-				t.Errorf("Vectors.HasDoc() = %v, want %v", got, tt.want)
+				t.Errorf("Vectors.HasDoc() %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
 	}
