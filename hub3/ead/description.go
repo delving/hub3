@@ -313,6 +313,15 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 			}
 		}
 	default:
+		for _, attr := range se.Attr {
+			switch attr.Name.Local {
+			case "label":
+				id.Label = attr.Value
+			case "type":
+				id.TagType = attr.Value
+			default:
+			}
+		}
 	}
 
 	ib.append(id)
@@ -529,14 +538,60 @@ func NewDescription(ead *Cead) (*Description, error) {
 		desc.Summary.Profile = newProfile(ead.Ceadheader)
 		desc.Summary.File = newFile(ead.Ceadheader)
 		desc.Summary.FindingAid = newFindingAid(ead.Ceadheader)
+
 		err := desc.Summary.FindingAid.AddUnit(ead.Carchdesc)
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	ib := newItemBuilder(context.Background())
+
+	section := &DataItem{
+		Type:  Section,
+		Tag:   "eadid",
+		Label: "Archief: ",
+	}
+	ib.append(section)
+
+	// eadid
+	if err := ib.parse(ead.Ceadheader.Ceadid.Raw); err != nil {
+		return nil, err
+	}
+
+	// filedesc
+	if err := ib.parse(ead.Ceadheader.Cfiledesc.Raw); err != nil {
+		return nil, err
+	}
+	// Add sections
+	info := &SectionInfo{
+		Text:  "Archief",
+		Start: int(section.Order),
+		End:   int(ib.counter.GetCount()),
+		Order: 1,
+	}
+	desc.Section = append(desc.Section, info)
+
+	if len(ead.Carchdesc.Cdid) > 0 {
+		section := &DataItem{
+			Type: Section,
+			Tag:  "archdesc-did",
+		}
+		ib.append(section)
+		if err := ib.parse(ead.Carchdesc.Cdid[0].Raw); err != nil {
+			return nil, err
+		}
+
+		info := &SectionInfo{
+			Text:  section.Text,
+			Start: int(section.Order),
+			End:   int(ib.counter.GetCount()),
+			Order: 2,
+		}
+		desc.Section = append(desc.Section, info)
+	}
+
 	if len(ead.Carchdesc.Cdescgrp) > 0 {
-		ib := newItemBuilder(context.Background())
 
 		for idx, grp := range ead.Carchdesc.Cdescgrp {
 			section := &DataItem{
@@ -555,15 +610,16 @@ func NewDescription(ead *Cead) (*Description, error) {
 				Text:  section.Text,
 				Start: int(section.Order),
 				End:   int(ib.counter.GetCount()),
-				Order: idx + 1,
+				Order: idx + 3,
 			}
 			desc.Section = append(desc.Section, info)
 		}
-		if ib.counter.GetCount() > uint64(0) {
-			desc.Item = ib.items
-			desc.NrSections = len(desc.Section)
-			desc.NrItems = len(desc.Item)
-		}
+	}
+
+	if ib.counter.GetCount() > uint64(0) {
+		desc.Item = ib.items
+		desc.NrSections = len(desc.Section)
+		desc.NrItems = len(desc.Item)
 	}
 
 	return desc, nil
