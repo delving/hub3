@@ -354,6 +354,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			HitsTotalCount: int32(res.TotalHits()),
 		}
 
+		// with zero results load the default first page
+		if paging.HitsTotalCount == 0 && searchRequest.Tree.IsSearch && searchRequest.Tree.IsPaging {
+			newPath := fmt.Sprintf("%s?paging=true&page=1", r.URL.Path)
+			http.Redirect(w, r, newPath, http.StatusSeeOther)
+			return
+		}
+
 		if searchRequest.Tree.Query != "" {
 			var textQueryErr error
 
