@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"unicode"
@@ -954,6 +955,61 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 
 		fa.UnitInfo = unit
 	}
+
+	return nil
+}
+
+func ResaveDescriptions(eadPath string) error {
+	dirs, err := ioutil.ReadDir(eadPath)
+	if err != nil {
+		return err
+	}
+
+	var seen int
+
+	for _, ead := range dirs {
+		if !ead.IsDir() {
+			continue
+		}
+		spec := ead.Name()
+
+		fname := filepath.Join(eadPath, spec, fmt.Sprintf("%s.xml", spec))
+		fmt.Printf("%s\n", fname)
+		if _, err := os.Stat(fname); err != nil {
+			continue
+		}
+
+		cead, err := ReadEAD(fname)
+		if err != nil {
+			return err
+		}
+		// create desciption
+		desc, err := NewDescription(cead)
+		if err != nil {
+			return fmt.Errorf("unable to create description; %w", err)
+		}
+
+		descIndex := NewDescriptionIndex(spec)
+
+		err = descIndex.CreateFrom(desc)
+		if err != nil {
+			return fmt.Errorf("unable to create DescriptionIndex; %w", err)
+		}
+
+		err = descIndex.Write()
+		if err != nil {
+			return fmt.Errorf("unable to write DescriptionIndex; %w", err)
+		}
+
+		err = desc.Write()
+		if err != nil {
+			return fmt.Errorf("unable to write description; %w", err)
+		}
+
+		seen++
+	}
+
+	log.Printf("updated %d eads", seen)
 
 	return nil
 }
