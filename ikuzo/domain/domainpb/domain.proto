@@ -1,0 +1,92 @@
+syntax = "proto3";
+package domainpb;
+
+enum RecordType {
+  NARTHEX = 0;
+  SCHEMA = 1;
+  VOCABULARY = 2;
+  SOURCE = 3;
+  CACHE = 4;
+}
+
+message Header {
+  // The tenant identifier for this RecordType.
+  string orgID = 1;
+  // The spec is the unique dataset string to identify which dataset  this 
+  // Fragment belongs to
+  string spec = 2; 
+  // The revision is used to determine which version is an orphan and should be removed
+  int32 revision = 3;
+  // The hubId is the unique identifier for any document record in hub3
+  string hubID = 4;
+  // Each fragment can be tagged with additional metadata. This can be queried for.
+  // Some examples are 'resource', 'literal', 'bnode', 'rdfType', etc.
+  repeated string tags = 5;
+  // The document type for ElasticSearch. This is a constant value 
+  string docType = 6;
+  // The subject of the graph stored
+  string entryURI = 7;
+  // the graph name of the graph stored
+  string namedGraphURI = 8;
+  // miliseconds since epoch
+  int64 modified = 9;
+
+}
+
+message RecordGraph {
+  Header meta = 1;
+  string entryURI = 2;
+  string namedGraphURI = 3;
+  RecordType recordType = 4;
+  repeated Resource resources = 5;
+}
+
+
+message Resource {
+  string ID = 1;
+  repeated string Types = 2;
+  repeated ReferrerContext GraphExternalContext = 3;
+  repeated ReferrerContext Context = 4;
+  map<string, Entry> Predicates = 6;
+  repeated ReferrerContext ObjectIDs = 7;
+}
+
+
+message Entry {
+  string ID = 1;
+  string Value = 2;
+  string Language = 3;
+  string Datatype = 4;
+  string Entrytype = 5;
+  string Predicate = 6;
+  string SearchLabel = 7;
+  // the rest are index specific fields that take the Value and add it to typed fields
+  int32 level = 8;
+  repeated string tags = 9;
+  repeated string date = 10;
+  int32 integer = 11;
+  float Float = 12;
+  IndexRange intRange = 13;
+  IndexRange dateRange = 14;
+  string latLong = 15;
+  int32 order = 16;
+  // Inline is only used for presentation after the graph is resolved
+  Resource Inline = 17;
+}
+
+message IndexRange {
+    string gte = 1;
+    string lte = 2;
+}
+
+// ReferrerContext holds the referrer in formation for creating new fragments
+message ReferrerContext {
+  string Subject = 1;
+  repeated string SubjectClass = 2;
+  string Predicate = 3;
+  string SearchLabel = 4;
+  int32 Level = 5;
+  string ObjectID = 6;
+  int32 SortKey = 7;
+  string Label = 8;
+}

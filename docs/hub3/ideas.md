@@ -1,0 +1,95 @@
+# Development Ideas
+
+## Hub3 braindump
+
+- sitemap generator
+- EAD (WBSO)
+    - consistent API
+    - autocomplete per EAD
+    - HTML view 
+    - experiment with Lit-Element and lit-html
+- Sparql engine (WBSO)
+    - sparql query parser
+    - covert query parser to ES search engine
+    - convert query parser to internal search engine
+- RDF resource templates (WBSO)
+    - test with golang templates
+    - create internal protobuf based model
+    - experiment with Lit-Element and lit-html
+- phase out all gerald code
+    - sip-creator
+    - narthex
+    - sip-core (only within sip-grpc)
+- OCR pdf sandwhich (WBSO):
+    - experiment with tesseract
+    - extract XML for coordinates
+    - investigate native PDF internal model with coordinates
+    - create POC with google vision json output
+    - downsample the images
+- point in time (revision store):
+    - investigate go-git
+    - create workflow for storing and retrieving based on key
+    - integrate indexing pipe-line with revision store
+    - phase out integer revision based orphan control
+    - implement scheduled sync between revesion store and index
+    - integrate revision store with OAI-PMH endpoint
+    - integration revision store with Site-Map generator
+- Ci/CD workflow for building and deploying
+- lean-web front-end
+    - experiment with vanillajs and gohtml front-end
+- RAML console
+    - plan for reverse engineering of all API documentation in RAML
+    - integrate RAML in builds
+- Ikuzo rapid replacement
+    - replace rapid indexing
+    - add v1 indexing option to revision store
+    - separate head metadata and source in separate fields (two step updating)
+    - create v1 convertor from v2 API
+    - test with instant website
+    - setup e2e testing with small sets from EB and check if output is the same as golden samples
+- V2 diw project
+    - add babel transpiling based buiding to grunt
+    - replace jquery templates with lit-html
+    - create classes for various functionality
+    - refactor out query and results into separate functions where we can inject options to transparently switch between v1 and v2
+- ES new indexer
+    - integrate with revision store
+    - use vice interface to transport layer
+    - implement bulk indexer based on vice (no records can be lost)
+    - determine how often to flush
+    - only send deltas
+    - have daily sync mechanism to make sure nothing is lost
+- Hub3 V2
+    - move nave code to hub3
+    - move narthex code to hub3
+    - move sip-creator code to hub3 dashboard
+- logging, metrics and tracing
+    - add expvar endpoint
+    - add prometheus endpoint
+    - use zerolog for structured logging
+    - add library for opencensus based tracing
+- new delving website
+    - create simple website with hugo
+    - reuse current styling
+    - determine what information should be present
+- go media manager
+    - deep zoom generator and serving
+    - extract metadata (exif) from images
+    - color extracting
+    - RDF endpoint for metadata
+    - cache endpoint for external digital objects
+    - document storage (PDF)
+    - spin 3d support
+    - dashboard for statistics and exploration
+    - dynamic resizing
+    - digital fingerprinting
+    - similarity fingerprinting
+    - key fingerprinting
+    - linking to hub3 labels for better matching 
+- fixed test data
+    - create demo org with test data
+    - this org should always be loaded to test correct behaviour
+- migrate elasticsearch away from ES hosted service
+    - setup kubernetes or metal hosted cluster
+    - implement group-cache based caching to reduce pressure on elasticsearch
+- implemnation and integration of groupcache

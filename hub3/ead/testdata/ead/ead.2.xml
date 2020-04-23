@@ -1,12 +1,12 @@
-<c01 level="series">
+<c level="series">
     <did>
         <unitid type="series_code">A</unitid>
         <unittitle>Toegangen en verslagen</unittitle>
     </did>
-    <c02 level="subseries">
+    <c level="subseries">
         <did>
             <unitid type="series_code">A.1</unitid>
             <unittitle>Toegangen</unittitle>
         </did>
-    </c02>
-</c01>
+    </c>
+</c>

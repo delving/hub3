@@ -27,6 +27,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -72,34 +73,36 @@ type ResourceMap struct {
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 type Tree struct {
-	Leaf             string   `json:"leaf,omitempty"`
-	Parent           string   `json:"parent,omitempty"`
-	Label            string   `json:"label"`
-	CLevel           string   `json:"cLevel"`
-	UnitID           string   `json:"unitID"`
-	Type             string   `json:"type"`
-	HubID            string   `json:"hubID"`
-	ChildCount       int      `json:"childCount"`
-	Depth            int      `json:"depth"`
-	HasChildren      bool     `json:"hasChildren"`
-	HasDigitalObject bool     `json:"hasDigitalObject"`
-	HasRestriction   bool     `json:"hasRestriction"`
-	DaoLink          string   `json:"daoLink,omitempty"`
-	ManifestLink     string   `json:"manifestLink,omitempty"`
-	MimeTypes        []string `json:"mimeType,omitempty"`
-	DOCount          int      `json:"doCount"`
-	Inline           []*Tree  `json:"inline,omitempty"`
-	SortKey          uint64   `json:"sortKey"`
-	Periods          []string `json:"periods"`
-	Content          []string `json:"content,omitempty"`
-	Access           string   `json:"access,omitempty"`
-	Title            string   `json:"title,omitempty"`
-	Description      string   `json:"description,omitempty"`
-	InventoryID      string   `json:"inventoryID,omitempty"`
-	AgencyCode       string   `json:"agencyCode,omitempty"`
-	PeriodDesc       []string `json:"periodDesc,omitempty"`
-	Material         string   `json:"material,omitempty"`
-	PhysDesc         string   `json:"physDesc,omitempty"`
+	Leaf             string              `json:"leaf,omitempty"`
+	Parent           string              `json:"parent,omitempty"`
+	Label            string              `json:"label"`
+	CLevel           string              `json:"cLevel"`
+	UnitID           string              `json:"unitID"`
+	Type             string              `json:"type"`
+	HubID            string              `json:"hubID"`
+	ChildCount       int                 `json:"childCount"`
+	Depth            int                 `json:"depth"`
+	HasChildren      bool                `json:"hasChildren"`
+	HasDigitalObject bool                `json:"hasDigitalObject"`
+	HasRestriction   bool                `json:"hasRestriction"`
+	DaoLink          string              `json:"daoLink,omitempty"`
+	ManifestLink     string              `json:"manifestLink,omitempty"`
+	MimeTypes        []string            `json:"mimeType,omitempty"`
+	DOCount          int                 `json:"doCount"`
+	Inline           []*Tree             `json:"inline,omitempty"`
+	SortKey          uint64              `json:"sortKey"`
+	Periods          []string            `json:"periods"`
+	Content          []string            `json:"content,omitempty"`
+	RawContent       []string            `json:"rawContent,omitempty"`
+	Access           string              `json:"access,omitempty"`
+	Title            string              `json:"title,omitempty"`
+	Description      []string            `json:"description,omitempty"`
+	InventoryID      string              `json:"inventoryID,omitempty"`
+	AgencyCode       string              `json:"agencyCode,omitempty"`
+	PeriodDesc       []string            `json:"periodDesc,omitempty"`
+	Material         string              `json:"material,omitempty"`
+	PhysDesc         string              `json:"physDesc,omitempty"`
+	Fields           map[string][]string `json:"fields,omitempty"`
 }
 
 // DeepCopy creates a deep-copy of a Tree.
@@ -131,6 +134,7 @@ func (t *Tree) DeepCopy() *Tree {
 		InventoryID:      t.InventoryID,
 		AgencyCode:       t.AgencyCode,
 		Material:         t.Material,
+		Fields:           t.Fields,
 	}
 	return target
 }
@@ -157,12 +161,12 @@ type TreeNavigator struct {
 // IsExpanded returns if the tree query contains a query that puts the active ID
 // expanded in the tree
 func (tq *TreeQuery) IsExpanded() bool {
-	return (tq.Label != "" || tq.UnitID != "") || tq.IsPaging
+	return (tq.Label != "" || tq.UnitID != "" || tq.Query != "") || tq.IsPaging
 }
 
 // IsNavigatedQuery returns if there is both a query and active ID
 func (tq *TreeQuery) IsNavigatedQuery() bool {
-	return tq.Label != "" && tq.UnitID != ""
+	return (tq.Label != "" || tq.Query != "") && tq.UnitID != ""
 }
 
 // PreviousCurrentNextPage returns the previous and next page based on the TreeQuery.
@@ -224,8 +228,8 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 
 	matchSuffix := fmt.Sprintf("_%s", strings.TrimLeft(cLevel, "@"))
 
-	q := elastic.NewQueryStringQuery(sr.Tree.GetLabel())
-	q = q.DefaultField("tree.label")
+	q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetLabel())
+	q = q.Field("tree.label")
 	if !isAdvancedSearch(sr.Tree.GetLabel()) {
 		q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 	}
@@ -423,6 +427,7 @@ type TreeSearching struct {
 	HasPrevious bool   `json:"hasPrevious"`
 	ByLabel     string `json:"byLabel,omitempty"`
 	ByUnitID    string `json:"byUnitID,omitempty"`
+	ByQuery     string `json:"byQuery,omitempty"`
 }
 
 // SetPreviousNext calculate previous and next search paging
@@ -1308,6 +1313,7 @@ func (fr *FragmentResource) GetLevel() int32 {
 			highestLevel = ctx.GetLevel()
 		}
 	}
+
 	return int32(highestLevel + 1)
 }
 
@@ -1325,8 +1331,18 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 }
 
 // NewFields returns a map of the triples sorted by their searchLabel
-func (fg *FragmentGraph) NewFields() map[string][]string {
-	fieldMap := make(map[string]map[string]struct{})
+func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[string][]string {
+	if tq != nil {
+		tq.Reset()
+	}
+
+	fieldMap := make(map[string]map[string]bool)
+
+	includeMap := make(map[string]bool)
+	for _, field := range fields {
+		includeMap[field] = true
+	}
+
 	for _, rsc := range fg.Resources {
 		for _, entry := range rsc.Entries {
 			var entryKey string
@@ -1336,35 +1352,92 @@ func (fg *FragmentGraph) NewFields() map[string][]string {
 			default:
 				entryKey = entry.Value
 			}
+
 			if entryKey == "" {
+				continue
+			}
+
+			_, ok := includeMap[entry.SearchLabel]
+			if !ok {
 				continue
 			}
 
 			nd, ok := fieldMap[entry.SearchLabel]
 			if !ok {
-				fd := make(map[string]struct{})
-				fd[entryKey] = struct{}{}
+				fd := make(map[string]bool)
+				fd[entryKey] = true
 				fieldMap[entry.SearchLabel] = fd
 				continue
 			}
 			_, ok = nd[entryKey]
 			if !ok {
-				nd[entryKey] = struct{}{}
+				nd[entryKey] = true
 			}
 		}
 	}
 	fg.Fields = make(map[string][]string)
-	for k, v := range fieldMap {
-		fields := []string{}
-		for vk := range v {
-			if vk != "" {
-				fields = append(fields, vk)
+	var docID int
+
+	type hlEntry struct {
+		searchLabel string
+		docID       int
+		text        string
+	}
+
+	hlFields := []hlEntry{}
+
+	for searchLabel, rawFields := range fieldMap {
+
+		for field := range rawFields {
+
+			if field != "" {
+				docID++
+				if tq != nil {
+					indexErr := tq.AppendString(field, docID)
+					if indexErr != nil {
+						log.Printf("index error: %#v", indexErr)
+					}
+				}
+				hlFields = append(hlFields, hlEntry{
+					searchLabel: searchLabel,
+					docID:       docID,
+					text:        field,
+				})
 			}
 		}
-		if len(fields) > 0 {
-			fg.Fields[k] = fields
+
+	}
+
+	// keep fields by docID
+	sort.Slice(hlFields, func(i, j int) bool {
+		return hlFields[i].docID < hlFields[j].docID
+	})
+
+	if tq != nil {
+		_, searchErr := tq.PerformSearch()
+		if searchErr != nil {
+			log.Printf("unable to do field search = %+v\n", searchErr)
 		}
 	}
+
+	flatFields := map[string][]string{}
+	for _, field := range hlFields {
+		var text string
+		if tq != nil {
+			text, _ = tq.Highlight(field.text, field.docID)
+		} else {
+			text = field.text
+		}
+
+		fieldValue, ok := flatFields[field.searchLabel]
+		if !ok {
+			fieldValue = []string{}
+		}
+		flatFields[field.searchLabel] = append(fieldValue, text)
+
+	}
+	fg.Fields = flatFields
+
 	return fg.Fields
 }
 
@@ -1399,7 +1472,6 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 	Loop:
 		for _, entry := range fr.Entries {
 			if entry.ID != "" && fr.ID != entry.ID {
-
 				target, ok := rm.GetResource(entry.ID)
 				if ok {
 					//log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
@@ -1500,10 +1572,10 @@ func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 }
 
 // AddTags adds a tag string to the tags array of the Header
-func (h *Header) AddTags(tags ...string) {
+func (m *Header) AddTags(tags ...string) {
 	for _, tag := range tags {
-		if !contains(h.Tags, tag) {
-			h.Tags = append(h.Tags, tag)
+		if !contains(m.Tags, tag) {
+			m.Tags = append(m.Tags, tag)
 		}
 	}
 }

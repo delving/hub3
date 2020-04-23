@@ -22,7 +22,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/delving/hub3/ikuzo/logger"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
 )
 
@@ -60,6 +62,7 @@ type RawConfig struct {
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 	SiteMap       `json:"siteMap"`
 	EAD           `json:"ead"`
+	Logger        *zerolog.Logger
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -114,6 +117,7 @@ func (es ElasticSearch) GetIndexName() string {
 type Logging struct {
 	DevMode   bool   `json:"devmode"`
 	SentryDSN string `json:"sentrydsn"`
+	Level     string `json:"level"`
 }
 
 // HTTP holds all the configuration for the http server subcommand
@@ -137,6 +141,19 @@ type RDF struct {
 	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
 	Tags              string   `json:"tags" mapstructure:"tags"`
 	DefaultFormat     string   `json:"defaultFormat"`
+	RDFStoreTags      []string `json:"rdfStoreTags"` // the tags that trigger storage in the triple-store
+}
+
+func (rdf *RDF) HasStoreTag(tags []string) bool {
+	for _, tag := range tags {
+		for _, storeTag := range rdf.RDFStoreTags {
+			if strings.EqualFold(tag, storeTag) {
+				return true
+			}
+		}
+	}
+
+	return false
 }
 
 // Cache is the configuration of the BigCache implementation
@@ -206,13 +223,14 @@ type SiteMap struct {
 
 // EAD holds all the configuration for the EAD endpoint
 type EAD struct {
-	CacheDir         string `json:"cacheDir"`
-	SearchURL        string `json:"searchURL"`
-	GenreFormDefault string `json:"genreFormDefault"`
+	CacheDir         string   `json:"cacheDir"`
+	SearchURL        string   `json:"searchURL"`
+	GenreFormDefault string   `json:"genreFormDefault"`
+	TreeFields       []string `json:"treeFields"`
+	SearchFields     []string `json:"searchFields"`
 }
 
 func setDefaults() {
-
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
 	viper.SetDefault("HTTP.staticDir", "public")
@@ -241,6 +259,7 @@ func setDefaults() {
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
+	viper.SetDefault("Logging.level", "info")
 
 	// cache
 	viper.SetDefault("Cache.enabled", false)
@@ -262,6 +281,7 @@ func setDefaults() {
 	viper.SetDefault("RDF.RoutedEntryPoints", []string{"http://localhost:3000", "http://localhost:3001"})
 	viper.SetDefault("RDF.RDFStoreEnabled", false)
 	viper.SetDefault("RDF.DefaultFormat", "application/ld+json")
+	viper.SetDefault("RDF.RDFStoreTags", []string{"narthex", "mdr"})
 
 	// rdftags
 	viper.SetDefault("RDFTag.Label", []string{
@@ -318,7 +338,9 @@ func setDefaults() {
 func cleanConfig() {
 	Config.RDF.BaseURL = strings.TrimSuffix(Config.RDF.BaseURL, "/")
 	if !strings.HasPrefix(Config.RDF.BaseScheme, "http") {
-		log.Fatalf("RDF.BaseUrl config value '%s' should start with 'http' or 'https'.", Config.RDF.BaseURL)
+		Config.Logger.Fatal().
+			Str("baseURL", Config.RDF.BaseURL).
+			Msg("RDF.BaseUrl config value '%s' should start with 'http' or 'https'.")
 	}
 }
 
@@ -348,10 +370,19 @@ func InitConfig() {
 
 	setDefaults()
 
+	logCfg := logger.Config{
+		LogLevel: logger.ParseLogLevel(Config.Logging.Level),
+	}
+
+	configLogger := logger.NewLogger(logCfg)
+	Config.Logger = &configLogger
+
 	// If a config file is found, read it in.
 	err := viper.ReadInConfig()
 	if err == nil {
-		log.Printf("Using config file: %s", viper.ConfigFileUsed())
+		Config.Logger.Info().
+			Str("configPath", viper.ConfigFileUsed()).
+			Msg("starting up with config path")
 	} else {
 		log.Printf("Unable to read config file %s", viper.ConfigFileUsed())
 		switch v := err.(type) {
@@ -361,6 +392,7 @@ func InitConfig() {
 			log.Printf("config parse error: %#v", err)
 		}
 	}
+
 	err = viper.Unmarshal(&Config)
 	if err != nil {
 		log.Fatal(
@@ -370,12 +402,13 @@ func InitConfig() {
 
 	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
 	Config.RDFTagMap = NewRDFTagMap(&Config)
+
 	cleanConfig()
 }
 
 // GetSparqlEndpoint builds the SPARQL endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c RawConfig) GetSparqlEndpoint(dbName string) string {
+func (c *RawConfig) GetSparqlEndpoint(dbName string) string {
 	if dbName == "" {
 		dbName = c.OrgID
 	}
@@ -390,22 +423,24 @@ func (c RawConfig) GetSparqlEndpoint(dbName string) string {
 
 // GetSparqlUpdateEndpoint builds the SPARQL Update endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
+func (c *RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
 	if dbName == "" {
 		dbName = c.OrgID
 	}
+
 	u, err := url.Parse(c.RDF.SparqlHost)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	u.Path = fmt.Sprintf(c.RDF.SparqlUpdatePath, dbName)
+
 	return u.String()
 }
 
 // GetGraphStoreEndpoint builds the GraphStore endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c RawConfig) GetGraphStoreEndpoint(dbName string) string {
+func (c *RawConfig) GetGraphStoreEndpoint(dbName string) string {
 	if dbName == "" {
 		dbName = c.OrgID
 	}
@@ -416,12 +451,13 @@ func (c RawConfig) GetGraphStoreEndpoint(dbName string) string {
 	}
 	u.Path = fmt.Sprintf(c.RDF.GraphStorePath, dbName)
 	log.Printf("GraphStore endpoint: %s", u)
+
 	return u.String()
 }
 
 // Save saves the update version of the configuration file
 // At the moment this is mostly used for persisting the namespaces
-func (c RawConfig) Save() error {
+func (c *RawConfig) Save() error {
 	return viper.SafeWriteConfig()
 }
 
@@ -448,7 +484,7 @@ func NewBuildVersionInfo(version, commit, buildagent, builddate string) *BuildVe
 }
 
 // JSON returns a json version of the BuildVersionInfo
-func (b BuildVersionInfo) JSON(pretty bool) ([]byte, error) {
+func (b *BuildVersionInfo) JSON(pretty bool) ([]byte, error) {
 	if pretty {
 		return json.MarshalIndent(b, "", "\t")
 	}

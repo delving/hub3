@@ -1,3 +1,5 @@
+//go:generate go run number_gen.go
+
 package ead
 
 import (
@@ -14,15 +16,16 @@ import (
 	"sync/atomic"
 	"time"
 
-	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/olivere/elastic/v7"
+	r "github.com/kiivihal/rdf2go"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 const pathSep string = "~"
 
 func init() {
-	path := c.Config.EAD.CacheDir
+	path := config.Config.EAD.CacheDir
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, os.ModePerm)
 		if err != nil {
@@ -41,20 +44,21 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter       *NodeCounter
-	MetsCounter   *MetsCounter
-	OrgID         string
-	Spec          string
-	Title         []string
-	TitleShort    string
-	Revision      int32
-	PeriodDesc    []string
-	labels        map[string]string
-	MimeTypes     map[string][]string
-	Errors        []*DuplicateError
-	Client        *http.Client
-	BulkProcessor BulkProcessor
-	CreateTree    func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	Counter          *NodeCounter
+	MetsCounter      *MetsCounter
+	OrgID            string
+	Spec             string
+	Title            []string
+	TitleShort       string
+	Revision         int32
+	PeriodDesc       []string
+	labels           map[string]string
+	MimeTypes        map[string][]string
+	Errors           []*DuplicateError
+	Client           *http.Client
+	BulkProcessor    BulkProcessor
+	CreateTree       func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	ContentIdentical bool
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.
@@ -187,6 +191,7 @@ func (nc *NodeCounter) GetCount() uint64 {
 // Nodelist is an optimized lossless Protocol Buffer container.
 func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	nl := &NodeList{}
+
 	if dsc == nil {
 		return nl, 0, nil
 	}
@@ -195,11 +200,12 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
-	for _, nn := range dsc.Nested {
-		node, err := NewNode(nn, []string{}, cfg)
+	for _, cc := range dsc.Numbered {
+		node, err := NewNode(cc, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
+
 		nl.Nodes = append(nl.Nodes, node)
 	}
 
@@ -208,8 +214,10 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		if err != nil {
 			return nil, 0, err
 		}
+
 		nl.Nodes = append(nl.Nodes, node)
 	}
+
 	return nl, cfg.Counter.GetCount(), nil
 }
 
@@ -231,14 +239,15 @@ func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 	if err != nil {
 		return err
 	}
-	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+
+	req := elastic.NewBulkIndexRequest().
+		Index(config.Config.ElasticSearch.GetIndexName()).
 		RetryOnConflict(3).
 		Id(fg.Meta.HubID).
 		Doc(fg)
-	p.Add(r)
+	p.Add(req)
 
-	if c.Config.ElasticSearch.Fragments {
+	if config.Config.ElasticSearch.Fragments {
 		err := fragments.IndexFragments(rm, fg, p)
 		if err != nil {
 			return err
@@ -288,7 +297,7 @@ func (h *Header) GetTreeLabel() string {
 // NewNodeID converts a unitid field from the EAD did to a NodeID
 func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 	id := &NodeID{
-		ID:       ui.ID,
+		ID:       ui.Unitid,
 		TypeID:   ui.Attridentifier,
 		Type:     ui.Attrtype,
 		Audience: ui.Attraudience,
@@ -305,22 +314,25 @@ func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
+
 		switch id.Type {
 		case "ABS", "series_code", "blank", "analoog", "BD", "":
 			inventoryID = id.ID
 		}
+
 		ids = append(ids, id)
 	}
+
 	return ids, inventoryID, nil
 }
 
-// NewNodeDate extract date infomation frme the EAD unitdate
+// NewNodeDate extract date information frme the EAD unitdate
 func (date *Cunitdate) NewNodeDate() (*NodeDate, error) {
 	nDate := &NodeDate{
 		Calendar: date.Attrcalendar,
 		Era:      date.Attrera,
 		Normal:   date.Attrnormal,
-		Label:    date.Date,
+		Label:    date.Unitdate,
 		Type:     date.Attrtype,
 	}
 	return nDate, nil
@@ -347,21 +359,22 @@ func (nd *NodeDate) ValidDateNormal() error {
 // NewHeader creates an Archival Header
 func (cdid *Cdid) NewHeader() (*Header, error) {
 	header := &Header{
-		Genreform: c.Config.EAD.GenreFormDefault,
+		Genreform: config.Config.EAD.GenreFormDefault,
 	}
 
-	if cdid.Cphysdesc != nil {
-		header.Physdesc = cdid.Cphysdesc.PhyscDesc
+	if len(cdid.Cphysdesc) != 0 {
+		header.Physdesc = sanitizeXMLAsString(cdid.Cphysdesc[0].Raw)
 	}
 
-	if cdid.Cdao != nil {
+	if len(cdid.Cdao) != 0 {
 		header.HasDigitalObject = true
-		header.DaoLink = cdid.Cdao.Attrhref
+		header.DaoLink = cdid.Cdao[0].Attrhref
 	}
 
 	for _, label := range cdid.Cunittitle {
 		// todo interpolation of date and title is not correct at the moment.
 		dates := []string{}
+
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
 			for _, date := range label.Cunitdate {
@@ -369,6 +382,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 				if err != nil {
 					return nil, err
 				}
+
 				header.Date = append(header.Date, nodeDate)
 				dates = append(dates, nodeDate.Label)
 			}
@@ -382,13 +396,18 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		header.Date = append(header.Date, nodeDate)
 	}
 
 	for _, unitID := range cdid.Cunitid {
 		// Mark the header as Born Digital when we find a BD type unitid.
-		if strings.ToLower(unitID.Attrtype) == "bd" {
+		if strings.EqualFold(unitID.Attrtype, "bd") {
 			header.AltRender = "Born Digital"
+		}
+
+		if unitID.Attridentifier != "" {
+			header.Attridentifier = unitID.Attridentifier
 		}
 	}
 
@@ -399,10 +418,11 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 	if inventoryID != "" {
 		header.InventoryNumber = inventoryID
 	}
+
 	header.ID = append(header.ID, nodeIDs...)
 
-	if cdid.Cphysloc != nil {
-		header.Physloc = string(cdid.Cphysloc.Raw)
+	if len(cdid.Cphysloc) != 0 {
+		header.Physloc = string(cdid.Cphysloc[0].Raw)
 	}
 
 	return header, nil
@@ -423,13 +443,18 @@ func (n *Node) setPath(parentIDs []string) ([]string, error) {
 	} else {
 		n.Path = n.getPathID()
 	}
+
 	ids := append(parentIDs, n.Path)
+
 	return ids, nil
 }
 
 // NewNode converts EAD c01 to a Archival Node
-func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
+func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	cfg.Counter.Increment()
+
+	c := cl.GetCc()
+
 	node := &Node{
 		CTag:      c.GetXMLName().Local,
 		Depth:     int32(len(parentIDs) + 1),
@@ -444,6 +469,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		return nil, err
 	}
 	node.Header = header
+
 	if header.DaoLink != "" {
 		cfg.MetsCounter.Increment(header.DaoLink)
 	}
@@ -456,23 +482,15 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Header.Genreform = c.GetGenreform()
 	}
 
-	// add content
-	if c.GetOdd() != nil {
-		for _, o := range c.GetOdd() {
-			node.HTML = append(node.HTML, sanitizer.Sanitize(string(o.Raw)))
-		}
-	}
-
-	if c.GetScopeContent() != nil {
-		node.HTML = append(node.HTML, sanitizer.Sanitize(string(c.GetScopeContent().Raw)))
-	}
-
 	// add accessrestrict
 	if ar := c.GetCaccessrestrict(); ar != nil {
-		node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(c.GetCaccessrestrict().Raw)))
-		for _, p := range ar.Cp {
-			if p.Cref != nil && p.Cref.Cdate != nil {
-				node.AccessRestrictYear = p.Cref.Cdate.Attrnormal
+		if len(c.GetCaccessrestrict()) != 0 {
+			arFirst := c.GetCaccessrestrict()[0]
+			node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(arFirst.Raw)))
+			for _, p := range arFirst.Cp {
+				if len(p.Cref) != 0 && len(p.Cref[0].Cdate) != 0 {
+					node.AccessRestrictYear = p.Cref[0].Cdate[0].Attrnormal
+				}
 			}
 		}
 	}
@@ -492,7 +510,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	// check valid date
 	for _, d := range node.Header.Date {
-		if err := d.ValidDateNormal(); err != nil {
+		if validErr := d.ValidDateNormal(); validErr != nil {
 			de := &DuplicateError{
 				Path:     node.Path,
 				Order:    int(node.Order),
@@ -502,7 +520,7 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 				DupLabel: d.Normal,
 				CType:    node.Type,
 				Depth:    node.Depth,
-				Error:    err.Error(),
+				Error:    validErr.Error(),
 			}
 			cfg.Errors = append(cfg.Errors, de)
 		}
@@ -510,37 +528,36 @@ func NewNode(c CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	_, ok := cfg.labels[node.Path]
 	if ok {
-		//data, err := json.MarshalIndent(node, " ", " ")
-		//if err != nil {
-		//return nil, errors.Wrap(err, "Unable to marshal node during uniqueness check")
-		//}
-		//de := &DuplicateError{
-		//Path:     node.Path,
-		//Order:    int(node.Order),
-		//Spec:     cfg.Spec,
-		//Key:      header.InventoryNumber,
-		//Label:    prevLabel,
-		//DupKey:   header.InventoryNumber,
-		//DupLabel: header.GetTreeLabel(),
-		//CType:    node.Type,
-		//Depth:    node.Depth,
-		//}
-		//cfg.Errors = append(cfg.Errors, de)
-
-		//return nil, fmt.Errorf("Found duplicate unique key for %s with previous label %s: \n %s", header.GetInventoryNumber(), prevLabel, data)
 		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
 	}
 
 	cfg.labels[node.Path] = header.GetTreeLabel()
 
+	subject := r.NewResource(node.GetSubject(cfg))
+
+	didTriples, err := c.GetCdid().Triples(subject)
+	if err != nil {
+		return nil, err
+	}
+
+	node.triples = append(node.triples, didTriples...)
+
+	cLevelTriples, err := c.Triples(subject)
+	if err != nil {
+		return nil, err
+	}
+
+	node.triples = append(node.triples, cLevelTriples...)
+
 	// add nested
-	nested := c.GetNested()
+	nested := cl.GetNested()
 	if len(nested) != 0 {
 		for _, nn := range nested {
 			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
 				return nil, err
 			}
+
 			node.Nodes = append(node.Nodes, n)
 		}
 	}

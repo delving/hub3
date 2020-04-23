@@ -7,10 +7,11 @@ MODULE:=github.com/delving/hub3
 
 GO ?= go
 TEMPDIR:=$(shell mktemp -d)
-VERSION:=$(shell sh -c 'grep "Version = \"" cmd/root.go  | cut -d\" -f2')
+VERSION:=$(shell sh -c 'grep "Version = \"" hub3/hub3ctl/cmd/root.go  | cut -d\" -f2')
 GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 
-LDFLAGS:=-X main.Version=$(VERSION) -X main.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X main.GitHash=`git rev-parse HEAD` -X main.BuildAgent=`git config user.email`
+LDFLAGS:=-X hub3.hub3ctl.Version=123 -X hub3.hub3ctl.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X hub3.hub3ctl.GitHash=`git rev-parse HEAD` -X hub3.hub3ctl.BuildAgent=`git config user.email`
+IKUZOLDFLAGS:=-X ikuzo.ikuzoctl.Version=$(VERSION) -X ikuzo.ikuzoctl.BuildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X ikuzo.ikuzoctl.GitHash=`git rev-parse HEAD` -X ikuzo.ikuzoctl.BuildAgent=`git config user.email`
 
 # var print rule
 print-%  : ; @echo $* = $($*)
@@ -29,7 +30,7 @@ create-assets:
 	@go generate ./...
 
 run:
-	@go run main.go
+	@go run '${LDFLAGS}' hub3/hub3ctl/main.go
 
 build:
 	@rm -rf build
@@ -37,21 +38,14 @@ build:
 	@make create-assets
 	@go build -a -o build/$(NAME) -ldflags=$(LDFLAGS) $(MODULE)
 
-gox-build:
-	@make clean-build
-	@make create-assets
-	@make build 
-	@gox -os="linux" -os="darwin" -os="windows" -arch="amd64" -ldflags="$(LDFLAGS) -output="build/$(NAME)-{{.OS}}-{{.Arch}}" $(MODULE) 
-	ls -la ./build/
-
 run-dev:
-	gin -buildArgs "-i -tags=dev -ldflags '${LDFLAGS}'" run http
+	gin --path . --build hub3/hub3ctl -buildArgs "-i -tags=dev -ldflags '${LDFLAGS}'" run http
 
 test:
-	@go test  ./...
+	@richgo test  ./hub3/...
 
 benchmark:
-	@go test --bench=. -benchmem ./...
+	@richgo test --bench=. -benchmem ./...
 
 ginkgo:
 	@ginkgo -r  -skipPackage go_tests
@@ -130,8 +124,37 @@ pb.api:
 pb.viewconfig:
 	@protoc --go_out=. hub3/fragments/viewconfig.proto
 
-cqlsh:
-	@docker exec -it cassandra0 cqlsh
 
 pprof-dev:
 	@pprof --http localhost:6060 -seconds 30 http://localhost:3000/debug/pprof/profile
+
+# ikuzo specific make actions 
+
+uncovered-ikuzo:
+	richgo test -coverprofile /tmp/c.out ./... ; uncover /tmp/c.out
+
+pre-commit:
+	go mod tidy
+	richgo test -cover -race -count=10 ./...
+	golangci-lint run
+
+test-ikuzo:
+	richgo test -cover ./...
+	golangci-lint run
+	
+test-no-cache:
+	richgo test -cover -count=1 ./ikuzo/...
+	golangci-lint run ikuzo
+
+lint-full-ikuzo:
+	golangci-lint run --enable=godox --enable=gomnd --enable=maligned --enable=prealloc --enable=gochecknoglobals --enable=gochecknoinits  ikuzo
+
+api-console:
+	api-console build -t "RAML 1.0" -a docs/ikuzo/raml/api.raml -o static/api-console
+
+run-dev-ikuzo:
+	gin --path . --build ikuzo -i -buildArgs "-tags=dev -ldflags '${LDFLAGS}'" run serve
+
+ikuzo-generate-assets:
+	go run internal/assets/generate.go
+

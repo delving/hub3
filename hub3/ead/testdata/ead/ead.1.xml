@@ -1,9 +1,9 @@
 <dsc type="combined">
     <head>Beschrijving van de series en archiefbestanddelen</head>
-    <c01 level="series">
+    <c level="series">
         <did>
             <unitid type="series_code">A</unitid>
             <unittitle>Toegangen en verslagen</unittitle>
         </did>
-    </c01>
+    </c>
 </dsc>

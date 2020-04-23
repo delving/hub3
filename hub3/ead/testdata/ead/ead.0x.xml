@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<dsc type="combined">
+    <c01 level="series">
+        <did>
+            <unitid type="series_code">1</unitid>
+            <unittitle>Het uitvoeren van wet- en regelgeving met betrekking tot de nationaliteit van personen</unittitle>
+        </did>
+        <c02 level="subseries">
+            <did>
+                <unitid type="series_code">1.1</unitid>
+                <unittitle>Nederlanderschap en Nederlands onderdaanschap in het algemeen</unittitle>
+            </did>
+            <c03 level="otherlevel" otherlevel="filegrp">
+                <did>
+                    <unitid>8548-8770</unitid>
+                    <unittitle>Klapper met gegevens over de personen die genaturaliseerd zijn</unittitle>
+                    <unitdate calendar="gregorian" era="ce" normal="1850/1989">1850-1989</unitdate>
+                    <physdesc>kaartsysteem</physdesc>
+                </did>
+                <odd>
+                    <p>Nota bene: Klapper bevat veelal de volgende gegevens: achternaam, voornamen, geboorteplaats, geboortedatum, woonplaats, genaturaliseerd bij ministeriële beschikking, wet of KB en een verwijzing naar het NA en/of NAW/NAR dossiernummer. De klapper is afkomstig uit het door de IND bijgehouden Nationaliteitenregister.</p>
+                    <p>De bijbehorende dossiers (NA en NTV) blijven tot nadere berichtgeving in het depot van Doc-Direkt in Winschoten. Het gaat om de volgende dossiers: 
+                    <list mark="hyphen" type="marked">
+                        <item>Inventarisnummers 1 t/m 74: Naturalisatiedossiers welke buiten de verfilming zijn gebleven, 1938-1974;</item>
+                        <item>Inventarisnummers 75 t/m 8415: Naturalisatiedossiers, 1975-1989;</item>
+                        <item>Inventarisnummers 8416 t/m 8547: Persoonsgebonden dossiers van de Hoofdafdeling Privaatrecht, afdeling Nationaliteitsaangelegenheden, 1964-1993.</item>
+                    </list></p>
+                </odd>
+                <c04 level="file">
+                    <did>
+                        <unitid identifier="53865911" type="ABS">8548</unitid>
+                        <unitid audience="internal" type="handle">http://hdl.handle.net/10648/5c5a5ac7-c730-455f-e053-09f0900a0922</unitid>
+                        <unittitle>A - Abo</unittitle>
+                    </did>
+                </c04>
+                <c04 level="file">
+                    <did>
+                        <unitid identifier="53865912" type="ABS">8549</unitid>
+                        <unitid audience="internal" type="handle">http://hdl.handle.net/10648/5c5a5ac7-c731-455f-e053-09f0900a0922</unitid>
+                        <unittitle>Abr - Af</unittitle>
+                    </did>
+                </c04>
+                <c04 level="file">
+                    <did>
+                        <unitid identifier="53865913" type="ABS">8550</unitid>
+                        <unitid audience="internal" type="handle">http://hdl.handle.net/10648/5c5a5ac7-c732-455f-e053-09f0900a0922</unitid>
+                        <unittitle>Ag - Aki</unittitle>
+                    </did>
+                </c04>
+            </c03>
+        </c02>
+        <c02 level="file">
+            <did>
+                <unitid identifier="53865911" type="ABS">8548</unitid>
+                <unitid audience="internal" type="handle">http://hdl.handle.net/10648/5c5a5ac7-c730-455f-e053-09f0900a0922</unitid>
+                <unittitle>A - Abo</unittitle>
+            </did>
+        </c02>
+    </c01>
+</dsc>

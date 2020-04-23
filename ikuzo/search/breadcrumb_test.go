@@ -1,0 +1,106 @@
+package search
+
+import (
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+)
+
+func TestBreadCrumbBuilder_GetLast(t *testing.T) {
+	type fields struct {
+		hrefPath []string
+		crumbs   []*BreadCrumb
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   *BreadCrumb
+	}{
+		{
+			"empty list of breadcrumbs",
+			fields{},
+			nil,
+		},
+		{
+			"single breadcrumb",
+			fields{crumbs: []*BreadCrumb{&BreadCrumb{Field: "last"}}},
+			&BreadCrumb{Field: "last"},
+		},
+		{
+			"list of breadcrumbs",
+			fields{crumbs: []*BreadCrumb{
+				&BreadCrumb{Field: "first"},
+				&BreadCrumb{Field: "last"},
+			}},
+			&BreadCrumb{Field: "last"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bcb := &BreadCrumbBuilder{
+				hrefPath: tt.fields.hrefPath,
+				crumbs:   tt.fields.crumbs,
+			}
+			got := bcb.GetLast()
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("BreadCrumbBuilder.GetLast() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}
+
+func TestBreadCrumbBuilder_GetPath(t *testing.T) {
+	type fields struct {
+		hrefPath []string
+		crumbs   []*BreadCrumb
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			"empty href path",
+			fields{},
+			"",
+		},
+		{
+			"single path",
+			fields{hrefPath: []string{"q=test"}},
+			"q=test",
+		},
+		{
+			"double path",
+			fields{
+				hrefPath: []string{
+					"q=Супрематизм» Suprematism",
+					"qf=dc_creator:malevich",
+				},
+			},
+			"q=Супрематизм» Suprematism&qf=dc_creator:malevich",
+		},
+		{
+			"2 or more",
+			fields{
+				hrefPath: []string{
+					"q=Супрематизм» Suprematism",
+					"qf=dc_creator:malevich",
+					"qf=dc_date:1915",
+				},
+			},
+			"q=Супрематизм» Suprematism&qf=dc_creator:malevich&qf=dc_date:1915",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			bcb := &BreadCrumbBuilder{
+				hrefPath: tt.fields.hrefPath,
+				crumbs:   tt.fields.crumbs,
+			}
+			got := bcb.GetPath()
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("BreadCrumbBuilder.GetPath() mismatch (-want +got):\n%s", diff)
+			}
+		})
+	}
+}

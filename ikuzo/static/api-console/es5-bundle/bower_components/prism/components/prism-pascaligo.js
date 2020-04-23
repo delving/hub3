@@ -1,0 +1,7 @@
+(function(Prism){// Pascaligo is a layer 2 smart contract language for the tezos blockchain
+var braces=/\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)/.source,type=/(?:\w+(?:<braces>)?|<braces>)/.source.replace(/<braces>/g,braces),pascaligo=Prism.languages.pascaligo={comment:/\(\*[\s\S]+?\*\)|\/\/.*/,string:{pattern:/(["'`])(\\[\s\S]|(?!\1)[^\\])*\1|\^[a-z]/i,greedy:!0},"class-name":[{pattern:RegExp(/(\btype\s+\w+\s+is\s+)<type>/.source.replace(/<type>/g,type),"i"),lookbehind:!0,inside:null// see below
+},{pattern:RegExp(/<type>(?=\s+is\b)/.source.replace(/<type>/g,type),"i"),inside:null// see below
+},{pattern:RegExp(/(:\s*)<type>/.source.replace(/<type>/g,type)),lookbehind:!0,inside:null// see below
+}],keyword:{pattern:/(^|[^&])\b(?:begin|block|case|const|else|end|fail|for|from|function|if|is|nil|of|remove|return|skip|then|type|var|while|with)\b/i,lookbehind:!0},boolean:{pattern:/(^|[^&])\b(?:True|False)\b/i,lookbehind:!0},builtin:{pattern:/(^|[^&])\b(?:bool|int|list|map|nat|record|string|unit)\b/i,lookbehind:!0},function:/\w+(?=\s*\()/i,number:[// Hexadecimal, octal and binary
+/%[01]+|&[0-7]+|\$[a-f\d]+/i,// Decimal
+/\b\d+(?:\.\d+)?(?:e[+-]?\d+)?(?:mtz|n)?/i],operator:/->|=\/=|\.\.|\*\*|:=|<[<=>]?|>[>=]?|[+\-*\/]=?|[@^=|]|\b(?:and|mod|or)\b/,punctuation:/\(\.|\.\)|[()\[\]:;,.{}]/},classNameInside=["comment","keyword","builtin","operator","punctuation"].reduce(function(accum,key){accum[key]=pascaligo[key];return accum},{});pascaligo["class-name"].forEach(function(p){p.inside=classNameInside})})(Prism);

@@ -3,7 +3,6 @@ package ead_test
 import (
 	"context"
 
-	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -62,7 +61,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should set the entryURI", func() {
 				Expect(h.GetEntryURI()).ToNot(BeEmpty())
-				Expect(h.GetEntryURI()).To(Equal("http://data.hub3.org/NL-HaNA/archive/test-spec/A"))
+				Expect(h.GetEntryURI()).To(Equal("http://data.hub3.org/hub3/archive/test-spec/A"))
 			})
 
 			It("should have a NamedGraphURI", func() {
@@ -94,7 +93,7 @@ var _ = Describe("Nodes", func() {
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
-				Expect(s).To(Equal("http://data.hub3.org/NL-HaNA/archive/test_spec/A"))
+				Expect(s).To(Equal("http://data.hub3.org/hub3/archive/test_spec/A"))
 			})
 
 			It("should set the meta header", func() {
@@ -118,8 +117,8 @@ var _ = Describe("Nodes", func() {
 		})
 
 		Context("when creating triples with parents", func() {
-			c03 := new(Cc03)
-			err := parseUtil(c03, "ead.4.xml")
+			cc := new(Cc)
+			err := parseUtil(cc, "ead.4.xml")
 			cfg := NewNodeConfig(context.Background())
 			cfg.AddLabel("c1", "c1 label")
 			cfg.AddLabel("c2", "c2 label")
@@ -130,23 +129,22 @@ var _ = Describe("Nodes", func() {
 
 			It("it should not throw an error", func() {
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(cc, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(node).ToNot(BeNil())
 			})
 
 			It("should have parentIDS", func() {
-				s := "urn:123"
-				triples := node.Triples(s, cfg)
+				triples := node.Triples(cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(28))
+				Expect(triples).To(HaveLen(11))
 			})
 
 		})
 
 		Context("when creating triples from a Header", func() {
-			c03 := new(Cc03)
-			err := parseUtil(c03, "ead.4.xml")
+			cc := new(Cc)
+			err := parseUtil(cc, "ead.4.xml")
 			cfg := NewNodeConfig(context.Background())
 			cfg.OrgID = "test"
 			cfg.Spec = "test_spec"
@@ -157,7 +155,7 @@ var _ = Describe("Nodes", func() {
 			It("it should not throw an error", func() {
 				Expect(err).ToNot(HaveOccurred())
 				parentIDs := []string{"c1", "c2"}
-				node, err = NewNode(c03, parentIDs, cfg)
+				node, err = NewNode(cc, parentIDs, cfg)
 				Expect(err).ToNot(HaveOccurred())
 
 				h = node.Header
@@ -180,12 +178,6 @@ var _ = Describe("Nodes", func() {
 					Expect(date).ToNot(BeNil())
 				})
 
-				It("should have triples", func() {
-					s := r.NewResource(node.GetSubject(cfg))
-					triples := date.Triples(s, 0, cfg)
-					Expect(triples).ToNot(BeEmpty())
-					Expect(triples).To(HaveLen(6))
-				})
 			})
 
 			Context("check unitIDs", func() {
@@ -199,20 +191,6 @@ var _ = Describe("Nodes", func() {
 					Expect(id).ToNot(BeNil())
 				})
 
-				It("should have an Triples", func() {
-					s := r.NewResource(node.GetSubject(cfg))
-					triples := id.Triples(s, 0, cfg)
-					Expect(triples).ToNot(BeEmpty())
-					Expect(triples).To(HaveLen(5))
-				})
-
-			})
-
-			It("should have a list of triples", func() {
-				s := node.GetSubject(cfg)
-				triples := h.Triples(s, cfg)
-				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(22))
 			})
 
 		})

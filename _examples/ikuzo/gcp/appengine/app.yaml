@@ -1,0 +1,8 @@
+runtime: go112
+
+handlers:
+# Use HTTPS for all requests.
+- url: /.*
+  secure: always
+  redirect_http_response_code: 301
+  script: auto
