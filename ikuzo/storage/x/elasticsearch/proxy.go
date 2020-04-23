@@ -26,16 +26,7 @@ type Proxy struct {
 	group *groupcache.Group
 }
 
-func NewProxy(urls ...string) (*Proxy, error) {
-	cfg := elasticsearch.Config{
-		Addresses: urls,
-	}
-
-	es, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create elastic client; %w", err)
-	}
-
+func NewProxy(es *elasticsearch.Client) (*Proxy, error) {
 	p := &Proxy{
 		es: es,
 	}
