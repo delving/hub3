@@ -48,11 +48,14 @@ func TestOptionSetPort(t *testing.T) {
 func TestOptionSetLoggerConfig(t *testing.T) {
 	is := is.New(t)
 
-	_, err := newServer(
-		SetLoggerConfig(logger.Config{
+	l := logger.NewLogger(
+		logger.Config{
 			LogLevel:            logger.DebugLevel,
 			EnableConsoleLogger: true,
-		}),
+		},
+	)
+	_, err := newServer(
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 

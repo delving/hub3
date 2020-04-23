@@ -45,6 +45,8 @@ type server struct {
 	router chi.Router
 	// port is where the server will listen to TCP requests
 	port int
+	// metricsPort is the port where expvar is hosted
+	metricsPort int
 	// cancelFunc is called for graceful shutdown of resources and background workers.
 	cancelFunc context.CancelFunc
 	// workers is a pool that manages all the background WorkerServices
@@ -53,8 +55,8 @@ type server struct {
 	gracefulTimeout time.Duration
 	// disableRequestLogger stops logging of request information to the global logger
 	disableRequestLogger bool
-	// loggerConfig is the logger configuration for the server
-	loggerConfig logger.Config
+	// logger is the custom zerolog logger
+	logger *logger.CustomLogger
 	// middleware is an array of middleware options that will be applied.
 	// When none are given the default middleware is applied.
 	middleware []func(http.Handler) http.Handler
@@ -95,8 +97,10 @@ func newServer(options ...Option) (*server, error) {
 		}
 	}
 
-	// setting up logging
-	log.Logger = logger.NewLogger(s.loggerConfig)
+	// set global logger
+	if s.logger != nil {
+		log.Logger = s.logger.Logger
+	}
 
 	// apply middleware
 	if len(s.middleware) == 0 {
@@ -166,6 +170,14 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	// gather errors
 	allowedErrors := 10
 	errChan := make(chan error, allowedErrors)
+
+	if s.metricsPort != 0 {
+		log.Info().
+			Int("port", s.metricsPort).
+			Msg("starting metrics server")
+
+		go http.ListenAndServe(fmt.Sprintf(":%d", s.metricsPort), nil)
+	}
 
 	// start web-server
 	server := http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s}

@@ -29,10 +29,20 @@ func SetPort(port int) Option {
 	}
 }
 
-// SetLoggerConfig configures the global logger for the server.
-func SetLoggerConfig(cfg logger.Config) Option {
+// SetMetricsPort sets the TCP port for the metrics server.
+//
+// No default. When set to 0 the metrics server is not started
+func SetMetricsPort(port int) Option {
 	return func(s *server) error {
-		s.loggerConfig = cfg
+		s.metricsPort = port
+		return nil
+	}
+}
+
+// SetLogger configures the global logger for the server.
+func SetLogger(l *logger.CustomLogger) Option {
+	return func(s *server) error {
+		s.logger = l
 		return nil
 	}
 }

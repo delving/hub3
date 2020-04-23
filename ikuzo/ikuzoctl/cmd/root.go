@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/delving/hub3/ikuzo/ikuzoctl/cmd/internal"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
@@ -28,7 +29,7 @@ var (
 
 var (
 	cfgFile string
-	cfg     config
+	cfg     internal.Config
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -88,7 +89,7 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// set default config values
-	setDefaults()
+	internal.SetViperDefaults()
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {

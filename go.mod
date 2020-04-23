@@ -9,14 +9,14 @@ require (
 	github.com/allegro/bigcache v1.1.0
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
 	github.com/asdine/storm v1.1.0
-	github.com/boltdb/bolt v0.0.0-20171120010307-9da317453632 // indirect
+	github.com/cenkalti/backoff/v4 v4.0.2
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
 	github.com/docker/go-connections v0.4.0
 	github.com/elastic/go-elasticsearch/v6 v6.8.5
-	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200408073057-6f36a473b19f
+	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200422075202-271c41b39edc
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
 	github.com/gammazero/workerpool v0.0.0-20180103203609-079e51c30502
@@ -25,8 +25,8 @@ require (
 	github.com/go-chi/docgen v1.0.2
 	github.com/go-chi/render v0.0.0-20171231234154-8c8c7a43d054
 	github.com/go-git/go-git/v5 v5.0.0
-	github.com/gogo/protobuf v1.2.0
 	github.com/golang/protobuf v1.4.0
+	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/btree v0.0.0-20180124185431-e89373fe6b4a // indirect
 	github.com/google/go-cmp v0.4.0
 	github.com/google/gofuzz v1.0.0
@@ -37,6 +37,7 @@ require (
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20190502201718-d93ace331ed0
 	github.com/kiivihal/rdf2go v0.1.2
+	github.com/klauspost/compress v1.10.5 // indirect
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20171130200148-b6ee24f8f40f
 	github.com/knakk/sparql v0.0.0-20170625101756-3de19ad6a5dc
@@ -45,15 +46,16 @@ require (
 	github.com/magiconair/properties v0.0.0-20171031211101-49d762b9817b // indirect
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.3.0
-	github.com/matryer/vice v1.0.0
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v0.0.0-20180111000720-b4575eea38cc // indirect
 	github.com/moul/http2curl v0.0.0-20170919181001-9ac6cf4d929b // indirect
 	github.com/muesli/smartcrop v0.0.0-20171215203440-9032446b30f6 // indirect
+	github.com/nats-io/nats-server/v2 v2.1.6 // indirect
+	github.com/nats-io/nats-streaming-server v0.17.0 // indirect
+	github.com/nats-io/stan.go v0.6.0
 	github.com/nfnt/resize v0.0.0-20160724205520-891127d8d1b5 // indirect
-	github.com/nsqio/go-nsq v1.0.8
 	github.com/olivere/elastic/v7 v7.0.10
 	github.com/onsi/ginkgo v1.8.0
 	github.com/onsi/gomega v1.5.0
@@ -63,7 +65,6 @@ require (
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829
-	github.com/prometheus/procfs v0.0.4 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.18.0
 	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9 // indirect
@@ -81,13 +82,12 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/testcontainers/testcontainers-go v0.3.1
 	github.com/urfave/negroni v0.3.0
-	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasthttp v1.12.0
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	go.elastic.co/apm/module/apmchi v1.5.0
 	go.elastic.co/apm/module/apmhttp v1.7.2 // indirect
-	golang.org/x/crypto v0.0.0-20200406173513-056763e48d71 // indirect
+	golang.org/x/crypto v0.0.0-20200420201142-3c4aac89819a // indirect
 	golang.org/x/image v0.0.0-20171214225156-12117c17ca67 // indirect
-	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20200413165638-669c56c373c4 // indirect
 	golang.org/x/text v0.3.2

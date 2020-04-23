@@ -175,8 +175,12 @@ func Test_server_Shutdown(t *testing.T) {
 
 	var buf bytes.Buffer
 
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
+
 	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 
@@ -209,8 +213,12 @@ func Test_server_ListenAndServe(t *testing.T) {
 
 	var buf bytes.Buffer
 
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
+
 	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 
@@ -239,9 +247,14 @@ func Test_server_listenAndServeWithError(t *testing.T) {
 
 	var buf bytes.Buffer
 
-	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
 	)
+
+	svr, err := newServer(
+		SetLogger(&l),
+	)
+
 	is.NoErr(err)
 
 	testError := errors.New("test error")
@@ -256,8 +269,12 @@ func Test_server_listenAndServeWithSignal(t *testing.T) {
 
 	var buf bytes.Buffer
 
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
+
 	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 
@@ -269,9 +286,12 @@ func Test_server_requestLogger(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
 
 	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 
@@ -295,9 +315,12 @@ func Test_server_recoverer(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
 
 	svr, err := newServer(
-		SetLoggerConfig(logger.Config{Output: &buf}),
+		SetLogger(&l),
 	)
 	is.NoErr(err)
 

@@ -375,7 +375,7 @@ func InitConfig() {
 	}
 
 	configLogger := logger.NewLogger(logCfg)
-	Config.Logger = &configLogger
+	Config.Logger = &configLogger.Logger
 
 	// If a config file is found, read it in.
 	err := viper.ReadInConfig()

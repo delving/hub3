@@ -1,14 +1,30 @@
 # The default orgId
 orgId = "hub3"
+# the default hub3 clusterID
+hub3ID = "hub3"
 
 [http]
 # all the configuration for the http sub-command
 # The port of the http server
 port = 3001
+# The port of the metrics server
+metricsPort = 6060
+
+[nats]
+enabled = true
+clustedID = "hub3-nats"
+clientID = "hub3-pub"
+durableName = "hub3-worker"
+durableQueue = "hub3-queue"
+subjectID = "hub3-bulk-index"
+url = "nats://localhost:4222"
+
 
 [ElasticSearch]
 # enable the elasticsearch search api
 enabled = true 
+# collect client metrics
+metrics = true
 # the urls where we can find elasticsearch
 urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId

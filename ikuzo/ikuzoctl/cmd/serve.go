@@ -41,7 +41,6 @@ func serve() {
 	svr, err := ikuzo.NewServer(
 		options...,
 	)
-
 	if err != nil {
 		log.Fatal().
 			Err(err).

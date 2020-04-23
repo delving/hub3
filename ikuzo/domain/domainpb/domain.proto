@@ -1,5 +1,6 @@
 syntax = "proto3";
 package domainpb;
+option go_package = "ikuzo/domain/domainpb";
 
 enum RecordType {
   NARTHEX = 0;

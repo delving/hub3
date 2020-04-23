@@ -18,6 +18,7 @@ services:
         hard: -1
     networks:
       - esnet
+
   fuseki:
     image: stain/jena-fuseki:latest
     container_name: fuseki-zvt
@@ -27,5 +28,20 @@ services:
       - ADMIN_PASSWORD=pw123
     command:
         ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
+  nats:
+    image: nats-streaming
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    command:
+        - "--cluster_id"
+        - "hub3-nats"
+        - "--http_port"
+        - "8222"
+        - "--port"
+        - "4222"
+    networks:
+      - esnet
+
 networks:
   esnet:
