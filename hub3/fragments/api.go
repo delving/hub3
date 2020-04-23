@@ -965,7 +965,7 @@ func (sr *SearchRequest) SearchRequestToHex() (string, error) {
 }
 
 // DeepCopy create a deepCopy of the SearchRequest.
-// This is used to calculate next ScrollID values without change the current values of the request.
+// This is used to calculate next NextScrollID values without change the current values of the request.
 func (sr *SearchRequest) DeepCopy() (*SearchRequest, error) {
 	output, err := proto.Marshal(sr)
 	if err != nil {
@@ -1181,55 +1181,83 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 		}
 		sort.Strings(options)
 		return options, nil
-	case "searchService", "searchResponse", "request", "nextScrollID", "searchAfter":
+	case "searchService", "searchResponse", "request", "nextScrollID", "previousScrollID", "searchAfter":
 		return nil, nil
 	}
 	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 
 }
 
-// NextScrollID creates a ScrollPager from a SearchRequest
-// This is used to provide a scrolling pager for returning SearchItems
-func (sr *SearchRequest) NextScrollID(total int64) (*ScrollPager, error) {
+type ScrollType int
+const (
+	ScrollNext ScrollType = iota
+	ScrollPrev
+)
 
-	sp := NewScrollPager()
-	nextSr, err := sr.DeepCopy()
+func newSearchRequestScrollPage(sr *SearchRequest, position ScrollType, total int64) (*SearchRequest, error) {
+	copySr, err := sr.DeepCopy()
 	if err != nil {
 		return nil, err
 	}
 
-	// if no results return empty pager
 	if total == 0 {
-		return sp, nil
+		return sr, nil
 	}
-	sp.Cursor = nextSr.GetStart()
 
-	// set the next cursor
-	nextSr.Start = nextSr.GetStart() + nextSr.GetResponseSize()
+	// set the next or prev cursor
+	if position == ScrollNext {
+		copySr.Start = copySr.GetStart() + copySr.GetResponseSize()
+	}
+
+	if position == ScrollPrev {
+		copySr.Start = copySr.GetStart() - copySr.GetResponseSize()
+	}
 
 	// if paging set next page
-	if nextSr.Tree != nil && nextSr.Tree.IsPaging && !nextSr.Tree.IsSearch {
-		_, _, next := sr.Tree.PreviousCurrentNextPage()
-		nextSr.Tree.Page = []int32{next}
+	if copySr.Tree != nil && copySr.Tree.IsPaging && !copySr.Tree.IsSearch {
+		prev, _, next := sr.Tree.PreviousCurrentNextPage()
+		if position == ScrollNext {
+			copySr.Tree.Page = []int32{next}
+		}
+		if position == ScrollPrev {
+			copySr.Tree.Page = []int32{prev}
+		}
 	}
 
-	sp.Rows = nextSr.GetResponseSize()
+	return copySr, nil
+}
+
+func (sr *SearchRequest) ScrollPagers (total int64) (*ScrollPager, error) {
+	sp := NewScrollPager()
+	sp.Cursor = sr.GetStart()
+	sp.Rows = sr.GetResponseSize()
 	sp.Total = total
-	if nextSr.CalculatedTotal != 0 {
-		sp.Total = nextSr.CalculatedTotal
+	if sr.CalculatedTotal != 0 {
+		sp.Total = sr.CalculatedTotal
 	}
-
-	// return empty ScrollID if there is no next page
-	if nextSr.GetStart() >= int32(total) {
-		return sp, nil
+	prev, err := newSearchRequestScrollPage(sr, ScrollPrev, total)
+	if err != nil {
+		return nil, err
 	}
-
-	hex, err := nextSr.SearchRequestToHex()
+	next, err := newSearchRequestScrollPage(sr, ScrollNext, total)
 	if err != nil {
 		return nil, err
 	}
 
-	sp.ScrollID = hex
+	if next.GetStart() < int32(total) {
+		sp.NextScrollID, err = next.SearchRequestToHex()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if prev.GetStart() >= 0 {
+		sp.PreviousScrollID, err = prev.SearchRequestToHex()
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return sp, nil
 }
 

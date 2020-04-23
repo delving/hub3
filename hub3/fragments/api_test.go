@@ -140,7 +140,7 @@ var _ = Describe("Apiutils", func() {
 				sp := NewScrollPager()
 				Expect(sp.Cursor).To(Equal(int32(0)))
 				Expect(sp.Total).To(Equal(int64(0)))
-				Expect(sp.ScrollID).To(BeEmpty())
+				Expect(sp.NextScrollID).To(BeEmpty())
 			})
 
 			It("should create a scroll pager", func() {
@@ -149,27 +149,27 @@ var _ = Describe("Apiutils", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 
-				id, err := sr.NextScrollID(200)
+				id, err := sr.ScrollPagers(200)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(id.Cursor).To(Equal(int32(0)))
 				Expect(id.Rows).To(Equal(int32(16)))
-				Expect(id.ScrollID).ToNot(BeEmpty())
+				Expect(id.NextScrollID).ToNot(BeEmpty())
+				Expect(id.PreviousScrollID).To(BeEmpty())
 
-				srFromID, err := SearchRequestFromHex(id.ScrollID)
+				srFromID, err := SearchRequestFromHex(id.NextScrollID)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(srFromID.GetStart()).To(Equal(int32(16)))
 			})
 
-			It("should have an empty scroldlID when on the last page", func() {
+			It("should have an empty scrollID when on the last page", func() {
 				params := make(map[string][]string)
 				sr, err := NewSearchRequest(params)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 
-				id, err := sr.NextScrollID(12)
+				id, err := sr.ScrollPagers(12)
 				Expect(err).ToNot(HaveOccurred())
-				Expect(id.ScrollID).To(BeEmpty())
-
+				Expect(id.NextScrollID).To(BeEmpty())
 			})
 		})
 
