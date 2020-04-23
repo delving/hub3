@@ -30,8 +30,7 @@ func TestNewTestLogger(t *testing.T) {
 
 	buf.Reset()
 
-	logger = NewLogger(Config{})
-	logger = logger.Output(&buf)
+	logger = NewLogger(Config{Output: &buf})
 	logger.Info().Msg("test 2")
 	is.True(buf.String() != `{"level":"info","message":"test 2"}`+"\n")
 }

@@ -102,7 +102,7 @@ type Config struct {
 }
 
 // NewLogger creates zerolog.Logger with sensible defaults
-func NewLogger(cfg Config) zerolog.Logger {
+func NewLogger(cfg Config) CustomLogger {
 	var output io.Writer
 	output = cfg.Output
 
@@ -135,7 +135,7 @@ func NewLogger(cfg Config) zerolog.Logger {
 
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 
-	return loggerContext.Logger().Level(cfg.LogLevel.toZeroLog())
+	return CustomLogger{loggerContext.Logger().Level(cfg.LogLevel.toZeroLog())}
 }
 
 // timeFormat formats the timestamp for the console logger.
