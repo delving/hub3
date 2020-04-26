@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/matryer/is"
 )
@@ -31,7 +32,7 @@ func TestIndex(t *testing.T) {
 	is.True(errors.Is(err, ErrIndexNotFound))
 
 	// create index that does not exist
-	name, err := IndexCreate(es, "hub3test", "", true)
+	name, err := IndexCreate(es, "hub3test", mapping.V1ESMapping(0, 0), true)
 	is.NoErr(err)
 
 	// delete the test index
@@ -57,7 +58,7 @@ func TestIndex(t *testing.T) {
 	is.True(errors.Is(err, ErrIndexAlreadyCreated))
 	is.Equal(newName, name)
 
-	secondIndexName, err := IndexCreate(es, "hub3test", "", false)
+	secondIndexName, err := IndexCreate(es, "hub3test", mapping.V2ESMapping(0, 0), false)
 	is.NoErr(err)
 
 	// check on index name
@@ -85,7 +86,4 @@ func TestIndex(t *testing.T) {
 	// first index should no longer exist
 	err = IndexExists(es, name)
 	is.True(errors.Is(err, ErrIndexNotFound))
-}
-
-func TestIndexSwitch(t *testing.T) {
 }

@@ -27,7 +27,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/delving/hub3/hub3/mapping"
+	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -309,7 +309,7 @@ func ensureESIndex(client *elastic.Client, index string) error {
 
 	if !exists {
 		// Create a new index.
-		esMapping := mapping.V1ESMapping
+		esMapping := mapping.V1ESMapping(0, 0)
 		createIndex, err := client.CreateIndex(index).BodyJson(esMapping).Do(ctx)
 		if err != nil {
 			// Handle error

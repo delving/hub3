@@ -25,8 +25,8 @@ import (
 	"time"
 
 	"github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/mapping"
 	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -102,21 +102,21 @@ func ensureESIndex(index string, reset bool) {
 	}
 
 	if !exists {
+		var indexMapping func(shards, replicas int) string
 		// Create a new index.
-		indexMapping := mapping.ESMapping
+		indexMapping = mapping.V2ESMapping
 		if config.Config.ElasticSearch.IndexV1 {
 			indexMapping = mapping.V1ESMapping
 		}
 
 		if strings.HasSuffix(index, "_frag") {
-			indexMapping = mapping.ESFragmentMapping
+			indexMapping = mapping.FragmentESMapping
 		}
 
 		createIndex, err := client.
 			CreateIndex(index).
 			BodyJson(
-				fmt.Sprintf(
-					indexMapping,
+				indexMapping(
 					config.Config.ElasticSearch.Shards,
 					config.Config.ElasticSearch.Replicas,
 				),

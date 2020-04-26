@@ -44,7 +44,7 @@ func IndexCreate(es *elasticsearch.Client, alias, mapping string, withAlias bool
 	defer res.Body.Close()
 
 	if res.IsError() {
-		return "", fmt.Errorf("elastic Indices.Create: %s", res)
+		return "", GetErrorType(res.Body).Error()
 	}
 
 	if withAlias {
