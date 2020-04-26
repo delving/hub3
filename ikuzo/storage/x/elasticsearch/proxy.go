@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
-	"github.com/elastic/go-elasticsearch/v6"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache"
 	"github.com/rs/zerolog/hlog"

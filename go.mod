@@ -15,7 +15,6 @@ require (
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-elasticsearch/v6 v6.8.5
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200422075202-271c41b39edc
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
@@ -81,6 +80,8 @@ require (
 	github.com/spf13/viper v0.0.0-20171227194143-aafc9e6bc7b7
 	github.com/stretchr/testify v1.4.0
 	github.com/testcontainers/testcontainers-go v0.3.1
+	github.com/tidwall/gjson v1.6.0
+	github.com/tidwall/pretty v1.0.1 // indirect
 	github.com/urfave/negroni v0.3.0
 	github.com/valyala/fasthttp v1.12.0
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
