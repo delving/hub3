@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -12,16 +13,16 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func testConfig() (*Config, error) {
+func testConfig() (*NatsConfig, error) {
 	var (
 		err error
-		cfg = &Config{}
+		cfg = &NatsConfig{}
 	)
 
 	cfg.setDefaults()
 
 	// Connect to Streaming server
-	cfg.Queue, err = stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(stan.DefaultNatsURL))
+	cfg.Conn, err = stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(stan.DefaultNatsURL))
 	if err != nil {
 		return cfg, fmt.Errorf("can't connect: %w.\nMake sure a NATS Streaming Server is running at: %s", err, stan.DefaultNatsURL)
 	}
@@ -36,7 +37,9 @@ func TestProducer_Publish(t *testing.T) {
 	cfg, err := testConfig()
 	is.NoErr(err)
 
-	p, err := NewProducer(cfg)
+	s, err := NewService(
+		SetNatsConfiguration(cfg),
+	)
 	is.NoErr(err)
 
 	messages := []*domainpb.IndexMessage{}
@@ -58,30 +61,39 @@ func TestProducer_Publish(t *testing.T) {
 		messages = append(messages, msg)
 	}
 
-	err = p.Publish(messages...)
+	err = s.Publish(messages...)
 	is.NoErr(err)
 
-	// start the consumer
-	c, err := NewConsumer(cfg)
-	is.NoErr(err)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Microsecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Microsecond)
 	defer cancel()
 
-	err = c.Start(ctx, 4)
+	ticker := time.NewTicker(10 * time.Millisecond)
+
+	err = s.Start(ctx, 4)
 	is.NoErr(err)
 
+	var consumed uint64
+
+L:
 	for {
-		if c.totalReceived >= msgCount {
-			break
+		select {
+		case <-ctx.Done():
+			consumed = atomic.LoadUint64(&s.m.nats.consumed)
+			t.Logf("messages consumed: %d", s.m.nats.consumed)
+			ticker.Stop()
+			break L
+		case <-ticker.C:
+			consumed = atomic.LoadUint64(&s.m.nats.consumed)
+			t.Logf("messages consumed: %d", s.m.nats.consumed)
+
+			if int(consumed) >= msgCount {
+				break L
+			}
 		}
 	}
 
-	is.Equal(msgCount, c.totalReceived)
+	is.Equal(msgCount, int(consumed))
 
-	err = c.Shutdown(ctx)
-	is.NoErr(err)
-
-	err = p.Shutdown(context.Background())
+	err = s.Shutdown(ctx)
 	is.NoErr(err)
 }
