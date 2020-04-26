@@ -29,14 +29,20 @@ const (
 	defaultShutdownTimeout = 10
 )
 
+type Service interface {
+	Metrics() interface{}
+	http.Handler
+	Shutdown
+}
+
 // Server provides a net/http compliant WebServer.
 type Server interface {
 	ListenAndServe() error
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
-// ServiceCancellation must be implement by each service that uses background services or connections.
-type ServiceCancellation interface {
+// Shutdown must be implement by each service that uses background services or connections.
+type Shutdown interface {
 	Shutdown(ctx context.Context) error
 }
 
@@ -68,7 +74,7 @@ type server struct {
 	// revision gives access to the file storage
 	revision *revision.Service
 	// shutdownHooks are called on server shutdown
-	shutdownHooks []ServiceCancellation
+	shutdownHooks []Shutdown
 }
 
 // NewServer returns the default server.

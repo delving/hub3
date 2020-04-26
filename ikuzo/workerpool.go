@@ -10,7 +10,7 @@ import (
 // canceled.
 type WorkerService interface {
 	Start(ctx context.Context, wg *sync.WaitGroup)
-	ServiceCancellation
+	Shutdown
 }
 
 type workerPool struct {
