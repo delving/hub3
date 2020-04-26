@@ -28,6 +28,10 @@ type ElasticSearch struct {
 	ClientTimeOut int
 	// gather elasticsearch metrics
 	Metrics bool
+	// elasticsearch client
+	client *elasticsearch.Client
+	// BulkIndexer
+	bi esutil.BulkIndexer
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -35,9 +39,13 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return nil
 	}
 
+	client, err := e.newClient(&cfg.logger)
+	if err != nil {
+		return fmt.Errorf("unable to create elasticsearch.Client: %w", err)
+	}
+
 	if e.Proxy {
-		// TODO(kiivihal): add proper client
-		esProxy, err := eshub.NewProxy(nil)
+		esProxy, err := eshub.NewProxy(client)
 		if err != nil {
 			return fmt.Errorf("unable to create ES proxy: %w", err)
 		}
@@ -49,6 +57,10 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 }
 
 func (e *ElasticSearch) newClient(l *logger.CustomLogger) (*elasticsearch.Client, error) {
+	if e.client != nil {
+		return e.client, nil
+	}
+
 	retryBackoff := backoff.NewExponentialBackOff()
 
 	client, err := elasticsearch.NewClient(
@@ -89,10 +101,16 @@ func (e *ElasticSearch) newClient(l *logger.CustomLogger) (*elasticsearch.Client
 		expvar.Publish("go-elasticsearch", expvar.Func(func() interface{} { m, _ := client.Metrics(); return m }))
 	}
 
-	return client, err
+	e.client = client
+
+	return e.client, err
 }
 
 func (e *ElasticSearch) newBulkIndexer(es *elasticsearch.Client) (esutil.BulkIndexer, error) {
+	if e.bi != nil {
+		return e.bi, nil
+	}
+
 	var err error
 
 	// TODO(kiivihal): check and create index mapping
@@ -111,5 +129,7 @@ func (e *ElasticSearch) newBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 		expvar.Publish("go-elasticsearch-bulk", expvar.Func(func() interface{} { m := bi.Stats(); return m }))
 	}
 
-	return bi, err
+	e.bi = bi
+
+	return e.bi, err
 }

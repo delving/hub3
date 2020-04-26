@@ -15,19 +15,20 @@ type Nats struct {
 	DurableName  string `json:"durableName"`
 	DurableQueue string `json:"durableQueue"`
 	URL          string `json:"url"`
+	cfg          *index.NatsConfig
 }
 
 func (n *Nats) AddOptions(cfg *Config) error {
 	return nil
 }
 
-func (n *Nats) newClient() (stan.Conn, error) {
+func (n *Nats) newClient(cfg *index.NatsConfig) (stan.Conn, error) {
 	if n.URL == "" {
 		n.URL = stan.DefaultNatsURL
 	}
 
 	// Connect to Streaming server
-	sc, err := stan.Connect(n.ClusterID, n.ClientID, stan.NatsURL(n.URL))
+	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(n.URL))
 	if err != nil {
 		return sc, fmt.Errorf("can't connect: %w.\nMake sure a NATS Streaming Server is running at: %s", err, n.URL)
 	}
@@ -35,8 +36,26 @@ func (n *Nats) newClient() (stan.Conn, error) {
 	return sc, nil
 }
 
-func (n *Nats) GetConfig() *index.Config {
-	cfg := &index.Config{}
+func (n *Nats) getConfig() (*index.NatsConfig, error) {
+	if n.cfg != nil {
+		return n.cfg, nil
+	}
 
-	return cfg
+	cfg := &index.NatsConfig{
+		ClusterID:    n.ClusterID,
+		ClientID:     n.ClientID,
+		DurableName:  n.DurableName,
+		DurableQueue: n.DurableQueue,
+	}
+
+	conn, err := n.newClient(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg.Conn = conn
+
+	n.cfg = cfg
+
+	return n.cfg, nil
 }
