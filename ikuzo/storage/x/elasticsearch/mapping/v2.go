@@ -171,10 +171,10 @@ var v2Mapping = `{
 		}
 }`
 
-// ESMappingUpdate contains updates to the original model that are incremental,
+// v2MappingUpdate contains updates to the original model that are incremental,
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.
-var ESMappingUpdate = `{
+var v2MappingUpdate = `{
   "properties": {
     "tree": {
       "properties": {

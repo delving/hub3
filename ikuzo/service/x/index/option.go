@@ -14,6 +14,14 @@ func SetBulkIndexer(bi esutil.BulkIndexer) Option {
 func SetNatsConfiguration(ncfg *NatsConfig) Option {
 	return func(s *Service) error {
 		s.stan = ncfg
+		s.stan.setDefaults()
+		return nil
+	}
+}
+
+func WithDefaultMessageHandle() Option {
+	return func(s *Service) error {
+		s.MsgHandler = s.submitBulkMsg
 		return nil
 	}
 }

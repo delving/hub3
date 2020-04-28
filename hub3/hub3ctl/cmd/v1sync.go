@@ -44,7 +44,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			err := synchronise()
 			if err != nil {
-				stdlog.Println(synchronise())
+				stdlog.Println(err)
 			}
 		},
 	}

@@ -12,7 +12,7 @@ metricsPort = 6060
 
 [nats]
 enabled = true
-clustedID = "hub3-nats"
+clusterID = "hub3-nats"
 clientID = "hub3-pub"
 durableName = "hub3-worker"
 durableQueue = "hub3-queue"
@@ -53,7 +53,7 @@ password = ""
 # configuration for MimimumShouldMatch
 minimumShouldMatch = "2<70%"
 # number of workers for indexing. Default 1
-workers = 1
+workers = 2
 # use searchAfter API, see https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-request-search-after.html
 # this is only applied to the v2 search API endpoint
 enableSearchAfter = false
@@ -79,6 +79,7 @@ excludeSpec = [
 devmode = true
 sentrydsn = ""
 level = "debug"
+withCaller = true
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)

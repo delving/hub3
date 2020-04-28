@@ -3,9 +3,11 @@ package index
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync/atomic"
+	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
@@ -15,7 +17,8 @@ import (
 )
 
 type Metrics struct {
-	nats struct {
+	started time.Time
+	nats    struct {
 		published uint64
 		consumed  uint64
 		failed    uint64
@@ -24,19 +27,22 @@ type Metrics struct {
 		successful uint64
 		failed     uint64
 	}
+	throughPut float64
 }
 
 type Service struct {
 	bi         esutil.BulkIndexer
 	stan       *NatsConfig
 	direct     bool
-	MsgHandler func(m *domainpb.IndexMessage) error
+	MsgHandler func(ctx context.Context, m *domainpb.IndexMessage) error
 	workers    []stan.Subscription // this is for getting statistics
 	m          Metrics
 }
 
 func NewService(options ...Option) (*Service, error) {
-	s := &Service{}
+	s := &Service{
+		m: Metrics{started: time.Now()},
+	}
 
 	// apply options
 	for _, option := range options {
@@ -59,11 +65,11 @@ func NewService(options ...Option) (*Service, error) {
 	return s, nil
 }
 
-func (s *Service) Publish(messages ...*domainpb.IndexMessage) error {
+func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error {
 	for _, msg := range messages {
 		// if direct submit msg directly to BulkIndexer
 		if s.direct {
-			if submitErr := s.submitBulkMsg(msg); submitErr != nil {
+			if submitErr := s.submitBulkMsg(ctx, msg); submitErr != nil {
 				return fmt.Errorf("unable to index message; %w", submitErr)
 			}
 
@@ -78,6 +84,7 @@ func (s *Service) Publish(messages ...*domainpb.IndexMessage) error {
 
 		if err = s.stan.Conn.Publish(s.stan.SubjectID, b); err != nil {
 			atomic.AddUint64(&s.m.nats.failed, 1)
+			log.Error().Msgf("stan config: %+v", s.stan)
 			return fmt.Errorf("unable to publish to queue; %w", err)
 		}
 
@@ -88,6 +95,8 @@ func (s *Service) Publish(messages ...*domainpb.IndexMessage) error {
 }
 
 func (s *Service) Metrics() Metrics {
+	duration := time.Since(s.m.started)
+	s.m.throughPut = float64(s.m.nats.consumed) / duration.Seconds()
 	return s.m
 }
 
@@ -95,6 +104,11 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	// stop all the workers before closing channels
+	for _, w := range s.workers {
+		w.Close()
+	}
+
 	if s.stan != nil {
 		if err := s.stan.Conn.Close(); err != nil {
 			return err
@@ -102,14 +116,10 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	}
 
 	if s.bi != nil {
+		s.bi.Stats()
 		if err := s.bi.Close(ctx); err != nil {
 			return err
 		}
-	}
-
-	// stop all the workers
-	for _, w := range s.workers {
-		w.Close()
 	}
 
 	// remove workers so the service could restart
@@ -144,23 +154,29 @@ func (s *Service) Start(ctx context.Context, workers int) error {
 func (s *Service) handleMessage(m *stan.Msg) {
 	atomic.AddUint64(&s.m.nats.consumed, 1)
 
-	if s.MsgHandler != nil {
-		var msg domainpb.IndexMessage
-		if err := proto.Unmarshal(m.Data, &msg); err != nil {
-			log.Error().Err(err).Msg("unable to unmarshal indexmessage in index consumer")
-			return
-		}
+	var msg domainpb.IndexMessage
+	if err := proto.Unmarshal(m.Data, &msg); err != nil {
+		log.Error().Err(err).Msg("unable to unmarshal indexmessage in index consumer")
+		return
+	}
 
-		if err := s.MsgHandler(&msg); err != nil {
+	if s.MsgHandler != nil {
+		if err := s.MsgHandler(context.Background(), &msg); err != nil {
 			log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
 			return
 		}
 	}
+
+	// TODO(kiivihal): propagate the context
+	if err := s.submitBulkMsg(context.Background(), &msg); err != nil {
+		log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
+		return
+	}
 }
 
-func (s *Service) submitBulkMsg(m *domainpb.IndexMessage) error {
+func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) error {
 	if s.MsgHandler != nil {
-		return s.MsgHandler(m)
+		return s.MsgHandler(ctx, m)
 	}
 
 	action := "index"
@@ -169,38 +185,45 @@ func (s *Service) submitBulkMsg(m *domainpb.IndexMessage) error {
 		action = "delete"
 	}
 
-	return s.bi.Add(
-		context.Background(),
-		esutil.BulkIndexerItem{
-			// Action field configures the operation to perform (index, create, delete, update)
-			Action: action,
+	bulkMsg := esutil.BulkIndexerItem{
+		// Action field configures the operation to perform (index, create, delete, update)
+		Action: action,
 
-			// Index is the target index
-			Index: m.GetIndexName(),
+		// Index is the target index
+		Index: m.GetIndexName(),
 
-			// DocumentID is the (optional) document ID
-			DocumentID: m.GetRecordID(),
+		// DocumentID is the (optional) document ID
+		DocumentID: m.GetRecordID(),
 
-			// Body is an `io.Reader` with the payload
-			Body: bytes.NewReader(m.GetSource()),
+		// Body is an `io.Reader` with the payload
+		Body: bytes.NewReader(m.GetSource()),
 
-			// OnSuccess is called for each successful operation
-			OnSuccess: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem) {
-				atomic.AddUint64(&s.m.index.successful, 1)
-			},
-
-			// OnFailure is called for each failed operation
-			OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem, err error) {
-				atomic.AddUint64(&s.m.index.failed, 1)
-				if err != nil {
-					log.Error().Err(err).Msg("bulk index error")
-				} else {
-					log.Error().
-						Str("type", res.Error.Type).
-						Str("reason", res.Error.Reason).
-						Msg("bulk index error")
-				}
-			},
+		// OnSuccess is called for each successful operation
+		OnSuccess: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem) {
+			atomic.AddUint64(&s.m.index.successful, 1)
 		},
+
+		// OnFailure is called for each failed operation
+		OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem, err error) {
+			atomic.AddUint64(&s.m.index.failed, 1)
+			if err != nil {
+				log.Error().Err(err).Msg("bulk index msg2 error")
+			} else {
+				log.Error().
+					Str("type", res.Error.Type).
+					Str("reason", res.Error.Reason).
+					Msg("bulk index msg error")
+			}
+		},
+	}
+
+	if errors.Is(ctx.Err(), context.Canceled) {
+		log.Info().Msg("stop publishing")
+		return ctx.Err()
+	}
+
+	return s.bi.Add(
+		ctx,
+		bulkMsg,
 	)
 }
