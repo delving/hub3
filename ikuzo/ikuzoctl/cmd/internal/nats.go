@@ -5,6 +5,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/nats-io/stan.go"
+	"github.com/rs/zerolog/log"
 )
 
 // Nats are configuration options to access NATS streaming server
@@ -30,13 +31,16 @@ func (n *Nats) newClient(cfg *index.NatsConfig) (stan.Conn, error) {
 	// Connect to Streaming server
 	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(n.URL))
 	if err != nil {
+		log.Error().Msgf("nats configuration: %+v", cfg)
+		log.Error().Msgf("nats struct: %+v", n)
+
 		return sc, fmt.Errorf("can't connect: %w.\nMake sure a NATS Streaming Server is running at: %s", err, n.URL)
 	}
 
 	return sc, nil
 }
 
-func (n *Nats) getConfig() (*index.NatsConfig, error) {
+func (n *Nats) GetConfig() (*index.NatsConfig, error) {
 	if n.cfg != nil {
 		return n.cfg, nil
 	}

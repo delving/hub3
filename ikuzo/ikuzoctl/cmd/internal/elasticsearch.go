@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"context"
+	"errors"
 	"expvar"
 	"fmt"
 	"time"
@@ -9,6 +11,7 @@ import (
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
 	eshub "github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
+	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
@@ -32,6 +35,14 @@ type ElasticSearch struct {
 	client *elasticsearch.Client
 	// BulkIndexer
 	bi esutil.BulkIndexer
+	// base of the index aliases
+	IndexName string
+	// number of shards. default 1
+	Shards int
+	// number of replicas. default 0
+	Replicas int
+	// logger
+	logger *logger.CustomLogger
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -39,32 +50,69 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return nil
 	}
 
-	client, err := e.newClient(&cfg.logger)
+	client, err := e.NewClient(&cfg.logger)
 	if err != nil {
 		return fmt.Errorf("unable to create elasticsearch.Client: %w", err)
 	}
 
 	if e.Proxy {
-		esProxy, err := eshub.NewProxy(client)
-		if err != nil {
-			return fmt.Errorf("unable to create ES proxy: %w", err)
+		esProxy, proxyErr := eshub.NewProxy(client)
+		if proxyErr != nil {
+			return fmt.Errorf("unable to create ES proxy: %w", proxyErr)
 		}
 
 		cfg.options = append(cfg.options, ikuzo.SetElasticSearchProxy(esProxy))
 	}
 
+	_, err = e.CreateDefaultMappings(client, true)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (e *ElasticSearch) newClient(l *logger.CustomLogger) (*elasticsearch.Client, error) {
+func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias bool) ([]string, error) {
+	mappings := map[string]func(shards, replicas int) string{
+		fmt.Sprintf("%sv1", e.IndexName): mapping.V1ESMapping,
+		fmt.Sprintf("%sv2", e.IndexName): mapping.V2ESMapping,
+	}
+
+	indexNames := []string{}
+
+	for indexName, m := range mappings {
+		createName, err := eshub.IndexCreate(
+			es,
+			indexName,
+			m(e.Shards, e.Replicas),
+			withAlias,
+		)
+
+		if err != nil && !errors.Is(err, eshub.ErrIndexAlreadyCreated) {
+			return []string{}, err
+		}
+
+		indexNames = append(indexNames, createName)
+	}
+
+	return indexNames, nil
+}
+
+func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client, error) {
 	if e.client != nil {
 		return e.client, nil
 	}
+
+	e.logger = l
 
 	retryBackoff := backoff.NewExponentialBackOff()
 
 	client, err := elasticsearch.NewClient(
 		elasticsearch.Config{
+			// Connect to ElasticSearch URLS
+			//
+			Addresses: e.Urls,
+
 			// Retry on 429 TooManyRequests statuses
 			//
 			RetryOnStatus: []int{502, 503, 504, 429},
@@ -88,7 +136,7 @@ func (e *ElasticSearch) newClient(l *logger.CustomLogger) (*elasticsearch.Client
 
 			// Custom transport based on fasthttp
 			//
-			Transport: &eshub.Transport{},
+			// Transport: &eshub.Transport{},
 
 			// Custom rs/zerolog structured logger
 			//
@@ -106,7 +154,7 @@ func (e *ElasticSearch) newClient(l *logger.CustomLogger) (*elasticsearch.Client
 	return e.client, err
 }
 
-func (e *ElasticSearch) newBulkIndexer(es *elasticsearch.Client) (esutil.BulkIndexer, error) {
+func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkIndexer, error) {
 	if e.bi != nil {
 		return e.bi, nil
 	}
@@ -115,14 +163,17 @@ func (e *ElasticSearch) newBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 
 	// TODO(kiivihal): check and create index mapping
 
-	flushBytes := 5e+6 // 5 MB
+	flushBytes := 5 * 1024 * 1024 // 5 MB
 	numWorkers := e.Workers
 
 	bi, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
-		Client:        es,               // The Elasticsearch client
-		NumWorkers:    numWorkers,       // The number of worker goroutines
-		FlushBytes:    int(flushBytes),  // The flush threshold in bytes
-		FlushInterval: 30 * time.Second, // The periodic flush interval
+		Client:        es,              // The Elasticsearch client
+		NumWorkers:    numWorkers,      // The number of worker goroutines
+		FlushBytes:    int(flushBytes), // The flush threshold in bytes
+		FlushInterval: 5 * time.Second, // The periodic flush interval
+		OnError: func(ctx context.Context, err error) {
+			e.logger.Error().Err(err).Msg("flush: bulk indexing error")
+		},
 	})
 
 	if e.Metrics {

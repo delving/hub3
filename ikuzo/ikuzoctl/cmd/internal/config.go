@@ -17,8 +17,9 @@ type Config struct {
 	HTTP              `json:"http"`
 	TimeRevisionStore `json:"timeRevisionStore"`
 	Logging           `json:"logging"`
-	options           []ikuzo.Option
-	logger            logger.CustomLogger
+	Nats              `json:"nats"`
+	options           []ikuzo.Option      `json:"options"`
+	logger            logger.CustomLogger `json:"logger"`
 }
 
 func (cfg *Config) Options() ([]ikuzo.Option, error) {
@@ -37,6 +38,8 @@ func (cfg *Config) Options() ([]ikuzo.Option, error) {
 	}
 
 	cfg.options = append(cfg.options, ikuzo.SetLogger(&cfg.logger))
+
+	cfg.logger.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file")
 
 	return cfg.options, nil
 }
