@@ -40,6 +40,10 @@ services:
         - "8222"
         - "--port"
         - "4222"
+        - "--max_bytes" 
+        - "5GB"
+        - "--max_msgs"
+        - "5000000"
     networks:
       - esnet
 
