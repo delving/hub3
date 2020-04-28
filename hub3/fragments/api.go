@@ -345,7 +345,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.Start = int32(start)
 		case "searchAfter":
 			var sa = make([]interface{}, 0)
-			parts := strings.Split(params.Get(p), ",")
+			parts := strings.SplitN(params.Get(p), ",", 2)
 			sortKey, _ := strconv.Atoi(parts[0])
 			cLevel := parts[1]
 			sa = append(sa, sortKey, cLevel)
