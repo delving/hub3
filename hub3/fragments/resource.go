@@ -280,7 +280,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			if strings.HasSuffix(hit.Id, matchSuffix) {
 				//log.Printf("found it: %s ", matchSuffix)
 				pager.Cursor = int32(cursor)
-				pager.ScrollID = hexRequest
+				pager.NextScrollID = hexRequest
 				pager.Total = results.TotalHits()
 				return previous, nil // all results retrieved
 			}
@@ -383,10 +383,11 @@ type Collapsed struct {
 // ScrollPager holds all paging information for a search result.
 type ScrollPager struct {
 	// scrollID is serialized version SearchRequest
-	ScrollID string `json:"scrollID"`
-	Cursor   int32  `json:"cursor"`
-	Total    int64  `json:"total"`
-	Rows     int32  `json:"rows"`
+	PreviousScrollID 	string `json:"previousScrollID"`
+	NextScrollID 		string `json:"nextScrollID"`
+	Cursor       		int32  `json:"cursor"`
+	Total        		int64  `json:"total"`
+	Rows         		int32  `json:"rows"`
 }
 
 // ProtoBuf holds a protobuf encode version of the messageType.

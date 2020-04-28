@@ -163,14 +163,15 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
-	pager, err := searchRequest.NextScrollID(res.TotalHits())
+	pager, err := searchRequest.ScrollPagers(res.TotalHits())
 	if err != nil {
 		log.Println("Unable to create Scroll Pager. ")
 		return
 	}
 
 	// Add scrollID pager information to the header
-	w.Header().Add("P_SCROLL_ID", pager.ScrollID)
+	w.Header().Add("P_PREVIOUS_SCROLL_ID", pager.PreviousScrollID)
+	w.Header().Add("P_NEXT_SCROLL_ID", pager.NextScrollID)
 	w.Header().Add("P_CURSOR", strconv.Itoa(int(pager.Cursor)))
 	w.Header().Add("P_TOTAL", strconv.Itoa(int(pager.Total)))
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.Rows)))
@@ -209,18 +210,21 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	switch echoRequest {
-	case "nextScrollID", "searchAfter":
-		srNext, err := fragments.SearchRequestFromHex(pager.ScrollID)
+	case "nextScrollID", "previousScrollID", "searchAfter":
+		sr, err := fragments.SearchRequestFromHex(pager.NextScrollID)
+		if echoRequest == "previousScrollID" {
+			sr, err = fragments.SearchRequestFromHex(pager.PreviousScrollID)
+		}
+
 		if err != nil {
-			http.Error(w, "unable to decode nextScrollID", http.StatusInternalServerError)
+			http.Error(w, "unable to decode ScrollID", http.StatusInternalServerError)
 			return
 		}
 		if echoRequest != "searchAfter" {
-			render.JSON(w, r, srNext)
+			render.JSON(w, r, sr)
 			return
-
 		}
-		sa, err := srNext.DecodeSearchAfter()
+		sa, err := sr.DecodeSearchAfter()
 		if err != nil {
 			log.Printf("unable to decode searchAfter: %#v", err)
 			http.Error(w, "unable to decode next SearchAfter", http.StatusInternalServerError)
