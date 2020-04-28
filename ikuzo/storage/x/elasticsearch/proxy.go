@@ -133,6 +133,11 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 
 	var buf bytes.Buffer
 
+	if res.IsError() {
+		msg, _ := ioutil.ReadAll(res.Body)
+		log.Warn().RawJSON("error", msg).Msg("elasticsearch error message")
+	}
+
 	size, err := io.Copy(&buf, res.Body)
 	if err != nil {
 		return err
