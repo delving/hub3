@@ -17,13 +17,17 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/go-chi/render"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
-	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
-	"gopkg.in/src-d/go-git.v4/plumbing"
+	"github.com/src-d/go-git/plumbing"
 )
+
+type BulkIndex interface {
+	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
+}
 
 var sanitizer *bluemonday.Policy
 
@@ -46,11 +50,8 @@ func ReadEAD(fpath string) (*Cead, error) {
 	if err != nil {
 		return nil, err
 	}
-	return eadParse(rawEAD)
-}
 
-func Unmarshal(src []byte) (*Cead, error) {
-	return eadParse(src)
+	return eadParse(rawEAD)
 }
 
 // Parse parses a ead2002 XML file into a set of Go structures
@@ -60,7 +61,7 @@ func eadParse(src []byte) (*Cead, error) {
 	return ead, err
 }
 
-func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProcessor) (*NodeConfig, error) {
+func ProcessEAD(r io.Reader, headerSize int64, spec string, bi BulkIndex) (*NodeConfig, error) {
 	os.MkdirAll(config.Config.EAD.CacheDir, os.ModePerm)
 
 	f, err := ioutil.TempFile(config.Config.EAD.CacheDir, "*")
@@ -175,7 +176,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 		return nil, errors.Wrapf(err, "Unable to save dataset")
 	}
 
-	err = cead.SaveDescription(cfg, unitInfo, p)
+	err = cead.SaveDescription(cfg, unitInfo, bi)
 	if err != nil {
 		log.Printf("Unable to save description for %s; %#v", spec, err)
 		return nil, errors.Wrapf(err, "Unable to create index representation of the description")
@@ -200,27 +201,26 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, p *elastic.BulkProce
 
 	}
 
-	if p != nil {
-		go func() {
-			start := time.Now()
-			err := nl.ESSave(cfg, p)
-			if err != nil {
-				log.Printf("Unable to save nodes; %s", err)
-			}
+	if bi != nil {
+		start := time.Now()
+		err := nl.ESSave(cfg, bi)
+		if err != nil {
+			log.Printf("Unable to save nodes; %s", err)
+		}
 
-			_, err = ds.DropOrphans(context.TODO(), p, nil)
-			if err != nil {
-				log.Printf("Unable to drop orphans; %s", err)
-			}
-			end := time.Since(start)
-			log.Printf("saving %s with %d records took: %s", spec, cfg.Counter.GetCount(), end)
-		}()
+		// TODO(kiivihal): decide what to do with drop orphans later
+		// _, err = ds.DropOrphans(context.TODO(), bi, nil)
+		// if err != nil {
+		// log.Printf("Unable to drop orphans; %s", err)
+		// }
+		end := time.Since(start)
+		log.Printf("saving %s with %d records took: %s", spec, cfg.Counter.GetCount(), end)
 	}
 
 	return cfg, nil
 }
 
-func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elastic.BulkProcessor) (uint64, error) {
+func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, bi BulkIndex) (uint64, error) {
 	in, header, err := r.FormFile("ead")
 	if err != nil {
 		return uint64(0), err
@@ -231,7 +231,7 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, p *elast
 		err = r.MultipartForm.RemoveAll()
 	}()
 
-	cfg, err := ProcessEAD(in, header.Size, spec, p)
+	cfg, err := ProcessEAD(in, header.Size, spec, bi)
 	if err != nil {
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		return 0, err
@@ -268,7 +268,8 @@ func (c *Cc) GetOdd() []*Codd                        { return c.Codd }
 func (c *Cc) GetPhystech() []*Cphystech              { return c.Cphystech }
 func (c *Cc) GetNested() []CLevel {
 	nested := []CLevel{}
-	for _, v := range c.Cc {
+
+	for _, v := range c.GetCc().Cc {
 		nested = append(nested, v)
 	}
 	return nested
@@ -309,21 +310,32 @@ func (c *Cc) GetMaterial() string {
 }
 
 // SaveDescription stores the FragmentGraph of the EAD description in ElasticSearch
-func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p *elastic.BulkProcessor) error {
+func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIndex) error {
 	fg, _, err := cead.DescriptionGraph(cfg, unitInfo)
 	if err != nil {
 		return err
 	}
 
-	if p == nil {
+	if bi == nil {
 		return nil
 	}
-	r := elastic.NewBulkIndexRequest().
-		Index(config.Config.ElasticSearch.GetIndexName()).
-		RetryOnConflict(3).
-		Id(fg.Meta.HubID).
-		Doc(fg)
-	p.Add(r)
+
+	b, err := fg.Marshal()
+	if err != nil {
+		return fmt.Errorf("unable to marshal fragment graph: %w", err)
+	}
+
+	m := &domainpb.IndexMessage{
+		OrganisationID: fg.Meta.GetHubID(),
+		DatasetID:      fg.Meta.GetHubID(),
+		RecordID:       fg.Meta.GetHubID(),
+		IndexName:      config.Config.GetIndexName(),
+		Source:         b,
+	}
+
+	if err := bi.Publish(context.Background(), m); err != nil {
+		return err
+	}
 
 	return nil
 }

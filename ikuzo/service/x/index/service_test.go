@@ -61,7 +61,7 @@ func TestProducer_Publish(t *testing.T) {
 		messages = append(messages, msg)
 	}
 
-	err = s.Publish(messages...)
+	err = s.Publish(context.Background(), messages...)
 	is.NoErr(err)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Microsecond)
@@ -78,13 +78,13 @@ L:
 	for {
 		select {
 		case <-ctx.Done():
-			consumed = atomic.LoadUint64(&s.m.nats.consumed)
-			t.Logf("messages consumed: %d", s.m.nats.consumed)
+			consumed = atomic.LoadUint64(&s.m.Nats.Consumed)
+			t.Logf("messages consumed: %d", s.m.Nats.Consumed)
 			ticker.Stop()
 			break L
 		case <-ticker.C:
-			consumed = atomic.LoadUint64(&s.m.nats.consumed)
-			t.Logf("messages consumed: %d", s.m.nats.consumed)
+			consumed = atomic.LoadUint64(&s.m.Nats.Consumed)
+			t.Logf("messages consumed: %d", s.m.Nats.Consumed)
 
 			if int(consumed) >= msgCount {
 				break L

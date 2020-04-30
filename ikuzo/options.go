@@ -5,8 +5,10 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
@@ -124,6 +126,28 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 				r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
 					s.respond(w, r, info, http.StatusOK)
 				})
+			},
+		)
+
+		return nil
+	}
+}
+
+func SetEnableLegacyConfig() Option {
+	return func(s *server) error {
+		// this initializes the hub3 configuration object that has global state
+		// TODO(kiivihal): remove this after legacy hub3/server/http/handlers are migrated
+		config.InitConfig()
+
+		return nil
+	}
+}
+
+func SetEADService(svc *ead.Service) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Post("/api/ead", svc.Upload)
 			},
 		)
 

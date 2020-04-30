@@ -18,6 +18,7 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -59,6 +60,7 @@ type NodeConfig struct {
 	BulkProcessor    BulkProcessor
 	CreateTree       func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	ContentIdentical bool
+	Nodes            chan *Node
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.
@@ -190,11 +192,18 @@ func (nc *NodeCounter) GetCount() uint64 {
 // NewNodeList converts the Archival Description Level to a Nodelist
 // Nodelist is an optimized lossless Protocol Buffer container.
 func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
+	defer func() {
+		if cfg.Nodes != nil {
+			close(cfg.Nodes)
+		}
+	}()
+
 	nl := &NodeList{}
 
 	if dsc == nil {
 		return nl, 0, nil
 	}
+
 	nl.Type = dsc.Attrtype
 	for _, label := range dsc.Chead {
 		nl.Label = append(nl.Label, label.Head)
@@ -206,15 +215,27 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 			return nil, 0, err
 		}
 
+		if cfg.Nodes != nil {
+			cfg.Nodes <- node
+			continue
+		}
+
+		// legacy add should not happen if there is a node channel
 		nl.Nodes = append(nl.Nodes, node)
 	}
 
 	for _, nn := range dsc.Cc {
-		node, err := NewNode(nn, []string{}, cfg)
+		node, err := NewNode(CLevel(nn), []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
 
+		if cfg.Nodes != nil {
+			cfg.Nodes <- node
+			continue
+		}
+
+		// legacy add should not happen if there is a node channel
 		nl.Nodes = append(nl.Nodes, node)
 	}
 
@@ -222,9 +243,9 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 }
 
 // ESSave saves the list of Archive Nodes to ElasticSearch
-func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
+func (nl *NodeList) ESSave(cfg *NodeConfig, bi BulkIndex) error {
 	for _, n := range nl.Nodes {
-		err := n.ESSave(cfg, p)
+		err := n.ESSave(cfg, bi)
 		if err != nil {
 			return err
 		}
@@ -234,29 +255,38 @@ func (nl *NodeList) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
 }
 
 // ESSave stores a Fragments and a FragmentGraph in ElasticSearch
-func (n *Node) ESSave(cfg *NodeConfig, p *elastic.BulkProcessor) error {
-	fg, rm, err := n.FragmentGraph(cfg)
+func (n *Node) ESSave(cfg *NodeConfig, bi BulkIndex) error {
+	fg, _, err := n.FragmentGraph(cfg)
 	if err != nil {
 		return err
 	}
 
-	req := elastic.NewBulkIndexRequest().
-		Index(config.Config.ElasticSearch.GetIndexName()).
-		RetryOnConflict(3).
-		Id(fg.Meta.HubID).
-		Doc(fg)
-	p.Add(req)
-
-	if config.Config.ElasticSearch.Fragments {
-		err := fragments.IndexFragments(rm, fg, p)
-		if err != nil {
-			return err
-		}
+	b, err := fg.Marshal()
+	if err != nil {
+		return fmt.Errorf("unable to marshal fragment graph: %w", err)
 	}
+
+	m := &domainpb.IndexMessage{
+		OrganisationID: fg.Meta.GetOrgID(),
+		DatasetID:      fg.Meta.GetSpec(),
+		RecordID:       fg.Meta.GetHubID(),
+		IndexName:      config.Config.GetIndexName(),
+		Source:         b,
+	}
+
+	bi.Publish(context.Background(), m)
+
+	// TODO(kiivihal): decide what needs to happen with this functionality
+	// if config.Config.ElasticSearch.Fragments {
+	// err := fragments.IndexFragments(rm, fg, bi)
+	// if err != nil {
+	// return err
+	// }
+	// }
 
 	// recursion on itself for nested nodes on deeper levels
 	for _, n := range n.Nodes {
-		err := n.ESSave(cfg, p)
+		err := n.ESSave(cfg, bi)
 		if err != nil {
 			return err
 		}
@@ -406,8 +436,13 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 			header.AltRender = "Born Digital"
 		}
 
+		// TODO(kiivihal): add series_code identifier
 		if unitID.Attridentifier != "" {
 			header.Attridentifier = unitID.Attridentifier
+		}
+
+		if header.Attridentifier == "" && unitID.Attrtype == "series_code" {
+			header.Attridentifier = unitID.Unitid
 		}
 	}
 
@@ -503,11 +538,6 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
 	}
 
-	parentIDs, err = node.setPath(parentIDs)
-	if err != nil {
-		return nil, err
-	}
-
 	// check valid date
 	for _, d := range node.Header.Date {
 		if validErr := d.ValidDateNormal(); validErr != nil {
@@ -528,7 +558,12 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	_, ok := cfg.labels[node.Path]
 	if ok {
-		node.Path = fmt.Sprintf("%s%d", node.Path, node.Order)
+		node.Path = fmt.Sprintf("%s-%d", node.Path, node.Order)
+	}
+
+	parentIDs, err = node.setPath(parentIDs)
+	if err != nil {
+		return nil, err
 	}
 
 	cfg.labels[node.Path] = header.GetTreeLabel()
@@ -556,6 +591,11 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
 				return nil, err
+			}
+
+			if cfg.Nodes != nil {
+				cfg.Nodes <- n
+				continue
 			}
 
 			node.Nodes = append(node.Nodes, n)

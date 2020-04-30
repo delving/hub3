@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -13,9 +14,11 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 func RegisterEAD(r chi.Router) {
@@ -35,10 +38,34 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
 }
 
+func NewOldBulkProcessor() *OldBulkProcessor {
+	return &OldBulkProcessor{bi: BulkProcessor()}
+}
+
+type OldBulkProcessor struct {
+	bi *elastic.BulkProcessor
+}
+
+func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMessage) error {
+	for _, m := range msg {
+		r := elastic.NewBulkIndexRequest().
+			Index(m.GetIndexName()).
+			RetryOnConflict(3).
+			Id(m.GetRecordID()).
+			Doc(fmt.Sprintf("%s", m.GetSource()))
+
+		bp.bi.Add(r)
+	}
+
+	return nil
+}
+
 func eadUpload(w http.ResponseWriter, r *http.Request) {
 	spec := r.FormValue("spec")
 
-	_, err := ead.ProcessUpload(r, w, spec, BulkProcessor())
+	bi := OldBulkProcessor{bi: BulkProcessor()}
+
+	_, err := ead.ProcessUpload(r, w, spec, bi)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

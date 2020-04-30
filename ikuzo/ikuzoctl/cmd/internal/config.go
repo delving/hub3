@@ -18,8 +18,9 @@ type Config struct {
 	TimeRevisionStore `json:"timeRevisionStore"`
 	Logging           `json:"logging"`
 	Nats              `json:"nats"`
-	options           []ikuzo.Option      `json:"options"`
-	logger            logger.CustomLogger `json:"logger"`
+	EAD               `json:"ead"`
+	options           []ikuzo.Option
+	logger            logger.CustomLogger
 }
 
 func (cfg *Config) Options() ([]ikuzo.Option, error) {
@@ -29,6 +30,7 @@ func (cfg *Config) Options() ([]ikuzo.Option, error) {
 		&cfg.ElasticSearch, // elastic first because others could depend on the client
 		&cfg.HTTP,
 		&cfg.TimeRevisionStore,
+		&cfg.EAD,
 	}
 
 	for _, option := range cfgOptions {

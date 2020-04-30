@@ -2,7 +2,9 @@ package ead_test
 
 import (
 	"context"
+	"testing"
 
+	"github.com/matryer/is"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -197,3 +199,23 @@ var _ = Describe("Nodes", func() {
 	})
 
 })
+
+// nolint:gocritic
+func TestParseNonNumbered(t *testing.T) {
+	is := is.New(t)
+
+	ead := new(Cead)
+	err := parseUtil(ead, "4.ZHPB2.xml")
+	is.NoErr(err)
+
+	dsc := ead.Carchdesc.Cdsc
+
+	cfg := NewNodeConfig(context.Background())
+
+	nl, processed, err := dsc.NewNodeList(cfg)
+	is.NoErr(err)
+
+	t.Logf("processed %d", processed)
+	is.True(processed == uint64(641))
+	is.True(nl != nil)
+}

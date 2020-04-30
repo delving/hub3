@@ -10,6 +10,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/service/x/index"
 	eshub "github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
@@ -35,6 +36,8 @@ type ElasticSearch struct {
 	client *elasticsearch.Client
 	// BulkIndexer
 	bi esutil.BulkIndexer
+	// IndexService
+	is *index.Service
 	// base of the index aliases
 	IndexName string
 	// number of shards. default 1
@@ -43,6 +46,8 @@ type ElasticSearch struct {
 	Replicas int
 	// logger
 	logger *logger.CustomLogger
+	// UseRemoteIndexer is true when a separate process reads of the queue
+	UseRemoteIndexer bool
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -136,7 +141,7 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 
 			// Custom transport based on fasthttp
 			//
-			// Transport: &eshub.Transport{},
+			Transport: &eshub.Transport{},
 
 			// Custom rs/zerolog structured logger
 			//
@@ -159,9 +164,15 @@ func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 		return e.bi, nil
 	}
 
-	var err error
+	if es == nil {
+		return nil, fmt.Errorf("cannot start BulkIndexer without valid es client")
+	}
 
-	// TODO(kiivihal): check and create index mapping
+	// create default mappings
+	_, err := e.CreateDefaultMappings(es, true)
+	if err != nil {
+		return nil, err
+	}
 
 	flushBytes := 5 * 1024 * 1024 // 5 MB
 	numWorkers := e.Workers
@@ -169,7 +180,7 @@ func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 	bi, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
 		Client:        es,              // The Elasticsearch client
 		NumWorkers:    numWorkers,      // The number of worker goroutines
-		FlushBytes:    int(flushBytes), // The flush threshold in bytes
+		FlushBytes:    flushBytes,      // The flush threshold in bytes
 		FlushInterval: 5 * time.Second, // The periodic flush interval
 		OnError: func(ctx context.Context, err error) {
 			e.logger.Error().Err(err).Msg("flush: bulk indexing error")
@@ -183,4 +194,50 @@ func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 	e.bi = bi
 
 	return e.bi, err
+}
+
+func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsConfig) (*index.Service, error) {
+	if e.is != nil {
+		return e.is, nil
+	}
+
+	options := []index.Option{}
+
+	if !e.UseRemoteIndexer {
+		l.Info().Msg("setting up bulk indexer")
+
+		es, err := e.NewClient(l)
+		if err != nil {
+			return nil, err
+		}
+
+		bi, err := e.NewBulkIndexer(es)
+		if err != nil {
+			return nil, err
+		}
+
+		options = append(options, index.SetBulkIndexer(bi))
+	}
+
+	if ncfg != nil {
+		options = append(options, index.SetNatsConfiguration(ncfg))
+	}
+
+	is, err := index.NewService(options...)
+	if err != nil {
+		return nil, err
+	}
+
+	if !e.UseRemoteIndexer {
+		err := is.Start(context.Background(), 1)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if e.Metrics {
+		expvar.Publish("hub3-index-service", expvar.Func(func() interface{} { m := is.Metrics(); return m }))
+	}
+
+	return is, nil
 }

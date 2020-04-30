@@ -64,13 +64,11 @@ func CreateBulkProcessorService() *elastic.BulkProcessorService {
 	return ESClient().BulkProcessor().
 		Name("Hub3-backgroundworker").
 		Workers(config.Config.ElasticSearch.Workers).
-		BulkActions(10000).              // commit if # requests >= 1000
-		BulkSize(10 << 20).              // commit if size of requests >= 2 MB
-		FlushInterval(30 * time.Second). // commit every 30s
-		//After(elastic.BulkAfterFunc{afterFn}). // after Execution callback
-		After(afterFn). // after Execution callback
-		//Before(beforeFn).
-		Stats(true) // enable statistics
+		BulkActions(10000).             // commit if # requests >= 1000
+		BulkSize(5 * 1024 * 1024).      // commit if size of requests >= 5 MB
+		FlushInterval(5 * time.Second). // commit every 5s
+		After(afterFn).                 // after Execution callback
+		Stats(true)                     // enable statistics
 }
 
 func beforeFn(executionID int64, requests []BulkableRequest) {

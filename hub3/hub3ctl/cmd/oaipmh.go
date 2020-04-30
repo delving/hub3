@@ -265,7 +265,7 @@ func storeRecord(identifier string, prefix string) string {
 			rawBody := r.GetRecord.Record.Metadata.Body
 			headerSize := int64(len(rawBody))
 			b := bytes.NewReader(rawBody)
-			_, err := ead.ProcessEAD(b, headerSize, "", handlers.BulkProcessor())
+			_, err := ead.ProcessEAD(b, headerSize, "", handlers.NewOldBulkProcessor())
 			if err != nil {
 				log.Printf("unable to process EAD: %#v", err)
 			}
@@ -278,6 +278,7 @@ func storeRecord(identifier string, prefix string) string {
 		}
 		fmt.Fprintln(file, record)
 	})
+
 	return record
 }
 

@@ -171,6 +171,10 @@ var v2Mapping = `{
 		}
 }`
 
+func V2MappingUpdate() string {
+	return v2MappingUpdate
+}
+
 // v2MappingUpdate contains updates to the original model that are incremental,
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.

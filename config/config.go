@@ -110,7 +110,11 @@ func (es ElasticSearch) HasAuthentication() bool {
 // GetIndexName returns the lowercased indexname.
 // This inforced correct behaviour when creating an index in ElasticSearch.
 func (es ElasticSearch) GetIndexName() string {
-	return strings.ToLower(es.IndexName)
+	return strings.ToLower(es.IndexName) + "v2"
+}
+
+func (es ElasticSearch) GetV1IndexName() string {
+	return strings.ToLower(es.IndexName) + "v1"
 }
 
 // Logging holds all the logging and path configuration

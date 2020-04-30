@@ -15,7 +15,7 @@ require (
 	github.com/die-net/lrucache v0.0.0-20171111232917-04b9315ab7a6
 	github.com/disintegration/imaging v1.3.0 // indirect
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200422075202-271c41b39edc
+	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200428082342-063ba81e9d1b
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
 	github.com/gammazero/workerpool v0.0.0-20180103203609-079e51c30502
@@ -78,6 +78,7 @@ require (
 	github.com/spf13/cobra v0.0.0-20180115160933-0c34d16c3123
 	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec // indirect
 	github.com/spf13/viper v0.0.0-20171227194143-aafc9e6bc7b7
+	github.com/src-d/go-git v4.7.0+incompatible
 	github.com/stretchr/testify v1.4.0
 	github.com/testcontainers/testcontainers-go v0.3.1
 	github.com/tidwall/gjson v1.6.0
@@ -104,7 +105,6 @@ require (
 	gopkg.in/mattn/go-isatty.v0 v0.0.4 // indirect
 	gopkg.in/mattn/go-runewidth.v0 v0.0.4 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.79
-	gopkg.in/src-d/go-git.v4 v4.13.1
 	gopkg.in/vmihailenco/msgpack.v2 v2.9.1 // indirect
 	willnorris.com/go/gifresize v0.0.0-20160428232521-6a222229fa06 // indirect
 	willnorris.com/go/imageproxy v0.0.0-20171007031011-e7f9017674d9

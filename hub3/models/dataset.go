@@ -659,11 +659,13 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *w.WorkerPool) (bool, error) {
 	ok := true
-	err := p.Flush()
-	if err != nil {
-		log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
-		return false, err
-	}
+
+	// TODO(kiivihal): replace flush with TRS
+	// err := p.Flush()
+	// if err != nil {
+	// log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
+	// return false, err
+	// }
 	// log.Printf("Flushed remaining items on the index queue.")
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()

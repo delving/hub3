@@ -16,6 +16,7 @@ package fragments
 
 import (
 	"context"
+	"encoding/json"
 	fmt "fmt"
 	"io"
 	"log"
@@ -347,6 +348,10 @@ type FragmentGraph struct {
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
 	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
+}
+
+func (fg FragmentGraph) Marshal() ([]byte, error) {
+	return json.Marshal(fg)
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel

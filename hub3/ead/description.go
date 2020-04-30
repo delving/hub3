@@ -17,8 +17,8 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	rdf "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
@@ -673,22 +673,30 @@ func (desc *Description) Write() error {
 	)
 }
 
-func (desc *Description) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, p BulkProcessor) error {
+func (desc *Description) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIndex) error {
 	fg, _, err := desc.DescriptionGraph(cfg, unitInfo)
 	if err != nil {
 		return err
 	}
 
-	if p == nil {
+	if bi == nil {
 		return nil
 	}
 
-	req := elastic.NewBulkIndexRequest().
-		Index(config.Config.ElasticSearch.GetIndexName()).
-		RetryOnConflict(3).
-		Id(fg.Meta.HubID).
-		Doc(fg)
-	p.Add(req)
+	b, err := fg.Marshal()
+	if err != nil {
+		return fmt.Errorf("unable to marshal fragment graph; %w", err)
+	}
+
+	m := &domainpb.IndexMessage{
+		OrganisationID: fg.Meta.OrgID,
+		DatasetID:      fg.Meta.Spec,
+		RecordID:       fg.Meta.HubID,
+		IndexName:      config.Config.GetIndexName(),
+		Source:         b,
+	}
+
+	bi.Publish(context.Background(), m)
 
 	return nil
 }

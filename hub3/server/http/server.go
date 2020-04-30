@@ -7,9 +7,9 @@ import (
 	"os"
 
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/hub3/server/http/assets"
 	"github.com/delving/hub3/hub3/server/http/handlers"
+	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
@@ -159,7 +159,7 @@ func negroniWithDefaults() *negroni.Negroni {
 func (s server) ListenAndServe() error {
 	c.Config.Logger.Info().
 		Int("port", s.port).
-		Msg("listering on port")
+		Msg("listening on port")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", s.port), s.n)
 	// TODO catch ctrl-c for graceful shutdown
 	if err != nil {

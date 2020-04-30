@@ -136,7 +136,7 @@ func ensureESIndex(index string, reset bool) {
 		config.Config.Logger.Info().Msg("updating elasticsearch service")
 		updateIndex, err := elastic.NewIndicesPutMappingService(client).
 			Index(index).
-			BodyString(mapping.ESMappingUpdate).
+			BodyString(mapping.V2MappingUpdate()).
 			Do(ctx)
 		if err != nil {
 			stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err.Error())

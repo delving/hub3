@@ -23,6 +23,8 @@ url = "nats://localhost:4222"
 [ElasticSearch]
 # enable the elasticsearch search api
 enabled = true 
+# don't run internal bulk indexer. Remote process reads the index queue
+useRemoteIndexer = false
 # collect client metrics
 metrics = true
 # the urls where we can find elasticsearch

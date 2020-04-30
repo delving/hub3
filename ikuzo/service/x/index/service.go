@@ -18,16 +18,15 @@ import (
 
 type Metrics struct {
 	started time.Time
-	nats    struct {
-		published uint64
-		consumed  uint64
-		failed    uint64
+	Nats    struct {
+		Published uint64
+		Consumed  uint64
+		Failed    uint64
 	}
-	index struct {
-		successful uint64
-		failed     uint64
+	Index struct {
+		Successful uint64
+		Failed     uint64
 	}
-	throughPut float64
 }
 
 type Service struct {
@@ -78,25 +77,27 @@ func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessag
 
 		b, err := proto.Marshal(msg)
 		if err != nil {
-			atomic.AddUint64(&s.m.nats.failed, 1)
+			atomic.AddUint64(&s.m.Nats.Failed, 1)
 			return fmt.Errorf("unable to marshal index message; %w", err)
 		}
 
 		if err = s.stan.Conn.Publish(s.stan.SubjectID, b); err != nil {
-			atomic.AddUint64(&s.m.nats.failed, 1)
+			atomic.AddUint64(&s.m.Nats.Failed, 1)
 			log.Error().Msgf("stan config: %+v", s.stan)
+
 			return fmt.Errorf("unable to publish to queue; %w", err)
 		}
 
-		atomic.AddUint64(&s.m.nats.published, 1)
+		atomic.AddUint64(&s.m.Nats.Published, 1)
 	}
 
 	return nil
 }
 
 func (s *Service) Metrics() Metrics {
-	duration := time.Since(s.m.started)
-	s.m.throughPut = float64(s.m.nats.consumed) / duration.Seconds()
+	// duration := time.Since(s.m.started)
+	// s.m.ThroughPut = float64(s.m.Nats.Consumed) / duration.Seconds()
+
 	return s.m
 }
 
@@ -117,6 +118,7 @@ func (s *Service) Shutdown(ctx context.Context) error {
 
 	if s.bi != nil {
 		s.bi.Stats()
+
 		if err := s.bi.Close(ctx); err != nil {
 			return err
 		}
@@ -152,7 +154,7 @@ func (s *Service) Start(ctx context.Context, workers int) error {
 }
 
 func (s *Service) handleMessage(m *stan.Msg) {
-	atomic.AddUint64(&s.m.nats.consumed, 1)
+	atomic.AddUint64(&s.m.Nats.Consumed, 1)
 
 	var msg domainpb.IndexMessage
 	if err := proto.Unmarshal(m.Data, &msg); err != nil {
@@ -168,9 +170,11 @@ func (s *Service) handleMessage(m *stan.Msg) {
 	}
 
 	// TODO(kiivihal): propagate the context
-	if err := s.submitBulkMsg(context.Background(), &msg); err != nil {
-		log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
-		return
+	if s.bi != nil {
+		if err := s.submitBulkMsg(context.Background(), &msg); err != nil {
+			log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
+			return
+		}
 	}
 }
 
@@ -200,12 +204,12 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 
 		// OnSuccess is called for each successful operation
 		OnSuccess: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem) {
-			atomic.AddUint64(&s.m.index.successful, 1)
+			atomic.AddUint64(&s.m.Index.Successful, 1)
 		},
 
 		// OnFailure is called for each failed operation
 		OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem, err error) {
-			atomic.AddUint64(&s.m.index.failed, 1)
+			atomic.AddUint64(&s.m.Index.Failed, 1)
 			if err != nil {
 				log.Error().Err(err).Msg("bulk index msg2 error")
 			} else {
@@ -226,4 +230,12 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		ctx,
 		bulkMsg,
 	)
+}
+
+func (s *Service) BulkIndexStats() esutil.BulkIndexerStats {
+	if s.bi == nil {
+		return esutil.BulkIndexerStats{}
+	}
+
+	return s.bi.Stats()
 }

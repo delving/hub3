@@ -28,7 +28,6 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -70,49 +69,24 @@ func init() {
 func indexRecords() error {
 	logger := logger.NewLogger(logger.Config{})
 
-	// create ES client
-	es, err := cfg.ElasticSearch.NewClient(&logger)
-	if err != nil {
-		return err
-	}
-
-	// withAlias := !offline
-
-	// create default mappings
-	indexNames, err := cfg.ElasticSearch.CreateDefaultMappings(es, true)
-	if err != nil {
-		return err
-	}
-
-	var indexName string
-	for _, name := range indexNames {
-		if strings.Contains(name, indexMode) {
-			indexName = name
-			break
-		}
+	// TODO(kiivihal): hard-code the index name for now
+	indexName := "hub3v2"
+	if indexMode != "v2" {
+		indexName = "hub3v1"
 	}
 
 	logger.Info().Str("index_name", indexName).Msg("selected index")
 
-	// TODO(kiivihal): hard-code the index name for now
-	indexName = "hub3v1"
-
 	// create BulkIndexer
-	bi, err := cfg.ElasticSearch.NewBulkIndexer(es)
-	if err != nil {
-		return err
-	}
-
 	ncfg, err := cfg.Nats.GetConfig()
 	if err != nil {
 		return err
 	}
 
-	// create index service
-	svc, err := index.NewService(
-		index.SetBulkIndexer(bi),
-		index.SetNatsConfiguration(ncfg),
-	)
+	// turn off remote index
+	cfg.ElasticSearch.UseRemoteIndexer = false
+
+	svc, err := cfg.ElasticSearch.IndexService(&logger, ncfg)
 	if err != nil {
 		return err
 	}
@@ -170,7 +144,7 @@ func indexRecords() error {
 				// log.Printf("bi stats: %+v", bi.Stats())
 				log.Printf("consumer stats: %+v", svc.Metrics())
 
-				if bi.Stats().NumFlushed >= indexRecords {
+				if svc.BulkIndexStats().NumFlushed >= indexRecords {
 					cancel()
 					time.Sleep(1 * time.Second)
 					shutdown()
