@@ -336,6 +336,25 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 
 			tree.PageSize = int32(hint)
+		case "start":
+			start, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				log.Printf("unable to convert %v to int for %s", v, p)
+				return sr, err
+			}
+			sr.Start = int32(start)
+		case "searchAfter":
+			var sa = make([]interface{}, 0)
+			parts := strings.SplitN(params.Get(p), ",", 2)
+			sortKey, _ := strconv.Atoi(parts[0])
+			cLevel := parts[1]
+			sa = append(sa, sortKey, cLevel)
+			sb, err := getInterfaceBytes(sa)
+			if err != nil {
+				log.Printf("unable to create bytes from interface %v", sa)
+				return sr, err
+			}
+			sr.SearchAfter = sb
 		}
 	}
 
@@ -956,6 +975,16 @@ func getInterface(bts []byte, data interface{}) error {
 	return err
 }
 
+func getInterfaceBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 // SearchRequestToHex converts the SearchRequest to a hex string
 func (sr *SearchRequest) SearchRequestToHex() (string, error) {
 	output, err := proto.Marshal(sr)
@@ -981,13 +1010,7 @@ func (sr *SearchRequest) DeepCopy() (*SearchRequest, error) {
 }
 
 func (sr *SearchRequest) CreateBinKey(key interface{}) ([]byte, error) {
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(key)
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
+	return getInterfaceBytes(key)
 }
 
 // DecodeSearchAfter returns an interface array decoded from []byte
