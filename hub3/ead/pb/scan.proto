@@ -1,0 +1,120 @@
+syntax = "proto3";
+package pb;
+option go_package = ".;pb";
+
+enum ViewType {
+    // Default type.
+    DOWNLOADONLY= 0;
+    // DZI tiles.
+    DZI = 1;
+    // JPEG files for thumbnails.
+    JPEG = 2;
+    PDF = 3;
+    AUDIO = 4;
+    VIDEO = 5;
+}
+
+message File {
+    ViewType view = 1;
+    // For scans this is the NL-HaNA_1.01.02_11_P1 type filename.
+    string filename = 3;
+    // The file-uuid from GAF
+    string fileuuid = 4;
+    // The duuid is not needed for the frontend as of now I think, but could be useful.
+    int64 fileSize = 6;
+    // Absolute web accessible url to the file source so internet web clients can access them.
+    // These urls are examples and not the real url patterns.
+    // For DZI example: [https://test.nationaalarchief.nl/gaf/iip/1.04.02_1.dzi]
+    // Or JPEG thumb example: [https://test.nationaalarchief.nl/gaf/iip/thumb-100x100.jpg]
+    // Or PDF file example: [https://test.nationaalarchief.nl/gaf/file/1.04.02.pdf]
+    string thumbnailURI = 2;
+    // Optional uri for downloading the DZI XML description.
+    string deepzoomURI = 7;
+    // Optional uri for downloading the original.
+    string downloadURI = 8;
+    // Mime-Type of the file
+    string mimeType = 9;
+    // The relative sort order of the File within the inventoryID
+    int32 sortKey = 10;
+}
+
+message Pager {
+    bool hasNext = 1;
+    bool hasPrevious = 2;
+    int32 totalCount = 3;
+    int32 nrPages = 4;
+    int32 pageCurrent = 5;
+    int32 pageNext = 6;
+    int32 pagePrevious = 7;
+    int32 pageSize = 8;
+    // Optional property where the result is centered around.
+    string activeFilename = 9;
+    // The index of the place of the active File in the Files array.
+    int32 activeSortKey = 10;
+    // Optional. When the request was a paging request, i.e. without the FindingAid block.
+    bool paging = 11;
+
+}
+
+message FindingAid {
+    // The dataset identifier and EAD identifier.
+    string archiveID = 1;
+    // The long title for the Archive.
+    string archiveTitle = 2;
+    // The unit idendifier for a given c-level.
+    string inventoryID = 3;
+    // The tree-path under which the inventory is stored.
+    string inventoryPath = 4;
+    // The unit-title of the inventory.
+    string inventoryTitle = 5;
+    // The deliverable uuid of the METS file where all the Files are extracted from.
+    string duuid = 6;
+    // Return true if the files in the WHOLE (not just the current page) set are DZI tiles.
+    bool hasOnlyTiles = 7;
+    // Sorted array of mime-types for current deliverable-uuid
+    map<string, int32> mimeTypes = 8;
+    // number of linked digital objects
+    int32 fileCount = 9;
+    // the linked Files to the FindingAid
+    repeated File files = 10;
+}
+
+message ViewResponse {
+    // The block with the page
+    Pager pager = 1;
+    // Optional. The FindingAid is only shown on the first request and is empty for paging requests.
+    FindingAid findingAid = 2;
+    // Sorted by filename.
+    repeated File files = 3;
+}
+
+message ViewRequest {
+    // Required; example 2.13.39
+    string archiveID = 1;
+    // Either InventoryID or InventoryPath is Required; e.g. 3.1.
+    string inventoryID = 2;
+    // Either InventoryID or InventoryPath is Required; e.g. @3~3.1.
+    string invertoryPath = 3;
+    // Optional, defaults to 50 tiledImages per set.
+    int32 pageSize = 4;
+    // Optional, defaults to 1.
+    int32 page = 5;
+    // Optional to jump into a set with this file centered.
+    string fileuuid = 6;
+    // Optional to jump into a set with this file centered.
+    string filename = 7;
+    // Optional thumbnail configuration options.
+    string thumbnailConf = 8;
+    // Optional. When paging is true the FindingAid block is not included in the response.
+    bool paging = 9;
+    // Optional. sortKey is an integer representing the order of the file in the files array.
+    // Note: starts at 1, i.e. not zero-based.
+    int64 sortKey = 10;
+}
+
+// ViewerService is a RPC-service. 
+// Due to the lack of HTTP2 support in the current Spyridon infrastructure
+// we will implement a custom post-endpoint for the ViewerService.
+service ViewerService {
+    rpc List(ViewRequest) returns (ViewResponse);
+}

@@ -159,6 +159,40 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
 
+	if tree.HasDigitalObject {
+		if !strings.Contains(tree.DaoLink, "/gaf/api/mets/v1/") {
+			cfg.MetsCounter.AppendError(fmt.Sprintf("invalid daolink to GAF: %s", tree.DaoLink))
+			return tree
+		}
+
+		// log.Printf("daolink: %s", tree.DaoLink)
+
+		// mets, err := remoteMETS(cfg.Client, tree.DaoLink, cfg.Spec, tree.UnitID)
+		mets, err := localMETS(tree.DaoLink, cfg.Spec, tree.UnitID)
+		if err != nil {
+			cfg.MetsCounter.AppendError(err.Error())
+			return tree
+		}
+
+		findingAid, err := mets.newFindingAid(cfg, tree)
+
+		if err != nil {
+			cfg.MetsCounter.AppendError(err.Error())
+			return tree
+		}
+
+		tree.DOCount = int(findingAid.GetFileCount())
+		tree.MimeTypes = getMimeTypes(&findingAid)
+		cfg.MetsCounter.IncrementDigitalObject(uint64(tree.DOCount))
+
+		err = saveFileFragmentGraphs(cfg, &findingAid)
+		if err != nil {
+			// eventType := eventTypeFromRevision(int(cfg.Revision))
+			// logProcessEadError(cfg.Spec, eventType, "Unable to save fragment graphs for mets: %#v", err)
+			return tree
+		}
+	}
+
 	return tree
 }
 
