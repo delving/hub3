@@ -5,4 +5,5 @@ type Meta struct {
 	Dataset  string
 	Title    string
 	Clevels  uint64
+	DaoLinks uint64
 }

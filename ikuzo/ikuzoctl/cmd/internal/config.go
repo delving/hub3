@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/spf13/viper"
 )
 
@@ -50,4 +51,25 @@ func SetViperDefaults() {
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
 	viper.SetDefault("TimeRevisionStore.dataPath", "/tmp/trs")
+}
+
+func (cfg *Config) getIndexService() (*index.Service, error) {
+	var (
+		ncfg *index.NatsConfig
+		err  error
+	)
+
+	if cfg.Nats.Enabled {
+		ncfg, err = cfg.Nats.GetConfig()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	is, err := cfg.ElasticSearch.IndexService(&cfg.logger, ncfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return is, nil
 }

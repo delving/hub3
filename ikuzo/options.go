@@ -8,6 +8,7 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
@@ -148,6 +149,18 @@ func SetEADService(svc *ead.Service) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Post("/api/ead", svc.Upload)
+			},
+		)
+
+		return nil
+	}
+}
+
+func SetBulkService(svc *bulk.Service) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Post("/api/index/bulk", svc.Handle)
 			},
 		)
 

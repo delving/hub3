@@ -320,17 +320,9 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIn
 		return nil
 	}
 
-	b, err := fg.Marshal()
+	m, err := fg.IndexMessage()
 	if err != nil {
 		return fmt.Errorf("unable to marshal fragment graph: %w", err)
-	}
-
-	m := &domainpb.IndexMessage{
-		OrganisationID: fg.Meta.GetHubID(),
-		DatasetID:      fg.Meta.GetHubID(),
-		RecordID:       fg.Meta.GetHubID(),
-		IndexName:      config.Config.GetIndexName(),
-		Source:         b,
 	}
 
 	if err := bi.Publish(context.Background(), m); err != nil {

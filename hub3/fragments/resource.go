@@ -28,6 +28,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
@@ -352,6 +353,22 @@ type FragmentGraph struct {
 
 func (fg FragmentGraph) Marshal() ([]byte, error) {
 	return json.Marshal(fg)
+}
+
+func (fg FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
+	b, err := fg.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	return &domainpb.IndexMessage{
+		OrganisationID: fg.Meta.OrgID,
+		DatasetID:      fg.Meta.Spec,
+		RecordID:       fg.Meta.HubID,
+		IndexName:      c.Config.ElasticSearch.GetIndexName(),
+		Source:         b,
+	}, nil
+
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
@@ -913,7 +930,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 	for _, level1 := range subject.objectIDs {
 		level2Resource, ok := rm.GetResource(level1.ObjectID)
 		if !ok {
-			log.Printf("unknown target URI: %s", level1.ObjectID)
+			// log.Printf("unknown target URI: %s", level1.ObjectID)
 			continue
 		}
 		linkedObjects[level1.ObjectID] = level2Resource

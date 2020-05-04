@@ -10,6 +10,7 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	eshub "github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
@@ -68,6 +69,19 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 
 		cfg.options = append(cfg.options, ikuzo.SetElasticSearchProxy(esProxy))
 	}
+
+	// enable bulk indexer
+	is, isErr := cfg.getIndexService()
+	if isErr != nil {
+		return fmt.Errorf("unable to create index service; %w", isErr)
+	}
+
+	bulkSvc, bulkErr := bulk.NewService(bulk.SetIndexService(is))
+	if bulkErr != nil {
+		return fmt.Errorf("unable to create bulk service; %w", isErr)
+	}
+
+	cfg.options = append(cfg.options, ikuzo.SetBulkService(bulkSvc))
 
 	_, err = e.CreateDefaultMappings(client, true)
 	if err != nil {
@@ -201,6 +215,8 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 		return e.is, nil
 	}
 
+	var err error
+
 	options := []index.Option{}
 
 	if !e.UseRemoteIndexer {
@@ -223,21 +239,21 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 		options = append(options, index.SetNatsConfiguration(ncfg))
 	}
 
-	is, err := index.NewService(options...)
+	e.is, err = index.NewService(options...)
 	if err != nil {
 		return nil, err
 	}
 
 	if !e.UseRemoteIndexer {
-		err := is.Start(context.Background(), 1)
+		err := e.is.Start(context.Background(), 1)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	if e.Metrics {
-		expvar.Publish("hub3-index-service", expvar.Func(func() interface{} { m := is.Metrics(); return m }))
+		expvar.Publish("hub3-index-service", expvar.Func(func() interface{} { m := e.is.Metrics(); return m }))
 	}
 
-	return is, nil
+	return e.is, nil
 }

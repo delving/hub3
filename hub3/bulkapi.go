@@ -27,12 +27,16 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/gammazero/workerpool"
 	r "github.com/kiivihal/rdf2go"
-	"github.com/olivere/elastic/v7"
 
 	"github.com/parnurzeal/gorequest"
 )
+
+type BulkIndex interface {
+	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
+}
 
 // BulkAction is used to unmarshal the information from the BulkAPI
 type BulkAction struct {
@@ -48,7 +52,7 @@ type BulkAction struct {
 	RDF           string `json:"rdf"`
 	GraphMimeType string `json:"graphMimeType"`
 	SubjectType   string `json:"subjectType"`
-	p             *elastic.BulkProcessor
+	bi            BulkIndex
 	wp            *workerpool.WorkerPool
 }
 
@@ -65,11 +69,11 @@ type BulkActionResponse struct {
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
-func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp *workerpool.WorkerPool) (BulkActionResponse, error) {
+func ReadActions(ctx context.Context, r io.Reader, bi BulkIndex, wp *workerpool.WorkerPool) (BulkActionResponse, error) {
 	//log.Println("Start reading actions.")
 	scanner := bufio.NewScanner(r)
 	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 1024*1024)
+	scanner.Buffer(buf, 10*1024*1024)
 
 	response := BulkActionResponse{
 		SparqlUpdates: []fragments.SparqlUpdate{},
@@ -88,15 +92,15 @@ func ReadActions(ctx context.Context, r io.Reader, p *elastic.BulkProcessor, wp 
 			log.Printf("%s", line)
 			continue
 		}
-		action.p = p
+		action.bi = bi
 		action.wp = wp
 
-		//err = ioutil.WriteFile(fmt.Sprintf("/tmp/es_actions/%s.json", action.HubID), []byte(action.Graph), 0644)
-		//err = ioutil.WriteFile(fmt.Sprintf("/tmp/raw_graph/%s.json", action.HubID), []byte(action.Graph), 0644)
-		//if err != nil {
-		//log.Printf("Processing error: %#v", err)
-		//return response, err
-		//}
+		// err = ioutil.WriteFile(fmt.Sprintf("/tmp/es_actions/%s.json", action.HubID), []byte(action.Graph), 0644)
+		// err = ioutil.WriteFile(fmt.Sprintf("/tmp/raw_graph/%s.json", action.HubID), []byte(action.Graph), 0644)
+		// if err != nil {
+		// log.Printf("Processing error: %#v", err)
+		// return response, err
+		// }
 		err = action.Execute(ctx, &response)
 		if err != nil {
 			log.Printf("Processing error: %v", err)
@@ -132,7 +136,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		return err
 	}
 	if created {
-		err = fragments.SaveDataSet(action.Spec, action.p)
+		err = fragments.SaveDataSet(action.Spec, nil)
 		if err != nil {
 			log.Printf("Unable to Save DataSet Fragment for %s\n", action.Spec)
 			return err
@@ -150,7 +154,7 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := ds.DropOrphans(ctx, action.p, action.wp)
+		ok, err := ds.DropOrphans(ctx, nil, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
 			return err
@@ -241,53 +245,72 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		return err
 	}
 
-	var r *elastic.BulkIndexRequest
+	_, err = fb.ResourceMap()
+	if err != nil {
+		log.Printf("Unable to create resource map: %v", err)
+		return err
+	}
+
 	if v1StylingIndexing {
 		// cleanup the graph and sort rdf webresources
 		fb.GetSortedWebResources()
 
+		// TODO(kiivihal): update v1 support
 		indexDoc, err := fragments.CreateV1IndexDoc(fb)
 		if err != nil {
 			log.Printf("Unable to create index doc: %s", err)
 			return err
 		}
-		r, err = fragments.CreateESAction(indexDoc, action.HubID)
+
+		b, err := json.Marshal(indexDoc)
 		if err != nil {
-			log.Printf("Unable to create v1 es action: %s", err)
 			return err
 		}
+
+		m := &domainpb.IndexMessage{
+			OrganisationID: c.Config.OrgID,
+			DatasetID:      action.Spec,
+			RecordID:       action.HubID,
+			IndexName:      c.Config.ElasticSearch.GetV1IndexName(),
+			Deleted:        false,
+			Source:         b,
+		}
+
+		if err := action.bi.Publish(context.Background(), m); err != nil {
+			return err
+		}
+
 		// add to posthook worker from v1
 		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
 		g := fb.SortedGraph
 		ph := models.NewPostHookJob(g, action.Spec, false, subject, action.HubID)
-		if ph.Valid() {
-			action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
-			//action.wp.Submit(func() { log.Println(ph.Subject) })
+		if ph.Valid() && action.wp != nil {
+			// non async posthook
+			models.ApplyPostHookJob(ph)
+
+			// async
+			// action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
 		}
 	} else {
 		// index the LoD Fragments
-		if c.Config.ElasticSearch.Fragments {
-			err = fb.IndexFragments(action.p)
-			if err != nil {
-				return err
-			}
-		}
+		// TODO(kiivihal): decide what to do with fragments
+		// if c.Config.ElasticSearch.Fragments {
+		// err = fb.IndexFragments(action.bi)
+		// if err != nil {
+		// return err
+		// }
+		// }
 
 		// index FragmentGraph
-		r = elastic.NewBulkIndexRequest().
-			Index(c.Config.ElasticSearch.GetIndexName()).
-			RetryOnConflict(3).
-			Id(action.HubID).
-			Doc(fb.Doc())
-	}
-	if r == nil {
-		// todo add code back to create index doc
-		//panic("can't create index doc")
-		return fmt.Errorf("Unable create BulkIndexRequest")
-	}
+		m, err := fb.FragmentGraph().IndexMessage()
+		if err != nil {
+			return err
+		}
 
-	// submit the bulkIndexRequest for indexing
-	action.p.Add(r)
+		if err := action.bi.Publish(context.Background(), m); err != nil {
+			return err
+		}
+	}
 
 	if c.Config.RDF.RDFStoreEnabled {
 		if c.Config.RDF.HasStoreTag(fb.FragmentGraph().Meta.Tags) {

@@ -15,9 +15,7 @@ import (
 	"sync/atomic"
 	"unicode"
 
-	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	rdf "github.com/kiivihal/rdf2go"
 )
 
@@ -683,17 +681,9 @@ func (desc *Description) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi
 		return nil
 	}
 
-	b, err := fg.Marshal()
+	m, err := fg.IndexMessage()
 	if err != nil {
 		return fmt.Errorf("unable to marshal fragment graph; %w", err)
-	}
-
-	m := &domainpb.IndexMessage{
-		OrganisationID: fg.Meta.OrgID,
-		DatasetID:      fg.Meta.Spec,
-		RecordID:       fg.Meta.HubID,
-		IndexName:      config.Config.GetIndexName(),
-		Source:         b,
 	}
 
 	bi.Publish(context.Background(), m)

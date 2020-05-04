@@ -18,7 +18,7 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/service/x/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -57,7 +57,7 @@ type NodeConfig struct {
 	MimeTypes        map[string][]string
 	Errors           []*DuplicateError
 	Client           *http.Client
-	BulkProcessor    BulkProcessor
+	IndexService     *index.Service
 	CreateTree       func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	ContentIdentical bool
 	Nodes            chan *Node
@@ -261,17 +261,9 @@ func (n *Node) ESSave(cfg *NodeConfig, bi BulkIndex) error {
 		return err
 	}
 
-	b, err := fg.Marshal()
+	m, err := fg.IndexMessage()
 	if err != nil {
 		return fmt.Errorf("unable to marshal fragment graph: %w", err)
-	}
-
-	m := &domainpb.IndexMessage{
-		OrganisationID: fg.Meta.GetOrgID(),
-		DatasetID:      fg.Meta.GetSpec(),
-		RecordID:       fg.Meta.GetHubID(),
-		IndexName:      config.Config.GetIndexName(),
-		Source:         b,
 	}
 
 	bi.Publish(context.Background(), m)

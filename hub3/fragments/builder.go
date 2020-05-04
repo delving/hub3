@@ -101,11 +101,13 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 		log.Print("Unable to access resources, returning raw fragmentgraph.")
 		return fg
 	}
-	err := rm.ResolveObjectIDs(fg.Meta.HubID)
-	if err != nil {
-		log.Printf("Unable to resolve fragment resources: %s", err)
-		return fg
-	}
+
+	// TODO(kiivihal): decide how to use this later
+	// err := rm.ResolveObjectIDs(fg.Meta.HubID)
+	// if err != nil {
+	// log.Printf("Unable to resolve fragment resources: %s", err)
+	// return fg
+	// }
 
 	resources, err := rm.SetContextLevels(fg.GetAboutURI())
 	if err != nil {

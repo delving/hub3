@@ -16,7 +16,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -24,6 +23,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -92,7 +92,7 @@ func init() {
 }
 
 func getESClient(url, user, password string) (*elastic.Client, error) {
-	timeout := time.Duration(5 * time.Second)
+	timeout := time.Duration(15 * time.Second)
 	client := &http.Client{
 		Timeout: timeout,
 	}
@@ -257,17 +257,18 @@ func synchronise() error {
 }
 
 func storeHit(hit *elastic.SearchHit) error {
-	outputDir := filepath.Join("/tmp", hit.Index)
+	parts := strings.SplitAfterN(hit.Id, "_", 3)
+	outputDir := filepath.Join("/tmp/trs", parts[0], parts[1], hit.Type)
 	err := os.MkdirAll(outputDir, os.ModePerm)
 	if err != nil {
 		return err
 	}
-	b, err := json.Marshal(hit)
-	if err != nil {
-		return err
-	}
+	// b, err := json.Marshal(hit, hit.Type)
+	// if err != nil {
+	// return err
+	// }
 	fname := filepath.Join(outputDir, fmt.Sprintf("%s.json", hit.Id))
-	return ioutil.WriteFile(fname, b, 0644)
+	return ioutil.WriteFile(fname, *hit.Source, 0644)
 }
 
 // NewCustomRetrier creates custom retrier for elasticsearch

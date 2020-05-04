@@ -5,7 +5,6 @@ import (
 
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
-	"github.com/delving/hub3/ikuzo/service/x/index"
 )
 
 type EAD struct {
@@ -13,19 +12,7 @@ type EAD struct {
 }
 
 func (n *EAD) AddOptions(cfg *Config) error {
-	var (
-		ncfg *index.NatsConfig
-		err  error
-	)
-
-	if cfg.Nats.Enabled {
-		ncfg, err = cfg.Nats.GetConfig()
-		if err != nil {
-			return err
-		}
-	}
-
-	is, err := cfg.ElasticSearch.IndexService(&cfg.logger, ncfg)
+	is, err := cfg.getIndexService()
 	if err != nil {
 		return err
 	}

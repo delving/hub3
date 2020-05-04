@@ -15,7 +15,6 @@ import (
 
 	"github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/render"
 	"golang.org/x/sync/errgroup"
@@ -102,6 +101,7 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 	cfg.CreateTree = eadHub3.CreateTree
 	cfg.Spec = meta.Dataset
 	cfg.OrgID = config.Config.OrgID
+	cfg.IndexService = s.index
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
@@ -172,17 +172,9 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 					return err
 				}
 
-				b, err := fg.Marshal()
+				m, err := fg.IndexMessage()
 				if err != nil {
 					return fmt.Errorf("unable to marshal fragment graph: %w", err)
-				}
-
-				m := &domainpb.IndexMessage{
-					OrganisationID: fg.Meta.GetOrgID(),
-					DatasetID:      fg.Meta.GetSpec(),
-					RecordID:       fg.Meta.GetHubID(),
-					IndexName:      config.Config.GetIndexName(),
-					Source:         b,
 				}
 
 				if err := s.index.Publish(context.Background(), m); err != nil {
@@ -203,7 +195,9 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 	// wait for all errgroup goroutines
 	if err := g.Wait(); err == nil || errors.Is(err, context.Canceled) {
 		atomic.AddUint64(&s.m.Finished, 1)
+
 		meta.Clevels = cfg.Counter.GetCount()
+		meta.DaoLinks = cfg.MetsCounter.GetCount()
 	} else {
 		atomic.AddUint64(&s.m.Failed, 1)
 		fmt.Printf("received error: %v", err)

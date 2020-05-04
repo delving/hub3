@@ -48,7 +48,7 @@ func BulkProcessor() *elastic.BulkProcessor {
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func bulkAPI(w http.ResponseWriter, r *http.Request) {
-	response, err := hub3.ReadActions(ctx, r.Body, BulkProcessor(), wp)
+	response, err := hub3.ReadActions(ctx, r.Body, NewOldBulkProcessor(), wp)
 	if err != nil {
 		log.Println("Unable to read actions")
 		errR := ErrRender(err)
