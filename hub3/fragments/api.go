@@ -671,13 +671,14 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			rawQuery = strings.Join(all, " ")
 		}
 		if rawQuery != "" {
-			qs := elastic.NewSimpleQueryStringQuery(rawQuery)
+			qs := elastic.NewQueryStringQuery(escapeRawQuery(rawQuery))
+			qs.DefaultOperator("and")
+
 			qs = qs.
 				Field("full_text").
 				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 		}
-
 	}
 
 	if strings.HasPrefix(sr.GetSortBy(), "random") {
@@ -764,7 +765,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 		}
 		if sr.Tree.GetLabel() != "" {
-			q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetLabel())
+			q := elastic.NewQueryStringQuery(escapeRawQuery(sr.Tree.GetLabel()))
+			q.DefaultOperator("and")
+
 			q = q.Field("tree.label")
 			if !isAdvancedSearch(sr.Tree.GetLabel()) {
 				q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
@@ -1212,6 +1215,7 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 }
 
 type ScrollType int
+
 const (
 	ScrollNext ScrollType = iota
 	ScrollPrev
@@ -1250,7 +1254,7 @@ func newSearchRequestScrollPage(sr *SearchRequest, position ScrollType, total in
 	return copySr, nil
 }
 
-func (sr *SearchRequest) ScrollPagers (total int64) (*ScrollPager, error) {
+func (sr *SearchRequest) ScrollPagers(total int64) (*ScrollPager, error) {
 	sp := NewScrollPager()
 	sp.Cursor = sr.GetStart()
 	sp.Rows = sr.GetResponseSize()
@@ -1798,8 +1802,31 @@ func KeyAsString(b *elastic.AggregationBucketKeyItem) string {
 	return key
 }
 
+func escapeRawQuery(query string) string {
+	if !strings.Contains(query, "/") {
+		return query
+	}
+
+	var parts []string
+	for _, v := range strings.Fields(query) {
+		if !strings.Contains(v, "/") {
+			parts = append(parts, v)
+			continue
+		}
+		if strings.HasPrefix(v, "\"") || strings.HasSuffix(v, "\"") {
+			parts = append(parts, v)
+			continue
+		}
+
+		parts = append(parts, fmt.Sprintf("\"%s\"", v))
+	}
+
+	return strings.Join(parts, " ")
+}
+
 func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error) {
-	q := elastic.NewSimpleQueryStringQuery(query)
+	q := elastic.NewQueryStringQuery(escapeRawQuery(query))
+	q.DefaultOperator("and")
 
 	for _, field := range fields {
 		parts := strings.Split(field, "^")

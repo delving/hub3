@@ -62,7 +62,7 @@ func (di *DescriptionIndex) Write() error {
 	return ioutil.WriteFile(
 		getIndexPath(di.spec),
 		buf.Bytes(),
-		0644,
+		os.ModePerm,
 	)
 }
 

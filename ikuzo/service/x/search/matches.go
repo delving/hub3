@@ -12,6 +12,12 @@ func NewMatches() *Matches {
 	}
 }
 
+// Reset is used when already gathered matches must be reset when ErrSearchNoMatch is returned.
+func (m *Matches) Reset() {
+	m.termFrequency = make(map[string]int)
+	m.termVectors = NewVectors()
+}
+
 func (m *Matches) AppendTerm(term string, tv *Vectors) {
 	if tv.Size() == 0 {
 		return

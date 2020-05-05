@@ -127,13 +127,6 @@ func (ti *TextIndex) addTerm(word string, pos int) error {
 
 	ti.setTermVector(analyzedTerm, pos)
 
-	// TODO(kiivihal): remove later. Tokenizer should do this now
-	// if strings.Contains(analyzedTerm, "-") {
-	// for _, p := range strings.Split(analyzedTerm, "-") {
-	// ti.setTermVector(p, pos, true)
-	// }
-	// }
-
 	return nil
 }
 
@@ -329,6 +322,10 @@ func (ti *TextIndex) matchTerm(qt *search.QueryTerm, hits *search.Matches) bool 
 func (ti *TextIndex) Search(query *search.QueryTerm) (*search.Matches, error) {
 	hits := search.NewMatches()
 	err := ti.search(query, hits)
+
+	if errors.Is(err, ErrSearchNoMatch) {
+		hits.Reset()
+	}
 
 	return hits, err
 }

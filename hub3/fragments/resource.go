@@ -228,7 +228,9 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 
 	matchSuffix := fmt.Sprintf("_%s", strings.TrimLeft(cLevel, "@"))
 
-	q := elastic.NewSimpleQueryStringQuery(sr.Tree.GetLabel())
+	q := elastic.NewQueryStringQuery(escapeRawQuery(sr.Tree.GetLabel()))
+	q.DefaultOperator("and")
+
 	q = q.Field("tree.label")
 	if !isAdvancedSearch(sr.Tree.GetLabel()) {
 		q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
@@ -383,11 +385,11 @@ type Collapsed struct {
 // ScrollPager holds all paging information for a search result.
 type ScrollPager struct {
 	// scrollID is serialized version SearchRequest
-	PreviousScrollID 	string `json:"previousScrollID"`
-	NextScrollID 		string `json:"nextScrollID"`
-	Cursor       		int32  `json:"cursor"`
-	Total        		int64  `json:"total"`
-	Rows         		int32  `json:"rows"`
+	PreviousScrollID string `json:"previousScrollID"`
+	NextScrollID     string `json:"nextScrollID"`
+	Cursor           int32  `json:"cursor"`
+	Total            int64  `json:"total"`
+	Rows             int32  `json:"rows"`
 }
 
 // ProtoBuf holds a protobuf encode version of the messageType.
