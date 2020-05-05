@@ -2,7 +2,16 @@
 
 ## development
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.5...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.7...master
+
+## v0.1.7 (2020-05-05) 
+
+- bugfix: add c level xml tag for nested clevels when unmarshalling EADs
+- bugfix: revert back to ElasticSearch QueryStringQuery because unexpected handling of boolean queries by SimpleQueryStringQuery.
+- ead: allow for deeplinking into EAD tree view
+- ead: support next and previous scrollIDs in the ScrollPager
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.6...master
 
 ## v0.1.6 (2020-04-22) 
 
