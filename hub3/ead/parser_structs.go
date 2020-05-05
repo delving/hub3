@@ -181,7 +181,7 @@ type Cc struct {
 	Cseparatedmaterial []*Cseparatedmaterial `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
 	Cuserestrict       []*Cuserestrict       `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
 
-	Cc []*Cc
+	Cc []*Cc `xml:"c,omitempty"`
 	// not supported by data
 	Cfileplan *Cfileplan  `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
 	Cdescgrp  []*Cdescgrp `xml:"descgrp,omitempty" json:"descgrp,omitempty"`
