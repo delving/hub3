@@ -351,11 +351,11 @@ type FragmentGraph struct {
 	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
 }
 
-func (fg FragmentGraph) Marshal() ([]byte, error) {
+func (fg *FragmentGraph) Marshal() ([]byte, error) {
 	return json.Marshal(fg)
 }
 
-func (fg FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
+func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	b, err := fg.Marshal()
 	if err != nil {
 		return nil, err
@@ -1734,16 +1734,16 @@ func (fe *FragmentEntry) GetXSDLabel() string {
 }
 
 // IndexFragments updates the Fragments for standalone indexing and adds them to the Elastic BulkProcessorService
-func (fb *FragmentBuilder) IndexFragments(p *elastic.BulkProcessor) error {
+func (fb *FragmentBuilder) IndexFragments(bi BulkIndex) error {
 	rm, err := fb.ResourceMap()
 	if err != nil {
 		return err
 	}
-	return IndexFragments(rm, fb.FragmentGraph(), p)
+	return IndexFragments(rm, fb.FragmentGraph(), bi)
 }
 
 // IndexFragments updates the Fragments for standalone indexing and adds them to the Elastic BulkProcessorService
-func IndexFragments(rm *ResourceMap, fg *FragmentGraph, p *elastic.BulkProcessor) error {
+func IndexFragments(rm *ResourceMap, fg *FragmentGraph, bi BulkIndex) error {
 
 	for _, fr := range rm.Resources() {
 		fragments, err := fr.CreateFragments(fg)
@@ -1751,7 +1751,7 @@ func IndexFragments(rm *ResourceMap, fg *FragmentGraph, p *elastic.BulkProcessor
 			return err
 		}
 		for _, frag := range fragments {
-			err := frag.AddTo(p)
+			err := frag.AddTo(bi)
 			if err != nil {
 				return err
 			}

@@ -98,7 +98,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	triplesCreated, rowsSeen, err := conv.IndexFragments(BulkProcessor(), ds.Revision)
+	triplesCreated, rowsSeen, err := conv.IndexFragments(NewOldBulkProcessor(), ds.Revision)
 	conv.RowsProcessed = rowsSeen
 	conv.TriplesCreated = triplesCreated
 	log.Printf("Processed %d csv rows\n", rowsSeen)

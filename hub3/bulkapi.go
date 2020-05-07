@@ -65,7 +65,8 @@ type BulkActionResponse struct {
 	RecordsStored      int                      `json:"recordsStored"`      // originally json was records_stored
 	JSONErrors         int                      `json:"jsonErrors"`
 	TriplesStored      int                      `json:"triplesStored"`
-	SparqlUpdates      []fragments.SparqlUpdate `json:"sparqlUpdates"` // store all the triples here for bulk insert
+	sparqlUpdates      []fragments.SparqlUpdate // store all the triples here for bulk insert
+	ds                 *models.DataSet
 }
 
 // ReadActions reads BulkActions from an io.Reader line by line.
@@ -73,34 +74,26 @@ func ReadActions(ctx context.Context, r io.Reader, bi BulkIndex, wp *workerpool.
 	//log.Println("Start reading actions.")
 	scanner := bufio.NewScanner(r)
 	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 10*1024*1024)
+	scanner.Buffer(buf, 5*1024*1024)
 
 	response := BulkActionResponse{
-		SparqlUpdates: []fragments.SparqlUpdate{},
+		sparqlUpdates: []fragments.SparqlUpdate{},
 		TotalReceived: 0,
 	}
-	var line []byte
 	for scanner.Scan() {
-		line = scanner.Bytes()
 		var action BulkAction
 		//log.Printf("bulkAction: \n %s\n", line)
-		err := json.Unmarshal(line, &action)
+		err := json.Unmarshal(scanner.Bytes(), &action)
 		if err != nil {
 			response.JSONErrors++
 			log.Println("Unable to unmarshal JSON.")
 			log.Print(err)
-			log.Printf("%s", line)
+			log.Printf("%s", scanner.Bytes())
 			continue
 		}
 		action.bi = bi
 		action.wp = wp
 
-		// err = ioutil.WriteFile(fmt.Sprintf("/tmp/es_actions/%s.json", action.HubID), []byte(action.Graph), 0644)
-		// err = ioutil.WriteFile(fmt.Sprintf("/tmp/raw_graph/%s.json", action.HubID), []byte(action.Graph), 0644)
-		// if err != nil {
-		// log.Printf("Processing error: %#v", err)
-		// return response, err
-		// }
 		err = action.Execute(ctx, &response)
 		if err != nil {
 			log.Printf("Processing error: %v", err)
@@ -113,6 +106,7 @@ func ReadActions(ctx context.Context, r io.Reader, bi BulkIndex, wp *workerpool.
 		log.Printf("Error scanning bulkActions: %s", scanner.Err())
 		return response, scanner.Err()
 	}
+
 	if c.Config.RDF.RDFStoreEnabled {
 		// insert the RDF triples
 		errs := response.RDFBulkInsert()
@@ -127,25 +121,28 @@ func ReadActions(ctx context.Context, r io.Reader, bi BulkIndex, wp *workerpool.
 
 //Execute performs the various BulkActions
 func (action BulkAction) Execute(ctx context.Context, response *BulkActionResponse) error {
-	if response.Spec == "" {
+	if response.ds == nil {
 		response.Spec = action.Spec
-	}
-	ds, created, err := models.GetOrCreateDataSet(action.Spec)
-	if err != nil {
-		log.Printf("Unable to get DataSet for %s\n", action.Spec)
-		return err
-	}
-	if created {
-		err = fragments.SaveDataSet(action.Spec, nil)
+
+		ds, created, err := models.GetOrCreateDataSet(action.Spec)
 		if err != nil {
-			log.Printf("Unable to Save DataSet Fragment for %s\n", action.Spec)
+			log.Printf("Unable to get DataSet for %s\n", action.Spec)
 			return err
 		}
+		if created {
+			err = fragments.SaveDataSet(action.Spec, nil)
+			if err != nil {
+				log.Printf("Unable to Save DataSet Fragment for %s\n", action.Spec)
+				return err
+			}
+		}
+		response.SpecRevision = ds.Revision
+		response.ds = ds
 	}
-	response.SpecRevision = ds.Revision
+
 	switch action.Action {
 	case "increment_revision":
-		ds, err = ds.IncrementRevision()
+		ds, err := response.ds.IncrementRevision()
 		if err != nil {
 			log.Printf("Unable to increment DataSet for %s\n", action.Spec)
 			return err
@@ -154,32 +151,29 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 		log.Printf("Incremented dataset %s ", action.Spec)
 	case "clear_orphans":
 		// clear triples
-		ok, err := ds.DropOrphans(ctx, nil, action.wp)
+		ok, err := response.ds.DropOrphans(context.Background(), nil, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop orphans for %s: %#v\n", action.Spec, err)
 			return err
 		}
 		log.Printf("Mark orphans and delete them for %s", action.Spec)
 	case "disable_index":
-		ok, err := ds.DropRecords(ctx, action.wp)
+		ok, err := response.ds.DropRecords(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop records for %s\n", action.Spec)
 			return err
 		}
 		log.Printf("remove dataset %s from the storage", action.Spec)
 	case "drop_dataset":
-		ok, err := ds.DropAll(ctx, action.wp)
+		ok, err := response.ds.DropAll(ctx, action.wp)
 		if !ok || err != nil {
 			log.Printf("Unable to drop dataset %s", action.Spec)
 			return err
 		}
 		log.Printf("remove the dataset %s completely", action.Spec)
 	case "index":
-		if response.SpecRevision == 0 {
-			response.SpecRevision = ds.Revision
-		}
 		if c.Config.ElasticSearch.Enabled {
-			err := action.ESSave(response, c.Config.ElasticSearch.IndexV1)
+			err := action.ESSave(response, c.Config.ElasticSearch.IndexTypes...)
 			if err != nil {
 				log.Printf("Unable to save BulkAction for %s because of %s", action.HubID, err)
 				return err
@@ -192,11 +186,11 @@ func (action BulkAction) Execute(ctx context.Context, response *BulkActionRespon
 }
 
 // RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
-func (r *BulkActionResponse) RDFBulkInsert() []error {
+func (resp *BulkActionResponse) RDFBulkInsert() []error {
 	// remove sparqlUpdates because they are no longer needed
-	triplesStored, errs := fragments.RDFBulkInsert(r.SparqlUpdates)
-	r.SparqlUpdates = []fragments.SparqlUpdate{}
-	r.TriplesStored = triplesStored
+	triplesStored, errs := fragments.RDFBulkInsert(resp.sparqlUpdates)
+	resp.sparqlUpdates = []fragments.SparqlUpdate{}
+	resp.TriplesStored = triplesStored
 	return errs
 }
 
@@ -234,8 +228,69 @@ func getContext(input string, lineNumber int) (string, error) {
 	return strings.Join(errorContext, "\n"), nil
 }
 
+func (action *BulkAction) processV1(fb *fragments.FragmentBuilder) error {
+	fb.GetSortedWebResources()
+
+	// TODO(kiivihal): update v1 support
+	indexDoc, err := fragments.CreateV1IndexDoc(fb)
+	if err != nil {
+		log.Printf("Unable to create index doc: %s", err)
+		return err
+	}
+
+	b, err := json.Marshal(indexDoc)
+	if err != nil {
+		return err
+	}
+
+	m := &domainpb.IndexMessage{
+		OrganisationID: c.Config.OrgID,
+		DatasetID:      action.Spec,
+		RecordID:       action.HubID,
+		IndexName:      c.Config.ElasticSearch.GetV1IndexName(),
+		Deleted:        false,
+		Source:         b,
+	}
+
+	if err := action.bi.Publish(context.Background(), m); err != nil {
+		return err
+	}
+
+	// add to posthook worker from v1
+	subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
+	g := fb.SortedGraph
+	ph := models.NewPostHookJob(g, action.Spec, false, subject, action.HubID)
+	if ph.Valid() && action.wp != nil {
+		// non async posthook
+		models.ApplyPostHookJob(ph)
+
+		// async
+		// action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
+	}
+
+	return nil
+}
+
+func (action *BulkAction) processFragments(fb *fragments.FragmentBuilder) error {
+	return fb.IndexFragments(action.bi)
+}
+
+func (action *BulkAction) processV2(fb *fragments.FragmentBuilder) error {
+	// index FragmentGraph
+	m, err := fb.Doc().IndexMessage()
+	if err != nil {
+		return err
+	}
+
+	if err := action.bi.Publish(context.Background(), m); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //ESSave the RDF Record to ElasticSearch
-func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing bool) error {
+func (action *BulkAction) ESSave(response *BulkActionResponse, indexTypes ...string) error {
 	if action.Graph == "" {
 		return fmt.Errorf("hubID %s has an empty graph. This is not allowed", action.HubID)
 	}
@@ -251,64 +306,22 @@ func (action *BulkAction) ESSave(response *BulkActionResponse, v1StylingIndexing
 		return err
 	}
 
-	if v1StylingIndexing {
-		// cleanup the graph and sort rdf webresources
-		fb.GetSortedWebResources()
-
-		// TODO(kiivihal): update v1 support
-		indexDoc, err := fragments.CreateV1IndexDoc(fb)
-		if err != nil {
-			log.Printf("Unable to create index doc: %s", err)
-			return err
-		}
-
-		b, err := json.Marshal(indexDoc)
-		if err != nil {
-			return err
-		}
-
-		m := &domainpb.IndexMessage{
-			OrganisationID: c.Config.OrgID,
-			DatasetID:      action.Spec,
-			RecordID:       action.HubID,
-			IndexName:      c.Config.ElasticSearch.GetV1IndexName(),
-			Deleted:        false,
-			Source:         b,
-		}
-
-		if err := action.bi.Publish(context.Background(), m); err != nil {
-			return err
-		}
-
-		// add to posthook worker from v1
-		subject := strings.TrimSuffix(action.NamedGraphURI, "/graph")
-		g := fb.SortedGraph
-		ph := models.NewPostHookJob(g, action.Spec, false, subject, action.HubID)
-		if ph.Valid() && action.wp != nil {
-			// non async posthook
-			models.ApplyPostHookJob(ph)
-
-			// async
-			// action.wp.Submit(func() { models.ApplyPostHookJob(ph) })
-		}
-	} else {
-		// index the LoD Fragments
-		// TODO(kiivihal): decide what to do with fragments
-		// if c.Config.ElasticSearch.Fragments {
-		// err = fb.IndexFragments(action.bi)
-		// if err != nil {
-		// return err
-		// }
-		// }
-
-		// index FragmentGraph
-		m, err := fb.FragmentGraph().IndexMessage()
-		if err != nil {
-			return err
-		}
-
-		if err := action.bi.Publish(context.Background(), m); err != nil {
-			return err
+	for _, indexType := range indexTypes {
+		switch indexType {
+		case "v1":
+			if err := action.processV1(fb); err != nil {
+				return err
+			}
+		case "v2":
+			if err := action.processV2(fb); err != nil {
+				return err
+			}
+		case "fragments":
+			if err := action.processFragments(fb); err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("unknown indexType: %s", indexType)
 		}
 	}
 
@@ -341,6 +354,7 @@ func (action BulkAction) createFragmentBuilder(revision int) (*fragments.Fragmen
 		log.Printf("Unable to parse the graph: %s", err)
 		return fb, fmt.Errorf("Source RDF is not in format: %s", action.GraphMimeType)
 	}
+
 	return fb, nil
 }
 
@@ -361,7 +375,7 @@ func (action BulkAction) CreateRDFBulkRequest(response *BulkActionResponse, g *r
 		Spec:          action.Spec,
 		SpecRevision:  response.SpecRevision,
 	}
-	response.SparqlUpdates = append(response.SparqlUpdates, su)
+	response.sparqlUpdates = append(response.sparqlUpdates, su)
 }
 
 //RDFSave save the RDFrecord to the TripleStore.

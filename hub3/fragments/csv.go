@@ -9,7 +9,6 @@ import (
 
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 // CSVConvertor holds all values to convert a CSV to RDF
@@ -53,7 +52,7 @@ func (con CSVConvertor) HeaderMap() map[int]r.Term {
 }
 
 // IndexFragments stores the fragments generated from the CSV into ElasticSearch
-func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) (int, int, error) {
+func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, error) {
 
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
@@ -86,7 +85,7 @@ func (con *CSVConvertor) IndexFragments(p *elastic.BulkProcessor, revision int) 
 		for _, frag := range frags {
 			frag.Meta.AddTags("csvUpload")
 
-			err := frag.AddTo(p)
+			err := frag.AddTo(bi)
 			if err != nil {
 				return 0, 0, err
 			}

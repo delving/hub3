@@ -16,6 +16,7 @@ package fragments
 
 import (
 	"context"
+	"encoding/json"
 	fmt "fmt"
 	"log"
 	"net/url"
@@ -25,6 +26,7 @@ import (
 
 	"github.com/OneOfOne/xxhash"
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -233,22 +235,28 @@ func (f *Fragment) ID() string {
 
 // CreateBulkIndexRequest converts the fragment into a request that can be
 // submitted to the ElasticSearch BulkIndexService
-func (f Fragment) CreateBulkIndexRequest() (*elastic.BulkIndexRequest, error) {
-	r := elastic.NewBulkIndexRequest().
-		Index(c.Config.ElasticSearch.FragmentIndexName()).
-		Id(f.ID()).
-		Doc(f)
-	return r, nil
+func (f Fragment) IndexMessage() (*domainpb.IndexMessage, error) {
+	b, err := json.Marshal(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domainpb.IndexMessage{
+		OrganisationID: f.Meta.OrgID,
+		DatasetID:      f.Meta.Spec,
+		RecordID:       f.ID(),
+		IndexName:      c.Config.ElasticSearch.FragmentIndexName(),
+		Source:         b,
+	}, nil
 }
 
 // AddTo adds the BulkableRequest to the Storage interface where it is flushed periodically.
-func (f Fragment) AddTo(p *elastic.BulkProcessor) error {
-	cbr, err := f.CreateBulkIndexRequest()
+func (f Fragment) AddTo(bi BulkIndex) error {
+	m, err := f.IndexMessage()
 	if err != nil {
 		return err
 	}
-	p.Add(cbr)
-	return nil
+	return bi.Publish(context.Background(), m)
 }
 
 //// GetLabel retrieves the XSD label of the ObjectXSDType

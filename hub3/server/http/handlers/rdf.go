@@ -131,7 +131,7 @@ func rdfUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Printf("Start saving fragments.")
-		processedFragments, err := upl.IndexFragments(BulkProcessor())
+		processedFragments, err := upl.IndexFragments(NewOldBulkProcessor())
 		if err != nil {
 			log.Printf("Can't save fragments: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)

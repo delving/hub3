@@ -134,7 +134,7 @@ func (upl *RDFUploader) SaveFragmentGraphs(p *elastic.BulkProcessor) (int, error
 	return seen, nil
 }
 
-func (upl *RDFUploader) IndexFragments(p *elastic.BulkProcessor) (int, error) {
+func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
 
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
@@ -167,7 +167,7 @@ func (upl *RDFUploader) IndexFragments(p *elastic.BulkProcessor) (int, error) {
 				}
 			}
 			frag.Meta.AddTags("sourceUpload")
-			err := frag.AddTo(p)
+			err := frag.AddTo(bi)
 			if err != nil {
 				return 0, err
 			}

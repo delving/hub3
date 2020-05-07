@@ -63,6 +63,8 @@ enableSearchAfter = false
 shards = 1
 # replicas configuration for rdf and fragments index
 replicas = 0
+# indexTypes enabled types for the bulk index service
+indexTypes = ["v1", "v2"]
 
 [posthook]
 # specs to exclude from posthook
@@ -82,10 +84,11 @@ devmode = true
 sentrydsn = ""
 level = "debug"
 withCaller = true
+consoleLogger = true
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = true 
+rdfStoreEnabled = false
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3030"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.

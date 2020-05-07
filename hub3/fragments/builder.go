@@ -16,6 +16,7 @@ package fragments
 
 import (
 	"bytes"
+	"context"
 	fmt "fmt"
 	"io"
 	"log"
@@ -23,9 +24,14 @@ import (
 	"strings"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 )
+
+type BulkIndex interface {
+	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
+}
 
 // FragmentBuilder holds all the information to build and store Fragments
 type FragmentBuilder struct {
