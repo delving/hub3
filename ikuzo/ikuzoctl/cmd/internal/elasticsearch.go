@@ -49,6 +49,8 @@ type ElasticSearch struct {
 	logger *logger.CustomLogger
 	// UseRemoteIndexer is true when a separate process reads of the queue
 	UseRemoteIndexer bool
+	// IndexTypes options are v1, v2, fragment
+	IndexTypes []string
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -76,7 +78,10 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return fmt.Errorf("unable to create index service; %w", isErr)
 	}
 
-	bulkSvc, bulkErr := bulk.NewService(bulk.SetIndexService(is))
+	bulkSvc, bulkErr := bulk.NewService(
+		bulk.SetIndexService(is),
+		bulk.SetIndexTypes(e.IndexTypes...),
+	)
 	if bulkErr != nil {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)
 	}
@@ -93,8 +98,9 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 
 func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias bool) ([]string, error) {
 	mappings := map[string]func(shards, replicas int) string{
-		fmt.Sprintf("%sv1", e.IndexName): mapping.V1ESMapping,
-		fmt.Sprintf("%sv2", e.IndexName): mapping.V2ESMapping,
+		fmt.Sprintf("%sv1", e.IndexName):      mapping.V1ESMapping,
+		fmt.Sprintf("%sv2", e.IndexName):      mapping.V2ESMapping,
+		fmt.Sprintf("%sv2_frag", e.IndexName): mapping.FragmentESMapping,
 	}
 
 	indexNames := []string{}

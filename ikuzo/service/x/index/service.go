@@ -16,6 +16,10 @@ import (
 	proto "google.golang.org/protobuf/proto"
 )
 
+type BulkIndex interface {
+	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
+}
+
 type Metrics struct {
 	started time.Time
 	Nats    struct {
