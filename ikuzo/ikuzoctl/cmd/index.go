@@ -17,8 +17,10 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -26,8 +28,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
-	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
@@ -67,34 +68,29 @@ func init() {
 }
 
 func indexRecords() error {
-	logger := logger.NewLogger(logger.Config{})
 
-	// TODO(kiivihal): hard-code the index name for now
-	indexName := "hub3v2"
-	if indexMode != "v2" {
-		indexName = "hub3v1"
+	is, isErr := cfg.GetIndexService()
+	if isErr != nil {
+		return fmt.Errorf("unable to create index service; %w", isErr)
 	}
 
-	logger.Info().Str("index_name", indexName).Msg("selected index")
-
-	// create BulkIndexer
-	ncfg, err := cfg.Nats.GetConfig()
-	if err != nil {
-		return err
+	bulkSvc, bulkErr := bulk.NewService(
+		bulk.SetIndexService(is),
+		bulk.SetIndexTypes(cfg.ElasticSearch.IndexTypes...),
+	)
+	if bulkErr != nil {
+		return fmt.Errorf("unable to create bulk service; %w", isErr)
 	}
 
-	// turn off remote index
-	cfg.ElasticSearch.UseRemoteIndexer = false
-
-	svc, err := cfg.ElasticSearch.IndexService(&logger, ncfg)
-	if err != nil {
-		return err
-	}
+	parser := bulkSvc.NewParser()
 
 	shutdown := func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		svc.Shutdown(ctx)
+
+		if err := is.Shutdown(ctx); err != nil {
+			log.Fatal().Err(err).Msg("shutdown failed")
+		}
 	}
 
 	// func to loop through all records
@@ -111,29 +107,16 @@ func indexRecords() error {
 	baseDir := filepath.Join(
 		dataPath,
 		orgID,
-		fmt.Sprintf("%s.git", dataset),
-		"index",
-		"void_edmrecord",
+		dataset,
 	)
 
-	files, err := ioutil.ReadDir(baseDir)
-	if err != nil {
-		return err
-	}
-
-	indexRecords := uint64(len(files))
+	var badFiles uint64
 
 	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
 		for {
 			select {
-			// case <-ctx.Done():
-			// done <- true
-
-			// log.Info().Msg("time out expired")
-
-			// return
 			case <-sigs:
 				log.Info().Msg("caught shutdown signal")
 				cancel()
@@ -141,10 +124,9 @@ func indexRecords() error {
 				shutdown()
 				done <- true
 			case <-ticker.C:
-				// log.Printf("bi stats: %+v", bi.Stats())
-				log.Printf("consumer stats: %+v", svc.Metrics())
+				log.Info().Msgf("consumer stats: %+v", is.Metrics())
 
-				if svc.BulkIndexStats().NumFlushed >= indexRecords {
+				if is.BulkIndexStats().NumFlushed >= is.Metrics().Nats.Consumed {
 					cancel()
 					time.Sleep(1 * time.Second)
 					shutdown()
@@ -159,45 +141,82 @@ func indexRecords() error {
 		}
 	}()
 
-	err = svc.Start(ctx, 1)
-	if err != nil {
-		return err
-	}
-
-	for _, fInfo := range files {
+	walkErr := filepath.Walk(baseDir, func(path string, fInfo os.FileInfo, err error) error {
 		if fInfo.IsDir() || !strings.HasSuffix(fInfo.Name(), ".json") {
-			continue
+			return nil
 		}
 
-		b, readErr := ioutil.ReadFile(filepath.Join(baseDir, fInfo.Name()))
+		if fInfo.Size() == int64(0) {
+			badFiles++
+			return nil
+		}
+
+		f, readErr := os.Open(path)
 		if readErr != nil {
 			return readErr
 		}
 
-		id := strings.TrimSuffix(fInfo.Name(), ".json")
-		hubID := fmt.Sprintf("%s_%s_%s", orgID, dataset, id)
-
-		readErr = svc.Publish(
-			ctx,
-			&domainpb.IndexMessage{
-				OrganisationID: orgID,
-				DatasetID:      dataset,
-				RecordID:       hubID,
-				IndexName:      indexName,
-				Deleted:        false,
-				Revision: &domainpb.Revision{
-					SHA:  "",
-					Path: "",
-				},
-				Source: b,
-			},
-		)
-		if readErr != nil {
-			return readErr
+		v1rec, convErr := newV1(f)
+		if convErr != nil {
+			log.Error().Err(err).Str("fname", fInfo.Name()).Msg("read error")
+			return nil
 		}
+
+		f.Close()
+
+		if errors.Is(ctx.Err(), context.Canceled) {
+			return ctx.Err()
+		}
+
+		if err := parser.Publish(v1rec.bulkRequest()); err != nil {
+			log.Error().Err(err).Msgf("bulk request: %#v", v1rec.bulkRequest())
+			return err
+		}
+
+		return nil
+	},
+	)
+
+	if walkErr != nil && !errors.Is(walkErr, context.Canceled) {
+		return walkErr
 	}
 
 	<-done
 
 	return nil
+}
+
+type v1 struct {
+	OrgID  string `json:"orgID"`
+	Spec   string `json:"spec"`
+	HubID  string `json:"hubID"`
+	System struct {
+		Graph         string `json:"source_graph"`
+		NamedGraphURI string `json:"graph_name"`
+	} `json:"system"`
+}
+
+func newV1(r io.Reader) (*v1, error) {
+	var rec v1
+	if err := json.NewDecoder(r).Decode(&rec); err != nil {
+		return nil, err
+	}
+
+	return &rec, nil
+}
+
+func (rec *v1) bulkRequest() *bulk.Request {
+	return &bulk.Request{
+		HubID: rec.HubID,
+		OrgID: rec.OrgID,
+		Spec:  rec.Spec,
+		// LocalID:       "",
+		NamedGraphURI: rec.System.NamedGraphURI,
+		// RecordType:    "",
+		Action: "index",
+		// ContentHash:   "",
+		Graph:         rec.System.Graph,
+		GraphMimeType: "application/ld+json",
+		SubjectType:   "",
+	}
 }

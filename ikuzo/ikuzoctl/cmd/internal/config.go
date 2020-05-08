@@ -53,7 +53,7 @@ func SetViperDefaults() {
 	viper.SetDefault("TimeRevisionStore.dataPath", "/tmp/trs")
 }
 
-func (cfg *Config) getIndexService() (*index.Service, error) {
+func (cfg *Config) GetIndexService() (*index.Service, error) {
 	var (
 		ncfg *index.NatsConfig
 		err  error

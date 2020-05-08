@@ -12,7 +12,7 @@ type EAD struct {
 }
 
 func (n *EAD) AddOptions(cfg *Config) error {
-	is, err := cfg.getIndexService()
+	is, err := cfg.GetIndexService()
 	if err != nil {
 		return err
 	}

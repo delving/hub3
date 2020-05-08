@@ -116,7 +116,23 @@ func (p *Parser) process(req *Request) error {
 
 	switch req.Action {
 	case "index":
-		return p.publish(req)
+		return p.Publish(req)
+	case "disable_index":
+		// TODO(kiivihal): implement
+		// ok, err := p.ds.DropRecords(ctx, nil)
+		// if !ok || err != nil {
+		// // log.Printf("Unable to drop records for %s\n", req.Spec)
+		// return err
+		// }
+		// log.Printf("remove dataset %s from the storage", action.Spec)
+	case "drop_dataset":
+		// TODO(kiivihal): implement
+		// ok, err := response.ds.DropAll(ctx, action.wp)
+		// if !ok || err != nil {
+		// log.Printf("Unable to drop dataset %s", action.Spec)
+		// return err
+		// }
+		// log.Printf("remove the dataset %s completely", action.Spec)
 	case "increment_revision":
 		// TODO(kiivihal): implement
 	case "clear_orphans":
@@ -128,12 +144,13 @@ func (p *Parser) process(req *Request) error {
 	return nil
 }
 
-func (p *Parser) publish(req *Request) error {
+func (p *Parser) Publish(req *Request) error {
 	if err := req.valid(); err != nil {
 		return err
 	}
 
-	fb, err := req.createFragmentBuilder(p.ds.Revision)
+	// TODO(kiivihal): replace revision later
+	fb, err := req.createFragmentBuilder(0)
 	if err != nil {
 		// log.Printf("Unable to build fragmentBuilder: %v", err)
 		return err

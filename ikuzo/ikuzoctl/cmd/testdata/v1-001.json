@@ -1,0 +1,327 @@
+{
+    "dc_creator": [{
+        "value": "Ton Smits",
+        "@type": "Literal",
+        "raw": "Ton Smits"
+    }],
+    "dc_description": [{
+        "value": "Een ballerina die dansend op een figuratief paard staat",
+        "@type": "Literal",
+        "raw": "Een ballerina die dansend op een figuratief paard staat"
+    }],
+    "dc_identifier": [{
+        "value": "001",
+        "@type": "Literal",
+        "raw": "001"
+    }],
+    "dc_rights": [{
+        "value": "© L. Smits-Zoetmulder, info@tonsmitshuis.nl",
+        "@type": "Literal",
+        "raw": "© L. Smits-Zoetmulder, info@tonsmitshuis.nl"
+    }],
+    "dc_subject": [{
+        "value": "Bloemen",
+        "@type": "Literal",
+        "raw": "Bloemen"
+    }, {
+        "value": "Paarden",
+        "@type": "Literal",
+        "raw": "Paarden"
+    }, {
+        "value": "Dansers",
+        "@type": "Literal",
+        "raw": "Dansers"
+    }, {
+        "value": "Ballet",
+        "@type": "Literal",
+        "raw": "Ballet"
+    }, {
+        "value": "Maan",
+        "@type": "Literal",
+        "raw": "Maan"
+    }, {
+        "value": "Bergen",
+        "@type": "Literal",
+        "raw": "Bergen"
+    }, {
+        "value": "Gelaat",
+        "@type": "Literal",
+        "raw": "Gelaat"
+    }],
+    "dc_title": [{
+        "value": "Droom van een ballerina",
+        "@type": "Literal",
+        "raw": "Droom van een ballerina"
+    }],
+    "dc_type": [{
+        "value": "Schilderij",
+        "@type": "Literal",
+        "raw": "Schilderij"
+    }],
+    "dcterms_created": [{
+        "value": "1969",
+        "@type": "Literal",
+        "raw": "1969"
+    }],
+    "dcterms_medium": [{
+        "value": "Slotvernis",
+        "@type": "Literal",
+        "raw": "Slotvernis"
+    }, {
+        "value": "Olieverf",
+        "@type": "Literal",
+        "raw": "Olieverf"
+    }, {
+        "value": "Paneel",
+        "@type": "Literal",
+        "raw": "Paneel"
+    }],
+    "delving_spec": {
+        "value": "ton-smits-huis",
+        "@type": "Literal",
+        "raw": "ton-smits-huis"
+    },
+    "ebucore_hasMimeType": [{
+        "value": "image/jpeg",
+        "@type": "Literal",
+        "raw": "image/jpeg"
+    }],
+    "edm_aggregatedCHO": [{
+        "id": "http://data.brabantcloud.nl/resource/document/ton-smits-huis/001",
+        "value": "http://data.brabantcloud.nl/resource/document/ton-smits-huis/001",
+        "@type": "URIRef",
+        "raw": "http://data.brabantcloud.nl/resource/document/ton-smits-huis/001"
+    }],
+    "edm_dataProvider": [{
+        "value": "Ton Smits Huis",
+        "@type": "Literal",
+        "raw": "Ton Smits Huis"
+    }],
+    "edm_hasView": [{
+        "id": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500",
+        "value": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500",
+        "@type": "URIRef",
+        "raw": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500"
+    }],
+    "edm_isShownAt": [{
+        "id": "https://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001",
+        "value": "https://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001",
+        "@type": "URIRef",
+        "raw": "https://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001"
+    }],
+    "edm_isShownBy": [{
+        "id": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500",
+        "value": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500",
+        "@type": "URIRef",
+        "raw": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500"
+    }],
+    "edm_object": [{
+        "id": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220",
+        "value": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220",
+        "@type": "URIRef",
+        "raw": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220"
+    }],
+    "edm_provider": [{
+        "value": "Erfgoed Brabant",
+        "@type": "Literal",
+        "raw": "Erfgoed Brabant"
+    }],
+    "edm_rights": [{
+        "id": "https://rightsstatements.org/vocab/InC/1.0/",
+        "value": "https://rightsstatements.org/vocab/InC/1.0/",
+        "@type": "URIRef",
+        "raw": "https://rightsstatements.org/vocab/InC/1.0/"
+    }],
+    "edm_type": [{
+        "value": "IMAGE",
+        "@type": "Literal",
+        "raw": "IMAGE"
+    }],
+    "entryURI": "http://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001",
+    "hubID": "brabantcloud_ton-smits-huis_001",
+    "legacy": {
+        "delving_hubId": "brabantcloud_ton-smits-huis_001",
+        "delving_recordType": "mdr",
+        "delving_spec": "ton-smits-huis",
+        "delving_orgId": "brabantcloud",
+        "delving_collection": "ton-smits-huis",
+        "delving_hasGeoHash": "false",
+        "delving_hasDigitalObject": "true",
+        "delving_hasLandingPage": "true",
+        "delving_hasDeepZoom": "true"
+    },
+    "nave_allowDeepZoom": [{
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }, {
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }],
+    "nave_allowLinkedOpenData": [{
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }],
+    "nave_allowPublicWebView": [{
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }],
+    "nave_allowSourceDownload": [{
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }, {
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }],
+    "nave_collection": [{
+        "value": "Ton Smits Huis",
+        "@type": "Literal",
+        "raw": "Ton Smits Huis"
+    }],
+    "nave_collectionPart": [{
+        "value": "Schilderijen",
+        "@type": "Literal",
+        "raw": "Schilderijen"
+    }],
+    "nave_collectionType": [{
+        "value": "Algemeen",
+        "@type": "Literal",
+        "raw": "Algemeen"
+    }],
+    "nave_color": [{
+        "value": "Figuratief",
+        "@type": "Literal",
+        "raw": "Figuratief"
+    }],
+    "nave_creatorRole": [{
+        "value": "kunstschilder",
+        "@type": "Literal",
+        "raw": "kunstschilder"
+    }],
+    "nave_date": [{
+        "value": "1960 – 1970",
+        "@type": "Literal",
+        "raw": "1960 – 1970"
+    }],
+    "nave_deepZoomUrl": [{
+        "value": "https://media.delving.org/deepzoom/brabantcloud/ton-smits-huis/001.tif.dzi",
+        "@type": "Literal",
+        "raw": "https://media.delving.org/deepzoom/brabantcloud/ton-smits-huis/001.tif.dzi"
+    }],
+    "nave_featured": [{
+        "value": "false",
+        "@type": "Literal",
+        "raw": "false"
+    }],
+    "nave_id": {
+        "value": "brabantcloud_ton-smits-huis_001",
+        "@type": "Literal",
+        "raw": "brabantcloud_ton-smits-huis_001"
+    },
+    "nave_place": [{
+        "value": "Eindhoven",
+        "@type": "Literal",
+        "raw": "Eindhoven"
+    }],
+    "nave_productionEnd": [{
+        "value": "1969",
+        "@type": "Literal",
+        "raw": "1969"
+    }],
+    "nave_productionPlace": [{
+        "value": "Eindhoven",
+        "@type": "Literal",
+        "raw": "Eindhoven"
+    }],
+    "nave_productionStart": [{
+        "value": "1969",
+        "@type": "Literal",
+        "raw": "1969"
+    }],
+    "nave_public": [{
+        "value": "true",
+        "@type": "Literal",
+        "raw": "true"
+    }],
+    "nave_resourceSortOrder": [{
+        "value": "1",
+        "@type": "Literal",
+        "raw": "1"
+    }],
+    "nave_technique": [{
+        "value": "Geschilderd",
+        "@type": "Literal",
+        "raw": "Geschilderd"
+    }],
+    "nave_thumbLarge": [{
+        "value": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500",
+        "@type": "Literal",
+        "raw": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500"
+    }],
+    "nave_thumbSmall": [{
+        "value": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220",
+        "@type": "Literal",
+        "raw": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220"
+    }],
+    "ore_aggregates": [{
+        "id": "b0",
+        "value": "b0",
+        "@type": "Bnode",
+        "raw": "b0"
+    }, {
+        "id": "b1",
+        "value": "b1",
+        "@type": "Bnode",
+        "raw": "b1"
+    }],
+    "orgID": "brabantcloud",
+    "rdf_type": [{
+        "id": "http://www.openarchives.org/ore/terms/Aggregation",
+        "value": "http://www.openarchives.org/ore/terms/Aggregation",
+        "@type": "URIRef",
+        "raw": "http://www.openarchives.org/ore/terms/Aggregation"
+    }, {
+        "id": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+        "value": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+        "@type": "URIRef",
+        "raw": "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+    }, {
+        "id": "http://schemas.delving.eu/nave/terms/BrabantCloudResource",
+        "value": "http://schemas.delving.eu/nave/terms/BrabantCloudResource",
+        "@type": "URIRef",
+        "raw": "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+    }, {
+        "id": "http://schemas.delving.eu/nave/terms/DelvingResource",
+        "value": "http://schemas.delving.eu/nave/terms/DelvingResource",
+        "@type": "URIRef",
+        "raw": "http://schemas.delving.eu/nave/terms/DelvingResource"
+    }, {
+        "id": "http://www.europeana.eu/schemas/edm/WebResource",
+        "value": "http://www.europeana.eu/schemas/edm/WebResource",
+        "@type": "URIRef",
+        "raw": "http://www.europeana.eu/schemas/edm/WebResource"
+    }],
+    "revision": 28,
+    "spec": "ton-smits-huis",
+    "system": {
+        "slug": "brabantcloud_ton-smits-huis_001",
+        "spec": "ton-smits-huis",
+        "thumbnail": "https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220",
+        "preview": "detail/foldout/void_edmrecord/brabantcloud_ton-smits-huis_001",
+        "about_uri": "http://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001",
+        "source_uri": "http://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001",
+        "graph_name": "http://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001/graph",
+        "created_at": "2020-02-14T14:50:33+01:00",
+        "modified_at": "2020-02-14T14:50:33+01:00",
+        "source_graph": "[{\"@id\":\"_:b0\",\"@type\":[\"http://schemas.delving.eu/nave/terms/BrabantCloudResource\"],\"http://schemas.delving.eu/nave/terms/collection\":[{\"@value\":\"Ton Smits Huis\"}],\"http://schemas.delving.eu/nave/terms/collectionPart\":[{\"@value\":\"Schilderijen\"}],\"http://schemas.delving.eu/nave/terms/collectionType\":[{\"@value\":\"Algemeen\"}],\"http://schemas.delving.eu/nave/terms/color\":[{\"@value\":\"Figuratief\"}],\"http://schemas.delving.eu/nave/terms/creatorRole\":[{\"@value\":\"kunstschilder\"}],\"http://schemas.delving.eu/nave/terms/date\":[{\"@value\":\"1960 – 1970\"}],\"http://schemas.delving.eu/nave/terms/place\":[{\"@value\":\"Eindhoven\"}],\"http://schemas.delving.eu/nave/terms/productionEnd\":[{\"@value\":\"1969\"}],\"http://schemas.delving.eu/nave/terms/productionPlace\":[{\"@value\":\"Eindhoven\"}],\"http://schemas.delving.eu/nave/terms/productionStart\":[{\"@value\":\"1969\"}],\"http://schemas.delving.eu/nave/terms/technique\":[{\"@value\":\"Geschilderd\"}]},{\"@id\":\"http://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001\",\"@type\":[\"http://www.openarchives.org/ore/terms/Aggregation\"],\"http://www.europeana.eu/schemas/edm/aggregatedCHO\":[{\"@id\":\"http://data.brabantcloud.nl/resource/document/ton-smits-huis/001\"}],\"http://www.europeana.eu/schemas/edm/dataProvider\":[{\"@value\":\"Ton Smits Huis\"}],\"http://www.europeana.eu/schemas/edm/hasView\":[{\"@id\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500\"}],\"http://www.europeana.eu/schemas/edm/isShownAt\":[{\"@id\":\"https://data.brabantcloud.nl/resource/aggregation/ton-smits-huis/001\"}],\"http://www.europeana.eu/schemas/edm/isShownBy\":[{\"@id\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500\"}],\"http://www.europeana.eu/schemas/edm/object\":[{\"@id\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220\"}],\"http://www.europeana.eu/schemas/edm/provider\":[{\"@value\":\"Erfgoed Brabant\"}],\"http://www.europeana.eu/schemas/edm/rights\":[{\"@id\":\"https://rightsstatements.org/vocab/InC/1.0/\"}],\"http://www.openarchives.org/ore/terms/aggregates\":[{\"@id\":\"_:b0\"},{\"@id\":\"_:b1\"}]},{\"@id\":\"http://data.brabantcloud.nl/resource/document/ton-smits-huis/001\",\"@type\":[\"http://www.europeana.eu/schemas/edm/ProvidedCHO\"],\"http://purl.org/dc/elements/1.1/creator\":[{\"@value\":\"Ton Smits\"}],\"http://purl.org/dc/elements/1.1/description\":[{\"@value\":\"Een ballerina die dansend op een figuratief paard staat\"}],\"http://purl.org/dc/elements/1.1/identifier\":[{\"@value\":\"001\"}],\"http://purl.org/dc/elements/1.1/rights\":[{\"@value\":\"© L. Smits-Zoetmulder, info@tonsmitshuis.nl\"}],\"http://purl.org/dc/elements/1.1/subject\":[{\"@value\":\"Bloemen\"},{\"@value\":\"Paarden\"},{\"@value\":\"Dansers\"},{\"@value\":\"Ballet\"},{\"@value\":\"Maan\"},{\"@value\":\"Bergen\"},{\"@value\":\"Gelaat\"}],\"http://purl.org/dc/elements/1.1/title\":[{\"@value\":\"Droom van een ballerina\"}],\"http://purl.org/dc/elements/1.1/type\":[{\"@value\":\"Schilderij\"}],\"http://purl.org/dc/terms/created\":[{\"@value\":\"1969\"}],\"http://purl.org/dc/terms/medium\":[{\"@value\":\"Slotvernis\"},{\"@value\":\"Olieverf\"},{\"@value\":\"Paneel\"}],\"http://www.europeana.eu/schemas/edm/type\":[{\"@value\":\"IMAGE\"}]},{\"@id\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500\",\"@type\":[\"http://www.europeana.eu/schemas/edm/WebResource\"],\"http://schemas.delving.eu/nave/terms/allowDeepZoom\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowPublicWebView\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowSourceDownload\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/deepZoomUrl\":[{\"@value\":\"https://media.delving.org/deepzoom/brabantcloud/ton-smits-huis/001.tif.dzi\"}],\"http://schemas.delving.eu/nave/terms/resourceSortOrder\":[{\"@value\":\"1\"}],\"http://schemas.delving.eu/nave/terms/thumbLarge\":[{\"@value\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/500\"}],\"http://schemas.delving.eu/nave/terms/thumbSmall\":[{\"@value\":\"https://media.delving.org/thumbnail/brabantcloud/ton-smits-huis/001/220\"}],\"http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType\":[{\"@value\":\"image/jpeg\"}]},{\"@id\":\"_:b1\",\"@type\":[\"http://schemas.delving.eu/nave/terms/DelvingResource\"],\"http://schemas.delving.eu/nave/terms/allowDeepZoom\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowLinkedOpenData\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowSourceDownload\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/featured\":[{\"@value\":\"false\"}],\"http://schemas.delving.eu/nave/terms/public\":[{\"@value\":\"true\"}]}]",
+        "hasGeoHash": "false",
+        "hasDigitalObject": "true",
+        "hasLandingPage": "true",
+        "hasDeepZoom": "true"
+    }
+}

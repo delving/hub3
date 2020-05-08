@@ -73,7 +73,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 	}
 
 	// enable bulk indexer
-	is, isErr := cfg.getIndexService()
+	is, isErr := cfg.GetIndexService()
 	if isErr != nil {
 		return fmt.Errorf("unable to create index service; %w", isErr)
 	}
