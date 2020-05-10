@@ -130,12 +130,15 @@ func (t *Tree) DeepCopy() *Tree {
 		SortKey:          t.SortKey,
 		Periods:          t.Periods,
 		Content:          t.Content,
+		RawContent:       t.RawContent,
 		Access:           t.Access,
 		Title:            t.Title,
 		Description:      t.Description,
 		InventoryID:      t.InventoryID,
 		AgencyCode:       t.AgencyCode,
+		PeriodDesc:       t.PeriodDesc,
 		Material:         t.Material,
+		PhysDesc:         t.PhysDesc,
 		Fields:           t.Fields,
 	}
 	return target
