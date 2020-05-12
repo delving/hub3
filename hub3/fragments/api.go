@@ -1075,6 +1075,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		Preference(sr.GetSessionID()).
 		Size(int(sr.GetResponseSize()))
 
+	// This section is used to return the tree page section of 250 nodes starting the current.
 	if sr.Tree != nil && sr.Tree.IsPaging && !sr.Tree.IsSearch {
 		s = s.SortBy(fieldSort)
 		_, current, _ := sr.Tree.PreviousCurrentNextPage()
@@ -1084,6 +1085,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 			s = s.SearchAfter(searchAfterCursor)
 		}
 	} else {
+		// This section is used to get the search hit with size 1.
 		s = s.SortBy(fieldSort, idSort)
 		if len(sr.SearchAfter) != 0 && sr.CollapseOn == "" {
 			sa, err := sr.DecodeSearchAfter()
