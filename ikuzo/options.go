@@ -42,6 +42,17 @@ func SetMetricsPort(port int) Option {
 	}
 }
 
+// SetTLS sets the TLS key and certificate.
+//
+// When both are set the server starts in TLS mode.
+func SetTLS(cert, key string) Option {
+	return func(s *server) error {
+		s.certFile = cert
+		s.keyFile = key
+		return nil
+	}
+}
+
 // SetLogger configures the global logger for the server.
 func SetLogger(l *logger.CustomLogger) Option {
 	return func(s *server) error {
@@ -79,6 +90,11 @@ func SetRouters(rb ...RouterFunc) Option {
 func SetOrganisationService(service *organization.Service) Option {
 	return func(s *server) error {
 		s.organizations = service
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Mount("/organizations", service.Routes())
+			},
+		)
 		return nil
 	}
 }
@@ -149,6 +165,9 @@ func SetEADService(svc *ead.Service) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Post("/api/ead", svc.Upload)
+				r.Get("/api/ead/tasks", svc.Tasks)
+				r.Get("/api/ead/tasks/{id}", svc.GetTask)
+				r.Delete("/api/ead/tasks/{id}", svc.CancelTask)
 			},
 		)
 
@@ -163,6 +182,16 @@ func SetBulkService(svc *bulk.Service) Option {
 				r.Post("/api/index/bulk", svc.Handle)
 			},
 		)
+
+		return nil
+	}
+}
+
+func SetShutdownHook(name string, hook Shutdown) Option {
+	return func(s *server) error {
+		if _, ok := s.shutdownHooks[name]; !ok {
+			s.shutdownHooks[name] = hook
+		}
 
 		return nil
 	}

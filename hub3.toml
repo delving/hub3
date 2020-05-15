@@ -6,9 +6,11 @@ hub3ID = "hub3"
 [http]
 # all the configuration for the http sub-command
 # The port of the http server
-port = 3001
+port = 8443
 # The port of the metrics server
 metricsPort = 6060
+certfile = "certs/cert.pem"
+keyFile = "certs/key.pem"
 
 [nats]
 enabled = true
@@ -19,6 +21,10 @@ durableQueue = "hub3-queue"
 subjectID = "hub3-bulk-index"
 url = "nats://localhost:4222"
 
+
+[db]
+type = "sqlite3"
+connect = "/tmp/hub3.db"
 
 [ElasticSearch]
 # enable the elasticsearch search api

@@ -55,6 +55,10 @@ type server struct {
 	port int
 	// metricsPort is the port where expvar is hosted
 	metricsPort int
+	// TLS certificate
+	certFile string
+	// TLS keyFile
+	keyFile string
 	// cancelFunc is called for graceful shutdown of resources and background workers.
 	cancelFunc context.CancelFunc
 	// workers is a pool that manages all the background WorkerServices
@@ -76,7 +80,9 @@ type server struct {
 	// revision gives access to the file storage
 	revision *revision.Service
 	// shutdownHooks are called on server shutdown
-	shutdownHooks []Shutdown
+	shutdownHooks map[string]Shutdown
+	// service context
+	ctx context.Context
 }
 
 // NewServer returns the default server.
@@ -94,6 +100,7 @@ func newServer(options ...Option) (*server, error) {
 		cancelFunc:      cancelFunc,
 		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
+		shutdownHooks:   make(map[string]Shutdown),
 	}
 
 	s.setRouterdefaults()
@@ -136,22 +143,13 @@ func newServer(options ...Option) (*server, error) {
 		f(s.router)
 	}
 
+	// s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
 	// TODO: maybe add server validation function
 
 	return s, nil
 }
 
-func (s *server) setDefaultServices() {
-	if s.organizations == nil {
-		s.organizations = organization.NewService(nil)
-
-		log.Warn().
-			Msg(
-				"Starting organization.Service with in-memory mode. " +
-					"Use ikuzo.SetOrganisationService to set a persistent service",
-			)
-	}
-}
+func (s *server) setDefaultServices() {}
 
 func (s *server) setRouterdefaults() {
 	router := chi.NewRouter()
@@ -191,7 +189,11 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	server := http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s}
 
 	go func() {
-		errChan <- server.ListenAndServe()
+		if s.certFile != "" && s.keyFile != "" {
+			errChan <- server.ListenAndServeTLS(s.certFile, s.keyFile)
+		} else {
+			errChan <- server.ListenAndServe()
+		}
 	}()
 
 	// watch for quit signals
