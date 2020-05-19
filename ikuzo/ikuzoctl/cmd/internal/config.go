@@ -20,6 +20,8 @@ type Config struct {
 	Logging           `json:"logging"`
 	Nats              `json:"nats"`
 	EAD               `json:"ead"`
+	DB                `json:"db"`
+	ImageProxy        `json:"imageProxy"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
 }
@@ -29,15 +31,21 @@ func (cfg *Config) Options() ([]ikuzo.Option, error) {
 
 	cfgOptions := []configOption{
 		&cfg.ElasticSearch, // elastic first because others could depend on the client
+		// &cfg.DB,
 		&cfg.HTTP,
 		&cfg.TimeRevisionStore,
 		&cfg.EAD,
+		&cfg.ImageProxy,
 	}
 
 	for _, option := range cfgOptions {
 		if err := option.AddOptions(cfg); err != nil {
 			return cfg.options, err
 		}
+	}
+
+	if err := cfg.defaultOptions(); err != nil {
+		return nil, err
 	}
 
 	cfg.options = append(cfg.options, ikuzo.SetLogger(&cfg.logger))
@@ -72,4 +80,27 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 	}
 
 	return is, nil
+}
+
+func (cfg *Config) defaultOptions() error {
+	// db, err := cfg.DB.getDB()
+	// if err != nil {
+	// return err
+	// }
+
+	// // Organization
+	// orgStore, err := gorm.NewOrganizationStore(db)
+	// if err != nil {
+	// return err
+	// }
+
+	// org, err := organization.NewService(orgStore)
+	// if err != nil {
+	// return err
+	// }
+
+	// cfg.options = append(cfg.options, ikuzo.SetOrganisationService(org))
+	// cfg.logger.Debug().Msg("is this called")
+
+	return nil
 }

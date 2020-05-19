@@ -51,6 +51,8 @@ type ElasticSearch struct {
 	UseRemoteIndexer bool
 	// IndexTypes options are v1, v2, fragment
 	IndexTypes []string
+	// use fasthttp transport for communication with the ElasticSearch cluster
+	fasthttp bool
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -86,7 +88,11 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)
 	}
 
-	cfg.options = append(cfg.options, ikuzo.SetBulkService(bulkSvc))
+	cfg.options = append(
+		cfg.options,
+		ikuzo.SetBulkService(bulkSvc),
+		ikuzo.SetShutdownHook("elasticsearch", is),
+	)
 
 	_, err = e.CreateDefaultMappings(client, true)
 	if err != nil {
@@ -132,42 +138,43 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 
 	retryBackoff := backoff.NewExponentialBackOff()
 
-	client, err := elasticsearch.NewClient(
-		elasticsearch.Config{
-			// Connect to ElasticSearch URLS
-			//
-			Addresses: e.Urls,
+	cfg := elasticsearch.Config{
+		// Connect to ElasticSearch URLS
+		//
+		Addresses: e.Urls,
 
-			// Retry on 429 TooManyRequests statuses
-			//
-			RetryOnStatus: []int{502, 503, 504, 429},
+		// Retry on 429 TooManyRequests statuses
+		//
+		RetryOnStatus: []int{502, 503, 504, 429},
 
-			// Configure the backoff function
-			//
-			RetryBackoff: func(i int) time.Duration {
-				if i == 1 {
-					retryBackoff.Reset()
-				}
-				return retryBackoff.NextBackOff()
-			},
-
-			// Enable client metrics
-			//
-			EnableMetrics: e.Metrics,
-
-			// Retry up to MaxRetries attempts
-			//
-			MaxRetries: e.MaxRetries,
-
-			// Custom transport based on fasthttp
-			//
-			Transport: &eshub.Transport{},
-
-			// Custom rs/zerolog structured logger
-			//
-			Logger: l,
+		// Configure the backoff function
+		//
+		RetryBackoff: func(i int) time.Duration {
+			if i == 1 {
+				retryBackoff.Reset()
+			}
+			return retryBackoff.NextBackOff()
 		},
-	)
+
+		// Enable client metrics
+		//
+		EnableMetrics: e.Metrics,
+
+		// Retry up to MaxRetries attempts
+		//
+		MaxRetries: e.MaxRetries,
+
+		// Custom rs/zerolog structured logger
+		//
+		Logger: l,
+	}
+
+	if e.fasthttp {
+		// Custom transport based on fasthttp
+		cfg.Transport = &eshub.Transport{}
+	}
+
+	client, err := elasticsearch.NewClient(cfg)
 
 	// Publish client metrics to expvar
 	if e.Metrics {
@@ -225,7 +232,7 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 
 	options := []index.Option{}
 
-	if !e.UseRemoteIndexer {
+	if !e.UseRemoteIndexer || ncfg == nil {
 		l.Info().Msg("setting up bulk indexer")
 
 		es, err := e.NewClient(l)
@@ -238,7 +245,10 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 			return nil, err
 		}
 
-		options = append(options, index.SetBulkIndexer(bi))
+		options = append(
+			options,
+			index.SetBulkIndexer(bi, ncfg == nil),
+		)
 	}
 
 	if ncfg != nil {
@@ -250,7 +260,7 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 		return nil, err
 	}
 
-	if !e.UseRemoteIndexer {
+	if !e.UseRemoteIndexer && ncfg != nil {
 		err := e.is.Start(context.Background(), 1)
 		if err != nil {
 			return nil, err
