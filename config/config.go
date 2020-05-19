@@ -200,7 +200,7 @@ type WebResource struct {
 type ImageProxy struct {
 	Enabled     bool     `json:"enabled"`     // Make the imageproxy endpoint available
 	CacheDir    string   `json:"cacheDir"`    // The path to the imageCache
-	Referrer    []string `json:"referrer"`    // A list of allowed refferers. If empty allow all.
+	Referrer    []string `json:"referrer"`    // A list of allowed referrers. If empty allow all.
 	Whitelist   []string `json:"whitelist"`   // A list of allowed remote hosts. If empty allow all.
 	ScaleUp     bool     `json:"scaleUp"`     // Allow images to scale beyond their original dimensions.
 	TimeOut     int      `json:"timeout"`     // timelimit for request served by this proxy. 0 is for no timeout

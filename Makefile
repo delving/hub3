@@ -100,6 +100,9 @@ IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X 
 build-ikuzo:
 	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
+build-ikuzo-static:
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
+
 pre-commit:
 	go mod tidy
 	richgo test -cover -race -count=10 ./...

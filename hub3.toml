@@ -6,11 +6,11 @@ hub3ID = "hub3"
 [http]
 # all the configuration for the http sub-command
 # The port of the http server
-port = 8443
+port = 3001
 # The port of the metrics server
 metricsPort = 6060
-certfile = "certs/cert.pem"
-keyFile = "certs/key.pem"
+# certfile = "certs/cert.pem"
+# keyFile = "certs/key.pem"
 
 [nats]
 enabled = true

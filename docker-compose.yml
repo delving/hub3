@@ -28,6 +28,7 @@ services:
       - ADMIN_PASSWORD=pw123
     command:
         ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
+
   nats:
     image: nats-streaming
     ports:
@@ -46,6 +47,15 @@ services:
         - "5000000"
     networks:
       - esnet
+
+  postgresql:
+    image: postgis/postgis:latest
+    restart: always
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: pw123
+
 
 networks:
   esnet:

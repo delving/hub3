@@ -11,37 +11,51 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"sync/atomic"
 
 	"github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/jinzhu/gorm"
 	"golang.org/x/sync/errgroup"
 )
 
-type metrics struct {
+type Metrics struct {
 	Started  uint64
 	Failed   uint64
 	Finished uint64
 }
 
-// type CreateTreeFn func(meta *Meta, n *Node, hubID string, id string) *fragments.Tree
+type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
 type Service struct {
-	index   *index.Service
-	dataDir string
-	m       metrics
+	index      *index.Service
+	dataDir    string
+	m          Metrics
+	createTree CreateTreeFn
+	tasks      map[string]*Task
+	db         *gorm.DB
+	rw         sync.RWMutex
 }
 
 func NewService(options ...Option) (*Service, error) {
-	s := &Service{}
+	s := &Service{
+		tasks: make(map[string]*Task),
+	}
 
 	// apply options
 	for _, option := range options {
 		if err := option(s); err != nil {
 			return nil, err
 		}
+	}
+
+	if s.createTree == nil {
+		s.createTree = eadHub3.CreateTree
 	}
 
 	// create datadir
@@ -52,19 +66,62 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if s.db != nil {
+		// TODO(kiivihal): run migrations
+	}
+
 	return s, nil
 }
 
-func (s *Service) Metrics() metrics {
+func (s *Service) Metrics() Metrics {
 	return s.m
 }
 
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
 	// legacy
 	// s.eadUpload(w, r)
-
 	// new with channels
 	s.handleUpload(w, r)
+}
+
+func (s *Service) Tasks(w http.ResponseWriter, r *http.Request) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	render.JSON(w, r, s.tasks)
+}
+
+func (s *Service) GetTask(w http.ResponseWriter, r *http.Request) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	id := chi.URLParam(r, "id")
+
+	task, ok := s.tasks[id]
+	if !ok {
+		http.Error(w, "unknown task", http.StatusNotFound)
+		return
+	}
+
+	render.JSON(w, r, task)
+}
+
+func (s *Service) CancelTask(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	task, ok := s.tasks[id]
+	if !ok {
+		http.Error(w, "unknown task", http.StatusNotFound)
+		return
+	}
+
+	task.cancel()
+	delete(s.tasks, id)
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
@@ -90,15 +147,15 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 	// parse EAD
 	ead := new(eadHub3.Cead)
 
-	err = xml.Unmarshal(buf.Bytes(), ead)
-	// err = xml.NewDecoder(buf).Decode(ead)
+	// err = xml.Unmarshal(buf.Bytes(), ead)
+	err = xml.NewDecoder(buf).Decode(ead)
 	if err != nil {
 		atomic.AddUint64(&s.m.Failed, 1)
 		return meta, fmt.Errorf("error during EAD parsing; %w", err)
 	}
 
 	cfg := eadHub3.NewNodeConfig(context.Background())
-	cfg.CreateTree = eadHub3.CreateTree
+	cfg.CreateTree = s.createTree
 	cfg.Spec = meta.Dataset
 	cfg.OrgID = config.Config.OrgID
 	cfg.IndexService = s.index
@@ -230,6 +287,12 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		err = r.MultipartForm.RemoveAll()
 	}()
+
+	// TODO(kiivihal): create new task
+	// trigger saveEAD; when task is ongoing it should return an error and not move the tmpfile
+	// after save ead the remainder should go in a background process using the state machine
+	// http gets returned the Task.
+	// tasks should be stored with gorm
 
 	meta, err := s.Process(r.Context(), in, header.Size)
 	if err != nil {
