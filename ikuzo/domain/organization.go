@@ -26,6 +26,16 @@ var (
 	}
 )
 
+type OrganizationFilter struct {
+	// OffSet is the start of the results returned
+	OffSet int
+	// Limit is the number of items returned from the filter
+	Limit int
+	// Org can be used to filter the results based on the filled in value.
+	// This is mostly usefull if you want to filter by attributes..
+	Org Organization
+}
+
 // OrganizationID represents a short identifier for an Organization.
 //
 // The maximum length is MaxLengthID.

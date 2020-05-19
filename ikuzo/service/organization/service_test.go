@@ -1,21 +1,22 @@
 // nolint:gocritic
-package organization
+package organization_test
 
 import (
 	"context"
 	"errors"
 	"testing"
 
-	"github.com/matryer/is"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/storage/memory"
+	"github.com/matryer/is"
 )
 
 func TestService_Shutdown(t *testing.T) {
 	ts := memory.NewOrganizationStore()
 
 	type fields struct {
-		store Store
+		store organization.Store
 	}
 
 	type args struct {
@@ -38,7 +39,11 @@ func TestService_Shutdown(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewService(tt.fields.store)
+			s, err := organization.NewService(tt.fields.store)
+			if err != nil {
+				t.Errorf("%s = unexpected error; %s", tt.name, err)
+			}
+
 			if err := s.Shutdown(tt.args.ctx); (err != nil) != tt.wantErr {
 				t.Errorf("Service.Shutdown() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -48,7 +53,7 @@ func TestService_Shutdown(t *testing.T) {
 
 func TestService_Put(t *testing.T) {
 	type fields struct {
-		store Store
+		store organization.Store
 	}
 
 	type args struct {
@@ -84,9 +89,11 @@ func TestService_Put(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			s := Service{
-				store: tt.fields.store,
+			s, err := organization.NewService(tt.fields.store)
+			if err != nil {
+				t.Errorf("%s = unexpected error; %s", tt.name, err)
 			}
+
 			if err := s.Put(tt.args.ctx, tt.args.org); (err != nil) != tt.wantErr {
 				t.Errorf("Service.Put() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -98,10 +105,10 @@ func TestService(t *testing.T) {
 	is := is.New(t)
 	ctx := context.TODO()
 
-	// nil defaults to the memoryStore
-	svc := NewService(nil)
+	svc, err := organization.NewService(memory.NewOrganizationStore())
+	is.NoErr(err)
 
-	orgs, err := svc.List(ctx)
+	orgs, err := svc.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 0)
 
@@ -113,7 +120,7 @@ func TestService(t *testing.T) {
 	is.NoErr(err)
 
 	// should have one org
-	orgs, err = svc.List(ctx)
+	orgs, err = svc.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 1)
 
@@ -125,7 +132,7 @@ func TestService(t *testing.T) {
 	// delete an org
 	err = svc.Delete(ctx, orgID)
 	is.NoErr(err)
-	orgs, err = svc.List(ctx)
+	orgs, err = svc.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 0)
 

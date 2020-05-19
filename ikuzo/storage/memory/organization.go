@@ -5,15 +5,16 @@ import (
 	"sync"
 
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/service/organization"
 )
 
 // compile time check to see if full interface is implemented
-// var _ Store = (*OrganizationStore)(nil)
+var _ organization.Store = (*OrganizationStore)(nil)
 
 type OrganizationStore struct {
 	shutdownCalled bool
-	sync.RWMutex
-	organizations map[domain.OrganizationID]domain.Organization
+	rw             sync.RWMutex
+	organizations  map[domain.OrganizationID]domain.Organization
 }
 
 func NewOrganizationStore() *OrganizationStore {
@@ -36,7 +37,7 @@ func (ms *OrganizationStore) Get(ctx context.Context, id domain.OrganizationID) 
 	return org, nil
 }
 
-func (ms *OrganizationStore) List(ctx context.Context) ([]domain.Organization, error) {
+func (ms *OrganizationStore) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error) {
 	organizations := []domain.Organization{}
 	for _, org := range ms.organizations {
 		organizations = append(organizations, org)
@@ -46,8 +47,8 @@ func (ms *OrganizationStore) List(ctx context.Context) ([]domain.Organization, e
 }
 
 func (ms *OrganizationStore) Put(ctx context.Context, org domain.Organization) error {
-	ms.Lock()
-	defer ms.Unlock()
+	ms.rw.Lock()
+	defer ms.rw.Unlock()
 	ms.organizations[org.ID] = org
 
 	return nil

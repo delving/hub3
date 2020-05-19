@@ -6,8 +6,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/matryer/is"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/matryer/is"
 )
 
 func TestMemoryStore(t *testing.T) {
@@ -15,7 +15,7 @@ func TestMemoryStore(t *testing.T) {
 	ctx := context.TODO()
 
 	store := NewOrganizationStore()
-	orgs, err := store.List(ctx)
+	orgs, err := store.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 0)
 
@@ -27,7 +27,7 @@ func TestMemoryStore(t *testing.T) {
 	is.NoErr(err)
 
 	// should have one org
-	orgs, err = store.List(ctx)
+	orgs, err = store.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 1)
 
@@ -39,7 +39,7 @@ func TestMemoryStore(t *testing.T) {
 	// delete an org
 	err = store.Delete(ctx, orgID)
 	is.NoErr(err)
-	orgs, err = store.List(ctx)
+	orgs, err = store.Filter(ctx)
 	is.NoErr(err)
 	is.Equal(len(orgs), 0)
 

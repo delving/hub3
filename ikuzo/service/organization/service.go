@@ -2,16 +2,23 @@ package organization
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/storage/memory"
 )
+
+type FilterOption struct {
+	// OffSet is the start of the list where
+	OffSet int
+	Limit  int
+	Org    domain.Organization
+}
 
 // Store is the storage interface for the organization.Service.
 type Store interface {
 	Delete(ctx context.Context, id domain.OrganizationID) error
 	Get(ctx context.Context, id domain.OrganizationID) (domain.Organization, error)
-	List(ctx context.Context) ([]domain.Organization, error)
+	Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error)
 	Put(ctx context.Context, org domain.Organization) error
 	Shutdown(ctx context.Context) error
 }
@@ -23,12 +30,12 @@ type Service struct {
 
 // NewService creates an organization.Service.
 // The organization.Store implementation is the storage backend for the service.
-func NewService(store Store) *Service {
+func NewService(store Store) (*Service, error) {
 	if store == nil {
-		return &Service{store: memory.NewOrganizationStore()}
+		return nil, fmt.Errorf("organization.Store implementation cannot be nil")
 	}
 
-	return &Service{store: store}
+	return &Service{store: store}, nil
 }
 
 // Delete removes the domain.Organization from the Organization Store.
@@ -42,9 +49,11 @@ func (s *Service) Get(ctx context.Context, id domain.OrganizationID) (domain.Org
 	return s.store.Get(ctx, id)
 }
 
-// List returns a list of domain.Organization from the Organization Store
-func (s *Service) List(ctx context.Context) ([]domain.Organization, error) {
-	return s.store.List(ctx)
+// Filter returns a list of domain.Organization based on the filterOptions.
+//
+// When the filterOptions are nil, the first 10 are returned.
+func (s *Service) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error) {
+	return s.store.Filter(ctx, filter...)
 }
 
 // Put stores an Organization in the Service Store.
