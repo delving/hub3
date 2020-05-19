@@ -14,7 +14,6 @@ import (
 	mw "github.com/go-chi/chi/middleware"
 
 	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/matryer/is"
 	"github.com/rs/zerolog/log"
 )
@@ -121,13 +120,4 @@ func TestSetRouters(t *testing.T) {
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
 	is.Equal(w.Body.String(), "router-test")
-}
-
-func TestSetOrganisationStore(t *testing.T) {
-	is := is.New(t)
-	_, err := newServer(
-		SetOrganisationService(organization.NewService(nil)),
-		SetDisableRequestLogger(),
-	)
-	is.NoErr(err)
 }

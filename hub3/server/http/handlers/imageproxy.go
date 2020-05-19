@@ -50,7 +50,7 @@ func RegisterImageProxy(r chi.Router) {
 	fileCache := diskCache(c.Config.ImageProxy.CacheDir)
 	cache := twotier.New(memCache, fileCache)
 	p = imageproxy.NewProxy(nil, cache)
-	p.Whitelist = c.Config.ImageProxy.Whitelist
+	// p.Whitelist = c.Config.ImageProxy.Whitelist
 	p.ScaleUp = c.Config.ImageProxy.ScaleUp
 
 	// WebResource & imageproxy configuration

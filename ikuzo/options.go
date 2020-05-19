@@ -10,6 +10,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
+	"github.com/delving/hub3/ikuzo/service/x/imageproxy"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
@@ -193,6 +194,17 @@ func SetShutdownHook(name string, hook Shutdown) Option {
 			s.shutdownHooks[name] = hook
 		}
 
+		return nil
+	}
+}
+
+func SetImageProxyService(service *imageproxy.Service) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Mount("/", service.Routes())
+			},
+		)
 		return nil
 	}
 }
