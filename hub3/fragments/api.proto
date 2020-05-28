@@ -1,6 +1,7 @@
 // Run 'make protobuffer' from the root directory to generate 'api.pb.go'.
 syntax = "proto3";
 package fragments;
+option go_package = "hub3/fragments";
 
 // Query object
 

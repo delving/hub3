@@ -1,6 +1,6 @@
 syntax = "proto3";
 package pb;
-option go_package = ".;pb";
+option go_package = "hub3/ead/pb";
 
 enum ViewType {
     // Default type.
@@ -21,7 +21,7 @@ message File {
     // The file-uuid from GAF
     string fileuuid = 4;
     // The duuid is not needed for the frontend as of now I think, but could be useful.
-    int64 fileSize = 6;
+    int32 fileSize = 6;
     // Absolute web accessible url to the file source so internet web clients can access them.
     // These urls are examples and not the real url patterns.
     // For DZI example: [https://test.nationaalarchief.nl/gaf/iip/1.04.02_1.dzi]

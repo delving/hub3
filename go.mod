@@ -26,7 +26,6 @@ require (
 	github.com/go-chi/docgen v1.0.2
 	github.com/go-chi/render v0.0.0-20171231234154-8c8c7a43d054
 	github.com/go-git/go-git/v5 v5.0.0
-	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.4.0
 	github.com/google/gofuzz v1.0.0

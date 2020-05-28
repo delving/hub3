@@ -72,6 +72,10 @@ protobuffer:
 	@make pb.viewconfig
 	@make pb.webresource
 	@make pb.domain
+	@make pb.scan
+
+pb.scan:
+	@protoc --go_out=. hub3/ead/pb/scan.proto
 
 pb.domain:
 	@protoc --go_out=. ikuzo/domain/domainpb/domain.proto

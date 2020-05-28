@@ -1,5 +1,6 @@
 syntax = "proto3";
 package mediamanager;
+option go_package = "hub3/mediamanager";
 
 import "google/protobuf/timestamp.proto";
 

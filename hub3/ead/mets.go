@@ -190,7 +190,7 @@ func updateFileInfo(files map[string]*pb.File, fg []*CfileGrp, fa *pb.FindingAid
 			return err
 		}
 
-		file.FileSize = int64(size)
+		file.FileSize = int32(size)
 
 		if metsFile.CFLocat != nil {
 			file.DownloadURI = metsFile.CFLocat.AttrXlinkSpacehref

@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 )
 
 // NewPager creates a new Pager with all navigation settings.
