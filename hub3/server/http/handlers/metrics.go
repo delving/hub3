@@ -26,7 +26,7 @@ func RegisterMetrics(r chi.Router) {
 	//return
 	//})
 
-	r.Handle("/metrics", prometheus.Handler())
+	// r.Handle("/metrics", prometheus.Handler())
 
 }
 
