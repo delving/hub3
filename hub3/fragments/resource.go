@@ -419,8 +419,8 @@ type ScrollPager struct {
 
 // ProtoBuf holds a protobuf encode version of the messageType.
 type ProtoBuf struct {
-	MessageType string `json:"messageType"`
-	Data        string `json:"data"`
+	MessageType string `json:"messageType,omitempty"`
+	Data        string `json:"data,omitempty"`
 }
 
 // ScrollResultV4 intermediate non-protobuf search results
