@@ -219,6 +219,8 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 			} else {
 				log.Error().
 					Str("type", res.Error.Type).
+					Str("hubID", res.DocumentID).
+					Str("index", res.Index).
 					Str("reason", res.Error.Reason).
 					Msg("bulk index msg error")
 			}
