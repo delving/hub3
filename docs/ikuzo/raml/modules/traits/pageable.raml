@@ -1,0 +1,27 @@
+#%RAML 1.0 Trait
+
+queryParameters:
+  offset:
+    description: |
+      Skip over a number of elements by specifying an offset value for the query. Do not use together with "page".
+    type: integer
+    required: false
+    example: 20
+    default: 0
+  limit:
+    description: Limit the number of elements on the response
+    type: integer
+    required: false
+    example: 80
+    default: 10
+    max: 200
+  page:
+    description: |
+      the page number. Do not use together with "offset".
+    type: integer
+    required: false
+    default: 1
+    example: 1
+  scroll_id:
+    description: |
+      the id for efficiently scrolling through the result set. Using "offset" or "page" past 10.000 results is not allowed.
