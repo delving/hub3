@@ -94,6 +94,18 @@ WHERE {
 	?s ?p ?o .
 	}
 };
+
+# tag: countAllTriples
+SELECT (count(?s) as ?count)
+WHERE {
+  ?s ?p ?o .
+};
+
+# tag: harvestTriples
+SELECT *
+WHERE {
+  ?s ?p ?o .
+} LIMIT {{.Limit}} OFFSET {{.Offset}}
 `
 
 var queryBank sparql.Bank
@@ -198,6 +210,7 @@ func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 		if err != nil {
 			return revisions, fmt.Errorf("unable to convert %#v to integer", v["rCount"])
 		}
+
 		revisions = append(revisions, DataSetRevisions{
 			Number:      revision,
 			RecordCount: revisionCount,
