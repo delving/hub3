@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync/atomic"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead/pb"
@@ -472,6 +473,7 @@ func saveFileFragmentGraphs(cfg *NodeConfig, fa *pb.FindingAid) error {
 
 		if cfg.IndexService != nil {
 			cfg.IndexService.Publish(context.Background(), m)
+			atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
 		}
 	}
 
@@ -487,6 +489,7 @@ func saveFileFragmentGraphs(cfg *NodeConfig, fa *pb.FindingAid) error {
 
 	if cfg.IndexService != nil {
 		cfg.IndexService.Publish(context.Background(), m)
+		atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
 	}
 
 	return nil

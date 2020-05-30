@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync/atomic"
 	"time"
 	"unicode"
 
@@ -328,6 +329,8 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIn
 	if err := bi.Publish(context.Background(), m); err != nil {
 		return err
 	}
+
+	atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
 
 	return nil
 }

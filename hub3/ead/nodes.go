@@ -167,8 +167,8 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 
 		// log.Printf("daolink: %s", tree.DaoLink)
 
-		// mets, err := remoteMETS(cfg.Client, tree.DaoLink, cfg.Spec, tree.UnitID)
-		mets, err := localMETS(tree.DaoLink, cfg.Spec, tree.UnitID)
+		mets, err := remoteMETS(cfg.Client, tree.DaoLink, cfg.Spec, tree.UnitID)
+		// mets, err := localMETS(tree.DaoLink, cfg.Spec, tree.UnitID)
 		if err != nil {
 			cfg.MetsCounter.AppendError(err.Error())
 			return tree

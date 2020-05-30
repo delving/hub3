@@ -45,22 +45,24 @@ type Manifest struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	Counter          *NodeCounter
-	MetsCounter      *MetsCounter
-	OrgID            string
-	Spec             string
-	Title            []string
-	TitleShort       string
-	Revision         int32
-	PeriodDesc       []string
-	labels           map[string]string
-	MimeTypes        map[string][]string
-	Errors           []*DuplicateError
-	Client           *http.Client
-	IndexService     *index.Service
-	CreateTree       func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	ContentIdentical bool
-	Nodes            chan *Node
+	ctx                     context.Context
+	Counter                 *NodeCounter
+	MetsCounter             *MetsCounter
+	RecordsPublishedCounter uint64
+	OrgID                   string
+	Spec                    string
+	Title                   []string
+	TitleShort              string
+	Revision                int32
+	PeriodDesc              []string
+	labels                  map[string]string
+	MimeTypes               map[string][]string
+	Errors                  []*DuplicateError
+	Client                  *http.Client
+	IndexService            *index.Service
+	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	ContentIdentical        bool
+	Nodes                   chan *Node
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.
@@ -111,6 +113,7 @@ func (nc *NodeConfig) AddLabel(id, label string) {
 // NewNodeConfig creates a new NodeConfig
 func NewNodeConfig(ctx context.Context) *NodeConfig {
 	return &NodeConfig{
+		ctx:     ctx,
 		Counter: &NodeCounter{},
 		MetsCounter: &MetsCounter{
 			uniqueCounter: map[string]int{},
