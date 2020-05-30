@@ -11,8 +11,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
@@ -21,6 +23,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/jinzhu/gorm"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -28,6 +31,7 @@ type Metrics struct {
 	Started  uint64
 	Failed   uint64
 	Finished uint64
+	Canceled uint64
 }
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
@@ -40,11 +44,15 @@ type Service struct {
 	tasks      map[string]*Task
 	db         *gorm.DB
 	rw         sync.RWMutex
+	workers    int
+	cancel     context.CancelFunc
+	group      *errgroup.Group
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		tasks: make(map[string]*Task),
+		tasks:   make(map[string]*Task),
+		workers: 2,
 	}
 
 	// apply options
@@ -73,6 +81,65 @@ func NewService(options ...Option) (*Service, error) {
 	return s, nil
 }
 
+func (s *Service) findAvailableTask() *Task {
+	tasks := []*Task{}
+
+	s.rw.RLock()
+	for _, task := range s.tasks {
+		if task.InState == StatePending || task.Interrupted {
+			tasks = append(tasks, task)
+		}
+	}
+	s.rw.RUnlock()
+
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	sort.Slice(tasks, func(i, j int) bool {
+		return tasks[i].currentTransition().Started.After(tasks[j].currentTransition().Started)
+	})
+
+	return tasks[0]
+}
+
+func (s *Service) StartWorkers() error {
+	// create errgroup and add cancel to service
+	ctx, cancel := context.WithCancel(context.Background())
+	g, gctx := errgroup.WithContext(ctx)
+	_ = gctx
+
+	s.cancel = cancel
+	s.group = g
+
+	ticker := time.NewTicker(1 * time.Second)
+
+	for i := 0; i < s.workers; i++ {
+		g.Go(func() error {
+			for {
+				select {
+				case <-gctx.Done():
+					return gctx.Err()
+				case <-ticker.C:
+					s.rw.RLock()
+					task := s.findAvailableTask()
+					s.rw.RUnlock()
+					if task == nil {
+						continue
+					}
+
+					if err := s.Process(gctx, task); err != nil {
+						// check for context canceled
+						return err
+					}
+				}
+			}
+		})
+	}
+
+	return nil
+}
+
 func (s *Service) Metrics() Metrics {
 	return s.m
 }
@@ -80,6 +147,7 @@ func (s *Service) Metrics() Metrics {
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
 	// legacy
 	// s.eadUpload(w, r)
+
 	// new with channels
 	s.handleUpload(w, r)
 }
@@ -88,7 +156,26 @@ func (s *Service) Tasks(w http.ResponseWriter, r *http.Request) {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
+	// TODO(kiivihal): add option to filter by datasetID
+
 	render.JSON(w, r, s.tasks)
+}
+
+func (s *Service) findTask(orgID, datasetID string, filterActive bool) (*Task, error) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+
+	for _, t := range s.tasks {
+		if t.Meta.DatasetID == datasetID {
+			if filterActive && !t.isActive() {
+				continue
+			}
+
+			return t, nil
+		}
+	}
+
+	return nil, ErrTaskNotFound
 }
 
 func (s *Service) GetTask(w http.ResponseWriter, r *http.Request) {
@@ -118,94 +205,121 @@ func (s *Service) CancelTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	task.moveState(StateCancelled)
+
+	log.Info().Str("taskID", id).Str("datasetID", task.Meta.DatasetID).Msg("canceling running ead task")
 	task.cancel()
-	delete(s.tasks, id)
+
+	task.Next()
+	// TODO(kiivihal): do we delete or keep it
+	// delete(s.tasks, id)
 
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	// cancel workers.
+	s.cancel()
+
+	if err := s.group.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		return err
+	}
+
 	return nil
 }
 
-func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, error) {
-	ctx, done := context.WithCancel(ctx)
-	g, gctx := errgroup.WithContext(ctx)
-	_ = gctx
-
-	defer done()
-
-	atomic.AddUint64(&s.m.Started, 1)
-
-	// save ead and get ead context
-	buf, meta, err := s.SaveEAD(r, size)
+func (s *Service) saveDescription(cfg *eadHub3.NodeConfig, t *Task, ead *eadHub3.Cead) error {
+	desc, err := eadHub3.NewDescription(ead)
 	if err != nil {
-		atomic.AddUint64(&s.m.Failed, 1)
-		return meta, err
+		return fmt.Errorf("unable to create description; %w", err)
 	}
+
+	t.Meta.Title = desc.Summary.File.Title
+
+	cfg.Title = []string{desc.Summary.File.Title}
+
+	descIndex := eadHub3.NewDescriptionIndex(t.Meta.DatasetID)
+
+	err = descIndex.CreateFrom(desc)
+	if err != nil {
+		return fmt.Errorf("unable to create DescriptionIndex; %w", err)
+	}
+
+	err = descIndex.Write()
+	if err != nil {
+		return fmt.Errorf("unable to write DescriptionIndex; %w", err)
+	}
+
+	err = desc.Write()
+	if err != nil {
+		return fmt.Errorf("unable to write description; %w", err)
+	}
+
+	var unitInfo *eadHub3.UnitInfo
+	if desc.Summary.FindingAid != nil && desc.Summary.FindingAid.UnitInfo != nil {
+		unitInfo = desc.Summary.FindingAid.UnitInfo
+	}
+
+	if s.index != nil {
+		err = ead.SaveDescription(cfg, unitInfo, s.index)
+		if err != nil {
+			return fmt.Errorf("unable to create index representation of the description; %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) Process(parentCtx context.Context, t *Task) error {
+	// return immediately with invalid states
+	if !t.isActive() {
+		return nil
+	}
+
+	// wrap parent so both will stop
+	_ = parentCtx
+	g, gctx := errgroup.WithContext(t.ctx)
 
 	// parse EAD
 	ead := new(eadHub3.Cead)
 
-	// err = xml.Unmarshal(buf.Bytes(), ead)
-	err = xml.NewDecoder(buf).Decode(ead)
+	f, err := os.Open(t.Meta.getSourcePath())
 	if err != nil {
-		atomic.AddUint64(&s.m.Failed, 1)
-		return meta, fmt.Errorf("error during EAD parsing; %w", err)
+		errMsg := fmt.Errorf("unable to find EAD source file: %w", err)
+		return t.finishWithError(errMsg)
 	}
 
-	cfg := eadHub3.NewNodeConfig(context.Background())
+	err = xml.NewDecoder(f).Decode(ead)
+	if err != nil {
+		errMsg := fmt.Errorf("error during EAD parsing; %w", err)
+		return t.finishWithError(errMsg)
+	}
+
+	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.createTree
-	cfg.Spec = meta.Dataset
+	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = config.Config.OrgID
 	cfg.IndexService = s.index
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
+	if t.InState == StatePending {
+		atomic.AddUint64(&s.m.Started, 1)
+		t.Next()
+	}
+
 	// create description
-	g.Go(func() error {
-		desc, err := eadHub3.NewDescription(ead)
-		if err != nil {
-			return fmt.Errorf("unable to create description; %w", err)
+	if t.InState == StateProcessingDescription {
+		if err := s.saveDescription(cfg, t, ead); err != nil {
+			return t.finishWithError(fmt.Errorf("unable to save index: %w", err))
 		}
 
-		// TODO(kiivihal): add mutex later
-		// meta.m.Lock()
-		meta.Title = desc.Summary.File.Title
-		cfg.Title = []string{desc.Summary.File.Title}
-		// meta.m.Unlock()
+		t.Next()
+	}
 
-		descIndex := eadHub3.NewDescriptionIndex(meta.Dataset)
-		err = descIndex.CreateFrom(desc)
-		if err != nil {
-			return fmt.Errorf("unable to create DescriptionIndex; %w", err)
-		}
-
-		err = descIndex.Write()
-		if err != nil {
-			return fmt.Errorf("unable to write DescriptionIndex; %w", err)
-		}
-
-		err = desc.Write()
-		if err != nil {
-			return fmt.Errorf("unable to write description; %w", err)
-		}
-
-		var unitInfo *eadHub3.UnitInfo
-		if desc.Summary.FindingAid != nil && desc.Summary.FindingAid.UnitInfo != nil {
-			unitInfo = desc.Summary.FindingAid.UnitInfo
-		}
-
-		// TODO(kiivihal): refactor save description and add them to fg queue
-		if s.index != nil {
-			err = ead.SaveDescription(cfg, unitInfo, s.index)
-			if err != nil {
-				return fmt.Errorf("unable to create index representation of the description; %w", err)
-			}
-		}
-
-		return nil
-	})
+	if t.InState != StateProcessingInventories {
+		return fmt.Errorf("invalid state for processing inventories: %s", t.InState)
+	}
 
 	// publish nodes
 	g.Go(func() error {
@@ -237,6 +351,7 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 				if err := s.index.Publish(context.Background(), m); err != nil {
 					return err
 				}
+				atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
 
 				select {
 				case <-gctx.Done():
@@ -251,17 +366,44 @@ func (s *Service) Process(ctx context.Context, r io.Reader, size int64) (Meta, e
 
 	// wait for all errgroup goroutines
 	if err := g.Wait(); err == nil || errors.Is(err, context.Canceled) {
-		atomic.AddUint64(&s.m.Finished, 1)
+		if errors.Is(err, context.Canceled) {
+			// TODO(kiivihal): deal with canceled that must be restartable
+			// this is interrupted
+			t.Meta.Clevels = cfg.Counter.GetCount()
+			if t.ctx.Err() == context.Canceled {
+				t.moveState(StateCancelled)
+				t.Next()
 
-		meta.Clevels = cfg.Counter.GetCount()
-		meta.DaoLinks = cfg.MetsCounter.GetCount()
+				return nil
+			}
+
+			t.Interrupted = true
+			// save the task
+
+			return nil
+		}
+
+		t.Meta.Clevels = cfg.Counter.GetCount()
+		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
+		t.Meta.RecordsPublished = atomic.LoadUint64(&cfg.RecordsPublishedCounter)
+		t.Meta.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
+
+		metrics := map[string]uint64{
+			"description":       1,
+			"inventories":       t.Meta.Clevels,
+			"mets-files":        t.Meta.DaoLinks,
+			"records-published": t.Meta.RecordsPublished,
+			"digital-objects":   t.Meta.DigitalObjects,
+		}
+
+		t.Transitions[len(t.Transitions)-1].Metrics = metrics
+
+		t.finishTask()
 	} else {
-		atomic.AddUint64(&s.m.Failed, 1)
-		fmt.Printf("received error: %v", err)
-		return meta, err
+		return t.finishWithError(fmt.Errorf("error during invertory processing; %w", err))
 	}
 
-	return meta, nil
+	return nil
 }
 
 // legacy should be deprecated
@@ -288,19 +430,26 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		err = r.MultipartForm.RemoveAll()
 	}()
 
-	// TODO(kiivihal): create new task
-	// trigger saveEAD; when task is ongoing it should return an error and not move the tmpfile
-	// after save ead the remainder should go in a background process using the state machine
-	// http gets returned the Task.
-	// tasks should be stored with gorm
-
-	meta, err := s.Process(r.Context(), in, header.Size)
+	_, meta, err := s.SaveEAD(in, header.Size)
 	if err != nil {
+		if errors.Is(err, ErrTaskAlreadySubmitted) {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
+
+		atomic.AddUint64(&s.m.Failed, 1)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+
 		return
 	}
 
-	render.JSON(w, r, meta)
+	t, err := s.NewTask(meta)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	}
+
+	render.JSON(w, r, t)
 }
 
 func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) {
@@ -397,19 +546,23 @@ func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
 	)
 
 	// get ead identifier
-	meta.Dataset, err = s.GetName(buf)
+	meta.DatasetID, err = s.GetName(buf)
 	if err != nil {
 		return meta, err
 	}
 
-	meta.basePath = s.getDataPath(meta.Dataset)
+	if _, err := s.findTask("", meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
+		return meta, ErrTaskAlreadySubmitted
+	}
+
+	meta.basePath = s.getDataPath(meta.DatasetID)
 
 	// create dataDir
 	if err := os.MkdirAll(meta.basePath, os.ModePerm); err != nil {
 		return meta, err
 	}
 
-	if err := os.Rename(tmpFile, fmt.Sprintf("%s/%s.xml", meta.basePath, meta.Dataset)); err != nil {
+	if err := os.Rename(tmpFile, meta.getSourcePath()); err != nil {
 		return meta, err
 	}
 
