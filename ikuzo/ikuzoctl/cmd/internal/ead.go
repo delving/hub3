@@ -10,27 +10,40 @@ import (
 
 type EAD struct {
 	CacheDir string `json:"cacheDir"`
+	Metrics  bool   `json:"metrics"`
 }
 
-func (n *EAD) AddOptions(cfg *Config) error {
+func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 	is, err := cfg.GetIndexService()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	svc, err := ead.NewService(
 		ead.SetIndexService(is),
-		ead.SetDataDir(n.CacheDir),
+		ead.SetDataDir(e.CacheDir),
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := svc.StartWorkers(); err != nil {
-		return fmt.Errorf("unable to start EAD service workers; %w", err)
+		return nil, fmt.Errorf("unable to start EAD service workers; %w", err)
 	}
 
-	expvar.Publish("hub3-ead-service", expvar.Func(func() interface{} { m := svc.Metrics(); return m }))
+	if e.Metrics {
+		expvar.Publish("hub3-ead-service", expvar.Func(func() interface{} { m := svc.Metrics(); return m }))
+	}
+
+	return svc, nil
+
+}
+
+func (e *EAD) AddOptions(cfg *Config) error {
+	svc, err := e.NewService(cfg)
+	if err != nil {
+		return err
+	}
 
 	cfg.options = append(
 		cfg.options,

@@ -191,6 +191,8 @@ singleEndpoint = "NL-.*"
 # Default namespaces can be found in config/namespace.go
 
 [ead]
+cacheDir = "/tmp/ead"
+metrics = true
 searchURL = "https://test.nationaalarchief.nl"
 genreFormDefault = "other/unknown"
 treeFields = [
