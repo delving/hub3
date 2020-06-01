@@ -22,7 +22,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/jinzhu/gorm"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
@@ -42,7 +41,6 @@ type Service struct {
 	m          Metrics
 	createTree CreateTreeFn
 	tasks      map[string]*Task
-	db         *gorm.DB
 	rw         sync.RWMutex
 	workers    int
 	cancel     context.CancelFunc
@@ -72,10 +70,6 @@ func NewService(options ...Option) (*Service, error) {
 		if createErr != nil {
 			return nil, createErr
 		}
-	}
-
-	if s.db != nil {
-		// TODO(kiivihal): run migrations
 	}
 
 	return s, nil

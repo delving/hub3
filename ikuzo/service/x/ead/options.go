@@ -2,7 +2,6 @@ package ead
 
 import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/jinzhu/gorm"
 )
 
 type Option func(*Service) error
@@ -24,13 +23,6 @@ func SetIndexService(is *index.Service) Option {
 func SetCreateTree(fn CreateTreeFn) Option {
 	return func(s *Service) error {
 		s.createTree = fn
-		return nil
-	}
-}
-
-func SetDB(db *gorm.DB) Option {
-	return func(s *Service) error {
-		s.db = db
 		return nil
 	}
 }
