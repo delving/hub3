@@ -288,6 +288,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				render.PlainText(w, r, err.Error())
 				return
 			}
+
 			action := &hub3.BulkAction{
 				HubID:         rec.Meta.HubID,
 				Spec:          rec.Meta.Spec,
@@ -297,6 +298,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				GraphMimeType: "application/ld+json",
 				RecordType:    "mdr",
 			}
+
 			bytes, err := json.Marshal(action)
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
@@ -304,6 +306,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				render.PlainText(w, r, err.Error())
 				return
 			}
+
 			actions = append(actions, string(bytes))
 		}
 		render.PlainText(w, r, strings.Join(actions, "\n"))
