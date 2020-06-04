@@ -1,4 +1,4 @@
-package internal
+package config
 
 import (
 	"expvar"
@@ -36,7 +36,6 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 	}
 
 	return svc, nil
-
 }
 
 func (e *EAD) AddOptions(cfg *Config) error {
@@ -48,7 +47,6 @@ func (e *EAD) AddOptions(cfg *Config) error {
 	cfg.options = append(
 		cfg.options,
 		ikuzo.SetEADService(svc),
-		ikuzo.SetEnableLegacyConfig(),
 		ikuzo.SetShutdownHook("ead-service", svc),
 	)
 

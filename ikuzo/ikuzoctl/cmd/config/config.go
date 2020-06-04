@@ -1,4 +1,4 @@
-package internal
+package config
 
 import (
 	"github.com/delving/hub3/ikuzo"
@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type configOption interface {
+type ConfigOption interface {
 	AddOptions(cfg *Config) error
 }
 
@@ -26,16 +26,19 @@ type Config struct {
 	logger            logger.CustomLogger
 }
 
-func (cfg *Config) Options() ([]ikuzo.Option, error) {
+func (cfg *Config) Options(cfgOptions ...ConfigOption) ([]ikuzo.Option, error) {
 	cfg.logger = logger.NewLogger(cfg.Logging.GetConfig())
 
-	cfgOptions := []configOption{
-		&cfg.ElasticSearch, // elastic first because others could depend on the client
-		// &cfg.DB,
-		&cfg.HTTP,
-		&cfg.TimeRevisionStore,
-		&cfg.EAD,
-		&cfg.ImageProxy,
+	if len(cfgOptions) == 0 {
+		cfgOptions = []ConfigOption{
+			&cfg.ElasticSearch, // elastic first because others could depend on the client
+			// &cfg.DB,
+			&cfg.HTTP,
+			&cfg.TimeRevisionStore,
+			&cfg.EAD,
+			&cfg.ImageProxy,
+			&cfg.Logging,
+		}
 	}
 
 	for _, option := range cfgOptions {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -35,6 +36,10 @@ func serve() {
 		options,
 		ikuzo.SetBuildVersionInfo(
 			ikuzo.NewBuildVersionInfo(version, gitHash, buildAgent, buildStamp),
+		),
+		ikuzo.SetLegacyRouters(
+			handlers.RegisterEAD,
+			handlers.RegisterSearch,
 		),
 	)
 

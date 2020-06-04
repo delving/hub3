@@ -1,13 +1,16 @@
-package internal
+package config
 
 import (
 	"context"
 	"errors"
 	"expvar"
 	"fmt"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
@@ -16,6 +19,7 @@ import (
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/rs/zerolog/log"
 )
 
 type ElasticSearch struct {
@@ -51,8 +55,12 @@ type ElasticSearch struct {
 	UseRemoteIndexer bool
 	// IndexTypes options are v1, v2, fragment
 	IndexTypes []string
-	// use fasthttp transport for communication with the ElasticSearch cluster
-	fasthttp bool
+	// use FastHTTP transport for communication with the ElasticSearch cluster
+	FastHTTP bool
+}
+
+func (e *ElasticSearch) normalizedIndexName() string {
+	return strings.ToLower(e.IndexName)
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -94,7 +102,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		ikuzo.SetShutdownHook("elasticsearch", is),
 	)
 
-	_, err = e.CreateDefaultMappings(client, true)
+	_, err = e.CreateDefaultMappings(client, true, false)
 	if err != nil {
 		return err
 	}
@@ -102,16 +110,63 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 	return nil
 }
 
-func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias bool) ([]string, error) {
-	mappings := map[string]func(shards, replicas int) string{
-		fmt.Sprintf("%sv1", e.IndexName):      mapping.V1ESMapping,
-		fmt.Sprintf("%sv2", e.IndexName):      mapping.V2ESMapping,
-		fmt.Sprintf("%sv2_frag", e.IndexName): mapping.FragmentESMapping,
+func (e *ElasticSearch) ResetAll(w http.ResponseWriter, r *http.Request) {
+	// reset elasticsearch
+	_, err := e.CreateDefaultMappings(e.client, true, true)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+	// reset Key Value Store
+	models.ResetStorm()
+
+	// reset EAD cache
+	models.ResetEADCache()
+
+	return
+}
+
+func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias bool, withReset bool) ([]string, error) {
+	mappings := map[string]func(shards, replicas int) string{}
+
+	for _, indexType := range e.IndexTypes {
+		switch indexType {
+		case "v1":
+			mappings[fmt.Sprintf("%sv1", e.normalizedIndexName())] = mapping.V1ESMapping
+		case "v2":
+			mappings[fmt.Sprintf("%sv2", e.normalizedIndexName())] = mapping.V2ESMapping
+		case "fragments":
+			mappings[fmt.Sprintf("%sv2_frag", e.normalizedIndexName())] = mapping.FragmentESMapping
+		default:
+			log.Warn().Msgf("ignoring unknown indexType %s during mapping creation", indexType)
+		}
 	}
 
 	indexNames := []string{}
 
 	for indexName, m := range mappings {
+		if withReset {
+			storedIndexName, aliasErr := eshub.AliasGet(es, indexName)
+			if aliasErr != nil && !errors.Is(aliasErr, eshub.ErrAliasNotFound) {
+				return []string{}, aliasErr
+			}
+
+			if storedIndexName != "" {
+				if err := eshub.AliasDelete(es, storedIndexName, indexName); err != nil {
+					log.Error().Err(err).Str("alias", indexName).
+						Str("index", storedIndexName).Msg("unable to delete alias")
+
+					return []string{}, err
+				}
+
+				resp, deleteErr := es.Indices.Delete([]string{storedIndexName})
+				if deleteErr != nil && resp.IsError() {
+					log.Error().Err(deleteErr).Str("alias", indexName).
+						Str("index", storedIndexName).Msg("unable to delete index")
+					return []string{}, deleteErr
+				}
+			}
+		}
+
 		createName, err := eshub.IndexCreate(
 			es,
 			indexName,
@@ -169,7 +224,7 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 		Logger: l,
 	}
 
-	if e.fasthttp {
+	if e.FastHTTP {
 		// Custom transport based on fasthttp
 		cfg.Transport = &eshub.Transport{}
 	}
@@ -196,7 +251,7 @@ func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 	}
 
 	// create default mappings
-	_, err := e.CreateDefaultMappings(es, true)
+	_, err := e.CreateDefaultMappings(es, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -235,14 +290,14 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 	if !e.UseRemoteIndexer || ncfg == nil {
 		l.Info().Msg("setting up bulk indexer")
 
-		es, err := e.NewClient(l)
-		if err != nil {
-			return nil, err
+		es, clientErr := e.NewClient(l)
+		if clientErr != nil {
+			return nil, clientErr
 		}
 
-		bi, err := e.NewBulkIndexer(es)
-		if err != nil {
-			return nil, err
+		bi, bulkErr := e.NewBulkIndexer(es)
+		if bulkErr != nil {
+			return nil, bulkErr
 		}
 
 		options = append(

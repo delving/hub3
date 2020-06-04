@@ -8,7 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/delving/hub3/ikuzo/ikuzoctl/cmd/internal"
+	hub3Cfg "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/ikuzoctl/cmd/config"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
@@ -29,7 +30,7 @@ var (
 
 var (
 	cfgFile string
-	cfg     internal.Config
+	cfg     config.Config
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -89,11 +90,12 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// set default config values
-	internal.SetViperDefaults()
+	config.SetViperDefaults()
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
 		log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+
 		switch err.(type) {
 		case viper.ConfigParseError:
 			log.Fatal().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
@@ -105,4 +107,7 @@ func initConfig() {
 	if err := viper.Unmarshal(&cfg); err != nil {
 		log.Fatal().Err(err).Msg("unable to decode configuration into struct")
 	}
+
+	// TODO(kiivihal): remove this with next release
+	hub3Cfg.InitConfig()
 }

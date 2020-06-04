@@ -1,4 +1,4 @@
-package internal
+package config
 
 import "github.com/delving/hub3/ikuzo"
 
