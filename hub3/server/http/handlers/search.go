@@ -376,26 +376,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 		}
 
-		// traditional collapsed tree view
+		// Traditional expanded tree view.
 		if searchRequest.Tree.IsExpanded() && len(records) > 0 {
 			searching.HitsTotal = int32(res.TotalHits())
 
+			// Paging call with a searchHit.
 			if searchRequest.Tree.IsPaging && searchRequest.Tree.IsSearch {
-
-				leaf := records[0].Tree
-				//log.Printf("sortKey: %d (%s)", leaf.SortKey, leaf.CLevel)
-				pages, err := searchRequest.Tree.SearchPages(int32(leaf.SortKey))
-				if err != nil {
-					log.Printf("Unable to get searchPages: %v", err)
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					return
-				}
-				//log.Printf("searchPages: %#v", pages)
+				firstHit := records[0].Tree
+				searchRequest.Tree.Leaf = firstHit.CLevel
 				var pageParam string
-				for _, page := range pages {
+				for _, page := range searchRequest.Tree.Page {
 					pageParam = fmt.Sprintf("%s&page=%d", pageParam, page)
 				}
-				//log.Printf("searchParams: %#v", pageParam)
 				qs := fmt.Sprintf("paging=true%s", pageParam)
 				m, _ := url.ParseQuery(qs)
 				sr, _ := fragments.NewSearchRequest(m)
@@ -430,10 +422,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				if err != nil {
 					return
 				}
-
-				// todo set page
-				searchRequest.Tree.Page = pages
-				searchRequest.Tree.Leaf = leaf.CLevel
 			}
 
 			if !searchRequest.Tree.IsPaging {
@@ -565,16 +553,17 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			// leaf based searching
 			if tq.GetLeaf() != "" {
 				activeNode, ok := nodeMap[tq.GetLeaf()]
+				// It is possible the treeQuery leaf is not in the nodeMap because we are in the treePage
+				// append/prepend call with nodes only for the requested page.
+				if ok {
+					result.TreeHeader.ExpandedIDs = fragments.ExpandedIDs(activeNode)
+					result.TreeHeader.ActiveID = tq.GetLeaf()
+					paging.ResultActive = activeNode.PageEntry()
+				}
 				if !ok {
-					render.Status(r, http.StatusInternalServerError)
 					errMsg := fmt.Sprintf("Unable to find node %s in map", tq.GetLeaf())
 					log.Println(errMsg)
-					render.PlainText(w, r, errMsg)
-					return
 				}
-				result.TreeHeader.ExpandedIDs = fragments.ExpandedIDs(activeNode)
-				result.TreeHeader.ActiveID = tq.GetLeaf()
-				paging.ResultActive = activeNode.PageEntry()
 			}
 
 			// update paging
