@@ -1,15 +1,15 @@
 // nolint:funlen
-package pb
+package eadpb
 
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/delving/hub3/hub3/fragments"
 	proto "github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestNewPager(t *testing.T) {
@@ -186,13 +186,14 @@ func TestNewPager(t *testing.T) {
 	}
 	for _, tt := range tests {
 		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPager(tt.args.total, tt.args.request)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewPager(); %s error = %v, wantErr %v", tt.name, err, tt.wantErr)
 				return
 			}
-			if !cmp.Equal(got, tt.want) {
+			if !cmp.Equal(got, tt.want, cmpopts.IgnoreUnexported(Pager{})) {
 				t.Errorf("NewPager(); %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
@@ -267,7 +268,7 @@ func TestSetPage(t *testing.T) {
 				t.Errorf("NewPager(); %s error = %v, wantErr %v", tt.name, err, tt.wantErr)
 				return
 			}
-			if !cmp.Equal(got, tt.want) {
+			if !cmp.Equal(got, tt.want, cmpopts.IgnoreUnexported(Pager{})) {
 				t.Errorf("NewPager(); %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
@@ -350,7 +351,7 @@ func Test_DecodePBFile(t *testing.T) {
 				t.Errorf("DecodePBFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want, cmpopts.IgnoreUnexported(File{})) {
 				t.Errorf("DecodePBFile() = %v, want %v", got, tt.want)
 			}
 		})

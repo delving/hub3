@@ -1,6 +1,6 @@
 syntax = "proto3";
-package pb;
-option go_package = "hub3/ead/pb";
+package eadpb;
+option go_package = "hub3/ead/eadpb";
 
 enum ViewType {
     // Default type.
