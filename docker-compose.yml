@@ -42,9 +42,9 @@ services:
         - "--port"
         - "4222"
         - "--max_bytes" 
-        - "5GB"
+        - "1GB"
         - "--max_msgs"
-        - "5000000"
+        - "1000000"
     networks:
       - esnet
 
