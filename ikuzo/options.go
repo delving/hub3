@@ -161,6 +161,16 @@ func SetEnableLegacyConfig() Option {
 	}
 }
 
+func SetLegacyRouters(routers ...RouterFunc) Option {
+	return func(s *server) error {
+		config.InitConfig()
+
+		s.routerFuncs = append(s.routerFuncs, routers...)
+
+		return nil
+	}
+}
+
 func SetEADService(svc *ead.Service) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs,
