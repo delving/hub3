@@ -37,7 +37,9 @@ func (req *Request) valid() error {
 	}
 
 	if req.GraphMimeType == "" {
-		return fmt.Errorf("graphMimeType must be set when bulk action is 'index'")
+		log.Warn().Str("svc", "bulk").Msgf("reverting to default. graphMimeType must be set when bulk action is 'index'")
+
+		req.GraphMimeType = "application/ld+json"
 	}
 
 	return nil
