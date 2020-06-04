@@ -22,7 +22,7 @@ func SetIndexService(is *index.Service) Option {
 
 func SetCreateTree(fn CreateTreeFn) Option {
 	return func(s *Service) error {
-		s.createTree = fn
+		s.CreateTreeFn = fn
 		return nil
 	}
 }

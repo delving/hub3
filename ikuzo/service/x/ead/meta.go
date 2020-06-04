@@ -14,6 +14,7 @@ type Meta struct {
 	DaoLinks              uint64
 	RecordsPublished      uint64
 	DigitalObjects        uint64
+	FileSize              uint64
 	ProcessingDuration    time.Duration `json:"processingDuration,omitempty"`
 	ProcessingDurationFmt string        `json:"processingDurationFmt,omitempty"`
 }

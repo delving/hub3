@@ -19,6 +19,7 @@ import (
 	"github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -36,15 +37,15 @@ type Metrics struct {
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
 type Service struct {
-	index      *index.Service
-	dataDir    string
-	m          Metrics
-	createTree CreateTreeFn
-	tasks      map[string]*Task
-	rw         sync.RWMutex
-	workers    int
-	cancel     context.CancelFunc
-	group      *errgroup.Group
+	index        *index.Service
+	dataDir      string
+	m            Metrics
+	CreateTreeFn CreateTreeFn
+	tasks        map[string]*Task
+	rw           sync.RWMutex
+	workers      int
+	cancel       context.CancelFunc
+	group        *errgroup.Group
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -60,13 +61,13 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
-	if s.createTree == nil {
-		s.createTree = eadHub3.CreateTree
+	if s.CreateTreeFn == nil {
+		s.CreateTreeFn = eadHub3.CreateTree
 	}
 
 	// create datadir
 	if s.dataDir != "" {
-		createErr := os.MkdirAll(config.Config.EAD.CacheDir, os.ModePerm)
+		createErr := os.MkdirAll(s.dataDir, os.ModePerm)
 		if createErr != nil {
 			return nil, createErr
 		}
@@ -139,10 +140,6 @@ func (s *Service) Metrics() Metrics {
 }
 
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
-	// legacy
-	// s.eadUpload(w, r)
-
-	// new with channels
 	s.handleUpload(w, r)
 }
 
@@ -289,8 +286,22 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		return t.finishWithError(errMsg)
 	}
 
+	// TODO(kiivihal): replace with dataset service later or store in DescriptionIndex
+	ds, _, err := models.GetOrCreateDataSet(t.Meta.DatasetID)
+	if err != nil {
+		ErrorfMsg := fmt.Errorf("unable to get DataSet for %s", t.Meta.DatasetID)
+		return t.finishWithError(ErrorfMsg)
+	}
+
+	// set basics for ead
+	ds.Label = ead.Ceadheader.GetTitle()
+	ds.Period = ead.Carchdesc.GetPeriods()
+
+	// description must be set to empty
+	ds.Description = ""
+
 	cfg := eadHub3.NewNodeConfig(gctx)
-	cfg.CreateTree = s.createTree
+	cfg.CreateTree = s.CreateTreeFn
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = config.Config.OrgID
 	cfg.IndexService = s.index
@@ -377,6 +388,32 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			return nil
 		}
 
+		ds.MetsFiles = int(cfg.MetsCounter.GetCount())
+		ds.Clevels = int(cfg.Counter.GetCount())
+
+		stats := models.DaoStats{
+			DuplicateLinks: map[string]int{},
+		}
+		stats.ExtractedLinks = cfg.MetsCounter.GetCount()
+		stats.RetrieveErrors = cfg.MetsCounter.GetErrorCount()
+		stats.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
+		stats.Errors = cfg.MetsCounter.GetErrors()
+		uniqueLinks := cfg.MetsCounter.GetUniqueCounter()
+		stats.UniqueLinks = uint64(len(uniqueLinks))
+
+		for k, v := range uniqueLinks {
+			if v > 1 {
+				stats.DuplicateLinks[k] = v
+			}
+		}
+
+		ds.DaoStats = stats
+
+		err = ds.Save()
+		if err != nil {
+			return fmt.Errorf("unable to save dataset %s; %w", ds.Spec, err)
+		}
+
 		t.Meta.Clevels = cfg.Counter.GetCount()
 		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
 		t.Meta.RecordsPublished = atomic.LoadUint64(&cfg.RecordsPublishedCounter)
@@ -411,6 +448,13 @@ func (s *Service) eadUpload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type taskResponse struct {
+	TaskID    string `json:"taskID"`
+	OrgID     string `json:"orgID,omitempty"`
+	DatasetID string `json:"datasetID"`
+	Status    string `json:"status"`
+}
+
 func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 	in, header, err := r.FormFile("ead")
 	if err != nil {
@@ -437,13 +481,18 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	t, err := s.NewTask(meta)
+	t, err := s.NewTask(&meta)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
 
-	render.JSON(w, r, t)
+	render.JSON(w, r, taskResponse{
+		TaskID:    t.ID,
+		OrgID:     t.Meta.OrgID,
+		DatasetID: t.Meta.DatasetID,
+		Status:    string(t.InState),
+	})
 }
 
 func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) {
@@ -458,6 +507,8 @@ func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) 
 	if err != nil {
 		return nil, meta, err
 	}
+
+	meta.FileSize = uint64(size)
 
 	return buf, meta, nil
 }

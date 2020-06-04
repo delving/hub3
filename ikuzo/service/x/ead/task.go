@@ -39,7 +39,7 @@ type Transition struct {
 
 type Task struct {
 	ID          string `json:"id"`
-	Meta        Meta
+	Meta        *Meta
 	InState     ProcessingState `json:"inState"`
 	ErrorMsg    string          `json:"errorMsg"`
 	Transitions []*Transition   `json:"transitions"`
@@ -74,6 +74,7 @@ func (t *Task) finishTask() {
 	last.Finished = time.Now()
 
 	var startProcessing *Transition
+
 	for _, transition := range t.Transitions {
 		if transition.State == StatePending {
 			startProcessing = transition
@@ -81,7 +82,6 @@ func (t *Task) finishTask() {
 		}
 	}
 
-	// TODO(kiivihal): add total processing time to meta
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
@@ -93,8 +93,8 @@ func (t *Task) moveState(state ProcessingState) {
 	current := t.finishState()
 	log.Info().Str("datasetID", t.Meta.DatasetID).Str("taskID", t.ID).
 		Str("oldState", string(t.InState)).Str("newState", string(state)).Dur("dur", current.Duration).Msg("EAD state transition")
+
 	t.InState = state
-	// TODO(kiivihal): decide if to put debug/info logging here
 	t.Transitions = append(t.Transitions, &Transition{State: state, Started: time.Now()})
 }
 
@@ -133,7 +133,7 @@ func (t *Task) Next() {
 	}
 }
 
-func (s *Service) NewTask(meta Meta) (*Task, error) {
+func (s *Service) NewTask(meta *Meta) (*Task, error) {
 	task := &Task{
 		ID:      xid.New().String(),
 		s:       s,
@@ -144,7 +144,9 @@ func (s *Service) NewTask(meta Meta) (*Task, error) {
 	entry := &Transition{
 		State:   StateSubmitted,
 		Started: time.Now(),
-		// TODO(kiivihal): add metrics for size of file
+		Metrics: map[string]uint64{
+			"fileSize": meta.FileSize,
+		},
 	}
 	task.Transitions = append(task.Transitions, entry)
 	task.Next()
