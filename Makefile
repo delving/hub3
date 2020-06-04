@@ -75,7 +75,7 @@ protobuffer:
 	@make pb.scan
 
 pb.scan:
-	@protoc --go_out=. hub3/ead/pb/scan.proto
+	@protoc --go_out=. hub3/ead/eadpb/scan.proto
 
 pb.domain:
 	@protoc --go_out=. ikuzo/domain/domainpb/domain.proto

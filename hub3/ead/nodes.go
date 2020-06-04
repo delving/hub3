@@ -159,13 +159,11 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
 
-	if tree.HasDigitalObject {
+	if tree.HasDigitalObject && cfg.ProcessDigital {
 		if !strings.Contains(tree.DaoLink, "/gaf/api/mets/v1/") {
 			cfg.MetsCounter.AppendError(fmt.Sprintf("invalid daolink to GAF: %s", tree.DaoLink))
 			return tree
 		}
-
-		// log.Printf("daolink: %s", tree.DaoLink)
 
 		mets, err := remoteMETS(cfg.Client, tree.DaoLink, cfg.Spec, tree.UnitID)
 		// mets, err := localMETS(tree.DaoLink, cfg.Spec, tree.UnitID)

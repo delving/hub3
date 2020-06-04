@@ -7,9 +7,7 @@ import (
 	"context"
 	"fmt"
 	"html"
-	"log"
 	"net/http"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -24,16 +22,6 @@ import (
 )
 
 const pathSep string = "~"
-
-func init() {
-	path := config.Config.EAD.CacheDir
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err = os.MkdirAll(path, os.ModePerm)
-		if err != nil {
-			log.Fatalf("Unable to create cache dir; %s", err)
-		}
-	}
-}
 
 // Manifest holds all the information for an archive to create a IIIF manifest.
 type Manifest struct {
@@ -63,6 +51,7 @@ type NodeConfig struct {
 	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	ContentIdentical        bool
 	Nodes                   chan *Node
+	ProcessDigital          bool
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.

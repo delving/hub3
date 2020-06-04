@@ -9,14 +9,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
 
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/ead/pb"
+	"github.com/delving/hub3/hub3/ead/eadpb"
 	"github.com/delving/hub3/hub3/fragments"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/zerolog"
@@ -33,18 +32,19 @@ func readMETS(filename string) (*Cmets, error) {
 	return metsParse(r)
 }
 
+// TODO(kiivihal): remove before v0.1.8
 // localMETS retrieves a local mets file.
 // It returns an error when the METS-file cannot be retrieved.
-func localMETS(metsURL, archiveID, inventoryID string) (*Cmets, error) {
-	parts := strings.Split(metsURL, "/")
-	id := parts[len(parts)-1]
-	f, err := os.Open(filepath.Join("/home/kiivihal/_scratch/_workbench/ead/ead-prod-2020-05/ead_prod/mets", id))
-	if err != nil {
-		return nil, err
-	}
+// func localMETS(metsURL, archiveID, inventoryID string) (*Cmets, error) {
+// parts := strings.Split(metsURL, "/")
+// id := parts[len(parts)-1]
+// f, err := os.Open(filepath.Join("ead_prod/mets", id))
+// if err != nil {
+// return nil, err
+// }
 
-	return metsParse(f)
-}
+// return metsParse(f)
+// }
 
 // remoteMETS retrieves a remote mets file.
 // It returns an error when the METS-file cannot be retrieved.
@@ -115,7 +115,7 @@ func metsParse(r io.Reader) (*Cmets, error) {
 	return mets, err
 }
 
-func getMimeTypes(fa *pb.FindingAid) []string {
+func getMimeTypes(fa *eadpb.FindingAid) []string {
 	mimeTypes := []string{}
 	for k := range fa.GetMimeTypes() {
 		mimeTypes = append(mimeTypes, k)
@@ -124,8 +124,8 @@ func getMimeTypes(fa *pb.FindingAid) []string {
 	return mimeTypes
 }
 
-func (mets *Cmets) extractFiles() (map[string]*pb.File, error) {
-	files := map[string]*pb.File{}
+func (mets *Cmets) extractFiles() (map[string]*eadpb.File, error) {
+	files := map[string]*eadpb.File{}
 
 	physical := mets.CstructMap.Cdiv
 	if physical == nil || len(physical.Cdiv) == 0 {
@@ -136,7 +136,7 @@ func (mets *Cmets) extractFiles() (map[string]*pb.File, error) {
 		id := strings.TrimPrefix(item.AttrID, "ID")
 		parts := strings.Split(item.AttrLABEL, "/")
 		label := parts[len(parts)-1]
-		file := &pb.File{
+		file := &eadpb.File{
 			Filename: label,
 			Fileuuid: id,
 		}
@@ -146,7 +146,7 @@ func (mets *Cmets) extractFiles() (map[string]*pb.File, error) {
 	return files, nil
 }
 
-func updateFileInfo(files map[string]*pb.File, fg []*CfileGrp, fa *pb.FindingAid) error {
+func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.FindingAid) error {
 	var defaultGrp *CfileGrp
 
 	for _, grp := range fg {
@@ -202,8 +202,8 @@ func updateFileInfo(files map[string]*pb.File, fg []*CfileGrp, fa *pb.FindingAid
 	return nil
 }
 
-func (mets *Cmets) newFindingAid(cfg *NodeConfig, tree *fragments.Tree) (pb.FindingAid, error) {
-	fa := pb.FindingAid{
+func (mets *Cmets) newFindingAid(cfg *NodeConfig, tree *fragments.Tree) (eadpb.FindingAid, error) {
+	fa := eadpb.FindingAid{
 		ArchiveID:      cfg.Spec,
 		InventoryID:    tree.UnitID,
 		InventoryPath:  tree.CLevel,
@@ -235,7 +235,7 @@ func (mets *Cmets) newFindingAid(cfg *NodeConfig, tree *fragments.Tree) (pb.Find
 		return fa, nil
 	}
 
-	fa.Files = []*pb.File{}
+	fa.Files = []*eadpb.File{}
 
 	for _, value := range files {
 		fa.Files = append(fa.Files, value)
@@ -277,7 +277,7 @@ func isTileMimeType(mimeType string) bool {
 	return false
 }
 
-func createDeepZoomURI(file *pb.File, duuid string) string {
+func createDeepZoomURI(file *eadpb.File, duuid string) string {
 	if !isTileMimeType(file.MimeType) {
 		return ""
 	}
@@ -323,21 +323,7 @@ func chunkString(s string, chunkSize int) []string {
 	return chunks
 }
 
-// type convert func(string) rdf.Term
-
-// func addNonEmptyTriple(s rdf.Term, p, o string, oType convert) *rdf.Triple {
-// if o == "" {
-// return nil
-// }
-
-// return rdf.NewTriple(
-// s,
-// rdf.NewResource(fmt.Sprintf("https://archief.nl/def/mets/%s", p)),
-// oType(o),
-// )
-// }
-
-func fileTriples(subject string, fa *pb.FindingAid, file *pb.File) []*rdf.Triple {
+func fileTriples(subject string, fa *eadpb.FindingAid, file *eadpb.File) []*rdf.Triple {
 	s := rdf.NewResource(subject)
 	triples := []*rdf.Triple{
 		rdf.NewTriple(
@@ -372,7 +358,7 @@ func fileTriples(subject string, fa *pb.FindingAid, file *pb.File) []*rdf.Triple
 	return triples
 }
 
-func findingAidTriples(subject string, fa *pb.FindingAid) []*rdf.Triple {
+func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	s := rdf.NewResource(subject)
 	triples := []*rdf.Triple{
 		rdf.NewTriple(
@@ -397,7 +383,7 @@ func findingAidTriples(subject string, fa *pb.FindingAid) []*rdf.Triple {
 	return triples
 }
 
-func fragmentGraph(cfg *NodeConfig, fa *pb.FindingAid, file *pb.File) (*fragments.FragmentGraph, error) {
+func fragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid, file *eadpb.File) (*fragments.FragmentGraph, error) {
 	subjectBase := fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", c.Config.RDF.BaseURL, fa.ArchiveID, fa.InventoryID)
 	id := fmt.Sprintf("%s-%s", fa.InventoryID, file.Filename)
 	header := createHeader(cfg, id, subjectBase, "mets")
@@ -427,7 +413,7 @@ func fragmentGraph(cfg *NodeConfig, fa *pb.FindingAid, file *pb.File) (*fragment
 	}
 
 	fg.ProtoBuf = fragments.ProtoBuf{
-		MessageType: "pb.File",
+		MessageType: "eadpb.File",
 		Data:        fmt.Sprintf("%x", b),
 	}
 	fg.SetResources(rm)
@@ -457,9 +443,9 @@ func createHeader(cfg *NodeConfig, id, subjectBase, tag string) *fragments.Heade
 	return header
 }
 
-// saveFileFragmentGraphs saves all pb.File and pb.FindingAid graphs to ElasticSearch.
-// Note that during the process the files are removed from the pb.FindingAid.
-func saveFileFragmentGraphs(cfg *NodeConfig, fa *pb.FindingAid) error {
+// saveFileFragmentGraphs saves all eadpb.File and eadpb.FindingAid graphs to ElasticSearch.
+// Note that during the process the files are removed from the eadpb.FindingAid.
+func saveFileFragmentGraphs(cfg *NodeConfig, fa *eadpb.FindingAid) error {
 	for _, file := range fa.Files {
 		fg, err := fragmentGraph(cfg, fa, file)
 		if err != nil {
@@ -495,9 +481,9 @@ func saveFileFragmentGraphs(cfg *NodeConfig, fa *pb.FindingAid) error {
 	return nil
 }
 
-func findingAidFragmentGraph(cfg *NodeConfig, fa *pb.FindingAid) (*fragments.FragmentGraph, error) {
+func findingAidFragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid) (*fragments.FragmentGraph, error) {
 	// remove files because we don't want them to be saved in bbolt
-	fa.Files = []*pb.File{}
+	fa.Files = []*eadpb.File{}
 
 	subjectBase := fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", c.Config.RDF.BaseURL, fa.ArchiveID, fa.InventoryID)
 	id := fmt.Sprintf("%s-findingaid", fa.GetInventoryID())
@@ -527,7 +513,7 @@ func findingAidFragmentGraph(cfg *NodeConfig, fa *pb.FindingAid) (*fragments.Fra
 	}
 
 	fg.ProtoBuf = fragments.ProtoBuf{
-		MessageType: "pb.FindingAid",
+		MessageType: "eadpb.FindingAid",
 		Data:        fmt.Sprintf("%x", b),
 	}
 

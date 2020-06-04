@@ -8,11 +8,14 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
+	"github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("Nodes", func() {
+
+	config.InitConfig()
 
 	Describe("converting to RDF", func() {
 

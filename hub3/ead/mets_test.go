@@ -3,7 +3,7 @@ package ead
 import (
 	"testing"
 
-	"github.com/delving/hub3/hub3/ead/pb"
+	"github.com/delving/hub3/hub3/ead/eadpb"
 	"github.com/delving/hub3/hub3/fragments"
 )
 
@@ -82,31 +82,29 @@ func TestReadMETS(t *testing.T) {
 		t.Errorf("unable to create finding-aid: %#v", err)
 	}
 
-	_ = findingAid
-
 	if findingAid.GetFileCount() != 140 {
 		t.Errorf("Not all entries are parsed, got %d: want %d", findingAid.GetFileCount(), 140)
 	}
 
 	tests := []struct {
 		name     string
-		file     *pb.File
+		file     *eadpb.File
 		sortKey  int32
-		fileSize int64
+		fileSize int32
 		fileUUID string
 	}{
 		{
 			name:     "first",
 			file:     findingAid.Files[0],
 			sortKey:  1,
-			fileSize: int64(6571877),
+			fileSize: int32(6571877),
 			fileUUID: "f04cdec4-2b56-4f60-bcd3-29cd1a49e25e",
 		},
 		{
 			name:     "last",
 			file:     findingAid.Files[findingAid.GetFileCount()-1],
 			sortKey:  140,
-			fileSize: int64(5066026),
+			fileSize: int32(5066026),
 			fileUUID: "d9125e83-7127-4fd4-bfdb-1312ddb58614",
 		},
 	}
@@ -130,7 +128,7 @@ func TestReadMETS(t *testing.T) {
 
 func Test_createDeepZoomURI(t *testing.T) {
 	type args struct {
-		file  *pb.File
+		file  *eadpb.File
 		duuid string
 	}
 
@@ -142,7 +140,7 @@ func Test_createDeepZoomURI(t *testing.T) {
 		{
 			"prod environment simple uri",
 			args{
-				&pb.File{
+				&eadpb.File{
 					MimeType:     "image/jpg",
 					Fileuuid:     "00000333-0000-0000-0810-000000000002",
 					ThumbnailURI: "https://service.archief.nl/gaf/api/file/00000333-0000-0000-0810-000000000002",
@@ -155,7 +153,7 @@ func Test_createDeepZoomURI(t *testing.T) {
 		{
 			"test environment",
 			args{
-				&pb.File{
+				&eadpb.File{
 					MimeType:     "image/jpg",
 					Fileuuid:     "1717314a-014c-465f-804a-0b5c72262240",
 					ThumbnailURI: "https://service.test.archief.nl/gaf/api/file/v1/default/1717314a-014c-465f-804a-0b5c72262240",
@@ -168,7 +166,7 @@ func Test_createDeepZoomURI(t *testing.T) {
 		{
 			"acpt environment",
 			args{
-				&pb.File{
+				&eadpb.File{
 					MimeType:     "image/jpg",
 					Fileuuid:     "1717314a-014c-465f-804a-0b5c72262240",
 					ThumbnailURI: "https://service.acpt.archief.nl/gaf/api/file/v1/default/1717314a-014c-465f-804a-0b5c72262240",

@@ -36,11 +36,6 @@ var (
 	CfgFile string
 )
 
-func init() {
-	// make sure the config is initialised first
-	InitConfig()
-}
-
 // RawConfig holds all the configuration blocks.
 // These are bound from cli, Environment variables or configuration files by
 // Viper.
@@ -99,22 +94,22 @@ type ElasticSearch struct {
 }
 
 // FragmentIndexName returns the name of the Fragment index.
-func (es ElasticSearch) FragmentIndexName() string {
+func (es *ElasticSearch) FragmentIndexName() string {
 	return fmt.Sprintf("%s_frag", es.GetIndexName())
 }
 
 // HasAuthentication returns if ElasticSearch has authentication enabled.
-func (es ElasticSearch) HasAuthentication() bool {
+func (es *ElasticSearch) HasAuthentication() bool {
 	return len(es.UserName) > 0 && len(es.Password) > 0
 }
 
 // GetIndexName returns the lowercased indexname.
-// This inforced correct behaviour when creating an index in ElasticSearch.
-func (es ElasticSearch) GetIndexName() string {
+// This inforced correct behavior when creating an index in ElasticSearch.
+func (es *ElasticSearch) GetIndexName() string {
 	return strings.ToLower(es.IndexName) + "v2"
 }
 
-func (es ElasticSearch) GetV1IndexName() string {
+func (es *ElasticSearch) GetV1IndexName() string {
 	return strings.ToLower(es.IndexName) + "v1"
 }
 
@@ -352,6 +347,11 @@ func cleanConfig() {
 
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig() {
+	// InitConfig() must be idempotent
+	if Config.Logger != nil {
+		return
+	}
+
 	if CfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(CfgFile)
