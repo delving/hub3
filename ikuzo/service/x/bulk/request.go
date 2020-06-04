@@ -16,7 +16,7 @@ import (
 type Request struct {
 	HubID         string `json:"hubId"`
 	OrgID         string `json:"orgID"`
-	Spec          string `json:"dataset"`
+	DatasetID     string `json:"dataset"`
 	LocalID       string `json:"localID"`
 	NamedGraphURI string `json:"graphUri"`
 	RecordType    string `json:"type"`
@@ -25,6 +25,7 @@ type Request struct {
 	Graph         string `json:"graph"`
 	GraphMimeType string `json:"graphMimeType"`
 	SubjectType   string `json:"subjectType"`
+	Revision      int    `json:"revision"`
 }
 
 func (req *Request) valid() error {
@@ -32,7 +33,7 @@ func (req *Request) valid() error {
 		return fmt.Errorf("empty graph during indexing is not allowed")
 	}
 
-	if req.OrgID == "" || req.HubID == "" || req.Spec == "" {
+	if req.OrgID == "" || req.HubID == "" || req.DatasetID == "" {
 		return fmt.Errorf("orgID, hubID and spec cannot be empty in bulk request")
 	}
 
@@ -49,7 +50,7 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg := fragments.NewFragmentGraph()
 	fg.Meta.OrgID = req.OrgID
 	fg.Meta.HubID = req.HubID
-	fg.Meta.Spec = req.Spec
+	fg.Meta.Spec = req.DatasetID
 	fg.Meta.Revision = int32(revision)
 	fg.Meta.NamedGraphURI = req.NamedGraphURI
 	fg.Meta.EntryURI = fg.GetAboutURI()
@@ -81,7 +82,7 @@ func (req *Request) processV1(fb *fragments.FragmentBuilder, bi index.BulkIndex)
 
 	m := &domainpb.IndexMessage{
 		OrganisationID: req.OrgID,
-		DatasetID:      req.Spec,
+		DatasetID:      req.DatasetID,
 		RecordID:       req.HubID,
 		IndexName:      config.Config.ElasticSearch.GetV1IndexName(), // TODO(kiivihal): remove config later
 		Source:         b,

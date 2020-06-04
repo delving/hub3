@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -18,7 +19,7 @@ type Service struct {
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		indexTypes: []string{"v1", "v2"},
+		indexTypes: []string{"v2"},
 	}
 
 	// apply options
@@ -48,14 +49,6 @@ func SetIndexTypes(indexTypes ...string) Option {
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
-	// TODO(kiivihal): legacy hub3 bulk API. Remove later.
-	// response, err := hub3.ReadActions(r.Context(), r.Body, s.index, nil)
-	// if err != nil {
-	// http.Error(w, err.Error(), http.StatusBadRequest)
-
-	// return
-	// }
-
 	p := s.NewParser()
 	if err := p.Parse(r.Context(), r.Body); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -69,9 +62,10 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 
 func (s *Service) NewParser() *Parser {
 	return &Parser{
-		stats:      &Stats{},
-		indexTypes: s.indexTypes,
-		bi:         s.index,
+		stats:         &Stats{},
+		indexTypes:    s.indexTypes,
+		bi:            s.index,
+		sparqlUpdates: []fragments.SparqlUpdate{},
 	}
 }
 

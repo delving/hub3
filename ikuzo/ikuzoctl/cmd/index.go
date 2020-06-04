@@ -207,9 +207,9 @@ func newV1(r io.Reader) (*v1, error) {
 
 func (rec *v1) bulkRequest() *bulk.Request {
 	return &bulk.Request{
-		HubID: rec.HubID,
-		OrgID: rec.OrgID,
-		Spec:  rec.Spec,
+		HubID:     rec.HubID,
+		OrgID:     rec.OrgID,
+		DatasetID: rec.Spec,
 		// LocalID:       "",
 		NamedGraphURI: rec.System.NamedGraphURI,
 		// RecordType:    "",
