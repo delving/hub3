@@ -24,7 +24,7 @@ import (
 func RegisterEAD(r chi.Router) {
 
 	// EAD endpoint
-	r.Post("/api/ead", eadUpload)
+	// r.Post("/api/ead", eadUpload)
 
 	r.Get("/api/ead/search", eadSearch)
 	r.Get("/api/ead/search/{inventoryID}", eadInventorySearch)
