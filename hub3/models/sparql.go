@@ -110,25 +110,37 @@ WHERE {
 
 var queryBank sparql.Bank
 
-// SparqlQueryURL is the fully qualified URI to the SPARQL endpoint
-var SparqlQueryURL string
+// sparqlQueryURL is the fully qualified URI to the SPARQL endpoint
+var sparqlQueryURL string
 
-// SparqlUpdateURL is the fully qualified URI to the SPARQL Update endpoint
-var SparqlUpdateURL string
+// sparqlUpdateURL is the fully qualified URI to the SPARQL Update endpoint
+var sparqlUpdateURL string
 
-// SparqlRepo is the repository used for querying
-var SparqlRepo *sparql.Repo
+// sparqlRepo is the repository used for querying
+var sparqlRepo *sparql.Repo
 
-// SparqlUpdateRepo is the repository used for updating the TripleStore
-var SparqlUpdateRepo *sparql.Repo
+// sparqlUpdateRepo is the repository used for updating the TripleStore
+var sparqlUpdateRepo *sparql.Repo
 
 func init() {
-	SparqlQueryURL = config.Config.GetSparqlEndpoint("")
-	SparqlUpdateURL = config.Config.GetSparqlUpdateEndpoint("")
 	f := bytes.NewBufferString(queries)
 	queryBank = sparql.LoadBank(f)
-	SparqlRepo = buildRepo(SparqlQueryURL)
-	SparqlUpdateRepo = buildRepo(SparqlUpdateURL)
+}
+
+func SparqlRepo() *sparql.Repo {
+	if sparqlRepo == nil {
+		sparqlRepo = buildRepo(config.Config.GetSparqlEndpoint(""))
+	}
+
+	return sparqlRepo
+}
+
+func SparqlUpdateRepo() *sparql.Repo {
+	if sparqlUpdateRepo == nil {
+		sparqlUpdateRepo = buildRepo(config.Config.GetSparqlUpdateEndpoint(""))
+	}
+
+	return sparqlUpdateRepo
 }
 
 // buildRepo builds the query repository
@@ -190,7 +202,7 @@ func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 		return revisions, err
 	}
 	//fmt.Printf("%#v", query)
-	res, err := SparqlRepo.Query(query)
+	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		log.Printf("Unable query endpoint: %s", err)
 		return revisions, err
@@ -226,7 +238,9 @@ func CountGraphsBySpec(spec string) (int, error) {
 		log.Printf("Unable to build CountGraphsBySpec query: %s", err)
 		return 0, err
 	}
-	res, err := SparqlRepo.Query(query)
+
+	log.Printf("sparql query url: %s", sparqlQueryURL)
+	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		log.Printf("Unable query endpoint: %s", err)
 		return 0, err
@@ -254,7 +268,7 @@ func PrepareAsk(uri string) (string, error) {
 
 // AskSPARQL performs a SPARQL ASK query
 func AskSPARQL(query string) (bool, error) {
-	res, err := SparqlRepo.Query(query)
+	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		return false, err
 	}
@@ -269,7 +283,7 @@ func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
 	if err != nil {
 		return nil, err
 	}
-	res, err := SparqlRepo.Query(query)
+	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		return nil, err
 	}
