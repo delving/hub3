@@ -679,6 +679,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 		}
+
 	}
 
 	if strings.HasPrefix(sr.GetSortBy(), "random") {
