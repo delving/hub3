@@ -96,7 +96,7 @@ var _ = Describe("Dataset", func() {
 
 		It("should have nothing saved before save", func() {
 			var ds []DataSet
-			err := orm.All(&ds)
+			err := ORM().All(&ds)
 			Expect(err).To(BeNil())
 			Expect(len(ds)).To(Equal(0))
 		})
@@ -104,14 +104,14 @@ var _ = Describe("Dataset", func() {
 		It("should save a dataset without errors", func() {
 			Expect(dataset.Save()).To(BeNil())
 			var ds []DataSet
-			err := orm.All(&ds)
+			err := ORM().All(&ds)
 			Expect(err).To(BeNil())
 			Expect(len(ds)).To(Equal(1))
 		})
 
 		It("should be able to find it in the database", func() {
 			var ds DataSet
-			err := orm.One("Spec", spec, &ds)
+			err := ORM().One("Spec", spec, &ds)
 			Expect(err).To(BeNil())
 			Expect(ds.Created.Unix()).To(Equal(dataset.Created.Unix()))
 			Expect(ds.Modified.UnixNano()).ToNot(Equal(dataset.Modified.UnixNano()))

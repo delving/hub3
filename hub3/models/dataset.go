@@ -27,7 +27,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
-	w "github.com/gammazero/workerpool"
+	wp "github.com/gammazero/workerpool"
 
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -183,7 +183,7 @@ func NewDataset(spec string) DataSet {
 // GetDataSet returns a DataSet object when found
 func GetDataSet(spec string) (*DataSet, error) {
 	var ds DataSet
-	err := orm.One("Spec", spec, &ds)
+	err := ORM().One("Spec", spec, &ds)
 	return &ds, err
 }
 
@@ -207,7 +207,7 @@ func GetOrCreateDataSet(spec string) (*DataSet, bool, error) {
 
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() (*DataSet, error) {
-	err := orm.UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
+	err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
 	if err != nil {
 		log.Printf("Unable to update field in dataset: %s", ds.Spec)
 		return nil, err
@@ -219,23 +219,23 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 // ListDataSets returns an array of Datasets stored in Storm ORM
 func ListDataSets() ([]DataSet, error) {
 	var ds []DataSet
-	err := orm.AllByIndex("Spec", &ds)
+	err := ORM().AllByIndex("Spec", &ds)
 	return ds, err
 }
 
 // Save saves the DataSet to BoltDB
 func (ds DataSet) Save() error {
 	ds.Modified = time.Now()
-	return orm.Save(&ds)
+	return ORM().Save(&ds)
 }
 
 // Delete deletes the DataSet from BoltDB
-func (ds DataSet) Delete(ctx context.Context, wp *w.WorkerPool) error {
+func (ds DataSet) Delete(ctx context.Context, wp *wp.WorkerPool) error {
 	if c.Config.ElasticSearch.Enabled || c.Config.RDF.RDFStoreEnabled {
 		_, err := ds.DropAll(ctx, wp)
 		return err
 	}
-	return orm.DeleteStruct(&ds)
+	return ORM().DeleteStruct(&ds)
 }
 
 // NewDataSetHistogram returns a histogram for dates that items in the index are modified
@@ -519,7 +519,7 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 
 // CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
 // to be delete to the PostHook workerpool.
-func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *w.WorkerPool) error {
+func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPool) error {
 	index.ESClient().Flush(c.Config.ElasticSearch.GetIndexName())
 	timer := time.NewTimer(time.Second * 5)
 	<-timer.C
@@ -581,7 +581,7 @@ func (ds DataSet) validForPostHook() bool {
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
-func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int, error) {
+func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
 	q := elastic.NewBoolQuery()
 	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
@@ -627,7 +627,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *w.WorkerPool) (int
 }
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
-func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (int, error) {
+func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) (int, error) {
 	q := elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)
 	log.Printf("%#v", q)
 	if ds.validForPostHook() {
@@ -657,7 +657,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *w.WorkerPool) (
 }
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
-func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *w.WorkerPool) (bool, error) {
+func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
 	ok := true
 
 	// TODO(kiivihal): replace flush with TRS
@@ -685,7 +685,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 }
 
 // DropRecords Drops all records linked to the dataset from the storage layers
-func (ds DataSet) DropRecords(ctx context.Context, wp *w.WorkerPool) (bool, error) {
+func (ds DataSet) DropRecords(ctx context.Context, wp *wp.WorkerPool) (bool, error) {
 	var err error
 	ok := true
 	if c.Config.RDF.RDFStoreEnabled {
@@ -707,13 +707,13 @@ func (ds DataSet) DropRecords(ctx context.Context, wp *w.WorkerPool) (bool, erro
 }
 
 // DropAll drops the dataset from the Hub3 storages completely (BoltDB, Triple Store, Search Index)
-func (ds DataSet) DropAll(ctx context.Context, wp *w.WorkerPool) (bool, error) {
+func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) {
 	ok, err := ds.DropRecords(ctx, wp)
 	if !ok || err != nil {
 		log.Printf("Unable to drop all records for spec %s: %#v", ds.Spec, err)
 		return ok, err
 	}
-	err = orm.DeleteStruct(&ds)
+	err = ORM().DeleteStruct(&ds)
 	if err != nil {
 		log.Printf("Unable to delete dataset %s from storage", ds.Spec)
 		return false, err

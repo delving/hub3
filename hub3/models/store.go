@@ -16,35 +16,30 @@ package models
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/asdine/storm"
 	"github.com/delving/hub3/config"
+	"github.com/rs/zerolog/log"
 )
 
 // orm is the storm db entry point
 var orm *storm.DB
 
-func init() {
-	orm = newDB("")
-	//orm.WithBatch(true)
-}
-
 // CloseStorm close the underlying BoltDB for Storm
 func CloseStorm() {
-	err := orm.Close()
+	err := ORM().Close()
 	if err != nil {
-		log.Fatalf("Unable to close BoltDB. %s", err)
+		log.Fatal().Msgf("Unable to close BoltDB. %s", err)
 	}
+	orm = nil
 }
 
 func ResetStorm() {
 	CloseStorm()
 	os.Remove("hub3.db")
-	orm = newDB("")
 }
 
 func ResetEADCache() {
@@ -52,6 +47,10 @@ func ResetEADCache() {
 }
 
 func ORM() *storm.DB {
+	if orm == nil {
+		orm = newDB("")
+		orm.WithBatch(true)
+	}
 	return orm
 }
 
@@ -64,14 +63,14 @@ func newDB(dbName string) *storm.DB {
 	}
 	db, err := storm.Open(dbName)
 	if err != nil {
-		log.Fatal("Unable to open the BoltDB database file.")
+		log.Fatal().Err(err).Msg("Unable to open the BoltDB database file.")
 	}
 	ex, err := os.Executable()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("")
 	}
 	exPath := filepath.Dir(ex)
-	config.Config.Logger.Info().
+	log.Info().
 		Str("full_path", exPath).
 		Str("db_name", db.Bolt.Path()).
 		Msg("starting boldDB")

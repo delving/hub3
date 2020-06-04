@@ -69,9 +69,9 @@ func CountRDFRecords(spec string) int {
 	var count int
 	var err error
 	if spec != "" {
-		count, err = orm.Select(q.Eq("Spec", spec)).Count(&record)
+		count, err = ORM().Select(q.Eq("Spec", spec)).Count(&record)
 	} else {
-		count, err = orm.Count(&record)
+		count, err = ORM().Count(&record)
 	}
 	if err != nil {
 		log.Printf("Unable to count for spec: %s", spec)
@@ -83,7 +83,7 @@ func CountRDFRecords(spec string) int {
 // If none is present it will create one
 func GetOrCreateRDFRecord(hubID, spec string) (RDFRecord, error) {
 	var record RDFRecord
-	err := orm.One("HubID", hubID, &record)
+	err := ORM().One("HubID", hubID, &record)
 	if err != nil {
 		record = NewRDFRecord(hubID, spec)
 		err = record.Save()
@@ -97,7 +97,7 @@ func GetOrCreateRDFRecord(hubID, spec string) (RDFRecord, error) {
 // Save saves the RDFRecord to Boltdb
 func (r RDFRecord) Save() error {
 	r.Modified = time.Now()
-	return orm.Save(&r)
+	return ORM().Save(&r)
 }
 
 // ExtractHubID extracts the orgId, spec and localId from the HubID
