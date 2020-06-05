@@ -35,7 +35,7 @@ var _ = Describe("Sparql", func() {
 			})
 
 			It("should have initialised the SparqlEndpoint", func() {
-				Expect(SparqlQueryURL).ToNot(BeNil())
+				Expect(sparqlQueryURL).ToNot(BeNil())
 			})
 		})
 	})

@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -33,9 +34,30 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 	c = c.Append(hlog.UserAgentHandler("user_agent"))
 	c = c.Append(hlog.RefererHandler("referer"))
 	c = c.Append(hlog.RequestIDHandler("req_id", "Request-Id"))
+	// FIXME(kiivihal): see why the context does not contains the chi routing info
+	c = c.Append(customURLParamHandler("spec", "datasetID"))
+	c = c.Append(customURLParamHandler("orgID", "orgID"))
+	c = c.Append(customURLParamHandler("inventoryID", "inventoryID"))
 
 	// Here is your final handler
 	return c.Then
+}
+
+// customURLParamHandler adds given urlParam from the request as a field to
+// the context's logger using fieldKey as field key.
+func customURLParamHandler(paramKey, fieldKey string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if val := chi.URLParam(r, paramKey); val != "" {
+				log := zerolog.Ctx(r.Context())
+				log.UpdateContext(func(c zerolog.Context) zerolog.Context {
+					return c.Str(fieldKey, val)
+				})
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 // LogParamsAsDict logs the request params as a zerolog.Dict.

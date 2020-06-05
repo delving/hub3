@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/rs/xid"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -47,6 +48,7 @@ type Task struct {
 	s           *Service
 	ctx         context.Context
 	cancel      context.CancelFunc
+	logger      *zerolog.Logger
 }
 
 func (t *Task) finishState() *Transition {
@@ -85,21 +87,41 @@ func (t *Task) finishTask() {
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
-	log.Info().Str("datasetID", t.Meta.DatasetID).Dur("processing", t.Meta.ProcessingDuration).
-		Int("inventories", int(t.Meta.Clevels)).
-		Int("metsFiles", int(t.Meta.DaoLinks)).
-		Int("recordsPublished", int(t.Meta.RecordsPublished)).
-		Int("digitalObjects", int(t.Meta.DigitalObjects)).
+	t.log().Info().
+		Dur("processing", t.Meta.ProcessingDuration).
+		Uint64("inventories", t.Meta.Clevels).
+		Uint64("metsFiles", t.Meta.DaoLinks).
+		Uint64("publishedToIndex", t.Meta.RecordsPublished).
+		Uint64("digitalObjects", t.Meta.DigitalObjects).
+		Bool("created", t.Meta.Created).
+		Uint64("metsRetrieveErrors", t.Meta.DaoErrors).
+		Strs("metsErrorLinks ", t.Meta.DaoErrorLinks).
+		Uint64("fileSize", t.Meta.FileSize).
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
 	t.finishState()
 }
 
+func (t *Task) log() *zerolog.Logger {
+	if t.logger == nil {
+		logger := log.With().
+			Str("component", "hub3").
+			Str("svc", "ead").
+			Str("datasetID", t.Meta.DatasetID).
+			Str("taskID", t.ID).
+			Str("orgID", t.Meta.OrgID).
+			Logger()
+
+		t.logger = &logger
+	}
+
+	return t.logger
+}
+
 func (t *Task) moveState(state ProcessingState) {
 	current := t.finishState()
-	log.Info().Str("datasetID", t.Meta.DatasetID).Str("taskID", t.ID).
-		Str("oldState", string(t.InState)).Str("newState", string(state)).Dur("dur", current.Duration).Msg("EAD state transition")
+	t.log().Info().Str("oldState", string(t.InState)).Str("newState", string(state)).Dur("dur", current.Duration).Msg("EAD state transition")
 
 	t.InState = state
 	t.Transitions = append(t.Transitions, &Transition{State: state, Started: time.Now()})
@@ -107,7 +129,7 @@ func (t *Task) moveState(state ProcessingState) {
 
 func (t *Task) finishWithError(err error) error {
 	t.finishState()
-	log.Error().Err(err).Str("orgID", t.Meta.OrgID).Str("datasetID", t.Meta.DatasetID).
+	t.log().Error().Err(err).
 		Str("taskState", string(t.InState)).Msg("stopped EAD task with error")
 	t.moveState(StateInError)
 	t.ErrorMsg = err.Error()

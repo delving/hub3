@@ -720,7 +720,7 @@ func storeResponseInCache(requestKey string, response *SearchResponse, rlog *zer
 func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 	once.Do(newBigCache)
 
-	inventoryID := chi.URLParam(r, "inventoryID")
+	inventoryID := chi.URLParam(r, "spec")
 
 	requestID, _ := hlog.IDFromRequest(r)
 	rlog := cfg.Config.Logger.With().

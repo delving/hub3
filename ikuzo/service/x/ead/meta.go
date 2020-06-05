@@ -12,9 +12,12 @@ type Meta struct {
 	Title                 string
 	Clevels               uint64
 	DaoLinks              uint64
+	DaoErrors             uint64
+	DaoErrorLinks         []string
 	RecordsPublished      uint64
 	DigitalObjects        uint64
 	FileSize              uint64
+	Created               bool
 	ProcessingDuration    time.Duration `json:"processingDuration,omitempty"`
 	ProcessingDurationFmt string        `json:"processingDurationFmt,omitempty"`
 }

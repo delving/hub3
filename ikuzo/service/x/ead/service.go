@@ -23,7 +23,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -198,7 +197,7 @@ func (s *Service) CancelTask(w http.ResponseWriter, r *http.Request) {
 
 	task.moveState(StateCancelled)
 
-	log.Info().Str("taskID", id).Str("datasetID", task.Meta.DatasetID).Msg("canceling running ead task")
+	task.log().Info().Msg("canceling running ead task")
 	task.cancel()
 
 	task.Next()
@@ -287,11 +286,13 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	}
 
 	// TODO(kiivihal): replace with dataset service later or store in DescriptionIndex
-	ds, _, err := models.GetOrCreateDataSet(t.Meta.DatasetID)
+	ds, created, err := models.GetOrCreateDataSet(t.Meta.DatasetID)
 	if err != nil {
 		ErrorfMsg := fmt.Errorf("unable to get DataSet for %s", t.Meta.DatasetID)
 		return t.finishWithError(ErrorfMsg)
 	}
+
+	t.Meta.Created = created
 
 	// set basics for ead
 	ds.Label = ead.Ceadheader.GetTitle()
@@ -391,7 +392,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			})
 
 			for _, dup := range sortedDups {
-				log.Warn().
+				t.log().Warn().
 					Str("hubID", dup.HubID).
 					Str("path", dup.Path).
 					Int("sortKey", int(dup.Order)).

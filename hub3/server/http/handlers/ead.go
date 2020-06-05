@@ -22,16 +22,12 @@ import (
 )
 
 func RegisterEAD(r chi.Router) {
-
-	// EAD endpoint
-	// r.Post("/api/ead", eadUpload)
-
 	r.Get("/api/ead/search", eadSearch)
-	r.Get("/api/ead/search/{inventoryID}", eadInventorySearch)
+	r.Get("/api/ead/search/{spec}", eadInventorySearch)
 
 	// Tree reconstruction endpoint
 	r.Get("/api/tree/{spec}", TreeList)
-	r.Get("/api/tree/{spec}/{nodeID:.*$}", TreeList)
+	r.Get("/api/tree/{spec}/{inventoryID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/ead/{spec}/download", EADDownload)
 	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
@@ -75,6 +71,7 @@ func eadUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 func TreeList(w http.ResponseWriter, r *http.Request) {
+	// FIXME(kiivihal): add logger for
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
@@ -85,7 +82,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	nodeID := chi.URLParam(r, "nodeID")
+	nodeID := chi.URLParam(r, "inventoryID")
 	if nodeID != "" {
 		id, err := url.QueryUnescape(nodeID)
 		if err != nil {
