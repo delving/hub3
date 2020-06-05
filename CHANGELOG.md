@@ -2,7 +2,25 @@
 
 ## development
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.7...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.8...master
+
+
+## v0.1.8 (2020-06-05) 
+
+- EAD: allow treePage calls with search hits
+- Revision: add support for Git RPC calls
+- Search: caching proxy for ElasticSearch
+- Search: add support for index and alias management
+- Logging: custom logger based on rs/zerolog
+- Index: add index service with support for NATS based queued indexing and official ElasticSearch library
+- Server: add TLS support via the configuration
+- Server: dependency injection via new config package based on viper configuration
+- EAD: task-based processing of uploaded EADs
+- Protobuf: update to new golang Protobuf API, see https://blog.golang.org/protobuf-apiv2
+- Bulk: Bulk service migrate to Index Service
+- EAD: structured logging for all task states
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.7...v0.1.8
 
 ## v0.1.7 (2020-05-05) 
 
