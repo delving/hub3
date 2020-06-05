@@ -99,9 +99,6 @@ func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessag
 }
 
 func (s *Service) Metrics() Metrics {
-	// duration := time.Since(s.m.started)
-	// s.m.ThroughPut = float64(s.m.Nats.Consumed) / duration.Seconds()
-
 	return s.m
 }
 
@@ -215,7 +212,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem, err error) {
 			atomic.AddUint64(&s.m.Index.Failed, 1)
 			if err != nil {
-				log.Error().Err(err).Msg("bulk index msg2 error")
+				log.Error().Err(err).Msg("bulk index msg error")
 			} else {
 				log.Error().
 					Str("type", res.Error.Type).

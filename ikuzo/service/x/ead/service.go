@@ -333,6 +333,75 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	})
 
 	workers := 8
+	workerChan := make(chan int, workers)
+
+	// when to close the HubIDs channel
+	g.Go(func() error {
+		var workersDone int
+		for worker := range workerChan {
+			workersDone += worker
+
+			select {
+			case <-gctx.Done():
+				return gctx.Err()
+			default:
+			}
+
+			if workersDone == workers {
+				close(cfg.HubIDs)
+				close(workerChan)
+				return nil
+			}
+		}
+
+		return nil
+	})
+
+	// gather duplicates
+	g.Go(func() error {
+		hubIDs := map[string]*eadHub3.NodeEntry{}
+		duplicates := map[*eadHub3.NodeEntry]bool{}
+
+		for entry := range cfg.HubIDs {
+			dupEntry, ok := hubIDs[entry.HubID]
+			if ok {
+				duplicates[entry] = true
+				duplicates[dupEntry] = true
+
+				continue
+			}
+
+			hubIDs[entry.HubID] = entry
+
+			select {
+			case <-gctx.Done():
+				return gctx.Err()
+			default:
+			}
+		}
+
+		if len(duplicates) != 0 {
+			sortedDups := []*eadHub3.NodeEntry{}
+			for dup := range duplicates {
+				sortedDups = append(sortedDups, dup)
+			}
+
+			sort.Slice(sortedDups, func(i, j int) bool {
+				return sortedDups[i].HubID < sortedDups[j].HubID
+			})
+
+			for _, dup := range sortedDups {
+				log.Warn().
+					Str("hubID", dup.HubID).
+					Str("path", dup.Path).
+					Int("sortKey", int(dup.Order)).
+					Str("label", dup.Title).
+					Msg("duplicate hubIDs discovered")
+			}
+		}
+
+		return nil
+	})
 
 	for i := 0; i < workers; i++ {
 		// consume nodes
@@ -364,6 +433,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 				default:
 				}
 			}
+
+			workerChan <- 1
 
 			return nil
 		})

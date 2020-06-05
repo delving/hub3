@@ -112,6 +112,13 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		Tags:          []string{"ead"},
 	}
 
+	cfg.HubIDs <- &NodeEntry{
+		HubID: header.HubID,
+		Path:  id,
+		Order: n.Order,
+		Title: n.Header.GetTreeLabel(),
+	}
+
 	for idx, t := range n.Triples(cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, nil, err

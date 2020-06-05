@@ -53,7 +53,6 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.1 // indirect
-	github.com/moul/http2curl v1.0.0 // indirect
 	github.com/muesli/smartcrop v0.3.0 // indirect
 	github.com/nats-io/jwt v1.0.1 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.6 // indirect
@@ -89,7 +88,7 @@ require (
 	github.com/urfave/negroni v1.0.0
 	github.com/valyala/fasthttp v1.14.0
 	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
-	github.com/zenazn/goji v1.0.1 // indirect
+	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.elastic.co/apm/module/apmchi v1.8.0
 	go.elastic.co/fastjson v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.4 // indirect
@@ -102,16 +101,9 @@ require (
 	google.golang.org/genproto v0.0.0-20200603110839-e855014d5736
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.24.0
-	gopkg.in/VividCortex/ewma.v1 v1.1.1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
-	gopkg.in/cheggaaa/pb.v2 v2.0.7 // indirect
-	gopkg.in/fatih/color.v1 v1.7.0 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
-	gopkg.in/mattn/go-colorable.v0 v0.1.0 // indirect
-	gopkg.in/mattn/go-isatty.v0 v0.0.4 // indirect
-	gopkg.in/mattn/go-runewidth.v0 v0.0.4 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.85
-	gopkg.in/vmihailenco/msgpack.v2 v2.9.1 // indirect
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
 	moul.io/http2curl v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.10.0

@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -19,6 +20,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog/log"
 )
 
 const pathSep string = "~"
@@ -29,6 +31,13 @@ type Manifest struct {
 	ArchiveName string `json:"archiveName"`
 	UnitID      string `json:"unitID"`
 	UnitTitle   string `json:"unitTitle"`
+}
+
+type NodeEntry struct {
+	HubID string
+	Path  string
+	Order uint64
+	Title string
 }
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
@@ -45,6 +54,7 @@ type NodeConfig struct {
 	PeriodDesc              []string
 	labels                  map[string]string
 	MimeTypes               map[string][]string
+	HubIDs                  chan *NodeEntry
 	Errors                  []*DuplicateError
 	Client                  *http.Client
 	IndexService            *index.Service
@@ -52,6 +62,11 @@ type NodeConfig struct {
 	ContentIdentical        bool
 	Nodes                   chan *Node
 	ProcessDigital          bool
+	m                       sync.Mutex
+}
+
+func (cfg *NodeConfig) Labels() map[string]string {
+	return cfg.labels
 }
 
 // BulkProcessor is an interface for oliver/elastice BulkProcessor.
@@ -80,6 +95,7 @@ func (nc *NodeConfig) ErrorToCSV() ([]byte, error) {
 	}
 
 	b.WriteString("nr,spec,order,path,key,label,dupKey,dupLabel,ctype,depth,error\n")
+
 	for idx, de := range nc.Errors {
 		b.WriteString(
 			fmt.Sprintf(
@@ -109,6 +125,7 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 		},
 		Client: &http.Client{Timeout: 10 * time.Second},
 		labels: make(map[string]string),
+		HubIDs: make(chan *NodeEntry, 100),
 	}
 }
 
@@ -321,8 +338,11 @@ func (ui *Cunitid) NewNodeID() (*NodeID, error) {
 
 // NewNodeIDs extract Unit Identifiers from the EAD did
 func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
-	var ids []*NodeID
-	var inventoryID string
+	var (
+		ids         []*NodeID
+		inventoryID string
+	)
+
 	for _, unitid := range cdid.Cunitid {
 		id, err := unitid.NewNodeID()
 		if err != nil {
@@ -391,6 +411,7 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
+
 			for _, date := range label.Cunitdate {
 				nodeDate, err := date.NewNodeDate()
 				if err != nil {
@@ -455,15 +476,28 @@ func (n *Node) getPathID() string {
 	return fmt.Sprintf("%s", eadID)
 }
 
-func (n *Node) setPath(parentIDs []string) ([]string, error) {
+func (cfg *NodeConfig) UpdatePath(node *Node, parentIDs []string) ([]string, error) {
+	cfg.m.Lock()
+	defer cfg.m.Unlock()
+
 	if len(parentIDs) > 0 {
-		n.BranchID = parentIDs[len(parentIDs)-1]
-		n.Path = fmt.Sprintf("%s%s%s", n.BranchID, pathSep, n.getPathID())
+		node.BranchID = parentIDs[len(parentIDs)-1]
+		node.Path = fmt.Sprintf("%s%s%s", node.BranchID, pathSep, node.getPathID())
 	} else {
-		n.Path = n.getPathID()
+		node.Path = node.getPathID()
 	}
 
-	ids := append(parentIDs, n.Path)
+	_, ok := cfg.labels[node.Path]
+	if ok {
+		newPath := fmt.Sprintf("%s-%d", node.Path, node.Order)
+		log.Warn().Str("oldPath", node.Path).Str("newPath", newPath).
+			Str("datasetID", cfg.Spec).Msg("renaming duplicate node path entry")
+		node.Path = newPath
+	}
+
+	cfg.labels[node.Path] = node.Header.GetTreeLabel()
+
+	ids := append(parentIDs, node.Path)
 
 	return ids, nil
 }
@@ -506,6 +540,7 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		if len(c.GetCaccessrestrict()) != 0 {
 			arFirst := c.GetCaccessrestrict()[0]
 			node.AccessRestrict = strings.TrimSpace(sanitizer.Sanitize(string(arFirst.Raw)))
+
 			for _, p := range arFirst.Cp {
 				if len(p.Cref) != 0 && len(p.Cref[0].Cdate) != 0 {
 					node.AccessRestrictYear = p.Cref[0].Cdate[0].Attrnormal
@@ -540,17 +575,10 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 		}
 	}
 
-	_, ok := cfg.labels[node.Path]
-	if ok {
-		node.Path = fmt.Sprintf("%s-%d", node.Path, node.Order)
-	}
-
-	parentIDs, err = node.setPath(parentIDs)
+	parentIDs, err = cfg.UpdatePath(node, parentIDs)
 	if err != nil {
 		return nil, err
 	}
-
-	cfg.labels[node.Path] = header.GetTreeLabel()
 
 	subject := r.NewResource(node.GetSubject(cfg))
 

@@ -85,6 +85,13 @@ func (t *Task) finishTask() {
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
+	log.Info().Str("datasetID", t.Meta.DatasetID).Dur("processing", t.Meta.ProcessingDuration).
+		Int("inventories", int(t.Meta.Clevels)).
+		Int("metsFiles", int(t.Meta.DaoLinks)).
+		Int("recordsPublished", int(t.Meta.RecordsPublished)).
+		Int("digitalObjects", int(t.Meta.DigitalObjects)).
+		Msg("finished processing")
+
 	t.moveState(StateFinished)
 	t.finishState()
 }
