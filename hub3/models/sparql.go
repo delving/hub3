@@ -239,7 +239,6 @@ func CountGraphsBySpec(spec string) (int, error) {
 		return 0, err
 	}
 
-	log.Printf("sparql query url: %s", sparqlQueryURL)
 	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		log.Printf("Unable query endpoint: %s", err)
