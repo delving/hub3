@@ -2,6 +2,9 @@
 
 ## development
 
+- EAD: add support for meta.tags in EAD upload form
+- License: add license headers to all Go and Protobuf source files
+
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.8...master
 
 
