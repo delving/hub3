@@ -51,7 +51,6 @@ Copyright (c) 2017-present Delving B.V.
 Licensed under [Apache 2.0](./License)
 
 [Golang Installation]: https://golang.org/doc/install
-[glide]: https://glide.sh 
 
 
 
