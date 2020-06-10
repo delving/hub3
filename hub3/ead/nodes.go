@@ -112,6 +112,10 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		Tags:          []string{"ead"},
 	}
 
+	if len(cfg.Tags) != 0 {
+		header.Tags = append(header.Tags, cfg.Tags...)
+	}
+
 	cfg.HubIDs <- &NodeEntry{
 		HubID: header.HubID,
 		Path:  id,

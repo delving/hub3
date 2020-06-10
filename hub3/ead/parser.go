@@ -62,7 +62,7 @@ func eadParse(src []byte) (*Cead, error) {
 	return ead, err
 }
 
-func ProcessEAD(r io.Reader, headerSize int64, spec string, bi BulkIndex) (*NodeConfig, error) {
+func ProcessEAD(r io.Reader, headerSize int64, spec string, bi BulkIndex, tags ...string) (*NodeConfig, error) {
 	os.MkdirAll(config.Config.EAD.CacheDir, os.ModePerm)
 
 	f, err := ioutil.TempFile(config.Config.EAD.CacheDir, "*")
@@ -125,6 +125,7 @@ func ProcessEAD(r io.Reader, headerSize int64, spec string, bi BulkIndex) (*Node
 	cfg.Spec = spec
 	cfg.OrgID = config.Config.OrgID
 	cfg.Revision = int32(ds.Revision)
+	cfg.Tags = tags
 
 	// create desciption
 	desc, err := NewDescription(cead)
@@ -227,12 +228,14 @@ func ProcessUpload(r *http.Request, w http.ResponseWriter, spec string, bi BulkI
 		return uint64(0), err
 	}
 
+	tags := r.FormValue("tags")
+
 	defer in.Close()
 	defer func() {
 		err = r.MultipartForm.RemoveAll()
 	}()
 
-	cfg, err := ProcessEAD(in, header.Size, spec, bi)
+	cfg, err := ProcessEAD(in, header.Size, spec, bi, strings.Split(tags, ",")...)
 	if err != nil {
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		return 0, err
@@ -373,6 +376,10 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 		Tags:          []string{"eadDesc"},
 	}
 
+	if len(cfg.Tags) != 0 {
+		header.Tags = append(header.Tags, cfg.Tags...)
+	}
+
 	tree := &fragments.Tree{}
 
 	tree.HubID = header.HubID
@@ -484,6 +491,7 @@ func (ad *Carchdesc) GetAbstract() []string {
 
 func (ad *Carchdesc) GetPeriods() []string {
 	dates := []string{}
+
 	for _, did := range ad.Cdid {
 		for _, date := range did.Cunitdate {
 			if date.Unitdate != "" {
@@ -497,6 +505,7 @@ func (ad *Carchdesc) GetPeriods() []string {
 
 func (ad *Carchdesc) GetNormalPeriods() []string {
 	dates := []string{}
+
 	for _, did := range ad.Cdid {
 		for _, date := range did.Cunitdate {
 			if date.Attrnormal != "" && date.Attrtype != "bulk" {

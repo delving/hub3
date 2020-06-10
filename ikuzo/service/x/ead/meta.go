@@ -14,6 +14,7 @@ type Meta struct {
 	DaoLinks              uint64
 	DaoErrors             uint64
 	DaoErrorLinks         []string
+	Tags                  []string
 	RecordsPublished      uint64
 	DigitalObjects        uint64
 	FileSize              uint64

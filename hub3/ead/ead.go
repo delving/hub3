@@ -63,6 +63,7 @@ type NodeConfig struct {
 	Nodes                   chan *Node
 	ProcessDigital          bool
 	m                       sync.Mutex
+	Tags                    []string
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {

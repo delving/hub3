@@ -12,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -306,6 +307,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = config.Config.OrgID
 	cfg.IndexService = s.index
+	cfg.Tags = t.Meta.Tags
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
@@ -559,6 +561,12 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if forTags := r.FormValue("tags"); forTags != "" {
+		for _, tag := range strings.Split(forTags, ",") {
+			meta.Tags = append(meta.Tags, strings.TrimSpace(tag))
+		}
+	}
+
 	render.JSON(w, r, taskResponse{
 		TaskID:    t.ID,
 		OrgID:     t.Meta.OrgID,
@@ -639,6 +647,10 @@ func (s *Service) getDataPath(dataset string) string {
 //
 // The returned io.Reader is a bytes.Buffer that can be read from multiple times.
 func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, error) {
+	if err := os.MkdirAll(s.dataDir, os.ModePerm); err != nil {
+		return nil, "", fmt.Errorf("unable to create data directory; %w", err)
+	}
+
 	f, err := ioutil.TempFile(s.dataDir, "*")
 	if err != nil {
 		return nil, "", fmt.Errorf("unable to create ead tmpFiles; %w", err)
