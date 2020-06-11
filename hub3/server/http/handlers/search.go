@@ -385,10 +385,16 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 			// Paging call with a searchHit.
 			if searchRequest.Tree.IsPaging && searchRequest.Tree.IsSearch {
-				firstHit := records[0].Tree
-				searchRequest.Tree.Leaf = firstHit.CLevel
+				leaf := records[0].Tree
+				pages, err := searchRequest.Tree.SearchPages(int32(leaf.SortKey))
+				if err != nil {
+					log.Printf("Unable to get searchPages: %v", err)
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
 				var pageParam string
-				for _, page := range searchRequest.Tree.Page {
+
+				for _, page := range pages {
 					pageParam = fmt.Sprintf("%s&page=%d", pageParam, page)
 				}
 				qs := fmt.Sprintf("paging=true%s", pageParam)
@@ -425,6 +431,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				if err != nil {
 					return
 				}
+
+				// TODO(kiivihal): set page
+				searchRequest.Tree.Page = pages
+				searchRequest.Tree.Leaf = leaf.CLevel
 			}
 
 			if !searchRequest.Tree.IsPaging {
@@ -571,7 +581,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 			// update paging
 			if result.TreeHeader.Paging != nil {
-				paging := result.TreeHeader.Paging
+				paging = result.TreeHeader.Paging
 				paging.ResultFirst = firstNode.Tree.PageEntry()
 				paging.ResultLast = lastNode.Tree.PageEntry()
 				paging.SameLeaf = paging.ResultFirst.SameLeaf(paging.ResultLast)
