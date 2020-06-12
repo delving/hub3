@@ -35,6 +35,7 @@ type Node struct {
 	SubType            string
 	Header             *Header
 	Nodes              []*Node
+	Children           int
 	Order              uint64
 	ParentIDs          []string
 	Path               string
@@ -154,7 +155,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree {
 	tree := &fragments.Tree{}
 	tree.HubID = hubID
-	tree.ChildCount = len(n.Nodes)
+	tree.ChildCount = n.Children
 	tree.Type = n.Type
 	tree.CLevel = fmt.Sprintf("%s%s", CLevelLeader, id)
 	tree.Label = n.Header.GetTreeLabel()
@@ -169,6 +170,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.MimeTypes = []string{}
 	tree.ManifestLink = ""
 	tree.RawContent = []string{}
+
 	for _, t := range n.triples {
 		switch t.Predicate.RawValue() {
 		case NewResource("unitTitle").RawValue():

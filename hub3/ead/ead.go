@@ -613,7 +613,9 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	// add nested
 	nested := cl.GetNested()
-	if len(nested) != 0 {
+	node.Children = len(nested)
+
+	if node.Children != 0 {
 		for _, nn := range nested {
 			n, err := NewNode(nn, parentIDs, cfg)
 			if err != nil {
