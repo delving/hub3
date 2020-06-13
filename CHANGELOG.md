@@ -2,6 +2,7 @@
 
 ## development
 
+- Tree: make sure fields in Tree API remain sorted by their sortorder key.
 - EAD: when EAD processing tasks stop with an error the worker tasks should not exit
 - EAD: removed deprecated pre-task EAD processing functions
 - Search: add backtick '`' to characters to be ignored or removed during tokenization

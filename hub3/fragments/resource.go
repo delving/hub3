@@ -1364,7 +1364,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 		tq.Reset()
 	}
 
-	fieldMap := make(map[string]map[string]bool)
+	fieldMap := make(map[string]map[string]int)
 
 	includeMap := make(map[string]bool)
 	for _, field := range fields {
@@ -1392,19 +1392,18 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 
 			nd, ok := fieldMap[entry.SearchLabel]
 			if !ok {
-				fd := make(map[string]bool)
-				fd[entryKey] = true
+				fd := make(map[string]int)
+				fd[entryKey] = entry.Order
 				fieldMap[entry.SearchLabel] = fd
 				continue
 			}
 			_, ok = nd[entryKey]
 			if !ok {
-				nd[entryKey] = true
+				nd[entryKey] = entry.Order
 			}
 		}
 	}
 	fg.Fields = make(map[string][]string)
-	var docID int
 
 	type hlEntry struct {
 		searchLabel string
@@ -1416,19 +1415,18 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 
 	for searchLabel, rawFields := range fieldMap {
 
-		for field := range rawFields {
+		for field, order := range rawFields {
 
 			if field != "" {
-				docID++
 				if tq != nil {
-					indexErr := tq.AppendString(field, docID)
+					indexErr := tq.AppendString(field, order)
 					if indexErr != nil {
 						log.Printf("index error: %#v", indexErr)
 					}
 				}
 				hlFields = append(hlFields, hlEntry{
 					searchLabel: searchLabel,
-					docID:       docID,
+					docID:       order,
 					text:        field,
 				})
 			}
