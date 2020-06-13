@@ -451,10 +451,10 @@ func (qp *QueryParser) runParser(q *QueryTerm, op Operator, qt *QueryTerm) error
 
 func isIdentRune(ch rune, i int) bool {
 	return ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' && i > 0 ||
-		ch == '-' && i > 0 || ch == '/' || ch == '\'' || ch == '"'
+		ch == '-' && i > 0 || ch == '/' || ch == '\'' || ch == '"' || ch == '`'
 }
 
 func isPhraseIdentRune(ch rune, i int) bool {
 	return ch == '_' || unicode.IsLetter(ch) || unicode.IsDigit(ch) || ch == '.' && i > 0 ||
-		ch == '-' && i > 0 || ch == '/' || ch == '\''
+		ch == '-' && i > 0 || ch == '/' || ch == '\'' || ch == '`'
 }

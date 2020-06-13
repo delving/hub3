@@ -2,6 +2,7 @@
 
 ## development
 
+- Search: add backtick '`' to characters to be ignored or removed during tokenization
 - EAD: add support for meta.tags in EAD upload form
 - License: add license headers to all Go and Protobuf source files
 

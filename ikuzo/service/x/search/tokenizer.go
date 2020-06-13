@@ -18,10 +18,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 	"text/scanner"
 	"unicode"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Token struct {
@@ -142,7 +143,7 @@ func (t *Tokenizer) Parse(r io.Reader, docID int) *TokenStream {
 
 	if t.s.ErrorCount != 0 {
 		for _, parseErr := range t.errors {
-			log.Printf("parse error: %s", parseErr)
+			log.Warn().Str("parseErr", parseErr).Msg("parse error")
 		}
 	}
 

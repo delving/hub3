@@ -51,6 +51,16 @@ var tokenTests = []struct {
 		},
 	},
 	{
+		"error with backtick",
+		targs{"`bijzondere' organisaties"},
+		&TokenStream{
+			[]Token{
+				{Vector: 1, TermVector: 1, OffsetStart: 0, OffsetEnd: 11, RawText: "`bijzondere'", Normal: "bijzondere", DocID: 1, TrailingSpace: true},
+				{Vector: 2, TermVector: 2, OffsetStart: 13, OffsetEnd: 24, RawText: "organisaties", Normal: "organisaties", DocID: 1},
+			},
+		},
+	},
+	{
 		"normalized word",
 		targs{"Word..."},
 		&TokenStream{
