@@ -266,50 +266,6 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 	return nl, cfg.Counter.GetCount(), nil
 }
 
-// ESSave saves the list of Archive Nodes to ElasticSearch
-func (nl *NodeList) ESSave(cfg *NodeConfig, bi BulkIndex) error {
-	for _, n := range nl.Nodes {
-		err := n.ESSave(cfg, bi)
-		if err != nil {
-			return err
-		}
-	}
-	// todo store cfg.Counter.GetCount() in dataset
-	return nil
-}
-
-// ESSave stores a Fragments and a FragmentGraph in ElasticSearch
-func (n *Node) ESSave(cfg *NodeConfig, bi BulkIndex) error {
-	fg, _, err := n.FragmentGraph(cfg)
-	if err != nil {
-		return err
-	}
-
-	m, err := fg.IndexMessage()
-	if err != nil {
-		return fmt.Errorf("unable to marshal fragment graph: %w", err)
-	}
-
-	bi.Publish(context.Background(), m)
-
-	// TODO(kiivihal): decide what needs to happen with this functionality
-	// if config.Config.ElasticSearch.Fragments {
-	// err := fragments.IndexFragments(rm, fg, bi)
-	// if err != nil {
-	// return err
-	// }
-	// }
-
-	// recursion on itself for nested nodes on deeper levels
-	for _, n := range n.Nodes {
-		err := n.ESSave(cfg, bi)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // Sparse creates a sparse version of Header
 func (h *Header) Sparse() {
 	if h.DateAsLabel {

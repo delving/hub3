@@ -606,12 +606,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 			switch searchRequest.Tree.GetPageMode() {
 			case "append":
-				log.Println("appending")
 				page := paging.ResultFirst.CreateTreePage(nodeMap, result.Tree, true, 0)
 				result.TreePage = page
 				result.Tree = nil
 			case "prepend":
-				log.Println("prepending")
 				page := paging.ResultLast.CreateTreePage(nodeMap, result.Tree, false, paging.ResultFirst.SortKey)
 				result.TreePage = page
 				result.Tree = nil

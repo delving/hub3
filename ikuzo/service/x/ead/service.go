@@ -139,6 +139,8 @@ func (s *Service) StartWorkers() error {
 
 					if err := s.Process(gctx, task); err != nil {
 						// check for context canceled
+						// TODO(kiivihal): check error for allowed error
+						// otherwise return true error
 						return err
 					}
 				}
@@ -523,17 +525,6 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	}
 
 	return nil
-}
-
-// legacy should be deprecated
-func (s *Service) eadUpload(w http.ResponseWriter, r *http.Request) {
-	spec := r.FormValue("spec")
-
-	_, err := eadHub3.ProcessUpload(r, w, spec, s.index)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 type taskResponse struct {

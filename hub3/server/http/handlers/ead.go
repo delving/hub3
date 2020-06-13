@@ -70,20 +70,6 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 	return nil
 }
 
-func eadUpload(w http.ResponseWriter, r *http.Request) {
-	spec := r.FormValue("spec")
-
-	bi := OldBulkProcessor{bi: BulkProcessor()}
-
-	_, err := ead.ProcessUpload(r, w, spec, bi)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	return
-}
-
 func TreeList(w http.ResponseWriter, r *http.Request) {
 	// FIXME(kiivihal): add logger for
 	spec := chi.URLParam(r, "spec")
