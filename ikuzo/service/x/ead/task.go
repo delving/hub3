@@ -150,7 +150,9 @@ func (t *Task) finishWithError(err error) error {
 
 	atomic.AddUint64(&t.s.m.Failed, 1)
 
-	return err
+	// expected errors so just log them and move on
+	// returning an error here stops the worker
+	return nil
 }
 
 func (t *Task) currentTransition() *Transition {

@@ -138,9 +138,6 @@ func (s *Service) StartWorkers() error {
 					}
 
 					if err := s.Process(gctx, task); err != nil {
-						// check for context canceled
-						// TODO(kiivihal): check error for allowed error
-						// otherwise return true error
 						return err
 					}
 				}

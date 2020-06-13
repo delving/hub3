@@ -2,6 +2,7 @@
 
 ## development
 
+- EAD: when EAD processing tasks stop with an error the worker tasks should not exit
 - EAD: removed deprecated pre-task EAD processing functions
 - Search: add backtick '`' to characters to be ignored or removed during tokenization
 - EAD: add support for meta.tags in EAD upload form
