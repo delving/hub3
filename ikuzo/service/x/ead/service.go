@@ -38,6 +38,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -108,6 +109,8 @@ func (s *Service) findAvailableTask() *Task {
 	sort.Slice(tasks, func(i, j int) bool {
 		return tasks[i].currentTransition().Started.After(tasks[j].currentTransition().Started)
 	})
+
+	log.Info().Str("svc", "eadProcessor").Int("availableTasks", len(tasks)).Msg("returning first available task for processing")
 
 	return tasks[0]
 }
