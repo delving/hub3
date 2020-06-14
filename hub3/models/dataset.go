@@ -19,7 +19,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -28,6 +27,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	wp "github.com/gammazero/workerpool"
+	"github.com/rs/zerolog/log"
 
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -177,6 +177,7 @@ func NewDataset(spec string) DataSet {
 		Modified: now,
 		Access:   access,
 	}
+
 	return dataset
 }
 
@@ -184,6 +185,7 @@ func NewDataset(spec string) DataSet {
 func GetDataSet(spec string) (*DataSet, error) {
 	var ds DataSet
 	err := ORM().One("Spec", spec, &ds)
+
 	return &ds, err
 }
 
@@ -192,6 +194,7 @@ func CreateDataSet(spec string) (*DataSet, bool, error) {
 	ds := NewDataset(spec)
 	ds.Revision = 1
 	err := ds.Save()
+
 	return &ds, true, err
 }
 
@@ -209,10 +212,13 @@ func GetOrCreateDataSet(spec string) (*DataSet, bool, error) {
 func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 	err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
 	if err != nil {
-		log.Printf("Unable to update field in dataset: %s", ds.Spec)
+		log.Warn().Err(err).Str("datasetID", ds.Spec).Msg("Unable to update field in dataset")
+
 		return nil, err
 	}
+
 	freshDs, err := GetDataSet(ds.Spec)
+
 	return freshDs, err
 }
 
@@ -235,6 +241,13 @@ func (ds DataSet) Delete(ctx context.Context, wp *wp.WorkerPool) error {
 		_, err := ds.DropAll(ctx, wp)
 		return err
 	}
+
+	log.Info().
+		Str("component", "hub3").
+		Str("datasetID", ds.Spec).
+		Str("svc", "dataset").
+		Msg("deleting dataset")
+
 	return ORM().DeleteStruct(&ds)
 }
 
@@ -245,6 +258,7 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").Interval("1D").
 		SubAggregation("spec", specAgg)
 	q := elastic.NewMatchAllQuery()
+
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
@@ -253,9 +267,11 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 		Aggregation("modified", agg).
 		Do(ctx)
 	if err != nil {
-		log.Printf("unable to render Modified histogram: %s", err)
+		log.Error().Err(err).Msg("unable to render Modified histogram")
+
 		return nil, err
 	}
+
 	aggMod, _ := res.Aggregations.DateHistogram("modified")
 
 	return aggMod.Buckets, nil
@@ -268,7 +284,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	tagCounter := []DataSetCounter{}
 
 	if !c.Config.ElasticSearch.Enabled {
-		err := fmt.Errorf("IndexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
+		err := fmt.Errorf("indexRecordRevisionsBySpec should not be called when elasticsearch is not enabled")
 		return 0, revisions, counter, tagCounter, err
 	}
 
@@ -286,6 +302,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
 	)
+
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
@@ -296,35 +313,41 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		Aggregation("contentTags", contentTagAgg).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Unable to get IndexRevisionStats for the dataset: %s", err)
+		log.Warn().Msgf("Unable to get IndexRevisionStats for the dataset: %s", err)
 		return 0, revisions, counter, tagCounter, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
+
+	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
+
 	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
+		log.Warn().Msgf("expected response != nil; got: %v", res)
 		return 0, revisions, counter, tagCounter, fmt.Errorf("expected response != nil")
 	}
 	aggs := res.Aggregations
+
 	revAggCount, found := aggs.Terms("revisions")
 	if !found {
-		log.Printf("Expected to find revision aggregations but got: %v", res)
+		log.Warn().Msgf("Expected to find revision aggregations but got: %v", res)
 		return 0, revisions, counter, tagCounter, fmt.Errorf("expected revision aggregrations")
 	}
+
 	for _, keyCount := range revAggCount.Buckets {
 		revisions = append(revisions, DataSetRevisions{
 			Number:      int(keyCount.Key.(float64)),
 			RecordCount: int(keyCount.DocCount),
 		})
 	}
+
 	counter, err = createDataSetCounters(aggs, "tags")
 	if err != nil {
-		log.Printf("Unable to get Tag ggregations but got: %v", res)
+		log.Warn().Msgf("Unable to get Tag ggregations but got: %v", res)
 		return 0, revisions, counter, tagCounter, fmt.Errorf("expected tag aggregrations")
 	}
 
 	// contentTags
 	ct, _ := aggs.Nested("contentTags")
 	ctt, _ := ct.Terms("contentTags")
+
 	for _, keyCount := range ctt.Buckets {
 
 		tagCounter = append(tagCounter, DataSetCounter{
@@ -334,19 +357,21 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	}
 
 	totalHits := res.Hits.TotalHits.Value
+
 	return int(totalHits), revisions, counter, tagCounter, err
 }
 
 // createDataSetCounters creates counters from an ElasticSearch aggregation
 func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCounter, error) {
 	counters := []DataSetCounter{}
+
 	aggCount, found := aggs.Terms(name)
 	if !found {
-		log.Printf("Expected to find %s aggregations but got: %v", name, aggs)
+		log.Warn().Msgf("Expected to find %s aggregations but got: %v", name, aggs)
 		return counters, fmt.Errorf("expected %s aggregrations", name)
 	}
-	for _, keyCount := range aggCount.Buckets {
 
+	for _, keyCount := range aggCount.Buckets {
 		counters = append(counters, DataSetCounter{
 			Value:    fmt.Sprintf("%s", keyCount.Key),
 			DocCount: int(keyCount.DocCount),
@@ -385,26 +410,31 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		Aggregation("tags", tagsAgg).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Unable to get FragmentStatsBySpec for the dataset: %s", ds.Spec)
+		log.Warn().Msgf("Unable to get FragmentStatsBySpec for the dataset: %s", ds.Spec)
 		return fStats, err
 	}
-	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
+	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
+
 	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
+		log.Warn().Msgf("expected response != nil; got: %v", res)
 		return fStats, fmt.Errorf("expected response != nil")
 	}
+
 	aggs := res.Aggregations
+
 	revAggCount, found := aggs.Terms("revisions")
 	if !found {
-		log.Printf("Expected to find revision aggregations but got: %v", res)
+		log.Warn().Msgf("Expected to find revision aggregations but got: %v", res)
 		return fStats, fmt.Errorf("expected revision aggregrations")
 	}
+
 	for _, keyCount := range revAggCount.Buckets {
 		revisions = append(revisions, DataSetRevisions{
 			Number:      int(keyCount.Key.(float64)),
 			RecordCount: int(keyCount.DocCount),
 		})
 	}
+
 	buckets := []string{
 		"language", "dataType",
 		"tags",
@@ -414,6 +444,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		if err != nil {
 			return fStats, err
 		}
+
 		switch a {
 		case "language":
 			fStats.Language = counter
@@ -423,6 +454,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 			fStats.Tags = counter
 		}
 	}
+
 	fStats.StoredFragments = int(res.Hits.TotalHits.Value)
 	fStats.Revisions = revisions
 	return fStats, nil
@@ -441,9 +473,10 @@ func (ds DataSet) createIndexStats(ctx context.Context) (IndexStats, error) {
 	if !c.Config.ElasticSearch.Enabled {
 		return IndexStats{Enabled: false}, nil
 	}
+
 	hits, indexRevisionCount, tags, contentTags, err := ds.indexRecordRevisionsBySpec(ctx)
 	if err != nil {
-		log.Printf("Unable to get Index Revisions from ElasticSearch.")
+		log.Warn().Msgf("Unable to get Index Revisions from ElasticSearch.")
 		return IndexStats{}, err
 	}
 	return IndexStats{
@@ -460,6 +493,7 @@ func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
 	if !c.Config.RDF.RDFStoreEnabled {
 		return RDFStoreStats{Enabled: false}, nil
 	}
+
 	storedGraphs, err := CountGraphsBySpec(ds.Spec)
 	if err != nil {
 		return RDFStoreStats{}, err
@@ -479,22 +513,22 @@ func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
 func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) {
 	ds, err := GetDataSet(spec)
 	if err != nil {
-		log.Printf("Unable to retrieve dataset %s: %s", spec, err)
+		log.Warn().Msgf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
 	indexStats, err := ds.createIndexStats(ctx)
 	if err != nil {
-		log.Printf("Unable to create indexStats for %s; %#v", spec, err)
+		log.Warn().Msgf("Unable to create indexStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
 	storeStats, err := ds.createRDFStoreStats()
 	if err != nil {
-		log.Printf("Unable to create rdfStoreStats for %s; %#v", spec, err)
+		log.Warn().Msgf("Unable to create rdfStoreStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
 	lodFragmentStats, err := ds.createLodFragmentStats(ctx)
 	if err != nil {
-		log.Printf("Unable to create LODFragmentStats for %s; %#v", spec, err)
+		log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
 	return DataSetStats{
@@ -519,6 +553,8 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 
 // CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
 // to be delete to the PostHook workerpool.
+//
+// Deprecated: only direct bulk delelet should be used. (will be removed in v0.1.10)
 func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPool) error {
 	index.ESClient().Flush(c.Config.ElasticSearch.GetIndexName())
 	timer := time.NewTimer(time.Second * 5)
@@ -528,11 +564,12 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPo
 		//StoredFields("system.source_uri", "entryURI").
 		Query(q).
 		Size(100)
-	log.Println("Starting enqueueing delete posthooks")
+	log.Info().Msg("Starting enqueueing delete posthooks")
+
 	for {
 		results, err := scroll.Do(ctx)
 		if err == io.EOF {
-			log.Println("No records to delete from posthook target was found.")
+			log.Warn().Msg("No records to delete from posthook target was found.")
 			return nil // all results retrieved
 		}
 		if err != nil {
@@ -541,21 +578,22 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPo
 
 		// Send the hits to the hits channel
 		for _, hit := range results.Hits.Hits {
-			//log.Printf("%#v", hit.Id)
+			//log.Warn().Msgf("%#v", hit.Id)
 			item := make(map[string]interface{})
 			err := json.Unmarshal(hit.Source, &item)
 			if err != nil {
-				log.Printf("unmarschalling error: %#v", err)
+				log.Warn().Msgf("unmarschalling error: %#v", err)
 				return err
 			}
 			id := item["entryURI"]
 			spec := item[c.Config.ElasticSearch.SpecKey]
 			//revision := item[c.Config.ElasticSearch.RevisionKey]
 			hubID := item["hubID"]
+
 			if id != nil {
-				ds := string(spec.(string))
-				uri := string(id.(string))
-				//log.Printf("ph queue for %s with revision %f", ds, revision)
+				ds := spec.(string)
+				uri := id.(string)
+				//log.Warn().Msgf("ph queue for %s with revision %f", ds, revision)
 				ph := NewPostHookJob(nil, ds, true, uri, hubID.(string))
 				if ph.Valid() {
 					wp.Submit(func() { ApplyPostHookJob(ph) })
@@ -563,7 +601,9 @@ func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPo
 			}
 		}
 	}
-	log.Println("Finished enqueueing posthooks")
+
+	log.Info().Msg("Finished enqueueing posthooks")
+
 	return nil
 }
 
@@ -572,6 +612,7 @@ func (ds DataSet) validForPostHook() bool {
 	if len(c.Config.PostHook.URLs) == 0 {
 		return false
 	}
+
 	for _, e := range c.Config.PostHook.ExcludeSpec {
 		if e == ds.Spec {
 			return false
@@ -597,7 +638,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		if ds.validForPostHook() && wp != nil {
 			err := CreateDeletePostHooks(ctx, q, wp)
 			if err != nil {
-				log.Printf("unable to create delete posthooks: %#v", err)
+				log.Warn().Msgf("unable to create delete posthooks: %#v", err)
 				//return 0, err
 			}
 		}
@@ -611,16 +652,15 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 			Conflicts("proceed"). // default is abort
 			Do(ctx)
 		if err != nil {
-			log.Printf("Unable to delete orphaned dataset records from index: %s.", err)
+			log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
 			return
-			//return err
 		}
 		if res == nil {
-			log.Printf("expected response != nil; got: %v", res)
+			log.Warn().Msgf("expected response != nil; got: %v", res)
 			//return fmt.Errorf("expected response != nil")
 			return
 		}
-		//log.Printf("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
+		//log.Warn().Msgf("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
 
 	}()
 	return 0, nil
@@ -629,11 +669,11 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) (int, error) {
 	q := elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)
-	log.Printf("%#v", q)
+	log.Warn().Msgf("%#v", q)
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)
 		if err != nil {
-			log.Printf("unable to create delete posthooks: %#v", err)
+			log.Warn().Msgf("unable to create delete posthooks: %#v", err)
 			return 0, err
 		}
 	}
@@ -645,14 +685,16 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 		Query(q).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Unable to delete dataset records from index.")
+		log.Warn().Msgf("Unable to delete dataset records from index.")
 		return 0, err
 	}
 	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
+		log.Warn().Msgf("expected response != nil; got: %v", res)
 		return 0, fmt.Errorf("expected response != nil")
 	}
-	log.Printf("Removed %d records for spec %s", res.Deleted, ds.Spec)
+
+	log.Warn().Msgf("Removed %d records for spec %s", res.Deleted, ds.Spec)
+
 	return int(res.Deleted), err
 }
 
@@ -663,21 +705,22 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 	// TODO(kiivihal): replace flush with TRS
 	// err := p.Flush()
 	// if err != nil {
-	// log.Printf("Unable to Flush ElasticSearch index before deleting orphans.")
+	// log.Warn().Msgf("Unable to Flush ElasticSearch index before deleting orphans.")
 	// return false, err
 	// }
-	// log.Printf("Flushed remaining items on the index queue.")
+	// log.Warn().Msgf("Flushed remaining items on the index queue.")
+
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
-			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
+			log.Warn().Msgf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
 			return false, err
 		}
 	}
 	if c.Config.ElasticSearch.Enabled {
 		_, err := ds.deleteIndexOrphans(ctx, wp)
 		if err != nil {
-			log.Printf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
+			log.Warn().Msgf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)
 			return false, err
 		}
 	}
@@ -691,7 +734,7 @@ func (ds DataSet) DropRecords(ctx context.Context, wp *wp.WorkerPool) (bool, err
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err = ds.deleteAllGraphs()
 		if !ok || err != nil {
-			log.Printf("Unable to drop all graphs for %s", ds.Spec)
+			log.Warn().Msgf("Unable to drop all graphs for %s", ds.Spec)
 			return ok, err
 		}
 	}
@@ -699,7 +742,7 @@ func (ds DataSet) DropRecords(ctx context.Context, wp *wp.WorkerPool) (bool, err
 	if c.Config.ElasticSearch.Enabled {
 		_, err = ds.deleteAllIndexRecords(ctx, wp)
 		if err != nil {
-			log.Printf("Unable to drop all index records for %s: %#v", ds.Spec, err)
+			log.Warn().Msgf("Unable to drop all index records for %s: %#v", ds.Spec, err)
 			return false, err
 		}
 	}
@@ -710,12 +753,12 @@ func (ds DataSet) DropRecords(ctx context.Context, wp *wp.WorkerPool) (bool, err
 func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) {
 	ok, err := ds.DropRecords(ctx, wp)
 	if !ok || err != nil {
-		log.Printf("Unable to drop all records for spec %s: %#v", ds.Spec, err)
+		log.Warn().Msgf("Unable to drop all records for spec %s: %#v", ds.Spec, err)
 		return ok, err
 	}
 	err = ORM().DeleteStruct(&ds)
 	if err != nil {
-		log.Printf("Unable to delete dataset %s from storage", ds.Spec)
+		log.Warn().Msgf("Unable to delete dataset %s from storage", ds.Spec)
 		return false, err
 	}
 
