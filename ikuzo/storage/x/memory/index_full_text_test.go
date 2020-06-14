@@ -354,6 +354,18 @@ var searchTests = []struct {
 		false,
 		false,
 	},
+	{
+		"long phrase search",
+		searchArgs{
+			query: "\"behoren tot de archieven\"",
+			text:  "geacht konden worden te behoren tot de archieven dezer Compagnieën, deed zich",
+		},
+		map[string]int{
+			"behoren tot de archieven": 1,
+		},
+		false,
+		false,
+	},
 }
 
 func TestTextIndex_search(t *testing.T) {
@@ -615,6 +627,24 @@ func TestTextIndex_matchCustom(t *testing.T) {
 					{DocID: 1, Location: 3, inPhrase: true},
 					{DocID: 1, Location: 4, inPhrase: true},
 					{DocID: 1, Location: 5},
+				}},
+			}),
+		},
+		{
+			"phrase query long",
+			fields{"geacht konden worden te behoren tot de archieven dezer Compagnieën, deed zich"},
+			args{
+				&search.QueryTerm{Value: "behoren tot de archieven", Phrase: true},
+				search.NewMatches(),
+			},
+			ti.matchPhrase,
+			true,
+			createMatches([]termVector{
+				{"behoren tot de archieven", []testVector{
+					{DocID: 1, Location: 5, inPhrase: true},
+					{DocID: 1, Location: 6, inPhrase: true},
+					{DocID: 1, Location: 7, inPhrase: true},
+					{DocID: 1, Location: 8},
 				}},
 			}),
 		},
