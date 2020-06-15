@@ -151,7 +151,7 @@ func TestTextIndex_appendString(t *testing.T) {
 
 type searchArgs struct {
 	query string
-	text  string
+	text  []string
 }
 
 var searchTests = []struct {
@@ -165,7 +165,7 @@ var searchTests = []struct {
 		"query not found",
 		searchArgs{
 			query: "ten",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{},
 		true,
@@ -175,7 +175,7 @@ var searchTests = []struct {
 		"must query not found",
 		searchArgs{
 			query: "+ten",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{},
 		true,
@@ -185,7 +185,7 @@ var searchTests = []struct {
 		"query excluded with match",
 		searchArgs{
 			query: "-zero",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{},
 		true,
@@ -195,7 +195,7 @@ var searchTests = []struct {
 		"query excluded with no match",
 		searchArgs{
 			query: "-ten",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{
 			// "ten": 0,
@@ -207,7 +207,7 @@ var searchTests = []struct {
 		"single must match",
 		searchArgs{
 			query: "+zero",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{
 			"zero": 1,
@@ -219,7 +219,7 @@ var searchTests = []struct {
 		"single should match",
 		searchArgs{
 			query: "zero",
-			text:  "zero to nine",
+			text:  []string{"zero to nine"},
 		},
 		map[string]int{
 			"zero": 1,
@@ -231,7 +231,7 @@ var searchTests = []struct {
 		"multi-word should match",
 		searchArgs{
 			query: "zero to none",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"zero": 1,
@@ -244,7 +244,7 @@ var searchTests = []struct {
 		"multi-word should match",
 		searchArgs{
 			query: "zero to none",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"zero": 1,
@@ -257,7 +257,7 @@ var searchTests = []struct {
 		"prefix query",
 		searchArgs{
 			query: "zer* to none",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"zero":  1,
@@ -271,7 +271,7 @@ var searchTests = []struct {
 		"suffix query",
 		searchArgs{
 			query: "*o none",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"zero": 1,
@@ -284,7 +284,10 @@ var searchTests = []struct {
 		"mixed query",
 		searchArgs{
 			query: "zero AND nine",
-			text:  "zero to nine to zeros",
+			text: []string{
+				"zero to nine to zeros",
+				"no matches",
+			},
 		},
 		map[string]int{
 			"zero": 1,
@@ -297,7 +300,7 @@ var searchTests = []struct {
 		"mixed nested query",
 		searchArgs{
 			query: "(something OR zero) AND to",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"to":   2,
@@ -310,7 +313,7 @@ var searchTests = []struct {
 		"mixed NOT query",
 		searchArgs{
 			query: "(something OR zero) AND -to",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{},
 		true,
@@ -320,7 +323,7 @@ var searchTests = []struct {
 		"mixed NOT query",
 		searchArgs{
 			query: "NOT (something OR zero) AND to",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"to":   2,
@@ -333,7 +336,7 @@ var searchTests = []struct {
 		"fuzzy search",
 		searchArgs{
 			query: "zer~",
-			text:  "zero to nine to zeros",
+			text:  []string{"zero to nine to zeros"},
 		},
 		map[string]int{
 			"zero":  1,
@@ -346,7 +349,10 @@ var searchTests = []struct {
 		"phrase search",
 		searchArgs{
 			query: "\"to nine\"",
-			text:  "zero to nine to zeros",
+			text: []string{
+				"zero to nine to zeros",
+				"to zero nine",
+			},
 		},
 		map[string]int{
 			"to nine": 1,
@@ -358,7 +364,12 @@ var searchTests = []struct {
 		"long phrase search",
 		searchArgs{
 			query: "\"behoren tot de archieven\"",
-			text:  "geacht konden worden te behoren tot de archieven dezer Compagnieën, deed zich",
+			text: []string{
+				"geacht konden <em>worden</em> te behoren tot de archieven dezer Compagnieën, deed zich",
+				" heb ik verder tot de archieven der Voorcompagnieën gebracht diverse stukken, ",
+				"hoi tot de verte",
+				"behoren tot mijn geschiedenis",
+			},
 		},
 		map[string]int{
 			"behoren tot de archieven": 1,
@@ -402,8 +413,10 @@ func TestTextIndex_search(t *testing.T) {
 			queryParser, err := search.NewQueryParser()
 			is.NoErr(err)
 
-			err = ti.AppendString(tt.args.text)
-			is.NoErr(err)
+			for _, txt := range tt.args.text {
+				err = ti.AppendString(txt)
+				is.NoErr(err)
+			}
 
 			query, err := queryParser.Parse(tt.args.query)
 			is.NoErr(err)
@@ -632,7 +645,7 @@ func TestTextIndex_matchCustom(t *testing.T) {
 		},
 		{
 			"phrase query long",
-			fields{"geacht konden worden te behoren tot de archieven dezer Compagnieën, deed zich"},
+			fields{"geacht konden worden te <em>behoren</em> tot de archieven dezer Compagnieën, deed zich"},
 			args{
 				&search.QueryTerm{Value: "behoren tot de archieven", Phrase: true},
 				search.NewMatches(),

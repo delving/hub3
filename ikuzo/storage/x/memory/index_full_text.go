@@ -230,47 +230,51 @@ func (ti *TextIndex) matchPhrase(qt *search.QueryTerm, hits *search.Matches) boo
 func sortAndCountPhrases(words []string, phrases map[search.Vector]string) map[string]*search.Vectors {
 	phraseHits := map[string]*search.Vectors{}
 
-	vectors := []search.Vector{}
+	vectors := map[int][]search.Vector{}
 	phraseSize := len(words)
 
 	for vector := range phrases {
-		vectors = append(vectors, vector)
+		vectors[vector.DocID] = append(vectors[vector.DocID], vector)
 	}
 
-	sort.Slice(vectors, func(i, j int) bool {
-		return vectors[i].Location < vectors[j].Location
-	})
+	for _, docVectors := range vectors {
+		docVectors := docVectors
 
-	phrase := []string{}
+		sort.Slice(docVectors, func(i, j int) bool {
+			return docVectors[i].Location < docVectors[j].Location
+		})
 
-	prevVectors := []search.Vector{}
+		phrase := []string{}
 
-	for idx, vector := range vectors {
-		phrase = append(phrase, phrases[vector])
-		if len(phrase) != phraseSize {
-			if idx < len(vectors) {
-				prevVectors = append(prevVectors, vector)
-				continue
+		prevVectors := []search.Vector{}
+
+		for idx, vector := range docVectors {
+			phrase = append(phrase, phrases[vector])
+			if len(phrase) != phraseSize {
+				if idx < len(docVectors) {
+					prevVectors = append(prevVectors, vector)
+					continue
+				}
 			}
+
+			currentPhrase := strings.Join(phrase, " ")
+
+			tv, ok := phraseHits[currentPhrase]
+			if !ok {
+				tv = search.NewVectors()
+
+				phraseHits[currentPhrase] = tv
+			}
+
+			for _, v := range prevVectors {
+				tv.AddPhraseVector(v)
+			}
+
+			tv.AddVector(vector)
+
+			phrase = []string{}
+			prevVectors = []search.Vector{}
 		}
-
-		currentPhrase := strings.Join(phrase, " ")
-
-		tv, ok := phraseHits[currentPhrase]
-		if !ok {
-			tv = search.NewVectors()
-
-			phraseHits[currentPhrase] = tv
-		}
-
-		for _, v := range prevVectors {
-			tv.AddPhraseVector(v)
-		}
-
-		tv.AddVector(vector)
-
-		phrase = []string{}
-		prevVectors = []search.Vector{}
 	}
 
 	return phraseHits

@@ -185,12 +185,15 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 
 	params := r.URL.Query()
-	var start int
-	var end int
-	var query string
-	var echo string
-	var err error
-	var filter bool
+
+	var (
+		start  int
+		end    int
+		query  string
+		echo   string
+		err    error
+		filter bool
+	)
 
 	for k := range params {
 		switch k {
