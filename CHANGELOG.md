@@ -2,15 +2,23 @@
 
 ## development
 
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.9...master
+
+## v0.1.9 (2020-06-15) 
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.8...v0.1.9
+
+### Added 
+
 - Tree: make sure fields in Tree API remain sorted by their sortorder key.
-- EAD: when EAD processing tasks stop with an error the worker tasks should not exit
 - EAD: removed deprecated pre-task EAD processing functions
-- Search: add backtick '`' to characters to be ignored or removed during tokenization
 - EAD: add support for meta.tags in EAD upload form
 - License: add license headers to all Go and Protobuf source files
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.8...master
-
+### Fixes 
+- Search: add backtick '`' to characters to be ignored or removed during tokenization
+- Memory: full-text-index phrase search now docID aware
+- EAD: when EAD processing tasks stop with an error the worker tasks should not exit
 
 ## v0.1.8 (2020-06-05) 
 
