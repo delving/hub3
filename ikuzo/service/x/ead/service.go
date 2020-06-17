@@ -94,13 +94,11 @@ func NewService(options ...Option) (*Service, error) {
 func (s *Service) findAvailableTask() *Task {
 	tasks := []*Task{}
 
-	s.rw.RLock()
 	for _, task := range s.tasks {
 		if task.InState == StatePending || task.Interrupted {
 			tasks = append(tasks, task)
 		}
 	}
-	s.rw.RUnlock()
 
 	if len(tasks) == 0 {
 		return nil
@@ -125,17 +123,22 @@ func (s *Service) StartWorkers() error {
 	s.group = g
 
 	ticker := time.NewTicker(1 * time.Second)
+	heartbeat := time.NewTicker(10 * time.Second)
 
 	for i := 0; i < s.workers; i++ {
+		worker := i
+
 		g.Go(func() error {
 			for {
 				select {
 				case <-gctx.Done():
 					return gctx.Err()
+				case <-heartbeat.C:
+					log.Info().Str("svc", "eadProcessor").Int("worker", worker).Msg("worker heartbeat")
 				case <-ticker.C:
-					s.rw.RLock()
+					s.rw.Lock()
 					task := s.findAvailableTask()
-					s.rw.RUnlock()
+					s.rw.Unlock()
 					if task == nil {
 						continue
 					}
