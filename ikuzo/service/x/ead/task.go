@@ -35,6 +35,7 @@ type ProcessingState string
 const (
 	StateSubmitted             ProcessingState = "submitted source EAD"
 	StatePending                               = "pending processing"
+	StateStarted                               = "started processing"
 	StateProcessingDescription                 = "processing description"
 	StateProcessingMetsFiles                   = "processing METS files"
 	StateProcessingInventories                 = "processing and indexing inventories"
@@ -114,6 +115,7 @@ func (t *Task) finishTask() {
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
+	t.s.m.incFinished()
 	t.finishState()
 }
 
@@ -148,7 +150,7 @@ func (t *Task) finishWithError(err error) error {
 	t.moveState(StateInError)
 	t.ErrorMsg = err.Error()
 
-	atomic.AddUint64(&t.s.m.Failed, 1)
+	t.s.m.incFailed()
 
 	// expected errors so just log them and move on
 	// returning an error here stops the worker
@@ -164,6 +166,8 @@ func (t *Task) Next() {
 	case StateSubmitted:
 		t.moveState(StatePending)
 	case StatePending:
+		t.moveState(StateStarted)
+	case StateStarted:
 		t.moveState(StateProcessingDescription)
 	case StateProcessingDescription:
 		t.moveState(StateProcessingInventories)

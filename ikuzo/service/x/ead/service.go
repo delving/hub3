@@ -43,10 +43,36 @@ import (
 )
 
 type Metrics struct {
-	Started  uint64
-	Failed   uint64
-	Finished uint64
-	Canceled uint64
+	Submitted     uint64
+	Started       uint64
+	Failed        uint64
+	Finished      uint64
+	Canceled      uint64
+	AlreadyQueued uint64
+}
+
+func (m *Metrics) incSubmitted() {
+	atomic.AddUint64(&m.Submitted, 1)
+}
+
+func (m *Metrics) incStarted() {
+	atomic.AddUint64(&m.Started, 1)
+}
+
+func (m *Metrics) incFailed() {
+	atomic.AddUint64(&m.Failed, 1)
+}
+
+func (m *Metrics) incFinished() {
+	atomic.AddUint64(&m.Finished, 1)
+}
+
+func (m *Metrics) incCancelled() {
+	atomic.AddUint64(&m.Canceled, 1)
+}
+
+func (m *Metrics) incAlreadyQueued() {
+	atomic.AddUint64(&m.AlreadyQueued, 1)
 }
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
@@ -138,10 +164,13 @@ func (s *Service) StartWorkers() error {
 				case <-ticker.C:
 					s.rw.Lock()
 					task := s.findAvailableTask()
-					s.rw.Unlock()
 					if task == nil {
+						s.rw.Unlock()
 						continue
 					}
+
+					task.Next()
+					s.rw.Unlock()
 
 					if err := s.Process(gctx, task); err != nil {
 						return err
@@ -280,18 +309,31 @@ func (s *Service) saveDescription(cfg *eadHub3.NodeConfig, t *Task, ead *eadHub3
 	return nil
 }
 
+func getEAD(r io.Reader) (*eadHub3.Cead, error) {
+	// parse EAD
+	ead := new(eadHub3.Cead)
+
+	if err := xml.NewDecoder(r).Decode(ead); err != nil {
+		return ead, err
+	}
+
+	return ead, nil
+}
+
 func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	// return immediately with invalid states
 	if !t.isActive() {
 		return nil
 	}
 
+	if t.InState == StateStarted {
+		s.m.incStarted()
+		t.Next()
+	}
+
 	// wrap parent so both will stop
 	_ = parentCtx
 	g, gctx := errgroup.WithContext(t.ctx)
-
-	// parse EAD
-	ead := new(eadHub3.Cead)
 
 	f, err := os.Open(t.Meta.getSourcePath())
 	if err != nil {
@@ -299,9 +341,14 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		return t.finishWithError(errMsg)
 	}
 
-	err = xml.NewDecoder(f).Decode(ead)
+	ead, err := getEAD(f)
 	if err != nil {
 		errMsg := fmt.Errorf("error during EAD parsing; %w", err)
+		return t.finishWithError(errMsg)
+	}
+
+	if closeErr := f.Close(); closeErr != nil {
+		errMsg := fmt.Errorf("unable to close ead source file; %w", err)
 		return t.finishWithError(errMsg)
 	}
 
@@ -330,11 +377,6 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
-	if t.InState == StatePending {
-		atomic.AddUint64(&s.m.Started, 1)
-		t.Next()
-	}
-
 	// create description
 	if t.InState == StateProcessingDescription {
 		if err := s.saveDescription(cfg, t, ead); err != nil {
@@ -351,6 +393,9 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	// publish nodes
 	g.Go(func() error {
 		_, _, err := ead.Carchdesc.Cdsc.NewNodeList(cfg)
+		// xml.Decoder is not used anymore so it can be garbage collected
+		ead = nil
+
 		return err
 	})
 
@@ -550,6 +595,8 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		err = r.MultipartForm.RemoveAll()
 	}()
 
+	s.m.incSubmitted()
+
 	_, meta, err := s.SaveEAD(in, header.Size)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
@@ -557,7 +604,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		atomic.AddUint64(&s.m.Failed, 1)
+		s.m.incFailed()
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
@@ -565,7 +612,9 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 
 	t, err := s.NewTask(&meta)
 	if err != nil {
+		s.m.incAlreadyQueued()
 		http.Error(w, err.Error(), http.StatusConflict)
+
 		return
 	}
 
