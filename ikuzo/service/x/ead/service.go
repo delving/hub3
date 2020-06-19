@@ -66,7 +66,7 @@ type Service struct {
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		tasks:   make(map[string]*Task),
-		workers: 2,
+		workers: 1,
 	}
 
 	// apply options

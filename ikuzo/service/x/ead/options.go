@@ -40,3 +40,13 @@ func SetCreateTree(fn CreateTreeFn) Option {
 		return nil
 	}
 }
+
+func SetWorkers(workers int) Option {
+	return func(s *Service) error {
+		if workers == 0 {
+			workers = 1
+		}
+		s.workers = workers
+		return nil
+	}
+}

@@ -25,6 +25,7 @@ import (
 type EAD struct {
 	CacheDir string `json:"cacheDir"`
 	Metrics  bool   `json:"metrics"`
+	Workers  int    `json:"workers"`
 }
 
 func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
@@ -36,6 +37,7 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 	svc, err := ead.NewService(
 		ead.SetIndexService(is),
 		ead.SetDataDir(e.CacheDir),
+		ead.SetWorkers(e.Workers),
 	)
 	if err != nil {
 		return nil, err

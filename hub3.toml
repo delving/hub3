@@ -193,6 +193,7 @@ singleEndpoint = "NL-.*"
 [ead]
 cacheDir = "/tmp/ead"
 metrics = true
+workers = 1
 searchURL = "https://test.nationaalarchief.nl"
 genreFormDefault = "other/unknown"
 treeFields = [
