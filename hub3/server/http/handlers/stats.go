@@ -68,7 +68,7 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 		Query(q).
 		Size(0).
 		Aggregation(field, searchLabelAgg).
-		Do(ctx)
+		Do(r.Context())
 	return res, err
 }
 

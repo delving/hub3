@@ -73,7 +73,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 
 	fr := fragments.NewFragmentRequest()
 	fr.LodKey = lodKey
-	frags, _, err := fr.Find(ctx, index.ESClient())
+	frags, _, err := fr.Find(r.Context(), index.ESClient())
 	if err != nil || len(frags) == 0 {
 		w.WriteHeader(http.StatusNotFound)
 		if err != nil {

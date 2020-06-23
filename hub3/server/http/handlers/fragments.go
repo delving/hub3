@@ -63,7 +63,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	frags, totalFrags, err := fr.Find(ctx, index.ESClient())
+	frags, totalFrags, err := fr.Find(r.Context(), index.ESClient())
 	if err != nil || len(frags) == 0 {
 		log.Printf("Unable to list fragments because of: %#v", err)
 		render.JSON(w, r, APIErrorMessage{
@@ -92,7 +92,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, src)
 		return
 	case "searchResponse":
-		res, err := fr.Do(ctx, index.ESClient())
+		res, err := fr.Do(r.Context(), index.ESClient())
 		if err != nil {
 			msg := fmt.Sprintf("Unable to dump request: %s", err)
 			log.Print(msg)

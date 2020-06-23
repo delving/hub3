@@ -47,7 +47,7 @@ func csvDelete(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, err.Error())
 		return
 	}
-	_, err = ds.DropRecords(ctx, wp)
+	_, err = ds.DropRecords(r.Context(), wp)
 	if err != nil {
 		log.Printf("Unable to delete all fragments for %s: %s", conv.DefaultSpec, err.Error())
 		render.Status(r, http.StatusBadRequest)
@@ -121,7 +121,7 @@ func csvUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = ds.DropOrphans(ctx, BulkProcessor(), wp)
+	_, err = ds.DropOrphans(r.Context(), BulkProcessor(), wp)
 	if err != nil {
 		render.PlainText(w, r, err.Error())
 		return
