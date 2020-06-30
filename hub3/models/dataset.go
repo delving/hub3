@@ -623,10 +623,18 @@ func (ds DataSet) validForPostHook() bool {
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
-	q := elastic.NewBoolQuery()
-	q = q.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
-	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
-	q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
+
+	v2 := elastic.NewBoolQuery()
+	v2 = v2.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
+
+	v1 := elastic.NewBoolQuery()
+	v1 = v1.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
+	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
+	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
+
+	q := elastic.NewBoolQuery().Should(v2, v1)
 
 	go func() {
 		// block for 15 seconds to allow cluster to be in sync
@@ -646,6 +654,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		res, err := index.ESClient().DeleteByQuery().
 			Index(
 				c.Config.ElasticSearch.GetIndexName(),
+				c.Config.ElasticSearch.GetV1IndexName(),
 				c.Config.ElasticSearch.FragmentIndexName(),
 			).
 			Query(q).
@@ -668,7 +677,11 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) (int, error) {
-	q := elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)
+	q := elastic.NewBoolQuery().Should(
+		elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
+		elastic.NewTermQuery("spec.raw", ds.Spec),
+	)
+
 	log.Warn().Msgf("%#v", q)
 	if ds.validForPostHook() {
 		err := CreateDeletePostHooks(ctx, q, wp)
@@ -680,6 +693,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	res, err := index.ESClient().DeleteByQuery().
 		Index(
 			c.Config.ElasticSearch.GetIndexName(),
+			c.Config.ElasticSearch.GetV1IndexName(),
 			c.Config.ElasticSearch.FragmentIndexName(),
 		).
 		Query(q).
