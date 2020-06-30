@@ -70,7 +70,7 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.Status(r, http.StatusCreated)
-	log.Info().Msgf("stats: %#v", p.stats)
+	log.Info().Msgf("stats: %+v", p.stats)
 	render.JSON(w, r, p.stats)
 }
 
