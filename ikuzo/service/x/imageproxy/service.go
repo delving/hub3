@@ -85,7 +85,7 @@ func NewService(options ...Option) (*Service, error) {
 func (s *Service) Routes() chi.Router {
 	router := chi.NewRouter()
 
-	proxyPrefix := fmt.Sprintf("/%s/{options}/{remoteUrl}*", s.proxyPrefix)
+	proxyPrefix := fmt.Sprintf("/%s/{options}/*", s.proxyPrefix)
 	router.Get(proxyPrefix, s.proxyImage)
 
 	return router
@@ -157,7 +157,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 
 // create handler fuction to serve the proxied images
 func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
-	url := chi.URLParam(r, "remoteUrl")
+	url := chi.URLParam(r, "*")
 
 	req, err := NewRequest(
 		url,

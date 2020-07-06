@@ -92,7 +92,10 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 	} else {
 		sourceURL, err := decodeURL(req.cacheKey)
 		if err != nil {
-			log.Warn().Err(err).Msg("unable to decode cache key")
+			log.Warn().
+				Err(err).
+				Str("cacheKey", input).
+				Msg("unable to decode cache key")
 			return nil, ErrInvalidCacheKey
 		}
 
