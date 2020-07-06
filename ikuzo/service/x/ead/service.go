@@ -123,7 +123,7 @@ func (s *Service) StartWorkers() error {
 	s.group = g
 
 	ticker := time.NewTicker(1 * time.Second)
-	heartbeat := time.NewTicker(10 * time.Second)
+	heartbeat := time.NewTicker(1 * time.Minute)
 
 	for i := 0; i < s.workers; i++ {
 		worker := i
