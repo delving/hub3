@@ -29,11 +29,13 @@ type Option func(*Service) error
 type Service struct {
 	index      *index.Service
 	indexTypes []string
+	postHooks  map[string][]PostHookService
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		indexTypes: []string{"v2"},
+		postHooks:  map[string][]PostHookService{},
 	}
 
 	// apply options
@@ -60,6 +62,16 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
+func SetPostHookService(hooks ...PostHookService) Option {
+	return func(s *Service) error {
+		for _, hook := range hooks {
+			s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
+		}
+
+		return nil
+	}
+}
+
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
 // ingestion pipeline.
 func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
@@ -69,18 +81,47 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(s.postHooks) != 0 && len(p.postHooks) != 0 {
+		applyHooks, ok := s.postHooks[p.stats.OrgID]
+		if ok {
+			go func() {
+				for _, hook := range applyHooks {
+					validHooks := []*PostHookItem{}
+
+					for _, ph := range p.postHooks {
+						if hook.Valid(ph.DatasetID) {
+							validHooks = append(validHooks, ph)
+						}
+					}
+
+					if err := hook.Publish(validHooks...); err != nil {
+						log.Error().Err(err).Msg("unable to submit posthooks")
+					}
+				}
+
+				log.Debug().Msg("submitted posthooks")
+			}()
+		}
+	}
+
 	render.Status(r, http.StatusCreated)
 	log.Info().Msgf("stats: %+v", p.stats)
 	render.JSON(w, r, p.stats)
 }
 
 func (s *Service) NewParser() *Parser {
-	return &Parser{
+	p := &Parser{
 		stats:         &Stats{},
 		indexTypes:    s.indexTypes,
 		bi:            s.index,
 		sparqlUpdates: []fragments.SparqlUpdate{},
 	}
+
+	if len(s.postHooks) != 0 {
+		p.postHooks = []*PostHookItem{}
+	}
+
+	return p
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {

@@ -1,6 +1,10 @@
 package bulk
 
-import "github.com/delving/hub3/hub3/fragments"
+import (
+	"net/http"
+
+	"github.com/delving/hub3/hub3/fragments"
+)
 
 // PostHookItem holds the input data that a PostHookService can manipulate
 // before submitting it to the endpoint
@@ -21,6 +25,8 @@ type PostHookService interface {
 	// Add(item ...PostHookItem) error
 	// Publish pushes all the submitted jobs to PostHook endpoint
 	Publish(item ...*PostHookItem) error
+	Valid(datasetID string) bool
+	DropDataset(id string, revision int) (*http.Response, error)
 	// Metrics()
 	// OrgID returns OrgID that the posthook applies to
 	OrgID() string
