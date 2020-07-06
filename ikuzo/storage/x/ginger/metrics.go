@@ -38,15 +38,16 @@ func (phg *PostHookGauge) SetActive(counter *PostHookCounter) {
 }
 
 func (phg *PostHookGauge) Done(ph *PostHookJob) error {
-	counter, ok := phg.Counters[ph.Spec]
+	counter, ok := phg.Counters[ph.item.DatasetID]
 	if !ok {
 		counter = &PostHookCounter{}
-		phg.Counters[ph.Spec] = counter
+		phg.Counters[ph.item.DatasetID] = counter
 	}
 	phg.Lock()
 	defer phg.Unlock()
 	phg.QueueSize--
-	switch ph.Deleted {
+
+	switch ph.item.Deleted {
 	case true:
 		counter.ToDelete--
 	default:
@@ -58,14 +59,14 @@ func (phg *PostHookGauge) Done(ph *PostHookJob) error {
 }
 
 func (phg *PostHookGauge) Error(ph *PostHookJob) error {
-	counter, ok := phg.Counters[ph.Spec]
+	counter, ok := phg.Counters[ph.item.DatasetID]
 	if !ok {
 		counter = &PostHookCounter{}
-		phg.Counters[ph.Spec] = counter
+		phg.Counters[ph.item.DatasetID] = counter
 	}
 	phg.Lock()
 	defer phg.Unlock()
-	switch ph.Deleted {
+	switch ph.item.Deleted {
 	case true:
 		counter.ToDelete--
 	default:
@@ -79,10 +80,10 @@ func (phg *PostHookGauge) Error(ph *PostHookJob) error {
 }
 
 func (phg *PostHookGauge) Queue(ph *PostHookJob) error {
-	counter, ok := phg.Counters[ph.Spec]
+	counter, ok := phg.Counters[ph.item.DatasetID]
 	if !ok {
 		counter = &PostHookCounter{}
-		phg.Counters[ph.Spec] = counter
+		phg.Counters[ph.item.DatasetID] = counter
 	}
 	phg.Lock()
 	defer phg.Unlock()
@@ -90,7 +91,7 @@ func (phg *PostHookGauge) Queue(ph *PostHookJob) error {
 	phg.QueueSize++
 	phg.SetActive(counter)
 
-	if ph.Deleted {
+	if ph.item.Deleted {
 		counter.ToDelete++
 		return nil
 	}
