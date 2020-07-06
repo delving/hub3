@@ -72,18 +72,17 @@ replicas = 0
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v1", "v2"]
 
-[posthook]
+[[posthooks]]
+name = "ginger"
 # specs to exclude from posthook
-excludeSpec = [    
-    "brabant-blogs",
-    "geschiedenis",
-    "in-brabant",
-    "personen",
-    "textielmuseum-bibliotheek",
-    "weverij-de-ploeg",
+excludeSpec = [
+    "mip",
 ]
+orgID = ""
 # target URLS for JSON-LD post
-# urls = [ 'https://www.brabantserfgoed.nl/api/erfgoedbrabant/brabantcloud']
+url = ''
+apikey = ''
+
 
 [logging]
 devmode = true
@@ -136,6 +135,8 @@ cacheDir = "/tmp/webresource_cache"
 vipsBin = "/usr/bin/vips"
 # host of the media manager
 mediaManagerHost = "http://media.delving.org"
+# resolve remote resources
+resolveRemoteWebResources = true
 
 [imageproxy]
 # enable the image proxy at /api/imageproxy

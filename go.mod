@@ -9,6 +9,7 @@ require (
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.2.1
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
+	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.0.2
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
@@ -80,7 +81,6 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
-	github.com/src-d/go-git v4.7.0+incompatible
 	github.com/stretchr/testify v1.5.1
 	github.com/testcontainers/testcontainers-go v0.3.1
 	github.com/tidwall/gjson v1.6.0
