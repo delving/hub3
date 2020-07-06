@@ -36,6 +36,7 @@ type Config struct {
 	EAD               `json:"ead"`
 	DB                `json:"db"`
 	ImageProxy        `json:"imageProxy"`
+	PostHooks         []PostHook `json:"posthooks"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
 }

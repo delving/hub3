@@ -102,9 +102,15 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return fmt.Errorf("unable to create index service; %w", isErr)
 	}
 
+	postHooks, phErr := cfg.getPostHookServices()
+	if phErr != nil {
+		return fmt.Errorf("unable to create posthook service; %w", phErr)
+	}
+
 	bulkSvc, bulkErr := bulk.NewService(
 		bulk.SetIndexService(is),
 		bulk.SetIndexTypes(e.IndexTypes...),
+		bulk.SetPostHookService(postHooks...),
 	)
 	if bulkErr != nil {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)
