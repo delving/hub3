@@ -16,9 +16,7 @@ package models
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"time"
@@ -551,76 +549,6 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 	return DeleteAllGraphsBySpec(ds.Spec)
 }
 
-// CreateDeletePostHooks scrolls through the elasticsearch index and adds entries
-// to be delete to the PostHook workerpool.
-//
-// Deprecated: only direct bulk delelet should be used. (will be removed in v0.1.10)
-func CreateDeletePostHooks(ctx context.Context, q elastic.Query, wp *wp.WorkerPool) error {
-	index.ESClient().Flush(c.Config.ElasticSearch.GetIndexName())
-	timer := time.NewTimer(time.Second * 5)
-	<-timer.C
-	scroll := index.ESClient().Scroll().
-		Index(c.Config.ElasticSearch.GetIndexName()).
-		//StoredFields("system.source_uri", "entryURI").
-		Query(q).
-		Size(100)
-	log.Info().Msg("Starting enqueueing delete posthooks")
-
-	for {
-		results, err := scroll.Do(ctx)
-		if err == io.EOF {
-			log.Warn().Msg("No records to delete from posthook target was found.")
-			return nil // all results retrieved
-		}
-		if err != nil {
-			return err // something went wrong
-		}
-
-		// Send the hits to the hits channel
-		for _, hit := range results.Hits.Hits {
-			//log.Warn().Msgf("%#v", hit.Id)
-			item := make(map[string]interface{})
-			err := json.Unmarshal(hit.Source, &item)
-			if err != nil {
-				log.Warn().Msgf("unmarschalling error: %#v", err)
-				return err
-			}
-			id := item["entryURI"]
-			spec := item[c.Config.ElasticSearch.SpecKey]
-			//revision := item[c.Config.ElasticSearch.RevisionKey]
-			hubID := item["hubID"]
-
-			if id != nil {
-				ds := spec.(string)
-				uri := id.(string)
-				//log.Warn().Msgf("ph queue for %s with revision %f", ds, revision)
-				ph := NewPostHookJob(nil, ds, true, uri, hubID.(string))
-				if ph.Valid() {
-					wp.Submit(func() { ApplyPostHookJob(ph) })
-				}
-			}
-		}
-	}
-
-	log.Info().Msg("Finished enqueueing posthooks")
-
-	return nil
-}
-
-// ValidForPostHook determines if the posthook should be called.
-func (ds DataSet) validForPostHook() bool {
-	if len(c.Config.PostHook.URLs) == 0 {
-		return false
-	}
-
-	for _, e := range c.Config.PostHook.ExcludeSpec {
-		if e == ds.Spec {
-			return false
-		}
-	}
-	return true
-}
-
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
 
@@ -634,7 +562,13 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
 	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
 
-	q := elastic.NewBoolQuery().Should(v2, v1)
+	queries := map[*elastic.BoolQuery][]string{
+		v1: []string{c.Config.ElasticSearch.GetV1IndexName()},
+		v2: []string{
+			c.Config.ElasticSearch.GetIndexName(),
+			c.Config.ElasticSearch.FragmentIndexName(),
+		},
+	}
 
 	go func() {
 		// block for 15 seconds to allow cluster to be in sync
@@ -642,36 +576,32 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		<-timer.C
 		//log.Print("Orphan wait timer expired")
 
-		// enqueue posthooks first
-		if ds.validForPostHook() && wp != nil {
-			err := CreateDeletePostHooks(ctx, q, wp)
+		for q, indices := range queries {
+			res, err := index.ESClient().DeleteByQuery().
+				Index(indices...).
+				Query(q).
+				Conflicts("proceed"). // default is abort
+				Do(ctx)
 			if err != nil {
-				log.Warn().Msgf("unable to create delete posthooks: %#v", err)
-				//return 0, err
+				log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
+				return
 			}
-		}
 
-		res, err := index.ESClient().DeleteByQuery().
-			Index(
-				c.Config.ElasticSearch.GetIndexName(),
-				c.Config.ElasticSearch.GetV1IndexName(),
-				c.Config.ElasticSearch.FragmentIndexName(),
-			).
-			Query(q).
-			Conflicts("proceed"). // default is abort
-			Do(ctx)
-		if err != nil {
-			log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
-			return
-		}
-		if res == nil {
-			log.Warn().Msgf("expected response != nil; got: %v", res)
-			//return fmt.Errorf("expected response != nil")
-			return
-		}
-		//log.Warn().Msgf("Removed %d records for spec %s with older revision than %d", res.Deleted, ds.Spec, ds.Revision)
+			if res == nil {
+				log.Warn().Msgf("expected response != nil; got: %v", res)
+				return
+			}
 
+			log.Warn().Msgf(
+				"Removed %d records for spec %s in index %s with older revision than %d",
+				res.Deleted,
+				indices,
+				ds.Spec,
+				ds.Revision,
+			)
+		}
 	}()
+
 	return 0, nil
 }
 
@@ -683,13 +613,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	)
 
 	log.Warn().Msgf("%#v", q)
-	if ds.validForPostHook() {
-		err := CreateDeletePostHooks(ctx, q, wp)
-		if err != nil {
-			log.Warn().Msgf("unable to create delete posthooks: %#v", err)
-			return 0, err
-		}
-	}
 	res, err := index.ESClient().DeleteByQuery().
 		Index(
 			c.Config.ElasticSearch.GetIndexName(),
@@ -702,6 +625,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 		log.Warn().Msgf("Unable to delete dataset records from index.")
 		return 0, err
 	}
+
 	if res == nil {
 		log.Warn().Msgf("expected response != nil; got: %v", res)
 		return 0, fmt.Errorf("expected response != nil")
