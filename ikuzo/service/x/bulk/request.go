@@ -106,8 +106,6 @@ func (req *Request) processV1(fb *fragments.FragmentBuilder, bi index.BulkIndex)
 		return err
 	}
 
-	// TODO(kiivihal): add posthook later
-
 	return nil
 }
 

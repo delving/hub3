@@ -52,7 +52,7 @@ type RawConfig struct {
 	NameSpaces    []NameSpace   `json:"namespaces"`
 	NameSpaceMap  *NameSpaceMap `json:"nameSpaceMap"`
 	RDFTag        `json:"rdftag"`
-	PostHook      `json:"postHook"`
+	PostHook      []PostHook `json:"postHook"`
 	Cache         `json:"cache"`
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 	SiteMap       `json:"siteMap"`

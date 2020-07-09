@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -24,8 +23,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/delving/hub3/hub3/ead"
-	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -261,16 +258,17 @@ func storeRecord(identifier string, prefix string) string {
 	})
 	var record string
 	req.Harvest(func(r *oai.Response) {
-		if storeEAD {
-			rawBody := r.GetRecord.Record.Metadata.Body
-			headerSize := int64(len(rawBody))
-			b := bytes.NewReader(rawBody)
-			_, err := ead.ProcessEAD(b, headerSize, "", handlers.NewOldBulkProcessor())
-			if err != nil {
-				log.Printf("unable to process EAD: %#v", err)
-			}
-			return
-		}
+		// TODO(kiivihal): add store EAD option
+		// if storeEAD {
+		// rawBody := r.GetRecord.Record.Metadata.Body
+		// headerSize := int64(len(rawBody))
+		// b := bytes.NewReader(rawBody)
+		// _, err := ead.ProcessEAD(b, headerSize, "", handlers.NewOldBulkProcessor())
+		// if err != nil {
+		// log.Printf("unable to process EAD: %#v", err)
+		// }
+		// return
+		// }
 		record = r.GetRecord.Record.Metadata.GoString()
 		file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
 		if err != nil {
@@ -302,14 +300,10 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		})
 		req.HarvestIdentifiers(func(header *oai.Header) {
 			seen++
-			//if seen%250 == 0 {
-			//fmt.Printf("\rharvested: %d\n", seen)
-			//}
-			//log.Printf("seen %d: %s\n", seen, header.Identifier)
 			select {
 			case ids <- header.Identifier:
-				//case <-ctx.Done():
-				//return ctx.Err()
+				// case <-ctx.Done():
+				// return ctx.Err()
 			}
 		})
 		//log.Printf("total seen: %d", seen)

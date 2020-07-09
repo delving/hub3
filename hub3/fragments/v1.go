@@ -31,6 +31,7 @@ import (
 	"bytes"
 	"encoding/json"
 	fmt "fmt"
+	"html"
 	"io"
 	"log"
 	"sort"
@@ -774,7 +775,7 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 		}
 
 		// protect against XSS attacks in literals
-		value = fb.sanitizer.Sanitize(value)
+		value = html.UnescapeString(fb.sanitizer.Sanitize(value))
 
 		ie.Value = value
 		ie.Raw = value

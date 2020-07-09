@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"sync"
 	"sync/atomic"
 
@@ -43,6 +44,7 @@ type Parser struct {
 	indexTypes []string
 	// TODO(kiivihal): find better solution for this
 	sparqlUpdates []fragments.SparqlUpdate // store all the triples here for bulk insert
+	postHooks     []*PostHookItem
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -141,6 +143,8 @@ func (p *Parser) setDataSet(req *Request) {
 	}
 
 	p.stats.Spec = req.DatasetID
+	p.stats.OrgID = req.OrgID
+	req.Revision = ds.Revision
 	p.ds = ds
 }
 
@@ -151,6 +155,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		return fmt.Errorf("unable to get dataset")
 	}
 
+	req.Revision = p.ds.Revision
 	// TODO(kiivihal): add logger
 
 	switch req.Action {
@@ -172,6 +177,8 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			return err
 		}
 
+		p.dropPosthook(req.OrgID, req.DatasetID, p.ds.Revision)
+
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("mark orphans and delete them")
 	case "disable_index":
 		ok, err := p.ds.DropRecords(ctx, nil)
@@ -179,6 +186,8 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to disable index")
 			return err
 		}
+
+		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("remove dataset from index")
 	case "drop_dataset":
@@ -188,12 +197,28 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			return err
 		}
 
+		p.dropPosthook(req.OrgID, req.DatasetID, -1)
+
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
 	default:
 		return fmt.Errorf("unknown bulk action: %s", req.Action)
 	}
 
 	return nil
+}
+
+func (p *Parser) dropPosthook(orgID, datasetID string, revision int) {
+	if p.postHooks != nil {
+		p.postHooks = append(
+			p.postHooks,
+			&PostHookItem{
+				Deleted:   true,
+				DatasetID: datasetID,
+				OrgID:     orgID,
+				Revision:  revision,
+			},
+		)
+	}
 }
 
 func (p *Parser) Publish(req *Request) error {
@@ -239,6 +264,24 @@ func (p *Parser) Publish(req *Request) error {
 		}
 	}
 
+	if p.postHooks != nil {
+		subject := strings.TrimSuffix(req.NamedGraphURI, "/graph")
+		g := fb.SortedGraph
+
+		p.postHooks = append(
+			p.postHooks,
+			&PostHookItem{
+				Graph:     g,
+				Deleted:   false,
+				Subject:   subject,
+				OrgID:     req.OrgID,
+				DatasetID: req.DatasetID,
+				HubID:     req.HubID,
+				Revision:  int(fb.FragmentGraph().Meta.Revision),
+			},
+		)
+	}
+
 	return nil
 }
 
@@ -262,6 +305,8 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 }
 
 type Stats struct {
+	OrgID         string `json:"orgID"`
+	DatasetID     string `json:"datasetID"`
 	Spec          string `json:"spec"`
 	SpecRevision  uint64 `json:"specRevision"`  // version of the records stored
 	TotalReceived uint64 `json:"totalReceived"` // originally json was total_received
