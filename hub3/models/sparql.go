@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// TODO(kiivihal): DELETE whole file
+
 package models
 
 import (
@@ -23,7 +25,6 @@ import (
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/knakk/rdf"
 	"github.com/knakk/sparql"
 )
 
@@ -164,12 +165,13 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 		log.Printf("Unable to build deleteAllGraphsBySpec query: %s", err)
 		return false, err
 	}
-	log.Println(query)
+
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
 		log.Printf("Unable query endpoint: %s", errs)
 		return false, errs[0]
 	}
+
 	return true, nil
 }
 
@@ -184,7 +186,7 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 		log.Printf("Unable to build deleteOrphanGraphsBySpec query: %s", err)
 		return false, err
 	}
-	log.Println(query)
+
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
 		log.Printf("Unable query endpoint: %s", errs)
@@ -246,7 +248,7 @@ func CountGraphsBySpec(spec string) (int, error) {
 	}
 	countStr, ok := res.Bindings()["count"]
 	if !ok {
-		return 0, fmt.Errorf("Unable to get count from result bindings: %#v", res.Bindings())
+		return 0, fmt.Errorf("unable to get count from result bindings: %#v", res.Bindings())
 	}
 	var count int
 	count, err = strconv.Atoi(countStr[0].String())
@@ -254,37 +256,4 @@ func CountGraphsBySpec(spec string) (int, error) {
 		return 0, fmt.Errorf("unable to convert %s to integer", countStr)
 	}
 	return count, err
-}
-
-// PrepareAsk takes an a string and returns a valid SPARQL ASK query
-func PrepareAsk(uri string) (string, error) {
-	q, err := queryBank.Prepare("ask_subject", struct{ URI string }{uri})
-	if err != nil {
-		return "", err
-	}
-	return q, err
-}
-
-// AskSPARQL performs a SPARQL ASK query
-func AskSPARQL(query string) (bool, error) {
-	res, err := SparqlRepo().Query(query)
-	if err != nil {
-		return false, err
-	}
-	bindings := res.Results.Bindings
-	fmt.Println(bindings)
-	return false, nil
-}
-
-// DescribeSPARQL creates a describe query for a given URI.
-func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
-	query, err := queryBank.Prepare("describe", struct{ URI string }{uri})
-	if err != nil {
-		return nil, err
-	}
-	res, err := SparqlRepo().Query(query)
-	if err != nil {
-		return nil, err
-	}
-	return res.Bindings(), nil
 }

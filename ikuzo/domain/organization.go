@@ -16,6 +16,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"unicode"
 )
 
@@ -62,6 +63,16 @@ type OrganizationID string
 type Organization struct {
 	ID          OrganizationID `json:"orgID"`
 	Description string         `json:"description,omitempty"`
+	// TODO(kiivihal): add organization config
+	Config OrganizationConfig
+	// create struct so that it can be initialized by config
+}
+
+type OrganizationConfig struct {
+	// TODO(kiivihal): change to sub-struct later
+	RDFBaseURL     string
+	MintDatasetURL string
+	MintOrgIDURL   string
 }
 
 // NewOrganizationID returns an OrganizationID and an error if the supplied input is invalid.
@@ -108,4 +119,13 @@ func (id OrganizationID) Valid() error {
 	}
 
 	return nil
+}
+
+// RawID returns the raw direct identifier string for an Organization
+func (o *Organization) RawID() string {
+	return string(o.ID)
+}
+
+func (o *Organization) NewDatasetURI(spec string) string {
+	return fmt.Sprintf(o.Config.MintDatasetURL, o.Config.RDFBaseURL, spec)
 }
