@@ -41,6 +41,7 @@ var (
 // Viper.
 type RawConfig struct {
 	OrgID         string `json:"orgId"`
+	DataNodeURL   string `json:"dataNodeURL"`
 	HTTP          `json:"http"`
 	ElasticSearch `json:"elasticsearch"`
 	Logging       `json:"logging"`
@@ -463,6 +464,10 @@ func (c *RawConfig) GetGraphStoreEndpoint(dbName string) string {
 	log.Printf("GraphStore endpoint: %s", u)
 
 	return u.String()
+}
+
+func (c *RawConfig) IsDataNode() bool {
+	return c.DataNodeURL == ""
 }
 
 // Save saves the update version of the configuration file

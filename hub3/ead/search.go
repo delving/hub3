@@ -31,7 +31,6 @@ import (
 	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
-	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/olivere/elastic/v7"
@@ -611,27 +610,20 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		if ok {
 			spec := fields.([]interface{})[0].(string)
 
-			ds, datasetErr := models.GetDataSet(spec)
-			if datasetErr != nil {
-				rlog.Error().Err(datasetErr).
+			meta, metaErr := GetMeta(spec)
+			if metaErr != nil {
+				rlog.Error().Err(metaErr).
 					Msg("unable to retrieve dataset")
 
-				return nil, datasetErr
+				return nil, metaErr
 			}
 
 			archive := Archive{
 				InventoryID:      spec,
-				Title:            ds.Label,
-				Period:           ds.Period,
+				Title:            meta.Label,
+				Period:           meta.Period,
 				DescriptionCount: 0,
-				ClevelsTotal:     ds.Clevels,
-				// Files:            ds.Files,
-				// Length:           ds.Length,
-				// Abstract:         ds.Abstract,
-				// Language:         ds.Language,
-				// Material:         ds.Material,
-				// Origin:           ds.ArchiveCreator,
-				// MetsFiles:        ds.MetsFiles,
+				ClevelsTotal:     meta.Inventories,
 			}
 
 			var hitHasDescription bool

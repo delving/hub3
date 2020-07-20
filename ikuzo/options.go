@@ -16,6 +16,7 @@ package ikuzo
 
 import (
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -227,6 +228,40 @@ func SetImageProxyService(service *imageproxy.Service) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Mount("/", service.Routes())
+			},
+		)
+		return nil
+	}
+}
+
+func SetDataNodeProxy(dataNode string) Option {
+	return func(s *server) error {
+		nodeURL, _ := url.Parse(dataNode)
+		s.dataNodeProxy = httputil.NewSingleHostReverseProxy(nodeURL)
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+
+				// ead
+				r.Post("/api/ead", s.proxyDataNode)
+				r.Get("/api/ead/tasks", s.proxyDataNode)
+				r.Get("/api/ead/tasks/{id}", s.proxyDataNode)
+				r.Delete("/api/ead/tasks/{id}", s.proxyDataNode)
+				r.Post("/api/index/bulk", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/download", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/mets/{inventoryID}", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/desc", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/desc/index", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/meta", s.proxyDataNode)
+
+				// datasets
+				r.Get("/api/datasets/", s.proxyDataNode)
+				r.Get("/api/datasets/histogram", s.proxyDataNode)
+				r.Post("/api/datasets/", s.proxyDataNode)
+				r.Get("/api/datasets/{spec}", s.proxyDataNode)
+				r.Get("/api/datasets/{spec}/stats", s.proxyDataNode)
+				// later change to update dataset
+				r.Post("/api/datasets/{spec}", s.proxyDataNode)
+				r.Delete("/api/datasets/{spec}", s.proxyDataNode)
 			},
 		)
 		return nil

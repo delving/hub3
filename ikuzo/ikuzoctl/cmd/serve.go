@@ -52,10 +52,16 @@ func serve() {
 			ikuzo.NewBuildVersionInfo(version, gitHash, buildAgent, buildStamp),
 		),
 		ikuzo.SetLegacyRouters(
+			handlers.RegisterDatasets,
 			handlers.RegisterEAD,
 			handlers.RegisterSearch,
 		),
 	)
+
+	// load dataNodeProxy last so that other urls are overwritten in the router
+	if !cfg.IsDataNode() {
+		options = append(options, ikuzo.SetDataNodeProxy(cfg.DataNodeURL))
+	}
 
 	svr, err := ikuzo.NewServer(
 		options...,

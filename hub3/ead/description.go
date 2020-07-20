@@ -1018,6 +1018,19 @@ func ResaveDescriptions(eadPath string) error {
 			return fmt.Errorf("unable to write description; %w", err)
 		}
 
+		meta, _, err := GetOrCreateMeta(spec)
+		if err != nil {
+			return fmt.Errorf("unable to retrieve meta; %w", err)
+		}
+
+		// set basics for ead
+		meta.Label = cead.Ceadheader.GetTitle()
+		meta.Period = cead.Carchdesc.GetPeriods()
+
+		if err := meta.Write(); err != nil {
+			return fmt.Errorf("unable to write meta; %w", err)
+		}
+
 		seen++
 	}
 
