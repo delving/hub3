@@ -1,8 +1,22 @@
 # Changelog
 
-## development
+## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.9...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...master
+
+## v0.1.10 (2020-07-20)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.9...v0.1.10
+
+### Added
+
+- Support for running hub3 in DataNode mode [[GH-24]](https://github.com/delving/hub3/pull/24)
+- Support for generic bulk service orgID-aware posthooks
+- Implementation of orgID-aware posthook for [Ginger platform](https://github.com/driebit/ginger)
+
+### Fixes
+
+- escape html entities in v1 indexing output
 
 ## v0.1.9 (2020-06-15) 
 
