@@ -4,6 +4,10 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...master
 
+### Added
+
+- Allow for custom []ProxyRoute to be configured when configuring a DataNode proxy [[GH-26]](https://github.com/delving/hub3/pull/26)
+
 ### Fixes
 
 - Delete DataSet does not work when when no v1 index is created [[GH-25]](https://github.com/delving/hub3/pull/25)

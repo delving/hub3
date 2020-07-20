@@ -234,7 +234,15 @@ func SetImageProxyService(service *imageproxy.Service) Option {
 	}
 }
 
-func SetDataNodeProxy(dataNode string) Option {
+type ProxyRoute struct {
+	Method  string
+	Pattern string
+}
+
+// SetDataNodeProxy creates a reverse proxy to the dataNode and set override routes.
+//
+// The 'proxyRoutes' argument can be used to add additional override routes.
+func SetDataNodeProxy(dataNode string, proxyRoutes ...ProxyRoute) Option {
 	return func(s *server) error {
 		nodeURL, _ := url.Parse(dataNode)
 		s.dataNodeProxy = httputil.NewSingleHostReverseProxy(nodeURL)
@@ -262,6 +270,20 @@ func SetDataNodeProxy(dataNode string) Option {
 				// later change to update dataset
 				r.Post("/api/datasets/{spec}", s.proxyDataNode)
 				r.Delete("/api/datasets/{spec}", s.proxyDataNode)
+
+				// custom routes
+				for _, route := range proxyRoutes {
+					switch {
+					case strings.EqualFold("get", route.Method):
+						r.Get(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("post", route.Method):
+						r.Post(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("put", route.Method):
+						r.Put(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("delete", route.Method):
+						r.Delete(route.Pattern, s.proxyDataNode)
+					}
+				}
 			},
 		)
 		return nil
