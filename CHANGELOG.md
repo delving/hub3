@@ -6,7 +6,7 @@
 
 ### Fixes
 
-- Delete DataSet does not work when when no v1 index is created [[GH-25]](https://github.com/delving/hub3/pull/24)
+- Delete DataSet does not work when when no v1 index is created [[GH-25]](https://github.com/delving/hub3/pull/25)
 
 ## v0.1.10 (2020-07-20)
 
