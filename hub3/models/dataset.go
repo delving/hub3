@@ -612,13 +612,18 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 		elastic.NewTermQuery("spec.raw", ds.Spec),
 	)
 
-	log.Warn().Msgf("%#v", q)
+	indices := []string{}
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case "v1":
+			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName())
+		case "v2":
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+		}
+	}
+
 	res, err := index.ESClient().DeleteByQuery().
-		Index(
-			c.Config.ElasticSearch.GetIndexName(),
-			c.Config.ElasticSearch.GetV1IndexName(),
-			c.Config.ElasticSearch.FragmentIndexName(),
-		).
+		Index(indices...).
 		Query(q).
 		Do(ctx)
 	if err != nil {
