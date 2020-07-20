@@ -18,18 +18,24 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
+	"time"
 	"unicode"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	rdf "github.com/kiivihal/rdf2go"
 )
 
@@ -1037,6 +1043,69 @@ func ResaveDescriptions(eadPath string) error {
 	log.Printf("updated %d eads", seen)
 
 	return nil
+}
+
+func getRemoteDescriptionCount(spec, query string) (int, error) {
+	type hits struct {
+		Total int
+	}
+
+	var netClient = &http.Client{
+		Timeout: time.Second * 1,
+	}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/ead/%s/desc/index?q=%s", c.Config.DataNodeURL, spec, query), nil)
+	if err != nil {
+		return 0, err
+	}
+
+	resp, err := netClient.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	var descriptionHits hits
+
+	decodeErr := json.NewDecoder(resp.Body).Decode(&descriptionHits)
+	if decodeErr != nil {
+		return 0, decodeErr
+	}
+
+	return descriptionHits.Total, nil
+}
+
+func GetDescriptionCount(spec, query string) (int, error) {
+	if !c.Config.IsDataNode() {
+		return getRemoteDescriptionCount(spec, query)
+	}
+
+	var hits int
+
+	descriptionIndex, getErr := GetDescriptionIndex(spec)
+	if getErr != nil && !errors.Is(getErr, ErrNoDescriptionIndex) {
+		c.Config.Logger.Error().Err(getErr).
+			Str("subquery", "description").
+			Msg("error with retrieving description index")
+
+		return 0, getErr
+	}
+
+	if descriptionIndex != nil {
+		searhHits, searchErr := descriptionIndex.SearchWithString(query)
+		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+			c.Config.Logger.Error().Err(searchErr).
+				Str("subquery", "description").
+				Msg("unable to search description")
+
+			return 0, searchErr
+		}
+
+		hits = searhHits.Total()
+	}
+
+	return hits, nil
+
 }
 
 // HightlightSummary applied query highlights to the ead.Summary.

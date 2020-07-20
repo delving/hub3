@@ -118,6 +118,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	switch searchRequest.Tree {
 	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{

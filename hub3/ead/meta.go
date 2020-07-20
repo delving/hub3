@@ -3,14 +3,17 @@ package ead
 import (
 	"bytes"
 	"encoding/gob"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"path"
 	"time"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/models"
 )
 
@@ -90,7 +93,38 @@ func GetOrCreateMeta(spec string) (*Meta, bool, error) {
 	return meta, false, err
 }
 
+func getRemoteMeta(spec string) (*Meta, error) {
+	var meta Meta
+
+	var netClient = &http.Client{
+		Timeout: time.Second * 1,
+	}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/ead/%s/meta", c.Config.DataNodeURL, spec), nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := netClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	decodeErr := json.NewDecoder(resp.Body).Decode(&meta)
+	if decodeErr != nil {
+		return nil, decodeErr
+	}
+
+	return &meta, nil
+
+}
+
 func GetMeta(spec string) (*Meta, error) {
+	if !c.Config.IsDataNode() {
+		return getRemoteMeta(spec)
+	}
+
 	metaPath := getMetaPath(spec)
 	if _, err := os.Stat(metaPath); os.IsNotExist(err) {
 		return nil, ErrNoFileNotFound
