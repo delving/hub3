@@ -31,11 +31,8 @@ import (
 	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
-	"github.com/delving/hub3/hub3/models"
-	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/olivere/elastic/v7"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 )
@@ -611,27 +608,21 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		if ok {
 			spec := fields.([]interface{})[0].(string)
 
-			ds, datasetErr := models.GetDataSet(spec)
-			if datasetErr != nil {
-				rlog.Error().Err(datasetErr).
-					Msg("unable to retrieve dataset")
+			meta, metaErr := GetMeta(spec)
+			if metaErr != nil {
+				rlog.Error().Err(metaErr).
+					Str("spec", spec).
+					Msg("unable to ead meta information")
 
-				return nil, datasetErr
+				return nil, metaErr
 			}
 
 			archive := Archive{
 				InventoryID:      spec,
-				Title:            ds.Label,
-				Period:           ds.Period,
+				Title:            meta.Label,
+				Period:           meta.Period,
 				DescriptionCount: 0,
-				ClevelsTotal:     ds.Clevels,
-				// Files:            ds.Files,
-				// Length:           ds.Length,
-				// Abstract:         ds.Abstract,
-				// Language:         ds.Language,
-				// Material:         ds.Material,
-				// Origin:           ds.ArchiveCreator,
-				// MetsFiles:        ds.MetsFiles,
+				ClevelsTotal:     meta.Inventories,
 			}
 
 			var hitHasDescription bool
@@ -659,27 +650,9 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 			}
 
 			if req.RawQuery != "" && req.enableDescriptionSearch() && hitHasDescription {
-				descriptionIndex, getErr := GetDescriptionIndex(spec)
-				if getErr != nil && !errors.Is(getErr, ErrNoDescriptionIndex) {
-					rlog.Error().Err(getErr).
-						Str("subquery", "description").
-						Msg("error with retrieving description index")
-					return nil, getErr
-				}
-
-				if descriptionIndex != nil {
-					hits, searchErr := descriptionIndex.SearchWithString(req.RawQuery)
-					if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
-						rlog.Error().Err(searchErr).
-							Str("subquery", "description").
-							Msg("unable to search description")
-
-						return nil, searchErr
-					}
-
-					archive.DescriptionCount = hits.Total()
-				} else {
-					archive.DescriptionCount = 0
+				archive.DescriptionCount, err = GetDescriptionCount(spec, req.RawQuery)
+				if err != nil {
+					return nil, err
 				}
 			}
 

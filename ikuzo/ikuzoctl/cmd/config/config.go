@@ -28,6 +28,7 @@ type ConfigOption interface {
 type Config struct {
 	// default orgID when none is given
 	OrgID             string `json:"orgID"`
+	DataNodeURL       string `json:"dataNodeURL"`
 	ElasticSearch     `json:"elasticSearch"`
 	HTTP              `json:"http"`
 	TimeRevisionStore `json:"timeRevisionStore"`
@@ -41,13 +42,16 @@ type Config struct {
 	logger            logger.CustomLogger
 }
 
+func (cfg *Config) IsDataNode() bool {
+	return cfg.DataNodeURL == ""
+}
+
 func (cfg *Config) Options(cfgOptions ...ConfigOption) ([]ikuzo.Option, error) {
 	cfg.logger = logger.NewLogger(cfg.Logging.GetConfig())
 
 	if len(cfgOptions) == 0 {
 		cfgOptions = []ConfigOption{
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
-			// &cfg.DB,
 			&cfg.HTTP,
 			&cfg.TimeRevisionStore,
 			&cfg.EAD,

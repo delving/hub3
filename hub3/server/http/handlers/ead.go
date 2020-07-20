@@ -46,6 +46,8 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/{spec}/download", EADDownload)
 	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
+	r.Get("/api/ead/{spec}/desc/index", TreeDescriptionSearch)
+	r.Get("/api/ead/{spec}/meta", EADMeta)
 }
 
 func NewOldBulkProcessor() *OldBulkProcessor {
@@ -116,6 +118,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	switch searchRequest.Tree {
 	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{
@@ -179,6 +182,71 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
 	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
 	return
+}
+
+func EADMeta(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+	meta, err := ead.GetMeta(spec)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	render.JSON(w, r, meta)
+}
+
+func TreeDescriptionSearch(w http.ResponseWriter, r *http.Request) {
+	var hits int
+	rawQuery := r.URL.Query().Get("q")
+	if rawQuery == "" {
+		render.JSON(w, r, map[string]int{"total": hits})
+		return
+	}
+
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    fmt.Sprintln("spec can't be empty."),
+			Error:      nil,
+		})
+		return
+	}
+
+	descriptionIndex, getErr := ead.GetDescriptionIndex(spec)
+	if getErr != nil && !errors.Is(getErr, ead.ErrNoDescriptionIndex) {
+		c.Config.Logger.Error().Err(getErr).
+			Str("subquery", "description").
+			Msg("error with retrieving description index")
+		http.Error(w, getErr.Error(), http.StatusNotFound)
+		return
+	}
+
+	if descriptionIndex != nil {
+		searhHits, searchErr := descriptionIndex.SearchWithString(rawQuery)
+		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+			c.Config.Logger.Error().Err(searchErr).
+				Str("subquery", "description").
+				Msg("unable to search description")
+
+			http.Error(w, searchErr.Error(), http.StatusNotFound)
+			return
+		}
+
+		hits = searhHits.Total()
+	}
+
+	render.JSON(w, r, map[string]int{"total": hits})
 }
 
 func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {

@@ -352,21 +352,23 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		return t.finishWithError(errMsg)
 	}
 
-	// TODO(kiivihal): replace with dataset service later or store in DescriptionIndex
-	ds, created, err := models.GetOrCreateDataSet(t.Meta.DatasetID)
+	meta, created, err := eadHub3.GetOrCreateMeta(t.Meta.DatasetID)
 	if err != nil {
-		ErrorfMsg := fmt.Errorf("unable to get DataSet for %s", t.Meta.DatasetID)
+		ErrorfMsg := fmt.Errorf("unable to get ead Meta for %s", t.Meta.DatasetID)
+		return t.finishWithError(ErrorfMsg)
+	}
+
+	// create a dataset
+	if _, _, err := models.GetOrCreateDataSet(t.Meta.DatasetID); err != nil {
+		ErrorfMsg := fmt.Errorf("unable to get ead dataset for %s", t.Meta.DatasetID)
 		return t.finishWithError(ErrorfMsg)
 	}
 
 	t.Meta.Created = created
 
 	// set basics for ead
-	ds.Label = ead.Ceadheader.GetTitle()
-	ds.Period = ead.Carchdesc.GetPeriods()
-
-	// description must be set to empty
-	ds.Description = ""
+	meta.Label = ead.Ceadheader.GetTitle()
+	meta.Period = ead.Carchdesc.GetPeriods()
 
 	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.CreateTreeFn
@@ -526,8 +528,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			return nil
 		}
 
-		ds.MetsFiles = int(cfg.MetsCounter.GetCount())
-		ds.Clevels = int(cfg.Counter.GetCount())
+		meta.MetsFiles = int(cfg.MetsCounter.GetCount())
+		meta.Inventories = int(cfg.Counter.GetCount())
 
 		stats := models.DaoStats{
 			DuplicateLinks: map[string]int{},
@@ -545,11 +547,18 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			}
 		}
 
-		ds.DaoStats = stats
+		t.Meta.Clevels = cfg.Counter.GetCount()
+		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
+		t.Meta.RecordsPublished = atomic.LoadUint64(&cfg.RecordsPublishedCounter)
+		t.Meta.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
 
-		err = ds.Save()
+		meta.DaoStats = stats
+		meta.DigitalObjects = int(cfg.MetsCounter.GetDigitalObjectCount())
+		meta.RecordsPublished = int(t.Meta.RecordsPublished)
+
+		err = meta.Write()
 		if err != nil {
-			return fmt.Errorf("unable to save dataset %s; %w", ds.Spec, err)
+			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, err)
 		}
 
 		t.Meta.Clevels = cfg.Counter.GetCount()
