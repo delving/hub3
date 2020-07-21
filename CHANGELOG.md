@@ -4,6 +4,10 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.11...master
 
+### Added 
+
+- Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
+
 ## v0.1.11 (2020-07-21)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.1.11
