@@ -2,7 +2,11 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.11...master
+
+## v0.1.11 (2020-07-21)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.1.11
 
 ### Added
 
