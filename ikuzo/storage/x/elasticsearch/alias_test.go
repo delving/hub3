@@ -16,6 +16,7 @@ package elasticsearch
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
@@ -25,13 +26,15 @@ import (
 )
 
 // nolint:gocritic
-func TestAlias(t *testing.T) {
-	is := is.New(t)
+func (s *elasticSuite) TestAlias() {
+	is := is.New(s.T())
 
-	es, err := elasticsearch.NewDefaultClient()
+	cfg := elasticsearch.Config{Addresses: []string{fmt.Sprintf("http://%s:%s", s.ip, s.port.Port())}}
+	es, err := elasticsearch.NewClient(cfg)
 	is.NoErr(err)
 
 	res, err := es.Info()
+	s.T().Logf("elasticsearch status: %s", res.Status())
 	is.NoErr(err)
 	is.True(res.IsError() == false)
 

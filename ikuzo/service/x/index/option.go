@@ -31,6 +31,7 @@ func SetNatsConfiguration(ncfg *NatsConfig) Option {
 	return func(s *Service) error {
 		s.stan = ncfg
 		s.stan.setDefaults()
+
 		return nil
 	}
 }
