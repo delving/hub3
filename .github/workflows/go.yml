@@ -30,7 +30,7 @@ jobs:
       run: make build-ikuzo-static 
 
     - name: Test
-      run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      run: go test -coverprofile=coverage.txt -covermode=atomic ./...
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
