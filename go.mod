@@ -33,6 +33,7 @@ require (
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/schema v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/grpc-ecosystem/grpc-gateway v1.14.6 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.3.0 // indirect
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jinzhu/now v1.1.1 // indirect
@@ -76,6 +77,7 @@ require (
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/sajari/fuzzy v1.0.0
 	github.com/segmentio/ksuid v1.0.2
+	github.com/shurcooL/vfsgen v0.0.0-20200627165143-92b8a710ab6c // indirect
 	github.com/sosedoff/gitkit v0.2.0
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0
