@@ -5,6 +5,7 @@ go 1.14
 require (
 	code.gitea.io/gitea v1.11.6
 	github.com/DataDog/zstd v1.3.5 // indirect
+	github.com/Microsoft/hcsshim v0.8.9 // indirect
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.2.1
@@ -12,6 +13,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.0.2
+	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
 	github.com/disintegration/imaging v1.6.2 // indirect
@@ -29,7 +31,7 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang/protobuf v1.4.2
-	github.com/google/go-cmp v0.4.1
+	github.com/google/go-cmp v0.5.0
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/schema v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
@@ -62,8 +64,9 @@ require (
 	github.com/nats-io/nkeys v0.2.0 // indirect
 	github.com/nats-io/stan.go v0.6.0
 	github.com/olivere/elastic/v7 v7.0.16
-	github.com/onsi/ginkgo v1.8.0
-	github.com/onsi/gomega v1.5.0
+	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/gomega v1.7.0
+	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -76,13 +79,14 @@ require (
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/sajari/fuzzy v1.0.0
 	github.com/segmentio/ksuid v1.0.2
+	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/sosedoff/gitkit v0.2.0
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
-	github.com/testcontainers/testcontainers-go v0.3.1
+	github.com/testcontainers/testcontainers-go v0.7.0
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
 	github.com/urfave/negroni v1.0.0
@@ -92,16 +96,17 @@ require (
 	go.elastic.co/apm/module/apmchi v1.8.0
 	go.elastic.co/fastjson v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.4 // indirect
-	golang.org/x/crypto v0.0.0-20200602180216-279210d13fed // indirect
 	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
-	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
-	golang.org/x/sys v0.0.0-20200602225109-6fdc65e7d980 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
+	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
+	golang.org/x/sys v0.0.0-20200724161237-0e2f3a69832c // indirect
 	golang.org/x/text v0.3.2
-	google.golang.org/genproto v0.0.0-20200603110839-e855014d5736
-	google.golang.org/grpc v1.29.1
-	google.golang.org/protobuf v1.24.0
+	google.golang.org/genproto v0.0.0-20200724131911-43cab4749ae7
+	google.golang.org/grpc v1.30.0
+	google.golang.org/protobuf v1.25.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
+	gopkg.in/go-playground/validator.v9 v9.29.1 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.85
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
