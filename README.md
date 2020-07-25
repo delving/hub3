@@ -1,5 +1,13 @@
 # Hub3 
 
+![Go](https://github.com/delving/hub3/workflows/Go/badge.svg)
+[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=for-the-badge)](http://godoc.org/github.com/delving/hub3)
+ [![Go Report Card](https://goreportcard.com/badge/github.com/delving/hub3)](https://goreportcard.com/report/github.com/delving/hub3)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=delving_hub3&metric=alert_status)](https://sonarcloud.io/dashboard?id=delving_hub3)
+[![codecov](https://codecov.io/gh/delving/hub3/branch/master/graph/badge.svg)](https://codecov.io/gh/delving/hub3)
+
+
+
 Hub3 is an RDF publication and discovery platform written in Golang. Before the 1.0 release packages that can be of individual use will be split into stand-alone packages.
 
 The goal of Hub3 is to provide *an API Framework that makes it easy and predictable for webdevelopers to work with arbitrarily structured RDF and leverage semantic network technology*.
