@@ -30,4 +30,12 @@ jobs:
       run: make build-ikuzo-static 
 
     - name: Test
-      run: go test -v -cover ./...
+      run: go test -race -coverprofile=coverage.txt -covermode=atomic
+
+    - name: Codecov.io 
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./coverage.txt 
+        flags: unittests # optional
+        # name: codecov-umbrella # optional
+        fail_ci_if_error: true # optional (default = false)
