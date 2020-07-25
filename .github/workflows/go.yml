@@ -39,6 +39,6 @@ jobs:
         flags: unittests # optional
         name: codecov-umbrella # optional
         directory: ./coverage/reports/
-        path_to_write_report: ./coverage/codecov_report.gz
+        # path_to_write_report: ./coverage/codecov_report.gz
         fail_ci_if_error: true # optional (default = false)
 
