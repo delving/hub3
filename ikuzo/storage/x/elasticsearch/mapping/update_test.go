@@ -14,7 +14,9 @@
 
 package mapping
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_validate(t *testing.T) {
 	type args struct {
@@ -86,6 +88,40 @@ func Test_validate(t *testing.T) {
 			}
 			if gotOk != tt.wantOk {
 				t.Errorf("validate() %s gotOk = %v, want %v", tt.name, gotOk, tt.wantOk)
+			}
+		})
+	}
+}
+
+func TestValidateMappings(t *testing.T) {
+	tests := []struct {
+		name        string
+		wantOld     string
+		wantCurrent string
+		wantOk      bool
+	}{
+		{
+			"check current mappings",
+			"",
+			"",
+			true,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			gotOld, gotCurrent, gotOk := ValidateMappings()
+			if gotOld != tt.wantOld {
+				t.Errorf("ValidateMappings() gotOld = %v, want %v", gotOld, tt.wantOld)
+			}
+
+			if gotCurrent != tt.wantCurrent {
+				t.Errorf("ValidateMappings() gotCurrent = %v, want %v", gotCurrent, tt.wantCurrent)
+			}
+
+			if gotOk != tt.wantOk {
+				t.Errorf("ValidateMappings() gotOk = %v, want %v", gotOk, tt.wantOk)
 			}
 		})
 	}
