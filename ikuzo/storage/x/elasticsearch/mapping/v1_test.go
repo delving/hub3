@@ -20,7 +20,7 @@ import (
 	"testing"
 )
 
-func Test_SetDefaults(t *testing.T) {
+func TestSetDefaults(t *testing.T) {
 	type args struct {
 		shards   int
 		replicas int

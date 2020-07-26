@@ -18,7 +18,7 @@ import (
 	"testing"
 )
 
-func Test_Validate(t *testing.T) {
+func TestValidate(t *testing.T) {
 	type args struct {
 		keys map[string]string
 	}
