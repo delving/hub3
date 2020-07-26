@@ -1,10 +1,12 @@
 # Hub3 
 
 ![Go](https://github.com/delving/hub3/workflows/Go/badge.svg)
-[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=for-the-badge)](http://godoc.org/github.com/delving/hub3)
- [![Go Report Card](https://goreportcard.com/badge/github.com/delving/hub3)](https://goreportcard.com/report/github.com/delving/hub3)
+[![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/delving/hub3)
+[![Go Report Card](https://goreportcard.com/badge/github.com/delving/hub3)](https://goreportcard.com/report/github.com/delving/hub3)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=delving_hub3&metric=alert_status)](https://sonarcloud.io/dashboard?id=delving_hub3)
 [![codecov](https://codecov.io/gh/delving/hub3/branch/master/graph/badge.svg)](https://codecov.io/gh/delving/hub3)
+[![GitHub release](https://img.shields.io/github/release/delving/hub3)](https://github.com/delving/hub3/releases/latest)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
 

@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// go:generate echo hello go generate!
-
 // Package assets contains a virtual http.FileSytem with embedded static assets for the WebServer.
 // All static content from the 'static' folder in the root of the project is included.
 //
@@ -23,5 +21,5 @@
 //
 // You must run 'go generate ./...' to update the contents of the assets.
 //
-//
+//go:generate go run generate.go
 package assets

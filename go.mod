@@ -105,8 +105,6 @@ require (
 	google.golang.org/grpc v1.30.0
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.29.1 // indirect
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.85
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect

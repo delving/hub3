@@ -23,7 +23,7 @@ import (
 	"github.com/shurcooL/vfsgen"
 )
 
-var FileSystem http.FileSystem = http.Dir("../../../../third_party")
+var FileSystem http.FileSystem = http.Dir("../../../third_party")
 
 func main() {
 

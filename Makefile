@@ -115,16 +115,13 @@ pre-commit:
 test-ikuzo:
 	richgo test -cover ./ikuzo/...
 	golangci-lint run
-	
+
 test-no-cache:
 	richgo test -cover -count=1 ./ikuzo/...
 	golangci-lint run ikuzo
 
 lint-full-ikuzo:
 	golangci-lint run --enable=godox --enable=gomnd --enable=maligned --enable=prealloc --enable=gochecknoglobals --enable=gochecknoinits  ikuzo
-
-api-console:
-	api-console build -t "RAML 1.0" -a docs/ikuzo/raml/api.raml -o static/api-console
 
 run-dev-ikuzo:
 	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${IKUZOLDFLAGS}'" run serve
