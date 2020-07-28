@@ -17,8 +17,8 @@ package namespace
 import (
 	"testing"
 
-	"github.com/matryer/is"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/matryer/is"
 )
 
 func TestService_SearchLabel(t *testing.T) {

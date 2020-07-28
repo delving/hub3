@@ -47,11 +47,15 @@ func init() {
 	ctx = context.Background()
 }
 
+func logLabelErr(predicate string, err error) {
+	log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+}
+
 // NewContext returns the context for the current fragmentresource
 func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentReferrerContext {
 	searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
 	if err != nil {
-		log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+		logLabelErr(predicate, err)
 		searchLabel = ""
 	}
 
@@ -260,6 +264,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	sr.SearchAfter = nil
 	sr.Tree.Depth = []string{}
 	sr.Tree.FillTree = false
+
 	for {
 		results, err := scroll.Do(context.Background())
 		if err == io.EOF {
@@ -270,12 +275,11 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 		}
 
 		for _, hit := range results.Hits.Hits {
-			//sr.CalculatedTotal = results.TotalHits()
-
 			nextSearchAfter, err := sr.CreateBinKey(hit.Sort)
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
 			}
+			//sr.CalculatedTotal = results.TotalHits()
 
 			sr.Start = int32(cursor)
 			sr.SearchAfter = nextSearchAfter
@@ -523,7 +527,9 @@ func (tp *TreePaging) setFirstLastPage() {
 		tp.PageLast = int32(1)
 		return
 	}
+
 	sort.Slice(tp.PageCurrent, func(i, j int) bool { return tp.PageCurrent[i] < tp.PageCurrent[j] })
+
 	min := tp.PageCurrent[0]
 	max := tp.PageCurrent[0]
 
@@ -608,6 +614,7 @@ func (tpe *TreePageEntry) CreateTreePage(
 
 	return page
 }
+
 func (tpe *TreePageEntry) recurseNodes(node *Tree, page map[string][]*Tree, sortFrom int32) {
 	for _, subNode := range node.Inline {
 		children, ok := page[subNode.Leaf]
@@ -739,7 +746,7 @@ func (fe *FragmentEntry) AsLdObject() *r.LdObject {
 func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *ResourceMap) (*ResourceEntry, error) {
 	label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
 	if err != nil {
-		log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+		logLabelErr(predicate, err)
 		label = ""
 	}
 	re := &ResourceEntry{
@@ -1108,7 +1115,7 @@ func (f *Fragment) SetPath(contextPath string) {
 		rdfType = f.GetResourceType()[0]
 		searchLabel, err := c.Config.NameSpaceMap.GetSearchLabel(rdfType)
 		if err != nil {
-			log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
+			logLabelErr(rdfType, err)
 		}
 		if searchLabel != "" {
 			rdfType = searchLabel
@@ -1657,7 +1664,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 	typeLabel, err := c.Config.NameSpaceMap.GetSearchLabel(RDFType)
 	if err != nil {
-		log.Printf("Unable to create search label for %s  due to %s\n", RDFType, err)
+		logLabelErr(RDFType, err)
 		typeLabel = ""
 	}
 	path := fr.ContextPath()
@@ -1694,7 +1701,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 			label, err := c.Config.NameSpaceMap.GetSearchLabel(predicate)
 			if err != nil {
-				log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+				logLabelErr(predicate, err)
 				label = ""
 			}
 

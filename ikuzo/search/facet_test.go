@@ -20,10 +20,18 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+// nolint:funlen // table driven test
 func Test_newFacetField(t *testing.T) {
 	type args struct {
 		field string
 	}
+
+	var (
+		metaSpec        = "meta.spec"
+		treeDepth       = "tree.depth"
+		resourceEntries = "resources.entries"
+	)
+
 	tests := []struct {
 		name    string
 		args    args
@@ -48,19 +56,19 @@ func Test_newFacetField(t *testing.T) {
 		},
 		{
 			"meta field should not have nested path",
-			args{field: "meta.spec"},
+			args{field: metaSpec},
 			&FacetField{
-				Field: "meta.spec",
-				path:  "meta.spec",
+				Field: metaSpec,
+				path:  metaSpec,
 			},
 			false,
 		},
 		{
 			"tree field should not have nested path",
-			args{field: "tree.depth"},
+			args{field: treeDepth},
 			&FacetField{
-				Field: "tree.depth",
-				path:  "tree.depth",
+				Field: treeDepth,
+				path:  treeDepth,
 			},
 			false,
 		},
@@ -68,8 +76,8 @@ func Test_newFacetField(t *testing.T) {
 			"when field is prefixed with ^ it should sort Ascending",
 			args{field: "^tree.depth"},
 			&FacetField{
-				Field:   "tree.depth",
-				path:    "tree.depth",
+				Field:   treeDepth,
+				path:    treeDepth,
 				sortAsc: true,
 			},
 			false,
@@ -79,7 +87,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "id.dc_subject"},
 			&FacetField{
 				Field:       "dc_subject",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: resourceField,
 			},
 			false,
@@ -89,7 +97,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "datehistogram.dc_date"},
 			&FacetField{
 				Field:           "dc_date",
-				path:            "resources.entries",
+				path:            resourceEntries,
 				nestedField:     dateField,
 				aggregationType: "datehistogram",
 			},
@@ -100,7 +108,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "dateminmax.dc_date"},
 			&FacetField{
 				Field:           "dc_date",
-				path:            "resources.entries",
+				path:            resourceEntries,
 				nestedField:     dateField,
 				aggregationType: "dateminmax",
 			},
@@ -111,7 +119,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "tag.dc_date"},
 			&FacetField{
 				Field:       "dc_date",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: tagField,
 			},
 			false,
@@ -121,7 +129,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "tags"},
 			&FacetField{
 				Field:       "tags",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: tagField,
 			},
 			false,
@@ -132,7 +140,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "dc_date~10"},
 			&FacetField{
 				Field:       "dc_date",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: literalField,
 				size:        10,
 			},
@@ -143,7 +151,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "dc_date~"},
 			&FacetField{
 				Field:       "dc_date",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: literalField,
 				size:        0,
 			},
@@ -160,7 +168,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "^id.dc_date~10"},
 			&FacetField{
 				Field:       "dc_date",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: resourceField,
 				size:        10,
 				sortAsc:     true,
@@ -172,7 +180,7 @@ func Test_newFacetField(t *testing.T) {
 			args{field: "^id.dc_date~10@"},
 			&FacetField{
 				Field:       "dc_date",
-				path:        "resources.entries",
+				path:        resourceEntries,
 				nestedField: resourceField,
 				size:        10,
 				sortAsc:     true,
@@ -193,7 +201,10 @@ func Test_newFacetField(t *testing.T) {
 			true,
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := newFacetField(tt.args.field)
 			if (err != nil) != tt.wantErr {

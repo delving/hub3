@@ -40,7 +40,7 @@ const (
 	StateProcessingMetsFiles                   = "processing METS files"
 	StateProcessingInventories                 = "processing and indexing inventories"
 	StateInError                               = "stopped processing with error"
-	StateCancelled                             = "cancelled processing"
+	StateCanceled                              = "canceled processing"
 	StateFinished                              = "finished processing EAD"
 )
 
@@ -76,7 +76,7 @@ func (t *Task) finishState() *Transition {
 }
 
 func (t *Task) isActive() bool {
-	inActiveStates := []ProcessingState{StateInError, StateCancelled, StateFinished}
+	inActiveStates := []ProcessingState{StateInError, StateCanceled, StateFinished}
 	for _, state := range inActiveStates {
 		if state == t.InState {
 			return false
@@ -176,7 +176,7 @@ func (t *Task) Next() {
 		t.finishTask()
 	case StateInError:
 		t.finishState()
-	case StateCancelled:
+	case StateCanceled:
 		t.finishState()
 		atomic.AddUint64(&t.s.m.Canceled, 1)
 	}

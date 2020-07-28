@@ -125,6 +125,7 @@ func (s *Service) NewParser() *Parser {
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// added to implement ikuzo service interface
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {

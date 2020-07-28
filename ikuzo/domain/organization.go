@@ -46,7 +46,7 @@ type OrganizationFilter struct {
 	// Limit is the number of items returned from the filter
 	Limit int
 	// Org can be used to filter the results based on the filled in value.
-	// This is mostly usefull if you want to filter by attributes..
+	// This is mostly useful if you want to filter by attributes..
 	Org Organization
 }
 

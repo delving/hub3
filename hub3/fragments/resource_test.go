@@ -556,3 +556,171 @@ func TestIndexRange_Valid(t *testing.T) {
 		})
 	}
 }
+
+func TestTreeQuery_IsExpanded(t *testing.T) {
+	type fields struct {
+		Label    string
+		UnitID   string
+		IsPaging bool
+		Query    string
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+		{
+			"not expanded",
+			fields{},
+			false,
+		},
+		{
+			"is paging",
+			fields{
+				IsPaging: true,
+			},
+			true,
+		},
+		{
+			"has Label",
+			fields{
+				Label: "tree",
+			},
+			true,
+		},
+		{
+			"has UnitID",
+			fields{
+				UnitID: "123",
+			},
+			true,
+		},
+		{
+			"has query",
+			fields{
+				Query: "my query",
+			},
+			true,
+		},
+		{
+			"has query with paging",
+			fields{
+				Query:    "my query",
+				IsPaging: true,
+			},
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			tq := &TreeQuery{
+				Label:    tt.fields.Label,
+				UnitID:   tt.fields.UnitID,
+				IsPaging: tt.fields.IsPaging,
+				Query:    tt.fields.Query,
+			}
+			if got := tq.IsExpanded(); got != tt.want {
+				t.Errorf("TreeQuery.IsExpanded() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTreeQuery_IsNavigatedQuery(t *testing.T) {
+	type fields struct {
+		CLevel           string
+		Leaf             string
+		Parent           string
+		Type             []string
+		Depth            []string
+		FillTree         bool
+		ChildCount       string
+		Label            string
+		Spec             string
+		UnitID           string
+		CursorHint       int32
+		MimeType         []string
+		HasRestriction   bool
+		HasDigitalObject bool
+		Page             []int32
+		PageSize         int32
+		AllParents       bool
+		IsPaging         bool
+		IsSearch         bool
+		PageMode         string
+		Query            string
+		WithFields       bool
+	}
+
+	tests := []struct {
+		name   string
+		fields fields
+		want   bool
+	}{
+
+		{
+			"not a navigated query",
+			fields{},
+			false,
+		},
+		{
+			"only unitID is not a navigated query",
+			fields{UnitID: "123"},
+			false,
+		},
+		{
+			"UnitID && Label is a navigated query",
+			fields{
+				UnitID: "123",
+				Label:  "my label",
+			},
+			true,
+		},
+		{
+			"UnitID && Query is a navigated query",
+			fields{
+				UnitID: "123",
+				Query:  "navigated query",
+			},
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			tq := &TreeQuery{
+				CLevel:           tt.fields.CLevel,
+				Leaf:             tt.fields.Leaf,
+				Parent:           tt.fields.Parent,
+				Type:             tt.fields.Type,
+				Depth:            tt.fields.Depth,
+				FillTree:         tt.fields.FillTree,
+				ChildCount:       tt.fields.ChildCount,
+				Label:            tt.fields.Label,
+				Spec:             tt.fields.Spec,
+				UnitID:           tt.fields.UnitID,
+				CursorHint:       tt.fields.CursorHint,
+				MimeType:         tt.fields.MimeType,
+				HasRestriction:   tt.fields.HasRestriction,
+				HasDigitalObject: tt.fields.HasDigitalObject,
+				Page:             tt.fields.Page,
+				PageSize:         tt.fields.PageSize,
+				AllParents:       tt.fields.AllParents,
+				IsPaging:         tt.fields.IsPaging,
+				IsSearch:         tt.fields.IsSearch,
+				PageMode:         tt.fields.PageMode,
+				Query:            tt.fields.Query,
+				WithFields:       tt.fields.WithFields,
+			}
+			if got := tq.IsNavigatedQuery(); got != tt.want {
+				t.Errorf("TreeQuery.IsNavigatedQuery() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

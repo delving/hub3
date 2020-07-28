@@ -23,6 +23,10 @@ import (
 	"github.com/OneOfOne/xxhash"
 )
 
+const (
+	ebuCoreURN = "urn:ebu:metadata-schema:ebuCore_2014"
+)
+
 // NameSpace is a container for Namespaces base URLs and prefixes
 // This is used by resolving namespaces in the RDF conversions
 type NameSpace struct {
@@ -140,12 +144,14 @@ func SplitURI(uri string) (base string, name string) {
 
 // GetSearchLabel returns the search label for a Predicate URI
 func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
-	if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
-		uri = strings.TrimLeft(uri, "urn:ebu:metadata-schema:ebuCore_2014")
+	if strings.HasPrefix(uri, ebuCoreURN) {
+		uri = strings.TrimLeft(uri, ebuCoreURN)
 		uri = strings.TrimLeft(uri, "/")
 		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
 	}
+
 	base, label := SplitURI(uri)
+
 	prefix, ok := n.GetPrefix(base)
 	if !ok {
 		hash := xxhash.Checksum64([]byte(base))
@@ -154,6 +160,7 @@ func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
 		log.Printf("Added default prefix %s for %s", prefix, base)
 		//return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
 	}
+
 	return fmt.Sprintf("%s_%s", prefix, label), nil
 }
 

@@ -49,12 +49,11 @@ func (ph *PostHook) OrgID() string {
 }
 
 func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Response, err error) {
-
 	req, err := http.NewRequest("DELETE", ph.endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
-	//req.Header.Set("Cookie", key.Key)
+
 	q := req.URL.Query()
 	q.Add("api_key", ph.apiKey)
 	q.Add("collection", dataset)
@@ -62,6 +61,7 @@ func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Respon
 	if revision > 0 {
 		q.Add("rev", fmt.Sprintf("%d", revision))
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	req.Header.Set("Content-Type", "application/json")
@@ -69,25 +69,27 @@ func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Respon
 	var netClient = &http.Client{
 		Timeout: time.Second * 15,
 	}
+
 	return netClient.Do(req)
 }
 
-func (ph *PostHook) Valid(datasetId string) bool {
+func (ph *PostHook) Valid(datasetID string) bool {
 	if ph.endpoint == "" {
 		return false
 	}
 
 	for _, e := range ph.excludedDataSets {
-		if strings.EqualFold(e, datasetId) {
+		if strings.EqualFold(e, datasetID) {
 			return false
 		}
 	}
-	return true
 
+	return true
 }
 
 func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 	jobs := []*PostHookJob{}
+
 	for _, item := range items {
 		if item.Deleted {
 			resp, err := ph.DropDataset(item.DatasetID, item.Revision)
@@ -99,6 +101,7 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 			if resp.StatusCode > 299 {
 				defer resp.Body.Close()
 				body, readErr := ioutil.ReadAll(resp.Body)
+
 				if readErr != nil {
 					log.Error().Err(err).Str("datasetID", item.DatasetID).
 						Msg("unable to read posthook body")
@@ -129,12 +132,13 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 
 	request := gorequest.New()
 
-	bulk := []interface{}{}
+	bulkGraphs := []interface{}{}
 	for _, job := range jobs {
-		bulk = append(bulk, job.jsonld)
 		// gauge.Queue(ph)
+		bulkGraphs = append(bulkGraphs, job.jsonld)
 	}
-	json, err := json.Marshal(bulk)
+
+	graphsAsJSON, err := json.Marshal(bulkGraphs)
 	if err != nil {
 		return err
 	}
@@ -143,7 +147,7 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 		Set("Content-Type", "application/json-ld; charset=utf-8").
 		Query(fmt.Sprintf("api_key=%s", ph.apiKey)).
 		Type("text").
-		Send(string(json)).
+		Send(string(graphsAsJSON)).
 		End()
 
 	//fmt.Printf("jsonld: %s\n", json)
@@ -151,7 +155,7 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 	if errs != nil || rsp.StatusCode != http.StatusOK {
 		// log.Error().Str("apiKey", ph.apiKey).Msgf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
 		// log.Error().Msgf("Unable to store: %#v\n", errs)
-		log.Error().Msgf("JSON-LD: %s\n", json)
+		log.Error().Msgf("JSON-LD: %s\n", graphsAsJSON)
 		// log.Error().Msgf("bulk: %s\n", bulk)
 		// for _, job := range jobs {
 		// err := gauge.Error(job)
@@ -160,10 +164,10 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 		// }
 		// }
 
-		return fmt.Errorf("Unable to save to endpoint %s;\n %s", ph.endpoint, body)
+		return fmt.Errorf("unable to save to endpoint %s;\n %s", ph.endpoint, body)
 	}
 
-	log.Info().Str("svc", "posthook").Int("bulkItems", len(bulk)).Msg("Stored posthook items for ginger")
+	log.Info().Str("svc", "posthook").Int("bulkItems", len(bulkGraphs)).Msg("Stored posthook items for ginger")
 	// for _, job := range jobs {
 	// err := gauge.Done(job)
 	// if err != nil {
@@ -176,14 +180,13 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 
 // NewPostHookJob creates a new PostHookJob and populates the rdf2go Graph
 func NewPostHookJob(item *bulk.PostHookItem) (*PostHookJob, error) {
-
 	ph := &PostHookJob{
 		item: item,
 	}
 
 	if !ph.item.Deleted {
 		// setup the cleanup
-		err := ph.parseJsonLD()
+		err := ph.parseJSONLD()
 		if err != nil {
 			return nil, err
 		}
@@ -192,7 +195,7 @@ func NewPostHookJob(item *bulk.PostHookItem) (*PostHookJob, error) {
 		ph.cleanPostHookGraph()
 		// log.Info().Msgf("ph.jsonld %#v", ph.jsonld)
 
-		err = ph.updateJsonLD()
+		err = ph.updateJSONLD()
 		if err != nil {
 			return nil, err
 		}
@@ -201,7 +204,7 @@ func NewPostHookJob(item *bulk.PostHookItem) (*PostHookJob, error) {
 	return ph, nil
 }
 
-func (ph *PostHookJob) updateJsonLD() error {
+func (ph *PostHookJob) updateJSONLD() error {
 	b, err := json.Marshal(ph.jsonld)
 	if err != nil {
 		return err
@@ -212,7 +215,7 @@ func (ph *PostHookJob) updateJsonLD() error {
 	return nil
 }
 
-func (ph *PostHookJob) parseJsonLD() error {
+func (ph *PostHookJob) parseJSONLD() error {
 	jsonld, err := ph.item.Graph.GenerateJSONLD()
 	if err != nil {
 		return err
@@ -226,57 +229,38 @@ func (ph *PostHookJob) parseJsonLD() error {
 // cleanPostHookGraph applies post hook clean actions to the graph
 func (ph *PostHookJob) cleanPostHookGraph() {
 	cleanMap := []map[string]interface{}{}
+
 	for _, rsc := range ph.jsonld {
 		cleanEntry := make(map[string]interface{})
+
+		ebuCore := "urn:ebu:metadata-schema:ebuCore_2014"
+
 		for uri, v := range rsc {
-			if strings.HasPrefix(uri, "urn:ebu:metadata-schema:ebuCore_2014") {
-				uri = strings.TrimLeft(uri, "urn:ebu:metadata-schema:ebuCore_2014")
+			if strings.HasPrefix(uri, ebuCore) {
+				uri = strings.TrimLeft(uri, ebuCore)
 				uri = strings.TrimLeft(uri, "/")
 				uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
 			}
 
-			var dateUri string
-			switch uri {
-			case ns.dcterms.Get("created").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.dcterms.Get("issued").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("creatorBirthYear").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("creatorDeathYear").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("date").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.dc.Get("date").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("dateOfBurial").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("dateOfDeath").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("productionEnd").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("productionStart").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.nave.Get("productionPeriod").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.rdagr2.Get("dateOfBirth").RawValue():
-				dateUri = cleanDateURI(uri)
-			case ns.rdagr2.Get("dateOfDeath").RawValue():
-				dateUri = cleanDateURI(uri)
+			var dateURI string
 
+			if _, ok := dateFields[uri]; ok {
+				dateURI = cleanDateURI(uri)
 			}
-			if dateUri != "" {
+
+			if dateURI != "" {
 				// todo add code to cleanup the date formatting
 				// TODO also add the original
-				cleanEntry[dateUri] = v
+				cleanEntry[dateURI] = v
 			} else {
 				// insert the uri original URI and raw value
 				cleanEntry[uri] = v
-
 			}
 		}
+
 		cleanMap = append(cleanMap, cleanEntry)
 	}
+
 	ph.jsonld = cleanMap
 }
 
@@ -286,27 +270,31 @@ func containsString(s []string, e string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func (ph *PostHookJob) addNarthexDefaults(hubID string) {
-	//log.Printf("adding defaults for %s", ph.Subject)
 	parts := strings.Split(hubID, "_")
 	localID := parts[2]
 	subject := ph.item.Subject + "/about"
 
-	var defaults map[string]interface{}
-	var found bool
+	var (
+		defaults map[string]interface{}
+		found    bool
+	)
 
 	for _, resource := range ph.jsonld {
 		ttype, ok := resource["@type"]
 		if ok {
-			switch ttype.(type) {
+			// nolint:gocritic // type check must use switch
+			switch ttype := ttype.(type) {
 			case []string:
 				// log.Debug().Msgf("ttype: %s", ttype)
-				if containsString(ttype.([]string), "http://xmlns.com/foaf/0.1/Document") {
+				if containsString(ttype, "http://xmlns.com/foaf/0.1/Document") {
 					defaults = resource
 					found = true
+
 					break
 				}
 			}
@@ -318,6 +306,7 @@ func (ph *PostHookJob) addNarthexDefaults(hubID string) {
 		defaults["@id"] = subject
 		defaults["@type"] = []string{"http://xmlns.com/foaf/0.1/Document"}
 	}
+
 	checkUpdate(defaults, "localId", localID)
 	checkUpdate(defaults, "hubID", hubID)
 	checkUpdate(defaults, "spec", ph.item.DatasetID)
@@ -326,6 +315,7 @@ func (ph *PostHookJob) addNarthexDefaults(hubID string) {
 	checkUpdate(defaults, "revision", 10)
 	checkUpdate(defaults, "http://creativecommons.org/ns#attributionName", ph.item.DatasetID)
 	checkUpdate(defaults, "http://xmlns.com/foaf/0.1/primaryTopic", ph.item.Subject)
+
 	if !found {
 		ph.jsonld = append(ph.jsonld, defaults)
 	}
@@ -337,6 +327,7 @@ func createDatasetURI(subject string) string {
 		parts[0:len(parts)-1],
 		"/",
 	)
+
 	return strings.Replace(base, "/aggregation/", "/dataset/", 1)
 }
 
@@ -344,6 +335,7 @@ func checkUpdate(defaults map[string]interface{}, uri string, value interface{})
 	if !strings.HasPrefix(uri, "http") {
 		uri = fmt.Sprintf("http://schemas.delving.eu/narthex/terms/%s", uri)
 	}
+
 	if _, ok := defaults[uri]; !ok {
 		switch value.(type) {
 		case string:
@@ -358,6 +350,7 @@ func checkUpdate(defaults map[string]interface{}, uri string, value interface{})
 func addLiteralValue(v interface{}) []map[string]interface{} {
 	vmap := make(map[string]interface{})
 	vmap["@value"] = v
+
 	return []map[string]interface{}{vmap}
 }
 
@@ -365,5 +358,6 @@ func addLiteralInt(v interface{}) []map[string]interface{} {
 	vmap := make(map[string]interface{})
 	vmap["@value"] = v
 	vmap["@type"] = "http://www.w3.org/2001/XMLSchema#integer"
+
 	return []map[string]interface{}{vmap}
 }

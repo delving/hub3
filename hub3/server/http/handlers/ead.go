@@ -35,6 +35,10 @@ import (
 	elastic "github.com/olivere/elastic/v7"
 )
 
+var (
+	contentDispositionKey = "Content-Disposition"
+)
+
 func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/search", eadSearch)
 	r.Get("/api/ead/search/{spec}", eadInventorySearch)
@@ -73,13 +77,13 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 }
 
 func TreeList(w http.ResponseWriter, r *http.Request) {
-	// FIXME(kiivihal): add logger for
+	// TODO(kiivihal): add logger
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -141,8 +145,8 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.pdf", spec))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", spec))
-	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.pdf", spec))
+	w.Header().Set(contentTypeKey, "application/pdf")
 	return
 }
 
@@ -160,8 +164,8 @@ func METSDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
-	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
+	w.Header().Set(contentTypeKey, "application/xml")
 	return
 }
 
@@ -172,15 +176,15 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.xml", spec))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
-	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.xml", spec))
+	w.Header().Set(contentTypeKey, r.Header.Get(contentTypeKey))
 	return
 }
 
@@ -190,7 +194,7 @@ func EADMeta(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -217,7 +221,7 @@ func TreeDescriptionSearch(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -346,7 +350,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -383,4 +387,8 @@ func eadInventorySearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, resp)
+}
+
+func emptySpecMsg() string {
+	return fmt.Sprintln("spec can't be empty")
 }

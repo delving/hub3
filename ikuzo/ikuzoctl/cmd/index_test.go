@@ -22,7 +22,7 @@ import (
 	"github.com/matryer/is"
 )
 
-// nolint:lll
+// nolint:lll // line contains a RDF graph
 var testRec = v1{
 	OrgID: "brabantcloud",
 	Spec:  "ton-smits-huis",
@@ -50,5 +50,4 @@ func TestNewV1(t *testing.T) {
 	if diff := cmp.Diff(&testRec, record); diff != "" {
 		t.Errorf("newV1() = mismatch (-want +got):\n%s", diff)
 	}
-
 }

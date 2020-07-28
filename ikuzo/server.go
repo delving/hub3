@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"net/http/httputil"
+	// nolint:gosec // imported for metrics server. Not exposes on default routes because we don't use the default mux
 	_ "net/http/pprof"
 
 	"github.com/delving/hub3/ikuzo/logger"
@@ -118,6 +119,7 @@ func newServer(options ...Option) (*server, error) {
 		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
 		shutdownHooks:   make(map[string]Shutdown),
+		ctx:             ctx,
 	}
 
 	s.setRouterdefaults()
@@ -166,7 +168,9 @@ func newServer(options ...Option) (*server, error) {
 	return s, nil
 }
 
-func (s *server) setDefaultServices() {}
+func (s *server) setDefaultServices() {
+	// can be used to set default service configurations
+}
 
 func (s *server) setRouterdefaults() {
 	router := chi.NewRouter()
@@ -199,7 +203,9 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 			Int("port", s.metricsPort).
 			Msg("starting metrics server")
 
-		go http.ListenAndServe(fmt.Sprintf(":%d", s.metricsPort), nil)
+		go func() {
+			errChan <- http.ListenAndServe(fmt.Sprintf(":%d", s.metricsPort), nil)
+		}()
 	}
 
 	// start web-server
@@ -253,7 +259,7 @@ func (s *server) shutdown(server *http.Server) error {
 	s.cancelFunc()
 
 	// set maximum duration for graceful shutdown
-	ctx, cancel := context.WithTimeout(context.Background(), s.gracefulTimeout)
+	ctx, cancel := context.WithTimeout(s.ctx, s.gracefulTimeout)
 	defer cancel()
 
 	log.Info().Msg("stopping web-server")
@@ -371,6 +377,7 @@ func (s *server) proxyDataNode(w http.ResponseWriter, r *http.Request) {
 	if s.dataNodeProxy == nil {
 		s.logger.Warn().Str("url", r.URL.String()).Msg("requesting proxy URL when proxy is not set")
 		http.Error(w, "dataNode proxy is not configured", http.StatusInternalServerError)
+
 		return
 	}
 

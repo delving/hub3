@@ -21,6 +21,10 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+const (
+	dcSubject = "http://purl.org/dc/elements/1.1/subject"
+)
+
 var _ = Describe("Namespace", func() {
 
 	Describe("Has a NameSpaceMap", func() {
@@ -113,13 +117,6 @@ var _ = Describe("Namespace", func() {
 			})
 		})
 
-		Context("When initialised from Config", func() {
-
-			It("Should Contain the same number of entries as the config list", func() {
-
-			})
-		})
-
 	})
 
 	Describe("Should be able to deal with namespace from a uri", func() {
@@ -134,7 +131,6 @@ var _ = Describe("Namespace", func() {
 			})
 
 			It("Should split when given an URI with a #", func() {
-				dcSubject := "http://purl.org/dc/elements/1.1/subject"
 				base, name := c.SplitURI(dcSubject)
 				Expect(name).To(Equal("subject"))
 				Expect(base).To(HaveSuffix("/"))
@@ -147,7 +143,6 @@ var _ = Describe("Namespace", func() {
 			nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 
 			It("should return the search label", func() {
-				dcSubject := "http://purl.org/dc/elements/1.1/subject"
 				label, err := nsMap.GetSearchLabel(dcSubject)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(label).ToNot(BeEmpty())

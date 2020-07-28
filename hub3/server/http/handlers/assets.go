@@ -24,7 +24,9 @@ import (
 	"github.com/go-chi/render"
 )
 
-func RegisterStaticAssets(r chi.Router) {}
+func RegisterStaticAssets(r chi.Router) {
+	// use to register static asset routes when applicable
+}
 
 func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
 	file, err := assets.FileSystem.Open(filePath)
@@ -32,6 +34,7 @@ func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
 		log.Printf("Unable to open file %s: %v", filePath, err)
 		render.Status(r, http.StatusNotFound)
 		render.PlainText(w, r, "")
+
 		return err
 	}
 	defer file.Close()
@@ -41,8 +44,11 @@ func serveHTML(w http.ResponseWriter, r *http.Request, filePath string) error {
 		log.Printf("Unable to read file %s: %v", filePath, err)
 		render.Status(r, http.StatusNotFound)
 		render.PlainText(w, r, "")
+
 		return err
 	}
+
 	render.HTML(w, r, string(body))
+
 	return nil
 }

@@ -24,7 +24,6 @@ import (
 )
 
 func (s *Service) Routes() chi.Router {
-
 	router := chi.NewRouter()
 
 	router.Get("/", s.handleFilter)
@@ -57,13 +56,6 @@ func (s *Service) handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) handlePut(w http.ResponseWriter, r *http.Request) {
-	// b, err := ioutil.ReadAll(r.Body)
-	// if err != nil {
-	// http.Error(w, err.Error(), http.StatusInternalServerError)
-	// return
-	// }
-
-	// render.JSON(w, r, string(b))
 	var org domain.Organization
 
 	err := json.NewDecoder(r.Body).Decode(&org)
@@ -73,11 +65,4 @@ func (s *Service) handlePut(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, org)
-	// err = s.Put(r.Context(), org)
-	// if err != nil {
-	// http.Error(w, err.Error(), http.StatusInternalServerError)
-	// return
-	// }
-
-	// w.WriteHeader(http.StatusNoContent)
 }

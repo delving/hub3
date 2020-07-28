@@ -32,6 +32,11 @@ var (
 // URI represents a NameSpace URI.
 type URI string
 
+// String returns a string representation of URI
+func (uri URI) String() string {
+	return string(uri)
+}
+
 // NameSpace is a container for URI conversions for RDF- and XML-namespaces.
 type NameSpace struct {
 
@@ -65,9 +70,8 @@ type NameSpace struct {
 	// TODO(kiivihal): add function for custom hashing similar to isIdentRune
 }
 
-// String returns a string representation of URI
-func (uri URI) String() string {
-	return string(uri)
+func (ns *NameSpace) String() string {
+	return fmt.Sprintf("%s: %s", ns.Prefix, ns.Base)
 }
 
 // SplitURI takes a given URI and splits it into a base-URI and a localname.

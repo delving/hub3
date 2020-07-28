@@ -33,7 +33,10 @@ import (
 	"github.com/go-chi/render"
 )
 
-var httpCache *bigcache.BigCache
+var (
+	httpCache      *bigcache.BigCache
+	contentTypeKey = "Content-Type"
+)
 
 // CachedResponse stores the request in the Cache.
 // This object is always return from the CacheRequest
@@ -91,7 +94,7 @@ func PrepareCacheRequest(r *http.Request) (cacheKey string, err error) {
 
 	method := r.Method
 	path := r.URL.EscapedPath()
-	contentType := r.Header.Get("Content-Type")
+	contentType := r.Header.Get(contentTypeKey)
 	var b bytes.Buffer
 	b.WriteString(method + path + contentType + r.URL.RawQuery)
 
@@ -156,7 +159,7 @@ func getCachedRequest(r *http.Request) (cr *CachedResponse, err error) {
 		log.Printf("Unable to read the response body with error: %s", err)
 	}
 	cr.StatusCode = resp.StatusCode
-	cr.ContentType = resp.Header.Get("Content-Type")
+	cr.ContentType = resp.Header.Get(contentTypeKey)
 
 	// set cache key
 
@@ -182,7 +185,7 @@ func cacheRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", cr.ContentType)
+	w.Header().Set(contentTypeKey, cr.ContentType)
 	w.WriteHeader(cr.StatusCode)
 
 	_, err = w.Write(cr.Body)

@@ -18,9 +18,15 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
-	"github.com/delving/hub3/ikuzo/domain"
+)
+
+const (
+	dcTitle = "http://purl.org/dc/elements/1.1/title"
+	dcNS    = "http://purl.org/dc/elements/1.1/"
+	dcAltNS = "http://purl.org/dc/elements/1.2/"
 )
 
 func TestSplitURI(t *testing.T) {
@@ -36,8 +42,8 @@ func TestSplitURI(t *testing.T) {
 	}{
 		{
 			"split by /",
-			args{"http://purl.org/dc/elements/1.1/title"},
-			"http://purl.org/dc/elements/1.1/",
+			args{dcTitle},
+			dcNS,
 			"title",
 		},
 		{
@@ -69,8 +75,8 @@ func TestSplitURI(t *testing.T) {
 }
 
 func ExampleSplitURI() {
-	fmt.Println(domain.SplitURI("http://purl.org/dc/elements/1.1/title"))
-	// output: http://purl.org/dc/elements/1.1/ title
+	fmt.Println(domain.SplitURI("http://purl.org/dc/elements/1.1/subject"))
+	// output: http://purl.org/dc/elements/1.1/ subject
 }
 
 // nolint:gocritic
@@ -78,8 +84,8 @@ func TestURI_String(t *testing.T) {
 	is := is.New(t)
 
 	is.Equal(
-		domain.URI("http://purl.org/dc/elements/1.1/title").String(),
-		"http://purl.org/dc/elements/1.1/title",
+		domain.URI(dcTitle).String(),
+		dcTitle,
 	)
 }
 
@@ -174,14 +180,14 @@ func TestNameSpace_AddBase(t *testing.T) {
 			"add same base",
 			fields{
 				Prefix:  "dc",
-				Base:    "http://purl.org/dc/elements/1.1/",
-				BaseAlt: []string{"http://purl.org/dc/elements/1.1/"},
+				Base:    dcNS,
+				BaseAlt: []string{dcNS},
 			},
-			args{"http://purl.org/dc/elements/1.1/"},
+			args{dcNS},
 			&domain.NameSpace{
 				Prefix:  "dc",
-				Base:    "http://purl.org/dc/elements/1.1/",
-				BaseAlt: []string{"http://purl.org/dc/elements/1.1/"},
+				Base:    dcNS,
+				BaseAlt: []string{dcNS},
 			},
 			false,
 		},
@@ -189,16 +195,16 @@ func TestNameSpace_AddBase(t *testing.T) {
 			"add alt base",
 			fields{
 				Prefix:  "dc",
-				Base:    "http://purl.org/dc/elements/1.1/",
-				BaseAlt: []string{"http://purl.org/dc/elements/1.1/"},
+				Base:    dcNS,
+				BaseAlt: []string{dcNS},
 			},
-			args{"http://purl.org/dc/elements/1.2/"},
+			args{dcAltNS},
 			&domain.NameSpace{
 				Prefix: "dc",
-				Base:   "http://purl.org/dc/elements/1.1/",
+				Base:   dcNS,
 				BaseAlt: []string{
-					"http://purl.org/dc/elements/1.1/",
-					"http://purl.org/dc/elements/1.2/",
+					dcNS,
+					dcAltNS,
 				},
 			},
 			false,
@@ -292,41 +298,41 @@ func TestNameSpace_Merge(t *testing.T) {
 	}{
 		{
 			"merge without overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
+			fields{dcNS, "dc", []string{}, []string{}},
 			args{&domain.NameSpace{
-				Base:      "http://purl.org/dc/elements/1.2/",
+				Base:      dcAltNS,
 				Prefix:    "dce",
 				BaseAlt:   []string{},
 				PrefixAlt: []string{},
 			}},
 			[]string{"dc", "dce"},
-			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
+			[]string{dcNS, dcAltNS},
 			false,
 		},
 		{
 			"merge with prefix overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
+			fields{dcNS, "dc", []string{}, []string{}},
 			args{&domain.NameSpace{
-				Base:      "http://purl.org/dc/elements/1.2/",
+				Base:      dcAltNS,
 				Prefix:    "dc",
 				BaseAlt:   []string{},
 				PrefixAlt: []string{},
 			}},
 			[]string{"dc"},
-			[]string{"http://purl.org/dc/elements/1.1/", "http://purl.org/dc/elements/1.2/"},
+			[]string{dcNS, dcAltNS},
 			false,
 		},
 		{
 			"merge with base overlap",
-			fields{"http://purl.org/dc/elements/1.1/", "dc", []string{}, []string{}},
+			fields{dcNS, "dc", []string{}, []string{}},
 			args{&domain.NameSpace{
-				Base:      "http://purl.org/dc/elements/1.1/",
+				Base:      dcNS,
 				Prefix:    "dce",
 				BaseAlt:   []string{},
 				PrefixAlt: []string{},
 			}},
 			[]string{"dc", "dce"},
-			[]string{"http://purl.org/dc/elements/1.1/"},
+			[]string{dcNS},
 			false,
 		},
 	}
@@ -344,17 +350,17 @@ func TestNameSpace_Merge(t *testing.T) {
 			if err := ns.Merge(tt.args.other); (err != nil) != tt.wantErr {
 				t.Errorf("NameSpace.Merge() error = %v, wantErr %v", err, tt.wantErr)
 			}
+
 			if !cmp.Equal(tt.prefixAlt, ns.Prefixes()) {
 				t.Errorf("NameSpace.Merge() got %v; want %v", ns.Prefixes(), tt.prefixAlt)
 			}
+
 			if !cmp.Equal(tt.baseAlt, ns.BaseURIs()) {
 				t.Errorf("NameSpace.Merge() got %v; want %v", ns.BaseURIs(), tt.baseAlt)
 			}
-			if ns.Prefix != tt.fields.Prefix {
-				t.Errorf("NameSpace.Merge() should not change Prefix got %v; want %v", ns.Prefix, tt.fields.Prefix)
-			}
-			if ns.Base != tt.fields.Base {
-				t.Errorf("NameSpace.Merge() should not change Base got %v; want %v", ns.Base, tt.fields.Base)
+
+			if diff := cmp.Diff(fmt.Sprintf("%s: %s", tt.fields.Prefix, tt.fields.Base), ns.String()); diff != "" {
+				t.Errorf("NameSpace.Merg() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
 	}

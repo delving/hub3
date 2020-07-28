@@ -167,7 +167,7 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 	log.Println(query)
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
-		log.Printf("Unable query endpoint: %s", errs)
+		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
 	}
 	return true, nil
@@ -187,7 +187,7 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 	log.Println(query)
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
-		log.Printf("Unable query endpoint: %s", errs)
+		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
 	}
 	return true, nil
@@ -204,7 +204,7 @@ func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 	//fmt.Printf("%#v", query)
 	res, err := SparqlRepo().Query(query)
 	if err != nil {
-		log.Printf("Unable query endpoint: %s", err)
+		logUnableToQueryEndpoint([]error{err})
 		return revisions, err
 	}
 	//fmt.Printf("%#v", res.Solutions())
@@ -241,18 +241,22 @@ func CountGraphsBySpec(spec string) (int, error) {
 
 	res, err := SparqlRepo().Query(query)
 	if err != nil {
-		log.Printf("Unable query endpoint: %s", err)
+		logUnableToQueryEndpoint([]error{err})
 		return 0, err
 	}
+
 	countStr, ok := res.Bindings()["count"]
 	if !ok {
 		return 0, fmt.Errorf("Unable to get count from result bindings: %#v", res.Bindings())
 	}
+
 	var count int
+
 	count, err = strconv.Atoi(countStr[0].String())
 	if err != nil {
 		return 0, fmt.Errorf("unable to convert %s to integer", countStr)
 	}
+
 	return count, err
 }
 
@@ -262,6 +266,7 @@ func PrepareAsk(uri string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return q, err
 }
 
@@ -282,9 +287,15 @@ func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	res, err := SparqlRepo().Query(query)
 	if err != nil {
 		return nil, err
 	}
+
 	return res.Bindings(), nil
+}
+
+func logUnableToQueryEndpoint(errs []error) {
+	log.Printf("Unable query endpoint: %s", errs)
 }

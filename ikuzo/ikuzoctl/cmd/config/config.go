@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type ConfigOption interface {
+type Option interface {
 	AddOptions(cfg *Config) error
 }
 
@@ -46,11 +46,11 @@ func (cfg *Config) IsDataNode() bool {
 	return cfg.DataNodeURL == ""
 }
 
-func (cfg *Config) Options(cfgOptions ...ConfigOption) ([]ikuzo.Option, error) {
+func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 	cfg.logger = logger.NewLogger(cfg.Logging.GetConfig())
 
 	if len(cfgOptions) == 0 {
-		cfgOptions = []ConfigOption{
+		cfgOptions = []Option{
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
 			&cfg.HTTP,
 			&cfg.TimeRevisionStore,
@@ -105,24 +105,5 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 }
 
 func (cfg *Config) defaultOptions() error {
-	// db, err := cfg.DB.getDB()
-	// if err != nil {
-	// return err
-	// }
-
-	// // Organization
-	// orgStore, err := gorm.NewOrganizationStore(db)
-	// if err != nil {
-	// return err
-	// }
-
-	// org, err := organization.NewService(orgStore)
-	// if err != nil {
-	// return err
-	// }
-
-	// cfg.options = append(cfg.options, ikuzo.SetOrganisationService(org))
-	// cfg.logger.Debug().Msg("is this called")
-
 	return nil
 }

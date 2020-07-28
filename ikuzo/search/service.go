@@ -14,7 +14,7 @@
 
 package search
 
-// Service is the central search service that should be initialised once and
+// Service is the central search service that should be initialized once and
 // shared between requests. It is safe for concurrent use by multiple goroutines.
 type Service struct {
 	responseSize    int

@@ -31,6 +31,11 @@ import (
 	"github.com/matryer/is"
 )
 
+const (
+	pingResp = "ping2"
+	debugMsg = "extra message"
+)
+
 func Test_server_handleIndex(t *testing.T) {
 	is := is.New(t)
 	svr, err := newServer(
@@ -69,7 +74,7 @@ func Test_server_handleStripSlashes(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/ping2", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "ping2")
+		fmt.Fprint(w, pingResp)
 	})
 
 	req, err := http.NewRequest("GET", "/ping2/", nil)
@@ -78,7 +83,7 @@ func Test_server_handleStripSlashes(t *testing.T) {
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.Body.String(), "ping2")
+	is.Equal(w.Body.String(), pingResp)
 }
 
 func Test_server_handle404(t *testing.T) {
@@ -255,6 +260,44 @@ func Test_server_ListenAndServe(t *testing.T) {
 		return
 	}
 }
+func Test_server_ListenAndServeTLSMetrics(t *testing.T) {
+	is := is.New(t)
+
+	var buf bytes.Buffer
+
+	l := logger.NewLogger(
+		logger.Config{Output: &buf},
+	)
+
+	svr, err := newServer(
+		SetLogger(&l),
+		SetTLS(
+			"./testdata/certs/cert.pem",
+			"./testdata/certs/key.pem",
+		),
+		SetMetricsPort(6060),
+	)
+	is.NoErr(err)
+
+	errChan := make(chan error, 1)
+	doneChan := make(chan struct{})
+
+	go func() {
+		defer close(doneChan)
+		errChan <- svr.ListenAndServe()
+	}()
+
+	// stop the server
+	svr.cancelFunc()
+	<-doneChan
+
+	for err := range errChan {
+		is.True(err != nil)
+		is.Equal(err, context.Canceled)
+
+		return
+	}
+}
 
 func Test_server_listenAndServeWithError(t *testing.T) {
 	is := is.New(t)
@@ -300,6 +343,7 @@ func Test_server_requestLogger(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+
 	l := logger.NewLogger(
 		logger.Config{Output: &buf},
 	)
@@ -310,8 +354,8 @@ func Test_server_requestLogger(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/ping2", func(w http.ResponseWriter, r *http.Request) {
-		svr.requestLogger(r).Debug().Msg("extra message")
-		fmt.Fprint(w, "ping2")
+		svr.requestLogger(r).Debug().Msg(debugMsg)
+		fmt.Fprint(w, pingResp)
 	})
 
 	req, err := http.NewRequest("GET", "/ping2", nil)
@@ -320,15 +364,16 @@ func Test_server_requestLogger(t *testing.T) {
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.Body.String(), "ping2")
+	is.Equal(w.Body.String(), pingResp)
 
-	is.True(strings.Contains(buf.String(), "extra message"))
+	is.True(strings.Contains(buf.String(), debugMsg))
 }
 
 func Test_server_recoverer(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+
 	l := logger.NewLogger(
 		logger.Config{Output: &buf},
 	)
@@ -339,7 +384,7 @@ func Test_server_recoverer(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/panic", func(w http.ResponseWriter, r *http.Request) {
-		svr.requestLogger(r).Debug().Msg("extra message")
+		svr.requestLogger(r).Debug().Msg(debugMsg)
 		panic("panicing here ")
 	})
 
@@ -362,4 +407,108 @@ func Test_server_recoverer(t *testing.T) {
 	w = httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusFound)
+}
+
+func TestServer_tlsMode(t *testing.T) {
+	is := is.New(t)
+
+	req, err := http.NewRequest("GET", "/hellotls", nil)
+	is.NoErr(err)
+
+	svr, err := newServer(
+		SetTLS(
+			"./testdata/certs/cert.pem",
+			"./testdata/certs/key.pem",
+		),
+		SetMetricsPort(6060),
+	)
+	is.NoErr(err)
+
+	svr.router.Get("/hellotls", func(w http.ResponseWriter, r *http.Request) {
+		svr.requestLogger(r).Debug().Msg(debugMsg)
+		fmt.Fprint(w, "hello tls")
+	})
+
+	svr.listenAndServe()
+
+	w := httptest.NewRecorder()
+	svr.ServeHTTP(w, req)
+	is.Equal(w.Code, http.StatusOK)
+}
+
+func TestServer_proxyDataNode(t *testing.T) {
+	ism := is.New(t)
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ism.Equal(r.URL.String(), "/hello")
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	defer ts.Close()
+
+	// subtests
+	t.Run("dataNodeProxy configured", func(t *testing.T) {
+		is := is.New(t)
+
+		req, err := http.NewRequest("GET", "/hello", nil)
+		is.NoErr(err)
+
+		svr, err := newServer(
+			SetDataNodeProxy(ts.URL, []ProxyRoute{
+				{Method: "GET", Pattern: "/hello"},
+				{Method: "PUT", Pattern: "/hello"},
+				{Method: "DELETE", Pattern: "/hello"},
+				{Method: "POST", Pattern: "/hello"},
+			}...,
+			),
+			SetMetricsPort(6060),
+		)
+		is.NoErr(err)
+
+		w := httptest.NewRecorder()
+		svr.ServeHTTP(w, req)
+		is.Equal(w.Code, http.StatusOK)
+	})
+
+	t.Run("no dataNodeProxy configured", func(t *testing.T) {
+		is := is.New(t)
+		req, err := http.NewRequest("GET", "/hello", nil)
+		is.NoErr(err)
+
+		var buf bytes.Buffer
+
+		l := logger.NewLogger(
+			logger.Config{Output: &buf},
+		)
+
+		svr, err := newServer(
+			SetLogger(&l),
+		)
+		is.NoErr(err)
+
+		svr.router.Get("/hello", svr.proxyDataNode)
+
+		w := httptest.NewRecorder()
+		svr.ServeHTTP(w, req)
+		is.Equal(w.Code, http.StatusInternalServerError)
+		is.Equal(w.Body.String(), "dataNode proxy is not configured\n")
+	})
+
+	t.Run("proxied url not found", func(t *testing.T) {
+		is := is.New(t)
+
+		req, err := http.NewRequest("GET", "/hello", nil)
+		is.NoErr(err)
+
+		svr, err := newServer(
+			SetDataNodeProxy(ts.URL, ProxyRoute{
+				Method:  "GET",
+				Pattern: "/hello2",
+			}),
+		)
+		is.NoErr(err)
+
+		w := httptest.NewRecorder()
+		svr.ServeHTTP(w, req)
+		is.Equal(w.Code, http.StatusNotFound)
+	})
 }
