@@ -104,6 +104,8 @@ func TestNewLogger(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			var buf bytes.Buffer
 			if tt.args.cfg.Output == nil {
@@ -184,6 +186,8 @@ func TestLevel_toZeroLog(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.l.toZeroLog(); !cmp.Equal(got, tt.want) {
 				t.Errorf("Level.toZeroLog() = %v, want %v", got, tt.want)

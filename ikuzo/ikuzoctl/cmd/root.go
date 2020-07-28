@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// nolint:gochecknoinits
-
 // Package cmd is the commandline-interface for the Ikuzo library.
 package cmd
 
@@ -66,6 +64,7 @@ func Execute() {
 	}
 }
 
+// nolint:gochecknoinits // required for cobra
 func init() {
 	cobra.OnInitialize(initConfig)
 
@@ -108,13 +107,14 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err != nil {
-		log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+		msg := "unable to read configuration file"
+		log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg(msg)
 
 		switch err.(type) {
 		case viper.ConfigParseError:
-			log.Fatal().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+			log.Fatal().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg(msg)
 		default:
-			log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg("unable to read configuration file")
+			log.Warn().Err(err).Str("configPath", viper.ConfigFileUsed()).Msg(msg)
 		}
 	}
 

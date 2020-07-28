@@ -39,14 +39,14 @@ type FacetLink struct {
 }
 
 type Response struct {
-	//Pager      *ScrollPager       `json:"pager"`
-	//Query      *Query             `json:"query"`
-	//Items      []*FragmentGraph   `json:"items,omitempty"`
-	//Collapsed  []*Collapsed       `json:"collapse,omitempty"`
-	//Peek       map[string]int64   `json:"peek,omitempty"`
-	//Facets     []*QueryFacet      `json:"facets,omitempty"`
-	//TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
-	//Tree       []*Tree            `json:"tree,omitempty"`
-	//TreePage   map[string][]*Tree `json:"treePage,omitempty"`
-	//ProtoBuf   *ProtoBuf          `json:"protobuf,omitempty"`
+	// Pager      *ScrollPager       `json:"pager"`
+	// Query      *Query             `json:"query"`
+	// Items      []*FragmentGraph   `json:"items,omitempty"`
+	// Collapsed  []*Collapsed       `json:"collapse,omitempty"`
+	// Peek       map[string]int64   `json:"peek,omitempty"`
+	// Facets     []*QueryFacet      `json:"facets,omitempty"`
+	// TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
+	// Tree       []*Tree            `json:"tree,omitempty"`
+	// TreePage   map[string][]*Tree `json:"treePage,omitempty"`
+	// ProtoBuf   *ProtoBuf          `json:"protobuf,omitempty"`
 }

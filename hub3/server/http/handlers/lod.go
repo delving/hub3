@@ -28,15 +28,19 @@ import (
 	"github.com/go-chi/render"
 )
 
+var (
+	lodPathRoute = "/{path:%s}/*"
+)
+
 func RegisterLOD(r chi.Router) {
 	if c.Config.LOD.SingleEndpoint != "" {
-		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.SingleEndpoint), RenderLODResource)
+		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.SingleEndpoint), RenderLODResource)
 	} else {
-		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.RDF), RenderLODResource)
-		r.Get(fmt.Sprintf("/{path:%s}/*", c.Config.LOD.Resource), RenderLODResource)
+		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.RDF), RenderLODResource)
+		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.Resource), RenderLODResource)
 		r.Get(
-			//fmt.Sprintf("/{path:%s}/*", config.Config.LOD.HTML), RenderLODResource)
-			fmt.Sprintf("/{path:%s}/*", c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
+			//fmt.Sprintf(lodPathRoute, config.Config.LOD.HTML), RenderLODResource)
+			fmt.Sprintf(lodPathRoute, c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
 				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
 				return
 			})

@@ -21,14 +21,15 @@ import (
 )
 
 func TestService_SearchLabel(t *testing.T) {
-
 	dc := &namespace.NameSpace{
 		Base:   "http://purl.org/dc/elements/1.1/",
 		Prefix: "dc",
 	}
+
 	type args struct {
 		uri string
 	}
+
 	tests := []struct {
 		name    string
 		ns      *namespace.NameSpace

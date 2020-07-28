@@ -31,6 +31,11 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const (
+	taskIDRoute    = "/api/ead/tasks/{id}"
+	datasetIDRoute = "/api/datasets/{spec}"
+)
+
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
 type RouterFunc func(router chi.Router)
 
@@ -65,6 +70,7 @@ func SetTLS(cert, key string) Option {
 	return func(s *server) error {
 		s.certFile = cert
 		s.keyFile = key
+
 		return nil
 	}
 }
@@ -111,6 +117,7 @@ func SetOrganisationService(service *organization.Service) Option {
 				r.Mount("/organizations", service.Routes())
 			},
 		)
+
 		return nil
 	}
 }
@@ -192,8 +199,8 @@ func SetEADService(svc *ead.Service) Option {
 			func(r chi.Router) {
 				r.Post("/api/ead", svc.Upload)
 				r.Get("/api/ead/tasks", svc.Tasks)
-				r.Get("/api/ead/tasks/{id}", svc.GetTask)
-				r.Delete("/api/ead/tasks/{id}", svc.CancelTask)
+				r.Get(taskIDRoute, svc.GetTask)
+				r.Delete(taskIDRoute, svc.CancelTask)
 			},
 		)
 
@@ -230,6 +237,7 @@ func SetImageProxyService(service *imageproxy.Service) Option {
 				r.Mount("/", service.Routes())
 			},
 		)
+
 		return nil
 	}
 }
@@ -248,12 +256,11 @@ func SetDataNodeProxy(dataNode string, proxyRoutes ...ProxyRoute) Option {
 		s.dataNodeProxy = httputil.NewSingleHostReverseProxy(nodeURL)
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
-
 				// ead
 				r.Post("/api/ead", s.proxyDataNode)
 				r.Get("/api/ead/tasks", s.proxyDataNode)
-				r.Get("/api/ead/tasks/{id}", s.proxyDataNode)
-				r.Delete("/api/ead/tasks/{id}", s.proxyDataNode)
+				r.Get(taskIDRoute, s.proxyDataNode)
+				r.Delete(taskIDRoute, s.proxyDataNode)
 				r.Post("/api/index/bulk", s.proxyDataNode)
 				r.Get("/api/ead/{spec}/download", s.proxyDataNode)
 				r.Get("/api/ead/{spec}/mets/{inventoryID}", s.proxyDataNode)
@@ -265,11 +272,11 @@ func SetDataNodeProxy(dataNode string, proxyRoutes ...ProxyRoute) Option {
 				r.Get("/api/datasets/", s.proxyDataNode)
 				r.Get("/api/datasets/histogram", s.proxyDataNode)
 				r.Post("/api/datasets/", s.proxyDataNode)
-				r.Get("/api/datasets/{spec}", s.proxyDataNode)
+				r.Get(datasetIDRoute, s.proxyDataNode)
 				r.Get("/api/datasets/{spec}/stats", s.proxyDataNode)
 				// later change to update dataset
-				r.Post("/api/datasets/{spec}", s.proxyDataNode)
-				r.Delete("/api/datasets/{spec}", s.proxyDataNode)
+				r.Post(datasetIDRoute, s.proxyDataNode)
+				r.Delete(datasetIDRoute, s.proxyDataNode)
 
 				// custom routes
 				for _, route := range proxyRoutes {
@@ -286,6 +293,7 @@ func SetDataNodeProxy(dataNode string, proxyRoutes ...ProxyRoute) Option {
 				}
 			},
 		)
+
 		return nil
 	}
 }

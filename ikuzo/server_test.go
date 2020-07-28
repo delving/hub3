@@ -31,6 +31,11 @@ import (
 	"github.com/matryer/is"
 )
 
+const (
+	pingResp = "ping2"
+	debugMsg = "extra message"
+)
+
 func Test_server_handleIndex(t *testing.T) {
 	is := is.New(t)
 	svr, err := newServer(
@@ -69,7 +74,7 @@ func Test_server_handleStripSlashes(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/ping2", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "ping2")
+		fmt.Fprint(w, pingResp)
 	})
 
 	req, err := http.NewRequest("GET", "/ping2/", nil)
@@ -78,7 +83,7 @@ func Test_server_handleStripSlashes(t *testing.T) {
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.Body.String(), "ping2")
+	is.Equal(w.Body.String(), pingResp)
 }
 
 func Test_server_handle404(t *testing.T) {
@@ -300,6 +305,7 @@ func Test_server_requestLogger(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+
 	l := logger.NewLogger(
 		logger.Config{Output: &buf},
 	)
@@ -310,8 +316,8 @@ func Test_server_requestLogger(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/ping2", func(w http.ResponseWriter, r *http.Request) {
-		svr.requestLogger(r).Debug().Msg("extra message")
-		fmt.Fprint(w, "ping2")
+		svr.requestLogger(r).Debug().Msg(debugMsg)
+		fmt.Fprint(w, pingResp)
 	})
 
 	req, err := http.NewRequest("GET", "/ping2", nil)
@@ -320,15 +326,16 @@ func Test_server_requestLogger(t *testing.T) {
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
-	is.Equal(w.Body.String(), "ping2")
+	is.Equal(w.Body.String(), pingResp)
 
-	is.True(strings.Contains(buf.String(), "extra message"))
+	is.True(strings.Contains(buf.String(), debugMsg))
 }
 
 func Test_server_recoverer(t *testing.T) {
 	is := is.New(t)
 
 	var buf bytes.Buffer
+
 	l := logger.NewLogger(
 		logger.Config{Output: &buf},
 	)
@@ -339,7 +346,7 @@ func Test_server_recoverer(t *testing.T) {
 	is.NoErr(err)
 
 	svr.router.Get("/panic", func(w http.ResponseWriter, r *http.Request) {
-		svr.requestLogger(r).Debug().Msg("extra message")
+		svr.requestLogger(r).Debug().Msg(debugMsg)
 		panic("panicing here ")
 	})
 

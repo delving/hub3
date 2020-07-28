@@ -26,6 +26,7 @@ func TestSpellChecker_SpellCheck(t *testing.T) {
 		t.Skip("skipping spellcheck in short mode")
 	}
 
+	// nolint:misspell // old dutch
 	text := `
 	Teerste Deel Vande Spieghel der Zeevaerdt, vande navigatie der Westersche Zee,
 	Innehoudende alle de Custen van Vranckrijck Spaignen ende t'principaelste deel

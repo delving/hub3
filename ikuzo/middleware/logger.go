@@ -48,7 +48,7 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 	c = c.Append(hlog.UserAgentHandler("user_agent"))
 	c = c.Append(hlog.RefererHandler("referer"))
 	c = c.Append(hlog.RequestIDHandler("req_id", "Request-Id"))
-	// FIXME(kiivihal): see why the context does not contains the chi routing info
+	// TODO(kiivihal): see why the context does not contains the chi routing info
 	c = c.Append(customURLParamHandler("spec", "datasetID"))
 	c = c.Append(customURLParamHandler("orgID", "orgID"))
 	c = c.Append(customURLParamHandler("inventoryID", "inventoryID"))

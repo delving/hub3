@@ -31,7 +31,7 @@ var serveCmd = &cobra.Command{
 	},
 }
 
-// nolint:gochecknoinits cobra requires this init
+// nolint:gochecknoinits // cobra requires this init
 func init() {
 	rootCmd.AddCommand(serveCmd)
 }

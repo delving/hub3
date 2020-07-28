@@ -26,6 +26,10 @@ import (
 	"github.com/go-chi/render"
 )
 
+var (
+	specRoute = "/{spec}"
+)
+
 func RegisterDatasets(router chi.Router) {
 	r := chi.NewRouter()
 
@@ -33,11 +37,11 @@ func RegisterDatasets(router chi.Router) {
 	r.Get("/", listDataSets)
 	r.Get("/histogram", listDataSetHistogram)
 	r.Post("/", createDataSet)
-	r.Get("/{spec}", getDataSet)
+	r.Get(specRoute, getDataSet)
 	r.Get("/{spec}/stats", getDataSetStats)
 	// later change to update dataset
-	r.Post("/{spec}", createDataSet)
-	r.Delete("/{spec}", deleteDataset)
+	r.Post(specRoute, createDataSet)
+	r.Delete(specRoute, deleteDataset)
 
 	router.Mount("/api/datasets", r)
 }

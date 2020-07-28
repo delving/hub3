@@ -78,15 +78,4 @@ var _ = Describe("Webresource", func() {
 	AfterEach(func() {
 		os.RemoveAll(tmpDir)
 	})
-
-	Describe("WebResource parser", func() {
-
-		Context("when receiving an urn", func() {
-
-			It("should create a WebResourceRequest", func() {
-
-			})
-		})
-	})
-
 })

@@ -25,31 +25,31 @@ var (
 	}
 )
 
-var dateFields = []ld.Term{
-	ns.dcterms.Get("created"),
-	ns.dcterms.Get("issued"),
-	ns.nave.Get("creatorBirthYear"),
-	ns.nave.Get("creatorDeathYear"),
-	ns.nave.Get("date"),
-	ns.dc.Get("date"),
-	ns.nave.Get("dateOfBurial"),
-	ns.nave.Get("dateOfDeath"),
-	ns.nave.Get("productionEnd"),
-	ns.nave.Get("productionStart"),
-	ns.nave.Get("productionPeriod"),
-	ns.rdagr2.Get("dateOfBirth"),
-	ns.rdagr2.Get("dateOfDeath"),
+var dateFields = map[string]bool{
+	ns.dcterms.Get("created").RawValue():       true,
+	ns.dcterms.Get("issued").RawValue():        true,
+	ns.nave.Get("creatorBirthYear").RawValue(): true,
+	ns.nave.Get("creatorDeathYear").RawValue(): true,
+	ns.nave.Get("date").RawValue():             true,
+	ns.dc.Get("date").RawValue():               true,
+	ns.nave.Get("dateOfBurial").RawValue():     true,
+	ns.nave.Get("dateOfDeath").RawValue():      true,
+	ns.nave.Get("productionEnd").RawValue():    true,
+	ns.nave.Get("productionStart").RawValue():  true,
+	ns.nave.Get("productionPeriod").RawValue(): true,
+	ns.rdagr2.Get("dateOfBirth").RawValue():    true,
+	ns.rdagr2.Get("dateOfDeath").RawValue():    true,
 }
 
 func reverseDates(date string) (string, error) {
-	// cleanDate := strings.ReplaceAll(date, "-", "/")
-
 	t, err := dateparse.ParseLocal(date)
 	if err != nil {
 		return "", err
 	}
 
-	// fmt.Printf("%s", t.Format("2006-01-02"))
+	// TODO(kiivihal): check if to support forward slash
+	// cleanDate := strings.ReplaceAll(date, "-", "/")
+
 	return t.Format("2006-01-02"), nil
 }
 

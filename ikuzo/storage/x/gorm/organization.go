@@ -59,7 +59,6 @@ func (o *OrganizationStore) Get(ctx context.Context, id domain.OrganizationID) (
 }
 
 func (o *OrganizationStore) getFilter(filter ...domain.OrganizationFilter) *gorm.DB {
-
 	q := o.db
 
 	if len(filter) != 0 {

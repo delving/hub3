@@ -58,8 +58,7 @@ func runeToASCII(r rune) string {
 	return strings.ToUpper(strconv.FormatInt(int64(r), 16))
 }
 
-// nolint:gocyclo,funlen
-// No linting for because this is just a very long list of conversion options
+// nolint:gocyclo,funlen // No linting for because this is just a very long list of conversion options
 func foldRune(r rune) string {
 	var buffer bytes.Buffer
 

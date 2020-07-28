@@ -37,7 +37,7 @@ type FacetField struct {
 // designed to be used in configuration or URL Query parameters.
 //
 // The shorthand is build up of modifiers and field-prefixes. The modifiers
-// change the behaviour of the facet. The field-prefixes determine which
+// change the behavior of the facet. The field-prefixes determine which
 // facet-type and which field value is returned.
 //
 // The following modifiers are supported:
@@ -58,7 +58,7 @@ type FacetField struct {
 // subfield. The following sections are supported:
 //
 // meta: is the header section that included with every search record
-// tree: is the section to support search in hierachical structures such as
+// tree: is the section to support search in hierarchical structures such as
 //       EAD and SKOS.
 //
 // The default section is 'resources.entries', which does not need to be explicitly
@@ -73,7 +73,7 @@ type FacetField struct {
 // The default field-prefix is term-aggregation. This returns a type-frequency
 // list and does not have to be specified. It uses the @value field for the term.
 //
-// The following field-prefixes are supported that modify the default behaviour.
+// The following field-prefixes are supported that modify the default behavior.
 //
 // datehistogram: uses the date field and returns a complete list of years
 // and their frequency.
@@ -112,12 +112,14 @@ func newFacetField(field string) (*FacetField, error) {
 	if strings.Contains(field, "~") {
 		parts := strings.Split(field, "~")
 		field = parts[0]
+
 		if len(parts) == 2 && parts[1] != "" {
 			size, err := strconv.Atoi(parts[1])
 			if err != nil {
 				// not a valid integer returning an error
 				return nil, err
 			}
+
 			ff.size = size
 		}
 	}

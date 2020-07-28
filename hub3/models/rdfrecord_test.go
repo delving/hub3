@@ -96,10 +96,6 @@ var _ = Describe("RDFRecord", func() {
 			Expect(uri).To(HavePrefix(config.Config.RDF.BaseURL))
 		})
 
-		It("should include the record type", func() {
-
-		})
-
 		It("should end with the localId", func() {
 			Expect(uri).To(ContainSubstring("123"))
 			Expect(uri).To(HaveSuffix("/123"))

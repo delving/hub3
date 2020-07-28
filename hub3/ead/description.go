@@ -39,6 +39,10 @@ import (
 	rdf "github.com/kiivihal/rdf2go"
 )
 
+var (
+	ErrCannotPopFromQueue = errors.New("unable to pop element from the queue")
+)
+
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
 // 'archdesc/descgroups'.
 //
@@ -351,7 +355,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 func (ib *itemBuilder) addFlowType(ft FlowType) error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 
 	if last != nil {
@@ -368,7 +372,7 @@ func (ib *itemBuilder) addFlowType(ft FlowType) error {
 func (ib *itemBuilder) addTextPrevious(text string) error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 	if last != nil {
 		elem := last.(*DataItem)
@@ -393,7 +397,7 @@ func (ib *itemBuilder) previous() *DataItem {
 func (ib *itemBuilder) close() error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 	if last != nil {
 		elem := last.(*DataItem)
@@ -421,7 +425,7 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 	default:
 		last, ok := ib.q.PopBack()
 		if !ok {
-			return fmt.Errorf("Unable to pop element from the queue")
+			return ErrCannotPopFromQueue
 		}
 		if last != nil {
 			elem := last.(*DataItem)

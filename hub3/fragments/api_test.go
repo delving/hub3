@@ -98,10 +98,6 @@ var _ = Describe("Apiutils", func() {
 				Expect(sr).ToNot(BeNil())
 				Expect(sr.GetResponseSize()).To(Equal(int32(10)))
 			})
-
-			It("should prioritize scroll_id above other parameters", func() {
-
-			})
 		})
 
 		Context("When echoing a protobuf entry", func() {

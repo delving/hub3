@@ -205,6 +205,9 @@ func (s *Service) findTask(orgID, datasetID string, filterActive bool) (*Task, e
 	defer s.rw.RUnlock()
 
 	for _, t := range s.tasks {
+		// TODO(kiivihal): add filter for orgID later
+		_ = orgID
+
 		if t.Meta.DatasetID == datasetID {
 			if filterActive && !t.isActive() {
 				continue
@@ -244,7 +247,7 @@ func (s *Service) CancelTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task.moveState(StateCancelled)
+	task.moveState(StateCanceled)
 
 	task.log().Info().Msg("canceling running ead task")
 	task.cancel()
@@ -516,7 +519,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			// this is interrupted
 			t.Meta.Clevels = cfg.Counter.GetCount()
 			if t.ctx.Err() == context.Canceled {
-				t.moveState(StateCancelled)
+				t.moveState(StateCanceled)
 				t.Next()
 
 				return nil

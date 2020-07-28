@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// nolint:misspell
+// nolint:misspell // because namespaces often are not valid words
 package namespace
 
 // custom contains custom or legacy namespaces that are used by the Delving platform.

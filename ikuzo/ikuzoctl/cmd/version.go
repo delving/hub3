@@ -31,7 +31,7 @@ var versionCmd = &cobra.Command{
 	},
 }
 
-// nolint:gochecknoinits
+// nolint:gochecknoinits // cobra requires init for setup
 func init() {
 	rootCmd.AddCommand(versionCmd)
 }

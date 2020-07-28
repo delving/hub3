@@ -18,8 +18,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/matryer/is"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/matryer/is"
 )
 
 func TestNameSpaceStore(t *testing.T) {

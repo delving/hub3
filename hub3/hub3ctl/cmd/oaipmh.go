@@ -113,22 +113,28 @@ var (
 	outputPath string
 )
 
+var (
+	specMsg             = "The spec of the dataset to be harvested"
+	prefixMsg           = "The metadataPrefix of the dataset to be harvested"
+	cannotCreateFileMsg = "Cannot create file"
+)
+
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	RootCmd.AddCommand(oaipmhCmd)
 
-	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
-	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", specMsg)
+	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", prefixMsg)
+	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", specMsg)
+	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", prefixMsg)
 
-	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", specMsg)
+	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", prefixMsg)
 	listGetRecordCmd.Flags().BoolVarP(&storeEAD, "storeEAD", "", false, "Process and store EAD records")
 
 	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
-	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
+	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The identifier of the record to be harvested")
 
 	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
 	oaipmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
@@ -222,7 +228,7 @@ func getIDs() []string {
 	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
 	file, err := os.Create(fname)
 	if err != nil {
-		log.Fatal("Cannot create file", err)
+		log.Fatal(cannotCreateFileMsg, err)
 	}
 	defer file.Close()
 	seen := 0
@@ -272,7 +278,7 @@ func storeRecord(identifier string, prefix string) string {
 		record = r.GetRecord.Record.Metadata.GoString()
 		file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
 		if err != nil {
-			log.Fatal("Cannot create file", err)
+			log.Fatal(cannotCreateFileMsg, err)
 		}
 		fmt.Fprintln(file, record)
 	})
@@ -359,7 +365,7 @@ func listRecords(ccmd *cobra.Command, args []string) {
 	})
 	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_records.xml", spec, prefix)))
 	if err != nil {
-		log.Fatal("Cannot create file", err)
+		log.Fatal(cannotCreateFileMsg, err)
 	}
 	defer file.Close()
 

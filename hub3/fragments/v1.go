@@ -454,17 +454,9 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, ma
 				continue
 			}
 			cleanGraph.Add(triple)
-		case GetNaveField("thumbnail").String(), GetNaveField("smallThumbnail").String(), GetNaveField("largeThumbnail").String():
-			if hasUrns && subjectIsBNode {
-				continue
-			}
-			webTriples.Append(s, triple)
-		case GetNaveField("thumbSmall").String(), GetNaveField("thumbnail").String(), GetNaveField("thumbLarge").String():
-			if hasUrns && subjectIsBNode {
-				continue
-			}
-			webTriples.Append(s, triple)
-		case GetNaveField("deepZoomUrl").String():
+		case GetNaveField("thumbnail").String(), GetNaveField("smallThumbnail").String(),
+			GetNaveField("largeThumbnail").String(), GetNaveField("thumbSmall").String(),
+			GetNaveField("thumbLarge").String(), GetNaveField("deepZoomUrl").String():
 			if hasUrns && subjectIsBNode {
 				continue
 			}

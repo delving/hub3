@@ -39,6 +39,7 @@ import (
 
 const (
 	trueParamValue = "true"
+	metaTags       = "meta.tags"
 )
 
 var httpCache *bigcache.BigCache
@@ -158,14 +159,19 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 		Str("search.type", "request builder").
 		Logger()
 
+	logConvErr := func(p string, v []string, err error) {
+		rlog.Error().Err(err).
+			Str("param", p).
+			Msgf("unable to convert %v to int", v)
+
+	}
+
 	for p, v := range params {
 		switch p {
 		case "rows":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				rlog.Error().Err(err).
-					Str("param", p).
-					Msgf("unable to convert %v to int", v)
+				logConvErr(p, v, err)
 
 				return nil, err
 			}
@@ -178,9 +184,7 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "facet.size":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				rlog.Error().Err(err).
-					Str("param", p).
-					Msgf("unable to convert %v to int", v)
+				logConvErr(p, v, err)
 
 				return nil, err
 			}
@@ -198,9 +202,7 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "page":
 			rawPage, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				rlog.Error().Err(err).
-					Str("param", p).
-					Msgf("unable to convert %v to int", v)
+				logConvErr(p, v, err)
 
 				return nil, err
 			}
@@ -313,9 +315,9 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 		s = s.From(getCursor(sr.Rows, sr.Page))
 	}
 
-	tagQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery("meta.tags", "ead"))
+	tagQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery(metaTags, "ead"))
 	if includeDescription && sr.enableDescriptionSearch() {
-		tagQuery = tagQuery.Should(elastic.NewTermQuery("meta.tags", "eadDesc"))
+		tagQuery = tagQuery.Should(elastic.NewTermQuery(metaTags, "eadDesc"))
 	}
 
 	query := elastic.NewBoolQuery()
@@ -508,7 +510,7 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		Field(specField)
 
 	eadTypeCountAgg := elastic.NewTermsAggregation().
-		Field("meta.tags")
+		Field(metaTags)
 
 	countFilterAgg := elastic.NewFilterAggregation().
 		Filter(postFilter).

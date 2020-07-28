@@ -167,7 +167,7 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 	log.Println(query)
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
-		log.Printf("Unable query endpoint: %s", errs)
+		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
 	}
 	return true, nil
@@ -187,7 +187,7 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 	log.Println(query)
 	errs := fragments.UpdateViaSparql(query)
 	if errs != nil {
-		log.Printf("Unable query endpoint: %s", errs)
+		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
 	}
 	return true, nil
@@ -287,4 +287,8 @@ func DescribeSPARQL(uri string) (map[string][]rdf.Term, error) {
 		return nil, err
 	}
 	return res.Bindings(), nil
+}
+
+func logUnableToQueryEndpoint(errs []error) {
+	log.Printf("Unable query endpoint: %s", errs)
 }
