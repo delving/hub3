@@ -5,10 +5,8 @@ go 1.14
 require (
 	code.gitea.io/gitea v1.12.2
 	github.com/DataDog/zstd v1.3.5 // indirect
-	github.com/Microsoft/hcsshim v0.8.9 // indirect
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
-	github.com/alexbrainman/sspi v0.0.0-20180613141037-e580b900e9f5 // indirect
 	github.com/allegro/bigcache v1.2.1
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
@@ -23,7 +21,6 @@ require (
 	github.com/elastic/go-sysinfo v1.4.0 // indirect
 	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
-	github.com/etcd-io/bbolt v1.3.3 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gammazero/deque v0.0.0-20200721202602-07291166fe33 // indirect
 	github.com/gammazero/workerpool v1.0.0
@@ -37,8 +34,8 @@ require (
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/schema v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/imdario/mergo v0.3.10 // indirect
-	github.com/jcmturner/gokrb5/v8 v8.4.1 // indirect
 	github.com/jinzhu/gorm v1.9.15
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/justinas/alice v1.2.0
@@ -64,20 +61,19 @@ require (
 	github.com/nats-io/jwt v1.0.1 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.6 // indirect
 	github.com/nats-io/nats-streaming-server v0.17.0 // indirect
-	github.com/nats-io/nats.go v1.10.0 // indirect
 	github.com/nats-io/nkeys v0.2.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/runc v1.0.0-rc3
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
-	github.com/prometheus/common v0.10.0 // indirect
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.19.0
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
@@ -85,7 +81,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.6.0 // indirect
-	github.com/sosedoff/gitkit v0.2.0
+	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254 // indirect
 	github.com/spf13/afero v1.3.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0
@@ -113,11 +109,6 @@ require (
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/ini.v1 v1.57.0 // indirect
-	gopkg.in/jcmturner/aescts.v1 v1.0.1 // indirect
-	gopkg.in/jcmturner/dnsutils.v1 v1.0.1 // indirect
-	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
-	gopkg.in/jcmturner/gokrb5.v7 v7.5.0 // indirect
-	gopkg.in/jcmturner/rpc.v1 v1.1.0 // indirect
 	gopkg.in/olivere/elastic.v5 v5.0.86
 	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
 	moul.io/http2curl v1.0.0 // indirect
