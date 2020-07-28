@@ -81,7 +81,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.6.0 // indirect
-	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254 // indirect
+	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254
 	github.com/spf13/afero v1.3.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0
