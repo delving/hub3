@@ -7,6 +7,15 @@
 ### Added 
 
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
+- GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
+
+### Fixed
+
+- Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
+
+### Removed
+
+- Remove RAML api-console [[GH-33]](https://github.com/delving/hub3/pull/33)
 
 ### Security
 
