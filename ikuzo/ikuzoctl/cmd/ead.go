@@ -39,7 +39,7 @@ var eadUpdateCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(eadUpdateCmd)
+	rootCmd.AddCommand(eadUpdateCmd)
 
 	eadUpdateCmd.Flags().StringVarP(&eadPath, "path", "p", "", "full path ead directory")
 }
