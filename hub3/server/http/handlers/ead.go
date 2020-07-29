@@ -37,6 +37,7 @@ import (
 
 var (
 	contentDispositionKey = "Content-Disposition"
+	contentTypeKey        = "Content-Type"
 )
 
 func RegisterEAD(r chi.Router) {
