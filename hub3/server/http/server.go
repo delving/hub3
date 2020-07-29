@@ -21,7 +21,6 @@ import (
 	"os"
 
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/server/http/assets"
 	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/go-chi/chi"
@@ -163,9 +162,6 @@ func negroniWithDefaults() *negroni.Negroni {
 
 	// compress the responses
 	n.Use(gzip.Gzip(gzip.DefaultCompression))
-
-	// setup fileserver for third_party directory
-	n.Use(negroni.NewStatic(assets.FileSystem))
 
 	return n
 }

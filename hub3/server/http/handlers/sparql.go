@@ -29,10 +29,6 @@ import (
 
 func RegisterSparql(r chi.Router) {
 
-	r.Get("/explore/sparql", func(w http.ResponseWriter, r *http.Request) {
-		serveHTML(w, r, "yasgui/yasgui.html")
-		return
-	})
 	r.Get("/sparql", sparqlProxy)
 	r.Post("/sparql", sparqlProxy)
 

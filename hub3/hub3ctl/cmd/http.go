@@ -35,7 +35,6 @@ var httpCmd = &cobra.Command{
 			handlers.RegisterBulkIndexer,
 			handlers.RegisterCSV,
 			handlers.RegisterDatasets,
-			handlers.RegisterStaticAssets,
 			handlers.RegisterEAD,
 			handlers.RegisterElasticSearchProxy,
 			handlers.RegisterLOD,
