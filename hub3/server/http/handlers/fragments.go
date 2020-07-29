@@ -34,14 +34,6 @@ func RegisterLinkedDataFragments(router chi.Router) {
 	router.Get("/api/fragments", listFragments)
 	router.Get("/fragments/{spec}", listFragments)
 	router.Get("/fragments", listFragments)
-	router.Get("/explore/scripts/ldf-client-worker.min.js", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/comunica/scripts/ldf-client-worker.min.js", http.StatusSeeOther)
-		return
-	})
-	router.Get("/explore/fragments", func(w http.ResponseWriter, r *http.Request) {
-		serveHTML(w, r, "comunica/index.html")
-		return
-	})
 }
 
 // listFragments returns a list of matching fragments
