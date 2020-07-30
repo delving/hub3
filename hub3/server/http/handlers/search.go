@@ -30,9 +30,9 @@ import (
 
 	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -273,18 +273,21 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	switch searchRequest.GetResponseFormatType() {
 	case fragments.ResponseFormatType_LDJSON:
 		entries := []map[string]interface{}{}
-		for _, rec := range records {
 
+		for _, rec := range records {
 			for _, json := range rec.NewJSONLD() {
 				entries = append(entries, json)
 			}
 			rec.Resources = nil
 		}
+
 		render.JSON(w, r, entries)
 		w.Header().Set("Content-Type", "application/json-ld; charset=utf-8")
+
 		return
 	case fragments.ResponseFormatType_BULKACTION:
 		actions := []string{}
+
 		for _, rec := range records {
 			rec.NewJSONLD()
 			graph, err := json.Marshal(rec.JSONLD)
@@ -295,9 +298,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 
-			action := &hub3.BulkAction{
+			action := &bulk.Request{
 				HubID:         rec.Meta.HubID,
-				Spec:          rec.Meta.Spec,
+				DatasetID:     rec.Meta.Spec,
 				NamedGraphURI: rec.Meta.NamedGraphURI,
 				Action:        "index",
 				Graph:         string(graph),
@@ -334,7 +337,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			http.Error(w, textQueryErr.Error(), http.StatusInternalServerError)
 			return
 		}
-
 	}
 
 	switch searchRequest.ItemFormat {
@@ -398,6 +400,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
+
 				var pageParam string
 
 				for _, page := range pages {
@@ -432,7 +435,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					return
 				}
 				paging.HitsTotalCount = int32(res.TotalHits())
+
 				searching.SetPreviousNext(searchRequest.Start)
+
 				records, _, err = decodeFragmentGraphs(res)
 				if err != nil {
 					return
@@ -474,7 +479,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					return
 				}
 				paging.HitsTotalCount = int32(res.TotalHits())
+
 				searching.SetPreviousNext(searchRequest.Start)
+
 				records, _, err = decodeFragmentGraphs(res)
 				if err != nil {
 					return
@@ -635,7 +642,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 		}
-
 	}
 	result.Items = records
 

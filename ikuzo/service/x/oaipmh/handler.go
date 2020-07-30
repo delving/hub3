@@ -11,8 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-package harvesting
+package oaipmh
 
 import (
 	"fmt"
@@ -36,6 +35,7 @@ func bindPMHRequest(r *http.Request) oai.Request {
 		ResumptionToken: q.Get("resumptionToken"),
 		BaseURL:         baseURL,
 	}
+
 	return req
 }
 
@@ -82,6 +82,7 @@ func ProcessVerb(r *oai.Request) interface{} {
 			Message: `Value of the verb argument is not a legal OAI-PMH verb,
 			the verb argument is missing, or the verb argument is repeated.`,
 		}
+
 		return badVerb
 	}
 }
@@ -102,23 +103,24 @@ func renderIdentify(r *oai.Request) interface{} {
 // renderListSets returns a list of all the publicly available sets
 func renderListSets(r *oai.Request) interface{} {
 	sets := []oai.Set{}
-	//datasets, err := models.ListDataSets()
-	//if err != nil {
-	//logger.Errorln("Unable to retrieve datasets from the storage layer.")
-	//return sets
-	//}
-	//for _, ds := range datasets {
-	//if ds.Access.OAIPMH {
-	//sets = append(
-	//sets,
-	//oai.Set{
-	//SetSpec:        ds.Spec,
-	//SetName:        ds.Spec,                                // todo change to name if it has one later
-	//SetDescription: oai.Description{Body: []byte(ds.Spec)}, // TODO change to description from ds later.
-	//},
-	//)
-	//}
-	//}
+	// datasets, err := models.ListDataSets()
+	// if err != nil {
+	// logger.Errorln("Unable to retrieve datasets from the storage layer.")
+	// return sets
+	// }
+	// for _, ds := range datasets {
+	// if ds.Access.OAIPMH {
+	// sets = append(
+	// sets,
+	// oai.Set{
+	// SetSpec:        ds.Spec,
+	// SetName:        ds.Spec,                                //  todo change to name if it has one later
+	// SetDescription: oai.Description{Body: []byte(ds.Spec)}, //  TODO change to description from ds later.
+	// },
+	// )
+	// }
+	// }
+
 	return oai.ListSets{
 		Set: sets,
 	}

@@ -32,14 +32,12 @@ import (
 func RegisterElasticSearchProxy(router chi.Router) {
 	r := chi.NewRouter()
 
-	r.Get("/stats", BulkStats) // GET
 	r.Get("/indexes", func(w http.ResponseWriter, r *http.Request) {
 		indexes, err := index.ListIndexes()
 		if err != nil {
 			log.Print(err)
 		}
 		render.PlainText(w, r, fmt.Sprint("indexes:", indexes))
-		return
 	})
 
 	if c.Config.ElasticSearch.Proxy {
@@ -51,10 +49,10 @@ func RegisterElasticSearchProxy(router chi.Router) {
 
 func esProxy(w http.ResponseWriter, r *http.Request) {
 	// parse the url
-	url, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
+	esURL, _ := url.Parse(c.Config.ElasticSearch.Urls[0])
 
 	// create the reverse proxy
-	proxy := httputil.NewSingleHostReverseProxy(url)
+	proxy := httputil.NewSingleHostReverseProxy(esURL)
 
 	// strip prefix from path
 	r.URL.Path = strings.TrimPrefix(r.URL.EscapedPath(), "/api/es")
@@ -75,19 +73,11 @@ func esProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Update the headers to allow for SSL redirection
-	r.URL.Host = url.Host
-	r.URL.Scheme = url.Scheme
+	r.URL.Host = esURL.Host
+	r.URL.Scheme = esURL.Scheme
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-	r.Host = url.Host
+	r.Host = esURL.Host
 
 	// Note that ServeHttp is non blocking and uses a go routine under the hood
 	proxy.ServeHTTP(w, r)
-
-}
-
-// Get returns JSON formatted statistics for the BulkProcessor
-func BulkStats(w http.ResponseWriter, r *http.Request) {
-	stats := index.BulkIndexStatistics(BulkProcessor())
-	render.PlainText(w, r, fmt.Sprintf("stats: %v", stats))
-	return
 }
