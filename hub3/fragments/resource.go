@@ -24,6 +24,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	c "github.com/delving/hub3/config"
@@ -1747,12 +1748,12 @@ func (fb *FragmentBuilder) IndexFragments(bi BulkIndex) error {
 	if err != nil {
 		return err
 	}
+
 	return IndexFragments(rm, fb.FragmentGraph(), bi)
 }
 
 // IndexFragments updates the Fragments for standalone indexing and adds them to the Elastic BulkProcessorService
 func IndexFragments(rm *ResourceMap, fg *FragmentGraph, bi BulkIndex) error {
-
 	for _, fr := range rm.Resources() {
 		fragments, err := fr.CreateFragments(fg)
 		if err != nil {
@@ -1765,7 +1766,11 @@ func IndexFragments(rm *ResourceMap, fg *FragmentGraph, bi BulkIndex) error {
 			}
 		}
 	}
+
 	return nil
 }
 
-// AddGraphExternalContext
+// NowInMillis returns time.Now() in miliseconds
+func NowInMillis() int64 {
+	return time.Now().UnixNano() / 1000000
+}
