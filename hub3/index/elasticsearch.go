@@ -66,6 +66,7 @@ func ESClient() *elastic.Client {
 	return client
 }
 
+// deprecated: should be removed after models is migrated to ikuzo/service
 func IndexReset(index string) error {
 	if index == "" {
 		index = config.Config.ElasticSearch.GetIndexName()

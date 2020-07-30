@@ -142,6 +142,4 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(controls)
 	w.Write(buffer.Bytes())
-
-	return
 }

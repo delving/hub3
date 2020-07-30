@@ -56,7 +56,7 @@ func RegisterEAD(r chi.Router) {
 }
 
 func NewOldBulkProcessor() *OldBulkProcessor {
-	return &OldBulkProcessor{bi: BulkProcessor()}
+	return &OldBulkProcessor{bi: nil}
 }
 
 type OldBulkProcessor struct {

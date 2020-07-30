@@ -142,7 +142,7 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Dataset is not found: %s", spec)
 		return
 	}
-	ok, err := ds.DropAll(r.Context(), wp)
+	ok, err := ds.DropAll(r.Context(), nil)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		log.Printf("Unable to delete request because: %s", err)
@@ -180,7 +180,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		var created bool
 		ds, created, err = models.CreateDataSet(spec)
 		if created {
-			err = fragments.SaveDataSet(spec, BulkProcessor())
+			err = fragments.SaveDataSet(spec, nil)
 		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
