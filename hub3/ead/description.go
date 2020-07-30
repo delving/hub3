@@ -18,19 +18,29 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync/atomic"
+	"time"
 	"unicode"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	rdf "github.com/kiivihal/rdf2go"
+)
+
+var (
+	ErrCannotPopFromQueue = errors.New("unable to pop element from the queue")
 )
 
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
@@ -345,7 +355,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 func (ib *itemBuilder) addFlowType(ft FlowType) error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 
 	if last != nil {
@@ -362,7 +372,7 @@ func (ib *itemBuilder) addFlowType(ft FlowType) error {
 func (ib *itemBuilder) addTextPrevious(text string) error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 	if last != nil {
 		elem := last.(*DataItem)
@@ -387,7 +397,7 @@ func (ib *itemBuilder) previous() *DataItem {
 func (ib *itemBuilder) close() error {
 	last, ok := ib.q.PopBack()
 	if !ok {
-		return fmt.Errorf("unable to pop from queue")
+		return ErrCannotPopFromQueue
 	}
 	if last != nil {
 		elem := last.(*DataItem)
@@ -415,7 +425,7 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 	default:
 		last, ok := ib.q.PopBack()
 		if !ok {
-			return fmt.Errorf("Unable to pop element from the queue")
+			return ErrCannotPopFromQueue
 		}
 		if last != nil {
 			elem := last.(*DataItem)
@@ -1018,12 +1028,88 @@ func ResaveDescriptions(eadPath string) error {
 			return fmt.Errorf("unable to write description; %w", err)
 		}
 
+		meta, _, err := GetOrCreateMeta(spec)
+		if err != nil {
+			return fmt.Errorf("unable to retrieve meta; %w", err)
+		}
+
+		// set basics for ead
+		meta.Label = cead.Ceadheader.GetTitle()
+		meta.Period = cead.Carchdesc.GetPeriods()
+
+		if err := meta.Write(); err != nil {
+			return fmt.Errorf("unable to write meta; %w", err)
+		}
+
 		seen++
 	}
 
 	log.Printf("updated %d eads", seen)
 
 	return nil
+}
+
+func getRemoteDescriptionCount(spec, query string) (int, error) {
+	type hits struct {
+		Total int
+	}
+
+	var netClient = &http.Client{
+		Timeout: time.Second * 1,
+	}
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/ead/%s/desc/index?q=%s", c.Config.DataNodeURL, spec, query), nil)
+	if err != nil {
+		return 0, err
+	}
+
+	resp, err := netClient.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	var descriptionHits hits
+
+	decodeErr := json.NewDecoder(resp.Body).Decode(&descriptionHits)
+	if decodeErr != nil {
+		return 0, decodeErr
+	}
+
+	return descriptionHits.Total, nil
+}
+
+func GetDescriptionCount(spec, query string) (int, error) {
+	if !c.Config.IsDataNode() {
+		return getRemoteDescriptionCount(spec, query)
+	}
+
+	var hits int
+
+	descriptionIndex, getErr := GetDescriptionIndex(spec)
+	if getErr != nil && !errors.Is(getErr, ErrNoDescriptionIndex) {
+		c.Config.Logger.Error().Err(getErr).
+			Str("subquery", "description").
+			Msg("error with retrieving description index")
+
+		return 0, getErr
+	}
+
+	if descriptionIndex != nil {
+		searhHits, searchErr := descriptionIndex.SearchWithString(query)
+		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+			c.Config.Logger.Error().Err(searchErr).
+				Str("subquery", "description").
+				Msg("unable to search description")
+
+			return 0, searchErr
+		}
+
+		hits = searhHits.Total()
+	}
+
+	return hits, nil
+
 }
 
 // HightlightSummary applied query highlights to the ead.Summary.

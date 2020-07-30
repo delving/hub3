@@ -16,9 +16,9 @@ package elasticsearch
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
-	"testing"
 
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
@@ -26,10 +26,11 @@ import (
 )
 
 // nolint:gocritic
-func TestIndex(t *testing.T) {
-	is := is.New(t)
+func (s *elasticSuite) TestIndex() {
+	is := is.New(s.T())
 
-	es, err := elasticsearch.NewDefaultClient()
+	cfg := elasticsearch.Config{Addresses: []string{fmt.Sprintf("http://%s:%s", s.ip, s.port.Port())}}
+	es, err := elasticsearch.NewClient(cfg)
 	is.NoErr(err)
 
 	res, err := es.Info()

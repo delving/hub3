@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"strconv"
 	"sync/atomic"
-	"testing"
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
@@ -27,7 +26,7 @@ import (
 	"github.com/nats-io/stan.go"
 )
 
-func testConfig() (*NatsConfig, error) {
+func (s *indexSuite) testConfig() (*NatsConfig, error) {
 	var (
 		err error
 		cfg = &NatsConfig{}
@@ -36,22 +35,24 @@ func testConfig() (*NatsConfig, error) {
 	cfg.setDefaults()
 
 	// Connect to Streaming server
-	cfg.Conn, err = stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(stan.DefaultNatsURL))
+	natsURL := fmt.Sprintf("nats://%s:%s", s.ip, s.port.Port())
+
+	cfg.Conn, err = stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(natsURL))
 	if err != nil {
-		return cfg, fmt.Errorf("can't connect: %w.\nMake sure a NATS Streaming Server is running at: %s", err, stan.DefaultNatsURL)
+		return cfg, fmt.Errorf("can't connect: %w.\nMake sure a NATS Streaming Server is running at: %s", err, natsURL)
 	}
 
 	return cfg, nil
 }
 
 // nolint:gocritic
-func TestProducer_Publish(t *testing.T) {
-	is := is.New(t)
+func (s *indexSuite) TestProducer_Publish() {
+	is := is.New(s.T())
 
-	cfg, err := testConfig()
+	cfg, err := s.testConfig()
 	is.NoErr(err)
 
-	s, err := NewService(
+	svc, err := NewService(
 		SetNatsConfiguration(cfg),
 	)
 	is.NoErr(err)
@@ -75,16 +76,19 @@ func TestProducer_Publish(t *testing.T) {
 		messages = append(messages, msg)
 	}
 
-	err = s.Publish(context.Background(), messages...)
-	is.NoErr(err)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Microsecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
 	ticker := time.NewTicker(10 * time.Millisecond)
 
-	err = s.Start(ctx, 4)
+	err = svc.Start(ctx, 4)
 	is.NoErr(err)
+
+	err = svc.Publish(context.Background(), messages...)
+	is.NoErr(err)
+
+	published := atomic.LoadUint64(&svc.m.Nats.Published)
+	is.Equal(published, uint64(msgCount))
 
 	var consumed uint64
 
@@ -92,13 +96,13 @@ L:
 	for {
 		select {
 		case <-ctx.Done():
-			consumed = atomic.LoadUint64(&s.m.Nats.Consumed)
-			t.Logf("messages consumed: %d", s.m.Nats.Consumed)
+			consumed = atomic.LoadUint64(&svc.m.Nats.Consumed)
+			s.T().Logf("context expired; messages consumed: %d", svc.m.Nats.Consumed)
 			ticker.Stop()
 			break L
 		case <-ticker.C:
-			consumed = atomic.LoadUint64(&s.m.Nats.Consumed)
-			t.Logf("messages consumed: %d", s.m.Nats.Consumed)
+			consumed = atomic.LoadUint64(&svc.m.Nats.Consumed)
+			s.T().Logf("ticker; messages consumed: %d", svc.m.Nats.Consumed)
 
 			if int(consumed) >= msgCount {
 				break L
@@ -106,8 +110,9 @@ L:
 		}
 	}
 
+	is.Equal(uint64(0), atomic.LoadUint64(&svc.m.Nats.Failed))
 	is.Equal(msgCount, int(consumed))
 
-	err = s.Shutdown(ctx)
+	err = svc.Shutdown(ctx)
 	is.NoErr(err)
 }

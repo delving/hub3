@@ -26,6 +26,10 @@ import (
 	"github.com/go-chi/render"
 )
 
+var (
+	specRoute = "/{spec}"
+)
+
 func RegisterDatasets(router chi.Router) {
 	r := chi.NewRouter()
 
@@ -33,11 +37,11 @@ func RegisterDatasets(router chi.Router) {
 	r.Get("/", listDataSets)
 	r.Get("/histogram", listDataSetHistogram)
 	r.Post("/", createDataSet)
-	r.Get("/{spec}", getDataSet)
+	r.Get(specRoute, getDataSet)
 	r.Get("/{spec}/stats", getDataSetStats)
 	// later change to update dataset
-	r.Post("/{spec}", createDataSet)
-	r.Delete("/{spec}", deleteDataset)
+	r.Post(specRoute, createDataSet)
+	r.Delete(specRoute, deleteDataset)
 
 	router.Mount("/api/datasets", r)
 }
@@ -138,7 +142,7 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Dataset is not found: %s", spec)
 		return
 	}
-	ok, err := ds.DropAll(r.Context(), wp)
+	ok, err := ds.DropAll(r.Context(), nil)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		log.Printf("Unable to delete request because: %s", err)
@@ -176,7 +180,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		var created bool
 		ds, created, err = models.CreateDataSet(spec)
 		if created {
-			err = fragments.SaveDataSet(spec, BulkProcessor())
+			err = fragments.SaveDataSet(spec, nil)
 		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)

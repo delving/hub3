@@ -20,6 +20,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+const (
+	imgURL       = "http://example.com/123.jpg"
+	testCacheKey = "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc="
+)
+
 func TestNewRequest(t *testing.T) {
 	type args struct {
 		key     string
@@ -34,26 +39,26 @@ func TestNewRequest(t *testing.T) {
 	}{
 		{
 			"raw http request",
-			args{key: "http://example.com/123.jpg"},
+			args{key: imgURL},
 			&Request{
-				cacheKey:  "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",
-				sourceURL: "http://example.com/123.jpg",
+				cacheKey:  testCacheKey,
+				sourceURL: imgURL,
 			},
 			false,
 		},
 		{
 			"encoded request",
-			args{key: "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc="},
+			args{key: testCacheKey},
 			&Request{
-				cacheKey:  "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",
-				sourceURL: "http://example.com/123.jpg",
+				cacheKey:  testCacheKey,
+				sourceURL: imgURL,
 			},
 			false,
 		},
 		{
 			"raw http request with params",
 			args{
-				key: "http://example.com/123.jpg",
+				key: imgURL,
 				options: []RequestOption{
 					SetRawQueryString("size=200"),
 				},
@@ -115,7 +120,7 @@ func TestRequest_storePaths(t *testing.T) {
 		{
 			name: "cacheKey only",
 			fields: fields{
-				cacheKey:         "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",
+				cacheKey:         testCacheKey,
 				transformOptions: "",
 			},
 			wantSource:     "ef4/6db/375/aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",
@@ -124,7 +129,7 @@ func TestRequest_storePaths(t *testing.T) {
 		{
 			name: "cacheKey with transform options",
 			fields: fields{
-				cacheKey:         "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",
+				cacheKey:         testCacheKey,
 				transformOptions: "200x,fit",
 			},
 			wantSource:     "ef4/6db/375/aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc=",

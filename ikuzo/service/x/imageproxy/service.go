@@ -29,8 +29,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const defaultMemorySize = 100
-
 type Option func(*Service) error
 
 type Service struct {
@@ -180,53 +178,9 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// needed to implement ikuzo service interface
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
 	return nil
-}
-
-// copyHeader copies header values from src to dst, adding to any existing
-// values with the same header name.  If keys is not empty, only those header
-// keys will be copied.
-func copyHeader(dst, src http.Header, keys ...string) {
-	if len(keys) == 0 {
-		for k := range src {
-			keys = append(keys, k)
-		}
-	}
-
-	for _, key := range keys {
-		k := http.CanonicalHeaderKey(key)
-		for _, v := range src[k] {
-			dst.Add(k, v)
-		}
-	}
-}
-
-// should304 returns whether we should send a 304 Not Modified in response to
-// req, based on the response resp.  This is determined using the last modified
-// time and the entity tag of resp.
-func should304(req *http.Request, resp *http.Response) bool {
-	// TODO(willnorris): if-none-match header can be a comma separated list
-	// of multiple tags to be matched, or the special value "*" which
-	// matches all etags
-	etag := resp.Header.Get("Etag")
-	if etag != "" && etag == req.Header.Get("If-None-Match") {
-		return true
-	}
-
-	lastModified, err := time.Parse(time.RFC1123, resp.Header.Get("Last-Modified"))
-	if err != nil {
-		return false
-	}
-	ifModSince, err := time.Parse(time.RFC1123, req.Header.Get("If-Modified-Since"))
-	if err != nil {
-		return false
-	}
-	if lastModified.Before(ifModSince) || lastModified.Equal(ifModSince) {
-		return true
-	}
-
-	return false
 }

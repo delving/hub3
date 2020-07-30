@@ -30,14 +30,20 @@ import (
 
 	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/render"
 	elastic "github.com/olivere/elastic/v7"
+)
+
+var (
+	noSearchServiceMsg        = "Unable to create Search Service: %v"
+	unexpectedResponseMsg     = "expected response != nil; got: %v"
+	unableToAddQueryFilterMsg = "Unable to add QueryFilter: %v"
 )
 
 type contextKey string
@@ -86,7 +92,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
-		log.Printf("Unable to create Search Service: %v", err)
+		log.Printf(noSearchServiceMsg, err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -114,7 +120,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
+		log.Printf(unexpectedResponseMsg, res)
 		return
 	}
 
@@ -267,18 +273,21 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	switch searchRequest.GetResponseFormatType() {
 	case fragments.ResponseFormatType_LDJSON:
 		entries := []map[string]interface{}{}
-		for _, rec := range records {
 
+		for _, rec := range records {
 			for _, json := range rec.NewJSONLD() {
 				entries = append(entries, json)
 			}
 			rec.Resources = nil
 		}
+
 		render.JSON(w, r, entries)
 		w.Header().Set("Content-Type", "application/json-ld; charset=utf-8")
+
 		return
 	case fragments.ResponseFormatType_BULKACTION:
 		actions := []string{}
+
 		for _, rec := range records {
 			rec.NewJSONLD()
 			graph, err := json.Marshal(rec.JSONLD)
@@ -289,9 +298,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 
-			action := &hub3.BulkAction{
+			action := &bulk.Request{
 				HubID:         rec.Meta.HubID,
-				Spec:          rec.Meta.Spec,
+				DatasetID:     rec.Meta.Spec,
 				NamedGraphURI: rec.Meta.NamedGraphURI,
 				Action:        "index",
 				Graph:         string(graph),
@@ -328,7 +337,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			http.Error(w, textQueryErr.Error(), http.StatusInternalServerError)
 			return
 		}
-
 	}
 
 	switch searchRequest.ItemFormat {
@@ -392,6 +400,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
+
 				var pageParam string
 
 				for _, page := range pages {
@@ -407,13 +416,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					false,
 				)
 				if err != nil {
-					log.Printf("Unable to add QueryFilter: %v", err)
+					log.Printf(unableToAddQueryFilterMsg, err)
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
 				s, _, err := sr.ElasticSearchService(index.ESClient())
 				if err != nil {
-					log.Printf("Unable to create Search Service: %v", err)
+					log.Printf(noSearchServiceMsg, err)
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
@@ -422,11 +431,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					return
 				}
 				if res == nil {
-					log.Printf("expected response != nil; got: %v", res)
+					log.Printf(unexpectedResponseMsg, res)
 					return
 				}
 				paging.HitsTotalCount = int32(res.TotalHits())
+
 				searching.SetPreviousNext(searchRequest.Start)
+
 				records, _, err = decodeFragmentGraphs(res)
 				if err != nil {
 					return
@@ -449,13 +460,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					false,
 				)
 				if err != nil {
-					log.Printf("Unable to add QueryFilter: %v", err)
+					log.Printf(unableToAddQueryFilterMsg, err)
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
 				s, _, err := sr.ElasticSearchService(index.ESClient())
 				if err != nil {
-					log.Printf("Unable to create Search Service: %v", err)
+					log.Printf(noSearchServiceMsg, err)
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
@@ -464,11 +475,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					return
 				}
 				if res == nil {
-					log.Printf("expected response != nil; got: %v", res)
+					log.Printf(unexpectedResponseMsg, res)
 					return
 				}
 				paging.HitsTotalCount = int32(res.TotalHits())
+
 				searching.SetPreviousNext(searchRequest.Start)
+
 				records, _, err = decodeFragmentGraphs(res)
 				if err != nil {
 					return
@@ -495,13 +508,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				false,
 			)
 			if err != nil {
-				log.Printf("Unable to add QueryFilter: %v", err)
+				log.Printf(unableToAddQueryFilterMsg, err)
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
 			s, _, err := sr.ElasticSearchService(index.ESClient())
 			if err != nil {
-				log.Printf("Unable to create Search Service: %v", err)
+				log.Printf(noSearchServiceMsg, err)
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -510,7 +523,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 			if res == nil {
-				log.Printf("expected response != nil; got: %v", res)
+				log.Printf(unexpectedResponseMsg, res)
 				return
 			}
 			parents, _, err := decodeFragmentGraphs(res)
@@ -629,7 +642,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				return
 			}
 		}
-
 	}
 	result.Items = records
 
@@ -651,18 +663,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		result.Facets = aggs
 	}
 
-	switch searchRequest.GetResponseFormatType() {
-	// TODO enable later again
-	//case fragments.ResponseFormatType_PROTOBUF:
-	//output, err := proto.Marshal(result)
-	//if err != nil {
-	//log.Println("Unable to marshal result to protobuf format.")
-	//return
-	//}
-	//render.Data(w, r, output)
-	default:
-		render.JSON(w, r, result)
-	}
+	// currently only JSON is supported. Add switch when protobuf must be returned
+	render.JSON(w, r, result)
 	return
 }
 
@@ -680,7 +682,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if res == nil {
-		log.Printf("expected response != nil; got: %v", res)
+		log.Printf(unexpectedResponseMsg, res)
 		render.Status(r, http.StatusInternalServerError)
 		render.JSON(w, r, []string{})
 		return

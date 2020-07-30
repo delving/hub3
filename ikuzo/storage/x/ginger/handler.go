@@ -89,7 +89,7 @@ func GetRoutes() chi.Router {
 	return postHookResource{}.Routes()
 }
 
-var authKey AuthKey
+// var authKey AuthKey
 
 // func getSource(ctx context.Context, hubID string) (*System, error) {
 

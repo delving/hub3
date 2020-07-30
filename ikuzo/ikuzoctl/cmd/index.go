@@ -68,7 +68,6 @@ func init() {
 }
 
 func indexRecords() error {
-
 	is, isErr := cfg.GetIndexService()
 	if isErr != nil {
 		return fmt.Errorf("unable to create index service; %w", isErr)

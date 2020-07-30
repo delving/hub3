@@ -71,8 +71,8 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 
 	fb := fragments.NewFragmentBuilder(fg)
+
 	err := fb.ParseGraph(strings.NewReader(req.Graph), req.GraphMimeType)
-	// log.Printf("Unable to parse the graph: %s", err)
 	if err != nil {
 		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
 	}

@@ -27,22 +27,36 @@ import (
 	"strings"
 
 	c "github.com/delving/hub3/config"
-	proto "github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
+	proto "google.golang.org/protobuf/proto"
 )
 
 const (
-	qfKey          = "qf"
-	qfIDKey        = "qf.id"
-	qfDateRangeKey = "qf.dateRange"
-	responseSize   = int32(16)
+	qfKey              = "qf"
+	qfIDKey            = "qf.id"
+	qfIDKeyList        = "qf.id[]"
+	qfExistList        = "qf.exist[]"
+	qfDateRangeKey     = "qf.dateRange"
+	responseSize       = int32(16)
+	metaTags           = "meta.tags"
+	metaSpec           = "meta.spec"
+	treeDepth          = "tree.depth"
+	treeLeaf           = "tree.leaf"
+	treeCLevel         = "tree.cLevel"
+	resourcesEntries   = "resources.entries"
+	entriesSearchLabel = "resources.entries.searchLabel"
+	facetDisplayLabel  = "%s (%d)"
 )
 
+func logConvErr(p string, v []string, err error) {
+	log.Printf("unable to convert %v to int for %s; %+v", v, p, err)
+}
+
 // DefaultSearchRequest takes an Config Objects and sets the defaults
-func DefaultSearchRequest(c *c.RawConfig) *SearchRequest {
+func DefaultSearchRequest(cfg *c.RawConfig) *SearchRequest {
 	id := ksuid.New()
 	sr := &SearchRequest{
 		ResponseSize: responseSize,
@@ -139,7 +153,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 					return sr, err
 				}
 			}
-		case qfIDKey, "qf.id[]":
+		case qfIDKey, qfIDKeyList:
 			for _, qf := range v {
 				err := sr.AddQueryFilter(qf, true)
 				if err != nil {
@@ -168,7 +182,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 				}
 			}
 
-		case "qf.exist", "qf.exist[]":
+		case "qf.exist", qfExistList:
 			for _, qf := range v {
 				err := sr.AddFieldExistFilter(qf)
 				if err != nil {
@@ -200,7 +214,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "rows":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				log.Printf("unable to convert %v to int", v)
+				logConvErr(p, []string{params.Get(p)}, err)
 				return sr, err
 			}
 
@@ -244,7 +258,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "collapseSize":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				log.Printf("unable to convert %v to int for %s", v, p)
+				logConvErr(p, v, err)
 				return sr, err
 			}
 			sr.CollapseSize = int32(size)
@@ -306,7 +320,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 
 			hint, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				log.Printf("unable to convert %v to int for %s", v, p)
+				logConvErr(p, v, err)
 				return sr, err
 			}
 
@@ -318,7 +332,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			for _, page := range v {
 				hint, err := strconv.Atoi(page)
 				if err != nil {
-					log.Printf("unable to convert %v to int for %s", v, p)
+					logConvErr(p, v, err)
 					return sr, err
 				}
 
@@ -331,7 +345,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 
 			hint, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				log.Printf("unable to convert %v to int for %s", v, p)
+				logConvErr(p, v, err)
 				return sr, err
 			}
 
@@ -339,7 +353,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 		case "start":
 			start, err := strconv.Atoi(params.Get(p))
 			if err != nil {
-				log.Printf("unable to convert %v to int for %s", v, p)
+				logConvErr(p, v, err)
 				return sr, err
 			}
 			sr.Start = int32(start)
@@ -505,6 +519,7 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 		}
 		fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, field, value))
 	}
+
 	return strings.Join(fields, "&"), selected
 }
 
@@ -527,8 +542,12 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 		}
 
 		fieldQ := elastic.NewBoolQuery()
-		var active bool
-		var filters []string
+
+		var (
+			active  bool
+			filters []string
+		)
+
 		for k := range qfs {
 			filters = append(filters, k)
 		}
@@ -537,10 +556,12 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 
 		for _, k := range filters {
 			qf := qfs[k]
+
 			filterQuery, err := qf.ElasticFilter()
 			if err != nil {
 				return q, errors.Wrap(err, "Unable to build filter query")
 			}
+
 			switch andQuery {
 			case true:
 				fieldQ = fieldQ.Must(filterQuery)
@@ -555,6 +576,7 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 		}
 		q = q.Must(fieldQ)
 	}
+
 	return q, nil
 }
 
@@ -567,6 +589,7 @@ type BreadCrumbBuilder struct {
 // AppendBreadCrumb creates a BreadCrumb
 func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 	bc := &BreadCrumb{IsLast: true}
+
 	switch param {
 	case "query":
 		if qf.GetValue() != "" {
@@ -575,14 +598,17 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			bc.Value = qf.GetValue()
 			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
-	case "qf[]", qfKey, qfIDKey, "qf.id[]":
+	case "qf[]", qfKey, qfIDKey, qfIDKeyList:
 		if !strings.HasSuffix(param, "[]") {
 			param = fmt.Sprintf("%s[]", param)
 		}
+
 		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
+
 		if qf.Exclude {
 			qfs = fmt.Sprintf("-%s", qfs)
 		}
+
 		href := fmt.Sprintf("%s=%s", param, qfs)
 		bc.Href = href
 		if bcb.GetPath() != "" {
@@ -592,7 +618,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 		bc.Display = qfs
 		bc.Field = qf.GetSearchLabel()
 		bc.Value = qf.GetValue()
-	case "qf.exist[]", "qf.exist":
+	case qfExistList, "qf.exist":
 		if !strings.HasSuffix(param, "[]") {
 			param = fmt.Sprintf("%s[]", param)
 		}
@@ -604,13 +630,15 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 		}
 		bcb.hrefPath = append(bcb.hrefPath, href)
 		bc.Display = qfs
-		bc.Field = qf.GetSearchLabel()
 		//bc.Value = qf.GetValue()
+		bc.Field = qf.GetSearchLabel()
 	}
+
 	last := bcb.GetLast()
 	if last != nil {
 		last.IsLast = false
 	}
+
 	bcb.crumbs = append(bcb.crumbs, bc)
 }
 
@@ -624,6 +652,7 @@ func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
 	if len(bcb.crumbs) == 0 {
 		return nil
 	}
+
 	return bcb.crumbs[len(bcb.crumbs)-1]
 }
 
@@ -631,6 +660,7 @@ func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
 func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 	q := &Query{}
 	bcb := &BreadCrumbBuilder{}
+
 	if sr.GetQuery() != "" {
 		q.Terms = sr.GetQuery()
 		bcb.AppendBreadCrumb("query", &QueryFilter{Value: sr.GetQuery()})
@@ -638,10 +668,10 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 	for _, qf := range sr.GetQueryFilter() {
 		fieldKey := "qf[]"
 		if qf.GetID() {
-			fieldKey = "qf.id[]"
+			fieldKey = qfIDKeyList
 		}
 		if qf.Exists {
-			fieldKey = "qf.exist[]"
+			fieldKey = qfExistList
 		}
 		bcb.AppendBreadCrumb(fieldKey, qf)
 	}
@@ -656,14 +686,16 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
 	query = query.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
 
+	metaSpecPrefix := "meta.spec:"
+
 	if sr.GetQuery() != "" {
-		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", "meta.spec:", 1)
-		if strings.Contains(rawQuery, "meta.spec") {
+		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", metaSpecPrefix, 1)
+		if strings.Contains(rawQuery, metaSpec) {
 			all := []string{}
 			for _, part := range strings.Split(rawQuery, " ") {
-				if strings.HasPrefix(part, "meta.spec:") {
-					spec := strings.TrimPrefix(part, "meta.spec:")
-					query = query.Must(elastic.NewTermQuery("meta.spec", spec))
+				if strings.HasPrefix(part, metaSpecPrefix) {
+					spec := strings.TrimPrefix(part, metaSpecPrefix)
+					query = query.Must(elastic.NewTermQuery(metaSpec, spec))
 					continue
 				}
 				all = append(all, part)
@@ -707,13 +739,13 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		var path string
 		for idx, leaf := range parents {
 			if idx == 0 {
-				treeQuery = treeQuery.Should(elastic.NewMatchQuery("tree.depth", 1))
+				treeQuery = treeQuery.Should(elastic.NewMatchQuery(treeDepth, 1))
 				path = leaf
-				treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.leaf", path))
+				treeQuery = treeQuery.Should(elastic.NewTermQuery(treeLeaf, path))
 				continue
 			}
 			path = fmt.Sprintf("%s~%s", path, leaf)
-			treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.leaf", path))
+			treeQuery = treeQuery.Should(elastic.NewTermQuery(treeLeaf, path))
 		}
 		query = query.Must(treeQuery)
 
@@ -726,12 +758,12 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		for idx, leaf := range parents {
 			if idx == 0 {
 				path = leaf
-				treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.cLevel", path))
+				treeQuery = treeQuery.Should(elastic.NewTermQuery(treeCLevel, path))
 				continue
 			}
 
 			path = fmt.Sprintf("%s~%s", path, leaf)
-			treeQuery = treeQuery.Should(elastic.NewTermQuery("tree.cLevel", path))
+			treeQuery = treeQuery.Should(elastic.NewTermQuery(treeCLevel, path))
 		}
 		query = query.Must(treeQuery)
 	}
@@ -739,9 +771,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	// todo move this into a separate function
 	if sr.Tree != nil && !sr.Tree.GetFillTree() && !sr.Tree.GetAllParents() {
 		// exclude description
-		query = query.Must(elastic.NewMatchQuery("meta.tags", "ead"))
+		query = query.Must(elastic.NewMatchQuery(metaTags, "ead"))
 		if sr.Tree.GetLeaf() != "" {
-			query = query.Must(elastic.NewTermQuery("tree.leaf", sr.Tree.GetLeaf()))
+			query = query.Must(elastic.NewTermQuery(treeLeaf, sr.Tree.GetLeaf()))
 		}
 		if sr.Tree.GetParent() != "" {
 			query = query.Must(elastic.NewTermQuery("tree.parent", sr.Tree.GetParent()))
@@ -778,19 +810,19 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 		if sr.Tree.GetUnitID() != "" {
 			if strings.HasPrefix(sr.Tree.GetUnitID(), "@") {
-				query = query.Must(elastic.NewTermQuery("tree.cLevel", sr.Tree.GetUnitID()))
+				query = query.Must(elastic.NewTermQuery(treeCLevel, sr.Tree.GetUnitID()))
 			} else {
 				query = query.Must(elastic.NewTermQuery("tree.unitID", sr.Tree.GetUnitID()))
 			}
 		}
 		switch len(sr.Tree.GetDepth()) {
 		case 1:
-			query = query.Must(elastic.NewMatchQuery("tree.depth", sr.Tree.GetDepth()[0]))
+			query = query.Must(elastic.NewMatchQuery(treeDepth, sr.Tree.GetDepth()[0]))
 		case 0:
 		default:
 			q := elastic.NewBoolQuery()
 			for _, d := range sr.Tree.GetDepth() {
-				q = q.Should(elastic.NewTermQuery("tree.depth", d))
+				q = q.Should(elastic.NewTermQuery(treeDepth, d))
 			}
 			query = query.Must(q)
 			sr.Tree.FillTree = true
@@ -849,7 +881,7 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 	aggs := map[string]elastic.Aggregation{}
 
 	for _, facetField := range sr.FacetField {
-		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField, fub)
+		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
 			return nil, err
 		}
@@ -899,7 +931,7 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 	switch facet.GetType() {
 	case FacetType_METATAGS:
 		tagAgg := elastic.NewTermsAggregation().
-			Field("meta.tags").
+			Field(metaTags).
 			Size(int(facet.GetSize()))
 
 		facetFilterAgg = facetFilterAgg.SubAggregation("object", tagAgg)
@@ -993,6 +1025,7 @@ func getInterfaceBytes(key interface{}) ([]byte, error) {
 func (sr *SearchRequest) SearchRequestToHex() (string, error) {
 	output, err := proto.Marshal(sr)
 	if err != nil {
+		return "", err
 	}
 	return fmt.Sprintf("%x", output), nil
 }
@@ -1042,9 +1075,9 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		fieldSort = elastic.NewFieldSort(sr.GetSortBy())
 	case strings.HasSuffix(sr.GetSortBy(), "_int"):
 		field := strings.TrimSuffix(sr.GetSortBy(), "_int")
-		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", field)
+		sortNestedQuery := elastic.NewTermQuery(entriesSearchLabel, field)
 		fieldSort = elastic.NewFieldSort("resources.entries.integer").
-			NestedPath("resources.entries").
+			NestedPath(resourcesEntries).
 			NestedFilter(sortNestedQuery)
 		if sr.SortAsc {
 			fieldSort = fieldSort.Asc()
@@ -1052,9 +1085,9 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 			fieldSort = fieldSort.Desc()
 		}
 	default:
-		sortNestedQuery := elastic.NewTermQuery("resources.entries.searchLabel", sr.GetSortBy())
+		sortNestedQuery := elastic.NewTermQuery(entriesSearchLabel, sr.GetSortBy())
 		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").
-			NestedPath("resources.entries").
+			NestedPath(resourcesEntries).
 			NestedFilter(sortNestedQuery)
 		if sr.SortAsc {
 			fieldSort = fieldSort.Asc()
@@ -1125,14 +1158,14 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	if sr.Peek != "" {
 		facetField := &FacetField{Field: sr.Peek, Size: int32(100)}
-		agg, err := sr.CreateAggregationBySearchLabel("resources.entries", facetField, fub)
+		agg, aggErr := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, aggErr
 		}
 
 		s = s.Size(0)
 		s = s.Aggregation(sr.Peek, agg)
-		return s.Query(query), nil, err
+		return s.Query(query), nil, nil
 	}
 
 	if sr.Tree != nil {
@@ -1176,8 +1209,8 @@ func NewScrollPager() *ScrollPager {
 	sp := &ScrollPager{}
 	sp.Total = 0
 	sp.Cursor = 0
-	return sp
 
+	return sp
 }
 
 // Echo returns a json version of the request object for introspection
@@ -1213,8 +1246,8 @@ func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error)
 	case "searchService", "searchResponse", "request", "nextScrollID", "previousScrollID", "searchAfter":
 		return nil, nil
 	}
-	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 
+	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 }
 
 type ScrollType int
@@ -1246,9 +1279,11 @@ func newSearchRequestScrollPage(sr *SearchRequest, position ScrollType, total in
 	// if paging set next page
 	if copySr.Tree != nil && copySr.Tree.IsPaging && !copySr.Tree.IsSearch {
 		prev, _, next := sr.Tree.PreviousCurrentNextPage()
+
 		if position == ScrollNext {
 			copySr.Tree.Page = []int32{next}
 		}
+
 		if position == ScrollPrev {
 			copySr.Tree.Page = []int32{prev}
 		}
@@ -1274,7 +1309,7 @@ func (sr *SearchRequest) ScrollPagers(total int64) (*ScrollPager, error) {
 		return nil, err
 	}
 
-	if next.GetStart() < int32(total) {
+	if int64(next.GetStart()) < total {
 		sp.NextScrollID, err = next.SearchRequestToHex()
 		if err != nil {
 			return nil, err
@@ -1376,8 +1411,9 @@ func (qf *QueryFilter) AsString() string {
 func TypeClassAsURI(uri string) (string, error) {
 	parts := strings.SplitN(uri, "_", 2)
 	if len(parts) != 2 {
-		return "", fmt.Errorf("TypeClass is defined in the wrong shorthand; got %s", uri)
+		return "", fmt.Errorf("wrong shorhand for TypeClass is defined; got %s", uri)
 	}
+
 	label := parts[1]
 	base, ok := c.Config.NameSpaceMap.GetBaseURI(parts[0])
 	if !ok {
@@ -1401,28 +1437,28 @@ func (qf *QueryFilter) SetExclude(q *elastic.BoolQuery, qs ...elastic.Query) *el
 
 // ElasticFilter creates an elasticsearch filter from the QueryFilter
 func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
-
 	nestedBoolQuery := elastic.NewBoolQuery()
 
 	// resource.entries queries
-	labelQ := elastic.NewTermQuery("resources.entries.searchLabel", qf.SearchLabel)
+	labelQ := elastic.NewTermQuery(entriesSearchLabel, qf.SearchLabel)
+
 	if qf.Exists {
 		qs := elastic.NewBoolQuery()
 		qs = qf.SetExclude(qs, labelQ)
-		nq := elastic.NewNestedQuery("resources.entries", qs)
+		nq := elastic.NewNestedQuery(resourcesEntries, qs)
 		return nq, nil
 	}
 
 	// object queries
 	switch qf.SearchLabel {
-	case "spec", "delving_spec", "delving_spec.raw", "meta.spec":
+	case "spec", "delving_spec", "delving_spec.raw", metaSpec:
 		qf.SearchLabel = c.Config.ElasticSearch.SpecKey
 		return qf.SetExclude(
 			elastic.NewBoolQuery(),
 			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
 		), nil
-	case "meta.tags", "meta.tag":
-		qf.SearchLabel = "meta.tags"
+	case metaTags, "meta.tag":
+		qf.SearchLabel = metaTags
 		return qf.SetExclude(
 			elastic.NewBoolQuery(),
 			elastic.NewTermQuery(qf.SearchLabel, qf.Value),
@@ -1440,6 +1476,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 
 	// nested queries
 	var fieldQuery elastic.Query
+
 	switch qf.GetType() {
 	case QueryFilterType_DATERANGE:
 		fieldKey := "resources.entries.dateRange"
@@ -1464,7 +1501,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		fieldQuery = elastic.NewTermQuery("resources.entries.tags", qf.Value)
 		qs := elastic.NewBoolQuery()
 		qs = qf.SetExclude(qs, fieldQuery)
-		return elastic.NewNestedQuery("resources.entries", qs), nil
+		return elastic.NewNestedQuery(resourcesEntries, qs), nil
 	default:
 		fieldKey := "resources.entries.@value.keyword"
 		if qf.ID {
@@ -1475,7 +1512,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 
 	qs := elastic.NewBoolQuery()
 	qs = qf.SetExclude(qs, labelQ, fieldQuery)
-	nq := elastic.NewNestedQuery("resources.entries", qs)
+	nq := elastic.NewNestedQuery(resourcesEntries, qs)
 
 	if qf.GetTypeClass() == "" && qf.GetLevel2() == nil {
 		return nq, nil
@@ -1621,22 +1658,24 @@ func NewDateRangeFilter(filter string) (*QueryFilter, error) {
 	}
 
 	qf.Type = QueryFilterType_DATERANGE
+
 	parts := strings.Split(qf.Value, "~")
 	if len(parts) != 2 {
 		return nil, fmt.Errorf(
-			"The date range value %s must include ~ to separate start and end",
+			"the date range value %s must include ~ to separate start and end",
 			qf.Value,
 		)
 	}
+
 	if parts[0] != "" {
 		qf.Gte = parts[0]
 	}
+
 	if parts[1] != "" {
 		qf.Lte = parts[1]
 	}
 
 	return qf, nil
-
 }
 
 // AddFieldExistFilter adds a query to filter on records where this fields exists.
@@ -1665,7 +1704,7 @@ func getKeyAsString(raw json.RawMessage) string {
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
-func (sr SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
+func (sr *SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
 	return DecodeFacets(res, fb)
 }
 
@@ -1690,6 +1729,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						Total: inner.DocCount,
 						Links: []*FacetLink{},
 					}
+
 					maxAgg, ok := inner.Max("maxval")
 					if ok {
 
@@ -1717,7 +1757,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 								IsSelected:    isSelected,
 								Value:         key,
 								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 							}
 							qf.Links = append(qf.Links, fl)
 						}
@@ -1737,7 +1777,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 								IsSelected:    isSelected,
 								Value:         key,
 								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 							}
 							qf.Links = append(qf.Links, fl)
 						}
@@ -1746,7 +1786,6 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						aggs = append(aggs, qf)
 					}
 				}
-
 			}
 		}
 		objectFilter, ok := res.Aggregations.Filter(k)
@@ -1760,6 +1799,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 					MissingDocs: value.SumOfOtherDocCount,
 					Links:       []*FacetLink{},
 				}
+
 				for _, b := range value.Buckets {
 					key := KeyAsString(b)
 
@@ -1768,12 +1808,13 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 					if isSelected && !qf.IsSelected {
 						qf.IsSelected = true
 					}
+
 					fl := &FacetLink{
 						URL:           url,
 						IsSelected:    isSelected,
 						Value:         key,
 						Count:         b.DocCount,
-						DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 					}
 					qf.Links = append(qf.Links, fl)
 				}

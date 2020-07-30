@@ -16,6 +16,7 @@ package ikuzo
 
 import (
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -28,6 +29,11 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
+)
+
+const (
+	taskIDRoute    = "/api/ead/tasks/{id}"
+	datasetIDRoute = "/api/datasets/{spec}"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
@@ -64,6 +70,7 @@ func SetTLS(cert, key string) Option {
 	return func(s *server) error {
 		s.certFile = cert
 		s.keyFile = key
+
 		return nil
 	}
 }
@@ -110,6 +117,7 @@ func SetOrganisationService(service *organization.Service) Option {
 				r.Mount("/organizations", service.Routes())
 			},
 		)
+
 		return nil
 	}
 }
@@ -191,8 +199,8 @@ func SetEADService(svc *ead.Service) Option {
 			func(r chi.Router) {
 				r.Post("/api/ead", svc.Upload)
 				r.Get("/api/ead/tasks", svc.Tasks)
-				r.Get("/api/ead/tasks/{id}", svc.GetTask)
-				r.Delete("/api/ead/tasks/{id}", svc.CancelTask)
+				r.Get(taskIDRoute, svc.GetTask)
+				r.Delete(taskIDRoute, svc.CancelTask)
 			},
 		)
 
@@ -229,6 +237,63 @@ func SetImageProxyService(service *imageproxy.Service) Option {
 				r.Mount("/", service.Routes())
 			},
 		)
+
+		return nil
+	}
+}
+
+type ProxyRoute struct {
+	Method  string
+	Pattern string
+}
+
+// SetDataNodeProxy creates a reverse proxy to the dataNode and set override routes.
+//
+// The 'proxyRoutes' argument can be used to add additional override routes.
+func SetDataNodeProxy(dataNode string, proxyRoutes ...ProxyRoute) Option {
+	return func(s *server) error {
+		nodeURL, _ := url.Parse(dataNode)
+		s.dataNodeProxy = httputil.NewSingleHostReverseProxy(nodeURL)
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				// ead
+				r.Post("/api/ead", s.proxyDataNode)
+				r.Get("/api/ead/tasks", s.proxyDataNode)
+				r.Get(taskIDRoute, s.proxyDataNode)
+				r.Delete(taskIDRoute, s.proxyDataNode)
+				r.Post("/api/index/bulk", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/download", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/mets/{inventoryID}", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/desc", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/desc/index", s.proxyDataNode)
+				r.Get("/api/ead/{spec}/meta", s.proxyDataNode)
+
+				// datasets
+				r.Get("/api/datasets/", s.proxyDataNode)
+				r.Get("/api/datasets/histogram", s.proxyDataNode)
+				r.Post("/api/datasets/", s.proxyDataNode)
+				r.Get(datasetIDRoute, s.proxyDataNode)
+				r.Get("/api/datasets/{spec}/stats", s.proxyDataNode)
+				// later change to update dataset
+				r.Post(datasetIDRoute, s.proxyDataNode)
+				r.Delete(datasetIDRoute, s.proxyDataNode)
+
+				// custom routes
+				for _, route := range proxyRoutes {
+					switch {
+					case strings.EqualFold("get", route.Method):
+						r.Get(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("post", route.Method):
+						r.Post(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("put", route.Method):
+						r.Put(route.Pattern, s.proxyDataNode)
+					case strings.EqualFold("delete", route.Method):
+						r.Delete(route.Pattern, s.proxyDataNode)
+					}
+				}
+			},
+		)
+
 		return nil
 	}
 }

@@ -110,7 +110,7 @@ func Test_mockService_HasNext(t *testing.T) {
 	}
 }
 
-// nolint:funlen table tests can have longer function length
+// nolint:funlen // table tests can have longer function length
 func Test_mockService_First(t *testing.T) {
 	type fields struct {
 		maxItems    int

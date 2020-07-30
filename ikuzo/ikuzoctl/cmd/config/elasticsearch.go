@@ -96,6 +96,11 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		cfg.options = append(cfg.options, ikuzo.SetElasticSearchProxy(esProxy))
 	}
 
+	// when not in datanode mode no service should be started
+	if !cfg.IsDataNode() {
+		return nil
+	}
+
 	// enable bulk indexer
 	is, isErr := cfg.GetIndexService()
 	if isErr != nil {
@@ -141,11 +146,9 @@ func (e *ElasticSearch) ResetAll(w http.ResponseWriter, r *http.Request) {
 
 	// reset EAD cache
 	models.ResetEADCache()
-
-	return
 }
 
-func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias bool, withReset bool) ([]string, error) {
+func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias, withReset bool) ([]string, error) {
 	mappings := map[string]func(shards, replicas int) string{}
 
 	for _, indexType := range e.IndexTypes {

@@ -2,6 +2,8 @@
 orgId = "hub3"
 # the default hub3 clusterID
 hub3ID = "hub3"
+# the url to the remote dataNode. When emtpy the current node is started in dataNode mode
+dataNodeURL = ""
 
 [http]
 # all the configuration for the http sub-command
@@ -195,7 +197,8 @@ singleEndpoint = "NL-.*"
 cacheDir = "/tmp/ead"
 metrics = true
 workers = 1
-searchURL = "https://test.nationaalarchief.nl"
+
+searchURL = ""
 genreFormDefault = "other/unknown"
 treeFields = [
     # did

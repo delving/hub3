@@ -30,7 +30,10 @@ func TestNewScrollPager(t *testing.T) {
 			ScrollPager{},
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			got := NewScrollPager()
 			if diff := cmp.Diff(tt.want, got); diff != "" {

@@ -16,6 +16,7 @@ package models
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -28,6 +29,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	elastic "github.com/olivere/elastic/v7"
+)
+
+var (
+	unexpectedResponseMsg = "expected response != nil; got: %v"
+	ErrUnexpectedResponse = errors.New("expected response != nil")
 )
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -320,8 +326,8 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	if res == nil {
-		log.Warn().Msgf("expected response != nil; got: %v", res)
-		return 0, revisions, counter, tagCounter, fmt.Errorf("expected response != nil")
+		log.Warn().Msgf(unexpectedResponseMsg, res)
+		return 0, revisions, counter, tagCounter, ErrUnexpectedResponse
 	}
 	aggs := res.Aggregations
 
@@ -416,8 +422,8 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	if res == nil {
-		log.Warn().Msgf("expected response != nil; got: %v", res)
-		return fStats, fmt.Errorf("expected response != nil")
+		log.Warn().Msgf(unexpectedResponseMsg, res)
+		return fStats, ErrUnexpectedResponse
 	}
 
 	aggs := res.Aggregations
@@ -590,7 +596,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 			}
 
 			if res == nil {
-				log.Warn().Msgf("expected response != nil; got: %v", res)
+				log.Warn().Msgf(unexpectedResponseMsg, res)
 				return
 			}
 
@@ -614,13 +620,18 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 		elastic.NewTermQuery("spec.raw", ds.Spec),
 	)
 
-	log.Warn().Msgf("%#v", q)
+	indices := []string{}
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case "v1":
+			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName())
+		case "v2":
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+		}
+	}
+
 	res, err := index.ESClient().DeleteByQuery().
-		Index(
-			c.Config.ElasticSearch.GetIndexName(),
-			c.Config.ElasticSearch.GetV1IndexName(),
-			c.Config.ElasticSearch.FragmentIndexName(),
-		).
+		Index(indices...).
 		Query(q).
 		Do(ctx)
 	if err != nil {
@@ -629,8 +640,8 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	}
 
 	if res == nil {
-		log.Warn().Msgf("expected response != nil; got: %v", res)
-		return 0, fmt.Errorf("expected response != nil")
+		log.Warn().Msgf(unexpectedResponseMsg, res)
+		return 0, ErrUnexpectedResponse
 	}
 
 	log.Warn().Msgf("Removed %d records for spec %s", res.Deleted, ds.Spec)

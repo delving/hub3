@@ -1,8 +1,51 @@
 # Changelog
 
-## development
+## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.9...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.11...master
+
+### Added 
+
+- Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
+- GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
+
+### Fixed
+
+- Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
+
+### Removed
+
+- Remove RAML api-console [[GH-33]](https://github.com/delving/hub3/pull/33)
+
+### Security
+
+- CVE-2020-14040 (High) detected in github.com/microsoft/hcsshim-fc27c5026e6ff001dc1b171b99bda7bb3dcf6e78 [[GH-34]](https://github.com/delving/hub3/pull/34)
+
+## v0.1.11 (2020-07-21)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.1.11
+
+### Added
+
+- Allow for custom []ProxyRoute to be configured when configuring a DataNode proxy [[GH-26]](https://github.com/delving/hub3/pull/26)
+
+### Fixes
+
+- Delete DataSet does not work when when no v1 index is created [[GH-25]](https://github.com/delving/hub3/pull/25)
+
+## v0.1.10 (2020-07-20)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.9...v0.1.10
+
+### Added
+
+- Support for running hub3 in DataNode mode [[GH-24]](https://github.com/delving/hub3/pull/24)
+- Support for generic bulk service orgID-aware posthooks
+- Implementation of orgID-aware posthook for [Ginger platform](https://github.com/driebit/ginger)
+
+### Fixes
+
+- escape html entities in v1 indexing output
 
 ## v0.1.9 (2020-06-15) 
 

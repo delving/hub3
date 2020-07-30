@@ -25,6 +25,7 @@ func TestBreadCrumbBuilder_GetLast(t *testing.T) {
 		hrefPath []string
 		crumbs   []*BreadCrumb
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -37,19 +38,21 @@ func TestBreadCrumbBuilder_GetLast(t *testing.T) {
 		},
 		{
 			"single breadcrumb",
-			fields{crumbs: []*BreadCrumb{&BreadCrumb{Field: "last"}}},
+			fields{crumbs: []*BreadCrumb{{Field: "last"}}},
 			&BreadCrumb{Field: "last"},
 		},
 		{
 			"list of breadcrumbs",
 			fields{crumbs: []*BreadCrumb{
-				&BreadCrumb{Field: "first"},
-				&BreadCrumb{Field: "last"},
+				{Field: "first"},
+				{Field: "last"},
 			}},
 			&BreadCrumb{Field: "last"},
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			bcb := &BreadCrumbBuilder{
 				hrefPath: tt.fields.hrefPath,
@@ -68,6 +71,7 @@ func TestBreadCrumbBuilder_GetPath(t *testing.T) {
 		hrefPath []string
 		crumbs   []*BreadCrumb
 	}
+
 	tests := []struct {
 		name   string
 		fields fields
@@ -105,7 +109,10 @@ func TestBreadCrumbBuilder_GetPath(t *testing.T) {
 			"q=Супрематизм» Suprematism&qf=dc_creator:malevich&qf=dc_date:1915",
 		},
 	}
+
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			bcb := &BreadCrumbBuilder{
 				hrefPath: tt.fields.hrefPath,

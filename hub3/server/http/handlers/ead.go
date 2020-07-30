@@ -35,6 +35,11 @@ import (
 	elastic "github.com/olivere/elastic/v7"
 )
 
+var (
+	contentDispositionKey = "Content-Disposition"
+	contentTypeKey        = "Content-Type"
+)
+
 func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/search", eadSearch)
 	r.Get("/api/ead/search/{spec}", eadInventorySearch)
@@ -46,10 +51,12 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/ead/{spec}/download", EADDownload)
 	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
+	r.Get("/api/ead/{spec}/desc/index", TreeDescriptionSearch)
+	r.Get("/api/ead/{spec}/meta", EADMeta)
 }
 
 func NewOldBulkProcessor() *OldBulkProcessor {
-	return &OldBulkProcessor{bi: BulkProcessor()}
+	return &OldBulkProcessor{bi: nil}
 }
 
 type OldBulkProcessor struct {
@@ -71,13 +78,13 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 }
 
 func TreeList(w http.ResponseWriter, r *http.Request) {
-	// FIXME(kiivihal): add logger for
+	// TODO(kiivihal): add logger
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -116,6 +123,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	switch searchRequest.Tree {
 	case nil:
 		searchRequest.Tree = &fragments.TreeQuery{
@@ -138,8 +146,8 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.pdf", spec))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", spec))
-	w.Header().Set("Content-Type", "application/pdf")
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.pdf", spec))
+	w.Header().Set(contentTypeKey, "application/pdf")
 	return
 }
 
@@ -157,8 +165,8 @@ func METSDownload(w http.ResponseWriter, r *http.Request) {
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
-	w.Header().Set("Content-Type", "application/xml")
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
+	w.Header().Set(contentTypeKey, "application/xml")
 	return
 }
 
@@ -169,16 +177,81 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
 	}
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.xml", spec))
 	http.ServeFile(w, r, eadPath)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.xml", spec))
-	w.Header().Set("Content-Type", r.Header.Get("Content-Type"))
+	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.xml", spec))
+	w.Header().Set(contentTypeKey, r.Header.Get(contentTypeKey))
 	return
+}
+
+func EADMeta(w http.ResponseWriter, r *http.Request) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    emptySpecMsg(),
+			Error:      nil,
+		})
+		return
+	}
+	meta, err := ead.GetMeta(spec)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	render.JSON(w, r, meta)
+}
+
+func TreeDescriptionSearch(w http.ResponseWriter, r *http.Request) {
+	var hits int
+	rawQuery := r.URL.Query().Get("q")
+	if rawQuery == "" {
+		render.JSON(w, r, map[string]int{"total": hits})
+		return
+	}
+
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    emptySpecMsg(),
+			Error:      nil,
+		})
+		return
+	}
+
+	descriptionIndex, getErr := ead.GetDescriptionIndex(spec)
+	if getErr != nil && !errors.Is(getErr, ead.ErrNoDescriptionIndex) {
+		c.Config.Logger.Error().Err(getErr).
+			Str("subquery", "description").
+			Msg("error with retrieving description index")
+		http.Error(w, getErr.Error(), http.StatusNotFound)
+		return
+	}
+
+	if descriptionIndex != nil {
+		searhHits, searchErr := descriptionIndex.SearchWithString(rawQuery)
+		if searchErr != nil && !errors.Is(searchErr, memory.ErrSearchNoMatch) {
+			c.Config.Logger.Error().Err(searchErr).
+				Str("subquery", "description").
+				Msg("unable to search description")
+
+			http.Error(w, searchErr.Error(), http.StatusNotFound)
+			return
+		}
+
+		hits = searhHits.Total()
+	}
+
+	render.JSON(w, r, map[string]int{"total": hits})
 }
 
 func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
@@ -278,7 +351,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
+			Message:    emptySpecMsg(),
 			Error:      nil,
 		})
 		return
@@ -315,4 +388,8 @@ func eadInventorySearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render.JSON(w, r, resp)
+}
+
+func emptySpecMsg() string {
+	return fmt.Sprintln("spec can't be empty")
 }

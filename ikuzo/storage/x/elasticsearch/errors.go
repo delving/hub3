@@ -52,8 +52,6 @@ func GetErrorType(r io.Reader) ErrorType {
 		"error.caused_by.reason",
 	)
 
-	// log.Printf("json error: %s", json)
-
 	et := ErrorType{
 		Index:       res[0].String(),
 		Type:        res[1].String(),
@@ -76,16 +74,7 @@ func (et ErrorType) Error() error {
 		return ErrIndexNotFound
 	case "aliases_not_found_exception":
 		return ErrAliasNotFound
-	case "mapper_parsing_exception":
-		log.Error().
-			RawJSON("reason", []byte(et.Reason)).
-			Str("error_type", et.Type).
-			Str("cause_type", et.CauseType).
-			Str("cause_reason", et.CauseReason).
-			Msg("mapper parsing exception")
-
-		return ErrIndexMappingNotValid
-	case "parse_exception":
+	case "mapper_parsing_exception", "parse_exception":
 		log.Error().
 			RawJSON("reason", []byte(et.Reason)).
 			Str("error_type", et.Type).

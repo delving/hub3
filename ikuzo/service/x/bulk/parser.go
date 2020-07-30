@@ -84,7 +84,6 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 		}
 
 		if scanner.Err() != nil {
-			// log.Printf("Error scanning bulkActions: %s", scanner.Err())
 			return scanner.Err()
 		}
 
@@ -257,7 +256,7 @@ func (p *Parser) Publish(req *Request) error {
 		}
 	}
 
-	// FIXME(kiivihal): get the configuration values via injection instead of global config
+	// TODO(kiivihal): get the configuration values via injection instead of global config
 	if config.Config.RDF.RDFStoreEnabled {
 		if err := p.AppendRDFBulkRequest(req, fb.Graph); err != nil {
 			return err

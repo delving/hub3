@@ -13,6 +13,7 @@ type PostHook struct {
 	APIKey      string   `json:"apiKey"`
 }
 
+// nolint:unparam // in the future other posthook services can return errors
 func (cfg *Config) getPostHookServices() ([]bulk.PostHookService, error) {
 	svc := []bulk.PostHookService{}
 

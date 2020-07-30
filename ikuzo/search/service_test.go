@@ -25,6 +25,7 @@ func TestNewService(t *testing.T) {
 	type args struct {
 		options []OptionFunc
 	}
+
 	tests := []struct {
 		name    string
 		args    args
@@ -75,6 +76,8 @@ func TestNewService(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
+
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewService(tt.args.options...)
 			if (err != nil) != tt.wantErr {
