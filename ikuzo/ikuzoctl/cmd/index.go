@@ -167,7 +167,7 @@ func indexRecords() error {
 			return ctx.Err()
 		}
 
-		if err := parser.Publish(v1rec.bulkRequest()); err != nil {
+		if err := parser.Publish(ctx, v1rec.bulkRequest()); err != nil {
 			log.Error().Err(err).Msgf("bulk request: %#v", v1rec.bulkRequest())
 			return err
 		}

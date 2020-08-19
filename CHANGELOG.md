@@ -12,6 +12,7 @@
 ### Fixed
 
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
+- Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
 
 ### Removed
 
