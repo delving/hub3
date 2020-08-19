@@ -19,7 +19,7 @@ jobs:
           path-to-signatures: 'signatures/version1/cla.json'
           path-to-cla-document: 'https://github.com/delving/hub3/blob/master/CLA.md'
           # branch should not be protected
-          branch: 'master'
+          branch: 'signatures'
           allowlist: bot*
           empty-commit-flag: true
           blockchain-storage-flag: false
