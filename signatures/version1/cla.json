@@ -1,3 +1,12 @@
 {
-  "signedContributors": []
+  "signedContributors": [
+    {
+      "name": "kiivihal",
+      "id": 169899,
+      "comment_id": 676501778,
+      "created_at": "2020-08-19T15:37:51Z",
+      "repoId": 168952446,
+      "pullRequestNo": 45
+    }
+  ]
 }
