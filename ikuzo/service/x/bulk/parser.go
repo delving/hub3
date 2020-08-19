@@ -159,7 +159,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 
 	switch req.Action {
 	case "index":
-		return p.Publish(req)
+		return p.Publish(ctx, req)
 	case "increment_revision":
 		ds, err := p.ds.IncrementRevision()
 		if err != nil {
@@ -220,7 +220,7 @@ func (p *Parser) dropPosthook(orgID, datasetID string, revision int) {
 	}
 }
 
-func (p *Parser) Publish(req *Request) error {
+func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	if err := req.valid(); err != nil {
 		return err
 	}
@@ -240,11 +240,11 @@ func (p *Parser) Publish(req *Request) error {
 	for _, indexType := range p.indexTypes {
 		switch indexType {
 		case "v1":
-			if err := req.processV1(fb, p.bi); err != nil {
+			if err := req.processV1(ctx, fb, p.bi); err != nil {
 				return err
 			}
 		case "v2":
-			if err := req.processV2(fb, p.bi); err != nil {
+			if err := req.processV2(ctx, fb, p.bi); err != nil {
 				return err
 			}
 		case "fragments":
