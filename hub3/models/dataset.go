@@ -1,5 +1,5 @@
-// Copyright © 2017 Delving B.V. <info@delving.eu>
 //
+// Copyright © 2017 Delving B.V. <info@delving.eu>
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -712,10 +712,19 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 	}
 
 	cachePath := filepath.Join(c.Config.EAD.CacheDir, ds.Spec)
+	_, err = os.Stat(cachePath)
+	if !os.IsNotExist(err) {
+		err = os.RemoveAll(cachePath)
+		if err != nil {
+			return false, fmt.Errorf("unable to delete EAD cache at %s; %#w", cachePath, err)
+		}
 
-	err = os.RemoveAll(cachePath)
-	if err != nil {
-		return false, fmt.Errorf("unable to delete EAD cache at %s; %#w", cachePath, err)
+		c.Config.Logger.Info().
+			Str("component", "hub3").
+			Str("svc", "ead").
+			Str("datasetID", ds.Spec).
+			Str("newState", "deleted EAD").
+			Msg("EAD state transition")
 	}
 
 	return ok, err
