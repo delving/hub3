@@ -154,7 +154,6 @@ func (p *Parser) dropOrphans(req *Request) error {
 		DatasetID:      req.DatasetID,
 		Revision:       &domainpb.Revision{Number: int32(p.ds.Revision)},
 		ActionType:     domainpb.ActionType_DROP_ORPHANS,
-		IndexName:      config.Config.ElasticSearch.GetIndexName(),
 	}
 
 	if err := p.bi.Publish(context.Background(), m); err != nil {
