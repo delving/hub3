@@ -42,6 +42,7 @@ const (
 	StateInError                               = "stopped processing with error"
 	StateCanceled                              = "canceled processing"
 	StateFinished                              = "finished processing EAD"
+	StateDeleted                               = "deleted EAD"
 )
 
 type Transition struct {
