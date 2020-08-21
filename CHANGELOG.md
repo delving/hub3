@@ -8,12 +8,14 @@
 
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
 - GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
+- Add logging when EAD dataset is deleted [[GH-46]](https://github.com/delving/hub3/pull/46)
 - Config option `maxTreeSize`for setting the maximum size of the navigation tree API [[GH-46]](https://github.com/delving/hub3/pull/48)
 
 ### Fixed
 
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
 - Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
+- Orphan Control is now excecuted when all domainpb.IndexMessage have been processed [[GH-47]](https://github.com/delving/hub3/pull/47)
 
 ### Removed
 

@@ -34,6 +34,7 @@ type Meta struct {
 	Created          time.Time
 	Updated          time.Time
 	TimesUploaded    int
+	Revision         int32
 	DaoStats         models.DaoStats
 }
 

@@ -598,7 +598,7 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 				return
 			}
 
-			log.Warn().Msgf(
+			log.Info().Msgf(
 				"Removed %d records for spec %s in index %s with older revision than %d",
 				res.Deleted,
 				indices,
@@ -619,6 +619,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	)
 
 	indices := []string{}
+
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
 		case "v1":
@@ -649,8 +650,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
-	ok := true
-
 	// TODO(kiivihal): replace flush with TRS
 	// err := p.Flush()
 	// if err != nil {
@@ -666,6 +665,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 			return false, err
 		}
 	}
+
 	if c.Config.ElasticSearch.Enabled {
 		_, err := ds.deleteIndexOrphans(ctx, wp)
 		if err != nil {
@@ -673,7 +673,8 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 			return false, err
 		}
 	}
-	return ok, nil
+
+	return true, nil
 }
 
 // DropRecords Drops all records linked to the dataset from the storage layers

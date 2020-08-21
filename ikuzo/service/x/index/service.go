@@ -23,6 +23,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
@@ -197,6 +198,19 @@ func (s *Service) handleMessage(m *stan.Msg) {
 func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) error {
 	if s.MsgHandler != nil {
 		return s.MsgHandler(ctx, m)
+	}
+
+	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
+		ds := models.DataSet{
+			Spec:     m.GetDatasetID(),
+			Revision: int(m.GetRevision().GetNumber()),
+		}
+
+		if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
+			return fmt.Errorf("unable to drop orphans; %w", err)
+		}
+
+		return nil
 	}
 
 	action := "index"

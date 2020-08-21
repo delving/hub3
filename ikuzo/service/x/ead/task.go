@@ -20,6 +20,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -85,6 +86,22 @@ func (t *Task) isActive() bool {
 	}
 
 	return true
+}
+
+func (t *Task) dropOrphans(revision int32) error {
+	m := &domainpb.IndexMessage{
+		OrganisationID: t.Meta.OrgID,
+		DatasetID:      t.Meta.DatasetID,
+		Revision:       &domainpb.Revision{Number: revision},
+		ActionType:     domainpb.ActionType_DROP_ORPHANS,
+	}
+
+	// publish message
+	if err := t.s.index.Publish(context.Background(), m); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *Task) finishTask() {
