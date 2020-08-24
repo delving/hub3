@@ -91,7 +91,8 @@ type ElasticSearch struct {
 	RequestTimeout     int      `json:"requestTimeout"`
 	EnableSearchAfter  bool     `json:"enableSearchAfter"`
 	TrackTotalHits     bool     `json:"trackTotalHits"`
-	IndexTypes         []string
+	IndexTypes         []string `json:"indexTypes"`
+	MaxTreeSize        int      `json:"maxTreeSize"`
 }
 
 // FragmentIndexName returns the name of the Fragment index.
@@ -256,6 +257,7 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Shards", 1)
 	viper.SetDefault("ElasticSearch.Replicas", 0)
 	viper.SetDefault("ElasticSearch.RequestTimeout", 15)
+	viper.SetDefault("ElasticSearch.MaxTreeSize", 250)
 	viper.SetDefault("ElasticSearch.TrackTotalHits", true)
 	viper.SetDefault("ElasticSearch.IndexTypes", []string{"v2"})
 

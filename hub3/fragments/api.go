@@ -1101,6 +1101,10 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		if sr.Tree.IsPaging {
 			sr.ResponseSize = sr.Tree.TreePagingSize()
 		}
+
+		if len(sr.Tree.Type) > 0 {
+			sr.ResponseSize = int32(c.Config.ElasticSearch.MaxTreeSize)
+		}
 	}
 
 	s := ec.Search().
