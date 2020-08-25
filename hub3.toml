@@ -73,8 +73,8 @@ shards = 1
 replicas = 0
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v1", "v2"]
-# maxTreeSize is the maximum size of the number of nodes in the tree API
-maxTreeSize = 250
+# maxTreeSize is the maximum size of the number of nodes in the tree navigation API
+maxTreeSize = 251
 
 [[posthooks]]
 name = "ginger"
