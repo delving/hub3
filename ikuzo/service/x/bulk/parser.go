@@ -29,6 +29,7 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
@@ -147,6 +148,21 @@ func (p *Parser) setDataSet(req *Request) {
 	p.ds = ds
 }
 
+func (p *Parser) dropOrphans(req *Request) error {
+	m := &domainpb.IndexMessage{
+		OrganisationID: req.OrgID,
+		DatasetID:      req.DatasetID,
+		Revision:       &domainpb.Revision{Number: int32(p.ds.Revision)},
+		ActionType:     domainpb.ActionType_DROP_ORPHANS,
+	}
+
+	if err := p.bi.Publish(context.Background(), m); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (p *Parser) process(ctx context.Context, req *Request) error {
 	p.once.Do(func() { p.setDataSet(req) })
 
@@ -170,8 +186,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
 	case "clear_orphans":
 		// clear triples
-		ok, err := p.ds.DropOrphans(context.Background(), nil, nil)
-		if !ok || err != nil {
+		if err := p.dropOrphans(req); err != nil {
 			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop orphans")
 			return err
 		}

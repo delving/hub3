@@ -75,6 +75,9 @@ replicas = 0
 indexTypes = ["v1", "v2"]
 # maxTreeSize is the maximum size of the number of nodes in the tree navigation API
 maxTreeSize = 251
+# orphanWait is the time in seconds that the goroutine waits for the cluster to be in sync before sending delete query
+orphanWait = 15
+
 
 [[posthooks]]
 name = "ginger"
