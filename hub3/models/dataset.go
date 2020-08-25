@@ -569,44 +569,37 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
 
 	queries := map[*elastic.BoolQuery][]string{
-		v1: []string{c.Config.ElasticSearch.GetV1IndexName()},
-		v2: []string{
+		v1: {c.Config.ElasticSearch.GetV1IndexName()},
+		v2: {
 			c.Config.ElasticSearch.GetIndexName(),
 			c.Config.ElasticSearch.FragmentIndexName(),
 		},
 	}
 
-	go func() {
-		// block for 15 seconds to allow cluster to be in sync
-		timer := time.NewTimer(time.Second * 15)
-		<-timer.C
-		//log.Print("Orphan wait timer expired")
-
-		for q, indices := range queries {
-			res, err := index.ESClient().DeleteByQuery().
-				Index(indices...).
-				Query(q).
-				Conflicts("proceed"). // default is abort
-				Do(ctx)
-			if err != nil {
-				log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
-				return
-			}
-
-			if res == nil {
-				log.Warn().Msgf(unexpectedResponseMsg, res)
-				return
-			}
-
-			log.Info().Msgf(
-				"Removed %d records for spec %s in index %s with older revision than %d",
-				res.Deleted,
-				indices,
-				ds.Spec,
-				ds.Revision,
-			)
+	for q, indices := range queries {
+		res, err := index.ESClient().DeleteByQuery().
+			Index(indices...).
+			Query(q).
+			Conflicts("proceed"). // default is abort
+			Do(ctx)
+		if err != nil {
+			log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
+			return 0, err
 		}
-	}()
+
+		if res == nil {
+			log.Warn().Msgf(unexpectedResponseMsg, res)
+			return 0, fmt.Errorf(unexpectedResponseMsg, res)
+		}
+
+		log.Info().Msgf(
+			"Removed %d records for spec %s in index %s with older revision than %d",
+			res.Deleted,
+			indices,
+			ds.Spec,
+			ds.Revision,
+		)
+	}
 
 	return 0, nil
 }

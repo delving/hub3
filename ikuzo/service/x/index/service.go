@@ -55,11 +55,13 @@ type Service struct {
 	MsgHandler func(ctx context.Context, m *domainpb.IndexMessage) error
 	workers    []stan.Subscription // this is for getting statistics
 	m          Metrics
+	orphanWait int
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		m: Metrics{started: time.Now()},
+		m:          Metrics{started: time.Now()},
+		orphanWait: 15,
 	}
 
 	// apply options
@@ -201,14 +203,36 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 	}
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
-		ds := models.DataSet{
-			Spec:     m.GetDatasetID(),
-			Revision: int(m.GetRevision().GetNumber()),
-		}
+		go func() {
+			// block for orphanWait seconds to allow cluster to be in sync
+			timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
+			<-timer.C
 
-		if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
-			return fmt.Errorf("unable to drop orphans; %w", err)
-		}
+			ds, err := models.GetDataSet(m.GetDatasetID())
+			if err != nil {
+				log.Error().
+					Err(err).
+					Str("datasetID", m.GetDatasetID()).
+					Msg("unable to retrieve dataset")
+
+				return
+			}
+
+			if ds.Revision != int(m.GetRevision().GetNumber()) {
+				log.Warn().
+					Int32("message_revision", m.GetRevision().GetNumber()).
+					Int("dataset_revision", ds.Revision).
+					Msg("message revision is older so not dropping orphans")
+
+				return
+			}
+
+			if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
+				log.Error().
+					Err(err).
+					Msg("unable to drop orphans")
+			}
+		}()
 
 		return nil
 	}
