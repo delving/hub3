@@ -31,6 +31,11 @@ import (
 	elastic "github.com/olivere/elastic/v7"
 )
 
+const (
+	v1Type = "v1"
+	v2Type = "v2"
+)
+
 var (
 	unexpectedResponseMsg = "expected response != nil; got: %v"
 	ErrUnexpectedResponse = errors.New("expected response != nil")
@@ -568,12 +573,15 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
 	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
 
-	queries := map[*elastic.BoolQuery][]string{
-		v1: {c.Config.ElasticSearch.GetV1IndexName()},
-		v2: {
-			c.Config.ElasticSearch.GetIndexName(),
-			c.Config.ElasticSearch.FragmentIndexName(),
-		},
+	queries := map[*elastic.BoolQuery][]string{}
+
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case v1Type:
+			queries[v1] = []string{c.Config.ElasticSearch.GetV1IndexName()}
+		case v2Type:
+			queries[v2] = []string{c.Config.ElasticSearch.GetIndexName()}
+		}
 	}
 
 	for q, indices := range queries {
@@ -615,9 +623,9 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
-		case "v1":
+		case v1Type:
 			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName())
-		case "v2":
+		case v2Type:
 			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
 		}
 	}
