@@ -8,6 +8,7 @@
 
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
 - GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
+- Config option `maxTreeSize`for setting the maximum size of the navigation tree API [[GH-46]](https://github.com/delving/hub3/pull/48)
 
 ### Fixed
 
