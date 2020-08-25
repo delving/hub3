@@ -197,42 +197,47 @@ func (s *Service) handleMessage(m *stan.Msg) {
 	}
 }
 
+// dropOrphans is a background function to remove orphans from the index when the timer is expired
+func (s *Service) dropOrphans(datasetID string, revision int32) {
+	go func() {
+		// block for orphanWait seconds to allow cluster to be in sync
+		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
+		<-timer.C
+
+		ds, err := models.GetDataSet(datasetID)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("datasetID", datasetID).
+				Msg("unable to retrieve dataset")
+
+			return
+		}
+
+		if ds.Revision != int(revision) {
+			log.Warn().
+				Int32("message_revision", revision).
+				Int("dataset_revision", ds.Revision).
+				Msg("message revision is older so not dropping orphans")
+
+			return
+		}
+
+		if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
+			log.Error().
+				Err(err).
+				Msg("unable to drop orphans")
+		}
+	}()
+}
+
 func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) error {
 	if s.MsgHandler != nil {
 		return s.MsgHandler(ctx, m)
 	}
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
-		go func() {
-			// block for orphanWait seconds to allow cluster to be in sync
-			timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
-			<-timer.C
-
-			ds, err := models.GetDataSet(m.GetDatasetID())
-			if err != nil {
-				log.Error().
-					Err(err).
-					Str("datasetID", m.GetDatasetID()).
-					Msg("unable to retrieve dataset")
-
-				return
-			}
-
-			if ds.Revision != int(m.GetRevision().GetNumber()) {
-				log.Warn().
-					Int32("message_revision", m.GetRevision().GetNumber()).
-					Int("dataset_revision", ds.Revision).
-					Msg("message revision is older so not dropping orphans")
-
-				return
-			}
-
-			if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
-				log.Error().
-					Err(err).
-					Msg("unable to drop orphans")
-			}
-		}()
+		s.dropOrphans(m.GetDatasetID(), m.GetRevision().GetNumber())
 
 		return nil
 	}
