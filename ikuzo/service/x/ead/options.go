@@ -41,9 +41,9 @@ func SetIndexService(is *index.Service) Option {
 	}
 }
 
-func SetProcessDigital(enabled bool) Option {
+func SetProcessDigital(isEnabled bool) Option {
 	return func(s *Service) error {
-		s.processDigital = enabled
+		s.processDigital = isEnabled
 		return nil
 	}
 }
