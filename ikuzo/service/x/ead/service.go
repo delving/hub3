@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -78,15 +79,16 @@ func (m *Metrics) incAlreadyQueued() {
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
 type Service struct {
-	index        *index.Service
-	dataDir      string
-	m            Metrics
-	CreateTreeFn CreateTreeFn
-	tasks        map[string]*Task
-	rw           sync.RWMutex
-	workers      int
-	cancel       context.CancelFunc
-	group        *errgroup.Group
+	index          *index.Service
+	dataDir        string
+	m              Metrics
+	CreateTreeFn   CreateTreeFn
+	processDigital bool
+	tasks          map[string]*Task
+	rw             sync.RWMutex
+	workers        int
+	cancel         context.CancelFunc
+	group          *errgroup.Group
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -389,6 +391,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.IndexService = s.index
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
+	cfg.ProcessDigital = t.Meta.ProcessDigital
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
@@ -632,6 +635,12 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if processDigital := r.FormValue("mets"); processDigital != "" {
+		if b, convErr := strconv.ParseBool(processDigital); convErr == nil {
+			meta.ProcessDigital = b
+		}
+	}
+
 	t, err := s.NewTask(&meta)
 	if err != nil {
 		s.m.incAlreadyQueued()
@@ -668,6 +677,7 @@ func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) 
 	}
 
 	meta.FileSize = uint64(size)
+	meta.ProcessDigital = s.processDigital
 
 	return buf, meta, nil
 }

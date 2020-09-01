@@ -9,7 +9,8 @@
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
 - GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
 - Add logging when EAD dataset is deleted [[GH-46]](https://github.com/delving/hub3/pull/46)
-- Config option `maxTreeSize`for setting the maximum size of the navigation tree API [[GH-46]](https://github.com/delving/hub3/pull/48)
+- Config option `maxTreeSize`for setting the maximum size of the navigation tree API [[GH-48]](https://github.com/delving/hub3/pull/48)
+- Config opion `processDigital` to enable processing of digital object links in EAD upload [[GH-49]](https://github.com/delving/hub3/pull/49)
 
 ### Fixed
 
