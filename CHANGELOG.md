@@ -17,6 +17,7 @@
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
 - Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
 - Orphan Control is now excecuted when all domainpb.IndexMessage have been processed [[GH-47]](https://github.com/delving/hub3/pull/47)
+- Search highlighting now adds style-class to all hits when surrounded by custom tags [[GH-50]](https://github.com/delving/hub3/pull/47)
 
 ### Removed
 

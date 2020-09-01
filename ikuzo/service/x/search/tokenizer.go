@@ -282,6 +282,10 @@ func (ts *TokenStream) Highlight(vectors *Vectors, tagLabel, emClass string) str
 			str.WriteString(" ")
 		}
 
+		if !ok && splitHightlight && !token.Ignored {
+			splitHightlight = false
+		}
+
 		if ok && !inHighlight {
 			inHighlight = true
 
