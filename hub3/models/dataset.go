@@ -1,5 +1,5 @@
-// Copyright © 2017 Delving B.V. <info@delving.eu>
 //
+// Copyright © 2017 Delving B.V. <info@delving.eu>
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -29,6 +29,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	elastic "github.com/olivere/elastic/v7"
+)
+
+const (
+	v1Type = "v1"
+	v2Type = "v2"
 )
 
 var (
@@ -570,45 +575,41 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
 	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
 
-	queries := map[*elastic.BoolQuery][]string{
-		v1: []string{c.Config.ElasticSearch.GetV1IndexName()},
-		v2: []string{
-			c.Config.ElasticSearch.GetIndexName(),
-			c.Config.ElasticSearch.FragmentIndexName(),
-		},
+	queries := map[*elastic.BoolQuery][]string{}
+
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case v1Type:
+			queries[v1] = []string{c.Config.ElasticSearch.GetV1IndexName()}
+		case v2Type:
+			queries[v2] = []string{c.Config.ElasticSearch.GetIndexName()}
+		}
 	}
 
-	go func() {
-		// block for 15 seconds to allow cluster to be in sync
-		timer := time.NewTimer(time.Second * 15)
-		<-timer.C
-		//log.Print("Orphan wait timer expired")
-
-		for q, indices := range queries {
-			res, err := index.ESClient().DeleteByQuery().
-				Index(indices...).
-				Query(q).
-				Conflicts("proceed"). // default is abort
-				Do(ctx)
-			if err != nil {
-				log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
-				return
-			}
-
-			if res == nil {
-				log.Warn().Msgf(unexpectedResponseMsg, res)
-				return
-			}
-
-			log.Warn().Msgf(
-				"Removed %d records for spec %s in index %s with older revision than %d",
-				res.Deleted,
-				indices,
-				ds.Spec,
-				ds.Revision,
-			)
+	for q, indices := range queries {
+		res, err := index.ESClient().DeleteByQuery().
+			Index(indices...).
+			Query(q).
+			Conflicts("proceed"). // default is abort
+			Do(ctx)
+		if err != nil {
+			log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
+			return 0, err
 		}
-	}()
+
+		if res == nil {
+			log.Warn().Msgf(unexpectedResponseMsg, res)
+			return 0, fmt.Errorf(unexpectedResponseMsg, res)
+		}
+
+		log.Info().Msgf(
+			"Removed %d records for spec %s in index %s with older revision than %d",
+			res.Deleted,
+			indices,
+			ds.Spec,
+			ds.Revision,
+		)
+	}
 
 	return 0, nil
 }
@@ -621,11 +622,12 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	)
 
 	indices := []string{}
+
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
-		case "v1":
+		case v1Type:
 			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName())
-		case "v2":
+		case v2Type:
 			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
 		}
 	}
@@ -651,8 +653,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
-	ok := true
-
 	// TODO(kiivihal): replace flush with TRS
 	// err := p.Flush()
 	// if err != nil {
@@ -668,6 +668,7 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 			return false, err
 		}
 	}
+
 	if c.Config.ElasticSearch.Enabled {
 		_, err := ds.deleteIndexOrphans(ctx, wp)
 		if err != nil {
@@ -675,7 +676,8 @@ func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp 
 			return false, err
 		}
 	}
-	return ok, nil
+
+	return true, nil
 }
 
 // DropRecords Drops all records linked to the dataset from the storage layers
@@ -714,10 +716,19 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 	}
 
 	cachePath := filepath.Join(c.Config.EAD.CacheDir, ds.Spec)
+	_, err = os.Stat(cachePath)
+	if !os.IsNotExist(err) {
+		err = os.RemoveAll(cachePath)
+		if err != nil {
+			return false, fmt.Errorf("unable to delete EAD cache at %s; %#w", cachePath, err)
+		}
 
-	err = os.RemoveAll(cachePath)
-	if err != nil {
-		return false, fmt.Errorf("unable to delete EAD cache at %s; %#w", cachePath, err)
+		c.Config.Logger.Info().
+			Str("component", "hub3").
+			Str("svc", "ead").
+			Str("datasetID", ds.Spec).
+			Str("newState", "deleted EAD").
+			Msg("EAD state transition")
 	}
 
 	return ok, err

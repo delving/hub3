@@ -26,21 +26,6 @@ clean-build:
 create-assets:
 	@go generate ./...
 
-run:
-	@run-ikuzo
-
-build:
-	@rm -rf build
-	@make clean-build
-	@make create-assets
-	@go build -a -o build/$(NAME) -ldflags=$(LDFLAGS) $(MODULE)
-
-run-dev:
-	@run-dev-ikuzo
-
-test:
-	@test-ikuzo
-
 benchmark:
 	@richgo test --bench=. -benchmem ./...
 
@@ -87,10 +72,10 @@ IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
 
 IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git rev-parse HEAD` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
 
-build-ikuzo:
+build:
 	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
-build-ikuzo-static:
+build-static:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
 pre-commit:
@@ -98,7 +83,7 @@ pre-commit:
 	richgo test -cover -race -count=10 ./...
 	golangci-lint run
 
-test-ikuzo:
+test:
 	richgo test -cover ./ikuzo/...
 	golangci-lint run
 
@@ -106,11 +91,11 @@ test-no-cache:
 	richgo test -cover -count=1 ./ikuzo/...
 	golangci-lint run ikuzo
 
-lint-full-ikuzo:
+lint-full:
 	golangci-lint run --enable=godox --enable=gomnd --enable=maligned --enable=prealloc --enable=gochecknoglobals --enable=gochecknoinits  ikuzo
 
-run-dev-ikuzo:
+run-dev:
 	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${IKUZOLDFLAGS}'" run serve
 
-ikuzo-generate-assets:
+generate-assets:
 	go run ikuzo/internal/assets/generate.go

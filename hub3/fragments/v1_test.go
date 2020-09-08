@@ -16,6 +16,7 @@ package fragments_test
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -92,7 +93,7 @@ var _ = Describe("V1", func() {
 			It("should return a map", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
-				_ = fb.GetSortedWebResources()
+				_ = fb.GetSortedWebResources(context.Background())
 				indexDoc, err := CreateV1IndexDoc(fb)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(indexDoc).ToNot(BeEmpty())
@@ -115,7 +116,7 @@ var _ = Describe("V1", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fb.Graph.Len()).ToNot(Equal(0))
-				wr := fb.GetSortedWebResources()
+				wr := fb.GetSortedWebResources(context.Background())
 				Expect(wr).ToNot(BeNil())
 				Expect(wr).To(HaveLen(3))
 				var order []int
@@ -164,7 +165,7 @@ var _ = Describe("V1", func() {
 			It("should have the ore:aggregation subject as subject for edm:hasView", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
-				wr := fb.GetSortedWebResources()
+				wr := fb.GetSortedWebResources(context.Background())
 				Expect(wr).ToNot(BeEmpty())
 				triples := fb.SortedGraph.ByPredicate(GetEDMField("hasView"))
 				Expect(triples).ToNot(BeNil())
@@ -195,7 +196,7 @@ var _ = Describe("V1", func() {
 				//Expect(err).ToNot(HaveOccurred())
 				//fmt.Println(json)
 
-				wr := fb.GetSortedWebResources()
+				wr := fb.GetSortedWebResources(context.Background())
 				Expect(wr).ToNot(BeEmpty())
 				//Expect(fb.Graph.Len()).To(Equal(70))
 
@@ -225,7 +226,7 @@ var _ = Describe("V1", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				fb.Graph = g
-				fb.GetSortedWebResources()
+				fb.GetSortedWebResources(context.Background())
 				json, err = renderJSONLD(fb.Graph)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(json).ToNot(BeEmpty())

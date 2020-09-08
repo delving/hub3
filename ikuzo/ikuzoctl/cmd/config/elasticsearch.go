@@ -71,6 +71,8 @@ type ElasticSearch struct {
 	IndexTypes []string
 	// use FastHTTP transport for communication with the ElasticSearch cluster
 	FastHTTP bool
+	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
+	OrphanWait int
 }
 
 func (e *ElasticSearch) normalizedIndexName() string {
@@ -326,6 +328,7 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 		options = append(
 			options,
 			index.SetBulkIndexer(bi, ncfg == nil),
+			index.SetOrphanWait(e.OrphanWait),
 		)
 	}
 

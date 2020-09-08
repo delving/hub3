@@ -32,6 +32,8 @@ type Meta struct {
 	RecordsPublished      uint64
 	DigitalObjects        uint64
 	FileSize              uint64
+	Revision              int32
+	ProcessDigital        bool
 	Created               bool
 	ProcessingDuration    time.Duration `json:"processingDuration,omitempty"`
 	ProcessingDurationFmt string        `json:"processingDurationFmt,omitempty"`

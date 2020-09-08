@@ -42,3 +42,10 @@ func WithDefaultMessageHandle() Option {
 		return nil
 	}
 }
+
+func SetOrphanWait(wait int) Option {
+	return func(s *Service) error {
+		s.orphanWait = wait
+		return nil
+	}
+}

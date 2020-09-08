@@ -73,6 +73,11 @@ shards = 1
 replicas = 0
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v1", "v2"]
+# maxTreeSize is the maximum size of the number of nodes in the tree navigation API
+maxTreeSize = 251
+# orphanWait is the time in seconds that the goroutine waits for the cluster to be in sync before sending delete query
+orphanWait = 15
+
 
 [[posthooks]]
 name = "ginger"
@@ -197,6 +202,7 @@ singleEndpoint = "NL-.*"
 cacheDir = "/tmp/ead"
 metrics = true
 workers = 1
+processDigital = false
 
 searchURL = ""
 genreFormDefault = "other/unknown"

@@ -80,8 +80,8 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	return fb, nil
 }
 
-func (req *Request) processV1(fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
-	fb.GetSortedWebResources()
+func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+	fb.GetSortedWebResources(ctx)
 
 	indexDoc, err := fragments.CreateV1IndexDoc(fb)
 	if err != nil {
@@ -102,20 +102,20 @@ func (req *Request) processV1(fb *fragments.FragmentBuilder, bi index.BulkIndex)
 		Source:         b,
 	}
 
-	if err := bi.Publish(context.Background(), m); err != nil {
+	if err := bi.Publish(ctx, m); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (req *Request) processV2(fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+func (req *Request) processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	m, err := fb.Doc().IndexMessage()
 	if err != nil {
 		return err
 	}
 
-	if err := bi.Publish(context.Background(), m); err != nil {
+	if err := bi.Publish(ctx, m); err != nil {
 		return err
 	}
 

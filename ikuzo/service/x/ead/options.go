@@ -27,6 +27,13 @@ func SetDataDir(path string) Option {
 	}
 }
 
+func SetCreateTree(fn CreateTreeFn) Option {
+	return func(s *Service) error {
+		s.CreateTreeFn = fn
+		return nil
+	}
+}
+
 func SetIndexService(is *index.Service) Option {
 	return func(s *Service) error {
 		s.index = is
@@ -34,9 +41,9 @@ func SetIndexService(is *index.Service) Option {
 	}
 }
 
-func SetCreateTree(fn CreateTreeFn) Option {
+func SetProcessDigital(isEnabled bool) Option {
 	return func(s *Service) error {
-		s.CreateTreeFn = fn
+		s.processDigital = isEnabled
 		return nil
 	}
 }

@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -78,15 +79,16 @@ func (m *Metrics) incAlreadyQueued() {
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
 type Service struct {
-	index        *index.Service
-	dataDir      string
-	m            Metrics
-	CreateTreeFn CreateTreeFn
-	tasks        map[string]*Task
-	rw           sync.RWMutex
-	workers      int
-	cancel       context.CancelFunc
-	group        *errgroup.Group
+	index          *index.Service
+	dataDir        string
+	m              Metrics
+	CreateTreeFn   CreateTreeFn
+	processDigital bool
+	tasks          map[string]*Task
+	rw             sync.RWMutex
+	workers        int
+	cancel         context.CancelFunc
+	group          *errgroup.Group
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -149,7 +151,7 @@ func (s *Service) StartWorkers() error {
 	s.group = g
 
 	ticker := time.NewTicker(1 * time.Second)
-	heartbeat := time.NewTicker(1 * time.Minute)
+	heartbeat := time.NewTicker(5 * time.Minute)
 
 	for i := 0; i < s.workers; i++ {
 		worker := i
@@ -160,7 +162,7 @@ func (s *Service) StartWorkers() error {
 				case <-gctx.Done():
 					return gctx.Err()
 				case <-heartbeat.C:
-					log.Info().Str("svc", "eadProcessor").Int("worker", worker).Msg("worker heartbeat")
+					log.Trace().Str("svc", "eadProcessor").Int("worker", worker).Msg("worker heartbeat")
 				case <-ticker.C:
 					s.rw.Lock()
 					task := s.findAvailableTask()
@@ -361,13 +363,22 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		return t.finishWithError(ErrorfMsg)
 	}
 
+	meta.Revision++
+
+	t.Meta.Created = created
+	t.Meta.Revision = meta.Revision
+
 	// create a dataset
-	if _, _, err := models.GetOrCreateDataSet(t.Meta.DatasetID); err != nil {
-		ErrorfMsg := fmt.Errorf("unable to get ead dataset for %s", t.Meta.DatasetID)
+	ds, _, datasetErr := models.GetOrCreateDataSet(t.Meta.DatasetID)
+	if datasetErr != nil {
+		ErrorfMsg := fmt.Errorf("unable to get ead dataset for %s; %w", t.Meta.DatasetID, datasetErr)
 		return t.finishWithError(ErrorfMsg)
 	}
 
-	t.Meta.Created = created
+	ds.Revision = int(t.Meta.Revision)
+	if err := ds.Save(); err != nil {
+		log.Error().Err(err).Msg("unable to save revision in dataset")
+	}
 
 	// set basics for ead
 	meta.Label = ead.Ceadheader.GetTitle()
@@ -379,6 +390,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.OrgID = config.Config.OrgID
 	cfg.IndexService = s.index
 	cfg.Tags = t.Meta.Tags
+	cfg.Revision = t.Meta.Revision
+	cfg.ProcessDigital = t.Meta.ProcessDigital
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
@@ -558,16 +571,12 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		meta.DaoStats = stats
 		meta.DigitalObjects = int(cfg.MetsCounter.GetDigitalObjectCount())
 		meta.RecordsPublished = int(t.Meta.RecordsPublished)
+		meta.Revision = cfg.Revision
 
 		err = meta.Write()
 		if err != nil {
 			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, err)
 		}
-
-		t.Meta.Clevels = cfg.Counter.GetCount()
-		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
-		t.Meta.RecordsPublished = atomic.LoadUint64(&cfg.RecordsPublishedCounter)
-		t.Meta.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
 
 		metrics := map[string]uint64{
 			"description":       1,
@@ -578,6 +587,10 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		}
 
 		t.Transitions[len(t.Transitions)-1].Metrics = metrics
+
+		if dropErr := t.dropOrphans(cfg.Revision); dropErr != nil {
+			return t.finishWithError(fmt.Errorf("error during dropping orphans: %w", dropErr))
+		}
 
 		t.finishTask()
 	} else {
@@ -622,6 +635,12 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if processDigital := r.FormValue("mets"); processDigital != "" {
+		if b, convErr := strconv.ParseBool(processDigital); convErr == nil {
+			meta.ProcessDigital = b
+		}
+	}
+
 	t, err := s.NewTask(&meta)
 	if err != nil {
 		s.m.incAlreadyQueued()
@@ -658,6 +677,7 @@ func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) 
 	}
 
 	meta.FileSize = uint64(size)
+	meta.ProcessDigital = s.processDigital
 
 	return buf, meta, nil
 }

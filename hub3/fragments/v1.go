@@ -29,7 +29,9 @@ package fragments
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	fmt "fmt"
 	"html"
 	"io"
@@ -38,19 +40,24 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/olivere/elastic/v7"
 
 	"github.com/parnurzeal/gorequest"
 )
 
-var request *gorequest.SuperAgent
-var sanitizer *bluemonday.Policy
+var (
+	request        *gorequest.SuperAgent
+	sanitizer      *bluemonday.Policy
+	ErrUrnNotFound = errors.New("remote urn not found")
+)
 
 func init() {
 	sanitizer = bluemonday.UGCPolicy()
@@ -354,25 +361,71 @@ func (fb *FragmentBuilder) GetUrns() []string {
 
 // ResolveWebResources retrieves RDF graph from remote MediaManager
 // Only RDF Resources that start with 'urn:' are currently supported
-func (fb *FragmentBuilder) ResolveWebResources() error {
-	// replace with err group
-	errChan := make(chan error)
+func (fb *FragmentBuilder) ResolveWebResources(ctx context.Context) error {
+	g, ctx := errgroup.WithContext(ctx)
+	urns := make(chan string)
 
-	urns := fb.GetUrns()
-	for _, urn := range urns {
-		go fb.GetRemoteWebResource(urn, "", errChan)
-	}
-	totalUrns := len(urns)
-	for i := 0; i < totalUrns; i++ {
-		select {
-		case err := <-errChan:
-			if err != nil {
-				log.Printf("Error resolving webresources for: %v: %#v\n", urns, err)
-				return err
+	// Produce
+	g.Go(func() error {
+		defer close(urns)
+
+		for _, urn := range fb.GetUrns() {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case urns <- urn:
 			}
 		}
+
+		return nil
+	})
+
+	graphs := make(chan io.ReadCloser)
+
+	// Map
+	nWorkers := 4
+	workers := int32(nWorkers)
+	for i := 0; i < nWorkers; i++ {
+		g.Go(func() error {
+			defer func() {
+				// Last one out closes shop
+				if atomic.AddInt32(&workers, -1) == 0 {
+					close(graphs)
+				}
+			}()
+
+			for urn := range urns {
+				rdf, err := fb.GetRemoteWebResource(urn, "")
+				if err != nil {
+					return fmt.Errorf("unable to retrieve urn; %w", err)
+				}
+
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				case graphs <- rdf:
+				}
+			}
+			return nil
+		})
 	}
-	return nil
+
+	// Reduce
+	g.Go(func() error {
+		for graph := range graphs {
+			if graph != nil {
+
+				defer graph.Close()
+				if err := fb.Graph.Parse(graph, "text/turtle"); err != nil {
+					return fmt.Errorf("unable to parse urn RDF; %w", err)
+				}
+			}
+		}
+
+		return nil
+	})
+
+	return g.Wait()
 }
 
 type WebTriples struct {
@@ -472,14 +525,14 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, ma
 
 // GetSortedWebResources returns a list of subjects sorted by nave:resourceSortOrder.
 // WebResources without a sortKey will appended in order they are found to the end of the list.
-func (fb *FragmentBuilder) GetSortedWebResources() []ResourceSortOrder {
+func (fb *FragmentBuilder) GetSortedWebResources(ctx context.Context) []ResourceSortOrder {
 	hasUrns := len(fb.GetUrns()) > 0
 
 	subj := r.NewResource(fb.fg.Meta.GetEntryURI())
 
 	// get remote webresources
 	if c.Config.WebResource.ResolveRemoteWebResources {
-		err := fb.ResolveWebResources()
+		err := fb.ResolveWebResources(ctx)
 		if err != nil {
 			log.Printf("err: %#v", err)
 			//return err
@@ -604,7 +657,7 @@ func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *SortedGraph) {
 
 // GetRemoteWebResource retrieves a remote Graph from the MediaManare and
 // inserts it into the Graph
-func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string, errChan chan error) {
+func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string) (rdf io.ReadCloser, err error) {
 	if strings.HasPrefix(urn, "urn:") {
 		url := fb.MediaManagerURL(urn, orgID)
 		request := gorequest.New()
@@ -614,21 +667,19 @@ func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string, errCha
 			for err := range errs {
 				log.Printf("err: %#v", err)
 			}
-			errChan <- errs[0]
-			return
+			return nil, errs[0]
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
 			log.Printf("urn not found: %s?format=plain", url)
-			errChan <- nil
-			return
+			return nil, ErrUrnNotFound
 		}
-		defer resp.Body.Close()
-		err := fb.Graph.Parse(resp.Body, "text/turtle")
-		errChan <- err
-		return
+		// defer resp.Body.Close()
+		// err := fb.Graph.Parse(resp.Body, "text/turtle")
+		// errChan <- err
+		return resp.Body, nil
 	}
-	return
+	return nil, nil
 }
 
 // MediaManagerURL returns the URL for the Remote WebResource call.
