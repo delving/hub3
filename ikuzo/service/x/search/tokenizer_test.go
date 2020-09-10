@@ -305,6 +305,7 @@ func TestParseError(t *testing.T) {
 	is.Equal(len(tok.errors), 1)
 }
 
+// nolint:lll some test data is just longer
 func TestTokenStream_Highlight(t *testing.T) {
 	type fields struct {
 		text string
@@ -367,6 +368,18 @@ func TestTokenStream_Highlight(t *testing.T) {
 			fields{text: "<p>two, words.</p>"},
 			args{[]int{2}},
 			"<p>two, <em class=\"dhcl\">words.</em></p>",
+		},
+		{
+			"multiple hits no tags",
+			fields{text: "Willem Barentsoen, den stierman Willem Barentsoen."},
+			args{[]int{2, 6}},
+			"Willem <em class=\"dhcl\">Barentsoen,</em> den stierman Willem <em class=\"dhcl\">Barentsoen.</em>",
+		},
+		{
+			"multiple hits with tags",
+			fields{text: "<persname>Willem Barentsoen</persname>, den stierman <persname>Willem Barentsoen</persname>."},
+			args{[]int{2, 6}},
+			"<persname>Willem <em class=\"dhcl\">Barentsoen</em></persname>, den stierman <persname>Willem <em class=\"dhcl\">Barentsoen</em></persname>.",
 		},
 	}
 
