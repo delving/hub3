@@ -58,7 +58,13 @@ type RawConfig struct {
 	RDFTagMap     *RDFTagMap `json:"rdfTagMap"`
 	SiteMap       `json:"siteMap"`
 	EAD           `json:"ead"`
-	Logger        *zerolog.Logger
+	DataSetTag    map[string]DataSets `json:"dataSetTag"`
+	DatasetTagMap *RDFTagMap
+	Logger        *zerolog.Logger `json:"logger"`
+}
+
+type DataSets struct {
+	Specs []string
 }
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
@@ -413,6 +419,7 @@ func InitConfig() {
 
 	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
 	Config.RDFTagMap = NewRDFTagMap(&Config)
+	Config.DatasetTagMap = NewDataSetTagMap(&Config)
 
 	cleanConfig()
 }
