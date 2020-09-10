@@ -33,6 +33,7 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
@@ -729,6 +730,10 @@ func (desc *Description) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
 		Modified:      fragments.NowInMillis(),
 		Tags:          []string{"eadDesc"},
+	}
+
+	if tags, ok := config.Config.DatasetTagMap.Get(header.Spec); ok {
+		header.Tags = append(header.Tags, tags...)
 	}
 
 	tree := &fragments.Tree{}

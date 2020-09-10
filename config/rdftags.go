@@ -14,7 +14,9 @@
 
 package config
 
-import "sync"
+import (
+	"sync"
+)
 
 // RDFTag holds tag information how to tag predicate values
 type RDFTag struct {
@@ -52,24 +54,26 @@ type tagPair struct {
 // NewRDFTagMap return
 func NewRDFTagMap(c *RawConfig) *RDFTagMap {
 	pairs := []tagPair{
-		tagPair{"label", c.RDFTag.Label},
-		tagPair{"title", c.RDFTag.Title},
-		tagPair{"owner", c.RDFTag.Owner},
-		tagPair{"thumbnail", c.RDFTag.Thumbnail},
-		tagPair{"landingPage", c.RDFTag.LandingPage},
-		tagPair{"latLong", c.RDFTag.LatLong},
-		tagPair{"isoDate", c.RDFTag.IsoDate},
-		tagPair{"date", c.RDFTag.Date},
-		tagPair{"description", c.RDFTag.Description},
-		tagPair{"subject", c.RDFTag.Subject},
-		tagPair{"collection", c.RDFTag.Collection},
-		tagPair{"subCollection", c.RDFTag.SubCollectection},
-		tagPair{"objectType", c.RDFTag.ObjectType},
-		tagPair{"objectID", c.RDFTag.ObjectID},
-		tagPair{"creator", c.RDFTag.Creator},
-		tagPair{"dateRange", c.RDFTag.DateRange},
+		{"label", c.RDFTag.Label},
+		{"title", c.RDFTag.Title},
+		{"owner", c.RDFTag.Owner},
+		{"thumbnail", c.RDFTag.Thumbnail},
+		{"landingPage", c.RDFTag.LandingPage},
+		{"latLong", c.RDFTag.LatLong},
+		{"isoDate", c.RDFTag.IsoDate},
+		{"date", c.RDFTag.Date},
+		{"description", c.RDFTag.Description},
+		{"subject", c.RDFTag.Subject},
+		{"collection", c.RDFTag.Collection},
+		{"subCollection", c.RDFTag.SubCollectection},
+		{"objectType", c.RDFTag.ObjectType},
+		{"objectID", c.RDFTag.ObjectID},
+		{"creator", c.RDFTag.Creator},
+		{"dateRange", c.RDFTag.DateRange},
 	}
+
 	tagMap := make(map[string][]string)
+
 	for _, pair := range pairs {
 		for _, uri := range pair.uris {
 			values, ok := tagMap[uri]
@@ -77,9 +81,11 @@ func NewRDFTagMap(c *RawConfig) *RDFTagMap {
 				tagMap[uri] = append(values, pair.tag)
 				continue
 			}
+
 			tagMap[uri] = []string{pair.tag}
 		}
 	}
+
 	return &RDFTagMap{
 		TagMap: tagMap,
 	}
@@ -95,5 +101,26 @@ func (rtm *RDFTagMap) Get(uri string) ([]string, bool) {
 	rtm.RLock()
 	label, ok := rtm.TagMap[uri]
 	rtm.RUnlock()
+
 	return label, ok
+}
+
+func NewDataSetTagMap(c *RawConfig) *RDFTagMap {
+	tagMap := make(map[string][]string)
+
+	for tag, specs := range c.DataSetTag {
+		for _, spec := range specs.Specs {
+			values, ok := tagMap[spec]
+			if ok {
+				tagMap[spec] = append(values, tag)
+				continue
+			}
+
+			tagMap[spec] = []string{tag}
+		}
+	}
+
+	return &RDFTagMap{
+		TagMap: tagMap,
+	}
 }
