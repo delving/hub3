@@ -131,6 +131,10 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		header.Tags = append(header.Tags, cfg.Tags...)
 	}
 
+	if tags, ok := config.Config.DatasetTagMap.Get(header.Spec); ok {
+		header.Tags = append(header.Tags, tags...)
+	}
+
 	cfg.HubIDs <- &NodeEntry{
 		HubID: header.HubID,
 		Path:  id,

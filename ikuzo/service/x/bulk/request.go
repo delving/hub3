@@ -70,6 +70,10 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.EntryURI = fg.GetAboutURI()
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 
+	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
+		fg.Meta.Tags = append(fg.Meta.Tags, tags...)
+	}
+
 	fb := fragments.NewFragmentBuilder(fg)
 
 	err := fb.ParseGraph(strings.NewReader(req.Graph), req.GraphMimeType)

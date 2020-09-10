@@ -25,6 +25,7 @@ import (
 	"sync/atomic"
 	"unicode"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
@@ -189,6 +190,10 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 
 	if len(cfg.Tags) != 0 {
 		header.Tags = append(header.Tags, cfg.Tags...)
+	}
+
+	if tags, ok := c.Config.DatasetTagMap.Get(header.Spec); ok {
+		header.Tags = append(header.Tags, tags...)
 	}
 
 	tree := &fragments.Tree{}
