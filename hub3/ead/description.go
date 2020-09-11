@@ -225,12 +225,8 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 	case "prefercite", "altformavail", "relatedmaterial":
 		id.Type = SubSection
 	case "lb":
-		if previous := ib.previous(); previous != nil {
-			switch previous.Tag {
-			case "bibref":
-				id.FlowType = Inline
-			}
-		}
+		// do nothing add only when closing
+		return nil
 	case "bibref":
 		id.FlowType = Inline
 	case "title":
@@ -415,14 +411,7 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 	case "emph":
 		ib.addTextPrevious("</em> ")
 	case "lb":
-		last, _ := ib.q.Back()
-		if last != nil {
-			elem := last.(*DataItem)
-			if elem.Text == "-" {
-				elem.FlowType = Inline
-			}
-		}
-
+		ib.addTextPrevious("<lb/> ")
 	default:
 		last, ok := ib.q.PopBack()
 		if !ok {
@@ -523,7 +512,6 @@ outer:
 			text := bytes.TrimSpace(se)
 			if len(text) != 0 {
 				ib.addText(text)
-
 			}
 		default:
 		}
