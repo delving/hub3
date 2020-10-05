@@ -1,4 +1,4 @@
-package bulk
+package domain
 
 import (
 	"net/http"
