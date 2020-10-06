@@ -411,7 +411,7 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 	case "emph":
 		ib.addTextPrevious("</em> ")
 	case "lb":
-		ib.addTextPrevious("<lb/> ")
+		ib.addTextPrevious("<br> ")
 	default:
 		last, ok := ib.q.PopBack()
 		if !ok {
