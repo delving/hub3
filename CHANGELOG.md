@@ -6,6 +6,7 @@
 
 ### Added 
 
+- Posthook callbacks to `ead.Service` and `index.Service` [[GH-55]](https://github.com/delving/hub3/pull/55)
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
 - GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
 - GitHub Action for enforcing Contributor License Agreement [[GH-45]](https://github.com/delving/hub3/pull/45)
@@ -15,7 +16,7 @@
 - Config option `datasetTags` to add custom tags to `meta.tags` based on the datasetID [[GH-52]](https://github.com/delving/hub3/pull/52)
 
 ### Fixed
-
+- use "<br/>" instead of "<lb/>" in the description API output [[GH-54]](https://github.com/delving/hub3/pull/54)
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
 - Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
 - Orphan Control is now excecuted when all domainpb.IndexMessage have been processed [[GH-47]](https://github.com/delving/hub3/pull/47)
