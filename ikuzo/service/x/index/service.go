@@ -263,9 +263,9 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
 								Str("datasetID", datasetID).
 								Msg("unable to drop posthook dataset")
 						}
-					}
 
-					log.Info().Str("datasetID", datasetID).Int("revision", revision).Msg("dropped posthook orphans")
+						log.Info().Str("datasetID", datasetID).Str("posthook", hook.Name()).Int("revision", revision).Msg("dropped posthook orphans")
+					}
 				}(int(revision))
 			}
 		}

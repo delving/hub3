@@ -30,6 +30,7 @@ type PostHook struct {
 	apiKey           string
 	gauge            PostHookGauge
 	customWait       int
+	name             string
 }
 
 func NewPostHook(orgID, endpoint, apiKey string, customWait int, excludedDataSets ...string) *PostHook {
@@ -38,6 +39,7 @@ func NewPostHook(orgID, endpoint, apiKey string, customWait int, excludedDataSet
 		endpoint:         endpoint,
 		excludedDataSets: excludedDataSets,
 		apiKey:           apiKey,
+		name:             "ginger",
 		gauge: PostHookGauge{
 			Created:  time.Now(),
 			Counters: make(map[string]*PostHookCounter),
@@ -47,6 +49,10 @@ func NewPostHook(orgID, endpoint, apiKey string, customWait int, excludedDataSet
 
 func (ph *PostHook) OrgID() string {
 	return ph.orgID
+}
+
+func (ph *PostHook) Name() string {
+	return ph.name
 }
 
 func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Response, err error) {

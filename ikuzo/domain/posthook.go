@@ -30,4 +30,5 @@ type PostHookService interface {
 	// Metrics()
 	// OrgID returns OrgID that the posthook applies to
 	OrgID() string
+	Name() string
 }
