@@ -1,0 +1,13 @@
+<dsc type="combined">
+  <head>Beschrijving van de series en archiefbestanddelen</head>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. <extref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</extref>.</p>
+  <c level="file">
+    <did>
+      <unitid identifier="44345203" type="ABS">1</unitid>
+      <unitid audience="internal" type="handle">http://hdl.handle.net/10648/833c843f-a492-40e2-8029-feeaf16a88ed</unitid>
+      <unittitle>Agenda van ingekomen en uitgaande stukken.</unittitle>
+      <unitdate calendar="gregorian" normal="1937/1938" era="ce">1937-1938</unitdate>
+      <physdesc>1 katern</physdesc>
+    </did>
+  </c>
+</dsc>

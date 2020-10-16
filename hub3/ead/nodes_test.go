@@ -156,7 +156,7 @@ var _ = Describe("Nodes", func() {
 			It("should have parentIDS", func() {
 				triples := node.Triples(cfg)
 				Expect(triples).ToNot(BeEmpty())
-				Expect(triples).To(HaveLen(11))
+				Expect(triples).To(HaveLen(12))
 			})
 
 		})

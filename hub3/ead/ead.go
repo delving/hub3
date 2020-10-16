@@ -233,32 +233,48 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
+	nodes := make([]*Node, 0)
+	errors := make([]string, 0)
+
+	for _, p := range dsc.Cp {
+		cc := p.NewClevel()
+		node, err := NewNode(CLevel(cc), []string{}, cfg)
+		if err != nil {
+			log.Warn().Msgf("Could not create node from Cp %v", err)
+			errors = append(errors, err.Error())
+			continue
+		}
+		nodes = append(nodes, node)
+	}
+
 	for _, cc := range dsc.Numbered {
 		node, err := NewNode(cc, []string{}, cfg)
 		if err != nil {
-			return nil, 0, err
-		}
-
-		if cfg.Nodes != nil {
-			cfg.Nodes <- node
+			log.Warn().Msgf("Could not create node from numbered %v", err)
+			errors = append(errors, err.Error())
 			continue
 		}
-
-		// legacy add should not happen if there is a node channel
-		nl.Nodes = append(nl.Nodes, node)
+		nodes = append(nodes, node)
 	}
 
 	for _, nn := range dsc.Cc {
 		node, err := NewNode(CLevel(nn), []string{}, cfg)
 		if err != nil {
-			return nil, 0, err
-		}
-
-		if cfg.Nodes != nil {
-			cfg.Nodes <- node
+			log.Warn().Msgf("Could not create node from c %v", err)
+			errors = append(errors, err.Error())
 			continue
 		}
+		nodes = append(nodes, node)
+	}
 
+	if len(errors) > 0 {
+		return nil, 0, fmt.Errorf("error creating NodeList: %s", strings.Join(errors, " - "))
+	}
+
+	for _, node := range nodes {
+		if cfg.Nodes != nil {
+			cfg.Nodes <- node
+		}
 		// legacy add should not happen if there is a node channel
 		nl.Nodes = append(nl.Nodes, node)
 	}

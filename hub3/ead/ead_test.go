@@ -332,6 +332,25 @@ var _ = Describe("Ead", func() {
 
 		})
 
+		Context("for the p in the dsc", func() {
+			dsc := new(Cdsc)
+			err := parseUtil(dsc, "ead.dsc.xml")
+			It("should not throw an error on create", func() {
+				Expect(err).ToNot(HaveOccurred())
+			})
+			It("should create a c level series from the p", func() {
+				cfg := NewNodeConfig(context.Background())
+				nodes, nodeCount, err := dsc.NewNodeList(cfg)
+				Expect(nodes).ToNot(BeNil())
+				Expect(nodeCount).To(Equal(uint64(2)))
+				Expect(err).To(BeNil())
+				first := nodes.Nodes[0]
+				Expect(first.CTag).To(Equal("c"))
+				Expect(first.Type).To(Equal("file"))
+				Expect(first.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. https://www.nationaalarchief.nl/onderzoeken/index/nt00446."))
+			})
+		})
+
 	})
 
 	Context("when being load from file", func() {
