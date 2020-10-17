@@ -41,7 +41,7 @@ func RegisterDatasets(router chi.Router) {
 	r.Get("/{spec}/stats", getDataSetStats)
 	// later change to update dataset
 	r.Post(specRoute, createDataSet)
-	r.Delete(specRoute, deleteDataset)
+	r.Delete(specRoute, DeleteDataset)
 
 	router.Mount("/api/datasets", r)
 }
@@ -133,7 +133,7 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func deleteDataset(w http.ResponseWriter, r *http.Request) {
+func DeleteDataset(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 
 	ds, err := models.GetDataSet(spec)
@@ -142,6 +142,7 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Dataset is not found: %s", spec)
 		return
 	}
+
 	ok, err := ds.DropAll(r.Context(), nil)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
@@ -154,9 +155,12 @@ func deleteDataset(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to delete request because: %s", err)
 		return
 	}
-	log.Printf("Dataset is deleted: %s", spec)
+
+	msg := fmt.Sprintf("Dataset is deleted: %s", spec)
+
 	render.Status(r, http.StatusAccepted)
-	return
+
+	render.PlainText(w, r, msg)
 }
 
 // createDataSet creates a new dataset.
@@ -165,6 +169,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	if spec == "" {
 		spec = chi.URLParam(r, "spec")
 	}
+
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
@@ -174,7 +179,7 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	fmt.Printf("spec is %s", spec)
+
 	ds, err := models.GetDataSet(spec)
 	if err == storm.ErrNotFound {
 		var created bool

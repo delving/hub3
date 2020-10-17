@@ -36,6 +36,7 @@ import (
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -89,12 +90,14 @@ type Service struct {
 	workers        int
 	cancel         context.CancelFunc
 	group          *errgroup.Group
+	postHooks      map[string][]domain.PostHookService
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		tasks:   make(map[string]*Task),
-		workers: 1,
+		tasks:     make(map[string]*Task),
+		workers:   1,
+		postHooks: map[string][]domain.PostHookService{},
 	}
 
 	// apply options
@@ -635,6 +638,10 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if orgID := r.Header.Get("orgID"); orgID != "" {
+		meta.OrgID = orgID
+	}
+
 	if processDigital := r.FormValue("mets"); processDigital != "" {
 		if b, convErr := strconv.ParseBool(processDigital); convErr == nil {
 			meta.ProcessDigital = b
@@ -736,6 +743,7 @@ func (s *Service) getDataPath(dataset string) string {
 //
 // The returned io.Reader is a bytes.Buffer that can be read from multiple times.
 func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, error) {
+
 	if err := os.MkdirAll(s.dataDir, os.ModePerm); err != nil {
 		return nil, "", fmt.Errorf("unable to create data directory; %w", err)
 	}
@@ -785,4 +793,17 @@ func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
 	}
 
 	return meta, nil
+}
+
+// AddPostHook adds posthook to the EAD service
+func (s *Service) AddPostHook(hook domain.PostHookService) error {
+	s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
+
+	if s.index != nil {
+		if err := s.index.AddPostHook(hook); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

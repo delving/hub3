@@ -19,11 +19,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync/atomic"
 	"time"
 
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
@@ -56,12 +58,14 @@ type Service struct {
 	workers    []stan.Subscription // this is for getting statistics
 	m          Metrics
 	orphanWait int
+	postHooks  map[string][]domain.PostHookService
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		m:          Metrics{started: time.Now()},
 		orphanWait: 15,
+		postHooks:  map[string][]domain.PostHookService{},
 	}
 
 	// apply options
@@ -198,7 +202,7 @@ func (s *Service) handleMessage(m *stan.Msg) {
 }
 
 // dropOrphans is a background function to remove orphans from the index when the timer is expired
-func (s *Service) dropOrphans(datasetID string, revision int32) {
+func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
 	go func() {
 		// block for orphanWait seconds to allow cluster to be in sync
 		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
@@ -228,6 +232,43 @@ func (s *Service) dropOrphans(datasetID string, revision int32) {
 				Err(err).
 				Msg("unable to drop orphans")
 		}
+
+		if len(s.postHooks) != 0 {
+			applyHooks, ok := s.postHooks[orgID]
+			if ok {
+				go func(revision int) {
+					posthookTimer := time.NewTimer(5 * time.Second)
+					<-posthookTimer.C
+
+					for _, hook := range applyHooks {
+						resp, err := hook.DropDataset(datasetID, revision)
+						if err != nil {
+							log.Error().Err(err).Str("datasetID", datasetID).Msg("unable to drop posthook dataset")
+							continue
+						}
+
+						if resp.StatusCode > 299 {
+							defer resp.Body.Close()
+							body, readErr := ioutil.ReadAll(resp.Body)
+
+							if readErr != nil {
+								log.Error().Err(err).Str("datasetID", datasetID).
+									Msg("unable to read posthook body")
+							}
+
+							log.Error().Err(err).
+								Str("body", string(body)).
+								Int("revision", revision).
+								Int("status_code", resp.StatusCode).
+								Str("datasetID", datasetID).
+								Msg("unable to drop posthook dataset")
+						}
+
+						log.Info().Str("datasetID", datasetID).Str("posthook", hook.Name()).Int("revision", revision).Msg("dropped posthook orphans")
+					}
+				}(int(revision))
+			}
+		}
 	}()
 }
 
@@ -237,7 +278,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 	}
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
-		s.dropOrphans(m.GetDatasetID(), m.GetRevision().GetNumber())
+		s.dropOrphans(m.GetOrganisationID(), m.GetDatasetID(), m.GetRevision().GetNumber())
 
 		return nil
 	}
@@ -299,4 +340,10 @@ func (s *Service) BulkIndexStats() esutil.BulkIndexerStats {
 	}
 
 	return s.bi.Stats()
+}
+
+// AddPostHook adds posthook to the indexing service
+func (s *Service) AddPostHook(hook domain.PostHookService) error {
+	s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
+	return nil
 }

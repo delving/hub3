@@ -69,8 +69,14 @@ type DataSets struct {
 
 // PostHook contains the configuration for the JSON-LD posthook configuration
 type PostHook struct {
+	Name        string   `json:"name"`
 	ExcludeSpec []string `json:"excludeSpec"`
-	URLs        []string `json:"urLs"`
+	URL         string   `json:"url"`
+	OrgID       string   `json:"orgID"`
+	APIKey      string   `json:"apiKey"`
+	UserName    string   `json:"userName"`
+	Password    string   `json:"password"`
+	CustomWait  int      `json:"customWait"`
 }
 
 // ElasticSearch holds all the configuration values

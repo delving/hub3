@@ -96,7 +96,7 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 		}
 	}
 
-	is, err := cfg.ElasticSearch.IndexService(&cfg.logger, ncfg)
+	is, err := cfg.ElasticSearch.IndexService(cfg, ncfg)
 	if err != nil {
 		return nil, err
 	}

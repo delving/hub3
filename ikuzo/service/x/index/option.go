@@ -14,7 +14,10 @@
 
 package index
 
-import "github.com/elastic/go-elasticsearch/v8/esutil"
+import (
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/elastic/go-elasticsearch/v8/esutil"
+)
 
 type Option func(*Service) error
 
@@ -46,6 +49,16 @@ func WithDefaultMessageHandle() Option {
 func SetOrphanWait(wait int) Option {
 	return func(s *Service) error {
 		s.orphanWait = wait
+		return nil
+	}
+}
+
+func SetPostHookService(hooks ...domain.PostHookService) Option {
+	return func(s *Service) error {
+		for _, hook := range hooks {
+			s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
+		}
+
 		return nil
 	}
 }
