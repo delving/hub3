@@ -57,7 +57,7 @@ func Test_itemBuilder_parse(t *testing.T) {
 			false,
 			1,
 			[]*DataItem{
-				{Type: 5, Text: "bertillonnage, 1896-1922,<lb/> drankwet", Depth: 1, ParentIDS: "", Tag: "item", Order: 1},
+				{Type: 5, Text: "bertillonnage, 1896-1922,<br> drankwet", Depth: 1, ParentIDS: "", Tag: "item", Order: 1},
 			},
 		},
 		{
@@ -66,7 +66,7 @@ func Test_itemBuilder_parse(t *testing.T) {
 			false,
 			1,
 			[]*DataItem{
-				{Type: 5, Text: "bertillonnage, 1896-1922,<lb/> drankwet", Depth: 1, ParentIDS: "", Tag: "item", Order: 1},
+				{Type: 5, Text: "bertillonnage, 1896-1922,<br> drankwet", Depth: 1, ParentIDS: "", Tag: "item", Order: 1},
 			},
 		},
 		{
@@ -80,7 +80,7 @@ func Test_itemBuilder_parse(t *testing.T) {
 			[]*DataItem{
 				{Type: 6, Text: "", Depth: 1, ParentIDS: "", Tag: "defitem", Order: 1},
 				{Type: 7, Text: "Strafrecht en strafvordering: verzamelterm voor:", Depth: 2, ParentIDS: "1", Tag: "label", Order: 2},
-				{Type: 5, Text: "bertillonnage, 1896-1922<lb/> drankwet, 1883-1905", Depth: 2, ParentIDS: "1", Tag: "item", Order: 3},
+				{Type: 5, Text: "bertillonnage, 1896-1922<br> drankwet, 1883-1905", Depth: 2, ParentIDS: "1", Tag: "item", Order: 3},
 			},
 		},
 	}
