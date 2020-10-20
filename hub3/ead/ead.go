@@ -233,15 +233,30 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		nl.Label = append(nl.Label, label.Head)
 	}
 
+	for _, p := range dsc.Cp {
+		cc, err := p.NewClevel()
+		if err != nil {
+			return nil, 0, err
+		}
+		node, err := NewNode(CLevel(cc), []string{}, cfg)
+		if err != nil {
+			return nil, 0, err
+		}
+		if cfg.Nodes != nil {
+			cfg.Nodes <- node
+		}
+
+		// legacy add should not happen if there is a node channel
+		nl.Nodes = append(nl.Nodes, node)
+	}
+
 	for _, cc := range dsc.Numbered {
 		node, err := NewNode(cc, []string{}, cfg)
 		if err != nil {
 			return nil, 0, err
 		}
-
 		if cfg.Nodes != nil {
 			cfg.Nodes <- node
-			continue
 		}
 
 		// legacy add should not happen if there is a node channel
@@ -253,10 +268,8 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		if err != nil {
 			return nil, 0, err
 		}
-
 		if cfg.Nodes != nil {
 			cfg.Nodes <- node
-			continue
 		}
 
 		// legacy add should not happen if there is a node channel

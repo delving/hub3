@@ -359,3 +359,14 @@ func (ca *Cabstract) CleanAbstract() []string {
 func (ut *Cunittitle) Title() string {
 	return sanitizer.Sanitize(strings.TrimSpace(fmt.Sprintf("%s", ut.Raw)))
 }
+
+// NewClevel creates a fake c level series struct from the paragraph text.
+func (cp *Cp) NewClevel() (*Cc, error) {
+	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did></c>`, cp.Raw)
+	cc := &Cc{}
+	err := xml.Unmarshal([]byte(fakeC), cc)
+	if err != nil {
+		return nil, err
+	}
+	return cc, nil
+}
