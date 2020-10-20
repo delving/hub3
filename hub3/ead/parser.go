@@ -361,9 +361,12 @@ func (ut *Cunittitle) Title() string {
 }
 
 // NewClevel creates a fake c level series struct from the paragraph text.
-func (cp *Cp) NewClevel() *Cc {
+func (cp *Cp) NewClevel() (*Cc, error) {
 	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did></c>`, cp.Raw)
 	cc := &Cc{}
-	_ = xml.Unmarshal([]byte(fakeC), cc)
-	return cc
+	err := xml.Unmarshal([]byte(fakeC), cc)
+	if err != nil {
+		return nil, err
+	}
+	return cc, nil
 }
