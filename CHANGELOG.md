@@ -6,6 +6,7 @@
 
 ### Added 
 
+- Create c level and Node from p element in dsc element. [[GH-56]](https://github.com/delving/hub3/pull/56)
 - Posthook callbacks to `ead.Service` and `index.Service` [[GH-55]](https://github.com/delving/hub3/pull/55)
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
 - GitHub Action configurations and quality control [[GH-29]](https://github.com/delving/hub3/pull/29)
