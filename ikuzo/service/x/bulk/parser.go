@@ -29,6 +29,7 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/rs/zerolog/log"
@@ -45,7 +46,8 @@ type Parser struct {
 	indexTypes []string
 	// TODO(kiivihal): find better solution for this
 	sparqlUpdates []fragments.SparqlUpdate // store all the triples here for bulk insert
-	postHooks     []*PostHookItem
+	postHooks     []*domain.PostHookItem
+	m             sync.RWMutex
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -73,6 +75,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
 				log.Debug().Str("svc", "bulk").Str("raw", scanner.Text()).Err(err).Msg("wrong json input")
+				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				continue
 			}
 
@@ -97,6 +100,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				a := a
 
 				if err := p.process(ctx, &a); err != nil {
+					log.Error().Err(err).Msg("unable to process action")
 					return err
 				}
 
@@ -112,9 +116,13 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 		})
 	}
 
-	if err := g.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		log.Error().Err(err).Msg("workers with errors")
-		return err
+	if err := g.Wait(); err != nil {
+		if !errors.Is(err, context.Canceled) {
+			log.Error().Err(err).Msg("workers with errors")
+			return err
+		}
+
+		log.Warn().Err(err).Msg("context canceled during bulk indexing")
 	}
 
 	if config.Config.RDF.RDFStoreEnabled {
@@ -175,7 +183,11 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 
 	switch req.Action {
 	case "index":
-		return p.Publish(ctx, req)
+		if err := p.Publish(ctx, req); err != nil {
+			log.Error().Err(err).Msg("unable to publish bulk index request")
+
+			return err
+		}
 	case "increment_revision":
 		ds, err := p.ds.IncrementRevision()
 		if err != nil {
@@ -190,8 +202,6 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop orphans")
 			return err
 		}
-
-		p.dropPosthook(req.OrgID, req.DatasetID, p.ds.Revision)
 
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("mark orphans and delete them")
 	case "disable_index":
@@ -223,9 +233,12 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 
 func (p *Parser) dropPosthook(orgID, datasetID string, revision int) {
 	if p.postHooks != nil {
+		p.m.Lock()
+		defer p.m.Unlock()
+
 		p.postHooks = append(
 			p.postHooks,
-			&PostHookItem{
+			&domain.PostHookItem{
 				Deleted:   true,
 				DatasetID: datasetID,
 				OrgID:     orgID,
@@ -237,6 +250,11 @@ func (p *Parser) dropPosthook(orgID, datasetID string, revision int) {
 
 func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	if err := req.valid(); err != nil {
+		log.Error().
+			Err(err).
+			Str("datasetID", req.DatasetID).
+			Msg("bulk request is not valid")
+
 		return err
 	}
 
@@ -256,14 +274,17 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		switch indexType {
 		case "v1":
 			if err := req.processV1(ctx, fb, p.bi); err != nil {
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v1 indexing error")
 				return err
 			}
 		case "v2":
 			if err := req.processV2(ctx, fb, p.bi); err != nil {
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v2 indexing error")
 				return err
 			}
 		case "fragments":
 			if err := req.processFragments(fb, p.bi); err != nil {
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v2 indexing error")
 				return err
 			}
 		default:
@@ -274,6 +295,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	// TODO(kiivihal): get the configuration values via injection instead of global config
 	if config.Config.RDF.RDFStoreEnabled {
 		if err := p.AppendRDFBulkRequest(req, fb.Graph); err != nil {
+			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to append bulk request")
 			return err
 		}
 	}
@@ -282,9 +304,12 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		subject := strings.TrimSuffix(req.NamedGraphURI, "/graph")
 		g := fb.SortedGraph
 
+		p.m.Lock()
+		defer p.m.Unlock()
+
 		p.postHooks = append(
 			p.postHooks,
-			&PostHookItem{
+			&domain.PostHookItem{
 				Graph:     g,
 				Deleted:   false,
 				Subject:   subject,
@@ -319,13 +344,14 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 }
 
 type Stats struct {
-	OrgID         string `json:"orgID"`
-	DatasetID     string `json:"datasetID"`
-	Spec          string `json:"spec"`
-	SpecRevision  uint64 `json:"specRevision"`  // version of the records stored
-	TotalReceived uint64 `json:"totalReceived"` // originally json was total_received
-	RecordsStored uint64 `json:"recordsStored"` // originally json was records_stored
-	JSONErrors    uint64 `json:"jsonErrors"`
-	TriplesStored uint64 `json:"triplesStored"`
+	OrgID              string `json:"orgID"`
+	DatasetID          string `json:"datasetID"`
+	Spec               string `json:"spec"`
+	SpecRevision       uint64 `json:"specRevision"`  // version of the records stored
+	TotalReceived      uint64 `json:"totalReceived"` // originally json was total_received
+	RecordsStored      uint64 `json:"recordsStored"` // originally json was records_stored
+	JSONErrors         uint64 `json:"jsonErrors"`
+	TriplesStored      uint64 `json:"triplesStored"`
+	PostHooksSubmitted uint64 `json:"postHooksSubmitted"`
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
 }

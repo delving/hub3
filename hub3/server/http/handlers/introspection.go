@@ -42,7 +42,7 @@ func RegisterIntrospection(r chi.Router) {
 
 func resetAll(w http.ResponseWriter, r *http.Request) {
 	// reset elasticsearch
-	err := index.IndexReset("")
+	err := index.Reset("")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

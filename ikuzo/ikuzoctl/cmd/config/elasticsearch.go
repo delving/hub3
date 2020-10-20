@@ -303,7 +303,7 @@ func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkInd
 	return e.bi, err
 }
 
-func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsConfig) (*index.Service, error) {
+func (e *ElasticSearch) IndexService(cfg *Config, ncfg *index.NatsConfig) (*index.Service, error) {
 	if e.is != nil {
 		return e.is, nil
 	}
@@ -313,9 +313,9 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 	options := []index.Option{}
 
 	if !e.UseRemoteIndexer || ncfg == nil {
-		l.Info().Msg("setting up bulk indexer")
+		cfg.logger.Info().Msg("setting up bulk indexer")
 
-		es, clientErr := e.NewClient(l)
+		es, clientErr := e.NewClient(&cfg.logger)
 		if clientErr != nil {
 			return nil, clientErr
 		}
@@ -334,6 +334,15 @@ func (e *ElasticSearch) IndexService(l *logger.CustomLogger, ncfg *index.NatsCon
 
 	if ncfg != nil {
 		options = append(options, index.SetNatsConfiguration(ncfg))
+	}
+
+	postHooks, phErr := cfg.getPostHookServices()
+	if phErr != nil {
+		return nil, fmt.Errorf("unable to create posthook service; %w", phErr)
+	}
+
+	if len(postHooks) != 0 {
+		options = append(options, index.SetPostHookService(postHooks...))
 	}
 
 	e.is, err = index.NewService(options...)

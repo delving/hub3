@@ -8,17 +8,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/delving/hub3/ikuzo/service/x/bulk"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/parnurzeal/gorequest"
 	"github.com/rs/zerolog/log"
 )
 
 // compile time check to see if full interface is implemented
-var _ bulk.PostHookService = (*PostHook)(nil)
+var _ domain.PostHookService = (*PostHook)(nil)
 
 // PostHookJob  holds the info for building a crea
 type PostHookJob struct {
-	item   *bulk.PostHookItem
+	item   *domain.PostHookItem
 	jsonld []map[string]interface{}
 	Graph  string
 }
@@ -29,14 +29,17 @@ type PostHook struct {
 	excludedDataSets []string
 	apiKey           string
 	gauge            PostHookGauge
+	customWait       int
+	name             string
 }
 
-func NewPostHook(orgID, endpoint, apiKey string, excludedDataSets ...string) *PostHook {
+func NewPostHook(orgID, endpoint, apiKey string, customWait int, excludedDataSets ...string) *PostHook {
 	return &PostHook{
 		orgID:            orgID,
 		endpoint:         endpoint,
 		excludedDataSets: excludedDataSets,
 		apiKey:           apiKey,
+		name:             "ginger",
 		gauge: PostHookGauge{
 			Created:  time.Now(),
 			Counters: make(map[string]*PostHookCounter),
@@ -46,6 +49,10 @@ func NewPostHook(orgID, endpoint, apiKey string, excludedDataSets ...string) *Po
 
 func (ph *PostHook) OrgID() string {
 	return ph.orgID
+}
+
+func (ph *PostHook) Name() string {
+	return ph.name
 }
 
 func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Response, err error) {
@@ -87,7 +94,7 @@ func (ph *PostHook) Valid(datasetID string) bool {
 	return true
 }
 
-func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
+func (ph *PostHook) Publish(items ...*domain.PostHookItem) error {
 	jobs := []*PostHookJob{}
 
 	for _, item := range items {
@@ -120,6 +127,12 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 
 		ph, err := NewPostHookJob(item)
 		if err != nil {
+			log.Error().
+				Err(err).
+				Int("revision", item.Revision).
+				Str("datasetID", item.DatasetID).
+				Msg("unable to create posthook job")
+
 			return err
 		}
 
@@ -179,7 +192,7 @@ func (ph *PostHook) Publish(items ...*bulk.PostHookItem) error {
 }
 
 // NewPostHookJob creates a new PostHookJob and populates the rdf2go Graph
-func NewPostHookJob(item *bulk.PostHookItem) (*PostHookJob, error) {
+func NewPostHookJob(item *domain.PostHookItem) (*PostHookJob, error) {
 	ph := &PostHookJob{
 		item: item,
 	}
@@ -311,8 +324,7 @@ func (ph *PostHookJob) addNarthexDefaults(hubID string) {
 	checkUpdate(defaults, "hubID", hubID)
 	checkUpdate(defaults, "spec", ph.item.DatasetID)
 	checkUpdate(defaults, "belongsTo", createDatasetURI(ph.item.Subject))
-	// checkUpdate(defaults, "revision", ph.item.Revision)
-	checkUpdate(defaults, "revision", 10)
+	checkUpdate(defaults, "revision", ph.item.Revision)
 	checkUpdate(defaults, "http://creativecommons.org/ns#attributionName", ph.item.DatasetID)
 	checkUpdate(defaults, "http://xmlns.com/foaf/0.1/primaryTopic", ph.item.Subject)
 

@@ -54,6 +54,7 @@ func ESClient() *elastic.Client {
 
 			// setup ElasticSearch client
 			client = createESClient()
+
 			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
 			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
@@ -66,8 +67,8 @@ func ESClient() *elastic.Client {
 	return client
 }
 
-// deprecated: should be removed after models is migrated to ikuzo/service
-func IndexReset(index string) error {
+// Deprecated: should be removed after models is migrated to ikuzo/service
+func Reset(index string) error {
 	if index == "" {
 		index = config.Config.ElasticSearch.GetIndexName()
 	}

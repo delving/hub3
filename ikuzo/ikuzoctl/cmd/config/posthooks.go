@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/delving/hub3/ikuzo/service/x/bulk"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/storage/x/ginger"
 )
 
@@ -11,11 +11,14 @@ type PostHook struct {
 	URL         string   `json:"url"`
 	OrgID       string   `json:"orgID"`
 	APIKey      string   `json:"apiKey"`
+	UserName    string   `json:"userName"`
+	Password    string   `json:"password"`
+	CustomWait  int      `json:"customWait"`
 }
 
 // nolint:unparam // in the future other posthook services can return errors
-func (cfg *Config) getPostHookServices() ([]bulk.PostHookService, error) {
-	svc := []bulk.PostHookService{}
+func (cfg *Config) getPostHookServices() ([]domain.PostHookService, error) {
+	svc := []domain.PostHookService{}
 
 	for _, ph := range cfg.PostHooks {
 		if ph.Name == "ginger" && ph.URL != "" {
@@ -25,6 +28,7 @@ func (cfg *Config) getPostHookServices() ([]bulk.PostHookService, error) {
 					ph.OrgID,
 					ph.URL,
 					ph.APIKey,
+					ph.CustomWait,
 					ph.ExcludeSpec...,
 				),
 			)

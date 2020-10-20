@@ -19,6 +19,7 @@ import (
 	"net/http"
 
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -29,13 +30,13 @@ type Option func(*Service) error
 type Service struct {
 	index      *index.Service
 	indexTypes []string
-	postHooks  map[string][]PostHookService
+	postHooks  map[string][]domain.PostHookService
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		indexTypes: []string{"v2"},
-		postHooks:  map[string][]PostHookService{},
+		postHooks:  map[string][]domain.PostHookService{},
 	}
 
 	// apply options
@@ -62,7 +63,7 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
-func SetPostHookService(hooks ...PostHookService) Option {
+func SetPostHookService(hooks ...domain.PostHookService) Option {
 	return func(s *Service) error {
 		for _, hook := range hooks {
 			s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
@@ -76,8 +77,11 @@ func SetPostHookService(hooks ...PostHookService) Option {
 // ingestion pipeline.
 func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 	p := s.NewParser()
+
 	if err := p.Parse(r.Context(), r.Body); err != nil {
+		log.Error().Err(err).Msg("issue with bulk request")
 		http.Error(w, err.Error(), http.StatusBadRequest)
+
 		return
 	}
 
@@ -86,7 +90,7 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 		if ok {
 			go func() {
 				for _, hook := range applyHooks {
-					validHooks := []*PostHookItem{}
+					validHooks := []*domain.PostHookItem{}
 
 					for _, ph := range p.postHooks {
 						if hook.Valid(ph.DatasetID) {
@@ -97,9 +101,9 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 					if err := hook.Publish(validHooks...); err != nil {
 						log.Error().Err(err).Msg("unable to submit posthooks")
 					}
-				}
 
-				log.Debug().Msg("submitted posthooks")
+					log.Debug().Int("nr_hooks", len(validHooks)).Msg("submitted posthooks")
+				}
 			}()
 		}
 	}
@@ -118,7 +122,7 @@ func (s *Service) NewParser() *Parser {
 	}
 
 	if len(s.postHooks) != 0 {
-		p.postHooks = []*PostHookItem{}
+		p.postHooks = []*domain.PostHookItem{}
 	}
 
 	return p
