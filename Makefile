@@ -45,8 +45,6 @@ goreport:
 
 protobuffer:
 	@make pb.api
-	@make pb.viewconfig
-	@make pb.webresource
 	@make pb.domain
 	@make pb.scan
 
