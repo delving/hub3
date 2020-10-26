@@ -1,13 +1,15 @@
 #%RAML 1.0 Library
 
-usage: Common traits for the HTTP API
+usage: |
+  Common traits for the HTTP API
 
 traits:
-  contentCacheable: !include content-cacheable.raml
+  searchable: !include searchable.raml
   facetable: !include facetable.raml
-  filterable: !include filterable.raml
+  itemFormat: !include item.format.raml
   orderable: !include orderable.raml
   pageable: !include pageable.raml
+  filterable: !include filterable.raml
+  # ------
+  contentCacheable: !include content-cacheable.raml
   partial: !include partial.raml
-  searchable: !include searchable.raml
-  sortable: !include sortable.raml

@@ -1,6 +1,184 @@
 #%RAML 1.0 Library
 
-uses:
-
 types:
+  Facet:
+    type: object
+    properties:
+      name:
+        type: string
+      field:
+        type: string
+      isSelected:
+        type: boolean
+      total:
+        type: integer
+      missingDocs:
+        type: integer
+      otherDocs:
+        type: integer
+      links: FacetLink[]
+
+  FacetLink:
+    type: object
+    properties:
+      url:
+        type: string
+      isSelected:
+        type: boolean
+      value:
+        type: string
+      displayString:
+        type: string
+      count: 
+        type: integer
+
+  Pager:
+    type: object
+    properties:
+      previousScrollID:
+        type: string
+      nextScrollID:
+        type: string
+      cursor:
+        type: integer
+      total:
+        type: integer
+      rows: integer
+
+  BreadCrumb:
+    type: object
+    properties:
+      href:
+        type: string
+      display:
+        type: string
+      value: 
+        type: string
+      field?:
+        type: string
+      is_last?:
+        type: boolean
+
+  Query:
+    type: object
+    properties:
+      numfound:
+        type: string
+      terms?:
+        type: string
+      breadCrumbs?: BreadCrumb
+
+  Meta:
+    description: |
+      The Meta object contains all the meta information of a ResultItem and is used for statistics and index management. 
+
+      Meta can be used for filtering and facetting. 
+    type: object
+    properties:
+      orgID:
+        description: |
+          The identifier of the organization the Dataset and Record belongs to.
+        type: string
+      spec:
+        description: |
+          The identifier of the dataset the Record belongs to. 
+        type: string
+      revision:
+        description: |
+          The version of the current index. This is used to manage orphaned records. 
+        type: integer
+
+  Summary:
+    description: |
+      The summary is a flat object that contains a normalised represenation of the ResultItem. The Predicates are tagged with so that many different RDF.types can be returned in a single search result with predictable fields being present. 
+
+      This view is the default 'item.format' that is returned.
+    type: object
+    properties:
+      title:
+        description: the title of the object
+      owner:
+        description: the organization that owns the metadata of the object
+      thumbnail:
+        description: a thumbnail representation of the object.
+      description:
+        description: the description of the object
+      subject:
+        description: subject information of the object
+      objectID:
+        description: the identifier as given by the object owner
+      creator:
+        description: the creator of the object
+
+  ResourceEntry:
+    description: is a hub3 representation of a RDF triple
+    type: object
+    properties:
+      '@id':
+        description: the RDF object link to another resource
+      entryType:
+        description: What type the triple target is
+        #enum: [Resource, Literal, BNode]
+      predicate:
+        description: The predicate part of the RDF triple represented as a fully qualified URL
+      searchLabel:
+        description: The search label is a 'namespace-prefix + label' representation of the predicate. This can be used for facetting and filtering
+      level:
+        type: integer
+        description: how deeply nested this triple is related to the subject of the Resource
+      tags?:
+        type: string[]
+        description: custom tags that can be added to a triple. Used for determining the summary view for example. Can be queried with 'tags:subject'.
+      order:
+        type: integer
+        description: The order in which this triple has been parsed during ingestion. This is used to reconstruct the original order of the triples.
+      '@value':
+        type: string
+        required: false
+        description: The value of the RDF Literal
+      '@language':
+        type: string
+        required: false
+        description: The language of the RDF Literal when it is present in the RDF
+      dataType:
+        type: string
+        required: false
+        description: The xsd.dataType of the RDF literal
+
+  Resource:
+    type: object
+    description: must be completed
+    properties:
+      id:
+        description: The RDF subject of the Resource
+      types:
+        type: string[]
+        description: A list of the RDF.type of the RDF resource
+      entries: ResourceEntry[]
+
+  ResultItem:
+    description: |
+      Each index result identified by a HubID can be returned as a ResultItem
+    type: object
+    properties:
+      meta: Meta
+      summary?: Summary
+      resources?: Resource[]
+      jsonld?:
+        type: object
+        description: An expanded json-ld view of the Object
+      flat?:
+        type: object
+        description: A list of flattened triples. Very similar to the v1 API output.
+      tree?:
+        type: object
+        description: TreeNavigation item that is used by EAD or SKOS records
+
+  SearchResult:
+    type: object
+    properties: 
+      pager: Pager
+      query: Query
+      items?: ResultItem[]
+      facets?: Facet[]
 

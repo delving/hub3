@@ -4,16 +4,12 @@ annotationTypes:
   deprecated:
     properties:
       date: datetime
-      deprecatedBy: User
+      deprecatedBy: string
       comment: nil | string
   monitoringInterval:
     type: integer
     description: interval in seconds
     example: 2
-  ready:
-    type: nil
-    description: markes a resource as ready
-    allowedTargets: Resource
   info:
     properties:
       license:
