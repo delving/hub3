@@ -1,0 +1,18 @@
+#%RAML 1.0 Trait
+usage: Apply this trait to a method that supports returning different part of the `ResultItem`.
+queryParameters:
+  itemFormat?:
+    type: string
+    enum: [summary, fragmentGraph, grouped, jsonld, flat]
+    description: |
+      The ResultItem can represent the internal ResourceGraph in different formats and those populate the fields.
+
+      summary = ResultItem.summary
+
+      fragmentGraph = resultItem.resources
+
+      grouped = ResultItem.resources with linked resources inlined
+
+      flat = ResultItem.fields in a `searchLabel` map. This is very similar to the Hub3 v1 API output
+
+      jsonld = ResultItem.jsonld populates the ResourceGraph as expanded JSON-LD

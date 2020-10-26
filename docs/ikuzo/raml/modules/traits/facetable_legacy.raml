@@ -11,26 +11,9 @@ queryParameters:
 
       Because up to **10** facet fields can specified, the behaviour of a facet can be changed using modifiers. The default behaviour is that the facets are returned based on 'ResourceEntry.@value' and sorted deceding based on the count.
 
-      `^` prefix specifies that the default sort order is inverted to "ascending." 
-
-      `id.` prefix specifies that `ResourceEntry.@id` should be used to populate `FacetLink.value`
-
-      `datehistogram.` prefix specifies that `ResourceEntry.date` field should be used to populate `FacetLink.value` and that a `datehistogram` should be returned.
-
-      `dateminmax.` prefix specifies that `ResourceEntry.date` field should be used to populate `FacetLink.value` and that a `dateminmax` aggregation shoud be returned.
-
-      `tag.` prefix specifies that `ResourceEntry.tag` nested field should be used to populate `FacetLink.value` where the ResourceEntry.searchLabel is identical to the suffix searchLabel.
-
       `tags`  is a special field and populates `FacetLink.value` with the value of `ResourceEntry.tag`
 
       `searchLabel` is a special field and populates `FacetLink.value` with the value of `ResourceEntry.searchLabel`. This can be used to list all available fields for filters or facets.
-
-      `~` suffix changes the default bucket size of the facet, e.g.  `dc_date~10`. An empty or non-integer value after `~` is ignored
-
-      `@` suffix changes the sort on `FacetLink.value`  instead of `FacetLink.count`
-
-
-      You can combine these modifiers, e.g. `^id.dc_date+10@` specifies that you want the `ResourceEntry.id` value sorted decending on the `FacetLink.value` field with 10 items returned.
 
     type: string
     required: false

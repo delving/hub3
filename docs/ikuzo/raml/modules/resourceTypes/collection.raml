@@ -3,10 +3,10 @@
 usage: Apply this resource type to any resource that returns a collection of members.
 
 uses:
-  traits: ../traits/traits.raml
+  traits: ../traits/traits.lib.raml
 
 get:
-  is: [ traits.pageable, traits.sortable ]
+  is: [ traits.pageable, traits.orderable]
   description: Returns a collection of <<resourcePathName>>
   responses:
     200:
