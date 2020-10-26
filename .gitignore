@@ -52,10 +52,12 @@ diw
 # generated docs
 public/api
 public/tests
+docs/ikuzo/raml/build
 
 # scratch pad
 _scratch
 _bak
+oneoff
 
 # don't commit examples for now
 example
@@ -65,3 +67,6 @@ target/
 hub3-*.toml
 auth/
 hub3/parser
+
+# don't track node_modules
+node_modules
