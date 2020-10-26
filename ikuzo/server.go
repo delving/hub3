@@ -35,6 +35,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -145,6 +146,20 @@ func newServer(options ...Option) (*server, error) {
 
 	// recover is not optional
 	s.router.Use(s.recoverer)
+
+	// cors is not optional
+	s.router.Use(
+		cors.Handler(cors.Options{
+			// AllowedOrigins: []string{"https://foo.com"}, // Use this to allow specific origin hosts
+			AllowedOrigins: []string{"*"},
+			// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			ExposedHeaders:   []string{"Link"},
+			AllowCredentials: false,
+			MaxAge:           300, // Maximum value not ignored by any of major browsers
+		}),
+	)
 
 	// setting up request logging middleware
 	if !s.disableRequestLogger {
