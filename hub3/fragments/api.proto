@@ -64,6 +64,7 @@ enum FacetType {
     TREEFACET = 3;
     TAGS = 4;
     METATAGS = 5;
+    FIELDS = 6;
 }
 
 enum QueryFilterType {
@@ -76,6 +77,7 @@ enum QueryFilterType {
     ISODATE = 6;
     TREEITEM = 7;
     ENTRYTAG = 8;
+    SEARCHLABEL = 9;
 }
 
 
