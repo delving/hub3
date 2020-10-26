@@ -164,7 +164,7 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 		log.Warn().Err(err).Msg("unable to read query body from request")
 	}
 
-	log.Info().
+	log.Debug().
 		Int("status", res.StatusCode).
 		Int64("size", size).
 		Str("req_id", requestID.String()).
