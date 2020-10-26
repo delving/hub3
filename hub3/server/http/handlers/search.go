@@ -73,6 +73,15 @@ func RegisterSearch(router chi.Router) {
 
 	router.Mount("/api/search", r)
 
+	v2 := chi.NewRouter()
+	v2.Use(middleware.Throttle(100))
+	v2.Get("/search", GetScrollResult)
+	v2.Get("/search/{id}", func(w http.ResponseWriter, r *http.Request) {
+		getSearchRecord(w, r)
+		return
+	})
+
+	router.Mount("/v2", v2)
 }
 
 func GetScrollResult(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +192,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.Rows)))
 
 	// workaround warmer issue ES
-	if len(res.Hits.Hits) == 0 && pager.Cursor < int32(pager.Total) {
+	if res.Hits == nil && pager.Cursor < int32(pager.Total) {
 		log.Printf("bad response from ES retrying the request")
 		time.Sleep(1 * time.Second)
 		retryCount := r.Context().Value(retryKey)
@@ -669,6 +678,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 }
 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
+	// TODO(kiivihal): add more like this support to the query
 	id := chi.URLParam(r, "id")
 	res, err := index.ESClient().Get().
 		Index(config.Config.ElasticSearch.GetIndexName()).
