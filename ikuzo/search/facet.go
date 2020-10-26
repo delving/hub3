@@ -20,14 +20,24 @@ import (
 	"strings"
 )
 
+type FacetType int
+
+const (
+	FacetTree FacetType = iota
+	FacetMetaTags
+	FacetTags
+	FacetFields
+)
+
 // FacetField configures aggregrations for fields in the search response.
 type FacetField struct {
 	Field           string
+	Size            int
+	Type            FacetType
 	sortAsc         bool
 	path            string
 	nestedField     string
 	aggregationType string
-	size            int
 	orderByKey      bool
 }
 
@@ -120,7 +130,7 @@ func newFacetField(field string) (*FacetField, error) {
 				return nil, err
 			}
 
-			ff.size = size
+			ff.Size = size
 		}
 	}
 
@@ -149,6 +159,8 @@ func newFacetField(field string) (*FacetField, error) {
 	case ff.Field == tagField:
 		// special case that should not use searchLabel query in aggregation
 		ff.nestedField = tagField
+	case strings.EqualFold(ff.Field, "searchLabel"):
+		ff.path = fmt.Sprintf("%s.%s", nestedPath, ff.Field)
 	default:
 		ff.path = nestedPath
 		ff.nestedField = literalField
@@ -156,6 +168,17 @@ func newFacetField(field string) (*FacetField, error) {
 
 	if ff.Field == "" {
 		return nil, fmt.Errorf("empty input is not allowed: %s", field)
+	}
+
+	switch {
+	case strings.HasPrefix(ff.Field, "tree."):
+		ff.Type = FacetTree
+	case strings.HasPrefix(ff.Field, "meta.tag"):
+		ff.Type = FacetMetaTags
+	case strings.HasPrefix(ff.Field, "tag"):
+		ff.Type = FacetTags
+	case strings.EqualFold(ff.Field, "searchLabel"):
+		ff.Type = FacetFields
 	}
 
 	return &ff, nil
