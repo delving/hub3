@@ -77,10 +77,14 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 
 	err = proto.Unmarshal(decoded, newSr)
 
+	// TODO(kiivihal): remove facet fields from search request when start > 0 or page > 1
+
 	return newSr, err
 }
 
 // NewFacetField parses the QueryString and creates a FacetField
+//
+//
 func NewFacetField(field string) (*FacetField, error) {
 	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
 
@@ -112,6 +116,8 @@ func NewFacetField(field string) (*FacetField, error) {
 		ff.Type = FacetType_METATAGS
 	case strings.HasPrefix(ff.Field, "tag"):
 		ff.Type = FacetType_TAGS
+	case strings.EqualFold(ff.Field, "searchLabel"):
+		ff.Type = FacetType_FIELDS
 	}
 
 	return &ff, nil
@@ -148,6 +154,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			sr.Query = params.Get(p)
 		case qfKey, "qf[]":
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddQueryFilter(qf, false)
 				if err != nil {
 					return sr, err
@@ -155,6 +165,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case qfIDKey, qfIDKeyList:
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddQueryFilter(qf, true)
 				if err != nil {
 					return sr, err
@@ -162,6 +176,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case qfDateRangeKey, "qf.dateRange[]":
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddDateRangeFilter(qf)
 				if err != nil {
 					return sr, err
@@ -169,6 +187,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case "qf.tree", "qf.tree[]":
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddTreeFilter(qf)
 				if err != nil {
 					return sr, err
@@ -176,6 +198,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case "qf.date", "qf.date[]":
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddDateFilter(qf)
 				if err != nil {
 					return sr, err
@@ -184,6 +210,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 
 		case "qf.exist", qfExistList:
 			for _, qf := range v {
+				if qf == "" {
+					continue
+				}
+
 				err := sr.AddFieldExistFilter(qf)
 				if err != nil {
 					return sr, err
@@ -191,13 +221,18 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case "facet.field":
 			for _, ff := range v {
+				if ff == "" {
+					continue
+				}
+
 				facet, err := NewFacetField(ff)
 				if err != nil {
 					return nil, err
 				}
+
 				sr.FacetField = append(sr.FacetField, facet)
 			}
-		case "facetBoolType":
+		case "facetBoolType", "facet.boolType":
 			fbt := params.Get(p)
 			if fbt != "" {
 				sr.FacetAndBoolType = strings.EqualFold(fbt, "and")
@@ -211,7 +246,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			case "bulkaction":
 				sr.ResponseFormatType = ResponseFormatType_BULKACTION
 			}
-		case "rows":
+		case "rows", "limit":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
 				logConvErr(p, []string{params.Get(p)}, err)
@@ -223,10 +258,10 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 
 			sr.ResponseSize = int32(size)
-		case "itemFormat":
-			format := params.Get("itemFormat")
+		case "itemFormat", "item.format":
+			format := params.Get(p)
 			switch format {
-			case "fragmentGraph":
+			case "fragmentGraph", "resource":
 				sr.ItemFormat = ItemFormatType_FRAGMENTGRAPH
 			case "grouped":
 				sr.ItemFormat = ItemFormatType_GROUPED
@@ -295,7 +330,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.WithFields = strings.EqualFold(params.Get(p), "true")
 		case "hasDigitalObject":
 			sr.Tree = tree
-			tree.HasDigitalObject = strings.EqualFold(params.Get("hasDigitalObject"), "true")
+			tree.HasDigitalObject = strings.EqualFold(params.Get(p), "true")
 		case "paging":
 			if strings.EqualFold(params.Get("paging"), "true") {
 				sr.Tree = tree
@@ -306,7 +341,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 			tree.PageMode = params.Get(p)
 		case "hasRestriction":
 			sr.Tree = tree
-			tree.HasRestriction = strings.EqualFold(params.Get("hasRestriction"), "true")
+			tree.HasRestriction = strings.EqualFold(params.Get(p), "true")
 		case "byUnitID":
 			sr.Tree = tree
 			tree.UnitID = params.Get(p)
@@ -944,7 +979,20 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 		facetFilterAgg = facetFilterAgg.SubAggregation("object", treeAgg)
 	case FacetType_TAGS:
 		tagAgg := elastic.NewTermsAggregation().
-			Field("resources.entries.tags").
+			Field(fmt.Sprintf("%s.tags", resourcesEntries)).
+			Size(int(facet.GetSize()))
+
+		filterAgg := elastic.NewFilterAggregation().
+			Filter(elastic.NewBoolQuery()).
+			SubAggregation("value", tagAgg)
+
+		innerAgg := elastic.NewNestedAggregation().
+			Path(path).
+			SubAggregation("inner", filterAgg)
+		facetFilterAgg = facetFilterAgg.SubAggregation("filter", innerAgg)
+	case FacetType_FIELDS:
+		tagAgg := elastic.NewTermsAggregation().
+			Field(fmt.Sprintf("%s.searchLabel", resourcesEntries)).
 			Size(int(facet.GetSize()))
 
 		filterAgg := elastic.NewFilterAggregation().
@@ -1506,6 +1554,11 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		qs := elastic.NewBoolQuery()
 		qs = qf.SetExclude(qs, fieldQuery)
 		return elastic.NewNestedQuery(resourcesEntries, qs), nil
+	case QueryFilterType_SEARCHLABEL:
+		fieldQuery = elastic.NewTermQuery("resources.entries.searchLabel", qf.Value)
+		qs := elastic.NewBoolQuery()
+		qs = qf.SetExclude(qs, fieldQuery)
+		return elastic.NewNestedQuery(resourcesEntries, qs), nil
 	default:
 		fieldKey := "resources.entries.@value.keyword"
 		if qf.ID {
@@ -1566,6 +1619,11 @@ func (qf *QueryFilter) Equal(oqf *QueryFilter) bool {
 // The raw query from the QueryString are added here. This function converts
 // this string to a QueryFilter.
 func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
+	if filter == "" {
+		// continue if string is empty
+		return nil
+	}
+
 	qf, err := NewQueryFilter(filter)
 	if err != nil {
 		return err
@@ -1579,6 +1637,8 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 	switch qf.SearchLabel {
 	case "tag", "tags":
 		qf.Type = QueryFilterType_ENTRYTAG
+	case "searchLabel":
+		qf.Type = QueryFilterType_SEARCHLABEL
 	}
 
 	// todo replace later with map lookup that can be reused
