@@ -6,6 +6,8 @@
 
 ### Added 
 
+- Update to v2 RAML API documentation [[GH-59]](https://github.com/delving/hub3/pull/59)
+- Extract extref from p when found and add it to the odd. [[GH-58]](https://github.com/delving/hub3/pull/58)
 - Create c level and Node from p element in dsc element. [[GH-56]](https://github.com/delving/hub3/pull/56)
 - Posthook callbacks to `ead.Service` and `index.Service` [[GH-55]](https://github.com/delving/hub3/pull/55)
 - Support for [test-containers](https://golang.testcontainers.org/) for ikuzo service and storage tests [[GH-27]](https://github.com/delving/hub3/pull/27)
