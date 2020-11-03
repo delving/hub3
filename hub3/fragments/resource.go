@@ -356,7 +356,7 @@ type FragmentGraph struct {
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
-	ProtoBuf   ProtoBuf                  `json:"-,omitempty"`
+	ProtoBuf   ProtoBuf                  `json:"-"`
 }
 
 func (fg *FragmentGraph) Marshal() ([]byte, error) {
@@ -439,7 +439,7 @@ type ScrollResultV4 struct {
 	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
 	Tree       []*Tree            `json:"tree,omitempty"`
 	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
-	ProtoBuf   *ProtoBuf          `json:"-,omitempty"`
+	ProtoBuf   *ProtoBuf          `json:"-"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -1514,7 +1514,7 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 
 	// create the resource map
 	for _, fr := range fg.Resources {
-		log.Printf("%#v", fr.ID)
+		// log.Printf("%#v", fr.ID)
 		rm.resources[fr.ID] = fr
 	}
 
