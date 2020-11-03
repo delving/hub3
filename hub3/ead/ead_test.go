@@ -347,7 +347,7 @@ var _ = Describe("Ead", func() {
 				first := nodes.Nodes[0]
 				Expect(first.CTag).To(Equal("c"))
 				Expect(first.Type).To(Equal("file"))
-				Expect(first.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. https://www.nationaalarchief.nl/onderzoeken/index/nt00446."))
+				Expect(first.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam."))
 			})
 		})
 
