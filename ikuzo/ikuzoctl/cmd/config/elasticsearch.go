@@ -73,6 +73,10 @@ type ElasticSearch struct {
 	FastHTTP bool
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
 	OrphanWait int
+	// UserName is the BasicAuth username
+	UserName string `json:"userName"`
+	// Password is the BasicAuth password
+	Password string `json:"password"`
 }
 
 func (e *ElasticSearch) normalizedIndexName() string {
@@ -249,6 +253,11 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 		Logger: l,
 	}
 
+	if e.hasAuthentication() {
+		cfg.Username = e.UserName
+		cfg.Password = e.Password
+	}
+
 	if e.FastHTTP {
 		// Custom transport based on fasthttp
 		cfg.Transport = &eshub.Transport{}
@@ -264,6 +273,11 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 	e.client = client
 
 	return e.client, err
+}
+
+// hasAuthentication returns if ElasticSearch has authentication enabled.
+func (e *ElasticSearch) hasAuthentication() bool {
+	return len(e.UserName) > 0 && len(e.Password) > 0
 }
 
 func (e *ElasticSearch) NewBulkIndexer(es *elasticsearch.Client) (esutil.BulkIndexer, error) {
