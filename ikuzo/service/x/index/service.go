@@ -313,11 +313,13 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 			if err != nil {
 				log.Error().Err(err).Msg("bulk index msg error")
 			} else {
+				body, _ := ioutil.ReadAll(item.Body)
 				log.Error().
 					Str("type", res.Error.Type).
 					Str("hubID", res.DocumentID).
 					Str("index", res.Index).
 					Str("reason", res.Error.Reason).
+					Bytes("item", body).
 					Msg("bulk index msg error")
 			}
 		},
