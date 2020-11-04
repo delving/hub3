@@ -37,11 +37,30 @@ func TestMemoryStore(t *testing.T) {
 	orgID, err := domain.NewOrganizationID("demo")
 	is.NoErr(err)
 
-	err = store.Put(ctx, domain.Organization{ID: orgID})
+	org := &domain.Organization{
+		ID: orgID,
+		Config: domain.OrganizationConfig{
+			Domains: []string{"localhost", "demo.localhost"},
+		},
+	}
+
+	err = store.Put(ctx, org)
 	is.NoErr(err)
+	is.Equal(len(store.organizations), 1)
+	is.Equal(len(store.domains), len(org.Config.Domains))
 
 	// should have one org
 	orgs, err = store.Filter(ctx)
+	is.NoErr(err)
+	is.Equal(len(orgs), len(store.organizations))
+
+	// filter unknown domain
+	orgs, err = store.Filter(ctx, domain.OrganizationFilter{Domain: "unknown.localhost"})
+	is.True(errors.Is(err, domain.ErrOrgNotFound))
+	is.Equal(len(orgs), 0)
+
+	// filter known domain
+	orgs, err = store.Filter(ctx, domain.OrganizationFilter{Domain: "demo.localhost"})
 	is.NoErr(err)
 	is.Equal(len(orgs), 1)
 
@@ -58,7 +77,7 @@ func TestMemoryStore(t *testing.T) {
 	is.Equal(len(orgs), 0)
 
 	// org not found
-	getOrgID, err = store.Get(ctx, orgID)
+	_, err = store.Get(ctx, orgID)
 	is.True(errors.Is(err, domain.ErrOrgNotFound))
 }
 

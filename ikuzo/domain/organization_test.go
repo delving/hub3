@@ -36,14 +36,19 @@ func TestID_Valid(t *testing.T) {
 			ErrIDTooLong,
 		},
 		{
-			"identifier must be all lowercase",
+			"identifier may be upper and lower case",
 			OrganizationID("DemoOrg"),
-			ErrIDNotLowercase,
+			nil,
 		},
 		{
 			"identifier must not contain special characters",
-			OrganizationID("demo-org"),
+			OrganizationID("demo/org"),
 			ErrIDInvalidCharacter,
+		},
+		{
+			"identifier may contain a hyphen",
+			OrganizationID("demo-org"),
+			nil,
 		},
 		{
 			"identifier must not be empty",
@@ -90,10 +95,16 @@ func TestNewOrganizationID(t *testing.T) {
 			false,
 		},
 		{
+			"valid input mixed case",
+			args{input: "NL-HaNA"},
+			OrganizationID("NL-HaNA"),
+			false,
+		},
+		{
 			"invalid input",
 			args{input: "Demo"},
-			OrganizationID(""),
-			true,
+			OrganizationID("Demo"),
+			false,
 		},
 		{
 			"id cannot be empty",
