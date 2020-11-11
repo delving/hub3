@@ -311,7 +311,7 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		}
 	case "event":
 		id.Type = Event
-	case "extref", "extptr":
+	case "extref", "extptr", "archref":
 		err := ib.close()
 		if err != nil {
 			return err
