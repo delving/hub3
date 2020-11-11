@@ -1,0 +1,19 @@
+#%RAML 1.0 Trait
+
+usage: |
+  This trait can be used to perform a full-text searches on the RDF resources
+queryParameters:
+  q:
+    description: |
+      A term query over all indexed text in the 'full_text' field. 
+
+      THhe query on this field is translated into a QueryStringQuery, see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html. The default operated is 'AND' instead of the standard 'OR'.
+
+      Currently, fielded searches are not supported. You can use `qf` for these.
+
+      When this parameter is missing or empty, the query is translated into a 'MATCH_ALL' query and all records are returned. This result can be filtered using the `qf` parameter options.
+    type: string
+    required: false
+    example:
+      - noord-brabant
+      - "ton smits huis"

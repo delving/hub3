@@ -1,0 +1,27 @@
+#%RAML 1.0 Trait
+
+usage: |
+  This trait can be used to configure facets (or aggregations in ElasticSearch lingo).
+
+  By default no facets are returned. 
+queryParameters:
+  facet.field:
+    description: |
+      In order to return facets (or aggrecations in ElasticSearch vocabulary) you can specify a metadata field. This needs to be a 'searchLabel' from the ResourceEntry.
+
+      Because up to **10** facet fields can specified, the behaviour of a facet can be changed using modifiers. The default behaviour is that the facets are returned based on 'ResourceEntry.@value' and sorted deceding based on the count.
+
+      `tags`  is a special field and populates `FacetLink.value` with the value of `ResourceEntry.tag`
+
+      `searchLabel` is a special field and populates `FacetLink.value` with the value of `ResourceEntry.searchLabel`. This can be used to list all available fields for filters or facets.
+
+    type: string
+    required: false
+    example:
+      - dc_subject
+  facet.boolType:
+    required: false
+    description: |
+      The standard boolean value for comparing filters in the same facets is 'OR'. So a record that has a subject 'painting' or 'sculpture' will return a hit. When changed to "AND" only a 'ResultItem'  that has both 'painting' and 'sculpture'  as subject will be returned. 
+    type: string
+    enum: [and, or]

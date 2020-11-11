@@ -356,7 +356,7 @@ type FragmentGraph struct {
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
-	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
+	ProtoBuf   ProtoBuf                  `json:"-"`
 }
 
 func (fg *FragmentGraph) Marshal() ([]byte, error) {
@@ -439,7 +439,7 @@ type ScrollResultV4 struct {
 	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
 	Tree       []*Tree            `json:"tree,omitempty"`
 	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
-	ProtoBuf   *ProtoBuf          `json:"protobuf,omitempty"`
+	ProtoBuf   *ProtoBuf          `json:"-"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -1350,7 +1350,7 @@ func (fr *FragmentResource) GetLevel() int32 {
 		}
 	}
 
-	return int32(highestLevel + 1)
+	return highestLevel + 1
 }
 
 // NewResultSummary creates a Summary from the FragmentGraph based on the
@@ -1394,7 +1394,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 			}
 
 			_, ok := includeMap[entry.SearchLabel]
-			if !ok {
+			if !ok && tq != nil {
 				continue
 			}
 
@@ -1411,7 +1411,26 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 			}
 		}
 	}
+
 	fg.Fields = make(map[string][]string)
+
+	if tq == nil {
+		for k, v := range fieldMap {
+			fields := []string{}
+			for vk := range v {
+				if vk != "" {
+					fields = append(fields, vk)
+				}
+			}
+			if len(fields) > 0 {
+				fg.Fields[k] = fields
+			}
+		}
+
+		log.Printf("flat fields: %#v", fg.Fields)
+
+		return fg.Fields
+	}
 
 	type hlEntry struct {
 		searchLabel string
@@ -1495,11 +1514,9 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 
 	// create the resource map
 	for _, fr := range fg.Resources {
-		log.Printf("%#v", fr.ID)
+		// log.Printf("%#v", fr.ID)
 		rm.resources[fr.ID] = fr
 	}
-
-	// inlining check
 
 	// set the inlines
 	for _, fr := range fg.Resources {
@@ -1534,6 +1551,7 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 // AddEntry adds Summary fields based on the ResourceEntry tags
 func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
 
+	// TODO(kiivihal): decide on returning []string instead of string
 	for _, tag := range entry.Tags {
 		switch tag {
 		case "title":

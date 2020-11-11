@@ -1,0 +1,31 @@
+#%RAML 1.0 Trait
+usage: |
+  Apply this to any method that can be paged
+queryParameters:
+  start:
+    description: |
+      Skip over a number of elements by specifying an offset value for the query. Do not use together with "page".
+    type: integer
+    required: false
+    example: 20
+    default: 0
+  rows:
+    description: Limit the number of elements on the response
+    type: integer
+    required: false
+    example: 80
+    default: 16
+    maximum: 100
+  page:
+    description: |
+      the page number. Do not use together with "offset".
+    type: integer
+    required: false
+    default: 1
+    example: 10
+  scrollID:
+    required: false
+    description: |
+      The id for efficiently scrolling through the result set. Using "rows" or "page" past 10.000 results is not allowed.
+
+      Facets are only returned on the first page. When navigating with `scrollID` the facets are not returned. When paging the facets do not change and adding the to the response creates unneccessary overhead. 

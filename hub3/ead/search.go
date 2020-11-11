@@ -482,6 +482,10 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 	}
 
 	for _, facetField := range req.FacetFields {
+		if facetField == "" {
+			continue
+		}
+
 		ff, facetErr := fragments.NewFacetField(facetField)
 		if facetErr != nil {
 			return nil, facetErr
