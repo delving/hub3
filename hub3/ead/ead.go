@@ -76,6 +76,7 @@ type NodeConfig struct {
 	ContentIdentical        bool
 	Nodes                   chan *Node
 	ProcessDigital          bool
+	ProcessAccessTime       time.Time
 	m                       sync.Mutex
 	Tags                    []string
 }

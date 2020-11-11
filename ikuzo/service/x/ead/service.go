@@ -20,6 +20,8 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -33,8 +35,10 @@ import (
 	"time"
 
 	"github.com/delving/hub3/config"
+	c "github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	indexHub3 "github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
@@ -42,6 +46,10 @@ import (
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
+)
+
+const (
+	PaccessKey = "processAccessTime"
 )
 
 type Metrics struct {
@@ -194,6 +202,11 @@ func (s *Service) Metrics() Metrics {
 
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
 	s.handleUpload(w, r)
+}
+
+// Call this function each night at 00:01 in a cron job to check and clear tree node restrictions.
+func (s *Service) ClearRestrictions(w http.ResponseWriter, r *http.Request) {
+	s.clearRestrictions(w, r)
 }
 
 func (s *Service) Tasks(w http.ResponseWriter, r *http.Request) {
@@ -395,6 +408,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
 	cfg.ProcessDigital = t.Meta.ProcessDigital
+	cfg.ProcessAccessTime = t.Meta.ProcessAccessTime
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 
@@ -638,6 +652,16 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	taskResponse, metaErr := s.createTask(r, meta)
+	if metaErr != nil {
+		http.Error(w, metaErr.Error(), http.StatusConflict)
+		return
+	}
+
+	render.JSON(w, r, taskResponse)
+}
+
+func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) {
 	if orgID := r.Header.Get("orgID"); orgID != "" {
 		meta.OrgID = orgID
 	}
@@ -648,12 +672,16 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if processAccessTime := r.FormValue(PaccessKey); processAccessTime != "" {
+		if t, convErr := time.Parse(time.RFC3339, processAccessTime); convErr == nil {
+			meta.ProcessAccessTime = t
+		}
+	}
+
 	t, err := s.NewTask(&meta)
 	if err != nil {
 		s.m.incAlreadyQueued()
-		http.Error(w, err.Error(), http.StatusConflict)
-
-		return
+		return nil, err
 	}
 
 	if forTags := r.FormValue("tags"); forTags != "" {
@@ -662,12 +690,98 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	render.JSON(w, r, taskResponse{
+	tr := &taskResponse{
 		TaskID:    t.ID,
 		OrgID:     t.Meta.OrgID,
 		DatasetID: t.Meta.DatasetID,
 		Status:    string(t.InState),
-	})
+	}
+	return tr, nil
+}
+
+func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
+	search := indexHub3.ESClient().Search(c.Config.ElasticSearch.GetIndexName())
+	format := "02-01-2006"
+	today := time.Now()
+	if r.URL.Query().Get(PaccessKey) != "" {
+		td, err := time.Parse(format, r.URL.Query().Get(PaccessKey))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		today = td
+	}
+	query := elastic.NewBoolQuery().
+		Filter(
+			elastic.NewMatchPhraseQuery("meta.orgID", c.Config.OrgID),
+			elastic.NewMatchPhraseQuery("tree.hasRestriction", true),
+			elastic.NewMatchPhraseQuery("tree.type", "file"),
+			elastic.NewMatchPhraseQuery("tree.access", today.Format(format)),
+		)
+	aggsKey := "meta.spec"
+	agg := elastic.NewTermsAggregation().Field(aggsKey).Size(10000)
+	search.Query(query).Aggregation(aggsKey, agg)
+	response, err := search.Do(r.Context())
+	clearLogger := c.Config.Logger.WithLevel(zerolog.InfoLevel).
+		Str("component", "hub3").
+		Str("svc", "eadClearRestrictions").
+		Str("eventType", "read")
+
+	if err != nil {
+		clearLogger.Err(err).Msgf("bad ead clear request %v", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if response.Hits == nil || response.Hits.Hits == nil || len(response.Hits.Hits) == 0 {
+		render.JSON(w, r, struct{ Message string }{Message: "No hits"})
+		return
+	}
+
+	terms, ok := response.Aggregations.Terms(aggsKey)
+	if !ok {
+		clearLogger.Msg("error with aggregations")
+		http.Error(w, "terms could not load", http.StatusBadRequest)
+		return
+	}
+	trSlice := make([]*taskResponse, 0)
+	for _, el := range terms.Buckets {
+		spec := el.Key.(string)
+		meta, err := s.LoadEAD(spec)
+		if err != nil {
+			clearLogger.Err(err).Msgf("could not load spec %s from bucket: %v", spec, err)
+			continue
+		}
+		meta.ProcessAccessTime = today
+		taskResponse, metaErr := s.createTask(r, meta)
+		if metaErr != nil {
+			clearLogger.Err(err).Msgf("could not handle spec meta %s from bucket: %v", spec, metaErr)
+			continue
+		}
+		trSlice = append(trSlice, taskResponse)
+	}
+
+	render.JSON(w, r, trSlice)
+}
+
+func (s *Service) LoadEAD(spec string) (Meta, error) {
+	var meta Meta
+	meta.DatasetID = spec
+
+	if _, err := s.findTask("", meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
+		return meta, ErrTaskAlreadySubmitted
+	}
+
+	meta.basePath = s.getDataPath(meta.DatasetID)
+	f, err := os.Stat(meta.getSourcePath())
+	if err != nil {
+		errMsg := fmt.Errorf("unable to find EAD source file: %w", err)
+		return meta, errMsg
+	}
+	meta.FileSize = uint64(f.Size())
+	meta.ProcessDigital = s.processDigital
+
+	return meta, nil
 }
 
 func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) {
