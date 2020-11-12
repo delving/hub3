@@ -1415,19 +1415,31 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 	fg.Fields = make(map[string][]string)
 
 	if tq == nil {
-		for k, v := range fieldMap {
-			fields := []string{}
-			for vk := range v {
-				if vk != "" {
-					fields = append(fields, vk)
+		type posMap struct {
+			Key   string
+			Value int
+		}
+		for name, u := range fieldMap {
+			// The map u from fieldMap is always unordered
+			posItems := make([]posMap, 0)
+			for key, position := range u {
+				if key != "" {
+					posItems = append(posItems, posMap{key, position})
 				}
 			}
-			if len(fields) > 0 {
-				fg.Fields[k] = fields
+			if len(posItems) > 0 {
+				sort.Slice(posItems, func(i, j int) bool {
+					return posItems[i].Value < posItems[j].Value
+				})
+				sortValues := make([]string, 0)
+				for _, n := range posItems {
+					sortValues = append(sortValues, n.Key)
+				}
+				fg.Fields[name] = sortValues
 			}
 		}
 
-		log.Printf("flat fields: %#v", fg.Fields)
+		// log.Printf("flat fields: %#v", fg.Fields)
 
 		return fg.Fields
 	}
