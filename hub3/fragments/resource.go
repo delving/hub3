@@ -356,7 +356,7 @@ type FragmentGraph struct {
 	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
 	Fields     map[string][]string       `json:"fields,omitempty"`
 	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
-	ProtoBuf   ProtoBuf                  `json:"protobuf,omitempty"`
+	ProtoBuf   *ProtoBuf                 `json:"protobuf,omitempty"`
 }
 
 func (fg *FragmentGraph) Marshal() ([]byte, error) {

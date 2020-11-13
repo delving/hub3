@@ -426,7 +426,7 @@ func fragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid, file *eadpb.File) (*fr
 		return fg, fmt.Errorf("unable to marshal protobuf message: %#v", err)
 	}
 
-	fg.ProtoBuf = fragments.ProtoBuf{
+	fg.ProtoBuf = &fragments.ProtoBuf{
 		MessageType: "eadpb.File",
 		Data:        fmt.Sprintf("%x", b),
 	}
@@ -526,7 +526,7 @@ func findingAidFragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid) (*fragments.
 		return fg, fmt.Errorf("unable to marshal protobuf message: %#v", err)
 	}
 
-	fg.ProtoBuf = fragments.ProtoBuf{
+	fg.ProtoBuf = &fragments.ProtoBuf{
 		MessageType: "eadpb.FindingAid",
 		Data:        fmt.Sprintf("%x", b),
 	}
