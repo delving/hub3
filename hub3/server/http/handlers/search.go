@@ -353,16 +353,20 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		for _, rec := range records {
 			rec.NewFields(textQuery)
 			rec.Resources = nil
+			rec.Summary = nil
+			rec.ProtoBuf = nil
 		}
 	case fragments.ItemFormatType_SUMMARY:
 		for _, rec := range records {
 			rec.NewResultSummary()
 			rec.Resources = nil
+			rec.ProtoBuf = nil
 		}
 	case fragments.ItemFormatType_JSONLD:
 		for _, rec := range records {
 			rec.NewJSONLD()
 			rec.Resources = nil
+			rec.ProtoBuf = nil
 		}
 	case fragments.ItemFormatType_TREE:
 		leafs := []*fragments.Tree{}
@@ -643,6 +647,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	case fragments.ItemFormatType_GROUPED:
 		for _, rec := range records {
 			_, err = rec.NewGrouped()
+			rec.ProtoBuf = nil
+			rec.Summary = nil
 
 			if err != nil {
 				render.Status(r, http.StatusInternalServerError)
