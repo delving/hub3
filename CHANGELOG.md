@@ -6,6 +6,7 @@
 
 ### Added 
 
+- Sort fields in the fieldMap resource.NewFields because the map is always unordered. Store protobuf messages in resource and use pointers instead of values for protobuf field in FragmentGraph. [[GH-63]](https://github.com/delving/hub3/pull/63)
 - Update to v2 RAML API documentation [[GH-59]](https://github.com/delving/hub3/pull/59)
 - Extract extref from p when found and add it to the odd. [[GH-58]](https://github.com/delving/hub3/pull/58)
 - Create c level and Node from p element in dsc element. [[GH-56]](https://github.com/delving/hub3/pull/56)
