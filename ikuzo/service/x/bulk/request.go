@@ -87,7 +87,7 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	fb.GetSortedWebResources(ctx)
 
-	indexDoc, err := fragments.CreateV1IndexDoc(fb)
+	indexDoc, err := fragments.CreateV1IndexDoc(fb, req.RecordType)
 	if err != nil {
 		log.Info().Msgf("Unable to create index doc: %s", err)
 		return err

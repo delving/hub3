@@ -213,14 +213,25 @@ type Legacy struct {
 }
 
 // NewLegacy returns a legacy struct with default values
-func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder) *Legacy {
+func NewLegacy(indexDoc map[string]interface{}, fb *FragmentBuilder, recordTypes ...string) *Legacy {
 	l := &Legacy{
 		HubID:      fb.fg.Meta.GetHubID(),
-		RecordType: "mdr",
 		Spec:       fb.fg.Meta.GetSpec(),
 		OrgID:      fb.fg.Meta.GetOrgID(),
+		RecordType: "mdr",
 		Collection: fb.fg.Meta.GetSpec(),
 	}
+
+	if len(recordTypes) != 0 {
+		types := []string{}
+		for _, t := range recordTypes {
+			if t != "" {
+				types = append(types, t)
+			}
+		}
+		l.RecordType = strings.Join(types, ";")
+	}
+
 	var ok bool
 	_, ok = indexDoc["nave_geoHash"]
 	l.HasGeoHash = strconv.FormatBool(ok)
@@ -395,7 +406,7 @@ func (fb *FragmentBuilder) ResolveWebResources(ctx context.Context) error {
 			}()
 
 			for urn := range urns {
-				rdf, err := fb.GetRemoteWebResource(urn, "")
+				rdf, err := fb.GetRemoteWebResource(urn, fb.fg.Meta.GetOrgID())
 				if err != nil {
 					return fmt.Errorf("unable to retrieve urn; %w", err)
 				}
@@ -737,7 +748,7 @@ func fieldsContains(s []*IndexEntry, e *IndexEntry) bool {
 }
 
 // CreateV1IndexDoc creates a map that can me marshaled to json
-func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
+func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]interface{}, error) {
 	indexDoc := make(map[string]interface{})
 
 	// set the resourceLabels
@@ -784,7 +795,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder) (map[string]interface{}, error) {
 	indexDoc["revision"] = fb.fg.Meta.GetRevision()
 	indexDoc["hubID"] = fb.fg.Meta.GetHubID()
 	indexDoc["system"] = NewSystem(indexDoc, fb)
-	indexDoc["legacy"] = NewLegacy(indexDoc, fb)
+	indexDoc["legacy"] = NewLegacy(indexDoc, fb, recordTypes...)
 
 	return indexDoc, nil
 }
