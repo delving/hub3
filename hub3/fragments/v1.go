@@ -360,6 +360,7 @@ func GetNaveField(s string) r.Term {
 // GetUrns returs a list of WebResource urns
 func (fb *FragmentBuilder) GetUrns() []string {
 	var urns []string
+	// TODO(kiivihal): replace with internal graph package
 	wrs := fb.Graph.All(nil, nil, GetEDMField("WebResource"))
 	for _, t := range wrs {
 		s := strings.Trim(t.Subject.String(), "<>")
@@ -712,8 +713,10 @@ func (fb *FragmentBuilder) GetResourceLabel(t *r.Triple) (string, bool) {
 	case *r.Resource:
 		id := r.GetResourceID(t.Object)
 		label, ok := fb.ResourceLabels[id]
+
 		return label, ok
 	}
+
 	return "", false
 }
 
@@ -725,8 +728,13 @@ func (fb *FragmentBuilder) SetResourceLabels() error {
 		r.NewResource("http://www.w3.org/2004/02/skos/core#prefLabel"),
 		r.NewResource("http://xmlns.com/foaf/0.1/name"),
 	}
-	for _, label := range labels {
-		for _, t := range fb.Graph.All(nil, label, nil) {
+
+	for t := range fb.Graph.IterTriples() {
+		for _, label := range labels {
+			if !label.Equal(t.Predicate) {
+				continue
+			}
+
 			subjectID := t.GetSubjectID()
 			_, ok := fb.ResourceLabels[subjectID]
 			if ok {
@@ -735,6 +743,7 @@ func (fb *FragmentBuilder) SetResourceLabels() error {
 			fb.ResourceLabels[subjectID] = t.Object.(*r.Literal).RawValue()
 		}
 	}
+
 	return nil
 }
 
