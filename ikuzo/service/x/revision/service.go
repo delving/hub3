@@ -16,6 +16,7 @@ package revision
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -36,6 +37,10 @@ type Service struct {
 }
 
 func NewService(path string) (*Service, error) {
+	if strings.TrimSpace(path) == "" {
+		return nil, fmt.Errorf("cannot start revsion.Service with an empty path")
+	}
+
 	s := &Service{base: path}
 	if strings.HasSuffix(s.base, "/") {
 		s.base = strings.TrimSuffix(s.base, "/")
@@ -63,9 +68,9 @@ func (s *Service) InitRepository(organization, dataset string) (*Repository, err
 // To create a repository you need to call InitRepository.
 func (s *Service) OpenRepository(organization, dataset string) (*Repository, error) {
 	repo := &Repository{
-		path:         s.repoPath(organization, dataset),
-		organization: organization,
-		dataset:      dataset,
+		path:      s.repoPath(organization, dataset),
+		OrgID:     organization,
+		DatasetID: dataset,
 	}
 
 	gr, err := git.OpenRepository(repo.path)
