@@ -57,19 +57,6 @@ func (ms *OrganizationStore) Get(ctx context.Context, id domain.OrganizationID) 
 func (ms *OrganizationStore) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]*domain.Organization, error) {
 	organizations := []*domain.Organization{}
 
-	// TODO(kiivihal): only accept first filter now
-	if len(filter) != 0 {
-		filt := filter[0]
-		if filt.Domain != "" {
-			org, ok := ms.domains[filt.Domain]
-			if !ok {
-				return organizations, domain.ErrOrgNotFound
-			}
-
-			return []*domain.Organization{org}, nil
-		}
-	}
-
 	for _, org := range ms.organizations {
 		organizations = append(organizations, org)
 	}

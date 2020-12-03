@@ -20,6 +20,7 @@ option go_package = "ikuzo/domain/domainpb";
 enum ActionType {
     MODIFY_INDEX = 0;
     DROP_ORPHANS = 1;
+    DELETE_RECORD = 2;
 }
 
 // IndexMessage is used to queue messages for indexing by ElasticSearch.

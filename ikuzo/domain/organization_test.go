@@ -32,7 +32,7 @@ func TestID_Valid(t *testing.T) {
 		},
 		{
 			"identifier too long",
-			OrganizationID("demodemodemo"),
+			OrganizationID("demodemodemodemodemo"),
 			ErrIDTooLong,
 		},
 		{
