@@ -1,9 +1,18 @@
-# The default orgId
+# The default orgId (deprecated)
 orgId = "hub3"
 # the default hub3 clusterID
 hub3ID = "hub3"
 # the url to the remote dataNode. When emtpy the current node is started in dataNode mode
 dataNodeURL = ""
+
+[org.demo]
+domains = ["localhost:3000"]
+default = true
+
+[org.NL-HaNA]
+domains = ["localhost:3001"]
+customID = "NL-HaNA"
+default = false
 
 [http]
 # all the configuration for the http sub-command
@@ -492,3 +501,4 @@ base = "http://www.w3.org/ns/odrl/2/"
 [TimeRevisionStore]
 enabled = true
 dataPath = "/tmp/trs"
+

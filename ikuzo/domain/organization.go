@@ -36,7 +36,7 @@ var (
 
 var (
 	// MaxLengthID the maximum length of an identifier
-	MaxLengthID = 10
+	MaxLengthID = 12
 
 	// protected organization names
 	protected = []OrganizationID{
@@ -145,7 +145,8 @@ func (o *Organization) NewDatasetURI(spec string) string {
 func GetOrganizationID(r *http.Request) OrganizationID {
 	orgID := r.Context().Value(orgIDKey{})
 	if orgID != nil {
-		return orgID.(OrganizationID)
+		id, _ := NewOrganizationID(orgID.(string))
+		return id
 	}
 
 	return ""
