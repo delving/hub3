@@ -31,17 +31,9 @@ var _ = Describe("Config", func() {
 			It("should be initialised with defaults", func() {
 				InitConfig()
 				Expect(Config.HTTP.Port).To(Equal(3001))
-				Expect(Config.OrgID).ToNot(BeEmpty())
 			})
 
 		})
-
-		//Context("without calling initConfig", func() {
-		//It("should not be initialised", func() {
-		//Expect(Config.OrgID).To(BeEmpty())
-		//Expect(Config.HTTP.Port).To(Equal(0))
-		//})
-		//})
 
 		Context("when setting a config value", func() {
 
@@ -73,11 +65,6 @@ var _ = Describe("Config", func() {
 				Expect(Config.RDF.SparqlPath).To(ContainSubstring("%s"))
 				Expect(endpoint).To(ContainSubstring("/hub3/sparql"))
 			})
-
-			It("should should inject the orgId from the configuration when dbName is empty", func() {
-				Expect(endpoint).To(ContainSubstring(Config.OrgID))
-			})
-
 		})
 
 		Context("when a dbname is specified", func() {

@@ -130,9 +130,11 @@ func (es *ElasticSearch) GetV1IndexName() string {
 
 // Logging holds all the logging and path configuration
 type Logging struct {
-	DevMode   bool   `json:"devmode"`
-	SentryDSN string `json:"sentrydsn"`
-	Level     string `json:"level"`
+	DevMode       bool   `json:"devmode"`
+	SentryDSN     string `json:"sentrydsn"`
+	Level         string `json:"level"`
+	WithCaller    bool   `json:"withCaller"`
+	ConsoleLogger bool   `json:"consoleLogger"`
 }
 
 // HTTP holds all the configuration for the http server subcommand
@@ -362,6 +364,10 @@ func cleanConfig() {
 	}
 }
 
+func SetCfgFile(cfgFile string) {
+	CfgFile = cfgFile
+}
+
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig() {
 	// InitConfig() must be idempotent
@@ -394,7 +400,9 @@ func InitConfig() {
 	setDefaults()
 
 	logCfg := logger.Config{
-		LogLevel: logger.ParseLogLevel(Config.Logging.Level),
+		LogLevel:            logger.ParseLogLevel(Config.Logging.Level),
+		WithCaller:          Config.Logging.WithCaller,
+		EnableConsoleLogger: Config.Logging.ConsoleLogger,
 	}
 
 	configLogger := logger.NewLogger(logCfg)
@@ -405,7 +413,7 @@ func InitConfig() {
 	if err == nil {
 		Config.Logger.Info().
 			Str("configPath", viper.ConfigFileUsed()).
-			Msg("starting up with config path")
+			Msg("starting up with config path (legacy)")
 	} else {
 		log.Printf("Unable to read config file %s", viper.ConfigFileUsed())
 		switch v := err.(type) {
