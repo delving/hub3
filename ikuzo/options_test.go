@@ -101,7 +101,7 @@ func TestSetMiddleware(t *testing.T) {
 	is.NoErr(err)
 
 	// only the set middleware is applied
-	expectedNrMiddleware := 1
+	expectedNrMiddleware := 3
 	is.True(len(svr.middleware) == expectedNrMiddleware)
 
 	req, err := http.NewRequest("GET", "/ping-test", nil)

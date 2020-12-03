@@ -20,7 +20,6 @@ import (
 	"os"
 	"strings"
 
-	hub3Cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/ikuzoctl/cmd/config"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -123,5 +122,6 @@ func initConfig() {
 	}
 
 	// TODO(kiivihal): remove this with next release
-	hub3Cfg.InitConfig()
+	// hub3Cfg.SetCfgFile(cfgFile)
+	// hub3Cfg.InitConfig()
 }

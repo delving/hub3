@@ -51,6 +51,7 @@ func serve() {
 		ikuzo.SetBuildVersionInfo(
 			ikuzo.NewBuildVersionInfo(version, gitHash, buildAgent, buildStamp),
 		),
+		ikuzo.SetEnableLegacyConfig(cfgFile),
 		ikuzo.SetLegacyRouters(
 			handlers.RegisterDatasets,
 			handlers.RegisterEAD,

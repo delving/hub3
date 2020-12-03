@@ -117,6 +117,7 @@ func SetOrganisationService(service *organization.Service) Option {
 				r.Mount("/organizations", service.Routes())
 			},
 		)
+		s.middleware = append(s.middleware, service.ResolveOrgByDomain)
 
 		return nil
 	}
@@ -173,10 +174,11 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 	}
 }
 
-func SetEnableLegacyConfig() Option {
+func SetEnableLegacyConfig(cfgFile string) Option {
 	return func(s *server) error {
 		// this initializes the hub3 configuration object that has global state
 		// TODO(kiivihal): remove this after legacy hub3/server/http/handlers are migrated
+		config.SetCfgFile(cfgFile)
 		config.InitConfig()
 
 		return nil
@@ -185,8 +187,6 @@ func SetEnableLegacyConfig() Option {
 
 func SetLegacyRouters(routers ...RouterFunc) Option {
 	return func(s *server) error {
-		config.InitConfig()
-
 		s.routerFuncs = append(s.routerFuncs, routers...)
 
 		return nil

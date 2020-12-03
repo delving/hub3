@@ -66,3 +66,11 @@ func (s *server) fileServer(path string, root http.FileSystem) {
 		fs.ServeHTTP(w, r)
 	}))
 }
+
+func (s *server) addOrgIDHeader(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		// TODO(kiivihal): Add orgID to header and request context
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}

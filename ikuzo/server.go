@@ -137,10 +137,8 @@ func newServer(options ...Option) (*server, error) {
 		log.Logger = s.logger.Logger
 	}
 
-	// apply middleware
-	if len(s.middleware) == 0 {
-		s.middleware = DefaultMiddleware()
-	}
+	// append default middleware
+	s.middleware = append(s.middleware, DefaultMiddleware()...)
 
 	s.router.Use(s.middleware...)
 
