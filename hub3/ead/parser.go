@@ -145,7 +145,7 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIn
 		return err
 	}
 
-	atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
+	atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
 
 	return nil
 }

@@ -83,8 +83,9 @@ type NodeID struct {
 }
 
 func newSubject(cfg *NodeConfig, id string) string {
+	// TODO(kiivihal): replace config option for RDF.BaseURL
 	return fmt.Sprintf("%s/%s/archive/%s/%s",
-		config.Config.RDF.BaseURL, config.Config.OrgID, cfg.Spec, id)
+		config.Config.RDF.BaseURL, cfg.OrgID, cfg.Spec, id)
 }
 
 // getFirstBranch returs the first parent of the current node
@@ -111,9 +112,9 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	id := n.Path
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
-		OrgID:    cfg.OrgID,
-		Spec:     cfg.Spec,
-		Revision: cfg.Revision,
+		OrgID: cfg.OrgID,
+		Spec:  cfg.Spec,
+		// Revision: cfg.Revision,
 		HubID: fmt.Sprintf(
 			"%s_%s_%s",
 			cfg.OrgID,
@@ -123,8 +124,8 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
-		Tags:          []string{"ead"},
+		// Modified:      fragments.NowInMillis(),
+		Tags: []string{"ead"},
 	}
 
 	if len(cfg.Tags) != 0 {

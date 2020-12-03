@@ -473,7 +473,7 @@ func saveFileFragmentGraphs(cfg *NodeConfig, fa *eadpb.FindingAid) error {
 
 		if cfg.IndexService != nil {
 			cfg.IndexService.Publish(context.Background(), m)
-			atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
+			atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
 		}
 	}
 
@@ -489,7 +489,7 @@ func saveFileFragmentGraphs(cfg *NodeConfig, fa *eadpb.FindingAid) error {
 
 	if cfg.IndexService != nil {
 		cfg.IndexService.Publish(context.Background(), m)
-		atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
+		atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
 	}
 
 	return nil

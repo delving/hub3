@@ -56,29 +56,31 @@ type NodeEntry struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	ctx                     context.Context
-	Counter                 *NodeCounter
-	MetsCounter             *MetsCounter
-	RecordsPublishedCounter uint64
-	OrgID                   string
-	Spec                    string
-	Title                   []string
-	TitleShort              string
-	Revision                int32
-	PeriodDesc              []string
-	labels                  map[string]string
-	MimeTypes               map[string][]string
-	HubIDs                  chan *NodeEntry
-	Errors                  []*DuplicateError
-	Client                  *http.Client
-	IndexService            *index.Service
-	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	ContentIdentical        bool
-	Nodes                   chan *Node
-	ProcessDigital          bool
+	ctx                   context.Context
+	Counter               *NodeCounter
+	MetsCounter           *MetsCounter
+	RecordsCreatedCounter uint64
+	RecordsUpdated        uint64
+	RecordsDeleted        uint64
+	OrgID                 string
+	Spec                  string
+	Title                 []string
+	TitleShort            string
+	Revision              int32
+	PeriodDesc            []string
+	labels                map[string]string
+	MimeTypes             map[string][]string
+	HubIDs                chan *NodeEntry
+	Errors                []*DuplicateError
+	Client                *http.Client
+	IndexService          *index.Service
+	CreateTree            func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	ContentIdentical      bool
+	Nodes                 chan *Node
+	ProcessDigital        bool
 	ProcessAccessTime       time.Time
-	m                       sync.Mutex
-	Tags                    []string
+	m                     sync.Mutex
+	Tags                  []string
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {
