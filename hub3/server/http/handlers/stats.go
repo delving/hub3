@@ -22,6 +22,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	elastic "github.com/olivere/elastic/v7"
@@ -53,10 +54,12 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 	searchLabelAgg := elastic.NewNestedAggregation().Path("resources.entries")
 	searchLabelAgg = searchLabelAgg.SubAggregation(field, labelAgg)
 
+	orgID := domain.GetOrganizationID(r)
+
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, string(orgID)),
 	)
 	spec := r.URL.Query().Get("spec")
 	if spec != "" {

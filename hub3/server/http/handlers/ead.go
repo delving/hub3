@@ -28,6 +28,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
@@ -78,6 +79,8 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 }
 
 func TreeList(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	// TODO(kiivihal): add logger
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
@@ -107,7 +110,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		}
 		r.URL.RawQuery = q.Encode()
 	}
-	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	searchRequest, err := fragments.NewSearchRequest(orgID.String(), r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
 		render.Status(r, http.StatusBadRequest)
@@ -346,6 +349,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func treeStats(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
@@ -356,7 +360,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	stats, err := fragments.CreateTreeStats(r.Context(), spec)
+	stats, err := fragments.CreateTreeStats(r.Context(), string(orgID), spec)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
