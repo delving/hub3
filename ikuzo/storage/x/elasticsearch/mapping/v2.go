@@ -66,7 +66,8 @@ var v2Mapping = `{
 						"docType": {"type": "keyword"},
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
-						"modified": {"type": "date"}
+						"modified": {"type": "date"},
+						"commitID": {"type": "keyword"}
 					}
 				},
 				"protobuf": {
@@ -216,6 +217,12 @@ var v2MappingUpdate = `{
 	"resources": {
 		"type": "nested",
 		"properties": {
+			"meta": {
+				"type": "object",
+				"properties": {
+					"commitID": {"type": "keyword"}
+				}
+			},
 			"entries": {
 				"type": "nested",
 				"properties": {

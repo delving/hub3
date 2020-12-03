@@ -25,8 +25,8 @@ import (
 // this should prevent changes to the mapping that are not reflected in the update.
 // this is needed for all mappings that have strict fields.
 const (
-	v2MappingSha       = "332a55b29c0b868d"
-	v2UpdateMappingSha = "9b20cec1c69f8b7b"
+	v2MappingSha       = "567e2d90eefff49e"
+	v2UpdateMappingSha = "59a4ce39de2ec6ea"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 
@@ -36,13 +36,22 @@ var keys = map[string]string{
 	fragmentMappingSha: fragmentMapping,
 }
 
-func ValidateMappings() (old, current string, ok bool) {
+func ValidMapping(mapping string) bool {
+	// TODO(kiivihal): Fix this currently the shape of the stored mapping is different from
+	// the one returned by elasticsearch
+	h := Hash(mapping)
+	// log.Debug().Str("hash", h).Str("mapping", mapping).Msg("requested mapping hash")
+	_, ok := keys[h]
+	return ok
+}
+
+func validateMappings() (old, current string, ok bool) {
 	return validate(keys)
 }
 
 func validate(keys map[string]string) (old, current string, ok bool) {
 	for old, mapping := range keys {
-		if current := hash(mapping); current != old {
+		if current := Hash(mapping); current != old {
 			return old, current, false
 		}
 	}
@@ -50,7 +59,7 @@ func validate(keys map[string]string) (old, current string, ok bool) {
 	return "", "", true
 }
 
-func hash(input string) string {
+func Hash(input string) string {
 	hash := xxhash.Checksum64([]byte(input))
 
 	return fmt.Sprintf("%016x", hash)

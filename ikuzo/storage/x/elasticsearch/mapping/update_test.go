@@ -111,7 +111,7 @@ func TestValidateMappings(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			gotOld, gotCurrent, gotOk := ValidateMappings()
+			gotOld, gotCurrent, gotOk := validateMappings()
 			if gotOld != tt.wantOld {
 				t.Errorf("ValidateMappings() gotOld = %v, want %v", gotOld, tt.wantOld)
 			}

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cenkalti/backoff/v4"
@@ -73,6 +74,8 @@ type ElasticSearch struct {
 	FastHTTP bool
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
 	OrphanWait int
+	// once makes sure that createmapping is only run once
+	once sync.Once
 	// UserName is the BasicAuth username
 	UserName string `json:"userName"`
 	// Password is the BasicAuth password
@@ -143,7 +146,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 
 func (e *ElasticSearch) ResetAll(w http.ResponseWriter, r *http.Request) {
 	// reset elasticsearch
-	_, err := e.CreateDefaultMappings(e.client, true, true)
+	_, err := e.createDefaultMappings(e.client, true, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
@@ -155,6 +158,16 @@ func (e *ElasticSearch) ResetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlias, withReset bool) ([]string, error) {
+	e.once.Do(func() {
+		if _, err := e.createDefaultMappings(es, withAlias, withReset); err != nil {
+			log.Error().Err(err).Msg("unable to create default mappings for elasticsearch")
+		}
+	})
+
+	return []string{}, nil
+}
+
+func (e *ElasticSearch) createDefaultMappings(es *elasticsearch.Client, withAlias, withReset bool) ([]string, error) {
 	mappings := map[string]func(shards, replicas int) string{}
 
 	for _, indexType := range e.IndexTypes {
@@ -205,6 +218,23 @@ func (e *ElasticSearch) CreateDefaultMappings(es *elasticsearch.Client, withAlia
 
 		if err != nil && !errors.Is(err, eshub.ErrIndexAlreadyCreated) {
 			return []string{}, err
+		}
+
+		if errors.Is(err, eshub.ErrIndexAlreadyCreated) {
+			if strings.HasSuffix(indexName, "v2") {
+				valid, err := eshub.IsMappingValid(es, createName)
+				if err != nil {
+					return []string{}, err
+				}
+
+				if !valid {
+					log.Warn().Str("index", createName).Msg("applying elasticsearch mapping update")
+
+					if err := eshub.MappingUpdate(es, createName, mapping.V2MappingUpdate()); err != nil {
+						return []string{}, err
+					}
+				}
+			}
 		}
 
 		indexNames = append(indexNames, createName)
