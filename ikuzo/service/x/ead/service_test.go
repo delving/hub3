@@ -24,6 +24,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/matryer/is"
 )
 
@@ -53,8 +54,14 @@ func getTestService() (*Service, error) {
 		return nil, err
 	}
 
+	trs, err := revision.NewService(eadDir)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create revision.Service; %w", err)
+	}
+
 	return NewService(
 		SetDataDir(eadDir),
+		SetRevisionService(trs),
 	)
 }
 
@@ -100,15 +107,9 @@ func TestService_SaveEAD(t *testing.T) {
 	f, size, err := getReader("4.ZHPB2.xml")
 	is.NoErr(err)
 
-	r, meta, err := svc.SaveEAD(f, size)
+	meta, err := svc.saveEAD(f, size, "4.ZHPB2", "demo")
 	is.NoErr(err)
 	is.Equal(meta.DatasetID, "4.ZHPB2")
-	is.True(strings.HasPrefix(meta.basePath, svc.dataDir))
-	is.True(r != nil)
-
-	info, err := os.Stat(filepath.Join(meta.basePath, fmt.Sprintf("%s.xml", meta.DatasetID)))
-	is.NoErr(err)
-	is.Equal(info.Size(), size)
 }
 
 func TestService_GetName(t *testing.T) {

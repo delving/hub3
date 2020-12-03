@@ -117,7 +117,7 @@ func (s *Service) createDataSet(ctx context.Context, orgID, datasetID string) (*
 		return nil, false, err
 	}
 
-	ds := NewDataset(*org, datasetID)
+	ds := NewDataset(org, datasetID)
 	if err := s.store.Save(ctx, &ds); err != nil {
 		return nil, false, err
 	}

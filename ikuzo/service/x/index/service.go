@@ -108,7 +108,7 @@ func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessag
 
 		if err = s.stan.Conn.Publish(s.stan.SubjectID, b); err != nil {
 			atomic.AddUint64(&s.m.Nats.Failed, 1)
-			log.Error().Msgf("stan config: %+v", s.stan)
+			log.Error().Err(err).Msgf("stan config: %+v", s.stan)
 
 			return fmt.Errorf("unable to publish to queue; %w", err)
 		}
@@ -208,7 +208,7 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
 		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
 		<-timer.C
 
-		ds, err := models.GetDataSet(datasetID)
+		ds, err := models.GetDataSet(orgID, datasetID)
 		if err != nil {
 			log.Error().
 				Err(err).
@@ -299,9 +299,6 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		// DocumentID is the (optional) document ID
 		DocumentID: m.GetRecordID(),
 
-		// Body is an `io.Reader` with the payload
-		Body: bytes.NewReader(m.GetSource()),
-
 		// OnSuccess is called for each successful operation
 		OnSuccess: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem) {
 			atomic.AddUint64(&s.m.Index.Successful, 1)
@@ -312,17 +309,28 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 			atomic.AddUint64(&s.m.Index.Failed, 1)
 			if err != nil {
 				log.Error().Err(err).Msg("bulk index msg error")
+			} else if res.Status != http.StatusNotFound {
+				b, _ := ioutil.ReadAll(item.Body)
 			} else {
 				body, _ := ioutil.ReadAll(item.Body)
 				log.Error().
+					Str("reason", res.Error.Reason).
 					Str("type", res.Error.Type).
 					Str("hubID", res.DocumentID).
 					Str("index", res.Index).
+					Int("status", res.Status).
+					Str("result", res.Result).
+					Bytes("body", b).
 					Str("reason", res.Error.Reason).
 					Bytes("item", body).
 					Msg("bulk index msg error")
 			}
 		},
+	}
+
+	if m.GetSource() != nil {
+		// Body is an `io.Reader` with the payload
+		bulkMsg.Body = bytes.NewReader(m.GetSource())
 	}
 
 	if errors.Is(ctx.Err(), context.Canceled) {

@@ -17,10 +17,15 @@ package ead
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -120,21 +125,86 @@ func (t *Task) finishTask() {
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
+	// TODO(kiivihal): change with publish and add number of files changes to log
+	if err := t.Meta.repo.Add("rsc"); err != nil {
+		t.finishWithError(err)
+	}
+	hash, err := t.Meta.repo.Commit(fmt.Sprintf("finish processing task %s", t.ID), nil)
+	if err != nil {
+		t.finishWithError(err)
+	}
+
+	if hash.String() != t.Meta.PublishedCommitID {
+		// TODO(kiivihal): publish directly for now
+		if err := t.indexChanged(t.Meta.PublishedCommitID, hash.String()); err != nil {
+			t.finishWithError(err)
+		}
+
+		t.Meta.PublishedCommitID = hash.String()
+	}
+
 	t.log().Info().
 		Dur("processing", t.Meta.ProcessingDuration).
 		Uint64("inventories", t.Meta.Clevels).
 		Uint64("metsFiles", t.Meta.DaoLinks).
-		Uint64("publishedToIndex", t.Meta.RecordsPublished).
+		Uint64("publishedToIndex", t.Meta.TotalRecordsPublished).
 		Uint64("digitalObjects", t.Meta.DigitalObjects).
 		Bool("created", t.Meta.Created).
 		Uint64("metsRetrieveErrors", t.Meta.DaoErrors).
 		Strs("metsErrorLinks ", t.Meta.DaoErrorLinks).
 		Uint64("fileSize", t.Meta.FileSize).
+		Str("revisionHash", t.Meta.PublishedCommitID).
+		Uint64("recordsUpdated", t.Meta.RecordsUpdated).
+		Uint64("recordsDeleted", t.Meta.RecordsDeleted).
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
 	t.s.m.incFinished()
 	t.finishState()
+}
+
+func (t *Task) indexChanged(from, until string) error {
+	files, err := t.Meta.repo.Changes("rsc", from, until)
+	if err != nil {
+		return err
+	}
+
+	for f := range files {
+		hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, "rsc/"), ".json")
+
+		m := &domainpb.IndexMessage{
+			OrganisationID: t.Meta.repo.OrgID,
+			DatasetID:      t.Meta.repo.DatasetID,
+			RecordID:       hubID,
+			IndexName:      config.Config.ElasticSearch.GetIndexName(),
+		}
+		if f.State == revision.StatusDeleted {
+			m.Deleted = true
+			atomic.AddUint64(&t.Meta.RecordsDeleted, 1)
+		}
+
+		if !m.Deleted {
+			r, err := t.Meta.repo.Read(f.Path, f.CommitID)
+			if err != nil {
+				return err
+			}
+
+			// TODO(kiivihal): marshal and add commitID and last modified
+			b, err := ioutil.ReadAll(r)
+			if err != nil {
+				return err
+			}
+
+			m.Source = b
+			atomic.AddUint64(&t.Meta.RecordsUpdated, 1)
+		}
+
+		if err := t.s.index.Publish(context.Background(), m); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t *Task) log() *zerolog.Logger {
@@ -198,6 +268,22 @@ func (t *Task) Next() {
 		t.finishState()
 		atomic.AddUint64(&t.s.m.Canceled, 1)
 	}
+}
+
+func (s *Service) openRepository(orgID, datasetID string) (*revision.Repository, error) {
+	repo, err := s.revision.OpenRepository(orgID, datasetID)
+	if err != nil {
+		if !errors.Is(err, revision.ErrRepositoryNotExists) {
+			return nil, err
+		}
+
+		repo, err = s.revision.InitRepository(orgID, datasetID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return repo, nil
 }
 
 func (s *Service) NewTask(meta *Meta) (*Task, error) {
