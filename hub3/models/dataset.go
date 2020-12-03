@@ -171,7 +171,7 @@ func createDatasetURI(spec string) string {
 }
 
 // NewDataset creates a new instance of a DataSet
-func NewDataset(spec string) DataSet {
+func NewDataset(orgID, spec string) DataSet {
 	now := time.Now()
 	access := Access{
 		OAIPMH: true,
@@ -179,7 +179,7 @@ func NewDataset(spec string) DataSet {
 		LOD:    true,
 	}
 	dataset := DataSet{
-		OrgID:    c.Config.OrgID,
+		OrgID:    orgID,
 		Spec:     spec,
 		URI:      createDatasetURI(spec),
 		Created:  now,
@@ -190,8 +190,10 @@ func NewDataset(spec string) DataSet {
 	return dataset
 }
 
+// -------------- migrated ---------------------
+
 // GetDataSet returns a DataSet object when found
-func GetDataSet(spec string) (*DataSet, error) {
+func GetDataSet(orgID, spec string) (*DataSet, error) {
 	var ds DataSet
 	err := ORM().One("Spec", spec, &ds)
 
@@ -199,8 +201,8 @@ func GetDataSet(spec string) (*DataSet, error) {
 }
 
 // CreateDataSet creates and returns a DataSet
-func CreateDataSet(spec string) (*DataSet, bool, error) {
-	ds := NewDataset(spec)
+func CreateDataSet(orgID, spec string) (*DataSet, bool, error) {
+	ds := NewDataset(orgID, spec)
 	ds.Revision = 1
 	err := ds.Save()
 
@@ -209,10 +211,10 @@ func CreateDataSet(spec string) (*DataSet, bool, error) {
 
 // GetOrCreateDataSet returns a DataSet object from the Storm ORM.
 // If none is present it will create one
-func GetOrCreateDataSet(spec string) (*DataSet, bool, error) {
-	ds, err := GetDataSet(spec)
+func GetOrCreateDataSet(orgID, spec string) (*DataSet, bool, error) {
+	ds, err := GetDataSet(orgID, spec)
 	if err != nil {
-		return CreateDataSet(spec)
+		return CreateDataSet(orgID, spec)
 	}
 	return ds, false, err
 }
@@ -226,7 +228,7 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 		return nil, err
 	}
 
-	freshDs, err := GetDataSet(ds.Spec)
+	freshDs, err := GetDataSet(ds.OrgID, ds.Spec)
 
 	return freshDs, err
 }
@@ -309,7 +311,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID),
 	)
 
 	res, err := index.ESClient().Search().
@@ -406,7 +408,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
@@ -519,8 +521,8 @@ func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
 }
 
 // CreateDataSetStats returns DataSetStats that contain all relevant counts from the storage layer
-func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) {
-	ds, err := GetDataSet(spec)
+func CreateDataSetStats(ctx context.Context, orgID, spec string) (DataSetStats, error) {
+	ds, err := GetDataSet(orgID, spec)
 	if err != nil {
 		log.Warn().Msgf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
@@ -566,12 +568,12 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v2 := elastic.NewBoolQuery()
 	v2 = v2.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
 
 	v1 := elastic.NewBoolQuery()
 	v1 = v1.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
-	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
+	v1 = v1.Must(elastic.NewTermQuery("orgID", ds.OrgID))
 
 	queries := map[*elastic.BoolQuery][]string{}
 
