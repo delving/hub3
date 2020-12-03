@@ -395,7 +395,7 @@ func (fb *FragmentBuilder) ResolveWebResources(ctx context.Context) error {
 			}()
 
 			for urn := range urns {
-				rdf, err := fb.GetRemoteWebResource(urn, "")
+				rdf, err := fb.GetRemoteWebResource(urn, fb.fg.Meta.GetOrgID())
 				if err != nil {
 					return fmt.Errorf("unable to retrieve urn; %w", err)
 				}
@@ -684,9 +684,6 @@ func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string) (rdf i
 
 // MediaManagerURL returns the URL for the Remote WebResource call.
 func (fb *FragmentBuilder) MediaManagerURL(urn string, orgID string) string {
-	if orgID == "" {
-		orgID = c.Config.OrgID
-	}
 	return fmt.Sprintf(
 		"%s/api/webresource/%s/%s",
 		c.Config.WebResource.MediaManagerHost,

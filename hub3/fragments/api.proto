@@ -182,6 +182,8 @@ message SearchRequest {
   TreeQuery tree = 31;
   int64 calculatedTotal = 32;
   string sessionID = 33;
+  string OrgID = 34;
+  string orgIDKey = 35;
 }
 
 enum GeoType {
@@ -347,6 +349,7 @@ message FragmentRequest {
   string lodKey = 10;
   string excludeHubID = 11;
   string hubID = 12;
+  string orgIDKey = 13;
 }
 
 /*enum ObjectType {*/

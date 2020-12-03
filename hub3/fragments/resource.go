@@ -15,6 +15,7 @@
 package fragments
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	fmt "fmt"
@@ -363,6 +364,16 @@ func (fg *FragmentGraph) Marshal() ([]byte, error) {
 	return json.Marshal(fg)
 }
 
+func (fg *FragmentGraph) Reader() (io.Reader, error) {
+	// b, err := json.MarshalIndent(fg, "", "    ")
+	b, err := json.Marshal(fg)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewReader(b), nil
+}
+
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	b, err := fg.Marshal()
 	if err != nil {
@@ -681,6 +692,14 @@ type FragmentResource struct {
 	objectIDs            []*FragmentReferrerContext
 }
 
+// BySortOrder implements sort.Interface for []*FragmentResource based on
+// the Order field in the first FragmentEntry.
+type BySortOrder []*FragmentResource
+
+func (a BySortOrder) Len() int           { return len(a) }
+func (a BySortOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a BySortOrder) Less(i, j int) bool { return a[i].Entries[0].Order < a[j].Entries[0].Order }
+
 // ContextPath returns a string that can be used to reconstruct the path hierarchy
 // for statistics. The values are separated by a forward slash.
 func (fr *FragmentResource) ContextPath() string {
@@ -965,6 +984,20 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 				level2.SubjectClass = level2Resource.Types
 			}
 			level3Resource.AppendContext(level1, level2)
+
+			for _, level3 := range level3Resource.objectIDs {
+				level3.Level = 3
+				level4Resource, ok := rm.GetResource(level3.ObjectID)
+				if !ok {
+					log.Printf("unknown target URI: %s", level3.ObjectID)
+					continue
+				}
+				linkedObjects[level3.ObjectID] = level3Resource
+				if len(level3.GetSubjectClass()) == 0 {
+					level3.SubjectClass = level3Resource.Types
+				}
+				level4Resource.AppendContext(level1, level2, level3)
+			}
 		}
 	}
 
