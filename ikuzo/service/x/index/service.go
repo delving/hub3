@@ -310,8 +310,6 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 			if err != nil {
 				log.Error().Err(err).Msg("bulk index msg error")
 			} else if res.Status != http.StatusNotFound {
-				b, _ := ioutil.ReadAll(item.Body)
-			} else {
 				body, _ := ioutil.ReadAll(item.Body)
 				log.Error().
 					Str("reason", res.Error.Reason).
@@ -320,7 +318,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 					Str("index", res.Index).
 					Int("status", res.Status).
 					Str("result", res.Result).
-					Bytes("body", b).
+					Bytes("body", body).
 					Str("reason", res.Error.Reason).
 					Bytes("item", body).
 					Msg("bulk index msg error")

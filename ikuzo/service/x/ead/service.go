@@ -20,8 +20,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/olivere/elastic/v7"
-	"github.com/rs/zerolog"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -34,6 +32,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
+
+	c "github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 	indexHub3 "github.com/delving/hub3/hub3/index"
@@ -739,6 +741,8 @@ func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) 
 
 // TODO: move this to elasticsearch package later
 func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	search := indexHub3.ESClient().Search(c.Config.ElasticSearch.GetIndexName())
 	format := "02-01-2006"
 	today := time.Now()
@@ -752,7 +756,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	}
 	query := elastic.NewBoolQuery().
 		Filter(
-			elastic.NewMatchPhraseQuery("meta.orgID", c.Config.OrgID),
+			elastic.NewMatchPhraseQuery("meta.orgID", orgID.String()),
 			elastic.NewMatchPhraseQuery("tree.hasRestriction", true),
 			elastic.NewMatchPhraseQuery("tree.type", "file"),
 			elastic.NewMatchPhraseQuery("tree.access", today.Format(format)),
