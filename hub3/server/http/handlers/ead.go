@@ -156,6 +156,7 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 
 // MetsDownload is a handler that returns a stored METS XML for an inventory.
 func METSDownload(w http.ResponseWriter, r *http.Request) {
+	// TODO(kiivihal): refactor for the new format
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
@@ -166,8 +167,8 @@ func METSDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "inventoryID cannot be empty", http.StatusBadRequest)
 		return
 	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
-	http.ServeFile(w, r, eadPath)
+	metsPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
+	http.ServeFile(w, r, metsPath)
 	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
 	w.Header().Set(contentTypeKey, "application/xml")
 	return

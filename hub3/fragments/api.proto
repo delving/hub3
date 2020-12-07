@@ -540,7 +540,13 @@ message Header {
   string namedGraphURI = 8;
   // miliseconds since epoch
   int64 modified = 9;
-
+  // sourceID the record being publlished. this can be a commit sha or generated per
+  // indexing run
+  string sourceID = 10;
+  // commit path to source
+  string sourcePath = 11;
+  // id to group sub-set of records for spec that can be used for orphancontrol
+  string groupID = 12;
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments

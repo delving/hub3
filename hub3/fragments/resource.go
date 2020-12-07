@@ -365,8 +365,8 @@ func (fg *FragmentGraph) Marshal() ([]byte, error) {
 }
 
 func (fg *FragmentGraph) Reader() (io.Reader, error) {
-	// b, err := json.MarshalIndent(fg, "", "    ")
-	b, err := json.Marshal(fg)
+	// b, err := json.Marshal(fg)
+	b, err := json.MarshalIndent(fg, "", "    ")
 	if err != nil {
 		return nil, err
 	}

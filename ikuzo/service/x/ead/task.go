@@ -18,12 +18,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"strings"
 	"sync/atomic"
 	"time"
 
-	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/rs/xid"
@@ -125,19 +122,22 @@ func (t *Task) finishTask() {
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
-	// TODO(kiivihal): change with publish and add number of files changes to log
 	if err := t.Meta.repo.Add("rsc"); err != nil {
 		t.finishWithError(err)
+		return
 	}
+
 	hash, err := t.Meta.repo.Commit(fmt.Sprintf("finish processing task %s", t.ID), nil)
 	if err != nil {
 		t.finishWithError(err)
+		return
 	}
 
 	if hash.String() != t.Meta.PublishedCommitID {
 		// TODO(kiivihal): publish directly for now
 		if err := t.indexChanged(t.Meta.PublishedCommitID, hash.String()); err != nil {
 			t.finishWithError(err)
+			return
 		}
 
 		t.Meta.PublishedCommitID = hash.String()
@@ -164,46 +164,14 @@ func (t *Task) finishTask() {
 }
 
 func (t *Task) indexChanged(from, until string) error {
-	files, err := t.Meta.repo.Changes("rsc", from, until)
+	stats, err := t.Meta.repo.PublishChanged(from, until, t.s.index)
 	if err != nil {
+		log.Printf("publish error")
 		return err
 	}
 
-	for f := range files {
-		hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, "rsc/"), ".json")
-
-		m := &domainpb.IndexMessage{
-			OrganisationID: t.Meta.repo.OrgID,
-			DatasetID:      t.Meta.repo.DatasetID,
-			RecordID:       hubID,
-			IndexName:      config.Config.ElasticSearch.GetIndexName(),
-		}
-		if f.State == revision.StatusDeleted {
-			m.Deleted = true
-			atomic.AddUint64(&t.Meta.RecordsDeleted, 1)
-		}
-
-		if !m.Deleted {
-			r, err := t.Meta.repo.Read(f.Path, f.CommitID)
-			if err != nil {
-				return err
-			}
-
-			// TODO(kiivihal): marshal and add commitID and last modified
-			b, err := ioutil.ReadAll(r)
-			if err != nil {
-				return err
-			}
-
-			m.Source = b
-			atomic.AddUint64(&t.Meta.RecordsUpdated, 1)
-		}
-
-		if err := t.s.index.Publish(context.Background(), m); err != nil {
-			return err
-		}
-	}
-
+	atomic.AddUint64(&t.Meta.RecordsDeleted, uint64(stats.Deleted))
+	atomic.AddUint64(&t.Meta.RecordsUpdated, uint64(stats.Updated))
 	return nil
 }
 

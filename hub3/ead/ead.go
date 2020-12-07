@@ -21,7 +21,6 @@ import (
 	"context"
 	"fmt"
 	"html"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,6 +31,7 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
@@ -72,15 +72,19 @@ type NodeConfig struct {
 	MimeTypes             map[string][]string
 	HubIDs                chan *NodeEntry
 	Errors                []*DuplicateError
-	Client                *http.Client
-	IndexService          *index.Service
-	CreateTree            func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	ContentIdentical      bool
-	Nodes                 chan *Node
-	ProcessDigital        bool
-	ProcessAccessTime     time.Time
-	m                     sync.Mutex
-	Tags                  []string
+	// TODO(kiivihal): remove later
+	IndexService      *index.Service
+	Repo              *revision.Repository
+	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	DaoFn             func(cfg DaoConfig) error
+	PublishCommitID   string
+	ContentIdentical  bool
+	Nodes             chan *Node
+	ProcessDigital    bool
+	RetrieveDao       bool
+	ProcessAccessTime time.Time
+	m                 sync.Mutex
+	Tags              []string
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {
@@ -141,7 +145,6 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 		MetsCounter: &MetsCounter{
 			uniqueCounter: map[string]int{},
 		},
-		Client: &http.Client{Timeout: 10 * time.Second},
 		labels: make(map[string]string),
 		HubIDs: make(chan *NodeEntry, 100),
 	}
@@ -154,12 +157,15 @@ type MetsCounter struct {
 	errors         uint64
 	inError        []string
 	uniqueCounter  map[string]int
+	m              sync.Mutex
 }
 
 // Increment increments the count by one
 func (mc *MetsCounter) Increment(daoLink string) {
 	atomic.AddUint64(&mc.counter, 1)
+	mc.m.Lock()
 	mc.uniqueCounter[daoLink]++
+	mc.m.Unlock()
 }
 
 // GetUniqueCounter returns the map of unique METS links.
@@ -194,6 +200,8 @@ func (mc *MetsCounter) GetErrorCount() uint64 {
 
 func (mc *MetsCounter) AppendError(err string) {
 	mc.IncrementError()
+	mc.m.Lock()
+	defer mc.m.Unlock()
 	mc.inError = append(mc.inError, err)
 }
 

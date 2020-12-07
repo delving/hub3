@@ -31,6 +31,7 @@ require (
 	github.com/go-chi/cors v1.1.1
 	github.com/go-chi/docgen v1.0.5
 	github.com/go-chi/render v1.0.1
+	github.com/go-git/go-git v4.7.0+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1

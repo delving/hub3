@@ -15,6 +15,8 @@
 package revision
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -25,6 +27,9 @@ import (
 	"time"
 
 	"code.gitea.io/gitea/modules/git"
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	gitgo "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -63,6 +68,8 @@ func (repo *Repository) SingleFlight(path string, r io.Reader, commitMessage str
 // Write writes the content of io.Reader to a file at path.
 // When the file does not exist a new file is created.
 //
+// You must repo.Add witth the path before it can be commited.
+//
 // An error is only returned when creating or write to the file fails.
 func (repo *Repository) Write(path string, r io.Reader) error {
 	fPath := filepath.Join(repo.path, path)
@@ -74,6 +81,8 @@ func (repo *Repository) Write(path string, r io.Reader) error {
 	if err != nil {
 		return fmt.Errorf("unable to create file; %w", err)
 	}
+
+	defer f.Close()
 
 	_, err = io.Copy(f, r)
 	if err != nil {
@@ -282,7 +291,7 @@ func (repo *Repository) revisions() (int, error) {
 }
 
 func (repo *Repository) Changes(path, from, until string) (chan DiffFile, error) {
-	c := make(chan DiffFile, 1000)
+	c := make(chan DiffFile, 2500)
 
 	output, err := repo.diff(path, from, until)
 	if err != nil {
@@ -299,4 +308,79 @@ func (repo *Repository) Changes(path, from, until string) (chan DiffFile, error)
 	}(output)
 
 	return c, nil
+}
+
+func (repo *Repository) Exists(path string) bool {
+	fPath := filepath.Join(repo.path, path)
+	_, err := os.Stat(fPath)
+
+	return !os.IsNotExist(err)
+}
+
+type Publisher interface {
+	Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error
+}
+
+type PublishStats struct {
+	Deleted int
+	Updated int
+}
+
+func (repo *Repository) PublishChanged(from, until string, p ...Publisher) (PublishStats, error) {
+	resourcePath := "rsc"
+	stats := PublishStats{}
+
+	files, err := repo.Changes(resourcePath, from, until)
+	if err != nil {
+		return stats, err
+	}
+
+	for f := range files {
+		f := f
+
+		hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, resourcePath+"/"), ".json")
+
+		m := &domainpb.IndexMessage{
+			OrganisationID: repo.OrgID,
+			DatasetID:      repo.DatasetID,
+			RecordID:       hubID,
+			IndexName:      config.Config.ElasticSearch.GetIndexName(),
+		}
+		if f.State == StatusDeleted {
+			m.Deleted = true
+			stats.Deleted++
+		}
+
+		if !m.Deleted {
+			r, err := repo.Read(f.Path, f.CommitID)
+			if err != nil {
+				return stats, err
+			}
+
+			var fg fragments.FragmentGraph
+			if decodeErr := json.NewDecoder(r).Decode(&fg); decodeErr != nil {
+				return stats, decodeErr
+			}
+
+			fg.Meta.Modified = fragments.NowInMillis()
+			fg.Meta.SourceID = f.CommitID
+
+			b, err := fg.Marshal()
+			if err != nil {
+				return stats, err
+			}
+
+			m.Source = b
+
+			stats.Updated++
+		}
+
+		for _, publisher := range p {
+			if err := publisher.Publish(context.Background(), m); err != nil {
+				return stats, err
+			}
+		}
+	}
+
+	return stats, nil
 }

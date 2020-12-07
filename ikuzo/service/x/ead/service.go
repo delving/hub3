@@ -88,12 +88,15 @@ func (m *Metrics) incAlreadyQueued() {
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
+type DaoFn func(cfg eadHub3.DaoConfig) error
+
 type Service struct {
 	index          *index.Service
 	revision       *revision.Service
 	dataDir        string
 	m              Metrics
 	CreateTreeFn   CreateTreeFn
+	DaoFn          DaoFn
 	processDigital bool
 	tasks          map[string]*Task
 	rw             sync.RWMutex
@@ -119,6 +122,13 @@ func NewService(options ...Option) (*Service, error) {
 
 	if s.CreateTreeFn == nil {
 		s.CreateTreeFn = eadHub3.CreateTree
+	}
+
+	if s.DaoFn == nil {
+		daoClient := eadHub3.NewDaoClient(s.index)
+		daoClient.HttpFallback = true
+
+		s.DaoFn = daoClient.DefaultDaoFn
 	}
 
 	if s.revision == nil {
@@ -326,11 +336,9 @@ func (s *Service) saveDescription(cfg *eadHub3.NodeConfig, t *Task, ead *eadHub3
 		unitInfo = desc.Summary.FindingAid.UnitInfo
 	}
 
-	if s.index != nil {
-		err = ead.SaveDescription(cfg, unitInfo, s.index)
-		if err != nil {
-			return fmt.Errorf("unable to create index representation of the description; %w", err)
-		}
+	err = ead.SaveDescription(cfg, unitInfo)
+	if err != nil {
+		return fmt.Errorf("unable to create index representation of the description; %w", err)
 	}
 
 	return nil
@@ -410,9 +418,14 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.CreateTreeFn
+	cfg.DaoFn = s.DaoFn
+	cfg.PublishCommitID = t.Meta.PublishedCommitID
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = t.Meta.OrgID
 	cfg.IndexService = s.index
+	cfg.Repo = t.Meta.repo
+	// TODO(kiivihal): enable this later via config
+	cfg.RetrieveDao = true
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
 	cfg.ProcessDigital = t.Meta.ProcessDigital
@@ -538,20 +551,11 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 				path := fmt.Sprintf("rsc/%s.json", fg.Meta.HubID)
 				if err := t.Meta.repo.Write(path, r); err != nil {
+					log.Error().Err(err).Str("svc", "eadProcessor").Msg("unable to write to TRS")
 					return err
 				}
 
 				atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
-
-				// TODO(kiivihal): change with revision store storage
-				// m, err := fg.IndexMessage()
-				// if err != nil {
-				// return fmt.Errorf("unable to marshal fragment graph: %w", err)
-				// }
-
-				// if err := s.index.Publish(context.Background(), m); err != nil {
-				// return err
-				// }
 
 				select {
 				case <-gctx.Done():

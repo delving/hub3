@@ -114,7 +114,6 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	header := &fragments.Header{
 		OrgID: cfg.OrgID,
 		Spec:  cfg.Spec,
-		// Revision: cfg.Revision,
 		HubID: fmt.Sprintf(
 			"%s_%s_%s",
 			cfg.OrgID,
@@ -124,8 +123,7 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		// Modified:      fragments.NowInMillis(),
-		Tags: []string{"ead"},
+		Tags:          []string{"ead"},
 	}
 
 	if len(cfg.Tags) != 0 {
@@ -190,6 +188,20 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Access = n.AccessRestrict
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
+
+	if tree.HasDigitalObject {
+		daoCfg := newDaoConfig(cfg, tree)
+		if err := daoCfg.Write(); err != nil {
+			config.Config.Logger.Error().Err(err).Msg("unable to write daocfg to disk")
+		}
+
+		if cfg.ProcessDigital && cfg.DaoFn != nil {
+			if err := cfg.DaoFn(daoCfg); err != nil {
+				config.Config.Logger.Error().Err(err).Msg("unable to process dao link")
+				cfg.MetsCounter.AppendError(err.Error())
+			}
+		}
+	}
 
 	return tree
 }

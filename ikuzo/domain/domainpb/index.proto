@@ -41,4 +41,6 @@ message Revision {
     string Path = 2;
     // for legacy use only
     int32 Number = 3;
+    // group for orphan control
+    string GroupID = 4;
 }

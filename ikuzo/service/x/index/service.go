@@ -201,12 +201,22 @@ func (s *Service) handleMessage(m *stan.Msg) {
 	}
 }
 
+func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Revision) {
+	// TODO(kiivihal): implement me
+	log.Debug().Msgf("dropping grouped orphans")
+}
+
 // dropOrphans is a background function to remove orphans from the index when the timer is expired
-func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
+func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revision) {
 	go func() {
 		// block for orphanWait seconds to allow cluster to be in sync
 		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
 		<-timer.C
+
+		if revision.GetSHA() != "" && revision.GetPath() != "" {
+			s.dropOrphanGroup(orgID, datasetID, revision)
+			return
+		}
 
 		ds, err := models.GetDataSet(orgID, datasetID)
 		if err != nil {
@@ -218,9 +228,9 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
 			return
 		}
 
-		if ds.Revision != int(revision) {
+		if ds.Revision != int(revision.GetNumber()) {
 			log.Warn().
-				Int32("message_revision", revision).
+				Int32("message_revision", revision.GetNumber()).
 				Int("dataset_revision", ds.Revision).
 				Msg("message revision is older so not dropping orphans")
 
@@ -266,7 +276,7 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision int32) {
 
 						log.Info().Str("datasetID", datasetID).Str("posthook", hook.Name()).Int("revision", revision).Msg("dropped posthook orphans")
 					}
-				}(int(revision))
+				}(int(revision.GetNumber()))
 			}
 		}
 	}()
@@ -278,7 +288,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 	}
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
-		s.dropOrphans(m.GetOrganisationID(), m.GetDatasetID(), m.GetRevision().GetNumber())
+		s.dropOrphans(m.GetOrganisationID(), m.GetDatasetID(), m.GetRevision())
 
 		return nil
 	}
