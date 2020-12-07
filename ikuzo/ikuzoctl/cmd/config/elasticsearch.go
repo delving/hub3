@@ -228,11 +228,12 @@ func (e *ElasticSearch) createDefaultMappings(es *elasticsearch.Client, withAlia
 				}
 
 				if !valid {
-					log.Warn().Str("index", createName).Msg("applying elasticsearch mapping update")
-
 					if err := eshub.MappingUpdate(es, createName, mapping.V2MappingUpdate()); err != nil {
+						log.Error().Err(err).Msg("unable to apply v2 mapping update")
 						return []string{}, err
 					}
+
+					log.Warn().Str("index", createName).Msg("applying elasticsearch mapping update")
 				}
 			}
 		}

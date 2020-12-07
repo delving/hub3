@@ -67,7 +67,9 @@ var v2Mapping = `{
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
 						"modified": {"type": "date"},
-						"commitID": {"type": "keyword"}
+						"sourceID": {"type": "keyword"},
+						"sourcePath": {"type": "keyword"},
+						"groupID": {"type": "keyword"}
 					}
 				},
 				"protobuf": {
@@ -195,6 +197,14 @@ func V2MappingUpdate() string {
 // 'strict' on dynamic creating of new fields in the index.
 var v2MappingUpdate = `{
   "properties": {
+	"meta": {
+		"type": "object",
+		"properties": {
+			"sourceID": {"type": "keyword"},
+			"sourcePath": {"type": "keyword"},
+			"groupID": {"type": "keyword"}
+		}
+	},
     "tree": {
       "properties": {
         "physDesc": {"type": "keyword"},
@@ -217,12 +227,6 @@ var v2MappingUpdate = `{
 	"resources": {
 		"type": "nested",
 		"properties": {
-			"meta": {
-				"type": "object",
-				"properties": {
-					"commitID": {"type": "keyword"}
-				}
-			},
 			"entries": {
 				"type": "nested",
 				"properties": {

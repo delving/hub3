@@ -6,6 +6,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/rs/zerolog/log"
 	"github.com/tidwall/gjson"
 )
 
@@ -30,9 +31,13 @@ func IsMappingValid(es *elasticsearch.Client, indexName string) (bool, error) {
 }
 
 func MappingUpdate(es *elasticsearch.Client, indexName, esMapping string) error {
-	_, err := es.Indices.PutMapping([]string{indexName}, strings.NewReader(esMapping))
+	resp, err := es.Indices.PutMapping([]string{indexName}, strings.NewReader(esMapping))
 	if err != nil {
 		return fmt.Errorf("unable to update mapping; %w", err)
+	}
+
+	if resp.HasWarnings() {
+		log.Warn().Msgf("mapping update warnings: %#v", resp.Warnings())
 	}
 
 	return nil
