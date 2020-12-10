@@ -139,6 +139,9 @@ enabled = true
 adminEmails = ["info@delving.eu",]
 # repositoryName
 repositoryName = "dev1"
+harvestDelay = 1
+eadHarvestUrl = "http://localhost:3000/oai/!open_oai.OAIHandler"
+metsHarvestUrl = "http://localhost:3000/oai/!open_oai.OAIHandler"
 
 [webresource]
 # enabel the webresource endpoint /api/webresource

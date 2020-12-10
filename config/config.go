@@ -192,6 +192,9 @@ type OAIPMH struct {
 	AdminEmails []string `json:"adminEmails"`
 	// RepositoryName is the name of the OAI-PMH repossitory
 	RepositoryName string `json:"repositoryName"`
+	HarvestDelay   int    `json:"harvestDelay"`
+	EadHarvestUrl  string `json:"eadHarvestUrl"`
+	MetsHarvestUrl string `json:"MetsHarvestUrl"`
 }
 
 // WebResource holds all the configuration options for the WebResource endpoint
@@ -317,6 +320,9 @@ func setDefaults() {
 	viper.SetDefault("OAIPMH.enabled", true)
 	viper.SetDefault("OAIPMH.RepositoryName", "hub3")
 	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
+	viper.SetDefault("OAIPMH.HarvestDelay", 1)
+	viper.SetDefault("OAIPMH.EadHarvestUrl", "")
+	viper.SetDefault("OAIPMH.MetsHarvestUrl", "")
 
 	// image proxy
 	viper.SetDefault("ImageProxy.enabled", true)
