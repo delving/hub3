@@ -49,6 +49,7 @@ type Config struct {
 	trs               *revision.Service
 	orgs              *organization.Service
 	Organization      `json:"organization"`
+	OAIPMH            `json:"oaipmh"`
 	Org               map[string]domain.OrganizationConfig
 }
 
@@ -69,6 +70,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.EAD,
 			&cfg.ImageProxy,
 			&cfg.Logging,
+			&cfg.OAIPMH,
 		}
 	}
 

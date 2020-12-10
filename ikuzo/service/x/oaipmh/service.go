@@ -78,20 +78,35 @@ func (s *Service) StartHarvestSync() error {
 }
 
 func (s *Service) findAvailableTask() *HarvestTask {
-	var task HarvestTask
-	// query task that are
-	// TODO(kiivihal): implement
+	var task *HarvestTask
+	for _, t := range s.tasks {
+		if t.GetLastCheck().Add(t.CheckEvery).Before(time.Now()) {
+			task = &t
+		}
+	}
 
-	return &task
+	return task
 }
 
 func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
-	// handle the context cancellation on shutdown
-	// TODO(kiivihal): implement me
+	g, gctx := errgroup.WithContext(ctx)
+	_ = gctx
+	g.Go(func() error {
+		task.SetLastCheck(time.Now())
+		task.SetRelativeFrom()
+		task.Request.Harvest(task.CallbackFn)
+		return nil
+	})
+
+	if err := g.Wait(); errors.Is(err, context.Canceled) {
+		return err
+	}
+
 	return nil
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {

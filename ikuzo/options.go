@@ -26,6 +26,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/delving/hub3/ikuzo/service/x/imageproxy"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
@@ -201,6 +202,18 @@ func SetEADService(svc *ead.Service) Option {
 				r.Get("/api/ead/tasks", svc.Tasks)
 				r.Get(taskIDRoute, svc.GetTask)
 				r.Delete(taskIDRoute, svc.CancelTask)
+			},
+		)
+
+		return nil
+	}
+}
+
+func SetOAIPMHServerOption(svc *oaipmh.Service) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Get("/oai/!open_oai.OAIHandler", svc.ServeHTTP)
 			},
 		)
 

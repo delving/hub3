@@ -4,7 +4,9 @@ type Option func(*Service) error
 
 func AddTask(task ...HarvestTask) Option {
 	return func(s *Service) error {
-		s.tasks = append(s.tasks, task...)
+		if len(task) > 0 {
+			s.tasks = append(s.tasks, task...)
+		}
 		return nil
 	}
 }
