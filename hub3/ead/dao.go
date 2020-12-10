@@ -41,6 +41,11 @@ func NewDaoClient(bi *index.Service) DaoClient {
 	}
 }
 
+// GetDaoConfig convenience function to retrieve the DaoConfig
+func (c *DaoClient) GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
+	return GetDaoConfig(archiveID, uuid)
+}
+
 func (c *DaoClient) dropOrphans(cfg DaoConfig) error {
 	m := &domainpb.IndexMessage{
 		OrganisationID: cfg.OrgID,

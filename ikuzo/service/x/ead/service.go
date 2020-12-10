@@ -683,7 +683,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("unable to find orgID in request")
 	}
 
-	meta, err := s.saveEAD(in, header.Size, "", orgID)
+	meta, err := s.SaveEAD(in, header.Size, "", orgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
 			http.Error(w, err.Error(), http.StatusConflict)
@@ -927,8 +927,8 @@ func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, erro
 	return buf, f.Name(), nil
 }
 
-// saveEAD stores the source EAD in the revision store
-func (s *Service) saveEAD(r io.Reader, size int64, datasetID, orgID string) (Meta, error) {
+// SaveEAD stores the source EAD in the revision store
+func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (Meta, error) {
 	meta := Meta{
 		DatasetID: datasetID,
 		OrgID:     orgID,

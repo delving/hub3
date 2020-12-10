@@ -2,12 +2,12 @@ package config
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/kiivihal/goharvest/oai"
-	"time"
 )
 
 type OAIPMH struct {
@@ -59,10 +59,12 @@ func tasksFromConfig(ro config.RawConfig) []oaipmh.HarvestTask {
 				MetadataPrefix: "oai_ead",
 				Verb:           "ListIdentifiers",
 			},
-			CallbackFn: ead.ProcessEadFromOai,
+			// TODO(kiivihal): inject from EADHarvester
+			// CallbackFn: ead.ProcessEadFromOai,
 		}
 		tasks = append(tasks, t)
 	}
+
 	if ro.OAIPMH.MetsHarvestUrl != "" {
 		t := oaipmh.HarvestTask{
 			OrgID:      ro.OrgID,
@@ -73,7 +75,8 @@ func tasksFromConfig(ro config.RawConfig) []oaipmh.HarvestTask {
 				MetadataPrefix: "oai_mets",
 				Verb:           "ListIdentifiers",
 			},
-			CallbackFn: ead.ProcessMetsFromOai,
+			// TODO(kiivihal): Inject from METSHarvester
+			// CallbackFn: ead.ProcessMetsFromOai,
 		}
 		tasks = append(tasks, t)
 	}

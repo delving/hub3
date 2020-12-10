@@ -18,10 +18,7 @@ require (
 	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
 	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/docker/go-connections v0.4.0
-	github.com/elastic/go-elasticsearch v0.0.0 // indirect
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-20201104130540-2e1f801663c6
-	github.com/elastic/go-sysinfo v1.4.0 // indirect
-	github.com/elastic/go-windows v1.0.1 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
 	github.com/fatih/color v1.10.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
@@ -31,12 +28,10 @@ require (
 	github.com/go-chi/cors v1.1.1
 	github.com/go-chi/docgen v1.0.5
 	github.com/go-chi/render v1.0.1
-	github.com/go-git/go-git v4.7.0+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1
 	github.com/google/gofuzz v1.1.0
-	github.com/gorilla/schema v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-hclog v0.15.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.0 // indirect
@@ -52,7 +47,6 @@ require (
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/knakk/sparql v0.0.0-20191213045353-fd0bd0e76475
-	github.com/labstack/gommon v0.0.0-20170925052817-57409ada9da0
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.3.0
@@ -65,17 +59,15 @@ require (
 	github.com/muesli/smartcrop v0.3.0 // indirect
 	github.com/nats-io/jwt v1.2.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
-	github.com/nats-io/nkeys v0.2.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/runc v1.0.0-rc3
+	github.com/opencontainers/runc v1.0.0-rc3 // indirect
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
-	github.com/phyber/negroni-gzip v0.0.0-20180113114010-ef6356a5d029
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rs/xid v1.2.1
@@ -95,26 +87,20 @@ require (
 	github.com/testcontainers/testcontainers-go v0.7.0
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
-	github.com/urfave/negroni v1.0.0
 	github.com/valyala/fasthttp v1.15.1
-	github.com/valyala/fasttemplate v0.0.0-20170224212429-dcecefd839c4 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	go.elastic.co/apm/module/apmchi v1.8.0
-	go.elastic.co/fastjson v1.1.0 // indirect
-	go.etcd.io/bbolt v1.3.5 // indirect
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/image v0.0.0-20200618115811-c13761719519 // indirect
 	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/sys v0.0.0-20201118182958-a01c418693c7 // indirect
 	golang.org/x/text v0.3.3
-	google.golang.org/genproto v0.0.0-20200726014623-da3ae01ef02d
-	google.golang.org/grpc v1.30.0
+	google.golang.org/genproto v0.0.0-20200726014623-da3ae01ef02d // indirect
+	google.golang.org/grpc v1.30.0 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/ini.v1 v1.57.0 // indirect
-	gopkg.in/olivere/elastic.v5 v5.0.86
-	howett.net/plist v0.0.0-20200419221736-3b63eb3a43b5 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	moul.io/http2curl v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.10.0
 )
