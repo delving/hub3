@@ -20,6 +20,7 @@
 - Config option `datasetTags` to add custom tags to `meta.tags` based on the datasetID [[GH-52]](https://github.com/delving/hub3/pull/52)
 
 ### Fixed
+- Fix for graph traversal when creating v1 indexing records [[GH-64]](https://github.com/delving/hub3/pull/64)
 - use "<br/>" instead of "<lb/>" in the description API output [[GH-54]](https://github.com/delving/hub3/pull/54)
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
 - Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
