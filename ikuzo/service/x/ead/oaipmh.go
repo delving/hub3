@@ -62,18 +62,18 @@ func (e *EADHarvester) processRecord(record *oai.Record) error {
 	meta, err := e.s.SaveEAD(r, int64(len(body)), archiveID, e.OrgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
-			e.s.m.incAlreadyQueued()
+			e.s.M.IncAlreadyQueued()
 			return nil
 		}
 
-		e.s.m.incFailed()
+		e.s.M.IncFailed()
 
 		return err
 	}
 
 	t, err := e.s.NewTask(&meta)
 	if err != nil {
-		e.s.m.incAlreadyQueued()
+		e.s.M.IncAlreadyQueued()
 		return err
 	}
 

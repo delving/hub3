@@ -159,7 +159,7 @@ func (t *Task) finishTask() {
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
-	t.s.m.incFinished()
+	t.s.M.IncFinished()
 	t.finishState()
 }
 
@@ -206,7 +206,7 @@ func (t *Task) finishWithError(err error) error {
 	t.moveState(StateInError)
 	t.ErrorMsg = err.Error()
 
-	t.s.m.incFailed()
+	t.s.M.IncFailed()
 
 	// expected errors so just log them and move on
 	// returning an error here stops the worker
@@ -234,7 +234,7 @@ func (t *Task) Next() {
 		t.finishState()
 	case StateCanceled:
 		t.finishState()
-		atomic.AddUint64(&t.s.m.Canceled, 1)
+		atomic.AddUint64(&t.s.M.Canceled, 1)
 	}
 }
 

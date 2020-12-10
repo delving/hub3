@@ -62,27 +62,27 @@ type Metrics struct {
 	AlreadyQueued uint64
 }
 
-func (m *Metrics) incSubmitted() {
+func (m *Metrics) IncSubmitted() {
 	atomic.AddUint64(&m.Submitted, 1)
 }
 
-func (m *Metrics) incStarted() {
+func (m *Metrics) IncStarted() {
 	atomic.AddUint64(&m.Started, 1)
 }
 
-func (m *Metrics) incFailed() {
+func (m *Metrics) IncFailed() {
 	atomic.AddUint64(&m.Failed, 1)
 }
 
-func (m *Metrics) incFinished() {
+func (m *Metrics) IncFinished() {
 	atomic.AddUint64(&m.Finished, 1)
 }
 
-func (m *Metrics) incCancelled() {
+func (m *Metrics) IncCancelled() {
 	atomic.AddUint64(&m.Canceled, 1)
 }
 
-func (m *Metrics) incAlreadyQueued() {
+func (m *Metrics) IncAlreadyQueued() {
 	atomic.AddUint64(&m.AlreadyQueued, 1)
 }
 
@@ -94,7 +94,7 @@ type Service struct {
 	index          *index.Service
 	revision       *revision.Service
 	dataDir        string
-	m              Metrics
+	M              Metrics
 	CreateTreeFn   CreateTreeFn
 	DaoFn          DaoFn
 	processDigital bool
@@ -213,7 +213,7 @@ func (s *Service) StartWorkers() error {
 }
 
 func (s *Service) Metrics() Metrics {
-	return s.m
+	return s.M
 }
 
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
@@ -362,7 +362,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	}
 
 	if t.InState == StateStarted {
-		s.m.incStarted()
+		s.M.IncStarted()
 		t.Next()
 	}
 
@@ -673,7 +673,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		err = r.MultipartForm.RemoveAll()
 	}()
 
-	s.m.incSubmitted()
+	s.M.IncSubmitted()
 
 	// TODO(kiivihal): finish this later. Add multi tenancy middleware first
 	var orgID string
@@ -690,7 +690,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		s.m.incFailed()
+		s.M.IncFailed()
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
@@ -724,7 +724,7 @@ func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) 
 
 	t, err := s.NewTask(&meta)
 	if err != nil {
-		s.m.incAlreadyQueued()
+		s.M.IncAlreadyQueued()
 		return nil, err
 	}
 
