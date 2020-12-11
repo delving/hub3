@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/rs/zerolog/log"
 )
@@ -25,7 +26,7 @@ func NewEADHarvester(s *Service) (EADHarvester, error) {
 }
 
 func (e *EADHarvester) ProcessEadFromOai(r *oai.Response) {
-	if r.Request.Verb != "listRecords" {
+	if r.Request.Verb != oaipmh.ListRecords {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting ead records")
 		return
 	}
@@ -102,7 +103,7 @@ func NewMetsHarvest(c *ead.DaoClient) (MetsHarvester, error) {
 }
 
 func (m *MetsHarvester) ProcessMetsFromOai(r *oai.Response) {
-	if r.Request.Verb != "listIdentifiers" {
+	if r.Request.Verb != oaipmh.ListIdentifiers {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting mets headers")
 		return
 	}

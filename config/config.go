@@ -194,7 +194,7 @@ type OAIPMH struct {
 	RepositoryName string `json:"repositoryName"`
 	HarvestDelay   int    `json:"harvestDelay"`
 	EadHarvestUrl  string `json:"eadHarvestUrl"`
-	MetsHarvestUrl string `json:"MetsHarvestUrl"`
+	MetsHarvestUrl string `json:"metsHarvestUrl"`
 }
 
 // WebResource holds all the configuration options for the WebResource endpoint

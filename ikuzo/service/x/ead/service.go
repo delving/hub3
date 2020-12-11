@@ -97,6 +97,7 @@ type Service struct {
 	M              Metrics
 	CreateTreeFn   CreateTreeFn
 	DaoFn          DaoFn
+	DaoClient      *eadHub3.DaoClient
 	processDigital bool
 	tasks          map[string]*Task
 	rw             sync.RWMutex
@@ -128,6 +129,7 @@ func NewService(options ...Option) (*Service, error) {
 		daoClient := eadHub3.NewDaoClient(s.index)
 		daoClient.HttpFallback = true
 
+		s.DaoClient = &daoClient
 		s.DaoFn = daoClient.DefaultDaoFn
 	}
 

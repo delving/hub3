@@ -16,7 +16,6 @@ package config
 
 import (
 	"fmt"
-
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
@@ -49,8 +48,8 @@ type Config struct {
 	trs               *revision.Service
 	orgs              *organization.Service
 	Organization      `json:"organization"`
-	OAIPMH            `json:"oaipmh"`
 	Org               map[string]domain.OrganizationConfig
+	OAIPMH            `json:"oaipmh"`
 }
 
 func (cfg *Config) IsDataNode() bool {
