@@ -63,8 +63,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should have the right revision", func() {
-				// TODO(kiivihal): revision not set for TRS
-				Expect(h.GetRevision()).To(Equal(int32(0)))
+				Expect(h.GetRevision()).ToNot(Equal(int32(0)))
 			})
 
 			It("should have a hubID", func() {
@@ -76,8 +75,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should set a modified time", func() {
-				// TODO(kiivihal): due to trs integration modification no longer set here
-				Expect(h.GetModified()).To(BeZero())
+				Expect(h.GetModified()).ToNot(BeZero())
 			})
 
 			It("should set the entryURI", func() {
