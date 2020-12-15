@@ -252,8 +252,8 @@ func (cfg *DaoConfig) FindingAid(c *DaoClient) (eadpb.FindingAid, error) {
 		if err := c.StoreMets(cfg); err != nil {
 			return eadpb.FindingAid{}, err
 		}
-
 	}
+
 	mets, err := cfg.Mets()
 	if err != nil {
 		return eadpb.FindingAid{}, err

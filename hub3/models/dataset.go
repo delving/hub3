@@ -564,9 +564,14 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
+	tags := elastic.NewBoolQuery()
+	for _, tag := range []string{"mdr", "narthex", "ead", "eadDesc"} {
+		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
+	}
 
 	v2 := elastic.NewBoolQuery()
 	v2 = v2.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
+	v2 = v2.Must(tags)
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
 
@@ -605,8 +610,8 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		log.Info().Msgf(
 			"Removed %d records for spec %s in index %s with older revision than %d",
 			res.Deleted,
-			indices,
 			ds.Spec,
+			indices,
 			ds.Revision,
 		)
 	}
@@ -653,14 +658,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
-	// TODO(kiivihal): replace flush with TRS
-	// err := p.Flush()
-	// if err != nil {
-	// log.Warn().Msgf("Unable to Flush ElasticSearch index before deleting orphans.")
-	// return false, err
-	// }
-	// log.Warn().Msgf("Flushed remaining items on the index queue.")
-
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {

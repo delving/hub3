@@ -25,7 +25,6 @@ var (
 type Meta struct {
 	OrgID            string
 	DatasetID        string
-	PublishCommitID  string
 	Label            string
 	Period           []string
 	Inventories      int

@@ -16,23 +16,18 @@
 package ead
 
 import (
-	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
-	"sync/atomic"
 
-	"code.gitea.io/gitea/modules/git"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead/eadpb"
 	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/zerolog"
 )
@@ -45,80 +40,6 @@ func readMETS(filename string) (*Cmets, error) {
 	}
 
 	return metsParse(r)
-}
-
-func metsExists(cfg *NodeConfig, dao string) bool {
-	uuid := getUUID(dao)
-
-	path := fmt.Sprintf("ingest/dao/%s", uuid)
-
-	return cfg.Repo.Exists(path)
-}
-
-func getMets(cfg DaoConfig, repo *revision.Repository) (*Cmets, error) {
-	path := fmt.Sprintf("ingest/dao/%s", cfg.UUID)
-
-	// commitID := cfg.PublishCommitID
-	var commitID string
-	if commitID == "" {
-		commitID = revision.WorkingVersion
-	}
-
-	r, err := repo.Read(path, commitID)
-	if err != nil {
-		if strings.Contains(err.Error(), "object not found") || git.IsErrNotExist(err) {
-			r, err = repo.Read(path, revision.WorkingVersion)
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	defer r.Close()
-
-	return metsParse(r)
-}
-
-func storeDAO(cfg DaoConfig, client *http.Client, repo revision.Repository) error {
-	resp, err := client.Get(cfg.Link)
-	if err != nil {
-		metsRetrieveErr := fmt.Errorf("unable to retrieve METS %s client error: %s", cfg.Link, err)
-		logMETSError(cfg.ArchiveID, cfg.InventoryID, metsRetrieveErr.Error())
-
-		return metsRetrieveErr
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		metsStatusErr := fmt.Errorf("unable to retrieve METS %s HTTP status error: %d", cfg.Link, resp.StatusCode)
-		logMETSError(cfg.ArchiveID, cfg.InventoryID, metsStatusErr.Error())
-
-		return metsStatusErr
-	}
-
-	defer resp.Body.Close()
-
-	mets, err := metsParse(resp.Body)
-	if err != nil {
-		return err
-	}
-
-	mets.CmetsHdr.AttrCREATEDATE = ""
-	mets.CmetsHdr.AttrLASTMODDATE = ""
-
-	var buf bytes.Buffer
-	enc := xml.NewEncoder(&buf)
-	enc.Indent("", "\t")
-
-	if err := enc.Encode(mets); err != nil {
-		return err
-	}
-
-	path := fmt.Sprintf("ingest/dao/%s", cfg.UUID)
-	if err := repo.Write(path, &buf); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // metsParse parses a METS XML file into a set of Go structures
@@ -359,32 +280,6 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	t(s, "inventoryTitle", fa.InventoryTitle, rdf.NewLiteral)
 
 	return triples
-}
-
-func writeResourceFile(cfg *NodeConfig, fg *fragments.FragmentGraph, pathType string) error {
-	r, err := fg.Reader()
-	if err != nil {
-		return err
-	}
-
-	prefix := "rsc"
-
-	if pathType != "" {
-		prefix = fmt.Sprintf("%s/%s", prefix, pathType)
-	}
-
-	path := fmt.Sprintf("%s/%s.json", prefix, fg.Meta.HubID)
-	if err := cfg.Repo.Write(path, r); err != nil {
-		return err
-	}
-
-	atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
-
-	return nil
-}
-
-func writeDaoFile(cfg *NodeConfig, fg *fragments.FragmentGraph) error {
-	return writeResourceFile(cfg, fg, "dao")
 }
 
 // saveFileFragmentGraphs saves all eadpb.File and eadpb.FindingAid graphs to ElasticSearch.

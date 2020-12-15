@@ -60,7 +60,7 @@ func (e *EADHarvester) processRecord(record *oai.Record) error {
 
 	r := bytes.NewReader(body)
 
-	meta, err := e.s.SaveEAD(r, int64(len(body)), archiveID, e.OrgID)
+	_, meta, err := e.s.SaveEAD(r, int64(len(body)), archiveID, e.OrgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
 			e.s.M.IncAlreadyQueued()

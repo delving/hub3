@@ -31,7 +31,6 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
@@ -74,10 +73,8 @@ type NodeConfig struct {
 	Errors                []*DuplicateError
 	// TODO(kiivihal): remove later
 	IndexService      *index.Service
-	Repo              *revision.Repository
 	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	DaoFn             func(cfg DaoConfig) error
-	PublishCommitID   string
 	ContentIdentical  bool
 	Nodes             chan *Node
 	ProcessDigital    bool

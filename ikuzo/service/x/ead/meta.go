@@ -15,14 +15,12 @@
 package ead
 
 import (
+	"fmt"
 	"time"
-
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 )
 
 type Meta struct {
 	basePath              string
-	repo                  *revision.Repository
 	OrgID                 string
 	DatasetID             string
 	Title                 string
@@ -32,9 +30,6 @@ type Meta struct {
 	DaoErrorLinks         []string
 	Tags                  []string
 	TotalRecordsPublished uint64
-	RecordsUpdated        uint64
-	RecordsDeleted        uint64
-	PublishedCommitID     string
 	DigitalObjects        uint64
 	FileSize              uint64
 	Revision              int32
@@ -47,5 +42,5 @@ type Meta struct {
 
 // getSourcePath returns full path to the source EAD file
 func (m *Meta) getSourcePath() string {
-	return getEADPath(m.DatasetID)
+	return fmt.Sprintf("%s/%s.xml", m.basePath, m.DatasetID)
 }
