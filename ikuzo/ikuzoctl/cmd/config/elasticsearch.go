@@ -96,6 +96,10 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return fmt.Errorf("unable to create elasticsearch.Client: %w", err)
 	}
 
+	if _, infoErr := client.Info(); infoErr != nil {
+		return fmt.Errorf("unable to connect to elasticsearch; %w", infoErr)
+	}
+
 	if e.Proxy {
 		esProxy, proxyErr := eshub.NewProxy(client)
 		if proxyErr != nil {
