@@ -307,8 +307,6 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	contentTagAgg = contentTagAgg.SubAggregation("contentTags", labelAgg)
 	//contentTagAgg := elastic.NewTermsAggregation().Field("resource.entries.tags").Size(30).OrderByCountDesc()
 
-	log.Printf("dataset orgID: %#v", ds.OrgID)
-
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),

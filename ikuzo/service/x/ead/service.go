@@ -423,7 +423,6 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = t.Meta.OrgID
 	cfg.IndexService = s.index
-	// TODO(kiivihal): enable this later via config
 	cfg.RetrieveDao = true
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
@@ -581,6 +580,13 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 			return nil
 		}
+
+		digitalObjects, err := t.s.DaoClient.GetDigitalObjectCount(t.Meta.DatasetID)
+		if err != nil {
+			return t.finishWithError(fmt.Errorf("unable to count digitalobjects: %w", err))
+		}
+
+		cfg.MetsCounter.IncrementDigitalObject(uint64(digitalObjects))
 
 		meta.MetsFiles = int(cfg.MetsCounter.GetCount())
 		meta.Inventories = int(cfg.Counter.GetCount())

@@ -46,7 +46,51 @@ func (c *DaoClient) GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
 	return GetDaoConfig(archiveID, uuid)
 }
 
-func (c *DaoClient) dropOrphans(cfg DaoConfig) error {
+func (c *DaoClient) GetDigitalObjectCount(archiveID string) (int, error) {
+	var digitalObjects int
+
+	files, err := ioutil.ReadDir(getMetsDirPath(archiveID))
+	if err != nil {
+		if os.IsNotExist(err) {
+			return 0, nil
+		}
+
+		return 0, err
+	}
+
+	for _, f := range files {
+		if !strings.HasSuffix(f.Name(), ".json") {
+			continue
+		}
+
+		uuid := strings.TrimSuffix(f.Name(), ".json")
+
+		cfg, err := c.GetDaoConfig(archiveID, uuid)
+		if err != nil {
+			return 0, err
+		}
+
+		mets, err := cfg.Mets()
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+
+			return 0, err
+		}
+
+		metsRef, err := mets.extractFiles()
+		if err != nil {
+			return 0, err
+		}
+
+		digitalObjects += len(metsRef)
+	}
+
+	return digitalObjects, nil
+}
+
+func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 	m := &domainpb.IndexMessage{
 		OrganisationID: cfg.OrgID,
 		DatasetID:      cfg.ArchiveID,
@@ -109,7 +153,7 @@ func (c *DaoClient) PublishFindingAid(cfg DaoConfig) error {
 	cfg.ObjectCount = int(fa.GetFileCount())
 	cfg.MimeTypes = getMimeTypes(&fa)
 
-	return c.dropOrphans(cfg)
+	return c.dropOrphans(&cfg)
 }
 
 func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
@@ -422,12 +466,12 @@ func getMetsDirPath(archiveID string) string {
 func GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
 	var cfg DaoConfig
 
-	metsPath := getMetsFilePath(archiveID, uuid)
-	if _, err := os.Stat(metsPath); os.IsNotExist(err) {
+	daoPath := getDaoConfigPath(archiveID, uuid)
+	if _, err := os.Stat(daoPath); os.IsNotExist(err) {
 		return cfg, ErrNoFileNotFound
 	}
 
-	r, err := os.Open(metsPath)
+	r, err := os.Open(daoPath)
 	if err != nil {
 		return cfg, err
 	}
