@@ -30,7 +30,7 @@ require (
 	github.com/go-chi/render v1.0.1
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang/protobuf v1.4.2
-	github.com/google/go-cmp v0.5.1
+	github.com/google/go-cmp v0.5.2
 	github.com/google/gofuzz v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-hclog v0.15.0 // indirect
@@ -60,7 +60,7 @@ require (
 	github.com/nats-io/jwt v1.2.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
-	github.com/olivere/elastic/v7 v7.0.19
+	github.com/olivere/elastic/v7 v7.0.22
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
