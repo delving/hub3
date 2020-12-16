@@ -307,6 +307,8 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	contentTagAgg = contentTagAgg.SubAggregation("contentTags", labelAgg)
 	//contentTagAgg := elastic.NewTermsAggregation().Field("resource.entries.tags").Size(30).OrderByCountDesc()
 
+	log.Printf("dataset orgID: %#v", ds.OrgID)
+
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
@@ -328,7 +330,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		return 0, revisions, counter, tagCounter, err
 	}
 
-	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
+	log.Info().Str("orgID", ds.OrgID).Str("datasetID", ds.Spec).Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	if res == nil {
 		log.Warn().Msgf(unexpectedResponseMsg, res)
@@ -527,28 +529,30 @@ func CreateDataSetStats(ctx context.Context, orgID, spec string) (DataSetStats, 
 		log.Warn().Msgf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
+
 	indexStats, err := ds.createIndexStats(ctx)
 	if err != nil {
 		log.Warn().Msgf("Unable to create indexStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
+
 	storeStats, err := ds.createRDFStoreStats()
 	if err != nil {
 		log.Warn().Msgf("Unable to create rdfStoreStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
-	lodFragmentStats, err := ds.createLodFragmentStats(ctx)
-	if err != nil {
-		log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
-		return DataSetStats{}, err
-	}
+
+	// lodFragmentStats, err := ds.createLodFragmentStats(ctx)
+	// if err != nil {
+	// log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
+	// return DataSetStats{}, err
+	// }
 	return DataSetStats{
-		Spec:             spec,
-		IndexStats:       indexStats,
-		RDFStoreStats:    storeStats,
-		LODFragmentStats: lodFragmentStats,
-		CurrentRevision:  ds.Revision,
-		DaoStats:         ds.DaoStats,
+		Spec:            spec,
+		IndexStats:      indexStats,
+		RDFStoreStats:   storeStats,
+		CurrentRevision: ds.Revision,
+		DaoStats:        ds.DaoStats,
 	}, nil
 }
 
