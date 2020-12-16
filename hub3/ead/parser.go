@@ -363,20 +363,10 @@ func (ut *Cunittitle) Title() string {
 // NewClevel creates a fake c level series struct from the paragraph text.
 func (cp *Cp) NewClevel() (*Cc, error) {
 	title := strings.Replace(cp.P, ". .", ".", 1)
-	odd := ""
-	if len(cp.Cextref) > 0 {
-		refs := make([]string, 0)
-		for _, cex := range cp.Cextref {
-			cex.Extref = ""
-			x, err := xml.Marshal(cex)
-			if err != nil {
-				return nil, err
-			}
-			refs = append(refs, fmt.Sprintf("<p>%s</p>", string(x)))
-		}
-		odd = fmt.Sprintf("<odd>%s</odd>", strings.Join(refs, ""))
-	}
-	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did>%s</c>`, title, odd)
+	trimmedTitle := strings.TrimSpace(strings.TrimSuffix(title, "."))
+	rawP := string(cp.Raw)
+	replacedP := strings.Replace(rawP, trimmedTitle, "", 1)
+	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did><odd><p>%s</p></odd></c>`, title, replacedP)
 	cc := &Cc{}
 	err := xml.Unmarshal([]byte(fakeC), cc)
 	if err != nil {
