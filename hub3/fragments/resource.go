@@ -696,9 +696,21 @@ type FragmentResource struct {
 // the Order field in the first FragmentEntry.
 type BySortOrder []*FragmentResource
 
-func (a BySortOrder) Len() int           { return len(a) }
-func (a BySortOrder) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
-func (a BySortOrder) Less(i, j int) bool { return a[i].Entries[0].Order < a[j].Entries[0].Order }
+func (a BySortOrder) Len() int      { return len(a) }
+func (a BySortOrder) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a BySortOrder) Less(i, j int) bool {
+	one := a[i]
+	two := a[j]
+	if len(one.Entries) == 0 {
+		return true
+	}
+
+	if len(two.Entries) == 0 {
+		return false
+	}
+
+	return one.Entries[0].Order < two.Entries[0].Order
+}
 
 // ContextPath returns a string that can be used to reconstruct the path hierarchy
 // for statistics. The values are separated by a forward slash.
