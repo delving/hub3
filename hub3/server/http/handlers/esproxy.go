@@ -27,6 +27,7 @@ import (
 	"github.com/delving/hub3/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/microcosm-cc/bluemonday"
 )
 
 func RegisterElasticSearchProxy(router chi.Router) {
@@ -57,6 +58,7 @@ func esProxy(w http.ResponseWriter, r *http.Request) {
 	// strip prefix from path
 	r.URL.Path = strings.TrimPrefix(r.URL.EscapedPath(), "/api/es")
 
+	p := bluemonday.UGCPolicy()
 	switch {
 	case strings.HasSuffix(r.URL.EscapedPath(), "/_analyze") && r.Method == "POST":
 		// allow post requests on analyze
@@ -68,7 +70,7 @@ func esProxy(w http.ResponseWriter, r *http.Request) {
 	case strings.HasPrefix(r.URL.EscapedPath(), fmt.Sprintf("/%s", c.Config.ElasticSearch.GetIndexName())):
 		// direct access on get is allowed via the proxy
 	case !strings.HasPrefix(r.URL.EscapedPath(), "/_cat"):
-		http.Error(w, fmt.Sprintf("path %s is not allowed on esProxy", r.URL.EscapedPath()), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("path %s is not allowed on esProxy", p.Sanitize(r.URL.EscapedPath())), http.StatusBadRequest)
 		return
 	}
 
