@@ -50,7 +50,6 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/{inventoryID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/ead/{spec}/download", EADDownload)
-	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
 	r.Get("/api/ead/{spec}/desc/index", TreeDescriptionSearch)
 	r.Get("/api/ead/{spec}/meta", EADMeta)
@@ -151,26 +150,6 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.pdf", spec))
 	w.Header().Set(contentTypeKey, "application/pdf")
-	return
-}
-
-// MetsDownload is a handler that returns a stored METS XML for an inventory.
-func METSDownload(w http.ResponseWriter, r *http.Request) {
-	// TODO(kiivihal): refactor for the new format
-	spec := chi.URLParam(r, "spec")
-	if spec == "" {
-		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
-		return
-	}
-	inventoryID := chi.URLParam(r, "inventoryID")
-	if inventoryID == "" {
-		http.Error(w, "inventoryID cannot be empty", http.StatusBadRequest)
-		return
-	}
-	metsPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
-	http.ServeFile(w, r, metsPath)
-	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
-	w.Header().Set(contentTypeKey, "application/xml")
 	return
 }
 

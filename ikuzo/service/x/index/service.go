@@ -24,11 +24,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
+	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
 	proto "google.golang.org/protobuf/proto"
 )
@@ -201,9 +204,50 @@ func (s *Service) handleMessage(m *stan.Msg) {
 	}
 }
 
-func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Revision) {
-	// TODO(kiivihal): implement me
-	log.Debug().Msgf("dropping grouped orphans")
+func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Revision) error {
+	tags := elastic.NewBoolQuery()
+	for _, tag := range []string{"findingAid", "mets"} {
+		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
+	}
+
+	v2 := elastic.NewBoolQuery()
+	if revision.GetSHA() != "" {
+		v2 = v2.MustNot(elastic.NewMatchQuery("meta.sourceID", revision.GetSHA()))
+		v2 = v2.Must(elastic.NewMatchQuery("meta.groupID", revision.GetGroupID()))
+	} else {
+		// drop all for sourcepath
+		v2 = v2.Must(elastic.NewMatchQuery("meta.sourcePath", revision.GetPath()))
+	}
+
+	v2 = v2.Must(tags)
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, datasetID))
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID))
+
+	res, err := index.ESClient().DeleteByQuery().
+		Index(c.Config.ElasticSearch.GetIndexName()).
+		Query(v2).
+		Conflicts("proceed"). // default is abort
+		Do(context.Background())
+	if err != nil {
+		log.Warn().Msgf("Unable to delete orphaned dataset records from index: %s.", err)
+		return err
+	}
+
+	if res == nil {
+		unexpectedResponseMsg := "expected response != nil; got: %v"
+		log.Warn().Msgf(unexpectedResponseMsg, res)
+
+		return fmt.Errorf(unexpectedResponseMsg, res)
+	}
+
+	log.Info().Msgf(
+		"Removed %d records for spec %s for inventory %s",
+		res.Deleted,
+		datasetID,
+		revision.GetGroupID(),
+	)
+
+	return nil
 }
 
 // dropOrphans is a background function to remove orphans from the index when the timer is expired

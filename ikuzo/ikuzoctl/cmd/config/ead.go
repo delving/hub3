@@ -78,6 +78,7 @@ func (e *EAD) AddOptions(cfg *Config) error {
 		cfg.options,
 		ikuzo.SetEADService(svc),
 		ikuzo.SetShutdownHook("ead-service", svc),
+		ikuzo.SetRouters(svc.Routes),
 	)
 
 	return nil

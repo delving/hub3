@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -19,6 +20,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/go-chi/chi"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/xid"
 	"google.golang.org/protobuf/proto"
@@ -95,9 +97,9 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 		OrganisationID: cfg.OrgID,
 		DatasetID:      cfg.ArchiveID,
 		Revision: &domainpb.Revision{
-			SHA:     cfg.UUID,
-			Path:    cfg.RevisionKey,
-			GroupID: cfg.InventoryID,
+			SHA:     cfg.RevisionKey,
+			Path:    fmt.Sprintf("mets/%s", cfg.UUID),
+			GroupID: cfg.InventoryPath,
 		},
 		ActionType: domainpb.ActionType_DROP_ORPHANS,
 	}
@@ -212,6 +214,97 @@ func (c *DaoClient) DefaultDaoFn(cfg DaoConfig) error {
 	return c.PublishFindingAid(cfg)
 }
 
+func validateMetsRequest(r *http.Request) (string, string, error) {
+	spec := chi.URLParam(r, "spec")
+	if spec == "" {
+		return "", "", fmt.Errorf("spec cannot be empty")
+	}
+
+	uuid := chi.URLParam(r, "UUID")
+	if uuid == "" {
+		return "", "", fmt.Errorf("UUID cannot be empty")
+	}
+
+	return spec, uuid, nil
+}
+
+// Index indexes the stored METS files identified by their UUID
+func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
+	spec, uuid, err := validateMetsRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	cfg, err := c.GetDaoConfig(spec, uuid)
+	if err != nil {
+		if errors.Is(err, ErrNoFileNotFound) {
+			http.Error(w, "unknown UUID", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, err.Error(), http.StatusNotFound)
+
+		return
+	}
+
+	if err := c.PublishFindingAid(cfg); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// Delete indexes the stored METS files identified by their UUID
+func (c *DaoClient) Delete(w http.ResponseWriter, r *http.Request) {
+	spec, uuid, err := validateMetsRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cfg, err := c.GetDaoConfig(spec, uuid)
+	if errors.Is(err, ErrNoFileNotFound) {
+		return
+	}
+
+	cfg.RevisionKey = "1"
+
+	if err := c.dropOrphans(&cfg); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := cfg.Delete(); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+}
+
+// DownloadConfig is a handler that returns a stored METS XML for an inventory.
+func (c *DaoClient) DownloadConfig(w http.ResponseWriter, r *http.Request) {
+	spec, uuid, err := validateMetsRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	cfgPath := path.Join(config.Config.EAD.CacheDir, spec, "mets", uuid+".json")
+	http.ServeFile(w, r, cfgPath)
+}
+
+// DownloadXML is a handler that returns a stored METS XML for an inventory.
+func (c *DaoClient) DownloadXML(w http.ResponseWriter, r *http.Request) {
+	spec, uuid, err := validateMetsRequest(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+	}
+
+	metsPath := path.Join(config.Config.EAD.CacheDir, spec, "mets", uuid)
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s_%s.xml", spec, uuid))
+	w.Header().Set("Content-Type", "application/xml")
+	http.ServeFile(w, r, metsPath)
+}
+
 type DaoConfig struct {
 	OrgID          string
 	HubID          string
@@ -281,6 +374,26 @@ func (cfg *DaoConfig) Write() error {
 	)
 }
 
+// Delete removes the DaoConfig and METS file
+func (cfg *DaoConfig) Delete() error {
+	files := []string{
+		cfg.getMetsFilePath(),
+		getDaoConfigPath(cfg.ArchiveID, cfg.UUID),
+	}
+
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (cfg *DaoConfig) metsFileExists() bool {
 	_, err := os.Stat(cfg.getMetsFilePath())
 
@@ -321,7 +434,7 @@ func createHeader(cfg *DaoConfig, id, subjectBase, tag string) *fragments.Header
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
 		SourcePath:    "mets/" + cfg.UUID,
-		GroupID:       cfg.InventoryID,
+		GroupID:       cfg.InventoryPath,
 		Modified:      fragments.NowInMillis(),
 		Tags:          []string{tag},
 	}

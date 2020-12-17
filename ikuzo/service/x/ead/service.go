@@ -125,11 +125,12 @@ func NewService(options ...Option) (*Service, error) {
 		s.CreateTreeFn = eadHub3.CreateTree
 	}
 
-	if s.DaoFn == nil {
-		daoClient := eadHub3.NewDaoClient(s.index)
-		daoClient.HttpFallback = true
+	daoClient := eadHub3.NewDaoClient(s.index)
+	daoClient.HttpFallback = true
 
-		s.DaoClient = &daoClient
+	s.DaoClient = &daoClient
+
+	if s.DaoFn == nil {
 		s.DaoFn = daoClient.DefaultDaoFn
 	}
 
@@ -985,4 +986,11 @@ func (s *Service) AddPostHook(hook domain.PostHookService) error {
 	}
 
 	return nil
+}
+
+func (s *Service) Routes(router chi.Router) {
+	router.Get("/api/ead/{spec}/mets/{UUID}.json", s.DaoClient.DownloadConfig)
+	router.Get("/api/ead/{spec}/mets/{UUID}", s.DaoClient.DownloadXML)
+	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Delete)
+	router.Post("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Index)
 }
