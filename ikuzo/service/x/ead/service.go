@@ -42,6 +42,7 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -993,4 +994,41 @@ func (s *Service) Routes(router chi.Router) {
 	router.Get("/api/ead/{spec}/mets/{UUID}", s.DaoClient.DownloadXML)
 	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Delete)
 	router.Post("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Index)
+}
+
+// getModifiedDatePath returns the filepath of the EAD modified date.
+func (s *Service) getModifiedDatePath(spec string) string {
+	return fmt.Sprintf("%s/modified", s.getDataPath(spec))
+}
+
+// LoadModifiedEADDate loads the modified date of the EAD or else zero time if not available.
+func (s *Service) LoadModifiedEADDate(spec string) time.Time {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	t := time.Time{}
+	timePath := s.getModifiedDatePath(spec)
+	b, err := ioutil.ReadFile(timePath)
+	if err != nil {
+		return t
+	}
+
+	pt, pErr := time.Parse(oaipmh.DateFormat, string(b))
+	if pErr != nil {
+		return t
+	}
+
+	return pt
+}
+
+// SaveModifiedEADDate stores the modified EAD date.
+func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	timePath := s.getModifiedDatePath(spec)
+	err := ioutil.WriteFile(timePath, []byte(modified), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
