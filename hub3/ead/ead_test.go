@@ -335,19 +335,39 @@ var _ = Describe("Ead", func() {
 		Context("for the p in the dsc", func() {
 			dsc := new(Cdsc)
 			err := parseUtil(dsc, "ead.dsc.xml")
+			cfg := NewNodeConfig(context.Background())
+			nodes, nodeCount, err := dsc.NewNodeList(cfg)
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
-			It("should create a c level series from the p", func() {
-				cfg := NewNodeConfig(context.Background())
-				nodes, nodeCount, err := dsc.NewNodeList(cfg)
+			It("should create 5 c level series from the p's", func() {
 				Expect(nodes).ToNot(BeNil())
-				Expect(nodeCount).To(Equal(uint64(2)))
+				Expect(nodeCount).To(Equal(uint64(5)))
 				Expect(err).To(BeNil())
-				first := nodes.Nodes[0]
-				Expect(first.CTag).To(Equal("c"))
-				Expect(first.Type).To(Equal("file"))
-				Expect(first.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam."))
+			})
+			It("should have a archref p element", func() {
+				archref := nodes.Nodes[0]
+				Expect(archref.CTag).To(Equal("c"))
+				Expect(archref.Type).To(Equal("file"))
+				Expect(archref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. archref link ."))
+			})
+			It("should have a extref p element", func() {
+				extref := nodes.Nodes[1]
+				Expect(extref.CTag).To(Equal("c"))
+				Expect(extref.Type).To(Equal("file"))
+				Expect(extref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. extref link ."))
+			})
+			It("should have a bibref p element", func() {
+				bibref := nodes.Nodes[2]
+				Expect(bibref.CTag).To(Equal("c"))
+				Expect(bibref.Type).To(Equal("file"))
+				Expect(bibref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. bibref link ."))
+			})
+			It("should have a ref p element", func() {
+				ref := nodes.Nodes[3]
+				Expect(ref.CTag).To(Equal("c"))
+				Expect(ref.Type).To(Equal("file"))
+				Expect(ref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. ref link . En nu staat er nog wat tekst achter."))
 			})
 		})
 
