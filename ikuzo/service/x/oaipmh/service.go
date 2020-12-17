@@ -92,8 +92,12 @@ func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
 	g, gctx := errgroup.WithContext(ctx)
 	_ = gctx
 	g.Go(func() error {
+		if task.GetLastCheck().IsZero() {
+			task.SetUnixStartFrom()
+		} else {
+			task.SetRelativeFrom()
+		}
 		task.SetLastCheck(time.Now())
-		task.SetRelativeFrom()
 		task.Request.Harvest(task.CallbackFn)
 		return nil
 	})

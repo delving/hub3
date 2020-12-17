@@ -10,6 +10,7 @@ const (
 	ListRecords     = "ListRecords"
 	ListIdentifiers = "ListIdentifiers"
 	DateFormat      = "2006-01-02T15:04:05Z"
+	UnixStart       = "1970-01-01T12:00:00Z"
 )
 
 type HarvestInfo struct {
@@ -42,6 +43,11 @@ func (ht *HarvestTask) GetLastCheck() time.Time {
 // SetLastCheck sets time the task has run.
 func (ht *HarvestTask) SetLastCheck(t time.Time) {
 	ht.HarvestInfo.LastCheck = t
+}
+
+// SetUnixStartFrom sets the From param to unix start datetime.
+func (ht *HarvestTask) SetUnixStartFrom() {
+	ht.Request.From = UnixStart
 }
 
 // SetRelativeFrom sets the From param based on the last check minus the duration check.
