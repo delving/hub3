@@ -219,6 +219,22 @@ func GetOrCreateDataSet(orgID, spec string) (*DataSet, bool, error) {
 	return ds, false, err
 }
 
+// DeleteDataset deletes a set.
+func DeleteDataSet(orgID, spec string, ctx context.Context) error {
+	ds, err := GetDataSet(orgID, spec)
+	if err != nil {
+		return err
+	}
+	ok, dropErr := ds.DropAll(ctx, nil)
+	if dropErr != nil {
+		return dropErr
+	}
+	if !ok {
+		return fmt.Errorf("unable to delete request because: %s", err)
+	}
+	return nil
+}
+
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 	err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)

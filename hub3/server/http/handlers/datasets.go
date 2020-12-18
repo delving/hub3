@@ -138,33 +138,21 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 
 func DeleteDataset(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
-
 	spec := chi.URLParam(r, "spec")
-
-	ds, err := models.GetDataSet(orgID.String(), spec)
-	if err == storm.ErrNotFound {
-		render.Status(r, http.StatusNotFound)
-		log.Printf("Dataset is not found: %s", spec)
-		return
-	}
-
-	ok, err := ds.DropAll(r.Context(), nil)
+	err := models.DeleteDataSet(spec, orgID.String(), r.Context())
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		log.Printf("Unable to delete request because: %s", err)
-		return
-	}
-
-	if !ok {
-		render.Status(r, http.StatusBadRequest)
-		log.Printf("Unable to delete request because: %s", err)
+		if err == storm.ErrNotFound {
+			render.Status(r, http.StatusNotFound)
+			log.Printf("Dataset is not found: %s", spec)
+		} else {
+			render.Status(r, http.StatusBadRequest)
+			log.Printf("Unable to delete request because: %s", err)
+		}
 		return
 	}
 
 	msg := fmt.Sprintf("Dataset is deleted: %s", spec)
-
 	render.Status(r, http.StatusAccepted)
-
 	render.PlainText(w, r, msg)
 }
 

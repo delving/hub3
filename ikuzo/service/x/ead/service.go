@@ -945,6 +945,11 @@ func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (*by
 	return buf, meta, nil
 }
 
+// DeleteEAD removes the dataset from the store.
+func (s *Service) DeleteEAD(datasetID, orgID string) error {
+	return models.DeleteDataSet(orgID, datasetID, context.Background())
+}
+
 // moveTmpFile retrieves Meta from EAD and moves it to the right location
 func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
 	var (
