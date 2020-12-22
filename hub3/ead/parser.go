@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"reflect"
 	"strings"
 	"sync/atomic"
 	"unicode"
@@ -363,24 +364,64 @@ func (ut *Cunittitle) Title() string {
 // NewClevel creates a fake c level series struct from the paragraph text.
 func (cp *Cp) NewClevel() (*Cc, error) {
 	title := strings.Replace(cp.P, ". .", ".", 1)
-	odd := ""
-	if len(cp.Cextref) > 0 {
-		refs := make([]string, 0)
-		for _, cex := range cp.Cextref {
-			cex.Extref = ""
-			x, err := xml.Marshal(cex)
-			if err != nil {
-				return nil, err
-			}
-			refs = append(refs, fmt.Sprintf("<p>%s</p>", string(x)))
-		}
-		odd = fmt.Sprintf("<odd>%s</odd>", strings.Join(refs, ""))
-	}
-	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did>%s</c>`, title, odd)
+	remainder := extractFieldXmlFrom(cp)
+	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did><odd><p>%s</p></odd></c>`, title, remainder)
 	cc := &Cc{}
 	err := xml.Unmarshal([]byte(fakeC), cc)
 	if err != nil {
 		return nil, err
 	}
 	return cc, nil
+}
+
+func extractFieldXmlFrom(cp *Cp) string {
+	cpr := reflect.ValueOf(cp).Elem()
+	typeOfT := cpr.Type()
+	blackList := []string{"XMLName", "Raw", "P"}
+	odd := make([]string, 0)
+	for i := 0; i < cpr.NumField(); i++ {
+		field := cpr.Field(i)
+		name := typeOfT.Field(i).Name
+		inList := false
+		for _, blackD := range blackList {
+			if blackD == name {
+				inList = true
+			}
+		}
+		if inList {
+			continue
+		}
+		if field.Kind() == reflect.Slice || field.Kind() == reflect.String {
+			fieldXML := fieldValuesForOddAsXML(field)
+			if fieldXML != "" {
+				odd = append(odd, fieldXML)
+			}
+		}
+	}
+	return strings.Join(odd, "\n")
+}
+
+func fieldValuesForOddAsXML(field reflect.Value) string {
+	v := ""
+	if field.Kind() == reflect.String {
+		v = field.String()
+	}
+	if field.Kind() == reflect.Slice {
+		remainder := make([]string, 0)
+		for i := 0; i < field.Len(); i++ {
+			itemInSlice := field.Index(i)
+			if itemInSlice.Kind() == reflect.Ptr {
+				itemInSlice = itemInSlice.Elem()
+				rawField := itemInSlice.FieldByName("Raw")
+				if rawField.CanSet() {
+					rawField.SetBytes(make([]byte, 0))
+					xmlString, _ := xml.Marshal(itemInSlice.Interface())
+					remainder = append(remainder, string(xmlString))
+				}
+			}
+		}
+		v = strings.Join(remainder, "")
+	}
+
+	return v
 }
