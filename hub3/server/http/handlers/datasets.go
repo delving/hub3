@@ -139,7 +139,7 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 func DeleteDataset(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
-	err := models.DeleteDataSet(spec, orgID.String(), r.Context())
+	err := models.DeleteDataSet(orgID.String(), spec, r.Context())
 	if err != nil {
 		if err == storm.ErrNotFound {
 			render.Status(r, http.StatusNotFound)
