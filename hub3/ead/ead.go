@@ -245,6 +245,7 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		}
 		if cfg.Nodes != nil {
 			cfg.Nodes <- node
+			continue
 		}
 
 		// legacy add should not happen if there is a node channel
@@ -258,6 +259,7 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		}
 		if cfg.Nodes != nil {
 			cfg.Nodes <- node
+			continue
 		}
 
 		// legacy add should not happen if there is a node channel
@@ -271,6 +273,7 @@ func (dsc *Cdsc) NewNodeList(cfg *NodeConfig) (*NodeList, uint64, error) {
 		}
 		if cfg.Nodes != nil {
 			cfg.Nodes <- node
+			continue
 		}
 
 		// legacy add should not happen if there is a node channel

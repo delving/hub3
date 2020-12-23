@@ -1,6 +1,10 @@
 <dsc type="combined">
   <head>Beschrijving van de series en archiefbestanddelen</head>
-  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. <extref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</extref>.</p>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. archref link <archref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</archref>.</p>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. extref link <extref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</extref>.</p>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. bibref link <bibref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</bibref>.</p>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. ref link <ref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</ref>. En nu staat er nog wat tekst achter.</p>
+  <p>Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. twee ref links voor Jack.<ref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</ref><ref linktype="simple" show="new" actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00447">https://www.nationaalarchief.nl/onderzoeken/index/nt00447</ref></p>
   <c level="file">
     <did>
       <unitid identifier="44345203" type="ABS">1</unitid>
