@@ -157,12 +157,15 @@ func (cead *Cead) RawDescription() []byte {
 	for _, did := range cead.Carchdesc.Cdid {
 		description = append(description, did.Raw...)
 	}
+
 	for _, dscGrp := range cead.Carchdesc.Cdescgrp {
 		description = append(description, dscGrp.Raw...)
 	}
+
 	for _, bioghist := range cead.Carchdesc.Cbioghist {
 		description = append(description, bioghist.Raw...)
 	}
+
 	for _, userestrict := range cead.Carchdesc.Cuserestrict {
 		description = append(description, userestrict.Raw...)
 	}
@@ -346,6 +349,7 @@ func (ca *Cabstract) CleanAbstract() []string {
 		"<lb/>",
 	)
 	trimmed := []string{}
+
 	for _, p := range parts {
 		t := strings.TrimSpace(p)
 		if t != "" {
@@ -364,7 +368,7 @@ func (ut *Cunittitle) Title() string {
 // NewClevel creates a fake c level series struct from the paragraph text.
 func (cp *Cp) NewClevel() (*Cc, error) {
 	title := strings.Replace(cp.P, ". .", ".", 1)
-	remainder := extractFieldXmlFrom(cp)
+	remainder := extractFieldXMLFrom(cp)
 	fakeC := fmt.Sprintf(`<c level="file"><did><unittitle>%s</unittitle></did><odd><p>%s</p></odd></c>`, title, remainder)
 	cc := &Cc{}
 	err := xml.Unmarshal([]byte(fakeC), cc)
@@ -374,23 +378,19 @@ func (cp *Cp) NewClevel() (*Cc, error) {
 	return cc, nil
 }
 
-func extractFieldXmlFrom(cp *Cp) string {
+func extractFieldXMLFrom(cp *Cp) string {
 	cpr := reflect.ValueOf(cp).Elem()
 	typeOfT := cpr.Type()
-	blackList := []string{"XMLName", "Raw", "P"}
 	odd := make([]string, 0)
+
 	for i := 0; i < cpr.NumField(); i++ {
-		field := cpr.Field(i)
 		name := typeOfT.Field(i).Name
-		inList := false
-		for _, blackD := range blackList {
-			if blackD == name {
-				inList = true
-			}
-		}
-		if inList {
+		switch name {
+		case "XMLName", "Raw", "P":
 			continue
 		}
+
+		field := cpr.Field(i)
 		if field.Kind() == reflect.Slice || field.Kind() == reflect.String {
 			fieldXML := fieldValuesForOddAsXML(field)
 			if fieldXML != "" {
@@ -402,12 +402,12 @@ func extractFieldXmlFrom(cp *Cp) string {
 }
 
 func fieldValuesForOddAsXML(field reflect.Value) string {
-	v := ""
-	if field.Kind() == reflect.String {
-		v = field.String()
-	}
-	if field.Kind() == reflect.Slice {
+	switch field.Kind() {
+	case reflect.String:
+		return field.String()
+	case reflect.Slice:
 		remainder := make([]string, 0)
+
 		for i := 0; i < field.Len(); i++ {
 			itemInSlice := field.Index(i)
 			if itemInSlice.Kind() == reflect.Ptr {
@@ -420,8 +420,9 @@ func fieldValuesForOddAsXML(field reflect.Value) string {
 				}
 			}
 		}
-		v = strings.Join(remainder, "")
-	}
 
-	return v
+		return strings.Join(remainder, "")
+	default:
+		return ""
+	}
 }
