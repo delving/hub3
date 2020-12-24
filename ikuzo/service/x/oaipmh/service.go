@@ -3,10 +3,13 @@ package oaipmh
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/kiivihal/goharvest/oai"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -92,13 +95,21 @@ func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
 	g, gctx := errgroup.WithContext(ctx)
 	_ = gctx
 	g.Go(func() error {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Error().
+					Str("identifier", task.Name).
+					Err(fmt.Errorf("panic message : %v", r)).
+					Msg("unable to run harvest task")
+			}
+		}()
 		if task.GetLastCheck().IsZero() {
 			task.SetUnixStartFrom()
-		} else {
-			task.SetRelativeFrom()
 		}
-		task.SetLastCheck(time.Now())
-		task.Request.Harvest(task.CallbackFn)
+		task.Request.Harvest(func(response *oai.Response) {
+			recordTime := task.CallbackFn(response)
+			task.SetLastCheck(recordTime)
+		})
 		return nil
 	})
 

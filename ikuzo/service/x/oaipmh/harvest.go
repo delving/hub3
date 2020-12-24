@@ -19,7 +19,7 @@ type HarvestInfo struct {
 	Error        string
 }
 
-type HarvestCallback func(r *oai.Response)
+type HarvestCallback func(r *oai.Response) (recordTime time.Time)
 
 type HarvestTask struct {
 	OrgID       string
