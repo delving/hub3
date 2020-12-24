@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/go-chi/render"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
@@ -99,7 +101,7 @@ func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
 			if r := recover(); r != nil {
 				log.Error().
 					Str("identifier", task.Name).
-					Err(fmt.Errorf("panic message : %v", r)).
+					Err(fmt.Errorf("panic message : %v on url %s", r, task.Request.GetFullURL())).
 					Msg("unable to run harvest task")
 			}
 		}()
@@ -126,15 +128,29 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // HarvestNow starts all harvest task from the beginning.
 func (s *Service) HarvestNow(w http.ResponseWriter, r *http.Request) {
+	errs := make([]string, 0)
+	taskNames := make([]string, 0)
 	for _, task := range s.tasks {
 		t := time.Time{}
 		task.SetLastCheck(t)
 		err := s.runHarvest(r.Context(), &task)
 		if err != nil {
-			log.Err(err).Msg("could not run harvest-now without errors")
-			w.WriteHeader(http.StatusInternalServerError)
+			errs = append(errs, err.Error())
+			continue
 		}
+		taskNames = append(taskNames, task.Name)
 	}
+	if len(errs) > 0 {
+		log.Error().
+			Err(fmt.Errorf("%s", strings.Join(errs, "\n"))).
+			Msg("harvest-now could complete properly")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	msg := fmt.Sprintf("Tasks processed: %s", strings.Join(taskNames, ", "))
+	render.Status(r, http.StatusAccepted)
+	render.PlainText(w, r, msg)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
