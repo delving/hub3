@@ -58,7 +58,7 @@ func (o *OAIPMH) AddEadHarvestTask(orgID string, fn oaipmh.HarvestCallback) {
 	t := oaipmh.HarvestTask{
 		OrgID:      orgID,
 		Name:       "ead-harvester",
-		CheckEvery: time.Hour * 1,
+		CheckEvery: time.Minute * 5,
 		Request: oai.Request{
 			BaseURL:        o.EadHarvestUrl,
 			MetadataPrefix: "oai_ead",
