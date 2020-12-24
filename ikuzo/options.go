@@ -214,6 +214,7 @@ func SetOAIPMHServerOption(svc *oaipmh.Service) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Get("/oai/!open_oai.OAIHandler", svc.ServeHTTP)
+				r.Post("/oai/harvest-now", svc.HarvestNow)
 			},
 		)
 

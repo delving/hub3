@@ -124,6 +124,19 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// HarvestNow starts all harvest task from the beginning.
+func (s *Service) HarvestNow(w http.ResponseWriter, r *http.Request) {
+	for _, task := range s.tasks {
+		t := time.Time{}
+		task.SetLastCheck(t)
+		err := s.runHarvest(r.Context(), &task)
+		if err != nil {
+			log.Err(err).Msg("could not run harvest-now without errors")
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}
+}
+
 func (s *Service) Shutdown(ctx context.Context) error {
 	s.cancel()
 
