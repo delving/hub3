@@ -42,6 +42,11 @@ func (ht *HarvestTask) GetLastCheck() time.Time {
 
 // SetLastCheck sets time the task has run.
 func (ht *HarvestTask) SetLastCheck(t time.Time) {
+	if ht.HarvestInfo == nil {
+		ht.HarvestInfo = &HarvestInfo{
+			LastModified: time.Now(),
+		}
+	}
 	ht.HarvestInfo.LastCheck = t
 }
 
