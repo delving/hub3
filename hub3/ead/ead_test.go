@@ -19,8 +19,10 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	r "github.com/kiivihal/rdf2go"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	. "github.com/delving/hub3/hub3/ead"
@@ -335,19 +337,59 @@ var _ = Describe("Ead", func() {
 		Context("for the p in the dsc", func() {
 			dsc := new(Cdsc)
 			err := parseUtil(dsc, "ead.dsc.xml")
+			cfg := NewNodeConfig(context.Background())
+			nodes, nodeCount, err := dsc.NewNodeList(cfg)
 			It("should not throw an error on create", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
-			It("should create a c level series from the p", func() {
-				cfg := NewNodeConfig(context.Background())
-				nodes, nodeCount, err := dsc.NewNodeList(cfg)
+			It("should create 5 c level series from the p's", func() {
 				Expect(nodes).ToNot(BeNil())
-				Expect(nodeCount).To(Equal(uint64(2)))
-				Expect(err).To(BeNil())
-				first := nodes.Nodes[0]
-				Expect(first.CTag).To(Equal("c"))
-				Expect(first.Type).To(Equal("file"))
-				Expect(first.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam."))
+				Expect(nodeCount).To(Equal(uint64(6)))
+			})
+			It("should have a archref p element", func() {
+				archref := nodes.Nodes[0]
+				triples := archref.Triples(cfg)
+				oddString := OddStringFromTriple(triples)
+				Expect(archref.CTag).To(Equal("c"))
+				Expect(archref.Type).To(Equal("file"))
+				Expect(archref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. archref link ."))
+				Expect(oddString).To(Equal(`<p><archref actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446" linktype="simple" show="new">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</archref></p>`))
+			})
+			It("should have a extref p element", func() {
+				extref := nodes.Nodes[1]
+				triples := extref.Triples(cfg)
+				oddString := OddStringFromTriple(triples)
+				Expect(extref.CTag).To(Equal("c"))
+				Expect(extref.Type).To(Equal("file"))
+				Expect(extref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. extref link ."))
+				Expect(oddString).To(Equal(`<p><extref actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446" linktype="simple" show="new">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</extref></p>`))
+			})
+			It("should have a bibref p element", func() {
+				bibref := nodes.Nodes[2]
+				triples := bibref.Triples(cfg)
+				oddString := OddStringFromTriple(triples)
+				Expect(bibref.CTag).To(Equal("c"))
+				Expect(bibref.Type).To(Equal("file"))
+				Expect(bibref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. bibref link ."))
+				Expect(oddString).To(Equal(`<p><bibref actuate="onrequest" href="https://www.nationaalarchief.nl/onderzoeken/index/nt00446" linktype="simple" show="new">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</bibref></p>`))
+			})
+			It("should have a ref p element", func() {
+				ref := nodes.Nodes[3]
+				triples := ref.Triples(cfg)
+				oddString := OddStringFromTriple(triples)
+				Expect(ref.CTag).To(Equal("c"))
+				Expect(ref.Type).To(Equal("file"))
+				Expect(ref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. ref link . En nu staat er nog wat tekst achter."))
+				Expect(oddString).To(Equal(`<p><ref actuate="onrequest" linktype="simple" show="new" target="">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</ref></p>`))
+			})
+			It("should have a TWO ref in ONE p element", func() {
+				ref := nodes.Nodes[4]
+				Expect(ref.CTag).To(Equal("c"))
+				Expect(ref.Type).To(Equal("file"))
+				Expect(ref.Header.Label[0]).To(Equal("Let op: deze inventaris is alleen voor het inzien van de dossiers. Kijk in de index voor het zoeken op naam. twee ref links voor Jack."))
+				triples := ref.Triples(cfg)
+				oddString := OddStringFromTriple(triples)
+				Expect(oddString).To(Equal(`<p><ref actuate="onrequest" linktype="simple" show="new" target="">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</ref><ref actuate="onrequest" linktype="simple" show="new" target="">https://www.nationaalarchief.nl/onderzoeken/index/nt00447</ref></p>`))
 			})
 		})
 
@@ -491,4 +533,13 @@ func TestNodeDate_ValidDateNormal(t *testing.T) {
 			}
 		})
 	}
+}
+
+func OddStringFromTriple(triple []*r.Triple) string {
+	for _, s := range triple {
+		if strings.HasSuffix(s.Predicate.RawValue(), "odd") {
+			return s.Object.RawValue()
+		}
+	}
+	return ""
 }

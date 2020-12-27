@@ -6,6 +6,7 @@
 
 ### Added 
 
+- Create c level and Node from p element in dsc element and add every Cp field to the Odd in the created Clevel. [[GH-67]](https://github.com/delving/hub3/pull/67)
 - Sort fields in the fieldMap resource.NewFields because the map is always unordered. Store protobuf messages in resource and use pointers instead of values for protobuf field in FragmentGraph. [[GH-63]](https://github.com/delving/hub3/pull/63)
 - Update to v2 RAML API documentation [[GH-59]](https://github.com/delving/hub3/pull/59)
 - Extract extref from p when found and add it to the odd. [[GH-58]](https://github.com/delving/hub3/pull/58)
@@ -20,6 +21,7 @@
 - Config option `datasetTags` to add custom tags to `meta.tags` based on the datasetID [[GH-52]](https://github.com/delving/hub3/pull/52)
 
 ### Fixed
+- Fix for graph traversal when creating v1 indexing records [[GH-64]](https://github.com/delving/hub3/pull/64)
 - use "<br/>" instead of "<lb/>" in the description API output [[GH-54]](https://github.com/delving/hub3/pull/54)
 - Code quality improvements reported by SonarCloud and golangci-lint [[GH-35]](https://github.com/delving/hub3/pull/35)
 - Concurrent retrieval of RDF for webresources now uses errgroup [[GH-44]](https://github.com/delving/hub3/pull/44)
