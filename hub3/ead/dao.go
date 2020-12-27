@@ -26,10 +26,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const (
-	daoPath = "dao"
-)
-
 type DaoClient struct {
 	bi           *index.Service
 	client       *http.Client
