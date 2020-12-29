@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
@@ -193,15 +195,27 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 
 	if tree.HasDigitalObject {
 		daoCfg := newDaoConfig(cfg, tree)
+
+		// must happen here because the check needs the daoCfg to not be written yet
+		hasOrphanedMetsFile := daoCfg.hasOrphanedMetsFile()
+
 		if err := daoCfg.Write(); err != nil {
-			config.Config.Logger.Error().Err(err).Msg("unable to write daocfg to disk")
+			log.Error().Err(err).Msg("unable to write daocfg to disk")
 		}
 
-		if cfg.ProcessDigital && cfg.DaoFn != nil {
-			if err := cfg.DaoFn(daoCfg); err != nil {
-				config.Config.Logger.Error().Err(err).Msg("unable to process dao link")
-				cfg.MetsCounter.AppendError(err.Error())
+		if cfg.DaoFn != nil {
+			if cfg.ProcessDigital || hasOrphanedMetsFile {
+				log.Debug().
+					Str("archiveID", daoCfg.ArchiveID).
+					Str("InventoryID", daoCfg.InventoryID).
+					Str("uuid", daoCfg.UUID).
+					Msg("force processing mets files")
+				if err := cfg.DaoFn(daoCfg); err != nil {
+					log.Error().Err(err).Msg("unable to process dao link")
+					cfg.MetsCounter.AppendError(err.Error())
+				}
 			}
+
 		}
 	}
 

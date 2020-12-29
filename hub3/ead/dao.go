@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"path"
@@ -23,6 +22,7 @@ import (
 	"github.com/go-chi/chi"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/xid"
+	"github.com/rs/zerolog/log"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -155,7 +155,7 @@ func (c *DaoClient) PublishFindingAid(cfg DaoConfig) error {
 }
 
 func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
-	config.Config.Logger.Debug().
+	log.Debug().
 		Str("link", cfg.Link).
 		Str("orgID", cfg.OrgID).
 		Str("datasetID", cfg.ArchiveID).
@@ -254,31 +254,35 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+func (c *DaoClient) Delete(archiveID, uuid string) error {
+	cfg, err := c.GetDaoConfig(archiveID, uuid)
+	if errors.Is(err, ErrFileNotFound) {
+		return nil
+	}
+
+	cfg.RevisionKey = "1"
+
+	if err := c.dropOrphans(&cfg); err != nil {
+		return err
+	}
+
+	if err := cfg.Delete(); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // Delete indexes the stored METS files identified by their UUID
-func (c *DaoClient) Delete(w http.ResponseWriter, r *http.Request) {
+func (c *DaoClient) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	cfg, err := c.GetDaoConfig(spec, uuid)
-	if errors.Is(err, ErrFileNotFound) {
-		return
-	}
-
-	cfg.RevisionKey = "1"
-
-	if err := c.dropOrphans(&cfg); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := cfg.Delete(); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
+	deleteErr := c.Delete(spec, uuid)
+	http.Error(w, deleteErr.Error(), http.StatusInternalServerError)
 }
 
 // DownloadConfig is a handler that returns a stored METS XML for an inventory.
@@ -360,7 +364,7 @@ func (cfg *DaoConfig) getDirPath() string {
 func (cfg *DaoConfig) Write() error {
 	err := os.MkdirAll(cfg.getDirPath(), os.ModePerm)
 	if err != nil {
-		log.Printf("mkdir error: %#v", err)
+		log.Error().Err(err).Msg("mkdir error")
 		return err
 	}
 
@@ -394,6 +398,20 @@ func (cfg *DaoConfig) Delete() error {
 	}
 
 	return nil
+}
+
+func (cfg *DaoConfig) hasOrphanedMetsFile() bool {
+	if cfg.metsFileExists() && !cfg.daoConfigExists() {
+		return true
+	}
+
+	return false
+}
+
+func (cfg *DaoConfig) daoConfigExists() bool {
+	_, err := os.Stat(cfg.getConfigPath())
+
+	return !os.IsNotExist(err)
 }
 
 func (cfg *DaoConfig) metsFileExists() bool {

@@ -997,7 +997,7 @@ func (s *Service) AddPostHook(hook domain.PostHookService) error {
 func (s *Service) Routes(router chi.Router) {
 	router.Get("/api/ead/{spec}/mets/{UUID}.json", s.DaoClient.DownloadConfig)
 	router.Get("/api/ead/{spec}/mets/{UUID}", s.DaoClient.DownloadXML)
-	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Delete)
+	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.HandleDelete)
 	router.Post("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Index)
 }
 
