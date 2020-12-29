@@ -2,11 +2,9 @@ package config
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
-	"github.com/kiivihal/goharvest/oai"
 )
 
 type OAIPMH struct {
@@ -14,12 +12,17 @@ type OAIPMH struct {
 	AdminEmails    []string `json:"adminEmails"`
 	RepositoryName string   `json:"repositoryName"`
 	HarvestDelay   int      `json:"harvestDelay"`
-	EadHarvestUrl  string   `json:"eadHarvestUrl"`
-	MetsHarvestUrl string   `json:"metsHarvestUrl"`
-	Service        *oaipmh.Service
+	EadHarvestURL  string   `json:"eadHarvestUrl"`
+	MetsHarvestURL string   `json:"metsHarvestUrl"`
+	HarvestPath    string   `json:"harvestPath"`
+	service        *oaipmh.Service
 }
 
 func (o *OAIPMH) NewService(cfg *Config) (*oaipmh.Service, error) {
+	if o.service != nil {
+		return o.service, nil
+	}
+
 	svc, err := oaipmh.NewService(
 		oaipmh.SetDelay(o.HarvestDelay),
 	)
@@ -28,10 +31,10 @@ func (o *OAIPMH) NewService(cfg *Config) (*oaipmh.Service, error) {
 	}
 
 	if err := svc.StartHarvestSync(); err != nil {
-		return nil, fmt.Errorf("unable to start OAIPMH harvester %w", err)
+		return nil, fmt.Errorf("unable to start OAIPMH harvester; %w", err)
 	}
 
-	o.Service = svc
+	o.service = svc
 
 	return svc, nil
 }
@@ -42,47 +45,23 @@ func (o *OAIPMH) AddOptions(cfg *Config) error {
 		return err
 	}
 
+	// TODO(kiivihal): enable again after testing
+	// serverStore, err := oaipmh.NewFsRepoStore(o.HarvestPath)
+	// if err != nil {
+	// return fmt.Errorf("unable to create OAI-PMH server store; %w", err)
+	// }
+
+	// server, err := oaipmh.NewServer(oaipmh.SetServerStore(serverStore))
+	// if err != nil {
+	// return fmt.Errorf("unable to create OAI-PMH server; %w", err)
+	// }
+
 	cfg.options = append(
 		cfg.options,
-		ikuzo.SetOAIPMHServerOption(svc),
-		ikuzo.SetShutdownHook("oaipmh-service", svc),
+		// TODO(kiivihal): enable again after testing current
+		// ikuzo.SetRouters(server.Routes("/api/oai-pmh")),
+		ikuzo.SetOAIPMHService(svc),
 	)
 
 	return nil
-}
-
-func (o *OAIPMH) AddEadHarvestTask(orgID string, fn oaipmh.HarvestCallback) {
-	if o.EadHarvestUrl == "" {
-		return
-	}
-	t := oaipmh.HarvestTask{
-		OrgID:      orgID,
-		Name:       "ead-harvester",
-		CheckEvery: time.Minute * 5,
-		Request: oai.Request{
-			BaseURL:        o.EadHarvestUrl,
-			MetadataPrefix: "oai_ead",
-			Verb:           oaipmh.ListRecords,
-		},
-		CallbackFn: fn,
-	}
-	oaipmh.AddTask(t)(o.Service)
-}
-
-func (o *OAIPMH) AddMetsHarvestTask(orgID string, fn oaipmh.HarvestCallback) {
-	if o.MetsHarvestUrl == "" {
-		return
-	}
-	t := oaipmh.HarvestTask{
-		OrgID:      orgID,
-		Name:       "mets-harvester",
-		CheckEvery: time.Minute * 5,
-		Request: oai.Request{
-			BaseURL:        o.MetsHarvestUrl,
-			MetadataPrefix: "oai_mets",
-			Verb:           oaipmh.ListIdentifiers,
-		},
-		CallbackFn: fn,
-	}
-	oaipmh.AddTask(t)(o.Service)
 }

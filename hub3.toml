@@ -140,8 +140,9 @@ adminEmails = ["info@delving.eu",]
 # repositoryName
 repositoryName = "dev1"
 harvestDelay = 1
-eadHarvestUrl = "http://localhost:3000/oai/!open_oai.OAIHandler"
-metsHarvestUrl = "http://localhost:3000/oai/!open_oai.OAIHandler"
+eadHarvestUrl = "http://localhost:3000/oai/ead"
+metsHarvestUrl = "http://localhost:3000/oai/mets"
+harvestPath = "/tmp/oaipmh"
 
 [webresource]
 # enabel the webresource endpoint /api/webresource
@@ -215,7 +216,6 @@ cacheDir = "/tmp/ead"
 metrics = true
 workers = 1
 processDigital = false
-
 searchURL = ""
 genreFormDefault = "other/unknown"
 treeFields = [

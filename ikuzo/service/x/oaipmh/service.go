@@ -10,22 +10,24 @@ import (
 	"time"
 
 	"github.com/go-chi/render"
-	"github.com/kiivihal/goharvest/oai"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
 
 type Service struct {
+	ctx          context.Context
 	cancel       context.CancelFunc
 	group        *errgroup.Group
 	workers      int
 	rw           sync.Mutex
 	defaultDelay int
-	tasks        []HarvestTask
+	tasks        []*HarvestTask
 }
 
 func NewService(options ...Option) (*Service, error) {
-	s := &Service{}
+	s := &Service{
+		tasks: []*HarvestTask{},
+	}
 
 	// apply options
 	for _, option := range options {
@@ -45,14 +47,25 @@ func NewService(options ...Option) (*Service, error) {
 	return s, nil
 }
 
+func (s *Service) AddTask(task ...*HarvestTask) error {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+
+	if len(task) > 0 {
+		s.tasks = append(s.tasks, task...)
+	}
+
+	return nil
+}
+
 func (s *Service) StartHarvestSync() error {
 	// create errgroup and add cancel to service
 	ctx, cancel := context.WithCancel(context.Background())
 	g, gctx := errgroup.WithContext(ctx)
-	_ = gctx
 
 	s.cancel = cancel
 	s.group = g
+	s.ctx = ctx
 
 	ticker := time.NewTicker(time.Duration(s.defaultDelay) * time.Minute)
 
@@ -83,19 +96,22 @@ func (s *Service) StartHarvestSync() error {
 }
 
 func (s *Service) findAvailableTask() *HarvestTask {
-	var task *HarvestTask
 	for _, t := range s.tasks {
+		if t.running {
+			continue
+		}
+
 		if t.GetLastCheck().Add(t.CheckEvery).Before(time.Now()) {
-			task = &t
+			return t
 		}
 	}
 
-	return task
+	return nil
 }
 
 func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
-	g, gctx := errgroup.WithContext(ctx)
-	_ = gctx
+	g, _ := errgroup.WithContext(ctx)
+
 	g.Go(func() error {
 		defer func() {
 			if r := recover(); r != nil {
@@ -105,13 +121,12 @@ func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
 					Msg("unable to run harvest task")
 			}
 		}()
-		if task.GetLastCheck().IsZero() {
-			task.SetUnixStartFrom()
+
+		err := task.Harvest(ctx)
+		if err != nil {
+			return err
 		}
-		task.Request.Harvest(func(response *oai.Response) {
-			recordTime := task.CallbackFn(response)
-			task.SetLastCheck(recordTime)
-		})
+
 		return nil
 	})
 
@@ -128,28 +143,46 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // HarvestNow starts all harvest task from the beginning.
 func (s *Service) HarvestNow(w http.ResponseWriter, r *http.Request) {
+	resync := r.URL.Query().Get("resync")
 	errs := make([]string, 0)
 	taskNames := make([]string, 0)
+
 	for _, task := range s.tasks {
-		t := time.Time{}
-		task.SetLastCheck(t)
-		err := s.runHarvest(r.Context(), &task)
+		if strings.EqualFold(resync, "true") {
+			err := task.getOrCreateHarvestInfo()
+			if err != nil {
+				errs = append(errs, err.Error())
+				continue
+			}
+
+			task.HarvestInfo.LastModified = time.Time{}
+			if err := task.writeHarvestInfo(); err != nil {
+				errs = append(errs, err.Error())
+				continue
+			}
+		}
+
+		err := s.runHarvest(s.ctx, task)
 		if err != nil {
 			errs = append(errs, err.Error())
 			continue
 		}
+
 		taskNames = append(taskNames, task.Name)
 	}
+
 	if len(errs) > 0 {
 		log.Error().
 			Err(fmt.Errorf("%s", strings.Join(errs, "\n"))).
 			Msg("harvest-now could complete properly")
 		w.WriteHeader(http.StatusInternalServerError)
+
 		return
 	}
 
-	msg := fmt.Sprintf("Tasks processed: %s", strings.Join(taskNames, ", "))
 	render.Status(r, http.StatusAccepted)
+
+	msg := fmt.Sprintf("Tasks processed: %s", strings.Join(taskNames, ", "))
 	render.PlainText(w, r, msg)
 }
 

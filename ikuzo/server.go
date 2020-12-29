@@ -396,3 +396,9 @@ func (s *server) proxyDataNode(w http.ResponseWriter, r *http.Request) {
 
 	s.dataNodeProxy.ServeHTTP(w, r)
 }
+
+func (s *server) addShutdown(name string, hook Shutdown) {
+	if _, ok := s.shutdownHooks[name]; !ok {
+		s.shutdownHooks[name] = hook
+	}
+}

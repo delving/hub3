@@ -195,6 +195,12 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 		return err
 	}
 
+	if _, err := os.Stat(cfg.getMetsFilePath()); os.IsNotExist(err) {
+		if mkDirErr := os.MkdirAll(cfg.getDirPath(), os.ModePerm); mkDirErr != nil {
+			return mkDirErr
+		}
+	}
+
 	return ioutil.WriteFile(
 		cfg.getMetsFilePath(),
 		buf.Bytes(),
@@ -233,7 +239,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 
 	cfg, err := c.GetDaoConfig(spec, uuid)
 	if err != nil {
-		if errors.Is(err, ErrNoFileNotFound) {
+		if errors.Is(err, ErrFileNotFound) {
 			http.Error(w, "unknown UUID", http.StatusNotFound)
 			return
 		}
@@ -258,7 +264,7 @@ func (c *DaoClient) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cfg, err := c.GetDaoConfig(spec, uuid)
-	if errors.Is(err, ErrNoFileNotFound) {
+	if errors.Is(err, ErrFileNotFound) {
 		return
 	}
 
@@ -577,7 +583,7 @@ func GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
 
 	daoPath := getDaoConfigPath(archiveID, uuid)
 	if _, err := os.Stat(daoPath); os.IsNotExist(err) {
-		return cfg, ErrNoFileNotFound
+		return cfg, ErrFileNotFound
 	}
 
 	r, err := os.Open(daoPath)

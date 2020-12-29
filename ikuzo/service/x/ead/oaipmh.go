@@ -26,7 +26,7 @@ func NewEADHarvester(s *Service) (EADHarvester, error) {
 }
 
 func (e *EADHarvester) ProcessEadFromOai(r *oai.Response) {
-	if r.Request.Verb != oaipmh.ListRecords {
+	if r.Request.Verb != oaipmh.VerbListRecords {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting ead records")
 		return
 	}
@@ -103,7 +103,7 @@ func NewMetsHarvest(c *ead.DaoClient) (MetsHarvester, error) {
 }
 
 func (m *MetsHarvester) ProcessMetsFromOai(r *oai.Response) {
-	if r.Request.Verb != oaipmh.ListIdentifiers {
+	if r.Request.Verb != oaipmh.VerbListIdentifiers {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting mets headers")
 		return
 	}

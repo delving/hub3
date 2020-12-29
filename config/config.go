@@ -191,10 +191,11 @@ type OAIPMH struct {
 	// AdminEmails has a list of the admin emails of this endpoint
 	AdminEmails []string `json:"adminEmails"`
 	// RepositoryName is the name of the OAI-PMH repossitory
-	RepositoryName string `json:"repositoryName"`
-	HarvestDelay   int    `json:"harvestDelay"`
-	EadHarvestUrl  string `json:"eadHarvestUrl"`
-	MetsHarvestUrl string `json:"metsHarvestUrl"`
+	RepositoryName  string `json:"repositoryName"`
+	HarvestDelay    int    `json:"harvestDelay"`
+	EadHarvestURL   string `json:"eadHarvestURL"`
+	MetsHarvestURL  string `json:"metsHarvestURL"`
+	MetsDownloadFmt string `json:"metsDownloadFmt"`
 }
 
 // WebResource holds all the configuration options for the WebResource endpoint

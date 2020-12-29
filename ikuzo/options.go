@@ -205,11 +205,13 @@ func SetEADService(svc *ead.Service) Option {
 			},
 		)
 
+		s.addShutdown("EAD service", svc)
+
 		return nil
 	}
 }
 
-func SetOAIPMHServerOption(svc *oaipmh.Service) Option {
+func SetOAIPMHService(svc *oaipmh.Service) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
@@ -217,6 +219,8 @@ func SetOAIPMHServerOption(svc *oaipmh.Service) Option {
 				r.Post("/oai/harvest-now", svc.HarvestNow)
 			},
 		)
+
+		s.addShutdown("oai-pmh service", svc)
 
 		return nil
 	}
