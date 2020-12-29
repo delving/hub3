@@ -61,7 +61,9 @@ func (ht *HarvestTask) getOrCreateHarvestInfo() error {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		ht.HarvestInfo = &HarvestInfo{}
 		err := ht.writeHarvestInfo()
-
+		if err != nil {
+			return err
+		}
 		return err
 	}
 
