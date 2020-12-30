@@ -218,8 +218,9 @@ func (c *DaoClient) DefaultDaoFn(cfg DaoConfig) error {
 
 func validateMetsRequest(r *http.Request) (string, string, error) {
 	spec := chi.URLParam(r, "spec")
-	if spec == "" {
-		return "", "", fmt.Errorf("spec cannot be empty")
+	err := ValidateSpec(spec)
+	if err != nil {
+		return "", "", err
 	}
 
 	uuid := chi.URLParam(r, "UUID")

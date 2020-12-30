@@ -174,11 +174,12 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 
 func EADMeta(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	if spec == "" {
+	err := ead.ValidateSpec(spec)
+	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
+			Message:    err.Error(),
 			Error:      nil,
 		})
 		return
