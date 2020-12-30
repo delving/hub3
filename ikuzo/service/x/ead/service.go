@@ -135,10 +135,6 @@ func NewService(options ...Option) (*Service, error) {
 		s.DaoFn = daoClient.DefaultDaoFn
 	}
 
-	if s.revision == nil {
-		return s, fmt.Errorf("cannot start ead.Service without revision.Service")
-	}
-
 	// create datadir
 	if s.dataDir != "" {
 		createErr := os.MkdirAll(s.dataDir, os.ModePerm)
@@ -531,13 +527,14 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		g.Go(func() error {
 			for n := range cfg.Nodes {
 				n := n
-				if s.index == nil {
-					continue
-				}
 
 				fg, _, err := n.FragmentGraph(cfg)
 				if err != nil {
 					return err
+				}
+
+				if s.index == nil {
+					continue
 				}
 
 				m, err := fg.IndexMessage()
@@ -737,6 +734,7 @@ func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) 
 		DatasetID: t.Meta.DatasetID,
 		Status:    string(t.InState),
 	}
+
 	return tr, nil
 }
 
@@ -766,7 +764,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	agg := elastic.NewTermsAggregation().Field(aggsKey).Size(10000)
 	search.Query(query).Aggregation(aggsKey, agg)
 	response, err := search.Do(r.Context())
-	clearLogger := c.Config.Logger.WithLevel(zerolog.InfoLevel).
+	clearLogger := log.WithLevel(zerolog.InfoLevel).
 		Str("component", "hub3").
 		Str("svc", "eadClearRestrictions").
 		Str("eventType", "read")
@@ -1036,4 +1034,48 @@ func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
 	}
 
 	return nil
+}
+
+func (s *Service) ResyncCacheDir() error {
+	dirs, err := ioutil.ReadDir(s.dataDir)
+	if err != nil {
+		return err
+	}
+
+	var seen int
+
+	for _, ead := range dirs {
+		if !ead.IsDir() {
+			continue
+		}
+		spec := ead.Name()
+
+		meta, err := s.LoadEAD(spec)
+		if err != nil {
+			return fmt.Errorf("unable to retrieve meta; %w", err)
+		}
+
+		meta.ProcessDigital = true
+
+		_, err = s.NewTask(&meta)
+		if err != nil && !errors.Is(err, ErrTaskAlreadySubmitted) {
+			return err
+		}
+
+		seen++
+	}
+
+	ticker := time.NewTicker(2 * time.Second)
+
+	// block until done
+	for {
+		select {
+		case <-ticker.C:
+			m := s.Metrics()
+			if (m.Finished + m.Failed + m.Canceled) == uint64(seen) {
+				log.Info().Msgf("updated %d eads", seen)
+				return nil
+			}
+		}
+	}
 }

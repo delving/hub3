@@ -101,8 +101,11 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 	}
 
 	// publish message
-	if err := c.bi.Publish(context.Background(), m); err != nil {
-		return err
+	if c.bi != nil {
+		if err := c.bi.Publish(context.Background(), m); err != nil {
+			return err
+		}
+
 	}
 
 	return nil

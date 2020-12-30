@@ -97,8 +97,10 @@ func (t *Task) dropOrphans(revision int32) error {
 	}
 
 	// publish message
-	if err := t.s.index.Publish(context.Background(), m); err != nil {
-		return err
+	if t.s.index != nil {
+		if err := t.s.index.Publish(context.Background(), m); err != nil {
+			return err
+		}
 	}
 
 	return nil
