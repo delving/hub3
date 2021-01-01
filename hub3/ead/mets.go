@@ -39,6 +39,8 @@ func readMETS(filename string) (*Cmets, error) {
 		return nil, err
 	}
 
+	defer r.Close()
+
 	return metsParse(r)
 }
 

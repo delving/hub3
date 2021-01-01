@@ -72,6 +72,8 @@ func (ht *HarvestTask) getOrCreateHarvestInfo() error {
 		return err
 	}
 
+	defer r.Close()
+
 	var info HarvestInfo
 
 	err = json.NewDecoder(r).Decode(&info)

@@ -136,6 +136,8 @@ func GetMeta(spec string) (*Meta, error) {
 		return nil, err
 	}
 
+	defer r.Close()
+
 	meta, err := decodeMeta(r)
 	if err != nil {
 		return nil, err

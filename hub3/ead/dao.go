@@ -105,7 +105,6 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 		if err := c.bi.Publish(context.Background(), m); err != nil {
 			return err
 		}
-
 	}
 
 	return nil
@@ -163,7 +162,7 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 		Str("orgID", cfg.OrgID).
 		Str("datasetID", cfg.ArchiveID).
 		Str("InventoryID", cfg.InventoryID).
-		Msg("storing remotes mets file")
+		Msg("storing remote mets file")
 
 	resp, err := c.client.Get(cfg.Link)
 	if err != nil {
@@ -608,12 +607,14 @@ func GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
 		return cfg, ErrFileNotFound
 	}
 
-	r, err := os.Open(daoPath)
+	f, err := os.Open(daoPath)
 	if err != nil {
 		return cfg, err
 	}
 
-	if err := json.NewDecoder(r).Decode(&cfg); err != nil {
+	defer f.Close()
+
+	if err := json.NewDecoder(f).Decode(&cfg); err != nil {
 		return cfg, err
 	}
 

@@ -639,6 +639,8 @@ func GetDescription(spec string) (*Description, error) {
 		return nil, err
 	}
 
+	defer f.Close()
+
 	return decodeDescription(f)
 }
 
