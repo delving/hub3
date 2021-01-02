@@ -37,6 +37,7 @@ message IndexMessage {
 
 // Version of the record in the time-revision-store.
 message Revision {
+    // Content hash of the fragment graph with sha type prefix
     string SHA = 1;
     string Path = 2;
     // for legacy use only

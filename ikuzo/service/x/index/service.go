@@ -50,6 +50,8 @@ type Metrics struct {
 	Index struct {
 		Successful uint64
 		Failed     uint64
+		Identical  uint64
+		Command    uint64 // e.g. drop orphans, increment revision
 	}
 }
 
@@ -62,6 +64,7 @@ type Service struct {
 	m          Metrics
 	orphanWait int
 	postHooks  map[string][]domain.PostHookService
+	store      *store
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -88,6 +91,13 @@ func NewService(options ...Option) (*Service, error) {
 	if !s.direct && (s.stan == nil || s.stan.Conn.NatsConn() == nil) {
 		return s, fmt.Errorf("stan.Conn must be established before nats queue can be used")
 	}
+
+	store, err := newStore()
+	if err != nil {
+		return nil, err
+	}
+
+	s.store = store
 
 	return s, nil
 }
@@ -165,7 +175,7 @@ func (s *Service) Start(ctx context.Context, workers int) error {
 		qsub, err := s.stan.Conn.QueueSubscribe(
 			s.stan.SubjectID,
 			s.stan.DurableQueue,
-			s.handleMessage,
+			s.handleMessage(ctx),
 			stan.DurableName(s.stan.DurableName),
 		)
 		if err != nil {
@@ -179,27 +189,28 @@ func (s *Service) Start(ctx context.Context, workers int) error {
 	return nil
 }
 
-func (s *Service) handleMessage(m *stan.Msg) {
-	atomic.AddUint64(&s.m.Nats.Consumed, 1)
+func (s *Service) handleMessage(ctx context.Context) func(m *stan.Msg) {
+	return func(m *stan.Msg) {
+		atomic.AddUint64(&s.m.Nats.Consumed, 1)
 
-	var msg domainpb.IndexMessage
-	if err := proto.Unmarshal(m.Data, &msg); err != nil {
-		log.Error().Err(err).Msg("unable to unmarshal indexmessage in index consumer")
-		return
-	}
-
-	if s.MsgHandler != nil {
-		if err := s.MsgHandler(context.Background(), &msg); err != nil {
-			log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
+		var msg domainpb.IndexMessage
+		if err := proto.Unmarshal(m.Data, &msg); err != nil {
+			log.Error().Err(err).Msg("unable to unmarshal indexmessage in index consumer")
 			return
 		}
-	}
 
-	// TODO(kiivihal): propagate the context
-	if s.bi != nil {
-		if err := s.submitBulkMsg(context.Background(), &msg); err != nil {
-			log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
-			return
+		if s.MsgHandler != nil {
+			if err := s.MsgHandler(ctx, &msg); err != nil {
+				log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
+				return
+			}
+		}
+
+		if s.bi != nil {
+			if err := s.submitBulkMsg(ctx, &msg); err != nil {
+				log.Error().Err(err).Msg("unable to process *domain.IndexMessage")
+				return
+			}
 		}
 	}
 }
@@ -258,6 +269,10 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 		<-timer.C
 
 		if revision.GetSHA() != "" && revision.GetPath() != "" {
+			if err := s.dropOrphanGroup(orgID, datasetID, revision); err != nil {
+				log.Error().Err(err).Msg("unable to drop orphans")
+			}
+
 			if err := s.dropOrphanGroup(orgID, datasetID, revision); err != nil {
 				log.Error().
 					Err(err).
@@ -339,6 +354,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
 		s.dropOrphans(m.GetOrganisationID(), m.GetDatasetID(), m.GetRevision())
+		atomic.AddUint64(&s.m.Index.Command, 1)
 
 		return nil
 	}
@@ -347,6 +363,26 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 
 	if m.GetDeleted() {
 		action = "delete"
+
+		if err := s.store.Delete(m.GetRecordID()); err != nil {
+			return err
+		}
+	} else {
+		ok, err := s.store.HashIsEqual(m.GetRecordID(), m.GetRevision().GetSHA())
+		if err != nil {
+			return err
+		}
+
+		if ok {
+			atomic.AddUint64(&s.m.Index.Identical, 1)
+			// equal with index so we are done
+			return nil
+		}
+
+		// TODO(kiivihal): must speed up the storing of records in batches of 1000
+		if err := s.store.Put(m.GetRecordID(), m.GetRevision().GetSHA()); err != nil {
+			return err
+		}
 	}
 
 	bulkMsg := esutil.BulkIndexerItem{

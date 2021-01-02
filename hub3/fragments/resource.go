@@ -17,6 +17,7 @@ package fragments
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	fmt "fmt"
 	"io"
@@ -374,7 +375,42 @@ func (fg *FragmentGraph) Reader() (io.Reader, error) {
 	return bytes.NewReader(b), nil
 }
 
+// getFingerPrint use this function to set revision and fingerprints
+func (fg *FragmentGraph) setFingerPrint() (string, error) {
+	// make copy of header/Meta
+	original := *fg.Meta
+	fg.Meta.Revision = 0
+	fg.Meta.Modified = 0
+	fg.Meta.SourceID = ""
+	fg.Meta.GroupID = ""
+	fg.Meta.SourcePath = ""
+	b, err := fg.Marshal()
+	if err != nil {
+		return "", err
+	}
+
+	h := sha256.New224()
+	if _, hashErr := h.Write(b); hashErr != nil {
+		return "", hashErr
+	}
+
+	sha224 := fmt.Sprintf("sha224-%x", h.Sum(nil))[:27]
+
+	fg.Meta = &original
+	fg.Meta.Modified = NowInMillis()
+	fg.Meta.SourceID = sha224
+
+	return sha224, nil
+}
+
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
+	shaRef, err := fg.setFingerPrint()
+	if err != nil {
+		return nil, err
+	}
+
+	revision := domainpb.Revision{SHA: shaRef}
+
 	b, err := fg.Marshal()
 	if err != nil {
 		return nil, err
@@ -386,6 +422,7 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 		RecordID:       fg.Meta.HubID,
 		IndexName:      c.Config.ElasticSearch.GetIndexName(),
 		Source:         b,
+		Revision:       &revision,
 	}, nil
 
 }
