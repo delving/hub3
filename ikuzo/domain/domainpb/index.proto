@@ -16,11 +16,13 @@ syntax = "proto3";
 package domainpb;
 option go_package = "ikuzo/domain/domainpb";
 
-// Action describes the actions 
+// Action describes the actions to modify the index
 enum ActionType {
     MODIFY_INDEX = 0;
     DROP_ORPHANS = 1;
     DELETE_RECORD = 2;
+    START_TRANSACTION = 3;
+    FINISH_TRANSACTION = 3;
 }
 
 // IndexMessage is used to queue messages for indexing by ElasticSearch.

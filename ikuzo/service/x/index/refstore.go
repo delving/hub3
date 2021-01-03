@@ -4,8 +4,15 @@ import (
 	"go.etcd.io/bbolt"
 )
 
+var refBucket = []byte("index-refs")
+
 type store struct {
 	db *bbolt.DB
+}
+
+type shaRef struct {
+	HubID string
+	Sha   string
 }
 
 func newStore() (*store, error) {
@@ -15,7 +22,7 @@ func newStore() (*store, error) {
 	}
 
 	err = db.Update(func(tx *bbolt.Tx) error {
-		_, err = tx.CreateBucketIfNotExists([]byte("index-refs"))
+		_, err = tx.CreateBucketIfNotExists(refBucket)
 		if err != nil {
 			return err
 		}
@@ -31,7 +38,7 @@ func newStore() (*store, error) {
 
 func (s *store) Delete(hubID string) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket([]byte("index-refs"))
+		b := tx.Bucket(refBucket)
 		return b.Delete([]byte(hubID))
 	})
 }
@@ -40,7 +47,7 @@ func (s *store) Get(hubID string) (sha string, err error) {
 	var v []byte
 
 	err = s.db.View(func(tx *bbolt.Tx) error {
-		b := tx.Bucket([]byte("index-refs"))
+		b := tx.Bucket(refBucket)
 		v = b.Get([]byte(hubID))
 		return nil
 	})
@@ -68,16 +75,17 @@ func (s *store) HashIsEqual(hubID, sha string) (bool, error) {
 	return true, nil
 }
 
-func (s *store) Batch(hubID, sha string) error {
-	return s.db.Batch(func(tx *bbolt.Tx) error {
-		b := tx.Bucket([]byte("index-refs"))
-		return b.Put([]byte(hubID), []byte(sha))
-	})
-}
-
-func (s *store) Put(hubID, sha string) error {
+func (s *store) Put(refs ...shaRef) error {
 	return s.db.Update(func(tx *bbolt.Tx) error {
-		b := tx.Bucket([]byte("index-refs"))
-		return b.Put([]byte(hubID), []byte(sha))
+		b := tx.Bucket(refBucket)
+
+		for _, ref := range refs {
+			// TODO(kiivihal): implement retry later
+			if err := b.Put([]byte(ref.HubID), []byte(ref.Sha)); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	})
 }

@@ -22,7 +22,8 @@ func TestIndexStore(t *testing.T) {
 		is.NoErr(err)
 
 		hubID, sha := "org_spec_123", "0c5e290190fef0b2933"
-		err = s.Put(hubID, sha)
+		ref := shaRef{HubID: hubID, Sha: sha}
+		err = s.Put(ref)
 		is.NoErr(err)
 
 		storedSha, err := s.Get("org_spec_123")

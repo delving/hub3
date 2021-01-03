@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -33,6 +34,7 @@ import (
 	"github.com/nats-io/stan.go"
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 	proto "google.golang.org/protobuf/proto"
 )
 
@@ -52,6 +54,9 @@ type Metrics struct {
 		Failed     uint64
 		Identical  uint64
 		Command    uint64 // e.g. drop orphans, increment revision
+		AddRef     uint64
+		StoreRef   uint64
+		FlushRef   uint64
 	}
 }
 
@@ -65,6 +70,10 @@ type Service struct {
 	orphanWait int
 	postHooks  map[string][]domain.PostHookService
 	store      *store
+	queue      chan shaRef
+	ctx        context.Context
+	cancel     context.CancelFunc
+	group      *errgroup.Group
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -98,6 +107,14 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	s.store = store
+
+	workers := 4
+	batchSize := 1000
+	s.queue = make(chan shaRef, workers*batchSize)
+
+	if err := s.startBatchWriter(workers, batchSize); err != nil {
+		return s, err
+	}
 
 	return s, nil
 }
@@ -141,6 +158,9 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	// cancel context
+	s.cancel()
+
 	// stop all the workers before closing channels
 	for _, w := range s.workers {
 		w.Close()
@@ -158,6 +178,13 @@ func (s *Service) Shutdown(ctx context.Context) error {
 		if err := s.bi.Close(ctx); err != nil {
 			return err
 		}
+	}
+
+	// closing add queue
+	close(s.queue)
+
+	if err := s.group.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+		return err
 	}
 
 	// remove workers so the service could restart
@@ -347,6 +374,18 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 	}()
 }
 
+func (s *Service) add(ctx context.Context, ref shaRef) error {
+	atomic.AddUint64(&s.m.Index.AddRef, 1)
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case s.queue <- ref:
+	}
+
+	return nil
+}
+
 func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) error {
 	if s.MsgHandler != nil {
 		return s.MsgHandler(ctx, m)
@@ -380,7 +419,8 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		}
 
 		// TODO(kiivihal): must speed up the storing of records in batches of 1000
-		if err := s.store.Put(m.GetRecordID(), m.GetRevision().GetSHA()); err != nil {
+		ref := shaRef{HubID: m.GetRecordID(), Sha: m.GetRevision().GetSHA()}
+		if err := s.add(ctx, ref); err != nil {
 			return err
 		}
 	}
@@ -449,5 +489,111 @@ func (s *Service) BulkIndexStats() esutil.BulkIndexerStats {
 // AddPostHook adds posthook to the indexing service
 func (s *Service) AddPostHook(hook domain.PostHookService) error {
 	s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
+	return nil
+}
+
+type batchWriter struct {
+	refs      []shaRef
+	s         *Service
+	batchSize int
+	ticker    *time.Ticker
+	rw        sync.Mutex
+}
+
+func newBatchWriter(s *Service, batchSize int) batchWriter {
+	ticker := time.NewTicker(5 * time.Second)
+	return batchWriter{
+		refs:      []shaRef{},
+		batchSize: batchSize,
+		s:         s,
+		ticker:    ticker,
+	}
+}
+
+func (b *batchWriter) flush() error {
+	b.rw.Lock()
+	defer b.rw.Unlock()
+	if len(b.refs) == 0 {
+		// nothing to do
+		return nil
+	}
+
+	atomic.AddUint64(&b.s.m.Index.StoreRef, uint64(len(b.refs)))
+	atomic.AddUint64(&b.s.m.Index.FlushRef, 1)
+
+	if err := b.s.store.Put(b.refs...); err != nil {
+		log.Error().Err(err).Msg("unable to store shaRefs")
+	}
+
+	b.refs = []shaRef{}
+
+	return nil
+}
+
+func (b *batchWriter) run(ctx context.Context) error {
+
+	for ref := range b.s.queue {
+		if len(b.refs) >= b.batchSize {
+			if err := b.flush(); err != nil {
+				log.Error().Err(err).Msg("unable to flush shaRefs")
+			}
+		}
+
+		b.rw.Lock()
+		b.refs = append(b.refs, ref)
+		b.rw.Unlock()
+
+		select {
+		case <-ctx.Done():
+			if err := b.flush(); err != nil {
+				log.Error().Err(err).Msg("unable to flush shaRefs")
+			}
+
+			return ctx.Err()
+		default:
+		}
+	}
+
+	return nil
+}
+
+func (s *Service) startBatchWriter(workers, batchSize int) error {
+	// create errgroup and add cancel to service
+	ctx, cancel := context.WithCancel(context.Background())
+	g, gctx := errgroup.WithContext(ctx)
+
+	s.cancel = cancel
+	s.group = g
+	s.ctx = gctx
+
+	batchWorkers := []*batchWriter{}
+
+	for i := 0; i < workers; i++ {
+		w := newBatchWriter(s, batchSize)
+		batchWorkers = append(batchWorkers, &w)
+
+		g.Go(func() error {
+			return w.run(gctx)
+		})
+	}
+
+	ticker := time.NewTicker(5 * time.Second)
+
+	g.Go(func() error {
+		for {
+			select {
+			case <-gctx.Done():
+				return ctx.Err()
+			case <-ticker.C:
+				log.Debug().Msg("timed flush")
+				for _, w := range batchWorkers {
+					if err := w.flush(); err != nil {
+						log.Error().Err(err).Msg("unable to flush shaRefs")
+					}
+				}
+			}
+		}
+	})
+
 	return nil
 }
