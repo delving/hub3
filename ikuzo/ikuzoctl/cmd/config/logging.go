@@ -21,10 +21,11 @@ import (
 )
 
 type Logging struct {
-	DevMode       bool   `json:"devmode"`
-	Level         string `json:"level"`
-	WithCaller    bool   `json:"withCaller"`
-	ConsoleLogger bool   `json:"consoleLogger"`
+	DevMode        bool   `json:"devmode"`
+	Level          string `json:"level"`
+	WithCaller     bool   `json:"withCaller"`
+	ConsoleLogger  bool   `json:"consoleLogger"`
+	ErrorFieldName string `json:"errorFieldName"`
 }
 
 func (l *Logging) AddOptions(cfg *Config) error {
@@ -45,5 +46,6 @@ func (l *Logging) GetConfig() logger.Config {
 		LogLevel:            logger.ParseLogLevel(l.Level),
 		WithCaller:          l.WithCaller,
 		EnableConsoleLogger: l.ConsoleLogger,
+		ErrorFieldName:      l.ErrorFieldName,
 	}
 }

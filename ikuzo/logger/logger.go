@@ -113,6 +113,8 @@ type Config struct {
 	// WithCaller logs the path and linenumber of the caller.
 	// This should not be used in production
 	WithCaller bool
+	// ErrorFieldName is the label for Go errors in the JSON output. (default: error)
+	ErrorFieldName string
 }
 
 // NewLogger creates zerolog.Logger with sensible defaults
@@ -148,6 +150,7 @@ func NewLogger(cfg Config) CustomLogger {
 	}
 
 	zerolog.TimeFieldFormat = time.RFC3339Nano
+	zerolog.ErrorFieldName = cfg.ErrorFieldName
 
 	return CustomLogger{loggerContext.Logger().Level(cfg.LogLevel.toZeroLog())}
 }
