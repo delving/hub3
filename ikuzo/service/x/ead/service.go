@@ -89,7 +89,7 @@ func (m *Metrics) IncAlreadyQueued() {
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
-type DaoFn func(cfg eadHub3.DaoConfig) error
+type DaoFn func(cfg *eadHub3.DaoConfig) error
 
 type Service struct {
 	index          *index.Service

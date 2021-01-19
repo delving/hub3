@@ -138,7 +138,7 @@ func (m MetsHarvester) processHeader(header oai.Header) error {
 		return err
 	}
 
-	if err := m.c.PublishFindingAid(cfg); err != nil {
+	if err := m.c.PublishFindingAid(&cfg); err != nil {
 		return err
 	}
 

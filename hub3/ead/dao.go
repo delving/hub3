@@ -110,7 +110,7 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 	return nil
 }
 
-func (c *DaoClient) PublishFindingAid(cfg DaoConfig) error {
+func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	fa, err := cfg.FindingAid(c)
 	if err != nil {
 		return err
@@ -153,7 +153,7 @@ func (c *DaoClient) PublishFindingAid(cfg DaoConfig) error {
 	cfg.ObjectCount = int(fa.GetFileCount())
 	cfg.MimeTypes = getMimeTypes(&fa)
 
-	return c.dropOrphans(&cfg)
+	return c.dropOrphans(cfg)
 }
 
 func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
@@ -210,7 +210,7 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 	)
 }
 
-func (c *DaoClient) DefaultDaoFn(cfg DaoConfig) error {
+func (c *DaoClient) DefaultDaoFn(cfg *DaoConfig) error {
 	if !strings.Contains(cfg.Link, "/gaf/api/mets/v1/") {
 		return fmt.Errorf("invalid daolink to GAF: %s", cfg.Link)
 	}
@@ -252,7 +252,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.PublishFindingAid(cfg); err != nil {
+	if err := c.PublishFindingAid(&cfg); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

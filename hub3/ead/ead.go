@@ -74,7 +74,7 @@ type NodeConfig struct {
 	// TODO(kiivihal): remove later
 	IndexService      *index.Service
 	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	DaoFn             func(cfg DaoConfig) error
+	DaoFn             func(cfg *DaoConfig) error
 	ContentIdentical  bool
 	Nodes             chan *Node
 	ProcessDigital    bool

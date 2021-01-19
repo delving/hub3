@@ -210,7 +210,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 					Str("InventoryID", daoCfg.InventoryID).
 					Str("uuid", daoCfg.UUID).
 					Msg("force processing mets files")
-				if err := cfg.DaoFn(daoCfg); err != nil {
+				if err := cfg.DaoFn(&daoCfg); err != nil {
 					log.Error().Err(err).
 						Str("archiveID", daoCfg.ArchiveID).
 						Str("InventoryID", daoCfg.InventoryID).
@@ -218,7 +218,11 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 						Str("url", daoCfg.Link).
 						Msg("unable to process dao link")
 					cfg.MetsCounter.AppendError(err.Error())
+					return tree
 				}
+
+				tree.MimeTypes = daoCfg.MimeTypes
+				tree.DOCount = daoCfg.ObjectCount
 			}
 
 		}
