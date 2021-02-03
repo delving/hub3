@@ -690,16 +690,16 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	taskResponse, metaErr := s.createTask(r, meta)
+	task, metaErr := s.CreateTask(r, meta)
 	if metaErr != nil {
 		http.Error(w, metaErr.Error(), http.StatusConflict)
 		return
 	}
 
-	render.JSON(w, r, taskResponse)
+	render.JSON(w, r, task)
 }
 
-func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) {
+func (s *Service) CreateTask(r *http.Request, meta Meta) (*taskResponse, error) {
 	if orgID := r.Header.Get("orgID"); orgID != "" {
 		meta.OrgID = orgID
 	}
@@ -795,12 +795,12 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		meta.ProcessAccessTime = today
-		taskResponse, metaErr := s.createTask(r, meta)
+		task, metaErr := s.CreateTask(r, meta)
 		if metaErr != nil {
 			clearLogger.Err(err).Msgf("could not handle spec meta %s from bucket: %v", spec, metaErr)
 			continue
 		}
-		trSlice = append(trSlice, taskResponse)
+		trSlice = append(trSlice, task)
 	}
 
 	render.JSON(w, r, trSlice)
