@@ -608,6 +608,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 		t.Meta.Clevels = cfg.Counter.GetCount()
 		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
+		t.Meta.DaoErrors = cfg.MetsCounter.GetErrorCount()
+		t.Meta.DaoErrorLinks = cfg.MetsCounter.GetErrors()
 		t.Meta.TotalRecordsPublished = atomic.LoadUint64(&cfg.RecordsCreatedCounter)
 		t.Meta.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
 
