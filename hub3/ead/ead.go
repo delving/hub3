@@ -141,6 +141,7 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 		Counter: &NodeCounter{},
 		MetsCounter: &MetsCounter{
 			uniqueCounter: map[string]int{},
+			inError:       map[string]string{},
 		},
 		labels: make(map[string]string),
 		HubIDs: make(chan *NodeEntry, 100),
@@ -152,7 +153,7 @@ type MetsCounter struct {
 	counter        uint64
 	digitalObjects uint64
 	errors         uint64
-	inError        []string
+	inError        map[string]string
 	uniqueCounter  map[string]int
 	m              sync.Mutex
 }
@@ -195,14 +196,14 @@ func (mc *MetsCounter) GetErrorCount() uint64 {
 	return atomic.LoadUint64(&mc.errors)
 }
 
-func (mc *MetsCounter) AppendError(err string) {
+func (mc *MetsCounter) AppendError(unitID string, errMsg string) {
 	mc.IncrementError()
 	mc.m.Lock()
 	defer mc.m.Unlock()
-	mc.inError = append(mc.inError, err)
+	mc.inError[unitID] = errMsg
 }
 
-func (mc *MetsCounter) GetErrors() []string {
+func (mc *MetsCounter) GetErrors() map[string]string {
 	return mc.inError
 }
 

@@ -156,12 +156,12 @@ type Access struct {
 
 // DaoStats holds the stats for EAD digital objects extracted from METS links.
 type DaoStats struct {
-	ExtractedLinks uint64         `json:"extractedLinks"`
-	RetrieveErrors uint64         `json:"retrieveErrors"`
-	DigitalObjects uint64         `json:"digitalObjects"`
-	Errors         []string       `json:"errors"`
-	UniqueLinks    uint64         `json:"uniqueLinks"`
-	DuplicateLinks map[string]int `json:"duplicateLinks"`
+	ExtractedLinks uint64            `json:"extractedLinks"`
+	RetrieveErrors uint64            `json:"retrieveErrors"`
+	DigitalObjects uint64            `json:"digitalObjects"`
+	Errors         map[string]string `json:"errors"`
+	UniqueLinks    uint64            `json:"uniqueLinks"`
+	DuplicateLinks map[string]int    `json:"duplicateLinks"`
 }
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
