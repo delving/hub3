@@ -336,7 +336,7 @@ func getEventMETS(level zerolog.Level, archiveID, inventoryID string, eventType 
 func logMETSError(archiveID, inventoryID, format string, a ...interface{}) {
 	getEventMETS(zerolog.ErrorLevel, archiveID, inventoryID, METSCreate).
 		Str("error.message", fmt.Sprint(format, a)).
-		Str("status", "failed").
+		Str("metsStatus", "failed").
 		Send()
 }
 

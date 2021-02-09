@@ -38,7 +38,7 @@ func (e *EADHarvester) ProcessEadFromOai(r *oai.Response) {
 			Str("identifier", record.Header.Identifier).
 			Strs("set", record.Header.SetSpec).
 			Str("lastModified", record.Header.DateStamp).
-			Str("status", record.Header.Status).
+			Str("recordStatus", record.Header.Status).
 			Msg("ead file entry")
 
 		if err := e.processRecord(&record); err != nil {
@@ -113,7 +113,7 @@ func (m *MetsHarvester) ProcessMetsFromOai(r *oai.Response) {
 			Str("identifier", header.Identifier).
 			Strs("set", header.SetSpec).
 			Str("lastModified", header.DateStamp).
-			Str("status", header.Status).
+			Str("recordStatus", header.Status).
 			Msg("mets entry")
 
 		if err := m.processHeader(header); err != nil {
