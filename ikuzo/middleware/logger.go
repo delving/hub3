@@ -15,8 +15,10 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain"
@@ -92,8 +94,19 @@ func LogParamsAsDict(params url.Values) *zerolog.Event {
 
 		var nonEmpty bool
 
+		alteredKey := ""
 		for _, v := range values {
 			if v != "" {
+				if key == "qf" {
+					parts := strings.Split(v, ":")
+					if len(parts) == 2 {
+						alteredKey = fmt.Sprintf("%s.%s", key, parts[0])
+						v = parts[1]
+					}
+					if len(parts) == 1 {
+						alteredKey = "qf.value"
+					}
+				}
 				arr = arr.Str(v)
 
 				if !nonEmpty {
@@ -103,6 +116,9 @@ func LogParamsAsDict(params url.Values) *zerolog.Event {
 		}
 
 		if nonEmpty {
+			if alteredKey != "" {
+				key = alteredKey
+			}
 			dict = dict.Array(key, arr)
 		}
 	}

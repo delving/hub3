@@ -217,7 +217,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 						Str("uuid", daoCfg.UUID).
 						Str("url", daoCfg.Link).
 						Msg("unable to process dao link")
-					cfg.MetsCounter.AppendError(err.Error())
+					cfg.MetsCounter.AppendError(daoCfg.InventoryID, err.Error())
 					return tree
 				}
 

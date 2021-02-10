@@ -212,7 +212,7 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 
 func (c *DaoClient) DefaultDaoFn(cfg *DaoConfig) error {
 	if !strings.Contains(cfg.Link, "/gaf/api/mets/v1/") {
-		return fmt.Errorf("invalid daolink to GAF: %s", cfg.Link)
+		return fmt.Errorf("invalid daolink to GAF: ' %s '", cfg.Link)
 	}
 
 	return c.PublishFindingAid(cfg)
