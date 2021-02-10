@@ -130,7 +130,7 @@ func (t *Task) finishTask() {
 		Uint64("digitalObjects", t.Meta.DigitalObjects).
 		Bool("created", t.Meta.Created).
 		Uint64("metsRetrieveErrors", t.Meta.DaoErrors).
-		Strs("metsErrorLinks ", t.Meta.getDaoLinkErrors()).
+		Strs("metsErrorLinks", t.Meta.getDaoLinkErrors()).
 		Uint64("fileSize", t.Meta.FileSize).
 		Msg("finished processing")
 
