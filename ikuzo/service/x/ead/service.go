@@ -596,7 +596,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		stats.ExtractedLinks = cfg.MetsCounter.GetCount()
 		stats.RetrieveErrors = cfg.MetsCounter.GetErrorCount()
 		stats.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
-		stats.Errors = cfg.MetsCounter.GetErrors()
+		stats.ErrorsPerInventory = cfg.MetsCounter.GetErrors()
 		uniqueLinks := cfg.MetsCounter.GetUniqueCounter()
 		stats.UniqueLinks = uint64(len(uniqueLinks))
 
