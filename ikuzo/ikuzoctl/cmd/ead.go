@@ -25,6 +25,7 @@ import (
 
 var (
 	eadPath string
+	orgID   string
 )
 
 var eadResyncCmd = &cobra.Command{
@@ -49,7 +50,7 @@ var eadResyncCmd = &cobra.Command{
 			return
 		}
 
-		if err := svc.ResyncCacheDir(); err != nil {
+		if err := svc.ResyncCacheDir(orgID); err != nil {
 			log.Fatalf("unable to sync ead cache directories; %s", err)
 		}
 	},
@@ -59,4 +60,5 @@ func init() {
 	rootCmd.AddCommand(eadResyncCmd)
 
 	eadResyncCmd.Flags().StringVarP(&eadPath, "path", "p", "", "full path ead directory")
+	eadResyncCmd.Flags().StringVarP(&orgID, "orgID", "o", "", "orgID for resyncing EAD")
 }

@@ -791,7 +791,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	trSlice := make([]*taskResponse, 0)
 	for _, el := range terms.Buckets {
 		spec := el.Key.(string)
-		meta, err := s.LoadEAD(spec)
+		meta, err := s.LoadEAD(orgID.String(), spec)
 		if err != nil {
 			clearLogger.Err(err).Msgf("could not load spec %s from bucket: %v", spec, err)
 			continue
@@ -808,11 +808,14 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, trSlice)
 }
 
-func (s *Service) LoadEAD(spec string) (Meta, error) {
+func (s *Service) LoadEAD(orgID, spec string) (Meta, error) {
 	var meta Meta
-	meta.DatasetID = spec
 
-	if _, err := s.findTask("", meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
+	// TODO(kiivihal): later fix this with calling root Meta eadhub3.GetMeta
+	meta.DatasetID = spec
+	meta.OrgID = orgID
+
+	if _, err := s.findTask(meta.OrgID, meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
 		return meta, ErrTaskAlreadySubmitted
 	}
 
@@ -1038,7 +1041,7 @@ func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
 	return nil
 }
 
-func (s *Service) ResyncCacheDir() error {
+func (s *Service) ResyncCacheDir(orgID string) error {
 	dirs, err := ioutil.ReadDir(s.dataDir)
 	if err != nil {
 		return err
@@ -1052,7 +1055,7 @@ func (s *Service) ResyncCacheDir() error {
 		}
 		spec := ead.Name()
 
-		meta, err := s.LoadEAD(spec)
+		meta, err := s.LoadEAD(orgID, spec)
 		if err != nil {
 			return fmt.Errorf("unable to retrieve meta; %w", err)
 		}
