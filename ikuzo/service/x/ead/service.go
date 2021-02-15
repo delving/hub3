@@ -1057,7 +1057,12 @@ func (s *Service) ResyncCacheDir(orgID string) error {
 
 		meta, err := s.LoadEAD(orgID, spec)
 		if err != nil {
-			return fmt.Errorf("unable to retrieve meta; %w", err)
+			log.Warn().Err(err).
+				Str("orgID", orgID).
+				Str("archiveID", spec).
+				Msg("unable to get meta information probably mets only archive")
+
+			continue
 		}
 
 		meta.ProcessDigital = true
