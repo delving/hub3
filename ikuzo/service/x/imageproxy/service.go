@@ -38,6 +38,7 @@ type Service struct {
 	proxyPrefix string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 	memoryCache string
 	referrers   []string
+	blacklist   []string
 	// deepzoom    bool     // Enable deepzoom of remote images.
 }
 
@@ -58,6 +59,13 @@ func SetTimeout(duration int) Option {
 func SetProxyReferrer(referrer []string) Option {
 	return func(s *Service) error {
 		s.referrers = referrer
+		return nil
+	}
+}
+
+func SetBlackList(blacklist []string) Option {
+	return func(s *Service) error {
+		s.blacklist = blacklist
 		return nil
 	}
 }
@@ -178,7 +186,7 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if !allowed {
-			http.Error(w, "request not allowed", http.StatusBadRequest)
+			http.Error(w, "not found", http.StatusNotFound)
 
 			return
 		}
@@ -193,6 +201,15 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
+	}
+
+	if len(s.blacklist) != 0 {
+		for _, uri := range s.blacklist {
+			if strings.Contains(req.sourceURL, uri) {
+				http.Error(w, "not found", http.StatusNotFound)
+				return
+			}
+		}
 	}
 
 	err = s.Do(r.Context(), req, w)

@@ -25,6 +25,7 @@ type ImageProxy struct {
 	ProxyPrefix   string
 	Timeout       int
 	ProxyReferrer []string
+	BlackList     []string
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -37,6 +38,7 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetProxyPrefix(ip.ProxyPrefix),
 		imageproxy.SetTimeout(ip.Timeout),
 		imageproxy.SetProxyReferrer(ip.ProxyReferrer),
+		imageproxy.SetBlackList(ip.BlackList),
 	)
 
 	if err != nil {
