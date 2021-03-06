@@ -37,6 +37,8 @@ type Service struct {
 	timeOut     int    // timelimit for request served by this proxy. 0 is for no timeout
 	proxyPrefix string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 	memoryCache string
+	referrers   []string
+	blacklist   []string
 	// deepzoom    bool     // Enable deepzoom of remote images.
 }
 
@@ -53,6 +55,21 @@ func SetTimeout(duration int) Option {
 		return nil
 	}
 }
+
+func SetProxyReferrer(referrer []string) Option {
+	return func(s *Service) error {
+		s.referrers = referrer
+		return nil
+	}
+}
+
+func SetBlackList(blacklist []string) Option {
+	return func(s *Service) error {
+		s.blacklist = blacklist
+		return nil
+	}
+}
+
 func SetProxyPrefix(prefix string) Option {
 	return func(s *Service) error {
 		s.proxyPrefix = prefix
@@ -157,6 +174,24 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 	url := chi.URLParam(r, "*")
 
+	// add referer
+	if len(s.referrers) != 0 {
+		var allowed bool
+
+		for _, referrer := range s.referrers {
+			if strings.Contains(r.Referer(), referrer) {
+				allowed = true
+				break
+			}
+		}
+
+		if !allowed {
+			http.Error(w, "not found", http.StatusNotFound)
+
+			return
+		}
+	}
+
 	req, err := NewRequest(
 		url,
 		SetRawQueryString(r.URL.RawQuery),
@@ -166,6 +201,15 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
+	}
+
+	if len(s.blacklist) != 0 {
+		for _, uri := range s.blacklist {
+			if strings.Contains(req.sourceURL, uri) {
+				http.Error(w, "not found", http.StatusNotFound)
+				return
+			}
+		}
 	}
 
 	err = s.Do(r.Context(), req, w)

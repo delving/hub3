@@ -20,10 +20,12 @@ import (
 )
 
 type ImageProxy struct {
-	Enabled     bool
-	CacheDir    string
-	ProxyPrefix string
-	Timeout     int
+	Enabled       bool
+	CacheDir      string
+	ProxyPrefix   string
+	Timeout       int
+	ProxyReferrer []string
+	BlackList     []string
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -35,6 +37,8 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetCacheDir(ip.CacheDir),
 		imageproxy.SetProxyPrefix(ip.ProxyPrefix),
 		imageproxy.SetTimeout(ip.Timeout),
+		imageproxy.SetProxyReferrer(ip.ProxyReferrer),
+		imageproxy.SetBlackList(ip.BlackList),
 	)
 
 	if err != nil {
