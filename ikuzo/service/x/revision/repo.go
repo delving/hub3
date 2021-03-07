@@ -68,7 +68,7 @@ func (repo *Repository) SingleFlight(path string, r io.Reader, commitMessage str
 // Write writes the content of io.Reader to a file at path.
 // When the file does not exist a new file is created.
 //
-// You must repo.Add witth the path before it can be commited.
+// You must repo.Add witth the path before it can be committed.
 //
 // An error is only returned when creating or write to the file fails.
 func (repo *Repository) Write(path string, r io.Reader) error {
