@@ -264,3 +264,8 @@ func (s *Service) Set(ns *domain.Namespace) error {
 	s.checkStore()
 	return s.store.Set(ns)
 }
+
+func (s *Service) GetWithPrefix(prefix string) (*domain.Namespace, error) {
+	s.checkStore()
+	return s.store.GetWithPrefix(prefix)
+}

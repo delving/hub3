@@ -171,7 +171,7 @@ func newServer(options ...Option) (*server, error) {
 	// setup oto server
 	if s.oto != nil {
 		log.Info().Msg("starting with oto service")
-		s.router.HandleFunc("/oto", s.oto.ServeHTTP)
+		s.router.HandleFunc("/oto/*", s.oto.ServeHTTP)
 	}
 
 	// setting default services
