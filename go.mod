@@ -9,6 +9,7 @@ require (
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.2.1
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
+	github.com/apex/log v1.9.0
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.0.2
@@ -46,7 +47,9 @@ require (
 	github.com/lib/pq v1.7.1 // indirect
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/mailgun/groupcache v1.3.0
-	github.com/matryer/is v1.3.0
+	github.com/matryer/is v1.4.0
+	github.com/mattn/go-colorable v0.1.6 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.3
@@ -62,7 +65,9 @@ require (
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/runc v1.0.0-rc3 // indirect
+	github.com/opencontainers/runc v1.0.0-rc3
+	github.com/pacedotdev/oto v0.10.8 // indirect
+	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	github.com/peterbourgon/diskv v2.0.1+incompatible
