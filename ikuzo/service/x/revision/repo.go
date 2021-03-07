@@ -15,25 +15,36 @@
 package revision
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
 	"code.gitea.io/gitea/modules/git"
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	gitgo "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
+const (
+	WorkingVersion = "working-version"
+)
+
 type Repository struct {
-	organization string
-	dataset      string
-	path         string
-	gr           *git.Repository
-	w            *gitgo.Worktree
+	OrgID     string
+	DatasetID string
+	path      string
+	gr        *git.Repository
+	w         *gitgo.Worktree
 }
 
 // SingleFlight writes io.Reader to path and creates a commit with commitMessage.
@@ -57,6 +68,8 @@ func (repo *Repository) SingleFlight(path string, r io.Reader, commitMessage str
 // Write writes the content of io.Reader to a file at path.
 // When the file does not exist a new file is created.
 //
+// You must repo.Add witth the path before it can be commited.
+//
 // An error is only returned when creating or write to the file fails.
 func (repo *Repository) Write(path string, r io.Reader) error {
 	fPath := filepath.Join(repo.path, path)
@@ -68,6 +81,8 @@ func (repo *Repository) Write(path string, r io.Reader) error {
 	if err != nil {
 		return fmt.Errorf("unable to create file; %w", err)
 	}
+
+	defer f.Close()
 
 	_, err = io.Copy(f, r)
 	if err != nil {
@@ -84,6 +99,17 @@ func (repo *Repository) Read(path, revision string) (io.ReadCloser, error) {
 		revision = "HEAD"
 	}
 
+	if revision == WorkingVersion {
+		fPath := filepath.Join(repo.path, path)
+
+		f, err := os.Open(fPath)
+		if err != nil {
+			return nil, err
+		}
+
+		return f, nil
+	}
+
 	tree, err := repo.gr.GetTree(revision)
 	if err != nil {
 		return nil, err
@@ -97,10 +123,34 @@ func (repo *Repository) Read(path, revision string) (io.ReadCloser, error) {
 	return blob.DataAsync()
 }
 
+func (repo *Repository) Publish(msg string) (PublisherStats, error) {
+	stats := PublisherStats{}
+	// if at any state you fail return and reset
+	// add resources
+	// check status, return if nothing has changed with HEAD
+	// commit repo and get current sha
+	// get dataset repo
+	// get dataset file
+	// update repo hash in dataset file
+	// update dataset repo files
+	// commit dataset
+	// add dataset repo sha to stats
+	return stats, nil
+}
+
 func (repo *Repository) Commit(msg string, options *gitgo.CommitOptions) (plumbing.Hash, error) {
 	w, err := repo.workTree()
 	if err != nil {
 		return plumbing.ZeroHash, err
+	}
+
+	if repo.IsClean() {
+		h, err := repo.HEAD()
+		if err != nil {
+			return plumbing.ZeroHash, err
+		}
+
+		return h, nil
 	}
 
 	if options == nil {
@@ -147,4 +197,190 @@ func (repo *Repository) Status() (gitgo.Status, error) {
 	}
 
 	return w.Status()
+}
+
+// ResetPath removes all entries for a directory path.
+//
+// This functionality allows full reingests to mark deleted entries.
+func (repo *Repository) ResetPath(path string) error {
+	fPath := filepath.Join(repo.path, path)
+	if removeErr := os.RemoveAll(fPath); removeErr != nil {
+		return fmt.Errorf("unable to remove trs path; %w", removeErr)
+	}
+
+	if createErr := os.MkdirAll(fPath, os.ModePerm); createErr != nil {
+		return fmt.Errorf("unable to create trs path; %w", createErr)
+	}
+
+	return nil
+}
+
+func (repo *Repository) HEAD() (plumbing.Hash, error) {
+	cmd := git.NewCommand("rev-parse")
+
+	sha, err := cmd.AddArguments("HEAD").RunInDir(repo.path)
+	if err != nil {
+		return plumbing.ZeroHash, err
+	}
+
+	return plumbing.NewHash(sha), nil
+}
+
+func (repo *Repository) IsClean() bool {
+	cmd := git.NewCommand("status")
+
+	status, err := cmd.AddArguments("--porcelain").RunInDir(repo.path)
+	if err != nil {
+		return false
+	}
+
+	return status == ""
+}
+
+func (repo *Repository) diff(path, from, until string) (string, error) {
+	if from == "" {
+		revisions, err := repo.revisions()
+		if err != nil {
+			return "", err
+		}
+
+		if revisions > 1 {
+			from = "HEAD^"
+		}
+	}
+
+	if until == "" {
+		until = "HEAD"
+	}
+
+	cmd := git.NewCommand("log").
+		AddArguments("--reverse").
+		AddArguments("--name-status").
+		AddArguments("--no-renames").
+		AddArguments("--no-decorate").
+		AddArguments("--no-merges").
+		AddArguments("--pretty=format:\"%H %ci\"")
+
+	if from != "" {
+		until = fmt.Sprintf("%s...%s", from, until)
+	}
+
+	cmd = cmd.AddArguments(until)
+
+	if path != "" {
+		cmd = cmd.AddArguments("--").AddArguments(path)
+	}
+
+	// TODO(kiivihal): remove this statement
+	log.Printf("diff command: %s", cmd.String())
+
+	return cmd.RunInDir(repo.path)
+}
+
+// revisions returns the number of committed revisions on the current branch
+func (repo *Repository) revisions() (int, error) {
+	resp, err := git.NewCommand("rev-list").
+		AddArguments("--count").
+		AddArguments("HEAD").
+		RunInDir(repo.path)
+	if err != nil {
+		return 0, err
+	}
+
+	return strconv.Atoi(strings.TrimSpace(resp))
+}
+
+func (repo *Repository) Changes(path, from, until string) (chan DiffFile, error) {
+	c := make(chan DiffFile, 2500)
+
+	output, err := repo.diff(path, from, until)
+	if err != nil {
+		return c, err
+	}
+
+	go func(lines string) {
+		defer close(c)
+
+		p := newLogParser()
+		if err := p.generate(lines, c); err != nil {
+			log.Printf("unable to parse diff files; %v", err)
+		}
+	}(output)
+
+	return c, nil
+}
+
+func (repo *Repository) Exists(path string) bool {
+	fPath := filepath.Join(repo.path, path)
+	_, err := os.Stat(fPath)
+
+	return !os.IsNotExist(err)
+}
+
+type Publisher interface {
+	Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error
+}
+
+type PublishStats struct {
+	Deleted int
+	Updated int
+}
+
+func (repo *Repository) PublishChanged(from, until string, p ...Publisher) (PublishStats, error) {
+	resourcePath := "rsc"
+	stats := PublishStats{}
+
+	files, err := repo.Changes(resourcePath, from, until)
+	if err != nil {
+		return stats, err
+	}
+
+	for f := range files {
+		f := f
+
+		hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, resourcePath+"/"), ".json")
+
+		m := &domainpb.IndexMessage{
+			OrganisationID: repo.OrgID,
+			DatasetID:      repo.DatasetID,
+			RecordID:       hubID,
+			IndexName:      config.Config.ElasticSearch.GetIndexName(),
+		}
+		if f.State == StatusDeleted {
+			m.Deleted = true
+			stats.Deleted++
+		}
+
+		if !m.Deleted {
+			r, err := repo.Read(f.Path, f.CommitID)
+			if err != nil {
+				return stats, err
+			}
+
+			var fg fragments.FragmentGraph
+			if decodeErr := json.NewDecoder(r).Decode(&fg); decodeErr != nil {
+				return stats, decodeErr
+			}
+
+			fg.Meta.Modified = fragments.NowInMillis()
+			fg.Meta.SourceID = f.CommitID
+
+			b, err := fg.Marshal()
+			if err != nil {
+				return stats, err
+			}
+
+			m.Source = b
+
+			stats.Updated++
+		}
+
+		for _, publisher := range p {
+			if err := publisher.Publish(context.Background(), m); err != nil {
+				return stats, err
+			}
+		}
+	}
+
+	return stats, nil
 }
