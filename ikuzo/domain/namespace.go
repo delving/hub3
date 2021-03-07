@@ -37,8 +37,8 @@ func (uri URI) String() string {
 	return string(uri)
 }
 
-// NameSpace is a container for URI conversions for RDF- and XML-namespaces.
-type NameSpace struct {
+// Namespace is a container for URI conversions for RDF- and XML-namespaces.
+type Namespace struct {
 
 	// UUID is the unique identifier of a namespace
 	UUID string `json:"uuid"`
@@ -70,7 +70,7 @@ type NameSpace struct {
 	// TODO(kiivihal): add function for custom hashing similar to isIdentRune
 }
 
-func (ns *NameSpace) String() string {
+func (ns *Namespace) String() string {
 	return fmt.Sprintf("%s: %s", ns.Prefix, ns.Base)
 }
 
@@ -96,7 +96,7 @@ func SplitURI(uri string) (base, name string) {
 // AddPrefix adds a prefix to the list of prefix alternatives.
 //
 // When the prefix is already present in PrefixAlt no error is thrown.
-func (ns *NameSpace) AddPrefix(prefix string) error {
+func (ns *Namespace) AddPrefix(prefix string) error {
 	if ns.Temporary {
 		ns.Temporary = false
 		ns.Prefix = prefix
@@ -118,7 +118,7 @@ func (ns *NameSpace) AddPrefix(prefix string) error {
 // AddBase adds a base-URI to the list of base alternatives.
 //
 // When the base-URI is already present in BaseAlt no error is thrown.
-func (ns *NameSpace) AddBase(base string) error {
+func (ns *Namespace) AddBase(base string) error {
 	for _, b := range ns.BaseAlt {
 		if b == base {
 			return nil
@@ -132,7 +132,7 @@ func (ns *NameSpace) AddBase(base string) error {
 
 // Prefixes returns all namespace prefix linked to this NameSpace.
 // This includes the default Prefix and all alternative prefixes.
-func (ns *NameSpace) Prefixes() []string {
+func (ns *Namespace) Prefixes() []string {
 	prefixes := append(ns.PrefixAlt, ns.Prefix)
 	sort.Slice(prefixes, func(i, j int) bool {
 		return prefixes[i] < prefixes[j]
@@ -143,7 +143,7 @@ func (ns *NameSpace) Prefixes() []string {
 
 // BaseURIs returns all namespace base-URIs linked to this NameSpace.
 // This includes the default Base and all alternative base-URIs.
-func (ns *NameSpace) BaseURIs() []string {
+func (ns *Namespace) BaseURIs() []string {
 	baseURIs := append(ns.BaseAlt, ns.Base)
 	sort.Slice(baseURIs, func(i, j int) bool {
 		return baseURIs[i] < baseURIs[j]
@@ -154,7 +154,7 @@ func (ns *NameSpace) BaseURIs() []string {
 
 // GetID returns a string representation of a UUID.
 // When no UUID is set, this function will generate it and update the NameSpace.
-func (ns *NameSpace) GetID() string {
+func (ns *Namespace) GetID() string {
 	if ns.UUID == "" {
 		ns.UUID = generateID()
 	}
@@ -179,7 +179,7 @@ func generateID() string {
 
 // Merge merges the values of two NameSpace objects.
 // The prefixes and alternative base URIs of the other NameSpace are merged into ns.
-func (ns *NameSpace) Merge(other *NameSpace) error {
+func (ns *Namespace) Merge(other *Namespace) error {
 	ns.PrefixAlt = mergeSlice(ns.PrefixAlt, other.Prefixes(), ns.Prefix)
 	ns.BaseAlt = mergeSlice(ns.BaseAlt, other.BaseURIs(), ns.Base)
 

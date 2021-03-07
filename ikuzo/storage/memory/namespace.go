@@ -26,17 +26,17 @@ import (
 // Note: mutations in this store are ephemeral.
 type NameSpaceStore struct {
 	sync.RWMutex
-	prefix2base map[string]*domain.NameSpace
-	base2prefix map[string]*domain.NameSpace
-	namespaces  map[string]*domain.NameSpace
+	prefix2base map[string]*domain.Namespace
+	base2prefix map[string]*domain.Namespace
+	namespaces  map[string]*domain.Namespace
 }
 
 // NewNameSpaceStore creates an in-memory namespace.Store.
 func NewNameSpaceStore() *NameSpaceStore {
 	return &NameSpaceStore{
-		prefix2base: make(map[string]*domain.NameSpace),
-		base2prefix: make(map[string]*domain.NameSpace),
-		namespaces:  make(map[string]*domain.NameSpace),
+		prefix2base: make(map[string]*domain.Namespace),
+		base2prefix: make(map[string]*domain.Namespace),
+		namespaces:  make(map[string]*domain.Namespace),
 	}
 }
 
@@ -47,7 +47,7 @@ func (ms *NameSpaceStore) Len() int {
 }
 
 // Set stores the NameSpace in the Store
-func (ms *NameSpaceStore) Set(ns *domain.NameSpace) error {
+func (ms *NameSpaceStore) Set(ns *domain.Namespace) error {
 	if ns == nil {
 		return fmt.Errorf("cannot store empty namespace")
 	}
@@ -74,7 +74,7 @@ func (ms *NameSpaceStore) Set(ns *domain.NameSpace) error {
 }
 
 // Delete removes a NameSpace from the store
-func (ms *NameSpaceStore) Delete(ns *domain.NameSpace) error {
+func (ms *NameSpaceStore) Delete(ns *domain.Namespace) error {
 	ms.Lock()
 	defer ms.Unlock()
 
@@ -104,7 +104,7 @@ func (ms *NameSpaceStore) Delete(ns *domain.NameSpace) error {
 }
 
 // GetWithPrefix returns a NameSpace from the store if the prefix is found.
-func (ms *NameSpaceStore) GetWithPrefix(prefix string) (*domain.NameSpace, error) {
+func (ms *NameSpaceStore) GetWithPrefix(prefix string) (*domain.Namespace, error) {
 	ms.RLock()
 	defer ms.RUnlock()
 
@@ -117,7 +117,7 @@ func (ms *NameSpaceStore) GetWithPrefix(prefix string) (*domain.NameSpace, error
 }
 
 // GetWithBase returns a NameSpace from the store if the base URI is found.
-func (ms *NameSpaceStore) GetWithBase(base string) (*domain.NameSpace, error) {
+func (ms *NameSpaceStore) GetWithBase(base string) (*domain.Namespace, error) {
 	ms.RLock()
 	defer ms.RUnlock()
 
@@ -131,8 +131,8 @@ func (ms *NameSpaceStore) GetWithBase(base string) (*domain.NameSpace, error) {
 
 // List returns a list of all the stored NameSpace objects.
 // An error is only returned when the underlying datastructure is unavailable.
-func (ms *NameSpaceStore) List() ([]*domain.NameSpace, error) {
-	namespaces := []*domain.NameSpace{}
+func (ms *NameSpaceStore) List() ([]*domain.Namespace, error) {
+	namespaces := []*domain.Namespace{}
 	for _, ns := range ms.namespaces {
 		if ns != nil {
 			namespaces = append(namespaces, ns)

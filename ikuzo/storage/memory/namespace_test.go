@@ -28,13 +28,13 @@ func TestNameSpaceStore(t *testing.T) {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	dc := &domain.NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
-	rdf := &domain.NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
 
 	tests := []struct {
 		name     string
-		ns       *domain.NameSpace
-		f        func(ns *domain.NameSpace) error
+		ns       *domain.Namespace
+		f        func(ns *domain.Namespace) error
 		nrStored int
 		wantErr  bool
 	}{
@@ -107,9 +107,9 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	rdf := &domain.NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
-	dc := &domain.NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
-	unknown := &domain.NameSpace{Prefix: "unknown"}
+	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	unknown := &domain.Namespace{Prefix: "unknown"}
 
 	err := store.Set(dc)
 	if err != nil {

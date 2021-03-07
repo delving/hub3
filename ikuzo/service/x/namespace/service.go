@@ -27,26 +27,26 @@ type Store interface {
 	// Set persists the NameSpace object.
 	//
 	// When the object already exists it is overwritten.
-	Set(ns *domain.NameSpace) error
+	Set(ns *domain.Namespace) error
 
 	// Delete removes the NameSpace from the store.
 	//
 	// Delete matches by the Prefix of the Namespace.
-	Delete(ns *domain.NameSpace) error
+	Delete(ns *domain.Namespace) error
 
 	// Len returns the number of stored namespaces
 	Len() int
 
 	// GetWithPrefix returns the NameSpace for a given prefix.
 	// When the prefix is not found, an ErrNameSpaceNotFound error is returned.
-	GetWithPrefix(prefix string) (ns *domain.NameSpace, err error)
+	GetWithPrefix(prefix string) (ns *domain.Namespace, err error)
 
 	// GetWithBase returns the NameSpace for a given base-URI.
 	// When the base-URI is not found, an ErrNameSpaceNotFound error is returned.
-	GetWithBase(base string) (ns *domain.NameSpace, err error)
+	GetWithBase(base string) (ns *domain.Namespace, err error)
 
 	// List returns a list of all the NameSpaces
-	List() ([]*domain.NameSpace, error)
+	List() ([]*domain.Namespace, error)
 }
 
 // ServiceOptionFunc is a function that configures a Service.
@@ -135,7 +135,7 @@ func (s *Service) checkStore() {
 // When either the prefix or the base-URI is already present in the service the
 // unknown is stored as an alternative. If neither is present a new NameSpace
 // is created.
-func (s *Service) Add(prefix, base string) (*domain.NameSpace, error) {
+func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 	s.checkStore()
 
 	if base == "" {
@@ -143,7 +143,7 @@ func (s *Service) Add(prefix, base string) (*domain.NameSpace, error) {
 	}
 
 	if prefix == "" {
-		ns := &domain.NameSpace{
+		ns := &domain.Namespace{
 			Base:      base,
 			Temporary: true,
 		}
@@ -168,7 +168,7 @@ func (s *Service) Add(prefix, base string) (*domain.NameSpace, error) {
 		if base != ns.Base {
 			// base is not linked to the NameSpace
 			// so creating a new temporary NameSpace
-			ns = &domain.NameSpace{
+			ns = &domain.Namespace{
 				Base:      base,
 				PrefixAlt: []string{prefix},
 				Temporary: true,
@@ -205,7 +205,7 @@ func (s *Service) Add(prefix, base string) (*domain.NameSpace, error) {
 		return ns, nil
 	}
 
-	ns = &domain.NameSpace{
+	ns = &domain.Namespace{
 		Prefix: prefix,
 		Base:   base,
 	}
@@ -219,7 +219,7 @@ func (s *Service) Add(prefix, base string) (*domain.NameSpace, error) {
 }
 
 // Delete removes a namespace from the store
-func (s *Service) Delete(ns *domain.NameSpace) error {
+func (s *Service) Delete(ns *domain.Namespace) error {
 	return s.store.Delete(ns)
 }
 
@@ -231,7 +231,7 @@ func (s *Service) Len() int {
 
 // List returns a list of all stored NameSpace objects.
 // An error is returned when the underlying storage can't be accessed.
-func (s *Service) List() ([]*domain.NameSpace, error) {
+func (s *Service) List() ([]*domain.Namespace, error) {
 	return s.store.List()
 }
 
@@ -260,7 +260,7 @@ func (s *Service) SearchLabel(uri string) (string, error) {
 // When the NameSpace contains an unknown prefix and base-URI pair but one of them
 // is found in the NameSpace service, the current default is stored in PrefixAlt
 // or BaseAlt and the new default set.
-func (s *Service) Set(ns *domain.NameSpace) error {
+func (s *Service) Set(ns *domain.Namespace) error {
 	s.checkStore()
 	return s.store.Set(ns)
 }

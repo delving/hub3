@@ -108,28 +108,28 @@ func TestNameSpace_AddPrefix(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.NameSpace
+		want    *domain.Namespace
 		wantErr bool
 	}{
 		{
 			"add same prefix",
 			fields{Prefix: "dc", PrefixAlt: []string{"dc"}},
 			args{"dc"},
-			&domain.NameSpace{Prefix: "dc", PrefixAlt: []string{"dc"}},
+			&domain.Namespace{Prefix: "dc", PrefixAlt: []string{"dc"}},
 			false,
 		},
 		{
 			"add alt prefix",
 			fields{Prefix: "dc", PrefixAlt: []string{"dc"}},
 			args{"dct"},
-			&domain.NameSpace{Prefix: "dc", PrefixAlt: []string{"dc", "dct"}},
+			&domain.Namespace{Prefix: "dc", PrefixAlt: []string{"dc", "dct"}},
 			false,
 		},
 		{
 			"correct temporary prefix",
 			fields{Prefix: "x123", Temporary: true},
 			args{"dc"},
-			&domain.NameSpace{Prefix: "dc"},
+			&domain.Namespace{Prefix: "dc"},
 			false,
 		},
 	}
@@ -137,7 +137,7 @@ func TestNameSpace_AddPrefix(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			ns := &domain.NameSpace{
+			ns := &domain.Namespace{
 				UUID:      tt.fields.UUID,
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
@@ -173,7 +173,7 @@ func TestNameSpace_AddBase(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *domain.NameSpace
+		want    *domain.Namespace
 		wantErr bool
 	}{
 		{
@@ -184,7 +184,7 @@ func TestNameSpace_AddBase(t *testing.T) {
 				BaseAlt: []string{dcNS},
 			},
 			args{dcNS},
-			&domain.NameSpace{
+			&domain.Namespace{
 				Prefix:  "dc",
 				Base:    dcNS,
 				BaseAlt: []string{dcNS},
@@ -199,7 +199,7 @@ func TestNameSpace_AddBase(t *testing.T) {
 				BaseAlt: []string{dcNS},
 			},
 			args{dcAltNS},
-			&domain.NameSpace{
+			&domain.Namespace{
 				Prefix: "dc",
 				Base:   dcNS,
 				BaseAlt: []string{
@@ -215,7 +215,7 @@ func TestNameSpace_AddBase(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			ns := &domain.NameSpace{
+			ns := &domain.Namespace{
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
 				BaseAlt:   tt.fields.BaseAlt,
@@ -261,7 +261,7 @@ func TestNameSpace_GetID(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			ns := &domain.NameSpace{
+			ns := &domain.Namespace{
 				UUID:      tt.fields.UUID,
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
@@ -285,7 +285,7 @@ func TestNameSpace_Merge(t *testing.T) {
 	}
 
 	type args struct {
-		other *domain.NameSpace
+		other *domain.Namespace
 	}
 
 	tests := []struct {
@@ -299,7 +299,7 @@ func TestNameSpace_Merge(t *testing.T) {
 		{
 			"merge without overlap",
 			fields{dcNS, "dc", []string{}, []string{}},
-			args{&domain.NameSpace{
+			args{&domain.Namespace{
 				Base:      dcAltNS,
 				Prefix:    "dce",
 				BaseAlt:   []string{},
@@ -312,7 +312,7 @@ func TestNameSpace_Merge(t *testing.T) {
 		{
 			"merge with prefix overlap",
 			fields{dcNS, "dc", []string{}, []string{}},
-			args{&domain.NameSpace{
+			args{&domain.Namespace{
 				Base:      dcAltNS,
 				Prefix:    "dc",
 				BaseAlt:   []string{},
@@ -325,7 +325,7 @@ func TestNameSpace_Merge(t *testing.T) {
 		{
 			"merge with base overlap",
 			fields{dcNS, "dc", []string{}, []string{}},
-			args{&domain.NameSpace{
+			args{&domain.Namespace{
 				Base:      dcNS,
 				Prefix:    "dce",
 				BaseAlt:   []string{},
@@ -341,7 +341,7 @@ func TestNameSpace_Merge(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			ns := &domain.NameSpace{
+			ns := &domain.Namespace{
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
 				BaseAlt:   tt.fields.BaseAlt,

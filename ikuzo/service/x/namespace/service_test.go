@@ -22,7 +22,7 @@ import (
 )
 
 func TestService_SearchLabel(t *testing.T) {
-	dc := &domain.NameSpace{
+	dc := &domain.Namespace{
 		Base:   "http://purl.org/dc/elements/1.1/",
 		Prefix: "dc",
 	}
@@ -33,7 +33,7 @@ func TestService_SearchLabel(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		ns      *domain.NameSpace
+		ns      *domain.Namespace
 		args    args
 		want    string
 		wantErr bool
