@@ -16,6 +16,8 @@ type NamespaceService interface {
 
 	// GetNamespace gets a Namespace
 	GetNamespace(context.Context, GetNamespaceRequest) (*GetNamespaceResponse, error)
+	// ListNamespace returns a list of all namespaces
+	ListNamespace(context.Context, ListNamespaceRequest) (*ListNamespaceResponse, error)
 }
 
 type namespaceServiceServer struct {
@@ -30,6 +32,7 @@ func RegisterNamespaceService(server *otohttp.Server, namespaceService Namespace
 		namespaceService: namespaceService,
 	}
 	server.Register("NamespaceService", "GetNamespace", handler.handleGetNamespace)
+	server.Register("NamespaceService", "ListNamespace", handler.handleListNamespace)
 }
 
 func (s *namespaceServiceServer) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
@@ -49,26 +52,49 @@ func (s *namespaceServiceServer) handleGetNamespace(w http.ResponseWriter, r *ht
 	}
 }
 
+func (s *namespaceServiceServer) handleListNamespace(w http.ResponseWriter, r *http.Request) {
+	var request ListNamespaceRequest
+	if err := otohttp.Decode(r, &request); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	response, err := s.namespaceService.ListNamespace(r.Context(), request)
+	if err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	if err := otohttp.Encode(w, r, http.StatusOK, response); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+}
+
 // GetNamespaceRequest is the input object for GetNamespaceRequest.
 type GetNamespaceRequest struct {
 	// Prefix is the prefix of the Namespace
 	Prefix string `json:"prefix"`
 }
 
-type Namespace struct {
-	UUID      string   `json:"uuid"`
-	Base      string   `json:"base"`
-	Prefix    string   `json:"prefix"`
-	BaseAlt   []string `json:"baseAlt"`
-	PrefixAlt []string `json:"prefixAlt"`
-	Schema    string   `json:"schema"`
-	Temporary bool     `json:"temporary"`
-}
-
 // GetNamespaceResponse is the output object for GetNamespaceRequest.
 type GetNamespaceResponse struct {
 	// Namespaces are the namespaces that match the GetNamespaceRequest.Prefix
-	Namespaces []domain.Namespace `json:"namespaces"`
+	Namespaces []*domain.Namespace `json:"namespaces"`
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+// ListNamespaceRequest is the input object for ListNamespaceRequest.
+type ListNamespaceRequest struct {
+	// Prefix is the prefix of the Namespace
+	Prefix string `json:"prefix"`
+	// Base is the base URI of the Namespace
+	Base string `json:"base"`
+}
+
+// ListNamespaceResponse is the output object for ListNamespaceRequest.
+type ListNamespaceResponse struct {
+	// Namespaces are the namespaces that match the ListNamespaceRequest Prefix or Base
+	Namespaces []*domain.Namespace `json:"namespaces"`
 	// Error is string explaining what went wrong. Empty if everything was fine.
 	Error string `json:"error,omitempty"`
 }
