@@ -36,7 +36,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/docgen"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
@@ -185,7 +184,7 @@ func newServer(options ...Option) (*server, error) {
 		f(s.router)
 	}
 
-	s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
+	// s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
 	// TODO: maybe add server validation function
 
 	return s, nil
