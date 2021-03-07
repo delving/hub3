@@ -143,7 +143,7 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 	fr.AssignObject()
-	buildQueryClause(q, c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID)
+	buildQueryClause(q, fr.OrgIDKey, fr.OrgID)
 	buildQueryClause(q, "predicate", fr.GetPredicate())
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
@@ -300,7 +300,7 @@ func (f Fragment) AddTo(bi BulkIndex) error {
 //}
 
 // SaveDataSet creates a fragment entry for a Dataset
-func SaveDataSet(spec string, p *elastic.BulkProcessor) error {
+func SaveDataSet(orgID, spec string, p *elastic.BulkProcessor) error {
 	fg := NewFragmentGraph()
 	fg.Meta.Spec = "datasets"
 	fb := NewFragmentBuilder(fg)

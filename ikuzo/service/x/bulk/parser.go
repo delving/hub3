@@ -144,7 +144,7 @@ func (p *Parser) RDFBulkInsert() []error {
 }
 
 func (p *Parser) setDataSet(req *Request) {
-	ds, _, dsError := models.GetOrCreateDataSet(req.DatasetID)
+	ds, _, dsError := models.GetOrCreateDataSet(req.OrgID, req.DatasetID)
 	if dsError != nil {
 		// log error
 		return

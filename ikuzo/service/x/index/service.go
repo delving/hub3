@@ -268,7 +268,7 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 			return
 		}
 
-		ds, err := models.GetDataSet(datasetID)
+		ds, err := models.GetDataSet(orgID, datasetID)
 		if err != nil {
 			log.Error().
 				Err(err).

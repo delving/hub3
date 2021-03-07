@@ -72,7 +72,7 @@ func TestService_Put(t *testing.T) {
 
 	type args struct {
 		ctx context.Context
-		org domain.Organization
+		org *domain.Organization
 	}
 
 	tests := []struct {
@@ -86,7 +86,7 @@ func TestService_Put(t *testing.T) {
 			fields{store: memory.NewOrganizationStore()},
 			args{
 				ctx: context.TODO(),
-				org: domain.Organization{ID: domain.OrganizationID("demo")},
+				org: &domain.Organization{ID: domain.OrganizationID("demo")},
 			},
 			false,
 		},
@@ -95,7 +95,7 @@ func TestService_Put(t *testing.T) {
 			fields{store: memory.NewOrganizationStore()},
 			args{
 				ctx: context.TODO(),
-				org: domain.Organization{ID: domain.OrganizationID("")},
+				org: &domain.Organization{ID: domain.OrganizationID("")},
 			},
 			true,
 		},
@@ -130,7 +130,7 @@ func TestService(t *testing.T) {
 	orgID, err := domain.NewOrganizationID("demo")
 	is.NoErr(err)
 
-	err = svc.Put(ctx, domain.Organization{ID: orgID})
+	err = svc.Put(ctx, &domain.Organization{ID: orgID})
 	is.NoErr(err)
 
 	// should have one org
@@ -151,6 +151,6 @@ func TestService(t *testing.T) {
 	is.Equal(len(orgs), 0)
 
 	// org not found
-	getOrgID, err = svc.Get(ctx, orgID)
+	_, err = svc.Get(ctx, orgID)
 	is.True(errors.Is(err, domain.ErrOrgNotFound))
 }

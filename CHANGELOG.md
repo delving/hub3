@@ -6,6 +6,7 @@
 
 ### Added 
 
+- Multitenancy support through organisationIDs  [[GH-77]](https://github.com/delving/hub3/pull/77)
 - Initial version of Time Revision Store  [[GH-76]](https://github.com/delving/hub3/pull/76)
 - Dedicated SPARQL service that can be used as a separate publisher [[GH-75]](https://github.com/delving/hub3/pull/75)
 - Support for dropping orphan-groups within a dataset [[GH-74]](https://github.com/delving/hub3/pull/74)

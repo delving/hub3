@@ -20,8 +20,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/olivere/elastic/v7"
-	"github.com/rs/zerolog"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -33,6 +31,9 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
 
 	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
@@ -385,7 +386,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	t.Meta.Revision = meta.Revision
 
 	// create a dataset
-	ds, _, datasetErr := models.GetOrCreateDataSet(t.Meta.DatasetID)
+	ds, _, datasetErr := models.GetOrCreateDataSet(t.Meta.OrgID, t.Meta.DatasetID)
 	if datasetErr != nil {
 		ErrorfMsg := fmt.Errorf("unable to get ead dataset for %s; %w", t.Meta.DatasetID, datasetErr)
 		return t.finishWithError(ErrorfMsg)
