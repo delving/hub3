@@ -23,6 +23,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
+	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
 )
 
@@ -46,6 +47,7 @@ type Config struct {
 	PostHooks         []PostHook `json:"posthooks"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
+	oto               *otohttp.Server
 	is                *index.Service
 	trs               *revision.Service
 	orgs              *organization.Service
@@ -74,6 +76,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.Logging,
 			&cfg.NameSpace,
 			&cfg.OAIPMH,
+			&cfg.NameSpace,
 		}
 	}
 
