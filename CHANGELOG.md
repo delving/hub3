@@ -6,6 +6,8 @@
 
 ### Added 
 
+- Initial version of Time Revision Store  [[GH-76]](https://github.com/delving/hub3/pull/76)
+- Dedicated SPARQL service that can be used as a separate publisher [[GH-75]](https://github.com/delving/hub3/pull/75)
 - Support for dropping orphan-groups within a dataset [[GH-74]](https://github.com/delving/hub3/pull/74)
 - Support for blacklisting URIs and limiting caching to referrers in the image proxy service [[GH73]](https://github.com/delving/hub3/pull/73)
 - Create c level and Node from p element in dsc element and add every Cp field to the Odd in the created Clevel. [[GH-67]](https://github.com/delving/hub3/pull/67)
