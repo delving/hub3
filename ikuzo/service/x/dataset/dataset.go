@@ -17,7 +17,7 @@ type DataSet struct {
 	Created          time.Time `json:"created"`
 	Deleted          bool      `json:"deleted"`
 	Tags             []string  `json:"tags"`
-	RecordType       string    `json:"recordType"` //
+	RecordType       string    `json:"recordType"`
 	Owner            string    `json:"owner"`
 	Access           `json:"access" storm:"inline"`
 	EAD              `json:"ead" storm:"inline"`
