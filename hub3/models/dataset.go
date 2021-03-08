@@ -557,6 +557,7 @@ func CreateDataSetStats(ctx context.Context, orgID, spec string) (DataSetStats, 
 		return DataSetStats{}, err
 	}
 
+	// TODO: Update this when LOD fragments are enabled again
 	// lodFragmentStats, err := ds.createLodFragmentStats(ctx)
 	// if err != nil {
 	// log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
