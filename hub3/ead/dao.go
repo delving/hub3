@@ -233,7 +233,7 @@ func validateMetsRequest(r *http.Request) (string, string, error) {
 	return spec, uuid, nil
 }
 
-// Index indexes the stored METS files identified by their UUID
+// Index published records from stored METS files identified by their UUID
 func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
@@ -293,6 +293,7 @@ func (c *DaoClient) DownloadConfig(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -488,9 +489,9 @@ func (cfg *DaoConfig) fileTriples(subject string, file *eadpb.File) []*rdf.Tripl
 		),
 	}
 	t := func(s rdf.Term, p, o string, oType convert) {
-		t := addNonEmptyTriple(s, p, o, oType)
-		if t != nil {
-			triples = append(triples, t)
+		triple := addNonEmptyTriple(s, p, o, oType)
+		if triple != nil {
+			triples = append(triples, triple)
 		}
 	}
 
