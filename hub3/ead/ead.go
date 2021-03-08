@@ -605,3 +605,18 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 	}
 	return node, nil
 }
+
+// ValidateSpec checks for path traversal characters that should not be in the spec identifier.
+func ValidateSpec(spec string) error {
+	if spec == "" {
+		return fmt.Errorf("spec cannot be empty")
+	}
+	if strings.Contains(spec, "..") {
+		return fmt.Errorf("spec cannot have two or more dots in sequence")
+	}
+	if strings.Contains(spec, "/") || strings.Contains(spec, `\`) {
+		return fmt.Errorf("spec cannot contains forward or backward slashes")
+	}
+
+	return nil
+}

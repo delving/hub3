@@ -31,9 +31,9 @@ type FilterOption struct {
 // Store is the storage interface for the organization.Service.
 type Store interface {
 	Delete(ctx context.Context, id domain.OrganizationID) error
-	Get(ctx context.Context, id domain.OrganizationID) (domain.Organization, error)
-	Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error)
-	Put(ctx context.Context, org domain.Organization) error
+	Get(ctx context.Context, id domain.OrganizationID) (*domain.Organization, error)
+	Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]*domain.Organization, error)
+	Put(ctx context.Context, org *domain.Organization) error
 	Shutdown(ctx context.Context) error
 }
 
@@ -59,19 +59,19 @@ func (s *Service) Delete(ctx context.Context, id domain.OrganizationID) error {
 
 // Get returns an domain.Organization and returns  ErrOrgNotFound when the Organization
 // is not found.
-func (s *Service) Get(ctx context.Context, id domain.OrganizationID) (domain.Organization, error) {
+func (s *Service) Get(ctx context.Context, id domain.OrganizationID) (*domain.Organization, error) {
 	return s.store.Get(ctx, id)
 }
 
 // Filter returns a list of domain.Organization based on the filterOptions.
 //
 // When the filterOptions are nil, the first 10 are returned.
-func (s *Service) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error) {
+func (s *Service) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]*domain.Organization, error) {
 	return s.store.Filter(ctx, filter...)
 }
 
 // Put stores an Organization in the Service Store.
-func (s *Service) Put(ctx context.Context, org domain.Organization) error {
+func (s *Service) Put(ctx context.Context, org *domain.Organization) error {
 	if err := org.ID.Valid(); err != nil {
 		return err
 	}

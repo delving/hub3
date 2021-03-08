@@ -156,12 +156,13 @@ type Access struct {
 
 // DaoStats holds the stats for EAD digital objects extracted from METS links.
 type DaoStats struct {
-	ExtractedLinks uint64         `json:"extractedLinks"`
-	RetrieveErrors uint64         `json:"retrieveErrors"`
-	DigitalObjects uint64         `json:"digitalObjects"`
-	Errors         []string       `json:"errors"`
-	UniqueLinks    uint64         `json:"uniqueLinks"`
-	DuplicateLinks map[string]int `json:"duplicateLinks"`
+	ExtractedLinks     uint64            `json:"extractedLinks"`
+	RetrieveErrors     uint64            `json:"retrieveErrors"`
+	DigitalObjects     uint64            `json:"digitalObjects"`
+	Errors             []string          `json:"errors"` // Old field replaced with ErrorsPerInventory. Needs to be kept or else breaks the gob decoder when reading older data.
+	UniqueLinks        uint64            `json:"uniqueLinks"`
+	DuplicateLinks     map[string]int    `json:"duplicateLinks"`
+	ErrorsPerInventory map[string]string `json:"errorsPerInventory"`
 }
 
 // createDatasetURI creates a RDF uri for the dataset based Config RDF BaseUrl
@@ -171,7 +172,7 @@ func createDatasetURI(spec string) string {
 }
 
 // NewDataset creates a new instance of a DataSet
-func NewDataset(spec string) DataSet {
+func NewDataset(orgID, spec string) DataSet {
 	now := time.Now()
 	access := Access{
 		OAIPMH: true,
@@ -179,7 +180,7 @@ func NewDataset(spec string) DataSet {
 		LOD:    true,
 	}
 	dataset := DataSet{
-		OrgID:    c.Config.OrgID,
+		OrgID:    orgID,
 		Spec:     spec,
 		URI:      createDatasetURI(spec),
 		Created:  now,
@@ -190,8 +191,10 @@ func NewDataset(spec string) DataSet {
 	return dataset
 }
 
+// -------------- migrated ---------------------
+
 // GetDataSet returns a DataSet object when found
-func GetDataSet(spec string) (*DataSet, error) {
+func GetDataSet(orgID, spec string) (*DataSet, error) {
 	var ds DataSet
 	err := ORM().One("Spec", spec, &ds)
 
@@ -199,8 +202,8 @@ func GetDataSet(spec string) (*DataSet, error) {
 }
 
 // CreateDataSet creates and returns a DataSet
-func CreateDataSet(spec string) (*DataSet, bool, error) {
-	ds := NewDataset(spec)
+func CreateDataSet(orgID, spec string) (*DataSet, bool, error) {
+	ds := NewDataset(orgID, spec)
 	ds.Revision = 1
 	err := ds.Save()
 
@@ -209,12 +212,28 @@ func CreateDataSet(spec string) (*DataSet, bool, error) {
 
 // GetOrCreateDataSet returns a DataSet object from the Storm ORM.
 // If none is present it will create one
-func GetOrCreateDataSet(spec string) (*DataSet, bool, error) {
-	ds, err := GetDataSet(spec)
+func GetOrCreateDataSet(orgID, spec string) (*DataSet, bool, error) {
+	ds, err := GetDataSet(orgID, spec)
 	if err != nil {
-		return CreateDataSet(spec)
+		return CreateDataSet(orgID, spec)
 	}
 	return ds, false, err
+}
+
+// DeleteDataset deletes a set.
+func DeleteDataSet(orgID, spec string, ctx context.Context) error {
+	ds, err := GetDataSet(orgID, spec)
+	if err != nil {
+		return err
+	}
+	ok, dropErr := ds.DropAll(ctx, nil)
+	if dropErr != nil {
+		return dropErr
+	}
+	if !ok {
+		return fmt.Errorf("unable to delete request because: %s", err)
+	}
+	return nil
 }
 
 // IncrementRevision bumps the latest revision of the DataSet
@@ -226,7 +245,7 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 		return nil, err
 	}
 
-	freshDs, err := GetDataSet(ds.Spec)
+	freshDs, err := GetDataSet(ds.OrgID, ds.Spec)
 
 	return freshDs, err
 }
@@ -309,7 +328,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentGraphDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID),
 	)
 
 	res, err := index.ESClient().Search().
@@ -326,7 +345,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		return 0, revisions, counter, tagCounter, err
 	}
 
-	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
+	log.Info().Str("orgID", ds.OrgID).Str("datasetID", ds.Spec).Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	if res == nil {
 		log.Warn().Msgf(unexpectedResponseMsg, res)
@@ -406,7 +425,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
 		elastic.NewTermQuery("meta.docType", fragments.FragmentDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.FragmentIndexName()).
@@ -519,34 +538,37 @@ func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
 }
 
 // CreateDataSetStats returns DataSetStats that contain all relevant counts from the storage layer
-func CreateDataSetStats(ctx context.Context, spec string) (DataSetStats, error) {
-	ds, err := GetDataSet(spec)
+func CreateDataSetStats(ctx context.Context, orgID, spec string) (DataSetStats, error) {
+	ds, err := GetDataSet(orgID, spec)
 	if err != nil {
 		log.Warn().Msgf("Unable to retrieve dataset %s: %s", spec, err)
 		return DataSetStats{}, err
 	}
+
 	indexStats, err := ds.createIndexStats(ctx)
 	if err != nil {
 		log.Warn().Msgf("Unable to create indexStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
+
 	storeStats, err := ds.createRDFStoreStats()
 	if err != nil {
 		log.Warn().Msgf("Unable to create rdfStoreStats for %s; %#v", spec, err)
 		return DataSetStats{}, err
 	}
-	lodFragmentStats, err := ds.createLodFragmentStats(ctx)
-	if err != nil {
-		log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
-		return DataSetStats{}, err
-	}
+
+	// TODO: Update this when LOD fragments are enabled again
+	// lodFragmentStats, err := ds.createLodFragmentStats(ctx)
+	// if err != nil {
+	// log.Warn().Msgf("Unable to create LODFragmentStats for %s; %#v", spec, err)
+	// return DataSetStats{}, err
+	// }
 	return DataSetStats{
-		Spec:             spec,
-		IndexStats:       indexStats,
-		RDFStoreStats:    storeStats,
-		LODFragmentStats: lodFragmentStats,
-		CurrentRevision:  ds.Revision,
-		DaoStats:         ds.DaoStats,
+		Spec:            spec,
+		IndexStats:      indexStats,
+		RDFStoreStats:   storeStats,
+		CurrentRevision: ds.Revision,
+		DaoStats:        ds.DaoStats,
 	}, nil
 }
 
@@ -562,16 +584,21 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
+	tags := elastic.NewBoolQuery()
+	for _, tag := range []string{"mdr", "narthex", "ead", "eadDesc"} {
+		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
+	}
 
 	v2 := elastic.NewBoolQuery()
 	v2 = v2.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
+	v2 = v2.Must(tags)
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
+	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
 
 	v1 := elastic.NewBoolQuery()
 	v1 = v1.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
-	v1 = v1.Must(elastic.NewTermQuery("orgID", c.Config.OrgID))
+	v1 = v1.Must(elastic.NewTermQuery("orgID", ds.OrgID))
 
 	queries := map[*elastic.BoolQuery][]string{}
 
@@ -603,8 +630,8 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		log.Info().Msgf(
 			"Removed %d records for spec %s in index %s with older revision than %d",
 			res.Deleted,
-			indices,
 			ds.Spec,
+			indices,
 			ds.Revision,
 		)
 	}
@@ -651,14 +678,6 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 //DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
-	// TODO(kiivihal): replace flush with TRS
-	// err := p.Flush()
-	// if err != nil {
-	// log.Warn().Msgf("Unable to Flush ElasticSearch index before deleting orphans.")
-	// return false, err
-	// }
-	// log.Warn().Msgf("Flushed remaining items on the index queue.")
-
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {

@@ -61,6 +61,7 @@ func DefaultSearchRequest(cfg *c.RawConfig) *SearchRequest {
 	sr := &SearchRequest{
 		ResponseSize: responseSize,
 		SessionID:    id.String(),
+		OrgIDKey:     cfg.ElasticSearch.OrgIDKey,
 	}
 
 	return sr
@@ -124,7 +125,7 @@ func NewFacetField(field string) (*FacetField, error) {
 }
 
 // NewSearchRequest builds a search request object from URL Parameters
-func NewSearchRequest(params url.Values) (*SearchRequest, error) {
+func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 	hexRequest := params.Get("scrollID")
 	if hexRequest == "" {
 		hexRequest = params.Get("qs")
@@ -147,6 +148,7 @@ func NewSearchRequest(params url.Values) (*SearchRequest, error) {
 	}
 
 	sr := DefaultSearchRequest(&c.Config)
+	sr.OrgID = orgID
 
 	for p, v := range params {
 		switch p {
@@ -719,7 +721,8 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	query := elastic.NewBoolQuery()
 	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
-	query = query.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID))
+	// TODO(kiivihal): fix this. check if this works for all queries
+	query = query.Must(elastic.NewTermQuery(sr.OrgIDKey, sr.OrgID))
 
 	metaSpecPrefix := "meta.spec:"
 

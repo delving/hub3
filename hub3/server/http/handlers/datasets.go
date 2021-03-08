@@ -22,6 +22,7 @@ import (
 	"github.com/asdine/storm"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
@@ -74,9 +75,10 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 
 // getDataSetStats returns a dataset when found or a 404
 func getDataSetStats(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
 	log.Printf("Get stats for spec %s", spec)
-	stats, err := models.CreateDataSetStats(r.Context(), spec)
+	stats, err := models.CreateDataSetStats(r.Context(), string(orgID), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
@@ -105,8 +107,9 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 
 // getDataSet returns a dataset when found or a 404
 func getDataSet(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
-	ds, err := models.GetDataSet(spec)
+	ds, err := models.GetDataSet(orgID.String(), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
 			log.Printf("Unable to retrieve a dataset: %s", err)
@@ -134,37 +137,29 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteDataset(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
-
-	ds, err := models.GetDataSet(spec)
-	if err == storm.ErrNotFound {
-		render.Status(r, http.StatusNotFound)
-		log.Printf("Dataset is not found: %s", spec)
-		return
-	}
-
-	ok, err := ds.DropAll(r.Context(), nil)
+	err := models.DeleteDataSet(orgID.String(), spec, r.Context())
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		log.Printf("Unable to delete request because: %s", err)
-		return
-	}
-
-	if !ok {
-		render.Status(r, http.StatusBadRequest)
-		log.Printf("Unable to delete request because: %s", err)
+		if err == storm.ErrNotFound {
+			render.Status(r, http.StatusNotFound)
+			log.Printf("Dataset is not found: %s", spec)
+		} else {
+			render.Status(r, http.StatusBadRequest)
+			log.Printf("Unable to delete request because: %s", err)
+		}
 		return
 	}
 
 	msg := fmt.Sprintf("Dataset is deleted: %s", spec)
-
 	render.Status(r, http.StatusAccepted)
-
 	render.PlainText(w, r, msg)
 }
 
 // createDataSet creates a new dataset.
 func createDataSet(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	spec := r.FormValue("spec")
 	if spec == "" {
 		spec = chi.URLParam(r, "spec")
@@ -180,12 +175,12 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ds, err := models.GetDataSet(spec)
+	ds, err := models.GetDataSet(string(orgID), spec)
 	if err == storm.ErrNotFound {
 		var created bool
-		ds, created, err = models.CreateDataSet(spec)
+		ds, created, err = models.CreateDataSet(string(orgID), spec)
 		if created {
-			err = fragments.SaveDataSet(spec, nil)
+			err = fragments.SaveDataSet(string(orgID), spec, nil)
 		}
 		if err != nil {
 			render.Status(r, http.StatusBadRequest)
