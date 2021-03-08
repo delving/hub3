@@ -1,0 +1,13 @@
+-webkit-text-size-adjust: 100%;
+font-family: SourceSansPro,sans-serif;
+line-height: 1.5;
+color: #99a;
+tab-size: 3;
+box-sizing: border-box;
+border-width: 0;
+border-style: solid;
+border-color: currentColor;
+display: flex;
+justify-content: center;
+flex-grow: 1;
+width: 100%;
