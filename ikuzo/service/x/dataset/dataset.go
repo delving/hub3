@@ -39,7 +39,7 @@ type EAD struct {
 	Period         []string `json:"period"`
 }
 
-// Access determines the which types of access are enabled for this dataset
+// Access determines which types of access are enabled for this dataset
 type Access struct {
 	OAIPMH bool `json:"oaipmh"`
 	Search bool `json:"search"`
