@@ -70,7 +70,8 @@ func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, e
 
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
-		OrgID:    c.Config.OrgID,
+		// TODO(kiivihal): support for adding orgID
+		// OrgID:    c.Config.OrgID,
 		Revision: int32(revision),
 		DocType:  "csvUpload",
 		Spec:     con.DefaultSpec,

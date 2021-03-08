@@ -32,6 +32,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
@@ -85,7 +86,8 @@ func RegisterSearch(router chi.Router) {
 }
 
 func GetScrollResult(w http.ResponseWriter, r *http.Request) {
-	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	orgID := domain.GetOrganizationID(r)
+	searchRequest, err := fragments.NewSearchRequest(orgID.String(), r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
 		render.Status(r, http.StatusBadRequest)
@@ -98,6 +100,7 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 
 //
 func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
+	orgID := domain.GetOrganizationID(r)
 
 	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
@@ -113,7 +116,8 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	echoRequest := r.URL.Query().Get("echo")
 	if err != nil {
 		if echoRequest != "" {
-			echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
+			// echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
+			echo, err := searchRequest.Echo(echoRequest, 0)
 			if err != nil {
 				log.Println("Unable to echo request")
 				log.Println(err)
@@ -123,6 +127,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				render.JSON(w, r, echo)
 				return
 			}
+		}
+
+		if echoRequest == "searchService" {
+			ss := reflect.ValueOf(s).Elem().FieldByName("searchSource")
+			src := reflect.NewAt(ss.Type(), unsafe.Pointer(ss.UnsafeAddr())).Elem().Interface().(*elastic.SearchSource)
+			srcMap, err := src.Source()
+			if err != nil {
+				log.Printf("Unable to decode SearchSource: got %s", err)
+				http.Error(w, "unable to decode next SearchSource", http.StatusInternalServerError)
+				return
+			}
+			render.JSON(w, r, srcMap)
 		}
 		log.Println("Unable to get search result.")
 		log.Println(err)
@@ -421,7 +437,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				}
 				qs := fmt.Sprintf("paging=true%s", pageParam)
 				m, _ := url.ParseQuery(qs)
-				sr, _ := fragments.NewSearchRequest(m)
+				sr, _ := fragments.NewSearchRequest(orgID.String(), m)
 				sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 				err = sr.AddQueryFilter(
@@ -465,7 +481,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				leaf := records[0].Tree.CLevel
 				qs := fmt.Sprintf("byLeaf=%s&fillTree=true", leaf)
 				m, _ := url.ParseQuery(qs)
-				sr, _ := fragments.NewSearchRequest(m)
+				sr, _ := fragments.NewSearchRequest(orgID.String(), m)
 				sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 				err := sr.AddQueryFilter(
@@ -513,7 +529,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		if firstNode.Tree.SortKey != 1 && searchRequest.Tree.IsPaging {
 			qs := fmt.Sprintf("byUnitID=%s&allParents=true", firstNode.Tree.Leaf)
 			m, _ := url.ParseQuery(qs)
-			sr, _ := fragments.NewSearchRequest(m)
+			sr, _ := fragments.NewSearchRequest(orgID.String(), m)
 			sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 			err := sr.AddQueryFilter(

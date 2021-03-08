@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	ErrNoFileNotFound = errors.New("file not found")
+	ErrFileNotFound = errors.New("file not found")
 )
 
 // Meta holds all processing information for an EAD Archive
@@ -87,7 +87,7 @@ func decodeMeta(r io.Reader) (*Meta, error) {
 
 func GetOrCreateMeta(spec string) (*Meta, bool, error) {
 	meta, err := GetMeta(spec)
-	if err == ErrNoFileNotFound {
+	if err == ErrFileNotFound {
 		return &Meta{DatasetID: spec, Created: time.Now()}, true, nil
 	}
 
@@ -128,13 +128,15 @@ func GetMeta(spec string) (*Meta, error) {
 
 	metaPath := getMetaPath(spec)
 	if _, err := os.Stat(metaPath); os.IsNotExist(err) {
-		return nil, ErrNoFileNotFound
+		return nil, ErrFileNotFound
 	}
 
 	r, err := os.Open(metaPath)
 	if err != nil {
 		return nil, err
 	}
+
+	defer r.Close()
 
 	meta, err := decodeMeta(r)
 	if err != nil {

@@ -15,9 +15,14 @@
 package domain
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"net/http"
 	"unicode"
 )
+
+type orgIDKey struct{}
 
 // errors
 var (
@@ -31,7 +36,7 @@ var (
 
 var (
 	// MaxLengthID the maximum length of an identifier
-	MaxLengthID = 10
+	MaxLengthID = 12
 
 	// protected organization names
 	protected = []OrganizationID{
@@ -60,8 +65,20 @@ type OrganizationID string
 // Organization is a basic building block for storing information.
 // Everything that is stored by ikuzo must have an organization.ID as part of its metadata.
 type Organization struct {
-	ID          OrganizationID `json:"orgID"`
-	Description string         `json:"description,omitempty"`
+	ID     OrganizationID     `json:"orgID"`
+	Config OrganizationConfig `json:"config"`
+}
+
+type OrganizationConfig struct {
+	// domain is a list of all valid domains (including subdomains) for an domain.Organization
+	// the domain ID will be injected in each request by the organization middleware.
+	Domains        []string `json:"domains,omitempty"`
+	Default        bool
+	CustomID       string
+	Description    string
+	RDFBaseURL     string
+	MintDatasetURL string
+	MintOrgIDURL   string
 }
 
 // NewOrganizationID returns an OrganizationID and an error if the supplied input is invalid.
@@ -77,8 +94,6 @@ func NewOrganizationID(input string) (OrganizationID, error) {
 // Valid validates the identifier.
 //
 // - ErrIDTooLong is returned when ID is too long
-//
-// - ErrIDNotLowercase is returned when ID contains uppercase characters
 //
 // - ErrIDInvalidCharacter is returned when ID contains non-letters
 //
@@ -98,8 +113,8 @@ func (id OrganizationID) Valid() error {
 	}
 
 	for _, r := range id {
-		if !unicode.IsLower(r) && unicode.IsLetter(r) {
-			return ErrIDNotLowercase
+		if r == '-' {
+			continue
 		}
 
 		if !unicode.IsLetter(r) {
@@ -108,4 +123,38 @@ func (id OrganizationID) Valid() error {
 	}
 
 	return nil
+}
+
+// String returns the OrganizationID as a string
+func (id OrganizationID) String() string {
+	return string(id)
+}
+
+// RawID returns the raw direct identifier string for an Organization
+func (o *Organization) RawID() string {
+	return o.ID.String()
+}
+
+func (o *Organization) NewDatasetURI(spec string) string {
+	return fmt.Sprintf(o.Config.MintDatasetURL, o.Config.RDFBaseURL, spec)
+}
+
+// GetOrganizationID retrieves an OrganizationID from a *http.Request.
+//
+// This orgID is set by middleware and available for each request
+func GetOrganizationID(r *http.Request) OrganizationID {
+	orgID := r.Context().Value(orgIDKey{})
+	if orgID != nil {
+		id, _ := NewOrganizationID(orgID.(string))
+		return id
+	}
+
+	return ""
+}
+
+// SetOrganizationID sets the orgID in the context of a *http.Request
+//
+// This function is called by the middleware
+func SetOrganizationID(r *http.Request, orgID string) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), orgIDKey{}, orgID))
 }

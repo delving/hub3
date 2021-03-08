@@ -49,7 +49,9 @@ func TestFindingAidMimeTypes(t *testing.T) {
 
 	cfg, tree := newTestCfg()
 
-	findingAid, err := mets.newFindingAid(cfg, tree)
+	daoCfg := newDaoConfig(cfg, tree)
+
+	findingAid, err := mets.newFindingAid(&daoCfg)
 	if err != nil {
 		t.Errorf("unable to create finding-aid: %#v", err)
 	}
@@ -91,7 +93,9 @@ func TestReadMETS(t *testing.T) {
 
 	cfg, tree := newTestCfg()
 
-	findingAid, err := mets.newFindingAid(cfg, tree)
+	daoCfg := newDaoConfig(cfg, tree)
+
+	findingAid, err := mets.newFindingAid(&daoCfg)
 	if err != nil {
 		t.Errorf("unable to create finding-aid: %#v", err)
 	}

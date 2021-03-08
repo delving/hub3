@@ -18,15 +18,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	stdlog "log"
 	"net/http"
-	"strings"
 	"syscall"
 	"time"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -54,9 +51,6 @@ func ESClient() *elastic.Client {
 
 			// setup ElasticSearch client
 			client = createESClient()
-
-			ensureESIndex(config.Config.ElasticSearch.GetIndexName(), false)
-			ensureESIndex(fmt.Sprintf(fragmentIndexFmt, config.Config.ElasticSearch.GetIndexName()), false)
 		} else {
 			config.Config.Logger.Fatal().
 				Str("component", "elasticsearch").
@@ -65,90 +59,6 @@ func ESClient() *elastic.Client {
 	}
 
 	return client
-}
-
-// Deprecated: should be removed after models is migrated to ikuzo/service
-func Reset(index string) error {
-	if index == "" {
-		index = config.Config.ElasticSearch.GetIndexName()
-	}
-
-	ensureESIndex(index, true)
-	ensureESIndex(fmt.Sprintf(fragmentIndexFmt, index), true)
-
-	return nil
-}
-
-func ensureESIndex(index string, reset bool) {
-	if index == "" {
-		index = config.Config.ElasticSearch.GetIndexName()
-	}
-
-	exists, err := ESClient().IndexExists(index).Do(ctx)
-	if err != nil {
-		// Handle error
-		stdlog.Fatalf("unable to find index for %s: %#v", index, err)
-	}
-
-	if exists && reset {
-		deleteIndex, err := ESClient().DeleteIndex(index).Do(ctx)
-		if err != nil {
-			stdlog.Fatal(err)
-		}
-
-		if !deleteIndex.Acknowledged {
-			stdlog.Printf("Unable to delete index %s", index)
-		}
-
-		exists = false
-	}
-
-	if !exists {
-		var indexMapping func(shards, replicas int) string
-		// Create a new index.
-		indexMapping = mapping.V2ESMapping
-		if config.Config.ElasticSearch.IndexV1 {
-			indexMapping = mapping.V1ESMapping
-		}
-
-		if strings.HasSuffix(index, "_frag") {
-			indexMapping = mapping.FragmentESMapping
-		}
-
-		createIndex, err := client.
-			CreateIndex(index).
-			BodyJson(
-				indexMapping(
-					config.Config.ElasticSearch.Shards,
-					config.Config.ElasticSearch.Replicas,
-				),
-			).
-			Do(ctx)
-
-		if err != nil {
-			// Handle error
-			stdlog.Fatal(err)
-		}
-
-		if !createIndex.Acknowledged {
-			stdlog.Println(createIndex.Acknowledged)
-		}
-	} else {
-		// add mapping updates
-		config.Config.Logger.Info().Msg("updating elasticsearch service")
-		updateIndex, err := elastic.NewIndicesPutMappingService(client).
-			Index(index).
-			BodyString(mapping.V2MappingUpdate()).
-			Do(ctx)
-		if err != nil {
-			stdlog.Printf("unable to patch ES mapping: %#v\n Mostly indicative on write error in elasticsearch", err.Error())
-			return
-		}
-
-		if !updateIndex.Acknowledged {
-			stdlog.Println(updateIndex.Acknowledged)
-		}
-	}
 }
 
 // ListIndexes returns a list of all the ElasticSearch Indices.

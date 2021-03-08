@@ -24,20 +24,14 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"time"
-	"unicode"
 
-	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	rdf "github.com/kiivihal/rdf2go"
 )
 
 var (
@@ -358,7 +352,6 @@ func (ib *itemBuilder) addFlowType(ft FlowType) error {
 	if last != nil {
 		elem := last.(*DataItem)
 		elem.FlowType = ft
-		//log.Printf("Adding flowType to: %#v", elem)
 		ib.q.PushBack(elem)
 	}
 
@@ -445,7 +438,6 @@ func (ib *itemBuilder) addText(text []byte) error {
 	if last != nil {
 		elem := last.(*DataItem)
 		if elem.Closed {
-			//log.Printf("creating new item")
 			di := elem.clone()
 			di.Text = string(text)
 			ib.append(di)
@@ -647,6 +639,8 @@ func GetDescription(spec string) (*Description, error) {
 		return nil, err
 	}
 
+	defer f.Close()
+
 	return decodeDescription(f)
 }
 
@@ -682,137 +676,6 @@ func (desc *Description) Write() error {
 		buf.Bytes(),
 		0644,
 	)
-}
-
-func (desc *Description) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIndex) error {
-	fg, _, err := desc.DescriptionGraph(cfg, unitInfo)
-	if err != nil {
-		return err
-	}
-
-	if bi == nil {
-		return nil
-	}
-
-	m, err := fg.IndexMessage()
-	if err != nil {
-		return fmt.Errorf("unable to marshal fragment graph; %w", err)
-	}
-
-	bi.Publish(context.Background(), m)
-
-	return nil
-}
-
-func (desc *Description) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
-	rm := fragments.NewEmptyResourceMap()
-	id := "desc"
-	subject := newSubject(cfg, id)
-	header := &fragments.Header{
-		OrgID:         cfg.OrgID,
-		Spec:          cfg.Spec,
-		Revision:      cfg.Revision,
-		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
-		DocType:       fragments.FragmentGraphDocType,
-		EntryURI:      subject,
-		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
-		Tags:          []string{"eadDesc"},
-	}
-
-	if tags, ok := config.Config.DatasetTagMap.Get(header.Spec); ok {
-		header.Tags = append(header.Tags, tags...)
-	}
-
-	tree := &fragments.Tree{}
-
-	tree.HubID = header.HubID
-	tree.ChildCount = 0
-	tree.Type = "desc"
-	tree.InventoryID = cfg.Spec
-
-	if len(cfg.Title) > 0 {
-		tree.Title = cfg.Title[0]
-	}
-
-	// TODO(kiivihal): replace raw this with <p> blocks. to align search
-	for _, item := range desc.Item {
-		tree.Description = append(tree.Description, item.Text)
-	}
-
-	tree.PeriodDesc = cfg.PeriodDesc
-
-	if len(tree.PeriodDesc) == 0 {
-		de := &DuplicateError{
-			Spec:  cfg.Spec,
-			Error: "ead period is empty",
-		}
-		cfg.Errors = append(cfg.Errors, de)
-	}
-
-	// add periodDesc to nodeConfig so they can be applied to each cLevel
-	cfg.PeriodDesc = tree.PeriodDesc
-
-	s := rdf.NewResource(subject)
-	t := func(s rdf.Term, p, o string, oType convert, idx int) {
-		t := addNonEmptyTriple(s, p, o, oType)
-		if t != nil {
-			err := rm.AppendOrderedTriple(t, false, idx)
-			if err != nil {
-				log.Printf("unable to add triple: %#v", err)
-			}
-		}
-		return
-	}
-
-	intType := func(value string) rdf.Term {
-		return rdf.NewLiteralWithDatatype(value, rdf.NewResource("http://www.w3.org/2001/XMLSchema#integer"))
-	}
-	extractDigit := func(value string) string {
-		parts := strings.Fields(value)
-		for _, part := range parts {
-			runes := []rune(value)
-			if unicode.IsDigit(runes[0]) {
-				return strings.ReplaceAll(part, ",", ".")
-			}
-		}
-
-		return ""
-	}
-	floatType := func(value string) rdf.Term {
-		return rdf.NewLiteralWithDatatype(value, rdf.NewResource("http://www.w3.org/2001/XMLSchema#float"))
-	}
-	// add total clevels
-	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType, 0)
-
-	if unitInfo != nil {
-		t(s, "files", extractDigit(unitInfo.Files), intType, 0)
-		t(s, "length", extractDigit(unitInfo.Length), floatType, 0)
-
-		for _, abstract := range unitInfo.Abstract {
-			t(s, "abstract", abstract, rdf.NewLiteral, 0)
-		}
-
-		t(s, "material", unitInfo.Material, rdf.NewLiteral, 0)
-		t(s, "language", unitInfo.Language, rdf.NewLiteral, 0)
-
-		for _, origin := range unitInfo.Origin {
-			t(s, "origin", origin, rdf.NewLiteral, 0)
-		}
-	}
-
-	// add period desc for range search from the archdesc > did > date
-	for idx, p := range tree.PeriodDesc {
-		t(s, "periodDesc", p, rdf.NewLiteral, idx)
-	}
-
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = tree
-
-	// only set resources when the full graph is filled.
-	fg.SetResources(rm)
-	return fg, rm, nil
 }
 
 // newProfile creates a new *Profile from the eadheader profilestmt.
@@ -970,74 +833,6 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 
 		fa.UnitInfo = unit
 	}
-
-	return nil
-}
-
-func ResaveDescriptions(eadPath string) error {
-	dirs, err := ioutil.ReadDir(eadPath)
-	if err != nil {
-		return err
-	}
-
-	var seen int
-
-	for _, ead := range dirs {
-		if !ead.IsDir() {
-			continue
-		}
-		spec := ead.Name()
-
-		fname := filepath.Join(eadPath, spec, fmt.Sprintf("%s.xml", spec))
-		fmt.Printf("%s\n", fname)
-		if _, err := os.Stat(fname); err != nil {
-			continue
-		}
-
-		cead, err := ReadEAD(fname)
-		if err != nil {
-			return err
-		}
-		// create desciption
-		desc, err := NewDescription(cead)
-		if err != nil {
-			return fmt.Errorf("unable to create description; %w", err)
-		}
-
-		descIndex := NewDescriptionIndex(spec)
-
-		err = descIndex.CreateFrom(desc)
-		if err != nil {
-			return fmt.Errorf("unable to create DescriptionIndex; %w", err)
-		}
-
-		err = descIndex.Write()
-		if err != nil {
-			return fmt.Errorf("unable to write DescriptionIndex; %w", err)
-		}
-
-		err = desc.Write()
-		if err != nil {
-			return fmt.Errorf("unable to write description; %w", err)
-		}
-
-		meta, _, err := GetOrCreateMeta(spec)
-		if err != nil {
-			return fmt.Errorf("unable to retrieve meta; %w", err)
-		}
-
-		// set basics for ead
-		meta.Label = cead.Ceadheader.GetTitle()
-		meta.Period = cead.Carchdesc.GetPeriods()
-
-		if err := meta.Write(); err != nil {
-			return fmt.Errorf("unable to write meta; %w", err)
-		}
-
-		seen++
-	}
-
-	log.Printf("updated %d eads", seen)
 
 	return nil
 }

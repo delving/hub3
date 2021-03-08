@@ -18,8 +18,6 @@ import (
 	"net/http"
 
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/index"
-	"github.com/delving/hub3/hub3/models"
 	"github.com/go-chi/chi"
 	mw "github.com/go-chi/chi/middleware"
 	"github.com/go-chi/docgen"
@@ -36,21 +34,5 @@ func RegisterIntrospection(r chi.Router) {
 		w.Write([]byte(docgen.JSONRoutesDoc(r)))
 		return
 	})
-	r.Delete("/introspect/reset", resetAll)
 	r.Mount("/debug", mw.Profiler())
-}
-
-func resetAll(w http.ResponseWriter, r *http.Request) {
-	// reset elasticsearch
-	err := index.Reset("")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	}
-	// reset Key Value Store
-	models.ResetStorm()
-
-	// reset EAD cache
-	models.ResetEADCache()
-
-	return
 }

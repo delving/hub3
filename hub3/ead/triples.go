@@ -20,7 +20,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 )
@@ -35,20 +34,9 @@ func NewResource(label string) r.Term {
 	return r.NewResource(fmt.Sprintf("%s/%s", eadDomainNS, label))
 }
 
-func NewSubject(spec, eadType, id string) string {
-	identifier := strings.Join([]string{eadType, id}, "/")
-
-	return fmt.Sprintf(
-		"%s/%s/archive/%s/%s",
-		config.Config.RDF.BaseURL,
-		config.Config.OrgID,
-		spec,
-		identifier,
-	)
-}
-
-func (cdid *Cdid) Triples(s r.Term) ([]*r.Triple, error) {
+func (cdid *Cdid) Triples(referrerSubject r.Term) ([]*r.Triple, error) {
 	triples := []*r.Triple{}
+	s := r.NewResource(referrerSubject.RawValue() + "/did")
 
 	t := func(s r.Term, p, o string, oType convert) {
 		t := addNonEmptyTriple(s, p, o, oType)

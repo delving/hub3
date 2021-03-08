@@ -49,7 +49,7 @@ func TestOrganizationStore(t *testing.T) {
 	is.NoErr(err)
 	is.True(count == 0)
 
-	err = o.Put(context.TODO(), domain.Organization{ID: "demo"})
+	err = o.Put(context.TODO(), &domain.Organization{ID: "demo"})
 	is.NoErr(err)
 
 	count, err = o.Count(context.TODO())
