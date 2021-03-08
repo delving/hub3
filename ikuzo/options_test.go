@@ -100,9 +100,9 @@ func TestSetMiddleware(t *testing.T) {
 	)
 	is.NoErr(err)
 
-	// only the set middleware is applied
-	expectedNrMiddleware := 1
-	is.True(len(svr.middleware) == expectedNrMiddleware)
+	// only the set middleware is applied (defaults logging and OrgID are always set)
+	expectedNrMiddleware := 3
+	is.Equal(len(svr.middleware), expectedNrMiddleware)
 
 	req, err := http.NewRequest("GET", "/ping-test", nil)
 	is.NoErr(err)
