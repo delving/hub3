@@ -21,7 +21,6 @@ import (
 	"context"
 	"fmt"
 	"html"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -56,29 +55,33 @@ type NodeEntry struct {
 
 // NodeConfig holds all the configuration options fo generating Archive Nodes
 type NodeConfig struct {
-	ctx                     context.Context
-	Counter                 *NodeCounter
-	MetsCounter             *MetsCounter
-	RecordsPublishedCounter uint64
-	OrgID                   string
-	Spec                    string
-	Title                   []string
-	TitleShort              string
-	Revision                int32
-	PeriodDesc              []string
-	labels                  map[string]string
-	MimeTypes               map[string][]string
-	HubIDs                  chan *NodeEntry
-	Errors                  []*DuplicateError
-	Client                  *http.Client
-	IndexService            *index.Service
-	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	ContentIdentical        bool
-	Nodes                   chan *Node
-	ProcessDigital          bool
-	ProcessAccessTime       time.Time
-	m                       sync.Mutex
-	Tags                    []string
+	ctx                   context.Context
+	Counter               *NodeCounter
+	MetsCounter           *MetsCounter
+	RecordsCreatedCounter uint64
+	RecordsUpdated        uint64
+	RecordsDeleted        uint64
+	OrgID                 string
+	Spec                  string
+	Title                 []string
+	TitleShort            string
+	Revision              int32
+	PeriodDesc            []string
+	labels                map[string]string
+	MimeTypes             map[string][]string
+	HubIDs                chan *NodeEntry
+	Errors                []*DuplicateError
+	// TODO(kiivihal): remove later
+	IndexService      *index.Service
+	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	DaoFn             func(cfg *DaoConfig) error
+	ContentIdentical  bool
+	Nodes             chan *Node
+	ProcessDigital    bool
+	RetrieveDao       bool
+	ProcessAccessTime time.Time
+	m                 sync.Mutex
+	Tags              []string
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {
@@ -138,8 +141,8 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 		Counter: &NodeCounter{},
 		MetsCounter: &MetsCounter{
 			uniqueCounter: map[string]int{},
+			inError:       map[string]string{},
 		},
-		Client: &http.Client{Timeout: 10 * time.Second},
 		labels: make(map[string]string),
 		HubIDs: make(chan *NodeEntry, 100),
 	}
@@ -150,14 +153,17 @@ type MetsCounter struct {
 	counter        uint64
 	digitalObjects uint64
 	errors         uint64
-	inError        []string
+	inError        map[string]string
 	uniqueCounter  map[string]int
+	m              sync.Mutex
 }
 
 // Increment increments the count by one
 func (mc *MetsCounter) Increment(daoLink string) {
 	atomic.AddUint64(&mc.counter, 1)
+	mc.m.Lock()
 	mc.uniqueCounter[daoLink]++
+	mc.m.Unlock()
 }
 
 // GetUniqueCounter returns the map of unique METS links.
@@ -190,12 +196,14 @@ func (mc *MetsCounter) GetErrorCount() uint64 {
 	return atomic.LoadUint64(&mc.errors)
 }
 
-func (mc *MetsCounter) AppendError(err string) {
+func (mc *MetsCounter) AppendError(unitID string, errMsg string) {
 	mc.IncrementError()
-	mc.inError = append(mc.inError, err)
+	mc.m.Lock()
+	defer mc.m.Unlock()
+	mc.inError[unitID] = errMsg
 }
 
-func (mc *MetsCounter) GetErrors() []string {
+func (mc *MetsCounter) GetErrors() map[string]string {
 	return mc.inError
 }
 

@@ -27,9 +27,9 @@ type Meta struct {
 	Clevels               uint64
 	DaoLinks              uint64
 	DaoErrors             uint64
-	DaoErrorLinks         []string
+	DaoErrorLinks         map[string]string
 	Tags                  []string
-	RecordsPublished      uint64
+	TotalRecordsPublished uint64
 	DigitalObjects        uint64
 	FileSize              uint64
 	Revision              int32
@@ -43,4 +43,12 @@ type Meta struct {
 // getSourcePath returns full path to the source EAD file
 func (m *Meta) getSourcePath() string {
 	return fmt.Sprintf("%s/%s.xml", m.basePath, m.DatasetID)
+}
+
+// getDaoLinkErrors returns the error messages for each retrieved error and its unitId
+func (m *Meta) getDaoLinkErrors() (messages []string) {
+	for id, errMsg := range m.DaoErrorLinks {
+		messages = append(messages, fmt.Sprintf("Inventory %s => %s", id, errMsg))
+	}
+	return messages
 }

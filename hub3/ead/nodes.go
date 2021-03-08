@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
@@ -83,8 +85,9 @@ type NodeID struct {
 }
 
 func newSubject(cfg *NodeConfig, id string) string {
+	// TODO(kiivihal): replace config option for RDF.BaseURL
 	return fmt.Sprintf("%s/%s/archive/%s/%s",
-		config.Config.RDF.BaseURL, config.Config.OrgID, cfg.Spec, id)
+		config.Config.RDF.BaseURL, cfg.OrgID, cfg.Spec, id)
 }
 
 // getFirstBranch returs the first parent of the current node
@@ -111,9 +114,8 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 	id := n.Path
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
-		OrgID:    cfg.OrgID,
-		Spec:     cfg.Spec,
-		Revision: cfg.Revision,
+		OrgID: cfg.OrgID,
+		Spec:  cfg.Spec,
 		HubID: fmt.Sprintf(
 			"%s_%s_%s",
 			cfg.OrgID,
@@ -123,8 +125,9 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
 		Tags:          []string{"ead"},
+		Modified:      fragments.NowInMillis(),
+		Revision:      cfg.Revision,
 	}
 
 	if len(cfg.Tags) != 0 {
@@ -189,6 +192,41 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Access = n.AccessRestrict
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
+
+	if tree.HasDigitalObject {
+		daoCfg := newDaoConfig(cfg, tree)
+
+		// must happen here because the check needs the daoCfg to not be written yet
+		hasOrphanedMetsFile := daoCfg.hasOrphanedMetsFile()
+
+		if err := daoCfg.Write(); err != nil {
+			log.Error().Err(err).Msg("unable to write daocfg to disk")
+		}
+
+		if cfg.DaoFn != nil {
+			if cfg.ProcessDigital || hasOrphanedMetsFile {
+				log.Debug().
+					Str("archiveID", daoCfg.ArchiveID).
+					Str("InventoryID", daoCfg.InventoryID).
+					Str("uuid", daoCfg.UUID).
+					Msg("force processing mets files")
+				if err := cfg.DaoFn(&daoCfg); err != nil {
+					log.Error().Err(err).
+						Str("archiveID", daoCfg.ArchiveID).
+						Str("InventoryID", daoCfg.InventoryID).
+						Str("uuid", daoCfg.UUID).
+						Str("url", daoCfg.Link).
+						Msg("unable to process dao link")
+					cfg.MetsCounter.AppendError(daoCfg.InventoryID, err.Error())
+					return tree
+				}
+
+				tree.MimeTypes = daoCfg.MimeTypes
+				tree.DOCount = daoCfg.ObjectCount
+			}
+
+		}
+	}
 
 	return tree
 }

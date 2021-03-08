@@ -97,8 +97,10 @@ func (t *Task) dropOrphans(revision int32) error {
 	}
 
 	// publish message
-	if err := t.s.index.Publish(context.Background(), m); err != nil {
-		return err
+	if t.s.index != nil {
+		if err := t.s.index.Publish(context.Background(), m); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -124,16 +126,16 @@ func (t *Task) finishTask() {
 		Dur("processing", t.Meta.ProcessingDuration).
 		Uint64("inventories", t.Meta.Clevels).
 		Uint64("metsFiles", t.Meta.DaoLinks).
-		Uint64("publishedToIndex", t.Meta.RecordsPublished).
+		Uint64("publishedToIndex", t.Meta.TotalRecordsPublished).
 		Uint64("digitalObjects", t.Meta.DigitalObjects).
 		Bool("created", t.Meta.Created).
 		Uint64("metsRetrieveErrors", t.Meta.DaoErrors).
-		Strs("metsErrorLinks ", t.Meta.DaoErrorLinks).
+		Strs("metsErrorLinks", t.Meta.getDaoLinkErrors()).
 		Uint64("fileSize", t.Meta.FileSize).
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
-	t.s.m.incFinished()
+	t.s.M.IncFinished()
 	t.finishState()
 }
 
@@ -168,7 +170,7 @@ func (t *Task) finishWithError(err error) error {
 	t.moveState(StateInError)
 	t.ErrorMsg = err.Error()
 
-	t.s.m.incFailed()
+	t.s.M.IncFailed()
 
 	// expected errors so just log them and move on
 	// returning an error here stops the worker
@@ -196,7 +198,7 @@ func (t *Task) Next() {
 		t.finishState()
 	case StateCanceled:
 		t.finishState()
-		atomic.AddUint64(&t.s.m.Canceled, 1)
+		atomic.AddUint64(&t.s.M.Canceled, 1)
 	}
 }
 

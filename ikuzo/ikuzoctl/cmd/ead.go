@@ -18,28 +18,47 @@ package cmd
 import (
 	"log"
 
-	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/spf13/cobra"
 )
 
 var (
 	eadPath string
+	orgID   string
 )
 
-// eadUpdateCmd represents the eadUpdate command
-var eadUpdateCmd = &cobra.Command{
-	Use:   "eadUpdate",
-	Short: "update ead description from disk",
+var eadResyncCmd = &cobra.Command{
+	Use:   "eadResync",
+	Short: "update ead from EAD cache",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := ead.ResaveDescriptions(eadPath)
+
+		config.InitConfig()
+
+		svc, err := ead.NewService(
+			ead.SetDataDir(eadPath),
+			ead.SetWorkers(4),
+			ead.SetProcessDigital(true),
+		)
 		if err != nil {
-			log.Fatalf("unable to resave descriptions: %s", err)
+			log.Fatalf("unable to start EAD service: %s", err)
+			return
+		}
+
+		if err := svc.StartWorkers(); err != nil {
+			log.Fatalf("unable to start EAD service workers; %s", err)
+			return
+		}
+
+		if err := svc.ResyncCacheDir(orgID); err != nil {
+			log.Fatalf("unable to sync ead cache directories; %s", err)
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(eadUpdateCmd)
+	rootCmd.AddCommand(eadResyncCmd)
 
-	eadUpdateCmd.Flags().StringVarP(&eadPath, "path", "p", "", "full path ead directory")
+	eadResyncCmd.Flags().StringVarP(&eadPath, "path", "p", "", "full path ead directory")
+	eadResyncCmd.Flags().StringVarP(&orgID, "orgID", "o", "", "orgID for resyncing EAD")
 }

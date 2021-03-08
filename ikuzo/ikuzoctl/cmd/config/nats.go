@@ -43,7 +43,17 @@ func (n *Nats) newClient(cfg *index.NatsConfig) (stan.Conn, error) {
 	}
 
 	// Connect to Streaming server
-	sc, err := stan.Connect(cfg.ClusterID, cfg.ClientID, stan.NatsURL(n.URL))
+	sc, err := stan.Connect(
+		cfg.ClusterID,
+		cfg.ClientID,
+		stan.NatsURL(n.URL),
+		stan.Pings(10, 5),
+		stan.SetConnectionLostHandler(func(_ stan.Conn, reason error) {
+			// TODO(kiivihal): implement reconnect functionality
+			// https://github.com/nats-io/stan.go/issues/273
+			log.Error().Err(reason).Msg("stan streaming server: connection lost")
+		}),
+	)
 	if err != nil {
 		log.Error().Msgf("nats configuration: %+v", cfg)
 		log.Error().Msgf("nats struct: %+v", n)

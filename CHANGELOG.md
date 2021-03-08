@@ -7,6 +7,7 @@
 ### Added 
 
 
+- Synchronize with remote archives and METS-files via OAI-PMH  [[GH-80]](https://github.com/delving/hub3/pull/80)
 - Dedicated dataset service for managing datasets  [[GH-79]](https://github.com/delving/hub3/pull/79)
 - Initial service for elasticsearch functionality. Better mapping management.  [[GH-78]](https://github.com/delving/hub3/pull/78)
 - Multitenancy support through organisationIDs  [[GH-77]](https://github.com/delving/hub3/pull/77)

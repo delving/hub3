@@ -35,7 +35,6 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
 
-	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
@@ -43,6 +42,8 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -62,37 +63,42 @@ type Metrics struct {
 	AlreadyQueued uint64
 }
 
-func (m *Metrics) incSubmitted() {
+func (m *Metrics) IncSubmitted() {
 	atomic.AddUint64(&m.Submitted, 1)
 }
 
-func (m *Metrics) incStarted() {
+func (m *Metrics) IncStarted() {
 	atomic.AddUint64(&m.Started, 1)
 }
 
-func (m *Metrics) incFailed() {
+func (m *Metrics) IncFailed() {
 	atomic.AddUint64(&m.Failed, 1)
 }
 
-func (m *Metrics) incFinished() {
+func (m *Metrics) IncFinished() {
 	atomic.AddUint64(&m.Finished, 1)
 }
 
-func (m *Metrics) incCancelled() {
+func (m *Metrics) IncCancelled() {
 	atomic.AddUint64(&m.Canceled, 1)
 }
 
-func (m *Metrics) incAlreadyQueued() {
+func (m *Metrics) IncAlreadyQueued() {
 	atomic.AddUint64(&m.AlreadyQueued, 1)
 }
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
+type DaoFn func(cfg *eadHub3.DaoConfig) error
+
 type Service struct {
 	index          *index.Service
+	revision       *revision.Service
 	dataDir        string
-	m              Metrics
+	M              Metrics
 	CreateTreeFn   CreateTreeFn
+	DaoFn          DaoFn
+	DaoClient      *eadHub3.DaoClient
 	processDigital bool
 	tasks          map[string]*Task
 	rw             sync.RWMutex
@@ -118,6 +124,15 @@ func NewService(options ...Option) (*Service, error) {
 
 	if s.CreateTreeFn == nil {
 		s.CreateTreeFn = eadHub3.CreateTree
+	}
+
+	daoClient := eadHub3.NewDaoClient(s.index)
+	daoClient.HttpFallback = true
+
+	s.DaoClient = &daoClient
+
+	if s.DaoFn == nil {
+		s.DaoFn = daoClient.DefaultDaoFn
 	}
 
 	// create datadir
@@ -198,7 +213,7 @@ func (s *Service) StartWorkers() error {
 }
 
 func (s *Service) Metrics() Metrics {
-	return s.m
+	return s.M
 }
 
 func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
@@ -321,11 +336,9 @@ func (s *Service) saveDescription(cfg *eadHub3.NodeConfig, t *Task, ead *eadHub3
 		unitInfo = desc.Summary.FindingAid.UnitInfo
 	}
 
-	if s.index != nil {
-		err = ead.SaveDescription(cfg, unitInfo, s.index)
-		if err != nil {
-			return fmt.Errorf("unable to create index representation of the description; %w", err)
-		}
+	err = ead.SaveDescription(cfg, unitInfo)
+	if err != nil {
+		return fmt.Errorf("unable to create index representation of the description; %w", err)
 	}
 
 	return nil
@@ -349,7 +362,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	}
 
 	if t.InState == StateStarted {
-		s.m.incStarted()
+		s.M.IncStarted()
 		t.Next()
 	}
 
@@ -366,6 +379,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	ead, err := getEAD(f)
 	if err != nil {
 		errMsg := fmt.Errorf("error during EAD parsing; %w", err)
+		f.Close()
 		return t.finishWithError(errMsg)
 	}
 
@@ -403,9 +417,11 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.CreateTreeFn
+	cfg.DaoFn = s.DaoFn
 	cfg.Spec = t.Meta.DatasetID
-	cfg.OrgID = config.Config.OrgID
+	cfg.OrgID = t.Meta.OrgID
 	cfg.IndexService = s.index
+	cfg.RetrieveDao = true
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
 	cfg.ProcessDigital = t.Meta.ProcessDigital
@@ -511,13 +527,14 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		g.Go(func() error {
 			for n := range cfg.Nodes {
 				n := n
-				if s.index == nil {
-					continue
-				}
 
 				fg, _, err := n.FragmentGraph(cfg)
 				if err != nil {
 					return err
+				}
+
+				if s.index == nil {
+					continue
 				}
 
 				m, err := fg.IndexMessage()
@@ -528,7 +545,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 				if err := s.index.Publish(context.Background(), m); err != nil {
 					return err
 				}
-				atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
+
+				atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
 
 				select {
 				case <-gctx.Done():
@@ -562,6 +580,13 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			return nil
 		}
 
+		digitalObjects, err := t.s.DaoClient.GetDigitalObjectCount(t.Meta.DatasetID)
+		if err != nil {
+			return t.finishWithError(fmt.Errorf("unable to count digitalobjects: %w", err))
+		}
+
+		cfg.MetsCounter.IncrementDigitalObject(uint64(digitalObjects))
+
 		meta.MetsFiles = int(cfg.MetsCounter.GetCount())
 		meta.Inventories = int(cfg.Counter.GetCount())
 
@@ -571,7 +596,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		stats.ExtractedLinks = cfg.MetsCounter.GetCount()
 		stats.RetrieveErrors = cfg.MetsCounter.GetErrorCount()
 		stats.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
-		stats.Errors = cfg.MetsCounter.GetErrors()
+		stats.ErrorsPerInventory = cfg.MetsCounter.GetErrors()
 		uniqueLinks := cfg.MetsCounter.GetUniqueCounter()
 		stats.UniqueLinks = uint64(len(uniqueLinks))
 
@@ -583,24 +608,16 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 		t.Meta.Clevels = cfg.Counter.GetCount()
 		t.Meta.DaoLinks = cfg.MetsCounter.GetCount()
-		t.Meta.RecordsPublished = atomic.LoadUint64(&cfg.RecordsPublishedCounter)
+		t.Meta.DaoErrors = cfg.MetsCounter.GetErrorCount()
+		t.Meta.DaoErrorLinks = cfg.MetsCounter.GetErrors()
+		t.Meta.TotalRecordsPublished = atomic.LoadUint64(&cfg.RecordsCreatedCounter)
 		t.Meta.DigitalObjects = cfg.MetsCounter.GetDigitalObjectCount()
-
-		meta.DaoStats = stats
-		meta.DigitalObjects = int(cfg.MetsCounter.GetDigitalObjectCount())
-		meta.RecordsPublished = int(t.Meta.RecordsPublished)
-		meta.Revision = cfg.Revision
-
-		err = meta.Write()
-		if err != nil {
-			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, err)
-		}
 
 		metrics := map[string]uint64{
 			"description":       1,
 			"inventories":       t.Meta.Clevels,
 			"mets-files":        t.Meta.DaoLinks,
-			"records-published": t.Meta.RecordsPublished,
+			"records-published": t.Meta.TotalRecordsPublished,
 			"digital-objects":   t.Meta.DigitalObjects,
 		}
 
@@ -611,6 +628,20 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		}
 
 		t.finishTask()
+
+		meta.DaoStats = stats
+		meta.DigitalObjects = int(cfg.MetsCounter.GetDigitalObjectCount())
+		meta.RecordsPublished = int(t.Meta.TotalRecordsPublished)
+		meta.Revision = cfg.Revision
+
+		if meta.OrgID == "" {
+			meta.OrgID = t.Meta.OrgID
+		}
+
+		err = meta.Write()
+		if err != nil {
+			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, err)
+		}
 	} else {
 		return t.finishWithError(fmt.Errorf("error during invertory processing; %w", err))
 	}
@@ -638,31 +669,39 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		err = r.MultipartForm.RemoveAll()
 	}()
 
-	s.m.incSubmitted()
+	s.M.IncSubmitted()
 
-	_, meta, err := s.SaveEAD(in, header.Size)
+	// TODO(kiivihal): finish this later. Add multi tenancy middleware first
+	var orgID string
+	if id := domain.GetOrganizationID(r); id != "" {
+		orgID = string(id)
+	} else {
+		log.Printf("unable to find orgID in request")
+	}
+
+	_, meta, err := s.SaveEAD(in, header.Size, "", orgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
 
-		s.m.incFailed()
+		s.M.IncFailed()
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
 	}
 
-	taskResponse, metaErr := s.createTask(r, meta)
+	task, metaErr := s.CreateTask(r, meta)
 	if metaErr != nil {
 		http.Error(w, metaErr.Error(), http.StatusConflict)
 		return
 	}
 
-	render.JSON(w, r, taskResponse)
+	render.JSON(w, r, task)
 }
 
-func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) {
+func (s *Service) CreateTask(r *http.Request, meta Meta) (*taskResponse, error) {
 	if orgID := r.Header.Get("orgID"); orgID != "" {
 		meta.OrgID = orgID
 	}
@@ -681,7 +720,7 @@ func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) 
 
 	t, err := s.NewTask(&meta)
 	if err != nil {
-		s.m.incAlreadyQueued()
+		s.M.IncAlreadyQueued()
 		return nil, err
 	}
 
@@ -697,10 +736,14 @@ func (s *Service) createTask(r *http.Request, meta Meta) (*taskResponse, error) 
 		DatasetID: t.Meta.DatasetID,
 		Status:    string(t.InState),
 	}
+
 	return tr, nil
 }
 
+// TODO: move this to elasticsearch package later
 func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	search := indexHub3.ESClient().Search(c.Config.ElasticSearch.GetIndexName())
 	format := "02-01-2006"
 	today := time.Now()
@@ -714,7 +757,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	}
 	query := elastic.NewBoolQuery().
 		Filter(
-			elastic.NewMatchPhraseQuery("meta.orgID", c.Config.OrgID),
+			elastic.NewMatchPhraseQuery("meta.orgID", orgID.String()),
 			elastic.NewMatchPhraseQuery("tree.hasRestriction", true),
 			elastic.NewMatchPhraseQuery("tree.type", "file"),
 			elastic.NewMatchPhraseQuery("tree.access", today.Format(format)),
@@ -723,7 +766,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	agg := elastic.NewTermsAggregation().Field(aggsKey).Size(10000)
 	search.Query(query).Aggregation(aggsKey, agg)
 	response, err := search.Do(r.Context())
-	clearLogger := c.Config.Logger.WithLevel(zerolog.InfoLevel).
+	clearLogger := log.WithLevel(zerolog.InfoLevel).
 		Str("component", "hub3").
 		Str("svc", "eadClearRestrictions").
 		Str("eventType", "read")
@@ -748,28 +791,31 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	trSlice := make([]*taskResponse, 0)
 	for _, el := range terms.Buckets {
 		spec := el.Key.(string)
-		meta, err := s.LoadEAD(spec)
+		meta, err := s.LoadEAD(orgID.String(), spec)
 		if err != nil {
 			clearLogger.Err(err).Msgf("could not load spec %s from bucket: %v", spec, err)
 			continue
 		}
 		meta.ProcessAccessTime = today
-		taskResponse, metaErr := s.createTask(r, meta)
+		task, metaErr := s.CreateTask(r, meta)
 		if metaErr != nil {
 			clearLogger.Err(err).Msgf("could not handle spec meta %s from bucket: %v", spec, metaErr)
 			continue
 		}
-		trSlice = append(trSlice, taskResponse)
+		trSlice = append(trSlice, task)
 	}
 
 	render.JSON(w, r, trSlice)
 }
 
-func (s *Service) LoadEAD(spec string) (Meta, error) {
+func (s *Service) LoadEAD(orgID, spec string) (Meta, error) {
 	var meta Meta
-	meta.DatasetID = spec
 
-	if _, err := s.findTask("", meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
+	// TODO(kiivihal): later fix this with calling root Meta eadhub3.GetMeta
+	meta.DatasetID = spec
+	meta.OrgID = orgID
+
+	if _, err := s.findTask(meta.OrgID, meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
 		return meta, ErrTaskAlreadySubmitted
 	}
 
@@ -785,24 +831,26 @@ func (s *Service) LoadEAD(spec string) (Meta, error) {
 	return meta, nil
 }
 
-func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) {
-	var meta Meta
+// func (s *Service) SaveEAD(r io.Reader, size int64) (*bytes.Buffer, Meta, error) {
 
-	buf, tmpFile, err := s.storeEAD(r, size)
-	if err != nil {
-		return nil, meta, err
-	}
+// var meta Meta
 
-	meta, err = s.moveTmpFile(buf, tmpFile)
-	if err != nil {
-		return nil, meta, err
-	}
+// // TODO(kiivihal): remove this step
+// buf, tmpFile, err := s.storeEAD(r, size)
+// if err != nil {
+// return nil, meta, err
+// }
 
-	meta.FileSize = uint64(size)
-	meta.ProcessDigital = s.processDigital
+// meta, err = s.moveTmpFile(buf, tmpFile)
+// if err != nil {
+// return nil, meta, err
+// }
 
-	return buf, meta, nil
-}
+// meta.FileSize = uint64(size)
+// meta.ProcessDigital = s.processDigital
+
+// return buf, meta, nil
+// }
 
 func (s *Service) GetName(buf *bytes.Buffer) (string, error) {
 	var (
@@ -879,6 +927,32 @@ func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, erro
 	return buf, f.Name(), nil
 }
 
+// SaveEAD stores the source EAD in the revision store
+func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (*bytes.Buffer, Meta, error) {
+	var meta Meta
+
+	buf, tmpFile, err := s.storeEAD(r, size)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	meta, err = s.moveTmpFile(buf, tmpFile)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	meta.FileSize = uint64(size)
+	meta.ProcessDigital = s.processDigital
+	meta.OrgID = orgID
+
+	return buf, meta, nil
+}
+
+// DeleteEAD removes the dataset from the store.
+func (s *Service) DeleteEAD(datasetID, orgID string) error {
+	return models.DeleteDataSet(orgID, datasetID, context.Background())
+}
+
 // moveTmpFile retrieves Meta from EAD and moves it to the right location
 func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
 	var (
@@ -921,4 +995,97 @@ func (s *Service) AddPostHook(hook domain.PostHookService) error {
 	}
 
 	return nil
+}
+
+func (s *Service) Routes(router chi.Router) {
+	router.Get("/api/ead/{spec}/mets/{UUID}.json", s.DaoClient.DownloadConfig)
+	router.Get("/api/ead/{spec}/mets/{UUID}", s.DaoClient.DownloadXML)
+	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.HandleDelete)
+	router.Post("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Index)
+}
+
+// getModifiedDatePath returns the filepath of the EAD modified date.
+func (s *Service) getModifiedDatePath(spec string) string {
+	return fmt.Sprintf("%s/modified", s.getDataPath(spec))
+}
+
+// LoadModifiedEADDate loads the modified date of the EAD or else zero time if not available.
+func (s *Service) LoadModifiedEADDate(spec string) time.Time {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	t := time.Time{}
+	timePath := s.getModifiedDatePath(spec)
+	b, err := ioutil.ReadFile(timePath)
+	if err != nil {
+		return t
+	}
+
+	pt, pErr := time.Parse(oaipmh.DateFormat, string(b))
+	if pErr != nil {
+		return t
+	}
+
+	return pt
+}
+
+// SaveModifiedEADDate stores the modified EAD date.
+func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
+	s.rw.Lock()
+	defer s.rw.Unlock()
+	timePath := s.getModifiedDatePath(spec)
+	err := ioutil.WriteFile(timePath, []byte(modified), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) ResyncCacheDir(orgID string) error {
+	dirs, err := ioutil.ReadDir(s.dataDir)
+	if err != nil {
+		return err
+	}
+
+	var seen int
+
+	for _, ead := range dirs {
+		if !ead.IsDir() {
+			continue
+		}
+		spec := ead.Name()
+
+		meta, err := s.LoadEAD(orgID, spec)
+		if err != nil {
+			log.Warn().Err(err).
+				Str("orgID", orgID).
+				Str("archiveID", spec).
+				Msg("unable to get meta information probably mets only archive")
+
+			continue
+		}
+
+		meta.ProcessDigital = true
+
+		_, err = s.NewTask(&meta)
+		if err != nil && !errors.Is(err, ErrTaskAlreadySubmitted) {
+			return err
+		}
+
+		seen++
+	}
+
+	ticker := time.NewTicker(2 * time.Second)
+
+	// block until done
+	for {
+		select {
+		case <-ticker.C:
+			m := s.Metrics()
+			if (m.Finished + m.Failed + m.Canceled) == uint64(seen) {
+				log.Info().Msgf("updated %d eads", seen)
+				return nil
+			}
+		}
+	}
 }
