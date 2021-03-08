@@ -17,14 +17,28 @@ package ead_test
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
+	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/google/go-cmp/cmp"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/matryer/is"
 )
+
+func NewSubject(spec, eadType, id string) string {
+	identifier := strings.Join([]string{eadType, id}, "/")
+
+	return fmt.Sprintf(
+		"%s/%s/archive/%s/%s",
+		config.Config.RDF.BaseURL,
+		"test",
+		spec,
+		identifier,
+	)
+}
 
 func TestDidTriples(t *testing.T) {
 	is := is.New(t)
@@ -33,7 +47,9 @@ func TestDidTriples(t *testing.T) {
 	err := parseUtil(cc, "ead.triples.1.xml")
 	is.NoErr(err)
 
-	subject := r.NewResource(ead.NewSubject("test", "did", "123"))
+	subject := r.NewResource(NewSubject("test", "did", "123"))
+	inputSubject := r.NewResource(NewSubject("test", "did", "123") + "/did")
+
 	trip := func(s r.Term, p, o string) *r.Triple {
 		return &r.Triple{
 			Subject:   s,
@@ -43,22 +59,22 @@ func TestDidTriples(t *testing.T) {
 	}
 
 	want := []*r.Triple{
-		trip(subject, "unitID", "A"),
-		trip(subject, "unitTitle",
+		trip(inputSubject, "unitID", "A"),
+		trip(inputSubject, "unitTitle",
 			"Spieghel der Zeevaerdt, ... (etc.) door <persname>Lucas Jansz Waghenaer</persname>."),
-		trip(subject, "persname", "Lucas Jansz Waghenaer"),
-		trip(subject, "unitDate", "1584-1585."),
-		trip(subject, "physdescExtent", "1 deel"),
-		trip(subject, "physdescPhysfacet", "Folio"),
-		trip(subject, "physdescDimension", "39,5 x 28,5 x 4 cm"),
-		trip(subject, "physdesc", "1 katern"),
-		trip(subject, "physloc", "Ontbreekt"),
-		trip(subject, "materialspec", "Normale geschreven, getypte en gedrukte documenten, geen bijzondere handschriften."),
-		trip(subject, "origination", "<corpname>Centrale Dienst voor Sibbekunde</corpname>"),
-		trip(subject, "abstract", "Het archief bevat o.a."),
-		trip(subject, "langmaterial",
+		trip(inputSubject, "persname", "Lucas Jansz Waghenaer"),
+		trip(inputSubject, "unitDate", "1584-1585."),
+		trip(inputSubject, "physdescExtent", "1 deel"),
+		trip(inputSubject, "physdescPhysfacet", "Folio"),
+		trip(inputSubject, "physdescDimension", "39,5 x 28,5 x 4 cm"),
+		trip(inputSubject, "physdesc", "1 katern"),
+		trip(inputSubject, "physloc", "Ontbreekt"),
+		trip(inputSubject, "materialspec", "Normale geschreven, getypte en gedrukte documenten, geen bijzondere handschriften."),
+		trip(inputSubject, "origination", "<corpname>Centrale Dienst voor Sibbekunde</corpname>"),
+		trip(inputSubject, "abstract", "Het archief bevat o.a."),
+		trip(inputSubject, "langmaterial",
 			`Het merendeel der stukken is in het <language langcode="dut" scriptcode="Latn">Nederlands</language>`),
-		trip(subject, "dao",
+		trip(inputSubject, "dao",
 			"http://example.com/format/xml/findingaid/1.11.01.01/file/112"),
 	}
 
@@ -77,8 +93,8 @@ func TestClevelTriples(t *testing.T) {
 	err := parseUtil(cc, "ead.triples.2.xml")
 	is.NoErr(err)
 
-	subject := r.NewResource(ead.NewSubject("test", "c", "123"))
-	didSubject := r.NewResource(ead.NewSubject("test", "c", "123/did"))
+	subject := r.NewResource(NewSubject("test", "c", "123"))
+	didSubject := r.NewResource(NewSubject("test", "c", "123/did"))
 	trip := func(s r.Term, p, o string) *r.Triple {
 		return &r.Triple{
 			Subject:   s,

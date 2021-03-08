@@ -130,9 +130,11 @@ func (es *ElasticSearch) GetV1IndexName() string {
 
 // Logging holds all the logging and path configuration
 type Logging struct {
-	DevMode   bool   `json:"devmode"`
-	SentryDSN string `json:"sentrydsn"`
-	Level     string `json:"level"`
+	DevMode       bool   `json:"devmode"`
+	SentryDSN     string `json:"sentrydsn"`
+	Level         string `json:"level"`
+	WithCaller    bool   `json:"withCaller"`
+	ConsoleLogger bool   `json:"consoleLogger"`
 }
 
 // HTTP holds all the configuration for the http server subcommand
@@ -189,7 +191,11 @@ type OAIPMH struct {
 	// AdminEmails has a list of the admin emails of this endpoint
 	AdminEmails []string `json:"adminEmails"`
 	// RepositoryName is the name of the OAI-PMH repossitory
-	RepositoryName string `json:"repositoryName"`
+	RepositoryName  string `json:"repositoryName"`
+	HarvestDelay    int    `json:"harvestDelay"`
+	EadHarvestURL   string `json:"eadHarvestURL"`
+	MetsHarvestURL  string `json:"metsHarvestURL"`
+	MetsDownloadFmt string `json:"metsDownloadFmt"`
 }
 
 // WebResource holds all the configuration options for the WebResource endpoint
@@ -315,6 +321,9 @@ func setDefaults() {
 	viper.SetDefault("OAIPMH.enabled", true)
 	viper.SetDefault("OAIPMH.RepositoryName", "hub3")
 	viper.SetDefault("OAIPMH.AdminEmails", "info@delving.eu")
+	viper.SetDefault("OAIPMH.HarvestDelay", 1)
+	viper.SetDefault("OAIPMH.EadHarvestUrl", "")
+	viper.SetDefault("OAIPMH.MetsHarvestUrl", "")
 
 	// image proxy
 	viper.SetDefault("ImageProxy.enabled", true)
@@ -362,6 +371,10 @@ func cleanConfig() {
 	}
 }
 
+func SetCfgFile(cfgFile string) {
+	CfgFile = cfgFile
+}
+
 // InitConfig reads in config file and ENV variables if set.
 func InitConfig() {
 	// InitConfig() must be idempotent
@@ -394,7 +407,9 @@ func InitConfig() {
 	setDefaults()
 
 	logCfg := logger.Config{
-		LogLevel: logger.ParseLogLevel(Config.Logging.Level),
+		LogLevel:            logger.ParseLogLevel(Config.Logging.Level),
+		WithCaller:          Config.Logging.WithCaller,
+		EnableConsoleLogger: Config.Logging.ConsoleLogger,
 	}
 
 	configLogger := logger.NewLogger(logCfg)
@@ -405,7 +420,7 @@ func InitConfig() {
 	if err == nil {
 		Config.Logger.Info().
 			Str("configPath", viper.ConfigFileUsed()).
-			Msg("starting up with config path")
+			Msg("starting up with config path (legacy)")
 	} else {
 		log.Printf("Unable to read config file %s", viper.ConfigFileUsed())
 		switch v := err.(type) {

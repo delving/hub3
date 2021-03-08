@@ -26,6 +26,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/delving/hub3/ikuzo/service/x/imageproxy"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/go-chi/chi"
@@ -117,6 +118,7 @@ func SetOrganisationService(service *organization.Service) Option {
 				r.Mount("/organizations", service.Routes())
 			},
 		)
+		s.middleware = append(s.middleware, service.ResolveOrgByDomain)
 
 		return nil
 	}
@@ -173,10 +175,11 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 	}
 }
 
-func SetEnableLegacyConfig() Option {
+func SetEnableLegacyConfig(cfgFile string) Option {
 	return func(s *server) error {
 		// this initializes the hub3 configuration object that has global state
 		// TODO(kiivihal): remove this after legacy hub3/server/http/handlers are migrated
+		config.SetCfgFile(cfgFile)
 		config.InitConfig()
 
 		return nil
@@ -185,8 +188,6 @@ func SetEnableLegacyConfig() Option {
 
 func SetLegacyRouters(routers ...RouterFunc) Option {
 	return func(s *server) error {
-		config.InitConfig()
-
 		s.routerFuncs = append(s.routerFuncs, routers...)
 
 		return nil
@@ -203,6 +204,23 @@ func SetEADService(svc *ead.Service) Option {
 				r.Delete(taskIDRoute, svc.CancelTask)
 			},
 		)
+
+		s.addShutdown("EAD service", svc)
+
+		return nil
+	}
+}
+
+func SetOAIPMHService(svc *oaipmh.Service) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Get("/oai/!open_oai.OAIHandler", svc.ServeHTTP)
+				r.Post("/oai/harvest-now", svc.HarvestNow)
+			},
+		)
+
+		s.addShutdown("oai-pmh service", svc)
 
 		return nil
 	}

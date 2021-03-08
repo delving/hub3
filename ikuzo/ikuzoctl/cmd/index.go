@@ -53,7 +53,6 @@ var (
 	indexMode string
 	dataPath  string
 	offline   bool
-	orgID     string
 	dataset   string
 )
 

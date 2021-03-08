@@ -15,9 +15,13 @@
 package config
 
 import (
+	"fmt"
 	"github.com/delving/hub3/ikuzo"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/spf13/viper"
 )
 
@@ -40,6 +44,12 @@ type Config struct {
 	PostHooks         []PostHook `json:"posthooks"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
+	is                *index.Service
+	trs               *revision.Service
+	orgs              *organization.Service
+	Organization      `json:"organization"`
+	Org               map[string]domain.OrganizationConfig
+	OAIPMH            `json:"oaipmh"`
 }
 
 func (cfg *Config) IsDataNode() bool {
@@ -48,15 +58,18 @@ func (cfg *Config) IsDataNode() bool {
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 	cfg.logger = logger.NewLogger(cfg.Logging.GetConfig())
+	cfg.logger.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file (ikuzo)")
 
 	if len(cfgOptions) == 0 {
 		cfgOptions = []Option{
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
+			&cfg.Organization,
 			&cfg.HTTP,
 			&cfg.TimeRevisionStore,
 			&cfg.EAD,
 			&cfg.ImageProxy,
 			&cfg.Logging,
+			&cfg.OAIPMH,
 		}
 	}
 
@@ -72,8 +85,6 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 
 	cfg.options = append(cfg.options, ikuzo.SetLogger(&cfg.logger))
 
-	cfg.logger.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file")
-
 	return cfg.options, nil
 }
 
@@ -84,6 +95,10 @@ func SetViperDefaults() {
 }
 
 func (cfg *Config) GetIndexService() (*index.Service, error) {
+	if cfg.is != nil {
+		return cfg.is, nil
+	}
+
 	var (
 		ncfg *index.NatsConfig
 		err  error
@@ -101,7 +116,28 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 		return nil, err
 	}
 
-	return is, nil
+	cfg.is = is
+
+	return cfg.is, nil
+}
+
+func (cfg *Config) GetRevisionService() (*revision.Service, error) {
+	if !cfg.TimeRevisionStore.Enabled {
+		return nil, fmt.Errorf("revision.Service is not enabled in the configuration")
+	}
+
+	if cfg.trs != nil {
+		return cfg.trs, nil
+	}
+
+	trs, err := revision.NewService(cfg.TimeRevisionStore.DataPath)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create revision.Service; %w", err)
+	}
+
+	cfg.trs = trs
+
+	return cfg.trs, nil
 }
 
 func (cfg *Config) defaultOptions() error {
