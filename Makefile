@@ -99,6 +99,7 @@ generate-assets:
 	go run ikuzo/internal/assets/generate.go
 
 gen-oto:
+	oto -template ikuzo/definitions/templates/docs.js.plush -ignore Ignorer -pkg generated ikuzo/definitions/*.go > frontend/app/gen/docs.js
 	oto -template ikuzo/definitions/templates/server.go.plush -ignore Ignorer -pkg generated ikuzo/definitions/namespace.go   | gofmt \
 		> ikuzo/definitions/generated/namespace.gen.go
 
