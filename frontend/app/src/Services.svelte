@@ -2,7 +2,7 @@
   export let services;
 </script>
 
-<div class="prose">
+<div>
   <h2>Services</h2>
   <p>The clients and JSON/HTTP RPC API model their capabilities through a
     small selection of services.</p>

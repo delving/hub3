@@ -34,10 +34,10 @@
   collectFields(objects[typeID], fields, [])
 </script>
 
-<div class="object">
+<div>
   {#each fields as field}
     <div class="field">
-      <strong title=".{field.name}"><code>.{field.name}</code></strong>
+      <strong class="bright-color" title=".{field.name}"><code>.{field.name}</code></strong>
       {#if hasLink(field)}
         <a href="#object:{field.type.typeID}">({field.type.typeName})</a>
       {:else}
@@ -49,11 +49,6 @@
 </div>
 
 <style>
-  .object, .field {
-    color: #99a;
-    font-size: 19px;
-  }
-
   .field {
     margin-top: .8em;
   }
