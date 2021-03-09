@@ -10,11 +10,6 @@ type store struct {
 	db *bbolt.DB
 }
 
-type shaRef struct {
-	HubID string
-	Sha   string
-}
-
 func newStore() (*store, error) {
 	db, err := bbolt.Open("index.db", 0600, nil)
 	if err != nil {
