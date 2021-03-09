@@ -6,7 +6,7 @@ import "github.com/delving/hub3/ikuzo/domain"
 type NamespaceService interface {
 
 	// DeletetNamespace deletes a Namespace
-	// CAUTION: You may lose data
+	// CAUTION: "You may lose data"
 	DeleteNamespace(DeleteNamespaceRequest) DeleteNamespaceResponse
 
 	// GetNamespace gets a Namespace
@@ -30,8 +30,8 @@ type GetNamespaceRequest struct {
 // GetNamespaceResponse is the output object for GetNamespaceService.GetNamespace
 type GetNamespaceResponse struct {
 
-	// Namespaces are the namespaces that match the GetNamespaceRequest.Prefix
-	Namespaces []*domain.Namespace
+	// Namespace is the Namespace
+	Namespace *domain.Namespace
 }
 
 // DeleteNamespaceRequest is the input object for NamespaceService.DeleteNamespace
