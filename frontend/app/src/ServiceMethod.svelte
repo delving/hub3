@@ -10,10 +10,10 @@
   const outputTypeID = method.outputObject.typeID
 </script>
 
-<div class="content">
-  <div class="prose"><h1><a href="#service:{service.name}">{service.name}</a>.{method.name}
+<div>
+  <div><h1><a href="#service:{service.name}">{service.name}</a>.{method.name}
   </h1>
-    <p class="comment">{method.comment}</p>
+    <p>{method.comment}</p>
 
     <h2>JSON input</h2>
     <JsonExample typeID={inputTypeID} objects={objects}></JsonExample>
