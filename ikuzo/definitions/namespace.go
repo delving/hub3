@@ -5,43 +5,66 @@ import "github.com/delving/hub3/ikuzo/domain"
 // NamespaceService allows you to programmatically manage namespaces
 type NamespaceService interface {
 
+	// DeletetNamespace deletes a Namespace
+	// CAUTION: You may lose data
+	DeleteNamespace(DeleteNamespaceRequest) DeleteNamespaceResponse
+
 	// GetNamespace gets a Namespace
 	GetNamespace(GetNamespaceRequest) GetNamespaceResponse
 
-	// ListNamespace returns a list of all namespaces
-	ListNamespace(ListNamespaceRequest) ListNamespaceResponse
+	// PutNamespace stores a Namespace
+	PutNamespace(PutNamespaceRequest) PutNamespaceResponse
+
+	// Search returns a filtered list of Namespaces
+	Search(SearchNamespaceRequest) SearchNamespaceResponse
 }
 
-// GetNamespaceRequest is the input object for GetNamespaceRequest.
+// GetNamespaceRequest is the input object for GetNamespaceService.GetNamespace
 type GetNamespaceRequest struct {
 
-	// Prefix is the prefix of the Namespace
-	// example: "dc"
-	Prefix string
+	// ID is the unique identifier of the namespace
+	// example: "123"
+	ID string
 }
 
-// GetNamespaceResponse is the output object for GetNamespaceRequest.
+// GetNamespaceResponse is the output object for GetNamespaceService.GetNamespace
 type GetNamespaceResponse struct {
 
 	// Namespaces are the namespaces that match the GetNamespaceRequest.Prefix
 	Namespaces []*domain.Namespace
 }
 
-// ListNamespaceRequest is the input object for ListNamespaceRequest.
-type ListNamespaceRequest struct {
-
-	// Prefix is the prefix of the Namespace
-	// example: "dc"
-	Prefix string
-
-	// Base is the base URI of the Namespace
-	// example: "http://purl.org/dc/elements/1.1/"
-	Base string
+// DeleteNamespaceRequest is the input object for NamespaceService.DeleteNamespace
+type DeleteNamespaceRequest struct {
+	// ID is the unique identifier of a Namespace
+	ID string
 }
 
-// ListNamespaceResponse is the output object for ListNamespaceRequest.
-type ListNamespaceResponse struct {
+// DeleteNamespaceRequest is the output object for NamespaceService.DeleteNamespace
+type DeleteNamespaceResponse struct{}
 
-	// Namespaces are the namespaces that match the ListNamespaceRequest Prefix or Base
-	Namespaces []*domain.Namespace
+// PutNamespaceRequest is the input object for NamespaceService.PutNamespace
+type PutNamespaceRequest struct {
+	Namespace *domain.Namespace
+}
+
+// PutNamespaceResponse is the output object for NamespaceService.PutNamespace
+type PutNamespaceResponse struct{}
+
+// SearchNamespaceRequest is the input object for NamespaceService.Search
+type SearchNamespaceRequest struct {
+	// Prefix for a Namespace
+	Prefix string
+
+	// BaseURI for a Namespace
+	BaseURI string
+}
+
+// SearchNamespaceResponse is the output object for NamespaceService.Search
+type SearchNamespaceResponse struct {
+	// Hits returns the list of matching Namespaces
+	Hits []*domain.Namespace
+
+	// More indicates that there may be more search results. If true, make the same Search request passing this Cursor.
+	More bool
 }

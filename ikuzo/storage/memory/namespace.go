@@ -46,14 +46,14 @@ func (ms *NameSpaceStore) Len() int {
 	return len(ms.namespaces)
 }
 
-// Set stores the NameSpace in the Store
-func (ms *NameSpaceStore) Set(ns *domain.Namespace) error {
+// Put stores the NameSpace in the Store
+func (ms *NameSpaceStore) Put(ns *domain.Namespace) error {
 	if ns == nil {
 		return fmt.Errorf("cannot store empty namespace")
 	}
 
 	// this implementation of Delete can never return an error
-	_ = ms.Delete(ns)
+	_ = ms.Delete(ns.GetID())
 
 	// if you lock earlier you get a deadlock
 	ms.Lock()
@@ -73,17 +73,24 @@ func (ms *NameSpaceStore) Set(ns *domain.Namespace) error {
 	return nil
 }
 
-// Delete removes a NameSpace from the store
-func (ms *NameSpaceStore) Delete(ns *domain.Namespace) error {
+func (ms *NameSpaceStore) delete(ns *domain.Namespace) error {
+	return ms.Delete(ns.GetID())
+}
+
+// Delete removes a NameSpace from the store.
+//
+// When the Namespace is not found it returns an domain.ErrNameSpaceNotFound error.
+func (ms *NameSpaceStore) Delete(id string) error {
 	ms.Lock()
 	defer ms.Unlock()
 
-	id := ns.GetID()
-
-	_, ok := ms.namespaces[id]
-	if ok {
-		delete(ms.namespaces, id)
+	ns, ok := ms.namespaces[id]
+	if !ok {
+		return domain.ErrNameSpaceNotFound
 	}
+
+	delete(ms.namespaces, id)
+
 	// drop all prefixes
 	for _, p := range ns.Prefixes() {
 		_, ok := ms.prefix2base[p]
@@ -101,6 +108,14 @@ func (ms *NameSpaceStore) Delete(ns *domain.Namespace) error {
 	}
 
 	return nil
+}
+func (ms *NameSpaceStore) Get(id string) (*domain.Namespace, error) {
+	ns, ok := ms.namespaces[id]
+	if !ok {
+		return nil, domain.ErrNameSpaceNotFound
+	}
+
+	return ns, nil
 }
 
 // GetWithPrefix returns a NameSpace from the store if the prefix is found.

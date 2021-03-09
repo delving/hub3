@@ -24,18 +24,24 @@ import (
 // Store provides functionality to query and persist namespaces.
 type Store interface {
 
-	// Set persists the NameSpace object.
+	// Put persists the NameSpace object.
 	//
 	// When the object already exists it is overwritten.
-	Set(ns *domain.Namespace) error
+	Put(ns *domain.Namespace) error
 
 	// Delete removes the NameSpace from the store.
 	//
 	// Delete matches by the Prefix of the Namespace.
-	Delete(ns *domain.Namespace) error
+	Delete(ID string) error
 
 	// Len returns the number of stored namespaces
 	Len() int
+
+	// Search returns a filtered list Namespaces
+	// Search() ([]*domain.Namespace, error)
+
+	// Get returns a namespace by its ID
+	Get(id string) (ns *domain.Namespace, err error)
 
 	// GetWithPrefix returns the NameSpace for a given prefix.
 	// When the prefix is not found, an ErrNameSpaceNotFound error is returned.
@@ -96,7 +102,7 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 	if s.loadDefaults {
 		for _, nsMap := range []map[string]string{defaultNS, customNS} {
 			for prefix, base := range nsMap {
-				if _, err := s.Add(prefix, base); err != nil {
+				if _, err := s.Put(prefix, base); err != nil {
 					return nil, err
 				}
 			}
@@ -131,11 +137,11 @@ func (s *Service) checkStore() {
 	}
 }
 
-// Add adds the prefix and base-URI to the namespace service.
+// Put adds the prefix and base-URI to the namespace service.
 // When either the prefix or the base-URI is already present in the service the
 // unknown is stored as an alternative. If neither is present a new NameSpace
 // is created.
-func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
+func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 	s.checkStore()
 
 	if base == "" {
@@ -149,7 +155,7 @@ func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 		}
 		ns.Prefix = ns.GetID()
 
-		err := s.store.Set(ns)
+		err := s.store.Put(ns)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +181,7 @@ func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 			}
 			ns.Prefix = ns.GetID()
 
-			err = s.store.Set(ns)
+			err = s.store.Put(ns)
 			if err != nil {
 				return nil, err
 			}
@@ -197,7 +203,7 @@ func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 			return nil, err
 		}
 
-		err = s.store.Set(ns)
+		err = s.store.Put(ns)
 		if err != nil {
 			return nil, err
 		}
@@ -210,7 +216,7 @@ func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 		Base:   base,
 	}
 
-	err = s.store.Set(ns)
+	err = s.store.Put(ns)
 	if err != nil {
 		return nil, err
 	}
@@ -218,9 +224,15 @@ func (s *Service) Add(prefix, base string) (*domain.Namespace, error) {
 	return ns, nil
 }
 
+// Get returns a Namespace by its identifier.
+// When the it is not found it returns domain.ErrNameSpaceNotFound
+func (s *Service) Get(id string) (*domain.Namespace, error) {
+	return s.store.Get(id)
+}
+
 // Delete removes a namespace from the store
-func (s *Service) Delete(ns *domain.Namespace) error {
-	return s.store.Delete(ns)
+func (s *Service) Delete(id string) error {
+	return s.store.Delete(id)
 }
 
 // Len returns the number of namespaces in the Service
@@ -262,10 +274,15 @@ func (s *Service) SearchLabel(uri string) (string, error) {
 // or BaseAlt and the new default set.
 func (s *Service) Set(ns *domain.Namespace) error {
 	s.checkStore()
-	return s.store.Set(ns)
+	return s.store.Put(ns)
 }
 
 func (s *Service) GetWithPrefix(prefix string) (*domain.Namespace, error) {
 	s.checkStore()
 	return s.store.GetWithPrefix(prefix)
+}
+
+func (s *Service) GetWithBase(baseURI string) (*domain.Namespace, error) {
+	s.checkStore()
+	return s.store.GetWithBase(baseURI)
 }

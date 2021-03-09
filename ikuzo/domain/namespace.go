@@ -40,8 +40,9 @@ func (uri URI) String() string {
 // Namespace is a container for URI conversions for RDF- and XML-namespaces.
 type Namespace struct {
 
-	// UUID is the unique identifier of a namespace
-	UUID string `json:"uuid"`
+	// ID is the unique identifier of a namespace.
+	// This identifier will be generated when empty.
+	ID string `json:"uuid"`
 
 	// Base is the default base-URI for a namespace
 	Base string `json:"base"`
@@ -155,11 +156,11 @@ func (ns *Namespace) BaseURIs() []string {
 // GetID returns a string representation of a UUID.
 // When no UUID is set, this function will generate it and update the NameSpace.
 func (ns *Namespace) GetID() string {
-	if ns.UUID == "" {
-		ns.UUID = generateID()
+	if ns.ID == "" {
+		ns.ID = generateID()
 	}
 
-	return ns.UUID
+	return ns.ID
 }
 
 func generateID() string {
