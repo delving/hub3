@@ -138,7 +138,7 @@ func TestNameSpace_AddPrefix(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			ns := &domain.Namespace{
-				UUID:      tt.fields.UUID,
+				ID:      tt.fields.UUID,
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
 				BaseAlt:   tt.fields.BaseAlt,
@@ -262,7 +262,7 @@ func TestNameSpace_GetID(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			ns := &domain.Namespace{
-				UUID:      tt.fields.UUID,
+				ID:      tt.fields.UUID,
 				Base:      tt.fields.Base,
 				Prefix:    tt.fields.Prefix,
 				BaseAlt:   tt.fields.BaseAlt,

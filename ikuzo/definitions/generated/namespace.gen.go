@@ -14,10 +14,14 @@ import (
 // NamespaceService allows you to programmatically manage namespaces
 type NamespaceService interface {
 
+	// DeletetNamespace deletes a Namespace
+	DeleteNamespace(context.Context, DeleteNamespaceRequest) (*DeleteNamespaceResponse, error)
 	// GetNamespace gets a Namespace
 	GetNamespace(context.Context, GetNamespaceRequest) (*GetNamespaceResponse, error)
-	// ListNamespace returns a list of all namespaces
-	ListNamespace(context.Context, ListNamespaceRequest) (*ListNamespaceResponse, error)
+	// PutNamespace stores a Namespace
+	PutNamespace(context.Context, PutNamespaceRequest) (*PutNamespaceResponse, error)
+	// Search returns a filtered list of Namespaces
+	Search(context.Context, SearchNamespaceRequest) (*SearchNamespaceResponse, error)
 }
 
 type namespaceServiceServer struct {
@@ -31,8 +35,27 @@ func RegisterNamespaceService(server *otohttp.Server, namespaceService Namespace
 		server:           server,
 		namespaceService: namespaceService,
 	}
+	server.Register("NamespaceService", "DeleteNamespace", handler.handleDeleteNamespace)
 	server.Register("NamespaceService", "GetNamespace", handler.handleGetNamespace)
-	server.Register("NamespaceService", "ListNamespace", handler.handleListNamespace)
+	server.Register("NamespaceService", "PutNamespace", handler.handlePutNamespace)
+	server.Register("NamespaceService", "Search", handler.handleSearch)
+}
+
+func (s *namespaceServiceServer) handleDeleteNamespace(w http.ResponseWriter, r *http.Request) {
+	var request DeleteNamespaceRequest
+	if err := otohttp.Decode(r, &request); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	response, err := s.namespaceService.DeleteNamespace(r.Context(), request)
+	if err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	if err := otohttp.Encode(w, r, http.StatusOK, response); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
 }
 
 func (s *namespaceServiceServer) handleGetNamespace(w http.ResponseWriter, r *http.Request) {
@@ -52,13 +75,13 @@ func (s *namespaceServiceServer) handleGetNamespace(w http.ResponseWriter, r *ht
 	}
 }
 
-func (s *namespaceServiceServer) handleListNamespace(w http.ResponseWriter, r *http.Request) {
-	var request ListNamespaceRequest
+func (s *namespaceServiceServer) handlePutNamespace(w http.ResponseWriter, r *http.Request) {
+	var request PutNamespaceRequest
 	if err := otohttp.Decode(r, &request); err != nil {
 		s.server.OnErr(w, r, err)
 		return
 	}
-	response, err := s.namespaceService.ListNamespace(r.Context(), request)
+	response, err := s.namespaceService.PutNamespace(r.Context(), request)
 	if err != nil {
 		s.server.OnErr(w, r, err)
 		return
@@ -69,13 +92,42 @@ func (s *namespaceServiceServer) handleListNamespace(w http.ResponseWriter, r *h
 	}
 }
 
-// GetNamespaceRequest is the input object for GetNamespaceRequest.
-type GetNamespaceRequest struct {
-	// Prefix is the prefix of the Namespace
-	Prefix string `json:"prefix"`
+func (s *namespaceServiceServer) handleSearch(w http.ResponseWriter, r *http.Request) {
+	var request SearchNamespaceRequest
+	if err := otohttp.Decode(r, &request); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	response, err := s.namespaceService.Search(r.Context(), request)
+	if err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
+	if err := otohttp.Encode(w, r, http.StatusOK, response); err != nil {
+		s.server.OnErr(w, r, err)
+		return
+	}
 }
 
-// GetNamespaceResponse is the output object for GetNamespaceRequest.
+// DeleteNamespaceRequest is the input object for NamespaceService.DeleteNamespace
+type DeleteNamespaceRequest struct {
+	// ID is the unique identifier of a Namespace
+	ID string `json:"id"`
+}
+
+// DeleteNamespaceRequest is the output object for NamespaceService.DeleteNamespace
+type DeleteNamespaceResponse struct {
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+// GetNamespaceRequest is the input object for GetNamespaceService.GetNamespace
+type GetNamespaceRequest struct {
+	// ID is the unique identifier of the namespace
+	ID string `json:"id"`
+}
+
+// GetNamespaceResponse is the output object for GetNamespaceService.GetNamespace
 type GetNamespaceResponse struct {
 	// Namespaces are the namespaces that match the GetNamespaceRequest.Prefix
 	Namespaces []*domain.Namespace `json:"namespaces"`
@@ -83,18 +135,32 @@ type GetNamespaceResponse struct {
 	Error string `json:"error,omitempty"`
 }
 
-// ListNamespaceRequest is the input object for ListNamespaceRequest.
-type ListNamespaceRequest struct {
-	// Prefix is the prefix of the Namespace
-	Prefix string `json:"prefix"`
-	// Base is the base URI of the Namespace
-	Base string `json:"base"`
+// PutNamespaceRequest is the input object for NamespaceService.PutNamespace
+type PutNamespaceRequest struct {
+	Namespace *domain.Namespace `json:"namespace"`
 }
 
-// ListNamespaceResponse is the output object for ListNamespaceRequest.
-type ListNamespaceResponse struct {
-	// Namespaces are the namespaces that match the ListNamespaceRequest Prefix or Base
-	Namespaces []*domain.Namespace `json:"namespaces"`
+// PutNamespaceResponse is the output object for NamespaceService.PutNamespace
+type PutNamespaceResponse struct {
+	// Error is string explaining what went wrong. Empty if everything was fine.
+	Error string `json:"error,omitempty"`
+}
+
+// SearchNamespaceRequest is the input object for NamespaceService.Search
+type SearchNamespaceRequest struct {
+	// Prefix for a Namespace
+	Prefix string `json:"prefix"`
+	// BaseURI for a Namespace
+	BaseURI string `json:"baseURI"`
+}
+
+// SearchNamespaceResponse is the output object for NamespaceService.Search
+type SearchNamespaceResponse struct {
+	// Hits returns the list of matching Namespaces
+	Hits []*domain.Namespace `json:"hits"`
+	// More indicates that there may be more search results. If true, make the same
+	// Search request passing this Cursor.
+	More bool `json:"more"`
 	// Error is string explaining what went wrong. Empty if everything was fine.
 	Error string `json:"error,omitempty"`
 }

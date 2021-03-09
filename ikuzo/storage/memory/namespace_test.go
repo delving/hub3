@@ -41,42 +41,42 @@ func TestNameSpaceStore(t *testing.T) {
 		{
 			"add first",
 			dc,
-			store.Set,
+			store.Put,
 			1,
 			false,
 		},
 		{
 			"empty namespace",
 			nil,
-			store.Set,
+			store.Put,
 			1,
 			true,
 		},
 		{
 			"set duplicate",
 			dc,
-			store.Set,
+			store.Put,
 			1,
 			false,
 		},
 		{
 			"add second",
 			rdf,
-			store.Set,
+			store.Put,
 			2,
 			false,
 		},
 		{
 			"delete first",
 			dc,
-			store.Delete,
+			store.delete,
 			1,
 			false,
 		},
 		{
 			"delete second",
 			rdf,
-			store.Delete,
+			store.delete,
 			0,
 			false,
 		},
@@ -111,12 +111,12 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
 	unknown := &domain.Namespace{Prefix: "unknown"}
 
-	err := store.Set(dc)
+	err := store.Put(dc)
 	if err != nil {
 		t.Errorf("Unexpected error: %#v", err)
 	}
 
-	err = store.Set(rdf)
+	err = store.Put(rdf)
 	if err != nil {
 		t.Errorf("Unexpected error: %#v", err)
 	}
