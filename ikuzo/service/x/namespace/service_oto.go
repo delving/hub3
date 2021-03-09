@@ -18,7 +18,7 @@ func (o *otoService) GetNamespace(ctx context.Context, r generated.GetNamespaceR
 		return nil, err
 	}
 
-	return &generated.GetNamespaceResponse{Namespaces: []*domain.Namespace{ns}}, nil
+	return &generated.GetNamespaceResponse{Namespace: ns}, nil
 }
 
 func (o *otoService) DeleteNamespace(ctx context.Context, r generated.DeleteNamespaceRequest) (*generated.DeleteNamespaceResponse, error) {

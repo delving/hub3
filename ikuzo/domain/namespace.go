@@ -42,30 +42,42 @@ type Namespace struct {
 
 	// ID is the unique identifier of a namespace.
 	// This identifier will be generated when empty.
+	//
+	// example: "f9ca66c45c2c0a61"
 	ID string `json:"uuid"`
 
 	// Base is the default base-URI for a namespace
+	// example: "http://purl.org/dc/elements/1.1/"
 	Base string `json:"base"`
 
 	// Prefix is the default short version that identifies the base-URI
+	// example: "dc"
 	Prefix string `json:"prefix"`
 
 	// BaseAlt are alternative base-URI for the same prefix.
 	// Sometimes historically the base-URIs for a namespace changes and we still
 	// have to correctly resolve both.
+	//
+	// example: "["http://purl.org/dc/elements/1.1/"]"
 	BaseAlt []string `json:"baseAlt,omitempty"`
 
 	// PrefixAlt are altenative prefixes for the default base URI.
 	// Different content-providers and organizations have at time selected alternative
 	// prefixes for the same base URI. We need to support both entry-points.
+	//
+	// example: "["dce", "dc11"]"
 	PrefixAlt []string `json:"prefixAlt,omitempty"`
 
 	// Schema is an URL to the RDFS or OWL definition of namespace
+	// example: "https://www.dublincore.org/specifications/dublin-core/dcmi-terms/dublin_core_terms.ttl"
 	Schema string `json:"schema,omitempty"`
 
 	// Temporary defines if the NameSpace has been given a temporary prefix because
 	// only the base-URI was known when the NameSpace was created.
 	// Namespaces with prefix collissions will also be given a temporary prefix
+	//
+	// example: "true"
+	// default: "false"
 	Temporary bool `json:"temporary,omitempty"`
 
 	// TODO(kiivihal): add function for custom hashing similar to isIdentRune
