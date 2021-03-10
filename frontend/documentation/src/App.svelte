@@ -7,29 +7,13 @@
   import APITree from "./APITree.svelte";
   import Topic from "./Topic.svelte";
   import {services} from '../../gen/def'
+  import {routeChanged} from "../../src/router";
+  import {onDestroy} from 'svelte'
 
   export let topics;
 
-  let routeId;
-  let params = {};
-
-  function route(hash) {
-    const parts = hash.substring(1).split(':')
-    if (parts <= 1) return null
-    params = {}
-    const properties = parts[1].split("&")
-    for (const property of properties) {
-      const splitProperty = property.split("=")
-      params[splitProperty[0]] = splitProperty.length == 2 ? splitProperty[1] : ''
-    }
-    routeId = parts[0]
-  }
-
-  route(window.location.hash)
-
-  window.onhashchange = () => {
-    route(window.location.hash)
-  }
+  let route = routeChanged(newRoute => route = newRoute)
+  onDestroy(route.unsubscribe)
 </script>
 
 <main>
@@ -39,12 +23,12 @@
       <APITree services={services}/>
     </div>
     <div class="center">
-      {#if routeId === "service"}
-        <Service serviceName={params.service}/>
-      {:else if routeId === "serviceMethod"}
-        <ServiceMethod serviceName={params.service} methodName={params.method}/>
-      {:else if routeId === "topic"}
-        <Topic {topics} topicId={params.topic}/>
+      {#if route.name === "service"}
+        <Service serviceName={route.params.service}/>
+      {:else if route.name === "serviceMethod"}
+        <ServiceMethod serviceName={route.params.service} methodName={route.params.method}/>
+      {:else if route.name === "topic"}
+        <Topic {topics} topicId={route.params.topic}/>
       {:else}
         <Services services={services}/>
       {/if}
