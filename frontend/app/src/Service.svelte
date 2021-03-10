@@ -1,5 +1,11 @@
 <script>
-  export let service
+  import {getService} from "../../gen/def";
+  import {linkServiceMethod} from "./link";
+
+  export let serviceName
+
+  let service;
+  $: service = getService(serviceName)
 </script>
 
 <div><h1 class="bright-color">{service.name}</h1>
@@ -9,7 +15,7 @@
   <ul>
     {#each service.methods as method}
       <li>
-        <a href="#serviceMethod:{service.name}.{method.name}">
+        <a href={linkServiceMethod(service, method)}>
           <span>{method.name}</span>
         </a>—{method.comment}
       </li>

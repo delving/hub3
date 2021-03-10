@@ -1,27 +1,29 @@
 <script>
   import JsonExample from "./JsonExample.svelte";
   import Fields from "./Fields.svelte";
+  import {getService, getServiceMethod} from "../../gen/def";
+  import {linkService} from "./link";
 
-  export let objects;
-  export let service;
-  export let method;
+  export let serviceName;
+  export let methodName;
 
-  const inputTypeID = method.inputObject.typeID
-  const outputTypeID = method.outputObject.typeID
+  let service, method;
+  $: service = getService(serviceName)
+  $: method = getServiceMethod(service, methodName)
 </script>
 
 <div>
-  <div><h1><a href="#service:{service.name}">{service.name}</a>.{method.name}
+  <div><h1><a href={linkService(service)}>{service.name}</a>.{method.name}
   </h1>
     <p>{method.comment}</p>
 
     <h2>JSON input</h2>
-    <JsonExample typeID={inputTypeID} objects={objects}></JsonExample>
-    <Fields typeID={inputTypeID} objects={objects}></Fields>
+    <JsonExample type={method.input}></JsonExample>
+    <Fields type={method.input}></Fields>
 
     <h2>JSON output</h2>
-    <JsonExample typeID={outputTypeID} objects={objects}></JsonExample>
-    <Fields typeID={inputTypeID} objects={objects}></Fields>
+    <JsonExample type={method.output}></JsonExample>
+    <Fields type={method.output}></Fields>
   </div>
 </div>
 
