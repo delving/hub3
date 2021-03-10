@@ -129,8 +129,8 @@ type GetNamespaceRequest struct {
 
 // GetNamespaceResponse is the output object for GetNamespaceService.GetNamespace
 type GetNamespaceResponse struct {
-	// Namespaces are the namespaces that match the GetNamespaceRequest.Prefix
-	Namespaces []*domain.Namespace `json:"namespaces"`
+	// Namespace is the Namespace
+	Namespace *domain.Namespace `json:"namespace"`
 	// Error is string explaining what went wrong. Empty if everything was fine.
 	Error string `json:"error,omitempty"`
 }
