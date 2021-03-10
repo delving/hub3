@@ -18,3 +18,5 @@
 }
 <% } %>
 
+export declare function getEndpoint(serviceName: string, methodName: string): () => Promise<{[key: string]: string}>;
+
