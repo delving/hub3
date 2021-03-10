@@ -101,7 +101,7 @@ interface SearchNamespaceResponse {
 
 
 // NamespaceService allows you to programmatically manage namespaces
-interface NamespaceService {
+export interface NamespaceService {
 	
 	// DeletetNamespace deletes a Namespace
   deleteNamespace(deleteNamespaceRequest: Partial<DeleteNamespaceRequest>) : Promise<DeleteNamespaceResponse>
