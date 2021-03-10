@@ -60,6 +60,8 @@ type ElasticSearch struct {
 	is *index.Service
 	// base of the index aliases
 	IndexName string
+	// if non-empty digital objects will be indexed in a dedicated v2 index
+	DigitalObjectSuffix string
 	// number of shards. default 1
 	Shards int
 	// number of replicas. default 0
@@ -185,6 +187,10 @@ func (e *ElasticSearch) createDefaultMappings(es *elasticsearch.Client, withAlia
 		default:
 			log.Warn().Msgf("ignoring unknown indexType %s during mapping creation", indexType)
 		}
+	}
+
+	if e.DigitalObjectSuffix != "" {
+		mappings[fmt.Sprintf("%sv2-%s", e.normalizedIndexName(), e.DigitalObjectSuffix)] = mapping.V2ESMapping
 	}
 
 	indexNames := []string{}
