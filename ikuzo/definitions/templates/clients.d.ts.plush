@@ -11,7 +11,7 @@
 <% } %>
 
 <%= for (service) in def.Services { %>
-<%= format_comment_text(service.Comment) %>interface <%= service.Name %> {
+<%= format_comment_text(service.Comment) %>export interface <%= service.Name %> {
 	<%= for (method) in service.Methods { %>
 	<%= format_comment_text(method.Comment) %>  <%= camelize_down(method.Name) %>(<%= camelize_down(method.InputObject.TypeName) %>: Partial<<%= method.InputObject.TypeName %>>) : Promise<<%= method.OutputObject.TypeName %>>
   <% } %>
