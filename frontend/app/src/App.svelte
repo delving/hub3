@@ -1,6 +1,6 @@
 <script>
   import "highlight.js/styles/darcula.css"
-  import {def} from '../gen/docs'
+  import {def} from '../../gen/def'
   import ServiceMethod from './ServiceMethod.svelte'
   import NavigationTree from "./NavigationTree.svelte";
   import Service from "./Service.svelte";
