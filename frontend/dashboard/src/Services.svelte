@@ -1,7 +1,5 @@
 <script>
-  import {def} from '../../gen/def'
-
-  const services = def.services
+  import {services} from '../../gen/def'
 </script>
 
 <div>
