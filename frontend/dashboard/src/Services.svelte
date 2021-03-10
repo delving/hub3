@@ -1,7 +1,7 @@
 <script>
-  import {linkService} from "./link";
+  import {def} from '../../gen/def'
 
-  export let services;
+  const services = def.services
 </script>
 
 <div>
@@ -10,7 +10,7 @@
     small selection of services.</p>
   <ul>
     {#each services as service}
-      <li><a href={linkService(service)}>{service.name}</a>—{service.comment}</li>
+      <li><a href="#service:{service.name}">{service.name}</a>—{service.comment}</li>
     {/each}
   </ul>
 </div>

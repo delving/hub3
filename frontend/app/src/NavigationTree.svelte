@@ -1,12 +1,14 @@
 <script>
+  import {linkTopic} from "./link";
+
   export let topics
 </script>
 
 {#each topics as topic}
   <h2 class="bright-color">{topic.subject}</h2>
   <ul>
-    {#each topic.links as link}
-      <li><a href="#markdown:{link.id}">{link.text}</a></li>
+    {#each topic.links as topicLink}
+      <li><a href={linkTopic(topicLink)}>{topicLink.text}</a></li>
     {/each}
   </ul>
 {/each}

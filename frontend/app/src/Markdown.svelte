@@ -7,6 +7,7 @@
   const md = new MarkdownIt()
 
   // Render to an html string
+  let rendered;
   $: rendered = md.render(markdown)
 </script>
 

@@ -1,75 +1,52 @@
 <script>
   import "highlight.js/styles/darcula.css"
-  import {def} from '../../gen/def'
   import ServiceMethod from './ServiceMethod.svelte'
   import NavigationTree from "./NavigationTree.svelte";
   import Service from "./Service.svelte";
   import Services from "./Services.svelte";
   import APITree from "./APITree.svelte";
-  import Markdown from "./Markdown.svelte";
+  import Topic from "./Topic.svelte";
+  import {services} from '../../gen/def'
 
-  console.log(def);
   export let topics;
 
-  let service;
-  let method;
-  let markdown;
   let routeId;
-
-  const objectsById = {}
-  for (const object of def.objects) {
-    objectsById[object.typeID] = object
-  }
+  let params = {};
 
   function route(hash) {
     const parts = hash.substring(1).split(':')
     if (parts <= 1) return null
-    const type = parts[0]
-    if (type === "service") {
-      service = def.services.find(service => service.name === parts[1]) || service
-      method = null
-    } else if (type === "serviceMethod") {
-      const serviceAndMethodName = parts[1].split(".")
-      if (serviceAndMethodName.length !== 2) return
-
-      service = def.services.find(service => service.name === serviceAndMethodName[0]) || service
-      method = service.methods.find(method => method.name === serviceAndMethodName[1]) || method
-    } else if (type === "markdown") {
-      markdown = null
-      for (const topic of topics) {
-        for(const link of topic.links) {
-          if(link.id === parts[1]) {
-            markdown = link.markdown
-            break;
-          }
-        }
-      }
+    params = {}
+    const properties = parts[1].split("&")
+    for (const property of properties) {
+      const splitProperty = property.split("=")
+      params[splitProperty[0]] = splitProperty.length == 2 ? splitProperty[1] : ''
     }
-    return parts[0]
+    routeId = parts[0]
   }
 
-  routeId = route(window.location.hash)
+  route(window.location.hash)
 
   window.onhashchange = () => {
-    routeId = route(window.location.hash)
+    route(window.location.hash)
   }
 </script>
 
 <main>
   <div class="docs">
     <div class="left">
-      <NavigationTree topics={topics}></NavigationTree>
-      <APITree services={def.services}></APITree>
+      <NavigationTree topics={topics}/>
+      <APITree services={services}/>
     </div>
     <div class="center">
       {#if routeId === "service"}
-        <Service service="{service}"></Service>
+        <Service serviceName={params.service}/>
       {:else if routeId === "serviceMethod"}
-        <ServiceMethod service={service} method={method} objects={objectsById}></ServiceMethod>
-      {:else if routeId === "markdown"}
-        <Markdown markdown={markdown}></Markdown>
+        <ServiceMethod serviceName={params.service} methodName={params.method}/>
+      {:else if routeId === "topic"}
+        <Topic {topics} topicId={params.topic}/>
       {:else}
-        <Services services={def.services}></Services>
+        <Services services={services}/>
       {/if}
     </div>
   </div>

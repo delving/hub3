@@ -1,30 +1,28 @@
 <script>
   import highlight from 'highlight.js'
-  import {onMount} from 'svelte'
 
-  export let objects;
-  export let typeID;
+  export let type;
 
   let code;
+  $: if (code) {
+    const builder = {}
+    toJson(type, builder)
+    code.textContent = JSON.stringify(builder, null, 2)
+    highlight.highlightBlock(code)
+  }
 
   function toJson(type, result) {
     const fields = type.fields;
     for (const field of fields) {
-      if (field.type.typeID in objects) {
+      if (field.typeDef) {
         const child = {}
         result[field.name] = child
-        toJson(objects[field.type.typeID], child)
+        toJson(field.typeDef, child)
       } else {
         result[field.name] = field.example
       }
     }
   }
-
-  const builder = {}
-  toJson(objects[typeID], builder)
-  let json = JSON.stringify(builder, null, 2)
-
-  onMount(() => highlight.highlightBlock(code))
 </script>
 
-<pre><code bind:this={code} class="language-json">{json}</code></pre>
+<pre><code bind:this={code} class="language-json">No content</code></pre>

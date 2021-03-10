@@ -3,4 +3,33 @@
 'use strict';
 
 const jsonDef = `<%= json(def) %>`
-export const def = JSON.parse(jsonDef.replace(/\n/g, '\\n'));
+const def = JSON.parse(jsonDef.replace(/\n/g, '\\n'));
+
+function getTypeDef(typeID) {
+  const typeDef = def.objects.find(o => o.typeID === typeID)
+  if (typeDef) return typeDef
+  throw new Error(`Type missing: ${typeID}`)
+}
+
+for (const service of def.services) {
+  for (const method of service.methods) {
+    method.input = getTypeDef(method.inputObject.typeID)
+    method.output = getTypeDef(method.outputObject.typeID)
+  }
+}
+
+for (const object of def.objects) {
+  for(const field of object.fields) {
+    field.typeDef = def.objects[field.type.typeID]
+  }
+}
+
+export const services = def.services;
+
+export function getService(name) {
+  return def.services.find(service => service.name === name);
+}
+
+export function getServiceMethod(service, methodName) {
+  return service.methods.find(method => method.name === methodName)
+}
