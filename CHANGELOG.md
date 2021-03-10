@@ -2,10 +2,14 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.11...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
+
+## v0.2.0 (2021-03-10)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0
+
 
 ### Added 
-
 
 - Synchronize with remote archives and METS-files via OAI-PMH  [[GH-80]](https://github.com/delving/hub3/pull/80)
 - Dedicated dataset service for managing datasets  [[GH-79]](https://github.com/delving/hub3/pull/79)
