@@ -66,7 +66,7 @@ func TestService_SearchLabel(t *testing.T) {
 			}
 
 			// add alternative
-			_, err = s.Add("dce", dc.Base)
+			_, err = s.Put("dce", dc.Base)
 			if err != nil {
 				t.Errorf("Service.SearchLabel() unexpected error = %v", err)
 				return
@@ -202,7 +202,7 @@ func TestService_Add(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			ns, err := svc.Add(tt.args.prefix, tt.args.base)
+			ns, err := svc.Put(tt.args.prefix, tt.args.base)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.Add() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -243,7 +243,7 @@ func TestListDelete(t *testing.T) {
 
 	first := namespaces[0]
 
-	err = svc.Delete(first)
+	err = svc.Delete(first.GetID())
 	is.NoErr(err)
 
 	namespaces, err = svc.List()
