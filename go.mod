@@ -9,7 +9,6 @@ require (
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
 	github.com/allegro/bigcache v1.2.1
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
-	github.com/apex/log v1.9.0
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.0.2
@@ -65,6 +64,8 @@ require (
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/opencontainers/runc v1.0.0-rc3 // indirect
+	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/opencontainers/runc v1.0.0-rc3
 	github.com/pacedotdev/oto v0.10.8 // indirect
 	github.com/pacedotdev/oto/otohttp v0.8.0
@@ -103,6 +104,7 @@ require (
 	google.golang.org/grpc v1.30.0 // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	moul.io/http2curl v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.10.0
 )

@@ -16,12 +16,12 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/pacedotdev/oto/otohttp"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
@@ -47,7 +47,6 @@ type Config struct {
 	PostHooks         []PostHook `json:"posthooks"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
-	oto               *otohttp.Server
 	is                *index.Service
 	trs               *revision.Service
 	orgs              *organization.Service
