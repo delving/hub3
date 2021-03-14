@@ -126,8 +126,9 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
 		Tags:          []string{"ead"},
-		Modified:      fragments.NowInMillis(),
-		Revision:      cfg.Revision,
+		// TODO(kiivihal): remove later when trs is fully
+		// Modified:      fragments.NowInMillis(),
+		// Revision:      cfg.Revision,
 	}
 
 	if len(cfg.Tags) != 0 {

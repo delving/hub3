@@ -17,10 +17,12 @@ package ead
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync/atomic"
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -122,6 +124,27 @@ func (t *Task) finishTask() {
 	t.Meta.ProcessingDuration = last.Finished.Sub(startProcessing.Finished)
 	t.Meta.ProcessingDurationFmt = t.Meta.ProcessingDuration.String()
 
+	if err := t.Meta.repo.Add("rsc"); err != nil {
+		t.finishWithError(err)
+		return
+	}
+
+	hash, err := t.Meta.repo.Commit(fmt.Sprintf("finish processing task %s", t.ID), nil)
+	if err != nil {
+		t.finishWithError(err)
+		return
+	}
+
+	if hash.String() != t.Meta.PublishedCommitID {
+		// TODO(kiivihal): publish directly for now
+		if err := t.indexChanged(t.Meta.PublishedCommitID, hash.String()); err != nil {
+			t.finishWithError(err)
+			return
+		}
+
+		t.Meta.PublishedCommitID = hash.String()
+	}
+
 	t.log().Info().
 		Dur("processing", t.Meta.ProcessingDuration).
 		Uint64("inventories", t.Meta.Clevels).
@@ -132,11 +155,26 @@ func (t *Task) finishTask() {
 		Uint64("metsRetrieveErrors", t.Meta.DaoErrors).
 		Strs("metsErrorLinks", t.Meta.getDaoLinkErrors()).
 		Uint64("fileSize", t.Meta.FileSize).
+		Str("revisionHash", t.Meta.PublishedCommitID).
+		Uint64("recordsUpdated", t.Meta.RecordsUpdated).
+		Uint64("recordsDeleted", t.Meta.RecordsDeleted).
 		Msg("finished processing")
 
 	t.moveState(StateFinished)
 	t.s.M.IncFinished()
 	t.finishState()
+}
+
+func (t *Task) indexChanged(from, until string) error {
+	stats, err := t.Meta.repo.PublishChanged(t.ctx, from, until, t.s.index)
+	if err != nil {
+		log.Printf("publish error")
+		return err
+	}
+
+	atomic.AddUint64(&t.Meta.RecordsDeleted, uint64(stats.Deleted))
+	atomic.AddUint64(&t.Meta.RecordsUpdated, uint64(stats.Updated))
+	return nil
 }
 
 func (t *Task) log() *zerolog.Logger {
@@ -200,6 +238,22 @@ func (t *Task) Next() {
 		t.finishState()
 		atomic.AddUint64(&t.s.M.Canceled, 1)
 	}
+}
+
+func (s *Service) openRepository(orgID, datasetID string) (*revision.Repository, error) {
+	repo, err := s.revision.OpenRepository(orgID, datasetID)
+	if err != nil {
+		if !errors.Is(err, revision.ErrRepositoryNotExists) {
+			return nil, err
+		}
+
+		repo, err = s.revision.InitRepository(orgID, datasetID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return repo, nil
 }
 
 func (s *Service) NewTask(meta *Meta) (*Task, error) {

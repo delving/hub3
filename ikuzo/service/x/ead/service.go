@@ -135,6 +135,10 @@ func NewService(options ...Option) (*Service, error) {
 		s.DaoFn = daoClient.DefaultDaoFn
 	}
 
+	if s.revision == nil {
+		return s, fmt.Errorf("cannot start ead.Service without revision.Service")
+	}
+
 	// create datadir
 	if s.dataDir != "" {
 		createErr := os.MkdirAll(s.dataDir, os.ModePerm)
@@ -370,20 +374,20 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	_ = parentCtx
 	g, gctx := errgroup.WithContext(t.ctx)
 
-	f, err := os.Open(t.Meta.getSourcePath())
+	r, err := t.Meta.repo.Read(t.Meta.getSourcePath(), revision.WorkingVersion)
 	if err != nil {
 		errMsg := fmt.Errorf("unable to find EAD source file: %w", err)
 		return t.finishWithError(errMsg)
 	}
 
-	ead, err := getEAD(f)
+	ead, err := getEAD(r)
 	if err != nil {
 		errMsg := fmt.Errorf("error during EAD parsing; %w", err)
-		f.Close()
+		r.Close()
 		return t.finishWithError(errMsg)
 	}
 
-	if closeErr := f.Close(); closeErr != nil {
+	if closeErr := r.Close(); closeErr != nil {
 		errMsg := fmt.Errorf("unable to close ead source file; %w", err)
 		return t.finishWithError(errMsg)
 	}
@@ -398,6 +402,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 	t.Meta.Created = created
 	t.Meta.Revision = meta.Revision
+	t.Meta.PublishedCommitID = meta.PublishedCommitID
 
 	// create a dataset
 	ds, _, datasetErr := models.GetOrCreateDataSet(t.Meta.OrgID, t.Meta.DatasetID)
@@ -418,9 +423,11 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.CreateTreeFn
 	cfg.DaoFn = s.DaoFn
+	cfg.PublishedCommitID = t.Meta.PublishedCommitID
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = t.Meta.OrgID
 	cfg.IndexService = s.index
+	cfg.Repo = t.Meta.repo
 	cfg.RetrieveDao = true
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
@@ -428,6 +435,10 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.ProcessAccessTime = t.Meta.ProcessAccessTime
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
+
+	if err := t.Meta.repo.ResetPath("rsc"); err != nil {
+		t.finishWithError(err)
+	}
 
 	// create description
 	if t.InState == StateProcessingDescription {
@@ -528,22 +539,23 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 			for n := range cfg.Nodes {
 				n := n
 
+				// if s.index == nil {
+				// continue
+				// }
+
 				fg, _, err := n.FragmentGraph(cfg)
 				if err != nil {
 					return err
 				}
 
-				if s.index == nil {
-					continue
-				}
-
-				m, err := fg.IndexMessage()
+				r, err := fg.Reader()
 				if err != nil {
-					return fmt.Errorf("unable to marshal fragment graph: %w", err)
+					return err
 				}
 
-				if err := s.index.Publish(context.Background(), m); err != nil {
-					return err
+				path := fmt.Sprintf("rsc/%s.json", fg.Meta.HubID)
+				if err := t.Meta.repo.Write(path, r); err != nil {
+					log.Error().Err(err).Str("svc", "eadProcessor").Msg("unable to write to TRS")
 				}
 
 				atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
@@ -590,6 +602,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		meta.MetsFiles = int(cfg.MetsCounter.GetCount())
 		meta.Inventories = int(cfg.Counter.GetCount())
 
+		meta.PublishedCommitID = t.Meta.PublishedCommitID
+
 		stats := models.DaoStats{
 			DuplicateLinks: map[string]int{},
 		}
@@ -623,9 +637,10 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 
 		t.Transitions[len(t.Transitions)-1].Metrics = metrics
 
-		if dropErr := t.dropOrphans(cfg.Revision); dropErr != nil {
-			return t.finishWithError(fmt.Errorf("error during dropping orphans: %w", dropErr))
-		}
+		// TODO(kiivihal): remove when trs publisher is integrated
+		// if dropErr := t.dropOrphans(cfg.Revision); dropErr != nil {
+		// return t.finishWithError(fmt.Errorf("error during dropping orphans: %w", dropErr))
+		// }
 
 		t.finishTask()
 
@@ -633,6 +648,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 		meta.DigitalObjects = int(cfg.MetsCounter.GetDigitalObjectCount())
 		meta.RecordsPublished = int(t.Meta.TotalRecordsPublished)
 		meta.Revision = cfg.Revision
+		meta.PublishedCommitID = t.Meta.PublishedCommitID
 
 		if meta.OrgID == "" {
 			meta.OrgID = t.Meta.OrgID
@@ -679,7 +695,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("unable to find orgID in request")
 	}
 
-	_, meta, err := s.SaveEAD(in, header.Size, "", orgID)
+	meta, err := s.SaveEAD(in, header.Size, "", orgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
 			http.Error(w, err.Error(), http.StatusConflict)
@@ -927,61 +943,58 @@ func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, erro
 	return buf, f.Name(), nil
 }
 
-// SaveEAD stores the source EAD in the revision store
-func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (*bytes.Buffer, Meta, error) {
-	var meta Meta
-
-	buf, tmpFile, err := s.storeEAD(r, size)
-	if err != nil {
-		return nil, meta, err
+func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (Meta, error) {
+	meta := Meta{
+		DatasetID: datasetID,
+		OrgID:     orgID,
 	}
 
-	meta, err = s.moveTmpFile(buf, tmpFile)
+	buf := bytes.NewBuffer(make([]byte, 0, size))
+
+	_, err := io.Copy(buf, r)
 	if err != nil {
-		return nil, meta, err
+		return meta, fmt.Errorf("unable to read EAD file; %w", err)
 	}
 
-	meta.FileSize = uint64(size)
-	meta.ProcessDigital = s.processDigital
-	meta.OrgID = orgID
+	if meta.DatasetID == "" {
+		meta.DatasetID, err = s.GetName(buf)
+		if err != nil {
+			return meta, fmt.Errorf("unable to get datasetID; %w", err)
+		}
+	}
 
-	return buf, meta, nil
+	meta.repo, err = s.openRepository(meta.OrgID, meta.DatasetID)
+	if err != nil {
+		return meta, fmt.Errorf("unable to open revision repository; %w", err)
+	}
+
+	path := getEADPath(meta.DatasetID)
+
+	err = meta.repo.Write(path, buf)
+	if err != nil {
+		return meta, fmt.Errorf("unable to store revision of EAD; %w", err)
+	}
+
+	if err := meta.repo.Add(path); err != nil {
+		return meta, err
+	}
+
+	meta.basePath = path
+
+	return meta, nil
+}
+
+func getEADPath(datasetID string) string {
+	return fmt.Sprintf("ingest/ead/%s.xml", datasetID)
+}
+
+func getMETSPath(uuid string) string {
+	return fmt.Sprintf("ingest/ead/%s.xml", uuid)
 }
 
 // DeleteEAD removes the dataset from the store.
 func (s *Service) DeleteEAD(datasetID, orgID string) error {
 	return models.DeleteDataSet(orgID, datasetID, context.Background())
-}
-
-// moveTmpFile retrieves Meta from EAD and moves it to the right location
-func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
-	var (
-		meta Meta
-		err  error
-	)
-
-	// get ead identifier
-	meta.DatasetID, err = s.GetName(buf)
-	if err != nil {
-		return meta, err
-	}
-
-	if _, err := s.findTask("", meta.DatasetID, true); !errors.Is(err, ErrTaskNotFound) {
-		return meta, ErrTaskAlreadySubmitted
-	}
-
-	meta.basePath = s.getDataPath(meta.DatasetID)
-
-	// create dataDir
-	if err := os.MkdirAll(meta.basePath, os.ModePerm); err != nil {
-		return meta, err
-	}
-
-	if err := os.Rename(tmpFile, meta.getSourcePath()); err != nil {
-		return meta, err
-	}
-
-	return meta, nil
 }
 
 // AddPostHook adds posthook to the EAD service

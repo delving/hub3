@@ -16,6 +16,7 @@ type tx struct {
 	revision           int // old revision key
 	rw                 sync.RWMutex
 	recordIDs          []string
+	deleted            bool
 }
 
 func newTx(orgID, datasetID string) *tx {

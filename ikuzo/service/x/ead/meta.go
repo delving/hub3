@@ -17,10 +17,13 @@ package ead
 import (
 	"fmt"
 	"time"
+
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 )
 
 type Meta struct {
 	basePath              string
+	repo                  *revision.Repository
 	OrgID                 string
 	DatasetID             string
 	Title                 string
@@ -38,11 +41,14 @@ type Meta struct {
 	Created               bool
 	ProcessingDuration    time.Duration `json:"processingDuration,omitempty"`
 	ProcessingDurationFmt string        `json:"processingDurationFmt,omitempty"`
+	RecordsUpdated        uint64
+	RecordsDeleted        uint64
+	PublishedCommitID     string
 }
 
 // getSourcePath returns full path to the source EAD file
 func (m *Meta) getSourcePath() string {
-	return fmt.Sprintf("%s/%s.xml", m.basePath, m.DatasetID)
+	return getEADPath(m.DatasetID)
 }
 
 // getDaoLinkErrors returns the error messages for each retrieved error and its unitId

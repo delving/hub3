@@ -17,6 +17,7 @@ package revision
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -33,6 +34,7 @@ import (
 	gitgo "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -162,6 +164,8 @@ func (repo *Repository) Commit(msg string, options *gitgo.CommitOptions) (plumbi
 		}
 	}
 
+	// TODO(kiivihal): add filelist for reuse and diffing
+
 	return w.Commit(msg, options)
 }
 
@@ -290,24 +294,29 @@ func (repo *Repository) revisions() (int, error) {
 	return strconv.Atoi(strings.TrimSpace(resp))
 }
 
-func (repo *Repository) Changes(path, from, until string) (chan DiffFile, error) {
-	c := make(chan DiffFile, 2500)
-
+// Changes pushes DiffFiles onto channel files.
+// The channel is closed when all DiffFiles have been pushed
+func (repo *Repository) Changes(ctx context.Context, files chan DiffFile, path, from, until string) error {
 	output, err := repo.diff(path, from, until)
 	if err != nil {
-		return c, err
+		return err
 	}
 
 	go func(lines string) {
-		defer close(c)
+		defer close(files)
 
 		p := newLogParser()
-		if err := p.generate(lines, c); err != nil {
+		if err := p.generate(ctx, lines, files); err != nil {
+			if err == context.Canceled {
+				log.Printf("repo.Changes: %s", err)
+				return
+			}
+
 			log.Printf("unable to parse diff files; %v", err)
 		}
 	}(output)
 
-	return c, nil
+	return nil
 }
 
 func (repo *Repository) Exists(path string) bool {
@@ -326,60 +335,87 @@ type PublishStats struct {
 	Updated int
 }
 
-func (repo *Repository) PublishChanged(from, until string, p ...Publisher) (PublishStats, error) {
+func (repo *Repository) PublishChanged(ctx context.Context, from, until string, p ...Publisher) (PublishStats, error) {
 	resourcePath := "rsc"
 	stats := PublishStats{}
 
-	files, err := repo.Changes(resourcePath, from, until)
-	if err != nil {
-		return stats, err
+	g, gctx := errgroup.WithContext(ctx)
+	files := make(chan DiffFile, 2500)
+
+	g.Go(func() error {
+		return repo.Changes(gctx, files, resourcePath, from, until)
+	})
+
+	log.Printf("starting publishing from revision")
+
+	workers := 4
+	for i := 0; i < workers; i++ {
+		g.Go(func() error {
+			for f := range files {
+				f := f
+
+				hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, resourcePath+"/"), ".json")
+				log.Printf("hubID: %s", hubID)
+
+				m := &domainpb.IndexMessage{
+					OrganisationID: repo.OrgID,
+					DatasetID:      repo.DatasetID,
+					RecordID:       hubID,
+					IndexName:      config.Config.ElasticSearch.GetIndexName(),
+				}
+				if f.State == StatusDeleted {
+					m.Deleted = true
+					stats.Deleted++
+				}
+
+				if !m.Deleted {
+					r, err := repo.Read(f.Path, f.CommitID)
+					if err != nil {
+						return err
+					}
+
+					var fg fragments.FragmentGraph
+					if decodeErr := json.NewDecoder(r).Decode(&fg); decodeErr != nil {
+						return decodeErr
+					}
+
+					fg.Meta.Modified = fragments.NowInMillis()
+					fg.Meta.SourceID = f.CommitID
+
+					b, err := fg.Marshal()
+					if err != nil {
+						return err
+					}
+
+					m.Source = b
+
+					stats.Updated++
+				}
+
+				for _, publisher := range p {
+					if err := publisher.Publish(context.Background(), m); err != nil {
+						return err
+					}
+				}
+
+				select {
+				case <-gctx.Done():
+					return gctx.Err()
+				default:
+				}
+			}
+			return nil
+		})
 	}
 
-	for f := range files {
-		f := f
-
-		hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, resourcePath+"/"), ".json")
-
-		m := &domainpb.IndexMessage{
-			OrganisationID: repo.OrgID,
-			DatasetID:      repo.DatasetID,
-			RecordID:       hubID,
-			IndexName:      config.Config.ElasticSearch.GetIndexName(),
+	// wait for all errgroup goroutines
+	err := g.Wait()
+	if err == nil || errors.Is(err, context.Canceled) {
+		if errors.Is(err, context.Canceled) {
+			return stats, nil
 		}
-		if f.State == StatusDeleted {
-			m.Deleted = true
-			stats.Deleted++
-		}
-
-		if !m.Deleted {
-			r, err := repo.Read(f.Path, f.CommitID)
-			if err != nil {
-				return stats, err
-			}
-
-			var fg fragments.FragmentGraph
-			if decodeErr := json.NewDecoder(r).Decode(&fg); decodeErr != nil {
-				return stats, decodeErr
-			}
-
-			fg.Meta.Modified = fragments.NowInMillis()
-			fg.Meta.SourceID = f.CommitID
-
-			b, err := fg.Marshal()
-			if err != nil {
-				return stats, err
-			}
-
-			m.Source = b
-
-			stats.Updated++
-		}
-
-		for _, publisher := range p {
-			if err := publisher.Publish(context.Background(), m); err != nil {
-				return stats, err
-			}
-		}
+	} else {
+		return stats, err
 	}
 
 	return stats, nil

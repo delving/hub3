@@ -9,12 +9,13 @@ import (
 
 // nolint:gocritic
 func TestIndexStore(t *testing.T) {
-	defer func() {
-		e := os.Remove("index.db")
-		if e != nil {
-			t.Fatal(e)
-		}
-	}()
+	t.Cleanup(
+		func() {
+			e := os.Remove("index.db")
+			if e != nil {
+				t.Fatal(e)
+			}
+		})
 
 	t.Run("store crud", func(t *testing.T) {
 		is := is.New(t)
