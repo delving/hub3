@@ -45,7 +45,7 @@ export function getTree(params) {
     }
   }
   else {
-    if(params.page) {
+    if(params.page >= 0) {
       response.pages.push({
         index: params.page,
         html: ead.tree[params.page]

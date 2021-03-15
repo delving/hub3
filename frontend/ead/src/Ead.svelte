@@ -48,6 +48,7 @@
       const result = await getTree({
         page: firstPage.index - 1
       })
+      console.log('prepended pages', result.pages.map(p => p.index), 'to', ...treePages.slice(0, treePages.length - 1).map(p => p.index));
       treePages = [...result.pages, ...treePages.slice(0, treePages.length - 1)]
     } else if (lastPageTop <= 0 && lastPage.index < indexOfLastPage) {
       const result = await getTree({
@@ -56,6 +57,7 @@
       treePages = treePages.slice(1)
       await tick()
       treePages = [...treePages, ...result.pages]
+      console.log('appended page', result.pages.map(p => p.index), 'to', treePages.map(p => p.index));
       centerContainer.scrollTop = scrollTop - firstPageHeight;
     }
   }
