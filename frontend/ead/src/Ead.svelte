@@ -22,6 +22,7 @@
       const identifier = target.dataset.identifier;
       const partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
       partner.scrollIntoView();
+      target.classList.add('open');
     }
   }
 </script>

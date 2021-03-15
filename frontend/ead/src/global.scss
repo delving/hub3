@@ -41,8 +41,14 @@
       display: none;
     }
 
+    .open {
+      .c {
+        display: block;
+      }
+    }
+
     .c {
-      ::before {
+      &::before {
         content: "+";
         font-weight: bold;
         font-size: 18px;
@@ -51,6 +57,14 @@
         background-color: white;
         color: blue;
       }
+
+      .text {
+        display: inline;
+      }
+    }
+
+    .c.open::before {
+      content: "-";
     }
   }
 }
