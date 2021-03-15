@@ -1,0 +1,56 @@
+#description {
+  .c {
+    display: block;
+
+    * {
+      display: block;
+    }
+  }
+
+  .c1 {
+    margin-left: 10px;
+  }
+
+  .c2 {
+    margin-left: 20px;
+  }
+
+  .c3 {
+    margin-left: 30px;
+  }
+
+  .c5 {
+    margin-left: 40px;
+  }
+
+  .c6 {
+    margin-left: 50px;
+  }
+
+  .c7 {
+    margin-left: 60px;
+  }
+
+  .c8 {
+    margin-left: 70px;
+  }
+
+  // navigation tree
+  .nav-tree {
+    .c .c {
+      display: none;
+    }
+
+    .c {
+      ::before {
+        content: "+";
+        font-weight: bold;
+        font-size: 18px;
+        font-family: monospace;
+        border: 2px solid blue;
+        background-color: white;
+        color: blue;
+      }
+    }
+  }
+}
