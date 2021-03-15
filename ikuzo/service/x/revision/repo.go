@@ -94,6 +94,33 @@ func (repo *Repository) Write(path string, r io.Reader) error {
 	return nil
 }
 
+func (repo *Repository) SafeRead(path, revision string) (io.ReadCloser, error) {
+	log.Printf("%s:%s", path, revision)
+	if revision == "" || strings.EqualFold(revision, "head") {
+		revision = "HEAD"
+	}
+
+	if revision == WorkingVersion {
+		fPath := filepath.Join(repo.path, path)
+
+		f, err := os.Open(fPath)
+		if err != nil {
+			return nil, err
+		}
+
+		return f, nil
+	}
+
+	resp, err := git.NewCommand("show").
+		AddArguments(fmt.Sprintf("%s:%s", revision, path)).
+		RunInDir(repo.path)
+	if err != nil {
+		return nil, err
+	}
+
+	return io.NopCloser(strings.NewReader(resp)), nil
+}
+
 // Read returns a Reader for the given path for a specific revision.
 // When the revision is empty the HEAD version in returned.
 func (repo *Repository) Read(path, revision string) (io.ReadCloser, error) {
@@ -281,6 +308,15 @@ func (repo *Repository) diff(path, from, until string) (string, error) {
 	return cmd.RunInDir(repo.path)
 }
 
+func (repo *Repository) RevisionExist(rev string) bool {
+	_, err := git.NewCommand("rev-list").
+		AddArguments("--count").
+		AddArguments(rev).
+		RunInDir(repo.path)
+
+	return err == nil
+}
+
 // revisions returns the number of committed revisions on the current branch
 func (repo *Repository) revisions() (int, error) {
 	resp, err := git.NewCommand("rev-list").
@@ -301,6 +337,8 @@ func (repo *Repository) Changes(ctx context.Context, files chan DiffFile, path, 
 	if err != nil {
 		return err
 	}
+
+	// log.Printf("filling diff files: %s", output)
 
 	go func(lines string) {
 		defer close(files)
@@ -330,12 +368,21 @@ type Publisher interface {
 	Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error
 }
 
+// TODO(kiivihal): change to uuint and update with atomic
 type PublishStats struct {
 	Deleted int
 	Updated int
 }
 
 func (repo *Repository) PublishChanged(ctx context.Context, from, until string, p ...Publisher) (PublishStats, error) {
+	if !repo.RevisionExist(from) {
+		from = ""
+	}
+
+	if !repo.RevisionExist(until) {
+		until = ""
+	}
+
 	resourcePath := "rsc"
 	stats := PublishStats{}
 
@@ -346,16 +393,18 @@ func (repo *Repository) PublishChanged(ctx context.Context, from, until string, 
 		return repo.Changes(gctx, files, resourcePath, from, until)
 	})
 
-	log.Printf("starting publishing from revision")
+	head, headErr := repo.HEAD()
+	if headErr != nil {
+		return stats, headErr
+	}
 
-	workers := 4
+	workers := 8
 	for i := 0; i < workers; i++ {
 		g.Go(func() error {
 			for f := range files {
 				f := f
 
 				hubID := strings.TrimSuffix(strings.TrimPrefix(f.Path, resourcePath+"/"), ".json")
-				log.Printf("hubID: %s", hubID)
 
 				m := &domainpb.IndexMessage{
 					OrganisationID: repo.OrgID,
@@ -369,7 +418,13 @@ func (repo *Repository) PublishChanged(ctx context.Context, from, until string, 
 				}
 
 				if !m.Deleted {
-					r, err := repo.Read(f.Path, f.CommitID)
+					stats.Updated++
+
+					if head.String() == f.CommitID {
+						f.CommitID = "HEAD"
+					}
+
+					r, err := repo.SafeRead(f.Path, f.CommitID)
 					if err != nil {
 						return err
 					}
@@ -378,6 +433,8 @@ func (repo *Repository) PublishChanged(ctx context.Context, from, until string, 
 					if decodeErr := json.NewDecoder(r).Decode(&fg); decodeErr != nil {
 						return decodeErr
 					}
+
+					r.Close()
 
 					fg.Meta.Modified = fragments.NowInMillis()
 					fg.Meta.SourceID = f.CommitID
@@ -388,8 +445,6 @@ func (repo *Repository) PublishChanged(ctx context.Context, from, until string, 
 					}
 
 					m.Source = b
-
-					stats.Updated++
 				}
 
 				for _, publisher := range p {

@@ -60,19 +60,20 @@ type Metrics struct {
 }
 
 type Service struct {
-	bi         esutil.BulkIndexer
-	stan       *NatsConfig
-	direct     bool
-	MsgHandler func(ctx context.Context, m *domainpb.IndexMessage) error
-	workers    []stan.Subscription // this is for getting statistics
-	m          Metrics
-	orphanWait int
-	postHooks  map[string][]domain.PostHookService
-	store      *store
-	queue      chan shaRef
-	ctx        context.Context
-	cancel     context.CancelFunc
-	group      *errgroup.Group
+	bi          esutil.BulkIndexer
+	stan        *NatsConfig
+	direct      bool
+	MsgHandler  func(ctx context.Context, m *domainpb.IndexMessage) error
+	workers     []stan.Subscription // this is for getting statistics
+	m           Metrics
+	orphanWait  int
+	postHooks   map[string][]domain.PostHookService
+	store       *store
+	queue       chan shaRef
+	ctx         context.Context
+	cancel      context.CancelFunc
+	group       *errgroup.Group
+	enableBatch bool
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -100,21 +101,22 @@ func NewService(options ...Option) (*Service, error) {
 		return s, fmt.Errorf("stan.Conn must be established before nats queue can be used")
 	}
 
-	store, err := newStore()
-	if err != nil {
-		return nil, err
+	if s.enableBatch {
+		store, err := newStore()
+		if err != nil {
+			return nil, err
+		}
+
+		s.store = store
+
+		workers := 4
+		batchSize := 1000
+		s.queue = make(chan shaRef, workers*batchSize)
+
+		if err := s.startBatchWriter(workers, batchSize); err != nil {
+			return s, err
+		}
 	}
-
-	s.store = store
-
-	workers := 4
-	batchSize := 1000
-	s.queue = make(chan shaRef, workers*batchSize)
-
-	if err := s.startBatchWriter(workers, batchSize); err != nil {
-		return s, err
-	}
-
 	return s, nil
 }
 
@@ -158,7 +160,9 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (s *Service) Shutdown(ctx context.Context) error {
 	// cancel context
-	s.cancel()
+	if s.cancel != nil {
+		s.cancel()
+	}
 
 	// stop all the workers before closing channels
 	for _, w := range s.workers {
@@ -401,26 +405,31 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 
 	if m.GetDeleted() {
 		action = "delete"
+	}
 
-		if err := s.store.Delete(m.GetRecordID()); err != nil {
-			return err
-		}
-	} else {
-		ok, err := s.store.HashIsEqual(m.GetRecordID(), m.GetRevision().GetSHA())
-		if err != nil {
-			return err
-		}
+	if s.store != nil {
+		if action == "delete" {
 
-		if ok {
-			atomic.AddUint64(&s.m.Index.Identical, 1)
-			// equal with index so we are done
-			return nil
-		}
+			if err := s.store.Delete(m.GetRecordID()); err != nil {
+				return err
+			}
+		} else {
+			ok, err := s.store.HashIsEqual(m.GetRecordID(), m.GetRevision().GetSHA())
+			if err != nil {
+				return err
+			}
 
-		// TODO(kiivihal): must speed up the storing of records in batches of 1000
-		ref := shaRef{HubID: m.GetRecordID(), Sha: m.GetRevision().GetSHA()}
-		if err := s.add(ctx, ref); err != nil {
-			return err
+			if ok {
+				atomic.AddUint64(&s.m.Index.Identical, 1)
+				// equal with index so we are done
+				return nil
+			}
+
+			// TODO(kiivihal): must speed up the storing of records in batches of 1000
+			ref := shaRef{HubID: m.GetRecordID(), Sha: m.GetRevision().GetSHA()}
+			if err := s.add(ctx, ref); err != nil {
+				return err
+			}
 		}
 	}
 
