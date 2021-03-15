@@ -4,7 +4,7 @@ let ead = parseEad(xml);
 console.log(ead)
 
 export function getDescription() {
-  return
+  return {}
 }
 
 export function getTree(params) {
@@ -19,6 +19,7 @@ export function getTree(params) {
   if(params.query) {
     response = {
       ...response,
+      pages: ['htkrlthr'],
       matches: ead.tree.map((_, i) => i),
       hits: 150
     }
@@ -27,33 +28,49 @@ export function getTree(params) {
     for(let i = 0; i < ead.tree.length; i++) {
       const page = ead.tree[i];
       if (page.indexOf(needle) >= 0) {
-        if (i > 0) response.pages.push(ead.tree[i - 1]);
-        response.pages.push(page);
-        if (i < ead.tree.length - 2) response.pages.push(ead.tree[i + 1]);
+        if (i > 0) response.pages.push({
+          index: i - 1,
+          html: ead.tree[i - 1]
+        });
+        response.pages.push({
+          index: i,
+          html: page
+        });
+        if (i < ead.tree.length - 2) response.pages.push({
+          index: i + 1,
+          html: ead.tree[i + 1]
+        });
         break;
       }
     }
   }
   else {
-    response.pages.push(ead.tree[params.index || 0])
+    if(params.page) {
+      response.pages.push({
+        index: params.page,
+        html: ead.tree[params.page]
+      })
+    } else {
+      response.pages.push({
+        index: 0,
+        html: ead.tree[0]
+      })
+      if (ead.tree.length > 1) {
+        response.pages.push({
+          index: 1,
+          html: ead.tree[1]
+        })
+      }
+      if (ead.tree.length > 2) {
+        response.pages.push({
+          index: 2,
+          html: ead.tree[2]
+        })
+      }
+    }
   }
 
   return new Promise((resolve, reject) => {
     resolve(response)
-  });
-}
-
-function getTreePage(index) {
-  return new Promise((resolve, reject) => {
-    resolve({
-
-      page: ead.tree[index]
-    });
-  });
-}
-
-export function getTreePageForCLevel(cLevelId) {
-  return new Promise((resolve, reject) => {
-
   });
 }

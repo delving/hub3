@@ -1,11 +1,9 @@
 <script>
-  import xml from './4.OSK.xml'
   import './global.scss'
   import {onMount, tick} from "svelte";
   import {getTree} from "./api";
 
-
-  let container, treeContainer, navigationTree;
+  let container, centerContainer, treeContainer, navigationTree, indexOfLastPage;
   let treePages = []
 
   // let description = ead.descriptions[0].html;
@@ -15,23 +13,50 @@
   //   console.log(description)
   // }
 
+  async function scrollTo(id) {
+    const domQuery = `.c[data-identifier="${id}"]`;
+    let cLevel = treeContainer.querySelector(domQuery);
+    if(!cLevel) {
+      const result = await getTree({cLevelId: id});
+      treePages = result.pages;
+      await tick()
+      cLevel = treeContainer.querySelector(domQuery);
+    }
+    cLevel.scrollIntoView();
+  }
+
   async function navTreeClicked(e) {
     let target = e.target;
     while (target && !target.classList.contains('c')) {
       target = target.parentNode;
     }
     if (target.classList.contains('c')) {
-      const identifier = target.dataset.identifier;
-      let partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
-      if(!partner) {
-        const result = await getTree({cLevelId: identifier})
-        console.log(result)
-        treePages = result.pages
-        await tick()
-        partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
-      }
-      partner.scrollIntoView();
+      await scrollTo(target.dataset.identifier);
       target.classList.add('open');
+    }
+  }
+
+  async function treeScrolled(e) {
+    const firstPage = treePages[0]
+    const lastPage = treePages[treePages.length - 1]
+    if (!firstPage.container || !lastPage.container) return;
+    const firstPageHeight = firstPage.container.getBoundingClientRect().height
+    const lastPageTop = lastPage.container.getBoundingClientRect().top
+
+    const scrollTop = centerContainer.scrollTop;
+    if (scrollTop < firstPageHeight && firstPage.index !== 0) {
+      const result = await getTree({
+        page: firstPage.index - 1
+      })
+      treePages = [...result.pages, ...treePages.slice(0, treePages.length - 1)]
+    } else if (lastPageTop <= 0 && lastPage.index < indexOfLastPage) {
+      const result = await getTree({
+        page: lastPage.index + 1
+      })
+      treePages = treePages.slice(1)
+      await tick()
+      treePages = [...treePages, ...result.pages]
+      centerContainer.scrollTop = scrollTop - firstPageHeight;
     }
   }
 
@@ -41,6 +66,8 @@
     })
     navigationTree = result.navigationTree
     treePages = result.pages
+    indexOfLastPage = result.pageCount - 1;
+    centerContainer.addEventListener('scroll', treeScrolled, {passive: true})
   })
 </script>
 
@@ -56,12 +83,12 @@
     {/if}
   </div>
 
-  <div class="center">
+  <div bind:this={centerContainer} class="center">
     <!--    <div class="description">{@html description}</div>-->
     <div bind:this={treeContainer} class="tree">
-      {#each treePages as page, i}
-        <div class="page" class:red={i % 2 === 0}>
-          {@html page}
+      {#each treePages as page, i (page.index)}
+        <div bind:this={page.container} class="page p{page.index}">
+          {@html page.html}
         </div>
       {/each}
     </div>
