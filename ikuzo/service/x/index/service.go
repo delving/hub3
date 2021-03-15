@@ -184,10 +184,14 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	}
 
 	// closing add queue
-	close(s.queue)
+	if s.queue != nil {
+		close(s.queue)
+	}
 
-	if err := s.group.Wait(); err != nil && !errors.Is(err, context.Canceled) {
-		return err
+	if s.group != nil {
+		if err := s.group.Wait(); err != nil && !errors.Is(err, context.Canceled) {
+			return err
+		}
 	}
 
 	// remove workers so the service could restart
