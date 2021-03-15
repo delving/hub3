@@ -3,7 +3,13 @@
   import {onMount, tick} from "svelte";
   import {getTree} from "./api";
 
-  let container, centerContainer, treeContainer, navigationTree, indexOfLastPage;
+  let container;
+  let centerContainer;
+  let treeContainer;
+  let navigationTree;
+  let query;
+  let indexOfLastPage;
+  let matches;
   let treePages = []
 
   // let description = ead.descriptions[0].html;
@@ -16,7 +22,7 @@
   async function scrollTo(id) {
     const domQuery = `.c[data-identifier="${id}"]`;
     let cLevel = treeContainer.querySelector(domQuery);
-    if(!cLevel) {
+    if (!cLevel) {
       const result = await getTree({cLevelId: id});
       treePages = result.pages;
       await tick()
@@ -46,13 +52,15 @@
     const scrollTop = centerContainer.scrollTop;
     if (scrollTop < firstPageHeight && firstPage.index !== 0) {
       const result = await getTree({
-        page: firstPage.index - 1
+        page: firstPage.index - 1,
+        query
       })
       console.log('prepended pages', result.pages.map(p => p.index), 'to', ...treePages.slice(0, treePages.length - 1).map(p => p.index));
       treePages = [...result.pages, ...treePages.slice(0, treePages.length - 1)]
     } else if (lastPageTop <= 0 && lastPage.index < indexOfLastPage) {
       const result = await getTree({
-        page: lastPage.index + 1
+        page: lastPage.index + 1,
+        query
       })
       treePages = treePages.slice(1)
       await tick()
@@ -62,9 +70,22 @@
     }
   }
 
+  async function search() {
+    if (!query) return;
+    const result = await getTree({
+      navigationTree: !navigationTree,
+      search: true,
+      query
+    })
+    console.log(result)
+    treePages = result.pages;
+    matches = result.matches;
+  }
+
   onMount(async () => {
     const result = await getTree({
-      navigationTree: !navigationTree
+      navigationTree: !navigationTree,
+      query
     })
     navigationTree = result.navigationTree
     treePages = result.pages
@@ -74,6 +95,11 @@
 </script>
 
 <div bind:this={container} id="description">
+  <input bind:value={query} type="text"/>
+  <button on:click={search}>Zoeken</button>
+  {#if matches}
+    {matches.length}
+  {/if}
   <div class="left">
     <!--    <ul>-->
     <!--      {#each ead.descriptions as description, i}-->

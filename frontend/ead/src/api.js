@@ -1,10 +1,31 @@
 import {parseEad} from "./ead-parser";
 import xml from "./4.OSK.xml";
+
 let ead = parseEad(xml);
 console.log(ead)
 
 export function getDescription() {
   return {}
+}
+
+function occurrences(string, subString, allowOverlapping) {
+
+  string += "";
+  subString += "";
+  if (subString.length <= 0) return (string.length + 1);
+
+  var n = 0,
+    pos = 0,
+    step = allowOverlapping ? 1 : subString.length;
+
+  while (true) {
+    pos = string.indexOf(subString, pos);
+    if (pos >= 0) {
+      ++n;
+      pos += step;
+    } else break;
+  }
+  return n;
 }
 
 export function getTree(params) {
@@ -16,16 +37,40 @@ export function getTree(params) {
     response = {...response, navigationTree: ead.navigationTree}
   }
 
-  if(params.query) {
-    response = {
-      ...response,
-      pages: ['htkrlthr'],
-      matches: ead.tree.map((_, i) => i),
-      hits: 150
+  if (params.search === true) {
+    let count = 0
+    let matches = [];
+    const pages = []
+    for (let i = 0; i < ead.tree.length; i++) {
+      const page = ead.tree[i]
+      let hits = occurrences(page, params.query)
+      count += hits
+      if (page.indexOf(params.query) >= 0) {
+        matches.push(i)
+        if (response.pages.length === 0) {
+          if (i !== 0) {
+            response.pages.push({
+              index: i - 1,
+              html: ead.tree[i - 1]
+            })
+          }
+          response.pages.push({
+            index: i,
+            html: page
+          })
+          if (i < ead.tree.length - 2) {
+            response.pages.push({
+              index: i + 1,
+              html: ead.tree[i + 1]
+            })
+          }
+        }
+      }
     }
-  } else if(params.cLevelId) {
+    response = {...response, matches}
+  } else if (params.cLevelId) {
     const needle = `data-identifier="${params.cLevelId}"`;
-    for(let i = 0; i < ead.tree.length; i++) {
+    for (let i = 0; i < ead.tree.length; i++) {
       const page = ead.tree[i];
       if (page.indexOf(needle) >= 0) {
         if (i > 0) response.pages.push({
@@ -43,30 +88,35 @@ export function getTree(params) {
         break;
       }
     }
+  } else if (params.page >= 0) {
+    response.pages.push({
+      index: params.page,
+      html: ead.tree[params.page]
+    })
+  } else {
+    response.pages.push({
+      index: 0,
+      html: ead.tree[0]
+    })
+    if (ead.tree.length > 1) {
+      response.pages.push({
+        index: 1,
+        html: ead.tree[1]
+      })
+    }
+    if (ead.tree.length > 2) {
+      response.pages.push({
+        index: 2,
+        html: ead.tree[2]
+      })
+    }
   }
-  else {
-    if(params.page >= 0) {
-      response.pages.push({
-        index: params.page,
-        html: ead.tree[params.page]
+
+  if (params.query) {
+    for (const page of response.pages) {
+      page.html = page.html.replace(params.query, m => {
+        return `<em class="dhcl">${m}</em>`;
       })
-    } else {
-      response.pages.push({
-        index: 0,
-        html: ead.tree[0]
-      })
-      if (ead.tree.length > 1) {
-        response.pages.push({
-          index: 1,
-          html: ead.tree[1]
-        })
-      }
-      if (ead.tree.length > 2) {
-        response.pages.push({
-          index: 2,
-          html: ead.tree[2]
-        })
-      }
     }
   }
 
