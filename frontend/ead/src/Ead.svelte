@@ -1,46 +1,65 @@
 <script>
   import xml from './4.OSK.xml'
   import './global.scss'
-  import {parseEad} from "./ead-parser";
+  import {onMount, tick} from "svelte";
+  import {getTree} from "./api";
 
-  let container, treeContainer;
-  let ead = parseEad(xml);
-  console.log(ead)
-  let description = ead.descriptions[0].html;
 
-  function showDescription(i) {
-    description = ead.descriptions[i].html;
-    console.log(description)
-  }
+  let container, treeContainer, navigationTree;
+  let treePages = []
 
-  function navTreeClicked(e) {
+  // let description = ead.descriptions[0].html;
+
+  // function showDescription(i) {
+  //   description = ead.descriptions[i].html;
+  //   console.log(description)
+  // }
+
+  async function navTreeClicked(e) {
     let target = e.target;
-    while(target && !target.classList.contains('c')) {
+    while (target && !target.classList.contains('c')) {
       target = target.parentNode;
     }
     if (target.classList.contains('c')) {
       const identifier = target.dataset.identifier;
-      const partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
+      let partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
+      if(!partner) {
+        const result = await getTree({cLevelId: identifier})
+        console.log(result)
+        treePages = result.pages
+        await tick()
+        partner = treeContainer.querySelector(`.c[data-identifier="${identifier}"]`);
+      }
       partner.scrollIntoView();
       target.classList.add('open');
     }
   }
+
+  onMount(async () => {
+    const result = await getTree({
+      navigationTree: !navigationTree
+    })
+    navigationTree = result.navigationTree
+    treePages = result.pages
+  })
 </script>
 
 <div bind:this={container} id="description">
   <div class="left">
-<!--    <ul>-->
-<!--      {#each ead.descriptions as description, i}-->
-<!--        <li><a href="#" on:click={() => showDescription(i)}>{description.title}</a></li>-->
-<!--      {/each}-->
-<!--    </ul>-->
-    <div class="nav-tree" on:click={e => navTreeClicked(e)}>{@html ead.navigationTree}</div>
+    <!--    <ul>-->
+    <!--      {#each ead.descriptions as description, i}-->
+    <!--        <li><a href="#" on:click={() => showDescription(i)}>{description.title}</a></li>-->
+    <!--      {/each}-->
+    <!--    </ul>-->
+    {#if navigationTree}
+      <div class="nav-tree" on:click={e => navTreeClicked(e)}>{@html navigationTree}</div>
+    {/if}
   </div>
 
   <div class="center">
-<!--    <div class="description">{@html description}</div>-->
+    <!--    <div class="description">{@html description}</div>-->
     <div bind:this={treeContainer} class="tree">
-      {#each ead.tree as page, i}
+      {#each treePages as page, i}
         <div class="page" class:red={i % 2 === 0}>
           {@html page}
         </div>
@@ -70,6 +89,9 @@
 
   .center {
     grid-column: 2 / 8;
+  }
+
+  .center, .left {
     max-height: 100vh;
     min-height: 100%;
     overflow-y: scroll;

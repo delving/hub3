@@ -6,7 +6,7 @@ function toSpan(node, copyAttributes, depth, builder) {
   const attributes = []
   if (tagName === 'c') {
     classNames.push(`c${depth}`);
-    attributes.push(`data-identifier=${builder.cLevelCount}`)
+    attributes.push(`data-identifier="${builder.cLevelCount}"`)
   }
   if (copyAttributes) {
     for (let i = 0; i < node.attributes.length; i++) {
