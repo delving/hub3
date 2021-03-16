@@ -4,10 +4,6 @@ import xml from "./4.OSK.xml";
 let ead = parseEad(xml);
 console.log(ead)
 
-export function getDescription() {
-  return {}
-}
-
 function occurrences(string, subString, allowOverlapping) {
 
   string += "";
@@ -28,7 +24,32 @@ function occurrences(string, subString, allowOverlapping) {
   return n;
 }
 
-export function getTree(params) {
+export function fetchDescription(params) {
+  return new Promise((resolve) => {
+    const sections = ead.descriptions;
+    let response;
+    if (typeof params.index !== 'number') {
+      response = {
+        pageCount: sections.length,
+        activeIndex: 0,
+        sections: sections.map((section, i) => ({
+          title: section.title,
+          index: i,
+          html: i === 0 ? ead.descriptions[0].html : undefined
+        })),
+      };
+    } else {
+      response = {
+        index: params.index,
+        html: ead.descriptions[params.index].html
+      };
+    }
+    console.log('fetchDescription', params, 'response', response)
+    resolve(response)
+  })
+}
+
+export function fetchTree(params) {
   let response = {
     pageCount: ead.tree.length,
     pages: []
@@ -40,7 +61,6 @@ export function getTree(params) {
   if (params.search === true) {
     let count = 0
     let matches = [];
-    const pages = []
     for (let i = 0; i < ead.tree.length; i++) {
       const page = ead.tree[i]
       let hits = occurrences(page, params.query)
