@@ -1,8 +1,8 @@
 <script>
   import './global.scss'
   import {onMount, tick} from "svelte";
-  import {fetchDescription, fetchTree} from "./api";
   import {Pager} from "./pager";
+  import {fetchTree, fetchDescription} from "./api";
 
   let container;
   let centerContainer;
@@ -51,7 +51,7 @@
   }
 
   async function treeScrolled() {
-    if(!scrollEventsEnabled) return;
+    if (!scrollEventsEnabled) return;
 
     const firstPage = treePages[0]
     const lastPage = treePages[treePages.length - 1]

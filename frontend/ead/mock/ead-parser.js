@@ -1,4 +1,11 @@
+const jsdom = require("jsdom")
+const { JSDOM } = jsdom
+global.DOMParser = new JSDOM().window.DOMParser
 const parser = new DOMParser();
+
+const Node = {
+  TEXT_NODE: 3
+};
 
 function toSpan(node, copyAttributes, depth, builder) {
   const tagName = node.tagName.toLowerCase();
@@ -138,7 +145,7 @@ function navTreeFilter(node) {
   return false;
 }
 
-export function parseEad(eadXml) {
+module.exports = function(eadXml) {
   const xmlDoc = parser.parseFromString(eadXml, "text/xml");
   let sections = xmlDoc.querySelectorAll('archdesc > did, archdesc > descgrp');
   sections = [...sections].map(section => ({
@@ -146,9 +153,7 @@ export function parseEad(eadXml) {
     html: toHtml(section)[0]
   }))
   const tree = xmlDoc.querySelector('archdesc > dsc[type="combined"]');
-  console.log(tree);
   const treePages = toHtml(tree, 250);
-  console.log(treePages.length)
   const navigationTree = toHtml(tree, Number.MAX_SAFE_INTEGER, navTreeFilter);
   return {
     descriptions: sections,
