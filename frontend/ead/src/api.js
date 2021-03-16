@@ -109,6 +109,7 @@ export function fetchTree(params) {
       }
     }
   } else if (params.page >= 0) {
+    delete response.pageCount;
     response.pages.push({
       index: params.page,
       html: ead.tree[params.page]
