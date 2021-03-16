@@ -2,6 +2,7 @@
   import './global.scss'
   import {onMount, tick} from "svelte";
   import {fetchDescription, fetchTree} from "./api";
+  import {Pager} from "./pager";
 
   let container;
   let centerContainer;
@@ -9,11 +10,15 @@
   let navigationTree;
   let query;
   let indexOfLastPage;
-  let matches;
+  let pager;
   let description;
   let showTree = true;
   let section;
+  let searchResult;
+  let searchButton;
   let treePages = []
+  let matchIndex;
+  let scrollEventsEnabled;
 
   async function scrollTo(id) {
     const domQuery = `.c[data-identifier="${id}"]`;
@@ -25,6 +30,13 @@
       cLevel = treeContainer.querySelector(domQuery);
     }
     cLevel.scrollIntoView();
+    refitUI();
+  }
+
+  function refitUI() {
+    searchButton.scrollIntoView();
+    tick()
+    setTimeout(() => scrollEventsEnabled = true);
   }
 
   async function navTreeClicked(e) {
@@ -38,7 +50,9 @@
     }
   }
 
-  async function treeScrolled(e) {
+  async function treeScrolled() {
+    if(!scrollEventsEnabled) return;
+
     const firstPage = treePages[0]
     const lastPage = treePages[treePages.length - 1]
     if (!firstPage.container || !lastPage.container) return;
@@ -51,7 +65,7 @@
         page: firstPage.index - 1,
         query
       })
-      console.log('prepended pages', result.pages.map(p => p.index), 'to', ...treePages.slice(0, treePages.length - 1).map(p => p.index));
+      // console.log('prepended pages', result.pages.map(p => p.index), 'to', ...treePages.slice(0, treePages.length - 1).map(p => p.index));
       treePages = [...result.pages, ...treePages.slice(0, treePages.length - 1)]
     } else if (lastPageTop <= 0 && lastPage.index < indexOfLastPage) {
       const result = await fetchTree({
@@ -61,28 +75,31 @@
       treePages = treePages.slice(1)
       await tick()
       treePages = [...treePages, ...result.pages]
-      console.log('appended page', result.pages.map(p => p.index), 'to', treePages.map(p => p.index));
+      // console.log('appended page', result.pages.map(p => p.index), 'to', treePages.map(p => p.index));
       centerContainer.scrollTop = scrollTop - firstPageHeight;
     }
   }
 
   async function search() {
     if (!query) return;
-    const result = await fetchTree({
+    scrollEventsEnabled = false;
+    pager = new Pager(treeContainer)
+    searchResult = await pager.search({
       navigationTree: !navigationTree,
       search: true,
       query
     })
-    console.log(result)
-    treePages = result.pages;
-    matches = result.matches;
+    treePages = searchResult.pages;
+    matchIndex = pager.matchIndex;
+    await tick();
+    await pager.jump();
+    refitUI();
   }
 
   async function displayDescription() {
     description = await fetchDescription({})
     await showSection(0)
     showTree = false;
-
   }
 
   async function displayTree() {
@@ -93,7 +110,7 @@
   }
 
   async function showSection(i) {
-    if(!description.sections[i].html) {
+    if (!description.sections[i].html) {
       const result = await fetchDescription({index: i})
       description.sections[i].html = result.html;
     }
@@ -110,6 +127,46 @@
     indexOfLastPage = result.pageCount - 1;
   }
 
+  function displayMatch(result) {
+    if (result) {
+      treePages = result.pages;
+      waitForDOM(treePages, () => {
+        pager.jump();
+        refitUI();
+      });
+    } else {
+      refitUI();
+    }
+  }
+
+  async function previousPage() {
+    scrollEventsEnabled = false;
+    const result = await pager.previous();
+    matchIndex = pager.matchIndex;
+    displayMatch(result)
+  }
+
+  function waitForDOM(pages, done) {
+    tick()
+    if (pages) {
+      for (const page of pages) {
+        if (!page.container) {
+          setTimeout(() => waitForDOM(pages, done))
+          return;
+        }
+      }
+    }
+    done();
+  }
+
+  async function nextPage() {
+    scrollEventsEnabled = false;
+    const result = await pager.next();
+    console.log(result);
+    matchIndex = pager.matchIndex;
+    displayMatch(result)
+  }
+
   onMount(async () => {
     await getTree()
     centerContainer.addEventListener('scroll', treeScrolled, {passive: true})
@@ -119,10 +176,15 @@
 <div bind:this={container} id="description">
   <div>
     <input bind:value={query} type="text"/>
-    <button on:click={search}>Zoeken</button>
-
-    {#if matches}
-      {matches.length}
+    <button bind:this={searchButton} on:click={search}>Zoeken</button>
+    {#if searchResult}
+      {#if searchResult.hitCount}
+        <span>{matchIndex + 1} / {searchResult.hitCount}</span>
+        <button on:click={previousPage}>Previous</button>
+        <button on:click={nextPage}>Next</button>
+      {:else}
+        Geen resultaten gevonden
+      {/if}
     {/if}
   </div>
   <div class="left">
@@ -147,7 +209,7 @@
     {#if showTree && navigationTree}
       <div bind:this={treeContainer} class="tree">
         {#each treePages as page, i (page.index)}
-          <div bind:this={page.container} class="page p{page.index}">
+          <div bind:this={page.container} data-index="{page.index}" class="page">
             {@html page.html}
           </div>
         {/each}
@@ -176,6 +238,7 @@
   }
 
   .center {
+    max-height: 100%;
     grid-column: 2 / 8;
   }
 

@@ -93,5 +93,8 @@
   .dhcl {
     background-color: red;
     color: white;
+    &.active {
+      background-color: blue;
+    }
   }
 }

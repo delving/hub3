@@ -66,7 +66,7 @@ export function fetchTree(params) {
       let hits = occurrences(page, params.query)
       count += hits
       if (page.indexOf(params.query) >= 0) {
-        matches.push(i)
+        matches.push({page: i, hitCount: occurrences(page, params.query)})
         if (response.pages.length === 0) {
           if (i !== 0) {
             response.pages.push({
@@ -87,7 +87,7 @@ export function fetchTree(params) {
         }
       }
     }
-    response = {...response, matches}
+    response = {...response, matches, hitCount: count}
   } else if (params.cLevelId) {
     const needle = `data-identifier="${params.cLevelId}"`;
     for (let i = 0; i < ead.tree.length; i++) {
@@ -110,10 +110,22 @@ export function fetchTree(params) {
     }
   } else if (params.page >= 0) {
     delete response.pageCount;
+    if (params.query && params.page > 0) {
+      response.pages.push({
+        index: params.page - 1,
+        html: ead.tree[params.page - 1]
+      })
+    }
     response.pages.push({
       index: params.page,
       html: ead.tree[params.page]
     })
+    if (params.query && params.page < ead.tree.length - 1) {
+      response.pages.push({
+        index: params.page + 1,
+        html: ead.tree[params.page + 1]
+      })
+    }
   } else {
     response.pages.push({
       index: 0,
@@ -135,12 +147,13 @@ export function fetchTree(params) {
 
   if (params.query) {
     for (const page of response.pages) {
-      page.html = page.html.replace(params.query, m => {
+      page.html = page.html.replace(new RegExp(params.query, 'g'), m => {
         return `<em class="dhcl">${m}</em>`;
       })
     }
   }
 
+  console.log('fetchTree', params, 'response', response)
   return new Promise((resolve, reject) => {
     resolve(response)
   });
