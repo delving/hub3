@@ -1,9 +1,11 @@
 <script>
   import Ead from "./Ead.svelte";
+  import EadSearch from "./EadSearch.svelte";
 </script>
 
 <main>
-  <Ead/>
+  <EadSearch/>
+<!--  <Ead/>-->
 </main>
 
 <style>
