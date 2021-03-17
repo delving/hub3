@@ -242,6 +242,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	cfg, err := c.GetDaoConfig(spec, uuid)
