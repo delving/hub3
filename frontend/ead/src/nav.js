@@ -24,6 +24,33 @@ export function linkEadDescription(archive, search) {
   });
 }
 
+function getRouteId(path) {
+  for (const [key, url] of Object.entries(urls)) {
+    if (url.path.length !== path.length) continue;
+    let isMatch = true;
+    for (let i = 0; i < path.length; i++) {
+      const segment = url.path[i];
+      if (segment.indexOf(':') === 0) continue;
+      if (segment !== path[i]) {
+        isMatch = false;
+        break;
+      }
+    }
+
+    if (isMatch) return key;
+  }
+}
+
+export function parseUrl() {
+  const path = location.pathname.split('/').filter(segment => !!segment)
+  const routeId = getRouteId(path);
+  const urlParams = new URLSearchParams(location.search);
+  return {
+    routeId,
+    query: urlParams
+  }
+}
+
 function translate(segment, urlContext) {
   if (segment.indexOf(':') !== -0) return segment;
   const propertyName = segment.substring(1);

@@ -1,16 +1,20 @@
 <script>
-  export let config
-  import {configure} from './nav.js'
-
-  configure(config)
-
+  import {configure, parseUrl} from './nav.js'
   import Ead from "./Ead.svelte";
   import EadSearch from "./EadSearch.svelte";
+
+  export let config;
+
+  configure(config);
+  const route = parseUrl();
 </script>
 
 <main>
-  <EadSearch/>
-  <!--  <Ead/>-->
+  {#if route.routeId}
+    <Ead/>
+  {:else}
+    <EadSearch/>
+  {/if}
 </main>
 
 <style>
