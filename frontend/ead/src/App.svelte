@@ -1,11 +1,16 @@
 <script>
+  export let config
+  import {configure} from './nav.js'
+
+  configure(config)
+
   import Ead from "./Ead.svelte";
   import EadSearch from "./EadSearch.svelte";
 </script>
 
 <main>
   <EadSearch/>
-<!--  <Ead/>-->
+  <!--  <Ead/>-->
 </main>
 
 <style>

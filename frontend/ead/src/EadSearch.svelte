@@ -1,5 +1,6 @@
 <script>
   import {onMount} from "svelte";
+  import {linkEad,linkCLevel,linkEadDescription} from './nav'
 
   let search;
   let searchRequest = {}
@@ -7,17 +8,26 @@
     await update()
   })
 
+  async function loadDetails(archive) {
+    const response = await fetch(`https://hub3.nl-hana.delving.io/api/ead/search/${archive.inventoryID}`)
+    archive.details = await response.json()
+    search = search;
+  }
+
   async function update() {
     const queryBuilder = []
     for (const [key, value] of Object.entries(searchRequest)) {
-      if(value) {
+      if (value) {
         queryBuilder.push(`${key}=${value}`);
       }
     }
     const query = queryBuilder.join('&');
 
     const response = await fetch('https://hub3.nl-hana.delving.io/api/ead/search?' + query)
-    search = await response.json()
+    let body = await response.json()
+    let time = new Date().getTime()
+    body.archives.forEach(archive => archive.version = time++);
+    search = body;
   }
 </script>
 
@@ -66,14 +76,21 @@
         <span>Periode</span>
         <span></span>
       </li>
-      {#each search.archives as archive}
+      {#each search.archives as archive (archive.version)}
         <li>
-          <span>{archive.inventoryID}</span>
+          <span><a href={linkEad(archive)}>{archive.inventoryID}</a></span>
           <span>{archive.title}</span>
           <span>{archive.period.join(' ')}</span>
           <span>
-            <button>Detailresultaten</button>
-            <button>Beschrijving</button>
+            <button on:click={async() => await loadDetails(archive)}>Detailresultaten</button>
+            {#if archive.details}
+              <ul>
+                {#each archive.details.cLevels as cLevel}
+                  <li><a href={linkCLevel(archive, cLevel)}>{cLevel.label}</a></li>
+                {/each}
+              </ul>
+            {/if}
+            <button><a href={linkEadDescription(archive, searchRequest)}>Beschrijving</a></button>
           </span>
         </li>
       {/each}
