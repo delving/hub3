@@ -25,8 +25,6 @@
 
     const response = await fetch('https://hub3.nl-hana.delving.io/api/ead/search?' + query)
     let body = await response.json()
-    let time = new Date().getTime()
-    body.archives.forEach(archive => archive.version = time++);
     search = body;
   }
 </script>
@@ -76,7 +74,7 @@
         <span>Periode</span>
         <span></span>
       </li>
-      {#each search.archives as archive (archive.version)}
+      {#each search.archives as archive}
         <li>
           <span><a href={linkEad(archive)}>{archive.inventoryID}</a></span>
           <span>{archive.title}</span>

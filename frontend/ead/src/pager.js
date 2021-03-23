@@ -1,62 +1,43 @@
-import {fetchTree} from "./api";
-
 export class Pager {
 
-  matches = [];
   matchIndex = 0;
-  pageNumbers = [];
   hitCount = 0;
   currentContainer;
 
-  constructor(container) {
-    this.container = container;
-  }
+  constructor(query, searchResult, fetcher) {
+    this.query = query;
+    this.fetcher = fetcher;
 
-  async search(params) {
-    this.query = params.query;
-    const result = await fetchTree({
-      ...params,
-      search: true,
-    })
-
-    for (const match of result.matches) {
+    this.matches = Array(searchResult.hitCount)
+    let n = 0;
+    for (const match of searchResult.matches) {
       for (let i = 0; i < match.hitCount; i++) {
-        this.matches.push({
+        this.matches[n] = {
           page: match.page,
           index: i
-        });
+        };
+        n++;
       }
     }
-    console.log(this.matches)
-
-    this.hitCount = result.hitCount
-    return result
   }
 
-  async jump() {
-    const match = this.matches[this.matchIndex];
-    const matchContainers = this.container.querySelectorAll(`.page[data-index="${match.page}"] .dhcl`)
-    console.log(match, matchContainers);
-    const container = matchContainers[match.index];
-    container.classList.add('active');
-    container.scrollIntoView();
-    this.currentContainer = container;
+  firstMatch() {
+    return this.matches[0]
   }
 
   async searchPage(offset) {
     const currentMatch = this.matches[this.matchIndex];
     this.matchIndex += offset;
     const nextMatch = this.matches[this.matchIndex];
-    this.currentContainer.classList.remove('active');
-    if (currentMatch.page === nextMatch.page) {
-      await this.jump();
-      return null;
+
+    if (currentMatch.page !== nextMatch.page) {
+      await this.fetcher({
+        page: nextMatch.page,
+        query: this.query
+      })
     }
 
-    return await fetchTree({
-      page: nextMatch.page,
-      query: this.query
-    })
+    return nextMatch;
   }
 
   async previous() {

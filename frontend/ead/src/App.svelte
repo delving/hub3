@@ -11,7 +11,7 @@
 
 <main>
   {#if route.routeId}
-    <Ead/>
+    <Ead route={route} />
   {:else}
     <EadSearch/>
   {/if}

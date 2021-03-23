@@ -11,9 +11,23 @@ function toSpan(node, copyAttributes, depth, builder) {
   const tagName = node.tagName.toLowerCase();
   const classNames = [tagName]
   const attributes = []
+
+  let identifier = null;
   if (tagName === 'c') {
     classNames.push(`c${depth}`);
-    attributes.push(`data-identifier="${builder.cLevelCount}"`)
+    for(const child of node.childNodes) {
+      if(child.tagName === "did") {
+        for(const sibling of child.childNodes) {
+          if(sibling.tagName === "unitid") {
+            if(sibling.getAttribute('type') !== 'blank' && sibling.getAttribute('type') !== 'handle') {
+              identifier = sibling.textContent || sibling.getAttribute('identifier');
+            }
+          }
+        }
+      }
+    }
+
+    attributes.push(`data-identifier="${(identifier || '#' + builder.cLevelCount)}"`)
   }
   if (copyAttributes) {
     for (let i = 0; i < node.attributes.length; i++) {
