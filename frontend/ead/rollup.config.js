@@ -16,8 +16,7 @@ export default {
 		sourcemap: true,
 		format: 'esm',
 		name: 'app',
-		dir: 'public/build/',
-    emitCss: false
+		dir: 'public/build/'
 	},
 	plugins: [
     serve({
