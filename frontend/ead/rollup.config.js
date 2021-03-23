@@ -3,10 +3,9 @@ import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
-import css from 'rollup-plugin-css-only';
+import {terser} from 'rollup-plugin-terser';
 import scss from 'rollup-plugin-scss';
-import { string } from 'rollup-plugin-string'
+import {string} from 'rollup-plugin-string'
 import serve from 'rollup-plugin-serve'
 
 const production = !process.env.ROLLUP_WATCH;
@@ -15,9 +14,10 @@ export default {
 	input: 'src/main.js',
 	output: {
 		sourcemap: true,
-		format: 'iife',
+		format: 'esm',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		dir: 'public/build/',
+    emitCss: false
 	},
 	plugins: [
     serve({
@@ -25,6 +25,7 @@ export default {
       port: 5000,
       historyApiFallback: true
     }),
+
 		svelte({
 			compilerOptions: {
 				// enable run-time checks when not in production
@@ -32,13 +33,13 @@ export default {
 			},
       preprocess: preprocess()
 		}),
-		// we'll extract any component CSS out into
-		// a separate file - better for performance
-    scss(),
-		css({ output: 'bundle.css' }),
+    scss({ output: 'public/build/bundle.css' }),
     string({
       include: '**/*.xml'
     }),
+		// we'll extract any component CSS out into
+		// a separate file - better for performance
+
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration -
