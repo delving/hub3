@@ -1,5 +1,5 @@
 <script>
-  import './global.scss'
+  import './archive-detail.scss'
   import {afterUpdate, onMount} from "svelte";
   import {dom} from './dom'
   import {treeStore} from './treeStore'

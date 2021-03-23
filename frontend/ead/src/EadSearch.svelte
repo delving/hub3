@@ -1,6 +1,6 @@
 <script>
   import {onMount} from "svelte";
-  import {linkEad,linkCLevel,linkEadDescription} from './nav'
+  import {linkEad, linkCLevel, linkEadDescription} from './nav'
 
   let search;
   let searchRequest = {}
@@ -30,87 +30,127 @@
 </script>
 
 {#if search}
-  <div>
-    <input bind:value={searchRequest.q} />
-    <button on:click={update}>Zoeken</button>
-    Sorteren op
-    <select>
-      <option>Relevantie</option>
-      <option>Nummer Toegang</option>
-      <option>Periode</option>
-    </select>
-    Volgorde
-    <select>
-      <option>Oplopend</option>
-      <option>Aflopend</option>
-    </select>
-    Resultaten
-    <select>
-      <option>10</option>
-      <option>20</option>
-      <option>50</option>
-    </select>
-  </div>
-  <div class="facets">
-    {#each search.facets as facet}
-      {#if facet.links.length > 0}
-        <div class="facet">
-          {facet.name} {facet.total}
-          {#each facet.links as link}
-            <div>
-              <input type="checkbox" name={link.name} checked={link.isSelected}/>
-              <label for={link.name}>{link.displayString}</label>
+  <div class="archive-search">
+    <div class="stats">Some stats</div>
+    <div class="search">
+      <input bind:value={searchRequest.q}/>
+      <button on:click={update}>Zoeken</button>
+      Sorteren op
+      <select>
+        <option>Relevantie</option>
+        <option>Nummer Toegang</option>
+        <option>Periode</option>
+      </select>
+      Volgorde
+      <select>
+        <option>Oplopend</option>
+        <option>Aflopend</option>
+      </select>
+      Resultaten
+      <select>
+        <option>10</option>
+        <option>20</option>
+        <option>50</option>
+      </select>
+    </div>
+    <div class="facets">
+      {#each search.facets as facet}
+        {#if facet.links.length > 0}
+          <div class="facet">
+            <p class="title">{facet.name} {facet.total}</p>
+            <div class="options">
+              {#each facet.links as link}
+                <p>
+                  <input type="checkbox" name={link.name} checked={link.isSelected}/>
+                  <label for={link.name}>{link.displayString}</label>
+                </p>
+              {/each}
             </div>
-          {/each}
-        </div>
-      {/if}
-    {/each}
-  </div>
-  <div>
-    <ul>
-      <li>
-        <span>Nr. archiefinventaris</span>
-        <span>Archiefnaam</span>
-        <span>Periode</span>
-        <span></span>
-      </li>
-      {#each search.archives as archive}
-        <li>
-          <span><a href={linkEad(archive)}>{archive.inventoryID}</a></span>
-          <span>{archive.title}</span>
-          <span>{archive.period.join(' ')}</span>
-          <span>
-            <button on:click={async() => await loadDetails(archive)}>Detailresultaten</button>
-            {#if archive.details}
-              <ul>
-                {#each archive.details.cLevels as cLevel}
-                  <li><a href={linkCLevel(archive, cLevel)}>{cLevel.label}</a></li>
-                {/each}
-              </ul>
-            {/if}
-            <button><a href={linkEadDescription(archive, searchRequest)}>Beschrijving</a></button>
-          </span>
-        </li>
+          </div>
+        {/if}
       {/each}
-    </ul>
+    </div>
+    <div class="content">
+      <table>
+        <tr>
+          <td>Nr. archiefinventaris</td>
+          <td>Archiefnaam</td>
+          <td>Periode</td>
+          <td></td>
+        </tr>
+        {#each search.archives as archive}
+          <tr>
+            <td><a href={linkEad(archive)}>{archive.inventoryID}</a></td>
+            <td>{archive.title}</td>
+            <td>{archive.period.join(' ')}</td>
+          </tr>
+          <tr>
+            <td>
+              <button on:click={async() => await loadDetails(archive)}>Detailresultaten</button>
+              {#if archive.details}
+                <ul>
+                  {#each archive.details.cLevels as cLevel}
+                    <li><a href={linkCLevel(archive, cLevel)}>{cLevel.label}</a></li>
+                  {/each}
+                </ul>
+              {/if}
+
+            </td>
+            <td>
+              <button><a href={linkEadDescription(archive, searchRequest)}>Beschrijving</a></button>
+            </td>
+            <td></td>
+          </tr>
+        {/each}
+      </table>
+    </div>
   </div>
 {/if}
 
-<style>
-  ul {
-    display: table;
+<style type="text/scss">
+  @import "variables";
+
+  button, select, input, .facet {
+    background-color: $DEFAULT_COMPONENT_BG_COLOR;
+    padding: 10px;
   }
 
-  li {
-    display: table-row;
-  }
-
-  li span {
-    display: table-cell;
+  .options {
+    border-top: 1px solid $DEFAULT_TEXT_COLOR;
   }
 
   .facet {
-    border: 2px solid black;
+    margin-bottom: 10px;
+  }
+
+  table, .title {
+    font-weight: bold;
+  }
+
+  .archive-search {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: auto;
+    grid-template-areas:
+      "facets stats stats stats stats stats"
+      "facets search search search search search"
+      "facets content content content content content";
+  }
+
+  .stats {
+    grid-area: stats;
+  }
+
+  .search {
+    grid-area: search;
+  }
+
+  .facets {
+    grid-area: facets;
+  }
+
+  .content {
+    grid-area: content;
   }
 
   input, label {
