@@ -1,16 +1,16 @@
 <script>
   import './archive-detail.scss'
   import {afterUpdate, onMount} from "svelte";
-  import {dom} from './dom'
+  import {dom} from '../../dom'
   import {treeStore} from './treeStore'
   import NavTree from "./NavTree.svelte";
   import DescriptionSections from "./DescriptionSections.svelte";
   import {description} from "./description";
   import VirtualScroller from "./VirtualScroller.svelte";
 
-  export let route;
+  export let routeId;
 
-  let showTree = route.routeId !== 'eadDescription';
+  let showTree = routeId !== 'eadDescription';
   let query;
   let pager;
   let searchButton;

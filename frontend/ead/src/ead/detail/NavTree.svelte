@@ -1,7 +1,7 @@
 <script>
   import {treeStore} from "./treeStore";
   import {tick} from "svelte";
-  import {dom} from "./dom";
+  import {dom} from "../../dom";
 
   async function scrollTo(id) {
     const domQuery = `.c[data-identifier="${id}"]`;

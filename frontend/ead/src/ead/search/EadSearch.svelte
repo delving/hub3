@@ -1,75 +1,45 @@
 <script>
   import {onMount} from "svelte";
-  import {linkEad, linkCLevel, linkEadDescription} from './nav'
+  import {linkEad, linkCLevel, linkEadDescription} from '../../nav'
+  import Facets from "../../Facets.svelte";
+  import Search from "../../Search.svelte";
+  import Sort from "../../Sort.svelte";
+  import {queryStore} from "../../queryStore";
 
   let search;
   let searchRequest = {}
-  onMount(async () => {
+  let query;
+
+  queryStore.subscribe(async currValue => {
+    query = currValue;
     await update()
   })
 
   async function loadDetails(archive) {
-    const response = await fetch(`https://hub3.nl-hana.delving.io/api/ead/search/${archive.inventoryID}`)
+    const response = await fetch(`https://hub3.nl-hana.delving.io/api/ead/search/${archive.inventoryID}${query.searchString}`)
     archive.details = await response.json()
     search = search;
   }
 
   async function update() {
-    const queryBuilder = []
-    for (const [key, value] of Object.entries(searchRequest)) {
-      if (value) {
-        queryBuilder.push(`${key}=${value}`);
-      }
-    }
-    const query = queryBuilder.join('&');
-
-    const response = await fetch('https://hub3.nl-hana.delving.io/api/ead/search?' + query)
-    let body = await response.json()
-    search = body;
+    const response = await fetch(`https://hub3.nl-hana.delving.io/api/ead/search${query.searchString}`)
+    search = await response.json()
   }
 </script>
 
 {#if search}
   <div class="archive-search">
-    <div class="stats">Some stats</div>
     <div class="search">
-      <input bind:value={searchRequest.q}/>
-      <button on:click={update}>Zoeken</button>
-      Sorteren op
-      <select>
-        <option>Relevantie</option>
-        <option>Nummer Toegang</option>
-        <option>Periode</option>
-      </select>
-      Volgorde
-      <select>
-        <option>Oplopend</option>
-        <option>Aflopend</option>
-      </select>
-      Resultaten
-      <select>
-        <option>10</option>
-        <option>20</option>
-        <option>50</option>
-      </select>
+      <Search {query}/>
     </div>
+    <div class="sort">
+      <Sort {query} />
+    </div>
+
     <div class="facets">
-      {#each search.facets as facet}
-        {#if facet.links.length > 0}
-          <div class="facet">
-            <p class="title">{facet.name} {facet.total}</p>
-            <div class="options">
-              {#each facet.links as link}
-                <p>
-                  <input type="checkbox" name={link.name} checked={link.isSelected}/>
-                  <label for={link.name}>{link.displayString}</label>
-                </p>
-              {/each}
-            </div>
-          </div>
-        {/if}
-      {/each}
+      <Facets facets={search.facets}/>
     </div>
+
     <div class="content">
       <table>
         <tr>
@@ -108,22 +78,14 @@
 {/if}
 
 <style type="text/scss">
-  @import "variables";
+  @import "../../variables";
 
-  button, select, input, .facet {
+  button, select, input {
     background-color: $DEFAULT_COMPONENT_BG_COLOR;
     padding: 10px;
   }
 
-  .options {
-    border-top: 1px solid $DEFAULT_TEXT_COLOR;
-  }
-
-  .facet {
-    margin-bottom: 10px;
-  }
-
-  table, .title {
+  table {
     font-weight: bold;
   }
 
@@ -132,8 +94,8 @@
     grid-template-columns: repeat(6, 1fr);
     grid-auto-rows: auto;
     grid-template-areas:
-      "facets stats stats stats stats stats"
       "facets search search search search search"
+      "facets sort sort sort sort sort"
       "facets content content content content content";
   }
 
@@ -145,15 +107,15 @@
     grid-area: search;
   }
 
+  .sort {
+    grid-area: sort;
+  }
+
   .facets {
     grid-area: facets;
   }
 
   .content {
     grid-area: content;
-  }
-
-  input, label {
-    display: inline;
   }
 </style>

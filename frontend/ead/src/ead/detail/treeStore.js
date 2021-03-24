@@ -1,4 +1,4 @@
-import {fetchTree} from "./api";
+import {fetchTree} from "../../api";
 import {writable} from "svelte/store";
 import {Pager} from "./pager";
 

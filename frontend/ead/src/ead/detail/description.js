@@ -1,4 +1,4 @@
-import {fetchDescription} from "./api";
+import {fetchDescription} from "../../api";
 import {writable} from "svelte/store";
 
 let currValue = {};

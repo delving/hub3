@@ -24,7 +24,7 @@ export function linkEadDescription(archive, search) {
   });
 }
 
-function getRouteId(path) {
+function getRouteIdFrom(path) {
   for (const [key, url] of Object.entries(urls)) {
     if (url.path.length !== path.length) continue;
     let isMatch = true;
@@ -41,14 +41,9 @@ function getRouteId(path) {
   }
 }
 
-export function parseUrl() {
+export function getRouteId() {
   const path = location.pathname.split('/').filter(segment => !!segment)
-  const routeId = getRouteId(path);
-  const urlParams = new URLSearchParams(location.search);
-  return {
-    routeId,
-    query: urlParams
-  }
+  return getRouteIdFrom(path);
 }
 
 function translate(segment, urlContext) {
