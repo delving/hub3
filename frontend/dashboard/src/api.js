@@ -18,7 +18,6 @@ export class API {
   }
 
   put(domainObject) {
-    console.log(domainObject)
     return getEndpoint(this.service.name, `Put${this.domainObjectName}`)(domainObject)
   }
 

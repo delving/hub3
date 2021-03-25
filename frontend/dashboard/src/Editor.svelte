@@ -25,25 +25,35 @@
   }
 </script>
 {#if properties}
-  {#each properties as property}
-    {#if property.type === "object"}
-      <Editor inputDescription={property.name} input={property.value}/>
-    {:else if property.type === "array"}
-      <fieldset>
-        <h2>{property.name}</h2>
-        {#each property.value as propertyValue}
-          <p>{propertyValue}</p>
-        {/each}
-      </fieldset>
-    {:else}
-      <label for={property.name}>{property.name}</label>
-      <input name={property.name} bind:value={input[property.name]}/>
-    {/if}
-  {/each}
+  <div>
+    {#each properties as property}
+      {#if property.type === "object"}
+        <Editor inputDescription={property.name} input={property.value}/>
+      {:else if property.type === "array"}
+        <fieldset>
+          <h2>{property.name}</h2>
+          {#each property.value as propertyValue}
+            <p>{propertyValue}</p>
+          {/each}
+        </fieldset>
+      {:else}
+        <label for={property.name}>{property.name}</label>
+        <input name={property.name} bind:value={input[property.name]}/>
+      {/if}
+    {/each}
+  </div>
 {/if}
 
 <style>
+  div {
+    padding-top: 1em;
+  }
+
   label, input {
     display: block;
+  }
+
+  label {
+    font-weight: bold;
   }
 </style>

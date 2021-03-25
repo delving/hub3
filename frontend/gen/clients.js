@@ -13,12 +13,10 @@ async function doFetch(request, serviceName, methodName) {
 			headers: headers,
 			body: JSON.stringify(request)
 		})
-		return response.json().then(json => {
-			if (json.error) {
-				throw new Error(json.error)
-			}
-			return json
-		})
+		const json = await response.json();
+		if(json.error) return [json.error, false];
+		if(response.status <= 199 || response.status >= 300) return [response, false];
+		return [json, true];
 }
 
  
@@ -62,6 +60,5 @@ api["NamespaceService.Search"] = new NamespaceService().search
 
 
 export function getEndpoint(serviceName, methodName) {
-  console.log(serviceName, methodName)
   return api[`${serviceName}.${methodName}`]
 }

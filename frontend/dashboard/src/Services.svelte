@@ -11,3 +11,18 @@
     {/each}
   </ul>
 </div>
+
+<style>
+  div {
+    box-sizing: border-box;
+    max-height: 100vh;
+    height: 100vh;
+    padding: 1em 1em 0 1em;
+    background-color: rgb(243, 243, 243);
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 1em 0 0 0;
+  }
+</style>

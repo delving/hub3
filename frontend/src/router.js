@@ -12,6 +12,7 @@ function updateRoute() {
       params[splitProperty[0]] = splitProperty.length === 2 ? splitProperty[1] : ''
     }
   }
+  console.log(params)
 
   const event = {name: parts[0], params}
   for (const callback of callbacks) {
