@@ -116,7 +116,7 @@ func decodeFragmentGraph(hit json.RawMessage) (*FragmentGraph, error) {
 }
 
 // CreateTreeStats creates a statistics overview
-func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
+func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error) {
 	tree := &TreeStats{
 		Spec: spec,
 	}
@@ -150,7 +150,7 @@ func CreateTreeStats(ctx context.Context, spec string) (*TreeStats, error) {
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, spec),
 		elastic.NewTermQuery("meta.docType", FragmentGraphDocType),
-		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, c.Config.OrgID),
+		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID),
 	)
 	res, err := index.ESClient().Search().
 		Index(c.Config.ElasticSearch.GetIndexName()).

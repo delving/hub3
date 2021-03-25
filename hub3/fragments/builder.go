@@ -21,6 +21,7 @@ import (
 	"io"
 	"log"
 	"net/url"
+	"sort"
 	"strings"
 
 	c "github.com/delving/hub3/config"
@@ -45,10 +46,12 @@ type FragmentBuilder struct {
 
 // ResourcesList returns a list of FragmentResource
 func (rm *ResourceMap) ResourcesList(resources map[string]*FragmentResource) []*FragmentResource {
-	rs := []*FragmentResource{}
 	if resources == nil {
 		resources = rm.resources
 	}
+
+	rs := []*FragmentResource{}
+
 	for _, entry := range resources {
 		err := entry.SetEntries(rm)
 		if err != nil {
@@ -56,6 +59,9 @@ func (rm *ResourceMap) ResourcesList(resources map[string]*FragmentResource) []*
 		}
 		rs = append(rs, entry)
 	}
+
+	sort.Sort(BySortOrder(rs))
+
 	return rs
 }
 

@@ -334,7 +334,7 @@ func Test_DecodePBFile(t *testing.T) {
 	}{
 		{
 			"simple file",
-			args{createRawMessage(setupFile("123.jpg"), "pb.File")},
+			args{createRawMessage(setupFile("123.jpg"), "eadpb.File")},
 			&File{Filename: "123.jpg"},
 			false,
 		},
@@ -352,7 +352,7 @@ func Test_DecodePBFile(t *testing.T) {
 		},
 		{
 			"wrong protobuf input",
-			args{createRawMessage("super bad pb", "pb.File")},
+			args{createRawMessage("super bad pb", "eadpb.File")},
 			nil,
 			true,
 		},

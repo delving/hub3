@@ -63,7 +63,7 @@ var _ = Describe("Nodes", func() {
 			})
 
 			It("should have the right revision", func() {
-				Expect(h.GetRevision()).To(Equal(int32(38)))
+				Expect(h.GetRevision()).ToNot(Equal(int32(0)))
 			})
 
 			It("should have a hubID", func() {
@@ -80,7 +80,7 @@ var _ = Describe("Nodes", func() {
 
 			It("should set the entryURI", func() {
 				Expect(h.GetEntryURI()).ToNot(BeEmpty())
-				Expect(h.GetEntryURI()).To(Equal("http://data.hub3.org/hub3/archive/test-spec/A"))
+				Expect(h.GetEntryURI()).To(Equal("http://data.hub3.org/test/archive/test-spec/A"))
 			})
 
 			It("should have a NamedGraphURI", func() {
@@ -112,7 +112,7 @@ var _ = Describe("Nodes", func() {
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
 				s := fr.GetAboutURI()
-				Expect(s).To(Equal("http://data.hub3.org/hub3/archive/test_spec/A"))
+				Expect(s).To(Equal("http://data.hub3.org/test/archive/test_spec/A"))
 			})
 
 			It("should set the meta header", func() {

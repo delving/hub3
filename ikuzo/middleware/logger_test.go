@@ -81,6 +81,26 @@ func Test_LogParamsAsDict(t *testing.T) {
 			queryParams: "q=",
 			want:        `{"params":{}}`,
 		},
+		{
+			name:        "params with qf as object",
+			queryParams: "qf.dateRange=ead-rdf_periodDesc:1189~1863",
+			want:        `{"params":{"qf.dateRange":["ead-rdf_periodDesc:1189~1863"]}}`,
+		},
+		{
+			name:        "params with qf as string needs to be stored as object",
+			queryParams: "qf=meta.tags:suriname",
+			want:        `{"params":{"qf.meta.tags":["suriname"]}}`,
+		},
+		{
+			name:        "multi qf params",
+			queryParams: "qf=meta.tags:suriname&qf=meta.tags:ead",
+			want:        `{"params":{"qf.meta.tags":["suriname","ead"]}}`,
+		},
+		{
+			name:        "simple string. store as qf.value object",
+			queryParams: "qf=thisCanHappen",
+			want:        `{"params":{"qf.value":["thisCanHappen"]}}`,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

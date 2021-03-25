@@ -16,24 +16,20 @@
 package ead
 
 import (
-	"context"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"sort"
 	"strconv"
 	"strings"
-	"sync/atomic"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead/eadpb"
 	"github.com/delving/hub3/hub3/fragments"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/zerolog"
-	"google.golang.org/protobuf/proto"
 )
 
 // readMETS reads an METS ML from a path
@@ -43,81 +39,9 @@ func readMETS(filename string) (*Cmets, error) {
 		return nil, err
 	}
 
+	defer r.Close()
+
 	return metsParse(r)
-}
-
-// TODO(kiivihal): remove before v0.1.8
-// localMETS retrieves a local mets file.
-// It returns an error when the METS-file cannot be retrieved.
-// func localMETS(metsURL, archiveID, inventoryID string) (*Cmets, error) {
-// parts := strings.Split(metsURL, "/")
-// id := parts[len(parts)-1]
-// f, err := os.Open(filepath.Join("ead_prod/mets", id))
-// if err != nil {
-// return nil, err
-// }
-
-// return metsParse(f)
-// }
-
-// remoteMETS retrieves a remote mets file.
-// It returns an error when the METS-file cannot be retrieved.
-func remoteMETS(client *http.Client, metsURL, archiveID, inventoryID string) (*Cmets, error) {
-	resp, err := client.Get(metsURL)
-	if err != nil {
-		metsRetrieveErr := fmt.Errorf("unable to retrieve METS %s client error: %s", metsURL, err)
-		logMETSError(archiveID, inventoryID, metsRetrieveErr.Error())
-
-		return nil, metsRetrieveErr
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		metsStatusErr := fmt.Errorf("unable to retrieve METS %s HTTP status error: %d", metsURL, resp.StatusCode)
-		logMETSError(archiveID, inventoryID, metsStatusErr.Error())
-
-		return nil, metsStatusErr
-	}
-
-	defer resp.Body.Close()
-
-	return metsParse(resp.Body)
-	// // write mets to disk
-	// basePath := path.Join(c.Config.EAD.CacheDir, archiveID, "mets")
-
-	// err = os.MkdirAll(basePath, os.ModePerm)
-	// if err != nil {
-	// logMETSError(archiveID, inventoryID, "Unable to create ead base dir %s; %#v", basePath, err)
-	// return nil, err
-	// }
-
-	// f, err := ioutil.TempFile(basePath, "*")
-	// if err != nil {
-	// logMETSError(archiveID, inventoryID, "Unable to create output file %s; %s", archiveID, err)
-	// return nil, err
-	// }
-	// defer f.Close()
-
-	// var buf bytes.Buffer
-
-	// _, err = io.Copy(f, io.TeeReader(resp.Body, &buf))
-	// if err != nil {
-	// inputErr := errors.Wrapf(err, "unable to read input for %s", archiveID)
-	// logMETSError(archiveID, inventoryID, inputErr.Error())
-
-	// return nil, inputErr
-	// }
-
-	// if strings.Contains(inventoryID, "/") {
-	// inventoryID = strings.ReplaceAll(inventoryID, "/", "-")
-	// }
-
-	// err = os.Rename(f.Name(), fmt.Sprintf("%s/%s.xml", basePath, inventoryID))
-	// if err != nil {
-	// logMETSError(archiveID, inventoryID, "unable to rename ead file for %s; %#v", inventoryID, err)
-	// return nil, err
-	// }
-
-	// return metsParse(&buf)
 }
 
 // metsParse parses a METS XML file into a set of Go structures
@@ -216,12 +140,12 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 	return nil
 }
 
-func (mets *Cmets) newFindingAid(cfg *NodeConfig, tree *fragments.Tree) (eadpb.FindingAid, error) {
+func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 	fa := eadpb.FindingAid{
-		ArchiveID:      cfg.Spec,
-		InventoryID:    tree.UnitID,
-		InventoryPath:  tree.CLevel,
-		InventoryTitle: tree.Label,
+		ArchiveID:      cfg.ArchiveID,
+		InventoryID:    cfg.InventoryID,
+		InventoryPath:  cfg.InventoryPath,
+		InventoryTitle: cfg.InventoryTitle,
 		HasOnlyTiles:   false,
 		MimeTypes:      map[string]int32{},
 		FileCount:      0,
@@ -231,9 +155,7 @@ func (mets *Cmets) newFindingAid(cfg *NodeConfig, tree *fragments.Tree) (eadpb.F
 		fa.Duuid = mets.CmetsHdr.CaltRecordID.Text
 	}
 
-	if len(cfg.Title) != 0 && cfg.Title[0] != "" {
-		fa.ArchiveTitle = cfg.Title[0]
-	}
+	fa.ArchiveTitle = cfg.getArchiveTitle()
 
 	files, err := mets.extractFiles()
 	if err != nil {
@@ -337,41 +259,6 @@ func chunkString(s string, chunkSize int) []string {
 	return chunks
 }
 
-func fileTriples(subject string, fa *eadpb.FindingAid, file *eadpb.File) []*rdf.Triple {
-	s := rdf.NewResource(subject)
-	triples := []*rdf.Triple{
-		rdf.NewTriple(
-			s,
-			rdf.NewResource(fragments.RDFType),
-			rdf.NewResource("https://archief.nl/def/ead/mets/File"),
-		),
-		rdf.NewTriple(
-			s,
-			rdf.NewResource("http://www.w3.org/2000/01/rdf-schema#label"),
-			rdf.NewLiteral(file.Filename),
-		),
-	}
-	t := func(s rdf.Term, p, o string, oType convert) {
-		t := addNonEmptyTriple(s, p, o, oType)
-		if t != nil {
-			triples = append(triples, t)
-		}
-	}
-
-	t(s, "fileName", file.Filename, rdf.NewLiteral)
-	t(s, "fileSize", string(file.FileSize), rdf.NewLiteral)
-	t(s, "mimeType", file.MimeType, rdf.NewLiteral)
-	t(s, "file-uuid", file.Fileuuid, rdf.NewLiteral)
-	t(s, "order", string(file.SortKey), rdf.NewLiteral)
-	t(s, "duuid", fa.Duuid, rdf.NewLiteral)
-	t(s, "archiveID", fa.ArchiveID, rdf.NewLiteral)
-	t(s, "archiveTitle", fa.ArchiveTitle, rdf.NewLiteral)
-	t(s, "inventoryID", fa.InventoryID, rdf.NewLiteral)
-	t(s, "inventoryTitle", fa.InventoryTitle, rdf.NewLiteral)
-
-	return triples
-}
-
 func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	s := rdf.NewResource(subject)
 	triples := []*rdf.Triple{
@@ -397,144 +284,31 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	return triples
 }
 
-func fragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid, file *eadpb.File) (*fragments.FragmentGraph, error) {
-	subjectBase := fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", c.Config.RDF.BaseURL, fa.ArchiveID, fa.InventoryID)
-	id := fmt.Sprintf("%s-%s", fa.InventoryID, file.Filename)
-	header := createHeader(cfg, id, subjectBase, "mets")
-	rm := fragments.NewEmptyResourceMap()
-
-	for idx, t := range fileTriples(header.EntryURI, fa, file) {
-		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
-			return nil, err
-		}
-	}
-
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = &fragments.Tree{
-		CLevel:      fa.InventoryPath,
-		UnitID:      fa.InventoryID,
-		MimeTypes:   []string{file.MimeType},
-		SortKey:     uint64(file.SortKey),
-		Title:       fa.InventoryTitle,
-		InventoryID: fa.ArchiveID,
-		Label:       file.Filename,
-	}
-
-	b, err := proto.Marshal(file)
-	if err != nil {
-		return fg, fmt.Errorf("unable to marshal protobuf message: %#v", err)
-	}
-
-	fg.ProtoBuf = &fragments.ProtoBuf{
-		MessageType: "eadpb.File",
-		Data:        fmt.Sprintf("%x", b),
-	}
-	fg.SetResources(rm)
-
-	return fg, nil
-}
-
-func createHeader(cfg *NodeConfig, id, subjectBase, tag string) *fragments.Header {
-	subject := fmt.Sprintf("%s/%s", subjectBase, id)
-	header := &fragments.Header{
-		OrgID:    cfg.OrgID,
-		Spec:     cfg.Spec,
-		Revision: cfg.Revision,
-		HubID: fmt.Sprintf(
-			"%s_%s_%s",
-			cfg.OrgID,
-			cfg.Spec,
-			strings.ReplaceAll(id, "/", "-"),
-		),
-		DocType:       fragments.FragmentGraphDocType,
-		EntryURI:      subject,
-		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
-		Tags:          []string{tag},
-	}
-
-	return header
-}
-
 // saveFileFragmentGraphs saves all eadpb.File and eadpb.FindingAid graphs to ElasticSearch.
 // Note that during the process the files are removed from the eadpb.FindingAid.
-func saveFileFragmentGraphs(cfg *NodeConfig, fa *eadpb.FindingAid) error {
-	for _, file := range fa.Files {
-		fg, err := fragmentGraph(cfg, fa, file)
-		if err != nil {
-			return err
-		}
+// func saveFileFragmentGraphs(cfg *NodeConfig, fa *eadpb.FindingAid) error {
+// for _, file := range fa.Files {
+// fg, err := fragmentGraph(cfg, fa, file)
+// if err != nil {
+// return err
+// }
 
-		m, err := fg.IndexMessage()
-		if err != nil {
-			return err
-		}
+// if err := writeDaoFile(cfg, fg); err != nil {
+// return err
+// }
+// }
 
-		if cfg.IndexService != nil {
-			cfg.IndexService.Publish(context.Background(), m)
-			atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
-		}
-	}
+// fg, err := findingAidFragmentGraph(cfg, fa)
+// if err != nil {
+// return err
+// }
 
-	fg, err := findingAidFragmentGraph(cfg, fa)
-	if err != nil {
-		return err
-	}
+// if err := writeDaoFile(cfg, fg); err != nil {
+// return err
+// }
 
-	m, err := fg.IndexMessage()
-	if err != nil {
-		return err
-	}
-
-	if cfg.IndexService != nil {
-		cfg.IndexService.Publish(context.Background(), m)
-		atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
-	}
-
-	return nil
-}
-
-func findingAidFragmentGraph(cfg *NodeConfig, fa *eadpb.FindingAid) (*fragments.FragmentGraph, error) {
-	// remove files because we don't want them to be saved in bbolt
-	fa.Files = []*eadpb.File{}
-
-	subjectBase := fmt.Sprintf("%s/NL-HaNA/archive/%s/%s", c.Config.RDF.BaseURL, fa.ArchiveID, fa.InventoryID)
-	id := fmt.Sprintf("%s-findingaid", fa.GetInventoryID())
-	header := createHeader(cfg, id, subjectBase, "findingaid")
-
-	rm := fragments.NewEmptyResourceMap()
-
-	for idx, t := range findingAidTriples(header.EntryURI, fa) {
-		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
-			return nil, err
-		}
-	}
-
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = &fragments.Tree{
-		CLevel:      fa.InventoryPath,
-		UnitID:      fa.InventoryID,
-		Title:       fa.InventoryTitle,
-		InventoryID: fa.ArchiveID,
-		Label:       "findingaid",
-	}
-
-	b, err := proto.Marshal(fa)
-	if err != nil {
-		return fg, fmt.Errorf("unable to marshal protobuf message: %#v", err)
-	}
-
-	fg.ProtoBuf = &fragments.ProtoBuf{
-		MessageType: "eadpb.FindingAid",
-		Data:        fmt.Sprintf("%x", b),
-	}
-
-	fg.SetResources(rm)
-
-	return fg, nil
-}
+// return nil
+// }
 
 type METSEventStatusEnum int
 
@@ -562,7 +336,7 @@ func getEventMETS(level zerolog.Level, archiveID, inventoryID string, eventType 
 func logMETSError(archiveID, inventoryID, format string, a ...interface{}) {
 	getEventMETS(zerolog.ErrorLevel, archiveID, inventoryID, METSCreate).
 		Str("error.message", fmt.Sprint(format, a)).
-		Str("status", "failed").
+		Str("metsStatus", "failed").
 		Send()
 }
 

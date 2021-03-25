@@ -107,7 +107,8 @@ func DecodePBFile(hit json.RawMessage) (*File, error) {
 		return nil, err
 	}
 
-	if fw.Protobuf.MessageType != "pb.File" {
+	// Allow pb.File because so we do not have to reindex existing data.
+	if fw.Protobuf.MessageType != "eadpb.File" && fw.Protobuf.MessageType != "pb.File" {
 		return nil, fmt.Errorf("hit from ElasticSearch contains wrong messageType: %s", fw.Protobuf.MessageType)
 	}
 
@@ -134,7 +135,8 @@ func DecodePBFindingAid(hit json.RawMessage) (*FindingAid, error) {
 		return nil, err
 	}
 
-	if fw.Protobuf.MessageType != "pb.FindingAid" {
+	// Also allow pb.FindingAid messageType so we do not have to reindex existing data.
+	if fw.Protobuf.MessageType != "eadpb.FindingAid" && fw.Protobuf.MessageType != "pb.FindingAid" {
 		return nil, fmt.Errorf("hit from ElasticSearch contains wrong messageType: %s", fw.Protobuf.MessageType)
 	}
 

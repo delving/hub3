@@ -28,6 +28,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
@@ -49,7 +50,6 @@ func RegisterEAD(r chi.Router) {
 	r.Get("/api/tree/{spec}/{inventoryID:.*$}", TreeList)
 	r.Get("/api/tree/{spec}/stats", treeStats)
 	r.Get("/api/ead/{spec}/download", EADDownload)
-	r.Get("/api/ead/{spec}/mets/{inventoryID}", METSDownload)
 	r.Get("/api/ead/{spec}/desc", TreeDescriptionAPI)
 	r.Get("/api/ead/{spec}/desc/index", TreeDescriptionSearch)
 	r.Get("/api/ead/{spec}/meta", EADMeta)
@@ -78,6 +78,8 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 }
 
 func TreeList(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	// TODO(kiivihal): add logger
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
@@ -107,7 +109,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		}
 		r.URL.RawQuery = q.Encode()
 	}
-	searchRequest, err := fragments.NewSearchRequest(r.URL.Query())
+	searchRequest, err := fragments.NewSearchRequest(orgID.String(), r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")
 		render.Status(r, http.StatusBadRequest)
@@ -151,25 +153,6 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// MetsDownload is a handler that returns a stored METS XML for an inventory.
-func METSDownload(w http.ResponseWriter, r *http.Request) {
-	spec := chi.URLParam(r, "spec")
-	if spec == "" {
-		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
-		return
-	}
-	inventoryID := chi.URLParam(r, "inventoryID")
-	if inventoryID == "" {
-		http.Error(w, "inventoryID cannot be empty", http.StatusBadRequest)
-		return
-	}
-	eadPath := path.Join(c.Config.EAD.CacheDir, spec, "mets", fmt.Sprintf("%s.xml", inventoryID))
-	http.ServeFile(w, r, eadPath)
-	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s_%s.xml", spec, inventoryID))
-	w.Header().Set(contentTypeKey, "application/xml")
-	return
-}
-
 // EADDownload is a handler that returns a stored XML for an EAD Archive
 func EADDownload(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
@@ -191,11 +174,12 @@ func EADDownload(w http.ResponseWriter, r *http.Request) {
 
 func EADMeta(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
-	if spec == "" {
+	err := ead.ValidateSpec(spec)
+	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.JSON(w, r, APIErrorMessage{
 			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
+			Message:    err.Error(),
 			Error:      nil,
 		})
 		return
@@ -346,6 +330,7 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 }
 
 func treeStats(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
 		render.Status(r, http.StatusBadRequest)
@@ -356,7 +341,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	stats, err := fragments.CreateTreeStats(r.Context(), spec)
+	stats, err := fragments.CreateTreeStats(r.Context(), string(orgID), spec)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

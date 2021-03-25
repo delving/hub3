@@ -44,8 +44,8 @@ func (o *OrganizationStore) Delete(ctx context.Context, id domain.OrganizationID
 	return o.db.Delete(domain.Organization{}, "ID = ?", id).Error
 }
 
-func (o *OrganizationStore) Get(ctx context.Context, id domain.OrganizationID) (domain.Organization, error) {
-	var org domain.Organization
+func (o *OrganizationStore) Get(ctx context.Context, id domain.OrganizationID) (*domain.Organization, error) {
+	var org *domain.Organization
 
 	if err := o.db.Where("ID = ?", id).First(&org).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
@@ -71,9 +71,8 @@ func (o *OrganizationStore) getFilter(filter ...domain.OrganizationFilter) *gorm
 			q = q.Limit(f.Limit)
 		}
 
-		if (f.Org != domain.Organization{}) {
-			q = q.Where(&f.Org)
-		}
+		// TODO(kiivihal): decide how to check for empty struct
+		// if (f.Org != domain.Organization{}) { q = q.Where(&f.Org) }
 
 		o.db.Where(&filter[0])
 	}
@@ -81,8 +80,8 @@ func (o *OrganizationStore) getFilter(filter ...domain.OrganizationFilter) *gorm
 	return q
 }
 
-func (o *OrganizationStore) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]domain.Organization, error) {
-	var orgs []domain.Organization
+func (o *OrganizationStore) Filter(ctx context.Context, filter ...domain.OrganizationFilter) ([]*domain.Organization, error) {
+	var orgs []*domain.Organization
 
 	q := o.getFilter(filter...)
 
@@ -107,8 +106,8 @@ func (o *OrganizationStore) Count(ctx context.Context, filter ...domain.Organiza
 	return count, nil
 }
 
-func (o *OrganizationStore) Put(ctx context.Context, org domain.Organization) error {
-	return o.db.Save(&org).Error
+func (o *OrganizationStore) Put(ctx context.Context, org *domain.Organization) error {
+	return o.db.Save(org).Error
 }
 
 func (o *OrganizationStore) Shutdown(ctx context.Context) error {

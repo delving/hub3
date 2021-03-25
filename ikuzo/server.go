@@ -140,10 +140,8 @@ func newServer(options ...Option) (*server, error) {
 		log.Logger = s.logger.Logger
 	}
 
-	// apply middleware
-	if len(s.middleware) == 0 {
-		s.middleware = DefaultMiddleware()
-	}
+	// append default middleware
+	s.middleware = append(s.middleware, DefaultMiddleware()...)
 
 	s.router.Use(s.middleware...)
 
@@ -406,4 +404,10 @@ func (s *server) proxyDataNode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.dataNodeProxy.ServeHTTP(w, r)
+}
+
+func (s *server) addShutdown(name string, hook Shutdown) {
+	if _, ok := s.shutdownHooks[name]; !ok {
+		s.shutdownHooks[name] = hook
+	}
 }

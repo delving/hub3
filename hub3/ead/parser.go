@@ -20,7 +20,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"reflect"
 	"strings"
 	"sync/atomic"
@@ -31,6 +30,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
+	"github.com/rs/zerolog/log"
 )
 
 type BulkIndex interface {
@@ -40,7 +40,6 @@ type BulkIndex interface {
 var sanitizer *bluemonday.Policy
 
 func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	sanitizer = bluemonday.StrictPolicy()
 }
 
@@ -127,13 +126,13 @@ func (c *Cc) GetMaterial() string {
 }
 
 // SaveDescription stores the FragmentGraph of the EAD description in ElasticSearch
-func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIndex) error {
+func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo) error {
 	fg, _, err := cead.DescriptionGraph(cfg, unitInfo)
 	if err != nil {
 		return err
 	}
 
-	if bi == nil {
+	if cfg.IndexService == nil {
 		return nil
 	}
 
@@ -142,11 +141,11 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo, bi BulkIn
 		return fmt.Errorf("unable to marshal fragment graph: %w", err)
 	}
 
-	if err := bi.Publish(context.Background(), m); err != nil {
+	if err := cfg.IndexService.Publish(context.Background(), m); err != nil {
 		return err
 	}
 
-	atomic.AddUint64(&cfg.RecordsPublishedCounter, 1)
+	atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
 
 	return nil
 }
@@ -183,13 +182,13 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 	header := &fragments.Header{
 		OrgID:         cfg.OrgID,
 		Spec:          cfg.Spec,
-		Revision:      cfg.Revision,
 		HubID:         fmt.Sprintf("%s_%s_%s", cfg.OrgID, cfg.Spec, id),
 		DocType:       fragments.FragmentGraphDocType,
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
-		Modified:      fragments.NowInMillis(),
 		Tags:          []string{"eadDesc"},
+		Revision:      cfg.Revision,
+		Modified:      fragments.NowInMillis(),
 	}
 
 	if len(cfg.Tags) != 0 {
@@ -222,13 +221,20 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 	// add periodDesc to nodeConfig so they can be applied to each cLevel
 	cfg.PeriodDesc = tree.PeriodDesc
 
+	var idx int
+	increment := func() int {
+		idx++
+		return idx
+	}
+
 	s := r.NewResource(subject)
-	t := func(s r.Term, p, o string, oType convert, idx int) {
+	t := func(s r.Term, p, o string, oType convert) {
 		t := addNonEmptyTriple(s, p, o, oType)
 		if t != nil {
+			idx := increment()
 			err := rm.AppendOrderedTriple(t, false, idx)
 			if err != nil {
-				log.Printf("unable to add triple: %#v", err)
+				log.Error().Err(err).Msg("unable to add triple: %#v")
 			}
 		}
 		return
@@ -251,28 +257,29 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 	floatType := func(value string) r.Term {
 		return r.NewLiteralWithDatatype(value, r.NewResource("http://www.w3.org/2001/XMLSchema#float"))
 	}
+
 	// add total clevels
-	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType, 0)
+	t(s, "nrClevels", fmt.Sprintf("%d", cfg.Counter.GetCount()), intType)
 
 	if unitInfo != nil {
-		t(s, "files", extractDigit(unitInfo.Files), intType, 0)
-		t(s, "length", extractDigit(unitInfo.Length), floatType, 0)
+		t(s, "files", extractDigit(unitInfo.Files), intType)
+		t(s, "length", extractDigit(unitInfo.Length), floatType)
 
 		for _, abstract := range unitInfo.Abstract {
-			t(s, "abstract", abstract, r.NewLiteral, 0)
+			t(s, "abstract", abstract, r.NewLiteral)
 		}
 
-		t(s, "material", unitInfo.Material, r.NewLiteral, 0)
-		t(s, "language", unitInfo.Language, r.NewLiteral, 0)
+		t(s, "material", unitInfo.Material, r.NewLiteral)
+		t(s, "language", unitInfo.Language, r.NewLiteral)
 
 		for _, origin := range unitInfo.Origin {
-			t(s, "origin", origin, r.NewLiteral, 0)
+			t(s, "origin", origin, r.NewLiteral)
 		}
 	}
 
 	// add period desc for range search from the archdesc > did > date
-	for idx, p := range tree.PeriodDesc {
-		t(s, "periodDesc", p, r.NewLiteral, idx)
+	for _, p := range tree.PeriodDesc {
+		t(s, "periodDesc", p, r.NewLiteral)
 	}
 
 	fg := fragments.NewFragmentGraph()

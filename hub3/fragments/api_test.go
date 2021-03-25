@@ -78,11 +78,12 @@ var _ = Describe("Apiutils", func() {
 		})
 
 		Context("When parsing url parameters", func() {
+			orgID := "test"
 
 			It("should set the query", func() {
 				params := make(map[string][]string)
 				params["q"] = []string{"hub3"}
-				sr, err := NewSearchRequest(params)
+				sr, err := NewSearchRequest(orgID, params)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 				Expect(sr.GetQuery()).To(Equal("hub3"))
@@ -92,7 +93,7 @@ var _ = Describe("Apiutils", func() {
 			It("should set the rows param", func() {
 				params := make(map[string][]string)
 				params["rows"] = []string{"10"}
-				sr, err := NewSearchRequest(params)
+				sr, err := NewSearchRequest(orgID, params)
 
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
@@ -101,11 +102,12 @@ var _ = Describe("Apiutils", func() {
 		})
 
 		Context("When echoing a protobuf entry", func() {
+			orgID := "test"
 
 			params := make(map[string][]string)
 			params["rows"] = []string{"10"}
 			params["query"] = []string{"1930"}
-			sr, err := NewSearchRequest(params)
+			sr, err := NewSearchRequest(orgID, params)
 
 			It("should show the Elastic Query", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -145,6 +147,7 @@ var _ = Describe("Apiutils", func() {
 		})
 
 		Context("When creating a scrollID", func() {
+			orgID := "test"
 
 			It("should set defaults to zero", func() {
 				sp := NewScrollPager()
@@ -155,7 +158,7 @@ var _ = Describe("Apiutils", func() {
 
 			It("should create a scroll pager", func() {
 				params := make(map[string][]string)
-				sr, err := NewSearchRequest(params)
+				sr, err := NewSearchRequest(orgID, params)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 
@@ -173,7 +176,7 @@ var _ = Describe("Apiutils", func() {
 
 			It("should have an empty scrollID when on the last page", func() {
 				params := make(map[string][]string)
-				sr, err := NewSearchRequest(params)
+				sr, err := NewSearchRequest(orgID, params)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 
@@ -373,9 +376,17 @@ func TestSearchRequest_NewUserQuery(t *testing.T) {
 		wantErr  bool
 	}{
 		{"match all query", fields{}, &Query{}, 0, false},
-		{"simple query", fields{Query: "test"}, &Query{Terms: "test",
-			BreadCrumbs: []*BreadCrumb{&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}}},
-			1, false},
+		{
+			"simple query",
+			fields{Query: "test"},
+			&Query{
+				Terms: "test",
+				BreadCrumbs: []*BreadCrumb{
+					&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true},
+				}},
+			1,
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

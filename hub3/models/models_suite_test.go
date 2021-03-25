@@ -75,7 +75,7 @@ var _ = BeforeSuite(func() {
 	config.Config.ElasticSearch.Urls = []string{fmt.Sprintf("http://%s:%s", ip, port.Port())}
 
 	Expect("test.db").ToNot(BeAnExistingFile())
-	orm = newDB("test")
+	Expect(err).NotTo(HaveOccurred())
 })
 
 var _ = AfterSuite(func() {

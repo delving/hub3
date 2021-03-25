@@ -2,10 +2,22 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.11...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
+
+## v0.2.0 (2021-03-10)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0
+
 
 ### Added 
 
+- Synchronize with remote archives and METS-files via OAI-PMH  [[GH-80]](https://github.com/delving/hub3/pull/80)
+- Dedicated dataset service for managing datasets  [[GH-79]](https://github.com/delving/hub3/pull/79)
+- Initial service for elasticsearch functionality. Better mapping management.  [[GH-78]](https://github.com/delving/hub3/pull/78)
+- Multitenancy support through organisationIDs  [[GH-77]](https://github.com/delving/hub3/pull/77)
+- Initial version of Time Revision Store  [[GH-76]](https://github.com/delving/hub3/pull/76)
+- Dedicated SPARQL service that can be used as a separate publisher [[GH-75]](https://github.com/delving/hub3/pull/75)
+- Support for dropping orphan-groups within a dataset [[GH-74]](https://github.com/delving/hub3/pull/74)
 - Support for blacklisting URIs and limiting caching to referrers in the image proxy service [[GH73]](https://github.com/delving/hub3/pull/73)
 - Create c level and Node from p element in dsc element and add every Cp field to the Odd in the created Clevel. [[GH-67]](https://github.com/delving/hub3/pull/67)
 - Sort fields in the fieldMap resource.NewFields because the map is always unordered. Store protobuf messages in resource and use pointers instead of values for protobuf field in FragmentGraph. [[GH-63]](https://github.com/delving/hub3/pull/63)
