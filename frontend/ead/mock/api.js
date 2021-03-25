@@ -20,43 +20,34 @@ function occurrences(string, subString, allowOverlapping) {
 
 function fetchDescription(ead, params) {
   console.log(params)
-  const sections = ead.descriptions;
-  let response;
-  if (typeof params.index !== 'number') {
-    response = {
-      pageCount: sections.length,
-      activeIndex: 0,
-      sections: sections.map((section, i) => ({
-        title: section.title,
-        index: i,
-        html: i === 0 ? ead.descriptions[0].html : undefined
-      })),
-    };
-  } else {
-
-    response = {
-      index: params.index,
-      html: ead.descriptions[params.index].html
-    };
-  }
-  return response;
+  let response = {
+    sections: ead.description.sections
+  };
+  return pages(ead.description.pages, params, response);
 }
 
 function fetchTree(ead, params) {
   console.log(params)
-  let response = {
-    pageCount: ead.tree.length,
-    pages: []
-  };
+  let response = {};
   if (params.navigationTree) {
     response = {...response, navigationTree: ead.navigationTree}
   }
 
+  return pages(ead.tree, params, response);
+}
+
+function pages(eadPages, params, response) {
+  response = {
+    ...response,
+    pageCount: eadPages.length,
+    pages: []
+  };
+
   if (params.search === true) {
     let count = 0
     let matches = [];
-    for (let i = 0; i < ead.tree.length; i++) {
-      const page = ead.tree[i]
+    for (let i = 0; i < eadPages.length; i++) {
+      const page = eadPages[i]
       let hits = occurrences(page, params.query)
       count += hits
       if (page.indexOf(params.query) >= 0) {
@@ -65,17 +56,17 @@ function fetchTree(ead, params) {
           if (i !== 0) {
             response.pages.push({
               index: i - 1,
-              html: ead.tree[i - 1]
+              html: eadPages[i - 1]
             })
           }
           response.pages.push({
             index: i,
             html: page
           })
-          if (i < ead.tree.length - 2) {
+          if (i < eadPages.length - 2) {
             response.pages.push({
               index: i + 1,
-              html: ead.tree[i + 1]
+              html: eadPages[i + 1]
             })
           }
         }
@@ -83,21 +74,21 @@ function fetchTree(ead, params) {
     }
     response = {...response, matches, hitCount: count}
   } else if (params.cLevelId) {
-    const needle = `data-identifier="${params.cLevelId}"`;
-    for (let i = 0; i < ead.tree.length; i++) {
-      const page = ead.tree[i];
+    const needle = `data-identifier="${params.cLevelId.substring(1)}"`;
+    for (let i = 0; i < eadPages.length; i++) {
+      const page = eadPages[i];
       if (page.indexOf(needle) >= 0) {
         if (i > 0) response.pages.push({
           index: i - 1,
-          html: ead.tree[i - 1]
+          html: eadPages[i - 1]
         });
         response.pages.push({
           index: i,
           html: page
         });
-        if (i < ead.tree.length - 2) response.pages.push({
+        if (i < eadPages.length - 2) response.pages.push({
           index: i + 1,
-          html: ead.tree[i + 1]
+          html: eadPages[i + 1]
         });
         break;
       }
@@ -107,34 +98,34 @@ function fetchTree(ead, params) {
     if (params.query && params.page > 0) {
       response.pages.push({
         index: params.page - 1,
-        html: ead.tree[params.page - 1]
+        html: eadPages[params.page - 1]
       })
     }
     response.pages.push({
       index: params.page,
-      html: ead.tree[params.page]
+      html: eadPages[params.page]
     })
-    if (params.query && params.page < ead.tree.length - 1) {
+    if (params.query && params.page < eadPages.length - 1) {
       response.pages.push({
         index: params.page + 1,
-        html: ead.tree[params.page + 1]
+        html: eadPages[params.page + 1]
       })
     }
   } else {
     response.pages.push({
       index: 0,
-      html: ead.tree[0]
+      html: eadPages[0]
     })
-    if (ead.tree.length > 1) {
+    if (eadPages.length > 1) {
       response.pages.push({
         index: 1,
-        html: ead.tree[1]
+        html: eadPages[1]
       })
     }
-    if (ead.tree.length > 2) {
+    if (eadPages.length > 2) {
       response.pages.push({
         index: 2,
-        html: ead.tree[2]
+        html: eadPages[2]
       })
     }
   }

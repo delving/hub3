@@ -44,6 +44,7 @@
       index = i;
       if (scrollTop >= container.offsetTop) break;
     }
+    console.log(index)
     if (index == 0 && item.index > 0) {
       containers = []
       pager.prependPage(pages[index].index - 1)
@@ -60,9 +61,11 @@
 
 <div bind:this={scrollContainer} class="scroll">
   {#each pages as page, index (page.index)}
-    <div data-index={page.index} bind:this={containers[index]} class="page">
-      {@html page.html}
-    </div>
+    {#if page.html}
+      <div data-index={page.index} bind:this={containers[index]} class="page">
+        {@html page.html}
+      </div>
+    {/if}
   {/each}
 </div>
 

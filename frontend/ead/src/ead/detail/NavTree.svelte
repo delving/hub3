@@ -7,7 +7,7 @@
     const domQuery = `.c[data-identifier="${id}"]`;
     let cLevel = dom.treeContainer.querySelector(domQuery);
     if (!cLevel) {
-      await treeStore.prepare({cLevelId: id});
+      await treeStore.prepare({cLevelId: `@${id}`});
       await tick()
       cLevel = dom.treeContainer.querySelector(domQuery);
     }

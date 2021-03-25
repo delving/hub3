@@ -1,6 +1,7 @@
-const inventoryId = '4.OSK'
+import {getRoute} from "./nav";
 
 async function doRequest(endpoint, body) {
+  const route = getRoute()
   const response = await fetch('http://localhost:3000/' + endpoint,
     {
       method: 'post',
@@ -9,7 +10,7 @@ async function doRequest(endpoint, body) {
       },
       body: JSON.stringify({
         ...body,
-        inventoryId
+        inventoryId: route.values.inventoryID
       })
     })
   return await response.json();

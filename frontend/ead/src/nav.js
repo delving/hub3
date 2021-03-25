@@ -24,26 +24,38 @@ export function linkEadDescription(archive, search) {
   });
 }
 
-function getRouteIdFrom(path) {
+function decodeValue(v) {
+  return decodeURIComponent(v.replace('::', '/'));
+}
+
+function getRouteFrom(path) {
   for (const [key, url] of Object.entries(urls)) {
     if (url.path.length !== path.length) continue;
     let isMatch = true;
+    const values = {};
     for (let i = 0; i < path.length; i++) {
       const segment = url.path[i];
-      if (segment.indexOf(':') === 0) continue;
-      if (segment !== path[i]) {
+      if (segment.indexOf(':') === 0) {
+        values[segment.substring(1)] = decodeValue(path[i]);
+      } else if (segment !== path[i]) {
         isMatch = false;
         break;
       }
     }
 
-    if (isMatch) return key;
+    if (isMatch) {
+      return {
+        routeId: key,
+        values
+      };
+    }
   }
+  return {values:{}};
 }
 
-export function getRouteId() {
+export function getRoute() {
   const path = location.pathname.split('/').filter(segment => !!segment)
-  return getRouteIdFrom(path);
+  return getRouteFrom(path);
 }
 
 function translate(segment, urlContext) {
@@ -53,7 +65,7 @@ function translate(segment, urlContext) {
   if (propertyValue === '' || propertyValue === null || propertyValue === undefined) {
     return MISSING;
   }
-  return propertyValue;
+  return propertyValue.replace('/', '::');
 }
 
 function createLink(link, urlContext) {

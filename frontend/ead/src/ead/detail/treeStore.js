@@ -14,8 +14,7 @@ async function patch(params, updateFunc) {
 
   update( tree => ({
     ...tree,
-    ...(updateFunc ? updateFunc(tree, response) : response),
-    isReady: true
+    ...(updateFunc ? updateFunc(tree, response) : response)
   }));
   return response;
 }

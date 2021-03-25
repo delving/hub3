@@ -5,26 +5,29 @@
   import {treeStore} from './treeStore'
   import NavTree from "./NavTree.svelte";
   import DescriptionSections from "./DescriptionSections.svelte";
-  import {description} from "./description";
+  import {descriptionStore} from "./descriptionStore";
   import VirtualScroller from "./VirtualScroller.svelte";
 
-  export let routeId;
+  export let route;
 
-  let showTree = routeId !== 'eadDescription';
+  let showTree = route.routeId !== 'eadDescription';
   let query;
   let pager;
   let searchButton;
   let match;
-  let tree;
+  let hitCount;
+  let tree, description;
 
   treeStore.subscribe(currValue => tree = currValue);
+  descriptionStore.subscribe(currValue => description = currValue);
 
   function refitUI() {
     searchButton.scrollIntoView();
   }
 
   async function search() {
-    pager = await treeStore.search(query)
+    pager = await (showTree ? treeStore : descriptionStore).search(query)
+    hitCount = showTree ? tree.hitCount : description.hitCount;
     match = pager.firstMatch()
   }
 
@@ -33,7 +36,8 @@
     showTree = true;
   }
 
-  function displayDescription() {
+  async function displayDescription() {
+    await descriptionStore.prepare()
     showTree = false;
   }
 
@@ -46,7 +50,12 @@
   }
 
   onMount(async () => {
-    await treeStore.prepare()
+    if (showTree)
+      await treeStore.prepare({
+        cLevelId: route.values.cLevelPath
+      })
+    else
+      await descriptionStore.prepare()
   })
 
   afterUpdate(refitUI)
@@ -57,10 +66,10 @@
     <input bind:value={query} type="text"/>
     <button bind:this={searchButton} disabled={!query} on:click={search}>Zoeken</button>
     {#if match}
-      {#if tree.hitCount}
-        <span>{match.index + 1} / {tree.hitCount}</span>
-        <button on:click={previousPage}>Previous</button>
-        <button on:click={nextPage}>Next</button>
+      {#if hitCount}
+        <span>{match.displayString} / {hitCount}</span>
+        <button on:click={previousPage} disabled={match.isFirst}>Previous</button>
+        <button on:click={nextPage} disabled={match.isLast}>Next</button>
       {:else}
         Geen resultaten gevonden
       {/if}
@@ -69,19 +78,21 @@
   <div class="left">
     <div class="menu">
       <button on:click={displayDescription}>Beschrijving</button>
-      {#if !showTree}
+      {#if !showTree && description}
         <DescriptionSections/>
       {/if}
       <button on:click={displayTree}>Archiefbestanddelen</button>
     </div>
     {#if showTree}
-      <NavTree/>
+      <div class="tree">
+        <NavTree/>
+      </div>
     {/if}
   </div>
 
-  <div class="center">
-    {#if !showTree && $description.activeSection}
-      <div class="description">{@html $description.activeSection}</div>
+  <div class="center" class:desc-panel={!showTree}>
+    {#if !showTree && description}
+      <VirtualScroller match={match} pages={description.pages} pager={descriptionStore}/>
     {/if}
     {#if showTree}
       <div bind:this={dom.treeContainer} class="tree">
@@ -92,7 +103,8 @@
 </div>
 
 <style type="text/scss">
-  .description {
+
+  #description {
     overflow: hidden;
     max-height: 300px;
     margin-bottom: 30px;

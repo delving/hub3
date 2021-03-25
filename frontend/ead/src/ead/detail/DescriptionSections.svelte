@@ -1,18 +1,18 @@
 <script>
   import {onMount} from "svelte";
-  import {description} from "./description";
+  import {descriptionStore} from "./descriptionStore";
 
   async function showSection(i) {
-    await description.patchSection(i)
+    await descriptionStore.patchSection(i)
   }
 
   onMount(async () => {
-    await description.prepare()
+    await descriptionStore.prepare()
   })
 </script>
 
-{#if $description.sections}
-  {#each $description.sections as section, i}
+{#if $descriptionStore.sections}
+  {#each $descriptionStore.sections as section, i}
     <li><a href="#" on:click={() => showSection(i)}>{section.title}</a></li>
   {/each}
 {/if}

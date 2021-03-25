@@ -1,6 +1,5 @@
 <script>
-  import {onMount} from "svelte";
-  import {linkEad, linkCLevel, linkEadDescription} from '../../nav'
+  import {linkCLevel, linkEad, linkEadDescription} from '../../nav'
   import Facets from "../../Facets.svelte";
   import Search from "../../Search.svelte";
   import Sort from "../../Sort.svelte";

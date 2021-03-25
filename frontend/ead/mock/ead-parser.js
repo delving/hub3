@@ -1,6 +1,7 @@
 const jsdom = require("jsdom")
-const { JSDOM } = jsdom
-global.DOMParser = new JSDOM().window.DOMParser
+const {JSDOM} = jsdom
+const dom = new JSDOM()
+global.DOMParser = dom.window.DOMParser
 const parser = new DOMParser();
 
 const Node = {
@@ -15,11 +16,11 @@ function toSpan(node, copyAttributes, depth, builder) {
   let identifier = null;
   if (tagName === 'c') {
     classNames.push(`c${depth}`);
-    for(const child of node.childNodes) {
-      if(child.tagName === "did") {
-        for(const sibling of child.childNodes) {
-          if(sibling.tagName === "unitid") {
-            if(sibling.getAttribute('type') !== 'blank' && sibling.getAttribute('type') !== 'handle') {
+    for (const child of node.childNodes) {
+      if (child.tagName === "did") {
+        for (const sibling of child.childNodes) {
+          if (sibling.tagName === "unitid") {
+            if (sibling.getAttribute('type') !== 'blank' && sibling.getAttribute('type') !== 'handle') {
               identifier = sibling.textContent || sibling.getAttribute('identifier');
             }
           }
@@ -27,7 +28,10 @@ function toSpan(node, copyAttributes, depth, builder) {
       }
     }
 
-    attributes.push(`data-identifier="${(identifier || '#' + builder.cLevelCount)}"`)
+    const cId = identifier || '@';
+    builder.path.push(cId);
+    const path = builder.path.join('~');
+    attributes.push(`data-identifier="${path}"`)
   }
   if (copyAttributes) {
     for (let i = 0; i < node.attributes.length; i++) {
@@ -39,6 +43,7 @@ function toSpan(node, copyAttributes, depth, builder) {
     classNames.push('text');
   }
   return {
+    isCLevel: tagName === 'c',
     toHtml: function (extraClasses) {
       return `<span ${attributes.join(' ')} class="${classNames.concat(extraClasses).join(' ')}">`
     }
@@ -63,7 +68,7 @@ function nodeToHtml(node, builder, depth = 0) {
     for (const child of [...node.childNodes]) {
       nodeToHtml(child, builder, depth + 1);
     }
-    if(isOpen) builder.closeTag();
+    if (isOpen) builder.closeTag();
   } else {
     builder.addText(node);
   }
@@ -76,6 +81,7 @@ class Builder {
   pages = [];
   closedTagCount = 0;
   cLevelCount = 0;
+  path = []
 
   constructor(limit, accept) {
     this.limit = limit;
@@ -88,9 +94,9 @@ class Builder {
       this.html.push(`<span class="inline-label">${label}</span>`);
     }
 
-    const spanBuilder = toSpan(node, node.tagName.toUpperCase() in COPY_ATTRIBUTES_OF, depth, this);
-    if (node.tagName.toLowerCase() === 'c') this.cLevelCount++;
     if (this.accept(node)) {
+      const spanBuilder = toSpan(node, node.tagName.toUpperCase() in COPY_ATTRIBUTES_OF, depth, this);
+      if (node.tagName.toLowerCase() === 'c') this.cLevelCount++;
       this.html.push(spanBuilder.toHtml([]));
       this.open.push(spanBuilder);
       return true;
@@ -113,7 +119,10 @@ class Builder {
   closeTag() {
     this.html.push('</span>');
     this.closedTagCount++;
-    this.open.pop();
+    const pop = this.open.pop();
+    if (pop.isCLevel) {
+      this.path.pop();
+    }
     if (this.closedTagCount === this.limit) {
       const currentHtml = this.html;
       this.html = [];
@@ -151,7 +160,7 @@ function navTreeFilter(node) {
     return level === 'series' || level === 'subseries';
   } else if (tagName === 'unittitle') {
     let target = node;
-    while(target && target.tagName.toLowerCase() !== 'c') {
+    while (target && target.tagName.toLowerCase() !== 'c') {
       target = target.parentNode;
     }
     return navTreeFilter(target);
@@ -159,18 +168,25 @@ function navTreeFilter(node) {
   return false;
 }
 
-module.exports = function(eadXml) {
+module.exports = function (eadXml) {
   const xmlDoc = parser.parseFromString(eadXml, "text/xml");
-  let sections = xmlDoc.querySelectorAll('archdesc > did, archdesc > descgrp');
-  sections = [...sections].map(section => ({
+  let sections = xmlDoc.querySelectorAll('eadheader > filedesc, archdesc > did, archdesc > descgrp');
+  const titles = [...sections].map((section, i) => ({
+    index: i,
     title: section.firstChild.textContent.trim() || section.childNodes[1].textContent.trim(),
-    html: toHtml(section)[0]
   }))
+  const dsc = dom.window.document.createElement('archdesc');
+  sections.forEach(section => dsc.appendChild(section));
+  const descriptionPages = toHtml(dsc, 200);
+
   const tree = xmlDoc.querySelector('archdesc > dsc[type="combined"]');
   const treePages = toHtml(tree, 250);
   const navigationTree = toHtml(tree, Number.MAX_SAFE_INTEGER, navTreeFilter);
   return {
-    descriptions: sections,
+    description: {
+      sections: titles,
+      pages: descriptionPages
+    },
     tree: treePages,
     navigationTree: navigationTree[0]
   };

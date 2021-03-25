@@ -1,4 +1,13 @@
-#description {
+.dhcl {
+  background-color: red;
+  color: white;
+
+  &.active {
+    background-color: blue;
+  }
+}
+
+.tree {
   .c {
     display: block;
 
@@ -25,6 +34,7 @@
       &::before {
         content: " "
       }
+
       color: #09c;
     }
 
@@ -32,6 +42,7 @@
       &::before {
         content: " "
       }
+
       color: #308304;
     }
 
@@ -43,6 +54,7 @@
       &::after {
         content: " "
       }
+
       display: inline;
     }
 
@@ -56,6 +68,7 @@
   .nav-tree {
     .c {
       font-weight: bold;
+
       .c {
         display: none;
       }
@@ -89,12 +102,119 @@
       content: "-";
     }
   }
+}
 
-  .dhcl {
-    background-color: red;
-    color: white;
-    &.active {
-      background-color: blue;
+.desc-panel .archdesc {
+  * {
+    display: inline;
+  }
+
+  .list {
+    padding-left: 20px;
+
+    .item {
+      list-style-type: circle;
+      display: list-item;
+      padding-top: 5px;
     }
+  }
+
+  .did, .descgrp {
+    & > .head {
+      font-size: 140%;
+      color: blue;
+    }
+  }
+
+  .list,
+  .p,
+  .inline-label,
+  .head,
+  .table,
+  .tgroup,
+  .tbody,
+  .thead,
+  .filedesc > * {
+    margin-top: 10px;
+    display: block;
+
+    .titleproper::before {
+      content: 'Titel';
+    }
+
+    .author::before {
+      content: 'Auteur'
+    }
+
+    .edition::before {
+      content: 'Versie'
+    }
+
+
+  }
+
+  .publicationstmt {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    &::before {
+      flex: 100%;
+      order: 1;
+      content: 'Copyright';
+    }
+
+    .publisher {
+      flex: 100%;
+      order: 2;
+    }
+
+    .date {
+      order: 3;
+    }
+
+    .p {
+      margin: 0;
+      order: 4;
+    }
+  }
+
+  *::before {
+    margin-top: 10px;
+    display: block;
+    font-weight: bold;
+  }
+
+  .inline-label, .head {
+    font-weight: bold;
+  }
+
+  .table {
+    overflow-y: auto;
+  }
+
+  .thead .entry {
+    position: sticky;
+    top: 0;
+  }
+
+  .tbody {
+    display: table;
+    width: 100%;
+  }
+
+  .row {
+    display: table-row;
+    border: 5px solid black;
+  }
+
+  .entry {
+    display: table-cell;
+  }
+
+  .continued {
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }

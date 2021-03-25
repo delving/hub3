@@ -14,7 +14,10 @@ export class Pager {
       for (let i = 0; i < match.hitCount; i++) {
         this.matches[n] = {
           page: match.page,
-          index: i
+          index: i,
+          displayString: `${n + 1}`,
+          isFirst: n === 0,
+          isLast: n === searchResult.hitCount - 1,
         };
         n++;
       }
