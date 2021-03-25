@@ -1,13 +1,9 @@
 <script>
-  import {configure, getRoute} from './nav.js'
+  import {getRoute} from './nav.js'
   import Ead from "./ead/detail/EadDetail.svelte";
   import EadSearch from "./ead/search/EadSearch.svelte"
 
-  export let config;
-
-  configure(config);
   const route = getRoute();
-  console.log(route)
 </script>
 
 <main>

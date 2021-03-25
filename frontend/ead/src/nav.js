@@ -1,10 +1,8 @@
-let urls;
+import {config} from './config'
+
+const urls = config.urls;
 
 const MISSING = '@missing';
-
-export function configure(config) {
-  urls = config.urls;
-}
 
 export function linkEad(archive) {
   return createLink(urls.ead, {inventoryID: archive.inventoryID});

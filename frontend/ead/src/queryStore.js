@@ -22,11 +22,12 @@ function updateQuery(changes) {
   })
 }
 
-function setFacetLink(url, isSelected) {
+function setFacetLink(facet, link, isSelected) {
+  const property = `qf[]=${facet.field}:${link.value}`;
   if (isSelected) {
-    facets.add(url);
+    facets.add(property);
   } else {
-    facets.delete(url);
+    facets.delete(property);
   }
   updateQuery({})
 }
