@@ -13,13 +13,12 @@
       .map(f => {
         const config = facetConfig[f.field];
         return {
-        ...f,
+          ...f,
           displayString: config.label,
           order: config.order
         }
       })
       .sort((a, b) => a.order - b.order);
-    console.log(facets)
   }
 
   function change(facet, link, event) {
