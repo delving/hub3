@@ -1,3 +1,5 @@
+// Special ***********************************************************
+
 .dhcl {
   background-color: red;
   color: white;
@@ -7,117 +9,103 @@
   }
 }
 
-.tree {
-  .c {
-    display: block;
-
-    * {
-      display: block;
-    }
+.continued {
+  &::before {
+    display: none !important;
   }
 
-  .c {
-    padding-top: 10px;
-    margin-left: 20px;
-
-    &[level="file"] {
-      .unitid {
-        display: none;
-      }
-    }
-
-    .unitid::after {
-      content: " "
-    }
-
-    .unitdate {
-      &::before {
-        content: " "
-      }
-
-      color: #09c;
-    }
-
-    .physdesc {
-      &::before {
-        content: " "
-      }
-
-      color: #308304;
-    }
-
-    .controlaccess {
-      display: none;
-    }
-
-    .scopecontent .p * {
-      &::after {
-        content: " "
-      }
-
-      display: inline;
-    }
-
-    .unitid, .unittitle, .unitdate, .physdesc {
-      display: inline;
-      font-weight: bold;
-    }
+  &::after {
+    display: none !important;
   }
 
-  // navigation tree
-  .nav-tree {
-    .c {
-      font-weight: bold;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
 
-      .c {
-        display: none;
-      }
-    }
+// Content ************************************************************
+.tree .c::before {
+  content: "└";
+}
 
-    .open {
-      .c {
-        display: block;
-      }
-    }
+.nav-tree .c::before {
+  content: "+";
+  border: 2px solid blue;
+}
 
-    .c {
+.nav-tree .c.open::before {
+  content: "-";
+}
 
-      &::before {
-        content: "+";
-        font-weight: bold;
-        font-size: 18px;
-        font-family: monospace;
-        border: 2px solid blue;
-        background-color: white;
-        margin-right: 4px;
-        color: blue;
-      }
+.text + .text::before {
+  content: " "
+}
 
-      .text {
-        display: inline;
-      }
-    }
+// Display ***********************************************************
+.unitid[type="handle"],
+.unitid[type="blank"],
+.controlaccess,
+.nav-tree .c > .c {
+  display: none;
+}
 
-    .c.open::before {
-      content: "-";
-    }
+.c,
+.p,
+.materialspec,
+.physloc,
+.nav-tree .c.open > .c {
+  display: block;
+}
+
+// Font *************************************************************
+
+// COLORS //
+.physdesc {
+  color: #308304;
+}
+
+.nav-tree .c::before,
+.unitdate {
+  color: #09c;
+}
+
+.c[level="file"] {
+  .unitid {
+    color: red;
+  }
+}
+
+// WEIGHT //
+.unitid,
+.tree .unittitle,
+.tree .unitdate,
+.tree .physdesc,
+.nav-tree .c {
+  font-weight: bold;
+}
+
+// Spacing ************************************************************
+.c {
+  padding-top: 10px;
+  margin-left: 20px;
+}
+
+// Lists *************************************************************
+.list {
+  padding-left: 20px;
+
+  .item {
+    list-style-type: circle;
+    display: list-item;
+    padding-top: 5px;
   }
 }
 
 .desc-panel .archdesc {
-  * {
-    display: inline;
-  }
 
-  .list {
-    padding-left: 20px;
 
-    .item {
-      list-style-type: circle;
-      display: list-item;
-      padding-top: 5px;
-    }
-  }
+
 
   .did, .descgrp {
     & > .head {
@@ -149,8 +137,6 @@
     .edition::before {
       content: 'Versie'
     }
-
-
   }
 
   .publicationstmt {
@@ -211,10 +197,5 @@
 
   .entry {
     display: table-cell;
-  }
-
-  .continued {
-    margin: 0 !important;
-    padding: 0 !important;
   }
 }

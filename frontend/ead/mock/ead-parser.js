@@ -58,7 +58,8 @@ function isText(node) {
 const COPY_ATTRIBUTES_OF = {
   'LIST': true,
   'EXTPTR': true,
-  'C': true
+  'C': true,
+  'UNITID': true
 };
 
 function nodeToHtml(node, builder, depth = 0) {
