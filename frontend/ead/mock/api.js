@@ -54,20 +54,11 @@ function pages(eadPages, params, response) {
         matches.push({page: i, hitCount: occurrences(page, params.query)})
         if (response.pages.length === 0) {
           if (i !== 0) {
-            response.pages.push({
-              index: i - 1,
-              html: eadPages[i - 1]
-            })
+            response.pages.push(eadPages[i - 1])
           }
-          response.pages.push({
-            index: i,
-            html: page
-          })
+          response.pages.push(page)
           if (i < eadPages.length - 2) {
-            response.pages.push({
-              index: i + 1,
-              html: eadPages[i + 1]
-            })
+            response.pages.push(eadPages[i + 1])
           }
         }
       }
@@ -78,55 +69,31 @@ function pages(eadPages, params, response) {
     for (let i = 0; i < eadPages.length; i++) {
       const page = eadPages[i];
       if (page.indexOf(needle) >= 0) {
-        if (i > 0) response.pages.push({
-          index: i - 1,
-          html: eadPages[i - 1]
-        });
+        if (i > 0) response.pages.push(eadPages[i - 1]);
         response.pages.push({
           index: i,
           html: page
         });
-        if (i < eadPages.length - 2) response.pages.push({
-          index: i + 1,
-          html: eadPages[i + 1]
-        });
+        if (i < eadPages.length - 2) response.pages.push(eadPages[i + 1]);
         break;
       }
     }
   } else if (params.page >= 0) {
     delete response.pageCount;
     if (params.query && params.page > 0) {
-      response.pages.push({
-        index: params.page - 1,
-        html: eadPages[params.page - 1]
-      })
+      response.pages.push(eadPages[params.page - 1])
     }
-    response.pages.push({
-      index: params.page,
-      html: eadPages[params.page]
-    })
+    response.pages.push(eadPages[params.page])
     if (params.query && params.page < eadPages.length - 1) {
-      response.pages.push({
-        index: params.page + 1,
-        html: eadPages[params.page + 1]
-      })
+      response.pages.push(eadPages[params.page + 1])
     }
   } else {
-    response.pages.push({
-      index: 0,
-      html: eadPages[0]
-    })
+    response.pages.push(eadPages[0])
     if (eadPages.length > 1) {
-      response.pages.push({
-        index: 1,
-        html: eadPages[1]
-      })
+      response.pages.push(eadPages[1])
     }
     if (eadPages.length > 2) {
-      response.pages.push({
-        index: 2,
-        html: eadPages[2]
-      })
+      response.pages.push(eadPages[2])
     }
   }
 

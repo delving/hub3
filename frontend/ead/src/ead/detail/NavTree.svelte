@@ -2,6 +2,10 @@
   import {treeStore} from "./treeStore";
   import {tick} from "svelte";
   import {dom} from "../../dom";
+  import Html from "../../Html.svelte";
+
+  let navTree;
+  treeStore.subscribe(currValue => navTree = currValue.navigationTree);
 
   async function scrollTo(id) {
     const domQuery = `.c[data-identifier="${id}"]`;
@@ -26,4 +30,8 @@
   }
 </script>
 
-<div class="nav-tree" on:click={e => navTreeClicked(e)}>{@html $treeStore.navigationTree}</div>
+{#if navTree}
+  <div class="nav-tree" on:click={e => navTreeClicked(e)}>
+    <Html node={navTree}/>
+  </div>
+{/if}

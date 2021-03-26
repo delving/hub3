@@ -5,7 +5,7 @@ const parseEad = require("./ead-parser");
 const cache = {
   "4.OSK": parseEad(fs.readFileSync("./4.OSK.xml")),
  // "2.09.09": parseEad(fs.readFileSync("./2.09.09.xml")),
- "1.04.02": parseEad(fs.readFileSync("./1.04.02.xml"))
+ // "1.04.02": parseEad(fs.readFileSync("./1.04.02.xml"))
 };
 
 const jsonServer = require('json-server')

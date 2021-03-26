@@ -8,165 +8,133 @@ const Node = {
   TEXT_NODE: 3
 };
 
-function toSpan(node, copyAttributes, depth, builder) {
-  const tagName = node.tagName.toLowerCase();
-  const classNames = [tagName]
-  const attributes = []
+const COPY_ATTRIBUTES_OF = {
+  'list': () => {},
+  'extptr': () => {},
+  'c': (jsonParent, node) => {
+    jsonParent.level = node.getAttribute('level')
+  },
+  'unitid': () => {}
+};
 
-  let identifier = null;
-  if (tagName === 'c') {
-    classNames.push(`c${depth}`);
-    for (const child of node.childNodes) {
-      if (child.tagName === "did") {
-        for (const sibling of child.childNodes) {
-          if (sibling.tagName === "unitid") {
-            if (sibling.getAttribute('type') !== 'blank' && sibling.getAttribute('type') !== 'handle') {
-              identifier = sibling.textContent || sibling.getAttribute('identifier');
-            }
+let counter = 0;
+let charCount = 0
+const PROPERTY_WEIGHT = 12;
+const CHILD_WEIGHT = 4;
+
+function addTextTo(textNode, node) {
+  const content = textNode.textContent.trim();
+  if (content) {
+    charCount += content.length + PROPERTY_WEIGHT;
+    node.inline.push({text: content});
+  }
+}
+
+function Builder(filter, limit) {
+
+  const pages = [];
+  const parents = [];
+
+  function createPage(jsonParent) {
+    const findPageStart = parents.find(p => !p.continued) || jsonParent;
+    const cloneOfPage = JSON.parse(JSON.stringify(findPageStart));
+    filter(cloneOfPage);
+    pages.push({
+      index: pages.length,
+      parents: parents
+        .filter(p => !p.continued)
+        .map(p => p.tagName),
+      nodes: cloneOfPage
+    });
+    parents.forEach(p => p.continued = true);
+    charCount = 0;
+  }
+
+  function toJson(jsonParent, node) {
+    if (charCount > limit) {
+      createPage(jsonParent);
+    }
+    parents.push(jsonParent);
+
+    if (node.nodeType === Node.TEXT_NODE) {
+      jsonParent.text = node.textContent;
+    } else {
+      const tagName = node.tagName.toLowerCase();
+      if(tagName === 'c') jsonParent.id = counter++;
+      if(tagName in COPY_ATTRIBUTES_OF) {
+        COPY_ATTRIBUTES_OF[tagName](jsonParent, node);
+      }
+      jsonParent.tagName = tagName;
+      charCount += tagName.length + PROPERTY_WEIGHT;
+      const children = node.childNodes;
+      if (children.length > 0) {
+        charCount += PROPERTY_WEIGHT;
+        const firstChild = children[0];
+
+        if (children.length === 1 && firstChild.nodeType === Node.TEXT_NODE) {
+          const text = firstChild.textContent.trim();
+          if(text) {
+            jsonParent.text = text;
+          }
+        } else {
+          jsonParent.inline = [];
+          for (const child of children) {
+              charCount += CHILD_WEIGHT;
+              if (child.nodeType === Node.TEXT_NODE) {
+                addTextTo( child, jsonParent);
+              } else {
+                jsonParent.inline.push(toJson({}, child));
+              }
           }
         }
       }
     }
+    parents.pop();
+    return jsonParent;
+  }
 
-    const cId = identifier || '@';
-    builder.path.push(cId);
-    const path = builder.path.join('~');
-    attributes.push(`data-identifier="${path}"`)
-  }
-  if (copyAttributes) {
-    for (let i = 0; i < node.attributes.length; i++) {
-      const attr = node.attributes[i];
-      attributes.push(`${attr.name}=${attr.value}`);
+  this.toJson = function (jsonParent, node) {
+    counter = 0;
+    toJson(jsonParent, node);
+    if(charCount > 0) {
+      createPage(jsonParent);
     }
-  }
-  if (isText(node)) {
-    classNames.push('text');
-  }
-  return {
-    isCLevel: tagName === 'c',
-    toHtml: function (extraClasses) {
-      return `<span ${attributes.join(' ')} class="${classNames.concat(extraClasses).join(' ')}">`
-    }
+    return pages;
   };
 }
 
-function isText(node) {
-  const children = node.childNodes;
-  return children && children.length === 1 && children[0].nodeType === Node.TEXT_NODE;
+function isSeries(cNode) {
+  return cNode.level === 'series' || cNode.level === 'subseries';
 }
 
-const COPY_ATTRIBUTES_OF = {
-  'LIST': true,
-  'EXTPTR': true,
-  'C': true,
-  'UNITID': true
-};
-
-function nodeToHtml(node, builder, depth = 0) {
-
-  if (node.nodeType !== Node.TEXT_NODE) {
-    const isOpen = builder.openTag(node, depth);
-    for (const child of [...node.childNodes]) {
-      nodeToHtml(child, builder, depth + 1);
-    }
-    if (isOpen) builder.closeTag();
-  } else {
-    builder.addText(node);
-  }
-}
-
-
-class Builder {
-  html = [];
-  open = [];
-  pages = [];
-  closedTagCount = 0;
-  cLevelCount = 0;
-  path = []
-
-  constructor(limit, accept) {
-    this.limit = limit;
-    this.accept = accept;
-  }
-
-  openTag(node, depth) {
-    const label = node.getAttribute('label')
-    if (label) {
-      this.html.push(`<span class="inline-label">${label}</span>`);
-    }
-
-    if (this.accept(node)) {
-      const spanBuilder = toSpan(node, node.tagName.toUpperCase() in COPY_ATTRIBUTES_OF, depth, this);
-      if (node.tagName.toLowerCase() === 'c') this.cLevelCount++;
-      this.html.push(spanBuilder.toHtml([]));
-      this.open.push(spanBuilder);
-      return true;
-    }
+function navTreeFilter(parent) {
+  if(parent.tagName === 'c' && !isSeries(parent)) {
+    parent.inline = null;
     return false;
   }
+  if (parent.tagName === 'unittitle') {
+    return true;
+  }
 
-  addText(textNode) {
-    if (!this.accept(textNode)) return;
-    const text = textNode.textContent.trim();
-    if (text) {
-      if (isText(textNode.parentNode)) {
-        this.html.push(text);
-      } else {
-        this.html.push(`<span class="text">${text}</span>`);
+  if (parent.inline) {
+    const acceptedChildren = []
+    for (const child of parent.inline) {
+      const hasMatch = navTreeFilter(child);
+      if (hasMatch) {
+        acceptedChildren.push(child);
       }
     }
+    parent.inline = acceptedChildren;
   }
-
-  closeTag() {
-    this.html.push('</span>');
-    this.closedTagCount++;
-    const pop = this.open.pop();
-    if (pop.isCLevel) {
-      this.path.pop();
-    }
-    if (this.closedTagCount === this.limit) {
-      const currentHtml = this.html;
-      this.html = [];
-      for (let i = 0; i < this.open.length; i++) {
-        currentHtml.push('</span>');
-        this.html.push(this.open[i].toHtml(['continued']));
-      }
-      this.pages.push(currentHtml.join(''));
-      this.closedTagCount = 0;
-    }
-  }
-
-  build() {
-    if (this.html.length > 0) {
-      this.pages.push(this.html.join(''));
-      this.html = [];
-    }
-    return this.pages;
-  }
+  return (parent.inline && parent.inline.length > 0);
 }
 
-function toHtml(node, limit = Number.MAX_SAFE_INTEGER, skipFilter = () => true) {
-  const builder = new Builder(limit, skipFilter);
-  nodeToHtml(node, builder)
-  return builder.build()
-}
-
-function navTreeFilter(node) {
-  if (!node.tagName) {
-    return navTreeFilter(node.parentNode);
-  }
-  const tagName = node.tagName.toLowerCase();
-  if (tagName === 'c') {
-    const level = node.getAttribute('level')
-    return level === 'series' || level === 'subseries';
-  } else if (tagName === 'unittitle') {
-    let target = node;
-    while (target && target.tagName.toLowerCase() !== 'c') {
-      target = target.parentNode;
-    }
-    return navTreeFilter(target);
-  }
-  return false;
+function xmlToJson(node, limit, filter) {
+  const rootJson = {};
+  const builder = new Builder((filter || function () {
+    return true
+  }), limit);
+  return builder.toJson(rootJson, node);
 }
 
 module.exports = function (eadXml) {
@@ -178,17 +146,17 @@ module.exports = function (eadXml) {
   }))
   const dsc = dom.window.document.createElement('archdesc');
   sections.forEach(section => dsc.appendChild(section));
-  const descriptionPages = toHtml(dsc, 200);
+  const descriptionPages = xmlToJson(dsc, 10000);
 
   const tree = xmlDoc.querySelector('archdesc > dsc[type="combined"]');
-  const treePages = toHtml(tree, 250);
-  const navigationTree = toHtml(tree, Number.MAX_SAFE_INTEGER, navTreeFilter);
+  const treePages = xmlToJson(tree, 10000);
+  const navigationTree = xmlToJson(tree, Number.MAX_SAFE_INTEGER, navTreeFilter);
   return {
     description: {
       sections: titles,
       pages: descriptionPages
     },
     tree: treePages,
-    navigationTree: navigationTree[0]
+    navigationTree: navigationTree[0].nodes
   };
 }

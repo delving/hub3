@@ -1,6 +1,7 @@
 <svelte:options immutable/>
 <script>
   import {onMount} from "svelte";
+  import Html from "../../Html.svelte";
 
   export let pages;
   export let pager;
@@ -61,11 +62,9 @@
 
 <div bind:this={scrollContainer} class="scroll">
   {#each pages as page, index (page.index)}
-    {#if page.html}
       <div data-index={page.index} bind:this={containers[index]} class="page">
-        {@html page.html}
+        <Html node={page.nodes}/>
       </div>
-    {/if}
   {/each}
 </div>
 
