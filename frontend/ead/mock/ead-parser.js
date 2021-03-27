@@ -44,9 +44,63 @@ function toSpan(node, copyAttributes, depth, builder) {
   }
   return {
     isCLevel: tagName === 'c',
+    closingTags: '</span>',
     toHtml: function (extraClasses) {
-      return `<span ${attributes.join(' ')} class="${classNames.concat(extraClasses).join(' ')}">`
-    }
+      const attrs = `${attributes.join(' ')} class="${classNames.concat(extraClasses).join(' ')}"`;
+      if(tagName === 'c') {
+        this.closingTags = '</li></ul>';
+        return `<ul ${attrs}><li>`;
+      }
+      if (tagName === 'head') {
+        this.closingTags = '</h1>';
+        return `<h1>`;
+      }
+      if(tagName === 'p') {
+        this.closingTags = '</p>';
+        return `<p>`;
+      }
+      if(tagName === 'tgroup') {
+        this.closingTags = '</table>';
+        return `<table>`;
+      }
+      if(tagName === 'thead') {
+        this.closingTags = '</thead>';
+        return `<thead>`;
+      }
+      if(tagName === 'tbody') {
+        this.closingTags = '</tbody>';
+        return `<tbody>`;
+      }
+      if(tagName === 'row') {
+        this.closingTags = '</tr>';
+        return `<tr>`;
+      }
+      if(tagName === 'entry') {
+        this.closingTags = '</td>';
+        return `<td>`;
+      }
+      if(tagName === 'list') {
+        this.closingTags = '</ul>';
+        return `<ul ${attrs}>`;
+      }
+      if(tagName === 'item') {
+        this.closingTags = '</li>';
+        return `<li>`;
+      }
+      if(tagName === 'descgrp' || tagName === 'did') {
+        this.closingTags = '</section>';
+        return '<section>';
+      }
+      if(tagName === 'unitdate') {
+        this.closingTags = '</time>';
+        return '<time>';
+      }
+      if(tagName === 'physloc') {
+        this.closingTags = '</address>';
+        return '<address>';
+      }
+      return `<span ${attrs}>`;
+    },
   };
 }
 
@@ -118,9 +172,9 @@ class Builder {
   }
 
   closeTag() {
-    this.html.push('</span>');
     this.closedTagCount++;
     const pop = this.open.pop();
+    this.html.push(pop.closingTags);
     if (pop.isCLevel) {
       this.path.pop();
     }
