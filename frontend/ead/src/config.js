@@ -26,6 +26,9 @@ export let config = {
         query: [
           {key: 'q', value: ':query'}
         ]
+      },
+      nkDetail: {
+        path: ['detail', ':id']
       }
     }
 };

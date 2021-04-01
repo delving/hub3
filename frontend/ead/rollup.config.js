@@ -2,6 +2,7 @@ import preprocess from 'svelte-preprocess';
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import json from '@rollup/plugin-json';
 import livereload from 'rollup-plugin-livereload';
 import {terser} from 'rollup-plugin-terser';
 import scss from 'rollup-plugin-scss';
@@ -24,6 +25,7 @@ export default {
       port: 5000,
       historyApiFallback: true
     }),
+    json(),
 
 		svelte({
 			compilerOptions: {

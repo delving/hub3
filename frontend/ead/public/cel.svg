@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="75" height="75" viewBox="0 0 75 75">
+  <g fill="none" fill-rule="evenodd" stroke="#393E41" transform="translate(9 14)">
+    <path fill="#FFF" fill-rule="nonzero" stroke-linecap="round" stroke-linejoin="round" d="M.96551724.96551724H54.9818182V47.3103448H.96551724z"/>
+    <path fill="#F6F7EA" fill-rule="nonzero" stroke-linecap="round" stroke-linejoin="round" d="M2.84309002 0H53.1569198C54.7271096 0 56 1.55037409 56 3.46285745v.39921152H0l.00000977-.39013853c-.00197901-.9199779.29668505-1.8031019.83008068-2.45447729C1.36348607.36607776 2.08776584-.00000315 2.84309002 0z"/>
+    <path stroke-linecap="round" stroke-linejoin="round" d="M45.862069 3.86206897V42.7885057M36.2068966 4.58181818V42.7636364M27.5172414 3.86206897V42.7885057M18.8275862 4.34482759V42.7990488M9.17241379 3.86206897V42.7885057"/>
+    <path fill="#F6F7EA" fill-rule="nonzero" stroke-linecap="round" stroke-linejoin="round" d="M0 43.4482759h56v3.86206897H0z"/>
+    <rect width="25.0689655" height="5.75862069" x="14.9827586" y="12.0862069" fill="#FFF" rx="1"/>
+    <path stroke-linecap="round" d="M15.4482759 34.2758621h14.4827586M23.2361505 29.6884721v1.4494589M15.4482759 26.5517241h14.4827586"/>
+  </g>
+</svg>

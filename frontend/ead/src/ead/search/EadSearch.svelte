@@ -1,9 +1,9 @@
 <script>
   import {linkCLevel, linkEad, linkEadDescription} from '../../nav'
-  import Facets from "../../Facets.svelte";
-  import Search from "../../Search.svelte";
-  import Sort from "../../Sort.svelte";
-  import {queryStore} from "../../queryStore";
+  import Facets from "../../search/Facets.svelte";
+  import Search from "../../search/Search.svelte";
+  import Sort from "../../search/Sort.svelte";
+  import {queryStore} from "../../search/queryStore";
 
   let search;
   let searchRequest = {}
@@ -91,7 +91,7 @@
   .archive-search {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    grid-auto-rows: auto;
+    grid-auto-rows: minmax(auto, 300px);
     grid-template-areas:
       "facets search search search search search"
       "facets sort sort sort sort sort"

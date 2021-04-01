@@ -1,12 +1,14 @@
 <svelte:options immutable/>
 <script>
-  import {config} from './config';
+  import {config} from '../config';
   import {queryStore} from "./queryStore";
 
   const facetConfig = config.facets;
 
+  export let events;
   export let facets;
 
+  $: facetNodes = {}
   $: {
     facets = facets
       .filter(f => f.field in facetConfig)
@@ -24,12 +26,19 @@
   function change(facet, link, event) {
     queryStore.setFacet(facet, link, event.target.checked)
   }
+
+  function facetClicked(facet) {
+    events.facetClicked(facet, facetNodes[facet.field]);
+  }
 </script>
 
 {#each facets as facet (facet.field)}
   {#if facet.links.length > 0}
-    <div class="facet">
-      <p class="title">{facet.displayString} ({facet.total})</p>
+    <div bind:this={facetNodes[facet.field]} class="facet">
+      <p class="title">
+        <a href="#" on:click|stopPropagation={() => facetClicked(facet)}>{facet.displayString}</a>
+        <span class="count">({facet.total})</span>
+      </p>
       <div class="options">
         {#each facet.links as link (link.value)}
           <p>
@@ -43,21 +52,21 @@
 {/each}
 
 <style type="text/scss">
-  @import "variables";
+  //@import "src/variables";
 
-  .title {
-    font-weight: bold;
-  }
+  //.title {
+  //  font-weight: bold;
+  //}
 
-  .facet {
-    background-color: $DEFAULT_COMPONENT_BG_COLOR;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-
-  .options {
-    border-top: 1px solid $DEFAULT_TEXT_COLOR;
-  }
+  //.facet {
+  //  background-color: $DEFAULT_COMPONENT_BG_COLOR;
+  //  padding: 10px;
+  //  margin-bottom: 10px;
+  //}
+  //
+  //.options {
+  //  border-top: 1px solid $DEFAULT_TEXT_COLOR;
+  //}
 
   input, label {
     display: inline;
