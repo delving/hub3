@@ -4,6 +4,7 @@
   import Sort from "./Sort.svelte";
   import {queryStore} from "./queryStore";
   import {noop} from "svelte/internal";
+  import Pager from "../Pager.svelte";
 
   export let events;
   export let search;
@@ -31,6 +32,10 @@
 
   <div class="content">
     <slot></slot>
+  </div>
+
+  <div class="pager">
+    <Pager/>
   </div>
 {/if}
 
@@ -61,5 +66,9 @@
 
   .content {
     grid-area: content;
+  }
+
+  .pager {
+    grid-area: pager;
   }
 </style>

@@ -1,6 +1,6 @@
 export function rdfToHtml(items, config) {
 
-  function findDisplayConfig(searchLabels) {
+  function findDisplayConfig(entry, searchLabels) {
     const indexOf = config.display.findIndex(item => {
       if (item.searchLabel.length > searchLabels.length) {
         return false;
@@ -15,58 +15,26 @@ export function rdfToHtml(items, config) {
       return true;
     });
     if (indexOf === -1) return null;
-    return {
+
+    const display = config.display[indexOf]
+    display.section.items.push({
       order: indexOf,
-      ...config.display[indexOf]
-    }
-  }
-
-  function defaultHelper(entry, searchLabels) {
-    const display = findDisplayConfig(searchLabels);
-    if (display) {
-      const style = `style="order: ${display.order};"`;
-      let label = '';
-      if (display.label) {
-        label = `<label>${display.label}</label>`
-      }
-      const id = `data-label="${entry.searchLabel || 'other'}"`;
-      const value = entry[display.value || '@value'];
-
-      if (display.type === 'image') {
-        return {
-          open: `<p ${style}>${label}<img ${id} src="${value}" />`,
-          close: '</p>',
-          display
-        }
-      } else if(display.type === 'link') {
-        return {
-          open: `<p ${style}>${label}<a ${id} href="${value}">${value}`,
-          close: '</a></p>',
-          display
-        }
-      }
-      return {
-        open: `<p ${style}>${label}<span ${id}>${value}`,
-        close: '</span></p>',
-        display
-      }
-    }
-    return null;
+      label: display.label,
+      type: display.type,
+      value: entry[display.value || '@value'],
+      path: display.searchLabel[display.searchLabel.length - 1]
+    });
   }
 
   function entries(html, entry, searchLabels) {
     searchLabels.push(entry.searchLabel);
-    let tag = defaultHelper(entry, searchLabels)
-    if (tag)
-      tag.display.section ? tag.display.section.html.push(tag.open) : html.push(tag.open);
+    findDisplayConfig(entry, searchLabels)
     if (entry.inline) {
       for (const inlineEntry of entry.inline.entries) {
         entries(html, inlineEntry, searchLabels);
       }
     }
     searchLabels.pop();
-    if (tag)
-      tag.display.section ? tag.display.section.html.push(tag.close) : html.push(tag.close);
   }
 
   for (const item of items) {

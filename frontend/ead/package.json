@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "node-sass": "^5.0.0",
+    "openseadragon": "^2.4.2",
     "sirv-cli": "^1.0.0",
     "svelte-preprocess": "^4.6.9"
   }

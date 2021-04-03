@@ -1,22 +1,28 @@
 <script>
   import {rdfToHtml} from "./rdf";
-  import * as response from './v2.json'
+  import response from './v2.json'
+  import example from './example.json';
+  import new_record from './new_base_record.json'
   import Timeline from "./Timeline.svelte";
+  import Sources from "./Sources.svelte";
+  import Viewer from "./Viewer.svelte";
+  import Series from "./Series.svelte";
 
   export let route;
 
-  const item = response.items.find(i => i.id === +route.values.id);
+  const item = response.items[0]
 
   console.log(response.items)
 
-  const viewerSection = {name: '', html: []}
-  const dcSection = {name: 'Summary', html: []}
-  const naveSection = {name: 'Collection', html: []}
-  const edmSection = {name: 'Rights', html: []}
+  const viewerSection = {name: '', items: []}
+  const dcSection = {name: 'Summary', items: []}
+  const naveSection = {name: 'Collection', items: []}
+  const edmSection = {name: 'Rights', items: []}
   const sections = [dcSection, edmSection]
 
   const detailConfig = {
     display: [
+
       {section: viewerSection, type: 'image', searchLabel: ['edm_hasView', 'nave_thumbLarge']},
       {section: dcSection, label: 'Vervaardiger', searchLabel: ['dc_creator']},
       {section: dcSection, label: 'Beschrijving', searchLabel: ['dc_description']},
@@ -32,30 +38,52 @@
     ]
   };
 
+  const display = [
+    {
+      value: 'dc:identifier'
+    },
+    {
+      value: 'dc:title'
+    }
+  ]
+
   rdfToHtml([item], detailConfig)
+
+  let image = viewerSection.items[0]
+  console.log(example)
 </script>
 
 <div class="detail-page">
-  {@html viewerSection.html.join('')}
+  <Viewer views={new_record['edm:hasView']}/>
+  <section class="summary">
+    {#each display as property}
+      {#if property.value in new_record}
+        <p>{new_record[property.value]}</p>
+      {/if}
+    {/each}
+  </section>
 
-  <Timeline/>
+  <Timeline timeline={example['possesionReconstruction']}/>
 
   {#each sections as section}
-    <section>
+    <section class="metadata">
       <header><h1>{section.name}</h1></header>
       <div class="info">
-      {@html section.html.join('')}
+        {#each section.items as item}
+          <p>
+            <label>{item.label}</label>
+            <span>{item.value}</span>
+          </p>
+        {/each}
       </div>
     </section>
   {/each}
+
+  <Series></Series>
+  <Sources/>
 </div>
 
-<style>
-  .detail-page {
-    width: 50%;
-    margin: auto;
-  }
-
+<style type="text/scss">
   header {
     width: 25%;
   }
@@ -64,5 +92,32 @@
     width: 75%;
     display: flex;
     flex-direction: column;
+  }
+
+  .summary {
+    color: white;
+    background-color: black;
+    font-size: 140%;
+    text-align: center;
+    padding: 1em;
+  }
+
+  .metadata {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid black;
+
+    p {
+      display: flex;
+      gap: 1em;
+
+      label {
+        flex-basis: 15%;
+      }
+    }
+  }
+
+  label {
+    font-weight: bold;
   }
 </style>

@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+*:focus {
+  border: 10px solid orange !important;
+}
+
 body, ul {
   padding: 0;
   margin: 0;
@@ -22,7 +26,7 @@ input, button, select, textarea {
   font-size: inherit;
   -webkit-padding: 0.4em 0;
   padding: 0.4em;
-  margin: 0 0 0.5em 0;
+  margin: 0;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 2px;
