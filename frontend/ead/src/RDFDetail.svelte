@@ -1,12 +1,11 @@
 <script>
-  import {rdfToHtml} from "./rdf";
   import response from './v2.json'
-  import example from './example.json';
-  import new_record from './new_base_record.json'
+  import new_record from './NK3189.json'
   import Timeline from "./Timeline.svelte";
   import Sources from "./Sources.svelte";
   import Viewer from "./Viewer.svelte";
   import Series from "./Series.svelte";
+  import Metadata from "./Metadata.svelte";
 
   export let route;
 
@@ -15,28 +14,43 @@
   console.log(response.items)
 
   const viewerSection = {name: '', items: []}
-  const dcSection = {name: 'Summary', items: []}
+  const idSection = {name: 'Identificatie', items: []}
   const naveSection = {name: 'Collection', items: []}
   const edmSection = {name: 'Rights', items: []}
-  const sections = [dcSection, edmSection]
-
-  const detailConfig = {
-    display: [
-
-      {section: viewerSection, type: 'image', searchLabel: ['edm_hasView', 'nave_thumbLarge']},
-      {section: dcSection, label: 'Vervaardiger', searchLabel: ['dc_creator']},
-      {section: dcSection, label: 'Beschrijving', searchLabel: ['dc_description']},
-      {section: dcSection, label: 'Onderwerp', searchLabel: ['dc_subject']},
-      {section: dcSection, label: 'Soort object', searchLabel: ['dc_type']},
-      {section: dcSection, label: 'Identificatie', searchLabel: ['dc_identifier']},
-      {section: naveSection, label: 'Collectie', searchLabel: ['nave_collection']},
-      {section: naveSection, label: 'Deelcollectie', searchLabel: ['nave_collectionPart']},
-      {section: naveSection, label: 'Collectietype', searchLabel: ['nave_collectionType']},
-      {section: edmSection, label: 'Instelling/bron', searchLabel: ['edm_dataProvider']},
-      {section: edmSection, type: 'link', value: '@id', label: 'Originele context', searchLabel: ['edm_isShownAt']},
-      {section: edmSection, type: 'link', value: '@id', label: 'Rechten', searchLabel: ['edm_rights']},
-    ]
-  };
+  const sections = [
+    {
+      label: 'Identificatie',
+      items: [
+        {label: 'Titel', path: ['dc:title']},
+        {label: 'NK nummer', path: ['objectNumber']},
+        {label: 'Beschrijving', path: ['dc:description']}
+      ],
+    },
+    {
+      label: 'Vervaardiging',
+      items: [
+        {label: 'Vervaardiger', path: ['creator', 'creatorName']},
+        {label: 'Datum start', path: ['productionDate', 'dateStart']},
+        {label: 'Datum einde', path: ['productionDate', 'dateEnd']}
+      ],
+    },
+    {
+      label: 'Fysieke kenmerken',
+      items: [
+        {label: 'Materiaal', path: ['nave:material']},
+        {label: 'Hoogte/lengte', path: ['dimension', 'heightLenght']},
+        {label: 'Diameter', path: ['dimension', 'depthDiameter']}
+      ]
+    },
+    {
+      label: 'Onderwerp',
+      items: [
+        {label: 'Wat', path: ['dc:subject']},
+        {label: 'Object categorie', path: ['nave:objectCategory']},
+        {label: 'Object naam', path: ['nave:objectName']}
+      ]
+    }
+  ]
 
   const display = [
     {
@@ -47,10 +61,7 @@
     }
   ]
 
-  rdfToHtml([item], detailConfig)
-
   let image = viewerSection.items[0]
-  console.log(example)
 </script>
 
 <div class="detail-page">
@@ -63,24 +74,26 @@
     {/each}
   </section>
 
-  <Timeline timeline={example['possesionReconstruction']}/>
+  <Timeline timeline={new_record['possesionReconstruction']}/>
+  <h2>Restitutie Status</h2>
+  <p>{new_record.restititutionStatus.status}</p>
 
   {#each sections as section}
     <section class="metadata">
-      <header><h1>{section.name}</h1></header>
+      <header><h1>{section.label}</h1></header>
       <div class="info">
         {#each section.items as item}
           <p>
             <label>{item.label}</label>
-            <span>{item.value}</span>
+            <Metadata context={new_record['cho']} path={item.path}/>
           </p>
         {/each}
       </div>
     </section>
   {/each}
 
-  <Series></Series>
-  <Sources/>
+  <Series series={new_record["dcterms:hasParts"]}></Series>
+  <Sources sources={new_record['hasSources']}/>
 </div>
 
 <style type="text/scss">

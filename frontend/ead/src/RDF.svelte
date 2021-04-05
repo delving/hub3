@@ -1,7 +1,7 @@
 <script>
   import './rdf.scss'
   import './collectienederland.scss'
-  import response from './new_base_record.json'
+  import response from './NK3189.json'
   import SearchPage from "./search/SearchPage.svelte";
   import {doOnce} from "./doOnce";
 

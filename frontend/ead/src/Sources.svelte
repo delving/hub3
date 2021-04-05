@@ -1,5 +1,5 @@
 <script>
-  let sources = [
+  export let sources = [
     {
       title: 'Awefknwefwenlfwknwef',
       link: 'http://www.nationaalarchief.nl'
@@ -33,7 +33,7 @@
   <ul>
     {#each sources as source}
       <li>
-        <a href="#">{source.title}</a>
+        <a href={source['edm:isShownAt']}>{source['rdf:label']}</a>
       </li>
     {/each}
   </ul>
