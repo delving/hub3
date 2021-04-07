@@ -18,7 +18,7 @@
 </script>
 
 Sorteren op
-<select on:change={setSortBy}>
+<select class="form-select" on:change={setSortBy}>
   <option value=""></option>
   <option value="_score">Relevantie</option>
   <option value="meta.spec">Nummer toegang</option>
@@ -26,13 +26,20 @@ Sorteren op
 </select>
 
 Volgorde
-<select on:change={setSortOrder}>
+<select class="form-select" on:change={setSortOrder}>
   <option value="asc">Oplopend</option>
   <option value="desc">Aflopend</option>
 </select>
 Resultaten
-<select>
+<select class="form-select">
   <option>10</option>
   <option>20</option>
   <option>50</option>
 </select>
+
+<style>
+  .form-select {
+    display: inline;
+    width: auto;
+  }
+</style>

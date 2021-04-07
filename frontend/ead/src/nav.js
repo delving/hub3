@@ -1,22 +1,26 @@
 import {config} from './config'
 
-const urls = config.urls;
-
 const MISSING = '@missing';
 
 export function linkEad(archive) {
-  return createLink(urls.ead, {inventoryID: archive.inventoryID});
+  return createLink(config.urls.detailPage, {inventoryID: archive.inventoryID});
+}
+
+export function archiveSearch() {
+  return createLink(config.requestUrls.archiveSearch, {
+    baseUrl: config.baseUrl,
+  })
 }
 
 export function linkCLevel(archive, cLevel) {
-  return createLink(urls.cLevel, {
+  return createLink(config.urls.detailPageCLevel, {
     inventoryID: archive.inventoryID,
     cLevelPath: cLevel.path
   });
 }
 
 export function linkEadDescription(archive, search) {
-  return createLink(urls.eadDescription, {
+  return createLink(config.urls.detailPageDescription, {
     inventoryID: archive.inventoryID,
     query: search.q
   });
@@ -27,7 +31,7 @@ function decodeValue(v) {
 }
 
 function getRouteFrom(path) {
-  for (const [key, url] of Object.entries(urls)) {
+  for (const [key, url] of Object.entries(config.urls)) {
     if (url.path.length !== path.length) continue;
     let isMatch = true;
     const values = {};
@@ -44,11 +48,12 @@ function getRouteFrom(path) {
     if (isMatch) {
       return {
         routeId: key,
+        component: url.component,
         values
       };
     }
   }
-  return {values:{}};
+  return {values: {}};
 }
 
 export function getRoute() {
@@ -63,7 +68,9 @@ function translate(segment, urlContext) {
   if (propertyValue === '' || propertyValue === null || propertyValue === undefined) {
     return MISSING;
   }
-  return propertyValue.replace('/', '::');
+  return propertyValue.indexOf('http') === 0
+    ? propertyValue
+    : propertyValue.replace('/', '::');
 }
 
 function createLink(link, urlContext) {
@@ -74,7 +81,8 @@ function createLink(link, urlContext) {
   }))
     .filter(param => param.key !== MISSING && param.value !== MISSING)
     .map(param => `${param.key}=${param.value}`);
-  let url = `/${path.join('/')}`;
+  const joinedPath = path.join('/');
+  let url = joinedPath.indexOf('http') !== 0 ? `/${joinedPath}` : joinedPath;
   if (query.length > 0) url += `?${query.join('&')}`;
   return url;
 }

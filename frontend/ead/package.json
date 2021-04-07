@@ -25,6 +25,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "bootstrap": "^5.0.0-beta3",
     "node-sass": "^5.0.0",
     "openseadragon": "^2.4.2",
     "sirv-cli": "^1.0.0",

@@ -9,6 +9,7 @@ import scss from 'rollup-plugin-scss';
 import {string} from 'rollup-plugin-string'
 import serve from 'rollup-plugin-serve'
 
+const customerId = 'na';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
@@ -23,7 +24,7 @@ export default {
     serve({
       contentBase: ['public'],
       port: 5000,
-      historyApiFallback: true
+      historyApiFallback: `/${customerId}/index.html`
     }),
     json(),
 
@@ -34,7 +35,7 @@ export default {
 			},
       preprocess: preprocess()
 		}),
-    scss({ output: 'public/build/bundle.css' }),
+    scss({ output: 'public/build/bundle.css', exclude: 'public/css' }),
     string({
       include: '**/*.xml'
     }),

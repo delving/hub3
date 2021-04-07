@@ -1,13 +1,16 @@
 <script>
-  import Facets from "./Facets.svelte";
   import Search from "./Search.svelte";
   import Sort from "./Sort.svelte";
   import {queryStore} from "./queryStore";
   import {noop} from "svelte/internal";
   import Pager from "../Pager.svelte";
+  import Grid from "../Grid.svelte";
+  import {searchStore} from "../searchStore";
+  import EadSearch from "../ead/search/EadSearch.svelte";
 
   export let events;
-  export let search;
+  export let route;
+  let search;
   let query;
 
   $: events = {
@@ -15,36 +18,60 @@
     ...events
   };
 
-  queryStore.subscribe(async currValue => {
+  queryStore.subscribe(currValue => {
     query = currValue;
+    searchStore.prepare(query)
+  })
+
+  searchStore.subscribe(currValue => {
+    search = currValue
   })
 </script>
 
 {#if search}
-  <Search {query}/>
-  <div class="sort">
-    <Sort {query}/>
-  </div>
-
-  <div class="facets">
-    <Facets {events} facets={search.facets}/>
-  </div>
-
-  <div class="content">
-    <slot></slot>
-  </div>
-
-  <div class="pager">
-    <Pager/>
-  </div>
+  <section data-component-type={route.component}>
+    <Search facets={search.facets} {query}/>
+    <div class="sort">
+      <Sort {query}/>
+    </div>
+<!--    <Facets {events} facets={search.facets}/>-->
+    {#if route.component === 'grid'}
+      <div class="grid">
+        <Grid {search}/>
+      </div>
+    {:else if route.component === 'archive'}
+      <div class="archive">
+        <EadSearch {search}/>
+      </div>
+    {/if}
+    <div class="pager">
+      <Pager/>
+    </div>
+  </section>
 {/if}
 
 <style type="text/scss">
-  @import "src/variables";
+  section {
+    display: grid;
+    grid-template-columns: 3em 1fr 1fr 1fr 1fr 1fr 1fr 3em;
+  }
 
-  button, select, input {
-    background-color: $DEFAULT_COMPONENT_BG_COLOR;
-    padding: 10px;
+  section[data-component-type="archive"] {
+    grid-template-areas:
+    "search search  search  search  search  search  search  search"
+    ".      facets  facets  facets  facets  facets  facets  ."
+    ".      sort    sort    sort    sort    sort    sort    ."
+    ".      archive archive archive archive archive archive ."
+    ".      pager   pager   pager   pager   pager   pager   ."
+  }
+
+  section[data-component-type="grid"] {
+    grid-template-areas:
+    "search search search search search search search search"
+    ".      facets facets facets facets facets facets ."
+    ".      sort   sort   sort   sort   sort   sort   ."
+    ".      grid   grid   grid   grid   grid   grid   ."
+    ".      pager  pager  pager  pager  pager  pager  .";
   }
 
   table {
@@ -60,15 +87,15 @@
     grid-area: sort;
   }
 
-  .facets {
-    grid-area: facets;
-  }
-
-  .content {
-    grid-area: content;
+  .grid {
+    grid-area: grid;
   }
 
   .pager {
     grid-area: pager;
+  }
+
+  .archive {
+    grid-area: archive;
   }
 </style>

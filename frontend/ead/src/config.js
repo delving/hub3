@@ -1,34 +1,19 @@
-export let config = {
-  facets: {
-    'tree.hasDigitalObject': {
-      order: 1,
-      label: 'Bevat digitaal materiaal'
-    },
-    'ead-rdf_genreform': {
-      order: 2,
-      label: 'Soort materiaal'
-    },
-    'tree.mimeType': {
-      order: 3,
-      label: 'Digitaal bestandstype'
-    }
-  },
-  urls:
-    {
-      ead: {
-        path: ['archief', ':inventoryID']
-      },
-      cLevel: {
-        path: ['archief', ':inventoryID', 'invnr', ':cLevelPath']
-      },
-      eadDescription: {
-        path: ['archief', ':inventoryID', 'description'],
-        query: [
-          {key: 'q', value: ':query'}
-        ]
-      },
-      nkDetail: {
-        path: ['detail', ':id']
-      }
-    }
-};
+export let config;
+
+let callbacks = []
+
+export function configReady(callback) {
+  if (config)
+    callback()
+  else
+    callbacks.push(callback);
+}
+
+(async () => {
+  const configElement = document.getElementById('delving-config');
+  const result = await fetch(configElement.href);
+  config = await result.json();
+  callbacks.forEach(callback => callback());
+  callbacks = [];
+})()
+

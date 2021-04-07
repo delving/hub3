@@ -1,13 +1,13 @@
 import {writable} from "svelte/store";
 
+let isReady = false
 const facets = new Set()
 const {subscribe, update, set} = writable(null)
-parseUrl();
 
 function createSearchString(search) {
   const queryBuilder = []
   Object.entries(search)
-    .filter(p => p[0] !== 'searchString' &&p[1])
+    .filter(p => p[0] !== 'searchString' && p[1])
     .forEach(p => queryBuilder.push(`${p[0]}=${p[1]}`))
   facets.forEach(url => queryBuilder.push(url))
 
@@ -36,6 +36,7 @@ function parseUrl() {
   const searchString = location.search
   const urlSearchParams = new URLSearchParams()
 
+  isReady = true;
   set({
     q: urlSearchParams.get('q') || '',
     sortBy: urlSearchParams.get('sortBy') || '',
@@ -44,7 +45,12 @@ function parseUrl() {
 }
 
 export const queryStore = {
-  subscribe,
+  subscribe: (callback) => {
+    subscribe(currValue => {
+      if (isReady)
+        callback(currValue)
+    })
+  },
   updateQuery,
   parseUrl,
   setFacet: setFacetLink

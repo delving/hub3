@@ -1,0 +1,37 @@
+{
+  "baseUrl": "https://hub3.nl-hana.delving.io",
+  "facets": {
+    "tree.hasDigitalObject": {
+      "order": 1,
+      "label": "Bevat digitaal materiaal"
+    },
+    "ead-rdf_genreform": {
+      "order": 2,
+      "label": "Soort materiaal"
+    },
+    "tree.mimeType": {
+      "order": 3,
+      "label": "Digitaal bestandstype"
+    }
+  },
+  "requestUrls": {
+    "archiveSearch": {
+      "path": ["nk", "NK3189.json"]
+    }
+  },
+  "urls":
+    {
+      "searchPage": {
+        "path": [
+          "nk-collectie"
+        ],
+        "component": "grid"
+      },
+      "rdfDetailPage": {
+        "path": [
+          "page", "nkrecord", "nk", ":id"
+        ],
+        "component": "detail"
+      }
+    }
+}

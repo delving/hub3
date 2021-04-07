@@ -1,5 +1,4 @@
 <script>
-  import response from './v2.json'
   import new_record from './NK3189.json'
   import Timeline from "./Timeline.svelte";
   import Sources from "./Sources.svelte";
@@ -8,10 +7,6 @@
   import Metadata from "./Metadata.svelte";
 
   export let route;
-
-  const item = response.items[0]
-
-  console.log(response.items)
 
   const viewerSection = {name: '', items: []}
   const idSection = {name: 'Identificatie', items: []}

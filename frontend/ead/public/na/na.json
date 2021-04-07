@@ -1,0 +1,69 @@
+{
+  "baseUrl": "https://hub3.nl-hana.delving.io",
+  "facets": {
+    "tree.hasDigitalObject": {
+      "order": 1,
+      "label": "Bevat digitaal materiaal"
+    },
+    "ead-rdf_genreform": {
+      "order": 2,
+      "label": "Soort materiaal"
+    },
+    "tree.mimeType": {
+      "order": 3,
+      "label": "Digitaal bestandstype"
+    }
+  },
+  "requestUrls": {
+    "archiveSearch": {
+      "path": [
+        ":baseUrl",
+        "api",
+        "ead",
+        "search"
+      ]
+    }
+  },
+  "urls": {
+    "searchPage": {
+      "path": [
+        "onderzoeken",
+        "zoeken"
+      ],
+      "component": "archive"
+    },
+    "detailPage": {
+      "path": [
+        "onderzoeken",
+        "archief",
+        ":inventoryID"
+      ],
+      "component": "archiveDetail"
+    },
+    "detailPageCLevel": {
+      "path": [
+        "onderzoeken",
+        "archief",
+        ":inventoryID",
+        "invnr",
+        ":cLevelPath"
+      ],
+      "component": "archiveDetail"
+    },
+    "detailPageDescription": {
+      "path": [
+        "onderzoeken",
+        "archief",
+        ":inventoryID",
+        "description"
+      ],
+      "query": [
+        {
+          "key": "q",
+          "value": ":query"
+        }
+      ],
+      "component": "archiveDetail"
+    }
+  }
+}

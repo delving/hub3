@@ -1,0 +1,2147 @@
+{
+    "baseType": "series",
+    "@type": "NKAggregation",
+    "@id": "NK3189",
+    "baseID": "NK3189",
+    "hasSeries": [
+        {
+            "@id": "nkrecord/nk/NK3189-A-BH"
+        }
+    ],
+    "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/1000",
+    "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/500",
+    "edm:hasView": [
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199",
+            "rdf:label": "NK3189-C",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300",
+            "rdf:label": "NK3189-M",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145",
+            "rdf:label": "NK3189-S",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f",
+            "rdf:label": "NK3189-AD",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b",
+            "rdf:label": "NK3189-A",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d",
+            "rdf:label": "NK3189-AO",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf",
+            "rdf:label": "NK3189-AA",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac",
+            "rdf:label": "NK3189-L",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b",
+            "rdf:label": "NK3189-AK",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592",
+            "rdf:label": "NK3189-AF",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4",
+            "rdf:label": "NK3189-AI",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451",
+            "rdf:label": "NK3189-D",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760",
+            "rdf:label": "NK3189-B",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42",
+            "rdf:label": "NK3189-BA",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f",
+            "rdf:label": "NK3189-AZ",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb",
+            "rdf:label": "NK3189-T",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da",
+            "rdf:label": "NK3189-AQ",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04",
+            "rdf:label": "NK3189-X",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67",
+            "rdf:label": "NK3189-BH",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099",
+            "rdf:label": "NK3189-AU",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30",
+            "rdf:label": "NK3189-AC",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5",
+            "rdf:label": "NK3189-AG",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6",
+            "rdf:label": "NK3189-AJ",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9",
+            "rdf:label": "NK3189-BC",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6",
+            "rdf:label": "NK3189-F",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8",
+            "rdf:label": "NK3189-O",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8",
+            "rdf:label": "NK3189-AL",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336",
+            "rdf:label": "NK3189-J",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97",
+            "rdf:label": "NK3189-Z",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983",
+            "rdf:label": "NK3189-BB",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e",
+            "rdf:label": "NK3189-AX",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8",
+            "rdf:label": "NK3189-I",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2",
+            "rdf:label": "NK3189-BD",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d",
+            "rdf:label": "NK3189-R",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810",
+            "rdf:label": "NK3189-AW",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266",
+            "rdf:label": "NK3189-G",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b",
+            "rdf:label": "NK3189-AB",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51",
+            "rdf:label": "NK3189-AE",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a",
+            "rdf:label": "NK3189-H",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2",
+            "rdf:label": "NK3189-W",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16",
+            "rdf:label": "NK3189-Y",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89",
+            "rdf:label": "NK3189-AN",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246",
+            "rdf:label": "NK3189-BF",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad",
+            "rdf:label": "NK3189-AV",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0",
+            "rdf:label": "NK3189-BE",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d",
+            "rdf:label": "NK3189-AT",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6",
+            "rdf:label": "NK3189-AS",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47",
+            "rdf:label": "NK3189-AY",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb",
+            "rdf:label": "NK3189-P",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06",
+            "rdf:label": "NK3189-Q",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06.dzi"
+        },
+        {
+            "@type": "edm:WebResource",
+            "@id": "https://media.delving.org/id/webresource/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9",
+            "rdf:label": "NK3189-K",
+            "nave:thumbSmall": "https://media.delving.org/thumbnail/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9/500",
+            "nave:thumbLarge": "https://media.delving.org/thumbnail/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9/1000",
+            "nave:deepZoomUri": "https://media.delving.org/deepzoom/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9.dzi"
+        }
+    ],
+    "dc:identifier": "NK3189",
+    "dc:title": "dummy field",
+  "restititutionStatus": {
+    "status": "onbekend"
+  },
+  "possesionReconstruction": [
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 0,
+      "dateEnd": "1929",
+      "name": "Morpurgo, J.M.",
+      "location": "Amsterdam",
+      "role": "kunsthandel",
+      "archiveSource": "RKD fotodocumentatie; W. Sumowski, Gemälde der Rembrandt-Schüler, deel 1, p.10, noot 75, Tent.cat. Oude Kunst, Rijksmuseum, Amsterdam 1929, nr.1302"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 1,
+      "name": "Hahn, H.",
+      "location": "Frankfurt am Main",
+      "role": "veiling",
+      "archiveSource": "RKD fotodocumentatie"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 2,
+      "name": "Emmeric",
+      "role": "collectie",
+      "archiveSource": "RKD fotodocumentatie; W. Sumowski, Gemälde der Rembrandt-Schüler, deel 1, p.10, noot 75"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 3,
+      "name": "Onbekend (Amsterdam)",
+      "location": "Amsterdam",
+      "role": "kunsthandel",
+      "archiveSource": "Archief SNK nr.865"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 4,
+      "dateEnd": "1944-01-13",
+      "name": "Ridder, M. de",
+      "location": "Haarlem",
+      "archiveSource": "ICN inventariskaart; Archief SNK nr.435, 790, 865; Bundesarchiv Koblenz B323 nr.575"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 5,
+      "dateStart": "1944-01-13",
+      "dateEnd": "1944-01-13",
+      "name": "Posse, H.",
+      "location": "Linz",
+      "archiveSource": "Archief SNK nr.435, 865",
+      "notes": "Deze herkomstnaam moet op een vergissing berusten. Posse was reeds in december 1942 overleden."
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 6,
+      "dateStart": "1944-01-13",
+      "name": "Hitler, A.",
+      "archiveSource": "ICN inventariskaart; Archief SNK nr.435, 865"
+    },
+    {
+      "@type": "Possesion",
+      "badge": "ec-scrape",
+      "nave:sortOrder": 7,
+      "name": "Führermuseum",
+      "location": "Linz",
+      "role": "museum",
+      "archiveSource": "Bundesarchiv Koblenz B323 nr.575"
+    }
+  ],
+    "dcterms:hasParts": [
+        {
+            "@id": "NK3189-A",
+            "dc:identifier": "NK3189-A",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c05426e-d454-78c5-d96f-f5076dfd935b/500"
+        },
+        {
+            "@id": "NK3189-A-BH",
+            "dc:identifier": "NK3189-A-BH",
+            "dc:type": "series",
+            "dc:title": "Meissen servies 60 delig porselein glazuur polychroom  bloemdecor gegolfde vergulde rand"
+        },
+        {
+            "@id": "NK3189-AA",
+            "dc:identifier": "NK3189-AA",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/b38f509e-5465-4eb6-34fa-156e3bdb4ddf/500"
+        },
+        {
+            "@id": "NK3189-AB",
+            "dc:identifier": "NK3189-AB",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/67270806-766e-eb97-eb27-c847a802788b/500"
+        },
+        {
+            "@id": "NK3189-AC",
+            "dc:identifier": "NK3189-AC",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/7d6b1681-de88-df7e-b399-b3fab9f35f30/500"
+        },
+        {
+            "@id": "NK3189-AD",
+            "dc:identifier": "NK3189-AD",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/fdf67cb9-56b2-09c5-faf1-6813efece56f/500"
+        },
+        {
+            "@id": "NK3189-AE",
+            "dc:identifier": "NK3189-AE",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c8bee44-58b2-92dd-c958-1b10f0a5cd51/500"
+        },
+        {
+            "@id": "NK3189-AF",
+            "dc:identifier": "NK3189-AF",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/45725792-56b2-4bb3-66a0-843a1e629592/500"
+        },
+        {
+            "@id": "NK3189-AG",
+            "dc:identifier": "NK3189-AG",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/e39e7443-7dfc-e691-85e6-63aacc8af6b5/500"
+        },
+        {
+            "@id": "NK3189-AH",
+            "dc:identifier": "NK3189-AH",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-AI",
+            "dc:identifier": "NK3189-AI",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/2dbf9db6-4159-c0a1-6342-5126395f8ef4/500"
+        },
+        {
+            "@id": "NK3189-AJ",
+            "dc:identifier": "NK3189-AJ",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/a319f860-c19c-d7a5-e00c-8b8393e4dac6/500"
+        },
+        {
+            "@id": "NK3189-AK",
+            "dc:identifier": "NK3189-AK",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/bfe61104-0150-186f-a49f-998144c2a95b/500"
+        },
+        {
+            "@id": "NK3189-AL",
+            "dc:identifier": "NK3189-AL",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/1bac680e-a323-1a06-786a-7168eec8c0f8/500"
+        },
+        {
+            "@id": "NK3189-AM",
+            "dc:identifier": "NK3189-AM",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-AN",
+            "dc:identifier": "NK3189-AN",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/0918e5ea-6154-2659-4e2b-d49aace9ac89/500"
+        },
+        {
+            "@id": "NK3189-AO",
+            "dc:identifier": "NK3189-AO",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/9df0f1f1-8180-7ccb-6a74-855548f6c01d/500"
+        },
+        {
+            "@id": "NK3189-AP",
+            "dc:identifier": "NK3189-AP",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-AQ",
+            "dc:identifier": "NK3189-AQ",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/f13b1e83-c54f-8449-f15b-10be0c65d7da/500"
+        },
+        {
+            "@id": "NK3189-AR",
+            "dc:identifier": "NK3189-AR",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-AS",
+            "dc:identifier": "NK3189-AS",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/4ea94b24-fd0b-737c-b63b-46561b878ff6/500"
+        },
+        {
+            "@id": "NK3189-AT",
+            "dc:identifier": "NK3189-AT",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/99e0da40-1ebd-950c-959e-6e44d69eb49d/500"
+        },
+        {
+            "@id": "NK3189-AU",
+            "dc:identifier": "NK3189-AU",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/3312df59-ef60-b88d-2c66-442685c54099/500"
+        },
+        {
+            "@id": "NK3189-AV",
+            "dc:identifier": "NK3189-AV",
+            "dc:type": "series-object",
+            "dc:title": [
+                "Bord"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/14b3250e-926c-9997-6659-1a581c52b1ad/500"
+        },
+        {
+            "@id": "NK3189-AW",
+            "dc:identifier": "NK3189-AW",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/db0853a1-2580-a6c2-6ce6-7dec7909f810/500"
+        },
+        {
+            "@id": "NK3189-AX",
+            "dc:identifier": "NK3189-AX",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/375e15de-9dad-fb70-4098-8b20683c8e8e/500"
+        },
+        {
+            "@id": "NK3189-AY",
+            "dc:identifier": "NK3189-AY",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/6bb7eba5-b320-4856-8383-28c620967a47/500"
+        },
+        {
+            "@id": "NK3189-AZ",
+            "dc:identifier": "NK3189-AZ",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/986b8967-34f3-9569-465f-4b468b95068f/500"
+        },
+        {
+            "@id": "NK3189-B",
+            "dc:identifier": "NK3189-B",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/6374c539-66ca-8711-44b5-bc660fc99760/500"
+        },
+        {
+            "@id": "NK3189-BA",
+            "dc:identifier": "NK3189-BA",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/0b0ccab5-8824-938b-ba7f-e06a17a28d42/500"
+        },
+        {
+            "@id": "NK3189-BB",
+            "dc:identifier": "NK3189-BB",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/be99156b-eab8-4f98-76b8-0ed1ea716983/500"
+        },
+        {
+            "@id": "NK3189-BC",
+            "dc:identifier": "NK3189-BC",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/f3e4de64-a142-44ae-688e-12c5b0dc0fa9/500"
+        },
+        {
+            "@id": "NK3189-BD",
+            "dc:identifier": "NK3189-BD",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/682cfe0a-8bb3-4be1-65b1-ec14203d60c2/500"
+        },
+        {
+            "@id": "NK3189-BE",
+            "dc:identifier": "NK3189-BE",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/8c2903ef-909c-3888-0975-9e39a70edbe0/500"
+        },
+        {
+            "@id": "NK3189-BF",
+            "dc:identifier": "NK3189-BF",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/686afb1b-f116-bbb5-e6b6-7faa29a99246/500"
+        },
+        {
+            "@id": "NK3189-BG",
+            "dc:identifier": "NK3189-BG",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-BH",
+            "dc:identifier": "NK3189-BH",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/410ef12a-2b0f-7b21-cc3a-731fd9ca1e67/500"
+        },
+        {
+            "@id": "NK3189-C",
+            "dc:identifier": "NK3189-C",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/fa5726cc-e498-5db2-81de-892e9379a199/500"
+        },
+        {
+            "@id": "NK3189-D",
+            "dc:identifier": "NK3189-D",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/b0d4b54d-f407-07d0-a2d1-fec07f7e8451/500"
+        },
+        {
+            "@id": "NK3189-E",
+            "dc:identifier": "NK3189-E",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-F",
+            "dc:identifier": "NK3189-F",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/cbed5dcf-b78d-f315-4d72-4370e713f5e6/500"
+        },
+        {
+            "@id": "NK3189-G",
+            "dc:identifier": "NK3189-G",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/2f4a9a2a-9cda-b7b2-9281-662ac9597266/500"
+        },
+        {
+            "@id": "NK3189-H",
+            "dc:identifier": "NK3189-H",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/76093c89-77fa-bdd5-614e-04987173cd2a/500"
+        },
+        {
+            "@id": "NK3189-I",
+            "dc:identifier": "NK3189-I",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/2536151b-9666-26c1-b9fe-33b3c80e8ae8/500"
+        },
+        {
+            "@id": "NK3189-J",
+            "dc:identifier": "NK3189-J",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/a88f9a43-51d8-cce9-4bad-90f451d8f336/500"
+        },
+        {
+            "@id": "NK3189-K",
+            "dc:identifier": "NK3189-K",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/c63f51e8-c27e-5691-839e-0f19342251e9/500"
+        },
+        {
+            "@id": "NK3189-L",
+            "dc:identifier": "NK3189-L",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/20ad0575-e6b2-f8d4-96fe-5ff2b288ccac/500"
+        },
+        {
+            "@id": "NK3189-M",
+            "dc:identifier": "NK3189-M",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/d5118ac1-7afd-8c13-1ae4-144b622c8300/500"
+        },
+        {
+            "@id": "NK3189-N",
+            "dc:identifier": "NK3189-N",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-O",
+            "dc:identifier": "NK3189-O",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/0f028172-f150-e245-c2cc-c7e00d7cdab8/500"
+        },
+        {
+            "@id": "NK3189-P",
+            "dc:identifier": "NK3189-P",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/27c2f23c-67f7-575c-8418-fed7ae9246fb/500"
+        },
+        {
+            "@id": "NK3189-Q",
+            "dc:identifier": "NK3189-Q",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/3ff5f399-ec42-234b-5797-5d5b5cc34e06/500"
+        },
+        {
+            "@id": "NK3189-R",
+            "dc:identifier": "NK3189-R",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/02242ec9-c86a-aaa6-42c0-570dc1673c7d/500"
+        },
+        {
+            "@id": "NK3189-S",
+            "dc:identifier": "NK3189-S",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/8006d204-5346-b619-7f53-b6536168b145/500"
+        },
+        {
+            "@id": "NK3189-T",
+            "dc:identifier": "NK3189-T",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/aa5c7d7e-6f72-3615-76aa-575dfc3cdedb/500"
+        },
+        {
+            "@id": "NK3189-U",
+            "dc:identifier": "NK3189-U",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-V",
+            "dc:identifier": "NK3189-V",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ]
+        },
+        {
+            "@id": "NK3189-W",
+            "dc:identifier": "NK3189-W",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/d003983f-2fcb-6bce-c982-bd6f89964db2/500"
+        },
+        {
+            "@id": "NK3189-X",
+            "dc:identifier": "NK3189-X",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/a0842cc4-941d-a824-368d-0c8c11801a04/500"
+        },
+        {
+            "@id": "NK3189-Y",
+            "dc:identifier": "NK3189-Y",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/65c7dfbf-7c2f-4125-6138-c67f031f4f16/500"
+        },
+        {
+            "@id": "NK3189-Z",
+            "dc:identifier": "NK3189-Z",
+            "dc:type": "series-object",
+            "dc:title": [
+                "-"
+            ],
+            "edm:isShownBy": "https://media.delving.org/thumbnail/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97/1000",
+            "edm:object": "https://media.delving.org/thumbnail/dcn/nkcollectie/779a1934-6f64-b191-1e88-7b2adfb12b97/500"
+        }
+    ],
+    "hasSources": [
+        {
+            "@id": "rc-csv",
+            "dcterms:hasParts": [
+                {
+                    "@id": "12",
+                    "@type": null,
+                    "dc:identifier": "1.02",
+                    "dc:title": "Advies inzake het verzoek tot teruggave van collectie Gutmann",
+                    "edm:isShownAt": "https://www.restitutiecommissie.nl/adviezen/advies_12.html",
+                    "datePublished": "2002-03-25",
+                    "rcGranted": "2002-03-25",
+                    "rcRejected": null
+                }
+            ],
+            "rdf:label": "Restitutiecommissie",
+            "edm:isShownAt": "https://www.restitutiecommissie.nl/"
+        },
+        {
+            "@id": "rce-nk",
+            "dcterms:hasParts": [
+                {
+                    "dc:identifier": "NK3189-BH",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-T",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-A",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-V",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BC",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AX",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AD",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AY",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AF",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-Q",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-G",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AL",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-U",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AB",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-N",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AT",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AW",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BE",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-H",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-W",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-Y",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AV",
+                    "dc:title": [
+                        "Bord"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-X",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AA",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AO",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BB",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-M",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AR",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BG",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-D",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AS",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-E",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AH",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BD",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-R",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AN",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AK",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BF",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AZ",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AG",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AI",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-K",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AP",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-L",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-P",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AC",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AU",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-F",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AJ",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-BA",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-S",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-C",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-I",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AE",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-Z",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-O",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AM",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-J",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-AQ",
+                    "dc:title": [
+                        "-"
+                    ]
+                },
+                {
+                    "dc:identifier": "NK3189-B",
+                    "dc:title": [
+                        "-"
+                    ]
+                }
+            ],
+            "rdf:label": "Rijksdienst voor Cultureel Erfgoed",
+            "edm:isShownAt": "https://www.cultureelerfgoed.nl/"
+        },
+        {
+            "@id": "ec-scrape",
+            "dcterms:hasParts": [
+                {
+                    "dc:identifier": "NK3189-BH",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-23",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-T",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-41",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-A",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-V",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-43",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BC",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-18",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AX",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-12",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AD",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-2",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AY",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-13",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AF",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-4",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-Q",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-38",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-G",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-28",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AL",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-0",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-U",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-42",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AB",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-0",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-N",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-35",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AT",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-8",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AW",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-11",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BE",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-20",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-H",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-29",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-W",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-44",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-Y",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-46",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AV",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-10",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-X",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-45",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AA",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AO",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-3",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BB",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-17",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-M",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-34",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AR",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-6",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BG",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-22",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-D",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-25",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AS",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-7",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-E",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-26",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AH",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-6",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BD",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-19",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-R",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-39",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AN",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-2",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AK",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-9",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BF",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-21",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AZ",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-14",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AG",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-5",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AI",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-7",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-K",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-32",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AP",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-4",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-L",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-33",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-P",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-37",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AC",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-1",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AU",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-9",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-F",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-27",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AJ",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-8",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-BA",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-16",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-S",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-40",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-C",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-24",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-I",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-30",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AE",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/soepbord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-3",
+                    "dc:title": "Soepbord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-Z",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-47",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-O",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-36",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AM",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-1",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-J",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-31",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-AQ",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-5",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                },
+                {
+                    "dc:identifier": "NK3189-B",
+                    "edm:isShownAt": "http://www.herkomstgezocht.nl/nl/nk-collectie/bord-van-geglazuurd-porselein-met-polychroom-bloemdecor-en-gegolfde-vergulde-rand-15",
+                    "dc:title": "Bord van geglazuurd porselein met polychroom bloemdecor en gegolfde vergulde rand"
+                }
+            ],
+            "rdf:label": "Herkomst Gezocht",
+            "edm:isShownAt": "http://www.herkomstgezocht.nl/"
+        }
+    ],
+    "cho": {
+        "objectNumber": "NK3189-A",
+        "badge": "rce-nk",
+        "dc:subject": [
+            "keramiek",
+            "bord"
+        ],
+        "dc:description": [
+            "Bord, porselein, glazuur, polychroom bloemdecor, gegolfde vergulde rand"
+        ],
+        "dimension": {
+            "heightLenght": [
+                "3.8 cm"
+            ],
+            "depthDiameter": [
+                "24 cm"
+            ],
+            "@type": "Dimension",
+            "badge": "rce-nk"
+        },
+        "barcode": [
+            "#2"
+        ],
+        "barcodeLabel": [
+            "Restitutie"
+        ],
+        "nrOfParts": [
+            "1"
+        ],
+        "dc:title": [
+            "-"
+        ],
+        "nave:material": [
+            "porselein",
+            "glazuur"
+        ],
+        "nave:objectName": [
+            "bord"
+        ],
+        "nave:objectCategory": [
+            "toegepaste kunst"
+        ],
+        "user_code": [
+            "UIT"
+        ],
+        "creator": [
+            {
+                "creatorName": [
+                    "Sächsische Porzellan-Manufaktur, Königl."
+                ],
+                "creationRole": [
+                    "werkplaats/fabriek"
+                ],
+                "dateOfBirth": [
+                    "1710"
+                ],
+                "@type": "Creator",
+                "badge": "rce-nk"
+            }
+        ],
+        "productionPlace": [
+            "Meissen[DE]"
+        ],
+        "productionDate": [
+            {
+                "dateStart": [
+                    "1710"
+                ],
+                "dateEnd": [
+                    "1799"
+                ],
+                "@type": "Production",
+                "badge": "rce-nk"
+            }
+        ],
+        "@type": "CHO"
+    },
+  "facets": [
+    {
+      "name": "ead-rdf_genreform",
+      "field": "ead-rdf_genreform",
+      "isSelected": false,
+      "total": 5705733,
+      "missingDocs": 0,
+      "otherDocs": 0,
+      "links": [
+        {
+          "url": "qf[]=ead-rdf_genreform:overig/onbekend",
+          "isSelected": false,
+          "value": "overig/onbekend",
+          "displayString": "overig/onbekend (5505989)",
+          "count": 5505989
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:kaart",
+          "isSelected": false,
+          "value": "kaart",
+          "displayString": "kaart (109709)",
+          "count": 109709
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:tekening",
+          "isSelected": false,
+          "value": "tekening",
+          "displayString": "tekening (70957)",
+          "count": 70957
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:charter",
+          "isSelected": false,
+          "value": "charter",
+          "displayString": "charter (13680)",
+          "count": 13680
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:foto",
+          "isSelected": false,
+          "value": "foto",
+          "displayString": "foto (5167)",
+          "count": 5167
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:affiche",
+          "isSelected": false,
+          "value": "affiche",
+          "displayString": "affiche (219)",
+          "count": 219
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:website",
+          "isSelected": false,
+          "value": "website",
+          "displayString": "website (7)",
+          "count": 7
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:geluidsband",
+          "isSelected": false,
+          "value": "geluidsband",
+          "displayString": "geluidsband (3)",
+          "count": 3
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:audiovisueel",
+          "isSelected": false,
+          "value": "audiovisueel",
+          "displayString": "audiovisueel (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=ead-rdf_genreform:charter | kaart",
+          "isSelected": false,
+          "value": "charter | kaart",
+          "displayString": "charter | kaart (1)",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "tree.mimeType",
+      "field": "tree.mimeType",
+      "isSelected": false,
+      "total": 5712753,
+      "missingDocs": 0,
+      "otherDocs": 0,
+      "links": [
+        {
+          "url": "qf[]=tree.mimeType:image/jpeg",
+          "isSelected": false,
+          "value": "image/jpeg",
+          "displayString": "image/jpeg (313421)",
+          "count": 313421
+        },
+        {
+          "url": "qf[]=tree.mimeType:image/tiff",
+          "isSelected": false,
+          "value": "image/tiff",
+          "displayString": "image/tiff (54490)",
+          "count": 54490
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/pdf",
+          "isSelected": false,
+          "value": "application/pdf",
+          "displayString": "application/pdf (9736)",
+          "count": 9736
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/msword",
+          "isSelected": false,
+          "value": "application/msword",
+          "displayString": "application/msword (1572)",
+          "count": 1572
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "isSelected": false,
+          "value": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "displayString": "application/vnd.openxmlformats-officedocument.wordprocessingml.document (566)",
+          "count": 566
+        },
+        {
+          "url": "qf[]=tree.mimeType:text/plain",
+          "isSelected": false,
+          "value": "text/plain",
+          "displayString": "text/plain (48)",
+          "count": 48
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/octet-stream",
+          "isSelected": false,
+          "value": "application/octet-stream",
+          "displayString": "application/octet-stream (37)",
+          "count": 37
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.ms-powerpoint",
+          "isSelected": false,
+          "value": "application/vnd.ms-powerpoint",
+          "displayString": "application/vnd.ms-powerpoint (37)",
+          "count": 37
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.ms-excel",
+          "isSelected": false,
+          "value": "application/vnd.ms-excel",
+          "displayString": "application/vnd.ms-excel (17)",
+          "count": 17
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "isSelected": false,
+          "value": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "displayString": "application/vnd.openxmlformats-officedocument.presentationml.presentation (14)",
+          "count": 14
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "isSelected": false,
+          "value": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          "displayString": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet (7)",
+          "count": 7
+        },
+        {
+          "url": "qf[]=tree.mimeType:image/bmp",
+          "isSelected": false,
+          "value": "image/bmp",
+          "displayString": "image/bmp (5)",
+          "count": 5
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/zip",
+          "isSelected": false,
+          "value": "application/zip",
+          "displayString": "application/zip (4)",
+          "count": 4
+        },
+        {
+          "url": "qf[]=tree.mimeType:video/x-msvideo",
+          "isSelected": false,
+          "value": "video/x-msvideo",
+          "displayString": "video/x-msvideo (3)",
+          "count": 3
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/mp4, video/mp4",
+          "isSelected": false,
+          "value": "application/mp4, video/mp4",
+          "displayString": "application/mp4, video/mp4 (2)",
+          "count": 2
+        },
+        {
+          "url": "qf[]=tree.mimeType:image/gif",
+          "isSelected": false,
+          "value": "image/gif",
+          "displayString": "image/gif (2)",
+          "count": 2
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/rtf, text/rtf",
+          "isSelected": false,
+          "value": "application/rtf, text/rtf",
+          "displayString": "application/rtf, text/rtf (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/vnd.oasis.opendocument.presentation",
+          "isSelected": false,
+          "value": "application/vnd.oasis.opendocument.presentation",
+          "displayString": "application/vnd.oasis.opendocument.presentation (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/x-endnote-refer",
+          "isSelected": false,
+          "value": "application/x-endnote-refer",
+          "displayString": "application/x-endnote-refer (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:application/xhtml+xml",
+          "isSelected": false,
+          "value": "application/xhtml+xml",
+          "displayString": "application/xhtml+xml (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:audio/mpeg",
+          "isSelected": false,
+          "value": "audio/mpeg",
+          "displayString": "audio/mpeg (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:text/html",
+          "isSelected": false,
+          "value": "text/html",
+          "displayString": "text/html (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:video/mpeg",
+          "isSelected": false,
+          "value": "video/mpeg",
+          "displayString": "video/mpeg (1)",
+          "count": 1
+        },
+        {
+          "url": "qf[]=tree.mimeType:video/x-ms-wmv",
+          "isSelected": false,
+          "value": "video/x-ms-wmv",
+          "displayString": "video/x-ms-wmv (1)",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "tree.hasDigitalObject",
+      "field": "tree.hasDigitalObject",
+      "isSelected": false,
+      "total": 5712753,
+      "missingDocs": 0,
+      "otherDocs": 0,
+      "links": [
+        {
+          "url": "qf[]=tree.hasDigitalObject:false",
+          "isSelected": false,
+          "value": "false",
+          "displayString": "false (5330221)",
+          "count": 5330221
+        },
+        {
+          "url": "qf[]=tree.hasDigitalObject:true",
+          "isSelected": false,
+          "value": "true",
+          "displayString": "true (382532)",
+          "count": 382532
+        }
+      ]
+    }
+  ]
+}

@@ -5,7 +5,6 @@
 
   const facetConfig = config.facets;
 
-  export let events;
   export let facets;
 
   $: facetNodes = {}
@@ -27,48 +26,34 @@
     queryStore.setFacet(facet, link, event.target.checked)
   }
 
-  function facetClicked(facet) {
-    events.facetClicked(facet, facetNodes[facet.field]);
+  function toggleOptions(e) {
+    e.target.parentNode.querySelector('ul').classList.toggle('d-block');
   }
 </script>
 
-{#each facets as facet (facet.field)}
-  {#if facet.links.length > 0}
-    <div bind:this={facetNodes[facet.field]} class="facet">
-      <p class="title">
-        <a href="#" on:click|stopPropagation={() => facetClicked(facet)}>{facet.displayString}</a>
-        <span class="count">({facet.total})</span>
-      </p>
-      <div class="options">
-        {#each facet.links as link (link.value)}
-          <p>
-            <input type="checkbox" on:change={e => change(facet, link, e)} name={link.name} checked={link.isSelected}/>
-            <label for={link.name}>{link.displayString}</label>
-          </p>
-        {/each}
-      </div>
-    </div>
-  {/if}
-{/each}
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+  {#each facets as facet (facet.field)}
+    <li class="nav-item">
+      <a class="nav-link" on:click={toggleOptions}>{facet.displayString}</a>
+      {#if facet.links.length > 0}
+        <ul class="list-group">
+          {#each facet.links as link (link.value)}
+            <li class="list-group-item">
+              <input type="checkbox" class="form-check-input" on:change={e => change(facet, link, e)} name={link.name}
+                     checked={link.isSelected}/>
+              <label class="form-check-label" for={link.name}>{link.displayString}</label>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </li>
+  {/each}
+</ul>
 
 <style type="text/scss">
-  //@import "src/variables";
-
-  //.title {
-  //  font-weight: bold;
-  //}
-
-  //.facet {
-  //  background-color: $DEFAULT_COMPONENT_BG_COLOR;
-  //  padding: 10px;
-  //  margin-bottom: 10px;
-  //}
-  //
-  //.options {
-  //  border-top: 1px solid $DEFAULT_TEXT_COLOR;
-  //}
-
-  input, label {
-    display: inline;
+  ul ul {
+    position: absolute;
+    z-index: 1;
+    display: none;
   }
 </style>
