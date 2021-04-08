@@ -248,7 +248,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			case "bulkaction":
 				sr.ResponseFormatType = ResponseFormatType_BULKACTION
 			}
-		case "rows", "limit":
+		case "rows", "limit", "size":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
 				logConvErr(p, []string{params.Get(p)}, err)
@@ -288,6 +288,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			case "asc":
 				sr.SortAsc = true
 			}
+		case "collapseFormat":
+			sr.CollapseFormat = params.Get(p)
 		case "collapseOn":
 			sr.CollapseOn = params.Get(p)
 		case "collapseSort":
@@ -1197,6 +1199,20 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	s = s.Query(query)
 
+	fub, err := NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
+	if err != nil {
+		log.Println("Unable to FacetURIBuilder")
+		return s, nil, err
+	}
+
+	// Add post filters
+	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+	if err != nil {
+		log.Printf("unable to create postfilter: %#v", err)
+		return s, nil, err
+	}
+	s = s.PostFilter(postFilter)
+
 	if sr.CollapseOn != "" {
 		collapseSize := 5
 		if sr.CollapseSize != 0 {
@@ -1207,12 +1223,15 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 			MaxConcurrentGroupRequests(4)
 		s = s.Collapse(b)
 		s = s.FetchSource(false)
-	}
 
-	fub, err := NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
-	if err != nil {
-		log.Println("Unable to FacetURIBuilder")
-		return s, nil, err
+		collapseCountAgg := elastic.NewCardinalityAggregation().
+			Field(sr.CollapseOn)
+
+		countFilterAgg := elastic.NewFilterAggregation().
+			Filter(postFilter).
+			SubAggregation("collapseCount", collapseCountAgg)
+
+		s = s.Aggregation("counts", countFilterAgg)
 	}
 
 	if sr.Peek != "" {
@@ -1240,14 +1259,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 		s = s.FetchSourceContext(fsc)
 	}
-
-	// Add post filters
-	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
-	if err != nil {
-		log.Printf("unable to create postfilter: %#v", err)
-		return s, nil, err
-	}
-	s = s.PostFilter(postFilter)
 
 	// Add aggregations
 	if sr.Paging {

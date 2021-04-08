@@ -115,34 +115,6 @@ var _ = Describe("Apiutils", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(query).ToNot(BeNil())
 
-				echo, err := sr.Echo("es", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo).To(HaveKey("bool"))
-
-			})
-
-			It("should return an error on unknown echoType", func() {
-				echo, err := sr.Echo("unknown", 20)
-				Expect(err).To(HaveOccurred())
-				Expect(echo).To(BeNil())
-
-			})
-
-			//It("should show the scrollID", func() {
-			//echo, err := sr.Echo("nextScrollID", int64(30))
-			//Expect(err).ToNot(HaveOccurred())
-			//Expect(echo).ToNot(BeNil())
-			//Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-			//Expect(echo.(*SearchRequest).GetResponseSize()).To(Equal(int32(10)))
-			//})
-
-			It("should show the Search Request", func() {
-				echo, err := sr.Echo("searchRequest", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-
 			})
 		})
 

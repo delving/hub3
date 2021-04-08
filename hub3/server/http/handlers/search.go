@@ -163,15 +163,42 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 			return
 		}
+
 		records, err := decodeCollapsed(res, searchRequest)
 		if err != nil {
 			log.Printf("Unable to render collapse")
 			return
 		}
-		echoRequest.RenderEcho(w)
+		if searchRequest.CollapseFormat == "flat" {
+			for _, rec := range records {
+				for _, item := range rec.Items {
+					item.NewFields(nil)
+					item.Resources = nil
+					item.Summary = nil
+					item.ProtoBuf = nil
+				}
+			}
+		}
+
 		result := &fragments.ScrollResultV4{}
 		result.Collapsed = records
-		result.Pager = &fragments.ScrollPager{Total: res.TotalHits()}
+
+		var collapsedIds int
+
+		filteredAgg, ok := res.Aggregations.Filter("counts")
+		if ok {
+			collapseCount, ok := filteredAgg.Aggregations.Cardinality("collapseCount")
+			if ok {
+				collapsedIds = int(*collapseCount.Value)
+			}
+		}
+
+		result.Pager, err = searchRequest.ScrollPagers(int64(collapsedIds))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
 		render.JSON(w, r, result)
 		return
 	}
