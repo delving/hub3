@@ -1198,8 +1198,12 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	s = s.Query(query)
 
 	if sr.CollapseOn != "" {
+		collapseSize := 5
+		if sr.CollapseSize != 0 {
+			collapseSize = int(sr.CollapseSize)
+		}
 		b := elastic.NewCollapseBuilder(sr.CollapseOn).
-			InnerHit(elastic.NewInnerHit().Name("collapse").Size(5)).
+			InnerHit(elastic.NewInnerHit().Name("collapse").Size(collapseSize)).
 			MaxConcurrentGroupRequests(4)
 		s = s.Collapse(b)
 		s = s.FetchSource(false)
@@ -1269,43 +1273,6 @@ func NewScrollPager() *ScrollPager {
 	sp.Cursor = 0
 
 	return sp
-}
-
-// Echo returns a json version of the request object for introspection
-func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error) {
-	switch echoType {
-	case "es":
-		query, err := sr.ElasticQuery()
-		if err != nil {
-			return nil, err
-		}
-		source, _ := query.Source()
-		return source, nil
-	case "aggs":
-		aggs, err := sr.Aggregations(nil)
-		if err != nil {
-			return nil, err
-		}
-		sourceMap := map[string]interface{}{}
-		for k, v := range aggs {
-			source, _ := v.Source()
-			sourceMap[k] = source
-		}
-		return sourceMap, nil
-	case "searchRequest":
-		return sr, nil
-	case "options":
-		options := []string{
-			"es", "aggs", "searchRequest", "options", "searchService", "searchResponse", "request",
-			"nextScrollID", "searchAfter",
-		}
-		sort.Strings(options)
-		return options, nil
-	case "searchService", "searchResponse", "request", "nextScrollID", "previousScrollID", "searchAfter":
-		return nil, nil
-	}
-
-	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 }
 
 type ScrollType int

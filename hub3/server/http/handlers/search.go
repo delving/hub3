@@ -20,13 +20,10 @@ import (
 	"fmt"
 	log "log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
@@ -109,39 +106,23 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
-	// suggestion
-	//s.Suggester(elastic.NewSuggestField)
-
 	res, err := s.Do(r.Context())
-	echoRequest := r.URL.Query().Get("echo")
+	echoRequest := NewEchoSearchRequest(r, searchRequest, s, res)
 	if err != nil {
-		if echoRequest != "" {
-			// echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
-			echo, err := searchRequest.Echo(echoRequest, 0)
-			if err != nil {
-				log.Println("Unable to echo request")
-				log.Println(err)
-				return
+		if echoRequest.HasEcho() {
+			if err := echoRequest.RenderEcho(w); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
-			if echo != nil {
-				render.JSON(w, r, echo)
-				return
-			}
+			return
+		}
+		if echoErr := echoRequest.RenderEcho(w); echoErr != nil {
+			http.Error(w, fmt.Sprintf("unable to render echo: %s", echoErr), http.StatusInternalServerError)
+			return
 		}
 
-		if echoRequest == "searchService" {
-			ss := reflect.ValueOf(s).Elem().FieldByName("searchSource")
-			src := reflect.NewAt(ss.Type(), unsafe.Pointer(ss.UnsafeAddr())).Elem().Interface().(*elastic.SearchSource)
-			srcMap, err := src.Source()
-			if err != nil {
-				log.Printf("Unable to decode SearchSource: got %s", err)
-				http.Error(w, "unable to decode next SearchSource", http.StatusInternalServerError)
-				return
-			}
-			render.JSON(w, r, srcMap)
-		}
-		log.Println("Unable to get search result.")
-		log.Println(err)
+		http.Error(w, fmt.Sprintf("unable to get search results: %s", err), http.StatusInternalServerError)
+
+		log.Printf("Unable to get search result; %s", err)
 		return
 	}
 	if res == nil {
@@ -150,6 +131,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	if searchRequest.Peek != "" {
+		if echoRequest.HasEcho() {
+			if err := echoRequest.RenderEcho(w); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			return
+		}
+
 		aggs, err := searchRequest.DecodeFacets(res, nil)
 		if err != nil {
 			log.Printf("Unable to decode facets: %#v", err)
@@ -169,11 +157,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	if searchRequest.CollapseOn != "" {
+		if echoRequest.HasEcho() {
+			if err := echoRequest.RenderEcho(w); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			return
+		}
 		records, err := decodeCollapsed(res, searchRequest)
 		if err != nil {
 			log.Printf("Unable to render collapse")
 			return
 		}
+		echoRequest.RenderEcho(w)
 		result := &fragments.ScrollResultV4{}
 		result.Collapsed = records
 		result.Pager = &fragments.ScrollPager{Total: res.TotalHits()}
@@ -226,72 +221,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
-	// Echo requests when requested
-	if echoRequest != "" {
-		echo, err := searchRequest.Echo(echoRequest, res.TotalHits())
-		if err != nil {
-			log.Println("Unable to echo request")
-			log.Println(err)
-			return
-		}
-		if echo != nil {
-			render.JSON(w, r, echo)
-			return
-		}
-	}
+	echoRequest.ScrollPager = pager
 
-	switch echoRequest {
-	case "nextScrollID", "previousScrollID", "searchAfter":
-		sr, err := fragments.SearchRequestFromHex(pager.NextScrollID)
-		if echoRequest == "previousScrollID" {
-			sr, err = fragments.SearchRequestFromHex(pager.PreviousScrollID)
-		}
-
-		if err != nil {
-			http.Error(w, "unable to decode ScrollID", http.StatusInternalServerError)
+	if echoRequest.HasEcho() {
+		if echoErr := echoRequest.RenderEcho(w); echoErr != nil {
+			http.Error(w, echoErr.Error(), http.StatusInternalServerError)
 			return
 		}
-		if echoRequest != "searchAfter" {
-			render.JSON(w, r, sr)
-			return
-		}
-		sa, err := sr.DecodeSearchAfter()
-		if err != nil {
-			log.Printf("unable to decode searchAfter: %#v", err)
-			http.Error(w, "unable to decode next SearchAfter", http.StatusInternalServerError)
-			return
-		}
-		render.JSON(w, r, sa)
-		return
-	case "searchResponse":
-		render.JSON(w, r, res)
-		return
-	case "searchService":
-		ss := reflect.ValueOf(s).Elem().FieldByName("searchSource")
-		src := reflect.NewAt(ss.Type(), unsafe.Pointer(ss.UnsafeAddr())).Elem().Interface().(*elastic.SearchSource)
-		srcMap, err := src.Source()
-		if err != nil {
-			log.Printf("Unable to decode SearchSource: got %s", err)
-			http.Error(w, "unable to decode next SearchSource", http.StatusInternalServerError)
-			return
-		}
-		render.JSON(w, r, srcMap)
-		return
-	case "request":
-		dump, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			msg := fmt.Sprintf("Unable to dump request: %s", err)
-			log.Print(msg)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprint(msg),
-				Error:      err,
-			})
-			return
-		}
-
-		render.PlainText(w, r, string(dump))
-		return
 	}
 
 	// meta formats that don't use search result
@@ -300,9 +236,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		entries := []map[string]interface{}{}
 
 		for _, rec := range records {
-			for _, json := range rec.NewJSONLD() {
-				entries = append(entries, json)
-			}
+			entries = append(entries, rec.NewJSONLD()...)
 			rec.Resources = nil
 		}
 
@@ -315,11 +249,11 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 		for _, rec := range records {
 			rec.NewJSONLD()
-			graph, err := json.Marshal(rec.JSONLD)
-			if err != nil {
+			graph, marshalErr := json.Marshal(rec.JSONLD)
+			if marshalErr != nil {
 				render.Status(r, http.StatusInternalServerError)
-				log.Printf("Unable to marshal json-ld to string : %s\n", err.Error())
-				render.PlainText(w, r, err.Error())
+				log.Printf("Unable to marshal json-ld to string : %s\n", marshalErr.Error())
+				render.PlainText(w, r, marshalErr.Error())
 				return
 			}
 
@@ -333,11 +267,11 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				RecordType:    "mdr",
 			}
 
-			bytes, err := json.Marshal(action)
-			if err != nil {
+			bytes, marshalErr := json.Marshal(action)
+			if marshalErr != nil {
 				render.Status(r, http.StatusInternalServerError)
-				log.Printf("Unable to create Bulkactions: %s\n", err.Error())
-				render.PlainText(w, r, err.Error())
+				log.Printf("Unable to create Bulkactions: %s\n", marshalErr.Error())
+				render.PlainText(w, r, marshalErr.Error())
 				return
 			}
 
