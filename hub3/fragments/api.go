@@ -1213,6 +1213,9 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	if sr.Peek != "" {
 		facetField := &FacetField{Field: sr.Peek, Size: int32(100)}
+		if sr.Peek == metaTags {
+			facetField.Type = FacetType_METATAGS
+		}
 		agg, aggErr := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
 			return nil, nil, aggErr
@@ -1814,18 +1817,12 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := KeyAsString(b)
-							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
-
-							if isSelected && !qf.IsSelected {
-								qf.IsSelected = true
-							}
 							fl := &FacetLink{
-								URL:           url,
-								IsSelected:    isSelected,
 								Value:         key,
 								Count:         b.DocCount,
 								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 							}
+							setFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
 						}
 					}
@@ -1870,19 +1867,14 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 				for _, b := range value.Buckets {
 					key := KeyAsString(b)
 
-					url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
-
-					if isSelected && !qf.IsSelected {
-						qf.IsSelected = true
-					}
-
 					fl := &FacetLink{
-						URL:           url,
-						IsSelected:    isSelected,
 						Value:         key,
 						Count:         b.DocCount,
 						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 					}
+
+					setFacetLink(key, qf, fl, fb)
+
 					qf.Links = append(qf.Links, fl)
 				}
 
@@ -1891,6 +1883,19 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 		}
 	}
 	return aggs, nil
+}
+
+func setFacetLink(key string, qf *QueryFacet, fl *FacetLink, fb *FacetURIBuilder) {
+	if fb != nil {
+		url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
+
+		if isSelected && !qf.IsSelected {
+			qf.IsSelected = true
+		}
+
+		fl.URL = url
+		fl.IsSelected = isSelected
+	}
 }
 
 // KeyAsString extracts the key as string from the elastic.AggregationBucketKeyItem.
