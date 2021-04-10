@@ -49,7 +49,9 @@ function toSpan(node, copyAttributes, depth, builder) {
       const attrs = `${attributes.join(' ')} class="${classNames.concat(extraClasses).join(' ')}"`;
       if(tagName === 'c') {
         this.closingTags = '</li></ul>';
-        return `<ul ${attrs}><li>`;
+        const listType = node.getAttribute('level') === 'file' ? 'list-group-flush' : 'list-group';
+        const cAttrs = `${attributes.join(' ')} class="${classNames.concat(extraClasses).concat(listType).join(' ')}"`;
+        return `<ul ${cAttrs}><li class="list-group-item">`;
       }
       if (tagName === 'head') {
         this.closingTags = '</h1>';
@@ -61,7 +63,7 @@ function toSpan(node, copyAttributes, depth, builder) {
       }
       if(tagName === 'tgroup') {
         this.closingTags = '</table>';
-        return `<table>`;
+        return `<table class="table">`;
       }
       if(tagName === 'thead') {
         this.closingTags = '</thead>';
@@ -81,11 +83,11 @@ function toSpan(node, copyAttributes, depth, builder) {
       }
       if(tagName === 'list') {
         this.closingTags = '</ul>';
-        return `<ul ${attrs}>`;
+        return `<ul class="list-group" ${attrs}>`;
       }
       if(tagName === 'item') {
         this.closingTags = '</li>';
-        return `<li>`;
+        return `<li class="list-group-item">`;
       }
       if(tagName === 'descgrp' || tagName === 'did') {
         this.closingTags = '</section>';
@@ -223,6 +225,14 @@ function navTreeFilter(node) {
   return false;
 }
 
+function treeFilter(node) {
+  const tagName = node.tagName;
+  if (!tagName) return treeFilter(node.parentNode);
+  if (tagName.toLowerCase() !== 'unitid') return true;
+  const type = node.getAttribute("type");
+  return type !== "blank" && type !== "handle";
+}
+
 module.exports = function (eadXml) {
   const xmlDoc = parser.parseFromString(eadXml, "text/xml");
   let sections = xmlDoc.querySelectorAll('eadheader > filedesc, archdesc > did, archdesc > descgrp');
@@ -235,7 +245,7 @@ module.exports = function (eadXml) {
   const descriptionPages = toHtml(dsc, 200);
 
   const tree = xmlDoc.querySelector('archdesc > dsc[type="combined"]');
-  const treePages = toHtml(tree, 250);
+  const treePages = toHtml(tree, 250, treeFilter);
   const navigationTree = toHtml(tree, Number.MAX_SAFE_INTEGER, navTreeFilter);
   return {
     description: {

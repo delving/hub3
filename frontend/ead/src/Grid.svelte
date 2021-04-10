@@ -1,6 +1,8 @@
 <script>
   import {doOnce} from "./doOnce";
+  import {linkTo} from "./router";
 
+  export let config;
   export let search;
   const events = {
     facetClicked: (facet, node) => {
@@ -23,32 +25,49 @@
       value: 'dc:title'
     }
   ]
+
+  function createLink(item) {
+    return linkTo(config.linkTo, item.meta)
+  }
 </script>
 
-{#each items as item}
-  <a href="/nkDetail/{item['@id']}" class="item" let:value>
-    {#each display as property}
-      {#if value = item[property.value]}
-        <p>
-          {#if property.label}
-            <label>{property.label}</label>
-          {/if}
-          {#if property.type === 'image'}
-            <img src={value} alt="Geen foto"/>
-          {:else}
-            <span>{value}</span>
-          {/if}
-        </p>
-      {:else if property.type === 'image'}
-        <p>
-          <img alt="Geen foto"/>
-        </p>
-      {/if}
-    {/each}
-  </a>
-{/each}
+<div class="grid">
+  {#each items as item}
+    <a href={linkTo(config.linkTo, item)} class="item" let:value>
+      {#each display as property}
+        {#if value = item[property.value]}
+          <p>
+            {#if property.label}
+              <label>{property.label}</label>
+            {/if}
+            {#if property.type === 'image'}
+              <img class="rounded mx-auto d-block" src={value} alt="Geen foto"/>
+            {:else}
+              <span>{value}</span>
+            {/if}
+          </p>
+        {:else if property.type === 'image'}
+          <p>
+            <img alt="Geen foto"/>
+          </p>
+        {/if}
+      {/each}
+    </a>
+  {/each}
+</div>
 
 <style>
+  .grid {
+    grid-area: grid;
+    overflow-y: auto;
+    display: grid;
+    gap: 10px;
+    max-height: 100%;
+
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: auto;
+  }
+
   label, span {
     display: inline;
   }

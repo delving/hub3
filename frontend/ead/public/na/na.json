@@ -1,58 +1,32 @@
 {
   "baseUrl": "https://hub3.nl-hana.delving.io",
-  "facets": {
-    "tree.hasDigitalObject": {
-      "order": 1,
-      "label": "Bevat digitaal materiaal"
-    },
-    "ead-rdf_genreform": {
-      "order": 2,
-      "label": "Soort materiaal"
-    },
-    "tree.mimeType": {
-      "order": 3,
-      "label": "Digitaal bestandstype"
-    }
-  },
-  "requestUrls": {
-    "archiveSearch": {
-      "path": [
-        ":baseUrl",
-        "api",
-        "ead",
-        "search"
-      ]
-    }
-  },
+  "fallback": "archiveSearch",
   "urls": {
-    "searchPage": {
+    "findingAidSearchPage": {
       "path": [
-        "onderzoeken",
-        "zoeken"
-      ],
-      "component": "archive"
+        "na",
+        "archieven"
+      ]
     },
-    "detailPage": {
+    "findingAidPage": {
       "path": [
-        "onderzoeken",
+        "na",
         "archief",
         ":inventoryID"
-      ],
-      "component": "archiveDetail"
+      ]
     },
-    "detailPageCLevel": {
+    "findingAidCLevelPage": {
       "path": [
-        "onderzoeken",
+        "na",
         "archief",
         ":inventoryID",
         "invnr",
         ":cLevelPath"
-      ],
-      "component": "archiveDetail"
+      ]
     },
-    "detailPageDescription": {
+    "findingAidDescriptionPage": {
       "path": [
-        "onderzoeken",
+        "na",
         "archief",
         ":inventoryID",
         "description"
@@ -62,8 +36,435 @@
           "key": "q",
           "value": ":query"
         }
-      ],
-      "component": "archiveDetail"
+      ]
+    },
+    "indexSearchPage": {
+      "path": [
+        "na",
+        "index"
+      ]
+    },
+    "indexPage": {
+      "path": [
+        "na",
+        "index",
+        ":spec"
+      ]
+    },
+    "indexDetailPage": {
+      "path": [
+        "na",
+        "index",
+        "detail",
+        ":hubID"
+      ]
+    },
+    "imageSearchPage": {
+      "path": [
+        "na",
+        "images"
+      ]
+    },
+    "imagePage": {
+      "path": [
+        "na",
+        "image",
+        ":@id"
+      ]
     }
-  }
+  },
+  "components": [
+    {
+      "key": "archiveSearch",
+      "tabLabel": "Archief",
+      "type": "archive",
+      "facets": {
+        "tree.hasDigitalObject": {
+          "order": 1,
+          "label": "Bevat digitaal materiaal"
+        },
+        "ead-rdf_genreform": {
+          "order": 2,
+          "label": "Soort materiaal"
+        },
+        "tree.mimeType": {
+          "order": 3,
+          "label": "Digitaal bestandstype"
+        }
+      },
+      "requestUrls": {
+        "search": {
+          "path": [
+            ":baseUrl",
+            "api",
+            "ead",
+            "search"
+          ]
+        }
+      },
+      "routes": [
+        "findingAidSearchPage"
+      ]
+    },
+    {
+      "key": "indexSearch",
+      "tabLabel": "Indexen",
+      "type": "indexSearch",
+      "facets": {},
+      "display": {
+        "linkTo": "indexPage",
+        "items": [
+          {
+            "label": "Beschrijving",
+            "path": [
+              "nt-rdf_datasetLabel"
+            ]
+          },
+          {
+            "label": "Periode",
+            "path": [
+              "nt-rdf_period"
+            ]
+          }
+        ]
+      },
+      "requestUrls": {
+        "search": {
+          "path": [
+            ":baseUrl",
+            "api",
+            "search",
+            "v2"
+          ],
+          "query": [
+            {
+              "key": "qf",
+              "value": "meta.tags:nt"
+            },
+            {
+              "key": "collapseOn",
+              "value": "meta.spec"
+            },
+            {
+              "key": "collapseFormat",
+              "value": "flat"
+            },
+            {
+              "key": "collapseSize",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "routes": [
+        "indexSearchPage"
+      ]
+    },
+    {
+      "key": "index",
+      "type": "index",
+      "navigation": false,
+      "facets": {
+        "nt-rdf_pla_naam_geboorteplaats": {
+          "order": 1,
+          "label": "Geboorteplaats"
+        }
+      },
+      "display": {
+        "linkTo": "indexDetailPage",
+        "items": [
+          {
+            "label": "Achternaam",
+            "path": [
+              "nt-rdf_prs_achternaam"
+            ]
+          },
+          {
+            "label": "Voornamen",
+            "path": [
+              "nt-rdf_prs_voornamen"
+            ]
+          },
+          {
+            "label": "Geboortejaar",
+            "path": [
+              "nt-rdf_prs_geboortedatum"
+            ]
+          },
+          {
+            "label": "Geboorteplaats",
+            "path": [
+              "nt-rdf_pla_naam_geboorteplaats"
+            ]
+          }
+        ]
+      },
+      "requestUrls": {
+        "search": {
+          "path": [
+            ":baseUrl",
+            "api",
+            "search",
+            "v2"
+          ],
+          "query": [
+            {
+              "key": "qf",
+              "value": "meta.tags:nt"
+            },
+            {
+              "key": "itemFormat",
+              "value": "flat"
+            },
+            {
+              "key": "qf",
+              "value": ":spec",
+              "prefix": "meta.spec:"
+            },
+            {
+              "key": "facet.field",
+              "value": "nt-rdf_pla_naam_geboorteplaats"
+            }
+          ]
+        }
+      },
+      "routes": [
+        "indexPage"
+      ]
+    },
+    {
+      "key": "indexDetail",
+      "type": "indexDetail",
+      "navigation": false,
+      "requestUrls": {
+        "search": {
+          "path": [
+            ":baseUrl",
+            "api",
+            "search",
+            "v2",
+            ":hubID"
+          ]
+        }
+      },
+      "routes": [
+        "indexDetailPage"
+      ]
+    },
+    {
+      "key": "imageSearch",
+      "tabLabel": "Fotocollectie",
+      "type": "grid",
+      "facets": {},
+      "linkTo": "imagePage",
+      "requestUrls": {
+        "search": {
+          "path": [
+            "nk",
+            "NK3189.json"
+          ]
+        }
+      },
+      "routes": [
+        "imageSearchPage"
+      ]
+    },
+    {
+      "key": "image",
+      "pagination": false,
+      "navigation": false,
+      "type": "image",
+      "facets": {},
+      "linkTo": "imagePage",
+      "requestUrls": {
+        "search": {
+          "path": [
+            "nk",
+            "NK3189.json"
+          ]
+        }
+      },
+      "display": {
+        "summary": [
+          {
+            "value": "dc:identifier"
+          },
+          {
+            "value": "dc:title"
+          }
+        ],
+        "sections": [
+          {
+            "label": "Identificatie",
+            "items": [
+              {
+                "label": "Titel",
+                "path": [
+                  "dc:title"
+                ]
+              },
+              {
+                "label": "NK nummer",
+                "path": [
+                  "objectNumber"
+                ]
+              },
+              {
+                "label": "Beschrijving",
+                "path": [
+                  "dc:description"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Vervaardiging",
+            "items": [
+              {
+                "label": "Vervaardiger",
+                "path": [
+                  "creator",
+                  "creatorName"
+                ]
+              },
+              {
+                "label": "Datum start",
+                "path": [
+                  "productionDate",
+                  "dateStart"
+                ]
+              },
+              {
+                "label": "Datum einde",
+                "path": [
+                  "productionDate",
+                  "dateEnd"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Fysieke kenmerken",
+            "items": [
+              {
+                "label": "Materiaal",
+                "path": [
+                  "nave:material"
+                ]
+              },
+              {
+                "label": "Hoogte/lengte",
+                "path": [
+                  "dimension",
+                  "heightLenght"
+                ]
+              },
+              {
+                "label": "Diameter",
+                "path": [
+                  "dimension",
+                  "depthDiameter"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Onderwerp",
+            "items": [
+              {
+                "label": "Wat",
+                "path": [
+                  "dc:subject"
+                ]
+              },
+              {
+                "label": "Object categorie",
+                "path": [
+                  "nave:objectCategory"
+                ]
+              },
+              {
+                "label": "Object naam",
+                "path": [
+                  "nave:objectName"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "routes": [
+        "imagePage"
+      ]
+    },
+    {
+      "key": "findingAid",
+      "type": "findingAid",
+      "navigation": false,
+      "pagination": false,
+      "requestUrls": {
+        "search": {
+          "method": "post",
+          "path": [
+            "http://localhost:3000",
+            "tree"
+          ],
+          "body": [
+            {
+              "key": "inventoryID",
+              "value": ":inventoryID"
+            },
+            {
+              "key": "navigationTree",
+              "value": true
+            },
+            {
+              "key": "query",
+              "value": ":q"
+            },
+            {
+              "key": "search",
+              "value": ":search"
+            },
+            {
+              "key": "page",
+              "value": ":page"
+            },
+            {
+              "key": "cLevelId",
+              "value": ":findById"
+            }
+          ]
+        }
+      },
+      "routes": [
+        "findingAidPage",
+        "findingAidCLevelPage"
+      ]
+    },
+    {
+      "key": "findingAidDescription",
+      "type": "findingAidDescription",
+      "navigation": false,
+      "pagination": false,
+      "requestUrls": {
+        "search": {
+          "method": "post",
+          "path": [
+            "http://localhost:3000",
+            "description"
+          ],
+          "body": [
+            {
+              "key": "inventoryID",
+              "value": ":inventoryID"
+            }
+          ]
+        }
+      },
+      "routes": [
+        "findingAidDescriptionPage"
+      ]
+    }
+  ]
 }

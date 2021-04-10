@@ -1,5 +1,5 @@
 <script>
-  import {linkCLevel, linkEad, linkEadDescription} from '../../nav'
+  import {linkCLevel, linkEad, linkEadDescription} from '../../router'
 
   export let search;
   let searchRequest = {}

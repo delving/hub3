@@ -2,6 +2,8 @@
   import {onMount} from "svelte";
   import {descriptionStore} from "./descriptionStore";
 
+  export let sections;
+
   async function showSection(i) {
     await descriptionStore.patchSection(i)
   }
@@ -11,8 +13,10 @@
   })
 </script>
 
-{#if $descriptionStore.sections}
-  {#each $descriptionStore.sections as section, i}
-    <li><a href="#" on:click={() => showSection(i)}>{section.title}</a></li>
-  {/each}
-{/if}
+<nav>
+  <ul class="list-group">
+    {#each sections as section, i}
+      <li class="list-group-item"><a href="#" on:click={() => showSection(i)}>{section.title}</a></li>
+    {/each}
+  </ul>
+</nav>

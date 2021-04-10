@@ -1,11 +1,9 @@
 <svelte:options immutable/>
 <script>
-  import {config} from '../config';
   import {queryStore} from "./queryStore";
 
-  const facetConfig = config.facets;
-
   export let facets;
+  export let facetConfig;
 
   $: facetNodes = {}
   $: {
@@ -51,9 +49,12 @@
 </ul>
 
 <style type="text/scss">
-  ul ul {
-    position: absolute;
-    z-index: 1;
-    display: none;
+  ul {
+    ul {
+      position: absolute;
+      z-index: 1;
+      color: yellow;
+      display: none;
+    }
   }
 </style>

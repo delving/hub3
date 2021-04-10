@@ -17,7 +17,11 @@ function createSearchString(search) {
 
 function updateQuery(changes) {
   update(currValue => {
-    const updatedValue = {...currValue, ...changes};
+    const updatedValue = {
+      ...currValue,
+      search: false,
+      ...changes
+    };
     return {...updatedValue, searchString: createSearchString(updatedValue)}
   })
 }
@@ -32,13 +36,14 @@ function setFacetLink(facet, link, isSelected) {
   updateQuery({})
 }
 
-function parseUrl() {
+export function parseUrl() {
   const searchString = location.search
   const urlSearchParams = new URLSearchParams()
 
   isReady = true;
   set({
-    q: urlSearchParams.get('q') || '',
+    q: urlSearchParams.get('q'),
+    search: !!urlSearchParams.get('q'),
     sortBy: urlSearchParams.get('sortBy') || '',
     searchString: searchString
   })

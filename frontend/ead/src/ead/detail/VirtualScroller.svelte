@@ -1,21 +1,21 @@
 <svelte:options immutable/>
 <script>
-  import {onMount} from "svelte";
+  import {afterUpdate, onMount} from "svelte";
+  import {searchStore} from "../../searchStore";
 
   export let pages;
-  export let pager;
   export let match;
+  export let scrollContainer;
 
-  let scrollContainer;
   let containers = []
   let prevMatchContainer;
 
-  $: {
+  afterUpdate(() => {
     if (match && scrollContainer) {
       for (const container of containers) {
         const page = +container.dataset.index;
         if (page === match.page) {
-          const matchContainers = container.querySelectorAll('.dhcl');
+          const matchContainers = container.querySelectorAll('em');
           const matchContainer = matchContainers[match.index];
           if (prevMatchContainer)
             prevMatchContainer.classList.remove('active');
@@ -30,11 +30,10 @@
     } else {
       prevMatchContainer = null;
     }
-  }
+  })
 
   function onScroll() {
-    const scrollTop = scrollContainer.scrollTop
-
+    const scrollTop = Math.abs(scrollContainer.getBoundingClientRect().y)
     let item;
     let index;
     for (let i = 2; i >= 0; i--) {
@@ -44,13 +43,13 @@
       index = i;
       if (scrollTop >= container.offsetTop) break;
     }
-    console.log(index)
+
     if (index == 0 && item.index > 0) {
       containers = []
-      pager.prependPage(pages[index].index - 1)
+      searchStore.prependPage(pages[index].index - 1)
     } else if (index == 2) {
       containers = []
-      pager.appendPage(pages[index].index + 1)
+      searchStore.appendPage(pages[index].index + 1)
     }
   }
 
@@ -59,19 +58,10 @@
   })
 </script>
 
-<div bind:this={scrollContainer} class="scroll">
-  {#each pages as page, index (page.index)}
-    {#if page.html}
-      <div data-index={page.index} bind:this={containers[index]} class="page">
-        {@html page.html}
-      </div>
-    {/if}
-  {/each}
-</div>
-
-<style>
-  .scroll {
-    max-height: 90vh;
-    overflow-y: scroll;
-  }
-</style>
+{#each pages as page, index (page.index)}
+  {#if page.html}
+    <div data-index={page.index} bind:this={containers[index]} class="page">
+      {@html page.html}
+    </div>
+  {/if}
+{/each}

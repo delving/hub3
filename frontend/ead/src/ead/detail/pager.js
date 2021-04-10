@@ -1,12 +1,14 @@
+import {queryStore} from "../../search/queryStore";
+import {searchStore} from "../../searchStore";
+
 export class Pager {
 
   matchIndex = 0;
   hitCount = 0;
-  currentContainer;
 
-  constructor(query, searchResult, fetcher) {
+  constructor(query, searchResult) {
     this.query = query;
-    this.fetcher = fetcher;
+    this.hitCount = searchResult.hitCount;
 
     this.matches = Array(searchResult.hitCount)
     let n = 0;
@@ -22,34 +24,36 @@ export class Pager {
         n++;
       }
     }
+    searchStore.setMatch(this.firstMatch())
   }
 
   firstMatch() {
     return this.matches[0]
   }
 
-  async searchPage(offset) {
+  searchPage(offset) {
     const currentMatch = this.matches[this.matchIndex];
     this.matchIndex += offset;
     const nextMatch = this.matches[this.matchIndex];
 
     if (currentMatch.page !== nextMatch.page) {
-      await this.fetcher({
+      queryStore.updateQuery({
         page: nextMatch.page,
         query: this.query
       })
     }
 
+    searchStore.setMatch(nextMatch)
     return nextMatch;
   }
 
-  async previous() {
+  previous() {
     if(this.matchIndex === 0) return;
-    return await this.searchPage(-1)
+    return this.searchPage(-1)
   }
 
-  async next() {
+  next() {
     if(this.matchIndex === this.matches.length - 1) return;
-    return await this.searchPage(1)
+    return this.searchPage(1)
   }
 }

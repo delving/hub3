@@ -25,18 +25,6 @@ Sorteren op
   <option value="ead-rdf_periodDesc">Periode</option>
 </select>
 
-Volgorde
-<select class="form-select" on:change={setSortOrder}>
-  <option value="asc">Oplopend</option>
-  <option value="desc">Aflopend</option>
-</select>
-Resultaten
-<select class="form-select">
-  <option>10</option>
-  <option>20</option>
-  <option>50</option>
-</select>
-
 <style>
   .form-select {
     display: inline;

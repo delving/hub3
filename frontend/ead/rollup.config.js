@@ -31,15 +31,18 @@ export default {
 		svelte({
 			compilerOptions: {
 				// enable run-time checks when not in production
-				dev: !production
+				dev: !production,
 			},
       preprocess: preprocess()
 		}),
-    scss({ output: 'public/build/bundle.css', exclude: 'public/css' }),
     string({
       include: '**/*.xml'
     }),
-		// we'll extract any component CSS out into
+		resolve({
+			browser: true,
+			dedupe: ['svelte']
+		}),
+    // we'll extract any component CSS out into
 		// a separate file - better for performance
 
 		// If you have external dependencies installed from
@@ -47,11 +50,8 @@ export default {
 		// some cases you'll need additional configuration -
 		// consult the documentation for details:
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve({
-			browser: true,
-			dedupe: ['svelte']
-		}),
-		commonjs(),
+    commonjs(),
+    scss({ output: 'public/build/bundle.css' }),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production

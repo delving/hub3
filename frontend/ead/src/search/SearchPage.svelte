@@ -1,22 +1,23 @@
 <script>
-  import Search from "./Search.svelte";
-  import Sort from "./Sort.svelte";
   import {queryStore} from "./queryStore";
-  import {noop} from "svelte/internal";
+  import {config} from "./../config"
   import Pager from "../Pager.svelte";
   import Grid from "../Grid.svelte";
   import {searchStore} from "../searchStore";
   import EadSearch from "../ead/search/EadSearch.svelte";
+  import Search from "./Search.svelte";
+  import EadDetail from "../ead/detail/EadDetail.svelte";
+  import IndexSearch from "../IndexSearch.svelte";
+  import Index from "../Index.svelte";
+  import IndexDetailPage from "../IndexDetailPage.svelte";
+  import {linkTo, updateRoute, route} from "../router";
+  import EadDescription from "../ead/detail/EadDescription.svelte";
+  import RDFDetail from "../RDFDetail.svelte";
 
-  export let events;
-  export let route;
+  let routeConfig = route.config;
   let search;
   let query;
-
-  $: events = {
-    facetClicked: noop,
-    ...events
-  };
+  let tabsContainer;
 
   queryStore.subscribe(currValue => {
     query = currValue;
@@ -26,76 +27,66 @@
   searchStore.subscribe(currValue => {
     search = currValue
   })
+
+  function show(e) {
+    history.pushState(null, document.title, e.target.href)
+    search = null
+    routeConfig = updateRoute().config
+  }
+
+  function createNavLink(component) {
+    return linkTo(component.routes[0], {});
+  }
 </script>
 
-{#if search}
-  <section data-component-type={route.component}>
-    <Search facets={search.facets} {query}/>
-    <div class="sort">
-      <Sort {query}/>
+<section data-tab-type={routeConfig.type}>
+  <Search {routeConfig} {search} {query}/>
+  {#if routeConfig.navigation !== false}
+    <div class="tabs">
+      <ul bind:this={tabsContainer} class="nav nav-tabs">
+        {#each config.components as component}
+          {#if component.navigation !== false}
+            <li class="nav-item">
+              <a on:click|preventDefault={show}
+                 href={createNavLink(component)}
+                 class:active={component.active} class="nav-link" aria-current="page">{component.tabLabel}</a>
+            </li>
+          {/if}
+        {/each}
+      </ul>
     </div>
-<!--    <Facets {events} facets={search.facets}/>-->
-    {#if route.component === 'grid'}
-      <div class="grid">
-        <Grid {search}/>
-      </div>
-    {:else if route.component === 'archive'}
-      <div class="archive">
-        <EadSearch {search}/>
+  {/if}
+  {#if search}
+    {#if routeConfig.type === 'grid'}
+      <Grid config={routeConfig} {search}/>
+    {:else if routeConfig.type === 'archive'}
+      <EadSearch {search}/>
+    {:else if routeConfig.type === 'findingAid'}
+      <EadDetail tree={search}/>
+    {:else if routeConfig.type === 'findingAidDescription'}
+      <EadDescription description={search}/>
+    {:else if routeConfig.type === 'indexSearch'}
+      <IndexSearch config={routeConfig.display} {search}/>
+    {:else if routeConfig.type === 'index'}
+      <Index config={routeConfig.display} {search}/>
+    {:else if routeConfig.type === 'indexDetail'}
+      <IndexDetailPage config={routeConfig.display} {search}/>
+    {:else if routeConfig.type === 'image'}
+      <RDFDetail config={routeConfig.display} new_record={search}/>
+    {/if}
+    {#if routeConfig.pagination !== false}
+      <div class="pager">
+        <Pager/>
       </div>
     {/if}
-    <div class="pager">
-      <Pager/>
-    </div>
-  </section>
-{/if}
+  {/if}
+</section>
 
 <style type="text/scss">
   section {
-    display: grid;
-    grid-template-columns: 3em 1fr 1fr 1fr 1fr 1fr 1fr 3em;
-  }
-
-  section[data-component-type="archive"] {
-    grid-template-areas:
-    "search search  search  search  search  search  search  search"
-    ".      facets  facets  facets  facets  facets  facets  ."
-    ".      sort    sort    sort    sort    sort    sort    ."
-    ".      archive archive archive archive archive archive ."
-    ".      pager   pager   pager   pager   pager   pager   ."
-  }
-
-  section[data-component-type="grid"] {
-    grid-template-areas:
-    "search search search search search search search search"
-    ".      facets facets facets facets facets facets ."
-    ".      sort   sort   sort   sort   sort   sort   ."
-    ".      grid   grid   grid   grid   grid   grid   ."
-    ".      pager  pager  pager  pager  pager  pager  .";
-  }
-
-  table {
-    font-weight: bold;
-  }
-
-  .stats {
-    grid-area: stats;
     display: flex;
-  }
-
-  .sort {
-    grid-area: sort;
-  }
-
-  .grid {
-    grid-area: grid;
-  }
-
-  .pager {
-    grid-area: pager;
-  }
-
-  .archive {
-    grid-area: archive;
+    flex-direction: column;
+    max-height: 100vh;
+    height: 100vh;
   }
 </style>

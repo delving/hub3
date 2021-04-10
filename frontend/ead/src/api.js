@@ -1,7 +1,7 @@
-import {getRoute} from "./nav";
+import {updateRoute} from "./router";
 
 async function doRequest(endpoint, body) {
-  const route = getRoute()
+  // const route = route()
   const response = await fetch('http://localhost:3000/' + endpoint,
     {
       method: 'post',
@@ -10,7 +10,7 @@ async function doRequest(endpoint, body) {
       },
       body: JSON.stringify({
         ...body,
-        inventoryId: route.values.inventoryID
+        inventoryId: updateRoute.values.inventoryID
       })
     })
   return await response.json();

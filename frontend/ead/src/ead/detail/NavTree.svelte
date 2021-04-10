@@ -1,15 +1,20 @@
+<svelte:options immutable/>
 <script>
-  import {treeStore} from "./treeStore";
   import {tick} from "svelte";
-  import {dom} from "../../dom";
+  import {searchStore} from "../../searchStore";
+
+  export let navigationTree
+  export let treeContainer;
+  let navTree
+  $: if (navigationTree) navTree = navigationTree
 
   async function scrollTo(id) {
     const domQuery = `.c[data-identifier="${id}"]`;
-    let cLevel = dom.treeContainer.querySelector(domQuery);
+    let cLevel = treeContainer.querySelector(domQuery);
     if (!cLevel) {
-      await treeStore.prepare({cLevelId: `@${id}`});
+      await searchStore.prepare({findById: `@${id}`});
       await tick()
-      cLevel = dom.treeContainer.querySelector(domQuery);
+      cLevel = treeContainer.querySelector(domQuery);
     }
     cLevel.scrollIntoView();
   }
@@ -26,4 +31,4 @@
   }
 </script>
 
-<div class="nav-tree" on:click={e => navTreeClicked(e)}>{@html $treeStore.navigationTree}</div>
+<div class="nav-tree" on:click={e => navTreeClicked(e)}>{@html navTree}</div>
