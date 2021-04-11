@@ -1,0 +1,9 @@
+* {
+  box-sizing: border-box;
+}
+
+input:required:invalid,
+select:required:invalid {
+  border-width: 0.2rem;
+  border-color: red;
+}
