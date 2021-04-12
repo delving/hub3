@@ -6,6 +6,7 @@
   export let property;
   export let rootElement;
 
+  let hidden
   let latest = property.latest
   delete property.latest
   let uuidElement;
@@ -42,24 +43,12 @@
   }
 
   function jumpToParent(e) {
-    let parent = rootElement.parentNode
-    while (!parent.classList.contains('header')) {
-      parent = parent.parentNode
-    }
-    console.log(parent)
-    parent.scrollIntoView({behavior: 'smooth'})
+    hidden = !hidden
   }
 </script>
 
 <div bind:this={rootElement} class:latest={latest} class="header" class:root={!property.type}
      class:property={property.type}>
-  {#if property.about !== '#root'}
-    <div class="jump-to-parent">
-      <button on:click={jumpToParent} type="button">
-        <img src="assets/icons/caret-up-fill.svg"/>
-      </button>
-    </div>
-  {/if}
   <div>
     <button type="button" on:click={remove}>
       <img src="assets/icons/x-circle-fill.svg"/>
@@ -100,16 +89,32 @@
       </label>
     </div>
   </div>
-  <ul class="list-group type-list">
-    {#each property.properties as property}
-      <li class="list-group-item">
-        <div>
-          <svelte:self type={property.type} {property}
-                       remove={() => removeChild(property)}/>
-        </div>
-      </li>
-    {/each}
-  </ul>
+
+  {#if property.properties.length > 0}
+    <div class="jump-to-parent">
+      <button on:click={jumpToParent} type="button">
+        {#if hidden}
+          <img title="Expand sub properties" src="assets/icons/file-minus-fill.svg"/>
+        {:else}
+          <img title="Collapse sub properties" src="assets/icons/file-plus-fill.svg"/>
+        {/if}
+      </button>
+    </div>
+  {/if}
+  {#if !hidden}
+    <ul class="list-group type-list">
+      {#each property.properties as property}
+        <li class="list-group-item">
+          <div>
+            <svelte:self type={property.type} {property}
+                         remove={() => removeChild(property)}/>
+          </div>
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <strong>...{property.properties.length} properties hidden</strong>
+  {/if}
 </div>
 
 <style>
@@ -192,13 +197,23 @@
   }
 
   .jump-to-parent {
-    top: -0.9rem;
-    left: -0.9rem;
+    top: -1rem;
+    left: -1rem;
     position: absolute;
   }
 
   .jump-to-parent button {
-    border-radius: 50%;
+    border: none;
+    background: none;
+  }
+
+  .jump-to-parent img {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .hidden {
+    display: none;
   }
 </style>
 

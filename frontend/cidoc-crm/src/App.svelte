@@ -151,7 +151,11 @@
           <button type="button" class="btn btn-dark" on:click={browseModels}>Browse existing models</button>
         </div>
         <hr/>
-        <Type type={root.type} property={root} {remove}/>
+        <ul class="list-group type-list">
+          <li class="list-group-item">
+            <Type type={root.type} property={root} {remove}/>
+          </li>
+        </ul>
       </div>
     {/if}
   {:else}
@@ -172,5 +176,9 @@
 
   h2 {
     display: inline;
+  }
+
+  ul, ul li {
+    background-color: darkgray;
   }
 </style>
