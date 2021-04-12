@@ -106,7 +106,7 @@
           Select classes
           <select on:change={checkValidity} required size="90" multiple class="form-select" bind:value={selected}>
             {#each crm.classes as value}
-              <option {value}>{value.labels.en}</option>
+              <option {value}>{value.about}</option>
             {/each}
           </select>
         </label>

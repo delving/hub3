@@ -39,7 +39,7 @@
   <select required class="form-select" bind:value={selectedProperty} on:change={change}>
     <option value="">--Pick a property--</option>
     {#each allowedProperties as value}
-      <option {value}>{value.labels['en']}</option>
+      <option {value}>{value.about}</option>
     {/each}
   </select>
   <label>Pick at least one class
@@ -50,7 +50,7 @@
       required size="30" multiple class="form-select">
       {#if allowedTypes}
         {#each allowedTypes as value}
-          <option {value}>{value.labels['en']}</option>
+          <option {value}>{value.about}</option>
         {/each}
       {/if}
     </select>

@@ -63,7 +63,7 @@ export function getAllowedProperties(typeIds) {
     }
   }
   const asArray = Array.from(allowedProperties)
-  asArray.sort((a, b) => a.labels.en.localeCompare(b.labels.en))
+  asArray.sort(compare)
   return asArray
 }
 
@@ -77,7 +77,7 @@ export function getAllowedTypes(propertyAbout) {
     range.subClasses.forEach(s => allowedTypes.add(s))
   }
   const asArray = Array.from(allowedTypes)
-  asArray.sort((a, b) => a.labels.en.localeCompare(b.labels.en))
+  asArray.sort(compare)
   return asArray
 }
 
@@ -95,11 +95,24 @@ model.classes.push({
   superClasses: []
 })
 
-model.classes.sort((a, b) => a.labels.en.localeCompare(b.labels.en))
-model.properties.sort((a, b) => a.labels.en.localeCompare(b.labels.en))
+model.classes.sort(compare)
+model.properties.sort(compare)
 
 for (const type of model.classes) {
-  type.subClasses.sort((a, b) => a.labels.en.localeCompare(b.labels.en))
+  type.subClasses.sort(compare)
+}
+
+function aboutToNumber(i) {
+  const parts = i.about.split("_");
+  if(parts.length === 1) return -1;
+  const hasI = parts[0].indexOf('i') >= 0
+  const numericValue = +parts[0].substring(1).replace('i', '') * 10
+  const valueWithI = hasI ? numericValue + 1 : numericValue
+  return valueWithI
+}
+
+export function compare(a, b) {
+  return aboutToNumber(a) - aboutToNumber(b)
 }
 
 
