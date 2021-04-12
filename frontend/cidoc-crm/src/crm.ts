@@ -67,7 +67,11 @@ export function getAllowedProperties(typeIds) {
   return asArray
 }
 
-export function getAllowedTypes(propertyAbout) {
+export function getAllowedTypes(propertyAbout, noRestrictions) {
+  if(noRestrictions) {
+    return [...model.classes]
+  }
+
   const allowedTypes = new Set()
   const p = getProperty(propertyAbout)
   const allProperties = [p, ...p.superProperties]
@@ -90,7 +94,15 @@ model.classes.push({
   subClassOf: null,
   properties: [],
   labels: {en: "#Literal"},
-  isLiteral: true,
+  subClasses: [],
+  superClasses: []
+})
+
+model.classes.push({
+  about: "http://www.w3.org/2001/XMLSchema#dateTime",
+  subClassOf: null,
+  properties: [],
+  labels: {en: "#Datetime"},
   subClasses: [],
   superClasses: []
 })
@@ -114,8 +126,6 @@ function aboutToNumber(i) {
 export function compare(a, b) {
   return aboutToNumber(a) - aboutToNumber(b)
 }
-
-
 
 console.log(model)
 

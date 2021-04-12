@@ -4,8 +4,11 @@
   export let type;
   export let remove;
   export let property;
+  export let rootElement;
 
-  let isLiteral = type.find(i => i.indexOf('#Literal') >= 0)
+  let latest = property.latest
+  delete property.latest
+  let uuidElement;
 
   function removeChild(child) {
     property.properties = property.properties.filter(p => p !== child)
@@ -20,61 +23,92 @@
     })
   }
 
-  function toggleText() {
-    property.hasTextContent = !property.hasTextContent
-    if(!property.hasTextContent) {
-      property.value = undefined;
+  function truncateClasses(classes) {
+    let displayString = classes[0]
+    for (let i = 1; i < classes.length; i++) {
+      let type = classes[i]
+      if (type.length + displayString.length > 35) return displayString + ", ..."
+      displayString += `, ${type}`
     }
+    return displayString
+  }
+
+  function initiateCopy(e) {
+    uuidElement.removeAttribute("disabled")
+    uuidElement.select()
+    uuidElement.setSelectionRange(0, 99999)
+    document.execCommand("copy")
+    uuidElement.setAttribute("disabled", "disabled")
+  }
+
+  function jumpToParent(e) {
+    let parent = rootElement.parentNode
+    while (!parent.classList.contains('header')) {
+      parent = parent.parentNode
+    }
+    console.log(parent)
+    parent.scrollIntoView({behavior: 'smooth'})
   }
 </script>
 
-<div class="header" class:root={!property.type} class:property={property.type}>
-
-  {#if property.type}
+<div bind:this={rootElement} class:latest={latest} class="header" class:root={!property.type}
+     class:property={property.type}>
+  {#if property.about !== '#root'}
+    <div class="jump-to-parent">
+      <button on:click={jumpToParent} type="button">
+        <img src="assets/icons/caret-up-fill.svg"/>
+      </button>
+    </div>
+  {/if}
+  <div>
     <button type="button" on:click={remove}>
       <img src="assets/icons/x-circle-fill.svg"/>
     </button>
     {property.about}
-  {:else}
-    <input bind:value={property.id} class="id" placeholder="id"/>
-    {type}
-  {/if}
-  {#if !isLiteral}
+
     <button on:click={add}>
       <img src="assets/icons/plus.svg"/>
     </button>
-    or
-    <button on:click={toggleText}>
-      {#if property.hasTextContent}
-        Remove Text
-      {:else}
-        Add Text
-      {/if}
+    <input bind:this={uuidElement} class="uuid" disabled value="#[{property.uuid}]">
+    <button on:click={initiateCopy}>
+      <img src="assets/icons/clipboard.svg"/>
     </button>
-  {/if}
+  </div>
 
-  <ul class="list-group-flush property-type">
-    {#if property.type}
+  <div class="content">
+    <div>
+    <span class="classes">
+      <img src="assets/icons/chevron-double-down.svg"/>
+      <ul class="list-group">
+        {#each type as c}
+          <li class="list-group-item">{c}</li>
+        {/each}
+      </ul>
+    </span>
+      <span class="bracket">[</span>
+      {truncateClasses(property.type)}
+      <span class="bracket">]</span>
+    </div>
+    <div class="right">
+      <div class="inputs">
+        <input placeholder="Id" class="form-control id" bind:value={property.id} required/>
+        <input placeholder="Source" class="form-control" bind:value={property.value} required/>
+      </div>
+      <label>
+        Gen:
+        <input bind:checked={property.gen} class="form-check-inline" type="checkbox"/>
+      </label>
+    </div>
+  </div>
+  <ul class="list-group type-list">
+    {#each property.properties as property}
       <li class="list-group-item">
-        <input bind:value={property.id} class="id" placeholder="id"/>
-        <span class="type">[{property.type}]</span>
         <div>
-          {#if property.hasTextContent || isLiteral}
-            <input class="form-control" bind:value={property.value}/>
-          {/if}
+          <svelte:self type={property.type} {property}
+                       remove={() => removeChild(property)}/>
         </div>
       </li>
-    {/if}
-    <ul class="list-group-flush">
-      {#each property.properties as property}
-        <li class="list-group-item">
-          <div>
-            <svelte:self type={property.type} {property}
-                         remove={() => removeChild(property)}/>
-          </div>
-        </li>
-      {/each}
-    </ul>
+    {/each}
   </ul>
 </div>
 
@@ -83,25 +117,88 @@
     background-color: #CEC6C0;
   }
 
-  .id {
-    width: 3rem;
+  label {
+    font-weight: bold;
+  }
+
+  input {
+    display: inline;
+    width: auto;
   }
 
   .property, .property li {
     background-color: #f7f7f7;
   }
 
-  .property-type, .property-type li {
-    background-color: #dadada;
-    padding-left: 1rem;
-  }
-
   .header {
     padding: 0.5rem;
   }
 
-  li {
-    border: none;
+  .latest {
+    border: 3px solid blue;
+  }
+
+  .classes:hover ul {
+    display: block;
+    z-index: 1;
+  }
+
+  .classes ul {
+    display: none;
+    position: absolute;
+    border: 1px solid black;
+  }
+
+  .right {
+    display: flex;
+    flex-grow: 1;
+    gap: 0.5rem;
+  }
+
+  .content .bracket {
+    font-weight: bold;
+  }
+
+  .content {
+    padding-top: 0.2rem;
+    display: inline-flex;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .inputs {
+    display: inline-flex;
+    flex-grow: 1;
+    gap: 1rem;
+  }
+
+  .inputs input {
+    width: 50%;
+  }
+
+  .uuid {
+    color: blue;
+  }
+
+  .header,
+  .type-list > li {
+    padding-right: 0;
+  }
+
+  .type-list > li {
+    border-width: 0.5rem;
+    border-bottom: 0;
+    border-right: 0;
+  }
+
+  .jump-to-parent {
+    top: -0.9rem;
+    left: -0.9rem;
+    position: absolute;
+  }
+
+  .jump-to-parent button {
+    border-radius: 50%;
   }
 </style>
 

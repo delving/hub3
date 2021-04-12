@@ -1,3 +1,7 @@
+<script context="module">
+  let latestAddition
+</script>
+
 <script>
   import {getAllowedProperties, getAllowedTypes} from "./crm";
   import {store} from "./store";
@@ -24,11 +28,27 @@
   }
 
   function addProperty() {
-    addition.property.properties = [...addition.property.properties, {
+    const newProperty = {
+      latest: true,
       about: selectedProperty.about,
       type: range.map(i => i.about),
+      uuid: Math.floor(new Date().getTime() / 1000),
       properties: [],
-    }]
+    };
+    if (latestAddition) {
+      latestAddition.latest = false
+    }
+    latestAddition = newProperty
+    addition.property.properties = [...addition.property.properties, newProperty]
+    store.set({})
+  }
+
+  function toggleRestrictions(e) {
+    const restrictionsDisabled = e.target.checked
+    allowedTypes = getAllowedTypes(selectedProperty.about, restrictionsDisabled)
+  }
+
+  function cancel() {
     store.set({})
   }
 </script>
@@ -36,6 +56,8 @@
 <form bind:this={formElement}>
   <button disabled={!isValid} on:click={addProperty}
           type="button" class="btn btn-dark">Add property</button>
+  <button on:click={cancel}
+          type="button" class="btn btn-dark">Cancel</button>
   <select required class="form-select" bind:value={selectedProperty} on:change={change}>
     <option value="">--Pick a property--</option>
     {#each allowedProperties as value}
@@ -43,6 +65,10 @@
     {/each}
   </select>
   <label>Pick at least one class
+    <label>
+      <input disabled={!selectedProperty} on:change={toggleRestrictions} type="checkbox"/>
+      Disable restrictions
+    </label>
     <select
       bind:value={range}
       on:change={checkValidity}
@@ -60,5 +86,9 @@
 <style>
   label {
     width: 100%;
+  }
+
+  label label {
+    width: auto;
   }
 </style>

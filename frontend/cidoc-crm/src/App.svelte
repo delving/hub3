@@ -11,6 +11,8 @@
   let formElement
   let isValid;
   let filename
+  let lastSavedElement
+  let lastSaved
 
   store.subscribe(currValue => state = currValue)
 
@@ -19,39 +21,49 @@
   }
 
   function createBaseType() {
-    result.root = selected.map(i => i.about)
+    root.type = selected.map(i => i.about)
   }
 
   let models = []
-  let result = {
-    root: [],
-    properties: []
-  };
+  let root = createRoot()
+
+  function createRoot() {
+    return {
+      about: '#root',
+      uuid: Math.floor(new Date().getTime() / 1000),
+      type: [],
+      properties: []
+    }
+  }
+
+  function remove() {
+    const filename = root.filename
+    root = createRoot()
+    root.filename = filename
+  }
 
   async function save() {
-    if (!result.filename) return;
+    if (!root.filename) return;
     const request = {
       method: 'post',
-      body: JSON.stringify(result),
+      body: JSON.stringify(root),
       headers: {
         'Content-Type': 'application/json'
       }
     };
-    console.log(JSON.stringify(result, undefined, 2))
-    try {
-      const response = await fetch('http://localhost:3000/save', request)
-      if (response.status !== 200) {
-        console.error('Failed to save changes')
-      }
-    } catch (e) {
+    console.log(JSON.stringify(root, undefined, 2))
+    const response = await fetch('http://localhost:3000/save', request)
+    if (response.status !== 200) {
       console.error('Failed to save changes')
+    } else {
+      lastSaved = new Date().getTime()
     }
   }
 
   onMount(async () => {
     const response = await fetch('http://localhost:3000/models', {
       method: 'post',
-      body: JSON.stringify(result),
+      body: JSON.stringify(root),
       headers: {
         'Content-Type': 'application/json'
       }
@@ -61,13 +73,14 @@
 
   function addNewModel() {
     if (!filename.endsWith(".json")) {
-      result.filename = filename + ".json"
+      root.filename = filename + ".json"
     } else {
-      result.filename = filename
+      root.filename = filename
     }
   }
 
   async function fetchModel(filename) {
+    lastSaved = null
     const response = await fetch('http://localhost:3000/models', {
       method: 'post',
       body: JSON.stringify({
@@ -77,17 +90,33 @@
         'Content-Type': 'application/json'
       }
     })
-    result = await response.json()
-    console.log(result)
+    root = await response.json()
+    console.log(root)
   }
 
-  setInterval(save, 10000)
+  function lastSavedUpdater() {
+    if (!lastSavedElement) return
+    if (!lastSaved) {
+      lastSavedElement.innerHTML = 'Last saved: Never'
+    } else {
+      const secondsElapsed = Math.floor((new Date().getTime() - lastSaved) / 1000) + 1
+      lastSavedElement.innerHTML = `Last saved: ${secondsElapsed} seconds ago`
+    }
+  }
+
+  function browseModels() {
+    save()
+    root = createRoot()
+  }
+
+  setInterval(lastSavedUpdater, 900)
+  setInterval(save, 8000)
 </script>
 
 <main>
-  {#if !result.filename}
+  {#if !root.filename}
     <input bind:value={filename} class="form-control"/>
-    <button on:click={addNewModel}>Add New Model</button>
+    <button type="button" class="btn btn-dark" on:click={addNewModel}>Add New Model</button>
     <hr/>
     <h1>Existing Models</h1>
     <ul class="list-group">
@@ -98,7 +127,7 @@
       {/each}
     </ul>
   {:else if !state.addition}
-    {#if result.root.length === 0}
+    {#if root.type.length === 0}
       <form bind:this={formElement}>
         <button disabled={!isValid} type="button" class="btn btn-dark" on:click={createBaseType}>Create base type
         </button>
@@ -112,12 +141,17 @@
         </label>
       </form>
     {:else}
+      <div class="last-saved">
+        <button type="button" class="btn btn-dark" on:click={save}>Save</button>
+        <div bind:this={lastSavedElement}></div>
+      </div>
       <div>
         <div>
-          <button type="button" class="btn btn-dark" on:click={save}>Save</button>
+          <h2>{root.filename}</h2>
+          <button type="button" class="btn btn-dark" on:click={browseModels}>Browse existing models</button>
         </div>
         <hr/>
-        <Type type={result.root} property={result} remove={() => {}}/>
+        <Type type={root.type} property={root} {remove}/>
       </div>
     {/if}
   {:else}
@@ -126,7 +160,17 @@
 </main>
 
 <style>
+  .last-saved {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+
   label {
     width: 100%;
+  }
+
+  h2 {
+    display: inline;
   }
 </style>
