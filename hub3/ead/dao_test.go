@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_find_duplicates_in_filenames(t *testing.T) {
+func TestFindDuplicatesInFilenames(t *testing.T) {
 	tests := []struct {
 		name    string
 		wantErr bool
@@ -43,7 +43,7 @@ func Test_find_duplicates_in_filenames(t *testing.T) {
 	}
 }
 
-func Test_return_map_of_unique_filenames_with_their_sort_key(t *testing.T) {
+func TestReturnMapOfUniqueFilenamesWithTheirSortKey(t *testing.T) {
 	tests := []struct {
 		name    string
 		wantErr bool
