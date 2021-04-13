@@ -118,6 +118,11 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 
 	cfg.updateRevisionKey()
 
+	err = validateFindingAid(&fa)
+	if err != nil {
+		return err
+	}
+
 	for _, file := range fa.Files {
 		fg, err := cfg.fragmentGraph(file)
 		if err != nil {
@@ -154,6 +159,52 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	cfg.MimeTypes = getMimeTypes(&fa)
 
 	return c.dropOrphans(cfg)
+}
+
+func validateFindingAid(fa *eadpb.FindingAid) error {
+	uniqueFileNamesWithOrderKey, duplicateErr := mapToUniqueFilenamesWithSortKey(fa.Files)
+	if duplicateErr != nil {
+		return duplicateErr
+	}
+
+	err := validateSortKeysAreOrdered(&uniqueFileNamesWithOrderKey, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func mapToUniqueFilenamesWithSortKey(files []*eadpb.File) (map[string]int32, error) {
+	var fileNames = make(map[string]int32)
+
+	for _, file := range files {
+		_, exists := fileNames[file.Filename]
+		if exists {
+			return fileNames, errors.New(fmt.Sprintf("duplicate filename found: %s", file.Filename))
+		}
+
+		fileNames[file.Filename] = file.SortKey
+	}
+	return fileNames, nil
+}
+
+func validateSortKeysAreOrdered(fileNames *map[string]int32, expectedStartingSortKey int32) error {
+	var sortKeyTracker int32
+	sortKeyTracker = expectedStartingSortKey
+
+	if sortKeyTracker == 0 {
+		sortKeyTracker = 1 // the default value
+	}
+
+	for filename, sortKey := range *fileNames {
+		if sortKey != sortKeyTracker {
+			return errors.New(fmt.Sprintf("file sortKey not in succeeding order for fileName: %s with sortKey %d", filename, sortKey))
+		}
+		sortKeyTracker++
+	}
+
+	return nil
 }
 
 func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
