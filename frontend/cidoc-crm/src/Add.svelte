@@ -8,7 +8,8 @@
 
   export let addition;
 
-  let allowedProperties = getAllowedProperties(addition.context)
+  console.log(addition)
+  let allowedProperties = getAllowedProperties(addition.property.about, addition.context)
   let isValid
   let formElement
   let allowedTypes;

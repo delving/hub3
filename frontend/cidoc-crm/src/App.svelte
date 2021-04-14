@@ -151,7 +151,7 @@
           <button type="button" class="btn btn-dark" on:click={browseModels}>Browse existing models</button>
         </div>
         <hr/>
-        <ul class="list-group type-list">
+        <ul class="root list-group type-list">
           <li class="list-group-item">
             <Type type={root.type} property={root} {remove}/>
           </li>
@@ -178,7 +178,7 @@
     display: inline;
   }
 
-  ul, ul li {
+  .root, .root > li {
     background-color: darkgray;
   }
 </style>

@@ -41,18 +41,31 @@ for (const type of model.classes) {
 
 for(const property of model.properties) {
   property.superProperties = []
+  property.dotOnes = []
 }
 
 for (const property of model.properties) {
   extractLabels(property)
   defineSuperProperties(property, property.subPropertyOf)
-  const allowedInType = model.classes.find(type => type.about === property.domain.resource)
-  allowedInType.properties.push(property)
+  if(property.about.indexOf(".1_") === -1) {
+    const allowedInType = model.classes.find(type => type.about === property.domain[0].resource)
+    allowedInType.properties.push(property)
+  } else {
+    for (const domain of property.domain) {
+      const allowedInProperty = model.properties.find(type => type.about === domain.resource)
+      allowedInProperty.dotOnes.push(property)
+    }
+  }
   property.type = model.classes.find(type => type.about === property.range.resource);
 }
 
-export function getAllowedProperties(typeIds) {
+export function getAllowedProperties(about, typeIds) {
   const allowedProperties = new Set()
+  if(about !== '#root') {
+    const propertyContext = model.properties.find(p => p.about === about)
+    propertyContext.dotOnes.forEach(dotOne => allowedProperties.add(dotOne))
+  }
+
   for (const typeId of typeIds) {
     const type = model.classes.find(type => type.about === typeId)
     type.properties.forEach(p => allowedProperties.add(p))

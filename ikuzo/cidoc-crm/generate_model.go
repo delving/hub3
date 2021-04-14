@@ -23,7 +23,7 @@ type Class struct {
 type Property struct {
 	About         string     `xml:"about,attr" json:"about,omitEmpty"`
 	Labels        []Label    `xml:"label" json:"labels,omitEmpty"`
-	Domain        Resource   `xml:"domain" json:"domain,omitEmpty"`
+	Domain        []Resource `xml:"domain" json:"domain,omitEmpty"`
 	Range         Resource   `xml:"range" json:"range,omitEmpty"`
 	SubPropertyOf []Resource `xml:"subPropertyOf" json:"subPropertyOf,omitEmpty"`
 }
@@ -38,7 +38,7 @@ type Label struct {
 }
 
 func main() {
-	xmlFile, err := os.Open("/home/q/IdeaProjects/delving/hub3/ikuzo/cidoc-crm.ts/model.rdf")
+	xmlFile, err := os.Open("./model.rdf")
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +60,7 @@ func main() {
 
 	json, _ := json.MarshalIndent(&model, "", "  ")
 	println(len(json))
-	err = ioutil.WriteFile("/home/q/IdeaProjects/delving/hub3/ikuzo/cidoc-crm.ts/model.json", json, 0644)
+	err = ioutil.WriteFile("./model.json", json, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,32 +1,65 @@
 const fs = require('fs');
-const jsonServer = require('json-server')
-const server = jsonServer.create()
-const middlewares = jsonServer.defaults()
-const port = process.env.PORT || 3000
+const http = require('http')
+const path = require("path");
 
-server.use(jsonServer.bodyParser)
-server.use(middlewares)
+http.createServer(function (req, res) {
+  console.log(`${req.method} ${req.url}`)
+  res.setHeader("Access-Control-Allow-Origin", "*")
+  res.setHeader("Access-Control-Allow-Headers", "*")
+  if(req.method === 'OPTIONS') {
+    res.writeHead(200)
+    res.end()
+    return
+  }
+  let data = '';
+  if(req.method === 'POST') {
+    req.on('data', chunk => {
+      data += chunk;
+    })
+    req.on('end', () => {
+      if (req.url === '/save') {
+        save(JSON.parse(data), res)
+      } else if (req.url === '/models') {
+        models(JSON.parse(data), res)
+      }
+    })
+  }
+  if (req.method === 'GET') {
+    let url = req.url === '/' ? '/index.html' : req.url
+    const p = path.join('public', ...url.substring(1).split('/'))
+    const file = fs.readFileSync(p)
+    if (url.endsWith('.svg')) {
+      res.setHeader('Content-Type', 'image/svg+xml')
+    } else  if (url.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html')
+    } else  if (url.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css')
+    }
+    res.writeHead(200)
+    res.end(file)
+  }
+}).listen(process.env.PORT ? +process.env.PORT : 3000); //the server object listens on port 8080
 
-server.listen(port, () => {
-  console.log('JSON Server is running')
-})
 
-server.post('/save', (request, response) => {
-  const body = request.body
+function save(body, response) {
   console.log(body)
-  fs.writeFileSync('models/' + body.filename, JSON.stringify(body))
-  response.status(200).jsonp({})
-})
+  fs.writeFileSync(path.join('models', body.filename), JSON.stringify(body))
+  response.setHeader('Content-Type', 'application/json')
+  response.writeHead(200)
+  response.end('{}')
+}
 
-server.post('/models', (request, response) => {
-  const body = request.body
+function models(body, response) {
   console.log(body)
-  if(!body.filename) {
+  response.setHeader('Content-Type', 'application/json')
+  if (!body.filename) {
     const jsonFiles = fs.readdirSync('models').filter(f => f.endsWith(".json"))
     jsonFiles.sort()
-    response.status(200).jsonp(jsonFiles)
+    response.writeHead(200)
+    response.end(JSON.stringify(jsonFiles))
   } else {
-    const model = fs.readFileSync('models/' + body.filename).toString("utf-8")
-    response.status(200).jsonp(JSON.parse(model))
+    const model = fs.readFileSync(path.join('models', body.filename)).toString("utf-8")
+    response.writeHead(200)
+    response.end(model)
   }
-})
+}
