@@ -256,6 +256,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			http.Error(w, echoErr.Error(), http.StatusInternalServerError)
 			return
 		}
+		return
 	}
 
 	// meta formats that don't use search result
