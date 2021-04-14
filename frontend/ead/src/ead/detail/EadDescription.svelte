@@ -1,9 +1,6 @@
 <script>
   import './archive-detail.scss'
-  import {afterUpdate, onMount} from "svelte";
-  import {dom} from '../../dom'
-  import {treeStore} from './treeStore'
-  import NavTree from "./NavTree.svelte";
+  import {afterUpdate} from "svelte";
   import DescriptionSections from "./DescriptionSections.svelte";
   import {descriptionStore} from "./descriptionStore";
   import VirtualScroller from "./VirtualScroller.svelte";
@@ -23,16 +20,16 @@
     searchButton.scrollIntoView();
   }
 
-  async function search() {
-    pager = await (showTree ? treeStore : descriptionStore).search(query)
-    // hitCount = showTree ? tree.hitCount : description.hitCount;
-    match = pager.firstMatch()
-  }
-
-  async function displayTree() {
-    await treeStore.prepare()
-    showTree = true;
-  }
+  // async function search() {
+  //   pager = await (showTree ? treeStore : descriptionStore).search(query)
+  //   // hitCount = showTree ? tree.hitCount : description.hitCount;
+  //   match = pager.firstMatch()
+  // }
+  //
+  // async function displayTree() {
+  //   await treeStore.prepare()
+  //   showTree = true;
+  // }
 
   async function displayDescription() {
     await descriptionStore.prepare()
