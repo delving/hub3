@@ -57,22 +57,11 @@ func (e *EchoSearchRequest) RenderEcho(w http.ResponseWriter) error {
 		}
 		source, _ := query.Source()
 		render.JSON(w, e.r, source)
-	case "aggs":
-		aggs, err := e.searchRequest.Aggregations(nil)
-		if err != nil {
-			return err
-		}
-		sourceMap := map[string]interface{}{}
-		for k, v := range aggs {
-			source, _ := v.Source()
-			sourceMap[k] = source
-		}
-		render.JSON(w, e.r, sourceMap)
 	case "searchRequest":
 		render.JSON(w, e.r, e.searchRequest)
 	case "options":
 		options := []string{
-			"es", "aggs", "searchRequest", "options", "searchService", "searchResponse", "request",
+			"es", "searchRequest", "options", "searchService", "searchResponse", "request",
 			"nextScrollID", "searchAfter", "previousScrollID",
 		}
 		sort.Strings(options)
