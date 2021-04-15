@@ -234,6 +234,18 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 				sr.FacetField = append(sr.FacetField, facet)
 			}
+		case "facet.size", "facet.limit":
+			size, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				logConvErr(p, []string{params.Get(p)}, err)
+				return sr, err
+			}
+
+			if size > 2000 {
+				size = 2000
+			}
+
+			sr.FacetLimit = int32(size)
 		case "facetBoolType", "facet.boolType":
 			fbt := params.Get(p)
 			if fbt != "" {
@@ -921,6 +933,10 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 	aggs := map[string]elastic.Aggregation{}
 
 	for _, facetField := range sr.FacetField {
+		if sr.FacetLimit != 0 {
+			facetField.Size = sr.FacetLimit
+		}
+
 		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
 			return nil, err
