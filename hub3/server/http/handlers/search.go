@@ -106,6 +106,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
+	if searchRequest.Tree != nil {
+		tree := searchRequest.Tree
+		// empty spec queries cause issues with paging
+		if tree.Spec == "" {
+			searchRequest.Tree = nil
+		}
+	}
+
 	res, err := s.Do(r.Context())
 	echoRequest := NewEchoSearchRequest(r, searchRequest, s, res)
 	if err != nil {
