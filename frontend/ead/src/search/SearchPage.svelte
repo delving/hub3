@@ -37,6 +37,8 @@
   function createNavLink(component) {
     return linkTo(component.routes[0], {});
   }
+
+  console.log(routeConfig)
 </script>
 
 <section data-tab-type={routeConfig.type}>

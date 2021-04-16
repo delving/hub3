@@ -11,20 +11,7 @@
     }
   };
 
-  let items = search['dcterms:hasParts']
-
-  const display = [
-    {
-      type: 'image',
-      value: 'edm:isShownBy'
-    },
-    {
-      value: 'dc:identifier'
-    },
-    {
-      value: 'dc:title'
-    }
-  ]
+  let items = search.items
 
   function createLink(item) {
     return linkTo(config.linkTo, item.meta)
@@ -33,9 +20,9 @@
 
 <div class="grid">
   {#each items as item}
-    <a href={linkTo(config.linkTo, item)} class="item" let:value>
-      {#each display as property}
-        {#if value = item[property.value]}
+    <a href={linkTo(config.linkTo, item.meta)} class="item" let:value>
+      {#each config.display as property}
+        {#if value = item.summary[property.value]}
           <p>
             {#if property.label}
               <label>{property.label}</label>

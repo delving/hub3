@@ -1,5 +1,5 @@
 <script>
-  import './archive-detail.scss'
+  import './archive-detail.css'
   import NavTree from "./NavTree.svelte";
   import VirtualScroller from "./VirtualScroller.svelte";
 

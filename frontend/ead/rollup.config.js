@@ -5,11 +5,12 @@ import resolve from '@rollup/plugin-node-resolve';
 import json from '@rollup/plugin-json';
 import livereload from 'rollup-plugin-livereload';
 import {terser} from 'rollup-plugin-terser';
+import css from 'rollup-plugin-css-only'
 import scss from 'rollup-plugin-scss';
 import {string} from 'rollup-plugin-string'
 import serve from 'rollup-plugin-serve'
 
-const customerId = 'na';
+const customerId = 'nk';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
@@ -51,7 +52,8 @@ export default {
 		// consult the documentation for details:
 		// https://github.com/rollup/plugins/tree/master/packages/commonjs
     commonjs(),
-    scss({ output: 'public/build/bundle.css' }),
+    css(),
+    // scss({ output: 'public/build/bundle.css' }),
 
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production

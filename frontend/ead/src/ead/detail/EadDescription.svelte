@@ -1,5 +1,5 @@
 <script>
-  import './archive-detail.scss'
+  import './archive-detail.css'
   import {afterUpdate} from "svelte";
   import DescriptionSections from "./DescriptionSections.svelte";
   import {descriptionStore} from "./descriptionStore";

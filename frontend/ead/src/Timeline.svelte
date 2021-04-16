@@ -4,27 +4,27 @@
   const display = [
     {
       label: 'Naam',
-      value: 'name',
+      value: 'nk_name',
     },
     {
       label: 'Locatie',
-      value: 'location',
+      value: 'nk_location',
     },
     {
       label: 'Rol',
-      value: 'role',
+      value: 'nk_role',
     },
     {
       label: 'Start datum',
-      value: 'dateStart',
+      value: 'nk_dateStart',
     },
     {
       label: 'Eind datum',
-      value: 'dateEnd',
+      value: 'nk_dateEnd',
     },
     {
       label: 'Bron',
-      value: 'archiveSource',
+      value: 'nk_archiveSource',
     }
   ]
 
@@ -42,12 +42,12 @@
   {#each timeline as event}
     <article>
       <header>
-        <h2>{event.name}</h2>
+        <h2>{event.nk_name}</h2>
         <img aria-hidden="true" src="/circle.svg" alt="Event">
         <div class="dates">
-          <time>{event.dateStart || 'Onbekend'}</time>
+          <time>{event.nk_dateStart ? event.nk_dateStart[0] : 'Onbekend'}</time>
           <span aria-hidden="true">|</span>
-          <time itemprop="End date">{event.dateEnd || 'Onbekend'}</time>
+          <time itemprop="End date">{event.nk_dateEnd ? event.nk_dateEnd[0] : 'Onbekend'}</time>
         </div>
 
         <button on:click={open}><span
@@ -74,6 +74,10 @@
 </section>
 
 <style type="text/scss">
+  :global(.is-open) {
+    display: block !important;
+  }
+
   .timeline {
     padding-top: 4rem;
     border-left: 0.33rem solid #4CC9AA;

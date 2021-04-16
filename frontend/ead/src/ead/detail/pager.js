@@ -1,14 +1,14 @@
 import {queryStore} from "../../search/queryStore";
-import {searchStore} from "../../searchStore";
 
 export class Pager {
 
   matchIndex = 0;
   hitCount = 0;
 
-  constructor(query, searchResult) {
+  constructor(query, searchResult, searchStore) {
     this.query = query;
     this.hitCount = searchResult.hitCount;
+    this.searchStore = searchStore
 
     this.matches = Array(searchResult.hitCount)
     let n = 0;
@@ -43,7 +43,7 @@ export class Pager {
       })
     }
 
-    searchStore.setMatch(nextMatch)
+    this.searchStore.setMatch(nextMatch)
     return nextMatch;
   }
 

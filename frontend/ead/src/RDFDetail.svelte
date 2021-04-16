@@ -3,14 +3,49 @@
   import Sources from "./Sources.svelte";
   import Viewer from "./Viewer.svelte";
   import Series from "./Series.svelte";
-  import Metadata from "./Metadata.svelte";
 
   export let new_record;
   export let config;
+
+  function parse(entries, output) {
+    for (const entry of entries) {
+      if(entry.entrytype === 'Literal') {
+        let literals = output[entry.searchLabel]
+        const value = entry['@value']
+        if(!Array.isArray(literals) && value) {
+          literals = []
+          output[entry.searchLabel] = literals
+        }
+        if (value) {
+          literals.push(value)
+        }
+      } else if(entry.entrytype === 'Bnode' || entry.entrytype === 'Resource') {
+        let resource = output[entry.searchLabel]
+        if(!Array.isArray(resource)) {
+          resource = []
+          output[entry.searchLabel] = resource
+        }
+
+        if(entry.inline && Array.isArray(entry.inline.entries)) {
+          const item = {}
+          resource.push(item)
+          parse(entry.inline.entries, item)
+        }
+      } else {
+        console.warn(`Unsupported entry type: ${entry.entrytype}`)
+      }
+    }
+  }
+
+  const result = {}
+  console.log(new_record)
+  parse(new_record.resources[0].entries, result)
+  console.log(result)
+  new_record = result
 </script>
 
 <div class="detail-page">
-  <Viewer views={new_record['edm:hasView']}/>
+  <Viewer views={new_record['edm_hasView']}/>
   <section class="summary">
     {#each config.summary as property}
       {#if property.value in new_record}
@@ -19,26 +54,22 @@
     {/each}
   </section>
 
-  <Timeline timeline={new_record['possesionReconstruction']}/>
+  <h1>Bezitsgeschiedenis</h1>
   <h2>Restitutie Status</h2>
-  <p>{new_record.restititutionStatus.status}</p>
+  <p>{new_record.nk_restitutionState[0]}</p>
 
-  {#each config.sections as section}
-    <section class="metadata">
-      <header><h1>{section.label}</h1></header>
-      <div class="info">
-        {#each section.items as item}
-          <p>
-            <label>{item.label}</label>
-            <Metadata context={new_record['cho']} path={item.path}/>
-          </p>
-        {/each}
-      </div>
-    </section>
-  {/each}
+  <h2>Herkomst conclusie</h2>
+  <ul>
+    {#each new_record.nk_herkomstConclusion as conclusion}
+      <li>
+        {conclusion}
+      </li>
+    {/each}
+  </ul>
+  <Timeline timeline={new_record['nk_herkomst']}/>
 
-  <Series series={new_record["dcterms:hasParts"]}></Series>
-  <Sources sources={new_record['hasSources']}/>
+  <Series config={config} series={new_record["nk_cho"]}></Series>
+  <Sources sources={new_record['nk_hasSources']}/>
 </div>
 
 <style type="text/scss">

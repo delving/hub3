@@ -1,5 +1,5 @@
 <script>
-  import Metadata from "./Metadata.svelte";
+  import Value from "./Value.svelte";
   import {linkTo} from "./router";
 
   export let search;
@@ -25,7 +25,7 @@
         <th scope="row"><a href={createLink(item)}>{index}</a></th>
         {#each config.items as property}
           <td>
-            <Metadata context={item.fields} path={property.path}/>
+            <Value context={item.fields} path={property.path}/>
           </td>
         {/each}
       </tr>

@@ -1,46 +1,218 @@
 {
-  "baseUrl": "https://hub3.nl-hana.delving.io",
-  "tabs": [
+  "baseUrl": "https://acpt.dcn.hubs.delving.org/api/search/v2",
+  "fallback": "imageSearch",
+  "urls": {
+    "imageSearchPage": {
+      "path": [
+        "nk-collectie"
+      ]
+    },
+    "imagePage": {
+      "path": [
+        "nk-collectie",
+        ":hubID"
+      ]
+    }
+  },
+  "components": [
     {
-      "facets": {
-        "tree.hasDigitalObject": {
-          "order": 1,
-          "label": "Bevat digitaal materiaal"
+      "key": "imageSearch",
+      "navigation": false,
+      "type": "grid",
+      "facets": {},
+      "linkTo": "imagePage",
+      "display": [
+        {
+          "type": "image",
+          "value": "thumbnail"
         },
-        "ead-rdf_genreform": {
-          "order": 2,
-          "label": "Soort materiaal"
+        {
+          "value": "objectID"
         },
-        "tree.mimeType": {
-          "order": 3,
-          "label": "Digitaal bestandstype"
+        {
+          "value": "title"
         }
-      },
+      ],
       "requestUrls": {
-        "archiveSearch": {
+        "search": {
           "path": [
-            "nk",
-            "NK3189.json"
+            ":baseUrl"
+          ],
+          "query": [
+            {
+              "key": "facet.field",
+              "value": "nave_objectCategory"
+            },
+            {
+              "key": "qf",
+              "value": "meta.spec:nk"
+            }
           ]
         }
       },
-      "urls": {
-        "searchPage": {
+      "routes": [
+        "imageSearchPage"
+      ]
+    },
+    {
+      "key": "image",
+      "pagination": false,
+      "navigation": false,
+      "type": "image",
+      "facets": {},
+      "linkTo": "imagePage",
+      "requestUrls": {
+        "search": {
           "path": [
-            "nk-collectie"
+            ":baseUrl",
+            ":hubID"
           ],
-          "component": "grid"
-        },
-        "rdfDetailPage": {
-          "path": [
-            "page",
-            "nkrecord",
-            "nk",
-            ":id"
-          ],
-          "component": "detail"
+          "query": [
+            {
+              "key": "itemFormat",
+              "value": "grouped"
+            }
+          ]
         }
-      }
+      },
+      "display": {
+        "summary": [
+          {
+            "value": "nk_objectNumber"
+          },
+          {
+            "value": "dc_title"
+          }
+        ],
+        "sections": [
+          {
+            "image": {
+              "src": "nk_thumbnail",
+              "alt": "No image"
+            },
+            "items": [
+              {
+                "label": "Titel",
+                "path": [
+                  "dc_title"
+                ]
+              },
+              {
+                "label": "NK nummer",
+                "path": [
+                  "nk_objectNumber"
+                ]
+              },
+              {
+                "label": "Beschrijving",
+                "path": [
+                  "dc_description"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Identificatie",
+            "items": [
+              {
+                "label": "Titel",
+                "path": [
+                  "dc_title"
+                ]
+              },
+              {
+                "label": "NK nummer",
+                "path": [
+                  "nk_objectNumber"
+                ]
+              },
+              {
+                "label": "Beschrijving",
+                "path": [
+                  "dc_description"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Vervaardiging",
+            "items": [
+              {
+                "label": "Vervaardiger",
+                "path": [
+                  "creator",
+                  "nk_creatorName"
+                ]
+              },
+              {
+                "label": "Datum start",
+                "path": [
+                  "nk_productionDate",
+                  "nk_dateStart"
+                ]
+              },
+              {
+                "label": "Datum einde",
+                "path": [
+                  "nk_productionDate",
+                  "nk_dateEnd"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Fysieke kenmerken",
+            "items": [
+              {
+                "label": "Materiaal",
+                "path": [
+                  "nave_material"
+                ]
+              },
+              {
+                "label": "Hoogte/lengte",
+                "path": [
+                  "dimension",
+                  "nk_heightLenght"
+                ]
+              },
+              {
+                "label": "Diameter",
+                "path": [
+                  "dimension",
+                  "nk_depthDiameter"
+                ]
+              }
+            ]
+          },
+          {
+            "label": "Onderwerp",
+            "items": [
+              {
+                "label": "Wat",
+                "path": [
+                  "dc_subject"
+                ]
+              },
+              {
+                "label": "Object categorie",
+                "path": [
+                  "nave_objectCategory"
+                ]
+              },
+              {
+                "label": "Object naam",
+                "path": [
+                  "nave_objectName"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "routes": [
+        "imagePage"
+      ]
     }
   ]
 }

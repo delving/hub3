@@ -12,7 +12,7 @@
       id: "viewer",
       prefixUrl: '/images/openseadragon/',
       tileSources: views.map((v, i) => ({
-        tileSource: v['nave:deepZoomUri'],
+        tileSource: v['nave_deepZoomUri'][0],
         width: 200,
         x: 210 * i,
         y: 0
