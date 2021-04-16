@@ -76,42 +76,52 @@
         }
       },
       "display": {
-        "summary": [
-          {
-            "value": "nk_objectNumber"
-          },
-          {
-            "value": "dc_title"
-          }
-        ],
+        "ownershipHistory": {
+          "label": "Herkomstgeschiedenis",
+          "items": [
+            {
+              "label": "Restitutie status",
+              "path": [
+                "nk_restitutionState"
+              ]
+            },
+            {
+              "label": "Herkomst conclusie",
+              "path": [
+                "nk_herkomstConclusion"
+              ]
+            },
+            {
+              "label": "Na oorlogs bezit",
+              "values": [
+                "In het bezit gekomen van de Nederlandse overheid"
+              ]
+            }
+          ]
+        },
+        "source": {
+          "label": "rdf_label",
+          "asLink": "nk_providerURL",
+          "items": [
+            {
+              "label": "Bron",
+              "path": ["nk_dataSource"]
+            },
+            {
+              "path": ["dcterms_hasParts", "dc_identifier"],
+              "linkTo": "imagePage",
+              "style": {
+                "horizontal": true
+              }
+            }
+          ]
+        },
         "sections": [
           {
             "image": {
               "src": "nk_thumbnail",
               "alt": "No image"
             },
-            "items": [
-              {
-                "label": "Titel",
-                "path": [
-                  "dc_title"
-                ]
-              },
-              {
-                "label": "NK nummer",
-                "path": [
-                  "nk_objectNumber"
-                ]
-              },
-              {
-                "label": "Beschrijving",
-                "path": [
-                  "dc_description"
-                ]
-              }
-            ]
-          },
-          {
             "label": "Identificatie",
             "items": [
               {

@@ -1,30 +1,16 @@
 <script>
+  import Metadata from "./Metadata.svelte";
   export let sources
+  export let display
 
 </script>
 
 <section>
-  <h1>Sources</h1>
-  <ul>
+  <h1>Bronnen</h1>
     {#each sources as source}
-      <li>
-        <a href={source['nk_providerURL'][0]}>{source['rdf_label'][0]}</a>
-      </li>
+      <Metadata context={source} {display}/>
+<!--      <li>-->
+<!--        <a href={source['nk_providerURL'][0]}>{source['rdf_label'][0]}</a>-->
+<!--      </li>-->
     {/each}
-  </ul>
 </section>
-
-<style type="text/scss">
-  a {
-    border: 0;
-  }
-
-  ul {
-    border-top: 1px solid black;
-  }
-
-  li {
-    padding: 1em 0;
-    border-bottom: 1px solid black;
-  }
-</style>
