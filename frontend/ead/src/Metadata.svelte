@@ -4,6 +4,8 @@
 
   export let display;
   export let context;
+
+  console.log(display, context['rdf_label'])
 </script>
 
 <section>
@@ -18,13 +20,21 @@
   {/if}
   <div>
     {#if display.label}
-      <header><h3>{display.label}</h3></header>
+      <header>
+        <h3>
+          {#if context[display.label]}
+            {context[display.label][0]}
+          {:else}
+            {display.label}
+          {/if}
+        </h3>
+      </header>
     {/if}
     <ul>
       {#each display.items as item}
         <li>
           {#if item.label}
-            <header>{item.label} </header>
+            <header>{item.label}</header>
           {/if}
           <p>
             <Value {context} path={item.path} value={item.values} style={item.style}/>
@@ -37,7 +47,7 @@
 </section>
 
 <style lang="scss">
-  div > section {
+  section {
     display: flex;
     gap: 0.5rem;
     flex-direction: row;
@@ -73,7 +83,7 @@
     margin: 0;
   }
 
-  label {
+  li > header {
     font-weight: bold;
     color: #999;
   }

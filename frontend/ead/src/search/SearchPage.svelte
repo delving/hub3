@@ -13,6 +13,7 @@
   import {linkTo, updateRoute, route} from "../router";
   import EadDescription from "../ead/detail/EadDescription.svelte";
   import RDFDetail from "../RDFDetail.svelte";
+  import Facets from "./Facets.svelte";
 
   let routeConfig = route.config;
   let search;
@@ -42,7 +43,12 @@
 </script>
 
 <section data-tab-type={routeConfig.type}>
-  <Search {routeConfig} {search} {query}/>
+  <div>
+    <Search {routeConfig} {search} {query}/>
+    {#if search && routeConfig.facets && search.facets}
+      <Facets facetConfig={routeConfig.facets} facets={search.facets}/>
+    {/if}
+  </div>
   {#if routeConfig.navigation !== false}
     <div class="tabs">
       <ul bind:this={tabsContainer} class="nav nav-tabs">
@@ -59,28 +65,30 @@
     </div>
   {/if}
   {#if search}
-    {#if routeConfig.type === 'grid'}
-      <Grid config={routeConfig} {search}/>
-    {:else if routeConfig.type === 'archive'}
-      <EadSearch {search}/>
-    {:else if routeConfig.type === 'findingAid'}
-      <EadDetail tree={search}/>
-    {:else if routeConfig.type === 'findingAidDescription'}
-      <EadDescription description={search}/>
-    {:else if routeConfig.type === 'indexSearch'}
-      <IndexSearch config={routeConfig.display} {search}/>
-    {:else if routeConfig.type === 'index'}
-      <Index config={routeConfig.display} {search}/>
-    {:else if routeConfig.type === 'indexDetail'}
-      <IndexDetailPage config={routeConfig.display} {search}/>
-    {:else if routeConfig.type === 'image'}
-      <RDFDetail config={routeConfig.display} new_record={search}/>
-    {/if}
-    {#if routeConfig.pagination !== false}
-      <div class="pager">
-        <Pager/>
-      </div>
-    {/if}
+    <div class="content">
+      {#if routeConfig.type === 'grid'}
+        <Grid config={routeConfig} {search}/>
+      {:else if routeConfig.type === 'archive'}
+        <EadSearch {search}/>
+      {:else if routeConfig.type === 'findingAid'}
+        <EadDetail tree={search}/>
+      {:else if routeConfig.type === 'findingAidDescription'}
+        <EadDescription description={search}/>
+      {:else if routeConfig.type === 'indexSearch'}
+        <IndexSearch config={routeConfig.display} {search}/>
+      {:else if routeConfig.type === 'index'}
+        <Index config={routeConfig.display} {search}/>
+      {:else if routeConfig.type === 'indexDetail'}
+        <IndexDetailPage config={routeConfig.display} {search}/>
+      {:else if routeConfig.type === 'image'}
+        <RDFDetail config={routeConfig.display} new_record={search}/>
+      {/if}
+      {#if routeConfig.pagination !== false}
+        <div class="pager">
+          <Pager/>
+        </div>
+      {/if}
+    </div>
   {/if}
 </section>
 
@@ -88,7 +96,12 @@
   section {
     display: flex;
     flex-direction: column;
-    max-height: 100vh;
-    height: 100vh;
+    gap: 0.5rem;
+    background-color: #e9e9e9;
+  }
+
+  .content {
+    width: 75%;
+    margin: 0 auto;
   }
 </style>

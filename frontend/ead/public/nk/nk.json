@@ -19,7 +19,12 @@
       "key": "imageSearch",
       "navigation": false,
       "type": "grid",
-      "facets": {},
+      "facets": {
+        "nave_objectCategory": {
+          "order": 1,
+          "label": "Object Categorie"
+        }
+      },
       "linkTo": "imagePage",
       "display": [
         {
@@ -46,6 +51,10 @@
             {
               "key": "qf",
               "value": "meta.spec:nk"
+            },
+            {
+              "key": "facet.field",
+              "value": "nave_objectCategory"
             }
           ]
         }
@@ -77,7 +86,7 @@
       },
       "display": {
         "ownershipHistory": {
-          "label": "Herkomstgeschiedenis",
+          "label": "Bezitsgeschiedenis",
           "items": [
             {
               "label": "Restitutie status",
@@ -105,10 +114,15 @@
           "items": [
             {
               "label": "Bron",
-              "path": ["nk_dataSource"]
+              "path": [
+                "nk_dataSource"
+              ]
             },
             {
-              "path": ["dcterms_hasParts", "dc_identifier"],
+              "path": [
+                "dcterms_hasParts",
+                "dc_identifier"
+              ],
               "linkTo": "imagePage",
               "style": {
                 "horizontal": true

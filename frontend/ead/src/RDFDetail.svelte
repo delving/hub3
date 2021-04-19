@@ -48,11 +48,22 @@
 
 <div class="detail-page">
   <Viewer views={new_record['edm_hasView']}/>
+  <div class="content">
+    <Metadata context={new_record} display={config.ownershipHistory}/>
 
-  <Metadata context={new_record} display={config.ownershipHistory}/>
+    <Timeline timeline={new_record['nk_herkomst']}/>
 
-  <Timeline timeline={new_record['nk_herkomst']}/>
-
-  <Series config={config} series={new_record["nk_cho"]}></Series>
-  <Sources display={config.source} sources={new_record['nk_hasSources']}/>
+    <Series config={config} series={new_record["nk_cho"]}></Series>
+    <Sources display={config.source} sources={new_record['nk_hasSources']}/>
+  </div>
 </div>
+
+<style>
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 70%;
+    margin: 1rem auto;
+  }
+</style>
