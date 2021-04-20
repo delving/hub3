@@ -177,6 +177,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			log.Printf("Unable to render collapse")
 			return
 		}
+
 		if searchRequest.CollapseFormat == "flat" {
 			for _, rec := range records {
 				for _, item := range rec.Items {
@@ -207,6 +208,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
+		// decode Aggregations
+		aggs, err := searchRequest.DecodeFacets(res, fub)
+		if err != nil {
+			log.Printf("Unable to decode facets: %#v", err)
+			return
+		}
+		result.Facets = aggs
 
 		render.JSON(w, r, result)
 		return
