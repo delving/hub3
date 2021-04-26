@@ -54,6 +54,11 @@ var v2Mapping = `{
 	"mappings":{
 			"dynamic": "strict",
 			"date_detection" : false,
+			"_source": {
+				"excludes": [
+					"tree.description"
+				]
+			},
 			"properties": {
 				"meta": {
 					"type": "object",
@@ -108,7 +113,7 @@ var v2Mapping = `{
 							}
 						},
 						"title": {"type": "text"},
-						"description": {"type": "text"},
+						"description": {"type": "text", "store": true},
 						"content": {"type": "text"},
 						"periodDesc": { "type": "keyword"},
 						"rawContent": {"type": "text", "store": false},
