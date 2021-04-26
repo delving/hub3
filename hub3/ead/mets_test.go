@@ -21,7 +21,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 )
 
-const metsTestFname = "testdata/1.04.18.03_11937_mets.xml"
+const metsTestFname = "testdata/c4209494-e7f7-44e7-9bde-c216249752ec_mets.xml"
 
 func newTestCfg() (*NodeConfig, *fragments.Tree) {
 	cfg := &NodeConfig{
@@ -62,8 +62,8 @@ func TestFindingAidMimeTypes(t *testing.T) {
 	}
 
 	count, ok := counter["image/jpeg"]
-	if !ok || count != 140 {
-		t.Errorf("not all mimetypes counted, got %d: want %d", count, 140)
+	if !ok || count != 66 {
+		t.Errorf("not all mimetypes counted, got %d: want %d", count, 66)
 	}
 
 	if len(getMimeTypes(&findingAid)) != 1 {
@@ -82,13 +82,13 @@ func TestReadMETS(t *testing.T) {
 	}
 
 	filesGroups := mets.CfileSec.CfileGrp
-	if len(filesGroups) != 2 {
+	if len(filesGroups) != 3 {
 		t.Errorf("Not all filesecs are parsed, got %d: want %d", len(filesGroups), 2)
 	}
 
 	files := filesGroups[0].Cfile
-	if len(files) != 140 {
-		t.Errorf("Not all files are parsed, got %d: want %d", len(files), 140)
+	if len(files) != 66 {
+		t.Errorf("Not all files are parsed, got %d: want %d", len(files), 66)
 	}
 
 	cfg, tree := newTestCfg()
@@ -100,30 +100,33 @@ func TestReadMETS(t *testing.T) {
 		t.Errorf("unable to create finding-aid: %#v", err)
 	}
 
-	if findingAid.GetFileCount() != 140 {
-		t.Errorf("Not all entries are parsed, got %d: want %d", findingAid.GetFileCount(), 140)
+	if findingAid.GetFileCount() != 66 {
+		t.Errorf("Not all entries are parsed, got %d: want %d", findingAid.GetFileCount(), 66)
 	}
 
 	tests := []struct {
-		name     string
-		file     *eadpb.File
-		sortKey  int32
-		fileSize int32
-		fileUUID string
+		name        string
+		file        *eadpb.File
+		sortKey     int32
+		fileSize    int32
+		fileUUID    string
+		deepzoomURI string
 	}{
 		{
-			name:     "first",
-			file:     findingAid.Files[0],
-			sortKey:  1,
-			fileSize: int32(6571877),
-			fileUUID: "f04cdec4-2b56-4f60-bcd3-29cd1a49e25e",
+			name:        "first",
+			file:        findingAid.Files[0],
+			sortKey:     1,
+			fileSize:    int32(2878603),
+			fileUUID:    "171ec840-1cf8-46d2-bfba-af8cf5e1239c",
+			deepzoomURI: "https://service.archief.nl/iip/c4/20/94/94/e7/f7/44/e7/9b/de/c2/16/24/97/52/ec/171ec840-1cf8-46d2-bfba-af8cf5e1239c.jp2/info.json",
 		},
 		{
-			name:     "last",
-			file:     findingAid.Files[findingAid.GetFileCount()-1],
-			sortKey:  140,
-			fileSize: int32(5066026),
-			fileUUID: "d9125e83-7127-4fd4-bfdb-1312ddb58614",
+			name:        "last",
+			file:        findingAid.Files[findingAid.GetFileCount()-1],
+			sortKey:     66,
+			fileSize:    int32(3171003),
+			fileUUID:    "ae58d143-af1a-4639-85fd-936a196e864d",
+			deepzoomURI: "https://service.archief.nl/iip/c4/20/94/94/e7/f7/44/e7/9b/de/c2/16/24/97/52/ec/ae58d143-af1a-4639-85fd-936a196e864d.jp2/info.json",
 		},
 	}
 	for _, tt := range tests {
@@ -139,6 +142,10 @@ func TestReadMETS(t *testing.T) {
 
 			if tt.file.GetFileuuid() != tt.fileUUID {
 				t.Errorf("UUID is not correct, want %s; got %s", tt.fileUUID, tt.file.GetFileuuid())
+			}
+
+			if tt.file.GetDeepzoomURI() != tt.deepzoomURI {
+				t.Errorf("DeepzoomURI is not correct, want %s; got %s", tt.deepzoomURI, tt.file.GetDeepzoomURI())
 			}
 		})
 	}
