@@ -162,34 +162,35 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 }
 
 func validateFindingAid(fa *eadpb.FindingAid) error {
-	uniqueFileNamesWithOrderKey, duplicateErr := mapToUniqueFilenamesWithSortKey(fa.Files)
-	if duplicateErr != nil {
-		return duplicateErr
+	duplicateFilenamesErr := assertUniqueFilenames(fa.Files)
+	if duplicateFilenamesErr != nil {
+		return duplicateFilenamesErr
 	}
 
-	err := validateSortKeysAreOrdered(&uniqueFileNamesWithOrderKey, 1)
-	if err != nil {
-		return err
+	sortKeysNotOrderedErr := assertSortKeysAreOrdered(fa.Files, 1)
+	if sortKeysNotOrderedErr != nil {
+		return sortKeysNotOrderedErr
 	}
 
 	return nil
 }
 
-func mapToUniqueFilenamesWithSortKey(files []*eadpb.File) (map[string]int32, error) {
+func assertUniqueFilenames(files []*eadpb.File) error {
 	var fileNames = make(map[string]int32)
 
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
 		if exists {
-			return fileNames, errors.New(fmt.Sprintf("duplicate filename found: %s", file.Filename))
+			return errors.New(fmt.Sprintf("duplicate filename found: %s", file.Filename))
 		}
 
 		fileNames[file.Filename] = file.SortKey
 	}
-	return fileNames, nil
+
+	return nil
 }
 
-func validateSortKeysAreOrdered(fileNames *map[string]int32, expectedStartingSortKey int32) error {
+func assertSortKeysAreOrdered(files []*eadpb.File, expectedStartingSortKey int32) error {
 	var sortKeyTracker int32
 	sortKeyTracker = expectedStartingSortKey
 
@@ -197,9 +198,9 @@ func validateSortKeysAreOrdered(fileNames *map[string]int32, expectedStartingSor
 		sortKeyTracker = 1 // the default value
 	}
 
-	for filename, sortKey := range *fileNames {
-		if sortKey != sortKeyTracker {
-			return errors.New(fmt.Sprintf("file sortKey not in succeeding order for fileName: %s with sortKey %d", filename, sortKey))
+	for _, file := range files {
+		if file.SortKey != sortKeyTracker {
+			return errors.New(fmt.Sprintf("file sortKey not in succeeding order for fileName: %s with sortKey %d", file.Filename, file.SortKey))
 		}
 		sortKeyTracker++
 	}
