@@ -49,7 +49,7 @@ func init() {
 
 	bulkCmd.Flags().StringVarP(&requestPath, "dataPath", "p", ".", "Full path to orgIDs for the bulk.Requests.")
 	bulkCmd.Flags().StringVarP(&publishHost, "host", "", "http://localhost:3001", "network host of where target hub3 is running")
-	bulkCmd.Flags().IntVarP(&chunkSize, "chunkSize", "", 500, "network host of where target hub3 is running")
+	bulkCmd.Flags().IntVarP(&chunkSize, "chunkSize", "", 500, "size of number of records send per batch")
 }
 
 func publish(ctx context.Context, host, dataPath string) error {
