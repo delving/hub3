@@ -280,6 +280,8 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 
 		if ds.Revision != int(revision.GetNumber()) {
 			log.Warn().
+				Str("orgID", orgID).
+				Str("datasetID", datasetID).
 				Int32("message_revision", revision.GetNumber()).
 				Int("dataset_revision", ds.Revision).
 				Msg("message revision is older so not dropping orphans")
