@@ -4,6 +4,14 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
 
+### Added
+
+- ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
+
+### Fixed
+ 
+- Explicit initialisation of config for CLI subcommands instead of global on init [[GH-88]](https://github.com/delving/hub3/pull/88)
+
 ## v0.2.0 (2021-03-10)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0
