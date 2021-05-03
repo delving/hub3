@@ -40,6 +40,7 @@ type Request struct {
 	GraphMimeType string `json:"graphMimeType"`
 	SubjectType   string `json:"subjectType"`
 	Revision      int    `json:"revision"`
+	Tags          string `json:"tags,omitempty"`
 }
 
 func (req *Request) valid() error {
@@ -69,6 +70,13 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.NamedGraphURI = req.NamedGraphURI
 	fg.Meta.EntryURI = fg.GetAboutURI()
 	fg.Meta.Tags = []string{"narthex", "mdr"}
+
+	if req.Tags != "" {
+		tags := strings.Split(req.Tags, ",")
+		for _, tag := range tags {
+			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
+		}
+	}
 
 	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
 		fg.Meta.Tags = append(fg.Meta.Tags, tags...)

@@ -234,6 +234,18 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 				sr.FacetField = append(sr.FacetField, facet)
 			}
+		case "facet.size", "facet.limit":
+			size, err := strconv.Atoi(params.Get(p))
+			if err != nil {
+				logConvErr(p, []string{params.Get(p)}, err)
+				return sr, err
+			}
+
+			if size > 2000 {
+				size = 2000
+			}
+
+			sr.FacetLimit = int32(size)
 		case "facetBoolType", "facet.boolType":
 			fbt := params.Get(p)
 			if fbt != "" {
@@ -248,7 +260,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			case "bulkaction":
 				sr.ResponseFormatType = ResponseFormatType_BULKACTION
 			}
-		case "rows", "limit":
+		case "rows", "limit", "size":
 			size, err := strconv.Atoi(params.Get(p))
 			if err != nil {
 				logConvErr(p, []string{params.Get(p)}, err)
@@ -288,6 +300,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			case "asc":
 				sr.SortAsc = true
 			}
+		case "collapseFormat":
+			sr.CollapseFormat = params.Get(p)
 		case "collapseOn":
 			sr.CollapseOn = params.Get(p)
 		case "collapseSort":
@@ -919,6 +933,10 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 	aggs := map[string]elastic.Aggregation{}
 
 	for _, facetField := range sr.FacetField {
+		if sr.FacetLimit != 0 {
+			facetField.Size = sr.FacetLimit
+		}
+
 		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
 			return nil, err
@@ -1197,22 +1215,46 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 	s = s.Query(query)
 
-	if sr.CollapseOn != "" {
-		b := elastic.NewCollapseBuilder(sr.CollapseOn).
-			InnerHit(elastic.NewInnerHit().Name("collapse").Size(5)).
-			MaxConcurrentGroupRequests(4)
-		s = s.Collapse(b)
-		s = s.FetchSource(false)
-	}
-
 	fub, err := NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
 	if err != nil {
 		log.Println("Unable to FacetURIBuilder")
 		return s, nil, err
 	}
 
+	// Add post filters
+	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+	if err != nil {
+		log.Printf("unable to create postfilter: %#v", err)
+		return s, nil, err
+	}
+	s = s.PostFilter(postFilter)
+
+	if sr.CollapseOn != "" {
+		collapseSize := 5
+		if sr.CollapseSize != 0 {
+			collapseSize = int(sr.CollapseSize)
+		}
+		b := elastic.NewCollapseBuilder(sr.CollapseOn).
+			InnerHit(elastic.NewInnerHit().Name("collapse").Size(collapseSize)).
+			MaxConcurrentGroupRequests(4)
+		s = s.Collapse(b)
+		s = s.FetchSource(false)
+
+		collapseCountAgg := elastic.NewCardinalityAggregation().
+			Field(sr.CollapseOn)
+
+		countFilterAgg := elastic.NewFilterAggregation().
+			Filter(postFilter).
+			SubAggregation("collapseCount", collapseCountAgg)
+
+		s = s.Aggregation("counts", countFilterAgg)
+	}
+
 	if sr.Peek != "" {
 		facetField := &FacetField{Field: sr.Peek, Size: int32(100)}
+		if sr.Peek == metaTags {
+			facetField.Type = FacetType_METATAGS
+		}
 		agg, aggErr := sr.CreateAggregationBySearchLabel(resourcesEntries, facetField, fub)
 		if err != nil {
 			return nil, nil, aggErr
@@ -1233,14 +1275,6 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 		s = s.FetchSourceContext(fsc)
 	}
-
-	// Add post filters
-	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
-	if err != nil {
-		log.Printf("unable to create postfilter: %#v", err)
-		return s, nil, err
-	}
-	s = s.PostFilter(postFilter)
 
 	// Add aggregations
 	if sr.Paging {
@@ -1266,43 +1300,6 @@ func NewScrollPager() *ScrollPager {
 	sp.Cursor = 0
 
 	return sp
-}
-
-// Echo returns a json version of the request object for introspection
-func (sr *SearchRequest) Echo(echoType string, total int64) (interface{}, error) {
-	switch echoType {
-	case "es":
-		query, err := sr.ElasticQuery()
-		if err != nil {
-			return nil, err
-		}
-		source, _ := query.Source()
-		return source, nil
-	case "aggs":
-		aggs, err := sr.Aggregations(nil)
-		if err != nil {
-			return nil, err
-		}
-		sourceMap := map[string]interface{}{}
-		for k, v := range aggs {
-			source, _ := v.Source()
-			sourceMap[k] = source
-		}
-		return sourceMap, nil
-	case "searchRequest":
-		return sr, nil
-	case "options":
-		options := []string{
-			"es", "aggs", "searchRequest", "options", "searchService", "searchResponse", "request",
-			"nextScrollID", "searchAfter",
-		}
-		sort.Strings(options)
-		return options, nil
-	case "searchService", "searchResponse", "request", "nextScrollID", "previousScrollID", "searchAfter":
-		return nil, nil
-	}
-
-	return nil, fmt.Errorf("unknown echoType: %s", echoType)
 }
 
 type ScrollType int
@@ -1814,18 +1811,12 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := KeyAsString(b)
-							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
-
-							if isSelected && !qf.IsSelected {
-								qf.IsSelected = true
-							}
 							fl := &FacetLink{
-								URL:           url,
-								IsSelected:    isSelected,
 								Value:         key,
 								Count:         b.DocCount,
 								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 							}
+							setFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
 						}
 					}
@@ -1870,19 +1861,14 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 				for _, b := range value.Buckets {
 					key := KeyAsString(b)
 
-					url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
-
-					if isSelected && !qf.IsSelected {
-						qf.IsSelected = true
-					}
-
 					fl := &FacetLink{
-						URL:           url,
-						IsSelected:    isSelected,
 						Value:         key,
 						Count:         b.DocCount,
 						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 					}
+
+					setFacetLink(key, qf, fl, fb)
+
 					qf.Links = append(qf.Links, fl)
 				}
 
@@ -1891,6 +1877,19 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 		}
 	}
 	return aggs, nil
+}
+
+func setFacetLink(key string, qf *QueryFacet, fl *FacetLink, fb *FacetURIBuilder) {
+	if fb != nil {
+		url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
+
+		if isSelected && !qf.IsSelected {
+			qf.IsSelected = true
+		}
+
+		fl.URL = url
+		fl.IsSelected = isSelected
+	}
 }
 
 // KeyAsString extracts the key as string from the elastic.AggregationBucketKeyItem.

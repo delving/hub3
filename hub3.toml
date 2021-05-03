@@ -365,6 +365,10 @@ prefix="bf"
 base = "http://id.loc.gov/ontologies/bibframe/"
 
 [[namespaces]]
+prefix="nt-rdf"
+base = "https://archief.nl/def/nt/"
+
+[[namespaces]]
 prefix="cs" 
 base = "http://www.kulttuurisampo.fi/ebkr/"
 

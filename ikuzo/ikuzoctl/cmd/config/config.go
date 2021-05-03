@@ -16,12 +16,14 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
+	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
 )
 
@@ -41,6 +43,7 @@ type Config struct {
 	EAD               `json:"ead"`
 	DB                `json:"db"`
 	ImageProxy        `json:"imageProxy"`
+	NameSpace         `json:"nameSpace"`
 	PostHooks         []PostHook `json:"posthooks"`
 	options           []ikuzo.Option
 	logger            logger.CustomLogger
@@ -50,6 +53,7 @@ type Config struct {
 	Organization      `json:"organization"`
 	Org               map[string]domain.OrganizationConfig
 	OAIPMH            `json:"oaipmh"`
+	oto               *otohttp.Server
 }
 
 func (cfg *Config) IsDataNode() bool {
@@ -69,7 +73,9 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.EAD,
 			&cfg.ImageProxy,
 			&cfg.Logging,
+			&cfg.NameSpace,
 			&cfg.OAIPMH,
+			&cfg.NameSpace,
 		}
 	}
 
@@ -84,6 +90,12 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 	}
 
 	cfg.options = append(cfg.options, ikuzo.SetLogger(&cfg.logger))
+
+	if cfg.oto != nil {
+		cfg.options = append(cfg.options, ikuzo.RegisterOtoServer(cfg.oto))
+	}
+
+	cfg.logger.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file")
 
 	return cfg.options, nil
 }
@@ -142,4 +154,12 @@ func (cfg *Config) GetRevisionService() (*revision.Service, error) {
 
 func (cfg *Config) defaultOptions() error {
 	return nil
+}
+
+func (cfg *Config) getOto() *otohttp.Server {
+	if cfg.oto == nil {
+		cfg.oto = otohttp.NewServer()
+	}
+
+	return cfg.oto
 }
