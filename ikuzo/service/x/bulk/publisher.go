@@ -185,7 +185,7 @@ func (p *Publisher) send() error {
 		return fmt.Errorf("unable to post to endpoint: %w", err)
 	}
 
-	if resp.StatusCode < 200 || resp.StatusCode > 300 {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		b, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
 			return err
