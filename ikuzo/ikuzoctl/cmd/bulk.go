@@ -36,7 +36,7 @@ var bulkCmd = &cobra.Command{
 	Short: "Load bulk.Request from disk",
 	Long: `Loading bulk.Requests serialized as line delimited json.
 
-	We assume that the structure is 'orgID/datasetID/hubID.jsonl' each bulk.Request
+	We assume that the structure is 'orgID/datasetID/hubID.jsonl' and that each bulk.Request
 	is stored in single file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("bulk called")
