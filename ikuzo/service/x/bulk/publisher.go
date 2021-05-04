@@ -90,7 +90,7 @@ func (p *Publisher) Append(request *Request) error {
 //
 // Chunks are defined by p.BulkSize.
 //
-// The expect directory structure is:
+// The expected directory structure is:
 //
 // {orgId}
 //		/{datasetID}
