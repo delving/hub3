@@ -167,11 +167,6 @@ func validateFindingAid(fa *eadpb.FindingAid) error {
 		return duplicateFilenamesErr
 	}
 
-	sortKeysNotOrderedErr := assertSortKeysAreOrdered(fa.Files, 1)
-	if sortKeysNotOrderedErr != nil {
-		return sortKeysNotOrderedErr
-	}
-
 	return nil
 }
 
@@ -185,24 +180,6 @@ func assertUniqueFilenames(files []*eadpb.File) error {
 		}
 
 		fileNames[file.Filename] = file.SortKey
-	}
-
-	return nil
-}
-
-func assertSortKeysAreOrdered(files []*eadpb.File, expectedStartingSortKey int32) error {
-	var sortKeyTracker int32
-	sortKeyTracker = expectedStartingSortKey
-
-	if sortKeyTracker == 0 {
-		sortKeyTracker = 1 // the default value
-	}
-
-	for _, file := range files {
-		if file.SortKey != sortKeyTracker {
-			return errors.New(fmt.Sprintf("file sortKey not in succeeding order for fileName: %s with sortKey %d", file.Filename, file.SortKey))
-		}
-		sortKeyTracker++
 	}
 
 	return nil
