@@ -130,6 +130,8 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 			return err
 		}
 
+		m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
+
 		if c.bi != nil {
 			c.bi.Publish(context.Background(), m)
 		}
@@ -145,6 +147,8 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	if err != nil {
 		return err
 	}
+
+	m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
 
 	if c.bi != nil {
 		c.bi.Publish(context.Background(), m)
