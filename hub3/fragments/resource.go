@@ -409,8 +409,12 @@ func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
 		entries[p.Predicate] = append(entries[p.Predicate], p)
 	}
 	for k, v := range entries {
+		objects := []*r.LdObject{}
 		for _, p := range v {
-			m[k] = p.AsLdObject()
+			objects = append(objects, p.AsLdObject())
+		}
+		if len(objects) != 0 {
+			m[k] = objects
 		}
 	}
 	return m
