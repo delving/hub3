@@ -185,6 +185,7 @@ message SearchRequest {
   string OrgID = 34;
   string orgIDKey = 35;
   string collapseFormat = 36;
+  bool v1Mode = 37;
 }
 
 enum GeoType {

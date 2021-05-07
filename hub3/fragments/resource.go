@@ -31,6 +31,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
@@ -442,6 +443,7 @@ type ProtoBuf struct {
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`
+	Pagination *search.Paginator  `json:"pagination,omitempty"`
 	Query      *Query             `json:"query"`
 	Items      []*FragmentGraph   `json:"items,omitempty"`
 	Collapsed  []*Collapsed       `json:"collapse,omitempty"`

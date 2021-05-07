@@ -906,3 +906,37 @@ func TestFacetURIBuilder_CreateFacetFilterURI(t *testing.T) {
 		})
 	}
 }
+
+func Test_getCursorFromPage(t *testing.T) {
+	type args struct {
+		page         int32
+		responseSize int32
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int32
+	}{
+		{
+			"first page",
+			args{page: 1, responseSize: 16},
+			int32(0),
+		},
+		{
+			"second page",
+			args{page: 2, responseSize: 16},
+			int32(16),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getCursorFromPage(tt.args.page, tt.args.responseSize); got != tt.want {
+				t.Errorf("getCursorFromPage() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

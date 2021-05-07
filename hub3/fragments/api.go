@@ -151,6 +151,10 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 	sr.OrgID = orgID
 
 	for p, v := range params {
+		if len(v) == 0 {
+			continue
+		}
+
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
@@ -377,6 +381,22 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 			tree.CursorHint = int32(hint)
 		case "page":
+			page := params.Get(p)
+
+			if page == "" {
+				continue
+			}
+
+			pageInt, err := strconv.Atoi(page)
+			if err != nil {
+				logConvErr(p, v, err)
+				return sr, err
+			}
+
+			sr.Page = int32(pageInt)
+		case "v1.mode":
+			sr.V1Mode = strings.EqualFold(params.Get(p), "true")
+		case "treePage":
 			sr.Tree = tree
 			tree.Page = []int32{}
 
@@ -431,7 +451,16 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		}
 	}
 
+	if sr.Page != 0 {
+		sr.Start = getCursorFromPage(sr.GetPage(), sr.GetResponseSize())
+	}
+
 	return sr, nil
+}
+
+// cursor is zero based
+func getCursorFromPage(page, responseSize int32) int32 {
+	return (page * responseSize) - responseSize
 }
 
 var letters = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -1207,6 +1236,10 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 	}
 
+	// if sr.GetPage() > int32(0) && sr.GetStart() > int32(0) {
+	s = s.From(int(sr.GetStart()))
+	// }
+
 	query, err := sr.ElasticQuery()
 	if err != nil {
 		log.Println("Unable to build the query result.")
@@ -1277,8 +1310,10 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	// Add aggregations
-	if sr.Paging {
-		return s.Query(query), nil, err
+	if !sr.V1Mode {
+		if sr.Paging {
+			return s.Query(query), nil, err
+		}
 	}
 
 	aggs, err := sr.Aggregations(fub)

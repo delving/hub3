@@ -30,6 +30,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
@@ -229,15 +230,39 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	searchRequest.SearchAfter = searchAfterBin
-	if err != nil {
-		log.Printf("Unable to decode records")
-		return
+
+	var paginator *search.Paginator
+	if searchRequest.V1Mode {
+		paginator, err = search.NewPaginator(
+			int(res.TotalHits()),
+			int(searchRequest.GetResponseSize()),
+			int(searchRequest.GetPage()),
+			int(searchRequest.GetStart()),
+		)
+		if err != nil {
+			log.Println("Unable to create Paginator")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		searchRequest.Start = int32(paginator.Start) - 1
+		if err := paginator.AddPageLinks(); err != nil {
+			log.Println("Unable to create PageLinks")
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 
 	pager, err := searchRequest.ScrollPagers(res.TotalHits())
 	if err != nil {
 		log.Println("Unable to create Scroll Pager. ")
 		return
+	}
+
+	if paginator != nil {
+		if pager.Cursor == int32(0) && paginator.Start != 0 {
+			pager.Cursor = int32(paginator.Start)
+		}
 	}
 
 	// Add scrollID pager information to the header
@@ -330,6 +355,11 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	result := &fragments.ScrollResultV4{}
 	result.Pager = pager
+	// TODO(kiivihal): how to enable or disable this
+
+	if paginator != nil {
+		result.Pagination = paginator
+	}
 
 	var textQuery *memory.TextQuery
 
@@ -365,6 +395,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			rec.ProtoBuf = nil
 		}
 	case fragments.ItemFormatType_TREE:
+		result.Pagination = nil
 		leafs := []*fragments.Tree{}
 
 		searching := &fragments.TreeSearching{
