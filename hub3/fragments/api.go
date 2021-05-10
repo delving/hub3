@@ -1803,8 +1803,28 @@ func getKeyAsString(raw json.RawMessage) string {
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
+// The QueryFacets are returned in the order of the SearchRequest.FacetField
 func (sr *SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet, error) {
-	return DecodeFacets(res, fb)
+	facets, err := DecodeFacets(res, fb)
+	if err != nil {
+		return facets, err
+	}
+
+	queryFacets := map[string]*QueryFacet{}
+	for _, facet := range facets {
+		queryFacets[facet.Field] = facet
+	}
+
+	orderedFacets := []*QueryFacet{}
+
+	for _, field := range sr.FacetField {
+		facet, ok := queryFacets[field.Field]
+		if ok {
+			orderedFacets = append(orderedFacets, facet)
+		}
+	}
+
+	return orderedFacets, nil
 }
 
 // DecodeFacets decodes the elastic aggregations in the SearchResult to fragments.QueryFacets
