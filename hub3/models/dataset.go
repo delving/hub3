@@ -657,6 +657,10 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 		}
 	}
 
+	if c.Config.ElasticSearch.DigitalObjectSuffix != "" {
+		indices = append(indices, c.Config.ElasticSearch.GetDigitalObjectIndexName())
+	}
+
 	res, err := index.ESClient().DeleteByQuery().
 		Index(indices...).
 		Query(q).

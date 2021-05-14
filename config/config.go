@@ -82,30 +82,31 @@ type PostHook struct {
 // ElasticSearch holds all the configuration values
 // It is bound by Viper.
 type ElasticSearch struct {
-	Urls               []string `json:"urls"`
-	Enabled            bool     `json:"enabled"`
-	IndexName          string   `json:"indexName"`
-	Proxy              bool     `json:"proxy"`
-	Fragments          bool     `json:"fragments"`
-	IndexV1            bool     `json:"indexV1"` // exclusive with v2 indexing
-	EnableTrace        bool     `json:"enableTrace"`
-	EnableInfo         bool     `json:"enableInfo"`
-	SpecKey            string   `json:"specKey"`
-	RevisionKey        string   `json:"revisionKey"`
-	OrgIDKey           string   `json:"orgIDKey"`
-	UserName           string   `json:"userName"`
-	Password           string   `json:"password"`
-	FacetSize          int      `json:"facetSize"`
-	MinimumShouldMatch string   `json:"minimumShouldMatch"`
-	Workers            int      `json:"workers"`
-	Shards             int      `json:"shards"`
-	Replicas           int      `json:"replicas"`
-	RequestTimeout     int      `json:"requestTimeout"`
-	EnableSearchAfter  bool     `json:"enableSearchAfter"`
-	TrackTotalHits     bool     `json:"trackTotalHits"`
-	IndexTypes         []string `json:"indexTypes"`
-	MaxTreeSize        int      `json:"maxTreeSize"`
-	OrphanWait         int      `json:"orphanWait"`
+	Urls                []string `json:"urls"`
+	Enabled             bool     `json:"enabled"`
+	IndexName           string   `json:"indexName"`
+	DigitalObjectSuffix string   `json:"digitalObjectSuffix"`
+	Proxy               bool     `json:"proxy"`
+	Fragments           bool     `json:"fragments"`
+	IndexV1             bool     `json:"indexV1"` // exclusive with v2 indexing
+	EnableTrace         bool     `json:"enableTrace"`
+	EnableInfo          bool     `json:"enableInfo"`
+	SpecKey             string   `json:"specKey"`
+	RevisionKey         string   `json:"revisionKey"`
+	OrgIDKey            string   `json:"orgIDKey"`
+	UserName            string   `json:"userName"`
+	Password            string   `json:"password"`
+	FacetSize           int      `json:"facetSize"`
+	MinimumShouldMatch  string   `json:"minimumShouldMatch"`
+	Workers             int      `json:"workers"`
+	Shards              int      `json:"shards"`
+	Replicas            int      `json:"replicas"`
+	RequestTimeout      int      `json:"requestTimeout"`
+	EnableSearchAfter   bool     `json:"enableSearchAfter"`
+	TrackTotalHits      bool     `json:"trackTotalHits"`
+	IndexTypes          []string `json:"indexTypes"`
+	MaxTreeSize         int      `json:"maxTreeSize"`
+	OrphanWait          int      `json:"orphanWait"`
 }
 
 // FragmentIndexName returns the name of the Fragment index.
@@ -126,6 +127,14 @@ func (es *ElasticSearch) GetIndexName() string {
 
 func (es *ElasticSearch) GetV1IndexName() string {
 	return strings.ToLower(es.IndexName) + "v1"
+}
+
+func (es *ElasticSearch) GetDigitalObjectIndexName() string {
+	if es.DigitalObjectSuffix == "" {
+		return es.GetIndexName()
+	}
+
+	return strings.ToLower(es.IndexName) + "v2-" + strings.ToLower(es.DigitalObjectSuffix)
 }
 
 // Logging holds all the logging and path configuration
