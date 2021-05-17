@@ -1,5 +1,5 @@
 # The default orgId (deprecated)
-orgId = "hub3" 
+orgId = "hub3"
 # the default hub3 clusterID
 hub3ID = "hub3"
 # the url to the remote dataNode. When emtpy the current node is started in dataNode mode
@@ -9,10 +9,10 @@ dataNodeURL = ""
 domains = ["localhost:3000"]
 default = true
 
-[org.NL-HaNA]
+[org.hub3]
 domains = ["localhost:3001"]
-customID = "NL-HaNA"
-default = false
+customID = "hub3"
+default = true
 
 [http]
 # all the configuration for the http sub-command
@@ -48,6 +48,8 @@ metrics = true
 urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId
 indexName = "hub3"
+# if non-empty digital objects will be indexed in a dedicated v2 index
+digitalObjectSuffix = "scans"
 # if _mapping and _search proxies should be enabled
 proxy = true 
 # Store fragments 
@@ -81,7 +83,7 @@ shards = 1
 # replicas configuration for rdf and fragments index
 replicas = 0
 # indexTypes enabled types for the bulk index service
-indexTypes = ["v1", "v2"]
+indexTypes = ["v2"]
 # maxTreeSize is the maximum size of the number of nodes in the tree navigation API
 maxTreeSize = 251
 # orphanWait is the time in seconds that the goroutine waits for the cluster to be in sync before sending delete query
@@ -215,7 +217,7 @@ singleEndpoint = "NL-.*"
 cacheDir = "/tmp/ead"
 metrics = true
 workers = 1
-processDigital = false
+processDigital = true
 
 searchURL = ""
 genreFormDefault = "other/unknown"

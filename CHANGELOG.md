@@ -4,6 +4,10 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
 
+### Added 
+ 
+- Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+
 ## v0.2.0 (2021-03-10)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0
