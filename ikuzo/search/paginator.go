@@ -99,18 +99,35 @@ func (p *Paginator) AddPageLinks() error {
 
 func (p *Paginator) getPageLinks() ([]PageLink, error) {
 	pagingWindow := 10
+
+	firstPage := p.FirstPage
+	if firstPage < 1 {
+		firstPage = 1
+	}
+
+	if p.CurrentPage > 1 {
+		firstPage = p.CurrentPage - 4
+		pagingWindow = p.CurrentPage + 4
+	}
+
 	if p.LastPage < pagingWindow {
 		pagingWindow = p.LastPage
 	}
 
 	links := []PageLink{}
-	for i := 1; i <= pagingWindow; i++ {
+
+	for i := firstPage; i <= pagingWindow; i++ {
+		start := ((i - 1) * p.Rows) + 1
+		if start < 1 {
+			start = 1
+		}
+
 		links = append(
 			links,
 			PageLink{
 				PageNumber: i,
 				IsLinked:   i != p.CurrentPage,
-				Start:      ((i - 1) * p.Rows) + 1,
+				Start:      start,
 			},
 		)
 	}

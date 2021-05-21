@@ -257,6 +257,37 @@ func TestPaginator_getPageLinks(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"while paging full paging window",
+			args{1000, 16, 8, 113},
+			[]PageLink{
+				{Start: 49, IsLinked: true, PageNumber: 4},
+				{Start: 65, IsLinked: true, PageNumber: 5},
+				{Start: 81, IsLinked: true, PageNumber: 6},
+				{Start: 97, IsLinked: true, PageNumber: 7},
+				{Start: 113, IsLinked: false, PageNumber: 8},
+				{Start: 129, IsLinked: true, PageNumber: 9},
+				{Start: 145, IsLinked: true, PageNumber: 10},
+				{Start: 161, IsLinked: true, PageNumber: 11},
+				{Start: 177, IsLinked: true, PageNumber: 12},
+			},
+			false,
+		},
+		{
+			"while paging with limit",
+			args{162, 16, 8, 113},
+			[]PageLink{
+				{Start: 49, IsLinked: true, PageNumber: 4},
+				{Start: 65, IsLinked: true, PageNumber: 5},
+				{Start: 81, IsLinked: true, PageNumber: 6},
+				{Start: 97, IsLinked: true, PageNumber: 7},
+				{Start: 113, IsLinked: false, PageNumber: 8},
+				{Start: 129, IsLinked: true, PageNumber: 9},
+				{Start: 145, IsLinked: true, PageNumber: 10},
+				{Start: 161, IsLinked: true, PageNumber: 11},
+			},
+			false,
+		},
 	}
 
 	for _, tt := range tests {
