@@ -43,6 +43,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/cnf/structhash"
 	c "github.com/delving/hub3/config"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
@@ -80,8 +81,8 @@ func NewSortedGraph(g *r.Graph) *SortedGraph {
 
 // AddTriple add triple to the list of triples in the sortedGraph.
 // Note: there is not deduplication
-func (sg *SortedGraph) Add(t *r.Triple) {
-	sg.triples = append(sg.triples, t)
+func (sg *SortedGraph) Add(t ...*r.Triple) {
+	sg.triples = append(sg.triples, t...)
 }
 
 func (sg *SortedGraph) Triples() []*r.Triple {
@@ -183,6 +184,7 @@ func (sg *SortedGraph) GetRDF() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("graph: %s", b.String())
 	return b.Bytes(), nil
 }
 
@@ -193,6 +195,14 @@ type IndexEntry struct {
 	Language string `json:"language,omitempty"`
 	Type     string `json:"@type,omitempty"`
 	Raw      string `json:"raw,omitempty"`
+}
+
+func (ie *IndexEntry) Hash(searchLabel string) (string, error) {
+	hash, err := structhash.Hash(ie, 1)
+	if err != nil {
+		return "", fmt.Errorf("unable create structhash for IndexEntry: %w", err)
+	}
+	return fmt.Sprintf("%s-%s", searchLabel, hash), nil
 }
 
 // Legacy holds the legacy values
@@ -280,12 +290,15 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	nowString := fmt.Sprintf(now.Format(time.RFC3339))
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
-	rdf, err := fb.SortedGraph.GetRDF()
-	if err == nil {
-		s.SourceGraph = string(rdf)
+
+	jsonld := fb.fg.NewJSONLD()
+	bytes, err := json.Marshal(jsonld)
+	if err != nil {
+		log.Printf("Unable to add RDF for %s; %#v\n", fb.fg.Meta.GetHubID(), err)
 	} else {
-		log.Printf("Unable to add RDF for %s\n", fb.fg.Meta.GetHubID())
+		s.SourceGraph = string(bytes)
 	}
+
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
 	// s.ContentHash
@@ -755,6 +768,19 @@ func fieldsContains(s []*IndexEntry, e *IndexEntry) bool {
 
 // CreateV1IndexDoc creates a map that can me marshaled to json
 func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]interface{}, error) {
+	if fb.SortedGraph == nil {
+		if fb.Graph != nil {
+			fb.SortedGraph = NewSortedGraph(fb.Graph)
+		} else {
+			sg := SortedGraph{}
+			for _, rsc := range fb.fg.Resources {
+				for _, triples := range rsc.GenerateTriples() {
+					sg.Add(triples)
+				}
+			}
+		}
+	}
+
 	indexDoc := make(map[string]interface{})
 
 	// set the resourceLabels
@@ -763,12 +789,9 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 		return indexDoc, err
 	}
 
-	var triples []*r.Triple
-	for _, t := range fb.SortedGraph.Triples() {
-		triples = append(triples, t)
-	}
+	entryHashes := map[string]bool{}
 
-	for _, t := range triples {
+	for _, t := range fb.SortedGraph.Triples() {
 		searchLabel, err := GetFieldKey(t)
 		if err != nil {
 			return indexDoc, err
@@ -783,7 +806,15 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 		if err != nil {
 			return indexDoc, err
 		}
-		indexDoc[searchLabel] = append(fields, entry)
+		hash, err := entry.Hash(searchLabel)
+		if err != nil {
+			return indexDoc, err
+		}
+
+		if _, ok := entryHashes[hash]; !ok {
+			indexDoc[searchLabel] = append(fields, entry)
+			entryHashes[hash] = true
+		}
 	}
 	indexDoc["delving_spec"] = IndexEntry{
 		Type:  "Literal",

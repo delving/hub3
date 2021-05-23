@@ -242,6 +242,7 @@ func SetBulkService(svc *bulk.Service) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Post("/api/index/bulk", svc.Handle)
+				r.Post("/api/index/rdf", svc.HandleRDF)
 			},
 		)
 

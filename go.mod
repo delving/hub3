@@ -12,6 +12,7 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.0.2
+	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08 // indirect
 	github.com/containerd/continuity v0.0.0-20200710164510-efbc4488d8fe // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
@@ -30,6 +31,7 @@ require (
 	github.com/golang/protobuf v1.4.2
 	github.com/google/go-cmp v0.5.1
 	github.com/google/gofuzz v1.1.0
+	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect

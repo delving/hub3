@@ -628,11 +628,12 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 		}
 
 		log.Info().Msgf(
-			"Removed %d records for spec %s in index %s with older revision than %d",
+			"Removed %d records for spec %s in index %s with older revision than %d (%s)",
 			res.Deleted,
 			ds.Spec,
 			indices,
 			ds.Revision,
+			ds.OrgID,
 		)
 	}
 

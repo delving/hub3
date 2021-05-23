@@ -56,6 +56,7 @@ func serve() {
 			handlers.RegisterDatasets,
 			handlers.RegisterEAD,
 			handlers.RegisterSearch,
+			handlers.RegisterEAD,
 		),
 	)
 

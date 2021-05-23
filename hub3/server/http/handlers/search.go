@@ -129,7 +129,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			return
 		}
 
-		http.Error(w, fmt.Sprintf("unable to get search results: %s", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("unable to get search results: %s", err), res.Status)
 
 		log.Printf("Unable to get search result; %s", err)
 		return

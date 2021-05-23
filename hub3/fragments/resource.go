@@ -397,6 +397,27 @@ type ResourceEntryHighlight struct {
 	MarkDown    []string `json:"markdown"`
 }
 
+func (fr *FragmentResource) GenerateTriples() []*r.Triple {
+	triples := []*r.Triple{}
+	subject := r.NewResource(fr.ID)
+	for _, rdfType := range fr.Types {
+		triples = append(
+			triples,
+			r.NewTriple(
+				subject,
+				r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+				r.NewResource(rdfType),
+			),
+		)
+	}
+
+	for _, entry := range fr.Entries {
+		triples = append(triples, entry.GetTriple(subject))
+	}
+
+	return triples
+}
+
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry
 func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
 	m := map[string]interface{}{}
@@ -968,6 +989,10 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
+	if len(rm.resources) == 0 {
+		return nil, fmt.Errorf("ResourceMap cannot be empty for subjecURI: %s", subjectURI)
+	}
+
 	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
 		return nil, fmt.Errorf("Subject %s is not part of the graph", subjectURI)
@@ -997,6 +1022,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 				log.Printf("unknown target URI: %s", level2.ObjectID)
 				continue
 			}
+
 			linkedObjects[level2.ObjectID] = level3Resource
 			if len(level2.GetSubjectClass()) == 0 {
 				level2.SubjectClass = level2Resource.Types
@@ -1077,6 +1103,35 @@ func (ir IndexRange) Valid() error {
 		return fmt.Errorf("%s should not be greater than %s", ir.Less, ir.Greater)
 	}
 	return nil
+}
+
+func (re *ResourceEntry) GetTriple(subject r.Term) *r.Triple {
+	predicate := r.NewResource(re.Predicate)
+	var object r.Term
+
+	switch re.EntryType {
+	case bnode:
+		object = r.NewBlankNode(re.ID)
+	case resource:
+		object = r.NewResource(re.ID)
+	case literal:
+		switch {
+		case re.Language != "":
+			object = r.NewLiteralWithLanguage(re.Value, re.Language)
+		case re.DataType != "":
+			object = r.NewLiteralWithDatatype(re.Value, r.NewResource(re.DataType))
+		default:
+			object = r.NewLiteral(re.Value)
+		}
+	default:
+		log.Printf("bad datatype: '%#v'", re)
+	}
+
+	return r.NewTriple(
+		subject,
+		predicate,
+		object,
+	)
 }
 
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
@@ -1565,8 +1620,13 @@ func (fg *FragmentGraph) NewTree() *Tree {
 // NewJSONLD creates a JSON-LD version of the FragmentGraph
 func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
 	fg.JSONLD = []map[string]interface{}{}
+	ids := map[string]bool{}
 	for _, rsc := range fg.Resources {
+		if _, ok := ids[rsc.ID]; ok {
+			continue
+		}
 		fg.JSONLD = append(fg.JSONLD, rsc.GenerateJSONLD())
+		ids[rsc.ID] = true
 	}
 	return fg.JSONLD
 }

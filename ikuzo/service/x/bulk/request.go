@@ -93,9 +93,12 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 }
 
 func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+	return processV1(ctx, fb, bi)
+}
+func processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	fb.GetSortedWebResources(ctx)
 
-	indexDoc, err := fragments.CreateV1IndexDoc(fb, req.RecordType)
+	indexDoc, err := fragments.CreateV1IndexDoc(fb)
 	if err != nil {
 		log.Info().Msgf("Unable to create index doc: %s", err)
 		return err
@@ -106,10 +109,12 @@ func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder
 		return err
 	}
 
+	fg := fb.FragmentGraph()
+
 	m := &domainpb.IndexMessage{
-		OrganisationID: req.OrgID,
-		DatasetID:      req.DatasetID,
-		RecordID:       req.HubID,
+		OrganisationID: fg.Meta.OrgID,
+		DatasetID:      fg.Meta.Spec,
+		RecordID:       fg.Meta.HubID,
 		IndexName:      config.Config.ElasticSearch.GetV1IndexName(), // TODO(kiivihal): remove config later
 		Source:         b,
 	}
@@ -122,6 +127,10 @@ func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder
 }
 
 func (req *Request) processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+	return processV2(ctx, fb, bi)
+}
+
+func processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	m, err := fb.Doc().IndexMessage()
 	if err != nil {
 		return err
