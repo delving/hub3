@@ -8,6 +8,10 @@
  
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
 
+### Fixed
+
+- Prevent duplicate files while processing METS files [[GH83]](https://github.com/delving/hub3/pull/89)
+
 ## v0.2.0 (2021-03-10)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0

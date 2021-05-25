@@ -118,6 +118,11 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 
 	cfg.updateRevisionKey()
 
+	err = validateFindingAid(&fa)
+	if err != nil {
+		return err
+	}
+
 	for _, file := range fa.Files {
 		fg, err := cfg.fragmentGraph(file)
 		if err != nil {
@@ -158,6 +163,30 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	cfg.MimeTypes = getMimeTypes(&fa)
 
 	return c.dropOrphans(cfg)
+}
+
+func validateFindingAid(fa *eadpb.FindingAid) error {
+	duplicateFilenamesErr := assertUniqueFilenames(fa.Files)
+	if duplicateFilenamesErr != nil {
+		return duplicateFilenamesErr
+	}
+
+	return nil
+}
+
+func assertUniqueFilenames(files []*eadpb.File) error {
+	var fileNames = make(map[string]int32)
+
+	for _, file := range files {
+		_, exists := fileNames[file.Filename]
+		if exists {
+			return errors.New(fmt.Sprintf("duplicate filename found: %s", file.Filename))
+		}
+
+		fileNames[file.Filename] = file.SortKey
+	}
+
+	return nil
 }
 
 func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
