@@ -36,6 +36,7 @@ results.bin
 # Data Storage
 # Boltdb
 hub3.db
+index.db
 
 # coverage
 report

@@ -2,6 +2,7 @@ package revision
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -93,13 +94,18 @@ func (p *logParser) parseLine(input string) (DiffFile, error) {
 	return diff, nil
 }
 
-func (p *logParser) generate(input string, c chan<- DiffFile) error {
+func (p *logParser) generate(ctx context.Context, input string, c chan<- DiffFile) error {
 	if err := p.parse(input); err != nil {
 		return err
 	}
 
 	for _, diff := range p.files {
 		c <- diff
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
 	}
 
 	return nil

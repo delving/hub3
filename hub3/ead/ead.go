@@ -31,6 +31,7 @@ import (
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/revision"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
@@ -71,17 +72,19 @@ type NodeConfig struct {
 	MimeTypes             map[string][]string
 	HubIDs                chan *NodeEntry
 	Errors                []*DuplicateError
+	CreateTree            func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	DaoFn                 func(cfg *DaoConfig) error
+	ContentIdentical      bool
+	Nodes                 chan *Node
+	ProcessDigital        bool
+	RetrieveDao           bool
+	ProcessAccessTime     time.Time
+	m                     sync.Mutex
+	Tags                  []string
+	Repo                  *revision.Repository
+	PublishedCommitID     string
 	// TODO(kiivihal): remove later
-	IndexService      *index.Service
-	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	DaoFn             func(cfg *DaoConfig) error
-	ContentIdentical  bool
-	Nodes             chan *Node
-	ProcessDigital    bool
-	RetrieveDao       bool
-	ProcessAccessTime time.Time
-	m                 sync.Mutex
-	Tags              []string
+	IndexService *index.Service
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {

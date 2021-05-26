@@ -124,7 +124,7 @@ func TestNewBoolQuery(t *testing.T) {
 	}
 }
 
-// nolint:gocritic
+// nolint:gocritic,funlen
 func TestNewElasticQuery(t *testing.T) {
 	is := is.New(t)
 

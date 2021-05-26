@@ -23,19 +23,20 @@ var (
 
 // Meta holds all processing information for an EAD Archive
 type Meta struct {
-	OrgID            string
-	DatasetID        string
-	Label            string
-	Period           []string
-	Inventories      int
-	DigitalObjects   int
-	RecordsPublished int
-	MetsFiles        int
-	Created          time.Time
-	Updated          time.Time
-	TimesUploaded    int
-	Revision         int32
-	DaoStats         models.DaoStats
+	OrgID             string
+	DatasetID         string
+	PublishedCommitID string
+	Label             string
+	Period            []string
+	Inventories       int
+	DigitalObjects    int
+	RecordsPublished  int
+	MetsFiles         int
+	Created           time.Time
+	Updated           time.Time
+	TimesUploaded     int
+	Revision          int32
+	DaoStats          models.DaoStats
 }
 
 func (m *Meta) Write() error {

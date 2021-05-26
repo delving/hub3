@@ -107,7 +107,7 @@ func TestService_SaveEAD(t *testing.T) {
 	f, size, err := getReader("4.ZHPB2.xml")
 	is.NoErr(err)
 
-	_, meta, err := svc.SaveEAD(f, size, "4.ZHPB2", "demo")
+	meta, err := svc.SaveEAD(f, size, "4.ZHPB2", "demo")
 	is.NoErr(err)
 	is.Equal(meta.DatasetID, "4.ZHPB2")
 }

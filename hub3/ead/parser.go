@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 	"reflect"
 	"strings"
-	"sync/atomic"
 	"unicode"
 
 	c "github.com/delving/hub3/config"
@@ -132,22 +131,7 @@ func (cead *Cead) SaveDescription(cfg *NodeConfig, unitInfo *UnitInfo) error {
 		return err
 	}
 
-	if cfg.IndexService == nil {
-		return nil
-	}
-
-	m, err := fg.IndexMessage()
-	if err != nil {
-		return fmt.Errorf("unable to marshal fragment graph: %w", err)
-	}
-
-	if err := cfg.IndexService.Publish(context.Background(), m); err != nil {
-		return err
-	}
-
-	atomic.AddUint64(&cfg.RecordsCreatedCounter, 1)
-
-	return nil
+	return writeResourceFile(cfg, fg, "")
 }
 
 // RawDescription returns the EAD description stripped of all markup.
@@ -187,8 +171,9 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 		EntryURI:      subject,
 		NamedGraphURI: fmt.Sprintf("%s/graph", subject),
 		Tags:          []string{"eadDesc"},
-		Revision:      cfg.Revision,
-		Modified:      fragments.NowInMillis(),
+		// TODO(kiivihal): remove when trs is fully functional
+		// Revision:      cfg.Revision,
+		// Modified:      fragments.NowInMillis(),
 	}
 
 	if len(cfg.Tags) != 0 {

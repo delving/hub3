@@ -199,6 +199,7 @@ type Revision struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// Content hash of the fragment graph with sha type prefix
 	SHA  string `protobuf:"bytes,1,opt,name=SHA,proto3" json:"SHA,omitempty"`
 	Path string `protobuf:"bytes,2,opt,name=Path,proto3" json:"Path,omitempty"`
 	// for legacy use only
