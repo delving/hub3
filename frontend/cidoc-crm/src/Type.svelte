@@ -1,24 +1,43 @@
 <script>
   import {store} from "./store";
+  import {afterUpdate} from "svelte";
 
   export let type;
   export let remove;
   export let property;
-  export let rootElement;
+  export let parent;
 
   let hidden
+  let flash
+  let showComment
   let latest = property.latest
   delete property.latest
   let uuidElement;
+  let commentElement
+
+  $: hasComment =  property.comment && property.comment.trim()
 
   function removeChild(child) {
-    property.properties = property.properties.filter(p => p !== child)
+    if (confirm(`Do you really want to delete ${child.uuid}?`)) {
+      property.properties = property.properties.filter(p => p !== child)
+    }
   }
 
   function add() {
     store.set({
-      addition: {
+      change: {
+        type: "create",
         context: type,
+        property
+      }
+    })
+  }
+
+  function editProperty() {
+    store.set({
+      change: {
+        type: "update",
+        context: parent ? parent.type : null,
         property
       }
     })
@@ -28,13 +47,27 @@
     let displayString = classes[0]
     for (let i = 1; i < classes.length; i++) {
       let type = classes[i]
-      if (type.length + displayString.length > 35) return displayString + ", ..."
+      if (type.length + displayString.length > 50) return displayString + ", ..."
       displayString += `, ${type}`
     }
     return displayString
   }
 
-  function initiateCopy(e) {
+  function copyNode() {
+    const inputElement = document.createElement("textarea")
+    document.body.appendChild(inputElement)
+    inputElement.style.position = "absolute";
+    inputElement.style.left = "-9000px";
+    inputElement.value = JSON.stringify(property, undefined, 2)
+    inputElement.select()
+    inputElement.setSelectionRange(0, 99999)
+    document.execCommand("copy")
+    flash = true
+    setTimeout(() => document.body.removeChild(inputElement))
+    setTimeout(() => flash = false, 500)
+  }
+
+  function initiateCopy() {
     uuidElement.removeAttribute("disabled")
     uuidElement.select()
     uuidElement.setSelectionRange(0, 99999)
@@ -42,27 +75,65 @@
     uuidElement.setAttribute("disabled", "disabled")
   }
 
-  function jumpToParent(e) {
+  function jumpToParent() {
     hidden = !hidden
   }
+
+  function updateComment() {
+    if (commentElement) {
+      commentElement.style.height = `${commentElement.scrollHeight}px`;
+    }
+  }
+
+  function toggleComment() {
+    showComment = !showComment
+  }
+
+  afterUpdate(() => {
+    updateComment()
+  })
 </script>
 
-<div bind:this={rootElement} class:latest={latest} class="header" class:root={!property.type}
-     class:property={property.type}>
-  <div>
-    <button type="button" on:click={remove}>
-      <img src="assets/icons/x-circle-fill.svg"/>
-    </button>
-    {property.about}
+<div class="header"
+     class:latest={latest}
+     class:root={!property.type}
+     class:property={property.type}
+     class:flash={flash}>
+  <div class="first-line">
+    <div class="left">
+      <button type="button" on:click={editProperty} title="Edit">
+        <img src="assets/icons/pencil.svg"/>
+      </button>
+      <button type="button" on:click={copyNode} title="Copy as JSON">
+        <img src="assets/icons/clipboard-plus.svg"/>
+      </button>
+      <button on:click={add} title="Add Node">
+        <img src="assets/icons/plus.svg"/>
+      </button>
+      <span>{property.about}</span>
+      <input bind:this={uuidElement} class="uuid" disabled value="#[{property.uuid}]">
+      <button on:click={initiateCopy} title="Copy UUID">
+        <img src="assets/icons/clipboard.svg"/>
+      </button>
+    </div>
 
-    <button on:click={add}>
-      <img src="assets/icons/plus.svg"/>
-    </button>
-    <input bind:this={uuidElement} class="uuid" disabled value="#[{property.uuid}]">
-    <button on:click={initiateCopy}>
-      <img src="assets/icons/clipboard.svg"/>
-    </button>
+    <div class="right">
+      <strong>IF:&nbsp;</strong>
+      <input type="text" class="form-control" placeholder="condition" bind:value={property.if}/>
+      <button type="button" on:click={toggleComment} title="Toggle comment">
+        {#if hasComment}<span>1</span>{/if}
+        <img src="assets/icons/chat-text-fill.svg"/>
+      </button>
+      <button type="button" on:click={remove} title="Delete">
+        <img src="assets/icons/x-circle-fill.svg"/>
+      </button>
+    </div>
   </div>
+
+  <textarea bind:this={commentElement}
+            bind:value={property.comment}
+            class:hidden={!showComment}
+            on:input={updateComment}></textarea>
 
   <div class="content">
     <div>
@@ -103,11 +174,11 @@
   {/if}
   {#if !hidden}
     <ul class="list-group type-list">
-      {#each property.properties as property}
+      {#each property.properties as child}
         <li class="list-group-item">
           <div>
-            <svelte:self type={property.type} {property}
-                         remove={() => removeChild(property)}/>
+            <svelte:self parent={property} type={child.type} property={child}
+                         remove={() => removeChild(child)}/>
           </div>
         </li>
       {/each}
@@ -164,8 +235,18 @@
     font-weight: bold;
   }
 
-  .content {
+  textarea {
+    width: 100%;
+    resize: none;
+    overflow: hidden;
+    min-height: 50px;
+  }
+
+  .content, textarea {
     padding-top: 0.2rem;
+  }
+
+  .content {
     display: inline-flex;
     width: 100%;
     gap: 1rem;
@@ -210,6 +291,25 @@
   .jump-to-parent img {
     width: 1rem;
     height: 1rem;
+  }
+
+  .first-line {
+    display: flex;
+    gap: 0.5rem;
+    flex-direction: row;
+  }
+
+  .first-line .left, .first-line .right {
+    display: inline-block;
+  }
+
+  .first-line .right {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .first-line .right input {
+    flex-grow: 1;
   }
 
   .hidden {

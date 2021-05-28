@@ -1,5 +1,5 @@
 // @ts-ignore
-import model from '../../../ikuzo/cidoc-crm/model.json'
+import model from './model.json'
 
 function defineSuperTypes(type, superTypes) {
   if (!superTypes) return;
@@ -57,6 +57,14 @@ for (const property of model.properties) {
     }
   }
   property.type = model.classes.find(type => type.about === property.range.resource);
+}
+
+export function propertyExists(about) {
+  return !!model.properties.find(p => p.about === about)
+}
+
+export function classExists(about) {
+  return !!model.classes.find(c => c.about === about)
 }
 
 export function getAllowedProperties(about, typeIds) {

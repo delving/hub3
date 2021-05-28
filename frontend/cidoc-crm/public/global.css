@@ -7,3 +7,13 @@ select:required:invalid {
   border-width: 0.2rem;
   border-color: red;
 }
+
+@keyframes flash-animation {
+  from { background: #66b3ff; }
+  to   { background: #F7F7F6; }
+}
+
+.flash {
+  animation-name: flash-animation;
+  animation-duration: 0.3s;
+}

@@ -5,6 +5,7 @@
   import Add from "./Add.svelte";
   import {store} from "./store";
   import {onMount} from "svelte";
+  import {getModel} from "./import";
 
   let selected = []
   let state
@@ -13,6 +14,7 @@
   let filename
   let lastSavedElement
   let lastSaved
+  let errorMessageElement
 
   store.subscribe(currValue => state = currValue)
 
@@ -37,9 +39,11 @@
   }
 
   function remove() {
-    const filename = root.filename
-    root = createRoot()
-    root.filename = filename
+    if (confirm("Do you really want to delete the root node and start over?")) {
+      const filename = root.filename
+      root = createRoot()
+      root.filename = filename
+    }
   }
 
   async function save() {
@@ -109,6 +113,16 @@
     root = createRoot()
   }
 
+  async function importModel() {
+    const [model, err] = await getModel(true)
+    if(!err) {
+      model.filename = root.filename
+      root = model
+    } else {
+      errorMessageElement.textContent = err
+    }
+  }
+
   setInterval(lastSavedUpdater, 900)
   setInterval(save, 8000)
 </script>
@@ -126,11 +140,15 @@
         </li>
       {/each}
     </ul>
-  {:else if !state.addition}
+  {:else if !state.change}
     {#if root.type.length === 0}
       <form bind:this={formElement}>
         <button disabled={!isValid} type="button" class="btn btn-dark" on:click={createBaseType}>Create base type
         </button>
+        or
+        <button type="button" class="btn btn-dark" on:click={importModel}>Import an existing model
+        </button>
+        <pre bind:this={errorMessageElement}></pre>
         <label>
           Select classes
           <select on:change={checkValidity} required size="90" multiple class="form-select" bind:value={selected}>
@@ -159,7 +177,7 @@
       </div>
     {/if}
   {:else}
-    <Add addition={state.addition}/>
+    <Add change={state.change}/>
   {/if}
 </main>
 
@@ -180,5 +198,9 @@
 
   .root, .root > li {
     background-color: darkgray;
+  }
+
+  pre {
+    margin-top: 0.5rem;
   }
 </style>
