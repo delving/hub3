@@ -6,16 +6,18 @@
   export let remove;
   export let property;
   export let parent;
+  export let isParentHidden
 
-  let hidden
   let flash
   let showComment
   let latest = property.latest
   delete property.latest
   let uuidElement;
   let commentElement
+  let hidden = false
 
-  $: hasComment =  property.comment && property.comment.trim()
+  $: { hidden = isParentHidden }
+  $: hasComment = property.comment && property.comment.trim()
 
   function removeChild(child) {
     if (confirm(`Do you really want to delete ${child.uuid}?`)) {
@@ -37,6 +39,7 @@
     store.set({
       change: {
         type: "update",
+        parentProperty: parent,
         context: parent ? parent.type : null,
         property
       }
@@ -75,7 +78,7 @@
     uuidElement.setAttribute("disabled", "disabled")
   }
 
-  function jumpToParent() {
+  function toggleNode() {
     hidden = !hidden
   }
 
@@ -101,9 +104,11 @@
      class:flash={flash}>
   <div class="first-line">
     <div class="left">
-      <button type="button" on:click={editProperty} title="Edit">
-        <img src="assets/icons/pencil.svg"/>
-      </button>
+      {#if parent}
+        <button type="button" on:click={editProperty} title="Edit">
+          <img src="assets/icons/pencil.svg"/>
+        </button>
+      {/if}
       <button type="button" on:click={copyNode} title="Copy as JSON">
         <img src="assets/icons/clipboard-plus.svg"/>
       </button>
@@ -162,8 +167,8 @@
   </div>
 
   {#if property.properties.length > 0}
-    <div class="jump-to-parent">
-      <button on:click={jumpToParent} type="button">
+    <div class="toggle-node">
+      <button on:click={toggleNode} type="button">
         {#if hidden}
           <img title="Expand sub properties" src="assets/icons/file-minus-fill.svg"/>
         {:else}
@@ -177,7 +182,10 @@
       {#each property.properties as child}
         <li class="list-group-item">
           <div>
-            <svelte:self parent={property} type={child.type} property={child}
+            <svelte:self parent={property}
+                         type={child.type}
+                         property={child}
+                         isParentHidden={hidden}
                          remove={() => removeChild(child)}/>
           </div>
         </li>
@@ -277,18 +285,18 @@
     border-right: 0;
   }
 
-  .jump-to-parent {
+  .toggle-node {
     top: -1rem;
     left: -1rem;
     position: absolute;
   }
 
-  .jump-to-parent button {
+  .toggle-node button {
     border: none;
     background: none;
   }
 
-  .jump-to-parent img {
+  .toggle-node img {
     width: 1rem;
     height: 1rem;
   }

@@ -4,8 +4,9 @@
   import {crm} from "./crm"
   import Add from "./Add.svelte";
   import {store} from "./store";
-  import {onMount} from "svelte";
+  import {afterUpdate, onMount} from "svelte";
   import {getModel} from "./import";
+  import CompactType from "./CompactType.svelte";
 
   let selected = []
   let state
@@ -15,11 +16,22 @@
   let lastSavedElement
   let lastSaved
   let errorMessageElement
+  let scrollTop
+  let compactTree
 
-  store.subscribe(currValue => state = currValue)
+  store.subscribe(currValue => {
+    if (currValue.change) {
+      scrollTop = window.pageYOffset
+    }
+    state = currValue
+  })
 
   function checkValidity() {
     isValid = formElement.checkValidity()
+  }
+
+  function toggleCompactTree() {
+    compactTree = !compactTree
   }
 
   function createBaseType() {
@@ -115,7 +127,7 @@
 
   async function importModel() {
     const [model, err] = await getModel(true)
-    if(!err) {
+    if (!err) {
       model.filename = root.filename
       root = model
     } else {
@@ -125,6 +137,13 @@
 
   setInterval(lastSavedUpdater, 900)
   setInterval(save, 8000)
+
+  afterUpdate(() => {
+    if (scrollTop && !state.change) {
+      window.scrollTo({top: scrollTop, left: 0, behavior: "auto"})
+      scrollTop = undefined
+    }
+  })
 </script>
 
 <main>
@@ -158,7 +177,7 @@
           </select>
         </label>
       </form>
-    {:else}
+    {:else if !compactTree}
       <div class="last-saved">
         <button type="button" class="btn btn-dark" on:click={save}>Save</button>
         <div bind:this={lastSavedElement}></div>
@@ -167,14 +186,18 @@
         <div>
           <h2>{root.filename}</h2>
           <button type="button" class="btn btn-dark" on:click={browseModels}>Browse existing models</button>
+          <button type="button" class="btn btn-dark" on:click={toggleCompactTree}>Show compact tree</button>
         </div>
         <hr/>
         <ul class="root list-group type-list">
           <li class="list-group-item">
-            <Type type={root.type} property={root} {remove}/>
+            <Type type={root.type} property={root} index={0} {remove}/>
           </li>
         </ul>
       </div>
+    {:else}
+      <button type="button" class="btn btn-dark" on:click={toggleCompactTree}>Hide compact tree</button>
+      <CompactType property={root}/>
     {/if}
   {:else}
     <Add change={state.change}/>

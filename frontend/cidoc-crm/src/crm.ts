@@ -106,8 +106,12 @@ export function getAllowedTypes(propertyAbout, noRestrictions) {
   return asArray
 }
 
-export function getProperty(propertyAbout) {
-  return model.properties.find(p => p.about === propertyAbout);
+export function getProperty(about) {
+  return model.properties.find(p => p.about === about);
+}
+
+export function getType(about) {
+  return model.classes.find(t => t.about === about);
 }
 
 model.classes.push({

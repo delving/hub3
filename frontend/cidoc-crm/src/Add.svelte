@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import {getAllowedProperties, getAllowedTypes} from "./crm";
+  import {getAllowedProperties, getAllowedTypes, getType} from "./crm";
   import {store} from "./store";
   import {afterUpdate} from "svelte";
   import {getModel} from "./import";
@@ -19,9 +19,10 @@
   let classesDisplayLimit = 1;
   let range
 
-  $: if(change.type === "update") {
+  if (change.type === "update") {
     selectedProperty = allowedProperties.find(p => change.property.about === p.about)
     propertySelectionChanged()
+    range = change.property.type.map(about => getType(about))
   }
 
   function propertySelectionChanged() {
@@ -56,7 +57,22 @@
       latestAddition.latest = false
     }
     latestAddition = newProperty
-    change.property.properties = [newProperty, ...change.property.properties]
+
+    if (change.type === "update") {
+      change.parentProperty.properties = change.parentProperty.properties.map(p => {
+        if (p.uuid === change.property.uuid) {
+          return {
+            ...p,
+            about: newProperty.about,
+            type: newProperty.type,
+            uuid: newProperty.uuid,
+          }
+        }
+        return p
+      })
+    } else {
+      change.property.properties = [newProperty, ...change.property.properties]
+    }
     store.set({})
   }
 
@@ -92,8 +108,17 @@
 
 <form bind:this={formElement}>
   <button disabled={!isValid} on:click={addProperty}
-          type="button" class="btn btn-dark">Add property
+          type="button" class="btn btn-dark">
+    {#if change.type === "create"}
+      Add property
+    {:else if change.type === "update"}
+      Update property
+    {/if}
   </button>
+  {#if change.type === "create"}
+    or
+    <button type="button" class="btn btn-dark" on:click={importModel}>Import existing nodes from clipboard</button>
+  {/if}
   <button on:click={cancel}
           type="button" class="btn btn-dark">Cancel
   </button>
@@ -104,9 +129,6 @@
         <option {value}>{value.about}</option>
       {/each}
     </select>
-    <div>
-      or <button type="button" class="btn btn-dark" on:click={importModel}>Import existing nodes from clipboard</button>
-    </div>
   </div>
   <div>
     <label>Pick at least one class
