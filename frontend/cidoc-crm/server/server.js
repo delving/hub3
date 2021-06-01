@@ -2,6 +2,7 @@ const fs = require('fs');
 const http = require('http')
 const path = require("path");
 
+const port = process.env.PORT ? +process.env.PORT : 3000
 http.createServer(function (req, res) {
   console.log(`${req.method} ${req.url}`)
   res.setHeader("Access-Control-Allow-Origin", "*")
@@ -38,8 +39,8 @@ http.createServer(function (req, res) {
     res.writeHead(200)
     res.end(file)
   }
-}).listen(process.env.PORT ? +process.env.PORT : 3000); //the server object listens on port 8080
-
+}).listen(port); //the server object listens on port 8080
+console.log(`Listening on port ${port}`)
 
 function save(body, response) {
   console.log(body)

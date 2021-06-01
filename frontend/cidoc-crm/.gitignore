@@ -1,4 +1,7 @@
 /node_modules/
 /public/build/
+server/models
+cidoc-crm
+cidoc-crm.zip
 
 .DS_Store
