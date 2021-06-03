@@ -39,7 +39,6 @@ var bulkCmd = &cobra.Command{
 	We assume that the structure is 'orgID/datasetID/hubID.jsonl' and that each bulk.Request
 	is stored in a single file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("bulk called")
 		log.Fatal(publish(cmd.Context(), publishHost, requestPath))
 	},
 }
@@ -53,7 +52,7 @@ func init() {
 }
 
 func publish(ctx context.Context, host, dataPath string) error {
-	p := bulk.NewPublisher(publishHost, requestPath)
+	p := bulk.NewPublisher(host, dataPath)
 	p.BulkSize = chunkSize
 
 	err := p.Do(ctx)
