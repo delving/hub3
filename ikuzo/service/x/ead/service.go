@@ -89,6 +89,8 @@ func (m *Metrics) IncAlreadyQueued() {
 
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
+type PreStoreFn func(b []byte) []byte
+
 type DaoFn func(cfg *eadHub3.DaoConfig) error
 
 type Service struct {
@@ -97,6 +99,7 @@ type Service struct {
 	dataDir        string
 	M              Metrics
 	CreateTreeFn   CreateTreeFn
+	PreStoreFn     PreStoreFn
 	DaoFn          DaoFn
 	DaoClient      *eadHub3.DaoClient
 	processDigital bool
@@ -124,6 +127,10 @@ func NewService(options ...Option) (*Service, error) {
 
 	if s.CreateTreeFn == nil {
 		s.CreateTreeFn = eadHub3.CreateTree
+	}
+
+	if s.PreStoreFn == nil {
+		s.PreStoreFn = addHeader
 	}
 
 	daoClient := eadHub3.NewDaoClient(s.index)
@@ -679,7 +686,7 @@ func (s *Service) handleUpload(w http.ResponseWriter, r *http.Request) {
 		log.Printf("unable to find orgID in request")
 	}
 
-	_, meta, err := s.SaveEAD(in, header.Size, "", orgID)
+	meta, err := s.SaveEAD(in, header.Size, "", orgID)
 	if err != nil {
 		if errors.Is(err, ErrTaskAlreadySubmitted) {
 			http.Error(w, err.Error(), http.StatusConflict)
@@ -852,13 +859,13 @@ func (s *Service) LoadEAD(orgID, spec string) (Meta, error) {
 // return buf, meta, nil
 // }
 
-func (s *Service) GetName(buf *bytes.Buffer) (string, error) {
+func (s *Service) GetName(b []byte) (string, error) {
 	var (
 		dataset string
 		inElem  bool
 	)
 
-	xmlDec := xml.NewDecoder(bytes.NewReader(buf.Bytes()))
+	xmlDec := xml.NewDecoder(bytes.NewReader(b))
 
 L:
 	for {
@@ -911,41 +918,52 @@ func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, erro
 		return nil, "", fmt.Errorf("unable to create data directory; %w", err)
 	}
 
+	buf := bytes.NewBuffer(make([]byte, 0, size))
+
+	_, err := io.Copy(buf, r)
+	if err != nil {
+		return nil, "", fmt.Errorf("unable to copy ead to tmpfile; %w", err)
+	}
+
+	b := buf.Bytes()
+
+	if s.PreStoreFn != nil {
+		b = s.PreStoreFn(b)
+	}
+
 	f, err := ioutil.TempFile(s.dataDir, "*")
 	if err != nil {
 		return nil, "", fmt.Errorf("unable to create ead tmpFiles; %w", err)
 	}
 	defer f.Close()
 
-	buf := bytes.NewBuffer(make([]byte, 0, size))
-
-	_, err = io.Copy(f, io.TeeReader(r, buf))
+	_, err = f.Write(b)
 	if err != nil {
-		return nil, "", fmt.Errorf("unable to copy ead to tmpfile; %w", err)
+		return nil, "", fmt.Errorf("unable to write to ead tmpFiles; %w", err)
 	}
 
 	return buf, f.Name(), nil
 }
 
 // SaveEAD stores the source EAD in the revision store
-func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (*bytes.Buffer, Meta, error) {
+func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (Meta, error) {
 	var meta Meta
 
-	buf, tmpFile, err := s.storeEAD(r, size)
+	b, tmpFile, err := s.storeEAD(r, size)
 	if err != nil {
-		return nil, meta, err
+		return meta, err
 	}
 
-	meta, err = s.moveTmpFile(buf, tmpFile)
+	meta, err = s.moveTmpFile(b, tmpFile)
 	if err != nil {
-		return nil, meta, err
+		return meta, err
 	}
 
 	meta.FileSize = uint64(size)
 	meta.ProcessDigital = s.processDigital
 	meta.OrgID = orgID
 
-	return buf, meta, nil
+	return meta, nil
 }
 
 // DeleteEAD removes the dataset from the store.
@@ -960,8 +978,10 @@ func (s *Service) moveTmpFile(buf *bytes.Buffer, tmpFile string) (Meta, error) {
 		err  error
 	)
 
+	b := buf.Bytes()
+
 	// get ead identifier
-	meta.DatasetID, err = s.GetName(buf)
+	meta.DatasetID, err = s.GetName(b)
 	if err != nil {
 		return meta, err
 	}
@@ -1088,4 +1108,14 @@ func (s *Service) ResyncCacheDir(orgID string) error {
 			}
 		}
 	}
+}
+
+func addHeader(b []byte) []byte {
+	declaration := []byte(`<?xml version="1.0" encoding="UTF-8"?>`)
+	hasDeclaration := bytes.Contains(b, declaration)
+	if !hasDeclaration {
+		b = append(declaration, b...)
+	}
+
+	return b
 }
