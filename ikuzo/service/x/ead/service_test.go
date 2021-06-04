@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/service/x/revision"
+	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
 )
 
@@ -107,7 +108,7 @@ func TestService_SaveEAD(t *testing.T) {
 	f, size, err := getReader("4.ZHPB2.xml")
 	is.NoErr(err)
 
-	_, meta, err := svc.SaveEAD(f, size, "4.ZHPB2", "demo")
+	meta, err := svc.SaveEAD(f, size, "4.ZHPB2", "demo")
 	is.NoErr(err)
 	is.Equal(meta.DatasetID, "4.ZHPB2")
 }
@@ -170,7 +171,7 @@ func TestService_GetName(t *testing.T) {
 				t.Errorf("Service.GetName() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
-			got, err := s.GetName(&buf)
+			got, err := s.GetName(buf.Bytes())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.GetName() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -178,6 +179,50 @@ func TestService_GetName(t *testing.T) {
 
 			if got != tt.want {
 				t.Errorf("Service.GetName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_addHeader(t *testing.T) {
+	type args struct {
+		b []byte
+	}
+	tests := []struct {
+		name string
+		args args
+		want []byte
+	}{
+		{
+			"no header",
+			args{b: []byte(`<ead audience="external">
+          <eadheader `)},
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?><ead audience="external">
+          <eadheader `),
+		},
+		{
+			"with leading white-space",
+			args{b: []byte(`            <ead audience="external">
+          <eadheader `)},
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?>            <ead audience="external">
+          <eadheader `),
+		},
+		{
+			"with header",
+			args{b: []byte(`<?xml version="1.0" encoding="UTF-8"?><ead audience="external">
+          <eadheader `)},
+			[]byte(`<?xml version="1.0" encoding="UTF-8"?><ead audience="external">
+          <eadheader `),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			got := addHeader(tt.args.b)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("addHeader() %s = mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
 	}
