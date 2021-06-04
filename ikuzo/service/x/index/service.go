@@ -224,7 +224,7 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID))
 
 	res, err := index.ESClient().DeleteByQuery().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetDigitalObjectIndexName()).
 		Query(v2).
 		Conflicts("proceed"). // default is abort
 		Do(context.Background())
