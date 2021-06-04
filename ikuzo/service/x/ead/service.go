@@ -1112,8 +1112,7 @@ func (s *Service) ResyncCacheDir(orgID string) error {
 
 func addHeader(b []byte) []byte {
 	declaration := []byte(`<?xml version="1.0" encoding="UTF-8"?>`)
-	hasDeclaration := bytes.Contains(b, declaration)
-	if !hasDeclaration {
+	if !bytes.Contains(b, declaration) {
 		b = append(declaration, b...)
 	}
 
