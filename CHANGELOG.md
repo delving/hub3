@@ -5,8 +5,9 @@
 - history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
 
 ### Added 
- 
+
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+- Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
 
 ### Fixed
 
