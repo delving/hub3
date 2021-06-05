@@ -31,6 +31,7 @@ require (
 	github.com/google/go-cmp v0.5.1
 	github.com/google/gofuzz v1.1.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/hashicorp/go-retryablehttp v0.7.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/imdario/mergo v0.3.10 // indirect
 	github.com/jinzhu/gorm v1.9.15

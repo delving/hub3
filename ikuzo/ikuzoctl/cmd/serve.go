@@ -27,6 +27,7 @@ var serveCmd = &cobra.Command{
 	Short: "A high performance webserver",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		initConfig()
 		serve()
 	},
 }
