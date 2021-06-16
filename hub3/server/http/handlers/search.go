@@ -710,36 +710,32 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	return
 }
 
-func getSearchRecord(w http.ResponseWriter, r *http.Request) {
-	// TODO(kiivihal): add more like this support to the query
-	id := chi.URLParam(r, "id")
+func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, error) {
 	res, err := index.ESClient().Get().
 		Index(config.Config.ElasticSearch.GetIndexName()).
 		Id(id).
-		Do(r.Context())
+		Do(ctx)
 	if err != nil {
-		log.Println("Unable to get search result.")
-		log.Println(err)
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, []string{})
-		return
+		return nil, err
 	}
 	if res == nil {
-		log.Printf(unexpectedResponseMsg, res)
-		render.Status(r, http.StatusInternalServerError)
-		render.JSON(w, r, []string{})
-		return
-	}
-	if !res.Found {
-		log.Printf("%s was not found", id)
-		render.Status(r, http.StatusNotFound)
-		render.JSON(w, r, []string{})
-		return
+		return nil, fmt.Errorf(unexpectedResponseMsg, res)
 	}
 
-	record, err := decodeFragmentGraph(res.Source)
+	if !res.Found {
+		return nil, fmt.Errorf("%s was not found", id)
+	}
+
+	return decodeFragmentGraph(res.Source)
+}
+
+func getSearchRecord(w http.ResponseWriter, r *http.Request) {
+	// TODO(kiivihal): add more like this support to the query
+	id := chi.URLParam(r, "id")
+
+	record, err := GetSearchRecord(r.Context(), id)
 	if err != nil {
-		fmt.Printf("Unable to decode RDFRecord: %#v", res.Source)
+		fmt.Printf("Unable to decode RDFRecord: %#v")
 		render.JSON(w, r, []string{})
 		render.Status(r, 404)
 		return
@@ -757,21 +753,17 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.Resources = nil
 	case "grouped":
 		_, err := record.NewGrouped()
-		if err != nil {
-			render.Status(r, http.StatusInternalServerError)
-			log.Printf("Unable to render grouped resources: %s\n", err.Error())
-			render.PlainText(w, r, err.Error())
-			return
-		}
-
+		render.Status(r, http.StatusInternalServerError)
+		log.Printf("Unable to render grouped resources: %s\n", err.Error())
+		render.PlainText(w, r, err.Error())
+		return
 	}
 
 	switch r.URL.Query().Get("format") {
 	case "jsonld":
 		entries := []map[string]interface{}{}
-		for _, json := range record.NewJSONLD() {
-			entries = append(entries, json)
-		}
+		entries = append(entries, record.NewJSONLD()...)
+
 		record.Resources = nil
 		render.JSON(w, r, entries)
 		w.Header().Set("Content-Type", "application/json-ld; charset=utf-8")
