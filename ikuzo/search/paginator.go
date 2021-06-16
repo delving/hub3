@@ -110,6 +110,10 @@ func (p *Paginator) getPageLinks() ([]PageLink, error) {
 		pagingWindow = p.CurrentPage + 4
 	}
 
+	if firstPage < 1 {
+		firstPage = 1
+	}
+
 	if p.LastPage < pagingWindow {
 		pagingWindow = p.LastPage
 	}
