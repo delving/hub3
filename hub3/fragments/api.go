@@ -1450,12 +1450,19 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 		return nil, fmt.Errorf("no query field specified in: %s", filter)
 	}
 	qf.Value = parts[1]
-	parts = strings.FieldsFunc(parts[0], qfSplit)
+
+	filterKey := parts[0]
+	if strings.HasSuffix(filterKey, ".id") {
+		qf.ID = true
+		filterKey = strings.TrimSuffix(filterKey, ".id")
+	}
+
+	parts = strings.FieldsFunc(filterKey, qfSplit)
 	switch len(parts) {
 	case 1:
-		qf.SearchLabel = parts[0]
+		qf.SearchLabel = filterKey
 	case 2:
-		qf.SearchLabel = parts[1]
+		qf.SearchLabel = parts[0]
 		qf.TypeClass = validateTypeClass(parts[0])
 	case 3:
 		qf.SearchLabel = parts[2]
