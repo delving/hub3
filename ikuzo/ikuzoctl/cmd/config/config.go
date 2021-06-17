@@ -16,6 +16,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
@@ -41,15 +42,17 @@ type Config struct {
 	EAD               `json:"ead"`
 	DB                `json:"db"`
 	ImageProxy        `json:"imageProxy"`
-	PostHooks         []PostHook `json:"posthooks"`
-	options           []ikuzo.Option
-	logger            logger.CustomLogger
-	is                *index.Service
-	trs               *revision.Service
-	orgs              *organization.Service
+	PostHooks         []PostHook            `json:"posthooks"`
+	options           []ikuzo.Option        `json:"options"`
+	logger            logger.CustomLogger   `json:"logger"`
+	is                *index.Service        `json:"is"`
+	trs               *revision.Service     `json:"trs"`
+	orgs              *organization.Service `json:"orgs"`
 	Organization      `json:"organization"`
-	Org               map[string]domain.OrganizationConfig
+	Org               map[string]domain.OrganizationConfig `json:"org"`
 	OAIPMH            `json:"oaipmh"`
+	NDE               `json:"nde"`
+	RDF               `json:"rdf"`
 }
 
 func (cfg *Config) IsDataNode() bool {
@@ -70,6 +73,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.ImageProxy,
 			&cfg.Logging,
 			&cfg.OAIPMH,
+			&cfg.NDE,
 		}
 	}
 

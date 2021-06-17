@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"unicode"
 )
 
 type orgIDKey struct{}
@@ -117,9 +116,9 @@ func (id OrganizationID) Valid() error {
 			continue
 		}
 
-		if !unicode.IsLetter(r) {
-			return ErrIDInvalidCharacter
-		}
+		// if !unicode.IsLetter(r) {
+		// return ErrIDInvalidCharacter
+		// }
 	}
 
 	return nil
