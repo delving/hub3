@@ -3,9 +3,9 @@ package nde
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/hub3/models"
 )
 
 type Agent struct {
@@ -60,29 +60,14 @@ type Catalog struct {
 	Dataset     []DatasetLink `json:"dataset,omitempty"`
 }
 
-func (s *Service) getDataset(spec string) (*Dataset, error) {
+func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 	r := s.cfg
-
-	meta, err := ead.GetMeta(spec)
-	if err != nil {
-		return nil, err
-	}
-
-	layoutISO := "2006-01-02"
-
-	// only support ead for now
-	datasetType := "ead"
 
 	d := &Dataset{
 		Context:               "https://schema.org/",
 		ID:                    r.getDatasetURI(spec),
 		Type:                  "Dataset",
 		Creator:               r.GetAgent(),
-		DateCreated:           meta.Created.Format(layoutISO),
-		DateModified:          meta.Updated.Format(layoutISO),
-		DatePublished:         meta.Updated.Format(layoutISO),
-		Description:           meta.Label,
-		Distribution:          r.GetDistributions(spec, datasetType),
 		InLanguage:            r.DefaultLanguages,
 		IncludedInDataCatalog: fmt.Sprintf("%s/id/catalog", r.RDFBaseURL),
 		Keywords:              []string{},
@@ -92,24 +77,47 @@ func (s *Service) getDataset(spec string) (*Dataset, error) {
 		Publisher:             r.GetAgent(),
 	}
 
-	return d, err
+	layoutISO := "2006-01-02"
+
+	meta, err := ead.GetMeta(spec)
+	if !errors.Is(err, ead.ErrFileNotFound) && meta != nil {
+		d.DateCreated = meta.Created.Format(layoutISO)
+		d.DateModified = meta.Updated.Format(layoutISO)
+		d.DatePublished = meta.Updated.Format(layoutISO)
+		d.Description = meta.Label
+		d.Distribution = r.GetDistributions(spec, "ead")
+
+		return d, nil
+	}
+
+	ds, err := models.GetDataSet(orgID, spec)
+	if err != nil {
+		return nil, err
+	}
+
+	if ds.RecordType == "" {
+		ds.RecordType = "narthex"
+	}
+
+	d.DateCreated = ds.Created.Format(layoutISO)
+	d.DateModified = ds.Modified.Format(layoutISO)
+	d.DatePublished = ds.Modified.Format(layoutISO)
+	d.Description = ds.Label
+	d.Distribution = r.GetDistributions(spec, ds.RecordType)
+
+	return d, nil
 }
 
 func (s *Service) getDatasets() ([]string, error) {
 	datasets := []string{}
 
-	// TODO(kiivihal): change with dataset API later
-	dirs, err := ioutil.ReadDir(s.cfg.DataPath)
+	sets, err := models.ListDataSets()
 	if err != nil {
 		return datasets, err
 	}
 
-	for _, dir := range dirs {
-		if !dir.IsDir() {
-			continue
-		}
-
-		datasets = append(datasets, dir.Name())
+	for _, set := range sets {
+		datasets = append(datasets, set.Spec)
 	}
 
 	return datasets, nil
@@ -122,17 +130,6 @@ func (s *Service) AddShortDatasetLinks(catalog *Catalog) error {
 	}
 
 	for _, spec := range datasets {
-		// TODO(kiivihal): for now only return EAD datasets
-		// change with dataset later
-		_, err := ead.GetMeta(spec)
-		if err != nil {
-			if errors.Is(err, ead.ErrFileNotFound) {
-				continue
-			}
-
-			return err
-		}
-
 		catalog.Dataset = append(catalog.Dataset, DatasetLink{
 			ID:   s.cfg.getDatasetURI(spec),
 			Type: "Dataset",

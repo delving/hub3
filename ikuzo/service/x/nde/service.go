@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 )
 
@@ -39,8 +40,9 @@ func SetConfig(cfg *RegisterConfig) Option {
 
 func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
+	orgID := domain.GetOrganizationID(r)
 
-	dataset, err := s.getDataset(spec)
+	dataset, err := s.getDataset(orgID.String(), spec)
 	if err != nil {
 		if errors.Is(err, ead.ErrFileNotFound) {
 			http.Error(w, "dataset not found", http.StatusNotFound)
