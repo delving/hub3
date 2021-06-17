@@ -512,7 +512,7 @@ dataPath = "/tmp/trs"
 enabled = true
 name = "Linked Data van het NA"
 description = "Alle linked data zoals beschikbaar gesteld door het Nationaal Archief."
-languages = ["nl"]
+defaultLanguages = ["nl"]
 defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
 datasetFmt = "%s/onderzoeken/archief/%s/"
 
