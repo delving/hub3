@@ -58,6 +58,7 @@ func serve() {
 			handlers.RegisterSearch,
 			handlers.RegisterEAD,
 		),
+		ikuzo.SetEnableLegacyConfig(cfgFile),
 	)
 
 	// load dataNodeProxy last so that other urls are overwritten in the router
