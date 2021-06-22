@@ -1682,6 +1682,12 @@ func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
 				sum.Title = entry.Value
 			}
 		case "thumbnail":
+			// Always prefer edm:object for the thumbnail.
+			// This also ensures that first webresource is used
+			if entry.SearchLabel == "edm_object" {
+				sum.Thumbnail = entry.Value
+			}
+
 			if sum.Thumbnail == "" {
 				sum.Thumbnail = entry.Value
 			}
