@@ -58,9 +58,11 @@ func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+
 	catalog := s.cfg.newCatalog()
 
-	if err := s.AddShortDatasetLinks(catalog); err != nil {
+	if err := s.AddDatasets(orgID.String(), catalog); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

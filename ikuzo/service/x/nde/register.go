@@ -71,7 +71,7 @@ func (r *RegisterConfig) newCatalog() *Catalog {
 		Context:     "https://schema.org/",
 		ID:          fmt.Sprintf("%s/id/catalog", r.RDFBaseURL),
 		Type:        "DataCatalog",
-		Dataset:     []DatasetLink{},
+		Dataset:     []*Dataset{},
 		Description: r.Description,
 		Name:        r.Name,
 		Publisher:   r.GetAgent(),

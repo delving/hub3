@@ -51,13 +51,13 @@ type Dataset struct {
 }
 
 type Catalog struct {
-	Context     string        `json:"@context,omitempty"`
-	ID          string        `json:"@id,omitempty"`
-	Type        string        `json:"@type,omitempty"`
-	Name        string        `json:"name,omitempty"`
-	Description string        `json:"description,omitempty"`
-	Publisher   Agent         `json:"publisher,omitempty"`
-	Dataset     []DatasetLink `json:"dataset,omitempty"`
+	Context     string     `json:"@context,omitempty"`
+	ID          string     `json:"@id,omitempty"`
+	Type        string     `json:"@type,omitempty"`
+	Name        string     `json:"name,omitempty"`
+	Description string     `json:"description,omitempty"`
+	Publisher   Agent      `json:"publisher,omitempty"`
+	Dataset     []*Dataset `json:"dataset,omitempty"`
 }
 
 func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
@@ -123,17 +123,19 @@ func (s *Service) getDatasets() ([]string, error) {
 	return datasets, nil
 }
 
-func (s *Service) AddShortDatasetLinks(catalog *Catalog) error {
+func (s *Service) AddDatasets(orgID string, catalog *Catalog) error {
 	datasets, err := s.getDatasets()
 	if err != nil {
 		return err
 	}
 
 	for _, spec := range datasets {
-		catalog.Dataset = append(catalog.Dataset, DatasetLink{
-			ID:   s.cfg.getDatasetURI(spec),
-			Type: "Dataset",
-		})
+		dataset, err := s.getDataset(orgID, spec)
+		if err != nil {
+			return err
+		}
+
+		catalog.Dataset = append(catalog.Dataset, dataset)
 	}
 
 	return nil
