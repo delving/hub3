@@ -150,6 +150,10 @@ func (p *Parser) setDataSet(req *Request) {
 		return
 	}
 
+	if ds.RecordType == "" {
+		ds.RecordType = "narthex"
+	}
+
 	p.stats.Spec = req.DatasetID
 	p.stats.OrgID = req.OrgID
 	req.Revision = ds.Revision
