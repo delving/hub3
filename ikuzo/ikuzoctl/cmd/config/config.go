@@ -53,6 +53,7 @@ type Config struct {
 	Organization      `json:"organization"`
 	Org               map[string]domain.OrganizationConfig
 	OAIPMH            `json:"oaipmh"`
+	oto               *otohttp.Server
 }
 
 func (cfg *Config) IsDataNode() bool {
