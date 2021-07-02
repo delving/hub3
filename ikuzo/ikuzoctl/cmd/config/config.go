@@ -42,7 +42,7 @@ type Config struct {
 	EAD               `json:"ead"`
 	DB                `json:"db"`
 	ImageProxy        `json:"imageProxy"`
-	PostHooks         []PostHook            `json:"posthooks"`
+	PostHooks         []PostHook            `json:"postHooks"`
 	options           []ikuzo.Option        `json:"options"`
 	logger            logger.CustomLogger   `json:"logger"`
 	is                *index.Service        `json:"is"`
