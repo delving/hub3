@@ -81,6 +81,6 @@ func serve() {
 		log.Fatal().
 			Err(err).
 			Stack().
-			Msg("ikuzo server stopped with an error")
+			Msgf("ikuzo server stopped with an error: %s", err)
 	}
 }

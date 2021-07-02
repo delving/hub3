@@ -129,7 +129,12 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			return
 		}
 
-		http.Error(w, fmt.Sprintf("unable to get search results: %s", err), res.Status)
+		status := http.StatusInternalServerError
+		if res != nil {
+			status = res.Status
+		}
+
+		http.Error(w, fmt.Sprintf("unable to get search results: %s", err), status)
 
 		log.Printf("Unable to get search result; %s", err)
 		return
@@ -735,7 +740,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 	record, err := GetSearchRecord(r.Context(), id)
 	if err != nil {
-		fmt.Printf("Unable to decode RDFRecord: %#v")
+		fmt.Printf("Unable to decode RDFRecord: %#v", err)
 		render.JSON(w, r, []string{})
 		render.Status(r, 404)
 		return
