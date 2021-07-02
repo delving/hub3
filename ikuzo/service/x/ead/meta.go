@@ -50,5 +50,6 @@ func (m *Meta) getDaoLinkErrors() (messages []string) {
 	for id, errMsg := range m.DaoErrorLinks {
 		messages = append(messages, fmt.Sprintf("Inventory %s => %s", id, errMsg))
 	}
+
 	return messages
 }

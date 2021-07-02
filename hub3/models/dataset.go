@@ -251,9 +251,10 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 }
 
 // ListDataSets returns an array of Datasets stored in Storm ORM
-func ListDataSets() ([]DataSet, error) {
-	var ds []DataSet
+func ListDataSets() ([]*DataSet, error) {
+	var ds []*DataSet
 	err := ORM().AllByIndex("Spec", &ds)
+
 	return ds, err
 }
 
