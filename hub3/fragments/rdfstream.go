@@ -16,15 +16,18 @@ package fragments
 
 import (
 	"bytes"
+	"context"
+	"encoding/json"
 	fmt "fmt"
 	"io"
 	"log"
 	"strings"
 
 	rdf "github.com/deiu/gon3"
+	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 // parseTurtleFile creates a graph from an uploaded file
@@ -52,6 +55,17 @@ func rdf2term(term rdf.Term) r.Term {
 	return nil
 }
 
+type RDFUploader struct {
+	OrgID        string
+	Spec         string
+	SubjectClass string
+	TypeClassURI string
+	IDSplitter   string
+	Revision     int32
+	rm           *ResourceMap
+	subjects     []string
+}
+
 func (upl *RDFUploader) createResourceMap(g *rdf.Graph) (*ResourceMap, error) {
 	rm := NewEmptyResourceMap()
 	idx := 0
@@ -66,18 +80,8 @@ func (upl *RDFUploader) createResourceMap(g *rdf.Graph) (*ResourceMap, error) {
 			return nil, err
 		}
 	}
-	return rm, nil
-}
 
-type RDFUploader struct {
-	OrgID        string
-	Spec         string
-	SubjectClass string
-	TypeClassURI string
-	IDSplitter   string
-	Revision     int32
-	rm           *ResourceMap
-	subjects     []string
+	return rm, nil
 }
 
 func NewRDFUploader(orgID, spec, subjectClass, typePredicate, idSplitter string, revision int) *RDFUploader {
@@ -111,6 +115,7 @@ func (upl *RDFUploader) createFragmentGraph(subject string) (*FragmentGraph, err
 	}
 	parts := strings.Split(subject, upl.IDSplitter)
 	localID := parts[len(parts)-1]
+
 	header := &Header{
 		OrgID:         upl.OrgID,
 		Spec:          upl.Spec,
@@ -129,22 +134,67 @@ func (upl *RDFUploader) createFragmentGraph(subject string) (*FragmentGraph, err
 	return fg, nil
 }
 
-func (upl *RDFUploader) SaveFragmentGraphs(p *elastic.BulkProcessor) (int, error) {
+func (upl *RDFUploader) SaveFragmentGraphs(bi BulkIndex) (int, error) {
 	var seen int
-	// TODO store sparql updates
 	for _, s := range upl.subjects {
 		seen++
+
 		fg, err := upl.createFragmentGraph(s)
 		if err != nil {
 			return 0, err
 		}
-		r := elastic.NewBulkIndexRequest().
-			Index(c.Config.ElasticSearch.GetIndexName()).
-			RetryOnConflict(3).
-			Id(fg.Meta.HubID).
-			Doc(fg)
-		p.Add(r)
+
+		fg.SetResources(upl.rm)
+
+		m, err := fg.IndexMessage()
+		if err != nil {
+			return 0, err
+		}
+
+		err = bi.Publish(context.Background(), m)
+		if err != nil {
+			log.Printf("can't publish records: %v", err)
+			return 0, err
+		}
+
+		fb := NewFragmentBuilder(fg)
+		graph := r.NewGraph("")
+		for _, rsc := range fg.Resources {
+			for _, t := range rsc.GenerateTriples() {
+				graph.Add(t)
+			}
+		}
+		fb.Graph = graph
+
+		// TODO(kiivihal): add support for parsing the graph
+		fb.GetSortedWebResources(ctx)
+
+		indexDoc, err := CreateV1IndexDoc(fb)
+		if err != nil {
+			log.Printf("Unable to create index doc: %s", err)
+			return 0, err
+		}
+
+		b, err := json.Marshal(indexDoc)
+		if err != nil {
+			return 0, err
+		}
+
+		m = &domainpb.IndexMessage{
+			OrganisationID: fg.Meta.OrgID,
+			DatasetID:      fg.Meta.Spec,
+			RecordID:       fg.Meta.HubID,
+			IndexName:      config.Config.ElasticSearch.GetV1IndexName(),
+			Source:         b,
+		}
+
+		if err := bi.Publish(ctx, m); err != nil {
+			return 0, err
+		}
+
+		// TODO store sparql updates
 	}
+
 	return seen, nil
 }
 

@@ -28,55 +28,55 @@ func TestNameSpaceStore(t *testing.T) {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	dc := &domain.NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
-	rdf := &domain.NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
 
 	tests := []struct {
 		name     string
-		ns       *domain.NameSpace
-		f        func(ns *domain.NameSpace) error
+		ns       *domain.Namespace
+		f        func(ns *domain.Namespace) error
 		nrStored int
 		wantErr  bool
 	}{
 		{
 			"add first",
 			dc,
-			store.Set,
+			store.Put,
 			1,
 			false,
 		},
 		{
 			"empty namespace",
 			nil,
-			store.Set,
+			store.Put,
 			1,
 			true,
 		},
 		{
 			"set duplicate",
 			dc,
-			store.Set,
+			store.Put,
 			1,
 			false,
 		},
 		{
 			"add second",
 			rdf,
-			store.Set,
+			store.Put,
 			2,
 			false,
 		},
 		{
 			"delete first",
 			dc,
-			store.Delete,
+			store.delete,
 			1,
 			false,
 		},
 		{
 			"delete second",
 			rdf,
-			store.Delete,
+			store.delete,
 			0,
 			false,
 		},
@@ -107,16 +107,16 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	rdf := &domain.NameSpace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
-	dc := &domain.NameSpace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
-	unknown := &domain.NameSpace{Prefix: "unknown"}
+	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	unknown := &domain.Namespace{Prefix: "unknown"}
 
-	err := store.Set(dc)
+	err := store.Put(dc)
 	if err != nil {
 		t.Errorf("Unexpected error: %#v", err)
 	}
 
-	err = store.Set(rdf)
+	err = store.Put(rdf)
 	if err != nil {
 		t.Errorf("Unexpected error: %#v", err)
 	}

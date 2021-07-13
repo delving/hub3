@@ -5,7 +5,7 @@ hub3ID = "hub3"
 # the url to the remote dataNode. When emtpy the current node is started in dataNode mode
 dataNodeURL = ""
 
-[org.demo]
+[org.dcn]
 domains = ["localhost:3000"]
 default = true
 
@@ -363,6 +363,10 @@ prefix = "aff"
 [[namespaces]]
 prefix="bf" 
 base = "http://id.loc.gov/ontologies/bibframe/"
+
+[[namespaces]]
+prefix="nt-rdf"
+base = "https://archief.nl/def/nt/"
 
 [[namespaces]]
 prefix="cs" 

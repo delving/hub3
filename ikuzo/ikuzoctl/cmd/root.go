@@ -16,8 +16,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
 	"strings"
 
 	hub3Cfg "github.com/delving/hub3/config"
@@ -58,16 +56,16 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	// start cobra configuration
+	cobra.OnInitialize(initConfig)
+
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("unable to start ikuzoctl")
 	}
 }
 
 // nolint:gochecknoinits // required for cobra
 func init() {
-	// cobra.OnInitialize(initConfig)
-
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
@@ -79,6 +77,7 @@ func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
+		hub3Cfg.SetCfgFile(cfgFile)
 	} else {
 		// Find home directory.
 		home, err := homedir.Dir()

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -155,6 +156,7 @@ func (s *Service) Shutdown(ctx context.Context) error {
 
 	return nil
 }
+
 func (s *Service) Start(ctx context.Context, workers int) error {
 	if len(s.workers) != 0 {
 		return fmt.Errorf("consumer is already started")
@@ -206,7 +208,7 @@ func (s *Service) handleMessage(m *stan.Msg) {
 
 func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Revision) error {
 	tags := elastic.NewBoolQuery()
-	for _, tag := range []string{"findingAid", "mets"} {
+	for _, tag := range []string{"findingAid", "mets", "nt"} {
 		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
 	}
 
@@ -222,9 +224,16 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 	v2 = v2.Must(tags)
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, datasetID))
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID))
+	indices := []string{c.Config.ElasticSearch.GetDigitalObjectIndexName()}
+
+	if strings.HasPrefix(revision.GetGroupID(), "NT") {
+		if c.Config.ElasticSearch.GetDigitalObjectIndexName() != c.Config.ElasticSearch.GetIndexName() {
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+		}
+	}
 
 	res, err := index.ESClient().DeleteByQuery().
-		Index(c.Config.ElasticSearch.GetDigitalObjectIndexName()).
+		Index(indices...).
 		Query(v2).
 		Conflicts("proceed"). // default is abort
 		Do(context.Background())
@@ -257,7 +266,7 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
 		<-timer.C
 
-		if revision.GetSHA() != "" && revision.GetPath() != "" {
+		if revision.GetSHA() != "" || revision.GetPath() != "" {
 			if err := s.dropOrphanGroup(orgID, datasetID, revision); err != nil {
 				log.Error().
 					Err(err).

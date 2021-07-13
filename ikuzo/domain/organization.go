@@ -117,6 +117,7 @@ func (id OrganizationID) Valid() error {
 			continue
 		}
 
+		// allow letters and numbers
 		if unicode.IsLetter(r) || unicode.IsNumber(r) {
 			continue
 		}

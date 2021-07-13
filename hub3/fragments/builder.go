@@ -136,6 +136,7 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 	//if len(unlinked) != 0 {
 	//log.Printf("unlinked resources: %#v", unlinked)
 	//}
+
 	fg.Resources = rm.ResourcesList(resources)
 	return fg
 }

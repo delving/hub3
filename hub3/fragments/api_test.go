@@ -115,34 +115,6 @@ var _ = Describe("Apiutils", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(query).ToNot(BeNil())
 
-				echo, err := sr.Echo("es", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo).To(HaveKey("bool"))
-
-			})
-
-			It("should return an error on unknown echoType", func() {
-				echo, err := sr.Echo("unknown", 20)
-				Expect(err).To(HaveOccurred())
-				Expect(echo).To(BeNil())
-
-			})
-
-			//It("should show the scrollID", func() {
-			//echo, err := sr.Echo("nextScrollID", int64(30))
-			//Expect(err).ToNot(HaveOccurred())
-			//Expect(echo).ToNot(BeNil())
-			//Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-			//Expect(echo.(*SearchRequest).GetResponseSize()).To(Equal(int32(10)))
-			//})
-
-			It("should show the Search Request", func() {
-				echo, err := sr.Echo("searchRequest", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-
 			})
 		})
 
@@ -930,6 +902,40 @@ func TestFacetURIBuilder_CreateFacetFilterURI(t *testing.T) {
 			}
 			if got1 != tt.want1 {
 				t.Errorf("FacetURIBuilder.CreateFacetFilterURI() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func Test_getCursorFromPage(t *testing.T) {
+	type args struct {
+		page         int32
+		responseSize int32
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int32
+	}{
+		{
+			"first page",
+			args{page: 1, responseSize: 16},
+			int32(0),
+		},
+		{
+			"second page",
+			args{page: 2, responseSize: 16},
+			int32(16),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getCursorFromPage(tt.args.page, tt.args.responseSize); got != tt.want {
+				t.Errorf("getCursorFromPage() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -56,7 +56,9 @@ func serve() {
 			handlers.RegisterDatasets,
 			handlers.RegisterEAD,
 			handlers.RegisterSearch,
+			handlers.RegisterEAD,
 		),
+		ikuzo.SetEnableLegacyConfig(cfgFile),
 	)
 
 	// load dataNodeProxy last so that other urls are overwritten in the router
@@ -79,6 +81,6 @@ func serve() {
 		log.Fatal().
 			Err(err).
 			Stack().
-			Msg("ikuzo server stopped with an error")
+			Msgf("ikuzo server stopped with an error: %s", err)
 	}
 }

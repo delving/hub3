@@ -91,6 +91,17 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	page := r.URL.Query().Get("page")
+	if page != "" {
+		q := r.URL.Query()
+		q.Del("page")
+
+		q.Add("treePage", page)
+
+		r.URL.RawQuery = q.Encode()
+	}
+
 	nodeID := chi.URLParam(r, "inventoryID")
 	if nodeID != "" {
 		id, err := url.QueryUnescape(nodeID)
@@ -100,6 +111,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 			render.PlainText(w, r, err.Error())
 			return
 		}
+
 		q := r.URL.Query()
 		isPaging := q.Get("paging") == "true"
 		if isPaging {
@@ -107,8 +119,10 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		} else {
 			q.Add("byLeaf", id)
 		}
+
 		r.URL.RawQuery = q.Encode()
 	}
+
 	searchRequest, err := fragments.NewSearchRequest(orgID.String(), r.URL.Query())
 	if err != nil {
 		log.Println("Unable to create Search request")

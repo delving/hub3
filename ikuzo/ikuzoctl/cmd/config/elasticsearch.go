@@ -73,7 +73,7 @@ type ElasticSearch struct {
 	// IndexTypes options are v1, v2, fragment
 	IndexTypes []string
 	// use FastHTTP transport for communication with the ElasticSearch cluster
-	FastHTTP bool
+	FastHTTP bool `json:"fastHTTP"`
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
 	OrphanWait int
 	// once makes sure that createmapping is only run once
