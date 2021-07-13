@@ -449,7 +449,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				var pageParam string
 
 				for _, page := range pages {
-					pageParam = fmt.Sprintf("%s&page=%d", pageParam, page)
+					pageParam = fmt.Sprintf("%s&treePage=%d", pageParam, page)
 				}
 				qs := fmt.Sprintf("paging=true%s", pageParam)
 				m, _ := url.ParseQuery(qs)
