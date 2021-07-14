@@ -15,6 +15,7 @@
  
 - Explicit initialisation of config for CLI subcommands instead of global on init [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Prevent duplicate files while processing METS files [[GH83]](https://github.com/delving/hub3/pull/89)
+- Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
 
 ## v0.2.0 (2021-03-10)
 
