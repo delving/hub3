@@ -274,6 +274,8 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		return err
 	}
 
+	_ = fb.Doc()
+
 	for _, indexType := range p.indexTypes {
 		switch indexType {
 		case "v1":

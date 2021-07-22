@@ -149,18 +149,18 @@ func (sg *SortedGraph) GenerateJSONLD() ([]map[string]interface{}, error) {
 		}
 	}
 
-	//log.Printf("subjects: %#v", orderedSubjects)
+	// log.Printf("subjects: %#v", orderedSubjects)
 	// this most be sorted
 	for _, v := range orderedSubjects {
-		//log.Printf("v range: %s", v)
+		// log.Printf("v range: %s", v)
 		ldEntry, ok := m[v]
 		if ok {
-			//log.Printf("ldentry: %#v", ldEntry.AsEntry())
+			// log.Printf("ldentry: %#v", ldEntry.AsEntry())
 			entries = append(entries, ldEntry.AsEntry())
 		}
 	}
 
-	//log.Printf("graph: \n%#v", entries)
+	// log.Printf("graph: \n%#v", entries)
 
 	return entries, nil
 }
@@ -282,7 +282,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s.Slug = fb.fg.Meta.GetHubID()
 	s.Spec = fb.fg.Meta.GetSpec()
 	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.Meta.GetHubID())
-	//s.Caption = ""
+	// s.Caption = ""
 	s.AboutURI = fb.fg.GetAboutURI()
 	s.SourceURI = fb.fg.GetAboutURI()
 	s.GraphName = fb.fg.Meta.NamedGraphURI
@@ -329,7 +329,7 @@ func NewGraphFromTurtle(re io.Reader) (*r.Graph, error) {
 		return g, err
 	}
 	if g.Len() == 0 {
-		//log.Println("No triples were added to the graph")
+		// log.Println("No triples were added to the graph")
 		return g, fmt.Errorf("no triples were added to the graph")
 	}
 	return g, nil
@@ -560,7 +560,7 @@ func (fb *FragmentBuilder) GetSortedWebResources(ctx context.Context) []Resource
 		err := fb.ResolveWebResources(ctx)
 		if err != nil {
 			log.Printf("err: %#v", err)
-			//return err
+			// return err
 		}
 	}
 
@@ -584,7 +584,6 @@ func (fb *FragmentBuilder) GetSortedWebResources(ctx context.Context) []Resource
 		if s.Value == 1000 {
 			ss[i].Value = lexSort[s.Key]
 		}
-
 	}
 	// sort by Value
 	sort.Slice(ss, func(i, j int) bool {
@@ -623,8 +622,8 @@ func (fb *FragmentBuilder) GetSortedWebResources(ctx context.Context) []Resource
 				}
 			}
 
-			//log.Printf("sortOrder: %#v", s)
-			//log.Printf("sort triple: %#v", sortOrder.String())
+			// log.Printf("sortOrder: %#v", s)
+			// log.Printf("sort triple: %#v", sortOrder.String())
 			// add resourceSortOrder back
 			cleanGraph.Add(sortOrder)
 		} else {
@@ -686,7 +685,7 @@ func (fb *FragmentBuilder) GetRemoteWebResource(urn string, orgID string) (rdf i
 	if strings.HasPrefix(urn, "urn:") {
 		url := fb.MediaManagerURL(urn, orgID)
 		request := gorequest.New()
-		//log.Printf("webresource url: %s", url)
+		// log.Printf("webresource url: %s", url)
 		resp, _, errs := request.Get(url).End()
 		if errs != nil {
 			for err := range errs {
@@ -768,6 +767,9 @@ func fieldsContains(s []*IndexEntry, e *IndexEntry) bool {
 
 // CreateV1IndexDoc creates a map that can me marshaled to json
 func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]interface{}, error) {
+	if len(fb.fg.Resources) == 0 {
+		_ = fb.Doc()
+	}
 	if fb.SortedGraph == nil {
 		if fb.Graph != nil {
 			fb.SortedGraph = NewSortedGraph(fb.Graph)

@@ -159,7 +159,6 @@ func (t *Tree) PageEntry() *TreePageEntry {
 		Depth:       int32(t.Depth),
 		ExpandedIDs: ExpandedIDs(t),
 	}
-
 }
 
 // TreeNavigator possible remove
@@ -282,7 +281,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
 			}
-			//sr.CalculatedTotal = results.TotalHits()
+			// sr.CalculatedTotal = results.TotalHits()
 
 			sr.Start = int32(cursor)
 			sr.SearchAfter = nextSearchAfter
@@ -292,7 +291,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			}
 
 			if strings.HasSuffix(hit.Id, matchSuffix) {
-				//log.Printf("found it: %s ", matchSuffix)
+				// log.Printf("found it: %s ", matchSuffix)
 				pager.Cursor = int32(cursor)
 				pager.NextScrollID = hexRequest
 				pager.Total = results.TotalHits()
@@ -388,7 +387,6 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 		IndexName:      c.Config.ElasticSearch.GetIndexName(),
 		Source:         b,
 	}, nil
-
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
@@ -1177,13 +1175,12 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	for _, fr := range rm.Resources() {
 		if contains(fr.Types, "http://www.europeana.eu/schemas/edm/WebResource") {
 			objectIDs = append(objectIDs, fr.ID)
-
 		}
 	}
 	if len(objectIDs) == 0 {
 		return nil
 	}
-	//log.Printf("IDs to be resolved: %#v", objectIDs)
+	// log.Printf("IDs to be resolved: %#v", objectIDs)
 
 	req := NewFragmentRequest()
 	req.Subject = objectIDs
@@ -1205,7 +1202,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 			)
 			t.Object = r.NewLiteral(link)
 		}
-		//log.Printf("resolved triple: %#v", t)
+		// log.Printf("resolved triple: %#v", t)
 		err = rm.AppendTriple(t, true)
 		if err != nil {
 			return err
@@ -1467,7 +1464,6 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 		for _, entry := range rsc.Entries {
 			fg.Summary.AddEntry(entry)
 		}
-
 	}
 	return fg.Summary
 }
@@ -1559,9 +1555,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 	hlFields := []hlEntry{}
 
 	for searchLabel, rawFields := range fieldMap {
-
 		for field, order := range rawFields {
-
 			if field != "" {
 				if tq != nil {
 					indexErr := tq.AppendString(field, order)
@@ -1576,7 +1570,6 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 				})
 			}
 		}
-
 	}
 
 	// keep fields by docID
@@ -1648,7 +1641,7 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 			if entry.ID != "" && fr.ID != entry.ID {
 				target, ok := rm.GetResource(entry.ID)
 				if ok {
-					//log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
+					// log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
 					for _, c := range fr.Context {
 						if target.ID == c.GetObjectID() {
 							continue Loop
@@ -1673,7 +1666,6 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 
 // AddEntry adds Summary fields based on the ResourceEntry tags
 func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
-
 	// TODO(kiivihal): decide on returning []string instead of string
 	for _, tag := range entry.Tags {
 		switch tag {
