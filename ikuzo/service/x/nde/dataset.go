@@ -69,7 +69,7 @@ func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 		Type:                  "Dataset",
 		Creator:               r.GetAgent(),
 		InLanguage:            r.DefaultLanguages,
-		IncludedInDataCatalog: fmt.Sprintf("%s/id/catalog", r.RDFBaseURL),
+		IncludedInDataCatalog: fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
 		Keywords:              []string{},
 		License:               r.DefaultLicense,
 		MainEntityOfPage:      fmt.Sprintf(r.DatasetFmt, r.publisherURL(), spec),

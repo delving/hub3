@@ -69,7 +69,7 @@ func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distributi
 func (r *RegisterConfig) newCatalog() *Catalog {
 	c := &Catalog{
 		Context:     "https://schema.org/",
-		ID:          fmt.Sprintf("%s/id/catalog", r.RDFBaseURL),
+		ID:          fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
 		Type:        "DataCatalog",
 		Dataset:     []*Dataset{},
 		Description: r.Description,
