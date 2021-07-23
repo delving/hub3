@@ -299,6 +299,8 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 		s.SourceGraph = string(bytes)
 	}
 
+	fb.fg.JSONLD = nil
+
 	// s.ProxyResourceGraph
 	// s.WebResourceGraph
 	// s.ContentHash
