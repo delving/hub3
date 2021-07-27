@@ -93,8 +93,10 @@ func TestService(t *testing.T) {
 
 	// repo should be empty when created
 	empty, err := repo.gr.IsEmpty()
-	if !strings.Contains(err.Error(), "fatal: your current branch 'main' does not have any commits yet") {
-		is.NoErr(err)
+	if err != nil {
+		if !strings.Contains(err.Error(), "fatal: your current branch 'main' does not have any commits yet") {
+			is.NoErr(err)
+		}
 	}
 
 	is.True(empty)
