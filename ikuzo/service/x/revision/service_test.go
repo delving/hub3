@@ -71,8 +71,7 @@ func testNewRepo(s *Service, org, ds string) func(t *testing.T) {
 // nolint:gocritic
 func TestService(t *testing.T) {
 	is := is.New(t)
-	dir, err := ioutil.TempDir("", "revision")
-	is.NoErr(err)
+	dir := t.TempDir()
 
 	t.Logf("tmpDir: %s", dir)
 
@@ -82,7 +81,7 @@ func TestService(t *testing.T) {
 	is.NoErr(err)
 	is.True(s != nil)
 
-	var org, ds = "demo-org", "demo-spec"
+	org, ds := "demo-org", "demo-spec"
 
 	t.Run("NewRepo", testNewRepo(s, org, ds))
 
@@ -94,7 +93,10 @@ func TestService(t *testing.T) {
 
 	// repo should be empty when created
 	empty, err := repo.gr.IsEmpty()
-	is.NoErr(err)
+	if !strings.Contains(err.Error(), "fatal: your current branch 'main' does not have any commits yet") {
+		is.NoErr(err)
+	}
+
 	is.True(empty)
 	is.Equal(status.IsClean(), true)
 
