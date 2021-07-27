@@ -10,11 +10,16 @@
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
+- j
 
 ### Fixed
  
 - Explicit initialisation of config for CLI subcommands instead of global on init [[GH-88]](https://github.com/delving/hub3/pull/88)
-- Prevent duplicate files while processing METS files [[GH83]](https://github.com/delving/hub3/pull/89)
+- Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
+- Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
+
+### Security
+- Resolved security issues in dependencies [[GH-95]](https://github.com/delving/hub3/pull/95)
 
 ## v0.2.0 (2021-03-10)
 
