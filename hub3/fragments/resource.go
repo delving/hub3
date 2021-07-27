@@ -31,6 +31,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
@@ -158,7 +159,6 @@ func (t *Tree) PageEntry() *TreePageEntry {
 		Depth:       int32(t.Depth),
 		ExpandedIDs: ExpandedIDs(t),
 	}
-
 }
 
 // TreeNavigator possible remove
@@ -281,7 +281,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			if err != nil {
 				return nil, errors.Wrap(err, "unable to create bytes for search after key")
 			}
-			//sr.CalculatedTotal = results.TotalHits()
+			// sr.CalculatedTotal = results.TotalHits()
 
 			sr.Start = int32(cursor)
 			sr.SearchAfter = nextSearchAfter
@@ -291,7 +291,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 			}
 
 			if strings.HasSuffix(hit.Id, matchSuffix) {
-				//log.Printf("found it: %s ", matchSuffix)
+				// log.Printf("found it: %s ", matchSuffix)
 				pager.Cursor = int32(cursor)
 				pager.NextScrollID = hexRequest
 				pager.Total = results.TotalHits()
@@ -387,13 +387,33 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 		IndexName:      c.Config.ElasticSearch.GetIndexName(),
 		Source:         b,
 	}, nil
-
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
 type ResourceEntryHighlight struct {
 	SearchLabel string   `json:"searchLabel"`
 	MarkDown    []string `json:"markdown"`
+}
+
+func (fr *FragmentResource) GenerateTriples() []*r.Triple {
+	triples := []*r.Triple{}
+	subject := r.NewResource(fr.ID)
+	for _, rdfType := range fr.Types {
+		triples = append(
+			triples,
+			r.NewTriple(
+				subject,
+				r.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
+				r.NewResource(rdfType),
+			),
+		)
+	}
+
+	for _, entry := range fr.Entries {
+		triples = append(triples, entry.GetTriple(subject))
+	}
+
+	return triples
 }
 
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry
@@ -408,8 +428,12 @@ func (fr *FragmentResource) GenerateJSONLD() map[string]interface{} {
 		entries[p.Predicate] = append(entries[p.Predicate], p)
 	}
 	for k, v := range entries {
+		objects := []*r.LdObject{}
 		for _, p := range v {
-			m[k] = p.AsLdObject()
+			objects = append(objects, p.AsLdObject())
+		}
+		if len(objects) != 0 {
+			m[k] = objects
 		}
 	}
 	return m
@@ -442,6 +466,7 @@ type ProtoBuf struct {
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`
+	Pagination *search.Paginator  `json:"pagination,omitempty"`
 	Query      *Query             `json:"query"`
 	Items      []*FragmentGraph   `json:"items,omitempty"`
 	Collapsed  []*Collapsed       `json:"collapse,omitempty"`
@@ -962,6 +987,10 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
+	if len(rm.resources) == 0 {
+		return nil, fmt.Errorf("ResourceMap cannot be empty for subjecURI: %s", subjectURI)
+	}
+
 	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
 		return nil, fmt.Errorf("Subject %s is not part of the graph", subjectURI)
@@ -991,6 +1020,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 				log.Printf("unknown target URI: %s", level2.ObjectID)
 				continue
 			}
+
 			linkedObjects[level2.ObjectID] = level3Resource
 			if len(level2.GetSubjectClass()) == 0 {
 				level2.SubjectClass = level2Resource.Types
@@ -1073,6 +1103,35 @@ func (ir IndexRange) Valid() error {
 	return nil
 }
 
+func (re *ResourceEntry) GetTriple(subject r.Term) *r.Triple {
+	predicate := r.NewResource(re.Predicate)
+	var object r.Term
+
+	switch re.EntryType {
+	case bnode:
+		object = r.NewBlankNode(re.ID)
+	case resource:
+		object = r.NewResource(re.ID)
+	case literal:
+		switch {
+		case re.Language != "":
+			object = r.NewLiteralWithLanguage(re.Value, re.Language)
+		case re.DataType != "":
+			object = r.NewLiteralWithDatatype(re.Value, r.NewResource(re.DataType))
+		default:
+			object = r.NewLiteral(re.Value)
+		}
+	default:
+		log.Printf("bad datatype: '%#v'", re)
+	}
+
+	return r.NewTriple(
+		subject,
+		predicate,
+		object,
+	)
+}
+
 // AsLdObject generates an rdf2go.LdObject for JSON-LD generation
 func (re *ResourceEntry) AsLdObject() *r.LdObject {
 	o := &r.LdObject{
@@ -1116,13 +1175,12 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	for _, fr := range rm.Resources() {
 		if contains(fr.Types, "http://www.europeana.eu/schemas/edm/WebResource") {
 			objectIDs = append(objectIDs, fr.ID)
-
 		}
 	}
 	if len(objectIDs) == 0 {
 		return nil
 	}
-	//log.Printf("IDs to be resolved: %#v", objectIDs)
+	// log.Printf("IDs to be resolved: %#v", objectIDs)
 
 	req := NewFragmentRequest()
 	req.Subject = objectIDs
@@ -1144,7 +1202,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 			)
 			t.Object = r.NewLiteral(link)
 		}
-		//log.Printf("resolved triple: %#v", t)
+		// log.Printf("resolved triple: %#v", t)
 		err = rm.AppendTriple(t, true)
 		if err != nil {
 			return err
@@ -1406,7 +1464,6 @@ func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
 		for _, entry := range rsc.Entries {
 			fg.Summary.AddEntry(entry)
 		}
-
 	}
 	return fg.Summary
 }
@@ -1498,9 +1555,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 	hlFields := []hlEntry{}
 
 	for searchLabel, rawFields := range fieldMap {
-
 		for field, order := range rawFields {
-
 			if field != "" {
 				if tq != nil {
 					indexErr := tq.AppendString(field, order)
@@ -1515,7 +1570,6 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 				})
 			}
 		}
-
 	}
 
 	// keep fields by docID
@@ -1559,8 +1613,13 @@ func (fg *FragmentGraph) NewTree() *Tree {
 // NewJSONLD creates a JSON-LD version of the FragmentGraph
 func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
 	fg.JSONLD = []map[string]interface{}{}
+	ids := map[string]bool{}
 	for _, rsc := range fg.Resources {
+		if _, ok := ids[rsc.ID]; ok {
+			continue
+		}
 		fg.JSONLD = append(fg.JSONLD, rsc.GenerateJSONLD())
+		ids[rsc.ID] = true
 	}
 	return fg.JSONLD
 }
@@ -1582,7 +1641,7 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 			if entry.ID != "" && fr.ID != entry.ID {
 				target, ok := rm.GetResource(entry.ID)
 				if ok {
-					//log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
+					// log.Printf("\n\n%d.%d %#v %s", idx, idx2, fr.ID, target.ID)
 					for _, c := range fr.Context {
 						if target.ID == c.GetObjectID() {
 							continue Loop
@@ -1607,7 +1666,6 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 
 // AddEntry adds Summary fields based on the ResourceEntry tags
 func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
-
 	// TODO(kiivihal): decide on returning []string instead of string
 	for _, tag := range entry.Tags {
 		switch tag {
@@ -1616,6 +1674,12 @@ func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
 				sum.Title = entry.Value
 			}
 		case "thumbnail":
+			// Always prefer edm:object for the thumbnail.
+			// This also ensures that first webresource is used
+			if entry.SearchLabel == "edm_object" {
+				sum.Thumbnail = entry.Value
+			}
+
 			if sum.Thumbnail == "" {
 				sum.Thumbnail = entry.Value
 			}

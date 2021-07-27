@@ -21,7 +21,7 @@ import (
 )
 
 func TestExtractor_NewExtractor(t *testing.T) {
-	text := `Teerste Deel Vande Spieghel der Zeevaerdt, vande navigatie der
+	text := `<p>Teerste Deel Vande Spieghel der Zeevaerdt, vande navigatie der
 	<geogname>Westersche Zee</geogname>Extractor Innehoudende alle de Custen van
 	<geogname>Vranckrijck</geogname>   <geogname>Spaignen</geogname>  ende
 	t&apos;principaelste deel van <geogname>Engelandt</geogname>, in diversche Zee
@@ -30,7 +30,7 @@ func TestExtractor_NewExtractor(t *testing.T) {
 	Piloot ofte Stuijrman Residerende Inde vermaerde Zeestadt <geogname>Enchuijsen</geogname>.
 	Cum Privilegio ad decennium, Reg. Ma.is et Cancellarie Brabantie. 1583.<lb/>Ghedruct tot
 	<geogname>Leyden</geogname>  by <persname>Christoffel Plantijn</persname>
-	voor <persname>Lucas Janssz Waghenaer van Enckhuysen</persname>. Anno M.D.LXXXIIII.`
+	voor <persname>Lucas Janssz Waghenaer van Enckhuysen</persname>. Anno M.D.LXXXIIII.</p>`
 
 	type args struct {
 		input []byte
@@ -64,15 +64,15 @@ func TestExtractor_NewExtractor(t *testing.T) {
 			},
 			false,
 		},
-		{
-			"date extract",
-			args{input: []byte("<date calendar=\"gregorian\" era=\"ce\" normal=\"1581\">1581</date>")},
-			[]NLPToken{
-				{Text: "1581", Type: DateText},
-				{Text: "1581", Type: DateIso},
-			},
-			false,
-		},
+		// {
+		// "date extract",
+		// args{input: []byte("<date calendar=\"gregorian\" era=\"ce\" normal=\"1581\">1581</date>")},
+		// []NLPToken{
+		// {Text: "1581", Type: DateText},
+		// {Text: "1581", Type: DateIso},
+		// },
+		// false,
+		// },
 		{
 			"mixed tags",
 			args{input: []byte(text)},
@@ -81,9 +81,9 @@ func TestExtractor_NewExtractor(t *testing.T) {
 				{Type: GeoLocation, Text: "Vranckrijck"},
 				{Type: GeoLocation, Text: "Spaignen"},
 				{Type: GeoLocation, Text: "Engelandt"},
+				{Text: "Lucas Iansz Waghenaer", Type: Person},
 				{Type: GeoLocation, Text: "Enchuijsen"},
 				{Type: GeoLocation, Text: "Leyden"},
-				{Text: "Lucas Iansz Waghenaer", Type: Person},
 				{Type: Person, Text: "Christoffel Plantijn"},
 				{Type: Person, Text: "Lucas Janssz Waghenaer van Enckhuysen"},
 			},

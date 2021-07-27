@@ -200,7 +200,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		}
 
 		log.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
-	case "clear_orphans":
+	case "clear_orphans", "drop_orphans":
 		// clear triples
 		if err := p.dropOrphans(req); err != nil {
 			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop orphans")
@@ -273,6 +273,8 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to build resource map")
 		return err
 	}
+
+	_ = fb.Doc()
 
 	for _, indexType := range p.indexTypes {
 		switch indexType {

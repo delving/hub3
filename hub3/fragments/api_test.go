@@ -31,11 +31,9 @@ import (
 )
 
 var _ = Describe("Apiutils", func() {
-
 	Describe("SearchRequest", func() {
 		c.InitConfig()
 		Context("When create a new SearchRequest", func() {
-
 			sr := DefaultSearchRequest(&c.Config)
 
 			It("should not be empty", func() {
@@ -45,11 +43,9 @@ var _ = Describe("Apiutils", func() {
 			It("should start at 0", func() {
 				Expect(sr.GetStart()).To(Equal(int32(0)))
 			})
-
 		})
 
 		Context("When Serializing a SearchRequest", func() {
-
 			sr := DefaultSearchRequest(&c.Config)
 
 			It("should marshal to a string", func() {
@@ -74,7 +70,6 @@ var _ = Describe("Apiutils", func() {
 				Expect(newSr.GetResponseSize()).To(Equal(int32(20)))
 				Expect(newSr.GetQuery()).To(Equal("hub3 Rocks Gööd"))
 			})
-
 		})
 
 		Context("When parsing url parameters", func() {
@@ -87,7 +82,6 @@ var _ = Describe("Apiutils", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(sr).ToNot(BeNil())
 				Expect(sr.GetQuery()).To(Equal("hub3"))
-
 			})
 
 			It("should set the rows param", func() {
@@ -114,35 +108,6 @@ var _ = Describe("Apiutils", func() {
 				query, err := sr.ElasticQuery()
 				Expect(err).ToNot(HaveOccurred())
 				Expect(query).ToNot(BeNil())
-
-				echo, err := sr.Echo("es", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo).To(HaveKey("bool"))
-
-			})
-
-			It("should return an error on unknown echoType", func() {
-				echo, err := sr.Echo("unknown", 20)
-				Expect(err).To(HaveOccurred())
-				Expect(echo).To(BeNil())
-
-			})
-
-			//It("should show the scrollID", func() {
-			//echo, err := sr.Echo("nextScrollID", int64(30))
-			//Expect(err).ToNot(HaveOccurred())
-			//Expect(echo).ToNot(BeNil())
-			//Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-			//Expect(echo.(*SearchRequest).GetResponseSize()).To(Equal(int32(10)))
-			//})
-
-			It("should show the Search Request", func() {
-				echo, err := sr.Echo("searchRequest", 20)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(echo).ToNot(BeNil())
-				Expect(echo.(*SearchRequest).GetQuery()).To(ContainSubstring("1930"))
-
 			})
 		})
 
@@ -185,9 +150,7 @@ var _ = Describe("Apiutils", func() {
 				Expect(id.NextScrollID).To(BeEmpty())
 			})
 		})
-
 	})
-
 })
 
 func Test_validateTypeClass(t *testing.T) {
@@ -249,7 +212,6 @@ func BenchmarkSearchRequestFromHex(b *testing.B) {
 }
 
 func TestNewQueryFilter(t *testing.T) {
-
 	tt := []struct {
 		name   string
 		input  string
@@ -274,29 +236,38 @@ func TestNewQueryFilter(t *testing.T) {
 		},
 		{
 			"context level 1 with class filter", "dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
-				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"}},
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"},
+			},
 		},
 		{
 			"context level 1 with class empty filter", "dcterms_spatial[]nave_city:Berlicum", nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "",
-				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"}},
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial"},
+			},
 		},
 		{
 			"context level 1 with context class filter", "[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
-				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"}},
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"},
+			},
 		},
 		{
 			"context level 1 with context class filter", "[]dcterms_spatial[edm_Place]nave_city:Berlicum", nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
-				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: ""}},
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: ""},
+			},
 		},
 		{
 			"context level 2 with context class filter",
 			"[ore_Aggregation]edm_aggregateCHO[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum",
 			nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
 				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"},
 				Level1: &ContextQueryFilter{SearchLabel: "edm_aggregateCHO", TypeClass: "ore_Aggregation"},
 			},
@@ -305,7 +276,8 @@ func TestNewQueryFilter(t *testing.T) {
 			"context level 2 with empty context class filter",
 			"[]edm_aggregateCHO[edm_ProvidedCHO]dcterms_spatial[edm_Place]nave_city:Berlicum",
 			nil,
-			&QueryFilter{SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
+			&QueryFilter{
+				SearchLabel: "nave_city", Value: "Berlicum", TypeClass: "edm_Place",
 				Level2: &ContextQueryFilter{SearchLabel: "dcterms_spatial", TypeClass: "edm_ProvidedCHO"},
 				Level1: &ContextQueryFilter{SearchLabel: "edm_aggregateCHO", TypeClass: ""},
 			},
@@ -313,9 +285,8 @@ func TestNewQueryFilter(t *testing.T) {
 	}
 
 	for _, tc := range tt {
-
 		t.Run(tc.name, func(t *testing.T) {
-
+			defer GinkgoRecover()
 			new, err := NewQueryFilter(tc.input)
 			if tc.err != nil && err.Error() != tc.err.Error() {
 				t.Fatalf("%s should not throw error %v: got %v", tc.name, tc.err, err)
@@ -332,7 +303,6 @@ func TestNewQueryFilter(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func Test_TypeClassAsURI(t *testing.T) {
@@ -347,7 +317,6 @@ func Test_TypeClassAsURI(t *testing.T) {
 		{"unknown prefix", "example_Place", "", true},
 	}
 	for _, tt := range tests {
-
 		t.Run(tt.name, func(t *testing.T) {
 			defer GinkgoRecover()
 
@@ -383,7 +352,8 @@ func TestSearchRequest_NewUserQuery(t *testing.T) {
 				Terms: "test",
 				BreadCrumbs: []*BreadCrumb{
 					&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true},
-				}},
+				},
+			},
 			1,
 			false,
 		},
@@ -426,12 +396,22 @@ func TestAppendBreadCrumb(t *testing.T) {
 		wantErr  bool
 	}{
 		{"empty query", args{param: "query", qf: &QueryFilter{Value: ""}}, &BreadCrumb{IsLast: true}, false},
-		{"simple query", args{param: "query", qf: &QueryFilter{Value: "test"}, path: "q=test"},
-			&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}, false},
-		{"simple filter query", args{param: "qf[]", qf: &QueryFilter{Value: "boerderij", SearchLabel: "dc_subject"},
-			path: "q=test&qf[]=dc_subject:boerderij"},
-			&BreadCrumb{Href: "q=test&qf[]=dc_subject:boerderij", Display: "dc_subject:boerderij", Value: "boerderij",
-				Field: "dc_subject", IsLast: true}, false},
+		{
+			"simple query",
+			args{param: "query", qf: &QueryFilter{Value: "test"}, path: "q=test"},
+			&BreadCrumb{Href: "q=test", Display: "test", Value: "test", IsLast: true}, false,
+		},
+		{
+			"simple filter query",
+			args{
+				param: "qf[]", qf: &QueryFilter{Value: "boerderij", SearchLabel: "dc_subject"},
+				path: "q=test&qf[]=dc_subject:boerderij",
+			},
+			&BreadCrumb{
+				Href: "q=test&qf[]=dc_subject:boerderij", Display: "dc_subject:boerderij", Value: "boerderij",
+				Field: "dc_subject", IsLast: true,
+			}, false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -930,6 +910,40 @@ func TestFacetURIBuilder_CreateFacetFilterURI(t *testing.T) {
 			}
 			if got1 != tt.want1 {
 				t.Errorf("FacetURIBuilder.CreateFacetFilterURI() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
+
+func Test_getCursorFromPage(t *testing.T) {
+	type args struct {
+		page         int32
+		responseSize int32
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int32
+	}{
+		{
+			"first page",
+			args{page: 1, responseSize: 16},
+			int32(0),
+		},
+		{
+			"second page",
+			args{page: 2, responseSize: 16},
+			int32(16),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getCursorFromPage(tt.args.page, tt.args.responseSize); got != tt.want {
+				t.Errorf("getCursorFromPage() = %v, want %v", got, tt.want)
 			}
 		})
 	}

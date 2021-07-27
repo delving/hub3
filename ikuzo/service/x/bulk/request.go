@@ -40,6 +40,7 @@ type Request struct {
 	GraphMimeType string `json:"graphMimeType"`
 	SubjectType   string `json:"subjectType"`
 	Revision      int    `json:"revision"`
+	Tags          string `json:"tags,omitempty"`
 }
 
 func (req *Request) valid() error {
@@ -70,6 +71,23 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.EntryURI = fg.GetAboutURI()
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 
+	if req.Tags != "" {
+		tags := strings.Split(req.Tags, ",")
+		for _, tag := range tags {
+			if strings.HasPrefix(tag, "ck_") {
+				if fg.Tree == nil {
+					fg.Tree = &fragments.Tree{}
+				}
+
+				fg.Tree.Type = strings.TrimPrefix(tag, "ck_")
+
+				continue
+			}
+
+			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
+		}
+	}
+
 	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
 		fg.Meta.Tags = append(fg.Meta.Tags, tags...)
 	}
@@ -85,9 +103,13 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 }
 
 func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+	return processV1(ctx, fb, bi)
+}
+
+func processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	fb.GetSortedWebResources(ctx)
 
-	indexDoc, err := fragments.CreateV1IndexDoc(fb, req.RecordType)
+	indexDoc, err := fragments.CreateV1IndexDoc(fb)
 	if err != nil {
 		log.Info().Msgf("Unable to create index doc: %s", err)
 		return err
@@ -98,10 +120,12 @@ func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder
 		return err
 	}
 
+	fg := fb.FragmentGraph()
+
 	m := &domainpb.IndexMessage{
-		OrganisationID: req.OrgID,
-		DatasetID:      req.DatasetID,
-		RecordID:       req.HubID,
+		OrganisationID: fg.Meta.OrgID,
+		DatasetID:      fg.Meta.Spec,
+		RecordID:       fg.Meta.HubID,
 		IndexName:      config.Config.ElasticSearch.GetV1IndexName(), // TODO(kiivihal): remove config later
 		Source:         b,
 	}
@@ -114,6 +138,10 @@ func (req *Request) processV1(ctx context.Context, fb *fragments.FragmentBuilder
 }
 
 func (req *Request) processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
+	return processV2(ctx, fb, bi)
+}
+
+func processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
 	m, err := fb.Doc().IndexMessage()
 	if err != nil {
 		return err

@@ -36,6 +36,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/pacedotdev/oto/otohttp"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -102,6 +103,8 @@ type server struct {
 	ctx context.Context
 	// dataNodeProxy is the httputil.ReverseProxy for the datanode
 	dataNodeProxy *httputil.ReverseProxy
+	// oto is the OTO generated RCP service
+	oto *otohttp.Server
 }
 
 // NewServer returns the default server.
@@ -162,6 +165,12 @@ func newServer(options ...Option) (*server, error) {
 	// setting up request logging middleware
 	if !s.disableRequestLogger {
 		s.router.Use(middleware.RequestLogger(&log.Logger))
+	}
+
+	// setup oto server
+	if s.oto != nil {
+		log.Info().Msg("starting with oto service")
+		s.router.HandleFunc("/oto/*", s.oto.ServeHTTP)
 	}
 
 	// setting default services

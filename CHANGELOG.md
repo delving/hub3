@@ -24,6 +24,7 @@
 ### Security
 - Resolved security issues in dependencies [[GH-95]](https://github.com/delving/hub3/pull/95)
 
+
 ## v0.2.0 (2021-03-10)
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.1.10...v0.2.0

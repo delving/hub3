@@ -104,7 +104,10 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 
 // Doc is a helper function to return an index document
 func (fb *FragmentBuilder) Doc() *FragmentGraph {
-	return fb.fg.SetResources(fb.resources)
+	if len(fb.fg.Resources) == 0 {
+		_ = fb.fg.SetResources(fb.resources)
+	}
+	return fb.fg
 }
 
 // SetResources returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
@@ -136,6 +139,7 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 	//if len(unlinked) != 0 {
 	//log.Printf("unlinked resources: %#v", unlinked)
 	//}
+
 	fg.Resources = rm.ResourcesList(resources)
 	return fg
 }
