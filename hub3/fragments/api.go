@@ -429,7 +429,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			}
 			sr.Start = int32(start)
 		case "searchAfter":
-			var sa = make([]interface{}, 0)
+			sa := make([]interface{}, 0)
 			parts := strings.SplitN(params.Get(p), ",", 2)
 			sortKey, _ := strconv.Atoi(parts[0])
 			cLevel := parts[1]
@@ -710,7 +710,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 		}
 		bcb.hrefPath = append(bcb.hrefPath, href)
 		bc.Display = qfs
-		//bc.Value = qf.GetValue()
+		// bc.Value = qf.GetValue()
 		bc.Field = qf.GetSearchLabel()
 	}
 
@@ -958,7 +958,6 @@ func isAdvancedSearch(query string) bool {
 
 // Aggregations returns the aggregations for the SearchRequest
 func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.Aggregation, error) {
-
 	aggs := map[string]elastic.Aggregation{}
 
 	for _, facetField := range sr.FacetField {
@@ -1462,7 +1461,7 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 	case 1:
 		qf.SearchLabel = filterKey
 	case 2:
-		qf.SearchLabel = parts[0]
+		qf.SearchLabel = parts[1]
 		qf.TypeClass = validateTypeClass(parts[0])
 	case 3:
 		qf.SearchLabel = parts[2]
