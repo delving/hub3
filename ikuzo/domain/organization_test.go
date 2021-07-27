@@ -71,7 +71,7 @@ func TestID_Valid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.id.Valid()
 			if !errors.Is(got, tt.want) {
-				t.Errorf("ID.Valid() = %v, want %v", got, tt.want)
+				t.Errorf("ID.Valid() %s = %v, want %v", tt.name, got, tt.want)
 			}
 		})
 	}

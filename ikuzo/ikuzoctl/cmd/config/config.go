@@ -51,8 +51,10 @@ type Config struct {
 	trs               *revision.Service
 	orgs              *organization.Service
 	Organization      `json:"organization"`
-	Org               map[string]domain.OrganizationConfig
+	Org               map[string]domain.OrganizationConfig `json:"org"`
 	OAIPMH            `json:"oaipmh"`
+	NDE               `json:"nde"`
+	RDF               `json:"rdf"`
 	oto               *otohttp.Server
 }
 
@@ -75,6 +77,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.Logging,
 			&cfg.OAIPMH,
 			&cfg.NameSpace,
+			&cfg.NDE,
 		}
 	}
 

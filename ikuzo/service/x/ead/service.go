@@ -414,6 +414,8 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	}
 
 	ds.Revision = int(t.Meta.Revision)
+	ds.RecordType = "ead"
+
 	if err := ds.Save(); err != nil {
 		log.Error().Err(err).Msg("unable to save revision in dataset")
 	}
