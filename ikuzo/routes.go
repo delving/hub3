@@ -20,7 +20,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/delving/hub3/ikuzo/internal/assets"
 	mw "github.com/go-chi/chi/middleware"
 )
 
@@ -41,8 +40,6 @@ func DefaultMiddleware() []func(http.Handler) http.Handler {
 // no connections should be initialized.
 func (s *server) routes() {
 	s.router.Get("/", s.handleIndex())
-
-	s.fileServer("/static", assets.FileSystem)
 }
 
 // fileServer conveniently sets up a http.FileServer handler to serve
