@@ -207,7 +207,7 @@ func (s *Service) handleMessage(m *stan.Msg) {
 }
 
 func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Revision) error {
-	s.doPosthooks(orgID, datasetID, revision)
+	s.runPosthooks(orgID, datasetID, revision)
 
 	tags := elastic.NewBoolQuery()
 	for _, tag := range []string{"findingAid", "mets", "nt"} {
@@ -306,47 +306,49 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 				Msg("unable to drop orphans")
 		}
 
-		s.doPosthooks(orgID, datasetID, revision)
+		s.runPosthooks(orgID, datasetID, revision)
 	}()
 }
 
-func (s *Service) doPosthooks(orgID, datasetID string, revision *domainpb.Revision) {
-	log.Printf("posthook => %#v", s.postHooks)
+func executePosthook(datasetID string, applyHooks []domain.PostHookService, revision *domainpb.Revision) {
+	posthookTimer := time.NewTimer(5 * time.Second)
+	<-posthookTimer.C
 
+	rev := int(revision.GetNumber())
+
+	for _, hook := range applyHooks {
+		resp, err := hook.DropDataset(datasetID, rev)
+		if err != nil {
+			log.Error().Err(err).Str("datasetID", datasetID).Msg("unable to drop posthook dataset")
+			continue
+		}
+
+		if resp.StatusCode > 299 {
+			defer resp.Body.Close()
+			body, readErr := ioutil.ReadAll(resp.Body)
+
+			if readErr != nil {
+				log.Error().Err(err).Str("datasetID", datasetID).
+					Msg("unable to read posthook body")
+			}
+
+			log.Error().Err(err).
+				Str("body", string(body)).
+				Int("revision", rev).
+				Int("status_code", resp.StatusCode).
+				Str("datasetID", datasetID).
+				Msg("unable to drop posthook dataset")
+		}
+
+		log.Info().Str("datasetID", datasetID).Str("posthook", hook.Name()).Int("revision", rev).Msg("dropped posthook orphans")
+	}
+}
+
+func (s *Service) runPosthooks(orgID, datasetID string, revision *domainpb.Revision) {
 	if len(s.postHooks) != 0 {
 		applyHooks, ok := s.postHooks[orgID]
 		if ok {
-			go func(revision int) {
-				posthookTimer := time.NewTimer(5 * time.Second)
-				<-posthookTimer.C
-
-				for _, hook := range applyHooks {
-					resp, err := hook.DropDataset(datasetID, revision)
-					if err != nil {
-						log.Error().Err(err).Str("datasetID", datasetID).Msg("unable to drop posthook dataset")
-						continue
-					}
-
-					if resp.StatusCode > 299 {
-						defer resp.Body.Close()
-						body, readErr := ioutil.ReadAll(resp.Body)
-
-						if readErr != nil {
-							log.Error().Err(err).Str("datasetID", datasetID).
-								Msg("unable to read posthook body")
-						}
-
-						log.Error().Err(err).
-							Str("body", string(body)).
-							Int("revision", revision).
-							Int("status_code", resp.StatusCode).
-							Str("datasetID", datasetID).
-							Msg("unable to drop posthook dataset")
-					}
-
-					log.Info().Str("datasetID", datasetID).Str("posthook", hook.Name()).Int("revision", revision).Msg("dropped posthook orphans")
-				}
-			}(int(revision.GetNumber()))
+			go executePosthook(datasetID, applyHooks, revision)
 		}
 	}
 }
