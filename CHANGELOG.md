@@ -22,6 +22,10 @@
 - Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
 - Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
 
+### Removed
+
+- Unused embedded assets functionality in favour of `go:embed`  [[GH-99]](https://github.com/delving/hub3/pull/99)
+
 ### Security
 - Resolved security issues in dependencies [[GH-95]](https://github.com/delving/hub3/pull/95)
 
