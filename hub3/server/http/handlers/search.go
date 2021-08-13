@@ -245,12 +245,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			int(searchRequest.GetStart()),
 		)
 		if err != nil {
-			log.Println("Unable to create Paginator")
+			log.Printf("Unable to create Paginator: %s\n", err.Error())
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		searchRequest.Start = int32(paginator.Start) - 1
+
 		if err := paginator.AddPageLinks(); err != nil {
 			log.Println("Unable to create PageLinks")
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -354,7 +355,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			actions = append(actions, string(bytes))
 		}
 		render.PlainText(w, r, strings.Join(actions, "\n"))
-		//w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+		// w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		return
 	}
 
@@ -822,7 +823,6 @@ func decodeCollapsed(res *elastic.SearchResult, sr *fragments.SearchRequest) ([]
 		coll.HitCount = collapseInner.Hits.TotalHits.Value
 		for _, inner := range collapseInner.Hits.Hits {
 			r, err := decodeFragmentGraph(inner.Source)
-
 			if err != nil {
 				return nil, err
 			}
@@ -840,7 +840,6 @@ func decodeCollapsed(res *elastic.SearchResult, sr *fragments.SearchRequest) ([]
 }
 
 func decodeHighlights(r *fragments.FragmentGraph, hit *elastic.SearchHit) error {
-
 	hl, ok := hit.InnerHits["highlight"]
 	if ok {
 		for _, hlHit := range hl.Hits.Hits {
@@ -858,7 +857,6 @@ func decodeHighlights(r *fragments.FragmentGraph, hit *elastic.SearchHit) error 
 						MarkDown:    hlEntry,
 					},
 				)
-
 			}
 		}
 	}
@@ -876,7 +874,6 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 	for _, hit := range res.Hits.Hits {
 		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
-
 		if err != nil {
 			return nil, nil, err
 		}

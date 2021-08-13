@@ -1,6 +1,7 @@
 package search
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -18,7 +19,7 @@ func TestNewPaginator(t *testing.T) {
 		name    string
 		args    args
 		want    *Paginator
-		wantErr bool
+		wantErr error
 	}{
 		{
 			"empty paginator",
@@ -32,7 +33,7 @@ func TestNewPaginator(t *testing.T) {
 				CurrentPage: 1,
 				HasNext:     false,
 			},
-			false,
+			nil,
 		},
 		{
 			"full paginator",
@@ -51,7 +52,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           17,
 				PreviousPage:       0,
 			},
-			false,
+			nil,
 		},
 		{
 			"full paginator limited page 2",
@@ -70,7 +71,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       1,
 			},
-			false,
+			nil,
 		},
 		{
 			"page 3 paginator",
@@ -89,7 +90,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           49,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"last page paginator with cursor",
@@ -108,7 +109,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"last page paginator",
@@ -127,7 +128,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"before last page paginator",
@@ -146,7 +147,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           49,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"last page paginator",
@@ -165,7 +166,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"last page paginator",
@@ -184,7 +185,7 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"last page paginator",
@@ -203,13 +204,13 @@ func TestNewPaginator(t *testing.T) {
 				NextPage:           0,
 				PreviousPage:       17,
 			},
-			false,
+			nil,
 		},
 		{
 			"invalid page",
 			args{total: 48, pageSize: 16, currentPage: 56},
 			nil,
-			true,
+			ErrInvalidPage,
 		},
 	}
 
@@ -218,7 +219,7 @@ func TestNewPaginator(t *testing.T) {
 
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPaginator(tt.args.total, tt.args.pageSize, tt.args.currentPage, tt.args.cursor)
-			if (err != nil) != tt.wantErr {
+			if err != nil && !errors.Is(err, tt.wantErr) {
 				t.Errorf("NewPaginator() error %s = %v, wantErr %v", tt.name, err, tt.wantErr)
 				return
 			}

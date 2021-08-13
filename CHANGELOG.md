@@ -21,6 +21,7 @@
 - Explicit initialisation of config for CLI subcommands instead of global on init [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
 - Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
+- Delete non-EAD datasets would return incorrect error  [[GH-10]](https://github.com/delving/hub3/pull/102)
 
 ### Removed
 
