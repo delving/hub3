@@ -28,8 +28,8 @@ require (
 	github.com/go-chi/docgen v1.0.5
 	github.com/go-chi/render v1.0.1
 	github.com/go-git/go-git/v5 v5.1.0
-	github.com/golang/protobuf v1.4.2
-	github.com/google/go-cmp v0.5.1
+	github.com/golang/protobuf v1.5.0
+	github.com/google/go-cmp v0.5.5
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/schema v1.2.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
@@ -63,7 +63,7 @@ require (
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/runc v1.0.0-rc3 // indirect
+	github.com/opencontainers/runc v1.0.1 // indirect
 	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/pelletier/go-toml v1.8.0 // indirect
@@ -76,7 +76,7 @@ require (
 	github.com/sajari/fuzzy v1.0.0
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/segmentio/ksuid v1.0.3
-	github.com/sirupsen/logrus v1.6.0 // indirect
+	github.com/snabb/sitemap v1.0.0
 	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254
 	github.com/spf13/afero v1.3.2 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
@@ -95,7 +95,7 @@ require (
 	golang.org/x/text v0.3.6
 	google.golang.org/genproto v0.0.0-20200726014623-da3ae01ef02d // indirect
 	google.golang.org/grpc v1.30.0 // indirect
-	google.golang.org/protobuf v1.25.0
+	google.golang.org/protobuf v1.26.0
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	moul.io/http2curl v1.0.0 // indirect

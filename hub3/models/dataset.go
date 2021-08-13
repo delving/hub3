@@ -119,7 +119,7 @@ type DataSetStats struct {
 
 // DataSet contains all the known informantion for a hub3 metadata dataset
 type DataSet struct {
-	//MapToPrefix string    `json:"mapToPrefix"`
+	// MapToPrefix string    `json:"mapToPrefix"`
 	Spec             string    `json:"spec" storm:"id,index,unique"`
 	URI              string    `json:"uri" storm:"unique,index"`
 	Revision         int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
@@ -323,7 +323,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	labelAgg := elastic.NewTermsAggregation().Field("resources.entries.tags").Size(30).OrderByCountDesc()
 	contentTagAgg := elastic.NewNestedAggregation().Path("resources.entries")
 	contentTagAgg = contentTagAgg.SubAggregation("contentTags", labelAgg)
-	//contentTagAgg := elastic.NewTermsAggregation().Field("resource.entries.tags").Size(30).OrderByCountDesc()
+	// contentTagAgg := elastic.NewTermsAggregation().Field("resource.entries.tags").Size(30).OrderByCountDesc()
 
 	q := elastic.NewBoolQuery()
 	q = q.Must(
@@ -378,7 +378,6 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	ctt, _ := ct.Terms("contentTags")
 
 	for _, keyCount := range ctt.Buckets {
-
 		tagCounter = append(tagCounter, DataSetCounter{
 			Value:    fmt.Sprintf("%s", keyCount.Key),
 			DocCount: int(keyCount.DocCount),
@@ -682,7 +681,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	return int(res.Deleted), err
 }
 
-//DropOrphans removes all records of different revision that the current from the attached datastores
+// DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
@@ -754,5 +753,5 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 			Msg("EAD state transition")
 	}
 
-	return ok, err
+	return ok, nil
 }
