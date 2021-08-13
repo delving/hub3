@@ -40,7 +40,6 @@ require (
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20190502201718-d93ace331ed0
 	github.com/kiivihal/rdf2go v0.1.2
-	github.com/klauspost/compress v1.10.10 // indirect
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/knakk/sparql v0.0.0-20191213045353-fd0bd0e76475
@@ -54,10 +53,8 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/muesli/smartcrop v0.3.0 // indirect
-	github.com/nats-io/jwt v1.0.1 // indirect
-	github.com/nats-io/nats-server/v2 v2.1.6 // indirect
+	github.com/nats-io/nats-server/v2 v2.3.4 // indirect
 	github.com/nats-io/nats-streaming-server v0.17.0 // indirect
-	github.com/nats-io/nkeys v0.2.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.10.1
@@ -89,7 +86,6 @@ require (
 	github.com/valyala/fasthttp v1.15.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
-	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899 // indirect
 	golang.org/x/image v0.0.0-20200618115811-c13761719519 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/text v0.3.6
