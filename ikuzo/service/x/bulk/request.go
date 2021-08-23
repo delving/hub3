@@ -74,16 +74,6 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	if req.Tags != "" {
 		tags := strings.Split(req.Tags, ",")
 		for _, tag := range tags {
-			if strings.HasPrefix(tag, "ck_") {
-				if fg.Tree == nil {
-					fg.Tree = &fragments.Tree{}
-				}
-
-				fg.Tree.Type = strings.TrimPrefix(tag, "ck_")
-
-				continue
-			}
-
 			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
 		}
 	}
