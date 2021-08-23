@@ -15,11 +15,16 @@
 package cmd
 
 import (
+	"embed"
+
 	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
+
+//go:embed static
+var staticFS embed.FS
 
 // serveCmd represents the serve command
 var serveCmd = &cobra.Command{
@@ -59,6 +64,7 @@ func serve() {
 			handlers.RegisterEAD,
 		),
 		ikuzo.SetEnableLegacyConfig(cfgFile),
+		ikuzo.SetStaticFS(staticFS),
 	)
 
 	// load dataNodeProxy last so that other urls are overwritten in the router

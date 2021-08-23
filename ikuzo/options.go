@@ -15,6 +15,7 @@
 package ikuzo
 
 import (
+	"io/fs"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -29,6 +30,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
+	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/go-chi/chi"
 	"github.com/pacedotdev/oto/otohttp"
 )
@@ -200,6 +202,21 @@ func SetEnableLegacyConfig(cfgFile string) Option {
 func SetLegacyRouters(routers ...RouterFunc) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs, routers...)
+
+		return nil
+	}
+}
+
+func SetStaticFS(static fs.FS) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs,
+			func(r chi.Router) {
+				r.Get("/static/*", webapp.NewStaticHandler(static))
+				r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+					http.Redirect(w, r, "/static/favicon.ico", http.StatusMovedPermanently)
+				})
+			},
+		)
 
 		return nil
 	}
