@@ -666,6 +666,10 @@ type BreadCrumbBuilder struct {
 	crumbs   []*BreadCrumb
 }
 
+func (bcb *BreadCrumbBuilder) BreadCrumbs() []*BreadCrumb {
+	return bcb.crumbs
+}
+
 // AppendBreadCrumb creates a BreadCrumb
 func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 	bc := &BreadCrumb{IsLast: true}
