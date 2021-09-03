@@ -69,18 +69,6 @@ type Organization struct {
 	Config OrganizationConfig `json:"config"`
 }
 
-type OrganizationConfig struct {
-	// domain is a list of all valid domains (including subdomains) for an domain.Organization
-	// the domain ID will be injected in each request by the organization middleware.
-	Domains        []string `json:"domains,omitempty"`
-	Default        bool
-	CustomID       string
-	Description    string
-	RDFBaseURL     string
-	MintDatasetURL string
-	MintOrgIDURL   string
-}
-
 // NewOrganizationID returns an OrganizationID and an error if the supplied input is invalid.
 func NewOrganizationID(input string) (OrganizationID, error) {
 	id := OrganizationID(input)
@@ -146,18 +134,32 @@ func (o *Organization) NewDatasetURI(spec string) string {
 //
 // This orgID is set by middleware and available for each request
 func GetOrganizationID(r *http.Request) OrganizationID {
-	orgID := r.Context().Value(orgIDKey{})
-	if orgID != nil {
-		id, _ := NewOrganizationID(orgID.(string))
-		return id
+	org, ok := GetOrganization(r)
+	if ok {
+		return org.ID
 	}
 
 	return ""
 }
 
-// SetOrganizationID sets the orgID in the context of a *http.Request
+// GetOrganization retrieves an Organization from a *http.Request.
+//
+// This Organization is set by middleware and available for each request
+func GetOrganization(r *http.Request) (Organization, bool) {
+	rawOrg := r.Context().Value(orgIDKey{})
+	if rawOrg != nil {
+		organization, ok := rawOrg.(Organization)
+		if ok {
+			return organization, true
+		}
+	}
+
+	return Organization{}, false
+}
+
+// SetOrganization sets the orgID in the context of a *http.Request
 //
 // This function is called by the middleware
-func SetOrganizationID(r *http.Request, orgID string) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), orgIDKey{}, orgID))
+func SetOrganization(r *http.Request, org *Organization) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), orgIDKey{}, *org))
 }

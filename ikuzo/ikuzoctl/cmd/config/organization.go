@@ -45,6 +45,8 @@ func (cfg *Config) getOrganisationService(storeType string) (*organization.Servi
 			return nil, fmt.Errorf("unable to configure organization.Service: %w", err)
 		}
 
+		orgCfg.SetOrgID(id)
+
 		if orgCfg.CustomID != "" {
 			id = orgCfg.CustomID
 		}
