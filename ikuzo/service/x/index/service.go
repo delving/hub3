@@ -30,6 +30,7 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
 	"github.com/olivere/elastic/v7"
@@ -63,6 +64,7 @@ type Service struct {
 	m          Metrics
 	orphanWait int
 	postHooks  map[string][]domain.PostHookService
+	org        *organization.Service
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -77,6 +79,10 @@ func NewService(options ...Option) (*Service, error) {
 		if err := option(s); err != nil {
 			return nil, err
 		}
+	}
+
+	if s.org == nil {
+		return s, fmt.Errorf("organization.Service is required and cannot be nil")
 	}
 
 	if s.stan == nil {

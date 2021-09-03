@@ -877,6 +877,7 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 						log.Printf("Unable to create integer for: %#v", re.Value)
 						continue
 					}
+
 					log.Printf("extracting integer from tag: %s", re.Value)
 					re.Integer = i
 				}

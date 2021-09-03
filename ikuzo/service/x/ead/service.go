@@ -915,7 +915,6 @@ func (s *Service) getDataPath(dataset string) string {
 //
 // The returned io.Reader is a bytes.Buffer that can be read from multiple times.
 func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, error) {
-
 	if err := os.MkdirAll(s.dataDir, os.ModePerm); err != nil {
 		return nil, "", fmt.Errorf("unable to create data directory; %w", err)
 	}

@@ -16,6 +16,7 @@ package index
 
 import (
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 )
 
@@ -49,6 +50,13 @@ func WithDefaultMessageHandle() Option {
 func SetOrphanWait(wait int) Option {
 	return func(s *Service) error {
 		s.orphanWait = wait
+		return nil
+	}
+}
+
+func SetOrganisationService(org *organization.Service) Option {
+	return func(s *Service) error {
+		s.org = org
 		return nil
 	}
 }

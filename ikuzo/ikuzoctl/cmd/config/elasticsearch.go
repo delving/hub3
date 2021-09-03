@@ -363,9 +363,14 @@ func (e *ElasticSearch) IndexService(cfg *Config, ncfg *index.NatsConfig) (*inde
 		return e.is, nil
 	}
 
-	var err error
+	orgs, err := cfg.getOrganisationService("")
+	if err != nil {
+		return nil, err
+	}
 
-	options := []index.Option{}
+	options := []index.Option{
+		index.SetOrganisationService(orgs),
+	}
 
 	if !e.UseRemoteIndexer || ncfg == nil {
 		cfg.logger.Info().Msg("setting up bulk indexer")
