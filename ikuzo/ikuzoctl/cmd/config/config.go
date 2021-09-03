@@ -55,6 +55,7 @@ type Config struct {
 	OAIPMH            `json:"oaipmh"`
 	NDE               `json:"nde"`
 	RDF               `json:"rdf"`
+	Sitemap           `json:"sitemap"`
 	oto               *otohttp.Server
 }
 
@@ -78,6 +79,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.OAIPMH,
 			&cfg.NameSpace,
 			&cfg.NDE,
+			&cfg.Sitemap,
 		}
 	}
 
