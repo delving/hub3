@@ -58,7 +58,7 @@ func TestBreadCrumbBuilder_GetLast(t *testing.T) {
 				hrefPath: tt.fields.hrefPath,
 				crumbs:   tt.fields.crumbs,
 			}
-			got := bcb.GetLast()
+			got := bcb.Last()
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("BreadCrumbBuilder.GetLast() mismatch (-want +got):\n%s", diff)
 			}
@@ -118,7 +118,7 @@ func TestBreadCrumbBuilder_GetPath(t *testing.T) {
 				hrefPath: tt.fields.hrefPath,
 				crumbs:   tt.fields.crumbs,
 			}
-			got := bcb.GetPath()
+			got := bcb.Path()
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("BreadCrumbBuilder.GetPath() mismatch (-want +got):\n%s", diff)
 			}

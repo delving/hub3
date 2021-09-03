@@ -14,7 +14,9 @@
 
 package search
 
-import "strings"
+import (
+	"strings"
+)
 
 // BreadCrumb is a building block for displaying search and additional filtering.
 // Each next step of filtering is an additional BreadCrumb.
@@ -33,8 +35,13 @@ type BreadCrumbBuilder struct {
 	crumbs   []*BreadCrumb
 }
 
-// GetLast returns the last BreadCrumb from the trail
-func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
+// BreadCrumbs returns a list of BreadCrumb.
+func (bcb *BreadCrumbBuilder) BreadCrumbs() []*BreadCrumb {
+	return bcb.crumbs
+}
+
+// Last returns the last BreadCrumb from the trail
+func (bcb *BreadCrumbBuilder) Last() *BreadCrumb {
 	if len(bcb.crumbs) == 0 {
 		return nil
 	}
@@ -42,13 +49,13 @@ func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
 	return bcb.crumbs[len(bcb.crumbs)-1]
 }
 
-// GetPath returns the path for the BreadCrumb
-func (bcb *BreadCrumbBuilder) GetPath() string {
+// Path returns the path for the BreadCrumb
+func (bcb *BreadCrumbBuilder) Path() string {
 	return strings.Join(bcb.hrefPath, "&")
 }
 
-// AppendBreadCrumb creates a BreadCrumb
-// func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
+// // AppendBreadCrumb creates a BreadCrumb
+// func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *fragments.QueryFilter) {
 // bc := &BreadCrumb{IsLast: true}
 // switch param {
 // case "query":
@@ -58,7 +65,7 @@ func (bcb *BreadCrumbBuilder) GetPath() string {
 // bc.Value = qf.GetValue()
 // bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 // }
-// case "qf[]", qfKey, qfIDKey, "qf.id[]":
+// case "qf[]", "qf", "qf.id", "qf.id[]":
 // if !strings.HasSuffix(param, "[]") {
 // param = fmt.Sprintf("%s[]", param)
 // }
@@ -68,8 +75,8 @@ func (bcb *BreadCrumbBuilder) GetPath() string {
 // }
 // href := fmt.Sprintf("%s=%s", param, qfs)
 // bc.Href = href
-// if bcb.GetPath() != "" {
-// bc.Href = bcb.GetPath() + "&" + bc.Href
+// if bcb.Path() != "" {
+// bc.Href = bcb.Path() + "&" + bc.Href
 // }
 // bcb.hrefPath = append(bcb.hrefPath, href)
 // bc.Display = qfs
@@ -82,15 +89,15 @@ func (bcb *BreadCrumbBuilder) GetPath() string {
 // qfs := qf.GetSearchLabel()
 // href := fmt.Sprintf("%s=%s", param, qfs)
 // bc.Href = href
-// if bcb.GetPath() != "" {
-// bc.Href = bcb.GetPath() + "&" + bc.Href
+// if bcb.Path() != "" {
+// bc.Href = bcb.Path() + "&" + bc.Href
 // }
 // bcb.hrefPath = append(bcb.hrefPath, href)
 // bc.Display = qfs
 // bc.Field = qf.GetSearchLabel()
 // // bc.Value = qf.GetValue()
 // }
-// last := bcb.GetLast()
+// last := bcb.Last()
 // if last != nil {
 // last.IsLast = false
 // }
