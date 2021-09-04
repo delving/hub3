@@ -64,11 +64,6 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 }
 
 func (e *EAD) AddOptions(cfg *Config) error {
-	// only start service when it is a DataNode
-	if !cfg.IsDataNode() {
-		return nil
-	}
-
 	svc, err := e.NewService(cfg)
 	if err != nil {
 		return err

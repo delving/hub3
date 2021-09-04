@@ -34,7 +34,6 @@ type Option interface {
 type Config struct {
 	// default orgID when none is given
 	OrgID             string `json:"orgID"`
-	DataNodeURL       string `json:"dataNodeURL"`
 	ElasticSearch     `json:"elasticSearch"`
 	HTTP              `json:"http"`
 	TimeRevisionStore `json:"timeRevisionStore"`
@@ -56,10 +55,6 @@ type Config struct {
 	RDF               `json:"rdf"`
 	Sitemap           `json:"sitemap"`
 	oto               *otohttp.Server
-}
-
-func (cfg *Config) IsDataNode() bool {
-	return cfg.DataNodeURL == ""
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {

@@ -111,11 +111,6 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		cfg.options = append(cfg.options, ikuzo.SetElasticSearchProxy(esProxy))
 	}
 
-	// when not in datanode mode no service should be started
-	if !cfg.IsDataNode() {
-		return nil
-	}
-
 	// enable bulk indexer
 	is, isErr := cfg.GetIndexService()
 	if isErr != nil {

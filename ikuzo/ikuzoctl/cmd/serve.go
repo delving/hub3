@@ -67,11 +67,6 @@ func serve() {
 		ikuzo.SetStaticFS(staticFS),
 	)
 
-	// load dataNodeProxy last so that other urls are overwritten in the router
-	if !cfg.IsDataNode() {
-		options = append(options, ikuzo.SetDataNodeProxy(cfg.DataNodeURL))
-	}
-
 	svr, err := ikuzo.NewServer(
 		options...,
 	)

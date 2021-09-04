@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -107,8 +106,6 @@ type server struct {
 	shutdownHooks map[string]Shutdown
 	// service context
 	ctx context.Context
-	// dataNodeProxy is the httputil.ReverseProxy for the datanode
-	dataNodeProxy *httputil.ReverseProxy
 	// oto is the OTO generated RCP service
 	oto *otohttp.Server
 }
@@ -399,17 +396,6 @@ func (s *server) recoverer(next http.Handler) http.Handler {
 	}
 
 	return http.HandlerFunc(fn)
-}
-
-func (s *server) proxyDataNode(w http.ResponseWriter, r *http.Request) {
-	if s.dataNodeProxy == nil {
-		s.logger.Warn().Str("url", r.URL.String()).Msg("requesting proxy URL when proxy is not set")
-		http.Error(w, "dataNode proxy is not configured", http.StatusInternalServerError)
-
-		return
-	}
-
-	s.dataNodeProxy.ServeHTTP(w, r)
 }
 
 func (s *server) addShutdown(name string, hook Shutdown) {
