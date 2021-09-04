@@ -41,7 +41,6 @@ type Config struct {
 	Logging           `json:"logging"`
 	Nats              `json:"nats"`
 	EAD               `json:"ead"`
-	DB                `json:"db"`
 	ImageProxy        `json:"imageProxy"`
 	NameSpace         `json:"nameSpace"`
 	PostHooks         []PostHook `json:"posthooks"`
