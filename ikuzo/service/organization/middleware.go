@@ -26,6 +26,7 @@ func (s *Service) ResolveOrgByDomain(next http.Handler) http.Handler {
 	for _, org := range orgs {
 		for _, domain := range org.Config.Domains {
 			domains[domain] = org
+
 			if org.Config.Default {
 				defaultOrg = org
 			}
@@ -47,7 +48,7 @@ func (s *Service) ResolveOrgByDomain(next http.Handler) http.Handler {
 				return
 			}
 		}
-		w.Header().Set("ORG-ID", org.RawID())
+		// w.Header().Set("ORG-ID", org.RawID())
 		r = d.SetOrganization(r, org)
 		next.ServeHTTP(w, r)
 	})

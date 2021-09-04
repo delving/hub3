@@ -52,6 +52,32 @@ func NewService(store Store) (*Service, error) {
 	return &Service{store: store}, nil
 }
 
+func (s *Service) AddOrgs(orgs map[string]domain.OrganizationConfig) error {
+	for id, orgCfg := range orgs {
+		orgCfg.SetOrgID(id)
+
+		if orgCfg.CustomID != "" {
+			id = orgCfg.CustomID
+		}
+
+		orgID, err := domain.NewOrganizationID(id)
+		if err != nil {
+			return fmt.Errorf("unable to create domain.OrganizationID %s; %w", id, err)
+		}
+
+		org := domain.Organization{
+			Config: orgCfg,
+			ID:     orgID,
+		}
+
+		if err := s.Put(context.TODO(), &org); err != nil {
+			return fmt.Errorf("unable to store Organization; %w", err)
+		}
+	}
+
+	return nil
+}
+
 // Delete removes the domain.Organization from the Organization Store.
 func (s *Service) Delete(ctx context.Context, id domain.OrganizationID) error {
 	return s.store.Delete(ctx, id)

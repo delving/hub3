@@ -1,4 +1,4 @@
-package organization_test
+package organizationtests_test
 
 import (
 	"context"
@@ -7,8 +7,7 @@ import (
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/storage/x/memory"
+	"github.com/delving/hub3/ikuzo/service/organization/organizationtests"
 	"github.com/go-chi/chi"
 	"github.com/matryer/is"
 )
@@ -17,10 +16,7 @@ import (
 func TestService_ResolveOrgByDomain(t *testing.T) {
 	is := is.New(t)
 
-	store := memory.NewOrganizationStore()
-
-	svc, err := organization.NewService(store)
-	is.NoErr(err)
+	svc := organizationtests.NewTestOrganizationService()
 
 	r := chi.NewRouter()
 	r.Use(svc.ResolveOrgByDomain)
