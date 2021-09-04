@@ -20,13 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"os/signal"
 	"runtime/debug"
 	"syscall"
 	"time"
 
-	"net/http/httputil"
 	// nolint:gosec // imported for metrics server. Not exposes on default routes because we don't use the default mux
 	_ "net/http/pprof"
 
@@ -53,6 +53,7 @@ type Service interface {
 	Metrics() interface{}
 	http.Handler
 	Shutdown
+	Router
 }
 
 // Server provides a net/http compliant WebServer.
@@ -64,6 +65,11 @@ type Server interface {
 // Shutdown must be implement by each service that uses background services or connections.
 type Shutdown interface {
 	Shutdown(ctx context.Context) error
+}
+
+// Router implements a callback to register routes to a chi.Router
+type Router interface {
+	Routes(router chi.Router)
 }
 
 type server struct {
