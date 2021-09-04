@@ -28,7 +28,6 @@
 package fragments
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -39,12 +38,12 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/cnf/structhash"
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/resource"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
@@ -63,129 +62,6 @@ var (
 func init() {
 	sanitizer = bluemonday.UGCPolicy()
 	request = gorequest.New()
-}
-
-type SortedGraph struct {
-	triples []*r.Triple
-	lock    sync.Mutex
-}
-
-func NewSortedGraph(g *r.Graph) *SortedGraph {
-	sg := &SortedGraph{}
-
-	for t := range g.IterTriples() {
-		sg.Add(t)
-	}
-	return sg
-}
-
-// AddTriple add triple to the list of triples in the sortedGraph.
-// Note: there is not deduplication
-func (sg *SortedGraph) Add(t ...*r.Triple) {
-	sg.triples = append(sg.triples, t...)
-}
-
-func (sg *SortedGraph) Triples() []*r.Triple {
-	return sg.triples
-}
-
-// ByPredicate returns a list of triples that have the same predicate
-func (sg *SortedGraph) ByPredicate(predicate r.Term) []*r.Triple {
-	matches := []*r.Triple{}
-	for _, t := range sg.triples {
-		if t.Predicate.Equal(predicate) {
-			matches = append(matches, t)
-		}
-	}
-	return matches
-}
-
-// AddTriple is used to add a triple made of individual S, P, O objects
-func (sg *SortedGraph) AddTriple(s r.Term, p r.Term, o r.Term) {
-	sg.triples = append(sg.triples, r.NewTriple(s, p, o))
-}
-
-// Remove removes a triples from the SortedGraph
-func (sg *SortedGraph) Remove(t *r.Triple) {
-	triples := []*r.Triple{}
-	for _, tt := range sg.triples {
-		if t != tt {
-			triples = append(triples, tt)
-		}
-	}
-	sg.triples = triples
-}
-
-// Len returns the number of triples in the SortedGraph
-func (sg *SortedGraph) Len() int {
-	return len(sg.triples)
-}
-
-func containsString(s []string, e string) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
-}
-
-// GenerateJSONLD creates a interfaggce based model of the RDF Graph.
-// This can be used to create various JSON-LD output formats, e.g.
-// expand, flatten, compacted, etc.
-func (sg *SortedGraph) GenerateJSONLD() ([]map[string]interface{}, error) {
-	m := map[string]*r.LdEntry{}
-	entries := []map[string]interface{}{}
-	orderedSubjects := []string{}
-
-	for _, t := range sg.triples {
-		s := t.GetSubjectID()
-		if !containsString(orderedSubjects, s) {
-			orderedSubjects = append(orderedSubjects, s)
-		}
-		err := r.AppendTriple(m, t)
-		if err != nil {
-			return entries, err
-		}
-	}
-
-	// log.Printf("subjects: %#v", orderedSubjects)
-	// this most be sorted
-	for _, v := range orderedSubjects {
-		// log.Printf("v range: %s", v)
-		ldEntry, ok := m[v]
-		if ok {
-			// log.Printf("ldentry: %#v", ldEntry.AsEntry())
-			entries = append(entries, ldEntry.AsEntry())
-		}
-	}
-
-	// log.Printf("graph: \n%#v", entries)
-
-	return entries, nil
-}
-
-func (g *SortedGraph) SerializeFlatJSONLD(w io.Writer) error {
-	entries, err := g.GenerateJSONLD()
-	if err != nil {
-		return err
-	}
-	bytes, err := json.Marshal(entries)
-	if err != nil {
-		return err
-	}
-	fmt.Fprint(w, string(bytes))
-	return nil
-}
-
-func (sg *SortedGraph) GetRDF() ([]byte, error) {
-	var b bytes.Buffer
-	err := sg.SerializeFlatJSONLD(&b)
-	if err != nil {
-		return nil, err
-	}
-	log.Printf("graph: %s", b.String())
-	return b.Bytes(), nil
 }
 
 // IndexEntry holds info for earch triple in the V1 API
@@ -474,12 +350,12 @@ func (wt *WebTriples) Append(s string, t *r.Triple) {
 }
 
 // CleanWebResourceGraph remove mapped webresources when urns are used for WebResource Subjects
-func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*SortedGraph, map[string]ResourceSortOrder, []r.Term, *WebTriples) {
+func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (*resource.SortedGraph, map[string]ResourceSortOrder, []r.Term, *WebTriples) {
 	resources := make(map[string]ResourceSortOrder)
 	webTriples := NewWebTriples()
 	aggregates := []r.Term{}
 
-	cleanGraph := &SortedGraph{}
+	cleanGraph := &resource.SortedGraph{}
 
 	seen := 0
 	for triple := range fb.Graph.IterTriples() {
@@ -667,7 +543,7 @@ func (fb *FragmentBuilder) GetObject(s r.Term, p r.Term) r.Term {
 }
 
 // AddDefaults add default thumbnail fields to a edm:WebResource
-func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *SortedGraph) {
+func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *resource.SortedGraph) {
 	isShownBy := fb.GetObject(wr, GetNaveField("thumbLarge"))
 	if isShownBy == nil {
 		log.Printf("should find thumbLarge: %s, %s \n %s", wr.String(), s.String(), "")
@@ -774,9 +650,9 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 	}
 	if fb.SortedGraph == nil {
 		if fb.Graph != nil {
-			fb.SortedGraph = NewSortedGraph(fb.Graph)
+			fb.SortedGraph = resource.NewSortedGraph(fb.Graph)
 		} else {
-			sg := SortedGraph{}
+			sg := resource.SortedGraph{}
 			for _, rsc := range fb.fg.Resources {
 				for _, triples := range rsc.GenerateTriples() {
 					sg.Add(triples)

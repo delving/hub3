@@ -26,6 +26,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/resource"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 )
@@ -38,7 +39,7 @@ type BulkIndex interface {
 type FragmentBuilder struct {
 	fg             *FragmentGraph
 	Graph          *r.Graph
-	SortedGraph    *SortedGraph
+	SortedGraph    *resource.SortedGraph
 	ResourceLabels map[string]string
 	resources      *ResourceMap
 	sanitizer      *bluemonday.Policy

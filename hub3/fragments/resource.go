@@ -39,9 +39,9 @@ import (
 )
 
 const (
-	literal  = "Literal"
-	resource = "Resource"
-	bnode    = "Bnode"
+	literal      = "Literal"
+	resourceType = "Resource"
+	bnode        = "Bnode"
 )
 
 var ctx context.Context
@@ -1111,7 +1111,7 @@ func (re *ResourceEntry) GetTriple(subject r.Term) *r.Triple {
 	switch re.EntryType {
 	case bnode:
 		object = r.NewBlankNode(re.ID)
-	case resource:
+	case resourceType:
 		object = r.NewResource(re.ID)
 	case literal:
 		switch {
@@ -1241,7 +1241,7 @@ func (f *Fragment) SetPath(contextPath string) {
 			fmt.Sprintf("%s/@rdf:about", rdfType),
 			fmt.Sprintf("%s/@rdf:type", rdfType),
 		)
-	case f.ObjectType == resource:
+	case f.ObjectType == resourceType:
 		f.NestedPath = append(
 			f.NestedPath,
 			fmt.Sprintf("%s/@rdf:resource", path),
@@ -1285,7 +1285,7 @@ func (f *Fragment) CreateTriple() *r.Triple {
 	var o r.Term
 
 	switch f.ObjectType {
-	case resource:
+	case resourceType:
 		o = r.NewResource(f.Object)
 	case bnode:
 		o = r.NewBlankNode(f.Object)
@@ -1359,7 +1359,7 @@ func CreateFragmentEntry(t *r.Triple, resolved bool, order int) (*FragmentEntry,
 	case *r.Resource:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.EntryType = resource
+		entry.EntryType = resourceType
 		return entry, id
 	case *r.BlankNode:
 		id := r.GetResourceID(o)
@@ -1817,7 +1817,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			Subject:      fg.NormalisedResource(fr.ID),
 			Predicate:    RDFType,
 			Object:       ttype,
-			ObjectType:   resource,
+			ObjectType:   resourceType,
 			ResourceType: types,
 			SearchLabel:  typeLabel,
 			Level:        fr.GetLevel(),

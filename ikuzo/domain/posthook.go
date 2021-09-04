@@ -3,13 +3,13 @@ package domain
 import (
 	"net/http"
 
-	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/resource"
 )
 
 // PostHookItem holds the input data that a PostHookService can manipulate
 // before submitting it to the endpoint
 type PostHookItem struct {
-	Graph   *fragments.SortedGraph
+	Graph   *resource.SortedGraph
 	Deleted bool
 	Subject string
 
