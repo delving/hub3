@@ -3,7 +3,7 @@ package domain
 import (
 	"net/http"
 
-	"github.com/delving/hub3/ikuzo/resource"
+	"github.com/delving/hub3/ikuzo/service/x/resource"
 )
 
 // PostHookItem holds the input data that a PostHookService can manipulate

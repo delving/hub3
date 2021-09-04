@@ -43,7 +43,7 @@ import (
 
 	"github.com/cnf/structhash"
 	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/ikuzo/resource"
+	"github.com/delving/hub3/ikuzo/service/x/resource"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
