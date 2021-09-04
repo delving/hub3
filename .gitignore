@@ -70,3 +70,6 @@ hub3/parser
 
 # don't track node_modules
 node_modules
+
+frontend/cidoc-crm/public
+frontend/ead/public

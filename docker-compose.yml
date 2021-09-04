@@ -23,7 +23,7 @@ services:
     image: stain/jena-fuseki:latest
     container_name: hub3-fuseki
     ports:
-      - "3030:3030"
+      - "3033:3030"
     environment:
       - ADMIN_PASSWORD=pw123
     command:
