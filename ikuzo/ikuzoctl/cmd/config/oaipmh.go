@@ -45,22 +45,9 @@ func (o *OAIPMH) AddOptions(cfg *Config) error {
 		return err
 	}
 
-	// TODO(kiivihal): enable again after testing
-	// serverStore, err := oaipmh.NewFsRepoStore(o.HarvestPath)
-	// if err != nil {
-	// return fmt.Errorf("unable to create OAI-PMH server store; %w", err)
-	// }
-
-	// server, err := oaipmh.NewServer(oaipmh.SetServerStore(serverStore))
-	// if err != nil {
-	// return fmt.Errorf("unable to create OAI-PMH server; %w", err)
-	// }
-
 	cfg.options = append(
 		cfg.options,
-		// TODO(kiivihal): enable again after testing current
-		// ikuzo.SetRouters(server.Routes("/api/oai-pmh")),
-		ikuzo.SetOAIPMHService(svc),
+		ikuzo.RegisterService(svc),
 	)
 
 	return nil

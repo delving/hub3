@@ -11,7 +11,7 @@ import (
 	"github.com/snabb/sitemap"
 )
 
-var _ domain.Service = (*Service)(nil) // compile time check if interface
+var _ domain.Service = (*Service)(nil)
 
 type Service struct {
 	store Store
