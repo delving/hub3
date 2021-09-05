@@ -2,6 +2,10 @@ package domain
 
 import "strings"
 
+type OrgConfigRetriever interface {
+	RetrieveConfig(orgID string) (cfg OrganizationConfig, ok bool)
+}
+
 type OrganizationConfig struct {
 	// domain is a list of all valid domains (including subdomains) for an domain.Organization
 	// the domain ID will be injected in each request by the organization middleware.

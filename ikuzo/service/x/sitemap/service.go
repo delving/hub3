@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
 	"github.com/snabb/sitemap"
 )
 
 type Service struct {
 	store Store
-	cfgs  map[string]*Config
+	orgs  domain.OrgConfigRetriever
+	log   zerolog.Logger
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -29,7 +32,7 @@ func NewService(options ...Option) (*Service, error) {
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router := chi.NewRouter()
-	s.Routes(router)
+	s.Routes("", router)
 	router.ServeHTTP(w, r)
 }
 
@@ -57,4 +60,9 @@ func (s *Service) sitemapRoot(ctx context.Context, cfg Config) (*sitemap.Sitemap
 	}
 
 	return smi, nil
+}
+
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }

@@ -30,7 +30,7 @@ func (s *Sitemap) AddOptions(cfg *Config) error {
 
 	cfg.options = append(
 		cfg.options,
-		ikuzo.SetRouters(svc.Routes),
+		ikuzo.RegisterService(svc),
 	)
 
 	return nil

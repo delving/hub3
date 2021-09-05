@@ -33,19 +33,18 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		return nil
 	}
 
-	s, err := imageproxy.NewService(
+	svc, err := imageproxy.NewService(
 		imageproxy.SetCacheDir(ip.CacheDir),
 		imageproxy.SetProxyPrefix(ip.ProxyPrefix),
 		imageproxy.SetTimeout(ip.Timeout),
 		imageproxy.SetProxyReferrer(ip.ProxyReferrer),
 		imageproxy.SetBlackList(ip.BlackList),
 	)
-
 	if err != nil {
 		return err
 	}
 
-	cfg.options = append(cfg.options, ikuzo.SetImageProxyService(s))
+	cfg.options = append(cfg.options, ikuzo.RegisterService(svc))
 
 	return nil
 }

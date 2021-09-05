@@ -4,7 +4,7 @@ import "github.com/go-chi/chi"
 
 const configIDKey = "configID"
 
-func (s *Service) Routes(router chi.Router) {
+func (s *Service) Routes(pattern string, router chi.Router) {
 	router.Get("/api/sitemap", s.handleBaseSitemap)
 	// TODO(kiivihal): implement routes
 	router.Get("/api/sitemap/{configID}", s.handleBaseSitemap)

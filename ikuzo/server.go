@@ -29,10 +29,10 @@ import (
 	// nolint:gosec // imported for metrics server. Not exposes on default routes because we don't use the default mux
 	_ "net/http/pprof"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/pacedotdev/oto/otohttp"
@@ -48,27 +48,10 @@ const (
 	defaultShutdownTimeout = 10
 )
 
-type Service interface {
-	Metrics() interface{}
-	http.Handler
-	Shutdown
-	Router
-}
-
 // Server provides a net/http compliant WebServer.
 type Server interface {
 	ListenAndServe() error
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
-}
-
-// Shutdown must be implement by each service that uses background services or connections.
-type Shutdown interface {
-	Shutdown(ctx context.Context) error
-}
-
-// Router implements a callback to register routes to a chi.Router
-type Router interface {
-	Routes(router chi.Router)
 }
 
 type server struct {
@@ -100,10 +83,10 @@ type server struct {
 	routerFuncs []RouterFunc
 	// service to access the organization store
 	organizations *organization.Service
-	// revision gives access to the file storage
-	revision *revision.Service
+	// services list registerd services
+	services []domain.Service
 	// shutdownHooks are called on server shutdown
-	shutdownHooks map[string]Shutdown
+	shutdownHooks map[string]domain.Shutdown
 	// service context
 	ctx context.Context
 	// oto is the OTO generated RCP service
@@ -125,7 +108,7 @@ func newServer(options ...Option) (*server, error) {
 		cancelFunc:      cancelFunc,
 		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
-		shutdownHooks:   make(map[string]Shutdown),
+		shutdownHooks:   make(map[string]domain.Shutdown),
 		ctx:             ctx,
 	}
 
@@ -182,6 +165,13 @@ func newServer(options ...Option) (*server, error) {
 	// apply default routes
 	s.routes()
 
+	// register services with ikuzo server and router
+	for _, svc := range s.services {
+		if err := s.registerService(svc); err != nil {
+			return nil, err
+		}
+	}
+
 	// apply custom routes
 	for _, f := range s.routerFuncs {
 		f(s.router)
@@ -189,8 +179,30 @@ func newServer(options ...Option) (*server, error) {
 
 	// s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
 	// TODO: maybe add server validation function
-
 	return s, nil
+}
+
+// registerService registers a Service interface to the ikuzo server
+func (s *server) registerService(svc domain.Service) error {
+	// register routes
+	s.registerRouter("", svc)
+
+	builder := &domain.ServiceBuilder{
+		Orgs:   s.organizations,
+		Logger: s.logger,
+	}
+
+	// set organization service
+	svc.SetServiceBuilder(builder)
+
+	return nil
+}
+
+// registerRouter mounts supplied domain.Router in the server router
+//
+// This should only be called for routes that are not part of a domain.Service
+func (s *server) registerRouter(pattern string, router domain.Router) {
+	router.Routes(pattern, s.router)
 }
 
 func (s *server) setDefaultServices() {
@@ -252,9 +264,9 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	for _, sign := range testSignals {
 		switch v := sign.(type) {
 		case os.Signal:
-			signalChan <- v.(os.Signal)
+			signalChan <- v
 		case error:
-			errChan <- v.(error)
+			errChan <- v
 		}
 	}
 
@@ -398,7 +410,7 @@ func (s *server) recoverer(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func (s *server) addShutdown(name string, hook Shutdown) {
+func (s *server) addShutdown(name string, hook domain.Shutdown) {
 	if _, ok := s.shutdownHooks[name]; !ok {
 		s.shutdownHooks[name] = hook
 	}

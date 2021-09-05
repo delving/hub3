@@ -21,11 +21,11 @@ import (
 	"strings"
 
 	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/ead"
-	"github.com/delving/hub3/ikuzo/service/x/imageproxy"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
@@ -52,6 +52,14 @@ type Option func(*server) error
 func SetPort(port int) Option {
 	return func(s *server) error {
 		s.port = port
+		return nil
+	}
+}
+
+// RegisterService registers a Service with the ikuzo server
+func RegisterService(svc domain.Service) Option {
+	return func(s *server) error {
+		s.services = append(s.services, svc)
 		return nil
 	}
 }
@@ -121,16 +129,11 @@ func RegisterOtoServer(otoServer *otohttp.Server) Option {
 }
 
 // SetOrganisationService configures the organization service.
-// When no service is set a default transient memory-based service is used.
-func SetOrganisationService(service *organization.Service) Option {
+func SetOrganisationService(svc *organization.Service) Option {
 	return func(s *server) error {
-		s.organizations = service
-		s.routerFuncs = append(s.routerFuncs,
-			func(r chi.Router) {
-				r.Mount("/organizations", service.Routes())
-			},
-		)
-		s.middleware = append(s.middleware, service.ResolveOrgByDomain)
+		s.organizations = svc
+		s.services = append(s.services, svc)
+		s.middleware = append(s.middleware, svc.ResolveOrgByDomain)
 
 		return nil
 	}
@@ -140,7 +143,6 @@ func SetOrganisationService(service *organization.Service) Option {
 // When no service is set a default transient memory-based service is used.
 func SetRevisionService(service *revision.Service) Option {
 	return func(s *server) error {
-		s.revision = service
 		s.routerFuncs = append(s.routerFuncs, func(r chi.Router) {
 			r.HandleFunc("/git/{user}/{collection}.git/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				p := strings.TrimPrefix(r.URL.Path, "/git")
@@ -206,6 +208,10 @@ func SetLegacyRouters(routers ...RouterFunc) Option {
 	}
 }
 
+// SetStaticFS registers an fs.FS as a static fileserver.
+//
+// It is mounts '/static/*' and '/favicon.ico'.
+// Note: it can only be set once. So you can register multiple fs.FS.
 func SetStaticFS(static fs.FS) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs,
@@ -266,23 +272,15 @@ func SetBulkService(svc *bulk.Service) Option {
 	}
 }
 
-func SetShutdownHook(name string, hook Shutdown) Option {
+// SetShutdownHook adds a shutdown hook to the ikuzo.Server.
+//
+// This should not be used for domain.Service implementations.
+// Their shutdownHooks are registered automatically.
+func SetShutdownHook(name string, hook domain.Shutdown) Option {
 	return func(s *server) error {
 		if _, ok := s.shutdownHooks[name]; !ok {
 			s.shutdownHooks[name] = hook
 		}
-
-		return nil
-	}
-}
-
-func SetImageProxyService(service *imageproxy.Service) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs,
-			func(r chi.Router) {
-				r.Mount("/", service.Routes())
-			},
-		)
 
 		return nil
 	}

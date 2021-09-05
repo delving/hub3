@@ -25,11 +25,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-type Option func(*Service) error
+var _ domain.Service = (*Service)(nil)
 
 type Service struct {
 	client      http.Client
@@ -39,42 +41,10 @@ type Service struct {
 	memoryCache string
 	referrers   []string
 	blacklist   []string
+	orgs        domain.OrgConfigRetriever
+	log         zerolog.Logger
 	// deepzoom    bool     // Enable deepzoom of remote images.
-}
 
-func SetCacheDir(path string) Option {
-	return func(s *Service) error {
-		s.cacheDir = path
-		return nil
-	}
-}
-
-func SetTimeout(duration int) Option {
-	return func(s *Service) error {
-		s.timeOut = duration
-		return nil
-	}
-}
-
-func SetProxyReferrer(referrer []string) Option {
-	return func(s *Service) error {
-		s.referrers = referrer
-		return nil
-	}
-}
-
-func SetBlackList(blacklist []string) Option {
-	return func(s *Service) error {
-		s.blacklist = blacklist
-		return nil
-	}
-}
-
-func SetProxyPrefix(prefix string) Option {
-	return func(s *Service) error {
-		s.proxyPrefix = prefix
-		return nil
-	}
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -95,15 +65,6 @@ func NewService(options ...Option) (*Service, error) {
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
 
 	return s, nil
-}
-
-func (s *Service) Routes() chi.Router {
-	router := chi.NewRouter()
-
-	proxyPrefix := fmt.Sprintf("/%s/{options}/*", s.proxyPrefix)
-	router.Get(proxyPrefix, s.proxyImage)
-
-	return router
 }
 
 func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
@@ -159,8 +120,8 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		log.Warn().Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("adlib error retrieving image")
 		return fmt.Errorf("unable to retrieve adlib result")
 	}
-	// check for adlib error when content type is xml
 
+	// check for adlib error when content type is xml
 	err = req.Write(cachePath, &buf)
 	if err != nil {
 		// do not return error here or cache write error
@@ -221,10 +182,21 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Service) SetOrganizationService(svc domain.Service) error {
+	// s.organizations = svc
+	// do nothing because can't set itself
+	return nil
+}
+
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// needed to implement ikuzo service interface
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
 	return nil
+}
+
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "imageproxy").Logger()
+	s.orgs = b.Orgs
 }
