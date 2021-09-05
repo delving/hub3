@@ -9,6 +9,28 @@ dataNodeURL = ""
 domains = ["localhost:3000"]
 default = false
 
+[org.playground.elasticsearch]
+# indexTypes enabled types for the bulk index service
+indexTypes = ["v2", "v1"]
+# configuration for MimimumShouldMatch
+minimumShouldMatch = "2<70%"
+shards = 1
+replicas = 0
+# the name of the index. If empty it is the name of the OrgId
+# indexName = "hub3"
+# if non-empty digital objects will be indexed in a dedicated v2 index
+# digitalObjectSuffix = "scans"
+
+[org.playground.elasticsearch.defaults]
+# maxTreeSize is the maximum size of the number of nodes in the tree navigation API
+maxTreeSize = 251
+# default size for facets returned for v2 API
+facetSize = 50
+# default number of records returned for v2 API
+limit = 20
+# maximum number of records returned
+maxLimit = 1000
+
 [org.hub3]
 domains = ["localhost:3001"]
 customID = "hub3"
@@ -19,10 +41,12 @@ default = true
 indexTypes = ["v2"]
 # configuration for MimimumShouldMatch
 minimumShouldMatch = "2<70%"
+shards = 3
+replicas = 2
 # the name of the index. If empty it is the name of the OrgId
 # indexName = "hub3"
 # if non-empty digital objects will be indexed in a dedicated v2 index
-# digitalObjectSuffix = "scans"
+digitalObjectSuffix = "scans"
 
 [org.hub3.elasticsearch.defaults]
 # maxTreeSize is the maximum size of the number of nodes in the tree navigation API

@@ -32,7 +32,12 @@ type OrganizationConfig struct {
 		DigitalObjectSuffix string `json:"digitalObjectSuffix,omitempty"`
 		// IndexTypes options are v1, v2, fragment
 		IndexTypes []string `json:"indexTypes,omitempty"`
-		Defaults   struct {
+		// Shards is the number of index shards created
+		Shards int
+		// Replicas is the number of replicas created
+		Replicas int
+		// Defaults are the search defaults to be used in the API
+		Defaults struct {
 			// maxTreeSize is the maximum size of the number of nodes in the tree navigation API
 			MaxTreeSize int `json:"maxTreeSize"`
 			// FacetSize is the default number of facet items returned from the v2 API
@@ -74,6 +79,11 @@ func (cfg *OrganizationConfig) GetIndexName() string {
 // GetV1IndexName returns the v1 index name
 func (cfg *OrganizationConfig) GetV1IndexName() string {
 	return strings.ToLower(cfg.indexName()) + "v1"
+}
+
+// GetFragmentsIndexName returns the indexname for lod-fragments
+func (cfg *OrganizationConfig) GetFragmentsIndexName() string {
+	return strings.ToLower(cfg.indexName()) + "v2_frag"
 }
 
 // GetDigitalObjectIndexName returns the names for the digitalobject index.

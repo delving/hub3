@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"expvar"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -57,16 +58,17 @@ type Metrics struct {
 }
 
 type Service struct {
-	bi            esutil.BulkIndexer
-	stan          *NatsConfig
-	direct        bool
-	MsgHandler    func(ctx context.Context, m *domainpb.IndexMessage) error
-	workers       []stan.Subscription // this is for getting statistics
-	m             Metrics
-	orphanWait    int
-	postHooks     map[string][]domain.PostHookService
-	org           *organization.Service
-	shutdownMutex sync.Mutex
+	bi             esutil.BulkIndexer
+	stan           *NatsConfig
+	direct         bool
+	MsgHandler     func(ctx context.Context, m *domainpb.IndexMessage) error
+	workers        []stan.Subscription // this is for getting statistics
+	m              Metrics
+	orphanWait     int
+	postHooks      map[string][]domain.PostHookService
+	org            *organization.Service
+	shutdownMutex  sync.Mutex
+	disableMetrics bool
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -96,6 +98,10 @@ func NewService(options ...Option) (*Service, error) {
 
 	if !s.direct && (s.stan == nil || s.stan.Conn.NatsConn() == nil) {
 		return s, fmt.Errorf("stan.Conn must be established before nats queue can be used")
+	}
+
+	if !s.disableMetrics {
+		expvar.Publish("hub3-index-service", expvar.Func(func() interface{} { m := s.Metrics(); return m }))
 	}
 
 	return s, nil

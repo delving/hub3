@@ -3,18 +3,24 @@ package elasticsearch
 import (
 	"fmt"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch/internal"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
+	externalAPI "github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
 )
+
+type Response = externalAPI.Response
 
 // Client is a client to interact with the ElasticSearch cluster.
 // Must be used via NewClient to have proper initialisation.
 type Client struct {
-	cfg    *Config
-	search *elastic.Client
-	index  *elasticsearch.Client
+	cfg            *Config
+	search         *elastic.Client
+	index          *elasticsearch.Client
+	disableMetrics bool
+	log            zerolog.Logger
 }
 
 func NewClient(cfg *Config) (*Client, error) {
@@ -36,13 +42,14 @@ func NewClient(cfg *Config) (*Client, error) {
 	client := Client{
 		cfg:    cfg,
 		search: internal.NewOlivereClient(&searchCfg),
+		log:    cfg.Logger.With().Str("svc", "elasticsearch").Logger(),
 	}
 
 	indexCfg := internal.ElasticConfig{
 		Urls:       []string{},
 		UserName:   cfg.UserName,
 		Password:   cfg.Password,
-		Metrics:    true,
+		Metrics:    !cfg.DisableMetrics,
 		MaxRetries: cfg.MaxRetries,
 		Timeout:    cfg.Timeout,
 		FastHTTP:   false,
@@ -58,6 +65,22 @@ func NewClient(cfg *Config) (*Client, error) {
 	return &client, nil
 }
 
-func (c *Client) Ping() (*esapi.Response, error) {
+func (c *Client) Ping() (*externalAPI.Response, error) {
 	return c.index.Info()
+}
+
+// CreateDefaultMappings creates index mappings for all supplied organizations
+func (c *Client) CreateDefaultMappings(orgs []domain.OrganizationConfig, withAlias, withReset bool) (indices []string, err error) {
+	indexNames := []string{}
+
+	for _, cfg := range orgs {
+		indices, err := c.createDefaultMappings(cfg, withAlias, withReset)
+		if err != nil {
+			return []string{}, err
+		}
+
+		indexNames = append(indexNames, indices...)
+	}
+
+	return indexNames, nil
 }

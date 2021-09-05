@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest"
 )
 
 var hostAndPort string
@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	// pulls an image, creates a container based on it and runs it
 	resource, err := pool.Run(
 		"docker.elastic.co/elasticsearch/elasticsearch",
-		"7.10.0",
+		"7.14.1",
 		[]string{
 			"discovery.type=single-node",
 			"cluster.name=hub3_cluster",
@@ -62,8 +62,4 @@ func TestMain(m *testing.M) {
 	}
 
 	os.Exit(code)
-}
-
-func TestSomething(t *testing.T) {
-	// db.Query()
 }

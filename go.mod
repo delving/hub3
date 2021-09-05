@@ -12,7 +12,6 @@ require (
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/containerd/containerd v1.5.5 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
@@ -36,8 +35,6 @@ require (
 	github.com/gorilla/schema v1.2.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/jinzhu/gorm v1.9.15
-	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20190502201718-d93ace331ed0
 	github.com/kiivihal/rdf2go v0.1.2
@@ -49,7 +46,6 @@ require (
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.4.0
 	github.com/mattn/go-isatty v0.0.12 // indirect
-	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.15
 	github.com/mitchellh/go-homedir v1.1.0
@@ -61,7 +57,7 @@ require (
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.3
-	github.com/ory/dockertest/v3 v3.7.0
+	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -105,7 +101,6 @@ require (
 	github.com/containerd/cgroups v1.0.1 // indirect
 	github.com/containerd/continuity v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/cli v20.10.8+incompatible // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
@@ -117,15 +112,14 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/google/btree v1.0.0 // indirect
-	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
+	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd // indirect
 	github.com/klauspost/compress v1.11.13 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
@@ -161,9 +155,6 @@ require (
 	github.com/unknwon/com v1.0.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
-	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.opencensus.io v0.22.4 // indirect
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect

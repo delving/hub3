@@ -86,7 +86,7 @@ func (et ErrorType) Error() error {
 	}
 
 	// switch on raw error as fallback
-	if strings.HasPrefix(et.Reason, "alias [") {
+	if strings.Contains(et.Reason, "alias [") {
 		return ErrAliasNotFound
 	}
 

@@ -19,16 +19,23 @@ import (
 	"io"
 	"strings"
 
-	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/tidwall/gjson"
 )
 
-// AliasCreate creates an alias for the given indexName.
+type Alias struct {
+	client *Client
+}
+
+func (c *Client) Alias() Alias {
+	return Alias{client: c}
+}
+
+// Create creates an alias for the given indexName.
 //
 // When the index does not exist ErrIndexNotExists is returned
 // When the alias is already defined, ErrAliasExist is returned
-func AliasCreate(es *elasticsearch.Client, alias, indexName string) error {
-	res, conErr := es.Indices.PutAlias(
+func (a *Alias) Create(alias, indexName string) error {
+	res, conErr := a.client.index.Indices.PutAlias(
 		[]string{indexName},
 		alias,
 	)
@@ -46,12 +53,12 @@ func AliasCreate(es *elasticsearch.Client, alias, indexName string) error {
 	return nil
 }
 
-// AliasGet returns the indexName for the given alias.
+// Get returns the indexName for the given alias.
 //
 // When the alias is not found an ErrAliasNotFound error is returned.
-func AliasGet(es *elasticsearch.Client, alias string) (indexName string, err error) {
-	res, conErr := es.Indices.GetAlias(
-		es.Indices.GetAlias.WithName(alias),
+func (a *Alias) Get(name string) (indexName string, err error) {
+	res, conErr := a.client.index.Indices.GetAlias(
+		a.client.index.Indices.GetAlias.WithName(name),
 	)
 	if conErr != nil {
 		return "", conErr
@@ -79,16 +86,16 @@ func getIndexNameFromAlias(r io.Reader) string {
 	return ""
 }
 
-// AliasUpdate removes the alias if it exists from another index and creates a new one linked to indexName.
+// Update removes the alias if it exists from another index and creates a new one linked to indexName.
 //
 // It returns an error when the alias cannot be updated. It returns the old indexName that is removed
-func AliasUpdate(es *elasticsearch.Client, alias, indexName string) (oldIndexName string, err error) {
-	oldIndexName, err = AliasGet(es, alias)
+func (a *Alias) Update(name, indexName string) (oldIndexName string, err error) {
+	oldIndexName, err = a.Get(name)
 	if err != nil {
 		return oldIndexName, err
 	}
 
-	res, conErr := es.Indices.UpdateAliases(
+	res, conErr := a.client.index.Indices.UpdateAliases(
 		strings.NewReader(
 			fmt.Sprintf(
 				`
@@ -100,9 +107,9 @@ func AliasUpdate(es *elasticsearch.Client, alias, indexName string) (oldIndexNam
 				}
 				`,
 				oldIndexName,
-				alias,
+				name,
 				indexName,
-				alias,
+				name,
 			),
 		),
 	)
@@ -120,15 +127,15 @@ func AliasUpdate(es *elasticsearch.Client, alias, indexName string) (oldIndexNam
 	return oldIndexName, nil
 }
 
-// AliasDelete removes the alias from the index it is linked to.
+// Delete removes the alias from the index it is linked to.
 //
 // When the alias does not it exist it will return a ErrAliasNotExist error.
 //
 // When the indexName is empty it will search for the indexName using GetAlias().
-func AliasDelete(es *elasticsearch.Client, indexName, alias string) error {
-	res, conErr := es.Indices.DeleteAlias(
+func (a *Alias) Delete(name, indexName string) error {
+	res, conErr := a.client.index.Indices.DeleteAlias(
 		[]string{indexName},
-		[]string{alias},
+		[]string{name},
 	)
 
 	if conErr != nil {
@@ -138,7 +145,9 @@ func AliasDelete(es *elasticsearch.Client, indexName, alias string) error {
 	defer res.Body.Close()
 
 	if res.IsError() {
-		return GetErrorType(res.Body).Error()
+		et := GetErrorType(res.Body)
+		a.client.log.Error().Err(et.Error()).Msgf("%#v", et)
+		return et.Error()
 	}
 
 	return nil

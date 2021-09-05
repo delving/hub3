@@ -95,6 +95,20 @@ func (s *Service) Get(ctx context.Context, id domain.OrganizationID) (*domain.Or
 	return s.store.Get(ctx, id)
 }
 
+// Configs returns a list of all domain.OrganizationConfig
+func (s *Service) Configs(ctx context.Context) (cfgs []domain.OrganizationConfig, err error) {
+	orgs, err := s.Filter(ctx, domain.OrganizationFilter{Limit: 100})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, org := range orgs {
+		cfgs = append(cfgs, org.Config)
+	}
+
+	return cfgs, nil
+}
+
 // RetrieveConfig returns a domain.OrganizationConfig.
 // When it is not found false is returned
 func (s *Service) RetrieveConfig(orgID string) (cfg domain.OrganizationConfig, ok bool) {
@@ -102,6 +116,7 @@ func (s *Service) RetrieveConfig(orgID string) (cfg domain.OrganizationConfig, o
 	if err != nil {
 		return cfg, false
 	}
+
 	org, err := s.Get(context.TODO(), id)
 	if err != nil {
 		return cfg, false

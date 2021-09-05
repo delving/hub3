@@ -15,9 +15,7 @@
 package config
 
 import (
-	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/go-chi/chi"
 )
 
 type Logging struct {
@@ -29,14 +27,15 @@ type Logging struct {
 }
 
 func (l *Logging) AddOptions(cfg *Config) error {
-	if l.DevMode {
-		cfg.options = append(
-			cfg.options,
-			ikuzo.SetRouters(func(r chi.Router) {
-				r.Delete("/introspect/reset", cfg.ElasticSearch.ResetAll)
-			}),
-		)
-	}
+	// TODO(kiivihal): move this somewhere else
+	// if l.DevMode {
+	// cfg.options = append(
+	// cfg.options,
+	// ikuzo.SetRouters(func(r chi.Router) {
+	// r.Delete("/introspect/reset", cfg.ElasticSearch.ResetAll)
+	// }),
+	// )
+	// }
 
 	return nil
 }

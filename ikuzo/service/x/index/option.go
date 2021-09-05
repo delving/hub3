@@ -54,6 +54,13 @@ func SetOrphanWait(wait int) Option {
 	}
 }
 
+func SetDisableMetrics(disable bool) Option {
+	return func(s *Service) error {
+		s.disableMetrics = disable
+		return nil
+	}
+}
+
 func SetOrganisationService(org *organization.Service) Option {
 	return func(s *Service) error {
 		s.org = org

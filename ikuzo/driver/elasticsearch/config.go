@@ -22,6 +22,8 @@ type Config struct {
 	MaxRetries int
 	// Timeout is de max time in seconds before the request times out
 	Timeout int
+	// DisableMetrics disables publishing metrics to expvar
+	DisableMetrics bool
 }
 
 // Valid validates the configuration. When the Configuration is
