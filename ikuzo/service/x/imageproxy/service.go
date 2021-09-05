@@ -27,8 +27,8 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 var _ domain.Service = (*Service)(nil)
@@ -73,7 +73,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	// check cache
 	r, err := req.Read(cachePath)
 	if err != nil && !errors.Is(err, ErrCacheKeyNotFound) {
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("unexpected error reading from cache")
+		s.log.Error().Err(err).Msg("unexpected error reading from cache")
 		return err
 	}
 
@@ -82,7 +82,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 
 		_, err = io.Copy(w, r)
 		if err != nil {
-			log.Error().Err(err).Str("cmp", "imageproxy").Msg("error copying image from cache")
+			s.log.Error().Err(err).Msg("error copying image from cache")
 			return err
 		}
 
@@ -92,13 +92,13 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	// make request
 	proxyRequest, err := req.GET()
 	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to create GET request")
+		s.log.Error().Err(err).Str("url", req.sourceURL).Msg("unable to create GET request")
 		return err
 	}
 
 	resp, err := s.client.Do(proxyRequest)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to make remote request")
+		s.log.Error().Err(err).Str("url", req.sourceURL).Msg("unable to make remote request")
 		return err
 	}
 
@@ -110,14 +110,14 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	// copy to response writer
 	_, err = io.Copy(w, tee)
 	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("error copying remote image")
+		s.log.Error().Err(err).Msg("error copying remote image")
 
 		return err
 	}
 
 	if strings.HasPrefix(resp.Header.Get("Content-Type"), "text/xml") && bytes.Contains(buf.Bytes(), []byte("adlibXML")) {
 		// don't cache adlib error messages
-		log.Warn().Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("adlib error retrieving image")
+		s.log.Warn().Str("url", req.sourceURL).Msg("adlib error retrieving image")
 		return fmt.Errorf("unable to retrieve adlib result")
 	}
 
@@ -125,7 +125,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	err = req.Write(cachePath, &buf)
 	if err != nil {
 		// do not return error here or cache write error
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("unable to write remote file to cache")
+		s.log.Error().Err(err).Msg("unable to write remote file to cache")
 	}
 
 	return nil
@@ -134,6 +134,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 // create handler fuction to serve the proxied images
 func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 	url := chi.URLParam(r, "*")
+	options := chi.URLParam(r, "options")
 
 	// add referer
 	if len(s.referrers) != 0 {
@@ -158,9 +159,14 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 		SetRawQueryString(r.URL.RawQuery),
 	)
 	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", url).Msg("unable to create proxy request")
+		s.log.Error().Err(err).Str("url", url).Msg("unable to create proxy request")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
+		return
+	}
+
+	if strings.EqualFold(options, "explain") {
+		render.PlainText(w, r, req.sourcePath())
 		return
 	}
 
@@ -175,7 +181,7 @@ func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
 
 	err = s.Do(r.Context(), req, w)
 	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to make proxy request")
+		s.log.Error().Err(err).Str("url", req.sourceURL).Msg("unable to make proxy request")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return
