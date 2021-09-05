@@ -18,6 +18,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/rs/zerolog"
 )
 
 type Option func(*Service) error
@@ -63,7 +64,7 @@ func SetDisableMetrics(disable bool) Option {
 
 func SetOrganisationService(org *organization.Service) Option {
 	return func(s *Service) error {
-		s.org = org
+		s.orgs = org
 		return nil
 	}
 }
@@ -74,6 +75,13 @@ func SetPostHookService(hooks ...domain.PostHookService) Option {
 			s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
 		}
 
+		return nil
+	}
+}
+
+func SetLogger(log zerolog.Logger) Option {
+	return func(s *Service) error {
+		s.log = log
 		return nil
 	}
 }

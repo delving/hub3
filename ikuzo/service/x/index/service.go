@@ -27,34 +27,22 @@ import (
 	"sync/atomic"
 	"time"
 
-	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
 	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	proto "google.golang.org/protobuf/proto"
 )
 
 type BulkIndex interface {
 	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
-}
-
-type Metrics struct {
-	started time.Time
-	Nats    struct {
-		Published uint64
-		Consumed  uint64
-		Failed    uint64
-	}
-	Index struct {
-		Successful uint64
-		Failed     uint64
-	}
 }
 
 type Service struct {
@@ -66,9 +54,10 @@ type Service struct {
 	m              Metrics
 	orphanWait     int
 	postHooks      map[string][]domain.PostHookService
-	org            *organization.Service
 	shutdownMutex  sync.Mutex
 	disableMetrics bool
+	log            zerolog.Logger
+	orgs           *organization.Service
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -76,6 +65,7 @@ func NewService(options ...Option) (*Service, error) {
 		m:          Metrics{started: time.Now()},
 		orphanWait: 15,
 		postHooks:  map[string][]domain.PostHookService{},
+		log:        zerolog.Nop(),
 	}
 
 	// apply options
@@ -85,7 +75,7 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
-	if s.org == nil {
+	if s.orgs == nil {
 		return s, fmt.Errorf("organization.Service is required and cannot be nil")
 	}
 
@@ -244,14 +234,20 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 		v2 = v2.Must(elastic.NewMatchQuery("meta.sourcePath", revision.GetPath()))
 	}
 
+	cfg, ok := s.orgs.RetrieveConfig(orgID)
+	if !ok {
+		s.log.Warn().Str("orgID", orgID).Str("datasetID", datasetID).Msg("unknown orgID; so aborting orphan drop")
+		return nil
+	}
+
 	v2 = v2.Must(tags)
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, datasetID))
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID))
-	indices := []string{c.Config.ElasticSearch.GetDigitalObjectIndexName()}
+	v2 = v2.Must(elastic.NewTermQuery(es.PathDatasetID, datasetID))
+	v2 = v2.Must(elastic.NewTermQuery(es.PathOrgID, orgID))
+	indices := []string{cfg.GetDigitalObjectIndexName()}
 
 	if strings.HasPrefix(revision.GetGroupID(), "NT") {
-		if c.Config.ElasticSearch.GetDigitalObjectIndexName() != c.Config.ElasticSearch.GetIndexName() {
-			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+		if cfg.GetDigitalObjectIndexName() != cfg.GetIndexName() {
+			indices = append(indices, cfg.GetIndexName())
 		}
 	}
 

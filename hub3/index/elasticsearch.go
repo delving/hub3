@@ -43,7 +43,7 @@ var (
 
 // ESClient creates or returns an ElasticSearch Client.
 // This function should always be used to perform any ElasticSearch action.
-func ESClient() *elastic.Client {
+func ESClientDeprecated() *elastic.Client {
 	if client == nil {
 		if config.Config.ElasticSearch.Enabled {
 			// setting up execution context
@@ -62,9 +62,9 @@ func ESClient() *elastic.Client {
 }
 
 // ListIndexes returns a list of all the ElasticSearch Indices.
-func ListIndexes() ([]string, error) {
-	return ESClient().IndexNames()
-}
+// func ListIndexes() ([]string, error) {
+// return ESClient().IndexNames()
+// }
 
 func createESClient() *elastic.Client {
 	timeout := time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second

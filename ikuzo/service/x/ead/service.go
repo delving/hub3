@@ -35,12 +35,12 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
 
-	c "github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 	indexHub3 "github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/go-chi/chi"
@@ -641,9 +641,9 @@ func (s *Service) CreateTask(r *http.Request, meta Meta) (*taskResponse, error) 
 
 // TODO: move this to elasticsearch package later
 func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
-	orgID := domain.GetOrganizationID(r)
+	org, _ := domain.GetOrganization(r)
 
-	search := indexHub3.ESClient().Search(c.Config.ElasticSearch.GetIndexName())
+	search := indexHub3.ESClient().Search(org.Config.GetIndexName())
 	format := "02-01-2006"
 	today := time.Now()
 	if r.URL.Query().Get(PaccessKey) != "" {
@@ -656,7 +656,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	}
 	query := elastic.NewBoolQuery().
 		Filter(
-			elastic.NewMatchPhraseQuery("meta.orgID", orgID.String()),
+			elastic.NewMatchPhraseQuery(elasticsearch.PathOrgID, org.RawID()),
 			elastic.NewMatchPhraseQuery("tree.hasRestriction", true),
 			elastic.NewMatchPhraseQuery("tree.type", "file"),
 			elastic.NewMatchPhraseQuery("tree.access", today.Format(format)),
@@ -690,7 +690,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	trSlice := make([]*taskResponse, 0)
 	for _, el := range terms.Buckets {
 		spec := el.Key.(string)
-		meta, err := s.LoadEAD(orgID.String(), spec)
+		meta, err := s.LoadEAD(org.RawID(), spec)
 		if err != nil {
 			clearLogger.Err(err).Msgf("could not load spec %s from bucket: %v", spec, err)
 			continue
