@@ -24,7 +24,6 @@ import (
 	"strings"
 
 	rdf "github.com/deiu/gon3"
-	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	r "github.com/kiivihal/rdf2go"
@@ -184,7 +183,7 @@ func (upl *RDFUploader) SaveFragmentGraphs(bi BulkIndex) (int, error) {
 			OrganisationID: fg.Meta.OrgID,
 			DatasetID:      fg.Meta.Spec,
 			RecordID:       fg.Meta.HubID,
-			IndexName:      config.Config.ElasticSearch.GetV1IndexName(),
+			IndexType:      domainpb.IndexType_V1,
 			Source:         b,
 		}
 
@@ -199,7 +198,6 @@ func (upl *RDFUploader) SaveFragmentGraphs(bi BulkIndex) (int, error) {
 }
 
 func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
-
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
 		OrgID:    upl.OrgID,

@@ -384,7 +384,7 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 		OrganisationID: fg.Meta.OrgID,
 		DatasetID:      fg.Meta.Spec,
 		RecordID:       fg.Meta.HubID,
-		IndexName:      c.Config.ElasticSearch.GetIndexName(),
+		IndexType:      domainpb.IndexType_V2,
 		Source:         b,
 	}, nil
 }

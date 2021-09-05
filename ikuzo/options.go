@@ -192,3 +192,10 @@ func SetLegacyRouters(routers ...RouterFunc) Option {
 		return nil
 	}
 }
+
+func SetEnableIntrospect(enabled bool) Option {
+	return func(s *server) error {
+		s.introspect = enabled
+		return nil
+	}
+}

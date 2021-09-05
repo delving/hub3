@@ -375,6 +375,31 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		return s.MsgHandler(ctx, m)
 	}
 
+	orgID := m.GetOrganisationID()
+	if orgID == "" {
+		return fmt.Errorf("organizationID cannot be empty")
+	}
+
+	cfg, ok := s.orgs.RetrieveConfig(orgID)
+	if !ok {
+		return fmt.Errorf("unknown orgID: %s", orgID)
+	}
+
+	// no index name means we get it from the domain.OrganizationConfig
+	// prefer IndexType over indexName
+	m.IndexName = ""
+
+	switch m.GetIndexType() {
+	case domainpb.IndexType_V1:
+		m.IndexName = cfg.GetV1IndexName()
+	case domainpb.IndexType_DIGITAL_OBJECTS:
+		m.IndexName = cfg.GetDigitalObjectIndexName()
+	case domainpb.IndexType_FRAGMENTS:
+		m.IndexName = cfg.GetFragmentsIndexName()
+	default:
+		m.IndexName = cfg.GetIndexName()
+	}
+
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {
 		s.dropOrphans(m.GetOrganisationID(), m.GetDatasetID(), m.GetRevision())
 

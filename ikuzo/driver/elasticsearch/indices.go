@@ -117,3 +117,7 @@ func (idx *Indices) Switch(alias, newIndexName string, deleteOldIndex bool) (old
 
 	return oldIndexName, nil
 }
+
+func (idx *Indices) List() ([]string, error) {
+	return idx.client.search.IndexNames()
+}

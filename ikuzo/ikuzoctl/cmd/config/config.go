@@ -63,11 +63,11 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.HTTP,
 			&cfg.EAD,
 			&cfg.ImageProxy,
-			&cfg.Logging,
 			&cfg.OAIPMH,
 			&cfg.NameSpace,
 			&cfg.NDE,
 			&cfg.Sitemap,
+			&cfg.Logging,
 		}
 	}
 

@@ -14,10 +14,11 @@ import (
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	orgs    domain.OrgConfigRetriever
-	log     zerolog.Logger
-	es      *elasticsearch.Client
-	esproxy *elasticsearch.Proxy
+	orgs       domain.OrgConfigRetriever
+	log        zerolog.Logger
+	es         *elasticsearch.Client
+	esproxy    *elasticsearch.Proxy
+	introspect bool
 }
 
 func NewService(options ...Option) (*Service, error) {

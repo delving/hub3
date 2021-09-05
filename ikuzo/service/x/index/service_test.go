@@ -68,6 +68,7 @@ func (s *indexSuite) TestProducer_Publish() {
 			OrganisationID: "demo",
 			DatasetID:      "spec",
 			RecordID:       strconv.Itoa(i),
+			IndexType:      domainpb.IndexType_V2,
 			Revision: &domainpb.Revision{
 				SHA:  "",
 				Path: "",

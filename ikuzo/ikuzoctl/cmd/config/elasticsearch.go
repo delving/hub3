@@ -95,6 +95,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 	if e.Proxy {
 		proxySvc, proxyErr := esproxy.NewService(
 			esproxy.SetElasticClient(client),
+			esproxy.SetEnableIntrospect(cfg.Logging.DevMode),
 		)
 		if proxyErr != nil {
 			return fmt.Errorf("unable to create ES proxy: %w", proxyErr)

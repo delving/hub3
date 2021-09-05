@@ -21,6 +21,9 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/OneOfOne/xxhash"
@@ -39,11 +42,13 @@ type Proxy struct {
 	es    *elasticsearch.Client
 	group *groupcache.Group
 	log   zerolog.Logger
+	cfg   *Config
 }
 
 func NewProxy(es *Client) (*Proxy, error) {
 	p := &Proxy{
-		es: es.index,
+		es:  es.index,
+		cfg: es.cfg,
 	}
 
 	p.SetLogger(es.cfg.Logger)
@@ -180,4 +185,43 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 		Msg("elastic ead cluster search request")
 
 	return dest.SetBytes(buf.Bytes(), time.Now().Add(20*time.Second))
+}
+
+func (p *Proxy) SafeHTTP(w http.ResponseWriter, r *http.Request) {
+	// parse the url. Always take the first url for now
+	esURL, _ := url.Parse(p.cfg.Urls[0])
+
+	// create the reverse proxy
+	proxy := httputil.NewSingleHostReverseProxy(esURL)
+
+	// strip prefix from path
+	r.URL.Path = strings.TrimPrefix(r.URL.EscapedPath(), "/api/es")
+
+	switch {
+	case strings.HasSuffix(r.URL.EscapedPath(), "/_analyze") && r.Method == "POST":
+		// allow post requests on analyze
+	case r.Method != "GET":
+		http.Error(w, fmt.Sprintf("method %s is not allowed on esProxy", r.Method), http.StatusBadRequest)
+		return
+	case r.URL.Path == "/":
+		// root is allowed to provide version
+	case strings.Contains(r.URL.EscapedPath(), "v2") || strings.Contains(r.URL.EscapedPath(), "v1"):
+		// direct access on get is allowed via the proxy on v2 indices
+	case !strings.HasPrefix(r.URL.EscapedPath(), "/_cat"):
+		http.Error(w, fmt.Sprintf("path %s is not allowed on esProxy", r.URL.EscapedPath()), http.StatusBadRequest)
+		return
+	}
+
+	if p.cfg.UserName != "" && p.cfg.Password != "" {
+		r.SetBasicAuth(p.cfg.UserName, p.cfg.Password)
+	}
+
+	// Update the headers to allow for SSL redirection
+	r.URL.Host = esURL.Host
+	r.URL.Scheme = esURL.Scheme
+	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
+	r.Host = esURL.Host
+
+	// Note that ServeHttp is non blocking and uses a go routine under the hood
+	proxy.ServeHTTP(w, r)
 }

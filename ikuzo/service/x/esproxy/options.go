@@ -10,3 +10,10 @@ func SetElasticClient(es *elasticsearch.Client) Option {
 		return nil
 	}
 }
+
+func SetEnableIntrospect(enabled bool) Option {
+	return func(s *Service) error {
+		s.introspect = enabled
+		return nil
+	}
+}

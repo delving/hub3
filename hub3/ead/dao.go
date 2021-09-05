@@ -135,7 +135,7 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 			return err
 		}
 
-		m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
+		m.IndexType = domainpb.IndexType_DIGITAL_OBJECTS
 
 		if c.bi != nil {
 			c.bi.Publish(context.Background(), m)
@@ -153,7 +153,7 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 		return err
 	}
 
-	m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
+	m.IndexType = domainpb.IndexType_DIGITAL_OBJECTS
 
 	if c.bi != nil {
 		c.bi.Publish(context.Background(), m)
@@ -175,7 +175,7 @@ func validateFindingAid(fa *eadpb.FindingAid) error {
 }
 
 func assertUniqueFilenames(files []*eadpb.File) error {
-	var fileNames = make(map[string]int32)
+	fileNames := make(map[string]int32)
 
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
@@ -291,6 +291,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func (c *DaoClient) Delete(archiveID, uuid string) error {
 	cfg, err := c.GetDaoConfig(archiveID, uuid)
 	if errors.Is(err, ErrFileNotFound) {

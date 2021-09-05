@@ -43,7 +43,7 @@ var (
 
 // ESClient creates or returns an ElasticSearch Client.
 // This function should always be used to perform any ElasticSearch action.
-func ESClientDeprecated() *elastic.Client {
+func ESClient() *elastic.Client {
 	if client == nil {
 		if config.Config.ElasticSearch.Enabled {
 			// setting up execution context

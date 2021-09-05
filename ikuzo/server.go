@@ -35,6 +35,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/docgen"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
@@ -83,7 +84,7 @@ type server struct {
 	routerFuncs []RouterFunc
 	// service to access the organization store
 	organizations *organization.Service
-	// services list registerd services
+	// services list registered services
 	services []domain.Service
 	// shutdownHooks are called on server shutdown
 	shutdownHooks map[string]domain.Shutdown
@@ -91,6 +92,8 @@ type server struct {
 	ctx context.Context
 	// oto is the OTO generated RCP service
 	oto *otohttp.Server
+	// introspect enables routes for introspection
+	introspect bool
 }
 
 // NewServer returns the default server.
@@ -175,6 +178,13 @@ func newServer(options ...Option) (*server, error) {
 	// apply custom routes
 	for _, f := range s.routerFuncs {
 		f(s.router)
+	}
+
+	if s.introspect {
+		s.router.Get("/introspect/routes", func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(docgen.JSONRoutesDoc(s.router)))
+		})
 	}
 
 	// s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
