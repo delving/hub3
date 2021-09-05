@@ -306,6 +306,12 @@ func (s *server) shutdown(server *http.Server) error {
 
 	g.Go(func() error { return server.Shutdown(ctx) })
 
+	for _, svc := range s.services {
+		svc := svc
+
+		g.Go(func() error { return svc.Shutdown(ctx) })
+	}
+
 	for _, h := range s.shutdownHooks {
 		h := h
 

@@ -11,6 +11,8 @@ import (
 	"github.com/snabb/sitemap"
 )
 
+var _ domain.Service = (*Service)(nil) // compile time check if interface
+
 type Service struct {
 	store Store
 	orgs  domain.OrgConfigRetriever

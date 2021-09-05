@@ -25,18 +25,12 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
-	"github.com/delving/hub3/ikuzo/service/x/ead"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/go-chi/chi"
 	"github.com/pacedotdev/oto/otohttp"
-)
-
-const (
-	taskIDRoute    = "/api/ead/tasks/{id}"
-	datasetIDRoute = "/api/datasets/{spec}"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
@@ -189,25 +183,6 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 	}
 }
 
-func SetEnableLegacyConfig(cfgFile string) Option {
-	return func(s *server) error {
-		// this initializes the hub3 configuration object that has global state
-		// TODO(kiivihal): remove this after legacy hub3/server/http/handlers are migrated
-		config.SetCfgFile(cfgFile)
-		config.InitConfig()
-
-		return nil
-	}
-}
-
-func SetLegacyRouters(routers ...RouterFunc) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs, routers...)
-
-		return nil
-	}
-}
-
 // SetStaticFS registers an fs.FS as a static fileserver.
 //
 // It is mounts '/static/*' and '/favicon.ico'.
@@ -222,23 +197,6 @@ func SetStaticFS(static fs.FS) Option {
 				})
 			},
 		)
-
-		return nil
-	}
-}
-
-func SetEADService(svc *ead.Service) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs,
-			func(r chi.Router) {
-				r.Post("/api/ead", svc.Upload)
-				r.Get("/api/ead/tasks", svc.Tasks)
-				r.Get(taskIDRoute, svc.GetTask)
-				r.Delete(taskIDRoute, svc.CancelTask)
-			},
-		)
-
-		s.addShutdown("EAD service", svc)
 
 		return nil
 	}
@@ -281,6 +239,25 @@ func SetShutdownHook(name string, hook domain.Shutdown) Option {
 		if _, ok := s.shutdownHooks[name]; !ok {
 			s.shutdownHooks[name] = hook
 		}
+
+		return nil
+	}
+}
+
+func SetEnableLegacyConfig(cfgFile string) Option {
+	return func(s *server) error {
+		// this initializes the hub3 configuration object that has global state
+		// TODO(kiivihal): remove this after legacy hub3/server/http/handlers are migrated
+		config.SetCfgFile(cfgFile)
+		config.InitConfig()
+
+		return nil
+	}
+}
+
+func SetLegacyRouters(routers ...RouterFunc) Option {
+	return func(s *server) error {
+		s.routerFuncs = append(s.routerFuncs, routers...)
 
 		return nil
 	}
