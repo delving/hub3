@@ -17,14 +17,11 @@ package ikuzo
 import (
 	"io/fs"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/go-chi/chi"
@@ -126,29 +123,6 @@ func SetOrganisationService(svc *organization.Service) Option {
 		s.organizations = svc
 		s.services = append(s.services, svc)
 		s.middleware = append(s.middleware, svc.ResolveOrgByDomain)
-
-		return nil
-	}
-}
-
-// SetRevisionService configures the organization service.
-// When no service is set a default transient memory-based service is used.
-func SetRevisionService(service *revision.Service) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs, func(r chi.Router) {
-			r.HandleFunc("/git/{user}/{collection}.git/*", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				p := strings.TrimPrefix(r.URL.Path, "/git")
-				if !service.BareRepo {
-					p = strings.ReplaceAll(p, ".git/", "/.git/")
-				}
-				r2 := new(http.Request)
-				*r2 = *r
-				r2.URL = new(url.URL)
-				*r2.URL = *r.URL
-				r2.URL.Path = p
-				service.ServeHTTP(w, r2)
-			}))
-		})
 
 		return nil
 	}

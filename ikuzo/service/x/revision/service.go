@@ -26,9 +26,7 @@ import (
 	"github.com/sosedoff/gitkit"
 )
 
-var (
-	ErrRepositoryNotExists = errors.New("repository does not exist")
-)
+var ErrRepositoryNotExists = errors.New("repository does not exist")
 
 type Service struct {
 	base     string
@@ -42,6 +40,7 @@ func NewService(path string) (*Service, error) {
 	}
 
 	s := &Service{base: path}
+
 	if strings.HasSuffix(s.base, "/") {
 		s.base = strings.TrimSuffix(s.base, "/")
 	}

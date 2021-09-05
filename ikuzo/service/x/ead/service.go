@@ -43,7 +43,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -64,7 +63,6 @@ var _ domain.Service = (*Service)(nil)
 
 type Service struct {
 	index          *index.Service
-	revision       *revision.Service
 	dataDir        string
 	M              Metrics
 	CreateTreeFn   CreateTreeFn

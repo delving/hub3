@@ -16,7 +16,6 @@ package ead
 
 import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 )
 
 type Option func(*Service) error
@@ -38,13 +37,6 @@ func SetCreateTree(fn CreateTreeFn) Option {
 func SetIndexService(is *index.Service) Option {
 	return func(s *Service) error {
 		s.index = is
-		return nil
-	}
-}
-
-func SetRevisionService(rs *revision.Service) Option {
-	return func(s *Service) error {
-		s.revision = rs
 		return nil
 	}
 }

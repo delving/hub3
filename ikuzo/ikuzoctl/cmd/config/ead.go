@@ -35,18 +35,12 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 		return nil, err
 	}
 
-	trs, err := cfg.GetRevisionService()
-	if err != nil {
-		return nil, err
-	}
-
 	svc, err := ead.NewService(
 		ead.SetIndexService(is),
 		// TODO(kiivihal): can be removed later for TRS
 		ead.SetDataDir(e.CacheDir),
 		ead.SetWorkers(e.Workers),
 		ead.SetProcessDigital(e.ProcessDigital),
-		ead.SetRevisionService(trs),
 	)
 	if err != nil {
 		return nil, err

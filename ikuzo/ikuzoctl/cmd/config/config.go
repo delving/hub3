@@ -15,14 +15,11 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
 )
@@ -33,28 +30,26 @@ type Option interface {
 
 type Config struct {
 	// default orgID when none is given
-	OrgID             string `json:"orgID"`
-	ElasticSearch     `json:"elasticSearch"`
-	HTTP              `json:"http"`
-	TimeRevisionStore `json:"timeRevisionStore"`
-	Logging           `json:"logging"`
-	Nats              `json:"nats"`
-	EAD               `json:"ead"`
-	ImageProxy        `json:"imageProxy"`
-	NameSpace         `json:"nameSpace"`
-	PostHooks         []PostHook `json:"posthooks"`
-	options           []ikuzo.Option
-	logger            logger.CustomLogger
-	is                *index.Service
-	trs               *revision.Service
-	orgs              *organization.Service
-	Organization      `json:"organization"`
-	Org               map[string]domain.OrganizationConfig `json:"org"`
-	OAIPMH            `json:"oaipmh"`
-	NDE               `json:"nde"`
-	RDF               `json:"rdf"`
-	Sitemap           `json:"sitemap"`
-	oto               *otohttp.Server
+	OrgID         string `json:"orgID"`
+	ElasticSearch `json:"elasticSearch"`
+	HTTP          `json:"http"`
+	Logging       `json:"logging"`
+	Nats          `json:"nats"`
+	EAD           `json:"ead"`
+	ImageProxy    `json:"imageProxy"`
+	NameSpace     `json:"nameSpace"`
+	PostHooks     []PostHook `json:"posthooks"`
+	options       []ikuzo.Option
+	logger        logger.CustomLogger
+	is            *index.Service
+	orgs          *organization.Service
+	Organization  `json:"organization"`
+	Org           map[string]domain.OrganizationConfig `json:"org"`
+	OAIPMH        `json:"oaipmh"`
+	NDE           `json:"nde"`
+	RDF           `json:"rdf"`
+	Sitemap       `json:"sitemap"`
+	oto           *otohttp.Server
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
@@ -66,7 +61,6 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
 			&cfg.Organization,
 			&cfg.HTTP,
-			&cfg.TimeRevisionStore,
 			&cfg.EAD,
 			&cfg.ImageProxy,
 			&cfg.Logging,
@@ -129,25 +123,6 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 	cfg.is = is
 
 	return cfg.is, nil
-}
-
-func (cfg *Config) GetRevisionService() (*revision.Service, error) {
-	if !cfg.TimeRevisionStore.Enabled {
-		return nil, fmt.Errorf("revision.Service is not enabled in the configuration")
-	}
-
-	if cfg.trs != nil {
-		return cfg.trs, nil
-	}
-
-	trs, err := revision.NewService(cfg.TimeRevisionStore.DataPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create revision.Service; %w", err)
-	}
-
-	cfg.trs = trs
-
-	return cfg.trs, nil
 }
 
 func (cfg *Config) defaultOptions() error {
