@@ -24,7 +24,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/webapp"
@@ -194,19 +193,6 @@ func SetStaticFS(static fs.FS) Option {
 				r.Get("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 					http.Redirect(w, r, "/static/favicon.ico", http.StatusMovedPermanently)
 				})
-			},
-		)
-
-		return nil
-	}
-}
-
-func SetBulkService(svc *bulk.Service) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs,
-			func(r chi.Router) {
-				r.Post("/api/index/bulk", svc.Handle)
-				r.Post("/api/index/rdf", svc.HandleRDF)
 			},
 		)
 

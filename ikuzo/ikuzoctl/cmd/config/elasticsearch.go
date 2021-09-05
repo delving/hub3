@@ -133,8 +133,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 
 	cfg.options = append(
 		cfg.options,
-		ikuzo.SetBulkService(bulkSvc),
-		ikuzo.SetShutdownHook("elasticsearch", is),
+		ikuzo.RegisterService(bulkSvc),
 	)
 
 	_, err = e.CreateDefaultMappings(client, true, false)

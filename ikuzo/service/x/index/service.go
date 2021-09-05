@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -56,15 +57,16 @@ type Metrics struct {
 }
 
 type Service struct {
-	bi         esutil.BulkIndexer
-	stan       *NatsConfig
-	direct     bool
-	MsgHandler func(ctx context.Context, m *domainpb.IndexMessage) error
-	workers    []stan.Subscription // this is for getting statistics
-	m          Metrics
-	orphanWait int
-	postHooks  map[string][]domain.PostHookService
-	org        *organization.Service
+	bi            esutil.BulkIndexer
+	stan          *NatsConfig
+	direct        bool
+	MsgHandler    func(ctx context.Context, m *domainpb.IndexMessage) error
+	workers       []stan.Subscription // this is for getting statistics
+	m             Metrics
+	orphanWait    int
+	postHooks     map[string][]domain.PostHookService
+	org           *organization.Service
+	shutdownMutex sync.Mutex
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -138,6 +140,13 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	if s.workers == nil {
+		return nil
+	}
+
+	s.shutdownMutex.Lock()
+	defer s.shutdownMutex.Unlock()
+
 	// stop all the workers before closing channels
 	for _, w := range s.workers {
 		w.Close()
