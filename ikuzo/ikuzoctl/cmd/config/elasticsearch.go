@@ -27,8 +27,10 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo"
+	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
+	"github.com/delving/hub3/ikuzo/service/x/esproxy"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	eshub "github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch/mapping"
@@ -93,22 +95,26 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		return nil
 	}
 
-	client, err := e.NewClient(&cfg.logger)
+	client, err := e.NewCustomClient(&cfg.logger)
 	if err != nil {
 		return fmt.Errorf("unable to create elasticsearch.Client: %w", err)
 	}
 
-	if _, infoErr := client.Info(); infoErr != nil {
-		return fmt.Errorf("unable to connect to elasticsearch; %w", infoErr)
+	if _, pingErr := client.Ping(); pingErr != nil {
+		return fmt.Errorf("unable to connect to elasticsearch; %w", pingErr)
 	}
 
 	if e.Proxy {
-		esProxy, proxyErr := eshub.NewProxy(client)
+		proxySvc, proxyErr := esproxy.NewService(
+			esproxy.SetElasticClient(client),
+		)
 		if proxyErr != nil {
 			return fmt.Errorf("unable to create ES proxy: %w", proxyErr)
 		}
 
-		cfg.options = append(cfg.options, ikuzo.SetElasticSearchProxy(esProxy))
+		cfg.options = append(
+			cfg.options,
+			ikuzo.RegisterService(proxySvc))
 	}
 
 	// enable bulk indexer
@@ -136,10 +142,11 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		ikuzo.RegisterService(bulkSvc),
 	)
 
-	_, err = e.CreateDefaultMappings(client, true, false)
-	if err != nil {
-		return err
-	}
+	// TODO(kiivihal): migrate mapping code to driver
+	// _, err = e.CreateDefaultMappings(client, true, false)
+	// if err != nil {
+	// return err
+	// }
 
 	return nil
 }
@@ -248,6 +255,17 @@ func (e *ElasticSearch) createDefaultMappings(es *elasticsearch.Client, withAlia
 	return indexNames, nil
 }
 
+func (e *ElasticSearch) NewCustomClient(l *logger.CustomLogger) (*es.Client, error) {
+	cfg := es.DefaultConfig()
+	cfg.Urls = e.Urls
+	cfg.UserName = e.UserName
+	cfg.Password = e.Password
+	cfg.MaxRetries = e.MaxRetries
+	cfg.Timeout = e.ClientTimeOut
+
+	return es.NewClient(cfg)
+}
+
 func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client, error) {
 	if e.client != nil {
 		return e.client, nil
@@ -300,10 +318,10 @@ func (e *ElasticSearch) NewClient(l *logger.CustomLogger) (*elasticsearch.Client
 
 	client, err := elasticsearch.NewClient(cfg)
 
-	// Publish client metrics to expvar
-	if e.Metrics {
-		expvar.Publish("go-elasticsearch", expvar.Func(func() interface{} { m, _ := client.Metrics(); return m }))
-	}
+	// // Publish client metrics to expvar
+	// if e.Metrics {
+	// expvar.Publish("go-elasticsearch", expvar.Func(func() interface{} { m, _ := client.Metrics(); return m }))
+	// }
 
 	e.client = client
 
@@ -374,6 +392,7 @@ func (e *ElasticSearch) IndexService(cfg *Config, ncfg *index.NatsConfig) (*inde
 			return nil, clientErr
 		}
 
+		// TODO(kiivihal): migrate to es drive package
 		bi, bulkErr := e.NewBulkIndexer(es)
 		if bulkErr != nil {
 			return nil, bulkErr

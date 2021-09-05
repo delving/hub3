@@ -27,8 +27,8 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
-	"github.com/rs/zerolog/log"
 )
 
 type esCtxKey int
@@ -38,12 +38,15 @@ var esKey esCtxKey
 type Proxy struct {
 	es    *elasticsearch.Client
 	group *groupcache.Group
+	log   zerolog.Logger
 }
 
-func NewProxy(es *elasticsearch.Client) (*Proxy, error) {
+func NewProxy(es *Client) (*Proxy, error) {
 	p := &Proxy{
-		es: es,
+		es: es.index,
 	}
+
+	p.SetLogger(es.cfg.Logger)
 
 	p.group = groupcache.NewGroup(
 		"esRemote",
@@ -54,7 +57,11 @@ func NewProxy(es *elasticsearch.Client) (*Proxy, error) {
 	return p, nil
 }
 
-func requestKey(r *http.Request) string {
+func (p *Proxy) SetLogger(log *zerolog.Logger) {
+	p.log = log.With().Str("svc", "esproxy").Logger()
+}
+
+func (p *Proxy) requestKey(r *http.Request) string {
 	index := chi.URLParam(r, "index")
 
 	var buf bytes.Buffer
@@ -64,7 +71,7 @@ func requestKey(r *http.Request) string {
 
 	_, err := io.Copy(&buf, io.TeeReader(r.Body, hash))
 	if err != nil {
-		log.Warn().
+		p.log.Warn().
 			Str("method", r.Method).
 			Str("url", r.URL.String()).
 			Msg("unable to copy request body")
@@ -78,9 +85,9 @@ func requestKey(r *http.Request) string {
 }
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	key := requestKey(r)
+	key := p.requestKey(r)
 
-	log.Info().Str("requestKey", key).Msg("")
+	p.log.Info().Str("requestKey", key).Msg("")
 
 	var data []byte
 
@@ -89,14 +96,14 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	err := p.group.Get(ctx, key, groupcache.AllocatingByteSliceSink(&data))
 	if err != nil {
 		if ctx.Done() != nil {
-			log.Debug().Err(err).Msg("request was canceled")
+			p.log.Debug().Err(err).Msg("request was canceled")
 			http.Error(w, err.Error(), http.StatusAccepted)
 
 			return
 		}
 
 		getErr := fmt.Errorf("error groupcache response: %s", err)
-		log.Warn().Err(getErr).Msg("")
+		p.log.Warn().Err(getErr).Msg("")
 
 		http.Error(w, getErr.Error(), http.StatusInternalServerError)
 
@@ -108,7 +115,7 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, err = w.Write(data)
 	if err != nil {
 		getErr := fmt.Errorf("unable to write elastic response to writer; %w", err)
-		log.Warn().Err(getErr).Msg("")
+		p.log.Warn().Err(getErr).Msg("")
 
 		http.Error(w, getErr.Error(), http.StatusInternalServerError)
 	}
@@ -138,7 +145,7 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 	queryEnd := time.Now()
 
 	if err != nil {
-		log.Warn().Err(err).Msg("unable to get elasticsearch response")
+		p.log.Warn().Err(err).Msg("unable to get elasticsearch response")
 		return err
 	}
 
@@ -149,7 +156,7 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 
 	if res.IsError() {
 		msg, _ := ioutil.ReadAll(res.Body)
-		log.Warn().RawJSON("error", msg).Msg("elasticsearch error message")
+		p.log.Warn().RawJSON("error", msg).Msg("elasticsearch error message")
 	}
 
 	size, err := io.Copy(&buf, res.Body)
@@ -161,10 +168,10 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 
 	var query bytes.Buffer
 	if _, err := query.ReadFrom(&queryBody); err != nil {
-		log.Warn().Err(err).Msg("unable to read query body from request")
+		p.log.Warn().Err(err).Msg("unable to read query body from request")
 	}
 
-	log.Debug().
+	p.log.Debug().
 		Int("status", res.StatusCode).
 		Int64("size", size).
 		Str("req_id", requestID.String()).

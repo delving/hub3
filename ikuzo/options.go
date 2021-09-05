@@ -22,7 +22,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/go-chi/chi"
 	"github.com/pacedotdev/oto/otohttp"
@@ -123,19 +122,6 @@ func SetOrganisationService(svc *organization.Service) Option {
 		s.organizations = svc
 		s.services = append(s.services, svc)
 		s.middleware = append(s.middleware, svc.ResolveOrgByDomain)
-
-		return nil
-	}
-}
-
-func SetElasticSearchProxy(proxy *elasticsearch.Proxy) Option {
-	return func(s *server) error {
-		s.routerFuncs = append(s.routerFuncs,
-			func(r chi.Router) {
-				r.Handle("/{index}/_search", proxy)
-				r.Handle("/{index}/{documentType}/_search", proxy)
-			},
-		)
 
 		return nil
 	}

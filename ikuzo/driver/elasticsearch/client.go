@@ -5,6 +5,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch/internal"
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -55,4 +56,8 @@ func NewClient(cfg *Config) (*Client, error) {
 	client.index = esclient
 
 	return &client, nil
+}
+
+func (c *Client) Ping() (*esapi.Response, error) {
+	return c.index.Info()
 }
