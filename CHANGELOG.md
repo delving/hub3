@@ -24,6 +24,7 @@
 ### Removed
 
 - Unused embedded assets functionality in favour of `go:embed`  [[GH-99]](https://github.com/delving/hub3/pull/99)
+- Removed [[GH-91]](https://github.com/delving/hub3/pull/91) ead search optimalization [[GH-103]](https://github.com/delving/hub3/pull/103)
 
 ### Security
 - Resolved security issues in dependencies [[GH-95]](https://github.com/delving/hub3/pull/95)
