@@ -55,8 +55,10 @@ message File {
 }
 
 message Values {
+  // The display label
+  string label = 1;
   // List of metadata string values
-  repeated string text = 1;
+  repeated string text = 2;
 }
 
 message Pager {
