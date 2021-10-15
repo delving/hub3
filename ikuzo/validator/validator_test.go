@@ -1,7 +1,9 @@
 package validator_test
 
 import (
+	"errors"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/validator"
@@ -15,27 +17,46 @@ func TestValidator(t *testing.T) {
 	is := is.New(t)
 
 	v := validator.New()
-	is.True(v != nil) // a new validator should not be nil
+	v.PrefixKeyInError = true
 
+	is.True(v != nil)  // a new validator should not be nil
 	is.True(v.Valid()) // an empty validator should always be valid
 
-	v.AddError("triple", "is not valid")
+	err := v.ErrorOrNil()
+	is.NoErr(err)
+
+	v.AddError("empty", nil, "")
+	is.Equal(len(v.Errors), 0) // invalid input so no error should be added
+	is.True(v.Valid())         // an empty validator should always be valid
+
+	v.AddError("triple", nil, "is not valid")
 	is.Equal(v.Valid(), false) // an error is added so it should be invalid
 	is.Equal(len(v.Errors), 1) // only one error should have been added
 
-	v.AddError("triple", "new error")
+	v.AddError("triple", nil, "new error")
 	is.Equal(len(v.Errors), 1) // only one error should have been added
 	errMsg, ok := v.Errors["triple"]
 	is.True(ok)
-	is.Equal(errMsg, "is not valid")
+	is.Equal(errMsg.Error(), "triple; is not valid")
 
-	v.Check(1 > 0, "page", "must be greater than zero")
+	v.Check(1 > 0, "page", nil, "must be greater than zero")
 	is.Equal(len(v.Errors), 1) // no error should have been added
 
-	v.Check(-1 > 0, "page", "must be greater than zero")
+	v.Check(-1 > 0, "page", nil, "must be greater than zero")
 	errMsg, ok = v.Errors["page"]
 	is.True(ok)
-	is.Equal(errMsg, "must be greater than zero")
+	is.Equal(errMsg.Error(), "page; must be greater than zero")
+
+	v.PrefixKeyInError = false
+	v.AddError("rows", errors.New("row error"), "invalid size 1")
+	errMsg, ok = v.Errors["rows"]
+	is.True(ok)
+	is.Equal(errMsg.Error(), "row error: invalid size 1")
+
+	err = v.ErrorOrNil()
+	is.True(err != nil)
+	errStr := err.Error()
+	is.True(strings.Contains(errStr, "triple; is not valid"))
 }
 
 func TestMatches(t *testing.T) {

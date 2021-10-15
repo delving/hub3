@@ -4,15 +4,21 @@
 // https://lets-go-further.alexedwards.net
 package validator
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+
+	"github.com/hashicorp/go-multierror"
+)
 
 type Validator struct {
-	Errors map[string]string
+	Errors           map[string]error
+	PrefixKeyInError bool
 }
 
 // New returns a new empty Validator
 func New() *Validator {
-	return &Validator{Errors: make(map[string]string)}
+	return &Validator{Errors: make(map[string]error)}
 }
 
 // Valid return a boolean if errors have been encountered
@@ -24,9 +30,29 @@ func (v *Validator) Valid() bool {
 //
 // Per key only one error message can be added.
 // Additional errors will silently be ignored.
-func (v *Validator) AddError(key, message string) {
+//
+// When both err and message are given they are wrapped in a new Error.
+//
+// Either err or message must given a non-empty value, otherwise the error is
+// silently ignored.
+func (v *Validator) AddError(key string, err error, message string) {
 	if _, exists := v.Errors[key]; !exists {
-		v.Errors[key] = message
+		if err == nil && message == "" {
+			return
+		}
+
+		errMsg := message
+		if v.PrefixKeyInError {
+			errMsg = fmt.Sprintf("%s; %s", key, message)
+		}
+
+		if err == nil && message != "" {
+			err = fmt.Errorf(errMsg)
+		} else if err != nil && message != "" {
+			err = fmt.Errorf("%w: %s", err, errMsg)
+		}
+
+		v.Errors[key] = err
 	}
 }
 
@@ -34,12 +60,22 @@ func (v *Validator) AddError(key, message string) {
 //
 // This can be used to build easy to read list of checks.
 //
-//		v.Check(f.Page > 0, "page", "must be greater than zero")
-//		v.Check(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
-func (v *Validator) Check(ok bool, key, message string) {
+//		v.Check(f.Page > 0, "page", errors.New("invalid param"), "must be greater than zero")
+//		v.Check(f.Page <= 10_000_000, "page", nil, "must be a maximum of 10 million")
+func (v *Validator) Check(ok bool, key string, err error, message string) {
 	if !ok {
-		v.AddError(key, message)
+		v.AddError(key, err, message)
 	}
+}
+
+// ErrorOrNil wraps all the errors in a single error or returns nil
+func (v *Validator) ErrorOrNil() error {
+	var result error
+	for _, err := range v.Errors {
+		result = multierror.Append(result, err)
+	}
+
+	return result
 }
 
 // In checks if value is part of list.
