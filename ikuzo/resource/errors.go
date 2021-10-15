@@ -6,6 +6,10 @@ var (
 	// ErrEmptyIRI is returned when an IRI is empty
 	ErrEmptyIRI = errors.New("empty IRI is not allowed")
 
+	// ErrInvalidNamespaceLabel is returned when invalid characters are
+	// part of the namespace label.
+	ErrInvalidNamespaceLabel = errors.New("invalid namespace label")
+
 	// ErrDisallowedCharacterInIRI is returned when an IRI contains
 	// any of the disallowed characters: [\x00-\x20<>"{}|^`\]
 	// This error is ofter wrapped in another error showing the offending character
