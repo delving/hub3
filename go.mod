@@ -15,8 +15,6 @@ require (
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/containerd/containerd v1.5.5 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
-	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
-	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/docker/docker v20.10.8+incompatible // indirect
 	github.com/docker/go-connections v0.4.0
 	github.com/dustinkirkland/golang-petname v0.0.0-20191129215211-8e5a1ed0cff0
@@ -33,10 +31,10 @@ require (
 	github.com/google/go-cmp v0.5.5
 	github.com/google/gofuzz v1.1.0
 	github.com/gorilla/schema v1.2.0
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.0
 	github.com/justinas/alice v1.2.0
-	github.com/kiivihal/goharvest v0.0.0-20190502201718-d93ace331ed0
+	github.com/kiivihal/goharvest v0.0.0-20210928083513-2a6fbc307f6d
 	github.com/kiivihal/rdf2go v0.1.2
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
@@ -50,17 +48,16 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.15
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
-	github.com/muesli/smartcrop v0.3.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.3.4 // indirect
 	github.com/nats-io/nats-streaming-server v0.17.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
+	github.com/olivere/elastic v6.2.37+incompatible
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.3
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
-	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.7.1
 	github.com/rs/xid v1.2.1
@@ -79,14 +76,13 @@ require (
 	github.com/tidwall/gjson v1.8.1
 	github.com/valyala/fasthttp v1.15.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	golang.org/x/image v0.0.0-20200618115811-c13761719519 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/text v0.3.6
 	google.golang.org/protobuf v1.26.0
+	gopkg.in/cheggaaa/pb.v1 v1.0.25
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	moul.io/http2curl v1.0.0 // indirect
-	willnorris.com/go/imageproxy v0.10.0
 )
 
 require (
@@ -105,17 +101,16 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
-	github.com/go-chi/chi/v5 v5.0.4 // indirect
 	github.com/go-enry/go-enry/v2 v2.5.2 // indirect
 	github.com/go-enry/go-oniguruma v1.2.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.0.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
-	github.com/google/btree v1.0.0 // indirect
 	github.com/google/uuid v1.2.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
+	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -125,6 +120,7 @@ require (
 	github.com/klauspost/compress v1.11.13 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
+	github.com/mattn/go-runewidth v0.0.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/moby/sys/mountinfo v0.4.1 // indirect
@@ -133,7 +129,6 @@ require (
 	github.com/nats-io/nats.go v1.11.1-0.20210623165838-4b75fc59ae30 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
 	github.com/nxadm/tail v1.4.4 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
@@ -143,7 +138,6 @@ require (
 	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/prometheus/common v0.10.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
-	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
@@ -167,5 +161,4 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	willnorris.com/go/gifresize v1.0.0 // indirect
 )
