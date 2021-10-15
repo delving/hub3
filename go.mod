@@ -3,7 +3,7 @@ module github.com/delving/hub3
 go 1.16
 
 require (
-	code.gitea.io/gitea v1.12.2
+	code.gitea.io/gitea v1.13.4
 	github.com/DataDog/zstd v1.3.5 // indirect
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
@@ -42,13 +42,10 @@ require (
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/knakk/sparql v0.0.0-20191213045353-fd0bd0e76475
-	github.com/lib/pq v1.7.1 // indirect
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.4.0
-	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
-	github.com/mcuadros/go-version v0.0.0-20190830083331-035f6764e8d2 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.15
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
@@ -69,10 +66,7 @@ require (
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/sajari/fuzzy v1.0.0
 	github.com/segmentio/ksuid v1.0.3
-	github.com/snabb/sitemap v1.0.0
 	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254
-	github.com/spf13/afero v1.3.2 // indirect
-	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.7.0
@@ -84,8 +78,6 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/text v0.3.6
 	google.golang.org/protobuf v1.26.0
-	gopkg.in/ini.v1 v1.57.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200605160147-a5ece683394c // indirect
 	moul.io/http2curl v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.10.0
 )
