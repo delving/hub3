@@ -65,8 +65,8 @@ func (b BlankNode) Validate() *validator.Validator {
 	return v
 }
 
-// validAsSubject denotes that a Blank node is valid as a Triple's Subject.
-func (b BlankNode) validAsSubject() {}
+// ValidAsSubject denotes that a Blank node is valid as a Triple's Subject.
+func (b BlankNode) ValidAsSubject() {}
 
-// validAsObject denotes that a Blank node is valid as a Triple's Object.
-func (b BlankNode) validAsObject() {}
+// ValidAsObject denotes that a Blank node is valid as a Triple's Object.
+func (b BlankNode) ValidAsObject() {}

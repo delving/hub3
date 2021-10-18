@@ -15,7 +15,7 @@ const (
 // A Term is the value of a subject, predicate or object,  i.e. a IRI reference, BlankNode or
 // Literal.
 //
-// To work with the underlying concrete type,  use a type assertion.
+// To work with the underlying concrete type,  use a type assertion or a type switch.
 //
 //	  t, ok := term.(IRI)
 //

@@ -5,19 +5,19 @@ import "fmt"
 // Subject interface distiguishes which Terms are valid as a Subject of a Triple.
 type Subject interface {
 	Term
-	validAsSubject()
+	ValidAsSubject()
 }
 
 // Predicate interface distiguishes which Terms are valid as a Predicate of a Triple.
 type Predicate interface {
 	Term
-	validAsPredicate()
+	ValidAsPredicate()
 }
 
 // Object interface distiguishes which Terms are valid as a Object of a Triple.
 type Object interface {
 	Term
-	validAsObject()
+	ValidAsObject()
 }
 
 // Triple represents a RDF triple.

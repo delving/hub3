@@ -3,7 +3,7 @@ package resource
 // Context is the IRI namespace for the Quad
 type Context interface {
 	Term
-	validAsSubject()
+	ValidAsSubject()
 }
 
 // Quad represents a RDF Quad; a Triple plus the context in which it occurs.

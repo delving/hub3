@@ -182,8 +182,8 @@ func (l Literal) Validate() *validator.Validator {
 	return v
 }
 
-// validAsObject denotes that a Literal is valid as a Triple's Object.
-func (l Literal) validAsObject() {}
+// ValidAsObject denotes that a Literal is valid as a Triple's Object.
+func (l Literal) ValidAsObject() {}
 
 // NewLiteral creates a RDF literal, it fails if the value string is not
 // not well-formed.

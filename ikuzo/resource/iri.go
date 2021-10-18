@@ -107,11 +107,11 @@ func (u IRI) Split() (prefix, suffix string) {
 	return prefix, suffix
 }
 
-// validAsSubject is a placeholder to verify that it can be used as a Subject.
-func (u IRI) validAsSubject() {}
+// ValidAsSubject is a placeholder to verify that it can be used as a Subject.
+func (u IRI) ValidAsSubject() {}
 
-// validAsPredicate is a placeholder to verify that it can be used as a Predicate .
-func (u IRI) validAsPredicate() {}
+// ValidAsPredicate is a placeholder to verify that it can be used as a Predicate .
+func (u IRI) ValidAsPredicate() {}
 
-// validAsObject is a placeholder to verify that it can be used as an Object .
-func (u IRI) validAsObject() {}
+// ValidAsObject is a placeholder to verify that it can be used as an Object .
+func (u IRI) ValidAsObject() {}
