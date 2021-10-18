@@ -1,0 +1,36 @@
+package jsonld
+
+import (
+	"strings"
+	"testing"
+
+	"github.com/delving/hub3/ikuzo/resource"
+	"github.com/matryer/is"
+)
+
+// nolint:gocritic
+func TestParse(t *testing.T) {
+	t.Run("parse jsonld with graph", func(t *testing.T) {
+		is := is.New(t)
+
+		g := resource.NewGraph()
+		is.Equal(g.Len(), 0)
+		returnedGraph, err := Parse(strings.NewReader(testJSONLD), g)
+		is.NoErr(err)
+		is.Equal(g, returnedGraph)
+
+		is.Equal(g.Len(), 47)
+	})
+
+	t.Run("parse jsonld without graph", func(t *testing.T) {
+		is := is.New(t)
+
+		returnedGraph, err := Parse(strings.NewReader(testJSONLD), nil)
+		is.NoErr(err)
+
+		is.Equal(returnedGraph.Len(), 47)
+	})
+}
+
+// nolint:lll // this is test data
+var testJSONLD = `[{"http://purl.org/dc/terms/extent": [{"@value": "Hoogte: 186 mm, diameter: 148-165 mm"}], "http://purl.org/dc/terms/createdEnd": [{"@value": "-0221-01-01T00:00:01"}], "http://purl.org/dc/terms/createdRaw": [{"@value": "-481 t/m -221"}], "@id": "http://data.brabantcloud.nl/resource/document/museum-klok-en-peel/2458", "http://purl.org/dc/elements/1.1/title": [{"@value": "Terracottabel type bo [Periode van de Strijdende Staten]", "@language": "nl"}], "http://purl.org/dc/terms/spatial": [{"@value": "China, Azie"}], "@type": ["http://www.europeana.eu/schemas/edm/ProvidedCHO"], "http://purl.org/dc/elements/1.1/identifier": [{"@value": "2458"}], "http://purl.org/dc/elements/1.1/description": [{"@value": "Bellen uit terracotta zoals deze waren grafgiften. Zij werden gemaakt ter vervanging van het originele object dat in voorgaande perioden de dode meegegeven werd. Het bekendste voorbeeld van dit gebruik is het terracotta-leger van de eerste keizer van China."}], "http://purl.org/dc/elements/1.1/date": [{"@value": "-481 t/m -221"}], "http://www.europeana.eu/schemas/edm/type": [{"@value": "IMAGE"}], "http://purl.org/dc/terms/medium": [{"@value": "keramiek"}], "http://purl.org/dc/terms/created": [{"@value": "-0481-01-01T00:00:01"}]}, {"@type": ["http://xmlns.com/foaf/0.1/Document"], "http://schemas.delving.eu/narthex/terms/saveTime": [{"@value": "2018-02-12T18:36:30Z"}], "http://schemas.delving.eu/narthex/terms/belongsTo": [{"@id": "http://data.brabantcloud.nl/resource/dataset/museum-klok-en-peel"}], "http://schemas.delving.eu/narthex/terms/synced": [{"@value": false}], "http://schemas.delving.eu/narthex/terms/contentHash": [{"@value": "de8bc9366bacd77ed1d3060f0ba2b73e124c74f0"}], "@id": "http://data.brabantcloud.nl/resource/aggregation/museum-klok-en-peel/2458/about%20this", "http://creativecommons.org/ns#attributionName": [{"@value": "museum-klok-en-peel"}], "http://xmlns.com/foaf/0.1/primaryTopic": [{"@id": "http://data.brabantcloud.nl/resource/aggregation/museum-klok-en-peel/2458"}]}, {"http://schemas.delving.eu/nave/terms/allowSourceDownload": [{"@value": "false"}], "@type": ["http://schemas.delving.eu/nave/terms/DelvingResource"], "http://schemas.delving.eu/nave/terms/allowLinkedOpenData": [{"@value": "true"}], "http://schemas.delving.eu/nave/terms/featured": [{"@value": "false"}], "http://schemas.delving.eu/nave/terms/allowDeepZoom": [{"@value": "true"}], "@id": "_:Nd1aca3dce3c7451ab5ce6d0c0f7a3009", "http://schemas.delving.eu/nave/terms/public": [{"@value": "true"}], "http://schemas.delving.eu/nave/terms/deepZoomUrl": [{"@value": "https://media.delving.org/iip/deepzoom/mnt/tib/tiles/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant.tif.dzi"}]}, {"http://www.europeana.eu/schemas/edm/isShownBy": [{"@id": "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/500"}], "@type": ["http://www.openarchives.org/ore/terms/Aggregation", "http://schemas.delving.eu/narthex/terms/Record"], "http://www.europeana.eu/schemas/edm/rights": [{"@id": "http://creativecommons.org/publicdomain/zero/1.0/"}], "http://www.europeana.eu/schemas/edm/object": [{"@id": "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/220"}], "http://www.europeana.eu/schemas/edm/provider": [{"@value": "Erfgoed Brabant"}], "http://www.europeana.eu/schemas/edm/dataProvider": [{"@value": "Museum Klok & Peel"}], "http://www.europeana.eu/schemas/edm/aggregatedCHO": [{"@id": "http://data.brabantcloud.nl/resource/document/museum-klok-en-peel/2458"}], "@id": "http://data.brabantcloud.nl/resource/aggregation/museum-klok-en-peel/2458", "http://www.openarchives.org/ore/terms/aggregates": [{"@id": "_:Nc7d29843d06541eca36bea1cf446e648"}, {"@id": "_:Nd1aca3dce3c7451ab5ce6d0c0f7a3009"}], "http://www.europeana.eu/schemas/edm/isShownAt": [{"@id": "http://data.brabantcloud.nl/resource/aggregation/museum-klok-en-peel/2458"}]}, {"http://schemas.delving.eu/nave/terms/creatorRole": [{"@value": "gieter"}], "@type": ["http://schemas.delving.eu/nave/terms/BrabantCloudResource"], "http://schemas.delving.eu/nave/terms/collection": [{"@value": "Museum Klok & Peel"}], "http://schemas.delving.eu/nave/terms/thumbLarge": [{"@value": "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/500"}], "@id": "_:Nc7d29843d06541eca36bea1cf446e648", "http://schemas.delving.eu/nave/terms/material": [{"@value": "keramiek"}], "http://schemas.delving.eu/nave/terms/collectionPart": [{"@value": "opgravingen"}], "http://schemas.delving.eu/nave/terms/collectionType": [{"@value": "Algemeen"}], "http://schemas.delving.eu/nave/terms/thumbSmall": [{"@value": "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/220"}], "http://schemas.delving.eu/nave/terms/dimension": [{"@value": "Hoogte: 186 mm, diameter: 148-165 mm"}], "http://schemas.delving.eu/nave/terms/objectNumber": [{"@value": "2458"}]}]`

@@ -41,6 +41,7 @@ require (
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20210928083513-2a6fbc307f6d
+	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
 	github.com/kiivihal/rdf2go v0.1.2
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
