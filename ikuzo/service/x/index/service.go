@@ -317,9 +317,15 @@ func executePosthook(datasetID string, applyHooks []domain.PostHookService, revi
 	rev := int(revision.GetNumber())
 
 	for _, hook := range applyHooks {
+		err := hook.Run(datasetID)
+		if err != nil {
+			log.Error().Err(err).Str("datasetID", datasetID).Str("posthook", hook.Name()).Msg("unable to run posthook for dataset")
+			continue
+		}
+
 		resp, err := hook.DropDataset(datasetID, rev)
 		if err != nil {
-			log.Error().Err(err).Str("datasetID", datasetID).Msg("unable to drop posthook dataset")
+			log.Error().Err(err).Str("datasetID", datasetID).Str("posthook", hook.Name()).Msg("unable to drop posthook dataset")
 			continue
 		}
 
