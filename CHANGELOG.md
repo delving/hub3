@@ -23,6 +23,7 @@
 - Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
 - Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
 - Delete non-EAD datasets would return incorrect error  [[GH-10]](https://github.com/delving/hub3/pull/102)
+- Sanitation in EAD unittitle was too strict [[GH-109]](https://github.com/delving/hub3/pull/109)
 
 ### Removed
 
