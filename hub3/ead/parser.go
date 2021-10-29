@@ -41,6 +41,7 @@ var sanitizer *bluemonday.Policy
 
 func init() {
 	sanitizer = bluemonday.StrictPolicy()
+	sanitizer.AllowElementsContent("title", "subject")
 }
 
 func sanitizeXML(b []byte) []byte {
@@ -325,7 +326,6 @@ func (ad *Carchdesc) GetPeriods() []string {
 				dates = append(dates, date.Unitdate)
 			}
 		}
-
 	}
 	return dates
 }
@@ -365,7 +365,6 @@ func (ca *Cabstract) CleanAbstract() []string {
 	}
 
 	return trimmed
-
 }
 
 func (ut *Cunittitle) Title() string {
