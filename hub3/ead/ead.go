@@ -318,7 +318,7 @@ func (h *Header) GetTreeLabel() string {
 	if len(h.Label) == 0 {
 		return ""
 	}
-	return html.UnescapeString(h.Label[0])
+	return html.UnescapeString(strings.Join(h.Label, "; "))
 }
 
 // NewNodeID converts a unitid field from the EAD did to a NodeID
