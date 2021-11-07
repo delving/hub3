@@ -51,6 +51,10 @@ func (ph *PostHook) OrgID() string {
 	return ph.orgID
 }
 
+func (ph *PostHook) Run(datasetID string) error {
+	return nil
+}
+
 func (ph *PostHook) Name() string {
 	return ph.name
 }
@@ -73,7 +77,7 @@ func (ph *PostHook) DropDataset(dataset string, revision int) (resp *http.Respon
 
 	req.Header.Set("Content-Type", "application/json")
 
-	var netClient = &http.Client{
+	netClient := &http.Client{
 		Timeout: time.Second * 15,
 	}
 
@@ -163,7 +167,7 @@ func (ph *PostHook) Publish(items ...*domain.PostHookItem) error {
 		Send(string(graphsAsJSON)).
 		End()
 
-	//fmt.Printf("jsonld: %s\n", json)
+	// fmt.Printf("jsonld: %s\n", json)
 	// log.Printf("post-response: %#v -> %#v\n %#v", rsp, body, errs)
 	if errs != nil || rsp.StatusCode != http.StatusOK {
 		// log.Error().Str("apiKey", ph.apiKey).Msgf("post-response: %#v -> %#v\n %#v", rsp, body, errs)

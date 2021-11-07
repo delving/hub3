@@ -8,13 +8,14 @@
 
 - ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+- Extended scan.proto with metadata map for free-form content [[GH-108]](https://github.com/delving/hub3/pull/108)
 
 ## Changed 
-- 
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
 -  Refactored EAD search overview queries into separate filter and collapse queries [[GH-91]](https://github.com/delving/hub3/pull/91)
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
+- Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
 
 ### Fixed
  
@@ -22,6 +23,8 @@
 - Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
 - Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
 - Delete non-EAD datasets would return incorrect error  [[GH-10]](https://github.com/delving/hub3/pull/102)
+- Sanitation in EAD unittitle was too strict [[GH-109]](https://github.com/delving/hub3/pull/109)
+- Show all EAD unittitles in tree.Label [[GH-110]](https://github.com/delving/hub3/pull/110)
 
 ### Removed
 

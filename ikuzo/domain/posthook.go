@@ -27,6 +27,8 @@ type PostHookService interface {
 	Publish(item ...*PostHookItem) error
 	Valid(datasetID string) bool
 	DropDataset(id string, revision int) (*http.Response, error)
+	// run this custom function before DropDataset
+	Run(datasetID string) error
 	// Metrics()
 	// OrgID returns OrgID that the posthook applies to
 	OrgID() string
