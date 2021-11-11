@@ -25,6 +25,7 @@
 - Delete non-EAD datasets would return incorrect error  [[GH-10]](https://github.com/delving/hub3/pull/102)
 - Sanitation in EAD unittitle was too strict [[GH-109]](https://github.com/delving/hub3/pull/109)
 - Show all EAD unittitles in tree.Label [[GH-110]](https://github.com/delving/hub3/pull/110)
+- Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
 
 ### Removed
 
