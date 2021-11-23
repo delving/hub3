@@ -100,6 +100,8 @@ message FindingAid {
     int32 fileCount = 9;
     // the linked Files to the FindingAid
     repeated File files = 10;
+    // filter keys 
+    repeated string filterTypes = 11;
 }
 
 message ViewResponse {

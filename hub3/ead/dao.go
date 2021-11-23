@@ -23,6 +23,7 @@ import (
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"
+	uuid "github.com/satori/go.uuid"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -110,6 +111,48 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 	return nil
 }
 
+func createFileUUID(duuid string, file *eadpb.File) string {
+	chunkedUUID := chunkString(strings.ReplaceAll(duuid, "-", ""), 2)
+
+	return fmt.Sprintf(
+		"%s/%s",
+		strings.Join(chunkedUUID, "/"),
+		file.Fileuuid,
+	)
+}
+
+func (c *DaoClient) UpdateDaoConfig(cfg *DaoConfig) error {
+	fa, err := cfg.FindingAid(c)
+	if err != nil {
+		return err
+	}
+
+	for _, file := range fa.Files {
+		for _, genreform := range cfg.FilterTypes {
+			switch genreform {
+			case "kaart", "tekening", "atlas":
+				cfg.FileUUIDs = append(cfg.FileUUIDs, file.Fileuuid)
+			}
+		}
+	}
+
+	if len(cfg.FileUUIDs) > 0 {
+		cfg.ThumbnailUUID = cfg.FileUUIDs[0]
+	}
+
+	cfg.ObjectCount = int(fa.GetFileCount())
+	cfg.MimeTypes = getMimeTypes(&fa)
+
+	// TODO(kiivihal): process the ead too?
+
+	// write changes back to disk
+	if err := cfg.Write(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	fa, err := cfg.FindingAid(c)
 	if err != nil {
@@ -140,6 +183,17 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 		if c.bi != nil {
 			c.bi.Publish(context.Background(), m)
 		}
+
+		for _, genreform := range cfg.FilterTypes {
+			switch genreform {
+			case "kaart", "tekening", "atlas":
+				cfg.FileUUIDs = append(cfg.FileUUIDs, file.Fileuuid)
+			}
+		}
+	}
+
+	if len(cfg.FileUUIDs) > 0 {
+		cfg.ThumbnailUUID = cfg.FileUUIDs[0]
 	}
 
 	fg, err := cfg.findingAidFragmentGraph(&fa)
@@ -162,6 +216,11 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	cfg.ObjectCount = int(fa.GetFileCount())
 	cfg.MimeTypes = getMimeTypes(&fa)
 
+	// write changes back to disk
+	if err := cfg.Write(); err != nil {
+		return err
+	}
+
 	return c.dropOrphans(cfg)
 }
 
@@ -175,7 +234,7 @@ func validateFindingAid(fa *eadpb.FindingAid) error {
 }
 
 func assertUniqueFilenames(files []*eadpb.File) error {
-	var fileNames = make(map[string]int32)
+	fileNames := make(map[string]int32)
 
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
@@ -291,6 +350,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
 func (c *DaoClient) Delete(archiveID, uuid string) error {
 	cfg, err := c.GetDaoConfig(archiveID, uuid)
 	if errors.Is(err, ErrFileNotFound) {
@@ -350,18 +410,22 @@ func (c *DaoClient) DownloadXML(w http.ResponseWriter, r *http.Request) {
 }
 
 type DaoConfig struct {
-	OrgID          string
-	HubID          string
-	ArchiveID      string // same as DatasetID
-	ArchiveTitle   []string
-	InventoryID    string
-	InventoryPath  string
-	InventoryTitle string
-	UUID           string
-	Link           string
-	ObjectCount    int
-	MimeTypes      []string
-	RevisionKey    string
+	OrgID             string
+	HubID             string
+	ArchiveID         string // same as DatasetID
+	ArchiveTitle      []string
+	ArchiveShortTitle string
+	InventoryID       string
+	InventoryPath     string
+	InventoryTitle    string
+	UUID              string
+	Link              string
+	ObjectCount       int
+	MimeTypes         []string
+	RevisionKey       string
+	FilterTypes       []string
+	FileUUIDs         []string
+	ThumbnailUUID     string
 }
 
 func getUUID(daoLink string) string {
@@ -371,15 +435,16 @@ func getUUID(daoLink string) string {
 
 func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 	return DaoConfig{
-		OrgID:          cfg.OrgID,
-		HubID:          tree.HubID,
-		ArchiveID:      cfg.Spec,
-		ArchiveTitle:   cfg.Title,
-		InventoryID:    tree.UnitID,
-		InventoryPath:  tree.CLevel,
-		InventoryTitle: tree.Label,
-		Link:           tree.DaoLink,
-		UUID:           getUUID(tree.DaoLink),
+		OrgID:             cfg.OrgID,
+		HubID:             tree.HubID,
+		ArchiveID:         cfg.Spec,
+		ArchiveTitle:      cfg.Title,
+		ArchiveShortTitle: cfg.TitleShort,
+		InventoryID:       tree.UnitID,
+		InventoryPath:     tree.CLevel,
+		InventoryTitle:    tree.Label,
+		Link:              tree.DaoLink,
+		UUID:              getUUID(tree.DaoLink),
 	}
 }
 
@@ -397,6 +462,18 @@ func (cfg *DaoConfig) getConfigPath() string {
 
 func (cfg *DaoConfig) getDirPath() string {
 	return getMetsDirPath(cfg.ArchiveID)
+}
+
+func (cfg *DaoConfig) RecordUUID() string {
+	return createUUID(cfg.InventoryPath)
+}
+
+func createUUID(input string) string {
+	if strings.Contains(input, " ") {
+		input = strings.ReplaceAll(input, " ", "")
+	}
+
+	return uuid.NewV5(uuid.NamespaceDNS, input).String()
 }
 
 func (cfg *DaoConfig) Write() error {
@@ -539,6 +616,11 @@ func (cfg *DaoConfig) fileTriples(subject string, file *eadpb.File) []*rdf.Tripl
 	t(s, "archiveTitle", cfg.getArchiveTitle(), rdf.NewLiteral)
 	t(s, "inventoryID", cfg.InventoryID, rdf.NewLiteral)
 	t(s, "inventoryTitle", cfg.InventoryTitle, rdf.NewLiteral)
+
+	// genreform based filtering
+	for _, filter := range cfg.FilterTypes {
+		t(s, "filterType", filter, rdf.NewLiteral)
+	}
 
 	return triples
 }

@@ -149,6 +149,7 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 		HasOnlyTiles:   false,
 		MimeTypes:      map[string]int32{},
 		FileCount:      0,
+		FilterTypes:    cfg.FilterTypes,
 	}
 
 	if mets.CmetsHdr.CaltRecordID != nil {

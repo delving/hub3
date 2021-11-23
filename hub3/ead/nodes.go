@@ -70,6 +70,7 @@ type Header struct {
 	Genreform        string
 	Attridentifier   string
 }
+
 type NodeDate struct {
 	Calendar string
 	Era      string
@@ -77,6 +78,7 @@ type NodeDate struct {
 	Label    string
 	Type     string
 }
+
 type NodeID struct {
 	TypeID   string
 	Type     string
@@ -106,6 +108,10 @@ func (n *Node) getSecondBranch() string {
 		return ""
 	}
 	return fmt.Sprintf("%s%s", CLevelLeader, strings.Join(parents[:len(parents)-2], pathSep))
+}
+
+func (n *Node) AddTriple(t *r.Triple) {
+	n.triples = append(n.triples, t)
 }
 
 // FragmentGraph returns the archival node as a FragmentGraph
@@ -145,15 +151,16 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		Title: n.Header.GetTreeLabel(),
 	}
 
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = cfg.CreateTree(cfg, n, header.HubID, id)
+
 	for idx, t := range n.Triples(cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, nil, err
 		}
 	}
 
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = cfg.CreateTree(cfg, n, header.HubID, id)
 	fg.SetResources(rm)
 
 	return fg, rm, nil
@@ -196,6 +203,8 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	if tree.HasDigitalObject {
 		daoCfg := newDaoConfig(cfg, tree)
 
+		daoCfg.FilterTypes = []string{n.Header.Genreform}
+
 		// must happen here because the check needs the daoCfg to not be written yet
 		hasOrphanedMetsFile := daoCfg.hasOrphanedMetsFile()
 
@@ -224,7 +233,6 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 				tree.MimeTypes = daoCfg.MimeTypes
 				tree.DOCount = daoCfg.ObjectCount
 			}
-
 		}
 	}
 
