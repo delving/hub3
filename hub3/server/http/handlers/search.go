@@ -419,6 +419,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		if paging.HitsTotalCount == 0 && searchRequest.Tree.IsSearch && searchRequest.Tree.IsPaging {
 			// if there is no query in the params then this is already a redirect
 			if !r.URL.Query().Has("q") && !r.URL.Query().Has("query") && !r.URL.Query().Has("byQuery") {
+
 				http.Error(w, fmt.Sprintf("inventoryID '%s' not found", searchRequest.Tree.UnitID), http.StatusNotFound)
 				return
 			}
