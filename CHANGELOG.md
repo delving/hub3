@@ -12,7 +12,7 @@
 
 ## Changed 
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
--  Refactored EAD search overview queries into separate filter and collapse queries [[GH-91]](https://github.com/delving/hub3/pull/91)
+- Refactored EAD search overview queries into separate filter and collapse queries [[GH-91]](https://github.com/delving/hub3/pull/91)
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
@@ -26,6 +26,9 @@
 - Sanitation in EAD unittitle was too strict [[GH-109]](https://github.com/delving/hub3/pull/109)
 - Show all EAD unittitles in tree.Label [[GH-110]](https://github.com/delving/hub3/pull/110)
 - Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
+- Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
+
+
 
 ### Removed
 
