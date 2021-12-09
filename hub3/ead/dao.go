@@ -362,6 +362,7 @@ type DaoConfig struct {
 	ObjectCount    int
 	MimeTypes      []string
 	RevisionKey    string
+	FilterTypes    []string
 }
 
 func getUUID(daoLink string) string {
