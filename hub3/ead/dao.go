@@ -291,6 +291,8 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// Delete indexes the stored METS files identified by their UUID
 func (c *DaoClient) Delete(archiveID, uuid string) error {
 	cfg, err := c.GetDaoConfig(archiveID, uuid)
 	if errors.Is(err, ErrFileNotFound) {
@@ -310,7 +312,6 @@ func (c *DaoClient) Delete(archiveID, uuid string) error {
 	return nil
 }
 
-// Delete indexes the stored METS files identified by their UUID
 func (c *DaoClient) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
@@ -540,6 +541,11 @@ func (cfg *DaoConfig) fileTriples(subject string, file *eadpb.File) []*rdf.Tripl
 	t(s, "archiveTitle", cfg.getArchiveTitle(), rdf.NewLiteral)
 	t(s, "inventoryID", cfg.InventoryID, rdf.NewLiteral)
 	t(s, "inventoryTitle", cfg.InventoryTitle, rdf.NewLiteral)
+
+	// genreform based filtering
+	for _, filter := range cfg.FilterTypes {
+		t(s, "filterType", filter, rdf.NewLiteral)
+	}
 
 	return triples
 }
