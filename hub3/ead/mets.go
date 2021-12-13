@@ -149,6 +149,7 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 		HasOnlyTiles:   false,
 		MimeTypes:      map[string]int32{},
 		FileCount:      0,
+		FilterTypes:    cfg.FilterTypes,
 	}
 
 	if mets.CmetsHdr.CaltRecordID != nil {
@@ -280,6 +281,10 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	t(s, "archiveTitle", fa.ArchiveTitle, rdf.NewLiteral)
 	t(s, "inventoryID", fa.InventoryID, rdf.NewLiteral)
 	t(s, "inventoryTitle", fa.InventoryTitle, rdf.NewLiteral)
+
+	for _, filterType := range fa.FilterTypes {
+		t(s, "filterTypes", filterType, rdf.NewLiteral)
+	}
 
 	return triples
 }
