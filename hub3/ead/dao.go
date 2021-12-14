@@ -608,9 +608,6 @@ func (cfg *DaoConfig) fragmentGraph(file *eadpb.File) (*fragments.FragmentGraph,
 }
 
 func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.FragmentGraph, error) {
-	// remove files because we don't want them to be stored
-	fa.Files = []*eadpb.File{}
-
 	subjectBase := fmt.Sprintf("%s/%s/archive/%s/%s", config.Config.RDF.BaseURL, cfg.OrgID, fa.ArchiveID, fa.InventoryID)
 	id := fmt.Sprintf("%s-findingaid", fa.GetInventoryID())
 	header := createHeader(cfg, id, subjectBase, "findingaid")
@@ -632,6 +629,9 @@ func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.
 		InventoryID: fa.ArchiveID,
 		Label:       "findingaid",
 	}
+
+	// remove files because we don't want them to be stored
+	fa.Files = []*eadpb.File{}
 
 	b, err := proto.Marshal(fa)
 	if err != nil {
