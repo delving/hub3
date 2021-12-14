@@ -286,7 +286,7 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 		t(s, "filterTypes", filterType, rdf.NewLiteral)
 	}
 	for _, file := range fa.Files {
-		t(s, "file-uuid", file.Fileuuid, rdf.NewLiteral)
+		t(s, "fileUUID", file.Fileuuid, rdf.NewLiteral)
 	}
 
 	return triples
