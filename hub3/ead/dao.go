@@ -614,7 +614,7 @@ func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.
 
 	rm := fragments.NewEmptyResourceMap()
 
-	for idx, t := range findingAidTriples(header.EntryURI, fa) {
+	for idx, t := range findingAidTriples(header.EntryURI, fa, cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, err
 		}

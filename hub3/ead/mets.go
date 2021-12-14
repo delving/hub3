@@ -260,7 +260,7 @@ func chunkString(s string, chunkSize int) []string {
 	return chunks
 }
 
-func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
+func findingAidTriples(subject string, fa *eadpb.FindingAid, daoCfg *DaoConfig) []*rdf.Triple {
 	s := rdf.NewResource(subject)
 	triples := []*rdf.Triple{
 		rdf.NewTriple(
@@ -287,7 +287,10 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	}
 	for _, file := range fa.Files {
 		t(s, "fileUUID", file.Fileuuid, rdf.NewLiteral)
+		t(s, "recordUUID", file.Filename, rdf.NewLiteral)
 	}
+
+	t(s, "dao", daoCfg.Link, rdf.NewLiteral)
 
 	return triples
 }
