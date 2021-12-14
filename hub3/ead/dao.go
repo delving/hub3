@@ -26,6 +26,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	typeKaart    = "kaart"
+	typeTekening = "tekening"
+	typeAtlas    = "atlas"
+)
+
 type DaoClient struct {
 	bi           *index.Service
 	client       *http.Client
@@ -140,6 +146,17 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 		if c.bi != nil {
 			c.bi.Publish(context.Background(), m)
 		}
+
+		for _, genreform := range cfg.FilterTypes {
+			switch genreform {
+			case typeKaart, typeTekening, typeAtlas:
+				cfg.FileUUIDs = append(cfg.FileUUIDs, file.Fileuuid)
+			}
+		}
+	}
+
+	if len(cfg.FileUUIDs) > 0 {
+		cfg.ThumbnailUUID = cfg.FileUUIDs[0]
 	}
 
 	fg, err := cfg.findingAidFragmentGraph(&fa)
@@ -364,6 +381,8 @@ type DaoConfig struct {
 	MimeTypes      []string
 	RevisionKey    string
 	FilterTypes    []string
+	FileUUIDs      []string
+	ThumbnailUUID  string
 }
 
 func getUUID(daoLink string) string {
