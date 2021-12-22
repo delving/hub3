@@ -34,6 +34,7 @@ require (
 	github.com/gorilla/schema v1.2.0
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
 	github.com/hashicorp/go-retryablehttp v0.7.0
+	github.com/hashicorp/golang-lru v0.5.1
 	github.com/jinzhu/gorm v1.9.15
 	github.com/jinzhu/now v1.1.1 // indirect
 	github.com/justinas/alice v1.2.0
