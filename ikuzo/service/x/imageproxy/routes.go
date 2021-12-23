@@ -12,16 +12,19 @@ func (s *Service) Routes(pattern string, router chi.Router) {
 		pattern = s.proxyPrefix
 	}
 
-	proxyPrefix := fmt.Sprintf("/%s/{options}", s.proxyPrefix)
-	router.Get(proxyPrefix+"/*", s.proxyImage)
-	router.Get(fmt.Sprintf("/%s/{cacheKey}", s.proxyPrefix), func(w http.ResponseWriter, r *http.Request) {
+	router.Get(fmt.Sprintf("/%s/explore/*", pattern), s.handleExplore())
+
+	proxyPrefix := fmt.Sprintf("/%s/{options}", pattern)
+	router.Get(proxyPrefix+"/*", s.handleProxyRequest)
+	router.Get(fmt.Sprintf("/%s/{cacheKey}", pattern), func(w http.ResponseWriter, r *http.Request) {
 		cacheKey := chi.URLParam(r, "cacheKey")
 
-		sourceUrl, err := decodeURL(cacheKey)
+		sourceURL, err := decodeURL(cacheKey)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
-		fmt.Fprintf(w, sourceUrl)
+		fmt.Fprint(w, sourceURL)
 	})
 }

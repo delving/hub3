@@ -93,7 +93,7 @@ lint-full:
 	golangci-lint run --enable=godox --enable=gomnd --enable=maligned --enable=prealloc --enable=gochecknoglobals --enable=gochecknoinits  ikuzo
 
 run-dev:
-	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${IKUZOLDFLAGS}'" run serve
+	gin -all --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -ldflags '${IKUZOLDFLAGS}'" run serve
 
 generate-assets:
 	go run ikuzo/internal/assets/generate.go

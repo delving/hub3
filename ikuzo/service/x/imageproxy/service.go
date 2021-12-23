@@ -27,8 +27,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	"github.com/rs/zerolog"
 
 	lru "github.com/hashicorp/golang-lru"
@@ -43,7 +41,6 @@ type Service struct {
 	maxSizeCacheDir int    //  max size of the cache directory on disK
 	timeOut         int    // timelimit for request served by this proxy. 0 is for no timeout
 	proxyPrefix     string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
-	memoryCache     string
 	referrers       []string
 	allowList       []string
 	refuselist      []string
@@ -113,11 +110,6 @@ func resizeExternally(from, to, size string) error {
 func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	_ = ctx
 
-	log.Printf("sourcePath: %s", req.downloadedSourcePath())
-	log.Printf("cacheKey: %s", req.CacheKey)
-	log.Printf("sourceURL: %s", req.SourceURL)
-	log.Printf("key: %#v", req)
-
 	if s.lruCache != nil {
 		if s.lruCache.Contains(req.CacheKey) {
 			data, ok := s.lruCache.Get(req.CacheKey)
@@ -154,8 +146,9 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 				Str("sourcePath", req.downloadedSourcePath()).
 				Str("storePath", req.cacheKeyPath()).
 				Msgf("unexpected error creating thumbnail; %s", err)
+
+			req.CacheKey = encodeURL(req.SourceURL)
 		}
-		req.CacheKey = encodeURL(req.SourceURL)
 
 		s.m.IncResize()
 	}
@@ -165,6 +158,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		if err != nil {
 			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error creating deepzoom")
 			s.m.IncError()
+
 			return err
 		}
 
@@ -176,6 +170,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	if err != nil && !errors.Is(err, ErrCacheKeyNotFound) {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error reading from cache")
 		s.m.IncError()
+
 		return err
 	}
 
@@ -189,6 +184,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		if err != nil {
 			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("error copying data from cache")
 			s.m.IncError()
+
 			return err
 		}
 
@@ -293,96 +289,6 @@ func (s *Service) reffererAllowed(referrer string) bool {
 	}
 
 	return allowed
-}
-
-// create handler fuction to serve the proxied images
-func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
-	targetURL := chi.URLParam(r, "*")
-	options := chi.URLParam(r, "options")
-
-	allowed, err := s.domainAllowed(targetURL)
-	if err != nil {
-		s.m.IncError()
-		s.log.Error().Err(err).Str("url", targetURL).Msg("unable to check allowed domains")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
-	if !allowed {
-		s.m.IncRejectDomain()
-		s.log.Error().Err(err).Str("url", targetURL).Msg("domain not allowed")
-		http.Error(w, "domain is now allowed", http.StatusForbidden)
-
-		return
-	}
-
-	allowed = s.reffererAllowed(r.Referer())
-	if !allowed {
-		s.m.IncRejectReferrer()
-		s.log.Error().Err(err).Str("url", targetURL).Str("referrer", r.Referer()).Msg("domain not allowed")
-		http.Error(w, fmt.Sprintf("referrer not allowed: %s", r.Referer()), http.StatusForbidden)
-
-		return
-	}
-
-	req, err := NewRequest(
-		targetURL,
-		SetRawQueryString(r.URL.RawQuery),
-		SetTransform(options),
-		SetService(s),
-		SetEnableTransform(s.enableResize),
-	)
-	if err != nil {
-		s.log.Error().Err(err).Str("url", targetURL).Msg("unable to create proxy request")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		s.m.IncError()
-
-		return
-	}
-
-	switch req.TransformOptions {
-	case "explain":
-		explain := fmt.Sprintf("%s => %s", req.SourceURL, req.downloadedSourcePath())
-		render.PlainText(w, r, explain)
-
-		return
-	case "metrics":
-		render.JSON(w, r, s.m)
-		return
-	case "request":
-		render.JSON(w, r, req)
-		return
-	}
-
-	if len(s.refuselist) != 0 {
-		for _, uri := range s.refuselist {
-			if strings.Contains(req.SourceURL, uri) {
-				http.Error(w, "not found", http.StatusNotFound)
-				s.m.IncRejectURI()
-				return
-			}
-		}
-	}
-
-	var buf bytes.Buffer
-
-	err = s.Do(r.Context(), req, &buf)
-	if err != nil {
-		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
-
-	w.Header().Set("Cache-Control", "public,max-age=259200")
-	r.Header.Set("Cache-Type", string(req.CacheType))
-	r.Header.Set("Cache-Url", req.SourceURL)
-
-	if _, err := io.Copy(w, &buf); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 }
 
 // func (s *Service) SetOrganizationService(svc domain.Service) error {
