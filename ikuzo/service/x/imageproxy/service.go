@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"golang.org/x/sync/singleflight"
 
 	lru "github.com/hashicorp/golang-lru"
 )
@@ -47,6 +48,7 @@ type Service struct {
 	m               Metrics
 	log             zerolog.Logger
 	enableResize    bool
+	singleSetCache  singleflight.Group
 	// orgs         domain.OrgConfigRetriever
 }
 
@@ -125,44 +127,74 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		}
 	}
 
-	hasSource := existsInCache(req.downloadedSourcePath())
-	if !hasSource {
-		if err := s.storeSource(req); err != nil {
-			return err
-		}
-
-		s.log.Info().Str("path", req.downloadedSourcePath()).Msg("storing source path")
-		req.CacheType = Source
-
-		hasSource = true
-	}
-
 	isCached := existsInCache(req.cacheKeyPath())
 
-	if !isCached && req.thumbnailOpts != "" && hasSource {
-		err := resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
-		if err != nil {
-			s.log.Error().Err(err).Str("url", req.SourceURL).
-				Str("sourcePath", req.downloadedSourcePath()).
-				Str("storePath", req.cacheKeyPath()).
-				Msgf("unexpected error creating thumbnail; %s", err)
+	if !isCached {
+		hasSource := existsInCache(req.downloadedSourcePath())
+		if !hasSource {
+			_, err, shared := s.singleSetCache.Do(
+				req.SourceURL,
+				func() (interface{}, error) {
+					s.log.Info().Str("path", req.downloadedSourcePath()).Msg("started storing source")
+					err := s.storeSource(req)
+					if err != nil {
+						s.log.Error().Err(err).Str("url", req.SourceURL).
+							Str("sourcePath", req.downloadedSourcePath()).
+							Str("storePath", req.cacheKeyPath()).
+							Msgf("unexpected error saving source; %s", err)
+						return nil, err
+					}
+					s.log.Info().Str("path", req.downloadedSourcePath()).Msg("finished storing source")
+					return nil, nil
+				},
+			)
 
-			req.CacheKey = encodeURL(req.SourceURL)
+			if err != nil {
+				return err
+			}
+
+			if !shared {
+				req.CacheType = Source
+			}
+
+			hasSource = true
 		}
 
-		s.m.IncResize()
-	}
+		if !isCached && req.thumbnailOpts != "" && hasSource {
+			_, err, _ := s.singleSetCache.Do(
+				req.CacheKey,
+				func() (interface{}, error) {
+					return nil, resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+				},
+			)
+			if err != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).
+					Str("sourcePath", req.downloadedSourcePath()).
+					Str("storePath", req.cacheKeyPath()).
+					Msgf("unexpected error creating thumbnail; %s", err)
 
-	if !isCached && req.SubPath == deepZoomSuffix {
-		err := deepZoomExternally(req.downloadedSourcePath())
-		if err != nil {
-			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error creating deepzoom")
-			s.m.IncError()
+				req.CacheKey = encodeURL(req.SourceURL)
+			}
 
-			return err
+			s.m.IncResize()
 		}
 
-		s.m.IncDeepZoom()
+		if !isCached && req.SubPath == deepZoomSuffix {
+			_, err, _ := s.singleSetCache.Do(
+				req.CacheKey,
+				func() (interface{}, error) {
+					return nil, deepZoomExternally(req.downloadedSourcePath())
+				},
+			)
+			if err != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error creating deepzoom")
+				s.m.IncError()
+
+				return err
+			}
+
+			s.m.IncDeepZoom()
+		}
 	}
 
 	// check cache
@@ -237,7 +269,7 @@ func (s *Service) storeSource(req *Request) error {
 	err = req.Write(req.downloadedSourcePath(), tee)
 	if err != nil {
 		// do not return error here or cache write error
-		s.log.Error().Err(err).Msg("unable to write remote file to cache")
+		s.log.Error().Err(err).Msgf("unable to write remote file to cache; %s", err)
 
 		s.m.IncRemoteRequestError()
 	}

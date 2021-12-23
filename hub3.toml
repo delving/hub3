@@ -179,7 +179,7 @@ lruCacheSize = 1000
 # image can be resized; requires libvips to be installed
 enableResize = true
 # time limit for request served by this proxy. 0 is no timeout
-timeout = 10
+timeout = 15
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
 

@@ -24,7 +24,6 @@ const (
 	Explain      ProxyOption = "explain"
 	ProxyRequest ProxyOption = "request"
 	Thumbnail    ProxyOption = "thumbnail"
-	// Request  ProxyOption = "request"
 )
 
 type CacheType string
@@ -155,22 +154,6 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 	return req, nil
 }
 
-// func (req *Request) IsResizable() bool {
-// if !req.s.enableResize {
-// return false
-// }
-
-// if req.TransformOptions == "raw" {
-// return false
-// }
-
-// if strings.HasSuffix(req.TransformOptions, ",smartcrop") {
-// return true
-// }
-
-// return false
-// }
-
 // GET returns a *http.Request for the sourceURL
 func (req *Request) GET() (*http.Request, error) {
 	return http.NewRequest("GET", req.SourceURL, http.NoBody)
@@ -210,30 +193,6 @@ func (req *Request) Write(path string, r io.Reader) error {
 	return nil
 }
 
-// func (req *Request) storePath() string {
-// if req.derivativePath() != "" {
-// return req.derivativePath()
-// }
-
-// return req.sourcePath()
-// }
-
-// func (req *Request) derivativePath() string {
-// if req.TransformOptions == "" {
-// return ""
-// }
-
-// if !strings.HasSuffix(req.TransformOptions, ",smartcrop") {
-// return ""
-// }
-
-// return fmt.Sprintf(
-// "%s_%s_tn.jpg",
-// req.sourcePath(),
-// req.TransformOptions,
-// )
-// }
-
 // existsInCache returns whether a path is stored in the cache
 func existsInCache(path string) bool {
 	_, err := os.Stat(path)
@@ -256,6 +215,7 @@ func (req *Request) cacheKeyPath() string {
 // sourcePath is the full path to the downloaded source
 func (req *Request) downloadedSourcePath() string {
 	hash := fmt.Sprintf("%016x", xxhash.ChecksumString64(req.SourceURL))
+
 	return filepath.Join(
 		req.s.cacheDir,
 		hash[0:3],
