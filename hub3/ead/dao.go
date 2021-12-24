@@ -26,6 +26,12 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+const (
+	typeKaart    = "kaart"
+	typeTekening = "tekening"
+	typeAtlas    = "atlas"
+)
+
 type DaoClient struct {
 	bi           *index.Service
 	client       *http.Client
@@ -146,6 +152,7 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 	if err != nil {
 		return err
 	}
+
 	fg.Meta.SourceID = cfg.RevisionKey
 
 	m, err := fg.IndexMessage()
@@ -175,7 +182,7 @@ func validateFindingAid(fa *eadpb.FindingAid) error {
 }
 
 func assertUniqueFilenames(files []*eadpb.File) error {
-	var fileNames = make(map[string]int32)
+	fileNames := make(map[string]int32)
 
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
@@ -291,6 +298,8 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+// Delete indexes the stored METS files identified by their UUID
 func (c *DaoClient) Delete(archiveID, uuid string) error {
 	cfg, err := c.GetDaoConfig(archiveID, uuid)
 	if errors.Is(err, ErrFileNotFound) {
@@ -310,7 +319,6 @@ func (c *DaoClient) Delete(archiveID, uuid string) error {
 	return nil
 }
 
-// Delete indexes the stored METS files identified by their UUID
 func (c *DaoClient) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	spec, uuid, err := validateMetsRequest(r)
 	if err != nil {
@@ -362,6 +370,7 @@ type DaoConfig struct {
 	ObjectCount    int
 	MimeTypes      []string
 	RevisionKey    string
+	FilterTypes    []string
 }
 
 func getUUID(daoLink string) string {
@@ -540,6 +549,11 @@ func (cfg *DaoConfig) fileTriples(subject string, file *eadpb.File) []*rdf.Tripl
 	t(s, "inventoryID", cfg.InventoryID, rdf.NewLiteral)
 	t(s, "inventoryTitle", cfg.InventoryTitle, rdf.NewLiteral)
 
+	// genreform based filtering
+	for _, filter := range cfg.FilterTypes {
+		t(s, "filterType", filter, rdf.NewLiteral)
+	}
+
 	return triples
 }
 
@@ -582,16 +596,13 @@ func (cfg *DaoConfig) fragmentGraph(file *eadpb.File) (*fragments.FragmentGraph,
 }
 
 func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.FragmentGraph, error) {
-	// remove files because we don't want them to be stored
-	fa.Files = []*eadpb.File{}
-
 	subjectBase := fmt.Sprintf("%s/%s/archive/%s/%s", config.Config.RDF.BaseURL, cfg.OrgID, fa.ArchiveID, fa.InventoryID)
 	id := fmt.Sprintf("%s-findingaid", fa.GetInventoryID())
 	header := createHeader(cfg, id, subjectBase, "findingaid")
 
 	rm := fragments.NewEmptyResourceMap()
 
-	for idx, t := range findingAidTriples(header.EntryURI, fa) {
+	for idx, t := range findingAidTriples(header.EntryURI, fa, cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, err
 		}
@@ -606,6 +617,9 @@ func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.
 		InventoryID: fa.ArchiveID,
 		Label:       "findingaid",
 	}
+
+	// remove files because we don't want them to be stored
+	fa.Files = []*eadpb.File{}
 
 	b, err := proto.Marshal(fa)
 	if err != nil {
