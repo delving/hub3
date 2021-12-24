@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -157,6 +158,27 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 // GET returns a *http.Request for the sourceURL
 func (req *Request) GET() (*http.Request, error) {
 	return http.NewRequest("GET", req.SourceURL, http.NoBody)
+}
+
+func (req *Request) Remove() error {
+	targetDir := path.Dir(req.downloadedSourcePath())
+
+	files, err := os.ReadDir(targetDir)
+	if err != nil {
+		return err
+	}
+
+	cacheBase := encodeURL(req.SourceURL)
+
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), cacheBase) {
+			if err := os.RemoveAll(filepath.Join(targetDir, file.Name())); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // Read returns an io.ReadCloser found at path from the cache.

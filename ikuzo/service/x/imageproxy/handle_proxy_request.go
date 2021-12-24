@@ -66,6 +66,25 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	case "metrics":
 		render.JSON(w, r, s.m)
 		return
+	case "remove", "recache":
+		removeErr := req.Remove()
+		if removeErr != nil {
+			s.log.Error().Err(removeErr).Str("url", targetURL).Msgf("unable to removed cached items; %s", removeErr)
+			http.Error(w, removeErr.Error(), http.StatusInternalServerError)
+
+			return
+		}
+
+		s.m.IncRemoved()
+
+		if req.TransformOptions != "recache" {
+			removed := fmt.Sprintf("Removed: %s => %s", req.SourceURL, req.downloadedSourcePath())
+			render.PlainText(w, r, removed)
+
+			return
+		}
+
+		req.TransformOptions = "raw"
 	case "request":
 		render.JSON(w, r, req)
 		return
@@ -76,6 +95,7 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 			if strings.Contains(req.SourceURL, uri) {
 				http.Error(w, "not found", http.StatusNotFound)
 				s.m.IncRejectURI()
+
 				return
 			}
 		}

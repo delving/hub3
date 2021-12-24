@@ -13,6 +13,7 @@ type Metrics struct {
 	Resize             uint64
 	DeepZoom           uint64
 	Error              uint64
+	Removed            uint64
 	// Canceled      uint64
 	// AlreadyQueued uint64
 }
@@ -35,6 +36,10 @@ func (m *Metrics) IncLruCache() {
 
 func (m *Metrics) IncRemoteRequestError() {
 	atomic.AddUint64(&m.RemoteRequestError, 1)
+}
+
+func (m *Metrics) IncRemoved() {
+	atomic.AddUint64(&m.Removed, 1)
 }
 
 func (m *Metrics) IncError() {
