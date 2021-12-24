@@ -27,8 +27,7 @@
 - Show all EAD unittitles in tree.Label [[GH-110]](https://github.com/delving/hub3/pull/110)
 - Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
 - Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
-
-
+- How ead cache is used in request and response [[GH-116]](https://github.com/delving/hub3/pull/116)
 
 ### Removed
 

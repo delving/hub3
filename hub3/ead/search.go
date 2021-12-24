@@ -18,285 +18,34 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 	"reflect"
-	"strconv"
 	"strings"
 	"sync"
-	"time"
 	"unsafe"
 
-	"github.com/OneOfOne/xxhash"
-	"github.com/allegro/bigcache"
 	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/go-chi/chi"
 	"github.com/olivere/elastic/v7"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
 )
 
 const (
-	trueParamValue = "true"
 	metaTags       = "meta.tags"
+	specField      = "meta.spec"
+	trueParamValue = "true"
 )
 
-var httpCache *bigcache.BigCache
 var once sync.Once
 
-// SearchResponse contains the EAD Search response.
-type SearchResponse struct {
-
-	// ArchiveCount returns the number of collapsed Archives that match the search  query
-	ArchiveCount int `json:"archiveCount"`
-
-	// Cursor the location of the first result in the ElasticSearch search response
-	Cursor int `json:"cursor"`
-
-	// TotalPages is the total number of pages in the search response
-	TotalPages int `json:"totalPages"`
-
-	// TotalClevelCount returns the total number of clevel that mathc the search query
-	// this counts is per clevel, so multiple hits inside a clevel are counted as one
-	TotalClevelCount int `json:"totalClevelCount"`
-
-	// TotalDescriptionCount returns the total number of hits in the description.
-	// This is an cardinatility aggregation so each hit inside the decription counts as a hit.
-	TotalDescriptionCount int `json:"totalDescriptionCount"`
-
-	// TotalHits is a combination of TotalClevelCount and TotalDescriptiontCount.
-	TotalHits int `json:"totalHits"`
-
-	// Archives contains the list of archives from the response constrained by the search pagination
-	Archives []Archive `json:"archives"`
-
-	// CLevels contains a paged result of the cLevels for a specific archive that match the search query
-	// It is ordered by the ead orderKey.
-	CLevels []CLevelEntry `json:"cLevels,omitempty"`
-
-	// Facets holds the QueryFacets for filtering
-	Facets []*fragments.QueryFacet `json:"facets,omitempty"`
-
-	// Explain response from elasticsearch
-	Explain *elastic.SearchResult `json:"explain,omitempty"`
-
-	// Service is the elasticsearch query
-	Service interface{} `json:"service,omitempty"`
-}
-
-// CLevel holds the search results per clevel entry in the an EAD Archive.
-type CLevelEntry struct {
-
-	// Path is the unique key to the path of the clevel in the archive tree
-	Path string `json:"path"`
-
-	// UnitID is the identifier of the clevel
-	UnitID string `json:"unitID"`
-
-	// Label is the title of the clevel
-	Label string `json:"label"`
-
-	// HubID is the unique identifier of the clevel as stored in the hub3 index
-	HubID string `json:"hubID"`
-
-	// ResultOrder is the place the search result has in the total list of results.
-	// This can be used to aid the search pagination on the Archive result page.
-	ResultOrder uint64 `json:"sortKey"`
-}
-
-// Archive holds all information for the EAD search results that are grouped
-// by inventoryID. This is the EadID from the EAD header.
-type Archive struct {
-	InventoryID      string   `json:"inventoryID"`
-	Title            string   `json:"title"`
-	Period           []string `json:"period"`
-	CLevelCount      int      `json:"cLevelCount"`
-	DescriptionCount int      `json:"descriptionCount"`
-	Files            string   `json:"files,omitempty"`
-	Length           string   `json:"length,omitempty"`
-	Abstract         []string `json:"abstract,omitempty"`
-	Material         string   `json:"material,omitempty"`
-	Language         string   `json:"language,omitempty"`
-	Origin           []string `json:"origin,omitempty"`
-	MetsFiles        int      `json:"metsFiles,omitempty"`
-	ClevelsTotal     int      `json:"clevelsTotal"`
-}
-
-// SearchRequest holds all information for EAD search
-type SearchRequest struct {
-	Page             int
-	Rows             int
-	Query            *elastic.BoolQuery
-	RawQuery         string
-	Service          *elastic.SearchService
-	FacetFields      []string
-	Filters          []*fragments.QueryFilter
-	FacetSize        int
-	FacetAndBoolType bool
-	SortBy           string
-	NestedSortField  string
-	SortAsc          bool
-	NoCache          bool
-	CacheRefresh     bool
-	CacheReset       bool
-	InventoryID      string
-}
-
-const specField = "meta.spec"
-
-func newSearchRequest(params url.Values) (*SearchRequest, error) {
-	sr := &SearchRequest{
-		Page:            1,
-		Rows:            10,
-		NestedSortField: "@value.keyword",
-		FacetSize:       50,
-		Filters:         []*fragments.QueryFilter{},
-	}
-
+func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchRequest, error) {
+	requestID, _ := hlog.IDFromRequest(r)
 	rlog := cfg.Config.Logger.With().
-		Str("application", "hub3").
-		Str("search.type", "request builder").
+		Str("req_id", requestID.String()).
+		Str("searchType", "ead cluster search").
 		Logger()
 
-	logConvErr := func(p string, v []string, err error) {
-		rlog.Error().Err(err).
-			Str("param", p).
-			Msgf("unable to convert %v to int", v)
-
-	}
-
-	for p, v := range params {
-		switch p {
-		case "rows":
-			size, err := strconv.Atoi(params.Get(p))
-			if err != nil {
-				logConvErr(p, v, err)
-
-				return nil, err
-			}
-
-			if size > 100 {
-				size = 100
-			}
-
-			sr.Rows = size
-		case "facet.size":
-			size, err := strconv.Atoi(params.Get(p))
-			if err != nil {
-				logConvErr(p, v, err)
-
-				return nil, err
-			}
-
-			if size > 100 {
-				size = 100
-			}
-
-			sr.FacetSize = size
-		case "FacetBoolType":
-			fbt := params.Get(p)
-			if fbt != "" {
-				sr.FacetAndBoolType = strings.EqualFold(fbt, "and")
-			}
-		case "page":
-			rawPage, err := strconv.Atoi(params.Get(p))
-			if err != nil {
-				logConvErr(p, v, err)
-
-				return nil, err
-			}
-
-			if rawPage == 0 {
-				err := fmt.Errorf("0 pages is not allowed. Paging starts at 1")
-				rlog.Error().Err(err).
-					Str("param", p).
-					Msg("")
-
-				return nil, err
-			}
-
-			sr.Page = rawPage
-		case "sortBy":
-			sortKey := params.Get(p)
-			if strings.HasPrefix(sortKey, "^") {
-				sr.SortAsc = true
-				sortKey = strings.TrimPrefix(sortKey, "^")
-			}
-
-			if strings.HasPrefix(sortKey, "int.") {
-				sr.NestedSortField = "integer"
-				sortKey = strings.TrimPrefix(sortKey, "int.")
-			}
-
-			sr.SortBy = sortKey
-		case "q", "query":
-			sr.RawQuery = params.Get(p)
-		case "facet.field":
-			sr.FacetFields = v
-		case "qf", "qf[]":
-			for _, filter := range v {
-				qf, err := fragments.NewQueryFilter(filter)
-				if err != nil {
-					rlog.Error().Err(err).
-						Str("param", p).
-						Msg("error in filter gerenation")
-
-					return nil, err
-				}
-
-				sr.Filters = append(sr.Filters, qf)
-			}
-		case "qf.dateRange", "qf.dateRange[]":
-			for _, filter := range v {
-				qf, err := fragments.NewDateRangeFilter(filter)
-				if err != nil {
-					rlog.Error().Err(err).
-						Str("param", p).
-						Msg("error in daterange filter gerenation")
-
-					return sr, err
-				}
-
-				sr.Filters = append(sr.Filters, qf)
-			}
-		case "noCache":
-			sr.NoCache = strings.EqualFold(params.Get(p), "true")
-		case "cacheRefresh":
-			sr.CacheRefresh = strings.EqualFold(params.Get(p), "true")
-		case "cacheReset":
-			sr.CacheReset = strings.EqualFold(params.Get(p), "true")
-		}
-	}
-
-	return sr, nil
-}
-
-func (sr *SearchRequest) requestKey() string {
-	jsonBytes, err := json.Marshal(sr)
-	if err != nil {
-		cfg.Config.Logger.Error().Err(err).
-			Msg("unable to marshal request key")
-
-		return ""
-	}
-
-	hash := xxhash.Checksum64(jsonBytes)
-
-	return fmt.Sprintf("%016x", hash)
-}
-
-func (sr *SearchRequest) enableDescriptionSearch() bool {
-	for _, f := range sr.Filters {
-		if f.SearchLabel != "ead-rdf_periodDesc" {
-			return false
-		}
-	}
-
-	return true
-}
-
-func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchRequest, error) {
 	client := index.ESClient()
 
 	s := client.Search(cfg.Config.ElasticSearch.GetIndexName()).
@@ -304,15 +53,10 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 
 	sr, err := newSearchRequest(r.URL.Query())
 	if err != nil {
-		cfg.Config.Logger.Error().Err(err).
+		rlog.Error().Err(err).
 			Msg("unable to create ead.SearchRequest")
 
 		return nil, err
-	}
-
-	s = s.Size(sr.Rows)
-	if sr.Page > 1 {
-		s = s.From(getCursor(sr.Rows, sr.Page))
 	}
 
 	tagQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery(metaTags, "ead"))
@@ -335,6 +79,11 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 
 	if r.URL.Query().Get("explain") == trueParamValue {
 		s = s.Explain(true)
+		sr.Explain = true
+	}
+
+	if r.URL.Query().Get("service") == trueParamValue {
+		sr.EchoService = true
 	}
 
 	sr.Query = query
@@ -343,104 +92,15 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 	return sr, nil
 }
 
-func newBigCache() {
-	config := bigcache.Config{
-		Shards:           1024,
-		HardMaxCacheSize: cfg.Config.Cache.HardMaxCacheSize,
-		LifeWindow:       time.Duration(cfg.Config.Cache.LifeWindowMinutes) * time.Minute,
-		CleanWindow:      5 * time.Minute,
-		MaxEntrySize:     cfg.Config.Cache.MaxEntrySize,
-	}
-
-	var err error
-
-	httpCache, err = bigcache.NewBigCache(config)
-	if err != nil {
-		cfg.Config.Logger.Warn().
-			Err(err).
-			Msg("cannot start bigcache running without cache; %#v")
-	}
-
-	rlog := cfg.Config.Logger.With().Str("test", "sublogger").Logger()
-	rlog.Info().Msg("starting bigCache for request caching")
-}
-
-func getCachedRequest(requestKey string, rlog *zerolog.Logger) *SearchResponse {
-	entry, cacheErr := httpCache.Get(requestKey)
-	if cacheErr != nil {
-		rlog.Debug().
-			Str("cache_key", requestKey).
-			Err(cacheErr).
-			Msg("cache miss")
-
-		return nil
-	}
-
-	var eadResponse SearchResponse
-
-	jsonErr := json.Unmarshal(entry, &eadResponse)
-	if jsonErr != nil {
-		rlog.Warn().Err(jsonErr).
-			Msg("unable to unmarshall cached response")
-
-		return nil
-	}
-
-	rlog.Debug().
-		Str("cache_key", requestKey).
-		Msg("returning response from cache")
-
-	return &eadResponse
-}
-
-func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
-	once.Do(newBigCache)
-
-	requestID, _ := hlog.IDFromRequest(r)
-	rlog := cfg.Config.Logger.With().
-		Str("req_id", requestID.String()).
-		Str("searchType", "ead cluster search").
-		Logger()
-
+func buildCollapseRequest(r *http.Request) (*SearchRequest, error) {
 	req, requestErr := buildSearchRequest(r, true)
 	if requestErr != nil {
-		rlog.Error().Err(requestErr).
-			Msg("performClusteredSearch error")
+		if req.rlog != nil {
+			req.rlog.Error().Err(requestErr).
+				Msg("performClusteredSearch error")
+		}
 
 		return nil, requestErr
-	}
-
-	// default facets
-	req.FacetFields = append(
-		req.FacetFields,
-		[]string{
-			"tree.hasDigitalObject",
-			"tree.mimeType",
-			"ead-rdf_genreform",
-		}...,
-	)
-
-	if req.CacheReset {
-		newBigCache()
-		// already cache this request
-		req.CacheReset = false
-	}
-
-	requestKey := req.requestKey()
-	rlog.Debug().
-		Str("cache_key", requestKey).
-		Msg("generating cache request key")
-
-	if httpCache != nil && requestKey != "" && !req.NoCache && !req.CacheRefresh {
-		response := getCachedRequest(requestKey, &rlog)
-		if response != nil {
-			return response, nil
-		}
-	}
-
-	if req.CacheRefresh {
-		req.CacheRefresh = false
-		requestKey = req.requestKey()
 	}
 
 	s := req.Service
@@ -476,8 +136,39 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		}
 	}
 
-	fub, err := fragments.NewFacetURIBuilder(req.RawQuery, req.Filters)
-	if err != nil {
+	s = s.Size(req.Rows)
+	if req.Page > 1 {
+		s = s.From(getCursor(req.Rows, req.Page))
+	}
+
+	s = s.Query(req.Query)
+
+	req.Service = s
+
+	return req, nil
+}
+
+func buildFacetRequest(r *http.Request) (*SearchRequest, error) {
+	req, requestErr := buildSearchRequest(r, true)
+	if requestErr != nil {
+		if req.rlog != nil {
+			req.rlog.Error().Err(requestErr).
+				Msg("performClusteredSearch error")
+		}
+
+		return nil, requestErr
+	}
+
+	req.FacetFields = append(
+		req.FacetFields,
+		[]string{
+			"tree.hasDigitalObject",
+			"tree.mimeType",
+			"ead-rdf_genreform",
+		}...,
+	)
+
+	if err := req.SetFragmentURIBuilder(); err != nil {
 		return nil, err
 	}
 
@@ -491,24 +182,17 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 			return nil, facetErr
 		}
 
-		agg, facetErr := fragments.CreateAggregationBySearchLabel("resources.entries", ff, req.FacetAndBoolType, fub)
+		agg, facetErr := fragments.CreateAggregationBySearchLabel("resources.entries", ff, req.FacetAndBoolType, req.fub)
 		if facetErr != nil {
 			return nil, facetErr
 		}
 
-		s = s.Aggregation(facetField, agg)
+		req.Service = req.Service.Aggregation(facetField, agg)
 	}
 
-	postFilter, err := fub.CreateFacetFilterQuery("", req.FacetAndBoolType)
-	if err != nil {
-		rlog.Error().Err(err).
-			Msg("unable to create search postfilter")
-
+	if err := req.SetPostFilter(); err != nil {
 		return nil, err
 	}
-
-	s = s.PostFilter(postFilter)
-
 	// spec count aggregation
 	specCountAgg := elastic.NewCardinalityAggregation().
 		Field(specField)
@@ -517,197 +201,90 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		Field(metaTags)
 
 	countFilterAgg := elastic.NewFilterAggregation().
-		Filter(postFilter).
+		Filter(req.postFilter).
 		SubAggregation("specCount", specCountAgg).
 		SubAggregation("typeCount", eadTypeCountAgg)
 
-	queryStart := time.Now()
-
-	resp, err := s.
+	req.Service = req.Service.
 		Query(req.Query).
 		Aggregation("counts", countFilterAgg).
 		Aggregation("noFiltTypeCount", eadTypeCountAgg).
-		Do(r.Context())
+		Size(0)
 
-	rlog.Info().
-		Int("status", resp.Status).
-		Int64("esTimeInMillis", resp.TookInMillis).
-		Dur("duration", time.Since(queryStart)).
-		Msg("elastic ead cluster search request")
+	return req, nil
+}
 
+func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
+	once.Do(newBigCache)
+
+	searchRequest, err := buildCollapseRequest(r)
 	if err != nil {
-		rlog.Error().Err(err).
-			Msg("error in elasticsearch response")
+		searchRequest.rlog.Error().Err(err).Msg("unable to build collapse request")
+		return nil, err
+	}
+
+	if searchRequest.CacheReset {
+		newBigCache()
+		// already cache this request
+		searchRequest.CacheReset = false
+	}
+
+	requestKey := searchRequest.requestKey()
+	searchRequest.rlog.Debug().
+		Str("cache_key", requestKey).
+		Msg("generating cache request key")
+
+	if httpCache != nil && requestKey != "" && !searchRequest.NoCache && !searchRequest.CacheRefresh {
+		response := getCachedRequest(requestKey, searchRequest.rlog)
+		if response != nil {
+			return response, nil
+		}
+	}
+
+	if searchRequest.CacheRefresh {
+		searchRequest.CacheRefresh = false
+		requestKey = searchRequest.requestKey()
+	}
+
+	aggRequest, err := buildFacetRequest(r)
+	if err != nil {
+		aggRequest.rlog.Error().Err(err).Msg("unable to build aggregation request")
+		return nil, err
+	}
+
+	aggResponse, err := aggRequest.Do(r.Context(), "agg")
+	if err != nil {
+		return nil, err
+	}
+
+	searchResponse, err := searchRequest.Do(r.Context(), "search")
+	if err != nil {
+		return nil, err
+	}
+
+	eadResponse, err := aggRequest.createSearchResponse(searchResponse, aggResponse)
+	if err != nil {
+		aggRequest.rlog.Error().Err(err).
+			Msg("error in building the response")
 
 		return nil, err
 	}
 
-	eadResponse := &SearchResponse{
-		Archives: []Archive{},
-	}
-
-	if r.URL.Query().Get("explain") == trueParamValue {
-		eadResponse.Explain = resp
-	}
-
-	if r.URL.Query().Get("service") == trueParamValue {
-		ss := reflect.ValueOf(s).Elem().FieldByName("searchSource")
-		src := reflect.NewAt(ss.Type(), unsafe.Pointer(ss.UnsafeAddr())).Elem().Interface().(*elastic.SearchSource)
-
-		srcMap, sourceErr := src.Source()
-		if sourceErr != nil {
-			rlog.Error().Err(sourceErr).
-				Msg("unable to decode elastich search request")
-
-			return nil, sourceErr
-		}
-
-		eadResponse.Service = srcMap
-	}
-
-	unFilteredEadTypeCount, ok := resp.Aggregations.Terms("noFiltTypeCount")
-	if ok {
-		for _, b := range unFilteredEadTypeCount.Buckets {
-			if b.Key == "eadDesc" {
-				eadResponse.TotalDescriptionCount = int(b.DocCount)
-			}
-		}
-	}
-
-	filteredAgg, ok := resp.Aggregations.Filter("counts")
-	if ok {
-		specCount, ok := filteredAgg.Aggregations.Cardinality("specCount")
-		if ok {
-			eadResponse.ArchiveCount = int(*specCount.Value)
-			eadResponse.TotalPages = getPageCount(eadResponse.ArchiveCount, req.Rows)
-		}
-
-		eadTypeCount, ok := filteredAgg.Aggregations.Terms("typeCount")
-		if ok {
-			for _, b := range eadTypeCount.Buckets {
-				if b.Key == "ead" {
-					eadResponse.TotalClevelCount = int(b.DocCount)
-				}
-			}
-		}
-	}
-
-	eadResponse.TotalHits = eadResponse.TotalClevelCount + eadResponse.TotalDescriptionCount
-
-	cursor := getCursor(req.Rows, req.Page)
-	if cursor > eadResponse.ArchiveCount {
-		pageErr := fmt.Errorf(
-			"page start %d requested is greater then records returned: %d",
-			cursor,
-			eadResponse.ArchiveCount,
-		)
-		rlog.Error().Err(pageErr).
-			Msg("request error")
-
-		return nil, pageErr
-	}
-
-	eadResponse.Cursor = cursor
-
-	for _, hit := range resp.Hits.Hits {
-		fields, ok := hit.Fields[specField]
-		if ok {
-			spec := fields.([]interface{})[0].(string)
-
-			meta, metaErr := GetMeta(spec)
-			if metaErr != nil {
-				rlog.Error().Err(metaErr).
-					Str("spec", spec).
-					Msg("unable to ead meta information")
-
-				return nil, metaErr
-			}
-
-			archive := Archive{
-				InventoryID:      spec,
-				Title:            meta.Label,
-				Period:           meta.Period,
-				DescriptionCount: 0,
-				ClevelsTotal:     meta.Inventories,
-			}
-
-			var hitHasDescription bool
-
-			inner, ok := hit.InnerHits["collapse"]
-			if ok {
-				archive.CLevelCount = int(inner.Hits.TotalHits.Value)
-
-				if len(inner.Hits.Hits) > 0 {
-					r := new(fragments.FragmentGraph)
-
-					if unmarshallErr := json.Unmarshal(inner.Hits.Hits[0].Source, r); unmarshallErr != nil {
-						rlog.Error().Err(unmarshallErr).
-							Msg("unable to unmarshal json for elasticsearch hit")
-
-						return nil, unmarshallErr
-					}
-
-					if r.Tree.InventoryID != "" {
-						archive.CLevelCount--
-						archive.DescriptionCount = 1
-						hitHasDescription = true
-					}
-				}
-			}
-
-			if req.RawQuery != "" && req.enableDescriptionSearch() && hitHasDescription {
-				archive.DescriptionCount, err = GetDescriptionCount(spec, req.RawQuery)
-				if err != nil {
-					return nil, err
-				}
-			}
-
-			eadResponse.Archives = append(eadResponse.Archives, archive)
-		}
-	}
-
-	if !req.enableDescriptionSearch() {
-		eadResponse.TotalDescriptionCount = 0
-	}
-
-	// build facets
-	aggs, err := fragments.DecodeFacets(resp, fub)
+	eadResponse.Archives, err = decodeHits(searchRequest, searchResponse.Hits)
 	if err != nil {
-		rlog.Error().Err(err).
-			Msg("facet decode error")
-
-		return nil, err
+		return nil, fmt.Errorf("unable to decode elasticsearch hits: %w", err)
 	}
 
-	eadResponse.Facets = aggs
-
-	if httpCache != nil && requestKey != "" && !req.NoCache {
+	if httpCache != nil && requestKey != "" && !searchRequest.NoCache {
 		// don't cache no results
 		if eadResponse.TotalHits == 0 {
 			return eadResponse, nil
 		}
 
-		storeResponseInCache(requestKey, eadResponse, &rlog)
+		storeResponseInCache(requestKey, eadResponse, searchRequest.rlog)
 	}
 
 	return eadResponse, nil
-}
-
-func storeResponseInCache(requestKey string, response *SearchResponse, rlog *zerolog.Logger) {
-	b, err := json.Marshal(response)
-	if err != nil {
-		rlog.Error().Err(err).
-			Msg("unable to marshal eadResponse for caching")
-	} else {
-		cacheErr := httpCache.Set(requestKey, b)
-		if cacheErr != nil {
-			rlog.Error().Err(cacheErr).
-				Msg("unable to cache searchResponse")
-		}
-		rlog.Debug().
-			Str("cache_key", requestKey).
-			Msg("set cache for key")
-	}
 }
 
 func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
