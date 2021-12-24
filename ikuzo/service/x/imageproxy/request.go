@@ -69,7 +69,7 @@ func SetTransform(options string) RequestOption {
 
 func SetEnableTransform(enabled bool) RequestOption {
 	return func(req *Request) error {
-		req.disableTransform = !enabled
+		req.EnableTransform = enabled
 		return nil
 	}
 }
@@ -82,7 +82,7 @@ type Request struct {
 	CacheType        CacheType // CacheType is how the data is returned
 	SubPath          string    // subPath is appended to raw cacheKey to get derivatives
 	thumbnailOpts    string
-	disableTransform bool
+	EnableTransform  bool
 	s                *Service
 }
 
@@ -98,7 +98,7 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 		}
 	}
 
-	if req.disableTransform {
+	if !req.EnableTransform {
 		switch {
 		case req.TransformOptions == "deepzoom":
 			req.TransformOptions = "raw"

@@ -32,6 +32,8 @@ func (s *Service) handleExplore() http.HandlerFunc {
 		req, err := NewRequest(
 			targetURL,
 			SetRawQueryString(rawQuery),
+			SetEnableTransform(s.enableResize),
+			SetService(s),
 		)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)

@@ -67,9 +67,23 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if s.enableResize {
+		s.enableResize = s.checkForVips()
+	}
+
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
 
 	return s, nil
+}
+
+func (s *Service) checkForVips() bool {
+	_, err := exec.LookPath("vips")
+	if err != nil {
+		s.log.Warn().Msg("libvips is not installed so disabling imageproxy resize options")
+		return false
+	}
+
+	return true
 }
 
 func deepZoomExternally(from string) error {

@@ -24,30 +24,37 @@
     </nav>
 
     <section>
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-6">
-                    <img src="/imageproxy/123,smartcrop/{{.Req.SourceURL}}" alt="small image" class="img-thumbnail p-1 m-4"/>
+        {{if .Req.EnableTransform }}
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <img src="/imageproxy/123,smartcrop/{{.Req.SourceURL}}" alt="small image" class="img-thumbnail p-1 m-4"/>
+                    </div>
+                    <div class="col-sm-6">
+                        <img src="/imageproxy/250,smartcrop/{{.Req.SourceURL}}" alt="large image" class="img-thumbnail p-1 m-4"/>
+                    </div>
                 </div>
-                <div class="col-sm-6">
-                    <img src="/imageproxy/250,smartcrop/{{.Req.SourceURL}}" alt="large image" class="img-thumbnail p-1 m-4"/>
+                <div class="row">
+                    <div id="openseadragon1" class="col-sm-10 p-2 m-4 img-thumbnail" style="width: 800px; height: 600px;">
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div id="openseadragon1" class="col-sm-10 p-2 m-4 img-thumbnail" style="width: 800px; height: 600px;">
-                </div>
-            </div>
-        </div>
 
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.0.0/openseadragon.min.js" integrity="sha512-Dq5iZeGNxm7Ql/Ix10sugr98niMRyuObKlIzKN1SzUysEXBxti479CTsCiTV00gFlDeDO3zhBsyCOO+v6QVwJw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-        <script type="text/javascript">
-            var viewer = OpenSeadragon({
-                id: "openseadragon1",
-                prefixUrl: "https://openseadragon.github.io//openseadragon/images/",
-                tileSources: "/imageproxy/deepzoom/{{.Req.SourceURL}}.dzi"
-            });
-        </script>
+            <script 
+                src="https://cdnjs.cloudflare.com/ajax/libs/openseadragon/3.0.0/openseadragon.min.js"
+                integrity="sha512-Dq5iZeGNxm7Ql/Ix10sugr98niMRyuObKlIzKN1SzUysEXBxti479CTsCiTV00gFlDeDO3zhBsyCOO+v6QVwJw==" 
+                crossorigin="anonymous"
+                referrerpolicy="no-referrer"></script>
+            <script type="text/javascript">
+                var viewer = OpenSeadragon({
+                    id: "openseadragon1",
+                    prefixUrl: "https://openseadragon.github.io//openseadragon/images/",
+                    tileSources: "/imageproxy/deepzoom/{{.Req.SourceURL}}.dzi"
+                });
+            </script>
+        {{else}}
+        <div class="alert alert-warning">Resize must be enabled for this page to work</div>
+        {{end}}
     </section>
 
 </body>
