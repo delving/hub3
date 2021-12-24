@@ -196,6 +196,8 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	if tree.HasDigitalObject {
 		daoCfg := newDaoConfig(cfg, tree)
 
+		daoCfg.FilterTypes = []string{n.Header.Genreform}
+
 		// must happen here because the check needs the daoCfg to not be written yet
 		hasOrphanedMetsFile := daoCfg.hasOrphanedMetsFile()
 
