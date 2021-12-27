@@ -47,12 +47,14 @@ func TestNewRequest(t *testing.T) {
 				key: imgURL,
 				options: []RequestOption{
 					SetRawQueryString("size=200"),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
-				CacheKey:       "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc_c2l6ZT0yMDA=",
-				SourceURL:      "http://example.com/123.jpg?size=200",
-				RawQueryString: "size=200",
+				CacheKey:        "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc_c2l6ZT0yMDA=",
+				SourceURL:       "http://example.com/123.jpg?size=200",
+				RawQueryString:  "size=200",
+				EnableTransform: true,
 			},
 			false,
 		},
@@ -62,13 +64,15 @@ func TestNewRequest(t *testing.T) {
 				key: "http://rabk.adlibhosting.com/wwwopacx/wwwopac.ashx",
 				options: []RequestOption{
 					SetRawQueryString(`command=getcontent&amp;server=images&amp;value=\kerncollectie\3781.jpg`),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
 				CacheKey: `aHR0cDovL3JhYmsuYWRsaWJob3N0aW5nLmNvbS93d3dvcGFjeC93d3dvcGFjLmFzaHg_Y29tbWFuZD1nZXRj` +
 					`b250ZW50JnNlcnZlcj1pbWFnZXMmdmFsdWU9XGtlcm5jb2xsZWN0aWVcMzc4MS5qcGc=`,
-				SourceURL:      `http://rabk.adlibhosting.com/wwwopacx/wwwopac.ashx?command=getcontent&server=images&value=\kerncollectie\3781.jpg`,
-				RawQueryString: `command=getcontent&amp;server=images&amp;value=\kerncollectie\3781.jpg`,
+				SourceURL:       `http://rabk.adlibhosting.com/wwwopacx/wwwopac.ashx?command=getcontent&server=images&value=\kerncollectie\3781.jpg`,
+				RawQueryString:  `command=getcontent&amp;server=images&amp;value=\kerncollectie\3781.jpg`,
+				EnableTransform: true,
 			},
 			false,
 		},
@@ -78,12 +82,14 @@ func TestNewRequest(t *testing.T) {
 				key: imgURL,
 				options: []RequestOption{
 					SetTransform("raw"),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
 				CacheKey:         testCacheKey,
 				SourceURL:        imgURL,
 				TransformOptions: "raw",
+				EnableTransform:  true,
 			},
 			false,
 		},
@@ -93,6 +99,7 @@ func TestNewRequest(t *testing.T) {
 				key: imgURL,
 				options: []RequestOption{
 					SetTransform("500,smartcrop"),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
@@ -101,6 +108,7 @@ func TestNewRequest(t *testing.T) {
 				TransformOptions: "500,smartcrop",
 				thumbnailOpts:    "500",
 				SubPath:          "_500,smartcrop_tn.jpg",
+				EnableTransform:  true,
 			},
 			false,
 		},
@@ -110,6 +118,7 @@ func TestNewRequest(t *testing.T) {
 				key: imgURL + ".dzi",
 				options: []RequestOption{
 					SetTransform("deepzoom"),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
@@ -117,6 +126,7 @@ func TestNewRequest(t *testing.T) {
 				SourceURL:        imgURL,
 				TransformOptions: "deepzoom",
 				SubPath:          ".dzi",
+				EnableTransform:  true,
 			},
 			false,
 		},
@@ -126,6 +136,7 @@ func TestNewRequest(t *testing.T) {
 				key: imgURL + "_files/9/0_0.jpeg",
 				options: []RequestOption{
 					SetTransform("deepzoom"),
+					SetEnableTransform(true),
 				},
 			},
 			&Request{
@@ -133,6 +144,7 @@ func TestNewRequest(t *testing.T) {
 				SourceURL:        imgURL,
 				TransformOptions: "deepzoom",
 				SubPath:          "_files/9/0_0.jpeg",
+				EnableTransform:  true,
 			},
 			false,
 		},
