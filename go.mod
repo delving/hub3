@@ -10,10 +10,11 @@ require (
 	github.com/allegro/bigcache v1.2.1
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/asdine/storm v2.1.2+incompatible
-	github.com/cenkalti/backoff/v4 v4.0.2
+	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
-	github.com/containerd/containerd v1.5.5 // indirect
+	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
 	github.com/disintegration/imaging v1.6.2 // indirect
@@ -47,7 +48,7 @@ require (
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.4.0
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
-	github.com/microcosm-cc/bluemonday v1.0.15
+	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/muesli/smartcrop v0.3.0 // indirect
@@ -57,6 +58,8 @@ require (
 	github.com/olivere/elastic/v7 v7.0.19
 	github.com/onsi/ginkgo v1.12.1
 	github.com/onsi/gomega v1.10.3
+	github.com/opencontainers/image-spec v1.0.2 // indirect
+	github.com/opencontainers/runc v1.0.3 // indirect
 	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -72,13 +75,13 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.7.0
 	github.com/testcontainers/testcontainers-go v0.11.1
-	github.com/tidwall/gjson v1.8.1
+	github.com/tidwall/gjson v1.12.1
 	github.com/valyala/fasthttp v1.15.1
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	golang.org/x/image v0.0.0-20200618115811-c13761719519 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/text v0.3.6
-	google.golang.org/protobuf v1.26.0
+	google.golang.org/protobuf v1.27.1
 	moul.io/http2curl v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.10.0
 )
