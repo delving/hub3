@@ -281,7 +281,7 @@ func SetImageProxyService(service *imageproxy.Service) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
-				r.Mount("/", service.Routes())
+				service.Routes("", r)
 			},
 		)
 

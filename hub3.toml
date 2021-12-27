@@ -166,17 +166,20 @@ enabled = true
 # cache dir (tiered approach with memory first)
 # if empty it will be sourceDir + 'cache'
 cacheDir = "/tmp/imageproxy"
+# maxSizeCacheDir is rearched the oldest entries will be removed (MB)
+maxSizeCacheDir = 1024
 # a list of allowed referrers. If empty everything is allowed
 referrer = []
-
 # a list of allowed remote hosts. If empty everything is allowed
-whitelist = []
-# allow images to scale beyond their original dimensions
-scaleUp = false
+# allowList = ["service.archief.nl", "service.test.archief.nl", "service.acpt.archief.nl"]
+# a list of refused patterns in cachable urls
+refuseList = []
+# lruCacheSize 
+lruCacheSize = 1000
+# image can be resized; requires libvips to be installed
+enableResize = true
 # time limit for request served by this proxy. 0 is no timeout
-timeout = 10
-# enable deepzoom of images
-deepzoom = true
+timeout = 15
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
 
