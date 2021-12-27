@@ -2,6 +2,7 @@ package imageproxy
 
 import (
 	"fmt"
+	"html"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -17,7 +18,7 @@ func (s *Service) Routes(pattern string, router chi.Router) {
 	proxyPrefix := fmt.Sprintf("/%s/{options}", pattern)
 	router.Get(proxyPrefix+"/*", s.handleProxyRequest)
 	router.Get(fmt.Sprintf("/%s/{cacheKey}", pattern), func(w http.ResponseWriter, r *http.Request) {
-		cacheKey := chi.URLParam(r, "cacheKey")
+		cacheKey := html.EscapeString(chi.URLParam(r, "cacheKey"))
 
 		sourceURL, err := decodeURL(cacheKey)
 		if err != nil {
@@ -25,6 +26,6 @@ func (s *Service) Routes(pattern string, router chi.Router) {
 			return
 		}
 
-		fmt.Fprint(w, sourceURL)
+		fmt.Fprint(w, html.EscapeString(sourceURL))
 	})
 }

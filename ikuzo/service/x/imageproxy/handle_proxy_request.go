@@ -3,6 +3,7 @@ package imageproxy
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"io"
 	"net/http"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 // create handler fuction to serve the proxied images
 func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
-	targetURL := chi.URLParam(r, "*")
+	targetURL := html.EscapeString(chi.URLParam(r, "*"))
 	options := chi.URLParam(r, "options")
 
 	allowed, err := s.domainAllowed(targetURL)
@@ -36,8 +37,8 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	allowed = s.reffererAllowed(r.Referer())
 	if !allowed {
 		s.m.IncRejectReferrer()
-		s.log.Error().Err(err).Str("url", targetURL).Str("referrer", r.Referer()).Msg("domain not allowed")
-		http.Error(w, fmt.Sprintf("referrer not allowed: %s", r.Referer()), http.StatusForbidden)
+		s.log.Error().Err(err).Str("url", targetURL).Str("referrer", html.EscapeString(r.Referer())).Msg("domain not allowed")
+		http.Error(w, fmt.Sprintf("referrer not allowed: %s", html.EscapeString(r.Referer())), http.StatusForbidden)
 
 		return
 	}
