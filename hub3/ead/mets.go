@@ -290,7 +290,9 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid, daoCfg *DaoConfig) 
 		t(s, "fileUUID", file.Fileuuid, rdf.NewLiteral)
 		t(s, "recordUUID", file.Filename, rdf.NewLiteral)
 	}
-
+	for _, period := range daoCfg.Periods {
+		t(s, "periodDesc", period, rdf.NewLiteral)
+	}
 	t(s, "dao", daoCfg.Link, rdf.NewLiteral)
 
 	return triples
