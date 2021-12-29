@@ -57,7 +57,8 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 
 	cfg.options = append(cfg.options, ikuzo.SetImageProxyService(s))
 
-	expvar.Publish("hub3-imageproxy-service", expvar.Func(func() interface{} { m := s.Metrics(); return m }))
+	expvar.Publish("hub3-imageproxy-request", expvar.Func(func() interface{} { m := s.RequestMetrics(); return m }))
+	expvar.Publish("hub3-imageproxy-cache", expvar.Func(func() interface{} { m := s.CacheMetrics(); return m }))
 
 	return nil
 }

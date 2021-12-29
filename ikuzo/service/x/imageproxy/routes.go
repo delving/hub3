@@ -13,6 +13,7 @@ func (s *Service) Routes(pattern string, router chi.Router) {
 		pattern = s.proxyPrefix
 	}
 
+	router.Get(fmt.Sprintf("/%s/cachemetrics", pattern), s.rebuildCacheMetrics)
 	router.Get(fmt.Sprintf("/%s/explore/*", pattern), s.handleExplore())
 
 	proxyPrefix := fmt.Sprintf("/%s/{options}", pattern)

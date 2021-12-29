@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os/exec"
@@ -45,7 +44,8 @@ type Service struct {
 	referrers       []string
 	allowList       []string
 	refuselist      []string
-	m               Metrics
+	m               RequestMetrics
+	cm              CacheMetrics
 	log             zerolog.Logger
 	enableResize    bool
 	singleSetCache  singleflight.Group
@@ -58,6 +58,7 @@ func NewService(options ...Option) (*Service, error) {
 		timeOut:     10,
 		proxyPrefix: "imageproxy",
 		log:         zerolog.Nop(),
+		cm:          newCacheMetrics(),
 	}
 
 	// apply options
@@ -101,8 +102,6 @@ func deepZoomExternally(from string) error {
 
 	cmd := exec.Command(path, args...)
 
-	log.Printf("deepzoom command: %s", cmd.String())
-
 	return cmd.Run()
 }
 
@@ -126,13 +125,20 @@ func resizeExternally(from, to, size string) error {
 func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	_ = ctx
 
+	s.log.Debug().
+		Str("cacheKey", req.CacheKey).
+		Str("sourceURL", req.SourceURL).
+		Msg("processing cache key")
+
 	if s.lruCache != nil {
 		if s.lruCache.Contains(req.CacheKey) {
 			data, ok := s.lruCache.Get(req.CacheKey)
 			if ok {
 				req.CacheType = Lru
 
-				_, err := fmt.Fprintf(w, "%s", data)
+				written, err := fmt.Fprintf(w, "%s", data)
+
+				s.m.IncBytesServed(int64(written))
 
 				s.m.IncLruCache()
 
@@ -141,10 +147,10 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		}
 	}
 
-	isCached := existsInCache(req.cacheKeyPath())
+	_, isCached := existsInCache(req.cacheKeyPath())
 
 	if !isCached {
-		hasSource := existsInCache(req.downloadedSourcePath())
+		_, hasSource := existsInCache(req.downloadedSourcePath())
 		if !hasSource {
 			_, err, shared := s.singleSetCache.Do(
 				req.SourceURL,
@@ -178,7 +184,16 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					return nil, resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+					err := resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+					if err == nil {
+						info, ok := existsInCache(req.cacheKeyPath())
+						if ok {
+							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
+								return nil, cacheErr
+							}
+						}
+					}
+					return nil, err
 				},
 			)
 			if err != nil {
@@ -197,7 +212,18 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					return nil, deepZoomExternally(req.downloadedSourcePath())
+					err := deepZoomExternally(req.downloadedSourcePath())
+					if err == nil {
+						info, ok := existsInCache(req.cacheKeyPath())
+						if ok {
+							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
+								return nil, cacheErr
+							}
+							tiles, size := s.countTiles(strings.ReplaceAll(req.cacheKeyPath(), ".dzi", "_files"))
+							s.cm.addDeepZoomTiles(tiles, size)
+						}
+					}
+					return nil, err
 				},
 			)
 			if err != nil {
@@ -226,13 +252,15 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		var buf bytes.Buffer
 		tee := io.TeeReader(r, &buf)
 
-		_, err = io.Copy(w, tee)
+		written, err := io.Copy(w, tee)
 		if err != nil {
 			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("error copying data from cache")
 			s.m.IncError()
 
 			return err
 		}
+
+		s.m.IncBytesServed(written)
 
 		if req.CacheType == "" {
 			req.CacheType = Cache
@@ -280,13 +308,15 @@ func (s *Service) storeSource(req *Request) error {
 	}
 
 	// check for adlib error when content type is xml
-	err = req.Write(req.downloadedSourcePath(), tee)
+	size, err := req.Write(req.downloadedSourcePath(), tee)
 	if err != nil {
 		// do not return error here or cache write error
 		s.log.Error().Err(err).Msgf("unable to write remote file to cache; %s", err)
 
 		s.m.IncRemoteRequestError()
 	}
+
+	s.cm.addSourceFile(size)
 
 	s.m.IncSource()
 
