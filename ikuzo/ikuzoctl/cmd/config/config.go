@@ -113,6 +113,11 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 		return cfg.is, nil
 	}
 
+	if !cfg.ElasticSearch.Enabled {
+		cfg.logger.Warn().Msg("elasticsearch is disabled, so index service is disabled as well")
+		return nil, fmt.Errorf("elasticsearch is not enabled")
+	}
+
 	var (
 		ncfg *index.NatsConfig
 		err  error

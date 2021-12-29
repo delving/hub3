@@ -2,7 +2,7 @@ package imageproxy
 
 import "sync/atomic"
 
-type Metrics struct {
+type RequestMetrics struct {
 	Source             uint64
 	Cache              uint64
 	LruCache           uint64
@@ -14,55 +14,60 @@ type Metrics struct {
 	DeepZoom           uint64
 	Error              uint64
 	Removed            uint64
+	BytesServed        uint64
 	// Canceled      uint64
 	// AlreadyQueued uint64
 }
 
-func (s *Service) Metrics() Metrics {
+func (s *Service) RequestMetrics() RequestMetrics {
 	return s.m
 }
 
-func (m *Metrics) IncSource() {
+func (m *RequestMetrics) IncBytesServed(size int64) {
+	atomic.AddUint64(&m.BytesServed, uint64(size))
+}
+
+func (m *RequestMetrics) IncSource() {
 	atomic.AddUint64(&m.Source, 1)
 }
 
-func (m *Metrics) IncCache() {
+func (m *RequestMetrics) IncCache() {
 	atomic.AddUint64(&m.Cache, 1)
 }
 
-func (m *Metrics) IncLruCache() {
+func (m *RequestMetrics) IncLruCache() {
 	atomic.AddUint64(&m.LruCache, 1)
 }
 
-func (m *Metrics) IncRemoteRequestError() {
+func (m *RequestMetrics) IncRemoteRequestError() {
 	atomic.AddUint64(&m.RemoteRequestError, 1)
 }
 
-func (m *Metrics) IncRemoved() {
+func (m *RequestMetrics) IncRemoved() {
 	atomic.AddUint64(&m.Removed, 1)
 }
 
-func (m *Metrics) IncError() {
+func (m *RequestMetrics) IncError() {
 	atomic.AddUint64(&m.Error, 1)
 }
 
-func (m *Metrics) IncRejectURI() {
+func (m *RequestMetrics) IncRejectURI() {
 	atomic.AddUint64(&m.RejectURI, 1)
 }
 
-func (m *Metrics) IncRejectDomain() {
+func (m *RequestMetrics) IncRejectDomain() {
 	atomic.AddUint64(&m.RejectDomain, 1)
 }
 
-func (m *Metrics) IncRejectReferrer() {
+func (m *RequestMetrics) IncRejectReferrer() {
 	atomic.AddUint64(&m.RejectReferrer, 1)
 }
 
-func (m *Metrics) IncResize() {
+func (m *RequestMetrics) IncResize() {
 	atomic.AddUint64(&m.Resize, 1)
 }
 
-func (m *Metrics) IncDeepZoom() {
+func (m *RequestMetrics) IncDeepZoom() {
 	atomic.AddUint64(&m.DeepZoom, 1)
 }
 
