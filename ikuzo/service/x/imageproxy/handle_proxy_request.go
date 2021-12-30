@@ -29,7 +29,7 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	if !allowed {
 		s.m.IncRejectDomain()
 		s.log.Error().Err(err).Str("url", targetURL).Msg("domain not allowed")
-		http.Error(w, "domain is now allowed", http.StatusForbidden)
+		http.Error(w, "domain is not allowed", http.StatusForbidden)
 
 		return
 	}
