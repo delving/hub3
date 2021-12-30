@@ -14,7 +14,13 @@ import (
 
 // create handler fuction to serve the proxied images
 func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
-	targetURL := html.EscapeString(chi.URLParam(r, "*"))
+	targetURL := chi.URLParam(r, "*")
+	if strings.HasPrefix(targetURL, "http") {
+		if !strings.HasPrefix(targetURL, "https://") && !strings.HasPrefix(targetURL, "http://") {
+			targetURL = strings.ReplaceAll(targetURL, ":/", "://")
+		}
+	}
+
 	options := chi.URLParam(r, "options")
 
 	allowed, err := s.domainAllowed(targetURL)
