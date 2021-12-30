@@ -111,6 +111,7 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 		if !strings.HasPrefix(req.CacheKey, "https://") && !strings.HasPrefix(req.CacheKey, "http://") {
 			req.CacheKey = strings.ReplaceAll(input, ":/", "://")
 		}
+
 		req.SourceURL = req.CacheKey
 
 		if req.RawQueryString != "" {
@@ -251,7 +252,12 @@ func (req *Request) downloadedSourcePath() string {
 }
 
 func encodeURL(input string) string {
-	return base64.URLEncoding.EncodeToString([]byte(input))
+	hash := base64.URLEncoding.EncodeToString([]byte(input))
+	if len(hash) > 254 {
+		return fmt.Sprintf("xxhash64-%016x", xxhash.ChecksumString64(input))
+	}
+
+	return hash
 }
 
 func decodeURL(input string) (string, error) {
