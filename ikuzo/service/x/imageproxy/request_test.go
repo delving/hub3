@@ -33,6 +33,15 @@ func TestNewRequest(t *testing.T) {
 			false,
 		},
 		{
+			"filename too long",
+			args{key: "https://service.archief.nl/iipsrv?IIIF=%2F4d%2F68%2F78%2F49%2Ffe%2F2c%2F4f%2F85%2F8b%2F7a%2F97%2F88%2F78%2Fe0%2F2f%2F1d%2F7bb1c07c-14e9-4064-92a0-ffb9fd0132f8.jp2%2Ffull%2F213%2C%2F0%2Fdefault.jpg"},
+			&Request{
+				CacheKey:  "xxhash64-3a748e637be3be2a",
+				SourceURL: "https://service.archief.nl/iipsrv?IIIF=%2F4d%2F68%2F78%2F49%2Ffe%2F2c%2F4f%2F85%2F8b%2F7a%2F97%2F88%2F78%2Fe0%2F2f%2F1d%2F7bb1c07c-14e9-4064-92a0-ffb9fd0132f8.jp2%2Ffull%2F213%2C%2F0%2Fdefault.jpg",
+			},
+			false,
+		},
+		{
 			"encoded request",
 			args{key: testCacheKey},
 			&Request{
