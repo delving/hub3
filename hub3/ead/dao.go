@@ -371,7 +371,7 @@ type DaoConfig struct {
 	MimeTypes      []string
 	RevisionKey    string
 	FilterTypes    []string
-	Periods        []string
+	PeriodDesc     []string
 }
 
 func getUUID(daoLink string) string {
@@ -390,7 +390,7 @@ func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 		InventoryTitle: tree.Label,
 		Link:           tree.DaoLink,
 		UUID:           getUUID(tree.DaoLink),
-		Periods:        tree.Periods,
+		PeriodDesc:     cfg.PeriodDesc,
 	}
 }
 
