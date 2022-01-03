@@ -15,17 +15,23 @@
 package config
 
 import (
+	"expvar"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/service/x/imageproxy"
 )
 
 type ImageProxy struct {
-	Enabled       bool
-	CacheDir      string
-	ProxyPrefix   string
-	Timeout       int
-	ProxyReferrer []string
-	BlackList     []string
+	Enabled         bool
+	CacheDir        string
+	MaxSizeCacheDir int
+	ProxyPrefix     string
+	Timeout         int
+	ProxyReferrer   []string
+	RefuseList      []string
+	AllowList       []string
+	LruCacheSize    int
+	EnableResize    bool
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -35,17 +41,23 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 
 	s, err := imageproxy.NewService(
 		imageproxy.SetCacheDir(ip.CacheDir),
+		imageproxy.SetMaxSizeCacheDir(ip.MaxSizeCacheDir),
 		imageproxy.SetProxyPrefix(ip.ProxyPrefix),
 		imageproxy.SetTimeout(ip.Timeout),
 		imageproxy.SetProxyReferrer(ip.ProxyReferrer),
-		imageproxy.SetBlackList(ip.BlackList),
+		imageproxy.SetRefuseList(ip.RefuseList),
+		imageproxy.SetAllowList(ip.AllowList),
+		imageproxy.SetLruCacheSize(ip.LruCacheSize),
+		imageproxy.SetEnableResize(ip.EnableResize),
+		imageproxy.SetLogger(cfg.logger.Logger),
 	)
-
 	if err != nil {
 		return err
 	}
 
 	cfg.options = append(cfg.options, ikuzo.SetImageProxyService(s))
+
+	expvar.Publish("hub3-imageproxy-service", expvar.Func(func() interface{} { m := s.Metrics(); return m }))
 
 	return nil
 }

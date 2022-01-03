@@ -192,7 +192,7 @@ func validateFindingAid(fa *eadpb.FindingAid) error {
 }
 
 func assertUniqueFilenames(files []*eadpb.File) error {
-	var fileNames = make(map[string]int32)
+	fileNames := make(map[string]int32)
 
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
@@ -383,6 +383,7 @@ type DaoConfig struct {
 	FilterTypes    []string
 	FileUUIDs      []string
 	ThumbnailUUID  string
+	PeriodDesc     []string
 }
 
 func getUUID(daoLink string) string {
@@ -401,6 +402,7 @@ func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 		InventoryTitle: tree.Label,
 		Link:           tree.DaoLink,
 		UUID:           getUUID(tree.DaoLink),
+		PeriodDesc:     cfg.PeriodDesc,
 	}
 }
 
