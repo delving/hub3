@@ -210,7 +210,7 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 	s.runPosthooks(orgID, datasetID, revision)
 
 	tags := elastic.NewBoolQuery()
-	for _, tag := range []string{"findingAid", "mets", "nt"} {
+	for _, tag := range []string{"findingAid", "findingaid", "mets", "nt"} {
 		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
 	}
 
