@@ -35,7 +35,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/kiivihal/rdf2go"
 	rdf "github.com/kiivihal/rdf2go"
 )
 
@@ -363,23 +362,23 @@ type Stats struct {
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
 }
 
-func encodeTerm(iterm rdf2go.Term) string {
+func encodeTerm(iterm rdf.Term) string {
 	switch term := iterm.(type) {
-	case *rdf2go.Resource:
+	case *rdf.Resource:
 		return fmt.Sprintf("<%s>", term.URI)
-	case *rdf2go.Literal:
+	case *rdf.Literal:
 		return term.String()
-	case *rdf2go.BlankNode:
+	case *rdf.BlankNode:
 		return term.String()
 	}
 
 	return ""
 }
 
-func serializeTurtle(g *rdf2go.Graph, w io.Writer) error {
+func serializeTurtle(g *rdf.Graph, w io.Writer) error {
 	var err error
 
-	triplesBySubject := make(map[string][]*rdf2go.Triple)
+	triplesBySubject := make(map[string][]*rdf.Triple)
 
 	for triple := range g.IterTriples() {
 		s := encodeTerm(triple.Subject)
