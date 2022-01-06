@@ -137,7 +137,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 
 // RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
 func (p *Parser) RDFBulkInsert() []error {
-	triplesStored, errs := fragments.RDFBulkInsert(p.ds.OrgID, p.sparqlUpdates)
+	triplesStored, errs := fragments.RDFBulkInsert(p.sparqlUpdates)
 	p.sparqlUpdates = nil
 	p.stats.TriplesStored = uint64(triplesStored)
 
