@@ -38,7 +38,7 @@ type Service struct {
 	client          http.Client
 	lruCache        *lru.ARCCache
 	cacheDir        string // The path to the imageCache
-	maxSizeCacheDir int    //  max size of the cache directory on disK
+	maxSizeCacheDir int    //  max size of the cache directory on disk in kb
 	timeOut         int    // timelimit for request served by this proxy. 0 is for no timeout
 	proxyPrefix     string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 	referrers       []string
@@ -49,6 +49,7 @@ type Service struct {
 	log             zerolog.Logger
 	enableResize    bool
 	singleSetCache  singleflight.Group
+	cancelWorker    context.CancelFunc
 	// orgs         domain.OrgConfigRetriever
 }
 
@@ -70,6 +71,10 @@ func NewService(options ...Option) (*Service, error) {
 
 	if s.enableResize {
 		s.enableResize = s.checkForVips()
+	}
+
+	if s.maxSizeCacheDir > 0 {
+		s.startCacheWorker()
 	}
 
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
@@ -378,6 +383,10 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	if s.cancelWorker != nil {
+		s.cancelWorker()
+	}
+
 	return nil
 }
 

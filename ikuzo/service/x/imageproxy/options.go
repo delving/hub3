@@ -18,7 +18,7 @@ func SetCacheDir(path string) Option {
 
 func SetMaxSizeCacheDir(size int) Option {
 	return func(s *Service) error {
-		s.maxSizeCacheDir = size
+		s.maxSizeCacheDir = size * 1024
 		return nil
 	}
 }
