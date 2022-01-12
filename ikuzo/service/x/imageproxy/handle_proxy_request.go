@@ -2,6 +2,7 @@ package imageproxy
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -113,6 +114,12 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	err = s.Do(r.Context(), req, &buf)
 	if err != nil {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
+
+		if errors.Is(err, ErrRemoteResourceNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return

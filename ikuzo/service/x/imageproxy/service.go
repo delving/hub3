@@ -32,6 +32,8 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 )
 
+var ErrRemoteResourceNotFound = errors.New("remote resource not found")
+
 // var _ domain.Service = (*Service)(nil)
 
 type Service struct {
@@ -290,11 +292,18 @@ func (s *Service) storeSource(req *Request) error {
 	}
 
 	resp, err := s.client.Do(proxyRequest)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make remote request")
 		s.m.IncRemoteRequestError()
 
 		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		s.log.Error().Err(err).Int("status_code", resp.StatusCode).Str("url", req.SourceURL).Msg("retrieve object")
+		s.m.IncRemoteRequestError()
+
+		return fmt.Errorf("status_code: %d; %w", resp.StatusCode, ErrRemoteResourceNotFound)
 	}
 
 	defer resp.Body.Close()
