@@ -32,6 +32,7 @@
 - Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
 - Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
 - Drop orphans with lowercase 'findingaid' tag [[GH-124]](https://github.com/delving/hub3/pull/124)
+- Return 404 from imageproxy when remote resource is not found [[GH-127]](https://github.com/delving/hub3/pull/127)
 
 ### Removed
 
