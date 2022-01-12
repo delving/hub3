@@ -70,6 +70,7 @@ type Header struct {
 	Genreform        string
 	Attridentifier   string
 }
+
 type NodeDate struct {
 	Calendar string
 	Era      string
@@ -77,6 +78,7 @@ type NodeDate struct {
 	Label    string
 	Type     string
 }
+
 type NodeID struct {
 	TypeID   string
 	Type     string
@@ -206,7 +208,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 
 		if cfg.DaoFn != nil {
-			if cfg.ProcessDigital || hasOrphanedMetsFile {
+			if cfg.ProcessDigital || hasOrphanedMetsFile || cfg.ProcessDigitalIfMissing {
 				log.Debug().
 					Str("archiveID", daoCfg.ArchiveID).
 					Str("InventoryID", daoCfg.InventoryID).
@@ -226,7 +228,6 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 				tree.MimeTypes = daoCfg.MimeTypes
 				tree.DOCount = daoCfg.ObjectCount
 			}
-
 		}
 	}
 

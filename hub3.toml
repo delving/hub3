@@ -220,7 +220,8 @@ singleEndpoint = "NL-.*"
 cacheDir = "/tmp/ead"
 metrics = true
 workers = 1
-processDigital = true
+processDigital = false
+processDigitalIfMissing = false
 
 searchURL = ""
 genreFormDefault = "other/unknown"

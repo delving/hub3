@@ -94,21 +94,22 @@ type PreStoreFn func(b []byte) []byte
 type DaoFn func(cfg *eadHub3.DaoConfig) error
 
 type Service struct {
-	index          *index.Service
-	revision       *revision.Service
-	dataDir        string
-	M              Metrics
-	CreateTreeFn   CreateTreeFn
-	PreStoreFn     PreStoreFn
-	DaoFn          DaoFn
-	DaoClient      *eadHub3.DaoClient
-	processDigital bool
-	tasks          map[string]*Task
-	rw             sync.RWMutex
-	workers        int
-	cancel         context.CancelFunc
-	group          *errgroup.Group
-	postHooks      map[string][]domain.PostHookService
+	index                   *index.Service
+	revision                *revision.Service
+	dataDir                 string
+	M                       Metrics
+	CreateTreeFn            CreateTreeFn
+	PreStoreFn              PreStoreFn
+	DaoFn                   DaoFn
+	DaoClient               *eadHub3.DaoClient
+	processDigital          bool
+	processDigitalIfMissing bool
+	tasks                   map[string]*Task
+	rw                      sync.RWMutex
+	workers                 int
+	cancel                  context.CancelFunc
+	group                   *errgroup.Group
+	postHooks               map[string][]domain.PostHookService
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -434,6 +435,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 	cfg.Tags = t.Meta.Tags
 	cfg.Revision = t.Meta.Revision
 	cfg.ProcessDigital = t.Meta.ProcessDigital
+	cfg.ProcessDigitalIfMissing = t.Meta.ProcessDigitalIfMissing
 	cfg.ProcessAccessTime = t.Meta.ProcessAccessTime
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
@@ -721,6 +723,12 @@ func (s *Service) CreateTask(r *http.Request, meta Meta) (*taskResponse, error) 
 		}
 	}
 
+	if processDigital := r.FormValue("ifmissing"); processDigital != "" {
+		if b, convErr := strconv.ParseBool(processDigital); convErr == nil {
+			meta.ProcessDigitalIfMissing = b
+		}
+	}
+
 	if processAccessTime := r.FormValue(PaccessKey); processAccessTime != "" {
 		if t, convErr := time.Parse(time.RFC3339, processAccessTime); convErr == nil {
 			meta.ProcessAccessTime = t
@@ -836,6 +844,7 @@ func (s *Service) LoadEAD(orgID, spec string) (Meta, error) {
 	}
 	meta.FileSize = uint64(f.Size())
 	meta.ProcessDigital = s.processDigital
+	meta.ProcessDigitalIfMissing = s.processDigitalIfMissing
 
 	return meta, nil
 }
@@ -915,7 +924,6 @@ func (s *Service) getDataPath(dataset string) string {
 //
 // The returned io.Reader is a bytes.Buffer that can be read from multiple times.
 func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, error) {
-
 	if err := os.MkdirAll(s.dataDir, os.ModePerm); err != nil {
 		return nil, "", fmt.Errorf("unable to create data directory; %w", err)
 	}
@@ -963,6 +971,7 @@ func (s *Service) SaveEAD(r io.Reader, size int64, datasetID, orgID string) (Met
 
 	meta.FileSize = uint64(size)
 	meta.ProcessDigital = s.processDigital
+	meta.ProcessDigitalIfMissing = s.processDigitalIfMissing
 	meta.OrgID = orgID
 
 	return meta, nil
