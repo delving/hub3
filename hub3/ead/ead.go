@@ -72,16 +72,17 @@ type NodeConfig struct {
 	HubIDs                chan *NodeEntry
 	Errors                []*DuplicateError
 	// TODO(kiivihal): remove later
-	IndexService      *index.Service
-	CreateTree        func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
-	DaoFn             func(cfg *DaoConfig) error
-	ContentIdentical  bool
-	Nodes             chan *Node
-	ProcessDigital    bool
-	RetrieveDao       bool
-	ProcessAccessTime time.Time
-	m                 sync.Mutex
-	Tags              []string
+	IndexService            *index.Service
+	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
+	DaoFn                   func(cfg *DaoConfig) error
+	ContentIdentical        bool
+	Nodes                   chan *Node
+	ProcessDigital          bool
+	ProcessDigitalIfMissing bool
+	RetrieveDao             bool
+	ProcessAccessTime       time.Time
+	m                       sync.Mutex
+	Tags                    []string
 }
 
 func (cfg *NodeConfig) Labels() map[string]string {

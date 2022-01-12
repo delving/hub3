@@ -56,6 +56,13 @@ func SetProcessDigital(isEnabled bool) Option {
 	}
 }
 
+func SetProcessDigitalIfMissing(isEnabled bool) Option {
+	return func(s *Service) error {
+		s.processDigitalIfMissing = isEnabled
+		return nil
+	}
+}
+
 func SetWorkers(workers int) Option {
 	return func(s *Service) error {
 		if workers == 0 {

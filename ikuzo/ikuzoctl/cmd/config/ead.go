@@ -23,10 +23,11 @@ import (
 )
 
 type EAD struct {
-	CacheDir       string `json:"cacheDir"`
-	Metrics        bool   `json:"metrics"`
-	Workers        int    `json:"workers"`
-	ProcessDigital bool   `json:"processDigital"`
+	CacheDir                string `json:"cacheDir"`
+	Metrics                 bool   `json:"metrics"`
+	Workers                 int    `json:"workers"`
+	ProcessDigital          bool   `json:"processDigital"`
+	ProcessDigitalIfMissing bool   `json:"processDigitalIfMissing"`
 }
 
 func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
@@ -46,6 +47,7 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 		ead.SetDataDir(e.CacheDir),
 		ead.SetWorkers(e.Workers),
 		ead.SetProcessDigital(e.ProcessDigital),
+		ead.SetProcessDigitalIfMissing(e.ProcessDigitalIfMissing),
 		ead.SetRevisionService(trs),
 	)
 	if err != nil {
