@@ -20,24 +20,25 @@ import (
 )
 
 type Meta struct {
-	basePath              string
-	OrgID                 string
-	DatasetID             string
-	Title                 string
-	Clevels               uint64
-	DaoLinks              uint64
-	DaoErrors             uint64
-	DaoErrorLinks         map[string]string
-	Tags                  []string
-	TotalRecordsPublished uint64
-	DigitalObjects        uint64
-	FileSize              uint64
-	Revision              int32
-	ProcessDigital        bool
-	ProcessAccessTime     time.Time
-	Created               bool
-	ProcessingDuration    time.Duration `json:"processingDuration,omitempty"`
-	ProcessingDurationFmt string        `json:"processingDurationFmt,omitempty"`
+	basePath                string
+	OrgID                   string
+	DatasetID               string
+	Title                   string
+	Clevels                 uint64
+	DaoLinks                uint64
+	DaoErrors               uint64
+	DaoErrorLinks           map[string]string
+	Tags                    []string
+	TotalRecordsPublished   uint64
+	DigitalObjects          uint64
+	FileSize                uint64
+	Revision                int32
+	ProcessDigital          bool
+	ProcessDigitalIfMissing bool
+	ProcessAccessTime       time.Time
+	Created                 bool
+	ProcessingDuration      time.Duration `json:"processingDuration,omitempty"`
+	ProcessingDurationFmt   string        `json:"processingDurationFmt,omitempty"`
 }
 
 // getSourcePath returns full path to the source EAD file

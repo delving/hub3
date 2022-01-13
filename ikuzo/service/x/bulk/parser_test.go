@@ -37,4 +37,6 @@ func TestSerializeTurtle(t *testing.T) {
 
 	rdf := buf.String()
 	is.True(!strings.Contains(rdf, "urn:private/")) // serialized rdf should not contain urn:private
+	t.Logf("rdf: %s", rdf)
+	is.True(strings.HasSuffix(rdf, " .\n"))
 }

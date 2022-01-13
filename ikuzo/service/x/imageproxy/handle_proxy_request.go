@@ -2,6 +2,7 @@ package imageproxy
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html"
 	"io"
@@ -14,7 +15,13 @@ import (
 
 // create handler fuction to serve the proxied images
 func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
-	targetURL := html.EscapeString(chi.URLParam(r, "*"))
+	targetURL := chi.URLParam(r, "*")
+	if strings.HasPrefix(targetURL, "http") {
+		if !strings.HasPrefix(targetURL, "https://") && !strings.HasPrefix(targetURL, "http://") {
+			targetURL = strings.ReplaceAll(targetURL, ":/", "://")
+		}
+	}
+
 	options := chi.URLParam(r, "options")
 
 	allowed, err := s.domainAllowed(targetURL)
@@ -107,6 +114,12 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	err = s.Do(r.Context(), req, &buf)
 	if err != nil {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
+
+		if errors.Is(err, ErrRemoteResourceNotFound) {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 
 		return

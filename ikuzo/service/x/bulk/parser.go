@@ -333,7 +333,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 // AppendRDFBulkRequest gathers all the triples from an BulkAction to be inserted in bulk.
 func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 	var b bytes.Buffer
-	if err := serializeTurtle(g, &b); err != nil {
+	if err := serializeNTriples(g, &b); err != nil {
 		return fmt.Errorf("unable to convert RDF graph; %w", err)
 	}
 
@@ -375,6 +375,31 @@ func encodeTerm(iterm rdf.Term) string {
 	return ""
 }
 
+func serializeNTriples(g *rdf.Graph, w io.Writer) error {
+	var err error
+
+	for triple := range g.IterTriples() {
+		s := encodeTerm(triple.Subject)
+		if strings.HasPrefix(s, "<urn:private/") {
+			continue
+		}
+
+		p := encodeTerm(triple.Predicate)
+		o := encodeTerm(triple.Object)
+
+		if strings.HasPrefix(o, "<urn:private/") {
+			continue
+		}
+
+		_, err = fmt.Fprintf(w, "%s %s %s .\n", s, p, o)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func serializeTurtle(g *rdf.Graph, w io.Writer) error {
 	var err error
 
@@ -383,6 +408,12 @@ func serializeTurtle(g *rdf.Graph, w io.Writer) error {
 	for triple := range g.IterTriples() {
 		s := encodeTerm(triple.Subject)
 		if strings.HasPrefix(s, "<urn:private/") {
+			continue
+		}
+
+		o := encodeTerm(triple.Object)
+
+		if strings.HasPrefix(o, "<urn:private/") {
 			continue
 		}
 
@@ -398,10 +429,6 @@ func serializeTurtle(g *rdf.Graph, w io.Writer) error {
 		for key, triple := range triples {
 			p := encodeTerm(triple.Predicate)
 			o := encodeTerm(triple.Object)
-
-			if strings.HasPrefix(o, "<urn:private/") {
-				continue
-			}
 
 			if key == len(triples)-1 {
 				_, err = fmt.Fprintf(w, "  %s %s .\n", p, o)
