@@ -69,6 +69,11 @@ func (e *EAD) AddOptions(cfg *Config) error {
 		return nil
 	}
 
+	if !cfg.ElasticSearch.Enabled {
+		cfg.logger.Warn().Msg("ead service forcibly disabled because elasticsearch is not enabled")
+		return nil
+	}
+
 	svc, err := e.NewService(cfg)
 	if err != nil {
 		return err

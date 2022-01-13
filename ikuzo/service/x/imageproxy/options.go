@@ -2,7 +2,6 @@ package imageproxy
 
 import (
 	"fmt"
-	"log"
 
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/rs/zerolog"
@@ -19,14 +18,13 @@ func SetCacheDir(path string) Option {
 
 func SetMaxSizeCacheDir(size int) Option {
 	return func(s *Service) error {
-		s.maxSizeCacheDir = size
+		s.maxSizeCacheDir = size * 1024
 		return nil
 	}
 }
 
 func SetLruCacheSize(size int) Option {
 	return func(s *Service) error {
-		log.Printf("size input: %d", size)
 		lruCache, err := lru.NewARC(size)
 		if err != nil {
 			return fmt.Errorf("unable to create lru: %w", err)

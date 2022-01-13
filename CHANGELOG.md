@@ -13,6 +13,7 @@
 - Added support for indexing map datatypes in scans indexed from METS files [[GH-117]](https://github.com/delving/hub3/pull/117)
 - PeriodDesc in daoCfg and FindingAid [[GH-118]](https://github.com/delving/hub3/pull/118)
 - Ignore private resources in bulk sparql export [[GH-123]](https://github.com/delving/hub3/pull/123)
+- Cache cleaning work for imageproxy service [[GH-119]](https://github.com/delving/hub3/pull/119)
 
 ## Changed 
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
@@ -33,6 +34,8 @@
 - Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
 - Drop orphans with lowercase 'findingaid' tag [[GH-124]](https://github.com/delving/hub3/pull/124)
 - Return 404 from imageproxy when remote resource is not found [[GH-127]](https://github.com/delving/hub3/pull/127)
+- Bulk index service sparql-update private filter produces invalid RDF [[GH-125]](https://github.com/delving/hub3/pull/125)
+
 
 ### Removed
 
