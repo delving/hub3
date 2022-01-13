@@ -14,7 +14,7 @@ require (
 	github.com/asdine/storm v2.1.2+incompatible
 	github.com/cenkalti/backoff/v4 v4.1.1
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
-	github.com/containerd/containerd v1.5.8 // indirect
+	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62
 	github.com/die-net/lrucache v0.0.0-20190707192454-883874fe3947
 	github.com/disintegration/imaging v1.6.2 // indirect

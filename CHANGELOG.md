@@ -14,6 +14,8 @@
 - PeriodDesc in daoCfg and FindingAid [[GH-118]](https://github.com/delving/hub3/pull/118)
 - Ignore private resources in bulk sparql export [[GH-123]](https://github.com/delving/hub3/pull/123)
 - Ignore private resources in bulk sparql export [[GH-126]](https://github.com/delving/hub3/pull/126)
+- Cache cleaning work for imageproxy service [[GH-119]](https://github.com/delving/hub3/pull/119)
+
 
 ## Changed 
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
@@ -33,6 +35,7 @@
 - Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
 - Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
 - Drop orphans with lowercase 'findingaid' tag [[GH-124]](https://github.com/delving/hub3/pull/124)
+- Bulk index service sparql-update private filter produces invalid RDF [[GH-125]](https://github.com/delving/hub3/pull/125)
 
 ### Removed
 

@@ -108,6 +108,10 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 	}
 
 	if strings.HasPrefix(req.CacheKey, "http") {
+		if !strings.HasPrefix(req.CacheKey, "https://") && !strings.HasPrefix(req.CacheKey, "http://") {
+			req.CacheKey = strings.ReplaceAll(input, ":/", "://")
+		}
+
 		req.SourceURL = req.CacheKey
 
 		if req.RawQueryString != "" {
@@ -197,28 +201,28 @@ func (req *Request) Read(path string) (io.ReadCloser, error) {
 }
 
 // Write writes all content of the reader to path in the cache
-func (req *Request) Write(path string, r io.Reader) error {
+func (req *Request) Write(path string, r io.Reader) (int64, error) {
 	if err := os.MkdirAll(filepath.Dir(path), os.ModePerm); err != nil {
-		return fmt.Errorf("unable to create directories; %w", err)
+		return 0, fmt.Errorf("unable to create directories; %w", err)
 	}
 
 	f, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("unable to create file; %w", err)
+		return 0, fmt.Errorf("unable to create file; %w", err)
 	}
 
-	_, err = io.Copy(f, r)
+	size, err := io.Copy(f, r)
 	if err != nil {
-		return fmt.Errorf("unable to write to file; %w", err)
+		return 0, fmt.Errorf("unable to write to file; %w", err)
 	}
 
-	return nil
+	return size, nil
 }
 
 // existsInCache returns whether a path is stored in the cache
-func existsInCache(path string) bool {
-	_, err := os.Stat(path)
-	return !errors.Is(err, os.ErrNotExist)
+func existsInCache(path string) (info os.FileInfo, present bool) {
+	file, err := os.Stat(path)
+	return file, !errors.Is(err, os.ErrNotExist)
 }
 
 // cacheKeyPath is the full path to the cached resource
@@ -248,7 +252,12 @@ func (req *Request) downloadedSourcePath() string {
 }
 
 func encodeURL(input string) string {
-	return base64.URLEncoding.EncodeToString([]byte(input))
+	hash := base64.URLEncoding.EncodeToString([]byte(input))
+	if len(hash) > 254 {
+		return fmt.Sprintf("xxhash64-%016x", xxhash.ChecksumString64(input))
+	}
+
+	return hash
 }
 
 func decodeURL(input string) (string, error) {
