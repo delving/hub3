@@ -22,6 +22,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -80,6 +81,10 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
+
+	if err := os.MkdirAll(s.cacheDir, os.ModePerm); err != nil {
+		return s, err
+	}
 
 	return s, nil
 }
