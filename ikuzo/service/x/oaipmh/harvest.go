@@ -208,6 +208,7 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 		log.Error().Err(err).Str("verb", resp.Request.Verb).
 			Str("error.code", resp.Error.Code).
 			Str("error.message", resp.Error.Message).
+			Str("url", request.GetFullURL()).
 			Msg("response returns an error")
 
 		ht.m.Errors = append(ht.m.Errors, err)
@@ -316,6 +317,7 @@ func (ht *HarvestTask) Harvest(ctx context.Context) error {
 			log.Error().
 				Err(err).
 				Str("name", ht.Name).
+				Str("url", req.GetFullURL()).
 				Msg("harvest returned with error")
 
 			return err
