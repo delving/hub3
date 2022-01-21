@@ -37,21 +37,22 @@ var ErrRemoteResourceNotFound = errors.New("remote resource not found")
 // var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	client          http.Client
-	lruCache        *lru.ARCCache
-	cacheDir        string // The path to the imageCache
-	maxSizeCacheDir int    //  max size of the cache directory on disk in kb
-	timeOut         int    // timelimit for request served by this proxy. 0 is for no timeout
-	proxyPrefix     string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
-	referrers       []string
-	allowList       []string
-	refuselist      []string
-	m               RequestMetrics
-	cm              CacheMetrics
-	log             zerolog.Logger
-	enableResize    bool
-	singleSetCache  singleflight.Group
-	cancelWorker    context.CancelFunc
+	client           http.Client
+	lruCache         *lru.ARCCache
+	cacheDir         string // The path to the imageCache
+	maxSizeCacheDir  int    //  max size of the cache directory on disk in kb
+	timeOut          int    // timelimit for request served by this proxy. 0 is for no timeout
+	proxyPrefix      string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
+	referrers        []string
+	allowList        []string
+	refuselist       []string
+	allowedMimeTypes []string
+	m                RequestMetrics
+	cm               CacheMetrics
+	log              zerolog.Logger
+	enableResize     bool
+	singleSetCache   singleflight.Group
+	cancelWorker     context.CancelFunc
 	// orgs         domain.OrgConfigRetriever
 }
 
@@ -306,12 +307,27 @@ func (s *Service) storeSource(req *Request) error {
 		return fmt.Errorf("status_code: %d; %w", resp.StatusCode, ErrRemoteResourceNotFound)
 	}
 
+	contentType := resp.Header.Get("Content-Type")
+
+	if len(s.allowedMimeTypes) != 0 {
+		var allowed bool
+
+		for _, mimeType := range s.allowedMimeTypes {
+			if strings.EqualFold(mimeType, contentType) {
+				allowed = true
+				break
+			}
+		}
+
+		if !allowed {
+			return fmt.Errorf("mimeType %s is not allowed", contentType)
+		}
+	}
+
 	defer resp.Body.Close()
 
 	var buf bytes.Buffer
 	tee := io.TeeReader(resp.Body, &buf)
-
-	contentType := resp.Header.Get("Content-Type")
 
 	if strings.HasPrefix(contentType, "text/xml") && bytes.Contains(buf.Bytes(), []byte("adlibXML")) {
 		// don't cache adlib error messages
