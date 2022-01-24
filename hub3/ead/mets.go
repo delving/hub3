@@ -149,6 +149,7 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 		HasOnlyTiles:   false,
 		MimeTypes:      map[string]int32{},
 		FileCount:      0,
+		FilterTypes:    cfg.FilterTypes,
 	}
 
 	if mets.CmetsHdr.CaltRecordID != nil {
@@ -259,7 +260,7 @@ func chunkString(s string, chunkSize int) []string {
 	return chunks
 }
 
-func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
+func findingAidTriples(subject string, fa *eadpb.FindingAid, daoCfg *DaoConfig) []*rdf.Triple {
 	s := rdf.NewResource(subject)
 	triples := []*rdf.Triple{
 		rdf.NewTriple(
@@ -280,6 +281,19 @@ func findingAidTriples(subject string, fa *eadpb.FindingAid) []*rdf.Triple {
 	t(s, "archiveTitle", fa.ArchiveTitle, rdf.NewLiteral)
 	t(s, "inventoryID", fa.InventoryID, rdf.NewLiteral)
 	t(s, "inventoryTitle", fa.InventoryTitle, rdf.NewLiteral)
+
+	for _, filterType := range fa.FilterTypes {
+		t(s, "filterTypes", filterType, rdf.NewLiteral)
+	}
+
+	for _, file := range fa.Files {
+		t(s, "fileUUID", file.Fileuuid, rdf.NewLiteral)
+		t(s, "recordUUID", file.Filename, rdf.NewLiteral)
+	}
+	for _, period := range daoCfg.PeriodDesc {
+		t(s, "periodDesc", period, rdf.NewLiteral)
+	}
+	t(s, "dao", daoCfg.Link, rdf.NewLiteral)
 
 	return triples
 }

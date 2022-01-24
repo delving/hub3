@@ -21,60 +21,40 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
+	"net/url"
+	"os"
+	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
+	"golang.org/x/sync/singleflight"
+
+	lru "github.com/hashicorp/golang-lru"
 )
 
-type Option func(*Service) error
+var ErrRemoteResourceNotFound = errors.New("remote resource not found")
+
+// var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	client      http.Client
-	cacheDir    string // The path to the imageCache
-	timeOut     int    // timelimit for request served by this proxy. 0 is for no timeout
-	proxyPrefix string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
-	memoryCache string
-	referrers   []string
-	blacklist   []string
-	// deepzoom    bool     // Enable deepzoom of remote images.
-}
-
-func SetCacheDir(path string) Option {
-	return func(s *Service) error {
-		s.cacheDir = path
-		return nil
-	}
-}
-
-func SetTimeout(duration int) Option {
-	return func(s *Service) error {
-		s.timeOut = duration
-		return nil
-	}
-}
-
-func SetProxyReferrer(referrer []string) Option {
-	return func(s *Service) error {
-		s.referrers = referrer
-		return nil
-	}
-}
-
-func SetBlackList(blacklist []string) Option {
-	return func(s *Service) error {
-		s.blacklist = blacklist
-		return nil
-	}
-}
-
-func SetProxyPrefix(prefix string) Option {
-	return func(s *Service) error {
-		s.proxyPrefix = prefix
-		return nil
-	}
+	client           http.Client
+	lruCache         *lru.ARCCache
+	cacheDir         string // The path to the imageCache
+	maxSizeCacheDir  int    //  max size of the cache directory on disk in kb
+	timeOut          int    // timelimit for request served by this proxy. 0 is for no timeout
+	proxyPrefix      string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
+	referrers        []string
+	allowList        []string
+	refuselist       []string
+	allowedMimeTypes []string
+	m                RequestMetrics
+	cm               CacheMetrics
+	log              zerolog.Logger
+	enableResize     bool
+	singleSetCache   singleflight.Group
+	cancelWorker     context.CancelFunc
+	// orgs         domain.OrgConfigRetriever
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -82,7 +62,8 @@ func NewService(options ...Option) (*Service, error) {
 		cacheDir:    "/tmp/imageproxy",
 		timeOut:     10,
 		proxyPrefix: "imageproxy",
-		memoryCache: "memory:500:1h",
+		log:         zerolog.Nop(),
+		cm:          newCacheMetrics(),
 	}
 
 	// apply options
@@ -92,53 +73,260 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if s.enableResize {
+		s.enableResize = s.checkForVips()
+	}
+
+	if s.maxSizeCacheDir > 0 {
+		s.startCacheWorker()
+	}
+
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
+
+	if err := os.MkdirAll(s.cacheDir, os.ModePerm); err != nil {
+		return s, err
+	}
 
 	return s, nil
 }
 
-func (s *Service) Routes() chi.Router {
-	router := chi.NewRouter()
+func (s *Service) checkForVips() bool {
+	_, err := exec.LookPath("vips")
+	if err != nil {
+		s.log.Warn().Msg("libvips is not installed so disabling imageproxy resize options")
+		return false
+	}
 
-	proxyPrefix := fmt.Sprintf("/%s/{options}/*", s.proxyPrefix)
-	router.Get(proxyPrefix, s.proxyImage)
+	return true
+}
 
-	return router
+func deepZoomExternally(from string) error {
+	cleanFrom := strings.TrimSuffix(from, ".dzi")
+	args := []string{
+		"dzsave",
+		cleanFrom,
+		cleanFrom,
+	}
+
+	path, err := exec.LookPath("vips")
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(path, args...)
+
+	return cmd.Run()
+}
+
+func resizeExternally(from, to, size string) error {
+	args := []string{
+		"--size", size,
+		"--output", to,
+		from,
+	}
+
+	path, err := exec.LookPath("vipsthumbnail")
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(path, args...)
+
+	return cmd.Run()
 }
 
 func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	_ = ctx
-	cachePath := filepath.Join(s.cacheDir, req.sourcePath())
+
+	s.log.Debug().
+		Str("cacheKey", req.CacheKey).
+		Str("sourceURL", req.SourceURL).
+		Msg("processing cache key")
+
+	if s.lruCache != nil {
+		if s.lruCache.Contains(req.CacheKey) {
+			data, ok := s.lruCache.Get(req.CacheKey)
+			if ok {
+				req.CacheType = Lru
+
+				written, err := fmt.Fprintf(w, "%s", data)
+
+				s.m.IncBytesServed(int64(written))
+
+				s.m.IncLruCache()
+
+				return err
+			}
+		}
+	}
+
+	_, isCached := existsInCache(req.cacheKeyPath())
+
+	if !isCached {
+		_, hasSource := existsInCache(req.downloadedSourcePath())
+		if !hasSource {
+			_, err, shared := s.singleSetCache.Do(
+				req.SourceURL,
+				func() (interface{}, error) {
+					s.log.Info().Str("path", req.downloadedSourcePath()).Msg("started storing source")
+					err := s.storeSource(req)
+					if err != nil {
+						s.log.Error().Err(err).Str("url", req.SourceURL).
+							Str("sourcePath", req.downloadedSourcePath()).
+							Str("storePath", req.cacheKeyPath()).
+							Msgf("unexpected error saving source; %s", err)
+						return nil, err
+					}
+					s.log.Info().Str("path", req.downloadedSourcePath()).Msg("finished storing source")
+					return nil, nil
+				},
+			)
+
+			if err != nil {
+				return err
+			}
+
+			if !shared {
+				req.CacheType = Source
+			}
+
+			hasSource = true
+		}
+
+		if !isCached && req.thumbnailOpts != "" && hasSource {
+			_, err, _ := s.singleSetCache.Do(
+				req.CacheKey,
+				func() (interface{}, error) {
+					err := resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+					if err == nil {
+						info, ok := existsInCache(req.cacheKeyPath())
+						if ok {
+							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
+								return nil, cacheErr
+							}
+						}
+					}
+					return nil, err
+				},
+			)
+			if err != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).
+					Str("sourcePath", req.downloadedSourcePath()).
+					Str("storePath", req.cacheKeyPath()).
+					Msgf("unexpected error creating thumbnail; %s", err)
+
+				req.CacheKey = encodeURL(req.SourceURL)
+			}
+
+			s.m.IncResize()
+		}
+
+		if !isCached && req.SubPath == deepZoomSuffix {
+			_, err, _ := s.singleSetCache.Do(
+				req.CacheKey,
+				func() (interface{}, error) {
+					err := deepZoomExternally(req.downloadedSourcePath())
+					if err == nil {
+						info, ok := existsInCache(req.cacheKeyPath())
+						if ok {
+							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
+								return nil, cacheErr
+							}
+							tiles, size := s.countTiles(strings.ReplaceAll(req.cacheKeyPath(), ".dzi", "_files"))
+							s.cm.addDeepZoomTiles(tiles, size)
+						}
+					}
+					return nil, err
+				},
+			)
+			if err != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error creating deepzoom")
+				s.m.IncError()
+
+				return err
+			}
+
+			s.m.IncDeepZoom()
+		}
+	}
+
 	// check cache
-	r, err := req.Read(cachePath)
+	r, err := req.Read(req.cacheKeyPath())
 	if err != nil && !errors.Is(err, ErrCacheKeyNotFound) {
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("unexpected error reading from cache")
+		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error reading from cache")
+		s.m.IncError()
+
 		return err
 	}
 
 	if !errors.Is(err, ErrCacheKeyNotFound) {
 		defer r.Close()
 
-		_, err = io.Copy(w, r)
+		var buf bytes.Buffer
+		tee := io.TeeReader(r, &buf)
+
+		written, err := io.Copy(w, tee)
 		if err != nil {
-			log.Error().Err(err).Str("cmp", "imageproxy").Msg("error copying image from cache")
+			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("error copying data from cache")
+			s.m.IncError()
+
 			return err
 		}
 
-		return nil
+		s.m.IncBytesServed(written)
+
+		if req.CacheType == "" {
+			req.CacheType = Cache
+		}
+
+		s.lruCache.Add(req.CacheKey, buf.Bytes())
+
+		s.m.IncCache()
 	}
 
+	return nil
+}
+
+func (s *Service) storeSource(req *Request) error {
 	// make request
 	proxyRequest, err := req.GET()
 	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to create GET request")
+		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to create GET request")
+		s.m.IncRemoteRequestError()
+
 		return err
 	}
 
 	resp, err := s.client.Do(proxyRequest)
-	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to make remote request")
+	if err != nil {
+		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make remote request")
+		s.m.IncRemoteRequestError()
+
 		return err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		s.log.Error().Err(err).Int("status_code", resp.StatusCode).Str("url", req.SourceURL).Msg("retrieve object")
+		s.m.IncRemoteRequestError()
+
+		return fmt.Errorf("status_code: %d; %w", resp.StatusCode, ErrRemoteResourceNotFound)
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+
+	if len(s.allowedMimeTypes) != 0 {
+		var allowed bool
+
+		for _, mimeType := range s.allowedMimeTypes {
+			if strings.EqualFold(mimeType, contentType) {
+				allowed = true
+				break
+			}
+		}
+
+		if !allowed {
+			return fmt.Errorf("mimeType %s is not allowed", contentType)
+		}
 	}
 
 	defer resp.Body.Close()
@@ -146,85 +334,93 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	var buf bytes.Buffer
 	tee := io.TeeReader(resp.Body, &buf)
 
-	// copy to response writer
-	_, err = io.Copy(w, tee)
-	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("error copying remote image")
-
-		return err
-	}
-
-	if strings.HasPrefix(resp.Header.Get("Content-Type"), "text/xml") && bytes.Contains(buf.Bytes(), []byte("adlibXML")) {
+	if strings.HasPrefix(contentType, "text/xml") && bytes.Contains(buf.Bytes(), []byte("adlibXML")) {
 		// don't cache adlib error messages
-		log.Warn().Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("adlib error retrieving image")
+		s.log.Warn().Str("url", req.SourceURL).Msg("adlib error retrieving image")
+		s.m.IncRemoteRequestError()
+
 		return fmt.Errorf("unable to retrieve adlib result")
 	}
-	// check for adlib error when content type is xml
 
-	err = req.Write(cachePath, &buf)
+	// check for adlib error when content type is xml
+	size, err := req.Write(req.downloadedSourcePath(), tee)
 	if err != nil {
 		// do not return error here or cache write error
-		log.Error().Err(err).Str("cmp", "imageproxy").Msg("unable to write remote file to cache")
+		s.log.Error().Err(err).Msgf("unable to write remote file to cache; %s", err)
+
+		s.m.IncRemoteRequestError()
 	}
+
+	s.cm.addSourceFile(size)
+
+	s.m.IncSource()
 
 	return nil
 }
 
-// create handler fuction to serve the proxied images
-func (s *Service) proxyImage(w http.ResponseWriter, r *http.Request) {
-	url := chi.URLParam(r, "*")
+func (s *Service) domainAllowed(targetURL string) (bool, error) {
+	if len(s.allowList) == 0 {
+		return true, nil
+	}
 
-	// add referer
-	if len(s.referrers) != 0 {
-		var allowed bool
+	var allowed bool
 
-		for _, referrer := range s.referrers {
-			if strings.Contains(r.Referer(), referrer) {
-				allowed = true
-				break
-			}
+	for _, target := range s.allowList {
+		u, err := url.Parse(targetURL)
+		if err != nil {
+			s.log.Error().Err(err).Str("target_url", targetURL).Msg("unable to parse target url")
+			return false, err
 		}
 
-		if !allowed {
-			http.Error(w, "not found", http.StatusNotFound)
-
-			return
+		if strings.HasSuffix(u.Host, target) {
+			allowed = true
+			break
 		}
 	}
 
-	req, err := NewRequest(
-		url,
-		SetRawQueryString(r.URL.RawQuery),
-	)
-	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", url).Msg("unable to create proxy request")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
+	if !allowed {
+		return false, nil
 	}
 
-	if len(s.blacklist) != 0 {
-		for _, uri := range s.blacklist {
-			if strings.Contains(req.sourceURL, uri) {
-				http.Error(w, "not found", http.StatusNotFound)
-				return
-			}
-		}
-	}
-
-	err = s.Do(r.Context(), req, w)
-	if err != nil {
-		log.Error().Err(err).Str("cmp", "imageproxy").Str("url", req.sourceURL).Msg("unable to make proxy request")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-
-		return
-	}
+	return true, nil
 }
+
+func (s *Service) reffererAllowed(referrer string) bool {
+	if len(s.referrers) == 0 {
+		return true
+	}
+
+	var allowed bool
+
+	for _, allowedReferrer := range s.referrers {
+		if strings.Contains(referrer, allowedReferrer) {
+			allowed = true
+			break
+		}
+	}
+
+	return allowed
+}
+
+// func (s *Service) SetOrganizationService(svc domain.Service) error {
+// // s.organizations = svc
+// // do nothing because can't set itself
+// return nil
+// }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// needed to implement ikuzo service interface
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	if s.cancelWorker != nil {
+		s.cancelWorker()
+	}
+
 	return nil
 }
+
+// func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+// s.log = b.Logger.With().Str("svc", "imageproxy").Logger()
+// s.orgs = b.Orgs
+// }

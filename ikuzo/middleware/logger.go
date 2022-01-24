@@ -51,6 +51,9 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 		setChiURLParams(l, r, "datasetID", "dataset_id")
 		setChiURLParams(l, r, "inventoryID", "inventory_id")
 
+		addHeader(l, r, "cache_url", "Cache-Url")
+		addHeader(l, r, "cache_type", "Cache-Type")
+
 		l.Msg("")
 	}))
 	c = c.Append(hlog.RemoteAddrHandler("ip"))
@@ -66,6 +69,12 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 func setChiURLParams(l *zerolog.Event, r *http.Request, paramKey, fieldKey string) {
 	if val := chi.URLParamFromCtx(r.Context(), paramKey); val != "" {
 		l.Str(fieldKey, val)
+	}
+}
+
+func addHeader(l *zerolog.Event, r *http.Request, key, header string) {
+	if r.Header.Get(header) != "" {
+		l.Str(key, r.Header.Get(header))
 	}
 }
 

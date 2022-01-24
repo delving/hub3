@@ -117,13 +117,14 @@ func UpdateViaSparql(update string) []error {
 		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
 		End()
 	if errs != nil {
-		log.Fatalf("errors for query %s: %#v", postURL, errs)
+		log.Printf("errors for query %s: %#v", postURL, errs)
+		return errs
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		//log.Println(body)
+		// log.Println(body)
 		log.Printf("unable to store sparqlUpdate: %s", update)
 		log.Println(resp)
 		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
 	}
-	return errs
+	return nil
 }

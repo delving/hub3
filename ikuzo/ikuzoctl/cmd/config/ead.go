@@ -23,10 +23,11 @@ import (
 )
 
 type EAD struct {
-	CacheDir       string `json:"cacheDir"`
-	Metrics        bool   `json:"metrics"`
-	Workers        int    `json:"workers"`
-	ProcessDigital bool   `json:"processDigital"`
+	CacheDir                string `json:"cacheDir"`
+	Metrics                 bool   `json:"metrics"`
+	Workers                 int    `json:"workers"`
+	ProcessDigital          bool   `json:"processDigital"`
+	ProcessDigitalIfMissing bool   `json:"processDigitalIfMissing"`
 }
 
 func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
@@ -46,6 +47,7 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 		ead.SetDataDir(e.CacheDir),
 		ead.SetWorkers(e.Workers),
 		ead.SetProcessDigital(e.ProcessDigital),
+		ead.SetProcessDigitalIfMissing(e.ProcessDigitalIfMissing),
 		ead.SetRevisionService(trs),
 	)
 	if err != nil {
@@ -66,6 +68,11 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 func (e *EAD) AddOptions(cfg *Config) error {
 	// only start service when it is a DataNode
 	if !cfg.IsDataNode() {
+		return nil
+	}
+
+	if !cfg.ElasticSearch.Enabled {
+		cfg.logger.Warn().Msg("ead service forcibly disabled because elasticsearch is not enabled")
 		return nil
 	}
 

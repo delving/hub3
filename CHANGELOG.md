@@ -6,16 +6,25 @@
 
 ### Added
 
+- Use cfg.PeriodDesc instead of tree.Periods in daoCfg and FindingAid, fixes GH-118 [[GH-121]](https://github.com/delving/hub3/pull/121)
 - ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
 - Resource package to ikuzo for uniform RDF handling [[GH-106]](https://github.com/delving/hub3/pull/106)
+- Imageproxy: lrucache, deepzoom and thumbnail transformation support [[GH-115]](https://github.com/delving/hub3/pull/115)
+- Added support for indexing map datatypes in scans indexed from METS files [[GH-117]](https://github.com/delving/hub3/pull/117)
+- PeriodDesc in daoCfg and FindingAid [[GH-118]](https://github.com/delving/hub3/pull/118)
+- Ignore private resources in bulk sparql export [[GH-123]](https://github.com/delving/hub3/pull/123)
+- processDigitalIfMissing processes mets if missing [[GH-126]](https://github.com/delving/hub3/pull/126)
+- Cache cleaning work for imageproxy service [[GH-119]](https://github.com/delving/hub3/pull/119)
+- Support for allowed mimetypes to imageproxy service [[GH-130]](https://github.com/delving/hub3/pull/130)
+
 
 ## Changed 
-- 
 - Allow for changes to uploaded EAD file before storing it [[GH-90]](https://github.com/delving/hub3/pull/90)
--  Refactored EAD search overview queries into separate filter and collapse queries [[GH-91]](https://github.com/delving/hub3/pull/91)
+- Refactored EAD search overview queries into separate filter and collapse queries [[GH-91]](https://github.com/delving/hub3/pull/91)
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
+- Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
 
 ### Fixed
  
@@ -23,6 +32,14 @@
 - Prevent duplicate files while processing METS files [[GH89]](https://github.com/delving/hub3/pull/89)
 - Tree paging was using the old API key [[GH-93]](https://github.com/delving/hub3/pull/93)
 - Delete non-EAD datasets would return incorrect error  [[GH-10]](https://github.com/delving/hub3/pull/102)
+- Sanitation in EAD unittitle was too strict [[GH-109]](https://github.com/delving/hub3/pull/109)
+- Show all EAD unittitles in tree.Label [[GH-110]](https://github.com/delving/hub3/pull/110)
+- Prevent redirect loop with invalid 'inventoryID' in tree API [[GH-112]](https://github.com/delving/hub3/pull/112)
+- Prevent 404 when call is made to /ead/tree without "q" parameter [[GH-114]](https://github.com/delving/hub3/pull/114)
+- Drop orphans with lowercase 'findingaid' tag [[GH-124]](https://github.com/delving/hub3/pull/124)
+- Return 404 from imageproxy when remote resource is not found [[GH-127]](https://github.com/delving/hub3/pull/127)
+- Bulk index service sparql-update private filter produces invalid RDF [[GH-125]](https://github.com/delving/hub3/pull/125)
+
 
 ### Removed
 
