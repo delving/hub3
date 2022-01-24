@@ -22,7 +22,7 @@
   "dependencies": {
     "highlight.js": "^10.6.0",
     "hljs": "^6.2.3",
-    "markdown-it": "^12.0.4",
+    "markdown-it": "^12.3.2",
     "punycode": "^2.1.1",
     "sirv-cli": "^1.0.0"
   }
