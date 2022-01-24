@@ -20,10 +20,14 @@ services:
       - esnet
 
   fuseki:
-    image: stain/jena-fuseki:latest
+    image: zacanbot/fuseki
     container_name: hub3-fuseki
+    environment:
+        JVM_ARGS: -Xmx1g
     ports:
       - "3030:3030"
+    volumes:
+        - ./docker-data/fuseki/data:/data/fuseki
     environment:
       - ADMIN_PASSWORD=pw123
     command:
