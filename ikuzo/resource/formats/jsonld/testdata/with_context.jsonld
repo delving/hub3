@@ -1,0 +1,327 @@
+{
+	"@context": [
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/cultureel-erfgoed-object-ap.jsonld",
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/persoon-basis.jsonld",
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/cultureel-erfgoed-event-ap.jsonld",
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/organisatie-basis.jsonld",
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/generiek-basis.jsonld",
+		"https://apidg.gent.be/opendata/adlib2eventstream/v1/context/dossier.jsonld",
+		{
+			"dcterms:isVersionOf": {
+				"@type": "@id"
+			},
+			"prov": "http://www.w3.org/ns/prov#",
+			"skos": "http://www.w3.org/2004/02/skos/core#",
+			"label": "http://www.w3.org/2000/01/rdf-schema#label",
+			"opmerking": "http://www.w3.org/2004/02/skos/core#note",
+			"foaf": "http://xmlns.com/foaf/0.1/",
+			"foaf:page": {
+				"@type": "@id"
+			},
+			"cest": "https://www.projectcest.be/wiki/Publicatie:Invulboek_objecten/Veld/",
+			"inhoud": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+			"la": "https://linked.art/ns/terms/",
+			"equivalent": {
+				"@id": "la:equivalent",
+				"@type": "@id"
+			}
+		}
+	],
+	"@id": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947/2021-10-21T00:00:06.207Z",
+	"@type": "MensgemaaktObject",
+	"dcterms:isVersionOf": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947",
+	"prov:generatedAtTime": "2021-10-21T00:00:06.207Z",
+	"foaf:page": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947/2021-10-21T00:00:06.207Z",
+	"MaterieelDing.beheerder": {
+		"@id": "https://data.antwerp.be/id/agent/adlib/678",
+		"label": {
+			"@value": "Rubenshuis (Antwerpen)",
+			"@language": "nl"
+		},
+		"prov:wasAttributedTo": {
+			"@id": "http://viaf.org/viaf/153357050"
+		}
+	},
+	"Object.identificator": [
+		{
+			"@type": "Identificator",
+			"Identificator.identificator": {
+				"@value": "RH.S.197",
+				"@type": "Identificator"
+			},
+			"Entiteit.type": {
+				"@id": "cest:Waarde_objectnummer",
+				"label": "objectnummer"
+			}
+		}
+	],
+	"Entiteit.type": {
+		"@value": "Object"
+	},
+	"Entiteit.classificatie": [
+		{
+			"@type": "Classificatie",
+			"Classificatie.getypeerdeEntiteit": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947",
+			"Classificatie.toegekendType": {
+				"@id": "https://data.antwerp.be/id/concept/3842",
+				"skos:prefLabel": [
+					{
+						"@value": "painting",
+						"@language": "en"
+					},
+					{
+						"@value": "schilderij",
+						"@language": "nl"
+					}
+				],
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300177435"
+				}
+			},
+			"Entiteit.type": {
+				"@id": "cest:Objectcategorie",
+				"label": "object_category"
+			}
+		}
+	],
+	"MensgemaaktObject.titel": [
+		{
+			"@value": "Michaël Ophovius",
+			"@language": "nl"
+		},
+		{
+			"@value": "Michiel Ophovius",
+			"@language": "en"
+		},
+		{
+			"@value": "Michiel Ophovius",
+			"@language": "fr"
+		},
+		{
+			"@value": "Michaël Ophovius",
+			"@language": "de"
+		}
+	],
+	"MaterieelDing.productie": [
+		{
+			"@type": "Productie",
+			"Gebeurtenis.tijd": {
+				"@value": "1630",
+				"@type": "http://id.loc.gov/datatypes/edtf/EDTF"
+			},
+			"Productie.product": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947",
+			"Activiteit.gebruikteTechniek": [
+				{
+					"@type": "TypeTechniek",
+					"Entiteit.type": [
+						{
+							"@id": "https://data.antwerp.be/id/concept/10081",
+							"skos:prefLabel": [
+								{
+									"@value": "geschilderd",
+									"@language": "nl"
+								},
+								{
+									"@value": "painting",
+									"@language": "en"
+								},
+								{
+									"@value": "peint",
+									"@language": "fr"
+								}
+							],
+							"prov:wasAttributedTo": {
+								"@id": "http://vocab.getty.edu/aat/300054216"
+							}
+						},
+						{
+							"@id": "cest:Term_techniek",
+							"label": "techniek"
+						}
+					]
+				}
+			]
+		}
+	],
+	"MensgemaaktObject.draagt": {
+		"@type": "InformatieObject",
+		"InformatieObject.drager": "https://data.antwerp.be/id/mensgemaaktobject/adlib/6947",
+		"InformatieObject.verwijstNaar": [],
+		"InformatieObject.gaatOver": []
+	},
+	"Entiteit.beeldtUit": [],
+	"MensgemaaktObject.dimensie": [
+		{
+			"@type": "Dimensie",
+			"Dimensie.beschrijving": "doek",
+			"Dimensie.type": {
+				"@id": "https://data.antwerp.be/id/concept/9",
+				"skos:prefLabel": [
+					{
+						"@value": "height",
+						"@language": "en"
+					},
+					{
+						"@value": "hauteur",
+						"@language": "fr"
+					},
+					{
+						"@value": "hoogte",
+						"@language": "nl"
+					}
+				],
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300055644"
+				}
+			},
+			"Dimensie.waarde": "112",
+			"Dimensie.eenheid": {
+				"@id": "https://data.antwerp.be/id/concept/11",
+				"skos:prefLabel": {
+					"@value": "cm",
+					"@language": "nl"
+				},
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300379098"
+				}
+			}
+		},
+		{
+			"@type": "Dimensie",
+			"Dimensie.beschrijving": "doek",
+			"Dimensie.type": {
+				"@id": "https://data.antwerp.be/id/concept/10",
+				"skos:prefLabel": [
+					{
+						"@value": "width",
+						"@language": "en"
+					},
+					{
+						"@value": "largeur",
+						"@language": "fr"
+					},
+					{
+						"@value": "breedte",
+						"@language": "nl"
+					}
+				],
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300055647"
+				}
+			},
+			"Dimensie.waarde": "84",
+			"Dimensie.eenheid": {
+				"@id": "https://data.antwerp.be/id/concept/9",
+				"skos:prefLabel": {
+					"@value": "cm",
+					"@language": "nl"
+				},
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300055644"
+				}
+			}
+		},
+		{
+			"@type": "Dimensie",
+			"Dimensie.beschrijving": "lijst",
+			"Dimensie.type": {
+				"@id": "https://data.antwerp.be/id/concept/10",
+				"skos:prefLabel": [
+					{
+						"@value": "width",
+						"@language": "en"
+					},
+					{
+						"@value": "largeur",
+						"@language": "fr"
+					},
+					{
+						"@value": "breedte",
+						"@language": "nl"
+					}
+				],
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300055647"
+				}
+			},
+			"Dimensie.waarde": "109",
+			"Dimensie.eenheid": {
+				"@id": "https://data.antwerp.be/id/concept/9",
+				"skos:prefLabel": {
+					"@value": "cm",
+					"@language": "nl"
+				},
+				"prov:wasAttributedTo": {
+					"@id": "http://vocab.getty.edu/aat/300055644"
+				}
+			}
+		}
+	],
+	"MaterieelDing.bestaatUit": [
+		{
+			"@type": "MaterieelDing",
+			"Entiteit.beschrijving": "medium",
+			"MensgemaaktObject.materiaal": [
+				{
+					"@type": "TypeMateriaal",
+					"Entiteit.type": {
+						"@id": "https://data.antwerp.be/id/concept/5649",
+						"skos:prefLabel": [
+							{
+								"@value": "oil paint (paint)",
+								"@language": "en"
+							},
+							{
+								"@value": "olieverf",
+								"@language": "nl"
+							}
+						],
+						"prov:wasAttributedTo": {
+							"@id": "http://www.wikidata.org/entity/Q1809071"
+						}
+					}
+				}
+			]
+		},
+		{
+			"@type": "MaterieelDing",
+			"Entiteit.beschrijving": "drager",
+			"MensgemaaktObject.materiaal": [
+				{
+					"@type": "TypeMateriaal",
+					"Entiteit.type": {
+						"@id": "https://data.antwerp.be/id/concept/7955",
+						"skos:prefLabel": {
+							"@value": "canvas",
+							"@language": "nl"
+						},
+						"prov:wasAttributedTo": {
+							"@id": "http://vocab.getty.edu/aat/300015050"
+						}
+					}
+				}
+			]
+		}
+	],
+	"MaterieelDing.isOvergedragenBijVerwerving": {
+		"@type": "Verwerving",
+		"Verwerving.overdrachtVan": {
+			"@id": "https://data.antwerp.be/id/agent/adlib/833",
+			"label": {
+				"@value": "Ormly Ltd.",
+				"@language": "nl"
+			}
+		},
+		"Verwerving.overgedragenAan": {
+			"@id": "https://data.antwerp.be/id/agent/adlib/678",
+			"label": {
+				"@value": "Rubenshuis (Antwerpen)",
+				"@language": "nl"
+			},
+			"prov:wasAttributedTo": {
+				"@id": "http://viaf.org/viaf/153357050"
+			}
+		}
+	},
+	"memberOf": "https://data.antwerp.be/id/dataset/adlib/objects"
+}

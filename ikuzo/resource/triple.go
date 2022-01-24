@@ -62,3 +62,13 @@ func (triple Triple) String() (str string) {
 
 	return fmt.Sprintf("%s %s %s .", subj, pred, obj)
 }
+
+// needed for refactor remove later
+func (triple Triple) GetRDFType() (string, bool) {
+	switch triple.Predicate.RawValue() {
+	case "http://www.w3.org/1999/02/22-rdf-syntax-ns#type":
+		return triple.Object.RawValue(), true
+	default:
+		return "", false
+	}
+}

@@ -1,5 +1,7 @@
 package resource
 
+import "fmt"
+
 // Graph is a collection of triples where the order of insertion is remembered
 type Graph struct {
 	// simple implementation first
@@ -7,6 +9,13 @@ type Graph struct {
 	BaseURI *IRI
 	// lock    sync.Mutex
 	// order uint64
+	export         bool // set when all triples read from the graph
+	addAfterExport bool
+
+	//
+	index    *index
+	stats    *GraphStats
+	resouces map[*IRI]*Resource
 }
 
 func NewGraph() *Graph {
@@ -17,6 +26,10 @@ func NewGraph() *Graph {
 // AddTriple appends triple to the Graph triples
 // Note: there is no deduplication. The same triple can be added multiple times
 func (g *Graph) Add(t ...*Triple) {
+	if g.export {
+		g.addAfterExport = true
+	}
+
 	g.triples = append(g.triples, t...)
 }
 
@@ -33,7 +46,19 @@ func (g *Graph) Len() int {
 
 // Triples returns an list based on insertion order of the triples in Graph.
 func (g *Graph) Triples() []*Triple {
+	g.export = true
 	return g.triples
+}
+
+// TriplesOnce returns an list based on insertion order of the triples in Graph,
+// an error is returned when triples have been Added after the previous read.
+func (g *Graph) TriplesOnce() ([]*Triple, error) {
+	g.export = true
+	if g.addAfterExport {
+		return []*Triple{}, fmt.Errorf("triples have been added after previous read")
+	}
+
+	return g.triples, nil
 }
 
 // // ByPredicate returns a list of triples that have the same predicate
