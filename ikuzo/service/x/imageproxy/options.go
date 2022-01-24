@@ -71,6 +71,13 @@ func SetAllowList(allowList []string) Option {
 	}
 }
 
+func SetAllowedMimeTypes(allowedMimeTypes []string) Option {
+	return func(s *Service) error {
+		s.allowedMimeTypes = allowedMimeTypes
+		return nil
+	}
+}
+
 func SetProxyPrefix(prefix string) Option {
 	return func(s *Service) error {
 		s.proxyPrefix = prefix

@@ -22,16 +22,17 @@ import (
 )
 
 type ImageProxy struct {
-	Enabled         bool
-	CacheDir        string
-	MaxSizeCacheDir int
-	ProxyPrefix     string
-	Timeout         int
-	ProxyReferrer   []string
-	RefuseList      []string
-	AllowList       []string
-	LruCacheSize    int
-	EnableResize    bool
+	Enabled          bool
+	CacheDir         string
+	MaxSizeCacheDir  int
+	ProxyPrefix      string
+	Timeout          int
+	ProxyReferrer    []string
+	RefuseList       []string
+	AllowList        []string
+	AllowedMimeTypes []string
+	LruCacheSize     int
+	EnableResize     bool
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -50,6 +51,7 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetLruCacheSize(ip.LruCacheSize),
 		imageproxy.SetEnableResize(ip.EnableResize),
 		imageproxy.SetLogger(cfg.logger.Logger),
+		imageproxy.SetAllowedMimeTypes(ip.AllowedMimeTypes),
 	)
 	if err != nil {
 		return err
