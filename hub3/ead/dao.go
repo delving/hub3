@@ -116,15 +116,10 @@ func (c *DaoClient) dropOrphans(cfg *DaoConfig) error {
 	return nil
 }
 
-func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
-	fa, err := cfg.FindingAid(c)
-	if err != nil {
-		return err
-	}
-
+func (c *DaoClient) PublishFiles(cfg *DaoConfig, fa *eadpb.FindingAid) error {
 	cfg.updateRevisionKey()
 
-	err = validateFindingAid(&fa)
+	err := validateFindingAid(fa)
 	if err != nil {
 		return err
 	}
@@ -147,6 +142,26 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 			c.bi.Publish(context.Background(), m)
 		}
 	}
+	return nil
+}
+
+func (c *DaoClient) PublishFindingAid(cfg *DaoConfig, excludeMetsFiles ...bool) error {
+	fa, err := cfg.FindingAid(c)
+	if err != nil {
+		return err
+	}
+
+	var excludeFiles bool
+	if len(excludeMetsFiles) > 0 && excludeMetsFiles[0] {
+		excludeFiles = true
+	}
+
+	if !excludeFiles {
+		err = c.PublishFiles(cfg, &fa)
+		if err != nil {
+			return err
+		}
+	}
 
 	fg, err := cfg.findingAidFragmentGraph(&fa)
 	if err != nil {
@@ -166,10 +181,13 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig) error {
 		c.bi.Publish(context.Background(), m)
 	}
 
-	cfg.ObjectCount = int(fa.GetFileCount())
-	cfg.MimeTypes = getMimeTypes(&fa)
+	if !excludeFiles {
+		cfg.ObjectCount = int(fa.GetFileCount())
+		cfg.MimeTypes = getMimeTypes(&fa)
+		return c.dropOrphans(cfg)
+	}
 
-	return c.dropOrphans(cfg)
+	return nil
 }
 
 func validateFindingAid(fa *eadpb.FindingAid) error {

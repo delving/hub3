@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -24,6 +25,8 @@ const (
 	UnixStart           = "1970-01-01T12:00:00Z"
 )
 
+var ErrNoRecordsMatch = errors.New("no records match OAI-PMH request")
+
 type HarvestInfo struct {
 	LastCheck    time.Time
 	LastModified time.Time
@@ -39,6 +42,7 @@ type HarvestMetrics struct {
 	From             string
 	Until            string
 	Aborted          bool
+	NoRecordsMatch   bool
 	Pages            int
 	CompleteListSize int
 }
@@ -169,7 +173,6 @@ func (ht *HarvestTask) GetPage(ctx context.Context, request *oai.Request) (*oai.
 			return nil
 		}
 	})
-
 	if err != nil {
 		log.Error().Err(err).Msgf("problem url: %s", request.GetFullURL())
 		return nil, err
@@ -193,6 +196,28 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 		return err
 	}
 
+	switch resp.Error.Code {
+	case "noRecordMatch":
+		ht.m.NoRecordsMatch = true
+		return ErrNoRecordsMatch
+	case "error":
+		pmhErr := resp.Error
+		err := fmt.Errorf(
+			"OAI-PMH response returns an error %s: %s", pmhErr.Code, pmhErr.Message,
+		)
+		log.Error().Err(err).Str("verb", resp.Request.Verb).
+			Str("error.code", resp.Error.Code).
+			Str("error.message", resp.Error.Message).
+			Str("url", request.GetFullURL()).
+			Msg("response returns an error")
+
+		ht.m.Errors = append(ht.m.Errors, err)
+		ht.m.Aborted = true
+
+		return err
+	default:
+	}
+
 	ht.m.Pages++
 
 	// Execute the callback function with the response
@@ -209,6 +234,7 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 	switch ht.Request.Verb {
 	case VerbListIdentifiers:
 		ht.m.Processed += len(resp.ListIdentifiers.Headers)
+
 		for _, header := range resp.ListIdentifiers.Headers {
 			if header.Status == "deleted" {
 				ht.m.Deleted++
@@ -216,6 +242,7 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 		}
 	case VerbListRecords:
 		ht.m.Processed += len(resp.ListRecords.Records)
+
 		for _, record := range resp.ListRecords.Records {
 			if record.Header.Status == "deleted" {
 				ht.m.Deleted++
@@ -284,17 +311,21 @@ func (ht *HarvestTask) Harvest(ctx context.Context) error {
 		Str("url", req.GetFullURL()).
 		Msg("starting harvest task")
 
-	if err := ht.harvest(ctx, req); err != nil {
-		log.Error().
-			Err(err).
-			Str("name", ht.Name).
-			Msg("harvest returned with error")
+	err := ht.harvest(ctx, req)
+	if err != nil {
+		if !errors.Is(err, ErrNoRecordsMatch) {
+			log.Error().
+				Err(err).
+				Str("name", ht.Name).
+				Str("url", req.GetFullURL()).
+				Msg("harvest returned with error")
 
-		return err
+			return err
+		}
 	}
 
 	ht.HarvestInfo.LastCheck = start
-	if !ht.m.Aborted {
+	if !ht.m.Aborted && !ht.m.NoRecordsMatch {
 		ht.HarvestInfo.LastModified = start
 	}
 
@@ -305,7 +336,7 @@ func (ht *HarvestTask) Harvest(ctx context.Context) error {
 			Msg("unable to write harvest info to disk")
 	}
 
-	log.Debug().
+	log.Info().
 		Str("name", ht.Name).
 		Int("processed", ht.m.Processed).
 		Int("deleted", ht.m.Deleted).
@@ -314,6 +345,7 @@ func (ht *HarvestTask) Harvest(ctx context.Context) error {
 		Str("until", ht.m.Until).
 		Int("completeListSize", ht.m.CompleteListSize).
 		Bool("aborted", ht.m.Aborted).
+		Bool("noRecordsMatch", ht.m.NoRecordsMatch).
 		Str("finalURL", req.GetFullURL()).
 		Msg("finished harvest task")
 
