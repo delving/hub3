@@ -19,6 +19,9 @@ build/*
 dist
 utils
 
+# docker images
+docker-data
+
 # TLS cache
 .cache
 

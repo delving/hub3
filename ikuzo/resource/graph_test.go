@@ -30,5 +30,14 @@ func TestGraph(t *testing.T) {
 		g.Add(triple)
 		is.Equal(g.Len(), 1)
 		is.Equal(g.Len(), len(g.Triples()))
+
+		triples, err := g.TriplesOnce()
+		is.NoErr(err)
+		is.Equal(len(triples), 1)
+
+		g.Add(triple)
+		triples, err = g.TriplesOnce()
+		is.True(err != nil)
+		is.Equal(len(triples), 0)
 	})
 }

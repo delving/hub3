@@ -47,8 +47,10 @@ var (
 
 	// Various
 
-	rdfLangString = &IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
-	xmlLiteral    = &IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"} // string
+	rdfLangString  = &IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
+	xmlLiteral     = &IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"} // string
+	admsIdentifier = &IRI{str: "http://www.w3.org/ns/adms#Identifier"}
+	edtf           = &IRI{str: "http://id.loc.gov/datatypes/edtf/EDTF"}
 
 	// SupportDataTypes contains a list of valid DataType IRIs.
 	// You can extend or set this list with additional XSD IRIs.
@@ -63,5 +65,6 @@ var (
 		xsdByte, xsdInt,
 		// Various
 		rdfLangString, xmlLiteral,
+		admsIdentifier, edtf,
 	}
 )

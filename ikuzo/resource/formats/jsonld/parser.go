@@ -7,9 +7,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"net/http"
 
 	"github.com/delving/hub3/ikuzo/resource"
 	jsonld "github.com/kiivihal/gojsonld"
+	"github.com/piprate/json-gold/ld"
 )
 
 func Parse(r io.Reader, g *resource.Graph) (*resource.Graph, error) {
@@ -48,6 +50,107 @@ func Parse(r io.Reader, g *resource.Graph) (*resource.Graph, error) {
 	}
 
 	return g, nil
+}
+
+func ParseWithContext(r io.Reader, g *resource.Graph) (*resource.Graph, error) {
+	if g == nil {
+		g = resource.NewGraph()
+	}
+
+	doc, err := ld.DocumentFromReader(r)
+	if err != nil {
+		return g, err
+	}
+
+	proc := ld.NewJsonLdProcessor()
+	options := ld.NewJsonLdOptions("")
+
+	client := &http.Client{}
+	nl := ld.NewDefaultDocumentLoader(client)
+
+	// testing caching
+	cdl := ld.NewCachingDocumentLoader(nl)
+	// cdl.PreloadWithMapping(map[string]string{
+	// "https://schema.org/": "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
+	// "http://schema.org/":  "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
+	// "https://schema.org":  "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
+	// "http://schema.org":   "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
+	// })
+
+	options.DocumentLoader = cdl
+	// options.Format = "application/nquads"
+
+	rdf, err := proc.ToRDF(doc, options)
+	if err != nil {
+		return g, err
+	}
+
+	dataset, ok := rdf.(*ld.RDFDataset)
+	if !ok {
+		return g, fmt.Errorf("*ld.RDFDataset should have been returned")
+	}
+
+	for graph, quads := range dataset.Graphs {
+		if graph != "@default" {
+			continue
+		}
+
+		for _, quad := range quads {
+			t, err := quad2triple(quad)
+			if err != nil {
+				return g, err
+			}
+
+			g.Add(t)
+		}
+	}
+
+	return g, nil
+}
+
+func quad2triple(quad *ld.Quad) (*resource.Triple, error) {
+	s, err := ldnode2term(quad.Subject)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := ldnode2term(quad.Predicate)
+	if err != nil {
+		return nil, err
+	}
+
+	o, err := ldnode2term(quad.Object)
+	if err != nil {
+		return nil, err
+	}
+
+	return resource.NewTriple(s.(resource.Subject), p.(resource.Predicate), o.(resource.Object)), nil
+}
+
+func ldnode2term(node ld.Node) (resource.Term, error) {
+	switch term := node.(type) {
+	case *ld.BlankNode:
+		return resource.NewBlankNode(term.GetValue())
+	case *ld.Literal:
+		if len(term.Language) > 0 {
+			return resource.NewLiteralWithLang(term.GetValue(), term.Language)
+		}
+
+		if term.Datatype != "" {
+			dt, err := resource.NewIRI(term.Datatype)
+			if err != nil {
+				return nil, err
+			}
+
+			return resource.NewLiteralWithType(term.Value, &dt)
+		}
+
+		return resource.NewLiteral(term.Value)
+	case *ld.IRI:
+		return resource.NewIRI(term.GetValue())
+	}
+
+	return nil, fmt.Errorf("unknown resource.TermType")
 }
 
 func jtriple2triple(triple *jsonld.Triple) (*resource.Triple, error) {
