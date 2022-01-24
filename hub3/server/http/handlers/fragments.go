@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strconv"
-	"strings"
 
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
@@ -30,7 +29,6 @@ import (
 )
 
 func RegisterLinkedDataFragments(router chi.Router) {
-
 	router.Get("/api/fragments", listFragments)
 	router.Get("/fragments/{spec}", listFragments)
 	router.Get("/fragments", listFragments)
@@ -134,11 +132,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.Contains(r.Header.Get("Accept"), "n-triples") {
-		w.Header().Add("Content-Type", "application/n-triples")
-	} else {
-		w.Header().Add("Content-Type", "text/plain")
-	}
+	w.Header().Add("Content-Type", "text/turtle")
 
 	w.Write(controls)
 	w.Write(buffer.Bytes())
