@@ -301,9 +301,9 @@ func (ht *HarvestTask) Harvest(ctx context.Context) error {
 	// copy because the original needs to be available for next harvest run
 	req := ht.BuildRequest()
 	// alway set the until to now
-	// req.Until = start.Format(DateFormat)
+	req.Until = start.Format(DateFormat)
 
-	// ht.m.Until = req.Until
+	ht.m.Until = req.Until
 	ht.m.From = req.From
 
 	log.Info().
