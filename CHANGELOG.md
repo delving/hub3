@@ -17,6 +17,7 @@
 - processDigitalIfMissing processes mets if missing [[GH-126]](https://github.com/delving/hub3/pull/126)
 - Cache cleaning work for imageproxy service [[GH-119]](https://github.com/delving/hub3/pull/119)
 - Support for allowed mimetypes to imageproxy service [[GH-130]](https://github.com/delving/hub3/pull/130)
+- Changedetection for reads after the graph has changed [[GH-131]](https://github.com/delving/hub3/pull/131)
 
 
 ## Changed 
