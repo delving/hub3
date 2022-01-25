@@ -59,7 +59,7 @@ require (
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.7.0
-	github.com/testcontainers/testcontainers-go v0.11.1
+	github.com/testcontainers/testcontainers-go v0.12.0
 	github.com/tidwall/gjson v1.12.1
 	github.com/valyala/fasthttp v1.32.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -83,7 +83,7 @@ require (
 	github.com/containerd/continuity v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
-	github.com/docker/docker v20.10.9+incompatible // indirect
+	github.com/docker/docker v20.10.11+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/elazarl/goproxy v0.0.0-20181111060418-2ce16c963a8a // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
@@ -109,13 +109,13 @@ require (
 	github.com/kevinburke/ssh_config v0.0.0-20190725054713-01f96b0aa0cd // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/knakk/digest v0.0.0-20160404164910-fd45becddc49 // indirect
-	github.com/magiconair/properties v1.8.1 // indirect
+	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mailru/easyjson v0.7.1 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2-0.20181231171920-c182affec369 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/moby/sys/mount v0.2.0 // indirect
-	github.com/moby/sys/mountinfo v0.4.1 // indirect
+	github.com/moby/sys/mountinfo v0.5.0 // indirect
 	github.com/moby/term v0.0.0-20210619224110-3f7ff695adc6 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.3.4 // indirect
@@ -153,8 +153,8 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/net v0.0.0-20211013171255-e13a2654a71e // indirect
-	golang.org/x/sys v0.0.0-20211013075003-97ac67df715c // indirect
+	golang.org/x/net v0.0.0-20211108170745-6635138e15ea // indirect
+	golang.org/x/sys v0.0.0-20211109184856-51b60fd695b3 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20211013025323-ce878158c4d4 // indirect
 	google.golang.org/grpc v1.41.0 // indirect
