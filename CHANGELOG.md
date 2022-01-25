@@ -4,11 +4,16 @@
 
 - history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
 
+## v0.2.1 (2022-01-25)
+
+- history of changes: see https://github.com/delving/hu3/compare/v0.2.0...v0.2.1
+
 ### Added
 
 - Use cfg.PeriodDesc instead of tree.Periods in daoCfg and FindingAid, fixes GH-118 [[GH-121]](https://github.com/delving/hub3/pull/121)
 - ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+- Extended scan.proto with metadata map for free-form content [[GH-108]](https://github.com/delving/hub3/pull/108)
 - Resource package to ikuzo for uniform RDF handling [[GH-106]](https://github.com/delving/hub3/pull/106)
 - Imageproxy: lrucache, deepzoom and thumbnail transformation support [[GH-115]](https://github.com/delving/hub3/pull/115)
 - Added support for indexing map datatypes in scans indexed from METS files [[GH-117]](https://github.com/delving/hub3/pull/117)
