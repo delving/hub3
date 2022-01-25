@@ -58,9 +58,7 @@ func (o *OAIPMH) AddOptions(cfg *Config) error {
 
 	cfg.options = append(
 		cfg.options,
-		// TODO(kiivihal): enable again after testing current
-		// ikuzo.SetRouters(server.Routes("/api/oai-pmh")),
-		ikuzo.SetOAIPMHService(svc),
+		ikuzo.RegisterService(svc),
 	)
 
 	return nil

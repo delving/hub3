@@ -36,11 +36,6 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 		return nil, err
 	}
 
-	trs, err := cfg.GetRevisionService()
-	if err != nil {
-		return nil, err
-	}
-
 	svc, err := ead.NewService(
 		ead.SetIndexService(is),
 		// TODO(kiivihal): can be removed later for TRS
@@ -48,7 +43,6 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 		ead.SetWorkers(e.Workers),
 		ead.SetProcessDigital(e.ProcessDigital),
 		ead.SetProcessDigitalIfMissing(e.ProcessDigitalIfMissing),
-		ead.SetRevisionService(trs),
 	)
 	if err != nil {
 		return nil, err
@@ -66,11 +60,6 @@ func (e EAD) NewService(cfg *Config) (*ead.Service, error) {
 }
 
 func (e *EAD) AddOptions(cfg *Config) error {
-	// only start service when it is a DataNode
-	if !cfg.IsDataNode() {
-		return nil
-	}
-
 	if !cfg.ElasticSearch.Enabled {
 		cfg.logger.Warn().Msg("ead service forcibly disabled because elasticsearch is not enabled")
 		return nil
@@ -83,9 +72,7 @@ func (e *EAD) AddOptions(cfg *Config) error {
 
 	cfg.options = append(
 		cfg.options,
-		ikuzo.SetEADService(svc),
-		ikuzo.SetShutdownHook("ead-service", svc),
-		ikuzo.SetRouters(svc.Routes),
+		ikuzo.RegisterService(svc),
 	)
 
 	return nil
