@@ -1,0 +1,11 @@
+drop table if exists resource_audit;
+drop type if exists  operation_t;
+drop trigger if exists resource_audit_trig on resource;
+drop function if exists resource_audit_trig;
+drop table if exists resource;
+drop table if exists dataset;
+drop table if exists organization;
+drop table if exists triple_object;
+drop table if exists datatype;
+drop table if exists predicate;
+drop table if exists metadata_schema;
