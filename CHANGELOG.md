@@ -18,6 +18,7 @@
 - e373e132 hub3: move memory storage package to x
 - 9949b8a7 hub3: refactor elasticsearch storage into driver package
 - 82f2e6cf hub3: LDF always returns 'text/turtle'
+- updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
 
 ## Removed
  
