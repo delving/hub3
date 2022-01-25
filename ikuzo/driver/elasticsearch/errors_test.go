@@ -15,7 +15,9 @@
 package elasticsearch
 
 import (
+	"errors"
 	"io"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -34,8 +36,9 @@ func Test_GetErrorType(t *testing.T) {
 	}{
 		{
 			"missing fields",
-			args{strings.NewReader(
-				`
+			args{
+				strings.NewReader(
+					`
 				{
 					"error": {
 						"type": "index_not_found_exception",
@@ -46,7 +49,7 @@ func Test_GetErrorType(t *testing.T) {
 					"status": 404
 					}
 				`,
-			),
+				),
 			},
 			ErrorType{
 				Type: "index_not_found_exception",
@@ -54,8 +57,9 @@ func Test_GetErrorType(t *testing.T) {
 		},
 		{
 			"index does not exist error",
-			args{strings.NewReader(
-				`
+			args{
+				strings.NewReader(
+					`
 				{
 					"error": {
 						"root_cause": [
@@ -78,7 +82,7 @@ func Test_GetErrorType(t *testing.T) {
 					"status": 404
 					}
 				`,
-			),
+				),
 			},
 			ErrorType{
 				Index:  "hub3test",
@@ -91,6 +95,15 @@ func Test_GetErrorType(t *testing.T) {
 			args{strings.NewReader("")},
 			ErrorType{},
 		},
+		{
+			"alias missing",
+			args{strings.NewReader(`
+				{"error":"alias [unknownalias] missing","status":404}
+				`)},
+			ErrorType{
+				Reason: "alias [unknownalias] missing",
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -100,6 +113,59 @@ func Test_GetErrorType(t *testing.T) {
 			got := GetErrorType(tt.args.r)
 			if diff := cmp.Diff(tt.want, got); diff != "" {
 				t.Errorf("getError() %s = mismatch (-want +got):\n%s", tt.name, diff)
+			}
+		})
+	}
+}
+
+func TestGetErrorType(t *testing.T) {
+	type args struct {
+		r io.Reader
+	}
+	tests := []struct {
+		name string
+		args args
+		want ErrorType
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := GetErrorType(tt.args.r); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("GetErrorType() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestErrorType_Error(t *testing.T) {
+	type fields struct {
+		Type   string
+		Reason string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		errType error
+	}{
+		{
+			"missing index",
+			fields{Reason: "alias [unknownalias] missing"},
+			ErrAliasNotFound,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			et := ErrorType{
+				Type:   tt.fields.Type,
+				Reason: tt.fields.Reason,
+			}
+			if !errors.Is(et.Error(), tt.errType) {
+				t.Errorf("ErrorType.Error() error = %v, wantErr %v", et.Error(), tt.errType)
 			}
 		})
 	}
