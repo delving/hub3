@@ -2,7 +2,26 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.2.1...master
+
+### Added 
+ 
+- 10f521cf hub3: added dedicated esproxy service.
+- 80c4d3be hub3: added sitemap package
+- 41309cb0 hub3: initial version of postgresql service.
+
+### Changed
+
+- 2cf6dc75 hub3: update ikuzoctl configuration objects for domain.Service.
+- e59c880b hub3: refactor for multitenancy based on OrgID across all packages
+- 3a10b33f hub3: added multi-tenant configuration support to domain.Organization
+- e373e132 hub3: move memory storage package to x
+- 9949b8a7 hub3: refactor elasticsearch storage into driver package
+- 82f2e6cf hub3: LDF always returns 'text/turtle'
+
+## Removed
+ 
+- 1df50338 hub3: remove gorm package
 
 ## v0.2.1 (2022-01-25)
 
