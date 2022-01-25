@@ -70,8 +70,9 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 
 		for scanner.Scan() {
 			var req Request
+			b := scanner.Bytes()
 
-			if err := json.Unmarshal(scanner.Bytes(), &req); err != nil {
+			if err := json.Unmarshal(b, &req); err != nil {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
 				log.Debug().Str("svc", "bulk").Str("raw", scanner.Text()).Err(err).Msg("wrong json input")
@@ -136,7 +137,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 
 // RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
 func (p *Parser) RDFBulkInsert() []error {
-	triplesStored, errs := fragments.RDFBulkInsert(p.sparqlUpdates)
+	triplesStored, errs := fragments.RDFBulkInsert(p.ds.OrgID, p.sparqlUpdates)
 	p.sparqlUpdates = nil
 	p.stats.TriplesStored = uint64(triplesStored)
 
@@ -308,7 +309,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 
 	if p.postHooks != nil {
 		subject := strings.TrimSuffix(req.NamedGraphURI, "/graph")
-		g := fb.SortedGraph
+		g := fb.Graph
 
 		p.m.Lock()
 		defer p.m.Unlock()
@@ -333,7 +334,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 // AppendRDFBulkRequest gathers all the triples from an BulkAction to be inserted in bulk.
 func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 	var b bytes.Buffer
-	if err := serializeNTriples(g, &b); err != nil {
+	if err := g.Serialize(&b, "text/turtle"); err != nil {
 		return fmt.Errorf("unable to convert RDF graph; %w", err)
 	}
 
@@ -360,91 +361,4 @@ type Stats struct {
 	TriplesStored      uint64 `json:"triplesStored"`
 	PostHooksSubmitted uint64 `json:"postHooksSubmitted"`
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
-}
-
-func encodeTerm(iterm rdf.Term) string {
-	switch term := iterm.(type) {
-	case *rdf.Resource:
-		return fmt.Sprintf("<%s>", term.URI)
-	case *rdf.Literal:
-		return term.String()
-	case *rdf.BlankNode:
-		return term.String()
-	}
-
-	return ""
-}
-
-func serializeNTriples(g *rdf.Graph, w io.Writer) error {
-	var err error
-
-	for triple := range g.IterTriples() {
-		s := encodeTerm(triple.Subject)
-		if strings.HasPrefix(s, "<urn:private/") {
-			continue
-		}
-
-		p := encodeTerm(triple.Predicate)
-		o := encodeTerm(triple.Object)
-
-		if strings.HasPrefix(o, "<urn:private/") {
-			continue
-		}
-
-		_, err = fmt.Fprintf(w, "%s %s %s .\n", s, p, o)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func serializeTurtle(g *rdf.Graph, w io.Writer) error {
-	var err error
-
-	triplesBySubject := make(map[string][]*rdf.Triple)
-
-	for triple := range g.IterTriples() {
-		s := encodeTerm(triple.Subject)
-		if strings.HasPrefix(s, "<urn:private/") {
-			continue
-		}
-
-		o := encodeTerm(triple.Object)
-
-		if strings.HasPrefix(o, "<urn:private/") {
-			continue
-		}
-
-		triplesBySubject[s] = append(triplesBySubject[s], triple)
-	}
-
-	for subject, triples := range triplesBySubject {
-		_, err = fmt.Fprintf(w, "%s\n", subject)
-		if err != nil {
-			return err
-		}
-
-		for key, triple := range triples {
-			p := encodeTerm(triple.Predicate)
-			o := encodeTerm(triple.Object)
-
-			if key == len(triples)-1 {
-				_, err = fmt.Fprintf(w, "  %s %s .\n", p, o)
-				if err != nil {
-					return err
-				}
-
-				break
-			}
-
-			_, err = fmt.Fprintf(w, "  %s %s ;\n", p, o)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

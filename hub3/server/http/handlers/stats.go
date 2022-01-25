@@ -29,17 +29,14 @@ import (
 )
 
 func RegisterContentStats(r chi.Router) {
-
 	// stats dashboard
 	r.Get("/api/stats/bySearchLabel", searchLabelStats)
-	//r.Get("/api/stats/bySearchLabel/{:label}", searchLabelStatsValues)
+	// r.Get("/api/stats/bySearchLabel/{:label}", searchLabelStatsValues)
 	r.Get("/api/stats/byPredicate", predicateStats)
-	//r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
-
+	// r.Get("/api/stats/byPredicate/{:label}", searchLabelStatsValues)
 }
 
 func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult, error) {
-
 	fieldPath := fmt.Sprintf("resources.entries.%s", field)
 
 	labelAgg := elastic.NewTermsAggregation().Field(fieldPath).Size(100)
@@ -66,7 +63,7 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, spec))
 	}
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(orgID.String())).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
@@ -76,7 +73,6 @@ func getResourceEntryStats(field string, r *http.Request) (*elastic.SearchResult
 }
 
 func searchLabelStats(w http.ResponseWriter, r *http.Request) {
-
 	res, err := getResourceEntryStats("searchLabel", r)
 	if err != nil {
 		log.Print("Unable to get statistics for searchLabels")
@@ -88,8 +84,8 @@ func searchLabelStats(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, res)
 	return
 }
-func predicateStats(w http.ResponseWriter, r *http.Request) {
 
+func predicateStats(w http.ResponseWriter, r *http.Request) {
 	res, err := getResourceEntryStats("predicate", r)
 	if err != nil {
 		log.Print("Unable to get statistics for predicate")

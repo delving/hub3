@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	rdf "github.com/deiu/gon3"
 	"github.com/delving/hub3/ikuzo/resource"
+	rdf "github.com/kiivihal/gon3"
 )
 
 func Parse(r io.Reader, g *resource.Graph) (*resource.Graph, error) {

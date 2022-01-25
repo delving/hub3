@@ -39,9 +39,9 @@ import (
 )
 
 const (
-	literal  = "Literal"
-	resource = "Resource"
-	bnode    = "Bnode"
+	literal      = "Literal"
+	resourceType = "Resource"
+	bnode        = "Bnode"
 )
 
 var ctx context.Context
@@ -78,6 +78,7 @@ func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentRefe
 // ResourceMap is a convenience structure to hold the resourceMap data and functions
 type ResourceMap struct {
 	resources map[string]*FragmentResource
+	orgID     string
 }
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
@@ -252,7 +253,7 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 	idSort := elastic.NewFieldSort("meta.hubID")
 	fieldSort := elastic.NewFieldSort("tree.sortKey")
 
-	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.GetIndexName()).
+	scroll := index.ESClient().Scroll(c.Config.ElasticSearch.GetIndexName(tq.OrgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		SortBy(fieldSort, idSort).
 		Size(100).
@@ -384,7 +385,7 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 		OrganisationID: fg.Meta.OrgID,
 		DatasetID:      fg.Meta.Spec,
 		RecordID:       fg.Meta.HubID,
-		IndexName:      c.Config.ElasticSearch.GetIndexName(),
+		IndexType:      domainpb.IndexType_V2,
 		Source:         b,
 	}, nil
 }
@@ -1110,7 +1111,7 @@ func (re *ResourceEntry) GetTriple(subject r.Term) *r.Triple {
 	switch re.EntryType {
 	case bnode:
 		object = r.NewBlankNode(re.ID)
-	case resource:
+	case resourceType:
 		object = r.NewResource(re.ID)
 	case literal:
 		switch {
@@ -1146,8 +1147,11 @@ func (re *ResourceEntry) AsLdObject() *r.LdObject {
 }
 
 // NewResourceMap creates a map for all the resources in the rdf2go.Graph
-func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
-	rm := &ResourceMap{make(map[string]*FragmentResource)}
+func NewResourceMap(orgID string, g *r.Graph) (*ResourceMap, error) {
+	rm := &ResourceMap{
+		resources: make(map[string]*FragmentResource),
+		orgID:     orgID,
+	}
 
 	if g.Len() == 0 {
 		return rm, fmt.Errorf("The graph cannot be empty")
@@ -1165,8 +1169,11 @@ func NewResourceMap(g *r.Graph) (*ResourceMap, error) {
 }
 
 // NewEmptyResourceMap returns an initialised ResourceMap
-func NewEmptyResourceMap() *ResourceMap {
-	return &ResourceMap{make(map[string]*FragmentResource)}
+func NewEmptyResourceMap(orgID string) *ResourceMap {
+	return &ResourceMap{
+		resources: make(map[string]*FragmentResource),
+		orgID:     orgID,
+	}
 }
 
 // ResolveObjectIDs queries the fragmentstore for additional context
@@ -1182,7 +1189,7 @@ func (rm *ResourceMap) ResolveObjectIDs(excludeHubID string) error {
 	}
 	// log.Printf("IDs to be resolved: %#v", objectIDs)
 
-	req := NewFragmentRequest()
+	req := NewFragmentRequest(rm.orgID)
 	req.Subject = objectIDs
 	req.ExcludeHubID = excludeHubID
 	frags, _, err := req.Find(ctx, index.ESClient())
@@ -1240,7 +1247,7 @@ func (f *Fragment) SetPath(contextPath string) {
 			fmt.Sprintf("%s/@rdf:about", rdfType),
 			fmt.Sprintf("%s/@rdf:type", rdfType),
 		)
-	case f.ObjectType == resource:
+	case f.ObjectType == resourceType:
 		f.NestedPath = append(
 			f.NestedPath,
 			fmt.Sprintf("%s/@rdf:resource", path),
@@ -1284,7 +1291,7 @@ func (f *Fragment) CreateTriple() *r.Triple {
 	var o r.Term
 
 	switch f.ObjectType {
-	case resource:
+	case resourceType:
 		o = r.NewResource(f.Object)
 	case bnode:
 		o = r.NewBlankNode(f.Object)
@@ -1358,7 +1365,7 @@ func CreateFragmentEntry(t *r.Triple, resolved bool, order int) (*FragmentEntry,
 	case *r.Resource:
 		id := r.GetResourceID(o)
 		entry.ID = r.GetResourceID(o)
-		entry.EntryType = resource
+		entry.EntryType = resourceType
 		return entry, id
 	case *r.BlankNode:
 		id := r.GetResourceID(o)
@@ -1626,7 +1633,10 @@ func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
 
 // NewGrouped returns an inlined version of the FragmentResources in the FragmentGraph
 func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
-	rm := &ResourceMap{make(map[string]*FragmentResource)}
+	rm := &ResourceMap{
+		resources: make(map[string]*FragmentResource),
+		orgID:     fg.Meta.OrgID,
+	}
 
 	// create the resource map
 	for _, fr := range fg.Resources {
@@ -1787,12 +1797,14 @@ func (fr *FragmentResource) CreateLodKey() (string, error) {
 // Normal resources are returned as is.
 //
 // This function is used so that you can query via the Fragment API for
-// unique BlankNodesThe named graph that this triple is part of
+// unique BlankNodes
 func (fg *FragmentGraph) NormalisedResource(uri string) string {
 	if !strings.HasPrefix(uri, "_:") {
 		return uri
 	}
-	return fmt.Sprintf("%s-%s", uri, CreateHash(fg.Meta.NamedGraphURI))
+	// TODO(kiivihal): investigate this
+	// return fmt.Sprintf("%s-%s", uri, CreateHash(fg.Meta.NamedGraphURI))
+	return strings.ToLower(uri)
 }
 
 // CreateFragments creates ElasticSearch documents for each
@@ -1816,7 +1828,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			Subject:      fg.NormalisedResource(fr.ID),
 			Predicate:    RDFType,
 			Object:       ttype,
-			ObjectType:   resource,
+			ObjectType:   resourceType,
 			ResourceType: types,
 			SearchLabel:  typeLabel,
 			Level:        fr.GetLevel(),

@@ -23,10 +23,9 @@ import (
 	"log"
 	"strings"
 
-	rdf "github.com/deiu/gon3"
-	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	rdf "github.com/kiivihal/gon3"
 	r "github.com/kiivihal/rdf2go"
 )
 
@@ -67,7 +66,7 @@ type RDFUploader struct {
 }
 
 func (upl *RDFUploader) createResourceMap(g *rdf.Graph) (*ResourceMap, error) {
-	rm := NewEmptyResourceMap()
+	rm := NewEmptyResourceMap(upl.OrgID)
 	idx := 0
 	for t := range g.IterTriples() {
 		idx++
@@ -184,7 +183,7 @@ func (upl *RDFUploader) SaveFragmentGraphs(bi BulkIndex) (int, error) {
 			OrganisationID: fg.Meta.OrgID,
 			DatasetID:      fg.Meta.Spec,
 			RecordID:       fg.Meta.HubID,
-			IndexName:      config.Config.ElasticSearch.GetV1IndexName(),
+			IndexType:      domainpb.IndexType_V1,
 			Source:         b,
 		}
 
@@ -199,7 +198,6 @@ func (upl *RDFUploader) SaveFragmentGraphs(bi BulkIndex) (int, error) {
 }
 
 func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
-
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
 		OrgID:    upl.OrgID,
@@ -249,7 +247,7 @@ func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
 			sparqlUpdates = append(sparqlUpdates, su)
 			if len(sparqlUpdates) >= 250 {
 				// insert the triples
-				_, errs := RDFBulkInsert(sparqlUpdates)
+				_, errs := RDFBulkInsert(upl.OrgID, sparqlUpdates)
 				if len(errs) != 0 {
 					return 0, errs[0]
 				}
@@ -259,7 +257,7 @@ func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
 	}
 
 	if len(sparqlUpdates) != 0 {
-		_, errs := RDFBulkInsert(sparqlUpdates)
+		_, errs := RDFBulkInsert(upl.OrgID, sparqlUpdates)
 		if len(errs) != 0 {
 			return 0, errs[0]
 		}

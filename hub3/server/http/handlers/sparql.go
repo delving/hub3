@@ -23,15 +23,14 @@ import (
 	"time"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
 func RegisterSparql(r chi.Router) {
-
 	r.Get("/sparql", sparqlProxy)
 	r.Post("/sparql", sparqlProxy)
-
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
@@ -57,8 +56,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !strings.Contains(strings.ToLower(query), "limit ") {
 		query = fmt.Sprintf("%s LIMIT 25", query)
 	}
-	log.Println(query)
-	resp, statusCode, contentType, err := runSparqlQuery(query)
+	// log.Println(query)
+	orgID := domain.GetOrganizationID(r)
+	resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.PlainText(w, r, string(resp))
@@ -75,9 +75,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
-func runSparqlQuery(query string) (body []byte, statusCode int, contentType string, err error) {
+func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentType string, err error) {
 	log.Printf("Sparql Query: %s", query)
-	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(""), nil)
+	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(orgID, ""), nil)
 	if err != nil {
 		log.Printf("Unable to create sparql request %s", err)
 	}
@@ -86,7 +86,7 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 	q.Add("query", query)
 	req.URL.RawQuery = q.Encode()
 
-	var netClient = &http.Client{
+	netClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
 	resp, err := netClient.Do(req)

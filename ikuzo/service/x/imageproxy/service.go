@@ -27,6 +27,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/singleflight"
 
@@ -54,7 +56,7 @@ type Service struct {
 	enableResize     bool
 	singleSetCache   singleflight.Group
 	cancelWorker     context.CancelFunc
-	// orgs         domain.OrgConfigRetriever
+	orgs             domain.OrgConfigRetriever
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -402,14 +404,10 @@ func (s *Service) reffererAllowed(referrer string) bool {
 	return allowed
 }
 
-// func (s *Service) SetOrganizationService(svc domain.Service) error {
-// // s.organizations = svc
-// // do nothing because can't set itself
-// return nil
-// }
-
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// needed to implement ikuzo service interface
+	router := chi.NewRouter()
+	s.Routes("", router)
+	router.ServeHTTP(w, r)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
@@ -420,7 +418,7 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
-// s.log = b.Logger.With().Str("svc", "imageproxy").Logger()
-// s.orgs = b.Orgs
-// }
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "imageproxy").Logger()
+	s.orgs = b.Orgs
+}

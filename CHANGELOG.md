@@ -9,6 +9,7 @@
 - Use cfg.PeriodDesc instead of tree.Periods in daoCfg and FindingAid, fixes GH-118 [[GH-121]](https://github.com/delving/hub3/pull/121)
 - ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+- Extended scan.proto with metadata map for free-form content [[GH-108]](https://github.com/delving/hub3/pull/108)
 - Resource package to ikuzo for uniform RDF handling [[GH-106]](https://github.com/delving/hub3/pull/106)
 - Imageproxy: lrucache, deepzoom and thumbnail transformation support [[GH-115]](https://github.com/delving/hub3/pull/115)
 - Added support for indexing map datatypes in scans indexed from METS files [[GH-117]](https://github.com/delving/hub3/pull/117)
@@ -26,6 +27,7 @@
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
+- Return "text/turtle" from LDF endpoint  [345290fca38e](https://github.com/delving/hub3/commit/345290fca38ef9573671da34e11e4fc5f2c20729)
 
 ### Fixed
  

@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/asdine/storm/q"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
@@ -32,8 +33,10 @@ import (
 )
 
 const (
-	v1Type = "v1"
-	v2Type = "v2"
+	v1Type       = "v1"
+	v2Type       = "v2"
+	fragmentType = "fragments"
+	suggestType  = "suggest"
 )
 
 var (
@@ -195,8 +198,17 @@ func NewDataset(orgID, spec string) DataSet {
 
 // GetDataSet returns a DataSet object when found
 func GetDataSet(orgID, spec string) (*DataSet, error) {
+	query := ORM().Select(
+		q.And(
+			q.Eq("Spec", spec),
+			q.Eq("OrgID", orgID),
+		))
+
 	var ds DataSet
-	err := ORM().One("Spec", spec, &ds)
+	err := query.First(&ds)
+	if err != nil {
+		return nil, err
+	}
 
 	return &ds, err
 }
@@ -251,9 +263,9 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 }
 
 // ListDataSets returns an array of Datasets stored in Storm ORM
-func ListDataSets() ([]*DataSet, error) {
+func ListDataSets(orgID string) ([]*DataSet, error) {
 	var ds []*DataSet
-	err := ORM().AllByIndex("Spec", &ds)
+	err := ORM().Find("OrgID", orgID, &ds)
 
 	return ds, err
 }
@@ -281,7 +293,7 @@ func (ds DataSet) Delete(ctx context.Context, wp *wp.WorkerPool) error {
 }
 
 // NewDataSetHistogram returns a histogram for dates that items in the index are modified
-func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
+func NewDataSetHistogram(orgID string) ([]*elastic.AggregationBucketHistogramItem, error) {
 	ctx := context.Background()
 	specAgg := elastic.NewTermsAggregation().Field("meta.spec").Size(100).OrderByCountDesc()
 	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").Interval("1D").
@@ -289,7 +301,7 @@ func NewDataSetHistogram() ([]*elastic.AggregationBucketHistogramItem, error) {
 	q := elastic.NewMatchAllQuery()
 
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
@@ -333,7 +345,7 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	)
 
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(ds.OrgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
@@ -428,7 +440,7 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		Index(c.Config.ElasticSearch.FragmentIndexName(ds.OrgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).
@@ -522,11 +534,11 @@ func (ds DataSet) createRDFStoreStats() (RDFStoreStats, error) {
 		return RDFStoreStats{Enabled: false}, nil
 	}
 
-	storedGraphs, err := CountGraphsBySpec(ds.Spec)
+	storedGraphs, err := CountGraphsBySpec(ds.OrgID, ds.Spec)
 	if err != nil {
 		return RDFStoreStats{}, err
 	}
-	revisionCount, err := CountRevisionsBySpec(ds.Spec)
+	revisionCount, err := CountRevisionsBySpec(ds.OrgID, ds.Spec)
 	if err != nil {
 		return RDFStoreStats{}, err
 	}
@@ -574,12 +586,12 @@ func CreateDataSetStats(ctx context.Context, orgID, spec string) (DataSetStats, 
 
 // DeleteGraphsOrphans deletes all the orphaned graphs from the Triple Store linked to this dataset
 func (ds DataSet) deleteGraphsOrphans() (bool, error) {
-	return DeleteGraphsOrphansBySpec(ds.Spec, ds.Revision)
+	return DeleteGraphsOrphansBySpec(ds.OrgID, ds.Spec, ds.Revision)
 }
 
 // DeleteAllGraphs deletes all the graphs linked to this dataset
 func (ds DataSet) deleteAllGraphs() (bool, error) {
-	return DeleteAllGraphsBySpec(ds.Spec)
+	return DeleteAllGraphsBySpec(ds.OrgID, ds.Spec)
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
@@ -595,6 +607,16 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
 
+	frag := elastic.NewBoolQuery()
+	frag = frag.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
+	frag = frag.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
+	frag = frag.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
+
+	suggest := elastic.NewBoolQuery()
+	suggest = suggest.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
+	suggest = suggest.Must(elastic.NewTermQuery("spec", ds.Spec))
+	suggest = suggest.Must(elastic.NewTermQuery("orgID", ds.OrgID))
+
 	v1 := elastic.NewBoolQuery()
 	v1 = v1.MustNot(elastic.NewMatchQuery("revision", ds.Revision))
 	v1 = v1.Must(elastic.NewTermQuery("spec.raw", ds.Spec))
@@ -605,9 +627,13 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
 		case v1Type:
-			queries[v1] = []string{c.Config.ElasticSearch.GetV1IndexName()}
+			queries[v1] = []string{c.Config.ElasticSearch.GetV1IndexName(ds.OrgID)}
 		case v2Type:
-			queries[v2] = []string{c.Config.ElasticSearch.GetIndexName()}
+			queries[v2] = []string{c.Config.ElasticSearch.GetIndexName(ds.OrgID)}
+		case fragmentType:
+			queries[frag] = []string{c.Config.ElasticSearch.FragmentIndexName(ds.OrgID)}
+		case suggestType:
+			queries[suggest] = []string{c.Config.ElasticSearch.GetSuggestIndexName(ds.OrgID)}
 		}
 	}
 
@@ -652,14 +678,16 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
 		case v1Type:
-			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName())
+			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName(ds.OrgID))
 		case v2Type:
-			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName(ds.OrgID))
+		case fragmentType:
+			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
 		}
 	}
 
 	if c.Config.ElasticSearch.DigitalObjectSuffix != "" {
-		indices = append(indices, c.Config.ElasticSearch.GetDigitalObjectIndexName())
+		indices = append(indices, c.Config.ElasticSearch.GetDigitalObjectIndexName(ds.OrgID))
 	}
 
 	res, err := index.ESClient().DeleteByQuery().

@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	fmt "fmt"
 	"log"
+	"strings"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
@@ -80,8 +81,11 @@ func TreeNode(ctx context.Context, hubID string) (*Tree, error) {
 	q = q.Must(
 		elastic.NewTermQuery("tree.hubID", hubID),
 	)
+
+	orgID := strings.Split(hubID, "_")[0]
+
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(10).
@@ -122,7 +126,7 @@ func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error
 	}
 
 	// Counters
-	//depth := []StatCounter{}
+	// depth := []StatCounter{}
 
 	// Aggregations
 	depthAgg := elastic.NewTermsAggregation().Field("tree.depth").Size(30).OrderByCountDesc()
@@ -135,7 +139,7 @@ func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error
 		return nil, err
 	}
 
-	//resourceFields := []string{"ead-rdf_physdesc"}
+	// resourceFields := []string{"ead-rdf_physdesc"}
 	physDescField, err := NewFacetField("ead-rdf_physdesc")
 	if err != nil {
 		return nil, err
@@ -153,7 +157,7 @@ func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error
 		elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID),
 	)
 	res, err := index.ESClient().Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(0).

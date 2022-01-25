@@ -108,10 +108,10 @@ func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 	return d, nil
 }
 
-func (s *Service) getDatasets() ([]string, error) {
+func (s *Service) getDatasets(orgID string) ([]string, error) {
 	datasets := []string{}
 
-	sets, err := models.ListDataSets()
+	sets, err := models.ListDataSets(orgID)
 	if err != nil {
 		return datasets, err
 	}
@@ -124,7 +124,7 @@ func (s *Service) getDatasets() ([]string, error) {
 }
 
 func (s *Service) AddDatasets(orgID string, catalog *Catalog) error {
-	datasets, err := s.getDatasets()
+	datasets, err := s.getDatasets(orgID)
 	if err != nil {
 		return err
 	}

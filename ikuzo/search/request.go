@@ -13,3 +13,5 @@
 // limitations under the License.
 
 package search
+
+type Request struct{}

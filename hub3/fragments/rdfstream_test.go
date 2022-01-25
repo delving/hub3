@@ -17,7 +17,7 @@ package fragments
 import (
 	"strings"
 
-	rdf "github.com/deiu/gon3"
+	rdf "github.com/kiivihal/gon3"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -56,11 +56,8 @@ var turtle = `@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 	<https://data.cultureelerfgoed.nl/vocab/id/rce#hasConceptStatus> <https://data.cultureelerfgoed.nl/term/id/cht/c58475d5-0795-4623-b4be-ea1524f4b4fb> .`
 
 var _ = Describe("Rdfstream", func() {
-
 	Describe("when parsing a stream", func() {
-
 		Context("and given a reader", func() {
-
 			It("should produces a list of triples", func() {
 				parser := rdf.NewParser("")
 				reader := strings.NewReader(turtle)
@@ -69,9 +66,8 @@ var _ = Describe("Rdfstream", func() {
 				for t := range g.IterTriples() {
 					_ = r.NewTriple(rdf2term(t.Subject), rdf2term(t.Predicate), rdf2term(t.Object))
 				}
-				//Expect(g.IterTriples()).ToNot(BeEmpty())
+				// Expect(g.IterTriples()).ToNot(BeEmpty())
 			})
 		})
 	})
-
 })

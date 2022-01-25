@@ -46,6 +46,11 @@ func (m *Meta) getSourcePath() string {
 	return fmt.Sprintf("%s/%s.xml", m.basePath, m.DatasetID)
 }
 
+// GetSourcePath returns full path to the source EAD file
+func (m *Meta) GetSourcePath() string {
+	return m.getSourcePath()
+}
+
 // getDaoLinkErrors returns the error messages for each retrieved error and its unitId
 func (m *Meta) getDaoLinkErrors() (messages []string) {
 	for id, errMsg := range m.DaoErrorLinks {
