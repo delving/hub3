@@ -23,16 +23,6 @@ import (
 	"github.com/go-chi/render"
 )
 
-func (s *Service) Routes() chi.Router {
-	router := chi.NewRouter()
-
-	router.Get("/", s.handleFilter)
-	router.Get("/{id}", s.handleGet)
-	router.Put("/", s.handlePut)
-
-	return router
-}
-
 func (s *Service) handleFilter(w http.ResponseWriter, r *http.Request) {
 	orgs, err := s.Filter(r.Context())
 	if err != nil {
