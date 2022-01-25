@@ -34,7 +34,7 @@ require (
 	github.com/kiivihal/rdf2go v0.1.5
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/knakk/sparql v0.0.0-20191213045353-fd0bd0e76475
-	github.com/lib/pq v1.10.0
+	github.com/lib/pq v1.10.4
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.4.0
