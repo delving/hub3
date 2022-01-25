@@ -14,20 +14,20 @@ import (
 // GetOrganizationID can be used to retrieve the domain.OrganizationID from
 // the request context.
 func (s *Service) ResolveOrgByDomain(next http.Handler) http.Handler {
-	domains := map[string]d.OrganizationID{}
+	domains := map[string]*d.Organization{}
 
 	orgs, err := s.Filter(context.Background())
 	if err != nil {
 		log.Println("unable to get organizations")
 	}
 
-	var defaultOrgID d.OrganizationID
+	var defaultOrgID *d.Organization
 
 	for _, org := range orgs {
 		for _, domain := range org.Config.Domains {
-			domains[domain] = org.ID
+			domains[domain] = org
 			if org.Config.Default {
-				defaultOrgID = org.ID
+				defaultOrgID = org
 			}
 		}
 	}
@@ -38,18 +38,17 @@ func (s *Service) ResolveOrgByDomain(next http.Handler) http.Handler {
 			domain = r.Host
 		}
 
-		orgID, ok := domains[domain]
+		org, ok := domains[domain]
 		if !ok {
-			if string(defaultOrgID) == "" {
+			if defaultOrgID != nil {
 				w.Header().Set("Content-Type", "text/plain")
 				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("no organization available for this domain"))
 				return
 			}
-			orgID = defaultOrgID
 		}
-		w.Header().Set("ORG-ID", orgID.String())
-		r = d.SetOrganizationID(r, orgID.String())
+		// w.Header().Set("ORG-ID", org.RawID())
+		r = d.SetOrganization(r, org)
 		next.ServeHTTP(w, r)
 	})
 }
