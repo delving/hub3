@@ -61,7 +61,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/tidwall/gjson v1.12.1
-	github.com/valyala/fasthttp v1.15.1
+	github.com/valyala/fasthttp v1.32.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	google.golang.org/protobuf v1.27.1
@@ -74,7 +74,7 @@ require (
 	github.com/Microsoft/hcsshim v0.8.23 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
-	github.com/andybalholm/brotli v1.0.0 // indirect
+	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
