@@ -38,7 +38,7 @@ require (
 	github.com/linkeddata/gojsonld v0.0.0-20170418210642-4f5db6791326
 	github.com/mailgun/groupcache v1.3.0
 	github.com/matryer/is v1.4.0
-	github.com/microcosm-cc/bluemonday v1.0.16
+	github.com/microcosm-cc/bluemonday v1.0.17
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nats-io/stan.go v0.7.0
 	github.com/olivere/elastic/v7 v7.0.19
@@ -82,7 +82,6 @@ require (
 	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/containerd/continuity v0.1.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62 // indirect
 	github.com/docker/distribution v2.7.1+incompatible // indirect
 	github.com/docker/docker v20.10.9+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
