@@ -419,8 +419,6 @@ github.com/danwakefield/fnmatch v0.0.0-20160403171240-cbb64ac3d964/go.mod h1:Xd9
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62 h1:dIxgaSfI7XxKvw4cVntS02TIHg3APMToZo62oM1uSNo=
-github.com/deiu/gon3 v0.0.0-20170627184619-f84eb1e0bd62/go.mod h1:9NkyS0HR4Tqu0VuChFnThvfn2xvgA7Y/ZOS4gnO8jeo=
 github.com/denisenkom/go-mssqldb v0.0.0-20190707035753-2be1aa521ff4/go.mod h1:zAg7JM8CkOJ43xKXIj7eRO9kmWm/TW578qo+oDO6tuM=
 github.com/denisenkom/go-mssqldb v0.0.0-20190924004331-208c0a498538/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
 github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73/go.mod h1:xbL0rPBG9cCiLr28tMa8zpbdarY27NDyej4t/EjAShU=
@@ -506,11 +504,10 @@ github.com/fsouza/fake-gcs-server v1.17.0/go.mod h1:D1rTE4YCyHFNa99oyJJ5HyclvN/0
 github.com/fullsailor/pkcs7 v0.0.0-20190404230743-d7302db945fa/go.mod h1:KnogPXtdwXqoenmZCw6S+25EAm2MkxbG0deNDu4cbSA=
 github.com/gabriel-vasile/mimetype v1.3.1/go.mod h1:fA8fi6KUiG7MgQQ+mEWotXoEOvmxRtOJlERCzSmRvr8=
 github.com/gabriel-vasile/mimetype v1.4.0/go.mod h1:fA8fi6KUiG7MgQQ+mEWotXoEOvmxRtOJlERCzSmRvr8=
-github.com/gammazero/deque v0.0.0-20200227231300-1e9af0e52b46/go.mod h1:D90+MBHVc9Sk1lJAbEVgws0eYEurY4mv2TDso3Nxh3w=
-github.com/gammazero/deque v0.0.0-20200721202602-07291166fe33 h1:UG4wNrJX9xSKnm/Gck5yTbxnOhpNleuE4MQRdmcGySo=
-github.com/gammazero/deque v0.0.0-20200721202602-07291166fe33/go.mod h1:D90+MBHVc9Sk1lJAbEVgws0eYEurY4mv2TDso3Nxh3w=
-github.com/gammazero/workerpool v1.0.0 h1:MfkJc6KL0tAmjrRDS203AZz3F+84Uod9YbL8KjpcQ00=
-github.com/gammazero/workerpool v1.0.0/go.mod h1:/XWO2YAUUpPi3smDlFBl0vpX0JHwUomDM/oRMwRmnSs=
+github.com/gammazero/deque v0.1.0 h1:f9LnNmq66VDeuAlSAapemq/U7hJ2jpIWa4c09q8Dlik=
+github.com/gammazero/deque v0.1.0/go.mod h1:KQw7vFau1hHuM8xmI9RbgKFbAsQFWmBpqQ2KenFLk6M=
+github.com/gammazero/workerpool v1.1.2 h1:vuioDQbgrz4HoaCi2q1HLlOXdpbap5AET7xu5/qj87g=
+github.com/gammazero/workerpool v1.1.2/go.mod h1:UelbXcO0zCIGFcufcirHhq2/xtLXJdQ29qZNlXG9OjQ=
 github.com/garyburd/redigo v0.0.0-20150301180006-535138d7bcd7/go.mod h1:NR3MbYisc3/PwhQ00EMzDiPmrwpPxAn5GI05/YaO1SY=
 github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
 github.com/ghodss/yaml v1.0.0/go.mod h1:4dBDuWmgqj2HViK6kFavaiC9ZROes6MMH2rRYeMEF04=
@@ -967,8 +964,6 @@ github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422 h1:PBMZ2wNutq2FJ
 github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422/go.mod h1:wSjqV6/e30tMha0bQdUC3Gx5A7c2TUbMsh0FgCUTVos=
 github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e h1:zNB99zPoKp7qmGScoBKJ93txK1++neh4TvDXUR4P9i4=
 github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e/go.mod h1:F4UJY3cYY8VfMd5aF5Ix7bdH5IL1fvUvldeAYPZSHQ8=
-github.com/kiivihal/rdf2go v0.1.2 h1:gAuz0MklT70Kkn1KKAxlAhCouX+IG/e1bao6vxoCCiI=
-github.com/kiivihal/rdf2go v0.1.2/go.mod h1:1Br4cUnFUp1EaGaJHY8LTbqATEuljSF4VZxej0fIcUM=
 github.com/kiivihal/rdf2go v0.1.5 h1:tCp/Z+Vk6C8MpVb2BtiWmnDSyrTxs8sWn5refVqRpvM=
 github.com/kiivihal/rdf2go v0.1.5/go.mod h1:TvTgs/NBSVHFK5fz+OqPgoxhNr+mGk8ovDbxHjSRP+g=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
