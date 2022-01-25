@@ -18,19 +18,20 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
+	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
 )
 
-type Option func(*Service) error
+var _ domain.Service = (*Service)(nil)
 
 type Service struct {
 	index      *index.Service
 	indexTypes []string
 	postHooks  map[string][]domain.PostHookService
+	log        zerolog.Logger
+	orgs       domain.OrgConfigRetriever
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -49,89 +50,17 @@ func NewService(options ...Option) (*Service, error) {
 	return s, nil
 }
 
-func SetIndexService(is *index.Service) Option {
-	return func(s *Service) error {
-		s.index = is
-		return nil
-	}
-}
-
-func SetIndexTypes(indexTypes ...string) Option {
-	return func(s *Service) error {
-		s.indexTypes = indexTypes
-		return nil
-	}
-}
-
-func SetPostHookService(hooks ...domain.PostHookService) Option {
-	return func(s *Service) error {
-		for _, hook := range hooks {
-			s.postHooks[hook.OrgID()] = append(s.postHooks[hook.OrgID()], hook)
-		}
-
-		return nil
-	}
-}
-
-// bulkApi receives bulkActions in JSON form (1 per line) and processes them in
-// ingestion pipeline.
-func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
-	p := s.NewParser()
-
-	if err := p.Parse(r.Context(), r.Body); err != nil {
-		log.Error().Err(err).Msg("issue with bulk request")
-		http.Error(w, err.Error(), http.StatusBadRequest)
-
-		return
-	}
-
-	if len(s.postHooks) != 0 && len(p.postHooks) != 0 {
-		applyHooks, ok := s.postHooks[p.stats.OrgID]
-		if ok {
-			go func() {
-				for _, hook := range applyHooks {
-					validHooks := []*domain.PostHookItem{}
-
-					for _, ph := range p.postHooks {
-						if hook.Valid(ph.DatasetID) {
-							validHooks = append(validHooks, ph)
-						}
-					}
-
-					if err := hook.Publish(validHooks...); err != nil {
-						log.Error().Err(err).Msg("unable to submit posthooks")
-					}
-
-					log.Debug().Int("nr_hooks", len(validHooks)).Msg("submitted posthooks")
-				}
-			}()
-		}
-	}
-
-	render.Status(r, http.StatusCreated)
-	log.Info().Msgf("stats: %+v", p.stats)
-	render.JSON(w, r, p.stats)
-}
-
-func (s *Service) NewParser() *Parser {
-	p := &Parser{
-		stats:         &Stats{},
-		indexTypes:    s.indexTypes,
-		bi:            s.index,
-		sparqlUpdates: []fragments.SparqlUpdate{},
-	}
-
-	if len(s.postHooks) != 0 {
-		p.postHooks = []*domain.PostHookItem{}
-	}
-
-	return p
-}
-
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// added to implement ikuzo service interface
+	router := chi.NewRouter()
+	s.Routes("", router)
+	router.ServeHTTP(w, r)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
-	return nil
+	return s.index.Shutdown(ctx)
+}
+
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }

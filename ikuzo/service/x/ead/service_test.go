@@ -16,7 +16,6 @@ package ead
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -24,7 +23,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
 )
@@ -55,14 +53,8 @@ func getTestService() (*Service, error) {
 		return nil, err
 	}
 
-	trs, err := revision.NewService(eadDir)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create revision.Service; %w", err)
-	}
-
 	return NewService(
 		SetDataDir(eadDir),
-		SetRevisionService(trs),
 	)
 }
 

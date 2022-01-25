@@ -17,6 +17,8 @@ package cmd
 import (
 	"embed"
 
+	stdlog "log"
+
 	"github.com/delving/hub3/hub3/server/http/handlers"
 	"github.com/delving/hub3/ikuzo"
 	"github.com/rs/zerolog/log"
@@ -44,6 +46,8 @@ func init() {
 
 // serve configures and runs the ikuzo server as a silo.
 func serve() {
+	stdlog.SetFlags(stdlog.LstdFlags | stdlog.Lshortfile)
+
 	options, err := cfg.Options()
 	if err != nil {
 		log.Fatal().
@@ -62,15 +66,12 @@ func serve() {
 			handlers.RegisterEAD,
 			handlers.RegisterSearch,
 			handlers.RegisterEAD,
+			handlers.RegisterLinkedDataFragments,
+			handlers.RegisterLOD,
 		),
 		ikuzo.SetEnableLegacyConfig(cfgFile),
 		ikuzo.SetStaticFS(staticFS),
 	)
-
-	// load dataNodeProxy last so that other urls are overwritten in the router
-	if !cfg.IsDataNode() {
-		options = append(options, ikuzo.SetDataNodeProxy(cfg.DataNodeURL))
-	}
 
 	svr, err := ikuzo.NewServer(
 		options...,

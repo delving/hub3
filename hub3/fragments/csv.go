@@ -48,15 +48,17 @@ type CSVConvertor struct {
 	resourceMap           map[int]bool
 	headerMap             map[int]r.Term
 	storeRDF              bool
+	orgID                 string
 }
 
 // NewCSVConvertor creates a CSV convertor from an net/http Form
-func NewCSVConvertor() *CSVConvertor {
+func NewCSVConvertor(orgID string) *CSVConvertor {
 	return &CSVConvertor{
 		headerMap:   make(map[int]r.Term),
 		integerMap:  make(map[int]bool),
 		resourceMap: make(map[int]bool),
 		storeRDF:    c.Config.RDF.RDFStoreEnabled,
+		orgID:       orgID,
 	}
 }
 
@@ -67,11 +69,9 @@ func (con CSVConvertor) HeaderMap() map[int]r.Term {
 
 // IndexFragments stores the fragments generated from the CSV into ElasticSearch
 func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, error) {
-
 	fg := NewFragmentGraph()
 	fg.Meta = &Header{
-		// TODO(kiivihal): support for adding orgID
-		// OrgID:    c.Config.OrgID,
+		OrgID:    con.orgID,
 		Revision: int32(revision),
 		DocType:  "csvUpload",
 		Spec:     con.DefaultSpec,
@@ -80,7 +80,6 @@ func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, e
 	}
 
 	rm, rowsProcessed, err := con.Convert()
-
 	if err != nil {
 		return 0, 0, err
 	}
@@ -123,7 +122,7 @@ func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, e
 			sparqlUpdates = append(sparqlUpdates, su)
 			if len(sparqlUpdates) >= 250 {
 				// insert the triples
-				_, errs := RDFBulkInsert(sparqlUpdates)
+				_, errs := RDFBulkInsert(con.orgID, sparqlUpdates)
 				if len(errs) != 0 {
 					return 0, 0, errs[0]
 				}
@@ -133,7 +132,7 @@ func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, e
 	}
 
 	if len(sparqlUpdates) != 0 {
-		_, errs := RDFBulkInsert(sparqlUpdates)
+		_, errs := RDFBulkInsert(con.orgID, sparqlUpdates)
 		if len(errs) != 0 {
 			return 0, 0, errs[0]
 		}
@@ -142,9 +141,12 @@ func (con *CSVConvertor) IndexFragments(bi BulkIndex, revision int) (int, int, e
 	return triplesProcessed, rowsProcessed, nil
 }
 
-//Convert converts the CSV InputFile to an RDF ResourceMap
+// Convert converts the CSV InputFile to an RDF ResourceMap
 func (con *CSVConvertor) Convert() (*ResourceMap, int, error) {
-	rm := &ResourceMap{make(map[string]*FragmentResource)}
+	rm := &ResourceMap{
+		resources: make(map[string]*FragmentResource),
+		orgID:     con.orgID,
+	}
 
 	triples, rowsProcessed, err := con.CreateTriples()
 	if err != nil {
@@ -163,12 +165,10 @@ func (con *CSVConvertor) Convert() (*ResourceMap, int, error) {
 	}
 
 	return rm, rowsProcessed, nil
-
 }
 
 // CreateTriples converts a csv file to a list of Triples
 func (con *CSVConvertor) CreateTriples() ([]*r.Triple, int, error) {
-
 	records, err := con.GetReader()
 	if err != nil {
 		return nil, 0, err

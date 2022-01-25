@@ -56,9 +56,12 @@ func (f Fragment) IsTypeLink() bool {
 // NewFragmentRequest creates a finder for Fragments
 // Use the funcs to setup filters and search properties
 // then call Find to execute.
-func NewFragmentRequest() *FragmentRequest {
+func NewFragmentRequest(orgID string) *FragmentRequest {
 	fr := &FragmentRequest{}
 	fr.Page = int32(1)
+	fr.OrgIDKey = "meta.orgID"
+	fr.OrgID = orgID
+
 	return fr
 }
 
@@ -97,6 +100,8 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 			fr.Graph = v[0]
 		case "exclude":
 			fr.ExcludeHubID = v[0]
+		case "lodKey", "lodkey":
+			fr.LodKey = v[0]
 		case "hubid":
 			fr.HubID = v[0]
 		case "page":
@@ -110,7 +115,7 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 		case "format":
 			break
 		default:
-			return fmt.Errorf("unknown ")
+			return fmt.Errorf("unknown parameter: '%s'", k)
 		}
 	}
 	return nil
@@ -140,7 +145,7 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
 }
 
-func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
+func (fr *FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	q := elastic.NewBoolQuery()
 	fr.AssignObject()
 	buildQueryClause(q, fr.OrgIDKey, fr.OrgID)
@@ -176,10 +181,10 @@ func (fr FragmentRequest) BuildQuery() *elastic.BoolQuery {
 }
 
 // Do executes the fragments request on elasticsearch
-func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
+func (fr *FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elastic.SearchResult, error) {
 	q := fr.BuildQuery()
 	return client.Search().
-		Index(c.Config.ElasticSearch.FragmentIndexName()).
+		Index(c.Config.ElasticSearch.FragmentIndexName(fr.OrgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Query(q).
 		Size(FRAGMENT_SIZE).
@@ -188,11 +193,10 @@ func (fr FragmentRequest) Do(cxt context.Context, client *elastic.Client) (*elas
 }
 
 // Find returns a list of matching LodFragments
-func (fr FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, int64, error) {
+func (fr *FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]*Fragment, int64, error) {
 	fragments := []*Fragment{}
 
 	res, err := fr.Do(ctx, client)
-
 	if err != nil {
 		return fragments, 0, err
 	}
@@ -245,7 +249,8 @@ func (f Fragment) IndexMessage() (*domainpb.IndexMessage, error) {
 		OrganisationID: f.Meta.OrgID,
 		DatasetID:      f.Meta.Spec,
 		RecordID:       f.ID(),
-		IndexName:      c.Config.ElasticSearch.FragmentIndexName(),
+		IndexName:      c.Config.ElasticSearch.FragmentIndexName(f.Meta.OrgID),
+		IndexType:      domainpb.IndexType_FRAGMENTS,
 		Source:         b,
 	}, nil
 }
@@ -313,7 +318,7 @@ func SaveDataSet(orgID, spec string, p *elastic.BulkProcessor) error {
 	fb.Graph.AddTriple(subject, r.NewResource("http://www.w3.org/2000/01/rdf-schema#label"), r.NewLiteral(spec))
 	fb.Graph.AddTriple(subject, r.NewResource("http://purl.org/dc/terms/title"), r.NewLiteral(spec))
 	// TODO add new fragment builder here
-	//return fb.CreateFragments(p, false, true)
+	// return fb.CreateFragments(p, false, true)
 	return nil
 }
 

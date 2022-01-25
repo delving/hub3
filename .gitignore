@@ -18,6 +18,7 @@ gin-bin
 build/*
 dist
 utils
+**/build/*
 
 # docker images
 docker-data
@@ -27,7 +28,6 @@ docker-data
 
 # do not commit vendored files
 vendor/*/
-
 
 # jupyter notebooks
 *.ipynb
@@ -73,3 +73,10 @@ hub3/parser
 
 # don't track node_modules
 node_modules
+
+# ignore certain front-end packages
+frontend/cidoc-crm/public
+frontend/ead/public
+
+# ignore default configuration
+hub3.toml

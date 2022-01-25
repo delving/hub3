@@ -1,0 +1,64 @@
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/aggregatedCHO> <http://data.collectienederland.nl/resource/document/museum-sloten/D036> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/dataProvider> "Museum Sloten" .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/hasView> <https://json-ld.org/playground/toBeRemoved1> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/hasView> <https://json-ld.org/playground/toBeRemoved2> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/isShownBy> <https://json-ld.org/playground/toBeRemoved> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/object> <https://json-ld.org/playground/toBeRemoved> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/provider> "Rijksdienst voor het Cultureel Erfgoed" .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.europeana.eu/schemas/edm/rights> <http://rightsstatements.org/vocab/InC/1.0/> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.openarchives.org/ore/terms/aggregates> <https://json-ld.org/playground/toBeRemoved1> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.openarchives.org/ore/terms/aggregates> <https://json-ld.org/playground/toBeRemoved2> .
+<http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.openarchives.org/ore/terms/Aggregation> .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/creator> "Vervaardiger onbekend" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/date> "18e eeuw" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/description> "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/identifier> "D036" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/title> "10-delig sluitgewicht van messing" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/elements/1.1/type> "gebruiksvoorwerpen" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "breedte: 16 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 1,5 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 1.9 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 10.5 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 2.4 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 2.8 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 3.6 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 4.4 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 5.4 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 6.6 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "diameter: 8.3 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 10 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 1000 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 160 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 20 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 2000 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 226.80 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 40 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 4000 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 450 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 56.70 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "gewicht: 6000 gr" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 0.6 " .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 0.8 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 1.0 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 1.5 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 2.1 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 2.5 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 20 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 3.4 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 4.2 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 6 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://purl.org/dc/terms/extent> "hoogte: 7.3 cm" .
+<http://data.collectienederland.nl/resource/document/museum-sloten/D036> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/ProvidedCHO> .
+<urn:museum-sloten/D036a> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "1" .
+<urn:museum-sloten/D036a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+_:b0 <http://schemas.delving.eu/nave/terms/extra> "test extra" .
+_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DcnResource> .
+_:b1 <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+_:b1 <http://schemas.delving.eu/nave/terms/allowLinkedOpenData> "true" .
+_:b1 <http://schemas.delving.eu/nave/terms/allowSourceDownload> "false" .
+_:b1 <http://schemas.delving.eu/nave/terms/deepZoomUrl> "toBeRemoved" .
+_:b1 <http://schemas.delving.eu/nave/terms/public> "true" .
+_:b1 <http://schemas.delving.eu/nave/terms/thumbLarge> "toBeRemoved" .
+_:b1 <http://schemas.delving.eu/nave/terms/thumbMedium> "toBeRemoved" .
+_:b1 <http://schemas.delving.eu/nave/terms/thumbSmall> "toBeRemoved" .
+_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DelvingResource> .

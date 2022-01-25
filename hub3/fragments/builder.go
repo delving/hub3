@@ -38,10 +38,20 @@ type BulkIndex interface {
 type FragmentBuilder struct {
 	fg             *FragmentGraph
 	Graph          *r.Graph
-	SortedGraph    *SortedGraph
 	ResourceLabels map[string]string
 	resources      *ResourceMap
 	sanitizer      *bluemonday.Policy
+}
+
+// ByPredicate returns a list of triples that have the same predicate
+func (fb *FragmentBuilder) ByPredicate(predicate r.Term) []*r.Triple {
+	matches := []*r.Triple{}
+	for t := range fb.Graph.IterTriples() {
+		if t.Predicate.Equal(predicate) {
+			matches = append(matches, t)
+		}
+	}
+	return matches
 }
 
 // ResourcesList returns a list of FragmentResource
@@ -68,7 +78,7 @@ func (rm *ResourceMap) ResourcesList(resources map[string]*FragmentResource) []*
 // ResourceMap returns a *ResourceMap for the Graph in the FragmentBuilder
 func (fb *FragmentBuilder) ResourceMap() (*ResourceMap, error) {
 	if fb.resources == nil {
-		rm, err := NewResourceMap(fb.Graph)
+		rm, err := NewResourceMap(fb.fg.Meta.OrgID, fb.Graph)
 		if err != nil {
 			log.Printf("unable to create resourceMap due to %s", err)
 			return nil, err
@@ -183,7 +193,7 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 			log.Printf("Unable to decode RDF-XML: %v", err)
 			return err
 		}
-		rm, err := NewResourceMapFromXML(triples)
+		rm, err := NewResourceMapFromXML(fb.fg.Meta.OrgID, triples)
 		if err != nil {
 			log.Printf("Unable to create resourceMap: %v", err)
 			return err

@@ -18,25 +18,20 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"strings"
 	"sync/atomic"
-	"time"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
 
-var (
-	ErrCannotPopFromQueue = errors.New("unable to pop element from the queue")
-)
+var ErrCannotPopFromQueue = errors.New("unable to pop element from the queue")
 
 // Description is simplified version of the 'eadheader', 'archdesc/did' and
 // 'archdesc/descgroups'.
@@ -98,11 +93,11 @@ type DataItem struct {
 	ShowLink string `json:"showLink,omitempty"`
 
 	// nested blocks
-	//Inner []DataItem `json:"inner,omitempty"`
+	// Inner []DataItem `json:"inner,omitempty"`
 	Depth     int    `json:"depth,omitempty"`
 	ParentIDS string `json:"parentIDS"`
 
-	//FlowType between data items
+	// FlowType between data items
 	FlowType FlowType `json:"flowType"`
 	Order    uint64   `json:"order,omitempty"`
 	Closed   bool     `json:"closed,omitempty"`
@@ -193,6 +188,7 @@ func (ib *itemBuilder) ParentIDs() string {
 	}
 	return strings.Join(parentIDs, "~")
 }
+
 func (ib *itemBuilder) append(item *DataItem) {
 	ib.counter.Increment()
 
@@ -225,8 +221,8 @@ func (ib *itemBuilder) push(se xml.StartElement) error {
 		id.FlowType = Inline
 	case "title":
 		id.FlowType = Inline
-		err := ib.close()
 
+		err := ib.close()
 		if err != nil {
 			return err
 		}
@@ -596,7 +592,6 @@ func NewDescription(ead *Cead) (*Description, error) {
 	}
 
 	if len(ead.Carchdesc.Cdescgrp) > 0 {
-
 		for idx, grp := range ead.Carchdesc.Cdescgrp {
 			section := &DataItem{
 				Type:    Section,
@@ -782,7 +777,6 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 					unit.Date = append(unit.Date, date.Unitdate)
 				}
 			}
-
 		}
 
 		if len(did.Cphysdesc) != 0 {
@@ -837,41 +831,7 @@ func (fa *FindingAid) AddUnit(archdesc *Carchdesc) error {
 	return nil
 }
 
-func getRemoteDescriptionCount(spec, query string) (int, error) {
-	type hits struct {
-		Total int
-	}
-
-	var netClient = &http.Client{
-		Timeout: time.Second * 1,
-	}
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/ead/%s/desc/index?q=%s", c.Config.DataNodeURL, spec, query), nil)
-	if err != nil {
-		return 0, err
-	}
-
-	resp, err := netClient.Do(req)
-	if err != nil {
-		return 0, err
-	}
-	defer resp.Body.Close()
-
-	var descriptionHits hits
-
-	decodeErr := json.NewDecoder(resp.Body).Decode(&descriptionHits)
-	if decodeErr != nil {
-		return 0, decodeErr
-	}
-
-	return descriptionHits.Total, nil
-}
-
 func GetDescriptionCount(spec, query string) (int, error) {
-	if !c.Config.IsDataNode() {
-		return getRemoteDescriptionCount(spec, query)
-	}
-
 	var hits int
 
 	descriptionIndex, getErr := GetDescriptionIndex(spec)
@@ -897,7 +857,6 @@ func GetDescriptionCount(spec, query string) (int, error) {
 	}
 
 	return hits, nil
-
 }
 
 // HightlightSummary applied query highlights to the ead.Summary.

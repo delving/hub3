@@ -9,10 +9,15 @@ import (
 	"sync"
 	"time"
 
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 )
+
+var _ domain.Service = (*Service)(nil)
 
 type Service struct {
 	ctx          context.Context
@@ -22,6 +27,8 @@ type Service struct {
 	rw           sync.Mutex
 	defaultDelay int
 	tasks        []*HarvestTask
+	log          zerolog.Logger
+	orgs         domain.OrgConfigRetriever
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -138,7 +145,14 @@ func (s *Service) runHarvest(ctx context.Context, task *HarvestTask) error {
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	router := chi.NewRouter()
+	s.Routes("", router)
+	router.ServeHTTP(w, r)
+}
 
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }
 
 // HarvestNow starts all harvest task from the beginning.

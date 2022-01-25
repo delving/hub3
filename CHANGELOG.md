@@ -31,6 +31,7 @@
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
+- Return "text/turtle" from LDF endpoint  [345290fca38e](https://github.com/delving/hub3/commit/345290fca38ef9573671da34e11e4fc5f2c20729)
 
 ### Fixed
  
