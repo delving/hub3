@@ -26,7 +26,7 @@ require (
 	github.com/gorilla/schema v1.2.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/hashicorp/golang-lru v0.5.1
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20210928083513-2a6fbc307f6d
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
