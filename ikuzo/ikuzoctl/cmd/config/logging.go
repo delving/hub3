@@ -15,9 +15,13 @@
 package config
 
 import (
+	"net/http"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/go-chi/chi"
+	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/render"
 )
 
 type Logging struct {
@@ -29,12 +33,18 @@ type Logging struct {
 }
 
 func (l *Logging) AddOptions(cfg *Config) error {
+	// TODO(kiivihal): move this somewhere else
 	if l.DevMode {
 		cfg.options = append(
 			cfg.options,
 			ikuzo.SetRouters(func(r chi.Router) {
-				r.Delete("/introspect/reset", cfg.ElasticSearch.ResetAll)
+				// r.Delete("/introspect/reset", cfg.ElasticSearch.ResetAll)
+				r.Get("/introspect/config", func(w http.ResponseWriter, r *http.Request) {
+					render.JSON(w, r, cfg)
+				})
+				r.Mount("/debug", mw.Profiler())
 			}),
+			ikuzo.SetEnableIntrospect(l.DevMode),
 		)
 	}
 
