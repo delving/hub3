@@ -16,17 +16,17 @@ require (
 	github.com/gammazero/workerpool v1.1.2
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/go-chi/cors v1.1.1
-	github.com/go-chi/docgen v1.0.5
+	github.com/go-chi/docgen v1.2.0
 	github.com/go-chi/render v1.0.1
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/protobuf v1.5.2
 	github.com/google/go-cmp v0.5.6
-	github.com/google/gofuzz v1.1.0
+	github.com/google/gofuzz v1.2.0
 	github.com/gorilla/schema v1.2.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.0
-	github.com/hashicorp/golang-lru v0.5.1
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/goharvest v0.0.0-20210928083513-2a6fbc307f6d
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
@@ -61,7 +61,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/tidwall/gjson v1.12.1
-	github.com/valyala/fasthttp v1.15.1
+	github.com/valyala/fasthttp v1.32.0
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/text v0.3.7
 	google.golang.org/protobuf v1.27.1
@@ -74,7 +74,7 @@ require (
 	github.com/Microsoft/hcsshim v0.8.23 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
 	github.com/Sereal/Sereal v0.0.0-20190226181601-237c2cca198f // indirect
-	github.com/andybalholm/brotli v1.0.0 // indirect
+	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
@@ -89,6 +89,7 @@ require (
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/gammazero/deque v0.1.0 // indirect
+	github.com/go-chi/chi/v5 v5.0.1 // indirect
 	github.com/go-enry/go-enry/v2 v2.5.2 // indirect
 	github.com/go-enry/go-oniguruma v1.2.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
