@@ -6,23 +6,23 @@
 
 ### Added 
  
-- 10f521cf hub3: added dedicated esproxy service.
-- 80c4d3be hub3: added sitemap package
-- 41309cb0 hub3: initial version of postgresql service.
+- hub3: added dedicated esproxy service. [10f521cf](https://github.com/delving/hub3/commit/10f521cf)
+- hub3: added sitemap package [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be)
+- hub3: initial version of postgresql service. [41309cb0](https://github.com/delving/hub3/commit/41309cb0)
 
 ### Changed
 
-- 2cf6dc75 hub3: update ikuzoctl configuration objects for domain.Service.
-- e59c880b hub3: refactor for multitenancy based on OrgID across all packages
-- 3a10b33f hub3: added multi-tenant configuration support to domain.Organization
-- e373e132 hub3: move memory storage package to x
-- 9949b8a7 hub3: refactor elasticsearch storage into driver package
-- 82f2e6cf hub3: LDF always returns 'text/turtle'
+- hub3: update ikuzoctl configuration objects for domain.Service. [2cf6dc75](https://github.com/delving/hub3/commit/2cf6dc75)
+- hub3: refactor for multitenancy based on OrgID across all packages [e59c880b](https://github.com/delving/hub3/commit/e59c880b)
+- hub3: added multi-tenant configuration support to domain.Organization [3a10b33f](https://github.com/delving/hub3/commit/3a10b33f)
+- hub3: move memory storage package to x [e373e132](https://github.com/delving/hub3/commit/e373e132)
+- hub3: refactor elasticsearch storage into driver package [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7)
+- hub3: LDF always returns 'text/turtle' [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf)
 - updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
 
 ## Removed
  
-- 1df50338 hub3: remove gorm package
+- hub3: remove gorm package [1df50338](https://github.com/delving/hub3/commit/1df50338)
 
 ## v0.2.1 (2022-01-25)
 
