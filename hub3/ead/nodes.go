@@ -16,6 +16,7 @@ package ead
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -208,7 +209,13 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 
 		if cfg.DaoFn != nil {
-			if cfg.ProcessDigital || hasOrphanedMetsFile || cfg.ProcessDigitalIfMissing {
+			metsPath := daoCfg.getMetsFilePath()
+			metsExists := true
+			if _, err := os.Stat(metsPath); err != nil {
+				metsExists = false
+			}
+
+			if cfg.ProcessDigital || hasOrphanedMetsFile || (!metsExists && cfg.ProcessDigitalIfMissing) {
 				log.Debug().
 					Str("archiveID", daoCfg.ArchiveID).
 					Str("InventoryID", daoCfg.InventoryID).
