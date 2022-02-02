@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -48,6 +49,7 @@ type Service struct {
 	proxyPrefix      string // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 	referrers        []string
 	allowList        []string
+	allowPorts       []string
 	refuselist       []string
 	allowedMimeTypes []string
 	m                RequestMetrics
@@ -358,6 +360,38 @@ func (s *Service) storeSource(req *Request) error {
 	s.m.IncSource()
 
 	return nil
+}
+
+func (s *Service) portsAllowed(targetURL string) (bool, error) {
+	if len(s.allowPorts) == 0 {
+		return true, nil
+	}
+
+	var allowed bool
+
+	u, err := url.Parse(targetURL)
+	if err != nil {
+		s.log.Error().Err(err).Str("target_url", targetURL).Msg("unable to parse target url")
+		return false, err
+	}
+
+	if u.Port() == "" {
+		return true, nil
+	}
+
+	for _, target := range s.allowPorts {
+		if strings.EqualFold(u.Port(), target) {
+			log.Printf("port %s", u.Port())
+			allowed = true
+			break
+		}
+	}
+
+	if !allowed {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 func (s *Service) domainAllowed(targetURL string) (bool, error) {

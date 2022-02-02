@@ -30,6 +30,7 @@ type ImageProxy struct {
 	ProxyReferrer    []string
 	RefuseList       []string
 	AllowList        []string
+	AllowPorts       []string
 	AllowedMimeTypes []string
 	LruCacheSize     int
 	EnableResize     bool
@@ -50,8 +51,9 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetAllowList(ip.AllowList),
 		imageproxy.SetLruCacheSize(ip.LruCacheSize),
 		imageproxy.SetEnableResize(ip.EnableResize),
-		imageproxy.SetLogger(cfg.logger.Logger),
+		imageproxy.SetLogger(&cfg.logger.Logger),
 		imageproxy.SetAllowedMimeTypes(ip.AllowedMimeTypes),
+		imageproxy.SetAllowPorts(ip.AllowPorts),
 	)
 	if err != nil {
 		return err
