@@ -136,7 +136,7 @@ func (c *DaoClient) PublishFiles(cfg *DaoConfig, fa *eadpb.FindingAid) error {
 			return err
 		}
 
-		m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
+		m.IndexType = domainpb.IndexType_DIGITAL_OBJECTS
 
 		if c.bi != nil {
 			c.bi.Publish(context.Background(), m)
@@ -175,7 +175,7 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig, excludeMetsFiles ...bool) 
 		return err
 	}
 
-	m.IndexName = config.Config.ElasticSearch.GetDigitalObjectIndexName()
+	m.IndexType = domainpb.IndexType_DIGITAL_OBJECTS
 
 	if c.bi != nil {
 		c.bi.Publish(context.Background(), m)
@@ -581,7 +581,7 @@ func (cfg *DaoConfig) fragmentGraph(file *eadpb.File) (*fragments.FragmentGraph,
 	subjectBase := fmt.Sprintf("%s/%s/archive/%s/%s", config.Config.RDF.BaseURL, cfg.OrgID, cfg.ArchiveID, cfg.InventoryID)
 	id := fmt.Sprintf("%s-%s", cfg.InventoryID, file.Filename)
 	header := createHeader(cfg, id, subjectBase, "mets")
-	rm := fragments.NewEmptyResourceMap()
+	rm := fragments.NewEmptyResourceMap(cfg.OrgID)
 
 	for idx, t := range cfg.fileTriples(header.EntryURI, file) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
@@ -620,7 +620,7 @@ func (cfg *DaoConfig) findingAidFragmentGraph(fa *eadpb.FindingAid) (*fragments.
 	id := fmt.Sprintf("%s-findingaid", fa.GetInventoryID())
 	header := createHeader(cfg, id, subjectBase, "findingaid")
 
-	rm := fragments.NewEmptyResourceMap()
+	rm := fragments.NewEmptyResourceMap(cfg.OrgID)
 
 	for idx, t := range findingAidTriples(header.EntryURI, fa, cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {

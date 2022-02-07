@@ -23,34 +23,27 @@ import (
 )
 
 var _ = Describe("Config", func() {
-
 	Describe("after initialisation", func() {
-
 		Context("when calling initConfig", func() {
-
 			It("should be initialised with defaults", func() {
 				InitConfig()
 				Expect(Config.HTTP.Port).To(Equal(3001))
 			})
-
 		})
 
 		Context("when setting a config value", func() {
-
 			It("should be available in the global scope", func() {
 				Expect(Config.Logging.SentryDSN).To(BeEmpty())
 				Config.Logging.SentryDSN = "test"
 				Expect(Config.Logging.SentryDSN).ToNot(BeEmpty())
 			})
 		})
-
 	})
 
 	Describe("building the SPARQL endpoint", func() {
-
 		Context("when constructed", func() {
 			InitConfig()
-			endpoint := Config.GetSparqlEndpoint("")
+			endpoint := Config.GetSparqlEndpoint("test", "")
 
 			It("should not be empty", func() {
 				Expect(endpoint).ToNot(BeEmpty())
@@ -63,15 +56,14 @@ var _ = Describe("Config", func() {
 
 			It("should use the sparql path from the configuration", func() {
 				Expect(Config.RDF.SparqlPath).To(ContainSubstring("%s"))
-				Expect(endpoint).To(ContainSubstring("/hub3/sparql"))
+				Expect(endpoint).To(ContainSubstring("/test/sparql"))
 			})
 		})
 
 		Context("when a dbname is specified", func() {
-
-			endpoint := Config.GetSparqlEndpoint("hub32")
+			endpoint := Config.GetSparqlEndpoint("test", "hub32")
 			It("should use dbName to inject into the sparql path", func() {
-				orgID := Config.OrgID
+				orgID := "test"
 				Expect(endpoint).To(ContainSubstring("/hub32/"))
 				Expect(endpoint).ToNot(ContainSubstring(fmt.Sprintf("/%s/", orgID)))
 			})

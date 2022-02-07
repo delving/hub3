@@ -18,21 +18,25 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"expvar"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
-	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
+	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
 	"github.com/nats-io/stan.go"
 	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	proto "google.golang.org/protobuf/proto"
 )
@@ -41,28 +45,19 @@ type BulkIndex interface {
 	Publish(ctx context.Context, message ...*domainpb.IndexMessage) error
 }
 
-type Metrics struct {
-	started time.Time
-	Nats    struct {
-		Published uint64
-		Consumed  uint64
-		Failed    uint64
-	}
-	Index struct {
-		Successful uint64
-		Failed     uint64
-	}
-}
-
 type Service struct {
-	bi         esutil.BulkIndexer
-	stan       *NatsConfig
-	direct     bool
-	MsgHandler func(ctx context.Context, m *domainpb.IndexMessage) error
-	workers    []stan.Subscription // this is for getting statistics
-	m          Metrics
-	orphanWait int
-	postHooks  map[string][]domain.PostHookService
+	bi             esutil.BulkIndexer
+	stan           *NatsConfig
+	direct         bool
+	MsgHandler     func(ctx context.Context, m *domainpb.IndexMessage) error
+	workers        []stan.Subscription // this is for getting statistics
+	m              Metrics
+	orphanWait     int
+	postHooks      map[string][]domain.PostHookService
+	shutdownMutex  sync.Mutex
+	disableMetrics bool
+	log            zerolog.Logger
+	orgs           *organization.Service
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -79,6 +74,10 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if s.orgs == nil {
+		return s, fmt.Errorf("organization.Service is required and cannot be nil")
+	}
+
 	if s.stan == nil {
 		s.direct = true
 		if s.bi == nil {
@@ -88,6 +87,10 @@ func NewService(options ...Option) (*Service, error) {
 
 	if !s.direct && (s.stan == nil || s.stan.Conn.NatsConn() == nil) {
 		return s, fmt.Errorf("stan.Conn must be established before nats queue can be used")
+	}
+
+	if !s.disableMetrics {
+		expvar.Publish("hub3-index-service", expvar.Func(func() interface{} { m := s.Metrics(); return m }))
 	}
 
 	return s, nil
@@ -132,6 +135,13 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	if s.workers == nil {
+		return nil
+	}
+
+	s.shutdownMutex.Lock()
+	defer s.shutdownMutex.Unlock()
+
 	// stop all the workers before closing channels
 	for _, w := range s.workers {
 		w.Close()
@@ -223,14 +233,20 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 		v2 = v2.Must(elastic.NewMatchQuery("meta.sourcePath", revision.GetPath()))
 	}
 
+	cfg, ok := s.orgs.RetrieveConfig(orgID)
+	if !ok {
+		s.log.Warn().Str("orgID", orgID).Str("datasetID", datasetID).Msg("unknown orgID; so aborting orphan drop")
+		return nil
+	}
+
 	v2 = v2.Must(tags)
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, datasetID))
-	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, orgID))
-	indices := []string{c.Config.ElasticSearch.GetDigitalObjectIndexName()}
+	v2 = v2.Must(elastic.NewTermQuery(es.PathDatasetID, datasetID))
+	v2 = v2.Must(elastic.NewTermQuery(es.PathOrgID, orgID))
+	indices := []string{cfg.GetDigitalObjectIndexName()}
 
 	if strings.HasPrefix(revision.GetGroupID(), "NT") {
-		if c.Config.ElasticSearch.GetDigitalObjectIndexName() != c.Config.ElasticSearch.GetIndexName() {
-			indices = append(indices, c.Config.ElasticSearch.GetIndexName())
+		if cfg.GetDigitalObjectIndexName() != cfg.GetIndexName() {
+			indices = append(indices, cfg.GetIndexName())
 		}
 	}
 
@@ -362,6 +378,38 @@ func (s *Service) runPosthooks(orgID, datasetID string, revision *domainpb.Revis
 func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) error {
 	if s.MsgHandler != nil {
 		return s.MsgHandler(ctx, m)
+	}
+
+	orgID := m.GetOrganisationID()
+	if orgID == "" {
+		return fmt.Errorf("organizationID cannot be empty")
+	}
+
+	cfg, ok := s.orgs.RetrieveConfig(orgID)
+	if !ok {
+		return fmt.Errorf("unknown orgID: %s", orgID)
+	}
+
+	// no index name means we get it from the domain.OrganizationConfig
+	// prefer IndexType over indexName
+	m.IndexName = ""
+
+	switch m.GetIndexType() {
+	case domainpb.IndexType_V2:
+		m.IndexName = cfg.GetIndexName()
+	case domainpb.IndexType_V1:
+		m.IndexName = cfg.GetV1IndexName()
+	case domainpb.IndexType_DIGITAL_OBJECTS:
+		m.IndexName = cfg.GetDigitalObjectIndexName()
+	case domainpb.IndexType_FRAGMENTS:
+		m.IndexName = cfg.GetFragmentsIndexName()
+	case domainpb.IndexType_SUGGEST:
+		m.IndexName = cfg.GetSuggestIndexName()
+	default:
+		log.Error().Msgf("indexname should never be empty %s: %#v", cfg.GetIndexName(), m)
+		return fmt.Errorf("indexTypes not supported for organization: %s", m.GetIndexType().String())
+		// leave index name
+		// m.IndexName = cfg.GetIndexName()
 	}
 
 	if m.GetActionType() == domainpb.ActionType_DROP_ORPHANS {

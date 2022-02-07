@@ -116,7 +116,7 @@ func processV1(ctx context.Context, fb *fragments.FragmentBuilder, bi index.Bulk
 		OrganisationID: fg.Meta.OrgID,
 		DatasetID:      fg.Meta.Spec,
 		RecordID:       fg.Meta.HubID,
-		IndexName:      config.Config.ElasticSearch.GetV1IndexName(), // TODO(kiivihal): remove config later
+		IndexType:      domainpb.IndexType_V1,
 		Source:         b,
 	}
 

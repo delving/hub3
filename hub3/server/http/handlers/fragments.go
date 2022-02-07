@@ -15,22 +15,20 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"strconv"
-	"strings"
 
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
 func RegisterLinkedDataFragments(router chi.Router) {
-
 	router.Get("/api/fragments", listFragments)
 	router.Get("/fragments/{spec}", listFragments)
 	router.Get("/fragments", listFragments)
@@ -39,7 +37,9 @@ func RegisterLinkedDataFragments(router chi.Router) {
 // listFragments returns a list of matching fragments
 // See for more info: http://linkeddatafragments.org/
 func listFragments(w http.ResponseWriter, r *http.Request) {
-	fr := fragments.NewFragmentRequest()
+	orgID := domain.GetOrganizationID(r)
+	fr := fragments.NewFragmentRequest(orgID.String())
+
 	spec := chi.URLParam(r, "spec")
 	if spec != "" {
 		fr.Spec = spec
@@ -56,15 +56,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	frags, totalFrags, err := fr.Find(r.Context(), index.ESClient())
-	if err != nil || len(frags) == 0 {
-		log.Printf("Unable to list fragments because of: %#v", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprint("No fragments for query were found."),
-			Error:      err,
-		})
-		return
-	}
+
 	switch fr.Echo {
 	case "raw":
 		render.JSON(w, r, frags)
@@ -114,10 +106,26 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var buffer bytes.Buffer
-	for _, frag := range frags {
-		buffer.WriteString(fmt.Sprintln(frag.Triple))
+	if err != nil {
+		log.Printf("Unable to list fragments because of: %#v", err)
+		render.JSON(w, r, APIErrorMessage{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprint("No fragments for query were found."),
+			Error:      err,
+		})
+		return
 	}
+
+	// if len(frags) == 0 {
+	// log.Printf("Unable to list fragments because of: %#v", err)
+	// render.JSON(w, r, APIErrorMessage{
+	// HTTPStatus: http.StatusNotFound,
+	// Message:    fmt.Sprint("No fragments for query were found."),
+	// Error:      err,
+	// })
+	// return
+	// }
+
 	w.Header().Add("FRAG_COUNT", strconv.Itoa(int(totalFrags)))
 
 	// Add hyperMediaControls
@@ -134,12 +142,10 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if strings.Contains(r.Header.Get("Accept"), "n-triples") {
-		w.Header().Add("Content-Type", "application/n-triples")
-	} else {
-		w.Header().Add("Content-Type", "text/plain")
-	}
+	w.Header().Add("Content-Type", "text/turtle")
 
 	w.Write(controls)
-	w.Write(buffer.Bytes())
+	for _, frag := range frags {
+		fmt.Fprintln(w, frag.Triple)
+	}
 }

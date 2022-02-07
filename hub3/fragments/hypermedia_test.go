@@ -24,18 +24,15 @@ import (
 )
 
 var _ = Describe("Hypermedia", func() {
-
 	Describe("when creating now controls", func() {
-
 		Context("from a http.Request", func() {
-
 			base := "https://localhost:3000/fragments"
 			query := "?object=true"
 			r, err := http.NewRequest("GET", base+query+"&page=2", nil)
 
 			It("should set the correct fullPath", func() {
 				Expect(err).ToNot(HaveOccurred())
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				err := fr.ParseQueryString(r.URL.Query())
 				hmd := NewHyperMediaDataSet(r, 295, fr)
 				Expect(err).ToNot(HaveOccurred())
@@ -53,7 +50,7 @@ var _ = Describe("Hypermedia", func() {
 			})
 
 			It("should create the controls", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				err := fr.ParseQueryString(r.URL.Query())
 				hmd := NewHyperMediaDataSet(r, 395, fr)
 				Expect(hmd).ToNot(BeNil())
@@ -63,8 +60,6 @@ var _ = Describe("Hypermedia", func() {
 				Expect(hmd.HasNext()).To(BeTrue())
 				Expect(hmd.HasPrevious()).To(BeTrue())
 			})
-
 		})
 	})
-
 })

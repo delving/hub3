@@ -17,6 +17,8 @@ package ikuzo
 import (
 	"context"
 	"sync"
+
+	"github.com/delving/hub3/ikuzo/domain"
 )
 
 // WorkerService is the interface for background processes.
@@ -24,7 +26,7 @@ import (
 // canceled.
 type WorkerService interface {
 	Start(ctx context.Context, wg *sync.WaitGroup)
-	Shutdown
+	domain.Shutdown
 }
 
 type workerPool struct {

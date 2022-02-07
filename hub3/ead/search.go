@@ -26,6 +26,7 @@ import (
 	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/hlog"
@@ -47,8 +48,9 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 		Logger()
 
 	client := index.ESClient()
+	orgID := domain.GetOrganizationID(r)
 
-	s := client.Search(cfg.Config.ElasticSearch.GetIndexName()).
+	s := client.Search(cfg.Config.ElasticSearch.GetIndexName(orgID.String())).
 		TrackTotalHits(cfg.Config.ElasticSearch.TrackTotalHits)
 
 	sr, err := newSearchRequest(r.URL.Query())
@@ -369,7 +371,6 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 		Query(query).
 		Sort("tree.sortKey", true).
 		Do(r.Context())
-
 	if err != nil {
 		rlog.Error().Err(err).
 			Msg("error in elasticsearch response")

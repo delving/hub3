@@ -22,16 +22,17 @@ import (
 )
 
 type ImageProxy struct {
-	Enabled         bool
-	CacheDir        string
-	MaxSizeCacheDir int
-	ProxyPrefix     string
-	Timeout         int
-	ProxyReferrer   []string
-	RefuseList      []string
-	AllowList       []string
-	LruCacheSize    int
-	EnableResize    bool
+	Enabled          bool
+	CacheDir         string
+	MaxSizeCacheDir  int
+	ProxyPrefix      string
+	Timeout          int
+	ProxyReferrer    []string
+	RefuseList       []string
+	AllowList        []string
+	AllowedMimeTypes []string
+	LruCacheSize     int
+	EnableResize     bool
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -39,7 +40,7 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		return nil
 	}
 
-	s, err := imageproxy.NewService(
+	svc, err := imageproxy.NewService(
 		imageproxy.SetCacheDir(ip.CacheDir),
 		imageproxy.SetMaxSizeCacheDir(ip.MaxSizeCacheDir),
 		imageproxy.SetProxyPrefix(ip.ProxyPrefix),
@@ -50,15 +51,16 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetLruCacheSize(ip.LruCacheSize),
 		imageproxy.SetEnableResize(ip.EnableResize),
 		imageproxy.SetLogger(cfg.logger.Logger),
+		imageproxy.SetAllowedMimeTypes(ip.AllowedMimeTypes),
 	)
 	if err != nil {
 		return err
 	}
 
-	cfg.options = append(cfg.options, ikuzo.SetImageProxyService(s))
+	cfg.options = append(cfg.options, ikuzo.RegisterService(svc))
 
-	expvar.Publish("hub3-imageproxy-requests", expvar.Func(func() interface{} { m := s.RequestMetrics(); return m }))
-	expvar.Publish("hub3-imageproxy-cache", expvar.Func(func() interface{} { m := s.CacheMetrics(); return m }))
+	expvar.Publish("hub3-imageproxy-requests", expvar.Func(func() interface{} { m := svc.RequestMetrics(); return m }))
+	expvar.Publish("hub3-imageproxy-cache", expvar.Func(func() interface{} { m := svc.CacheMetrics(); return m }))
 
 	return nil
 }

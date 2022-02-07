@@ -177,7 +177,7 @@ func (cead *Cead) RawDescription() []byte {
 
 // DescriptionGraph returns the graph of the Description section (archdesc, descgroups, desc/did) as a FragmentGraph
 func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
-	rm := fragments.NewEmptyResourceMap()
+	rm := fragments.NewEmptyResourceMap(cfg.OrgID)
 	id := "desc"
 	subject := newSubject(cfg, id)
 	header := &fragments.Header{

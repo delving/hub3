@@ -59,7 +59,6 @@ func (n *NDE) NewService(cfg *Config) (*nde.Service, error) {
 	svc, err := nde.NewService(
 		nde.SetConfig(config),
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -68,11 +67,6 @@ func (n *NDE) NewService(cfg *Config) (*nde.Service, error) {
 }
 
 func (n *NDE) AddOptions(cfg *Config) error {
-	// only start service when it is a DataNode
-	if !cfg.IsDataNode() {
-		return nil
-	}
-
 	svc, err := n.NewService(cfg)
 	if err != nil {
 		return err

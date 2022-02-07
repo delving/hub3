@@ -27,9 +27,7 @@ import (
 )
 
 var _ = Describe("Rdf", func() {
-
 	Context("when parsing from an io.Reader", func() {
-
 		It("should extract a list of triples", func() {
 			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
@@ -40,13 +38,12 @@ var _ = Describe("Rdf", func() {
 	})
 
 	Context("when converting a list of triples", func() {
-
 		It("should create a fragments.ResourceMap", func() {
 			dat, err := os.Open("testdata/1.rdf")
 			Expect(err).ToNot(HaveOccurred())
 			triples, err := DecodeRDFXML(dat)
 			Expect(err).ToNot(HaveOccurred())
-			rm, err := NewResourceMapFromXML(triples)
+			rm, err := NewResourceMapFromXML(testOrgID, triples)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(rm).ToNot(BeNil())
 			Expect(len(rm.Resources())).To(Equal(6))
@@ -58,11 +55,9 @@ var _ = Describe("Rdf", func() {
 			Expect(fr.Entries[3].Order).To(Equal(31))
 		})
 	})
-
 })
 
 func TestTripleConversion(t *testing.T) {
-
 	tr := func(s rdf.Subject, p rdf.Predicate, o rdf.Object) rdf.Triple {
 		return rdf.Triple{
 			Subj: s,
@@ -109,7 +104,6 @@ func TestTripleConversion(t *testing.T) {
 	}
 
 	for _, tc := range tt {
-
 		t.Run(tc.name, func(t *testing.T) {
 			newTriple := ConvertTriple(tc.input)
 			if newTriple.String() != tc.output.String() {

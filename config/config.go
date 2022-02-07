@@ -40,8 +40,6 @@ var (
 // These are bound from cli, Environment variables or configuration files by
 // Viper.
 type RawConfig struct {
-	OrgID         string `json:"orgId"`
-	DataNodeURL   string `json:"dataNodeURL"`
 	HTTP          `json:"http"`
 	ElasticSearch `json:"elasticsearch"`
 	Logging       `json:"logging"`
@@ -109,9 +107,12 @@ type ElasticSearch struct {
 	OrphanWait          int      `json:"orphanWait"`
 }
 
-// FragmentIndexName returns the name of the Fragment index.
-func (es *ElasticSearch) FragmentIndexName() string {
-	return fmt.Sprintf("%s_frag", es.GetIndexName())
+func (es *ElasticSearch) FragmentIndexName(orgID string) string {
+	return fmt.Sprintf("%s_frag", es.GetIndexName(orgID))
+}
+
+func (es *ElasticSearch) GetSuggestIndexName(orgID string) string {
+	return fmt.Sprintf("%s_suggest", es.GetIndexName(orgID))
 }
 
 // HasAuthentication returns if ElasticSearch has authentication enabled.
@@ -121,20 +122,20 @@ func (es *ElasticSearch) HasAuthentication() bool {
 
 // GetIndexName returns the lowercased indexname.
 // This inforced correct behavior when creating an index in ElasticSearch.
-func (es *ElasticSearch) GetIndexName() string {
-	return strings.ToLower(es.IndexName) + "v2"
+func (es *ElasticSearch) GetIndexName(orgID string) string {
+	return strings.ToLower(orgID) + "v2"
 }
 
-func (es *ElasticSearch) GetV1IndexName() string {
-	return strings.ToLower(es.IndexName) + "v1"
+func (es *ElasticSearch) GetV1IndexName(orgID string) string {
+	return strings.ToLower(orgID) + "v1"
 }
 
-func (es *ElasticSearch) GetDigitalObjectIndexName() string {
+func (es *ElasticSearch) GetDigitalObjectIndexName(orgID string) string {
 	if es.DigitalObjectSuffix == "" {
-		return es.GetIndexName()
+		return es.GetIndexName(orgID)
 	}
 
-	return strings.ToLower(es.IndexName) + "v2-" + strings.ToLower(es.DigitalObjectSuffix)
+	return strings.ToLower(orgID) + "v2-" + strings.ToLower(es.DigitalObjectSuffix)
 }
 
 // Logging holds all the logging and path configuration
@@ -456,9 +457,9 @@ func InitConfig() {
 
 // GetSparqlEndpoint builds the SPARQL endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c *RawConfig) GetSparqlEndpoint(dbName string) string {
+func (c *RawConfig) GetSparqlEndpoint(orgID, dbName string) string {
 	if dbName == "" {
-		dbName = c.OrgID
+		dbName = orgID
 	}
 
 	u, err := url.Parse(c.RDF.SparqlHost)
@@ -473,9 +474,9 @@ func (c *RawConfig) GetSparqlEndpoint(dbName string) string {
 
 // GetSparqlUpdateEndpoint builds the SPARQL Update endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c *RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
+func (c *RawConfig) GetSparqlUpdateEndpoint(orgID, dbName string) string {
 	if dbName == "" {
-		dbName = c.OrgID
+		dbName = orgID
 	}
 
 	u, err := url.Parse(c.RDF.SparqlHost)
@@ -490,9 +491,9 @@ func (c *RawConfig) GetSparqlUpdateEndpoint(dbName string) string {
 
 // GetGraphStoreEndpoint builds the GraphStore endpoint from the RDF Config object.
 // When the dbName is empty the OrgId from the configuration is used.
-func (c *RawConfig) GetGraphStoreEndpoint(dbName string) string {
+func (c *RawConfig) GetGraphStoreEndpoint(orgID, dbName string) string {
 	if dbName == "" {
-		dbName = c.OrgID
+		dbName = orgID
 	}
 
 	u, err := url.Parse(c.RDF.SparqlHost)
@@ -505,10 +506,6 @@ func (c *RawConfig) GetGraphStoreEndpoint(dbName string) string {
 	log.Printf("GraphStore endpoint: %s", u)
 
 	return u.String()
-}
-
-func (c *RawConfig) IsDataNode() bool {
-	return c.DataNodeURL == ""
 }
 
 // Save saves the update version of the configuration file

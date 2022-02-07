@@ -27,9 +27,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-var (
-	specRoute = "/{spec}"
-)
+var specRoute = "/{spec}"
 
 func RegisterDatasets(router chi.Router) {
 	r := chi.NewRouter()
@@ -48,7 +46,9 @@ func RegisterDatasets(router chi.Router) {
 }
 
 func listDataSetHistogram(w http.ResponseWriter, r *http.Request) {
-	buckets, err := models.NewDataSetHistogram()
+	orgID := domain.GetOrganizationID(r)
+
+	buckets, err := models.NewDataSetHistogram(orgID.String())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -58,7 +58,9 @@ func listDataSetHistogram(w http.ResponseWriter, r *http.Request) {
 
 // listDataSets returns a list of all public datasets
 func listDataSets(w http.ResponseWriter, r *http.Request) {
-	sets, err := models.ListDataSets()
+	orgID := domain.GetOrganizationID(r)
+
+	sets, err := models.ListDataSets(orgID.String())
 	if err != nil {
 		log.Printf("Unable to list datasets because of: %s", err)
 		render.JSON(w, r, APIErrorMessage{
@@ -68,9 +70,9 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
 	render.Status(r, http.StatusOK)
 	render.JSON(w, r, sets)
-	return
 }
 
 // getDataSetStats returns a dataset when found or a 404

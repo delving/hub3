@@ -2,19 +2,47 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.2.1...master
+
+### Added 
+ 
+- hub3: added dedicated esproxy service. [10f521cf](https://github.com/delving/hub3/commit/10f521cf)
+- hub3: added sitemap package [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be)
+- hub3: initial version of postgresql service. [41309cb0](https://github.com/delving/hub3/commit/41309cb0)
+
+### Changed
+
+- hub3: update ikuzoctl configuration objects for domain.Service. [2cf6dc75](https://github.com/delving/hub3/commit/2cf6dc75)
+- hub3: refactor for multitenancy based on OrgID across all packages [e59c880b](https://github.com/delving/hub3/commit/e59c880b)
+- hub3: added multi-tenant configuration support to domain.Organization [3a10b33f](https://github.com/delving/hub3/commit/3a10b33f)
+- hub3: move memory storage package to x [e373e132](https://github.com/delving/hub3/commit/e373e132)
+- hub3: refactor elasticsearch storage into driver package [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7)
+- hub3: LDF always returns 'text/turtle' [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf)
+- updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
+
+## Removed
+ 
+- hub3: remove gorm package [1df50338](https://github.com/delving/hub3/commit/1df50338)
+
+## v0.2.1 (2022-01-25)
+
+- history of changes: see https://github.com/delving/hu3/compare/v0.2.0...v0.2.1
 
 ### Added
 
 - Use cfg.PeriodDesc instead of tree.Periods in daoCfg and FindingAid, fixes GH-118 [[GH-121]](https://github.com/delving/hub3/pull/121)
 - ClI subcommand 'bulk' to index bulk-requests that are serialized to disk [[GH-88]](https://github.com/delving/hub3/pull/88)
 - Config option to store records generated from METS files in dedicated index [[GH-83]](https://github.com/delving/hub3/pull/83)
+- Extended scan.proto with metadata map for free-form content [[GH-108]](https://github.com/delving/hub3/pull/108)
+- Resource package to ikuzo for uniform RDF handling [[GH-106]](https://github.com/delving/hub3/pull/106)
 - Imageproxy: lrucache, deepzoom and thumbnail transformation support [[GH-115]](https://github.com/delving/hub3/pull/115)
 - Added support for indexing map datatypes in scans indexed from METS files [[GH-117]](https://github.com/delving/hub3/pull/117)
 - PeriodDesc in daoCfg and FindingAid [[GH-118]](https://github.com/delving/hub3/pull/118)
 - Ignore private resources in bulk sparql export [[GH-123]](https://github.com/delving/hub3/pull/123)
 - processDigitalIfMissing processes mets if missing [[GH-126]](https://github.com/delving/hub3/pull/126)
 - Cache cleaning work for imageproxy service [[GH-119]](https://github.com/delving/hub3/pull/119)
+- Support for allowed mimetypes to imageproxy service [[GH-130]](https://github.com/delving/hub3/pull/130)
+- Changedetection for reads after the graph has changed [[GH-131]](https://github.com/delving/hub3/pull/131)
 
 
 ## Changed 
@@ -23,6 +51,7 @@
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
+- Return "text/turtle" from LDF endpoint  [345290fca38e](https://github.com/delving/hub3/commit/345290fca38ef9573671da34e11e4fc5f2c20729)
 
 ### Fixed
  

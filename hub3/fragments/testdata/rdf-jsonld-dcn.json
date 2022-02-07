@@ -1,0 +1,135 @@
+{
+    "@graph": [{
+        "@id": "_:b0",
+        "@type": "nave:DcnResource",
+        "extra": "test extra"
+    }, {
+        "@id": "_:b1",
+        "@type": "nave:DelvingResource",
+        "allowDeepZoom": "true",
+        "allowLinkedOpenData": "true",
+        "allowSourceDownload": "false",
+        "thumbLarge": "toBeRemoved",
+        "thumbSmall": "toBeRemoved",
+        "thumbMedium": "toBeRemoved",
+        "deepZoomUrl": "toBeRemoved",
+        "public": "true"
+    }, {
+        "@id": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+        "@type": "ore:Aggregation",
+        "aggregatedCHO": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+        "dataProvider": "Museum Sloten",
+        "isShownBy": "toBeRemoved",
+        "object": "toBeRemoved",
+        "hasView": ["toBeRemoved1", "toBeRemoved2"],
+        "aggregates": ["toBeRemoved1", "toBeRemoved2"],
+        "provider": "Rijksdienst voor het Cultureel Erfgoed",
+        "rights": "http://rightsstatements.org/vocab/InC/1.0/"
+    }, {
+        "@id": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+        "@type": "edm:ProvidedCHO",
+        "creator": "Vervaardiger onbekend",
+        "date": "18e eeuw",
+        "description": "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]",
+        "identifier": "D036",
+        "title": "10-delig sluitgewicht van messing",
+        "type": "gebruiksvoorwerpen",
+        "extent": ["diameter: 4.4 cm", "hoogte: 7.3 cm", "gewicht: 56.70 gr", "diameter: 10.5 cm", "gewicht: 226.80 gr", "gewicht: 4000 gr", "hoogte: 0.8 cm", "diameter: 3.6 cm", "diameter: 8.3 cm", "hoogte: 0.6 ", "diameter: 1,5 cm", "gewicht: 2000 gr", "gewicht: 450 gr", "hoogte: 3.4 cm", "hoogte: 2.1 cm", "diameter: 2.4 cm", "breedte: 16 cm", "gewicht: 10 gr", "gewicht: 6000 gr", "diameter: 5.4 cm", "diameter: 2.8 cm", "diameter: 6.6 cm", "hoogte: 4.2 cm", "gewicht: 160 gr", "gewicht: 40 gr", "hoogte: 1.5 cm", "hoogte: 20 cm", "hoogte: 6 cm", "hoogte: 2.5 cm", "gewicht: 20 gr", "hoogte: 1.0 cm", "gewicht: 1000 gr", "diameter: 1.9 cm"]
+    }, {
+        "@id": "urn:museum-sloten/D036a",
+        "@type": "edm:WebResource",
+        "resourceSortOrder":["1"]
+    }],
+    "@context": {
+        "extent": {
+            "@id": "http://purl.org/dc/terms/extent"
+        },
+        "creator": {
+            "@id": "http://purl.org/dc/elements/1.1/creator"
+        },
+        "date": {
+            "@id": "http://purl.org/dc/elements/1.1/date"
+        },
+        "title": {
+            "@id": "http://purl.org/dc/elements/1.1/title"
+        },
+        "identifier": {
+            "@id": "http://purl.org/dc/elements/1.1/identifier"
+        },
+        "type": {
+            "@id": "http://purl.org/dc/elements/1.1/type"
+        },
+        "description": {
+            "@id": "http://purl.org/dc/elements/1.1/description"
+        },
+        "extra": {
+            "@id": "http://schemas.delving.eu/nave/terms/extra"
+        },
+        "rights": {
+            "@id": "http://www.europeana.eu/schemas/edm/rights",
+            "@type": "@id"
+        },
+        "isShownBy": {
+            "@id": "http://www.europeana.eu/schemas/edm/isShownBy",
+            "@type": "@id"
+        },
+        "hasView": {
+            "@id": "http://www.europeana.eu/schemas/edm/hasView",
+            "@type": "@id"
+        },
+        "object": {
+            "@id": "http://www.europeana.eu/schemas/edm/object",
+            "@type": "@id"
+        },
+        "provider": {
+            "@id": "http://www.europeana.eu/schemas/edm/provider"
+        },
+        "dataProvider": {
+            "@id": "http://www.europeana.eu/schemas/edm/dataProvider"
+        },
+        "aggregatedCHO": {
+            "@id": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+            "@type": "@id"
+        },
+        "public": {
+            "@id": "http://schemas.delving.eu/nave/terms/public"
+        },
+        "resourceSortOrder": {
+            "@id": "http://schemas.delving.eu/nave/terms/resourceSortOrder"
+        },
+        "allowSourceDownload": {
+            "@id": "http://schemas.delving.eu/nave/terms/allowSourceDownload"
+        },
+        "allowLinkedOpenData": {
+            "@id": "http://schemas.delving.eu/nave/terms/allowLinkedOpenData"
+        },
+        "allowDeepZoom": {
+            "@id": "http://schemas.delving.eu/nave/terms/allowDeepZoom"
+        },
+        "thumbLarge": {
+            "@id": "http://schemas.delving.eu/nave/terms/thumbLarge"
+        },
+        "thumbSmall": {
+            "@id": "http://schemas.delving.eu/nave/terms/thumbSmall"
+        },
+        "deepZoomUrl": {
+            "@id": "http://schemas.delving.eu/nave/terms/deepZoomUrl"
+        },
+        "thumbMedium": {
+            "@id": "http://schemas.delving.eu/nave/terms/thumbMedium"
+        },
+        "featured": {
+            "@id": "http://schemas.delving.eu/nave/terms/featured"
+        },
+        "aggregates": {
+            "@id": "http://www.openarchives.org/ore/terms/aggregates",
+            "@type": "@id"
+        },
+        "nave": "http://schemas.delving.eu/nave/terms/",
+        "ore": "http://www.openarchives.org/ore/terms/",
+        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        "dcterms": "http://purl.org/dc/terms/",
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "edm": "http://www.europeana.eu/schemas/edm/"
+    }
+}

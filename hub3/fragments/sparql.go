@@ -75,7 +75,7 @@ func (su SparqlUpdate) String() string {
 	return executeTemplate(t, "update", su)
 }
 
-func RDFBulkInsert(sparqlUpdates []SparqlUpdate) (int, []error) {
+func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 	nrGraphs := len(sparqlUpdates)
 	if nrGraphs == 0 {
 		log.Println("No graphs to store")
@@ -95,7 +95,7 @@ func RDFBulkInsert(sparqlUpdates []SparqlUpdate) (int, []error) {
 		triplesStored += count
 	}
 	sparqlInsert := fmt.Sprintf("%s INSERT DATA {%s}", strings.Join(graphs, "\n"), strings.Join(strs, "\n"))
-	errs := UpdateViaSparql(sparqlInsert)
+	errs := UpdateViaSparql(orgID, sparqlInsert)
 	if errs != nil {
 		return 0, errs
 	}
@@ -103,9 +103,9 @@ func RDFBulkInsert(sparqlUpdates []SparqlUpdate) (int, []error) {
 }
 
 // UpdateViaSparql is a post to sparql function that tasks a valid SPARQL update query
-func UpdateViaSparql(update string) []error {
+func UpdateViaSparql(orgID, update string) []error {
 	request := gorequest.New()
-	postURL := config.Config.GetSparqlUpdateEndpoint("")
+	postURL := config.Config.GetSparqlUpdateEndpoint(orgID, "")
 
 	parameters := url.Values{}
 	parameters.Add("update", update)
@@ -117,13 +117,14 @@ func UpdateViaSparql(update string) []error {
 		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
 		End()
 	if errs != nil {
-		log.Fatalf("errors for query %s: %#v", postURL, errs)
+		log.Printf("errors for query %s: %#v", postURL, errs)
+		return errs
 	}
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		//log.Println(body)
+		// log.Println(body)
 		log.Printf("unable to store sparqlUpdate: %s", update)
 		log.Println(resp)
 		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
 	}
-	return errs
+	return nil
 }

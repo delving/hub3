@@ -28,8 +28,8 @@ func DecodeRDFXML(r io.Reader) ([]rdf.Triple, error) {
 }
 
 // NewResourceMapFromXML creates a resource map from the triples
-func NewResourceMapFromXML(triples []rdf.Triple) (*ResourceMap, error) {
-	rm := NewEmptyResourceMap()
+func NewResourceMapFromXML(orgID string, triples []rdf.Triple) (*ResourceMap, error) {
+	rm := NewEmptyResourceMap(orgID)
 	for idx, triple := range triples {
 		newTriple := ConvertTriple(triple)
 		err := rm.AppendOrderedTriple(newTriple, false, idx)

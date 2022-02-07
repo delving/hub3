@@ -344,7 +344,7 @@ func (repo *Repository) PublishChanged(from, until string, p ...Publisher) (Publ
 			OrganisationID: repo.OrgID,
 			DatasetID:      repo.DatasetID,
 			RecordID:       hubID,
-			IndexName:      config.Config.ElasticSearch.GetIndexName(),
+			IndexName:      config.Config.ElasticSearch.GetIndexName(repo.OrgID),
 		}
 		if f.State == StatusDeleted {
 			m.Deleted = true

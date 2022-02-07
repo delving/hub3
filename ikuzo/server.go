@@ -26,16 +26,17 @@ import (
 	"syscall"
 	"time"
 
-	"net/http/httputil"
 	// nolint:gosec // imported for metrics server. Not exposes on default routes because we don't use the default mux
+	"net/http/httputil"
 	_ "net/http/pprof"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/go-chi/docgen"
 	"github.com/pacedotdev/oto/otohttp"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
@@ -95,16 +96,18 @@ type server struct {
 	routerFuncs []RouterFunc
 	// service to access the organization store
 	organizations *organization.Service
-	// revision gives access to the file storage
-	revision *revision.Service
+	// services list registered services
+	services []domain.Service
 	// shutdownHooks are called on server shutdown
-	shutdownHooks map[string]Shutdown
+	shutdownHooks map[string]domain.Shutdown
 	// service context
 	ctx context.Context
 	// dataNodeProxy is the httputil.ReverseProxy for the datanode
 	dataNodeProxy *httputil.ReverseProxy
 	// oto is the OTO generated RCP service
 	oto *otohttp.Server
+	// introspect enables routes for introspection
+	introspect bool
 }
 
 // NewServer returns the default server.
@@ -122,7 +125,7 @@ func newServer(options ...Option) (*server, error) {
 		cancelFunc:      cancelFunc,
 		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
-		shutdownHooks:   make(map[string]Shutdown),
+		shutdownHooks:   make(map[string]domain.Shutdown),
 		ctx:             ctx,
 	}
 
@@ -179,15 +182,52 @@ func newServer(options ...Option) (*server, error) {
 	// apply default routes
 	s.routes()
 
+	// register services with ikuzo server and router
+	for _, svc := range s.services {
+		if err := s.registerService(svc); err != nil {
+			return nil, err
+		}
+	}
+
 	// apply custom routes
 	for _, f := range s.routerFuncs {
 		f(s.router)
+	}
+
+	if s.introspect {
+		s.router.Get("/introspect/routes", func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Write([]byte(docgen.JSONRoutesDoc(s.router)))
+		})
 	}
 
 	// s.logger.Debug().Msg(docgen.JSONRoutesDoc(s.router))
 	// TODO: maybe add server validation function
 
 	return s, nil
+}
+
+// registerService registers a Service interface to the ikuzo server
+func (s *server) registerService(svc domain.Service) error {
+	// register routes
+	s.registerRouter("", svc)
+
+	builder := &domain.ServiceBuilder{
+		Orgs:   s.organizations,
+		Logger: s.logger,
+	}
+
+	// set organization service
+	svc.SetServiceBuilder(builder)
+
+	return nil
+}
+
+// registerRouter mounts supplied domain.Router in the server router
+//
+// This should only be called for routes that are not part of a domain.Service
+func (s *server) registerRouter(pattern string, router domain.Router) {
+	router.Routes(pattern, s.router)
 }
 
 func (s *server) setDefaultServices() {
@@ -249,9 +289,9 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	for _, sign := range testSignals {
 		switch v := sign.(type) {
 		case os.Signal:
-			signalChan <- v.(os.Signal)
+			signalChan <- v
 		case error:
-			errChan <- v.(error)
+			errChan <- v
 		}
 	}
 
@@ -281,7 +321,7 @@ func (s *server) shutdown(server *http.Server) error {
 	s.cancelFunc()
 
 	// set maximum duration for graceful shutdown
-	ctx, cancel := context.WithTimeout(s.ctx, s.gracefulTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), s.gracefulTimeout)
 	defer cancel()
 
 	log.Info().Msg("stopping web-server")
@@ -290,6 +330,12 @@ func (s *server) shutdown(server *http.Server) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error { return server.Shutdown(ctx) })
+
+	for _, svc := range s.services {
+		svc := svc
+
+		g.Go(func() error { return svc.Shutdown(ctx) })
+	}
 
 	for _, h := range s.shutdownHooks {
 		h := h
@@ -395,18 +441,7 @@ func (s *server) recoverer(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func (s *server) proxyDataNode(w http.ResponseWriter, r *http.Request) {
-	if s.dataNodeProxy == nil {
-		s.logger.Warn().Str("url", r.URL.String()).Msg("requesting proxy URL when proxy is not set")
-		http.Error(w, "dataNode proxy is not configured", http.StatusInternalServerError)
-
-		return
-	}
-
-	s.dataNodeProxy.ServeHTTP(w, r)
-}
-
-func (s *server) addShutdown(name string, hook Shutdown) {
+func (s *server) addShutdown(name string, hook domain.Shutdown) {
 	if _, ok := s.shutdownHooks[name]; !ok {
 		s.shutdownHooks[name] = hook
 	}

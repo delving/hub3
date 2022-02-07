@@ -33,6 +33,11 @@ type BreadCrumbBuilder struct {
 	crumbs   []*BreadCrumb
 }
 
+// BreadCrumbs returns a list of BreadCrumb.
+func (bcb *BreadCrumbBuilder) BreadCrumbs() []*BreadCrumb {
+	return bcb.crumbs
+}
+
 // GetLast returns the last BreadCrumb from the trail
 func (bcb *BreadCrumbBuilder) GetLast() *BreadCrumb {
 	if len(bcb.crumbs) == 0 {

@@ -723,8 +723,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 }
 
 func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, error) {
+	orgID := strings.Split(id, "_")[0]
+
 	res, err := index.ESClient().Get().
-		Index(config.Config.ElasticSearch.GetIndexName()).
+		Index(config.Config.ElasticSearch.GetIndexName(orgID)).
 		Id(id).
 		Do(ctx)
 	if err != nil {

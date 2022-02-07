@@ -18,7 +18,7 @@ import (
 	"fmt"
 
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/storage/memory"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
 
 // Store provides functionality to query and persist namespaces.

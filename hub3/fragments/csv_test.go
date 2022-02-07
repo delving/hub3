@@ -25,16 +25,11 @@ import (
 )
 
 var _ = Describe("CSV", func() {
-
 	Describe("converting to RDF", func() {
-
 		Context("when parsing a form", func() {
-
 			It("should initialize valid", func() {
-
-				conv := NewCSVConvertor()
+				conv := NewCSVConvertor("test")
 				Expect(conv.SubjectColumn).To(BeEmpty())
-
 			})
 
 			It("should get the subject column from a list of headers", func() {
@@ -50,13 +45,12 @@ var _ = Describe("CSV", func() {
 				Expect(err).ToNot(HaveOccurred())
 				header := records[0]
 				Expect(conv.GetSubjectColumn(header, conv.SubjectColumn)).To(Equal(9))
-
 			})
 
 			It("should create a header map", func() {
 				in, err := os.Open("testdata/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
-				conv := NewCSVConvertor()
+				conv := NewCSVConvertor("test")
 				conv.InputFile = in
 				conv.Separator = ";"
 				conv.SubjectColumn = "handle-uuid"
@@ -69,12 +63,11 @@ var _ = Describe("CSV", func() {
 				Expect(hMap).ToNot(BeEmpty())
 				Expect(hMap[0].String()).To(HaveSuffix(">"))
 				Expect(hMap[0].String()).To(ContainSubstring("data.hub3.nl/def/"))
-
 			})
 
 			It("should create a subject uri", func() {
 				conv := CSVConvertor{
-					//InputFile:     in,
+					// InputFile:     in,
 					Separator:      ";",
 					SubjectColumn:  "handle-uuid",
 					SubjectClass:   "http://www.europeana.eu/schemas/edm/WebResource",
@@ -87,7 +80,7 @@ var _ = Describe("CSV", func() {
 			})
 
 			It("should create a triple for non-empty values", func() {
-				conv := NewCSVConvertor()
+				conv := NewCSVConvertor("test")
 				conv.Separator = ";"
 				conv.SubjectColumn = "handle-uuid"
 				conv.SubjectClass = "http://www.europeana.eu/schemas/edm/WebResource"
@@ -106,7 +99,7 @@ var _ = Describe("CSV", func() {
 			It("should parse a file", func() {
 				in, err := os.Open("testdata/UUIDsMemorixNaarHub3_new.csv")
 				Expect(err).ToNot(HaveOccurred())
-				conv := NewCSVConvertor()
+				conv := NewCSVConvertor("test")
 				conv.InputFile = in
 				conv.Separator = ";"
 				conv.SubjectColumn = "handle-uuid"
@@ -118,5 +111,4 @@ var _ = Describe("CSV", func() {
 			})
 		})
 	})
-
 })

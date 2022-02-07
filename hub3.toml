@@ -173,7 +173,14 @@ referrer = []
 # a list of allowed remote hosts. If empty everything is allowed
 # allowList = ["service.archief.nl", "service.test.archief.nl", "service.acpt.archief.nl"]
 # a list of refused patterns in cachable urls
-refuseList = []
+refuseList = ["127.0.0.1", "0.0.0.0", "localhost"]
+# allowedMimeTypes that can be proxied
+allowedMimeTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/tiff",
+]
 # lruCacheSize 
 lruCacheSize = 1000
 # image can be resized; requires libvips to be installed
