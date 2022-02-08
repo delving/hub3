@@ -47,6 +47,7 @@ type Node struct {
 	AccessRestrictYear string
 	Material           string
 	Phystech           []string
+	PhystechType       string
 	triples            []*r.Triple
 }
 
