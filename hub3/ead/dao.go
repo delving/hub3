@@ -26,12 +26,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const (
-	typeKaart    = "kaart"
-	typeTekening = "tekening"
-	typeAtlas    = "atlas"
-)
-
 type DaoClient struct {
 	bi           *index.Service
 	client       *http.Client
@@ -383,13 +377,15 @@ type DaoConfig struct {
 	InventoryID    string
 	InventoryPath  string
 	InventoryTitle string
-	UUID           string
+	UUID           string // dUUID
 	Link           string
 	ObjectCount    int
 	MimeTypes      []string
 	RevisionKey    string
 	FilterTypes    []string
 	PeriodDesc     []string
+	Filenames      []string // names of the files within the digital object
+	FileUUIDs      []string // uuids of the files within the digital object
 }
 
 func getUUID(daoLink string) string {
@@ -406,9 +402,10 @@ func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 		InventoryID:    tree.UnitID,
 		InventoryPath:  tree.CLevel,
 		InventoryTitle: tree.Label,
-		Link:           tree.DaoLink,
 		UUID:           getUUID(tree.DaoLink),
-		PeriodDesc:     cfg.PeriodDesc,
+		Link:           tree.DaoLink,
+		FileUUIDs:      make([]string, 0),
+		Filenames:      make([]string, 0),
 	}
 }
 
