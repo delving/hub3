@@ -389,12 +389,12 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	}, nil
 }
 
-func (fg *FragmentGraph) ResourceMap() (*ResourceMap, error) {
+func (fg *FragmentGraph) ResourceMap() *ResourceMap {
 	rm := NewEmptyResourceMap()
 	for _, fr := range fg.Resources {
 		rm.AddResource(fr)
 	}
-	return rm, nil
+	return rm
 }
 
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
