@@ -392,6 +392,9 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 func (fg *FragmentGraph) ResourceMap() *ResourceMap {
 	rm := NewEmptyResourceMap()
 	for _, fr := range fg.Resources {
+		if fr.predicates == nil {
+			fr.predicates = make(map[string][]*FragmentEntry)
+		}
 		rm.AddResource(fr)
 	}
 	return rm
