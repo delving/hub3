@@ -20,6 +20,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -152,6 +153,10 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	return s, nil
+}
+
+func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error {
+	return s.index.Publish(ctx, messages...)
 }
 
 func (s *Service) findAvailableTask() *Task {
@@ -553,7 +558,7 @@ func (s *Service) Process(parentCtx context.Context, t *Task) error {
 					return fmt.Errorf("unable to marshal fragment graph: %w", err)
 				}
 
-				if err := s.index.Publish(context.Background(), m); err != nil {
+				if err := s.Publish(context.Background(), m); err != nil {
 					return err
 				}
 
