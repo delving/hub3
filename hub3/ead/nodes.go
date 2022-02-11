@@ -149,15 +149,19 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		Title: n.Header.GetTreeLabel(),
 	}
 
+	// Create tree before FragmentGraph
+	tree := cfg.CreateTree(cfg, n, header.HubID, id)
+
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = tree
+
 	for idx, t := range n.Triples(cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, nil, err
 		}
 	}
 
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = cfg.CreateTree(cfg, n, header.HubID, id)
 	fg.SetResources(rm)
 
 	return fg, rm, nil
