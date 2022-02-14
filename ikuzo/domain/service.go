@@ -2,11 +2,14 @@ package domain
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/go-chi/chi"
 )
+
+var ErrServiceNotEnabled = fmt.Errorf("service not enabled for this organization")
 
 // Service defines minimal API service of an ikuzo.Service
 type Service interface {
