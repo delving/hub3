@@ -42,7 +42,7 @@ func NewPublisher(host, dataPath string) *Publisher {
 		host:     strings.TrimSuffix(host, "/"),
 		dataPath: dataPath,
 		BulkSize: 250,
-		client:   retryablehttp.NewClient(),
+		client:   client,
 	}
 }
 
