@@ -64,29 +64,30 @@ func (ab Description) String() string {
 // reader. These strings are not defined by the OAI-PMH.
 //
 // Error Codes
-// - badArgument	The request includes illegal arguments, is missing
+// - badArgument:	The request includes illegal arguments, is missing
 // required arguments, includes a repeated argument, or values for arguments
 // have an illegal syntax.
-// - badResumptionToken	The value of the resumptionToken argument is
+// - badResumptionToken:	The value of the resumptionToken argument is
 // invalid or expired.
-// - badVerb	Value of the verb argument is not a legal OAI-PMH verb, the
+// - badVerb:	Value of the verb argument is not a legal OAI-PMH verb, the
 // verb argument is missing, or the verb argument is repeated.
-// - cannotDisseminateFormat	The metadata format identified by the value
+// - cannotDisseminateFormat: The metadata format identified by the value
 // given for the metadataPrefix argument is not supported by the item or by
 // the repository.
-// - idDoesNotExist	The value of the identifier argument is unknown or illegal
+// - idDoesNotExist:	The value of the identifier argument is unknown or illegal
 //  in this repository.
-// - noRecordsMatch	The combination of the values of the from, until, set and
+// - noRecordsMatch:	The combination of the values of the from, until, set and
 //  metadataPrefix arguments results in an empty list.
-// - noMetadataFormats	There are no metadata formats available for the
+// - noMetadataFormats:	There are no metadata formats available for the
 //  specified item.
-// - noSetHierarchy	The repository does not support sets.
+// - noSetHierarchy:	The repository does not support sets.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#ErrorConditions
 //
 type Error struct {
-	Code    string `xml:"code,attr"`
-	Message string `xml:",chardata"`
+	Code            string `xml:"code,attr"`
+	Message         string `xml:",chardata"`
+	applicableVerbs []Verb
 }
 
 // MetadataFormat is a metadata format available from a repository
@@ -107,7 +108,7 @@ type Error struct {
 //
 type MetadataFormat struct {
 	MetadataPrefix    string `xml:"metadataPrefix"`
-	Schema            string `xml:"schema"`
+	Schema            string `xml:"schema,omitempty"`
 	MetadataNamespace string `xml:"metadataNamespace"`
 }
 
@@ -129,7 +130,7 @@ type Header struct {
 	Identifier string   `xml:"identifier"`
 	DateStamp  string   `xml:"datestamp"`
 	SetSpec    []string `xml:"setSpec"`
-	Status     string   `xml:"status,attr"`
+	Status     string   `xml:"status,attr,omitempty"`
 }
 
 // Identify is a verb used to retrieve information about a repository.
@@ -248,7 +249,8 @@ type Record struct {
 type ResumptionToken struct {
 	Token            string `xml:",chardata" json:"token"`
 	CompleteListSize int    `xml:"completeListSize,attr" json:"completeListSize"`
-	ExperationDate   string `xml:"experationDate" json:"experationDate"`
+	ExperationDate   string `xml:"experationDate,attr" json:"experationDate"`
+	Cursor           int    `xml:"cursor,attr"`
 }
 
 // Set is an optional construct for grouping items for the purpose of

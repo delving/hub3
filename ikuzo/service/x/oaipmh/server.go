@@ -13,6 +13,8 @@ import (
 	"github.com/go-chi/render"
 )
 
+// TODO(kiivihal): Remove later in favor of file package implementation
+
 type ServerOption func(*Server) error
 
 type RepoStore interface {
@@ -105,15 +107,6 @@ func (s *Server) handleListRepos() http.HandlerFunc {
 	}
 }
 
-func (s *Server) handleOaiPmhRequest() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// repo := chi.URLParam(r, "repo")
-
-		req := NewRequest(r)
-		render.JSON(w, r, req)
-	}
-}
-
 func (s *Server) Routes(routePrefix string) func(router chi.Router) {
 	if routePrefix == "" {
 		routePrefix = "/"
@@ -125,23 +118,8 @@ func (s *Server) Routes(routePrefix string) func(router chi.Router) {
 		if !strings.HasSuffix(routePrefix, "/") {
 			routePrefix += "/"
 		}
-
-		router.Get(routePrefix+"{repo}", s.handleOaiPmhRequest())
+		// router.Get(routePrefix+"{repo}", s.handleVerb())
 	}
-}
-
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) http.HandlerFunc {
-	// closure to setup chi.Router
-	router := chi.NewRouter()
-	s.Routes("")(router)
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		router.ServeHTTP(w, r)
-	}
-}
-
-func (s *Server) Shutdown(ctx context.Context) error {
-	return nil
 }
 
 func SetServerStore(store RepoStore) ServerOption {

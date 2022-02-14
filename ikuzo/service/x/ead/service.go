@@ -42,7 +42,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh/harvest"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -935,7 +935,7 @@ func (s *Service) LoadModifiedEADDate(spec string) time.Time {
 		return t
 	}
 
-	pt, pErr := time.Parse(oaipmh.DateFormat, string(b))
+	pt, pErr := time.Parse(harvest.DateFormat, string(b))
 	if pErr != nil {
 		return t
 	}
