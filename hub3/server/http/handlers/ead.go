@@ -30,9 +30,9 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -80,14 +80,10 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 func TreeList(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 
-	// TODO(kiivihal): add logger
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
-			Error:      nil,
+		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
 		return
 	}
@@ -171,11 +167,8 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 func EADDownload(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
-			Error:      nil,
+		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
 		return
 	}
@@ -190,17 +183,17 @@ func EADMeta(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	err := ead.ValidateSpec(spec)
 	if err != nil {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    err.Error(),
-			Error:      nil,
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
+
 		return
 	}
 	meta, err := ead.GetMeta(spec)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+		})
 		return
 	}
 
@@ -217,21 +210,18 @@ func TreeDescriptionSearch(w http.ResponseWriter, r *http.Request) {
 
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
-			Error:      nil,
+		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
 		return
 	}
 
 	descriptionIndex, getErr := ead.GetDescriptionIndex(spec)
 	if getErr != nil && !errors.Is(getErr, ead.ErrNoDescriptionIndex) {
-		c.Config.Logger.Error().Err(getErr).
-			Str("subquery", "description").
-			Msg("error with retrieving description index")
-		http.Error(w, getErr.Error(), http.StatusNotFound)
+		render.Error(w, r, getErr, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+			Message:    "error with retrieving description index",
+		})
 		return
 	}
 
@@ -347,17 +337,17 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    emptySpecMsg(),
-			Error:      nil,
+		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
+
 		return
 	}
 	stats, err := fragments.CreateTreeStats(r.Context(), string(orgID), spec)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+		})
 		return
 	}
 	// todo return 404 if stats.Leafs == 0
