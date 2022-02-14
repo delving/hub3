@@ -158,7 +158,7 @@ func TestLiteral(t *testing.T) {
 		tests := []struct {
 			value string
 			lang  string
-			dt    *IRI
+			dt    IRI
 			want  string
 		}{
 			{value: "123", want: "\"123\""},
@@ -176,7 +176,7 @@ func TestLiteral(t *testing.T) {
 			case tt.lang != "":
 				l, err = NewLiteralWithLang(tt.value, tt.lang)
 				is.NoErr(err) //
-			case tt.dt != nil:
+			case !tt.dt.Equal(IRI{}):
 				l, err = NewLiteralWithType(tt.value, tt.dt)
 				is.NoErr(err)
 			default:
@@ -192,7 +192,7 @@ func TestLiteral(t *testing.T) {
 	t.Run("NewLiteralInferred", func(t *testing.T) {
 		tests := []struct {
 			input     interface{}
-			dt        *IRI
+			dt        IRI
 			errString string
 		}{
 			{1, xsdInteger, ""},
@@ -206,7 +206,7 @@ func TestLiteral(t *testing.T) {
 			{false, xsdBoolean, ""},
 			{"a", xsdString, ""},
 			{[]byte("123"), xsdByte, ""},
-			{struct{ a, b string }{"1", "2"}, &IRI{}, `cannot infer XSD datatype from struct { a string; b string }{a:"1", b:"2"}`},
+			{struct{ a, b string }{"1", "2"}, IRI{}, `cannot infer XSD datatype from struct { a string; b string }{a:"1", b:"2"}`},
 			{"", xsdString, "invalid literal value: cannot be empty"},
 		}
 
@@ -237,12 +237,12 @@ func TestLiteral(t *testing.T) {
 
 	t.Run("NewLiteralWithType", func(t *testing.T) {
 		tests := []struct {
-			dataType *IRI
+			dataType IRI
 			errWant  string
 		}{
-			{nil, "cannot be nil"},
+			{IRI{}, "cannot be nil"},
 			{xsdBoolean, ""},
-			{&IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Unknown"}, "unsupported Literal.DataType IRI"},
+			{IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Unknown"}, "unsupported Literal.DataType IRI"},
 		}
 
 		for _, tt := range tests {
@@ -312,7 +312,7 @@ func TestIsValidDataType(t *testing.T) {
 	// nolint:gocritic
 	is := is.New(t)
 
-	is.True(!isValidDataType(nil)) // nil is not a valid dataType
+	is.True(!isValidDataType(IRI{})) // nil is not a valid dataType
 
 	is.True(isValidDataType(xsdString))
 }
@@ -322,7 +322,7 @@ func TestLiteral_String(t *testing.T) {
 		str      string
 		val      interface{}
 		lang     string
-		DataType *IRI
+		DataType IRI
 	}
 
 	tests := []struct {
@@ -331,7 +331,7 @@ func TestLiteral_String(t *testing.T) {
 		want   string
 	}{
 		{"simple", fields{str: "hello"}, "\"hello\""},
-		{"with datatype", fields{str: "true", DataType: &IRI{str: "http://www.w3.org/2001/XMLSchema#boolean"}}, "\"true\"^^<http://www.w3.org/2001/XMLSchema#boolean>"},
+		{"with datatype", fields{str: "true", DataType: IRI{str: "http://www.w3.org/2001/XMLSchema#boolean"}}, "\"true\"^^<http://www.w3.org/2001/XMLSchema#boolean>"},
 	}
 
 	for _, tt := range tests {

@@ -70,9 +70,15 @@ func TestGraph(t *testing.T) {
 		is.Equal(returnedGraph.Len(), 47)
 		expected := &rdf.GraphStats{
 			Languages: 1, ObjectIRIs: 14, Predicates: 41, Resources: 5, Triples: 47,
+			Namespaces: 9,
 		}
 		if diff := cmp.Diff(expected, g.Stats()); diff != "" {
 			t.Errorf("graphStats = mismatch (-want +got):\n%s", diff)
 		}
+
+		namespaces, err := g.Namespaces()
+		is.NoErr(err)
+		t.Logf("namespaces: %v", namespaces)
+		is.Equal(len(namespaces), 9)
 	})
 }

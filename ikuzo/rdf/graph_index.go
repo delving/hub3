@@ -12,6 +12,7 @@ type GraphStats struct {
 	ObjectLiterals int
 	Predicates     int
 	Resources      int
+	Namespaces     int
 	Triples        uint64
 }
 
@@ -53,7 +54,7 @@ func (gi *GraphIndex) update(t *Triple) error {
 	return nil
 }
 
-func (gi *GraphIndex) updateNamespaceURI(iri *IRI) {
+func (gi *GraphIndex) updateNamespaceURI(iri IRI) {
 	prefix, _ := iri.Split()
 
 	count, ok := gi.NamespacesURIs[prefix]
@@ -82,6 +83,8 @@ func (gi *GraphIndex) updateSubject(t *Triple) {
 func (gi *GraphIndex) updatePredicate(t *Triple) {
 	switch term := t.Predicate.(type) {
 	case *IRI:
+		gi.updateNamespaceURI(*term)
+	case IRI:
 		gi.updateNamespaceURI(term)
 	}
 
@@ -136,7 +139,7 @@ func (gi *GraphIndex) updateObject(t *Triple) error {
 			gi.Languages[l] = count
 		}
 
-		if o.DataType != nil {
+		if o.DataType.Equal(IRI{}) {
 			dt := getHash(o.DataType)
 
 			count, ok := gi.DataTypes[dt]

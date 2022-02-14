@@ -2,6 +2,7 @@ package rdf
 
 import (
 	"fmt"
+	"sort"
 )
 
 type Option func(obj *Literal) error
@@ -9,6 +10,7 @@ type Option func(obj *Literal) error
 // Resource contains all the predicates linked to a Subject
 type Resource struct {
 	subject          Subject
+	types            []IRI
 	predicates       map[Predicate]*resourcePredicate
 	errors           []error
 	PredicateURIBase *IRIBuilder `json:"-"`
@@ -22,6 +24,36 @@ func NewResource(subject Subject) *Resource {
 	}
 }
 
+func (r *Resource) Subject() Subject {
+	return r.subject
+}
+
+func (r *Resource) Types() []IRI {
+	if len(r.types) == 0 {
+		iri, _ := RDF.IRI("Description")
+		return []IRI{iri}
+	}
+
+	return r.types
+}
+
+func (r *Resource) Predicates() map[Predicate]*resourcePredicate {
+	return r.predicates
+}
+
+func (r *Resource) SortedPredicates() []*resourcePredicate {
+	var predicates []*resourcePredicate
+	for _, rp := range r.predicates {
+		predicates = append(predicates, rp)
+	}
+
+	sort.Slice(predicates, func(i, j int) bool {
+		return predicates[i].iri.RawValue() < predicates[j].iri.RawValue()
+	})
+
+	return predicates
+}
+
 func (r *Resource) Triples() []*Triple {
 	triples := []*Triple{}
 
@@ -32,6 +64,27 @@ func (r *Resource) Triples() []*Triple {
 	}
 
 	return triples
+}
+
+func (r *Resource) Add(t *Triple) {
+	rp, present := r.predicates[t.Predicate]
+	if !present {
+		rp = &resourcePredicate{
+			iri:     t.Predicate.(IRI),
+			objects: map[hasher]Object{},
+		}
+	}
+
+	if rp.iri.Equal(IsA) {
+		r.types = append(r.types, t.Object.(IRI))
+	}
+
+	h := getHash(t.Object)
+	if _, ok := rp.objects[h]; !ok {
+		rp.objects[h] = t.Object
+
+		r.predicates[t.Predicate] = rp
+	}
 }
 
 func (r *Resource) AddSimpleLiteral(predicateLabel, value string, options ...Option) {
@@ -61,7 +114,7 @@ func (r *Resource) AddSimpleLiteral(predicateLabel, value string, options ...Opt
 	rp, present := r.predicates[p]
 	if !present {
 		rp = &resourcePredicate{
-			iri:     &p,
+			iri:     p,
 			objects: map[hasher]Object{},
 		}
 	}
@@ -103,12 +156,24 @@ func (r *Resource) addError(err error) {
 // GetType is normal call to predicate map
 
 type resourcePredicate struct {
-	iri     *IRI
+	iri     IRI
 	objects map[hasher]Object
 }
 
+func (rp *resourcePredicate) IRI() IRI {
+	return rp.iri
+}
+
+func (rp *resourcePredicate) Objects() (objects []Object) {
+	for _, object := range rp.objects {
+		objects = append(objects, object)
+	}
+
+	return objects
+}
+
 // WithDataType is an Option to set a DataType on AddSimpleLiteral()
-func WithDataType(dt *IRI) Option {
+func WithDataType(dt IRI) Option {
 	return func(obj *Literal) error {
 		obj.DataType = dt
 		return nil
