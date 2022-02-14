@@ -251,3 +251,20 @@ func TestListDelete(t *testing.T) {
 
 	is.Equal(len(namespaces), 2014)
 }
+
+func TestDefaults(t *testing.T) {
+	is := is.New(t)
+
+	svc, err := NewService(WithDefaults())
+	is.NoErr(err)
+	is.Equal(svc.Len(), 2015)
+
+	ns, err := svc.GetWithBase("http://schema.org/")
+	is.NoErr(err)
+	t.Logf("ns: %#v", ns)
+	is.Equal(ns.Prefix, "schema")
+
+	ns, err = svc.GetWithPrefix("sdo")
+	is.NoErr(err)
+	is.Equal(ns.Prefix, "schema")
+}
