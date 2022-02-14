@@ -43,6 +43,7 @@ var (
 
 // ESClient creates or returns an ElasticSearch Client.
 // This function should always be used to perform any ElasticSearch action.
+// Deprecated: use elasticsearch driver package instead
 func ESClient() *elastic.Client {
 	if client == nil {
 		if config.Config.ElasticSearch.Enabled {
