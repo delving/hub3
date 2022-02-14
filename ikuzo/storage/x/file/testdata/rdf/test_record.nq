@@ -1,0 +1,53 @@
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/elements/1.1/identifier> "22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.openarchives.org/ore/terms/isAggregatedBy> <https://archief.nl/doc/2.21.284ntfoto> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/terms/creator> <https://archief.nl/id/vervaardiger/visser_philips_christiaan__visser-hooft_jenny> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.openarchives.org/ore/terms/aggregates> <https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.europeana.eu/schemas/edm/hasView> <https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2000/01/rdf-schema#label> "Record over foto" .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/isAggregatietype> <https://archief.nl/def/FotoRecord> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.europeana.eu/schemas/edm/isShownBy> <https://service.archief.nl/gaf/api/file/v1/default/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.europeana.eu/schemas/edm/isShownAt> <http://hdl.handle.net/10648/22325057-f020-4d14-b2ab-fc43bd2bed8e> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.openarchives.org/ore/terms/aggregates> <https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://archief.nl/def/ontologie/Recordaggregatie> .
+<https://archief.nl/doc/fotorecord/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2004/02/skos/core#prefLabel> "Record over foto" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/ns/odrl/2/hasPolicy> <https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein> .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/terms/date> "onbekend" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://xmlns.com/foaf/0.1/primaryTopic> <https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/titelFotoserie> "Fotoalbum Visser: Brits-Indië, Italië, Nederlands-Indië" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/titelFotocollectie> "Collectie 558 Ph. C. Visser" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/elements/1.1/description> "Binnenkant achterzijde albumomslag" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2004/02/skos/core#prefLabel> "Beschrijving van 22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2000/01/rdf-schema#label> "Beschrijving van 22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://archief.nl/id/beschrijving/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://archief.nl/def/ontologie/Archiefbeschrijving> .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://archief.nl/def/ontologie/Archiefeenheid> .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/elements/1.1/identifier> "4f82b899-2884-4dd0-a814-4ab744a4ec7f" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/bestanddeelnummer> "40_51" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/archiefLink> "NL-HaNA_2.21.284_40_51" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2000/01/rdf-schema#label> "Archiefeenheid met identifier: 22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/isArchiefeenheidtype> <https://archief.nl/def/Foto> .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://purl.org/dc/elements/1.1/format> "37,6 x 27,3 cm" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/odrl/2/Asset> .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/inventarisnummer> "40" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/isMateriaaltype> "Albumpagina" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <https://archief.nl/def/ontologie/toegangsnummer> "2.21.284" .
+<https://archief.nl/id/foto/22325057-f020-4d14-b2ab-fc43bd2bed8e> <http://www.w3.org/2004/02/skos/core#prefLabel> "Archiefeenheid met identifier: 22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein> <http://purl.org/dc/terms/rightsHolder> "Nationaal Archief, CC0" .
+<https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein> <http://www.w3.org/2000/01/rdf-schema#label> "Set B: Rechtenvrij / Publiek Domein" .
+<https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein> <http://www.w3.org/ns/odrl/2/permission> "Set B: Rechtenvrij / Publiek Domein" .
+<https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/ns/odrl/2/Policy> .
+<https://archief.nl/id/vervaardiger/visser_philips_christiaan__visser-hooft_jenny> <http://www.w3.org/2004/02/skos/core#prefLabel> "Visser, Philips Christiaan / Visser-Hooft, Jenny" .
+<https://archief.nl/id/vervaardiger/visser_philips_christiaan__visser-hooft_jenny> <http://www.w3.org/2000/01/rdf-schema#label> "Visser, Philips Christiaan / Visser-Hooft, Jenny (vervaardiger)" .
+<https://archief.nl/id/vervaardiger/visser_philips_christiaan__visser-hooft_jenny> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://archief.nl/def/ontologie/Agent> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/handle-uuid> "22325057-f020-4d14-b2ab-fc43bd2bed8e" .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/file-uuid> "4f82b899-2884-4dd0-a814-4ab744a4ec7f" .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceDefault> <https://service.archief.nl/gaf/api/file/v1/default/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceIcon> <https://service.archief.nl/gaf/api/file/v1/icon/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceThumbnail> <https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceOriginal> <https://service.archief.nl/gaf/api/file/v1/original/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <http://www.w3.org/2000/01/rdf-schema#label> "Foto met fileUUID: 4f82b899-2884-4dd0-a814-4ab744a4ec7f" .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceIIIF> <https://service.archief.nl/iip/ae/56/9c/57/cb/0d/47/17/9a/1c/c2/f3/79/ce/95/d7/4f82b899-2884-4dd0-a814-4ab744a4ec7f.jp2/info.json> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/volgnummer> "1" .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/du-uuid> "ae569c57-cb0d-4717-9a1c-c2f379ce95d7" .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/webserviceImage> <https://service.archief.nl/gaf/api/file/v1/original/4f82b899-2884-4dd0-a814-4ab744a4ec7f> .
+<https://service.archief.nl/gaf/api/file/v1/thumb/4f82b899-2884-4dd0-a814-4ab744a4ec7f> <https://archief.nl/def/ontologie/download> "Direct beschikbaar" .
