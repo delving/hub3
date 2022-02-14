@@ -9,8 +9,10 @@ import (
 )
 
 // make sure item satisfies harvest.Item interface.
-var _ Item = (*mockItem)(nil)
-var _ Service = (*mockService)(nil)
+var (
+	_ Item   = (*mockItem)(nil)
+	_ Syncer = (*mockService)(nil)
+)
 
 type mockItem struct {
 	id           string

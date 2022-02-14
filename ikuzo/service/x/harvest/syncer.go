@@ -6,9 +6,12 @@ import (
 	"time"
 )
 
-var (
-	ErrNoMatch = errors.New("no items match harvest request")
-)
+var ErrNoMatch = errors.New("no items match harvest request")
+
+type Syncer interface {
+	Next() (Page, error)
+	First(q Query) (Page, error)
+}
 
 type Item interface {
 	GetLastModified() time.Time
@@ -20,11 +23,6 @@ type Page interface {
 	GetCursor() int
 	GetCompleteListSize() int
 	GetItems() []Item
-}
-
-type Service interface {
-	Next() (Page, error)
-	First(q Query) (Page, error)
 }
 
 type Query struct {
