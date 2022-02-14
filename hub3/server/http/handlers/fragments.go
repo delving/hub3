@@ -16,7 +16,6 @@ package handlers
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"strconv"
@@ -24,8 +23,8 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 )
 
 func RegisterLinkedDataFragments(router chi.Router) {
@@ -46,11 +45,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	}
 	err := fr.ParseQueryString(r.URL.Query())
 	if err != nil {
-		log.Printf("Unable to list fragments because of: %s", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprint("Unable to list fragments was not found"),
-			Error:      err,
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+			Message:    fmt.Sprint("Unable to list fragments"),
 		})
 		return
 	}
@@ -64,12 +61,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	case "es":
 		src, err := fr.BuildQuery().Source()
 		if err != nil {
-			msg := "Unable to get the query source"
-			log.Printf(msg)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprint(msg),
-				Error:      err,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Unable to get the query source",
 			})
 			return
 		}
@@ -78,12 +72,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	case "searchResponse":
 		res, err := fr.Do(r.Context(), index.ESClient())
 		if err != nil {
-			msg := fmt.Sprintf("Unable to dump request: %s", err)
-			log.Print(msg)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprint(msg),
-				Error:      err,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Unable to dump search response",
 			})
 			return
 		}
@@ -92,12 +83,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	case "request":
 		dump, err := httputil.DumpRequest(r, true)
 		if err != nil {
-			msg := fmt.Sprintf("Unable to dump request: %s", err)
-			log.Print(msg)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprint(msg),
-				Error:      err,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusBadRequest,
+				Message:    "Unable to dump request",
 			})
 			return
 		}
@@ -107,11 +95,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		log.Printf("Unable to list fragments because of: %#v", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusNotFound,
-			Message:    fmt.Sprint("No fragments for query were found."),
-			Error:      err,
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+			Message:    "No fragments for query were found.",
 		})
 		return
 	}
@@ -132,20 +118,16 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	hmd := fragments.NewHyperMediaDataSet(r, totalFrags, fr)
 	controls, err := hmd.CreateControls()
 	if err != nil {
-		msg := fmt.Sprintf("Unable to create media controls: %s", err)
-		log.Print(msg)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprint(msg),
-			Error:      err,
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+			Message:    "unable to create media controls",
 		})
 		return
 	}
-
-	w.Header().Add("Content-Type", "text/turtle")
 
 	w.Write(controls)
 	for _, frag := range frags {
 		fmt.Fprintln(w, frag.Triple)
 	}
+	render.Turtle(w, r, "")
 }

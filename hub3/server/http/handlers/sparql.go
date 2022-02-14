@@ -24,8 +24,8 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 )
 
 func RegisterSparql(r chi.Router) {
@@ -35,12 +35,12 @@ func RegisterSparql(r chi.Router) {
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("sparql is disabled\n")
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		render.Error(w, r, fmt.Errorf("sparql is not enabled"), &render.ErrorConfig{
+			StatusCode: http.StatusNotAcceptable,
+		})
 		return
 	}
 	var query string
-	log.Print(r.Method)
 	switch r.Method {
 	case http.MethodGet:
 		query = r.URL.Query().Get("query")
@@ -49,8 +49,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if query == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, &ErrorMessage{"Bad Request", "a value in the query param is required."})
+		render.Error(w, r, fmt.Errorf("sparql query cannot be empty"), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+		})
 		return
 	}
 	if !strings.Contains(strings.ToLower(query), "limit ") {
