@@ -1,4 +1,4 @@
-package oaipmh
+package harvest
 
 import (
 	"math/rand"

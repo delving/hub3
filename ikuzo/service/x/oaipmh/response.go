@@ -1,5 +1,7 @@
 package oaipmh
 
+import "encoding/xml"
+
 // ListMetadataFormats holds the formats received from server
 //
 // OAI-PMH supports the dissemination of records in multiple metadata
@@ -27,8 +29,8 @@ type ListMetadataFormats struct {
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#ListIdentifiers
 //
 type ListIdentifiers struct {
-	Headers         []Header        `xml:"header"`
-	ResumptionToken ResumptionToken `xml:"resumptionToken"`
+	Headers         []Header         `xml:"header"`
+	ResumptionToken *ResumptionToken `xml:"resumptionToken"`
 }
 
 // GetRecord is used to retrieve an individual metadata record from a repository.
@@ -56,8 +58,8 @@ type GetRecord struct {
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#FlowControl
 type ListRecords struct {
-	Records         []Record        `xml:"record"`
-	ResumptionToken ResumptionToken `xml:"resumptionToken"`
+	Records         []Record         `xml:"record"`
+	ResumptionToken *ResumptionToken `xml:"resumptionToken"`
 }
 
 // ListSets represents a list of Sets
@@ -65,7 +67,8 @@ type ListRecords struct {
 //  http://www.openarchives.org/OAI/openarchivesprotocol.html#Set
 //
 type ListSets struct {
-	Set []Set `xml:"set"`
+	Set             []Set            `xml:"set"`
+	ResumptionToken *ResumptionToken `xml:"resumptionToken"`
 }
 
 // Response encapsulates the information from a harvest request
@@ -98,32 +101,21 @@ type ListSets struct {
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#XMLResponse
 //
 type Response struct {
-	ResponseDate string      `xml:"responseDate"`
-	Request      RequestNode `xml:"request"`
-	Error        Error       `xml:"error"`
+	XMLName            xml.Name `xml:"OAI-PMH,omitempty"`
+	AttrXmlns          string   `xml:"xmlns,attr"`
+	AttrXmlnsxsi       string   `xml:"xmlns:xsi,attr"`
+	AttrSchemaLocation string   `xml:"http://www.w3.org/2001/XMLSchema-instance schemaLocation,attr"`
 
-	Identify            Identify            `xml:"Identify"`
-	ListMetadataFormats ListMetadataFormats `xml:"ListMetadataFormats"`
-	ListSets            ListSets            `xml:"ListSets"`
-	GetRecord           GetRecord           `xml:"GetRecord"`
-	ListIdentifiers     ListIdentifiers     `xml:"ListIdentifiers"`
-	ListRecords         ListRecords         `xml:"ListRecords"`
-}
+	ResponseDate string   `xml:"responseDate"`
+	Request      *Request `xml:"request"`
+	Error        []Error  `xml:"error,omitempty"`
 
-// RequestNode is indicating the protocol request that generated this response.
-//
-// The rules for generating the request element are as follows:
-// 1. The content of the request element must always be the base URL of the protocol request;
-// 2. The only valid attributes for the request element are the keys of the key=value pairs of protocol request. The attribute values must be the corresponding values of those key=value pairs;
-// 3. In cases where the request that generated this response did not result in an error or exception condition, the attributes and attribute values of the request element must match the key=value pairs of the protocol request;
-// 4. In cases where the request that generated this response resulted in a badVerb or badArgument error condition, the repository must return the base URL of the protocol request only. Attributes must not be provided in these cases.
-//
-// http://www.openarchives.org/OAI/openarchivesprotocol.html#XMLResponse
-//
-type RequestNode struct {
-	Verb           string `xml:"verb,attr"`
-	Set            string `xml:"set,attr"`
-	MetadataPrefix string `xml:"metadataPrefix,attr"`
+	Identify            *Identify            `xml:"Identify,omitempty"`
+	ListMetadataFormats *ListMetadataFormats `xml:"ListMetadataFormats,omitempty"`
+	ListSets            *ListSets            `xml:"ListSets,omitempty"`
+	GetRecord           *GetRecord           `xml:"GetRecord,omitempty"`
+	ListIdentifiers     *ListIdentifiers     `xml:"ListIdentifiers,omitempty"`
+	ListRecords         *ListRecords         `xml:"ListRecords,omitempty"`
 }
 
 // HasResumptionToken determines if the request has or not a ResumptionToken
