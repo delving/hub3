@@ -334,7 +334,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 // AppendRDFBulkRequest gathers all the triples from an BulkAction to be inserted in bulk.
 func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 	var b bytes.Buffer
-	if err := g.Serialize(&b, "text/turtle"); err != nil {
+	if err := serializeNTriples(g, &b); err != nil {
 		return fmt.Errorf("unable to convert RDF graph; %w", err)
 	}
 
@@ -361,4 +361,42 @@ type Stats struct {
 	TriplesStored      uint64 `json:"triplesStored"`
 	PostHooksSubmitted uint64 `json:"postHooksSubmitted"`
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
+}
+
+func encodeTerm(iterm rdf.Term) string {
+	switch term := iterm.(type) {
+	case *rdf.Resource:
+		return fmt.Sprintf("<%s>", term.URI)
+	case *rdf.Literal:
+		return term.String()
+	case *rdf.BlankNode:
+		return term.String()
+	}
+
+	return ""
+}
+
+func serializeNTriples(g *rdf.Graph, w io.Writer) error {
+	var err error
+
+	for triple := range g.IterTriples() {
+		s := encodeTerm(triple.Subject)
+		if strings.HasPrefix(s, "<urn:private/") {
+			continue
+		}
+
+		p := encodeTerm(triple.Predicate)
+		o := encodeTerm(triple.Object)
+
+		if strings.HasPrefix(o, "<urn:private/") {
+			continue
+		}
+
+		_, err = fmt.Fprintf(w, "%s %s %s .\n", s, p, o)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
