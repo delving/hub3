@@ -83,6 +83,10 @@ type Namespace struct {
 	// TODO(kiivihal): add function for custom hashing similar to isIdentRune
 }
 
+func (ns *Namespace) XMLNS() string {
+	return "xmlns:" + ns.Prefix
+}
+
 func (ns *Namespace) String() string {
 	return fmt.Sprintf("%s: %s", ns.Prefix, ns.Base)
 }
