@@ -65,7 +65,7 @@ func rdf2term(term gonrdf.Term) (rdf.Term, error) {
 				return nil, err
 			}
 
-			return rdf.NewLiteralWithType(term.LexicalForm, &dt)
+			return rdf.NewLiteralWithType(term.LexicalForm, dt)
 		}
 
 		return rdf.NewLiteral(term.RawValue())

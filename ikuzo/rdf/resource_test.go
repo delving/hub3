@@ -20,6 +20,21 @@ func TestResource(t *testing.T) {
 		is.Equal(len(rsc.predicates), 0)
 	})
 
+	t.Run("Add triple", func(t *testing.T) {
+		is = is.New(t)
+
+		p, err := DC.IRI("title")
+		is.NoErr(err)
+
+		o, err := NewLiteralWithLang("test", "nl")
+		is.NoErr(err)
+
+		triple := NewTriple(Subject(subject), Predicate(p), Object(o))
+		rsc := NewResource(&subject)
+		rsc.Add(triple)
+		is.Equal(len(rsc.predicates), 1)
+	})
+
 	t.Run("AddSimpleLiteral() without PredicateURIBase", func(t *testing.T) {
 		is = is.New(t)
 		rsc := NewResource(&subject)
@@ -59,9 +74,9 @@ func TestResource(t *testing.T) {
 		rsc.PredicateURIBase = DC
 		dt, err := XSD.IRI("dateTime")
 		is.NoErr(err)
-		rsc.AddSimpleLiteral("title", "simple title", WithDataType(&dt))
+		rsc.AddSimpleLiteral("title", "simple title", WithDataType(dt))
 		// no duplicates are stored
-		rsc.AddSimpleLiteral("title", "simple title", WithDataType(&dt))
+		rsc.AddSimpleLiteral("title", "simple title", WithDataType(dt))
 		for _, err := range rsc.errors {
 			t.Logf("errors: %s", err)
 		}

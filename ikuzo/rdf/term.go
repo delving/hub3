@@ -3,6 +3,8 @@ package rdf
 import "github.com/delving/hub3/ikuzo/validator"
 
 // TermType describes the type of RDF term: Blank node, IRI or Literal
+//
+//go:generate stringer -type=TermType
 type TermType int
 
 // Exported RDF term types.

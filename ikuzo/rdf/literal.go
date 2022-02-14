@@ -24,7 +24,7 @@ type Literal struct {
 	lang string
 
 	// The datatype of the Literal.
-	DataType *IRI
+	DataType IRI
 }
 
 // Equal returns whether this literal is equivalent to another.
@@ -49,7 +49,7 @@ func (l Literal) Equal(other Term) bool {
 		return false
 	}
 
-	if l.DataType != nil {
+	if !l.DataType.Equal(IRI{}) {
 		if !l.DataType.Equal(spec.DataType) {
 			return false
 		}
@@ -89,11 +89,15 @@ func (l Literal) String() string {
 	str += atLang(l.lang)
 
 	// xsdString is implied
-	if l.DataType != nil && (l.DataType != xsdString && l.DataType != rdfLangString) {
+	if !l.DataType.Equal(IRI{}) && !l.HasImpliedDataType() {
 		str += "^^" + l.DataType.String()
 	}
 
 	return str
+}
+
+func (l Literal) HasImpliedDataType() bool {
+	return l.DataType.Equal(xsdString) || l.DataType.Equal(rdfLangString)
 }
 
 func (l Literal) RawValue() string {
@@ -148,8 +152,8 @@ func (l Literal) Typed() (interface{}, error) {
 	return l.val, nil
 }
 
-func isValidDataType(dt *IRI) bool {
-	if dt == nil {
+func isValidDataType(dt IRI) bool {
+	if dt.Equal(IRI{}) {
 		return false
 	}
 
@@ -171,9 +175,9 @@ func (l Literal) Validate() *validator.Validator {
 		validateLanguageTag(v, l.lang)
 	}
 
-	v.Check(l.DataType != nil, "dataType", ErrInvalidDataType, "cannot be nil")
+	v.Check(!l.DataType.Equal(IRI{}), "dataType", ErrInvalidDataType, "cannot be nil")
 
-	if l.DataType != nil {
+	if !l.DataType.Equal(IRI{}) {
 		v.Check(isValidDataType(l.DataType), "dataType", ErrUnsupportedDataType, l.DataType.RawValue())
 	}
 
@@ -190,7 +194,7 @@ func (l Literal) ValidAsObject() {}
 //
 // The literal will have the datatype IRI xsd:String.
 func NewLiteral(str string) (Literal, error) {
-	l := Literal{str: str, DataType: rdfLangString}
+	l := Literal{str: str, DataType: xsdString}
 
 	v := l.Validate()
 	if !v.Valid() {
@@ -270,7 +274,7 @@ func NewLiteralWithLang(str, lang string) (Literal, error) {
 
 // NewLiteralWithType returns a literal with the given datatype, or fails
 // if the DataType IRI is malformed.
-func NewLiteralWithType(str string, dt *IRI) (Literal, error) {
+func NewLiteralWithType(str string, dt IRI) (Literal, error) {
 	l := Literal{str: str, DataType: dt}
 
 	v := l.Validate()
