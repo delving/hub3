@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/pkgerrors"
 )
 
 // Level defines log levels.
@@ -150,7 +151,11 @@ func NewLogger(cfg Config) CustomLogger {
 	}
 
 	zerolog.TimeFieldFormat = time.RFC3339Nano
-	zerolog.ErrorFieldName = cfg.ErrorFieldName
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	zerolog.ErrorFieldName = "error.message"
+	if cfg.ErrorFieldName != "" {
+		zerolog.ErrorFieldName = cfg.ErrorFieldName
+	}
 
 	return CustomLogger{loggerContext.Logger().Level(cfg.LogLevel.toZeroLog())}
 }
