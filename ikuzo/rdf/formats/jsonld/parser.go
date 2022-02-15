@@ -142,7 +142,7 @@ func ldnode2term(node ld.Node) (rdf.Term, error) {
 				return nil, err
 			}
 
-			return rdf.NewLiteralWithType(term.Value, &dt)
+			return rdf.NewLiteralWithType(term.Value, dt)
 		}
 
 		return rdf.NewLiteral(term.Value)
@@ -187,7 +187,7 @@ func jterm2term(term jsonld.Term) (rdf.Term, error) {
 				return nil, err
 			}
 
-			return rdf.NewLiteralWithType(term.Value, &dt)
+			return rdf.NewLiteralWithType(term.Value, dt)
 		}
 
 		return rdf.NewLiteral(term.Value)

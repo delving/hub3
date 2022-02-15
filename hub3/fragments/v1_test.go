@@ -62,7 +62,7 @@ var _ = Describe("V1", func() {
 				g, err := NewGraphFromTurtle(turtle)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(g).ToNot(BeNil())
-				Expect(g.Len()).To(Equal(67))
+				Expect(g.Len()).To(Equal(66))
 			})
 
 			It("Should throw an error when receiving invalid RDF", func() {

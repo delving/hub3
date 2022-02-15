@@ -50,7 +50,7 @@ func TestSerializeFiltered(t *testing.T) {
 	g.AddTriple(
 		b.IRI("urn:private/123"),
 		b.IRI("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
-		b.Literal("http://www.europeana.eu/schemas/edm/WebResource"),
+		b.IRI("http://www.europeana.eu/schemas/edm/WebResource"),
 	)
 
 	is.Equal(g.Len(), 3)

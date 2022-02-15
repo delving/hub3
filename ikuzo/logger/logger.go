@@ -118,6 +118,10 @@ type Config struct {
 	ErrorFieldName string
 }
 
+func Nop() CustomLogger {
+	return CustomLogger{zerolog.Nop()}
+}
+
 // NewLogger creates zerolog.Logger with sensible defaults
 func NewLogger(cfg Config) CustomLogger {
 	var output io.Writer
@@ -153,6 +157,7 @@ func NewLogger(cfg Config) CustomLogger {
 	zerolog.TimeFieldFormat = time.RFC3339Nano
 	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	zerolog.ErrorFieldName = "error.message"
+
 	if cfg.ErrorFieldName != "" {
 		zerolog.ErrorFieldName = cfg.ErrorFieldName
 	}

@@ -127,7 +127,9 @@ func Test_server_respondReturnsEncodingError(t *testing.T) {
 
 	w := httptest.NewRecorder()
 	c := make(chan int)
-	svr.respond(w, nil, c, http.StatusInternalServerError)
+	r, err := http.NewRequest(http.MethodGet, "/", nil)
+	is.NoErr(err)
+	svr.respond(w, r, c, http.StatusInternalServerError)
 	is.Equal(w.Code, http.StatusInternalServerError)
 	is.Equal(
 		w.Body.String(),

@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/matryer/is"
 )
 
@@ -42,11 +43,15 @@ func Test_server_fileServer(t *testing.T) {
 			http.StatusNotFound,
 		},
 	}
+
+	l := logger.NewLogger(logger.Config{})
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			is := is.New(t)
 			svr, err := newServer(
 				SetDisableRequestLogger(),
+				SetLogger(&l),
 			)
 			is.NoErr(err)
 

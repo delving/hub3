@@ -153,8 +153,6 @@ func (r *Resource) addError(err error) {
 	r.errors = append(r.errors, err)
 }
 
-// GetType is normal call to predicate map
-
 type resourcePredicate struct {
 	iri     IRI
 	objects map[hasher]Object
@@ -168,6 +166,10 @@ func (rp *resourcePredicate) Objects() (objects []Object) {
 	for _, object := range rp.objects {
 		objects = append(objects, object)
 	}
+
+	sort.Slice(objects, func(i, j int) bool {
+		return objects[i].RawValue() < objects[j].RawValue()
+	})
 
 	return objects
 }
