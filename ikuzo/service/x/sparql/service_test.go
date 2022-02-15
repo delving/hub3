@@ -2,32 +2,17 @@ package sparql
 
 import (
 	"bytes"
-	"context"
 	"testing"
 
 	"github.com/knakk/sparql"
 	"github.com/matryer/is"
 )
 
-// compile time check to see if full interface is implemented
-var _ TripleStore = (*mockTripleStore)(nil)
-
-type mockTripleStore struct{}
-
-func (m *mockTripleStore) CreateDB(ctx context.Context, name string) error      { return nil }
-func (m *mockTripleStore) DropDB(ctx context.Context, name string) error        { return nil }
-func (m *mockTripleStore) SparqlUpdate(ctx context.Context, query string) error { return nil }
-func (m *mockTripleStore) SparqlQuery(ctx context.Context, query string) (sparql.Results, error) {
-	return sparql.Results{}, nil
-}
-
 // nolint:gocritic
 func TestMergeBank(t *testing.T) {
 	is := is.New(t)
 
-	s, err := NewService(
-		SetTripleStore(&mockTripleStore{}),
-	)
+	s, err := NewService()
 	is.NoErr(err)
 
 	queryCount := len(s.bank)

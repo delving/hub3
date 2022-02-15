@@ -1,0 +1,28 @@
+<https://klek.si/208B7R> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<https://klek.si/208B7R> <https://schema.org/license> "http://creativecommons.org/publicdomain/zero/1.0/" .
+<https://klek.si/208B7R> <https://schema.org/identifier> "https://klek.si/208B7R" .
+<https://klek.si/208B7R> <https://schema.org/dateCreated> "2021-12-16T21:38:11" .
+<https://klek.si/208B7R> <https://schema.org/dateModified> "2022-01-24T10:34:30" .
+<https://klek.si/208B7R> <https://schema.org/image> _:b0 .
+_:b0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/ImageObject> .
+_:b0 <https://schema.org/contentUrl> "https://cdn.klek.si/files/61bbb5459062bb74659daa5f/jpeg/small" .
+_:b0 <https://schema.org/encodingFormat> "image/jpeg" .
+<https://klek.si/208B7R> <https://schema.org/image> _:b1 .
+_:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/ImageObject> .
+_:b1 <https://schema.org/contentUrl> "https://cdn.klek.si/files/61bbb5539062bb74659daa60/jpeg/small" .
+_:b1 <https://schema.org/encodingFormat> "image/jpeg" .
+<https://klek.si/208B7R> <https://schema.org/name> "Mantelhaak"@nl .
+<https://klek.si/208B7R> <https://schema.org/description> "Zware bronzen mantelhaak met kop van Medusa"@nl .
+<https://klek.si/208B7R> <https://schema.org/alternateName> "Mantelhaak met Medusakop. Romeins?"@nl .
+<https://klek.si/208B7R> <https://schema.org/contentLocation> _:b2 .
+_:b2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+_:b2 <https://schema.org/name> "Vitrine 8"@nl .
+<https://klek.si/208Z7R> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<https://klek.si/208Z7R> <https://schema.org/license> "http://creativecommons.org/publicdomain/zero/1.0/" .
+<https://klek.si/208Z7R> <https://schema.org/identifier> "https://klek.si/208Z7R" .
+<https://klek.si/208Z7R> <https://schema.org/dateCreated> "2021-10-19T17:56:11" .
+<https://klek.si/208Z7R> <https://schema.org/dateModified> "2022-01-24T10:34:30" .
+<https://klek.si/208Z7R> <https://schema.org/image> _:b3 .
+_:b3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/ImageObject> .
+_:b3 <https://schema.org/contentUrl> "https://cdn.klek.si/files/61896c749062bb74659da897/jpeg/small" .
+_:b3 <https://schema.org/encodingFormat> "image/jpeg" .
