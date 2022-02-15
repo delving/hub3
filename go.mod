@@ -9,6 +9,7 @@ require (
 	github.com/antzucaro/matchr v0.0.0-20191224151129-ab6ba461ddec
 	github.com/araddon/dateparse v0.0.0-20200409225146-d820a6159ab1
 	github.com/asdine/storm v2.1.2+incompatible
+	github.com/beevik/etree v1.1.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/docker/go-connections v0.4.0

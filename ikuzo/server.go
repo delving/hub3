@@ -145,6 +145,11 @@ func newServer(options ...Option) (*server, error) {
 		log.Logger = s.logger.Logger
 	}
 
+	if s.logger == nil {
+		l := logger.Nop()
+		s.logger = &l
+	}
+
 	// append default middleware
 	s.middleware = append(s.middleware, DefaultMiddleware()...)
 

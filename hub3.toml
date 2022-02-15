@@ -7,6 +7,11 @@ id = "all"
 baseURL = "http://localhost:3000"
 filters = "meta.tags:narthex"
 
+[org.dcn.oaipmh]
+enabled = true
+adminEmails = ["info@delving.eu"]
+repositoryName = "DCN OAI-PMH repository"
+
 [org.hub3]
 domains = ["localhost:3001"]
 customID = "hub3"
@@ -30,6 +35,21 @@ replicas = 2
 # indexName = "dcn"
 # if non-empty digital objects will be indexed in a dedicated v2 index
 # digitalObjectSuffix = "scans"
+
+[org.niod.sparql]
+enabled = true
+# the fully qualified URL including the port
+sparqlHost = "http://localhost:3033"
+# the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+sparqlPath = "/%s/sparql"
+# sparqlUpdate path is the path to the write endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+sparqlUpdatePath = "/%s/update"
+# dataPath is the path to the GraphStore Protocol endpoint
+dataPath = "/%s/data"
+# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+storeRecords = false
+userName = ""
+password = ""
 
 [http]
 # all the configuration for the http sub-command
@@ -144,7 +164,7 @@ defaultFormat = "application/ld+json"
 # which meta-tags should be inserted into the triple store
 rdfStoreTags = ["narthex", "mdr"]
 
-[oaipmh]
+[harvest]
 # options: no, transient, persistent
 deletedRecords = "persistent"
 # enable the oai-pmh endpoint at /api/oai-pmh
@@ -157,6 +177,16 @@ harvestDelay = 1
 eadHarvestUrl = "http://localhost:3000/oai/ead"
 metsHarvestUrl = "http://localhost:3000/oai/mets"
 harvestPath = "/tmp/oaipmh"
+
+[oaipmh]
+# options: no, transient, persistent
+deletedRecords = "persistent"
+# enable the oai-pmh endpoint at /api/oai-pmh
+enabled = true
+# admin emails
+adminEmails = ["info@delving.eu",]
+# repositoryName
+repositoryName = "dev1"
 
 [webresource]
 # enabel the webresource endpoint /api/webresource

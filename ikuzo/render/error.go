@@ -43,7 +43,7 @@ type errorResponse struct {
 	Status      string `json:"status"`
 	Code        int    `json:"code"`
 	Message     string `json:"message"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 }
 
 func Error(w http.ResponseWriter, r *http.Request, err error, cfg *ErrorConfig) {
@@ -67,11 +67,12 @@ func Error(w http.ResponseWriter, r *http.Request, err error, cfg *ErrorConfig) 
 
 	requestID, _ := hlog.IDFromRequest(r)
 
-	if !cfg.PreventBubble {
+	if !cfg.PreventBubble && cfg.Log != nil {
 		l := cfg.Log.Error().Err(err)
 		if cfg.DatasetID != "" {
 			l = l.Str("dataset_id", cfg.DatasetID)
 		}
+
 		l.Str("org_id", cfg.OrgID).Str("req_id", requestID.String()).Msg(msg)
 	}
 
