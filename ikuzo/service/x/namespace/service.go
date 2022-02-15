@@ -101,9 +101,9 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 	}
 
 	if s.loadDefaults {
-		for _, nsMap := range []map[string]string{defaultNS, customNS} {
-			for prefix, base := range nsMap {
-				if _, err := s.Put(prefix, base); err != nil {
+		for _, nsMap := range [][]nsEntry{defaultNS, customNS} {
+			for _, e := range nsMap {
+				if _, err := s.Put(e.Prefix, e.BaseURI); err != nil {
 					return nil, err
 				}
 			}
