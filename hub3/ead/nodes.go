@@ -216,7 +216,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		if cfg.DaoFn != nil {
 			metsExists := true
 			if cfg.ProcessDigitalIfMissing == true {
-				metsPath := daoCfg.getMetsFilePath()
+				metsPath := daoCfg.GetMetsFilePath()
 				if _, err := os.Stat(metsPath); err != nil {
 					metsExists = false
 				}
