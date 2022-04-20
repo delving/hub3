@@ -94,6 +94,8 @@ type PreStoreFn func(b []byte) []byte
 
 type DaoFn func(cfg *eadHub3.DaoConfig) error
 
+type ProcessFn func(s *Service, parentCtx context.Context, t *Task) error
+
 type Service struct {
 	index                   *index.Service
 	revision                *revision.Service
@@ -102,6 +104,7 @@ type Service struct {
 	CreateTreeFn            CreateTreeFn
 	PreStoreFn              PreStoreFn
 	DaoFn                   DaoFn
+	ProcessFn               ProcessFn
 	DaoClient               *eadHub3.DaoClient
 	processDigital          bool
 	processDigitalIfMissing bool
@@ -118,6 +121,7 @@ func NewService(options ...Option) (*Service, error) {
 		tasks:     make(map[string]*Task),
 		workers:   1,
 		postHooks: map[string][]domain.PostHookService{},
+		ProcessFn: Process,
 	}
 
 	// apply options
@@ -214,7 +218,7 @@ func (s *Service) StartWorkers() error {
 					task.Next()
 					s.rw.Unlock()
 
-					if err := s.Process(gctx, task); err != nil {
+					if err := s.ProcessFn(s, gctx, task); err != nil {
 						return err
 					}
 				}
@@ -368,7 +372,7 @@ func getEAD(r io.Reader) (*eadHub3.Cead, error) {
 	return ead, nil
 }
 
-func (s *Service) Process(parentCtx context.Context, t *Task) error {
+func Process(s *Service, parentCtx context.Context, t *Task) error {
 	// return immediately with invalid states
 	if !t.isActive() {
 		return nil
