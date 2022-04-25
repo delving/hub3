@@ -35,7 +35,7 @@ func RegisterSparql(r chi.Router) {
 	r.Post("/sparql", sparqlProxy)
 }
 
-var limitExp = regexp.MustCompile(`(?im) limit (\d*)`)
+var limitExp = regexp.MustCompile(`(?im)\slimit\s*(\d*)`)
 
 func ensureSparqlLimit(query string) (string, error) {
 	matches := limitExp.FindAllStringSubmatch(query, -1)
@@ -43,14 +43,15 @@ func ensureSparqlLimit(query string) (string, error) {
 		return fmt.Sprintf("%s LIMIT 25", query), nil
 	}
 
-	last := matches[len(matches)-1]
-	number, err := strconv.ParseInt(last[1], 10, 0)
-	if err != nil {
-		return "", fmt.Errorf("limit attribute %q is not a valid number", last[1])
-	}
+	for _, m := range matches {
+		number, err := strconv.ParseInt(m[1], 10, 0)
+		if err != nil {
+			return "", fmt.Errorf("limit attribute %q is not a valid number", m[1])
+		}
 
-	if number > 1000 {
-		return "", fmt.Errorf("sparql limit is not allowed to be greater than 1000")
+		if number > 1000 {
+			return "", fmt.Errorf("sparql limit is not allowed to be greater than 1000")
+		}
 	}
 
 	return query, nil
