@@ -19,6 +19,7 @@
 - hub3: refactor elasticsearch storage into driver package [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7)
 - hub3: LDF always returns 'text/turtle' [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf)
 - updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
+- limit SPARQL proxy qureies to a maximum of 1000 results [[GH-148]](https://github.com/delving/hub3/pull/148)
 
 ## Removed
  
