@@ -68,6 +68,7 @@ func serve() {
 			handlers.RegisterEAD,
 			handlers.RegisterLinkedDataFragments,
 			handlers.RegisterLOD,
+			handlers.RegisterSparql,
 		),
 		ikuzo.SetEnableLegacyConfig(cfgFile),
 		ikuzo.SetStaticFS(staticFS),

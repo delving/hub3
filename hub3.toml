@@ -113,7 +113,7 @@ consoleLogger = true
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
 rdfStoreEnabled = false
 # the fully qualified URL including the port
-sparqlHost = "http://localhost:3030"
+sparqlHost = "http://localhost:3033"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
 #sparqlPath = "/bigdata/namespace/%s/sparql"
 sparqlPath = "/%s/sparql"

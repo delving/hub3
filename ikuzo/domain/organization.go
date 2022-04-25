@@ -134,10 +134,9 @@ func (o *Organization) NewDatasetURI(spec string) string {
 //
 // This orgID is set by middleware and available for each request
 func GetOrganizationID(r *http.Request) OrganizationID {
-	orgID := r.Context().Value(orgIDKey{})
-	if orgID != nil {
-		id, _ := NewOrganizationID(orgID.(string))
-		return id
+	org, ok := GetOrganization(r)
+	if ok {
+		return org.ID
 	}
 
 	return ""
