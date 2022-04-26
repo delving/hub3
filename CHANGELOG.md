@@ -31,6 +31,7 @@
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
+- Added minor changes for EAD support requested by Dutch National Archive [[GH-150]](https://github.com/delving/hub3/pull/150)
 
 ### Fixed
  
