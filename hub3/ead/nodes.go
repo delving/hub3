@@ -114,7 +114,7 @@ func (n *Node) getSecondBranch() string {
 
 // FragmentGraph returns the archival node as a FragmentGraph
 func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
-	rm := fragments.NewEmptyResourceMap()
+	rm := fragments.NewEmptyResourceMap(cfg.OrgID)
 	id := n.Path
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{

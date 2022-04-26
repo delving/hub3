@@ -33,8 +33,8 @@ func testGraph() *r.Graph {
 
 	g := r.NewGraph(baseUri)
 	g.Add(r.NewTriple(r.NewResource("a"), r.NewResource("b"), r.NewResource("c")))
-	//r.NewTriple(r.NewResource("a"), r.NewResource("title"), r.NewLiteral("title")),
-	//r.NewTriple(r.NewResource("a"), r.NewResource("subject"), r.NewLiteralWithLanguage("subject", "nl")),
+	// r.NewTriple(r.NewResource("a"), r.NewResource("title"), r.NewLiteral("title")),
+	// r.NewTriple(r.NewResource("a"), r.NewResource("subject"), r.NewLiteralWithLanguage("subject", "nl")),
 	return g
 }
 
@@ -90,14 +90,13 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 	return fb, nil
 }
 
+var testOrgID = "test"
+
 var _ = Describe("Fragments", func() {
-
 	Describe("creating a new FragmentRequest", func() {
-
 		Context("directly", func() {
-
 			It("should have no triple pattern set", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				Expect(fr).ToNot(BeNil())
 				Expect(fr.GetSubject()).To(BeEmpty())
 				Expect(fr.GetPredicate()).To(BeEmpty())
@@ -106,15 +105,14 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should have a non-zero page start", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				Expect(fr.GetPage()).To(Equal(int32(1)))
 			})
 		})
 
 		Context("parsing from url.Values", func() {
-
 			It("should ignore empty values", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				v := url.Values{}
 				v.Add("subject", "urn:1")
 				v.Add("predicate", "")
@@ -130,7 +128,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should throw an error when the page is not an int", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				v := url.Values{}
 				v.Add("page", "error")
 				err := fr.ParseQueryString(v)
@@ -138,7 +136,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should set the page when it is an int", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				v := url.Values{}
 				v.Add("page", "10")
 				err := fr.ParseQueryString(v)
@@ -147,7 +145,7 @@ var _ = Describe("Fragments", func() {
 			})
 
 			It("should set all the non-empty values", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				v := url.Values{}
 				v.Add("subject", "urn:1")
 				v.Add("predicate", "urn:subject")
@@ -165,9 +163,9 @@ var _ = Describe("Fragments", func() {
 		})
 	})
 
-	//Describe("ObjectXSDType conversions", func() {
+	// Describe("ObjectXSDType conversions", func() {
 
-	//Context("when converting to label", func() {
+	// Context("when converting to label", func() {
 
 	//It("should return the xsd label when found", func() {
 	//label, err := ObjectXSDType_BOOLEAN.GetLabel()
@@ -184,18 +182,18 @@ var _ = Describe("Fragments", func() {
 	//})
 	//})
 
-	//Context("when requesting a prefix label", func() {
+	// Context("when requesting a prefix label", func() {
 
-	//It("should shorten the namespace to xsd", func() {
-	//label, err := ObjectXSDType_BOOLEAN.GetPrefixLabel()
-	//Expect(err).ToNot(HaveOccurred())
-	//Expect(label).ToNot(BeEmpty())
-	//Expect(label).To(Equal("xsd:boolean"))
+	// It("should shorten the namespace to xsd", func() {
+	// label, err := ObjectXSDType_BOOLEAN.GetPrefixLabel()
+	// Expect(err).ToNot(HaveOccurred())
+	// Expect(label).ToNot(BeEmpty())
+	// Expect(label).To(Equal("xsd:boolean"))
 
 	//})
 	//})
 
-	//Context("when converting from a label", func() {
+	// Context("when converting from a label", func() {
 
 	//It("should return the ObjectXSDType", func() {
 	//t, err := GetObjectXSDType("http://www.w3.org/2001/XMLSchema#boolean")
@@ -208,37 +206,30 @@ var _ = Describe("Fragments", func() {
 	//})
 
 	Describe("hasher", func() {
-
 		Context("When given a string", func() {
-
 			It("should return a short hash", func() {
 				hash := CreateHash("hub3 rocks.")
 				Expect(hash).To(Equal("8099033550905050670"))
 			})
 		})
-
 	})
 
 	Describe("FragmentRequest", func() {
-
 		Context("when assiging an object", func() {
-
 			It("should strip double quotes", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				fr.Object = `1982`
 				fr.AssignObject()
 				Expect(fr.GetObject()).To(Equal("1982"))
 			})
 
 			It("should set the language when the string contains @ annotation", func() {
-				fr := NewFragmentRequest()
+				fr := NewFragmentRequest(testOrgID)
 				fr.Object = `"door"@en`
 				fr.AssignObject()
 				Expect(fr.GetObject()).To(Equal("door"))
 				Expect(fr.GetLanguage()).To(Equal("en"))
 			})
-
 		})
 	})
-
 })

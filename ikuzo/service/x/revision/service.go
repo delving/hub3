@@ -26,9 +26,7 @@ import (
 	"github.com/sosedoff/gitkit"
 )
 
-var (
-	ErrRepositoryNotExists = errors.New("repository does not exist")
-)
+var ErrRepositoryNotExists = errors.New("repository does not exist")
 
 type Service struct {
 	base     string

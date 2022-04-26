@@ -61,11 +61,6 @@ func ESClient() *elastic.Client {
 	return client
 }
 
-// ListIndexes returns a list of all the ElasticSearch Indices.
-func ListIndexes() ([]string, error) {
-	return ESClient().IndexNames()
-}
-
 func createESClient() *elastic.Client {
 	timeout := time.Duration(config.Config.ElasticSearch.RequestTimeout) * time.Second
 	httpclient := &http.Client{

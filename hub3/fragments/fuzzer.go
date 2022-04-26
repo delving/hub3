@@ -36,11 +36,11 @@ type Fuzzer struct {
 }
 
 // CreateRecords for n number of fuzzed records
-func (fz *Fuzzer) CreateRecords(n int) ([]string, error) {
+func (fz *Fuzzer) CreateRecords(orgID string, n int) ([]string, error) {
 	records := []string{}
 	for i := 0; i < n; i++ {
 		ld := []map[string]interface{}{}
-		fr := &FuzzRecord{fz, i, NewEmptyResourceMap()}
+		fr := &FuzzRecord{fz, i, NewEmptyResourceMap(orgID)}
 		err := fr.AddTriples()
 		if err != nil {
 			return nil, err

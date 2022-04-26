@@ -387,8 +387,8 @@ type Cdsc struct {
 type Cead struct {
 	XMLName      xml.Name    `xml:"ead,omitempty" json:"ead,omitempty"`
 	Attraudience string      `xml:"audience,attr"  json:",omitempty"`
-	Carchdesc    *Carchdesc  `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
 	Ceadheader   *Ceadheader `xml:"eadheader,omitempty" json:"eadheader,omitempty"`
+	Carchdesc    *Carchdesc  `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
 }
 
 type Ceadheader struct {
@@ -1048,21 +1048,21 @@ type Cunitdate struct {
 type Cunitid struct {
 	XMLName            xml.Name `xml:"unitid,omitempty" json:"unitid,omitempty"`
 	Raw                []byte   `xml:",innerxml" json:",omitempty"`
-	Attraudience       string   `xml:"audience,attr"  json:",omitempty"`
-	Attrcountrycode    string   `xml:"countrycode,attr"  json:",omitempty"`
-	Attrencodinganalog string   `xml:"encodinganalog,attr"  json:",omitempty"`
-	Attrid             string   `xml:"id,attr"  json:",omitempty"`
-	Attridentifier     string   `xml:"identifier,attr"  json:",omitempty"`
-	Attrlabel          string   `xml:"label,attr"  json:",omitempty"`
-	Attrrepositorycode string   `xml:"repositorycode,attr"  json:",omitempty"`
-	Attrtype           string   `xml:"type,attr"  json:",omitempty"`
+	Attraudience       string   `xml:"audience,attr,omitempty"  json:",omitempty"`
+	Attrcountrycode    string   `xml:"countrycode,attr,omitempty"  json:",omitempty"`
+	Attrencodinganalog string   `xml:"encodinganalog,attr,omitempty"  json:",omitempty"`
+	Attrid             string   `xml:"id,attr,omitempty"  json:",omitempty"`
+	Attridentifier     string   `xml:"identifier,attr,omitempty"  json:",omitempty"`
+	Attrlabel          string   `xml:"label,attr,omitempty"  json:",omitempty"`
+	Attrrepositorycode string   `xml:"repositorycode,attr,omitempty"  json:",omitempty"`
+	Attrtype           string   `xml:"type,attr,omitempty"  json:",omitempty"`
 	Unitid             string   `xml:",chardata" json:",omitempty"`
 }
 
 type Cunittitle struct {
 	XMLName    xml.Name     `xml:"unittitle,omitempty" json:"unittitle,omitempty"`
 	Raw        []byte       `xml:",innerxml" json:",omitempty"`
-	Attrlabel  string       `xml:"label,attr"  json:",omitempty"`
+	Attrlabel  string       `xml:"label,attr,omitempty"  json:",omitempty"`
 	Attrtype   string       `xml:"type,attr"  json:",omitempty"`
 	Carchref   []*Carchref  `xml:"archref,omitempty" json:"archref,omitempty"`
 	Cbibref    []*Cbibref   `xml:"bibref,omitempty" json:"bibref,omitempty"`

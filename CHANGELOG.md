@@ -2,7 +2,28 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.2.0...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.2.1...master
+
+### Added 
+ 
+- hub3: added dedicated esproxy service. [10f521cf](https://github.com/delving/hub3/commit/10f521cf)
+- hub3: added sitemap package [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be)
+- hub3: initial version of postgresql service. [41309cb0](https://github.com/delving/hub3/commit/41309cb0)
+
+### Changed
+
+- hub3: update ikuzoctl configuration objects for domain.Service. [2cf6dc75](https://github.com/delving/hub3/commit/2cf6dc75)
+- hub3: refactor for multitenancy based on OrgID across all packages [e59c880b](https://github.com/delving/hub3/commit/e59c880b)
+- hub3: added multi-tenant configuration support to domain.Organization [3a10b33f](https://github.com/delving/hub3/commit/3a10b33f)
+- hub3: move memory storage package to x [e373e132](https://github.com/delving/hub3/commit/e373e132)
+- hub3: refactor elasticsearch storage into driver package [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7)
+- hub3: LDF always returns 'text/turtle' [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf)
+- updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
+- limit SPARQL proxy qureies to a maximum of 1000 results [[GH-148]](https://github.com/delving/hub3/pull/148)
+
+## Removed
+ 
+- hub3: remove gorm package [1df50338](https://github.com/delving/hub3/commit/1df50338)
 
 ## v0.2.1 (2022-01-25)
 
@@ -31,6 +52,7 @@
 - Added support for NDE Dataset Register API [[GH-92]](https://github.com/delving/hub3/pull/92)
 - Added posthooks support to orphan groups as well  [[GH-99]](https://github.com/delving/hub3/pull/99)
 - Added Run() custom function to posthook interface [[GH-107]](https://github.com/delving/hub3/pull/107)
+- Return "text/turtle" from LDF endpoint  [345290fca38e](https://github.com/delving/hub3/commit/345290fca38ef9573671da34e11e4fc5f2c20729)
 - Added minor changes for EAD support requested by Dutch National Archive [[GH-150]](https://github.com/delving/hub3/pull/150)
 
 ### Fixed

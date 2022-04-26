@@ -15,7 +15,6 @@
 package handlers
 
 import (
-	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -24,13 +23,12 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
-var (
-	lodPathRoute = "/{path:%s}/*"
-)
+var lodPathRoute = "/{path:%s}/*"
 
 func RegisterLOD(r chi.Router) {
 	if c.Config.LOD.SingleEndpoint != "" {
@@ -39,7 +37,7 @@ func RegisterLOD(r chi.Router) {
 		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.RDF), RenderLODResource)
 		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.Resource), RenderLODResource)
 		r.Get(
-			//fmt.Sprintf(lodPathRoute, config.Config.LOD.HTML), RenderLODResource)
+			// fmt.Sprintf(lodPathRoute, config.Config.LOD.HTML), RenderLODResource)
 			fmt.Sprintf(lodPathRoute, c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
 				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
 				return
@@ -50,7 +48,6 @@ func RegisterLOD(r chi.Router) {
 // RenderLODResource returns a list of matching fragments
 // for a LOD resource. This mimicks a SPARQL describe request
 func RenderLODResource(w http.ResponseWriter, r *http.Request) {
-
 	lodKey := r.URL.Path
 	if c.Config.LOD.SingleEndpoint == "" {
 		resourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
@@ -75,7 +72,9 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	fr := fragments.NewFragmentRequest()
+	orgID := domain.GetOrganizationID(r)
+
+	fr := fragments.NewFragmentRequest(orgID.String())
 	fr.LodKey = lodKey
 	frags, _, err := fr.Find(r.Context(), index.ESClient())
 	if err != nil || len(frags) == 0 {
@@ -89,10 +88,9 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/n-triples")
-	var buffer bytes.Buffer
 	for _, frag := range frags {
-		buffer.WriteString(fmt.Sprintln(frag.Triple))
+		fmt.Fprintln(w, frag.Triple)
 	}
-	w.Write(buffer.Bytes())
+
 	return
 }

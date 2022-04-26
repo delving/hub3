@@ -35,16 +35,15 @@ import (
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
 
-	c "github.com/delving/hub3/config"
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
 	indexHub3 "github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
@@ -55,50 +54,18 @@ const (
 	PaccessKey = "processAccessTime"
 )
 
-type Metrics struct {
-	Submitted     uint64
-	Started       uint64
-	Failed        uint64
-	Finished      uint64
-	Canceled      uint64
-	AlreadyQueued uint64
-}
-
-func (m *Metrics) IncSubmitted() {
-	atomic.AddUint64(&m.Submitted, 1)
-}
-
-func (m *Metrics) IncStarted() {
-	atomic.AddUint64(&m.Started, 1)
-}
-
-func (m *Metrics) IncFailed() {
-	atomic.AddUint64(&m.Failed, 1)
-}
-
-func (m *Metrics) IncFinished() {
-	atomic.AddUint64(&m.Finished, 1)
-}
-
-func (m *Metrics) IncCancelled() {
-	atomic.AddUint64(&m.Canceled, 1)
-}
-
-func (m *Metrics) IncAlreadyQueued() {
-	atomic.AddUint64(&m.AlreadyQueued, 1)
-}
-
 type CreateTreeFn func(cfg *eadHub3.NodeConfig, n *eadHub3.Node, hubID string, id string) *fragments.Tree
 
 type PreStoreFn func(b []byte) []byte
 
 type DaoFn func(cfg *eadHub3.DaoConfig) error
 
+var _ domain.Service = (*Service)(nil)
+
 type ProcessFn func(s *Service, parentCtx context.Context, t *Task) error
 
 type Service struct {
 	index                   *index.Service
-	revision                *revision.Service
 	dataDir                 string
 	M                       Metrics
 	CreateTreeFn            CreateTreeFn
@@ -114,6 +81,8 @@ type Service struct {
 	cancel                  context.CancelFunc
 	group                   *errgroup.Group
 	postHooks               map[string][]domain.PostHookService
+	log                     zerolog.Logger
+	orgs                    domain.OrgConfigRetriever
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -159,30 +128,19 @@ func NewService(options ...Option) (*Service, error) {
 	return s, nil
 }
 
+func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	router := chi.NewRouter()
+	s.Routes("", router)
+	router.ServeHTTP(w, r)
+}
+
 func (s *Service) Publish(ctx context.Context, messages ...*domainpb.IndexMessage) error {
 	return s.index.Publish(ctx, messages...)
 }
 
-func (s *Service) findAvailableTask() *Task {
-	tasks := []*Task{}
-
-	for _, task := range s.tasks {
-		if task.InState == StatePending || task.Interrupted {
-			tasks = append(tasks, task)
-		}
-	}
-
-	if len(tasks) == 0 {
-		return nil
-	}
-
-	sort.Slice(tasks, func(i, j int) bool {
-		return tasks[i].currentTransition().Started.After(tasks[j].currentTransition().Started)
-	})
-
-	log.Info().Str("svc", "eadProcessor").Int("availableTasks", len(tasks)).Msg("returning first available task for processing")
-
-	return tasks[0]
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }
 
 func (s *Service) StartWorkers() error {
@@ -240,74 +198,6 @@ func (s *Service) Upload(w http.ResponseWriter, r *http.Request) {
 // Call this function each night at 00:01 in a cron job to check and clear tree node restrictions.
 func (s *Service) ClearRestrictions(w http.ResponseWriter, r *http.Request) {
 	s.clearRestrictions(w, r)
-}
-
-func (s *Service) Tasks(w http.ResponseWriter, r *http.Request) {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
-	// TODO(kiivihal): add option to filter by datasetID
-
-	render.JSON(w, r, s.tasks)
-}
-
-func (s *Service) findTask(orgID, datasetID string, filterActive bool) (*Task, error) {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
-	for _, t := range s.tasks {
-		// TODO(kiivihal): add filter for orgID later
-		_ = orgID
-
-		if t.Meta.DatasetID == datasetID {
-			if filterActive && !t.isActive() {
-				continue
-			}
-
-			return t, nil
-		}
-	}
-
-	return nil, ErrTaskNotFound
-}
-
-func (s *Service) GetTask(w http.ResponseWriter, r *http.Request) {
-	s.rw.RLock()
-	defer s.rw.RUnlock()
-
-	id := chi.URLParam(r, "id")
-
-	task, ok := s.tasks[id]
-	if !ok {
-		http.Error(w, "unknown task", http.StatusNotFound)
-		return
-	}
-
-	render.JSON(w, r, task)
-}
-
-func (s *Service) CancelTask(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-
-	s.rw.Lock()
-	defer s.rw.Unlock()
-
-	task, ok := s.tasks[id]
-	if !ok {
-		http.Error(w, "unknown task", http.StatusNotFound)
-		return
-	}
-
-	task.moveState(StateCanceled)
-
-	task.log().Info().Msg("canceling running ead task")
-	task.cancel()
-
-	task.Next()
-	// TODO(kiivihal): do we delete or keep it
-	// delete(s.tasks, id)
-
-	w.WriteHeader(http.StatusNoContent)
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
@@ -396,7 +286,9 @@ func Process(s *Service, parentCtx context.Context, t *Task) error {
 	ead, err := getEAD(f)
 	if err != nil {
 		errMsg := fmt.Errorf("error during EAD parsing; %w", err)
+
 		f.Close()
+
 		return t.finishWithError(errMsg)
 	}
 
@@ -600,9 +492,9 @@ func Process(s *Service, parentCtx context.Context, t *Task) error {
 			return nil
 		}
 
-		digitalObjects, err := t.s.DaoClient.GetDigitalObjectCount(t.Meta.DatasetID)
-		if err != nil {
-			return t.finishWithError(fmt.Errorf("unable to count digitalobjects: %w", err))
+		digitalObjects, countErr := t.s.DaoClient.GetDigitalObjectCount(t.Meta.DatasetID)
+		if countErr != nil {
+			return t.finishWithError(fmt.Errorf("unable to count digitalobjects: %w", countErr))
 		}
 
 		cfg.MetsCounter.IncrementDigitalObject(uint64(digitalObjects))
@@ -658,9 +550,9 @@ func Process(s *Service, parentCtx context.Context, t *Task) error {
 			meta.OrgID = t.Meta.OrgID
 		}
 
-		err = meta.Write()
-		if err != nil {
-			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, err)
+		countErr = meta.Write()
+		if countErr != nil {
+			return fmt.Errorf("unable to save ead meta for %s; %w", meta.DatasetID, countErr)
 		}
 	} else {
 		return t.finishWithError(fmt.Errorf("error during invertory processing; %w", err))
@@ -768,22 +660,26 @@ func (s *Service) CreateTask(r *http.Request, meta Meta) (*taskResponse, error) 
 
 // TODO: move this to elasticsearch package later
 func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
-	orgID := domain.GetOrganizationID(r)
+	org, _ := domain.GetOrganization(r)
 
-	search := indexHub3.ESClient().Search(c.Config.ElasticSearch.GetIndexName())
+	search := indexHub3.ESClient().Search(org.Config.GetIndexName())
+
 	format := "02-01-2006"
 	today := time.Now()
+
 	if r.URL.Query().Get(PaccessKey) != "" {
 		td, err := time.Parse(format, r.URL.Query().Get(PaccessKey))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+
 		today = td
 	}
+
 	query := elastic.NewBoolQuery().
 		Filter(
-			elastic.NewMatchPhraseQuery("meta.orgID", orgID.String()),
+			elastic.NewMatchPhraseQuery(elasticsearch.PathOrgID, org.RawID()),
 			elastic.NewMatchPhraseQuery("tree.hasRestriction", true),
 			elastic.NewMatchPhraseQuery("tree.type", "file"),
 			elastic.NewMatchPhraseQuery("tree.access", today.Format(format)),
@@ -800,6 +696,7 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		clearLogger.Err(err).Msgf("bad ead clear request %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
+
 		return
 	}
 
@@ -812,22 +709,29 @@ func (s *Service) clearRestrictions(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		clearLogger.Msg("error with aggregations")
 		http.Error(w, "terms could not load", http.StatusBadRequest)
+
 		return
 	}
+
 	trSlice := make([]*taskResponse, 0)
+
 	for _, el := range terms.Buckets {
 		spec := el.Key.(string)
-		meta, err := s.LoadEAD(orgID.String(), spec)
+
+		meta, err := s.LoadEAD(org.RawID(), spec)
 		if err != nil {
 			clearLogger.Err(err).Msgf("could not load spec %s from bucket: %v", spec, err)
 			continue
 		}
+
 		meta.ProcessAccessTime = today
+
 		task, metaErr := s.CreateTask(r, meta)
 		if metaErr != nil {
 			clearLogger.Err(err).Msgf("could not handle spec meta %s from bucket: %v", spec, metaErr)
 			continue
 		}
+
 		trSlice = append(trSlice, task)
 	}
 
@@ -846,11 +750,13 @@ func (s *Service) LoadEAD(orgID, spec string) (Meta, error) {
 	}
 
 	meta.basePath = s.getDataPath(meta.DatasetID)
+
 	f, err := os.Stat(meta.getSourcePath())
 	if err != nil {
 		errMsg := fmt.Errorf("unable to find EAD source file: %w", err)
 		return meta, errMsg
 	}
+
 	meta.FileSize = uint64(f.Size())
 	meta.ProcessDigital = s.processDigital
 	meta.ProcessDigitalIfMissing = s.processDigitalIfMissing
@@ -1037,13 +943,6 @@ func (s *Service) AddPostHook(hook domain.PostHookService) error {
 	return nil
 }
 
-func (s *Service) Routes(router chi.Router) {
-	router.Get("/api/ead/{spec}/mets/{UUID}.json", s.DaoClient.DownloadConfig)
-	router.Get("/api/ead/{spec}/mets/{UUID}", s.DaoClient.DownloadXML)
-	router.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.HandleDelete)
-	router.Post("/api/ead/{spec}/mets/{UUID}", s.DaoClient.Index)
-}
-
 // getModifiedDatePath returns the filepath of the EAD modified date.
 func (s *Service) getModifiedDatePath(spec string) string {
 	return fmt.Sprintf("%s/modified", s.getDataPath(spec))
@@ -1053,9 +952,11 @@ func (s *Service) getModifiedDatePath(spec string) string {
 func (s *Service) LoadModifiedEADDate(spec string) time.Time {
 	s.rw.Lock()
 	defer s.rw.Unlock()
+
 	t := time.Time{}
 	timePath := s.getModifiedDatePath(spec)
-	b, err := ioutil.ReadFile(timePath)
+
+	b, err := os.ReadFile(timePath)
 	if err != nil {
 		return t
 	}
@@ -1069,11 +970,12 @@ func (s *Service) LoadModifiedEADDate(spec string) time.Time {
 }
 
 // SaveModifiedEADDate stores the modified EAD date.
-func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
+func (s *Service) SaveModifiedEADDate(spec, modified string) error {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 	timePath := s.getModifiedDatePath(spec)
-	err := ioutil.WriteFile(timePath, []byte(modified), 0644)
+
+	err := os.WriteFile(timePath, []byte(modified), os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -1082,7 +984,7 @@ func (s *Service) SaveModifiedEADDate(spec string, modified string) error {
 }
 
 func (s *Service) ResyncCacheDir(orgID string) error {
-	dirs, err := ioutil.ReadDir(s.dataDir)
+	dirs, err := os.ReadDir(s.dataDir)
 	if err != nil {
 		return err
 	}
@@ -1093,6 +995,7 @@ func (s *Service) ResyncCacheDir(orgID string) error {
 		if !ead.IsDir() {
 			continue
 		}
+
 		spec := ead.Name()
 
 		meta, err := s.LoadEAD(orgID, spec)

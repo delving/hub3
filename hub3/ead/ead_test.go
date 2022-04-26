@@ -19,11 +19,12 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	r "github.com/kiivihal/rdf2go"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	r "github.com/kiivihal/rdf2go"
 
 	. "github.com/delving/hub3/hub3/ead"
 	. "github.com/onsi/ginkgo"
@@ -31,9 +32,7 @@ import (
 )
 
 var _ = Describe("Ead", func() {
-
 	Describe("when creating a node configuration", func() {
-
 		It("should initialise the NodeCounter", func() {
 			cfg := NewNodeConfig(context.Background())
 			Expect(cfg).ToNot(BeNil())
@@ -47,11 +46,9 @@ var _ = Describe("Ead", func() {
 			Expect(cfg.Counter.GetCount()).ToNot(BeZero())
 			Expect(cfg.Counter.GetCount()).To(Equal(uint64(1)))
 		})
-
 	})
 
 	Describe("when converting to Nodes", func() {
-
 		Context("for the dsc", func() {
 			dsc := new(Cdsc)
 			err := parseUtil(dsc, "ead.1.xml")
@@ -63,7 +60,7 @@ var _ = Describe("Ead", func() {
 				Expect(seen).To(Equal(uint64(1)))
 				Expect(err).ToNot(HaveOccurred())
 				Expect(nl.Type).To(Equal("combined"))
-				//Expect(nl.Nodes).ToNot(HaveLen(1))
+				// Expect(nl.Nodes).ToNot(HaveLen(1))
 				Expect(nl.Label).To(HaveLen(1))
 				Expect(dsc.Chead[0].Head).To(HavePrefix("Beschrijving"))
 				Expect(nl.Label[0]).To(HavePrefix("Beschrijving"))
@@ -119,7 +116,7 @@ var _ = Describe("Ead", func() {
 
 			It("should have a type", func() {
 				Expect(cc.GetAttrlevel()).To(Equal("series"))
-				//Expect(node.Type).To(Equal("series"))
+				// Expect(node.Type).To(Equal("series"))
 			})
 
 			It("should have a subType", func() {
@@ -148,7 +145,6 @@ var _ = Describe("Ead", func() {
 			It("should not have date as label", func() {
 				Expect(header.DateAsLabel).To(BeFalse())
 			})
-
 		})
 
 		Context("for the date did", func() {
@@ -202,7 +198,6 @@ var _ = Describe("Ead", func() {
 			})
 
 			Context("when extracting a NodeDate", func() {
-
 				unitDate := did.Cunitdate[0]
 				nDate, err := unitDate.NewNodeDate()
 
@@ -226,11 +221,9 @@ var _ = Describe("Ead", func() {
 				It("should have the date as string", func() {
 					Expect(nDate.Label).To(Equal(unitDate.Unitdate))
 				})
-
 			})
 
 			Context("when extracting a handle unitID", func() {
-
 				unitID := did.Cunitid[1]
 				id, err := unitID.NewNodeID()
 
@@ -247,11 +240,9 @@ var _ = Describe("Ead", func() {
 				It("should have an audience", func() {
 					Expect(id.Audience).To(Equal(unitID.Attraudience))
 				})
-
 			})
 
 			Context("when extracting from an ABS unitID", func() {
-
 				unitID := did.Cunitid[0]
 				id, err := unitID.NewNodeID()
 
@@ -278,7 +269,7 @@ var _ = Describe("Ead", func() {
 			})
 
 			Context("when extracting nodeIDs from various types", func() {
-				var createUnitIDs = func(id string, nodeType string) []*Cunitid {
+				createUnitIDs := func(id string, nodeType string) []*Cunitid {
 					var cus []*Cunitid
 					cu := &Cunitid{
 						Unitid:   id,
@@ -331,7 +322,6 @@ var _ = Describe("Ead", func() {
 					})
 				}
 			})
-
 		})
 
 		Context("for the p in the dsc", func() {
@@ -392,23 +382,21 @@ var _ = Describe("Ead", func() {
 				Expect(oddString).To(Equal(`<p><ref actuate="onrequest" linktype="simple" show="new" target="">https://www.nationaalarchief.nl/onderzoeken/index/nt00446</ref><ref actuate="onrequest" linktype="simple" show="new" target="">https://www.nationaalarchief.nl/onderzoeken/index/nt00447</ref></p>`))
 			})
 		})
-
 	})
 
 	Context("when being load from file", func() {
-
 		It("should create an EAD object", func() {
 			path, err := filepath.Abs("./testdata/ead/NL-HaNA_2.08.22.ead.xml")
-			//Expect(err).ToNot(HaveOccurred())
-			//rawEAD, err := ioutil.ReadFile(path)
+			// Expect(err).ToNot(HaveOccurred())
+			// rawEAD, err := ioutil.ReadFile(path)
 			Expect(err).ToNot(HaveOccurred())
-			//Expect(rawEAD).ToNot(BeNil())
+			// Expect(rawEAD).ToNot(BeNil())
 			ead, err := ReadEAD(path)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ead).ToNot(BeNil())
 			fmt.Printf("%#v\n", ead.Ceadheader.Ceadid.EadID)
-			//fmt.Printf("%s\n", ead.String())
-			//fmt.Printf("%s\n", ead.ToXML())
+			// fmt.Printf("%s\n", ead.String())
+			// fmt.Printf("%s\n", ead.ToXML())
 		})
 
 		//It("should read all the files in a directory", func() {
@@ -456,10 +444,8 @@ var _ = Describe("Ead", func() {
 
 			_, err = fmt.Fprint(f, b)
 			Expect(err).ToNot(HaveOccurred())
-
 		})
 	})
-
 })
 
 func parseUtil(node interface{}, fName string) error {

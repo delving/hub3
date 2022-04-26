@@ -26,11 +26,9 @@ import (
 )
 
 var _ = Describe("Resource", func() {
-
 	Describe("when creating a resource map", func() {
-
 		It("return an empty map when the graph is empty", func() {
-			rm, err := NewResourceMap(r.NewGraph(""))
+			rm, err := NewResourceMap(testOrgID, r.NewGraph(""))
 			Expect(err).To(HaveOccurred())
 			Expect(rm.Resources()).To(BeEmpty())
 		})
@@ -39,7 +37,7 @@ var _ = Describe("Resource", func() {
 			fb, err := testDataGraph(false)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb).ToNot(BeNil())
-			rm, err := NewResourceMap(fb.Graph)
+			rm, err := NewResourceMap(testOrgID, fb.Graph)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(rm).ToNot(BeNil())
 			rs := rm.Resources()
@@ -52,7 +50,7 @@ var _ = Describe("Resource", func() {
 			fb, err := testDataGraph(false)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb).ToNot(BeNil())
-			rm, err := NewResourceMap(fb.Graph)
+			rm, err := NewResourceMap(testOrgID, fb.Graph)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(rm.Resources()).ToNot(BeEmpty())
 
@@ -70,9 +68,8 @@ var _ = Describe("Resource", func() {
 	})
 
 	Describe("when appending a triple", func() {
-
 		It("should add the subject to the resource map", func() {
-			rm := NewEmptyResourceMap()
+			rm := NewEmptyResourceMap(testOrgID)
 			Expect(rm.Resources()).To(BeEmpty())
 			t := r.NewTriple(
 				NSRef("1"),
@@ -89,7 +86,7 @@ var _ = Describe("Resource", func() {
 		})
 
 		It("should add the subject only once", func() {
-			rm := NewEmptyResourceMap()
+			rm := NewEmptyResourceMap(testOrgID)
 			Expect(rm.Resources()).To(BeEmpty())
 			t := r.NewTriple(
 				NSRef("1"),
@@ -104,7 +101,7 @@ var _ = Describe("Resource", func() {
 		})
 
 		It("should add not add objectIDS for rdfType", func() {
-			rm := NewEmptyResourceMap()
+			rm := NewEmptyResourceMap(testOrgID)
 			Expect(rm.Resources()).To(BeEmpty())
 			subject := NSRef("1")
 			t := r.NewTriple(
@@ -121,7 +118,7 @@ var _ = Describe("Resource", func() {
 		})
 
 		It("should add objectIDS for resources", func() {
-			rm := NewEmptyResourceMap()
+			rm := NewEmptyResourceMap(testOrgID)
 			Expect(rm.Resources()).To(BeEmpty())
 			subject := NSRef("1")
 			t := r.NewTriple(
@@ -139,11 +136,9 @@ var _ = Describe("Resource", func() {
 			Expect(ok).To(BeTrue())
 			Expect(entry.ObjectIDs()).To(HaveLen(1))
 		})
-
 	})
 
 	Describe("when creating a fragment entry", func() {
-
 		It("should return an ID for a resource", func() {
 			t := r.NewTriple(
 				NSRef("1"),
@@ -229,17 +224,16 @@ var _ = Describe("Resource", func() {
 	})
 
 	Describe("when creating FragmentReferrerContext", func() {
-
 		Context("and determining the level", func() {
 			fb, _ := testDataGraph(false)
-			rm, _ := NewResourceMap(fb.Graph)
+			rm, _ := NewResourceMap(testOrgID, fb.Graph)
 			subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 
 			It("should not have 0 as level", func() {
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fb).ToNot(BeNil())
-				rm, err := NewResourceMap(fb.Graph)
+				rm, err := NewResourceMap(testOrgID, fb.Graph)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rm.Resources()).ToNot(BeEmpty())
 
@@ -290,9 +284,7 @@ var _ = Describe("Resource", func() {
 	})
 
 	Describe("when creating a ResultSummary", func() {
-
 		Context("from a resource entry", func() {
-
 			It("should only set a field once", func() {
 				entry1 := &ResourceEntry{
 					Value: "test1",
@@ -316,15 +308,13 @@ var _ = Describe("Resource", func() {
 	})
 
 	Describe("when creating a Header", func() {
-
 		fb, _ := testDataGraph(false)
-		//rm, _ := NewResourceMap(fb.Graph)
-		//subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
+		// rm, _ := NewResourceMap(fb.Graph)
+		// subject := "http://data.jck.nl/resource/aggregation/jhm-foto/F900893"
 
 		Context("from a FragmentGraph", func() {
-
-			//skosConcept, _ := rm.GetResource("http://data.jck.nl/resource/skos/thesau/90000072")
-			//entry := skosConcept.Predicates["http://www.w3.org/2004/02/skos/core#prefLabel"]
+			// skosConcept, _ := rm.GetResource("http://data.jck.nl/resource/skos/thesau/90000072")
+			// entry := skosConcept.Predicates["http://www.w3.org/2004/02/skos/core#prefLabel"]
 			header := fb.FragmentGraph().CreateHeader("fragment")
 
 			It("should set the OrgID", func() {
@@ -350,18 +340,15 @@ var _ = Describe("Resource", func() {
 			It("should have a docType", func() {
 				Expect(header.GetDocType()).To(Equal("fragment"))
 			})
-
 		})
 
 		Context("and adding Tags", func() {
-
 			It("should only add a tag", func() {
 				header := fb.FragmentGraph().CreateHeader("")
 				Expect(header.Tags).To(BeEmpty())
 				header.AddTags("tag1")
 				Expect(header.Tags).ToNot(BeEmpty())
 				Expect(header.Tags).To(HaveLen(1))
-
 			})
 
 			It("should not add a tag twice", func() {
@@ -371,13 +358,9 @@ var _ = Describe("Resource", func() {
 				header.AddTags("tag1")
 				Expect(header.Tags).ToNot(BeEmpty())
 				Expect(header.Tags).To(HaveLen(2))
-
 			})
-
 		})
-
 	})
-
 })
 
 func TestCreateDateRange(t *testing.T) {
@@ -390,7 +373,8 @@ func TestCreateDateRange(t *testing.T) {
 		want    IndexRange
 		wantErr bool
 	}{
-		{"simple year",
+		{
+			"simple year",
 			args{period: "1980"},
 			IndexRange{
 				Greater: "1980-01-01",
@@ -398,7 +382,8 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
-		{"/ period",
+		{
+			"/ period",
 			args{period: "1980/1985"},
 			IndexRange{
 				Greater: "1980-01-01",
@@ -406,7 +391,8 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
-		{"padded / period",
+		{
+			"padded / period",
 			args{period: "1980 / 1985"},
 			IndexRange{
 				Greater: "1980-01-01",
@@ -414,7 +400,8 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
-		{"full year period",
+		{
+			"full year period",
 			args{period: "1793-05-13/1794-01-11"},
 			IndexRange{
 				Greater: "1793-05-13",
@@ -422,7 +409,8 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
-		{"mixed years",
+		{
+			"mixed years",
 			args{period: "1793-05/1794"},
 			IndexRange{
 				Greater: "1793-05-01",
@@ -430,7 +418,8 @@ func TestCreateDateRange(t *testing.T) {
 			},
 			false,
 		},
-		{"feb year",
+		{
+			"feb year",
 			args{period: "1778/1781-02"},
 			IndexRange{
 				Greater: "1778-01-01",

@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/service/organization/organizationtests"
 	"github.com/matryer/is"
 	"github.com/nats-io/stan.go"
 )
@@ -54,6 +55,7 @@ func (s *indexSuite) TestProducer_Publish() {
 
 	svc, err := NewService(
 		SetNatsConfiguration(cfg),
+		SetOrganisationService(organizationtests.NewTestOrganizationService()),
 	)
 	is.NoErr(err)
 
@@ -66,6 +68,7 @@ func (s *indexSuite) TestProducer_Publish() {
 			OrganisationID: "demo",
 			DatasetID:      "spec",
 			RecordID:       strconv.Itoa(i),
+			IndexType:      domainpb.IndexType_V2,
 			Revision: &domainpb.Revision{
 				SHA:  "",
 				Path: "",

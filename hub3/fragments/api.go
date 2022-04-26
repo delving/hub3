@@ -145,6 +145,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 	tree := &TreeQuery{
 		PageSize: 250,
+		OrgID:    orgID,
 	}
 
 	sr := DefaultSearchRequest(&c.Config)
@@ -1209,7 +1210,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	s := ec.Search().
-		Index(c.Config.ElasticSearch.GetIndexName()).
+		Index(c.Config.ElasticSearch.GetIndexName(sr.OrgID)).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Preference(sr.GetSessionID()).
 		Size(int(sr.GetResponseSize()))

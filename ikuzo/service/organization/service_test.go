@@ -22,7 +22,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/storage/memory"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/matryer/is"
 )
 

@@ -23,6 +23,16 @@ enum ActionType {
     DELETE_RECORD = 2;
 }
 
+
+// IndexType describes the supported index mapping types
+enum IndexType {
+    V2 = 0;
+    V1 = 1;
+    FRAGMENTS = 2;
+    DIGITAL_OBJECTS = 3;
+    SUGGEST = 4;
+}
+
 // IndexMessage is used to queue messages for indexing by ElasticSearch.
 message IndexMessage {
     string OrganisationID = 1;
@@ -33,6 +43,7 @@ message IndexMessage {
     Revision Revision = 6;
     bytes Source = 7;
     ActionType ActionType = 8;
+    IndexType IndexType = 9;
 }
 
 // Version of the record in the time-revision-store.

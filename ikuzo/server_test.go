@@ -260,6 +260,7 @@ func Test_server_ListenAndServe(t *testing.T) {
 		return
 	}
 }
+
 func Test_server_ListenAndServeTLSMetrics(t *testing.T) {
 	is := is.New(t)
 
@@ -434,81 +435,4 @@ func TestServer_tlsMode(t *testing.T) {
 	w := httptest.NewRecorder()
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
-}
-
-func TestServer_proxyDataNode(t *testing.T) {
-	ism := is.New(t)
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ism.Equal(r.URL.String(), "/hello")
-		fmt.Fprintln(w, "Hello, client")
-	}))
-	defer ts.Close()
-
-	// subtests
-	t.Run("dataNodeProxy configured", func(t *testing.T) {
-		is := is.New(t)
-
-		req, err := http.NewRequest("GET", "/hello", nil)
-		is.NoErr(err)
-
-		svr, err := newServer(
-			SetDataNodeProxy(ts.URL, []ProxyRoute{
-				{Method: "GET", Pattern: "/hello"},
-				{Method: "PUT", Pattern: "/hello"},
-				{Method: "DELETE", Pattern: "/hello"},
-				{Method: "POST", Pattern: "/hello"},
-			}...,
-			),
-			SetMetricsPort(6060),
-		)
-		is.NoErr(err)
-
-		w := httptest.NewRecorder()
-		svr.ServeHTTP(w, req)
-		is.Equal(w.Code, http.StatusOK)
-	})
-
-	t.Run("no dataNodeProxy configured", func(t *testing.T) {
-		is := is.New(t)
-		req, err := http.NewRequest("GET", "/hello", nil)
-		is.NoErr(err)
-
-		var buf bytes.Buffer
-
-		l := logger.NewLogger(
-			logger.Config{Output: &buf},
-		)
-
-		svr, err := newServer(
-			SetLogger(&l),
-		)
-		is.NoErr(err)
-
-		svr.router.Get("/hello", svr.proxyDataNode)
-
-		w := httptest.NewRecorder()
-		svr.ServeHTTP(w, req)
-		is.Equal(w.Code, http.StatusInternalServerError)
-		is.Equal(w.Body.String(), "dataNode proxy is not configured\n")
-	})
-
-	t.Run("proxied url not found", func(t *testing.T) {
-		is := is.New(t)
-
-		req, err := http.NewRequest("GET", "/hello", nil)
-		is.NoErr(err)
-
-		svr, err := newServer(
-			SetDataNodeProxy(ts.URL, ProxyRoute{
-				Method:  "GET",
-				Pattern: "/hello2",
-			}),
-		)
-		is.NoErr(err)
-
-		w := httptest.NewRecorder()
-		svr.ServeHTTP(w, req)
-		is.Equal(w.Code, http.StatusNotFound)
-	})
 }

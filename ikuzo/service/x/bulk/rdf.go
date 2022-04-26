@@ -115,26 +115,19 @@ func (s *Service) HandleRDF(w http.ResponseWriter, r *http.Request) {
 
 		log.Printf("Start saving fragments.")
 
-		//processed, err := upl.IndexFragments(bp)
-		//if err != nil {
-		//log.Printf("Can't save fragments: %v", err)
-		//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//return
-		//}
-		//log.Printf("Saved %d fragments for %s", processed, upl.Spec)
-
-		processed, err := upl.SaveFragmentGraphs(s.index)
+		processed, err := upl.IndexFragments(s.index)
 		if err != nil {
-			log.Printf("Can't save records: %v", err)
+			log.Printf("Can't save fragments: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		log.Printf("Saved %d records for %s", processed, upl.Spec)
+		log.Printf("Saved %d fragments for %s", processed, upl.Spec)
 
 		m := &domainpb.IndexMessage{
 			OrganisationID: orgID.String(),
 			DatasetID:      form.Spec,
 			Revision:       &domainpb.Revision{Number: upl.Revision},
+			IndexType:      domainpb.IndexType_FRAGMENTS,
 			ActionType:     domainpb.ActionType_DROP_ORPHANS,
 		}
 

@@ -19,7 +19,6 @@ import (
 	fmt "fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"text/template"
 )
@@ -57,7 +56,6 @@ func init() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }
 
 // HyperMediaDataSet holds all the configuration information to generate the
@@ -76,20 +74,20 @@ type HyperMediaDataSet struct {
 // NewHyperMediaDataSet creates the basis to generate triple-pattern-fragment controls
 func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest) *HyperMediaDataSet {
 	url := r.URL
-	currentPage := url.Query().Get("page")
 	if url.Scheme == "" {
 		url.Scheme = "http"
 		if r.TLS != nil {
 			url.Scheme = "https"
 		}
 	}
-	if url.Host == "" {
-		url.Host = "localhost:3000"
+	if r.Host == "" {
+		r.Host = "localhost:3000"
 	}
 
-	regString := fmt.Sprintf("[?|&]page=%s", currentPage)
-	var re = regexp.MustCompile(regString)
-	basePage := re.ReplaceAllString(url.String(), "")
+	// regString := fmt.Sprintf("[?|&]page=%s", currentPage)
+	// re := regexp.MustCompile(regString)
+	// basePage := re.ReplaceAllString(url.String(), "")
+	basePage := fmt.Sprintf("%s://%s%s", url.Scheme, r.Host, url.EscapedPath())
 	pageNumber := fr.GetPage()
 	nextPage := pageNumber + int32(1)
 	previousPage := pageNumber - int32(1)
@@ -99,8 +97,8 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 	}
 
 	return &HyperMediaDataSet{
-		DataSetURI:   fmt.Sprintf("%s://%s%s", url.Scheme, url.Host, url.EscapedPath()),
-		PagerURI:     url.String(),
+		PagerURI:     basePage + "?" + r.URL.RawQuery,
+		DataSetURI:   basePage,
 		TotalItems:   totalHits,
 		FirstPage:    fmt.Sprintf("%s%spage=1", basePage, sep),
 		NextPage:     fmt.Sprintf("%s%spage=%d", basePage, sep, nextPage),

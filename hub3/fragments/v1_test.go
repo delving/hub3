@@ -19,12 +19,11 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	c "github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
-
-	"os"
 
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
@@ -32,12 +31,13 @@ import (
 )
 
 func getTestGraph() (*r.Graph, error) {
-
 	turtle, err := os.Open("testdata/test2.ttl")
 	if err != nil {
 		return &r.Graph{}, err
 	}
+
 	g, err := NewGraphFromTurtle(turtle)
+
 	return g, err
 }
 
@@ -51,13 +51,10 @@ func renderJSONLD(g *r.Graph) (string, error) {
 }
 
 var _ = Describe("V1", func() {
-
 	c.InitConfig()
 
 	Describe("Should be able to parse RDF", func() {
-
 		Context("When given RDF as an io.Reader", func() {
-
 			It("Should create a graph", func() {
 				turtle, err := os.Open("testdata/test2.ttl")
 				Expect(err).ToNot(HaveOccurred())
@@ -75,13 +72,11 @@ var _ = Describe("V1", func() {
 				Expect(g.Len()).To(Equal(0))
 			})
 		})
-
 	})
 
 	Describe("indexDoc", func() {
-
 		Context("when created from an RDF graph", func() {
-			//g, err := getTestGraph()
+			// g, err := getTestGraph()
 
 			It("should have a valid graph", func() {
 				fb, err := testDataGraph(false)
@@ -167,11 +162,10 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				wr := fb.GetSortedWebResources(context.Background())
 				Expect(wr).ToNot(BeEmpty())
-				triples := fb.SortedGraph.ByPredicate(GetEDMField("hasView"))
+				triples := fb.ByPredicate(GetEDMField("hasView"))
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(3))
-				//fmt.Printf("%#v\n", triples[0].String())
-				triples = fb.SortedGraph.ByPredicate(GetEDMField("isShownBy"))
+				triples = fb.ByPredicate(GetEDMField("isShownBy"))
 				Expect(triples).ToNot(BeNil())
 				Expect(triples).To(HaveLen(1))
 				triple := triples[0]
@@ -184,7 +178,6 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				graphLength := fb.Graph.Len()
 				Expect(graphLength).To(Equal(65))
-
 			})
 
 			It("should rerender blanknodes in cleaned up graph", func() {
@@ -192,24 +185,23 @@ var _ = Describe("V1", func() {
 				Expect(err).ToNot(HaveOccurred())
 				graphLength := fb.Graph.Len()
 				Expect(graphLength).To(Equal(65))
-				//json, err := renderJSONLD(fb.Graph)
-				//Expect(err).ToNot(HaveOccurred())
-				//fmt.Println(json)
+				// json, err := renderJSONLD(fb.Graph)
+				// Expect(err).ToNot(HaveOccurred())
+				// fmt.Println(json)
 
 				wr := fb.GetSortedWebResources(context.Background())
 				Expect(wr).ToNot(BeEmpty())
-				//Expect(fb.Graph.Len()).To(Equal(70))
+				// Expect(fb.Graph.Len()).To(Equal(70))
 
 				// have brabantcloud resource
 				bType := r.NewResource("http://schemas.delving.eu/nave/terms/BrabantCloudResource")
 				tRaw := fb.Graph.One(nil, nil, bType)
 				Expect(tRaw).ToNot(BeNil())
-				//fmt.Printf("raw resource: %#v", tRaw.String())
+				// fmt.Printf("raw resource: %#v", tRaw.String())
 
-				//json, err = renderJSONLD(fb.Graph)
-				//Expect(err).ToNot(HaveOccurred())
-				//fmt.Println(json)
-
+				// json, err = renderJSONLD(fb.Graph)
+				// Expect(err).ToNot(HaveOccurred())
+				// fmt.Println(json)
 			})
 
 			It("should produce valid json-ld", func() {
@@ -221,7 +213,7 @@ var _ = Describe("V1", func() {
 				json, err := renderJSONLD(g)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(json).ToNot(BeEmpty())
-				//fmt.Printf("jsonld_1: %s\n", json)
+				// fmt.Printf("jsonld_1: %s\n", json)
 
 				fb, err := testDataGraph(false)
 				Expect(err).ToNot(HaveOccurred())
@@ -230,9 +222,8 @@ var _ = Describe("V1", func() {
 				json, err = renderJSONLD(fb.Graph)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(json).ToNot(BeEmpty())
-				//fmt.Printf("jsonld_2: %s\n", json)
+				// fmt.Printf("jsonld_2: %s\n", json)
 				// todo add diff between two versions of the json
-
 			})
 
 			//It("should cleanup the dates", func() {
@@ -249,13 +240,10 @@ var _ = Describe("V1", func() {
 			//tRaw := fb.Graph.One(nil, createdRaw, nil)
 			//Expect(tRaw).ToNot(BeNil())
 			//})
-
 		})
-
 	})
 
 	Context("when creating an IndexEntry from a blank node", func() {
-
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 		t := r.NewTriple(
 			r.NewResource("urn:1"),
@@ -274,11 +262,9 @@ var _ = Describe("V1", func() {
 			Expect(ie.Value).To(Equal("0"))
 			Expect(ie.Raw).To(Equal("0"))
 		})
-
 	})
 
 	Context("when creating an IndexEntry from a resource", func() {
-
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 		t := r.NewTriple(
 			r.NewResource("urn:1"),
@@ -300,7 +286,6 @@ var _ = Describe("V1", func() {
 		})
 
 		It("should add label when a resource object has a skos:prefLabel", func() {
-
 			t := r.NewTriple(
 				r.NewResource("urn:1"),
 				r.NewResource(dcSubject),
@@ -313,19 +298,16 @@ var _ = Describe("V1", func() {
 			Expect(ie.ID).To(Equal("http://data.jck.nl/resource/skos/thesau/90073896"))
 			Expect(ie.Value).To(Equal("begraafplaats"))
 			Expect(ie.Raw).To(Equal("begraafplaats"))
-
 		})
-
 	})
 
 	Context("when creating a context inline map", func() {
-
 		fb, err := testDataGraph(false)
 
 		It("should extract all prefLabels", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb.Graph).ToNot(BeNil())
-			//Expect(fb.ResourceLabels).To(BeEmpty())
+			// Expect(fb.ResourceLabels).To(BeEmpty())
 			err := fb.SetResourceLabels()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(fb.ResourceLabels).ToNot(BeEmpty())
@@ -354,11 +336,9 @@ var _ = Describe("V1", func() {
 			Expect(label).To(BeEmpty())
 			Expect(ok).To(BeFalse())
 		})
-
 	})
 
 	Context("when creating an IndexEntry from a literal", func() {
-
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 
 		t := r.NewTriple(
@@ -410,5 +390,4 @@ var _ = Describe("V1", func() {
 			Expect(ie.Language).To(Equal("nl"))
 		})
 	})
-
 })

@@ -16,22 +16,45 @@ package handlers
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
 func RegisterSparql(r chi.Router) {
-
 	r.Get("/sparql", sparqlProxy)
 	r.Post("/sparql", sparqlProxy)
+}
 
+var limitExp = regexp.MustCompile(`(?im)\slimit\s*(\d*)`)
+
+func ensureSparqlLimit(query string) (string, error) {
+	matches := limitExp.FindAllStringSubmatch(query, -1)
+	if len(matches) == 0 || matches == nil {
+		return fmt.Sprintf("%s LIMIT 25", query), nil
+	}
+
+	for _, m := range matches {
+		number, err := strconv.ParseInt(m[1], 10, 0)
+		if err != nil {
+			return "", fmt.Errorf("limit attribute %q is not a valid number", m[1])
+		}
+
+		if number > 1000 {
+			return "", fmt.Errorf("sparql limit is not allowed to be greater than 1000")
+		}
+	}
+
+	return query, nil
 }
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
@@ -40,8 +63,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
 		return
 	}
+
 	var query string
-	log.Print(r.Method)
+
 	switch r.Method {
 	case http.MethodGet:
 		query = r.URL.Query().Get("query")
@@ -54,11 +78,16 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, &ErrorMessage{"Bad Request", "a value in the query param is required."})
 		return
 	}
-	if !strings.Contains(strings.ToLower(query), "limit ") {
-		query = fmt.Sprintf("%s LIMIT 25", query)
+
+	query, err := ensureSparqlLimit(query)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
-	log.Println(query)
-	resp, statusCode, contentType, err := runSparqlQuery(query)
+
+	// log.Println(query)
+	orgID := domain.GetOrganizationID(r)
+	resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query)
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.PlainText(w, r, string(resp))
@@ -67,7 +96,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", contentType)
 	_, err = w.Write(resp)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("%v", err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	render.Status(r, statusCode)
@@ -75,9 +104,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 }
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
-func runSparqlQuery(query string) (body []byte, statusCode int, contentType string, err error) {
+func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentType string, err error) {
 	log.Printf("Sparql Query: %s", query)
-	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(""), nil)
+	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(orgID, ""), http.NoBody)
 	if err != nil {
 		log.Printf("Unable to create sparql request %s", err)
 	}
@@ -86,7 +115,7 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 	q.Add("query", query)
 	req.URL.RawQuery = q.Encode()
 
-	var netClient = &http.Client{
+	netClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
 	resp, err := netClient.Do(req)
@@ -99,12 +128,13 @@ func runSparqlQuery(query string) (body []byte, statusCode int, contentType stri
 		return
 	}
 	defer resp.Body.Close()
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("Unable to read the response body with error: %s", err)
 		return
 	}
 	statusCode = resp.StatusCode
 	contentType = resp.Header.Get("Content-Type")
-	return
+
+	return body, statusCode, contentType, err
 }

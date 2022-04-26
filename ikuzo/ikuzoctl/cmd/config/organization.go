@@ -1,13 +1,11 @@
 package config
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/delving/hub3/ikuzo"
-	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/storage/memory"
+	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
 
 type Organization struct {
@@ -39,29 +37,12 @@ func (cfg *Config) getOrganisationService(storeType string) (*organization.Servi
 	store := memory.NewOrganizationStore()
 
 	svc, err := organization.NewService(store)
+	if err != nil {
+		return nil, fmt.Errorf("unable to configure organization service; %w", err)
+	}
 
-	for id, orgCfg := range cfg.Org {
-		if err != nil {
-			return nil, fmt.Errorf("unable to configure organization.Service: %w", err)
-		}
-
-		if orgCfg.CustomID != "" {
-			id = orgCfg.CustomID
-		}
-
-		orgID, err := domain.NewOrganizationID(id)
-		if err != nil {
-			return nil, fmt.Errorf("unable to create domain.OrganizationID %s; %w", id, err)
-		}
-
-		org := domain.Organization{
-			Config: orgCfg,
-			ID:     orgID,
-		}
-
-		if err := svc.Put(context.TODO(), &org); err != nil {
-			return nil, fmt.Errorf("unable to store Organization; %w", err)
-		}
+	if err := svc.AddOrgs(cfg.Org); err != nil {
+		return nil, err
 	}
 
 	return svc, nil

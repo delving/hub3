@@ -128,45 +128,47 @@ func init() {
 	queryBank = sparql.LoadBank(f)
 }
 
-func SparqlRepo() *sparql.Repo {
+func SparqlRepo(orgID string) *sparql.Repo {
 	if sparqlRepo == nil {
-		sparqlRepo = buildRepo(config.Config.GetSparqlEndpoint(""))
+		sparqlRepo = buildRepo(orgID, config.Config.GetSparqlEndpoint(orgID, ""))
 	}
 
 	return sparqlRepo
 }
 
-func SparqlUpdateRepo() *sparql.Repo {
+func SparqlUpdateRepo(orgID string) *sparql.Repo {
 	if sparqlUpdateRepo == nil {
-		sparqlUpdateRepo = buildRepo(config.Config.GetSparqlUpdateEndpoint(""))
+		sparqlUpdateRepo = buildRepo(orgID, config.Config.GetSparqlUpdateEndpoint(orgID, ""))
 	}
 
 	return sparqlUpdateRepo
 }
 
 // buildRepo builds the query repository
-func buildRepo(endPoint string) *sparql.Repo {
+func buildRepo(orgID, endPoint string) *sparql.Repo {
 	if endPoint == "" {
-		endPoint = config.Config.GetSparqlEndpoint("")
+		endPoint = config.Config.GetSparqlEndpoint(orgID, "")
 	}
+
 	repo, err := sparql.NewRepo(endPoint,
 		sparql.Timeout(time.Millisecond*1500),
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return repo
 }
 
 // DeleteAllGraphsBySpec issues an SPARQL Update query to delete all graphs for a DataSet from the triple store
-func DeleteAllGraphsBySpec(spec string) (bool, error) {
+func DeleteAllGraphsBySpec(orgID, spec string) (bool, error) {
 	query, err := queryBank.Prepare("deleteAllGraphsBySpec", struct{ Spec string }{spec})
 	if err != nil {
 		log.Printf("Unable to build deleteAllGraphsBySpec query: %s", err)
 		return false, err
 	}
 
-	errs := fragments.UpdateViaSparql(query)
+	errs := fragments.UpdateViaSparql(orgID, query)
 	if errs != nil {
 		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
@@ -177,7 +179,7 @@ func DeleteAllGraphsBySpec(spec string) (bool, error) {
 
 // DeleteGraphsOrphansBySpec issues an SPARQL Update query to delete all orphaned graphs
 // for a DataSet from the triple store.
-func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
+func DeleteGraphsOrphansBySpec(orgID, spec string, revision int) (bool, error) {
 	query, err := queryBank.Prepare("deleteOrphanGraphsBySpec", struct {
 		Spec           string
 		RevisionNumber int
@@ -187,7 +189,7 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 		return false, err
 	}
 
-	errs := fragments.UpdateViaSparql(query)
+	errs := fragments.UpdateViaSparql(orgID, query)
 	if errs != nil {
 		logUnableToQueryEndpoint(errs)
 		return false, errs[0]
@@ -195,21 +197,21 @@ func DeleteGraphsOrphansBySpec(spec string, revision int) (bool, error) {
 	return true, nil
 }
 
-//CountRevisionsBySpec counts each revision available in the spec
-func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
+// CountRevisionsBySpec counts each revision available in the spec
+func CountRevisionsBySpec(orgID, spec string) ([]DataSetRevisions, error) {
 	query, err := queryBank.Prepare("countRevisionsBySpec", struct{ Spec string }{spec})
 	revisions := []DataSetRevisions{}
 	if err != nil {
 		log.Printf("Unable to build countRevisionsBySpec query: %s", err)
 		return revisions, err
 	}
-	//fmt.Printf("%#v", query)
-	res, err := SparqlRepo().Query(query)
+	// fmt.Printf("%#v", query)
+	res, err := SparqlRepo(orgID).Query(query)
 	if err != nil {
 		logUnableToQueryEndpoint([]error{err})
 		return revisions, err
 	}
-	//fmt.Printf("%#v", res.Solutions())
+	// fmt.Printf("%#v", res.Solutions())
 	for _, v := range res.Solutions() {
 		revisionTerm, ok := v["revision"]
 		if !ok {
@@ -234,14 +236,14 @@ func CountRevisionsBySpec(spec string) ([]DataSetRevisions, error) {
 }
 
 // CountGraphsBySpec counts all the named graphs for a spec
-func CountGraphsBySpec(spec string) (int, error) {
+func CountGraphsBySpec(orgID, spec string) (int, error) {
 	query, err := queryBank.Prepare("countGraphPerSpec", struct{ Spec string }{spec})
 	if err != nil {
 		log.Printf("Unable to build CountGraphsBySpec query: %s", err)
 		return 0, err
 	}
 
-	res, err := SparqlRepo().Query(query)
+	res, err := SparqlRepo(orgID).Query(query)
 	if err != nil {
 		logUnableToQueryEndpoint([]error{err})
 		return 0, err
@@ -273,8 +275,8 @@ func PrepareAsk(uri string) (string, error) {
 }
 
 // AskSPARQL performs a SPARQL ASK query
-func AskSPARQL(query string) (bool, error) {
-	res, err := SparqlRepo().Query(query)
+func AskSPARQL(orgID, query string) (bool, error) {
+	res, err := SparqlRepo(orgID).Query(query)
 	if err != nil {
 		return false, err
 	}
