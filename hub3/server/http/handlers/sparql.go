@@ -109,6 +109,7 @@ func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentT
 	netClient := &http.Client{
 		Timeout: time.Second * 10,
 	}
+
 	resp, err := netClient.Do(req)
 	if err != nil {
 		log.Printf("Error in sparql query: %s", err)
@@ -132,8 +133,7 @@ func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentT
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
 func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentType string, err error) {
-	log.Printf("Sparql Query: %s", query)
-	req, err := http.NewRequest("Get", c.Config.GetSparqlEndpoint(orgID, ""), http.NoBody)
+	req, err := http.NewRequest("POST", c.Config.GetSparqlEndpoint(orgID, ""), http.NoBody)
 	if err != nil {
 		log.Printf("Unable to create sparql request %s", err)
 		return
