@@ -403,6 +403,7 @@ func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 		InventoryPath:  tree.CLevel,
 		InventoryTitle: tree.Label,
 		UUID:           getUUID(tree.DaoLink),
+		PeriodDesc:     cfg.PeriodDesc,
 		Link:           tree.DaoLink,
 		FileUUIDs:      make([]string, 0),
 		Filenames:      make([]string, 0),

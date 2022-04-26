@@ -295,7 +295,3 @@ func (n *Node) Triples(cfg *NodeConfig) []*r.Triple {
 
 	return triples
 }
-
-func (n *Node) AppendTriple(triple *r.Triple) {
-	n.triples = append(n.triples, triple)
-}
