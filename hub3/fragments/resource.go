@@ -389,17 +389,6 @@ func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	}, nil
 }
 
-func (fg *FragmentGraph) ResourceMap() *ResourceMap {
-	rm := NewEmptyResourceMap()
-	for _, fr := range fg.Resources {
-		if fr.predicates == nil {
-			fr.predicates = make(map[string][]*FragmentEntry)
-		}
-		rm.AddResource(fr)
-	}
-	return rm
-}
-
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
 type ResourceEntryHighlight struct {
 	SearchLabel string   `json:"searchLabel"`
@@ -1452,12 +1441,6 @@ func (rm *ResourceMap) Resources() map[string]*FragmentResource {
 func (rm *ResourceMap) GetResource(subject string) (*FragmentResource, bool) {
 	fr, ok := rm.resources[subject]
 	return fr, ok
-}
-
-// AddResource adds a FragmentResource to a ResourceMap. If the subject
-// already exists, the existing FragmentResource is overwritten!
-func (rm *ResourceMap) AddResource(fr *FragmentResource) {
-	rm.resources[fr.ID] = fr
 }
 
 // GetLevel returns the relative level that this resource has from the root
