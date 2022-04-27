@@ -9,6 +9,7 @@
 - hub3: added dedicated esproxy service. [10f521cf](https://github.com/delving/hub3/commit/10f521cf)
 - hub3: added sitemap package [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be)
 - hub3: initial version of postgresql service. [41309cb0](https://github.com/delving/hub3/commit/41309cb0)
+- added graph-store protocol endpoint for uploading RDF ontologies  [[GH_149]](https://github.com/delving/hub3/pull/149)
 
 ### Changed
 
