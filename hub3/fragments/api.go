@@ -52,7 +52,12 @@ const (
 )
 
 func logConvErr(p string, v []string, err error) {
-	log.Printf("unable to convert %v to int for %s; %+v", v, p, err)
+	sanitized := []string{}
+	for _, p := range v {
+		sanitized = append(sanitized, strings.ReplaceAll(p, "\n|\r", ""))
+	}
+
+	log.Printf("unable to convert %v to int for %s; %+v", sanitized, p, err)
 }
 
 // DefaultSearchRequest takes an Config Objects and sets the defaults
@@ -136,7 +141,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		sr.Paging = true
 
 		if err != nil {
-			log.Printf("Unable to parse search request from scrollID: %s", hexRequest)
+			log.Printf("Unable to parse search request from scrollID: %q", hexRequest)
 			return nil, err
 		}
 
@@ -240,7 +245,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.FacetField = append(sr.FacetField, facet)
 			}
 		case "facet.size", "facet.limit":
-			size, err := strconv.Atoi(params.Get(p))
+			size, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, []string{params.Get(p)}, err)
 				return sr, err
@@ -266,7 +271,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.ResponseFormatType = ResponseFormatType_BULKACTION
 			}
 		case "rows", "limit", "size":
-			size, err := strconv.Atoi(params.Get(p))
+			size, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, []string{params.Get(p)}, err)
 				return sr, err
@@ -296,13 +301,11 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		case "sortBy":
 			sr.SortBy = params.Get(p)
 		case "sortAsc":
-			switch params.Get(p) {
-			case "true":
+			if strings.EqualFold(params.Get(p), "true") {
 				sr.SortAsc = true
 			}
 		case "sortOrder":
-			switch params.Get(p) {
-			case "asc":
+			if strings.EqualFold(params.Get(p), "asc") {
 				sr.SortAsc = true
 			}
 		case "collapseFormat":
@@ -312,11 +315,12 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		case "collapseSort":
 			sr.CollapseSort = params.Get(p)
 		case "collapseSize":
-			size, err := strconv.Atoi(params.Get(p))
+			size, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
 				return sr, err
 			}
+
 			sr.CollapseSize = int32(size)
 		case "peek":
 			sr.Peek = params.Get(p)
@@ -374,7 +378,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		case "cursorHint":
 			sr.Tree = tree
 
-			hint, err := strconv.Atoi(params.Get(p))
+			hint, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
 				return sr, err
@@ -388,7 +392,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				continue
 			}
 
-			pageInt, err := strconv.Atoi(page)
+			pageInt, err := strconv.ParseInt(page, 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
 				return sr, err
@@ -402,7 +406,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			tree.Page = []int32{}
 
 			for _, page := range v {
-				hint, err := strconv.Atoi(page)
+				hint, err := strconv.ParseInt(page, 10, 32)
 				if err != nil {
 					logConvErr(p, v, err)
 					return sr, err
@@ -415,7 +419,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		case "pageSize":
 			sr.Tree = tree
 
-			hint, err := strconv.Atoi(params.Get(p))
+			hint, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
 				return sr, err
@@ -423,7 +427,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 			tree.PageSize = int32(hint)
 		case "start":
-			start, err := strconv.Atoi(params.Get(p))
+			start, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
 				return sr, err
@@ -435,6 +439,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			sortKey, _ := strconv.Atoi(parts[0])
 			cLevel := parts[1]
 			sa = append(sa, sortKey, cLevel)
+
 			sb, err := getInterfaceBytes(sa)
 			if err != nil {
 				log.Printf("unable to create bytes from interface %v", sa)
