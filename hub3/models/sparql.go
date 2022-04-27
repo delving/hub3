@@ -205,31 +205,31 @@ func CountRevisionsBySpec(orgID, spec string) ([]DataSetRevisions, error) {
 		log.Printf("Unable to build countRevisionsBySpec query: %s", err)
 		return revisions, err
 	}
-	// fmt.Printf("%#v", query)
+
 	res, err := SparqlRepo(orgID).Query(query)
 	if err != nil {
 		logUnableToQueryEndpoint([]error{err})
 		return revisions, err
 	}
-	// fmt.Printf("%#v", res.Solutions())
+
 	for _, v := range res.Solutions() {
 		revisionTerm, ok := v["revision"]
 		if !ok {
 			log.Printf("No revisions found for spec %s", spec)
 			return revisions, nil
 		}
-		revision, err := strconv.Atoi(revisionTerm.String())
+		revision, err := strconv.ParseInt(revisionTerm.String(), 10, 32)
 		if err != nil {
 			return revisions, fmt.Errorf("unable to convert %#v to integer", v["revision"])
 		}
-		revisionCount, err := strconv.Atoi(v["rCount"].String())
+		revisionCount, err := strconv.ParseInt(v["rCount"].String(), 10, 32)
 		if err != nil {
 			return revisions, fmt.Errorf("unable to convert %#v to integer", v["rCount"])
 		}
 
 		revisions = append(revisions, DataSetRevisions{
-			Number:      revision,
-			RecordCount: revisionCount,
+			Number:      int(revision),
+			RecordCount: int(revisionCount),
 		})
 	}
 	return revisions, nil

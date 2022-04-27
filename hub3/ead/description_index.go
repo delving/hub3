@@ -26,9 +26,7 @@ import (
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
 
-var (
-	ErrNoDescriptionIndex = errors.New("no index created for EAD description")
-)
+var ErrNoDescriptionIndex = errors.New("no index created for EAD description")
 
 const (
 	startHighlightTag    = "em"
@@ -167,5 +165,5 @@ func getDescriptionPath(spec string) string {
 }
 
 func GetDataPath(spec string) string {
-	return path.Join(config.Config.EAD.CacheDir, spec)
+	return path.Join(config.Config.EAD.CacheDir, path.Clean(spec))
 }

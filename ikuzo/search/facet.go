@@ -124,13 +124,13 @@ func newFacetField(field string) (*FacetField, error) {
 		field = parts[0]
 
 		if len(parts) == 2 && parts[1] != "" {
-			size, err := strconv.Atoi(parts[1])
+			size, err := strconv.ParseInt(parts[1], 10, 32)
 			if err != nil {
 				// not a valid integer returning an error
 				return nil, err
 			}
 
-			ff.Size = size
+			ff.Size = int(size)
 		}
 	}
 
