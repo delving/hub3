@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -28,6 +29,11 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+)
+
+var (
+	ErrSparqlNotEnabled     = errors.New("SPARQL endpoint is disabled")
+	ErrInvalidSparqlRequest = errors.New("unable to create SPARQL request")
 )
 
 func RegisterSparql(r chi.Router) {
@@ -62,8 +68,8 @@ func ensureSparqlLimit(query string) (string, error) {
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("sparql is disabled\n")
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		log.Printf("%s", ErrSparqlNotEnabled)
+		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
 		return
 	}
 
@@ -95,7 +101,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, string(resp))
 		return
 	}
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set(contentTypeKey, contentType)
 	_, err = w.Write(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -126,7 +132,7 @@ func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentT
 		return
 	}
 	statusCode = resp.StatusCode
-	contentType = resp.Header.Get("Content-Type")
+	contentType = resp.Header.Get(contentTypeKey)
 
 	return body, statusCode, contentType, err
 }
@@ -135,7 +141,7 @@ func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentT
 func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentType string, err error) {
 	req, err := http.NewRequest("POST", c.Config.GetSparqlEndpoint(orgID, ""), http.NoBody)
 	if err != nil {
-		log.Printf("Unable to create sparql request %s", err)
+		log.Printf("%s", fmt.Errorf("%s; %w ", ErrInvalidSparqlRequest, err))
 		return
 	}
 	req.Header.Set("Accept", "application/sparql-results+json")
@@ -148,8 +154,8 @@ func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentTy
 
 func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("sparql is disabled\n")
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		log.Printf("%s", ErrSparqlNotEnabled)
+		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
 		return
 	}
 
@@ -174,7 +180,7 @@ func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, string(resp))
 		return
 	}
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set(contentTypeKey, contentType)
 	_, err = w.Write(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -186,8 +192,8 @@ func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 
 func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("sparql is disabled\n")
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		log.Printf("%s", ErrSparqlNotEnabled)
+		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
 		return
 	}
 
@@ -219,7 +225,7 @@ func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, string(resp))
 		return
 	}
-	w.Header().Set("Content-Type", contentType)
+	w.Header().Set(contentTypeKey, contentType)
 	_, err = w.Write(resp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -233,10 +239,11 @@ func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 func runGraphStoreQuery(orgID, graphName, inContentType string, in io.Reader) (body []byte, statusCode int, contentType string, err error) {
 	req, err := http.NewRequest(http.MethodPut, c.Config.GetGraphStoreEndpoint(orgID, ""), in)
 	if err != nil {
-		log.Printf("Unable to create sparql request %s", err)
+		log.Printf("%s", fmt.Errorf("%s; %w ", ErrInvalidSparqlRequest, err))
+
 		return
 	}
-	req.Header.Add("Content-Type", inContentType)
+	req.Header.Add(contentTypeKey, inContentType)
 	params := req.URL.Query()
 	params.Set("graph", graphName)
 	req.URL.RawQuery = params.Encode()
@@ -248,7 +255,7 @@ func runGraphStoreQuery(orgID, graphName, inContentType string, in io.Reader) (b
 func runGraphStoreDelete(orgID, graphName string) (body []byte, statusCode int, contentType string, err error) {
 	req, err := http.NewRequest(http.MethodDelete, c.Config.GetGraphStoreEndpoint(orgID, ""), http.NoBody)
 	if err != nil {
-		log.Printf("Unable to create sparql request %s", err)
+		log.Printf("%s", fmt.Errorf("%s; %w ", ErrInvalidSparqlRequest, err))
 		return
 	}
 	params := req.URL.Query()
