@@ -28,8 +28,17 @@ func NewClient(cfg *Config) (*Client, error) {
 		return nil, validErr
 	}
 
+	defaults := DefaultConfig()
+	if cfg.Urls == nil {
+		cfg.Urls = defaults.Urls
+	}
+
+	if cfg.Logger == nil {
+		cfg.Logger = defaults.Logger
+	}
+
 	searchCfg := internal.OlivereConfig{
-		Urls:             []string{},
+		Urls:             cfg.Urls,
 		Logger:           cfg.Logger,
 		TimeoutInSeconds: cfg.Timeout,
 		HTTPRetries:      cfg.MaxRetries,
@@ -46,7 +55,7 @@ func NewClient(cfg *Config) (*Client, error) {
 	}
 
 	indexCfg := internal.ElasticConfig{
-		Urls:       []string{},
+		Urls:       cfg.Urls,
 		UserName:   cfg.UserName,
 		Password:   cfg.Password,
 		Metrics:    !cfg.DisableMetrics,

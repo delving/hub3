@@ -26,12 +26,6 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const (
-	typeKaart    = "kaart"
-	typeTekening = "tekening"
-	typeAtlas    = "atlas"
-)
-
 type DaoClient struct {
 	bi           *index.Service
 	client       *http.Client
@@ -255,14 +249,14 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 		return err
 	}
 
-	if _, err := os.Stat(cfg.getMetsFilePath()); os.IsNotExist(err) {
+	if _, err := os.Stat(cfg.GetMetsFilePath()); os.IsNotExist(err) {
 		if mkDirErr := os.MkdirAll(cfg.getDirPath(), os.ModePerm); mkDirErr != nil {
 			return mkDirErr
 		}
 	}
 
 	return ioutil.WriteFile(
-		cfg.getMetsFilePath(),
+		cfg.GetMetsFilePath(),
 		buf.Bytes(),
 		os.ModePerm,
 	)
@@ -383,13 +377,15 @@ type DaoConfig struct {
 	InventoryID    string
 	InventoryPath  string
 	InventoryTitle string
-	UUID           string
+	UUID           string // dUUID
 	Link           string
 	ObjectCount    int
 	MimeTypes      []string
 	RevisionKey    string
 	FilterTypes    []string
 	PeriodDesc     []string
+	Filenames      []string // names of the files within the digital object
+	FileUUIDs      []string // uuids of the files within the digital object
 }
 
 func getUUID(daoLink string) string {
@@ -406,9 +402,11 @@ func newDaoConfig(cfg *NodeConfig, tree *fragments.Tree) DaoConfig {
 		InventoryID:    tree.UnitID,
 		InventoryPath:  tree.CLevel,
 		InventoryTitle: tree.Label,
-		Link:           tree.DaoLink,
 		UUID:           getUUID(tree.DaoLink),
 		PeriodDesc:     cfg.PeriodDesc,
+		Link:           tree.DaoLink,
+		FileUUIDs:      make([]string, 0),
+		Filenames:      make([]string, 0),
 	}
 }
 
@@ -416,7 +414,7 @@ func (cfg *DaoConfig) updateRevisionKey() {
 	cfg.RevisionKey = xid.New().String()
 }
 
-func (cfg *DaoConfig) getMetsFilePath() string {
+func (cfg *DaoConfig) GetMetsFilePath() string {
 	return getMetsFilePath(cfg.ArchiveID, cfg.UUID)
 }
 
@@ -450,7 +448,7 @@ func (cfg *DaoConfig) Write() error {
 // Delete removes the DaoConfig and METS file
 func (cfg *DaoConfig) Delete() error {
 	files := []string{
-		cfg.getMetsFilePath(),
+		cfg.GetMetsFilePath(),
 		getDaoConfigPath(cfg.ArchiveID, cfg.UUID),
 	}
 
@@ -468,7 +466,7 @@ func (cfg *DaoConfig) Delete() error {
 }
 
 func (cfg *DaoConfig) hasOrphanedMetsFile() bool {
-	if cfg.metsFileExists() && !cfg.daoConfigExists() {
+	if cfg.MetsFileExists() && !cfg.daoConfigExists() {
 		return true
 	}
 
@@ -481,18 +479,18 @@ func (cfg *DaoConfig) daoConfigExists() bool {
 	return !os.IsNotExist(err)
 }
 
-func (cfg *DaoConfig) metsFileExists() bool {
-	_, err := os.Stat(cfg.getMetsFilePath())
+func (cfg *DaoConfig) MetsFileExists() bool {
+	_, err := os.Stat(cfg.GetMetsFilePath())
 
 	return !os.IsNotExist(err)
 }
 
 func (cfg *DaoConfig) Mets() (*Cmets, error) {
-	return readMETS(cfg.getMetsFilePath())
+	return readMETS(cfg.GetMetsFilePath())
 }
 
 func (cfg *DaoConfig) FindingAid(c *DaoClient) (eadpb.FindingAid, error) {
-	if c.HttpFallback && !cfg.metsFileExists() {
+	if c.HttpFallback && !cfg.MetsFileExists() {
 		if err := c.StoreMets(cfg); err != nil {
 			return eadpb.FindingAid{}, err
 		}

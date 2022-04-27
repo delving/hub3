@@ -16,6 +16,7 @@ package ead
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -46,6 +47,7 @@ type Node struct {
 	AccessRestrictYear string
 	Material           string
 	Phystech           []string
+	PhystechType       string
 	triples            []*r.Triple
 }
 
@@ -147,15 +149,19 @@ func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragme
 		Title: n.Header.GetTreeLabel(),
 	}
 
+	// Create tree before FragmentGraph
+	tree := cfg.CreateTree(cfg, n, header.HubID, id)
+
+	fg := fragments.NewFragmentGraph()
+	fg.Meta = header
+	fg.Tree = tree
+
 	for idx, t := range n.Triples(cfg) {
 		if err := rm.AppendOrderedTriple(t, false, idx); err != nil {
 			return nil, nil, err
 		}
 	}
 
-	fg := fragments.NewFragmentGraph()
-	fg.Meta = header
-	fg.Tree = cfg.CreateTree(cfg, n, header.HubID, id)
 	fg.SetResources(rm)
 
 	return fg, rm, nil
@@ -208,7 +214,15 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 
 		if cfg.DaoFn != nil {
-			if cfg.ProcessDigital || hasOrphanedMetsFile || cfg.ProcessDigitalIfMissing {
+			metsExists := true
+			if cfg.ProcessDigitalIfMissing == true {
+				metsPath := daoCfg.GetMetsFilePath()
+				if _, err := os.Stat(metsPath); err != nil {
+					metsExists = false
+				}
+			}
+
+			if cfg.ProcessDigital || hasOrphanedMetsFile || (!metsExists && cfg.ProcessDigitalIfMissing) {
 				log.Debug().
 					Str("archiveID", daoCfg.ArchiveID).
 					Str("InventoryID", daoCfg.InventoryID).
@@ -280,4 +294,8 @@ func (n *Node) Triples(cfg *NodeConfig) []*r.Triple {
 	}
 
 	return triples
+}
+
+func (n *Node) AppendTriple(triple *r.Triple) {
+	n.triples = append(n.triples, triple)
 }

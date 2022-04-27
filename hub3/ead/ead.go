@@ -552,6 +552,7 @@ func NewNode(cl CLevel, parentIDs []string, cfg *NodeConfig) (*Node, error) {
 
 	for _, p := range c.GetPhystech() {
 		node.Phystech = append(node.Phystech, sanitizeXMLAsString(p.Raw))
+		node.PhystechType = p.Attrtype
 	}
 
 	// check valid date
