@@ -403,7 +403,7 @@ func InitConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".hub3" (without extension).
+		// Search config in home directory with name "hub3" (without extension).
 		viper.AddConfigPath("/etc/default/")
 		viper.AddConfigPath(home)
 		viper.AddConfigPath(".")

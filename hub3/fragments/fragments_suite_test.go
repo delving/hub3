@@ -17,6 +17,7 @@ package fragments_test
 import (
 	"context"
 	fmt "fmt"
+	"testing"
 
 	"github.com/delving/hub3/config"
 	"github.com/docker/go-connections/nat"
@@ -24,8 +25,6 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-
-	"testing"
 )
 
 func TestFragments(t *testing.T) {
@@ -45,7 +44,7 @@ var _ = BeforeSuite(func() {
 	config.InitConfig()
 
 	req := testcontainers.ContainerRequest{
-		Image:        "docker.elastic.co/elasticsearch/elasticsearch:7.6.1",
+		Image:        "docker.elastic.co/elasticsearch/elasticsearch:7.14.1",
 		ExposedPorts: []string{"9200"},
 		// WaitingFor:   wait.ForHTTP(":9200/"),
 		WaitingFor: wait.ForLog("indices into cluster_state"),
