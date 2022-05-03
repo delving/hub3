@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"strings"
 
 	c "github.com/delving/hub3/config"
@@ -26,6 +27,13 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
+)
+
+const (
+	idPrefix       = "id"
+	resourcePrefix = "resource"
+	docPrefix      = "doc"
+	dataPrefix     = "data"
 )
 
 var lodPathRoute = "/{path:%s}/*"
@@ -40,15 +48,137 @@ func RegisterLOD(r chi.Router) {
 			// fmt.Sprintf(lodPathRoute, config.Config.LOD.HTML), RenderLODResource)
 			fmt.Sprintf(lodPathRoute, c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
 				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
-				return
 			})
 	}
+
+	redirects := []string{
+		idPrefix, resourcePrefix, docPrefix, dataPrefix,
+	}
+
+	for _, prefix := range redirects {
+		r.Get(fmt.Sprintf("/%s/*", prefix), lodRedirect)
+	}
+
+	r.Get("/resource", lodResolver())
+}
+
+func rewriteLodPrefixes(path string) string {
+	parts := strings.Split(path, "/")
+	switch parts[1] {
+	case idPrefix:
+		parts[1] = docPrefix
+	case resourcePrefix:
+		parts[1] = dataPrefix
+	}
+
+	return strings.Join(parts, "/")
+}
+
+func getResolveURL(r *http.Request) string {
+	path := r.URL.Path
+	hostDomain := c.Config.RDF.BaseURL
+
+	return fmt.Sprintf("%s%s", hostDomain, rewriteLodPrefixes(path))
+}
+
+func lodRedirect(w http.ResponseWriter, r *http.Request) {
+	sourceURI := getResolveURL(r)
+	resolveURI := fmt.Sprintf("/resource?uri=%s", sourceURI)
+	http.Redirect(w, r, resolveURI, http.StatusNotFound)
+}
+
+func getSparqlSubject(iri string) (string, error) {
+	uri, err := url.Parse(iri)
+	if err != nil {
+		return "", err
+	}
+
+	parts := strings.Split(uri.Path, "/")
+	switch parts[1] {
+	case docPrefix:
+		parts[1] = idPrefix
+	case dataPrefix:
+		parts[1] = resourcePrefix
+	}
+
+	return fmt.Sprintf("%s://%s%s", uri.Scheme, uri.Host, strings.Join(parts, "/")), nil
+}
+
+func lodResolver() http.HandlerFunc {
+	acceptedLodFormats := map[string]string{
+		"turtle":    "text/turtle",
+		"json-ld":   "application/ld+json",
+		"n-triples": "application/n-triples",
+		"n-quads":   "application/n-quads",
+		"trig":      "application/trig",
+		"rdfxml":    "application/rdf+xml",
+	}
+
+	acceptHeaders := []string{}
+	acceptedMimeTypes := map[string]string{}
+
+	for queryParam, mimetype := range acceptedLodFormats {
+		acceptHeaders = append(acceptHeaders, mimetype)
+		acceptedMimeTypes[mimetype] = queryParam
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		iri, err := getSparqlSubject(r.URL.Query().Get("uri"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		acceptMimeType := "text/turtle"
+
+		if r.URL.Query().Has("format") {
+			format := r.URL.Query().Get("format")
+			mimetype, ok := acceptedLodFormats[format]
+			if ok {
+				acceptMimeType = mimetype
+			}
+		} else {
+			accept := r.Header.Get("Accept")
+			_, ok := acceptedMimeTypes[accept]
+			if ok {
+				acceptMimeType = accept
+			}
+		}
+
+		orgID := domain.GetOrganizationID(r)
+		query := fmt.Sprintf("describe <%s>", iri)
+
+		resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query, acceptMimeType)
+		if err != nil {
+			render.Status(r, http.StatusBadRequest)
+			render.PlainText(w, r, string(resp))
+			return
+		}
+		w.Header().Set(contentTypeKey, contentType)
+
+		formats := []string{}
+		for _, f := range acceptedLodFormats {
+			formats = append(formats, f)
+		}
+
+		w.Header().Add("Accept", strings.Join(formats, ", "))
+
+		_, err = w.Write(resp)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// TODO(kiivihal): add support for 404 not found. Now always 200 is returned
+		render.Status(r, statusCode)
+	})
 }
 
 // RenderLODResource returns a list of matching fragments
 // for a LOD resource. This mimicks a SPARQL describe request
 func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 	lodKey := r.URL.Path
+
 	if c.Config.LOD.SingleEndpoint == "" {
 		resourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
 		if strings.HasPrefix(lodKey, resourcePrefix) {
@@ -69,7 +199,6 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		lodKey = strings.TrimSuffix(lodKey, ".nt")
-
 	}
 
 	orgID := domain.GetOrganizationID(r)
@@ -79,6 +208,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 	frags, _, err := fr.Find(r.Context(), index.ESClient())
 	if err != nil || len(frags) == 0 {
 		w.WriteHeader(http.StatusNotFound)
+
 		if err != nil {
 			log.Printf("Unable to list fragments because of: %s", err)
 			return
@@ -87,6 +217,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to find fragments")
 		return
 	}
+
 	w.Header().Set("Content-Type", "text/n-triples")
 	for _, frag := range frags {
 		fmt.Fprintln(w, frag.Triple)
