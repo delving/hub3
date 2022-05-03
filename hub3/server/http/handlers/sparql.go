@@ -95,7 +95,7 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	orgID := domain.GetOrganizationID(r)
-	resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query)
+	resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query, "application/sparql-results+json")
 	if err != nil {
 		render.Status(r, http.StatusBadRequest)
 		render.PlainText(w, r, string(resp))
@@ -138,13 +138,13 @@ func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentT
 }
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
-func runSparqlQuery(orgID, query string) (body []byte, statusCode int, contentType string, err error) {
+func runSparqlQuery(orgID, query, acceptHeader string) (body []byte, statusCode int, contentType string, err error) {
 	req, err := http.NewRequest("POST", c.Config.GetSparqlEndpoint(orgID, ""), http.NoBody)
 	if err != nil {
 		log.Printf("%s", fmt.Errorf("%s; %w ", ErrInvalidSparqlRequest, err))
 		return
 	}
-	req.Header.Set("Accept", "application/sparql-results+json")
+	req.Header.Set("Accept", acceptHeader)
 	q := req.URL.Query()
 	q.Add("query", query)
 	req.URL.RawQuery = q.Encode()

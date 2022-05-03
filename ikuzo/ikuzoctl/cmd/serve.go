@@ -65,7 +65,6 @@ func serve() {
 			handlers.RegisterDatasets,
 			handlers.RegisterEAD,
 			handlers.RegisterSearch,
-			handlers.RegisterEAD,
 			handlers.RegisterLinkedDataFragments,
 			handlers.RegisterLOD,
 			handlers.RegisterSparql,
