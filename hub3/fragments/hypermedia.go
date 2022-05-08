@@ -21,6 +21,8 @@ import (
 	"net/http"
 	"strings"
 	"text/template"
+
+	"github.com/delving/hub3/config"
 )
 
 const hyperTmpl = `<{{.DataSetURI}}> <http://rdfs.org/ns/void#subset> <{{.PagerURI}}> .
@@ -76,9 +78,9 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 	url := r.URL
 	if url.Scheme == "" {
 		url.Scheme = "http"
-		if r.TLS != nil {
-			url.Scheme = "https"
-		}
+	}
+	if config.Config.HTTP.ProxyTLS || r.TLS != nil {
+		url.Scheme = "https"
 	}
 	if r.Host == "" {
 		r.Host = "localhost:3000"

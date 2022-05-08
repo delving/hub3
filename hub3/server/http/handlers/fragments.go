@@ -125,7 +125,10 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/turtle; charset=utf-8")
+
 	w.Write(controls)
+
 	for _, frag := range frags {
 		fmt.Fprintln(w, frag.Triple)
 	}

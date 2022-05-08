@@ -15,6 +15,7 @@
 package fragments_test
 
 import (
+	"crypto/tls"
 	"net/http"
 
 	. "github.com/onsi/ginkgo"
@@ -29,6 +30,7 @@ var _ = Describe("Hypermedia", func() {
 			base := "https://localhost:3000/fragments"
 			query := "?object=true"
 			r, err := http.NewRequest("GET", base+query+"&page=2", nil)
+			r.TLS = &tls.ConnectionState{}
 
 			It("should set the correct fullPath", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -52,6 +54,7 @@ var _ = Describe("Hypermedia", func() {
 			It("should create the controls", func() {
 				fr := NewFragmentRequest(testOrgID)
 				err := fr.ParseQueryString(r.URL.Query())
+				Expect(err).ToNot(HaveOccurred())
 				hmd := NewHyperMediaDataSet(r, 395, fr)
 				Expect(hmd).ToNot(BeNil())
 				b, err := hmd.CreateControls()
