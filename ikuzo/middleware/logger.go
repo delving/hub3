@@ -39,7 +39,6 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 	// Thanks to those handler, all our logs will come with some pre-populated fields.
 	c = c.Append(hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
 		l := hlog.FromRequest(r).Info().
-			// Str("orgID", organization.GetOrganizationID(r)).
 			Str("method", r.Method).
 			Str("url", r.URL.String()).
 			Int("status", status).

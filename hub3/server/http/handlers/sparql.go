@@ -27,8 +27,8 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 )
 
 var (
@@ -68,8 +68,9 @@ func ensureSparqlLimit(query string) (string, error) {
 
 func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("%s", ErrSparqlNotEnabled)
-		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
+		render.Error(w, r, ErrSparqlNotEnabled, &render.ErrorConfig{
+			StatusCode: http.StatusNotAcceptable,
+		})
 		return
 	}
 
@@ -83,8 +84,9 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if query == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, &ErrorMessage{"Bad Request", "a value in the query param is required."})
+		render.Error(w, r, fmt.Errorf("sparql query cannot be empty"), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+		})
 		return
 	}
 
@@ -154,8 +156,9 @@ func runSparqlQuery(orgID, query, acceptHeader string) (body []byte, statusCode 
 
 func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("%s", ErrSparqlNotEnabled)
-		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
+		render.Error(w, r, ErrSparqlNotEnabled, &render.ErrorConfig{
+			StatusCode: http.StatusNotAcceptable,
+		})
 		return
 	}
 
@@ -169,7 +172,9 @@ func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if graphName == "" {
-		render.JSON(w, r, &ErrorMessage{"invalid graph form value", ""})
+		render.Error(w, r, fmt.Errorf("invalid graph form value"), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+		})
 		return
 	}
 
@@ -192,8 +197,9 @@ func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 
 func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 	if !c.Config.RDF.SparqlEnabled {
-		log.Printf("%s", ErrSparqlNotEnabled)
-		render.JSON(w, r, &ErrorMessage{ErrSparqlNotEnabled.Error(), ""})
+		render.Error(w, r, ErrSparqlNotEnabled, &render.ErrorConfig{
+			StatusCode: http.StatusNotAcceptable,
+		})
 		return
 	}
 
@@ -212,7 +218,9 @@ func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 
 	graphName := r.FormValue("graph")
 	if graphName == "" {
-		render.JSON(w, r, &ErrorMessage{"invalid graph form value", ""})
+		render.Error(w, r, fmt.Errorf("invalid graph form value"), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+		})
 		return
 	}
 

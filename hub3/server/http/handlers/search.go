@@ -30,12 +30,12 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/render"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -62,11 +62,15 @@ func RegisterSearch(router chi.Router) {
 	})
 
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+		})
 		return
 	})
 	r.Get("/v1/{id}", func(w http.ResponseWriter, r *http.Request) {
-		render.JSON(w, r, &ErrorMessage{"not enabled", ""})
+		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+		})
 		return
 	})
 

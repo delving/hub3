@@ -71,6 +71,13 @@ func SetAllowList(allowList []string) Option {
 	}
 }
 
+func SetAllowPorts(ports []string) Option {
+	return func(s *Service) error {
+		s.allowPorts = ports
+		return nil
+	}
+}
+
 func SetAllowedMimeTypes(allowedMimeTypes []string) Option {
 	return func(s *Service) error {
 		s.allowedMimeTypes = allowedMimeTypes
@@ -85,7 +92,7 @@ func SetProxyPrefix(prefix string) Option {
 	}
 }
 
-func SetLogger(logger zerolog.Logger) Option {
+func SetLogger(logger *zerolog.Logger) Option {
 	return func(s *Service) error {
 		s.log = logger.With().Str("svc", "imageproxy").Logger()
 		return nil

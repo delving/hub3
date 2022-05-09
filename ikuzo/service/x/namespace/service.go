@@ -16,6 +16,7 @@ package namespace
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
@@ -100,9 +101,9 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 	}
 
 	if s.loadDefaults {
-		for _, nsMap := range []map[string]string{defaultNS, customNS} {
-			for prefix, base := range nsMap {
-				if _, err := s.Put(prefix, base); err != nil {
+		for _, nsMap := range [][]nsEntry{defaultNS, customNS} {
+			for _, e := range nsMap {
+				if _, err := s.Put(e.Prefix, e.BaseURI); err != nil {
 					return nil, err
 				}
 			}
@@ -190,7 +191,7 @@ func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 		return ns, nil
 	}
 
-	ns, err = s.store.GetWithBase(base)
+	ns, err = s.GetWithBase(base)
 	if err != nil {
 		if err != domain.ErrNameSpaceNotFound {
 			return nil, err
@@ -259,7 +260,7 @@ func (s *Service) SearchLabel(uri string) (string, error) {
 
 	base, label := domain.SplitURI(uri)
 
-	ns, err := s.store.GetWithBase(base)
+	ns, err := s.GetWithBase(base)
 	if err != nil {
 		return "", fmt.Errorf("unable to retrieve namespace for %s; %w", base, err)
 	}
@@ -284,5 +285,9 @@ func (s *Service) GetWithPrefix(prefix string) (*domain.Namespace, error) {
 
 func (s *Service) GetWithBase(baseURI string) (*domain.Namespace, error) {
 	s.checkStore()
+	if strings.HasPrefix(baseURI, "https:") {
+		baseURI = strings.ReplaceAll(baseURI, "https:", "http:")
+	}
+
 	return s.store.GetWithBase(baseURI)
 }

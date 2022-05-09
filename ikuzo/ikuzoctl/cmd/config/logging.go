@@ -30,6 +30,7 @@ type Logging struct {
 	WithCaller     bool   `json:"withCaller"`
 	ConsoleLogger  bool   `json:"consoleLogger"`
 	ErrorFieldName string `json:"errorFieldName"`
+	SentryDSN      string `json:"sentryDSN"`
 }
 
 func (l *Logging) AddOptions(cfg *Config) error {
@@ -46,6 +47,10 @@ func (l *Logging) AddOptions(cfg *Config) error {
 			}),
 			ikuzo.SetEnableIntrospect(l.DevMode),
 		)
+	}
+
+	if l.SentryDSN != "" {
+		cfg.options = append(cfg.options, ikuzo.SetEnableSentry(l.SentryDSN))
 	}
 
 	return nil

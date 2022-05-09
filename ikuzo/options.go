@@ -23,6 +23,7 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/webapp"
+	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi"
 	"github.com/pacedotdev/oto/otohttp"
 )
@@ -193,5 +194,15 @@ func SetEnableIntrospect(enabled bool) Option {
 	return func(s *server) error {
 		s.introspect = enabled
 		return nil
+	}
+}
+
+func SetEnableSentry(dsn string) Option {
+	return func(s *server) error {
+		s.sentry = true
+		return sentry.Init(sentry.ClientOptions{
+			Dsn:              dsn,
+			AttachStacktrace: true,
+		})
 	}
 }

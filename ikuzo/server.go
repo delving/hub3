@@ -22,18 +22,20 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime/debug"
 	"syscall"
 	"time"
 
 	// nolint:gosec // imported for metrics server. Not exposes on default routes because we don't use the default mux
-	"net/http/httputil"
+
 	_ "net/http/pprof"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/middleware"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/getsentry/sentry-go"
+	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/docgen"
@@ -102,12 +104,12 @@ type server struct {
 	shutdownHooks map[string]domain.Shutdown
 	// service context
 	ctx context.Context
-	// dataNodeProxy is the httputil.ReverseProxy for the datanode
-	dataNodeProxy *httputil.ReverseProxy
 	// oto is the OTO generated RCP service
 	oto *otohttp.Server
 	// introspect enables routes for introspection
 	introspect bool
+	// sentry shows if sentry is enabled
+	sentry bool
 }
 
 // NewServer returns the default server.
@@ -143,6 +145,11 @@ func newServer(options ...Option) (*server, error) {
 		log.Logger = s.logger.Logger
 	}
 
+	if s.logger == nil {
+		l := logger.Nop()
+		s.logger = &l
+	}
+
 	// append default middleware
 	s.middleware = append(s.middleware, DefaultMiddleware()...)
 
@@ -150,6 +157,13 @@ func newServer(options ...Option) (*server, error) {
 
 	// recover is not optional
 	s.router.Use(s.recoverer)
+
+	if s.sentry {
+		sentryMiddleware := sentryhttp.New(sentryhttp.Options{
+			Repanic: true,
+		})
+		s.router.Use(sentryMiddleware.Handle)
+	}
 
 	// cors is not optional
 	s.router.Use(
@@ -315,6 +329,10 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 }
 
 func (s *server) shutdown(server *http.Server) error {
+	// if sentry is running flush the messages
+	if s.sentry {
+		sentry.Flush(time.Second)
+	}
 	log.Info().Msg("sending stop signal to background processes")
 
 	// cancel context to shutdown background processes and connections
@@ -384,51 +402,43 @@ func (s *server) requestLogger(r *http.Request) *zerolog.Logger {
 
 // respond is helper to encode responses from the Server.
 func (s *server) respond(w http.ResponseWriter, r *http.Request, data interface{}, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
+	render.Status(r, status)
 
 	if data != nil {
-		err := json.NewEncoder(w).Encode(data)
-		if err != nil {
-			s.respondWithError(w, r, err, http.StatusInternalServerError)
-			return
-		}
+		render.JSON(w, r, data)
 	}
 }
 
 // respondWithError returns a standardized error message that is encoded by the *server.Respond function.
 func (s *server) respondWithError(w http.ResponseWriter, r *http.Request, err error, status int) {
-	type response struct {
-		Status  string `json:"status"`
-		Code    int    `json:"code"`
-		Message string `json:"message"`
-	}
-
-	resp := response{
-		Status:  http.StatusText(status),
-		Code:    status,
-		Message: err.Error(),
-	}
-	s.respond(w, r, resp, status)
+	render.Error(w, r, err, &render.ErrorConfig{
+		Log:        &s.logger.Logger,
+		StatusCode: status,
+	})
 }
 
 // recoverer is a middleware that recovers from panics, logs the panic (and a
-// backtrace), and returns a HTTP 500 (Internal Server Error) status if
+// stacktrace), and returns a HTTP 500 (Internal Server Error) status if
 // possible. Recoverer prints a request ID if one is provided.
 func (s *server) recoverer(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if rvr := recover(); rvr != nil {
 				errText := http.StatusText(http.StatusInternalServerError)
-				requestID := xid.New()
 
-				log.WithLevel(zerolog.PanicLevel).
+				requestID, ok := hlog.IDFromRequest(r)
+				if !ok {
+					requestID = xid.New()
+				}
+
+				s.logger.WithLevel(zerolog.PanicLevel).
+					Stack().
 					Str("req_id", requestID.String()).
 					Str("method", r.Method).
 					Str("url", r.URL.String()).
 					Int("status", http.StatusInternalServerError).
 					Dict("params", middleware.LogParamsAsDict(r.URL.Query())).
-					Msg(fmt.Sprintf("Recover from Panic: %s; \n %s", rvr, debug.Stack()))
+					Msg(fmt.Sprintf("Recover from Panic: %s;", rvr))
 
 				err := fmt.Errorf("%s; error logged with request_id: %s", errText, requestID)
 				s.respondWithError(w, r, err, http.StatusInternalServerError)

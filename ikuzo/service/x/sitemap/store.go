@@ -12,6 +12,7 @@ type Store interface {
 }
 
 type Location struct {
-	ID      string // relative path to unique identifier
-	LastMod *time.Time
+	ID          string // relative path to unique identifier
+	LastMod     *time.Time
+	RecordCount int64
 }

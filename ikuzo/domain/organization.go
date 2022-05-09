@@ -127,7 +127,7 @@ func (o *Organization) RawID() string {
 }
 
 func (o *Organization) NewDatasetURI(spec string) string {
-	return fmt.Sprintf(o.Config.MintDatasetURL, o.Config.RDFBaseURL, spec)
+	return fmt.Sprintf(o.Config.RDF.MintDatasetURL, o.Config.RDF.RDFBaseURL, spec)
 }
 
 // GetOrganizationID retrieves an OrganizationID from a *http.Request.

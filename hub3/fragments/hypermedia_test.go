@@ -15,6 +15,7 @@
 package fragments_test
 
 import (
+	"crypto/tls"
 	"net/http"
 
 	. "github.com/onsi/ginkgo"
@@ -29,6 +30,7 @@ var _ = Describe("Hypermedia", func() {
 			base := "https://localhost:3000/fragments"
 			query := "?object=true"
 			r, err := http.NewRequest("GET", base+query+"&page=2", nil)
+			r.TLS = &tls.ConnectionState{}
 
 			It("should set the correct fullPath", func() {
 				Expect(err).ToNot(HaveOccurred())
@@ -41,9 +43,9 @@ var _ = Describe("Hypermedia", func() {
 				Expect(hmd.PagerURI).To(Equal(base + query + "&page=2"))
 				Expect(hmd.TotalItems).To(Equal(int64(295)))
 				Expect(hmd.CurrentPage).To(Equal(int32(2)))
-				Expect(hmd.FirstPage).To(Equal(base + query + "&page=1"))
-				Expect(hmd.PreviousPage).To(Equal(base + query + "&page=1"))
-				Expect(hmd.NextPage).To(Equal(base + query + "&page=3"))
+				Expect(hmd.FirstPage).To(Equal(base + "?page=1"))
+				Expect(hmd.PreviousPage).To(Equal(base + "?page=1"))
+				Expect(hmd.NextPage).To(Equal(base + "?page=3"))
 				Expect(hmd.ItemsPerPage).To(Equal(int64(FRAGMENT_SIZE)))
 				Expect(hmd.HasNext()).To(BeFalse())
 				Expect(hmd.HasPrevious()).To(BeTrue())
@@ -52,6 +54,7 @@ var _ = Describe("Hypermedia", func() {
 			It("should create the controls", func() {
 				fr := NewFragmentRequest(testOrgID)
 				err := fr.ParseQueryString(r.URL.Query())
+				Expect(err).ToNot(HaveOccurred())
 				hmd := NewHyperMediaDataSet(r, 395, fr)
 				Expect(hmd).ToNot(BeNil())
 				b, err := hmd.CreateControls()
