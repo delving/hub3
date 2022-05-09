@@ -19,9 +19,10 @@ import (
 	fmt "fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/delving/hub3/config"
 )
 
 const hyperTmpl = `<{{.DataSetURI}}> <http://rdfs.org/ns/void#subset> <{{.PagerURI}}> .
@@ -77,40 +78,33 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 	url := r.URL
 	if url.Scheme == "" {
 		url.Scheme = "http"
-		if r.TLS != nil {
-			url.Scheme = "https"
-		}
+	}
+	if config.Config.HTTP.ProxyTLS || r.TLS != nil {
+		url.Scheme = "https"
 	}
 	if r.Host == "" {
 		r.Host = "localhost:3000"
 	}
 
+	// regString := fmt.Sprintf("[?|&]page=%s", currentPage)
+	// re := regexp.MustCompile(regString)
+	// basePage := re.ReplaceAllString(url.String(), "")
 	basePage := fmt.Sprintf("%s://%s%s", url.Scheme, r.Host, url.EscapedPath())
 	pageNumber := fr.GetPage()
 	nextPage := pageNumber + int32(1)
 	previousPage := pageNumber - int32(1)
-
-	pagerURI := basePage
-	if !strings.EqualFold(r.URL.RawQuery, "") {
-		pagerURI = pagerURI + "?" + r.URL.RawQuery
-	}
-
-	regString := fmt.Sprintf("[?|&]page=%d", pageNumber)
-	re := regexp.MustCompile(regString)
-	baseWithQuery := re.ReplaceAllString(pagerURI, "")
-
 	sep := "&"
-	if !strings.Contains(pagerURI, "?") {
+	if !strings.Contains(basePage, "?") {
 		sep = "?"
 	}
 
 	return &HyperMediaDataSet{
-		PagerURI:     pagerURI,
+		PagerURI:     basePage + "?" + r.URL.RawQuery,
 		DataSetURI:   basePage,
 		TotalItems:   totalHits,
-		FirstPage:    fmt.Sprintf("%s%spage=1", baseWithQuery, sep),
-		NextPage:     fmt.Sprintf("%s%spage=%d", baseWithQuery, sep, nextPage),
-		PreviousPage: fmt.Sprintf("%s%spage=%d", baseWithQuery, sep, previousPage),
+		FirstPage:    fmt.Sprintf("%s%spage=1", basePage, sep),
+		NextPage:     fmt.Sprintf("%s%spage=%d", basePage, sep, nextPage),
+		PreviousPage: fmt.Sprintf("%s%spage=%d", basePage, sep, previousPage),
 		ItemsPerPage: int64(FRAGMENT_SIZE),
 		CurrentPage:  pageNumber,
 	}

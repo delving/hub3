@@ -143,7 +143,7 @@ func (s *Service) startCacheWorker() {
 				}
 			}
 
-			s.log.Info().Int("cacheInUse", percentageInUse).Msg("cache cleaner found percentage in use")
+			s.log.Debug().Int("cacheInUse", percentageInUse).Msg("cache cleaner found percentage in use")
 
 			select {
 			case <-ctx.Done():

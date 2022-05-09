@@ -2,15 +2,18 @@ package config
 
 import (
 	"github.com/delving/hub3/ikuzo"
-	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/sitemap"
 )
 
 type Sitemap struct{}
 
 func (s *Sitemap) NewService(cfg *Config) (*sitemap.Service, error) {
-	// TODO(kiivihal): refactor to use new elasticsearch driver client
-	store := elasticsearch.NewSitemapStore()
+	client, err := cfg.ElasticSearch.NewCustomClient(cfg.log)
+	if err != nil {
+		return nil, err
+	}
+
+	store := client.NewSitemapStore()
 
 	svc, err := sitemap.NewService(
 		sitemap.SetStore(store),

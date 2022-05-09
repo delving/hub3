@@ -6,26 +6,52 @@
 
 ### Added 
  
-- hub3: added dedicated esproxy service. [10f521cf](https://github.com/delving/hub3/commit/10f521cf)
-- hub3: added sitemap package [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be)
-- hub3: initial version of postgresql service. [41309cb0](https://github.com/delving/hub3/commit/41309cb0)
-- added graph-store protocol endpoint for uploading RDF ontologies  [[GH-149]](https://github.com/delving/hub3/pull/149)
-- added SPARQL-based LOD resolver and redirect for '/id' and '/doc' URIs [[GH-152]](https://github.com/delving/hub3/pull/152)
+- [10f521cf](https://github.com/delving/hub3/commit/10f521cf) hub3: added dedicated esproxy service. 
+- [80c4d3be](https://github.com/delving/hub3/commit/80c4d3be) hub3: added sitemap package 
+- [41309cb0](https://github.com/delving/hub3/commit/41309cb0) hub3: initial version of postgresql service. 
+- [14c8be956](https://github.com/delving/hub3/commit/14c8be956) hub3: added basic support for extracting text from alto files.
+- [7b33f66fc](https://github.com/delving/hub3/commit/7b33f66fc) hub3: added 'render' helper package. 
+- [98ac874a5](https://github.com/delving/hub3/commit/98ac874a5) hub3: added allowed ports filter to imageproxy
+- [3b5c13128](https://github.com/delving/hub3/commit/3b5c13128) hub3: changed resource package name to rdf. 
+- [22374e307](https://github.com/delving/hub3/commit/22374e307) hub3: added support for resource based indexing to rdf.Graph
+- [b56c798b7](https://github.com/delving/hub3/commit/b56c798b7) hub3: added support for sentry.io error aggregation.
+- [497639871](https://github.com/delving/hub3/commit/497639871) hub3: bulk sparql updates support filtered by urn:private.
+- [6855f2c3e](https://github.com/delving/hub3/commit/6855f2c3e) hub3: added more default namespaces to namespace package.
+- [e47a6604c](https://github.com/delving/hub3/commit/e47a6604c) hub3: initial implementation of sparql service
+- [1088b1265](https://github.com/delving/hub3/commit/1088b1265) hub3: initial support for file package.
+- [6596f5554](https://github.com/delving/hub3/commit/6596f5554) hub3: added initial support for harvest.Syncer interface.
+- [44971706a](https://github.com/delving/hub3/commit/44971706a) hub3: initial version of generic lod resolver package.
+- [58bd58a16](https://github.com/delving/hub3/commit/58bd58a16) hub3: Initial support for mappingxml  RDF serialization format.
+- [abf71ee8a](https://github.com/delving/hub3/commit/abf71ee8a) hub3: added support for rdf.Graph generation from FragmentResources.
 
 ### Changed
 
-- hub3: update ikuzoctl configuration objects for domain.Service. [2cf6dc75](https://github.com/delving/hub3/commit/2cf6dc75)
-- hub3: refactor for multitenancy based on OrgID across all packages [e59c880b](https://github.com/delving/hub3/commit/e59c880b)
-- hub3: added multi-tenant configuration support to domain.Organization [3a10b33f](https://github.com/delving/hub3/commit/3a10b33f)
-- hub3: move memory storage package to x [e373e132](https://github.com/delving/hub3/commit/e373e132)
-- hub3: refactor elasticsearch storage into driver package [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7)
-- hub3: LDF always returns 'text/turtle' [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf)
+- [2cf6dc75](https://github.com/delving/hub3/commit/2cf6dc75) hub3: update ikuzoctl configuration objects for domain.Service. 
+- [e59c880b](https://github.com/delving/hub3/commit/e59c880b) hub3: refactor for multitenancy based on OrgID across all packages 
+- [3a10b33f](https://github.com/delving/hub3/commit/3a10b33f) hub3: added multi-tenant configuration support to domain.Organization 
+- [e373e132](https://github.com/delving/hub3/commit/e373e132) hub3: move memory storage package to x 
+- [9949b8a7](https://github.com/delving/hub3/commit/9949b8a7) hub3: refactor elasticsearch storage into driver package 
+- [82f2e6cf](https://github.com/delving/hub3/commit/82f2e6cf) hub3: LDF always returns 'text/turtle' 
 - updated github configuration  [[GH-133]](https://github.com/delving/hub3/pull/133)
-- limit SPARQL proxy qureies to a maximum of 1000 results [[GH-148]](https://github.com/delving/hub3/pull/148)
+- [b6e9e4cd1](https://github.com/delving/hub3/commit/b6e9e4cd1) hub3: use ikuzo/render package in legacy handlers
+- [af997e3cd](https://github.com/delving/hub3/commit/af997e3cd) hub3: update organization_config configuration
+- [9c4e90946](https://github.com/delving/hub3/commit/9c4e90946) hub3: changed oai-pmh service to support stores.
+- [0140f7eee](https://github.com/delving/hub3/commit/0140f7eee) hub3: changed sitemap package to support stores.
+- [303eb85a1](https://github.com/delving/hub3/commit/303eb85a1) hub3: migrate es search statistics to own sub-package.
 
 ## Removed
  
-- hub3: remove gorm package [1df50338](https://github.com/delving/hub3/commit/1df50338)
+- [1df50338](https://github.com/delving/hub3/commit/1df50338) hub3: remove gorm package 
+
+## Fixed
+ 
+- [57a0d8ae9](https://github.com/delving/hub3/commit/57a0d8ae9) hub3: fixed order for processing triples in ead processing.
+- [4a3160b27](https://github.com/delving/hub3/commit/4a3160b27) hub3: fixes for unit tests and ikuzo server after refactor.
+- [228d44b32](https://github.com/delving/hub3/commit/228d44b32) hub3: fixed predictable ordering for namespace defaults.
+
+## Deprecated
+
+- [e50ac4aea](https://github.com/delving/hub3/commit/e50ac4aea) hub3: deprecate index.Client in favor of elasticsearch driver Client.
 
 ## v0.2.1 (2022-01-25)
 

@@ -22,10 +22,16 @@ func (s *Service) handleBaseSitemap(w http.ResponseWriter, r *http.Request) {
 	sm, err := s.sitemapRoot(r.Context(), cfg)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/xml; charset=utf-8")
-	sm.WriteTo(w)
+
+	_, err = sm.WriteTo(w)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (s *Service) sitemapConfig(r *http.Request) (Config, error) {
@@ -33,7 +39,7 @@ func (s *Service) sitemapConfig(r *http.Request) (Config, error) {
 
 	org, ok := domain.GetOrganization(r)
 	if !ok {
-		return cfg, ErrConfigNotFound
+		return cfg, domain.ErrOrgNotFound
 	}
 
 	configID := chi.URLParam(r, configIDKey)

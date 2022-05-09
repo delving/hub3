@@ -23,8 +23,8 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/render"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/render"
 )
 
 var specRoute = "/{spec}"
@@ -62,12 +62,11 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 
 	sets, err := models.ListDataSets(orgID.String())
 	if err != nil {
-		log.Printf("Unable to list datasets because of: %s", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusInternalServerError,
-			Message:    fmt.Sprint("Unable to list datasets was not found"),
-			Error:      err,
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusInternalServerError,
+			Message:    "Unable to list datasets",
 		})
+
 		return
 	}
 
@@ -83,28 +82,22 @@ func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := models.CreateDataSetStats(r.Context(), string(orgID), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
-			log.Printf("Unable to retrieve a dataset: %s", err)
-			render.Status(r, http.StatusNotFound)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusNotFound,
-				Message:    fmt.Sprintf("%s was not found", chi.URLParam(r, "spec")),
-				Error:      err,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusNotFound,
+				Message:    fmt.Sprintf("Unable to retrieve dataset: %s", spec),
 			})
 			return
 		}
-		status := http.StatusInternalServerError
-		render.Status(r, status)
-		log.Printf("Unable to create dataset stats: %#v", err)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: status,
-			Message:    fmt.Sprintf("Can't create stats for %s", spec),
-			Error:      err,
+
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("Unable to create dataset stats: %s", spec),
 		})
+
 		return
 	}
-	render.JSON(w, r, stats)
 
-	return
+	render.JSON(w, r, stats)
 }
 
 // getDataSet returns a dataset when found or a 404
@@ -114,28 +107,23 @@ func getDataSet(w http.ResponseWriter, r *http.Request) {
 	ds, err := models.GetDataSet(orgID.String(), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {
-			log.Printf("Unable to retrieve a dataset: %s", err)
-			render.Status(r, http.StatusNotFound)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusNotFound,
-				Message:    fmt.Sprintf("%s was not found", spec),
-				Error:      err,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusNotFound,
+				Message:    fmt.Sprintf("Unable to retrieve dataset: %s", spec),
 			})
+
 			return
 		}
-		status := http.StatusInternalServerError
-		render.Status(r, status)
-		log.Printf("Unable to get dataset: %s", spec)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: status,
-			Message:    fmt.Sprintf("Can't create stats for %s", spec),
-			Error:      err,
+
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusNotFound,
+			Message:    fmt.Sprintf("Unable to get dataset: %s", spec),
 		})
+
 		return
 	}
 
 	render.JSON(w, r, ds)
-	return
 }
 
 func DeleteDataset(w http.ResponseWriter, r *http.Request) {
@@ -144,12 +132,17 @@ func DeleteDataset(w http.ResponseWriter, r *http.Request) {
 	err := models.DeleteDataSet(orgID.String(), spec, r.Context())
 	if err != nil {
 		if err == storm.ErrNotFound {
-			render.Status(r, http.StatusNotFound)
-			log.Printf("Dataset is not found: %s", spec)
-		} else {
-			render.Status(r, http.StatusBadRequest)
-			log.Printf("Unable to delete request because: %s", err)
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusNotFound,
+				Message:    fmt.Sprintf("Unable to retrieve dataset: %s", spec),
+			})
+
+			return
 		}
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+			Message:    fmt.Sprintf("Unable to delete dataset: %s", spec),
+		})
 		return
 	}
 
@@ -168,12 +161,10 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if spec == "" {
-		render.Status(r, http.StatusBadRequest)
-		render.JSON(w, r, APIErrorMessage{
-			HTTPStatus: http.StatusBadRequest,
-			Message:    fmt.Sprintln("spec can't be empty."),
-			Error:      nil,
+		render.Error(w, r, fmt.Errorf("dataset id cannot be empty"), &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
 		})
+
 		return
 	}
 
@@ -185,13 +176,10 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 			err = fragments.SaveDataSet(string(orgID), spec, nil)
 		}
 		if err != nil {
-			render.Status(r, http.StatusBadRequest)
-			render.JSON(w, r, APIErrorMessage{
-				HTTPStatus: http.StatusBadRequest,
-				Message:    fmt.Sprintf("Unable to create dataset for %s", spec),
-				Error:      nil,
+			render.Error(w, r, err, &render.ErrorConfig{
+				StatusCode: http.StatusBadRequest,
+				Message:    fmt.Sprintf("unable to create dataset for %q", spec),
 			})
-			log.Printf("Unable to create dataset for %s.\n", spec)
 			return
 		}
 		render.Status(r, http.StatusCreated)

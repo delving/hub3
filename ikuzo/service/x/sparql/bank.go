@@ -79,4 +79,23 @@ SELECT *
 WHERE {
   ?s ?p ?o .
 } LIMIT {{.Limit}} OFFSET {{.Offset}}
+
+# tag: harvestSubjects
+SELECT * WHERE {
+  ?s a <{{.RDFType}}> .
+} LIMIT {{.Limit}} OFFSET {{.Offset}}
+
+# tag:  subjectWithContext
+SELECT * WHERE {
+  BIND(<{{.Subject}}> as ?s)
+  ?s ?p ?o
+   OPTIONAL
+      { ?o ?p2 ?o2 ;
+        OPTIONAL
+        { ?o2 ?p3 ?o3 ;
+            OPTIONAL
+			{ ?o3 ?p4 ?o4 .}
+		}
+      }
+} LIMIT {{.Limit}}
 `
