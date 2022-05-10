@@ -19,6 +19,7 @@ import (
 	fmt "fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -86,25 +87,40 @@ func NewHyperMediaDataSet(r *http.Request, totalHits int64, fr *FragmentRequest)
 		r.Host = "localhost:3000"
 	}
 
-	// regString := fmt.Sprintf("[?|&]page=%s", currentPage)
-	// re := regexp.MustCompile(regString)
-	// basePage := re.ReplaceAllString(url.String(), "")
 	basePage := fmt.Sprintf("%s://%s%s", url.Scheme, r.Host, url.EscapedPath())
+
 	pageNumber := fr.GetPage()
 	nextPage := pageNumber + int32(1)
 	previousPage := pageNumber - int32(1)
-	sep := "&"
-	if !strings.Contains(basePage, "?") {
-		sep = "?"
+
+	pagerURI := basePage + "?"
+	var cleanPagerURI string
+	if r.URL.RawQuery != "" {
+		pagerURI += r.URL.RawQuery
+		regString := "page=[0-9]*[&]{0,1}"
+		re := regexp.MustCompile(regString)
+		cleanPagerURI = re.ReplaceAllString(pagerURI, "")
+	}
+
+	pagerURI = strings.TrimSuffix(pagerURI, "?")
+	if cleanPagerURI == "" {
+		cleanPagerURI = pagerURI
+	}
+
+	cleanPagerURI = strings.Trim(strings.TrimSuffix(cleanPagerURI, "?"), "&")
+
+	sep := "?"
+	if strings.Contains(cleanPagerURI, "?") {
+		sep = "&"
 	}
 
 	return &HyperMediaDataSet{
-		PagerURI:     basePage + "?" + r.URL.RawQuery,
+		PagerURI:     pagerURI,
 		DataSetURI:   basePage,
 		TotalItems:   totalHits,
-		FirstPage:    fmt.Sprintf("%s%spage=1", basePage, sep),
-		NextPage:     fmt.Sprintf("%s%spage=%d", basePage, sep, nextPage),
-		PreviousPage: fmt.Sprintf("%s%spage=%d", basePage, sep, previousPage),
+		FirstPage:    fmt.Sprintf("%s%spage=1", cleanPagerURI, sep),
+		NextPage:     fmt.Sprintf("%s%spage=%d", cleanPagerURI, sep, nextPage),
+		PreviousPage: fmt.Sprintf("%s%spage=%d", cleanPagerURI, sep, previousPage),
 		ItemsPerPage: int64(FRAGMENT_SIZE),
 		CurrentPage:  pageNumber,
 	}
