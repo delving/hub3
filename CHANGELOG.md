@@ -48,6 +48,7 @@
 - [57a0d8ae9](https://github.com/delving/hub3/commit/57a0d8ae9) hub3: fixed order for processing triples in ead processing.
 - [4a3160b27](https://github.com/delving/hub3/commit/4a3160b27) hub3: fixes for unit tests and ikuzo server after refactor.
 - [228d44b32](https://github.com/delving/hub3/commit/228d44b32) hub3: fixed predictable ordering for namespace defaults.
+- pagination with LDF hypermedia controls  [[GH-154]](https://github.com/delving/hub3/pull/154)
 
 ## Deprecated
 
