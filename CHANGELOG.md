@@ -23,6 +23,7 @@
 - [44971706a](https://github.com/delving/hub3/commit/44971706a) hub3: initial version of generic lod resolver package.
 - [58bd58a16](https://github.com/delving/hub3/commit/58bd58a16) hub3: Initial support for mappingxml  RDF serialization format.
 - [abf71ee8a](https://github.com/delving/hub3/commit/abf71ee8a) hub3: added support for rdf.Graph generation from FragmentResources.
+- Add /def/ to allowed LOD redirect resources [[GH-155]](https://github.com/delving/hub3/pull/155)
 
 ### Changed
 
