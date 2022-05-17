@@ -66,3 +66,69 @@ func Test_getResolveURL(t *testing.T) {
 		})
 	}
 }
+
+func Test_getSparqlSubject(t *testing.T) {
+	type args struct {
+		iri      string
+		fragment string
+	}
+
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"with resource",
+			args{iri: "https://test.nl/data/123", fragment: ""},
+			"https://test.nl/resource/123",
+			false,
+		},
+		{
+			"without fragments",
+			args{iri: "https://test.nl/doc/123"},
+			"https://test.nl/id/123",
+			false,
+		},
+		{
+			"with fragments",
+			args{iri: "https://test.nl/doc/123", fragment: "hello"},
+			"https://test.nl/id/123#hello",
+			false,
+		},
+		{
+			"with fragments and def",
+			args{iri: "https://test.nl/def/ontology", fragment: "label"},
+			"https://test.nl/def/ontology#label",
+			false,
+		},
+		{
+			"with fragments in iri",
+			args{iri: "https://test.nl/def/ontology#label", fragment: ""},
+			"https://test.nl/def/ontology#label",
+			false,
+		},
+		{
+			"invalid uri",
+			args{iri: "", fragment: ""},
+			"",
+			true,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getSparqlSubject(tt.args.iri, tt.args.fragment)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getSparqlSubject() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("getSparqlSubject() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
