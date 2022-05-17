@@ -34,6 +34,7 @@ const (
 	resourcePrefix = "resource"
 	docPrefix      = "doc"
 	dataPrefix     = "data"
+	defPrefix      = "def"
 )
 
 var lodPathRoute = "/{path:%s}/*"
@@ -52,7 +53,7 @@ func RegisterLOD(r chi.Router) {
 	}
 
 	redirects := []string{
-		idPrefix, resourcePrefix, docPrefix, dataPrefix,
+		idPrefix, resourcePrefix, docPrefix, dataPrefix, defPrefix,
 	}
 
 	for _, prefix := range redirects {
@@ -84,24 +85,41 @@ func getResolveURL(r *http.Request) string {
 func lodRedirect(w http.ResponseWriter, r *http.Request) {
 	sourceURI := getResolveURL(r)
 	resolveURI := fmt.Sprintf("/resource?uri=%s", sourceURI)
-	http.Redirect(w, r, resolveURI, http.StatusNotFound)
+	http.Redirect(w, r, resolveURI, http.StatusFound)
 }
 
-func getSparqlSubject(iri string) (string, error) {
+func getSparqlSubject(iri, fragment string) (string, error) {
 	uri, err := url.Parse(iri)
 	if err != nil {
 		return "", err
 	}
 
 	parts := strings.Split(uri.Path, "/")
-	switch parts[1] {
-	case docPrefix:
-		parts[1] = idPrefix
-	case dataPrefix:
-		parts[1] = resourcePrefix
+	if len(parts) > 1 {
+		switch parts[1] {
+		case docPrefix:
+			parts[1] = idPrefix
+		case dataPrefix:
+			parts[1] = resourcePrefix
+		}
 	}
 
-	return fmt.Sprintf("%s://%s%s", uri.Scheme, uri.Host, strings.Join(parts, "/")), nil
+	// # in a uri must be percent-encoded `%23` to be picked up by the resolver
+	// otherwise it is stripped by the browser or the URL parser.
+	path := strings.Join(parts, "/")
+	if fragment != "" {
+		path += "#" + fragment
+	}
+
+	if uri.Fragment != "" {
+		path += "#" + uri.Fragment
+	}
+
+	if uri.Scheme == "" || uri.Host == "" {
+		return "", fmt.Errorf("invalid uri or subject parameter: %q", uri)
+	}
+
+	return fmt.Sprintf("%s://%s%s", uri.Scheme, uri.Host, path), nil
 }
 
 func lodResolver() http.HandlerFunc {
@@ -123,7 +141,11 @@ func lodResolver() http.HandlerFunc {
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		iri, err := getSparqlSubject(r.URL.Query().Get("uri"))
+		uri := r.URL.Query().Get("uri")
+		if uri == "" {
+			uri = r.URL.Query().Get("subject")
+		}
+		iri, err := getSparqlSubject(uri, r.URL.Fragment)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
