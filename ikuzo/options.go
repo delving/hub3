@@ -133,7 +133,15 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
-					s.respond(w, r, info, http.StatusOK)
+					orgID := domain.GetOrganizationID(r)
+					envelope := struct {
+						Version *BuildVersionInfo `json:"version"`
+						OrgID   string            `json:"orgID"`
+					}{
+						Version: info,
+						OrgID:   orgID.String(),
+					}
+					s.respond(w, r, envelope, http.StatusOK)
 				})
 			},
 		)

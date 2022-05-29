@@ -21,7 +21,7 @@ import (
 
 // BuildVersionInfo holds all the version information
 type BuildVersionInfo struct {
-	Version    string `json:"version"`
+	Version    string `json:"number"`
 	Commit     string `json:"commit"`
 	BuildAgent string `json:"buildAgent"`
 	BuildDate  string `json:"buildDate"`
