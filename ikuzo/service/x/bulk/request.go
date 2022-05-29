@@ -69,6 +69,7 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.Revision = int32(revision)
 	fg.Meta.NamedGraphURI = req.NamedGraphURI
 	fg.Meta.EntryURI = fg.GetAboutURI()
+	fg.Meta.Modified = fragments.NowInMillis()
 	fg.Meta.Tags = []string{"narthex", "mdr"}
 
 	if req.Tags != "" {

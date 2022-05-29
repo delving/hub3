@@ -583,8 +583,8 @@ func (tpe *TreePageEntry) CreateTreePage(
 	nodeMap map[string]*Tree,
 	rootNodes []*Tree,
 	appending bool,
-	sortFrom int32) map[string][]*Tree {
-
+	sortFrom int32,
+) map[string][]*Tree {
 	page := make(map[string][]*Tree)
 
 	var rootLevelNodes []*Tree
@@ -1950,5 +1950,10 @@ func IndexFragments(rm *ResourceMap, fg *FragmentGraph, bi BulkIndex) error {
 
 // NowInMillis returns time.Now() in miliseconds
 func NowInMillis() int64 {
-	return time.Now().UnixNano() / 1000000
+	return time.Now().UTC().UnixMilli()
+}
+
+// LastModified converts millis into time.Time
+func LastModified(millis int64) time.Time {
+	return time.Unix(0, millis*int64(time.Millisecond))
 }
