@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 	"time"
 
@@ -437,8 +438,9 @@ func (s *server) recoverer(next http.Handler) http.Handler {
 					Str("method", r.Method).
 					Str("url", r.URL.String()).
 					Int("status", http.StatusInternalServerError).
+					Bytes("debug_stack", debug.Stack()).
 					Dict("params", middleware.LogParamsAsDict(r.URL.Query())).
-					Msg(fmt.Sprintf("Recover from Panic: %s;", rvr))
+					Msgf("Recover from Panic: %s", rvr)
 
 				err := fmt.Errorf("%s; error logged with request_id: %s", errText, requestID)
 				s.respondWithError(w, r, err, http.StatusInternalServerError)
