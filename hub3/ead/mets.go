@@ -90,6 +90,17 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 	for _, grp := range fg {
 		if strings.EqualFold(grp.AttrUSE, "default") {
 			defaultGrp = grp
+		} else if strings.EqualFold(grp.AttrUSE, "display") {
+			for _, metsFile := range grp.Cfile {
+				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "IIP")
+				file, ok := files[id]
+				if !ok {
+					return fmt.Errorf("id should always be in webresource map: %s", id)
+				}
+				if metsFile.CFLocat != nil {
+					file.DeepzoomURI = metsFile.CFLocat.AttrXlinkSpacehref
+				}
+			}
 		} else if strings.EqualFold(grp.AttrUSE, "thumbs") {
 			for _, metsFile := range grp.Cfile {
 				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "THB")
@@ -133,7 +144,9 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 
 		if metsFile.CFLocat != nil {
 			file.DownloadURI = metsFile.CFLocat.AttrXlinkSpacehref
-			file.DeepzoomURI = createDeepZoomURI(file, fa.Duuid)
+			if file.DeepzoomURI != "" {
+				file.DeepzoomURI = createDeepZoomURI(file, fa.Duuid)
+			}
 		}
 	}
 
