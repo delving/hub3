@@ -45,7 +45,7 @@ func TestOAIPMHStore(t *testing.T) {
 	t.Run("listsets", func(t *testing.T) {
 		is := is.New(t)
 
-		sets, errors, err := store.ListSets(ctx, &oaipmh.QueryConfig{OrgID: "orgid"})
+		sets, errors, err := store.ListSets(ctx, &oaipmh.RequestConfig{OrgID: "orgid"})
 		is.NoErr(err)
 		is.Equal(len(errors), 0)
 		is.Equal(len(sets), 4)
@@ -53,7 +53,7 @@ func TestOAIPMHStore(t *testing.T) {
 
 	t.Run("listidentifiers", func(t *testing.T) {
 		is := is.New(t)
-		q := &oaipmh.QueryConfig{OrgID: "orgid", DatasetID: "1", MetadataPrefix: "raw"}
+		q := &oaipmh.RequestConfig{OrgID: "orgid", DatasetID: "1", FirstRequest: &oaipmh.Request{MetadataPrefix: "raw"}}
 		headers, errors, err := store.ListIdentifiers(ctx, q)
 		is.NoErr(err)
 		is.Equal(len(errors), 0)
