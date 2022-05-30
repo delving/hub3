@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strings"
 
 	"github.com/beevik/etree"
 	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 type FilterConfig struct {
-	RDFType       rdf.IRI
-	Subject       rdf.Subject
-	ContextLevels int
+	RDFType         rdf.IRI
+	Subject         rdf.Subject
+	URIPrefixFilter string // to filter out private triples
+	HubID           string
+	ContextLevels   int
 }
 
 // Serialize serialize the Graph to explicit XML.
@@ -38,7 +41,7 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 	}
 
 	for _, rsc := range filtered {
-		if resourceErr := createResource(g, rsc, root, map[rdf.Subject]bool{}); resourceErr != nil {
+		if resourceErr := createResource(g, rsc, root, map[rdf.Subject]bool{}, cfg); resourceErr != nil {
 			return resourceErr
 		}
 	}
@@ -54,7 +57,13 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig) []*rdf.Resource {
 	var filtered []*rdf.Resource
 
+	hasFilter := cfg.URIPrefixFilter != ""
+
 	for _, rsc := range resources {
+		if hasFilter && strings.HasPrefix(rsc.Subject().String(), cfg.URIPrefixFilter) {
+			continue
+		}
+
 		if !cfg.RDFType.Equal(rdf.IRI{}) {
 			var found bool
 
@@ -76,6 +85,7 @@ func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig)
 				filtered = append(filtered, rsc)
 				return filtered
 			}
+
 			continue
 		}
 
@@ -89,7 +99,10 @@ func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig)
 	return filtered
 }
 
-func createResource(g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element, seen map[rdf.Subject]bool) error {
+func createResource(
+	g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element,
+	seen map[rdf.Subject]bool, cfg *FilterConfig,
+) error {
 	rdfType := rsc.Types()[0]
 
 	baseURI, label := rdfType.Split()
@@ -97,6 +110,11 @@ func createResource(g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element, seen
 	ns, err := g.NamespaceManager.GetWithBase(baseURI)
 	if err != nil {
 		return err
+	}
+	hasFilter := cfg.URIPrefixFilter != ""
+
+	if hasFilter && strings.HasPrefix(rsc.Subject().RawValue(), cfg.URIPrefixFilter) {
+		return nil
 	}
 
 	root := parent.CreateElement(fmt.Sprintf("%s:%s", ns.Prefix, label))
@@ -156,11 +174,15 @@ func createResource(g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element, seen
 					continue
 				}
 
-				if err := createResource(g, nestedRsc, elem, seen); err != nil {
+				if err := createResource(g, nestedRsc, elem, seen, cfg); err != nil {
 					return err
 				}
 			case rdf.TermIRI:
 				iri := object.(rdf.IRI)
+
+				if hasFilter && strings.HasPrefix(iri.RawValue(), cfg.URIPrefixFilter) {
+					continue
+				}
 
 				nestedRsc, ok := g.Get(rdf.Subject(iri))
 				if !ok {
@@ -168,7 +190,7 @@ func createResource(g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element, seen
 					continue
 				}
 
-				if err := createResource(g, nestedRsc, elem, seen); err != nil {
+				if err := createResource(g, nestedRsc, elem, seen, cfg); err != nil {
 					return err
 				}
 

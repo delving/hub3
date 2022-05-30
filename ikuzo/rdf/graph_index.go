@@ -100,6 +100,12 @@ func (gi *GraphIndex) updatePredicate(t *Triple) {
 
 func (gi *GraphIndex) updateRDFType(t *Triple) {
 	if t.Predicate.RawValue() == RDFType {
+		switch term := t.Object.(type) {
+		case *IRI:
+			gi.updateNamespaceURI(*term)
+		case IRI:
+			gi.updateNamespaceURI(term)
+		}
 		o := getHash(t.Object)
 
 		count, ok := gi.RDFTypes[o]
