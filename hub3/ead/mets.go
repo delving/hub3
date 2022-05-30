@@ -144,7 +144,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 
 		if metsFile.CFLocat != nil {
 			file.DownloadURI = metsFile.CFLocat.AttrXlinkSpacehref
-			if file.DeepzoomURI != "" {
+			if file.DeepzoomURI == "" {
 				file.DeepzoomURI = createDeepZoomURI(file, fa.Duuid)
 			}
 		}
