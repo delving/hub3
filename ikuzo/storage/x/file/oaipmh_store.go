@@ -44,7 +44,7 @@ func (o *OAIPMHStore) readSetConfig(path, spec string) (setConfig, error) {
 	return cfg, nil
 }
 
-func (o *OAIPMHStore) ListSets(ctx context.Context, q *oaipmh.QueryConfig) (sets []oaipmh.Set, errors []oaipmh.Error, err error) {
+func (o *OAIPMHStore) ListSets(ctx context.Context, q *oaipmh.RequestConfig) (sets []oaipmh.Set, errors []oaipmh.Error, err error) {
 	rawSets, err := o.filterSets(q.OrgID, "", "")
 	if err != nil {
 		return sets, errors, err
@@ -117,11 +117,10 @@ func (o *OAIPMHStore) filterSets(orgID, specPrefix, metadataPrefix string) (sets
 	return sets, nil
 }
 
-func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.QueryConfig) (
+func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.RequestConfig) (
 	headers []oaipmh.Header, errors []oaipmh.Error, err error,
 ) {
-	// TODO(kiivihal): get sets
-	path := filepath.Join(o.Path, q.OrgID, q.DatasetID, q.MetadataPrefix)
+	path := filepath.Join(o.Path, q.OrgID, q.DatasetID, q.FirstRequest.MetadataPrefix)
 
 	files, err := os.ReadDir(path)
 	if err != nil {
