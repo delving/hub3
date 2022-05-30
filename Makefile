@@ -68,7 +68,7 @@ uncovered-ikuzo:
 
 IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
 
-IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git rev-parse HEAD` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
+IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
 
 build:
 	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
