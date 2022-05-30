@@ -24,6 +24,7 @@
 - [58bd58a16](https://github.com/delving/hub3/commit/58bd58a16) hub3: Initial support for mappingxml  RDF serialization format.
 - [abf71ee8a](https://github.com/delving/hub3/commit/abf71ee8a) hub3: added support for rdf.Graph generation from FragmentResources.
 - Add /def/ to allowed LOD redirect resources [[GH-155]](https://github.com/delving/hub3/pull/155)
+- OAI-PMH service and elasticsearch driver  [[GH-160]](https://github.com/delving/hub3/pull/160)
 
 ### Changed
 
@@ -39,6 +40,9 @@
 - [9c4e90946](https://github.com/delving/hub3/commit/9c4e90946) hub3: changed oai-pmh service to support stores.
 - [0140f7eee](https://github.com/delving/hub3/commit/0140f7eee) hub3: changed sitemap package to support stores.
 - [303eb85a1](https://github.com/delving/hub3/commit/303eb85a1) hub3: migrate es search statistics to own sub-package.
+- `/version` endpoint to include orgID and better wrapper for data. [[GH-156]](https://github.com/delving/hub3/pull/156)
+- Enable default orgID as fallback [[GH-157]](https://github.com/delving/hub3/pull/157)
+- Always set modified when indexing fragments.FragmentGraph [[GH-158]](https://github.com/delving/hub3/pull/158)
 
 ## Removed
  
@@ -50,6 +54,7 @@
 - [4a3160b27](https://github.com/delving/hub3/commit/4a3160b27) hub3: fixes for unit tests and ikuzo server after refactor.
 - [228d44b32](https://github.com/delving/hub3/commit/228d44b32) hub3: fixed predictable ordering for namespace defaults.
 - pagination with LDF hypermedia controls  [[GH-154]](https://github.com/delving/hub3/pull/154)
+- Fixed adding namespaces of types during graph processing [[GH-159]](https://github.com/delving/hub3/pull/159)
 
 ## Deprecated
 
