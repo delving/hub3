@@ -87,8 +87,8 @@ func (o *OAIPMHStore) filterSets(orgID, specPrefix, metadataPrefix string) (sets
 		if specPrefix != "" {
 			comp := strings.EqualFold
 
-			if strings.Contains(dataset.Name(), ":") {
-				specPrefix = specPrefix + ":"
+			if strings.Contains(dataset.Name(), "_") {
+				specPrefix = specPrefix + "_"
 				comp = strings.HasPrefix
 			}
 
