@@ -1,40 +1,73 @@
 package oaipmh
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
-type HarvestStep struct {
-	ID        string
-	Request   *Request
-	TotalSize int
-	Finished  bool
-}
-
-type QueryConfig struct {
-	ID             string // ID of the harvest step
-	Identifier     string
-	From           string
-	Until          string
-	MetadataPrefix string
+type RequestConfig struct {
+	ID             string // ID of the harvest step parsed from resumption token
+	FirstRequest   *Request
+	CurrentRequest RawToken
+	StoreCursor    string
 	OrgID          string
 	DatasetID      string
-	Cursor         string // string based cursor instead of offset
-	NextCursor     string
-	Offset         int // maybe remove
-	Limit          int
 	TotalSize      int
 	Finished       bool
 }
 
-// TODO(kiivihal): implement harvest step
-func (q *QueryConfig) NextResumptionToken() *ResumptionToken {
-	// TODO(kiivihal): implement logic
-	return &ResumptionToken{}
+func (q *RequestConfig) IsResumedRequest() bool {
+	return q.CurrentRequest.HarvestID != ""
+}
+
+func (q *RequestConfig) NextResumptionToken(res *Resumable) *ResumptionToken {
+	cursor := q.CurrentRequest.Cursor
+	token := RawToken{
+		HarvestID:    q.ID,
+		Cursor:       cursor + res.Len(),
+		StorePayload: res.StorePayload,
+	}
+
+	rt := &ResumptionToken{
+		CompleteListSize: q.TotalSize,
+		Cursor:           cursor,
+	}
+
+	if rt.CompleteListSize > token.Cursor {
+		rt.Token = token.String()
+		rt.ExperationDate = time.Now().Add(1 * time.Minute).Format(TimeFormat)
+	}
+
+	return rt
+}
+
+type Resumable struct {
+	Sets         []Set
+	Headers      []Header
+	Records      []Record
+	Errors       []Error
+	StorePayload string
+	Total        int // Total only needs to be returned the first time
+}
+
+func (res *Resumable) Len() int {
+	size := len(res.Records)
+	if size > 0 {
+		return size
+	}
+
+	size = len(res.Headers)
+	if size > 0 {
+		return size
+	}
+
+	return len(res.Sets)
 }
 
 type Store interface {
-	// TODO(kiivihal): maybe add get Config
-	ListSets(ctx context.Context, q *QueryConfig) ([]Set, []Error, error)
-	ListIdentifiers(ctx context.Context, q *QueryConfig) ([]Header, []Error, error)
-	ListRecords(ctx context.Context, q *QueryConfig) ([]Record, []Error, error)
-	GetRecord(ctx context.Context, q *QueryConfig) (Record, []Error, error)
+	ListSets(ctx context.Context, q *RequestConfig) (Resumable, error)
+	ListIdentifiers(ctx context.Context, q *RequestConfig) (Resumable, error)
+	ListRecords(ctx context.Context, q *RequestConfig) (Resumable, error)
+	GetRecord(ctx context.Context, q *RequestConfig) (Record, []Error, error)
+	ListMetadataFormats(ctx context.Context, q *RequestConfig) ([]MetadataFormat, error)
 }

@@ -60,18 +60,23 @@ func NewRequest(r *http.Request) Request {
 	return req
 }
 
-func (request *Request) QueryConfig() QueryConfig {
-	return QueryConfig{
-		Identifier:     request.Identifier,
-		From:           request.From,
-		Until:          request.Until,
-		Offset:         request.cursor,
-		Limit:          request.limit,
-		TotalSize:      request.completeListSize,
-		MetadataPrefix: request.MetadataPrefix,
-		OrgID:          request.orgConfig.OrgID(),
-		DatasetID:      request.Set,
+func (request *Request) RequestConfig() RequestConfig {
+	return RequestConfig{
+		ID:           "",
+		FirstRequest: request,
+		OrgID:        request.orgConfig.OrgID(),
+		DatasetID:    request.Set,
+		TotalSize:    0,
+		Finished:     false,
 	}
+}
+
+func (request *Request) rawToken() (RawToken, error) {
+	if request.ResumptionToken == "" {
+		return RawToken{}, nil
+	}
+
+	return parseToken(request.ResumptionToken)
 }
 
 // GetFullURL represents the OAI Request in a string format

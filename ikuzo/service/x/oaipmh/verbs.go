@@ -8,12 +8,12 @@ var TimeFormat = time.RFC3339
 type Verb string
 
 const (
-	VerbListIdentifiers     Verb = "listIdentifiers"
-	VerbListRecords         Verb = "listRecords"
-	VerbListSets            Verb = "listSets"
-	VerbGetRecord           Verb = "getRecord"
-	VerbListMetadataFormats Verb = "listMetadataFormats"
-	VerbIdentify            Verb = "identify"
+	VerbListIdentifiers     Verb = "ListIdentifiers"
+	VerbListRecords         Verb = "ListRecords"
+	VerbListSets            Verb = "ListSets"
+	VerbGetRecord           Verb = "GetRecord"
+	VerbListMetadataFormats Verb = "ListMetadataFormats"
+	VerbIdentify            Verb = "Identify"
 )
 
 // var validVerbs = map[Verb]

@@ -1,5 +1,7 @@
 package oaipmh
 
+import "fmt"
+
 // About is an optional and repeatable container to hold data about
 // the metadata part of the record.
 //
@@ -88,6 +90,19 @@ type Error struct {
 	Code            string `xml:"code,attr"`
 	Message         string `xml:",chardata"`
 	applicableVerbs []Verb
+}
+
+func (err Error) Error() string {
+	return fmt.Sprintf("%s: %s", err.Code, err.Message)
+}
+
+func (err Error) Is(target error) bool {
+	t, ok := target.(Error)
+	if !ok {
+		return false
+	}
+
+	return t.Code == err.Code
 }
 
 // MetadataFormat is a metadata format available from a repository
@@ -249,7 +264,7 @@ type Record struct {
 type ResumptionToken struct {
 	Token            string `xml:",chardata" json:"token"`
 	CompleteListSize int    `xml:"completeListSize,attr" json:"completeListSize"`
-	ExperationDate   string `xml:"experationDate,attr" json:"experationDate"`
+	ExperationDate   string `xml:"experationDate,attr,omitempty" json:"experationDate"`
 	Cursor           int    `xml:"cursor,attr"`
 }
 
@@ -282,6 +297,6 @@ type ResumptionToken struct {
 //
 type Set struct {
 	SetSpec        string      `xml:"setSpec"`
-	SetName        string      `xml:"setName"`
-	SetDescription Description `xml:"setDescription"`
+	SetName        string      `xml:"setName,omitempty"`
+	SetDescription Description `xml:"setDescription,omitempty"`
 }

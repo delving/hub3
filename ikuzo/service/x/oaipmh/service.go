@@ -2,11 +2,14 @@ package oaipmh
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
+	"github.com/teris-io/shortid"
 )
 
 var _ domain.Service = (*Service)(nil)
@@ -15,13 +18,22 @@ type Service struct {
 	orgs  domain.OrgConfigRetriever
 	log   zerolog.Logger
 	store Store
-	steps map[string]*HarvestStep
+	steps map[string]RequestConfig
+	m     sync.RWMutex
+	sid   *shortid.Shortid
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		steps: make(map[string]*HarvestStep),
+		steps: make(map[string]RequestConfig),
 	}
+
+	sid, err := shortid.New(1, shortid.DefaultABC, 2342)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get seed generator: %w", err)
+	}
+
+	s.sid = sid
 
 	// apply options
 	for _, option := range options {

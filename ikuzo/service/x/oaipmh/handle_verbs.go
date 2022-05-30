@@ -2,6 +2,7 @@ package oaipmh
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -51,24 +52,25 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 		s.handleIdentify(resp)
 	case VerbListMetadataFormats:
 		s.handleListMetadataFormats(resp)
+	case VerbGetRecord:
+		err = s.handleGetRecord(resp)
 	case VerbListSets:
 		err = s.handleListSets(resp)
 	case VerbListIdentifiers:
 		err = s.handleListIdentifiers(resp)
 	case VerbListRecords:
 		err = s.handleListRecords(resp)
-	case VerbGetRecord:
-		err = s.handleGetRecord(resp)
 	default:
 		resp.Error = append(resp.Error, ErrBadVerb)
 	}
 
-	if err != nil {
-		return nil, fmt.Errorf("unexpected error processing OAI-PMH")
-	}
-
 	if len(resp.Error) != 0 {
 		resp.Request = &Request{BaseURL: req.BaseURL}
+		return resp, nil
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("unexpected error processing oai-pmh; %w", err)
 	}
 
 	return resp, nil
@@ -80,71 +82,138 @@ func (s *Service) handleIdentify(resp *Response) {
 		BaseURL:           resp.Request.BaseURL,
 		ProtocolVersion:   "2.0",
 		AdminEmail:        resp.Request.orgConfig.OAIPMH.AdminEmails,
-		DeletedRecord:     "persistent",
+		DeletedRecord:     "no", // TODO(kiivihal): change later to persistent
 		EarliestDatestamp: "1970-01-01T00:00:00Z",
 		Granularity:       "YYYY-MM-DDThh:mm:ssZ",
 	}
 }
 
-func (s *Service) handleListMetadataFormats(resp *Response) {
+func (s *Service) handleListMetadataFormats(resp *Response) error {
 	// TODO(kiivihal): implement check for identifier
-	formats := []MetadataFormat{
-		{
-			MetadataPrefix:    "edm",
-			Schema:            "",
-			MetadataNamespace: "http://www.europeana.eu/schemas/edm/",
-		},
-		{
-			MetadataPrefix:    "rdf",
-			Schema:            "",
-			MetadataNamespace: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-		},
+
+	cfg := resp.Request.RequestConfig()
+
+	formats, err := s.store.ListMetadataFormats(context.TODO(), &cfg)
+	if err != nil {
+		return err
 	}
+
 	resp.ListMetadataFormats = &ListMetadataFormats{
 		MetadataFormat: formats,
-	}
-}
-
-func (s *Service) handleListSets(resp *Response) error {
-	ctx := context.TODO()
-
-	q := resp.Request.QueryConfig()
-
-	sets, errors, err := s.store.ListSets(ctx, &q)
-	if err != nil {
-		return fmt.Errorf("error during listsets: %w", err)
-	}
-
-	if len(errors) != 0 {
-		resp.Error = errors
-		return nil
-	}
-
-	resp.ListSets = &ListSets{
-		Set: sets,
 	}
 
 	return nil
 }
 
+func (s *Service) handleListSets(resp *Response) error {
+	ctx := context.TODO()
+
+	cfg, err := s.requestConfig(resp.Request)
+	if err != nil {
+		if errors.Is(err, ErrBadResumptionToken) {
+			resp.Error = append(resp.Error, ErrBadResumptionToken)
+			return nil
+		}
+
+		return fmt.Errorf("cannot get request config: %w", err)
+	}
+
+	res, err := s.store.ListSets(ctx, &cfg)
+	if err != nil {
+		return fmt.Errorf("error during listsets: %w", err)
+	}
+
+	if len(res.Errors) != 0 {
+		resp.Error = res.Errors
+		return nil
+	}
+
+	if cfg.TotalSize == 0 && res.Total > 0 {
+		s.m.Lock()
+		cfg.TotalSize = res.Total
+		s.steps[cfg.ID] = cfg
+		s.m.Unlock()
+	}
+
+	resp.ListSets = &ListSets{
+		Set:             res.Sets,
+		ResumptionToken: cfg.NextResumptionToken(&res),
+	}
+
+	return nil
+}
+
+func (s *Service) requestConfig(req *Request) (cfg RequestConfig, err error) {
+	if req.ResumptionToken == "" {
+		cfg = req.RequestConfig()
+		cfg.ID, err = s.sid.Generate()
+		if err != nil {
+			return cfg, err
+		}
+
+		return cfg, nil
+	}
+
+	token, err := parseToken(req.ResumptionToken)
+	if err != nil {
+		return cfg, err
+	}
+
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	cfg, ok := s.steps[token.HarvestID]
+	if !ok {
+		return cfg, ErrBadResumptionToken
+	}
+
+	cfg.CurrentRequest = token
+
+	return cfg, nil
+}
+
 func (s *Service) handleListIdentifiers(resp *Response) error {
 	ctx := context.TODO()
 
-	q := resp.Request.QueryConfig()
+	cfg, err := s.requestConfig(resp.Request)
+	if err != nil {
+		if errors.Is(err, ErrBadResumptionToken) {
+			resp.Error = append(resp.Error, ErrBadResumptionToken)
+			return nil
+		}
+		return fmt.Errorf("cannot get request config: %w", err)
+	}
 
-	headers, errors, err := s.store.ListIdentifiers(ctx, &q)
+	if cfg.DatasetID == "" {
+		resp.Error = append(resp.Error, ErrBadArgument)
+		return nil
+	}
+
+	res, err := s.store.ListIdentifiers(ctx, &cfg)
 	if err != nil {
 		return fmt.Errorf("error during listIdentifiers: %w", err)
 	}
 
-	if len(errors) != 0 {
-		resp.Error = errors
+	if len(res.Errors) != 0 {
+		resp.Error = res.Errors
 		return nil
 	}
 
+	if len(res.Headers) == 0 {
+		resp.Error = append(resp.Error, ErrNoRecordsMatch)
+		return nil
+	}
+
+	if cfg.TotalSize == 0 && res.Total > 0 {
+		s.m.Lock()
+		cfg.TotalSize = res.Total
+		s.steps[cfg.ID] = cfg
+		s.m.Unlock()
+	}
+
 	resp.ListIdentifiers = &ListIdentifiers{
-		Headers:         headers,
-		ResumptionToken: q.NextResumptionToken(),
+		Headers:         res.Headers,
+		ResumptionToken: cfg.NextResumptionToken(&res),
 	}
 
 	return nil
@@ -153,21 +222,45 @@ func (s *Service) handleListIdentifiers(resp *Response) error {
 func (s *Service) handleListRecords(resp *Response) error {
 	ctx := context.TODO()
 
-	q := resp.Request.QueryConfig()
+	cfg, err := s.requestConfig(resp.Request)
+	if err != nil {
+		if errors.Is(err, ErrBadResumptionToken) {
+			resp.Error = append(resp.Error, ErrBadResumptionToken)
+			return nil
+		}
+		return fmt.Errorf("cannot get request config: %w", err)
+	}
 
-	records, errors, err := s.store.ListRecords(ctx, &q)
+	if cfg.DatasetID == "" {
+		resp.Error = append(resp.Error, ErrBadArgument)
+		return nil
+	}
+
+	res, err := s.store.ListRecords(ctx, &cfg)
 	if err != nil {
 		return fmt.Errorf("error during listRecords: %w", err)
 	}
 
-	if len(errors) != 0 {
-		resp.Error = errors
+	if len(res.Errors) != 0 {
+		resp.Error = res.Errors
 		return nil
 	}
 
+	if len(res.Records) == 0 {
+		resp.Error = append(resp.Error, ErrNoRecordsMatch)
+		return nil
+	}
+
+	if cfg.TotalSize == 0 && res.Total > 0 {
+		s.m.Lock()
+		cfg.TotalSize = res.Total
+		s.steps[cfg.ID] = cfg
+		s.m.Unlock()
+	}
+
 	resp.ListRecords = &ListRecords{
-		Records:         records,
-		ResumptionToken: q.NextResumptionToken(),
+		Records:         res.Records,
+		ResumptionToken: cfg.NextResumptionToken(&res),
 	}
 
 	return nil
@@ -176,7 +269,7 @@ func (s *Service) handleListRecords(resp *Response) error {
 func (s *Service) handleGetRecord(resp *Response) error {
 	ctx := context.TODO()
 
-	q := resp.Request.QueryConfig()
+	q := resp.Request.RequestConfig()
 
 	record, errors, err := s.store.GetRecord(ctx, &q)
 	if err != nil {

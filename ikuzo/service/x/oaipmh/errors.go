@@ -14,7 +14,7 @@ var (
 	}
 
 	ErrBadResumptionToken = Error{
-		Code:            "cannotDisseminateFormat",
+		Code:            "badResumptionToken",
 		Message:         "The value of the resumptionToken argument is invalid or expired.",
 		applicableVerbs: []Verb{VerbListIdentifiers, VerbListRecords, VerbListSets},
 	}

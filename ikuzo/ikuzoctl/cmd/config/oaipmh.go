@@ -14,7 +14,15 @@ func (o *OAIPMH) NewService(cfg *Config) (*oaipmh.Service, error) {
 		return o.service, nil
 	}
 
-	svc, err := oaipmh.NewService()
+	// TODO(kiivihal): make stores switchable
+	store, err := cfg.client.NewOAIPMHStore()
+	if err != nil {
+		return nil, err
+	}
+
+	svc, err := oaipmh.NewService(
+		oaipmh.SetStore(store),
+	)
 	if err != nil {
 		return nil, err
 	}
