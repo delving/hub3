@@ -201,9 +201,9 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 	fa.FileCount = int32(len(fa.Files))
 
 loop:
-	for k := range fa.MimeTypes {
+	for _, file := range fa.Files {
 		switch {
-		case isTileMimeType(k):
+		case file.DeepzoomURI != "":
 			fa.HasOnlyTiles = true
 		default:
 			// non-file so set to false and break
