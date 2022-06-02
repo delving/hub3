@@ -25,6 +25,7 @@
 - [abf71ee8a](https://github.com/delving/hub3/commit/abf71ee8a) hub3: added support for rdf.Graph generation from FragmentResources.
 - Add /def/ to allowed LOD redirect resources [[GH-155]](https://github.com/delving/hub3/pull/155)
 - OAI-PMH service and elasticsearch driver  [[GH-160]](https://github.com/delving/hub3/pull/160)
+- Add config option to ignore certain paths from request logging. [[GH-161]](https://github.com/delving/hub3/pull/161)
 
 ### Changed
 
