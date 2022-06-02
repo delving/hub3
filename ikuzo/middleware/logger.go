@@ -28,13 +28,8 @@ import (
 	"github.com/rs/zerolog/hlog"
 )
 
-// RequestLogger creates a middleware chain for request logging
-func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next http.Handler) http.Handler {
-	loopUps := map[string]bool{}
-
-	var disableAll404 bool
-
-	for _, path := range disable404Paths {
+func generateLookupPaths(paths ...string) (lookUps map[string]bool, disableAll404 bool) {
+	for _, path := range paths {
 		if path == "*" {
 			disableAll404 = true
 			continue
@@ -42,17 +37,25 @@ func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next htt
 
 		if strings.HasSuffix(path, "*") {
 			path = strings.TrimSuffix(path, "*")
-			loopUps[path] = true
+			lookUps[path] = true
+
 			continue
 		}
 
-		loopUps[path] = false
+		lookUps[path] = false
 	}
 
+	return lookUps, disableAll404
+}
+
+// RequestLogger creates a middleware chain for request logging
+func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next http.Handler) http.Handler {
 	c := alice.New()
 
 	// Install the logger handler with default output on the console
 	c = c.Append(hlog.NewHandler(*log))
+
+	lookUps, disableAll404 := generateLookupPaths(disable404Paths...)
 
 	// Install some provided extra handler to set some request's context fields.
 	// Thanks to those handler, all our logs will come with some pre-populated fields.
@@ -77,7 +80,7 @@ func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next htt
 				return
 			}
 
-			for path, wildcard := range loopUps {
+			for path, wildcard := range lookUps {
 				matcher := strings.EqualFold
 				if wildcard {
 					matcher = strings.HasPrefix
