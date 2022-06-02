@@ -89,6 +89,8 @@ type server struct {
 	gracefulTimeout time.Duration
 	// disableRequestLogger stops logging of request information to the global logger
 	disableRequestLogger bool
+	// ignore404Paths
+	ignore404Paths []string
 	// logger is the custom zerolog logger
 	logger *logger.CustomLogger
 	// middleware is an array of middleware options that will be applied.
@@ -182,7 +184,7 @@ func newServer(options ...Option) (*server, error) {
 
 	// setting up request logging middleware
 	if !s.disableRequestLogger {
-		s.router.Use(middleware.RequestLogger(&log.Logger))
+		s.router.Use(middleware.RequestLogger(&log.Logger, s.ignore404Paths...))
 	}
 
 	// setup oto server

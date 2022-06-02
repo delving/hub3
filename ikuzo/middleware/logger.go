@@ -29,7 +29,26 @@ import (
 )
 
 // RequestLogger creates a middleware chain for request logging
-func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
+func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next http.Handler) http.Handler {
+	loopUps := map[string]bool{}
+
+	var disableAll404 bool
+
+	for _, path := range disable404Paths {
+		if path == "*" {
+			disableAll404 = true
+			continue
+		}
+
+		if strings.HasSuffix(path, "*") {
+			path = strings.TrimSuffix(path, "*")
+			loopUps[path] = true
+			continue
+		}
+
+		loopUps[path] = false
+	}
+
 	c := alice.New()
 
 	// Install the logger handler with default output on the console
@@ -53,8 +72,26 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 		addHeader(l, r, "cache_url", "Cache-Url")
 		addHeader(l, r, "cache_type", "Cache-Type")
 
+		if status == http.StatusNotFound && len(disable404Paths) > 0 {
+			if disableAll404 {
+				return
+			}
+
+			for path, wildcard := range loopUps {
+				matcher := strings.EqualFold
+				if wildcard {
+					matcher = strings.HasPrefix
+				}
+
+				if matcher(r.URL.String(), path) {
+					return
+				}
+			}
+		}
+
 		l.Msg("")
 	}))
+
 	c = c.Append(hlog.RemoteAddrHandler("ip"))
 	c = c.Append(hlog.UserAgentHandler("user_agent"))
 	c = c.Append(hlog.RefererHandler("referer"))
