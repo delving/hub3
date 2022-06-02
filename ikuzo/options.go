@@ -214,3 +214,10 @@ func SetEnableSentry(dsn string) Option {
 		})
 	}
 }
+
+func SetIgnore404Paths(paths []string) Option {
+	return func(s *server) error {
+		s.ignore404Paths = paths
+		return nil
+	}
+}

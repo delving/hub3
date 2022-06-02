@@ -25,12 +25,13 @@ import (
 )
 
 type Logging struct {
-	DevMode        bool   `json:"devmode"`
-	Level          string `json:"level"`
-	WithCaller     bool   `json:"withCaller"`
-	ConsoleLogger  bool   `json:"consoleLogger"`
-	ErrorFieldName string `json:"errorFieldName"`
-	SentryDSN      string `json:"sentryDSN"`
+	DevMode        bool     `json:"devmode"`
+	Level          string   `json:"level"`
+	WithCaller     bool     `json:"withCaller"`
+	ConsoleLogger  bool     `json:"consoleLogger"`
+	ErrorFieldName string   `json:"errorFieldName"`
+	SentryDSN      string   `json:"sentryDSN"`
+	Exclude404Path []string `json:"exclude404Path"`
 }
 
 func (l *Logging) AddOptions(cfg *Config) error {
@@ -46,6 +47,7 @@ func (l *Logging) AddOptions(cfg *Config) error {
 				r.Mount("/debug", mw.Profiler())
 			}),
 			ikuzo.SetEnableIntrospect(l.DevMode),
+			ikuzo.SetIgnore404Paths(l.Exclude404Path),
 		)
 	}
 
