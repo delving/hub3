@@ -142,27 +142,29 @@ func BenchmarkLogParamsAsDictUnsorted(b *testing.B) {
 func Test_newLineChecker(t *testing.T) {
 	is := is.New(t)
 
+	ignoredPath := "/version1"
+
 	t.Run("no paths", func(t *testing.T) {
 		lc := newLineChecker()
-		is.True(lc.allowLine(http.StatusNotFound, "/version1"))
+		is.True(lc.allowLine(http.StatusNotFound, ignoredPath))
 	})
 
 	t.Run("disable all", func(t *testing.T) {
 		lc := newLineChecker("*")
 		is.True(lc.disableAll404)
-		is.True(!lc.allowLine(http.StatusNotFound, "/version1"))
+		is.True(!lc.allowLine(http.StatusNotFound, ignoredPath))
 		is.True(lc.enabled)
 	})
 
 	t.Run("disable single path", func(t *testing.T) {
-		lc := newLineChecker("/version1")
+		lc := newLineChecker(ignoredPath)
 		is.True(!lc.disableAll404)
 		is.True(lc.enabled)
 
-		_, ok := lc.lookUps["/version1"]
+		_, ok := lc.lookUps[ignoredPath]
 		is.True(ok)
 		is.True(lc.allowLine(http.StatusNotFound, "/version10"))
-		is.True(!lc.allowLine(http.StatusNotFound, "/version1"))
+		is.True(!lc.allowLine(http.StatusNotFound, ignoredPath))
 	})
 
 	t.Run("paths with wildcards", func(t *testing.T) {
@@ -171,6 +173,6 @@ func Test_newLineChecker(t *testing.T) {
 		is.True(lc.enabled)
 
 		is.True(!lc.allowLine(http.StatusNotFound, "/version10"))
-		is.True(!lc.allowLine(http.StatusNotFound, "/version1"))
+		is.True(!lc.allowLine(http.StatusNotFound, ignoredPath))
 	})
 }
