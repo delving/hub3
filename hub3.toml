@@ -140,8 +140,10 @@ sentryDSN = ""
 level = "debug"
 withCaller = true
 consoleLogger = true
-# "*" ignores all 404, paths ending with "*" are wildcards
-# all paths should start with a forward slash "*"
+# "*" ignores all 404
+# paths ending with "*" are wildcards
+# an empty [] will log all request.
+# all paths should start with a forward slash.
 exclude404Path = []
 
 [rdf]
