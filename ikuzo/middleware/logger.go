@@ -28,24 +28,73 @@ import (
 	"github.com/rs/zerolog/hlog"
 )
 
-func generateLookupPaths(paths ...string) (lookUps map[string]bool, disableAll404 bool) {
+func (lc *lineChecker) generateLookupPaths(paths ...string) {
+	if len(paths) == 0 {
+		return
+	}
+
+	lc.enabled = true
+
 	for _, path := range paths {
 		if path == "*" {
-			disableAll404 = true
+			lc.disableAll404 = true
 			continue
 		}
 
 		if strings.HasSuffix(path, "*") {
 			path = strings.TrimSuffix(path, "*")
-			lookUps[path] = true
+			lc.lookUps[path] = true
 
 			continue
 		}
 
-		lookUps[path] = false
+		lc.lookUps[path] = false
 	}
 
-	return lookUps, disableAll404
+	lc.enabled = true
+}
+
+type lineChecker struct {
+	lookUps       map[string]bool
+	disableAll404 bool
+	enabled       bool
+}
+
+func newLineChecker(paths ...string) lineChecker {
+	lc := lineChecker{
+		lookUps: map[string]bool{},
+	}
+
+	lc.generateLookupPaths(paths...)
+
+	return lc
+}
+
+func (lc lineChecker) allowLine(status int, requestPath string) bool {
+	if !lc.enabled {
+		return true
+	}
+
+	if status != http.StatusNotFound {
+		return true
+	}
+
+	if lc.disableAll404 {
+		return false
+	}
+
+	for path, wildcard := range lc.lookUps {
+		matcher := strings.EqualFold
+		if wildcard {
+			matcher = strings.HasPrefix
+		}
+
+		if matcher(requestPath, path) {
+			return false
+		}
+	}
+
+	return true
 }
 
 // RequestLogger creates a middleware chain for request logging
@@ -55,11 +104,15 @@ func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next htt
 	// Install the logger handler with default output on the console
 	c = c.Append(hlog.NewHandler(*log))
 
-	lookUps, disableAll404 := generateLookupPaths(disable404Paths...)
+	lc := newLineChecker(disable404Paths...)
 
 	// Install some provided extra handler to set some request's context fields.
 	// Thanks to those handler, all our logs will come with some pre-populated fields.
 	c = c.Append(hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
+		if !lc.allowLine(status, r.URL.String()) {
+			return
+		}
+
 		l := hlog.FromRequest(r).Info().
 			Str("method", r.Method).
 			Str("url", r.URL.String()).
@@ -74,23 +127,6 @@ func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next htt
 
 		addHeader(l, r, "cache_url", "Cache-Url")
 		addHeader(l, r, "cache_type", "Cache-Type")
-
-		if status == http.StatusNotFound && len(disable404Paths) > 0 {
-			if disableAll404 {
-				return
-			}
-
-			for path, wildcard := range lookUps {
-				matcher := strings.EqualFold
-				if wildcard {
-					matcher = strings.HasPrefix
-				}
-
-				if matcher(r.URL.String(), path) {
-					return
-				}
-			}
-		}
 
 		l.Msg("")
 	}))
