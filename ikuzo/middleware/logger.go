@@ -28,18 +28,92 @@ import (
 	"github.com/rs/zerolog/hlog"
 )
 
+func (lc *lineChecker) generateLookupPaths(paths ...string) {
+	if len(paths) == 0 {
+		return
+	}
+
+	lc.enabled = true
+
+	for _, path := range paths {
+		if path == "*" {
+			lc.disableAll404 = true
+			continue
+		}
+
+		if strings.HasSuffix(path, "*") {
+			path = strings.TrimSuffix(path, "*")
+			lc.lookUps[path] = true
+
+			continue
+		}
+
+		lc.lookUps[path] = false
+	}
+
+	lc.enabled = true
+}
+
+type lineChecker struct {
+	lookUps       map[string]bool
+	disableAll404 bool
+	enabled       bool
+}
+
+func newLineChecker(paths ...string) lineChecker {
+	lc := lineChecker{
+		lookUps: map[string]bool{},
+	}
+
+	lc.generateLookupPaths(paths...)
+
+	return lc
+}
+
+func (lc lineChecker) allowLine(status int, requestPath string) bool {
+	if !lc.enabled {
+		return true
+	}
+
+	if status != http.StatusNotFound {
+		return true
+	}
+
+	if lc.disableAll404 {
+		return false
+	}
+
+	for path, wildcard := range lc.lookUps {
+		matcher := strings.EqualFold
+		if wildcard {
+			matcher = strings.HasPrefix
+		}
+
+		if matcher(requestPath, path) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // RequestLogger creates a middleware chain for request logging
-func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
+func RequestLogger(log *zerolog.Logger, disable404Paths ...string) func(next http.Handler) http.Handler {
 	c := alice.New()
 
 	// Install the logger handler with default output on the console
 	c = c.Append(hlog.NewHandler(*log))
 
+	lc := newLineChecker(disable404Paths...)
+
 	// Install some provided extra handler to set some request's context fields.
 	// Thanks to those handler, all our logs will come with some pre-populated fields.
 	c = c.Append(hlog.AccessHandler(func(r *http.Request, status, size int, duration time.Duration) {
+		if !lc.allowLine(status, r.URL.String()) {
+			return
+		}
+
 		l := hlog.FromRequest(r).Info().
-			// Str("orgID", organization.GetOrganizationID(r)).
 			Str("method", r.Method).
 			Str("url", r.URL.String()).
 			Int("status", status).
@@ -56,6 +130,7 @@ func RequestLogger(log *zerolog.Logger) func(next http.Handler) http.Handler {
 
 		l.Msg("")
 	}))
+
 	c = c.Append(hlog.RemoteAddrHandler("ip"))
 	c = c.Append(hlog.UserAgentHandler("user_agent"))
 	c = c.Append(hlog.RefererHandler("referer"))

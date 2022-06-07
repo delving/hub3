@@ -23,6 +23,7 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/webapp"
+	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi"
 	"github.com/pacedotdev/oto/otohttp"
 )
@@ -132,7 +133,15 @@ func SetBuildVersionInfo(info *BuildVersionInfo) Option {
 		s.routerFuncs = append(s.routerFuncs,
 			func(r chi.Router) {
 				r.Get("/version", func(w http.ResponseWriter, r *http.Request) {
-					s.respond(w, r, info, http.StatusOK)
+					orgID := domain.GetOrganizationID(r)
+					envelope := struct {
+						Version *BuildVersionInfo `json:"version"`
+						OrgID   string            `json:"orgID"`
+					}{
+						Version: info,
+						OrgID:   orgID.String(),
+					}
+					s.respond(w, r, envelope, http.StatusOK)
 				})
 			},
 		)
@@ -192,6 +201,23 @@ func SetLegacyRouters(routers ...RouterFunc) Option {
 func SetEnableIntrospect(enabled bool) Option {
 	return func(s *server) error {
 		s.introspect = enabled
+		return nil
+	}
+}
+
+func SetEnableSentry(dsn string) Option {
+	return func(s *server) error {
+		s.sentry = true
+		return sentry.Init(sentry.ClientOptions{
+			Dsn:              dsn,
+			AttachStacktrace: true,
+		})
+	}
+}
+
+func SetIgnore404Paths(paths []string) Option {
+	return func(s *server) error {
+		s.ignore404Paths = paths
 		return nil
 	}
 }

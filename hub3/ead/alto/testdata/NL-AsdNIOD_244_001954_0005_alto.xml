@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<alto>
+    <Description>
+        <MeasurementUnit>dpi</MeasurementUnit>
+        <sourceImageInformation>
+            <fileName>298/244/1954/NL-AsdNIOD_244_001954_0005.jpg</fileName>
+        </sourceImageInformation>
+        <OCRProcessing>
+            <ocrProcessingStep>
+                <processingDateTime>2020-08-13 3:50:08</processingDateTime>
+                <processingStepSettings>Transcripties &gt; ALTO (DE REE archiefsystemen)</processingStepSettings>
+                <processingSoftware>createaltoxml on 192.168.0.221</processingSoftware>
+            </ocrProcessingStep>
+        </OCRProcessing>
+    </Description>
+    <Layout>
+        <Page WIDTH="3256" HEIGHT="2516">
+            <PrintSpace WIDTH="3238" HEIGHT="2312" HPOS="14" VPOS="124">
+                <TextBlock ID="TB15905762657647410" WIDTH="1417" HEIGHT="248" HPOS="101" VPOS="124">
+                    <TextLine WIDTH="1417" HEIGHT="248" HPOS="101" VPOS="124">
+                        <String WIDTH="1417" HEIGHT="248" HPOS="101" VPOS="124" CONTENT="duikvliegers&#160;„Hurricane&quot;&lt;br&gt; Estaires Armentieres, Comines." />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905762760388097" WIDTH="1587" HEIGHT="865" HPOS="18" VPOS="373">
+                    <TextLine WIDTH="1587" HEIGHT="865" HPOS="18" VPOS="373">
+                        <String WIDTH="1587" HEIGHT="865" HPOS="18" VPOS="373" CONTENT="31.8.&#160; Aankomst in Comines.&lt;br&gt; 5&lt;sup&gt;00 &#160; &lt;/sup&gt;Rust op een boerderij&lt;br&gt; 19&lt;sup&gt;30&lt;/sup&gt;&#160;Afmarcheren naar Henin&lt;br&gt; overschrijden de belgisch - franse&lt;br&gt; grens.&lt;br&gt; 23&lt;sup&gt;00&lt;/sup&gt;&#160;Vertrek van 't soldatenhuis&lt;br&gt; van Menin met de tram naar&lt;br&gt; Courtray (Kortrijk)." />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905763060798136" WIDTH="1582" HEIGHT="207" HPOS="14" VPOS="1242">
+                    <TextLine WIDTH="1582" HEIGHT="207" HPOS="14" VPOS="1242">
+                        <String WIDTH="1582" HEIGHT="207" HPOS="14" VPOS="1242" CONTENT="1.9. 1&lt;sup&gt;00&lt;/sup&gt; Met de munitietrein naar&lt;br&gt; Mechelen" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905763119126917" WIDTH="1578" HEIGHT="230" HPOS="14" VPOS="1453">
+                    <TextLine WIDTH="1578" HEIGHT="230" HPOS="14" VPOS="1453">
+                        <String WIDTH="1578" HEIGHT="230" HPOS="14" VPOS="1453" CONTENT="2.9. Geen dienst. Uitgegaan.&lt;br&gt; Toillet-artikelen gekocht." />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905763195522243" WIDTH="1611" HEIGHT="753" HPOS="14" VPOS="1683">
+                    <TextLine WIDTH="1611" HEIGHT="753" HPOS="14" VPOS="1683">
+                        <String WIDTH="1611" HEIGHT="753" HPOS="14" VPOS="1683" CONTENT="2.9. Bagage komt aan. De Tommie&lt;br&gt; komt dichterbij met een vooruit-&lt;br&gt; geschoven panzerafdeling.&lt;br&gt; O.T. (Organisation Todt.) smeert hem.&lt;br&gt; laten een bevoorradings depôt&lt;br&gt; (letterlijk: Marketender magazijn)&lt;br&gt; achter om in de lucht te laten vliegen&#160;" />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905763264021718" WIDTH="1513" HEIGHT="662" HPOS="1739" VPOS="138">
+                    <TextLine WIDTH="1513" HEIGHT="662" HPOS="1739" VPOS="138">
+                        <String WIDTH="1513" HEIGHT="662" HPOS="1739" VPOS="138" CONTENT="Wij organiseren.: Oude Klare, Parfum&lt;br&gt; Kleer- haar en tanden borstels&lt;br&gt; pijpen, portefeuilles alle mogelijke&lt;br&gt; dingen die we te kort kwamen&lt;br&gt; Ik was later zeer dronken door&lt;br&gt; de vele jenever." />
+                    </TextLine>
+                </TextBlock>
+                <TextBlock ID="TB15905763457637913" WIDTH="1587" HEIGHT="1624" HPOS="1660" VPOS="805">
+                    <TextLine WIDTH="1587" HEIGHT="1624" HPOS="1660" VPOS="805">
+                        <String WIDTH="1587" HEIGHT="1624" HPOS="1660" VPOS="805" CONTENT="4.9. Kort na middernacht, wekken&lt;br&gt; https://bouwdossiers.westbrabantsarchief.nl/bouwdossiers/bouwdossier/id/3b955620-fcf3-6a10-11b5-be9876ce772c?filters%5Bsearch_s_gemeente%5D%5B0%5D=Bergen%20op%20Zoom.&lt;br&gt; Bagage wordt afgegeven, waar-&lt;br&gt; schijnlijk om nooit meer terug te&lt;br&gt; zien.&lt;br&gt; 2&lt;sup&gt;00&lt;/sup&gt;&#160; Afmarcheren naar Lier&lt;br&gt; 5&lt;sup&gt;00&#160;&lt;/sup&gt;- 6&lt;sup&gt;00&lt;/sup&gt;&#160;oponthoud in Lier&lt;br&gt; Groep verloren, sluit me bij&lt;br&gt; Onderofficier Küster aan.&lt;br&gt; Organiseren fietsen, rijden naar&lt;br&gt; Turnhout Leopoldsburg. Zetten&lt;br&gt; om 16&lt;sup&gt;00&lt;/sup&gt;&#160;fietsen tegen een boerderij&lt;br&gt; en houden L.K.W 's (Autos van de&lt;br&gt; luchtmacht of zo iets) aan en rijden&lt;br&gt; mee tot Venlo.&#160;" />
+                    </TextLine>
+                </TextBlock>
+            </PrintSpace>
+        </Page>
+    </Layout>
+</alto>

@@ -673,7 +673,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 	indexDoc := make(map[string]interface{})
 
 	if fb.Graph == nil {
-		return indexDoc, fmt.Errorf("when creating v1 indexdoc sortedgraph should never be empty")
+		return indexDoc, fmt.Errorf("when creating v1 indexdoc rdf.Graph should never be empty")
 	}
 
 	// set the resourceLabels

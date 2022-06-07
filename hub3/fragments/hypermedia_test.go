@@ -15,51 +15,133 @@
 package fragments_test
 
 import (
+	"crypto/tls"
 	"net/http"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"testing"
 
 	. "github.com/delving/hub3/hub3/fragments"
+	"github.com/google/go-cmp/cmp"
+	"github.com/matryer/is"
 )
 
-var _ = Describe("Hypermedia", func() {
-	Describe("when creating now controls", func() {
-		Context("from a http.Request", func() {
-			base := "https://localhost:3000/fragments"
-			query := "?object=true"
-			r, err := http.NewRequest("GET", base+query+"&page=2", nil)
+func TestNewHyperMediaDataSet(t *testing.T) {
+	is := is.New(t)
 
-			It("should set the correct fullPath", func() {
-				Expect(err).ToNot(HaveOccurred())
-				fr := NewFragmentRequest(testOrgID)
-				err := fr.ParseQueryString(r.URL.Query())
-				hmd := NewHyperMediaDataSet(r, 295, fr)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(hmd).ToNot(BeNil())
-				Expect(hmd.DataSetURI).To(Equal(base))
-				Expect(hmd.PagerURI).To(Equal(base + query + "&page=2"))
-				Expect(hmd.TotalItems).To(Equal(int64(295)))
-				Expect(hmd.CurrentPage).To(Equal(int32(2)))
-				Expect(hmd.FirstPage).To(Equal(base + query + "&page=1"))
-				Expect(hmd.PreviousPage).To(Equal(base + query + "&page=1"))
-				Expect(hmd.NextPage).To(Equal(base + query + "&page=3"))
-				Expect(hmd.ItemsPerPage).To(Equal(int64(FRAGMENT_SIZE)))
-				Expect(hmd.HasNext()).To(BeFalse())
-				Expect(hmd.HasPrevious()).To(BeTrue())
-			})
+	type args struct {
+		req       string
+		totalHits int64
+	}
 
-			It("should create the controls", func() {
-				fr := NewFragmentRequest(testOrgID)
-				err := fr.ParseQueryString(r.URL.Query())
-				hmd := NewHyperMediaDataSet(r, 395, fr)
-				Expect(hmd).ToNot(BeNil())
-				b, err := hmd.CreateControls()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(b).ToNot(BeEmpty())
-				Expect(hmd.HasNext()).To(BeTrue())
-				Expect(hmd.HasPrevious()).To(BeTrue())
-			})
+	baseURL := "https://localhost:3000/fragments/museum"
+
+	tests := []struct {
+		name string
+		args args
+		want *HyperMediaDataSet
+	}{
+		{
+			"first page and only page",
+			args{
+				req:       baseURL,
+				totalHits: 10,
+			},
+			&HyperMediaDataSet{
+				DataSetURI:   baseURL,
+				PagerURI:     baseURL,
+				TotalItems:   10,
+				ItemsPerPage: 100,
+				FirstPage:    baseURL + "?page=1",
+				PreviousPage: baseURL + "?page=0",
+				NextPage:     baseURL + "?page=2",
+				CurrentPage:  1,
+			},
+		},
+		{
+			"first page and 5 pages",
+			args{
+				req:       baseURL,
+				totalHits: 525,
+			},
+			&HyperMediaDataSet{
+				DataSetURI:   baseURL,
+				PagerURI:     baseURL,
+				TotalItems:   525,
+				ItemsPerPage: 100,
+				FirstPage:    baseURL + "?page=1",
+				PreviousPage: baseURL + "?page=0",
+				NextPage:     baseURL + "?page=2",
+				CurrentPage:  1,
+			},
+		},
+		{
+			"third page and 5 pages",
+			args{
+				req:       baseURL + "?page=3",
+				totalHits: 525,
+			},
+			&HyperMediaDataSet{
+				DataSetURI:   baseURL,
+				PagerURI:     baseURL + "?page=3",
+				TotalItems:   525,
+				ItemsPerPage: 100,
+				FirstPage:    baseURL + "?page=1",
+				PreviousPage: baseURL + "?page=2",
+				NextPage:     baseURL + "?page=4",
+				CurrentPage:  3,
+			},
+		},
+		{
+			"third page and 5 pages",
+			args{
+				req:       baseURL + "?page=3",
+				totalHits: 525,
+			},
+			&HyperMediaDataSet{
+				DataSetURI:   baseURL,
+				PagerURI:     baseURL + "?page=3",
+				TotalItems:   525,
+				ItemsPerPage: 100,
+				FirstPage:    baseURL + "?page=1",
+				PreviousPage: baseURL + "?page=2",
+				NextPage:     baseURL + "?page=4",
+				CurrentPage:  3,
+			},
+		},
+		{
+			"first page with filter",
+			args{
+				req:       baseURL + "?subject=1&predicate=2&object=3&page=3",
+				totalHits: 525,
+			},
+			&HyperMediaDataSet{
+				DataSetURI:   baseURL,
+				PagerURI:     baseURL + "?subject=1&predicate=2&object=3&page=3",
+				TotalItems:   525,
+				ItemsPerPage: 100,
+				FirstPage:    baseURL + "?subject=1&predicate=2&object=3&page=1",
+				PreviousPage: baseURL + "?subject=1&predicate=2&object=3&page=2",
+				NextPage:     baseURL + "?subject=1&predicate=2&object=3&page=4",
+				CurrentPage:  3,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			r, err := http.NewRequest("GET", tt.args.req, http.NoBody)
+			is.NoErr(err)
+			r.TLS = &tls.ConnectionState{}
+
+			fr := NewFragmentRequest("test-orgID")
+			err = fr.ParseQueryString(r.URL.Query())
+			is.NoErr(err)
+
+			got := NewHyperMediaDataSet(r, tt.args.totalHits, fr)
+			if diff := cmp.Diff(tt.want, got); diff != "" {
+				t.Errorf("NewHyperMediaDataSet() %s mismatch (-want +got):\n%s", tt.name, diff)
+				// t.Errorf("NewHyperMediaDataSet() %s = %v, want %v", tt.name, got, tt.want)
+			}
 		})
-	})
-})
+	}
+}

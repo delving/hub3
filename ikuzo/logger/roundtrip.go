@@ -62,7 +62,7 @@ func (l *CustomLogger) LogRoundTrip(
 	//
 	e.Str("method", req.Method).
 		Str("svc", "elasticsearch").
-		Int("status_code", res.StatusCode).
+		Int("status", res.StatusCode).
 		Dur("duration", dur).
 		Int64("req_bytes", nReq).
 		Int64("res_bytes", nRes).

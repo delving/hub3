@@ -151,6 +151,7 @@ type Logging struct {
 type HTTP struct {
 	Port      int    `json:"port" mapstructure:"port"`
 	StaticDir string `json:"staticDir"` // the relative path to the static directory to serve documentation.
+	ProxyTLS  bool   `json:"proxyTLS"`
 }
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions

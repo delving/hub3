@@ -15,9 +15,7 @@
 package fragments
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	fmt "fmt"
 	"io"
 	"log"
@@ -30,7 +28,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 	r "github.com/kiivihal/rdf2go"
@@ -349,53 +347,13 @@ func InlineTree(nodes []*Tree, tq *TreeQuery, total int64) ([]*Tree, map[string]
 	return rootNodes, nodeMap, nil
 }
 
-// FragmentGraph is a container for all entries of an RDF Named Graph
-type FragmentGraph struct {
-	Meta       *Header                   `json:"meta,omitempty"`
-	Tree       *Tree                     `json:"tree,omitempty"`
-	Resources  []*FragmentResource       `json:"resources,omitempty"`
-	Summary    *ResultSummary            `json:"summary,omitempty"`
-	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
-	Fields     map[string][]string       `json:"fields,omitempty"`
-	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
-	ProtoBuf   *ProtoBuf                 `json:"protobuf,omitempty"`
-}
-
-func (fg *FragmentGraph) Marshal() ([]byte, error) {
-	return json.Marshal(fg)
-}
-
-func (fg *FragmentGraph) Reader() (io.Reader, error) {
-	// b, err := json.Marshal(fg)
-	b, err := json.MarshalIndent(fg, "", "    ")
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes.NewReader(b), nil
-}
-
-func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
-	b, err := fg.Marshal()
-	if err != nil {
-		return nil, err
-	}
-
-	return &domainpb.IndexMessage{
-		OrganisationID: fg.Meta.OrgID,
-		DatasetID:      fg.Meta.Spec,
-		RecordID:       fg.Meta.HubID,
-		IndexType:      domainpb.IndexType_V2,
-		Source:         b,
-	}, nil
-}
-
 // ResourceEntryHighlight holds the values of the ElasticSearch highlight fiel
 type ResourceEntryHighlight struct {
 	SearchLabel string   `json:"searchLabel"`
 	MarkDown    []string `json:"markdown"`
 }
 
+// Deprecated: use FragmentResource.AddTo to add them to a graph
 func (fr *FragmentResource) GenerateTriples() []*r.Triple {
 	triples := []*r.Triple{}
 	subject := r.NewResource(fr.ID)
@@ -415,6 +373,33 @@ func (fr *FragmentResource) GenerateTriples() []*r.Triple {
 	}
 
 	return triples
+}
+
+func (fr *FragmentResource) AddTo(g *rdf.Graph) error {
+	subject, err := rdf.NewIRI(fr.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, rdfType := range fr.Types {
+		rdfType, err := rdf.NewIRI(rdfType)
+		if err != nil {
+			return err
+		}
+
+		g.AddTriple(subject, rdf.IsA, rdfType)
+	}
+
+	for _, entry := range fr.Entries {
+		triple, err := entry.AsTriple(subject)
+		if err != nil {
+			return err
+		}
+
+		g.Add(triple)
+	}
+
+	return nil
 }
 
 // GenerateJSONLD converts a FragmenResource into a JSON-LD entry
@@ -598,8 +583,8 @@ func (tpe *TreePageEntry) CreateTreePage(
 	nodeMap map[string]*Tree,
 	rootNodes []*Tree,
 	appending bool,
-	sortFrom int32) map[string][]*Tree {
-
+	sortFrom int32,
+) map[string][]*Tree {
 	page := make(map[string][]*Tree)
 
 	var rootLevelNodes []*Tree
@@ -1102,6 +1087,48 @@ func (ir IndexRange) Valid() error {
 		return fmt.Errorf("%s should not be greater than %s", ir.Less, ir.Greater)
 	}
 	return nil
+}
+
+func (re *ResourceEntry) AsTriple(subject rdf.Subject) (*rdf.Triple, error) {
+	var err error
+	predicate, err := rdf.NewIRI(re.Predicate)
+	if err != nil {
+		return nil, err
+	}
+
+	var object rdf.Object
+
+	switch re.EntryType {
+	case bnode:
+		object, err = rdf.NewBlankNode(re.ID)
+	case resourceType:
+		object, err = rdf.NewIRI(re.ID)
+	case literal:
+		switch {
+		case re.Language != "":
+			object, err = rdf.NewLiteralWithLang(re.Value, re.Language)
+		case re.DataType != "":
+			dt, err := rdf.NewIRI(re.DataType)
+			if err != nil {
+				return nil, err
+			}
+			object, err = rdf.NewLiteralWithType(re.Value, dt)
+		default:
+			object, err = rdf.NewLiteral(re.Value)
+		}
+	default:
+		log.Printf("bad datatype: '%#v'", re)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return rdf.NewTriple(
+		subject,
+		predicate,
+		object,
+	), nil
 }
 
 func (re *ResourceEntry) GetTriple(subject r.Term) *r.Triple {
@@ -1923,5 +1950,10 @@ func IndexFragments(rm *ResourceMap, fg *FragmentGraph, bi BulkIndex) error {
 
 // NowInMillis returns time.Now() in miliseconds
 func NowInMillis() int64 {
-	return time.Now().UnixNano() / 1000000
+	return time.Now().UTC().UnixMilli()
+}
+
+// LastModified converts millis into time.Time
+func LastModified(millis int64) time.Time {
+	return time.Unix(0, millis*int64(time.Millisecond))
 }

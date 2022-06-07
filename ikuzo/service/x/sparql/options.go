@@ -17,11 +17,3 @@ func SetCustomQueries(queries string) Option {
 		return s.mergeBank(sparql.LoadBank(f))
 	}
 }
-
-// SetTripleStore sets the TripleStore implementation for the sparql.Service
-func SetTripleStore(store TripleStore) Option {
-	return func(s *Service) error {
-		s.store = store
-		return nil
-	}
-}

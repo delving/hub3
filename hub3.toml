@@ -1,18 +1,55 @@
-# The default orgId (deprecated)
-orgId = "hub3"
-# the default hub3 clusterID
-hub3ID = "hub3"
-# the url to the remote dataNode. When emtpy the current node is started in dataNode mode
-dataNodeURL = ""
-
 [org.dcn]
 domains = ["localhost:3000"]
 default = true
+
+[[org.dcn.sitemaps]]
+id = "all"
+baseURL = "http://localhost:3000"
+filters = "meta.tags:narthex"
+
+[org.dcn.oaipmh]
+enabled = true
+adminEmails = ["info@delving.eu"]
+repositoryName = "DCN OAI-PMH repository"
 
 [org.hub3]
 domains = ["localhost:3001"]
 customID = "hub3"
 default = true
+
+
+###################################
+#    NIOD                          #
+###################################
+[org.niod]
+domains = ["hub3.niod:3000"]
+
+[org.niod.elasticsearch]
+# indexTypes enabled types for the bulk index service
+indexTypes = ["v2"]
+# configuration for MimimumShouldMatch
+minimumShouldMatch = "2<70%"
+shards = 3
+replicas = 2
+# the name of the index. If empty it is the name of the OrgId
+# indexName = "dcn"
+# if non-empty digital objects will be indexed in a dedicated v2 index
+# digitalObjectSuffix = "scans"
+
+[org.niod.sparql]
+enabled = true
+# the fully qualified URL including the port
+sparqlHost = "http://localhost:3033"
+# the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+sparqlPath = "/%s/sparql"
+# sparqlUpdate path is the path to the write endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+sparqlUpdatePath = "/%s/update"
+# dataPath is the path to the GraphStore Protocol endpoint
+dataPath = "/%s/data"
+# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+storeRecords = false
+userName = ""
+password = ""
 
 [http]
 # all the configuration for the http sub-command
@@ -31,11 +68,6 @@ durableName = "hub3-worker"
 durableQueue = "hub3-queue"
 subjectID = "hub3-bulk-index"
 url = "nats://localhost:4222"
-
-
-[db]
-type = "sqlite3"
-connect = "/tmp/hub3.db"
 
 [ElasticSearch]
 # enable the elasticsearch search api
@@ -104,10 +136,15 @@ apikey = ''
 
 [logging]
 devmode = true
-sentrydsn = ""
+sentryDSN = ""
 level = "debug"
 withCaller = true
 consoleLogger = true
+# "*" ignores all 404
+# paths ending with "*" are wildcards
+# an empty [] will log all request.
+# all paths should start with a forward slash.
+exclude404Path = []
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
@@ -132,7 +169,7 @@ defaultFormat = "application/ld+json"
 # which meta-tags should be inserted into the triple store
 rdfStoreTags = ["narthex", "mdr"]
 
-[oaipmh]
+[harvest]
 # options: no, transient, persistent
 deletedRecords = "persistent"
 # enable the oai-pmh endpoint at /api/oai-pmh
@@ -145,6 +182,16 @@ harvestDelay = 1
 eadHarvestUrl = "http://localhost:3000/oai/ead"
 metsHarvestUrl = "http://localhost:3000/oai/mets"
 harvestPath = "/tmp/oaipmh"
+
+[oaipmh]
+# options: no, transient, persistent
+deletedRecords = "persistent"
+# enable the oai-pmh endpoint at /api/oai-pmh
+enabled = true
+# admin emails
+adminEmails = ["info@delving.eu",]
+# repositoryName
+repositoryName = "dev1"
 
 [webresource]
 # enabel the webresource endpoint /api/webresource
@@ -167,10 +214,11 @@ enabled = true
 # if empty it will be sourceDir + 'cache'
 cacheDir = "/tmp/imageproxy"
 # maxSizeCacheDir is rearched the oldest entries will be removed (MB)
-maxSizeCacheDir = 1024
+maxSizeCacheDir = 0 
 # a list of allowed referrers. If empty everything is allowed
 referrer = []
 # a list of allowed remote hosts. If empty everything is allowed
+allowedPorts = ["80", "443"]
 # allowList = ["service.archief.nl", "service.test.archief.nl", "service.acpt.archief.nl"]
 # a list of refused patterns in cachable urls
 refuseList = ["127.0.0.1", "0.0.0.0", "localhost"]

@@ -46,6 +46,7 @@ type Config struct {
 	orgs          *organization.Service
 	Organization  `json:"organization"`
 	Org           map[string]domain.OrganizationConfig `json:"org"`
+	Harvest       `json:"harvest"`
 	OAIPMH        `json:"oaipmh"`
 	NDE           `json:"nde"`
 	RDF           `json:"rdf"`
@@ -64,11 +65,12 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.HTTP,
 			&cfg.EAD,
 			&cfg.ImageProxy,
-			&cfg.OAIPMH,
+			&cfg.Harvest,
 			&cfg.NameSpace,
 			&cfg.NDE,
 			&cfg.Sitemap,
 			&cfg.Logging,
+			&cfg.OAIPMH,
 		}
 	}
 

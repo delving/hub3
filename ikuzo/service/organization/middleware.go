@@ -40,12 +40,13 @@ func (s *Service) ResolveOrgByDomain(next http.Handler) http.Handler {
 
 		org, ok := domains[domain]
 		if !ok {
-			if defaultOrgID != nil {
+			if defaultOrgID == nil {
 				w.Header().Set("Content-Type", "text/plain")
 				w.WriteHeader(http.StatusNotFound)
 				w.Write([]byte("no organization available for this domain"))
 				return
 			}
+			org = defaultOrgID
 		}
 		// w.Header().Set("ORG-ID", org.RawID())
 		r = d.SetOrganization(r, org)

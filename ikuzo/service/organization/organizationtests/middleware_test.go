@@ -21,7 +21,6 @@ func TestService_ResolveOrgByDomain(t *testing.T) {
 	r := chi.NewRouter()
 	r.Use(svc.ResolveOrgByDomain)
 	r.Get("/hi", func(w http.ResponseWriter, r *http.Request) {
-		// GetOrganizationID(r)
 		w.Header().Set("X-Test", "yes")
 		w.Write([]byte("bye"))
 	})
@@ -54,11 +53,8 @@ func TestService_ResolveOrgByDomain(t *testing.T) {
 		t.Fatal(err)
 		return
 	}
-	if resp.StatusCode != http.StatusNotFound {
-		t.Fatalf("should give badrequest, got; %d", resp.StatusCode)
-	}
 
-	// orgID, err := organization.GetOrganizationID(resp.Request)
-	// is.NoErr(err)
-	// is.Equal(orgID, "")
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("should give bad krequest, got; %d", resp.StatusCode)
+	}
 }

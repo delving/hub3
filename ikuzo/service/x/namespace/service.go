@@ -15,7 +15,9 @@
 package namespace
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
@@ -23,7 +25,6 @@ import (
 
 // Store provides functionality to query and persist namespaces.
 type Store interface {
-
 	// Put persists the NameSpace object.
 	//
 	// When the object already exists it is overwritten.
@@ -61,7 +62,6 @@ type ServiceOptionFunc func(*Service) error
 
 // Service provides functionality to query and persist namespaces.
 type Service struct {
-
 	// store is the backend where namespaces are stored
 	// It defaults to the memoryStore.
 	// Other implementation can be set as an ServiceOptFunc
@@ -100,9 +100,9 @@ func NewService(options ...ServiceOptionFunc) (*Service, error) {
 	}
 
 	if s.loadDefaults {
-		for _, nsMap := range []map[string]string{defaultNS, customNS} {
-			for prefix, base := range nsMap {
-				if _, err := s.Put(prefix, base); err != nil {
+		for _, nsMap := range [][]nsEntry{defaultNS, customNS} {
+			for _, e := range nsMap {
+				if _, err := s.Put(e.Prefix, e.BaseURI); err != nil {
 					return nil, err
 				}
 			}
@@ -190,7 +190,7 @@ func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 		return ns, nil
 	}
 
-	ns, err = s.store.GetWithBase(base)
+	ns, err = s.GetWithBase(base)
 	if err != nil {
 		if err != domain.ErrNameSpaceNotFound {
 			return nil, err
@@ -259,7 +259,7 @@ func (s *Service) SearchLabel(uri string) (string, error) {
 
 	base, label := domain.SplitURI(uri)
 
-	ns, err := s.store.GetWithBase(base)
+	ns, err := s.GetWithBase(base)
 	if err != nil {
 		return "", fmt.Errorf("unable to retrieve namespace for %s; %w", base, err)
 	}
@@ -284,5 +284,14 @@ func (s *Service) GetWithPrefix(prefix string) (*domain.Namespace, error) {
 
 func (s *Service) GetWithBase(baseURI string) (*domain.Namespace, error) {
 	s.checkStore()
-	return s.store.GetWithBase(baseURI)
+
+	ns, err := s.store.GetWithBase(baseURI)
+	if err != nil {
+		if errors.Is(err, domain.ErrNameSpaceNotFound) && strings.HasPrefix(baseURI, "https://") {
+			baseURI = strings.ReplaceAll(baseURI, "https:", "http:")
+			return s.store.GetWithBase(baseURI)
+		}
+	}
+
+	return ns, err
 }

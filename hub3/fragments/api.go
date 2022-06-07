@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	c "github.com/delving/hub3/config"
 	"github.com/google/go-cmp/cmp"
@@ -2026,4 +2027,8 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 	}
 
 	return q, nil
+}
+
+func (h *Header) LastModified() time.Time {
+	return LastModified(h.Modified)
 }

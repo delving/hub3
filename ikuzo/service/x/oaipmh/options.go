@@ -2,9 +2,9 @@ package oaipmh
 
 type Option func(*Service) error
 
-func SetDelay(delay int) Option {
+func SetStore(store Store) Option {
 	return func(s *Service) error {
-		s.defaultDelay = delay
+		s.store = store
 		return nil
 	}
 }

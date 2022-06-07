@@ -21,6 +21,8 @@ import (
 	"github.com/matryer/is"
 )
 
+const defaultListSize = 2021
+
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{
 		Base:   "http://purl.org/dc/elements/1.1/",
@@ -108,7 +110,7 @@ func TestNewService(t *testing.T) {
 					WithDefaults(),
 				},
 			},
-			2015,
+			defaultListSize,
 			false,
 		},
 	}
@@ -123,7 +125,7 @@ func TestNewService(t *testing.T) {
 				return
 			}
 			if got.Len() != tt.loadedNS {
-				t.Errorf("NewService() = %v, want %v", got.Len(), tt.loadedNS)
+				t.Errorf("NewService() %s = %v, want %v", tt.name, got.Len(), tt.loadedNS)
 			}
 		})
 	}
@@ -239,7 +241,7 @@ func TestListDelete(t *testing.T) {
 	namespaces, err := svc.List()
 	is.NoErr(err)
 
-	is.Equal(len(namespaces), 2015)
+	is.Equal(len(namespaces), defaultListSize)
 
 	first := namespaces[0]
 
@@ -249,5 +251,22 @@ func TestListDelete(t *testing.T) {
 	namespaces, err = svc.List()
 	is.NoErr(err)
 
-	is.Equal(len(namespaces), 2014)
+	is.Equal(len(namespaces), defaultListSize-1)
+}
+
+func TestDefaults(t *testing.T) {
+	is := is.New(t)
+
+	svc, err := NewService(WithDefaults())
+	is.NoErr(err)
+	is.Equal(svc.Len(), defaultListSize)
+
+	ns, err := svc.GetWithBase("http://schema.org/")
+	is.NoErr(err)
+	t.Logf("ns: %#v", ns)
+	is.Equal(ns.Prefix, "schema")
+
+	// ns, err = svc.GetWithPrefix("sdo")
+	// is.NoErr(err)
+	// is.Equal(ns.Prefix, "schema")
 }
