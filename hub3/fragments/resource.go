@@ -18,7 +18,6 @@ import (
 	"context"
 	fmt "fmt"
 	"io"
-	"log"
 	"net/url"
 	"sort"
 	"strconv"
@@ -34,6 +33,7 @@ import (
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -987,7 +987,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 	for _, level1 := range subject.objectIDs {
 		level2Resource, ok := rm.GetResource(level1.ObjectID)
 		if !ok {
-			// log.Printf("unknown target URI: %s", level1.ObjectID)
+			log.Debug().Msgf("unknown target URI: %s", level1.ObjectID)
 			continue
 		}
 		linkedObjects[level1.ObjectID] = level2Resource
@@ -1003,7 +1003,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 			level2.Level = 2
 			level3Resource, ok := rm.GetResource(level2.ObjectID)
 			if !ok {
-				log.Printf("unknown target URI: %s", level2.ObjectID)
+				log.Debug().Msgf("unknown target URI: %s", level2.ObjectID)
 				continue
 			}
 
@@ -1017,7 +1017,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 				level3.Level = 3
 				level4Resource, ok := rm.GetResource(level3.ObjectID)
 				if !ok {
-					log.Printf("unknown target URI: %s", level3.ObjectID)
+					log.Debug().Msgf("unknown target URI: %s", level3.ObjectID)
 					continue
 				}
 				linkedObjects[level3.ObjectID] = level3Resource
