@@ -32,6 +32,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const idShouldAlwaysBeInWebresourceMapMessageFormat = "id should always be in webresource map: %s"
+
 // readMETS reads an METS ML from a path
 func readMETS(filename string) (*Cmets, error) {
 	r, err := os.Open(filename)
@@ -95,7 +97,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "IIP")
 				file, ok := files[id]
 				if !ok {
-					return fmt.Errorf("id should always be in webresource map: %s", id)
+					return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
 				}
 				if metsFile.CFLocat != nil {
 					file.DeepzoomURI = metsFile.CFLocat.AttrXlinkSpacehref
@@ -106,7 +108,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "THB")
 				file, ok := files[id]
 				if !ok {
-					return fmt.Errorf("id should always be in webresource map: %s", id)
+					return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
 				}
 				if metsFile.CFLocat != nil {
 					file.ThumbnailURI = metsFile.CFLocat.AttrXlinkSpacehref
@@ -129,7 +131,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 
 		file, ok := files[id]
 		if !ok {
-			return fmt.Errorf("id should always be in webresource map: %s", id)
+			return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
 		}
 
 		file.MimeType = metsFile.AttrMIMETYPE
