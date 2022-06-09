@@ -32,6 +32,8 @@ import (
 	"github.com/rs/zerolog"
 )
 
+const idShouldAlwaysBeInWebresourceMapMessageFormat = "id should always be in webresource map: %s"
+
 // readMETS reads an METS ML from a path
 func readMETS(filename string) (*Cmets, error) {
 	r, err := os.Open(filename)
@@ -90,12 +92,23 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 	for _, grp := range fg {
 		if strings.EqualFold(grp.AttrUSE, "default") {
 			defaultGrp = grp
+		} else if strings.EqualFold(grp.AttrUSE, "display") {
+			for _, metsFile := range grp.Cfile {
+				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "IIP")
+				file, ok := files[id]
+				if !ok {
+					return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
+				}
+				if metsFile.CFLocat != nil {
+					file.DeepzoomURI = metsFile.CFLocat.AttrXlinkSpacehref
+				}
+			}
 		} else if strings.EqualFold(grp.AttrUSE, "thumbs") {
 			for _, metsFile := range grp.Cfile {
 				id := strings.TrimSuffix(strings.TrimPrefix(metsFile.AttrID, "ID"), "THB")
 				file, ok := files[id]
 				if !ok {
-					return fmt.Errorf("id should always be in webresource map: %s", id)
+					return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
 				}
 				if metsFile.CFLocat != nil {
 					file.ThumbnailURI = metsFile.CFLocat.AttrXlinkSpacehref
@@ -118,7 +131,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 
 		file, ok := files[id]
 		if !ok {
-			return fmt.Errorf("id should always be in webresource map: %s", id)
+			return fmt.Errorf(idShouldAlwaysBeInWebresourceMapMessageFormat, id)
 		}
 
 		file.MimeType = metsFile.AttrMIMETYPE
@@ -133,7 +146,9 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 
 		if metsFile.CFLocat != nil {
 			file.DownloadURI = metsFile.CFLocat.AttrXlinkSpacehref
-			file.DeepzoomURI = createDeepZoomURI(file, fa.Duuid)
+			if file.DeepzoomURI == "" {
+				file.DeepzoomURI = createDeepZoomURI(file, fa.Duuid)
+			}
 		}
 	}
 
@@ -188,9 +203,9 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 	fa.FileCount = int32(len(fa.Files))
 
 loop:
-	for k := range fa.MimeTypes {
+	for _, file := range fa.Files {
 		switch {
-		case isTileMimeType(k):
+		case file.DeepzoomURI != "":
 			fa.HasOnlyTiles = true
 		default:
 			// non-file so set to false and break
