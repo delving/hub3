@@ -102,6 +102,8 @@ message FindingAid {
     repeated File files = 10;
     // filter keys
     repeated string filterTypes = 11;
+    // scan navigation
+    bool hasScanNavigation = 12;
 }
 
 message ViewResponse {

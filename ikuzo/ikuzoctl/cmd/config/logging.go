@@ -47,10 +47,9 @@ func (l *Logging) AddOptions(cfg *Config) error {
 				r.Mount("/debug", mw.Profiler())
 			}),
 			ikuzo.SetEnableIntrospect(l.DevMode),
-			ikuzo.SetIgnore404Paths(l.Exclude404Path),
 		)
 	}
-
+	cfg.options = append(cfg.options, ikuzo.SetIgnore404Paths(l.Exclude404Path))
 	if l.SentryDSN != "" {
 		cfg.options = append(cfg.options, ikuzo.SetEnableSentry(l.SentryDSN))
 	}
