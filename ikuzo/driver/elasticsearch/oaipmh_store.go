@@ -266,7 +266,7 @@ func (o *OAIPMHStore) serialize(format string, fg *fragments.FragmentGraph, w io
 		fmt.Fprintln(w, "]]>")
 
 		return nil
-	case "rdfxml":
+	case "rdfxml", "oai_dc":
 		iri, err := rdf.NewIRI(fg.Meta.GetEntryURI())
 		if err != nil {
 			return err
@@ -321,6 +321,11 @@ func (o *OAIPMHStore) ListMetadataFormats(ctx context.Context, q *oaipmh.Request
 			MetadataPrefix:    "rdfxml",
 			Schema:            "",
 			MetadataNamespace: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+		},
+		{
+			MetadataPrefix:    "oai_dc",
+			Schema:            "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
+			MetadataNamespace: "http://www.openarchives.org/OAI/2.0/oai_dc/",
 		},
 	}
 
