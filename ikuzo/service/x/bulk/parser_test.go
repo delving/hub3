@@ -2,6 +2,7 @@ package bulk
 
 import (
 	"bytes"
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -39,4 +40,37 @@ func TestSerializeTurtle(t *testing.T) {
 	is.True(!strings.Contains(rdf, "urn:private/")) // serialized rdf should not contain urn:private
 	t.Logf("rdf: %s", rdf)
 	is.True(strings.HasSuffix(rdf, " .\n"))
+}
+
+type LogMessage struct {
+	Svc string `json:"svc"`
+}
+
+func testAddLogger(is *is.I, datasetID string, svc string) {
+
+	bytesBuffer := bytes.Buffer{}
+
+	logger := addLogger(datasetID)
+	logger = logger.Output(&bytesBuffer)
+	logger.Info().Msg("")
+
+	logMessage := LogMessage{}
+
+	err := json.Unmarshal(bytesBuffer.Bytes(), &logMessage)
+	is.NoErr(err)
+	is.Equal(logMessage.Svc, svc)
+}
+
+func TestAddLogger(t *testing.T) {
+
+	is := is.New(t)
+
+	//	ntfoto
+	testAddLogger(is, "somestring-ntfoto", "ntfoto")
+
+	//	nt
+	testAddLogger(is, "nt00250-somestring", "nt")
+
+	//	default
+	testAddLogger(is, "somestring", "")
 }
