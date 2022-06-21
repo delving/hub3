@@ -369,6 +369,11 @@ func (c *DaoClient) DownloadXML(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, metsPath)
 }
 
+const (
+	SourceEad    = "EAD"
+	SourceOaiPmh = "OAI-PMH"
+)
+
 type DaoConfig struct {
 	OrgID          string
 	HubID          string
@@ -386,6 +391,7 @@ type DaoConfig struct {
 	PeriodDesc     []string
 	Filenames      []string // names of the files within the digital object
 	FileUUIDs      []string // uuids of the files within the digital object
+	Source         string   // source of the METS file (i.e. 'EAD' or 'OAI-PMH')
 }
 
 func getUUID(daoLink string) string {
