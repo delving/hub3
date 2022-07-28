@@ -34,6 +34,7 @@ type ImageProxy struct {
 	AllowedMimeTypes []string
 	LruCacheSize     int
 	EnableResize     bool
+	DefaultImagePath string
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -54,6 +55,7 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetLogger(&cfg.logger.Logger),
 		imageproxy.SetAllowedMimeTypes(ip.AllowedMimeTypes),
 		imageproxy.SetAllowPorts(ip.AllowPorts),
+		imageproxy.SetDefaultImagePath(ip.DefaultImagePath),
 	)
 	if err != nil {
 		return err

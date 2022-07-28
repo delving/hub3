@@ -225,14 +225,15 @@ type WebResource struct {
 
 // ImageProxy holds all the configuration for the ImageProxy functionality
 type ImageProxy struct {
-	Enabled     bool     `json:"enabled"`     // Make the imageproxy endpoint available
-	CacheDir    string   `json:"cacheDir"`    // The path to the imageCache
-	Referrer    []string `json:"referrer"`    // A list of allowed referrers. If empty allow all.
-	Whitelist   []string `json:"whitelist"`   // A list of allowed remote hosts. If empty allow all.
-	ScaleUp     bool     `json:"scaleUp"`     // Allow images to scale beyond their original dimensions.
-	TimeOut     int      `json:"timeout"`     // timelimit for request served by this proxy. 0 is for no timeout
-	Deepzoom    bool     `json:"deepzoom"`    // Enable deepzoom of remote images.
-	ProxyPrefix string   `json:"proxyPrefix"` // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
+	Enabled          bool     `json:"enabled"`     // Make the imageproxy endpoint available
+	CacheDir         string   `json:"cacheDir"`    // The path to the imageCache
+	Referrer         []string `json:"referrer"`    // A list of allowed referrers. If empty allow all.
+	Whitelist        []string `json:"whitelist"`   // A list of allowed remote hosts. If empty allow all.
+	ScaleUp          bool     `json:"scaleUp"`     // Allow images to scale beyond their original dimensions.
+	TimeOut          int      `json:"timeout"`     // timelimit for request served by this proxy. 0 is for no timeout
+	Deepzoom         bool     `json:"deepzoom"`    // Enable deepzoom of remote images.
+	ProxyPrefix      string   `json:"proxyPrefix"` // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
+	DefaultImagePath string   `json:"defaultImagePath"`
 }
 
 // LOD holds all the configuration for the Linked Open Data (LOD) functionality
@@ -345,6 +346,7 @@ func setDefaults() {
 	viper.SetDefault("ImageProxy.timeout", 0)
 	viper.SetDefault("ImageProxy.deepzoom", true)
 	viper.SetDefault("ImageProxy.proxyPrefix", "imageproxy")
+	viper.SetDefault("ImageProxy.DefaultImagePath", "")
 
 	// webresource
 	viper.SetDefault("WebResource.enabled", true)
