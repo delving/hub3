@@ -117,12 +117,17 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
 
 		if s.defaultImagePath != "" {
-
 			data, err := os.ReadFile(s.defaultImagePath)
 			if err == nil {
 				_, err := fmt.Fprintf(&buf, "%s", data)
 				if err == nil {
+					if errors.Is(err, ErrRemoteResourceNotFound) {
+						w.WriteHeader(http.StatusNotFound)
+					} else {
+						w.WriteHeader(http.StatusInternalServerError)
+					}
 					io.Copy(w, &buf)
+					return
 				}
 			}
 		}
