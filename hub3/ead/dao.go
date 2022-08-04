@@ -318,13 +318,13 @@ func (c *DaoClient) Delete(archiveID, uuid string) error {
 		return nil
 	}
 
-	cfg.RevisionKey = "1"
-
-	if err := c.dropOrphans(&cfg); err != nil {
+	if err := cfg.Delete(); err != nil {
 		return err
 	}
 
-	if err := cfg.Delete(); err != nil {
+	cfg.RevisionKey = "1"
+
+	if err := c.dropOrphans(&cfg); err != nil {
 		return err
 	}
 
