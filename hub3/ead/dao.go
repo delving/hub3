@@ -339,7 +339,10 @@ func (c *DaoClient) HandleDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	deleteErr := c.Delete(spec, uuid)
-	http.Error(w, deleteErr.Error(), http.StatusInternalServerError)
+	if deleteErr != nil {
+		http.Error(w, deleteErr.Error(), http.StatusInternalServerError)
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 // DownloadConfig is a handler that returns a stored METS XML for an inventory.
