@@ -385,10 +385,14 @@ type Cdsc struct {
 
 // do not include Raw
 type Cead struct {
-	XMLName      xml.Name    `xml:"ead,omitempty" json:"ead,omitempty"`
-	Attraudience string      `xml:"audience,attr"  json:",omitempty"`
-	Ceadheader   *Ceadheader `xml:"eadheader,omitempty" json:"eadheader,omitempty"`
-	Carchdesc    *Carchdesc  `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
+	XMLName                    xml.Name    `xml:"ead,omitempty" json:"ead,omitempty"`
+	Attraudience               string      `xml:"audience,attr,omitempty"  json:",omitempty"`
+	AttrXsiSpaceschemaLocation string      `xml:"xsi:schemaLocation,attr,omitempty"  json:",omitempty"`
+	AttrXmlnsxlink             string      `xml:"xmlns:xlink,attr,omitempty"  json:",omitempty"`
+	Attrxmlns                  string      `xml:"xmlns,attr,omitempty"  json:",omitempty"`
+	AttrXmlnsxsi               string      `xml:"xmlns:xsi,attr,omitempty"  json:",omitempty"`
+	Ceadheader                 *Ceadheader `xml:"eadheader,omitempty" json:"eadheader,omitempty"`
+	Carchdesc                  *Carchdesc  `xml:"archdesc,omitempty" json:"archdesc,omitempty"`
 }
 
 type Ceadheader struct {
