@@ -45,6 +45,7 @@
 - Enable default orgID as fallback [[GH-157]](https://github.com/delving/hub3/pull/157)
 - Always set modified when indexing fragments.FragmentGraph [[GH-158]](https://github.com/delving/hub3/pull/158)
 - ignore 404 logging fix + updated protobuf definition for scans [[GH_163]](https://github.com/delving/hub3/pull/163)
+- Enable harvest all datasets option in OAI-PMH service  [[GH_165]](https://github.com/delving/hub3/pull/165)
 
 ## Removed
  
