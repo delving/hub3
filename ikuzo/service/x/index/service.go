@@ -229,7 +229,7 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 		v2 = v2.MustNot(elastic.NewMatchQuery("meta.sourceID", revision.GetSHA()))
 		v2 = v2.Must(elastic.NewMatchQuery("meta.groupID", revision.GetGroupID()))
 	} else {
-		// drop all for sourcepath datasetId is added later
+		// drop all for sourcepath datasetid get added later
 		v2 = v2.Must(elastic.NewMatchQuery("meta.sourcePath", revision.GetPath()))
 	}
 
