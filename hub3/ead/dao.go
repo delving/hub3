@@ -315,7 +315,7 @@ func (c *DaoClient) Index(w http.ResponseWriter, r *http.Request) {
 func (c *DaoClient) Delete(archiveID, uuid string) error {
 	cfg, err := c.GetDaoConfig(archiveID, uuid)
 	if errors.Is(err, ErrFileNotFound) {
-		return nil
+		return err
 	}
 
 	if err := cfg.Delete(); err != nil {
