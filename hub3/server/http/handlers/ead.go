@@ -279,6 +279,11 @@ func TreeDescriptionAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if start > end {
+		http.Error(w, "Start cannot be greater than end", http.StatusBadRequest)
+		return
+	}
+
 	var searchHits int
 
 	desc, err := ead.GetDescription(spec)
