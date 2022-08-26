@@ -203,7 +203,6 @@ func createResource(
 			case rdf.TermBlankNode:
 				bnode := object.(rdf.BlankNode)
 
-				// elem := root.CreateElement(nsLabel)
 				nestedRsc, ok := g.Get(rdf.Subject(bnode))
 				if !ok {
 					elem.CreateAttr("rdf:nodeID", bnode.RawValue())
