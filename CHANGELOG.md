@@ -58,6 +58,7 @@
 - [228d44b32](https://github.com/delving/hub3/commit/228d44b32) hub3: fixed predictable ordering for namespace defaults.
 - pagination with LDF hypermedia controls  [[GH-154]](https://github.com/delving/hub3/pull/154)
 - Fixed adding namespaces of types during graph processing [[GH-159]](https://github.com/delving/hub3/pull/159)
+- Typo in `rdf:type` for mappingxml serializer [[GH-165]](https://github.com/delving/hub3/pull/166)
 
 ## Deprecated
 
