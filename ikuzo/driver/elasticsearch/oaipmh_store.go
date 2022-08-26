@@ -102,8 +102,11 @@ type resumableResponse struct {
 func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, headersOnly bool) (resp resumableResponse, err error) {
 	query := elastic.NewBoolQuery().
 		Must(elastic.NewTermQuery("meta.orgID", q.OrgID)).
-		Must(elastic.NewTermQuery("meta.tags", "narthex")).
-		Must(elastic.NewTermQuery("meta.spec", q.DatasetID))
+		Must(elastic.NewTermQuery("meta.tags", "narthex"))
+
+	if q.DatasetID != "" {
+		query = query.Must(elastic.NewTermQuery("meta.spec", q.DatasetID))
+	}
 
 	if q.FirstRequest.From != "" || q.FirstRequest.Until != "" {
 

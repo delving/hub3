@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+type Store interface {
+	ListSets(ctx context.Context, q *RequestConfig) (Resumable, error)
+	ListIdentifiers(ctx context.Context, q *RequestConfig) (Resumable, error)
+	ListRecords(ctx context.Context, q *RequestConfig) (Resumable, error)
+	GetRecord(ctx context.Context, q *RequestConfig) (Record, []Error, error)
+	ListMetadataFormats(ctx context.Context, q *RequestConfig) ([]MetadataFormat, error)
+}
+
 type RequestConfig struct {
 	ID             string // ID of the harvest step parsed from resumption token
 	FirstRequest   *Request
@@ -62,12 +70,4 @@ func (res *Resumable) Len() int {
 	}
 
 	return len(res.Sets)
-}
-
-type Store interface {
-	ListSets(ctx context.Context, q *RequestConfig) (Resumable, error)
-	ListIdentifiers(ctx context.Context, q *RequestConfig) (Resumable, error)
-	ListRecords(ctx context.Context, q *RequestConfig) (Resumable, error)
-	GetRecord(ctx context.Context, q *RequestConfig) (Record, []Error, error)
-	ListMetadataFormats(ctx context.Context, q *RequestConfig) ([]MetadataFormat, error)
 }

@@ -15,17 +15,19 @@ import (
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	orgs  domain.OrgConfigRetriever
-	log   zerolog.Logger
-	store Store
-	steps map[string]RequestConfig
-	m     sync.RWMutex
-	sid   *shortid.Shortid
+	orgs                  domain.OrgConfigRetriever
+	log                   zerolog.Logger
+	store                 Store
+	steps                 map[string]RequestConfig
+	m                     sync.RWMutex
+	sid                   *shortid.Shortid
+	requireSetSpecForList bool
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		steps: make(map[string]RequestConfig),
+		steps:                 make(map[string]RequestConfig),
+		requireSetSpecForList: true,
 	}
 
 	sid, err := shortid.New(1, shortid.DefaultABC, 2342)
