@@ -28,9 +28,25 @@ func (r *Resource) Subject() Subject {
 	return r.subject
 }
 
+func (r *Resource) Label() (Literal, bool) {
+	l, _ := RDFS.IRI("label")
+
+	o, ok := r.predicates[Predicate(l)]
+	if ok {
+		for _, obj := range o.Objects() {
+			if obj.Type() == TermLiteral {
+				return obj.(Literal), true
+			}
+		}
+	}
+
+	return Literal{}, false
+}
+
 func (r *Resource) Types() []IRI {
 	if len(r.types) == 0 {
 		iri, _ := RDF.IRI("Description")
+
 		return []IRI{iri}
 	}
 
