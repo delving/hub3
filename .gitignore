@@ -10,6 +10,7 @@ hub3.iml
 *.swo
 *.tmp
 tag
+tags
 
 # build and vendor
 main
