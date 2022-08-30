@@ -117,19 +117,25 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
 
 		if s.defaultImagePath != "" {
-			data, err := os.ReadFile(s.defaultImagePath)
-			if err == nil {
-				_, err := fmt.Fprintf(&buf, "%s", data)
-				if err == nil {
-					if errors.Is(err, ErrRemoteResourceNotFound) {
-						w.WriteHeader(http.StatusNotFound)
-					} else {
-						w.WriteHeader(http.StatusInternalServerError)
-					}
-					io.Copy(w, &buf)
-					return
-				}
+			data, errRead := os.ReadFile(s.defaultImagePath)
+			if errRead != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("could not read default image")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
+			_, errFprint := fmt.Fprintf(&buf, "%s", data)
+			if errFprint != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("could not add data to buffer??")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			if errors.Is(err, ErrRemoteResourceNotFound) {
+				w.WriteHeader(http.StatusNotFound)
+			} else {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			io.Copy(w, &buf)
+			return
 		}
 
 		if errors.Is(err, ErrRemoteResourceNotFound) {
