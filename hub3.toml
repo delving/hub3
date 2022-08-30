@@ -1,3 +1,9 @@
+[db]
+dsn = "postgres://postgres:pw123@localhost:5433/hub3?sslmode=disable"
+maxOpenConns = 25
+maxIdleConns = 25
+maxIdleTime = "15m"
+
 [org.dcn]
 domains = ["localhost:3000"]
 default = true
