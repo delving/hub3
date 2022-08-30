@@ -11,7 +11,7 @@ import (
 	"github.com/matryer/is"
 )
 
-//nolint: gocritic
+// nolint: gocritic
 func TestReadResponse(t *testing.T) {
 	is := is.New(t)
 
@@ -85,12 +85,16 @@ func TestReadResponse(t *testing.T) {
 // // is.Equal(xml, expected)
 // }
 
+// TestMappingXML is a specific test for BrabantCloud wikibase data
+//
+// Once this format is accepted it should be removed and replaced with a
+// more general purpose test.
 func TestMappingXML(t *testing.T) {
 	is := is.New(t)
 
-	jsonPath := "/home/kiivihal/projects/01_active/eb/k3-harvest/records"
+	jsonPath := "./testdata/wikibase"
 
-	output, err := os.Create(filepath.Join(jsonPath, "output.xml"))
+	output, err := os.Create(filepath.Join(os.TempDir(), "output.xml"))
 	is.NoErr(err)
 	fmt.Fprintln(output, "<wrapped>")
 
@@ -130,22 +134,7 @@ func TestMappingXML(t *testing.T) {
 		is.NoErr(err)
 		fmt.Fprintln(output, xml)
 		fmt.Fprintln(output, "</record>")
-
-		// break
 	}
 
 	fmt.Fprintln(output, "</wrapped>")
-
-	is.True(false)
-
-	// loop over all files
-	// create file
-	// write wrapped
-	// construct iri
-	// open file
-	// create response
-	// createMapping xml
-	// write to file
-	// close with </wrapped>
-	// upload to narthex as file
 }
