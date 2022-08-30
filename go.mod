@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.18
+go 1.19
 
 require (
 	code.gitea.io/gitea v1.13.4
@@ -99,6 +99,7 @@ require (
 	github.com/go-enry/go-oniguruma v1.2.1 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.0.0 // indirect
+	github.com/gocarina/gocsv v0.0.0-20220729221910-a7386ae0b221 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.3.0 // indirect
