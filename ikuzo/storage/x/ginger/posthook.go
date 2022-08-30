@@ -1,10 +1,13 @@
 package ginger
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -109,8 +112,9 @@ func (ph *PostHook) Publish(items ...*domain.PostHookItem) error {
 				return err
 			}
 
+			defer resp.Body.Close()
+
 			if resp.StatusCode > 299 {
-				defer resp.Body.Close()
 				body, readErr := ioutil.ReadAll(resp.Body)
 
 				if readErr != nil {
@@ -158,6 +162,29 @@ func (ph *PostHook) Publish(items ...*domain.PostHookItem) error {
 	graphsAsJSON, err := json.Marshal(bulkGraphs)
 	if err != nil {
 		return err
+	}
+
+	h := sha1.New()
+	h.Write(graphsAsJSON)
+	graphName := hex.EncodeToString(h.Sum(nil))
+
+	if strings.EqualFold(os.Getenv("GINGER_LOG"), "true") {
+		datasetID := items[0].DatasetID
+		dataPath := "data/posthook/ginger/" + datasetID + "/"
+
+		if err := os.MkdirAll(dataPath, os.ModePerm); err != nil {
+			return err
+		}
+
+		fname := dataPath + graphName + ".json"
+		log.Info().
+			Str("datasetID", datasetID).
+			Str("datapath", fname).
+			Msg("storing posthook data on disk")
+
+		if err := os.WriteFile(fname, graphsAsJSON, os.ModePerm); err != nil {
+			return err
+		}
 	}
 
 	rsp, body, errs := request.Post(ph.endpoint).

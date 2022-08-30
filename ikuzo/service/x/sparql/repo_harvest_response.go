@@ -120,14 +120,20 @@ func (r *responseWithContext) NTriples() (string, error) {
 	return buf.String(), nil
 }
 
-func (r *responseWithContext) MappingXML(subject rdf.Subject) (string, error) {
+func (r *responseWithContext) MappingXML(subject rdf.Subject, wikibaseType string) (string, error) {
 	g, err := r.Graph()
 	if err != nil {
 		return "", err
 	}
 
 	var buf bytes.Buffer
+
 	cfg := mappingxml.FilterConfig{Subject: subject}
+
+	if wikibaseType != "" {
+		p, _ := rdf.NewIRI(wikibaseType)
+		cfg.WikiBaseTypePredicate = rdf.Predicate(p)
+	}
 
 	if err := mappingxml.Serialize(g, &buf, &cfg); err != nil {
 		return "", err
