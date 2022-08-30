@@ -3,7 +3,9 @@ package sparql
 import (
 	"bytes"
 	"encoding/json"
+	fmt "fmt"
 	"io"
+	"log"
 
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/mappingxml"
@@ -120,14 +122,21 @@ func (r *responseWithContext) NTriples() (string, error) {
 	return buf.String(), nil
 }
 
-func (r *responseWithContext) MappingXML(subject rdf.Subject) (string, error) {
+func (r *responseWithContext) MappingXML(subject rdf.Subject, wikibaseType string) (string, error) {
 	g, err := r.Graph()
 	if err != nil {
 		return "", err
 	}
 
 	var buf bytes.Buffer
+
 	cfg := mappingxml.FilterConfig{Subject: subject}
+	fmt.Printf("prefix %s", wikibaseType)
+	if wikibaseType != "" {
+		p, _ := rdf.NewIRI(wikibaseType)
+		cfg.WikiBaseTypePredicate = rdf.Predicate(p)
+	}
+	log.Printf("cfg %#v", cfg)
 
 	if err := mappingxml.Serialize(g, &buf, &cfg); err != nil {
 		return "", err

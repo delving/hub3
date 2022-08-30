@@ -1,9 +1,13 @@
 package sparql
 
 import (
+	fmt "fmt"
 	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
+	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/matryer/is"
 )
 
@@ -81,59 +85,67 @@ func TestReadResponse(t *testing.T) {
 // // is.Equal(xml, expected)
 // }
 
-// func TestMappingXML(t *testing.T) {
-// is := is.New(t)
+func TestMappingXML(t *testing.T) {
+	is := is.New(t)
 
-// jsonPath := "/home/kiivihal/projects/01_active/eb/k3-harvest/records"
+	jsonPath := "/home/kiivihal/projects/01_active/eb/k3-harvest/records"
 
-// output, err := os.Create(filepath.Join(jsonPath, "output.xml"))
-// is.NoErr(err)
-// fmt.Fprintln(output, "<wrapped>")
+	output, err := os.Create(filepath.Join(jsonPath, "output.xml"))
+	is.NoErr(err)
+	fmt.Fprintln(output, "<wrapped>")
 
-// files, err := os.ReadDir(jsonPath)
-// is.NoErr(err)
+	files, err := os.ReadDir(jsonPath)
+	is.NoErr(err)
 
-// for _, fname := range files {
-// if !strings.HasSuffix(fname.Name(), ".json") {
-// continue
-// }
+	for _, fname := range files {
+		if !strings.HasSuffix(fname.Name(), ".json") {
+			continue
+		}
+		id := strings.TrimSuffix(fname.Name(), ".json")
+		t.Logf("fname: %s ; id %s", fname.Name(), id)
 
-// t.Logf("fname: %s", fname.Name())
+		fmt.Fprintf(output, "<record id=\"%s\">\n", id)
 
-// f, err := os.Open(filepath.Join(jsonPath, fname.Name()))
-// is.NoErr(err)
+		f, err := os.Open(filepath.Join(jsonPath, fname.Name()))
+		is.NoErr(err)
 
-// resp, err := NewResponse(f)
-// is.NoErr(err)
+		resp, err := newResponse(f)
+		is.NoErr(err)
 
-// subj, err := rdf.NewIRI(
-// fmt.Sprintf(
-// "http://gebouwen.brabantcloud.nl/entity/%s",
-// strings.TrimSuffix(fname.Name(), ".json"),
-// ),
-// )
-// is.NoErr(err)
-// t.Logf("subject %s; triples %d", subj, len(resp.Results.Bindings))
+		subj, err := rdf.NewIRI(
+			fmt.Sprintf(
+				"http://gebouwen.brabantcloud.nl/entity/%s",
+				id,
+			),
+		)
+		is.NoErr(err)
+		t.Logf("subject %s; triples %d", subj, len(resp.Results.Bindings))
 
-// f.Close()
+		f.Close()
 
-// xml, err := resp.MappingXML(rdf.Subject(subj))
-// is.NoErr(err)
-// fmt.Fprintln(output, xml)
-// }
+		xml, err := resp.MappingXML(
+			rdf.Subject(subj),
+			"http://gebouwen.brabantcloud.nl/prop/direct/P1",
+		)
+		is.NoErr(err)
+		fmt.Fprintln(output, xml)
+		fmt.Fprintln(output, "</record>")
 
-// fmt.Fprintln(output, "</wrapped>")
+		// break
+	}
 
-// is.True(false)
+	fmt.Fprintln(output, "</wrapped>")
 
-// // loop over all files
-// // create file
-// // write wrapped
-// // construct iri
-// // open file
-// // create response
-// // createMapping xml
-// // write to file
-// // close with </wrapped>
-// // upload to narthex as file
-// }
+	is.True(false)
+
+	// loop over all files
+	// create file
+	// write wrapped
+	// construct iri
+	// open file
+	// create response
+	// createMapping xml
+	// write to file
+	// close with </wrapped>
+	// upload to narthex as file
+}
