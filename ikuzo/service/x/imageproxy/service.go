@@ -59,6 +59,7 @@ type Service struct {
 	singleSetCache   singleflight.Group
 	cancelWorker     context.CancelFunc
 	orgs             domain.OrgConfigRetriever
+	defaultImagePath string // The path to the defaultimage
 }
 
 func NewService(options ...Option) (*Service, error) {

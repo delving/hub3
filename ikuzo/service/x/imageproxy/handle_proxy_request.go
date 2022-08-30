@@ -7,6 +7,7 @@ import (
 	"html"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/go-chi/chi"
@@ -114,6 +115,28 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 	err = s.Do(r.Context(), req, &buf)
 	if err != nil {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to make proxy request")
+
+		if s.defaultImagePath != "" {
+			data, errRead := os.ReadFile(s.defaultImagePath)
+			if errRead != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("could not read default image")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			_, errFprint := fmt.Fprintf(&buf, "%s", data)
+			if errFprint != nil {
+				s.log.Error().Err(err).Str("url", req.SourceURL).Msg("could not add data to buffer??")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			if errors.Is(err, ErrRemoteResourceNotFound) {
+				w.WriteHeader(http.StatusNotFound)
+			} else {
+				w.WriteHeader(http.StatusInternalServerError)
+			}
+			io.Copy(w, &buf)
+			return
+		}
 
 		if errors.Is(err, ErrRemoteResourceNotFound) {
 			http.Error(w, err.Error(), http.StatusNotFound)
