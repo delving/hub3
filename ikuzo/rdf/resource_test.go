@@ -89,4 +89,26 @@ func TestResource(t *testing.T) {
 			"<urn:subject/123> <http://purl.org/dc/elements/1.1/title> \"simple title\"^^<http://www.w3.org/2001/XMLSchema#dateTime> .",
 		)
 	})
+
+	t.Run("Label() should return the label", func(t *testing.T) {
+		is := is.New(t)
+
+		rsc := NewResource(&subject)
+		rsc.PredicateURIBase = RDFS
+		t.Logf("predicates: %#v", rsc.predicates)
+		rsc.AddSimpleLiteral("prefLabel", "altLabel")
+		t.Logf("predicates: %#v", rsc.predicates)
+		noLabel, ok := rsc.Label()
+		t.Logf("predicates: %#v", noLabel)
+		t.Logf("no label: %s %t", noLabel, ok)
+		for _, err := range rsc.errors {
+			t.Logf("errors: %s", err)
+		}
+		is.True(!ok)
+
+		rsc.AddSimpleLiteral("label", "real label", WithLanguage("nl"))
+		trueLabel, ok := rsc.Label()
+		is.True(ok)
+		is.Equal("real label", trueLabel.RawValue())
+	})
 }
