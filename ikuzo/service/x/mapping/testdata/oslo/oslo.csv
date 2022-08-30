@@ -1,0 +1,3 @@
+resource,predicate,predicate_type,predicate_container,resource_uri,predicate_uri,
+"Activiteit",,,,"http://www.cidoc-crm.org/cidoc-crm/E7_Activity",,
+"Activiteit","gebruikteTechniek","@id","@set","http://www.cidoc-crm.org/cidoc-crm/E7_Activity","http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",

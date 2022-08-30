@@ -1,0 +1,610 @@
+{
+  "@context": {
+    "Adresvoorstelling": "http://www.w3.org/ns/locn#Address",
+    "Adresvoorstelling.volledigAdres": {
+      "@id": "http://www.w3.org/ns/locn#fullAddress",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Agent": "http://purl.org/dc/terms/Agent",
+    "Agent.contactinfo": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P76_has_contact_point",
+      "@type": "@id"
+    },
+    "Agent.heeft": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P75_possesses",
+      "@type": "@id"
+    },
+    "Agent.oefentRechtUitOp": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P105i_has_right_on",
+      "@type": "@id"
+    },
+    "Agent.residentie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P74_has_current_or_former_residence",
+      "@type": "@id"
+    },
+    "Aggregatiewerk": "https://www.iflastandards.info/fr/frbr/frbroo#F17",
+    "Beschrijving": "https://data.vlaanderen.be/ns/cultureel-erfgoed#Beschrijving",
+    "Beschrijving.tekst": {
+      "@id": "https://data.vlaanderen.be/ns/cultureel-erfgoed#tekst",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Beschrijving.type": {
+      "@id": "https://data.vlaanderen.be/ns/cultureel-erfgoed#type",
+      "@type": "@id"
+    },
+    "Bewaring": "http://www.cidoc-crm.org/cidoc-crm/E10_Transfer_of_Custody",
+    "Classificatie": "http://www.cidoc-crm.org/cidoc-crm/E17_Type_Assignment",
+    "Collectie": "http://purl.org/dc/dcmitype/Collection",
+    "Collectie.bestaatUit": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/hasPart",
+      "@type": "@id"
+    },
+    "ComplexWerk": "https://www.iflastandards.info/fr/frbr/frbroo#F15",
+    "ComplexWerk.heeftComponent": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R10",
+      "@type": "@id"
+    },
+    "Conceptie": "https://www.iflastandards.info/fr/frbr/frbroo#F27",
+    "ConceptueelDing": "http://www.cidoc-crm.org/cidoc-crm/E28_Conceptual_Object",
+    "ConceptueelDing.creatie": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+      "@type": "@id"
+    },
+    "ConceptueelDing.heeftComponent": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P148_has_component",
+      "@type": "@id"
+    },
+    "Conditie": "http://www.cidoc-crm.org/cidoc-crm/E3_Condition_State",
+    "Conditie.beschrijving": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P3_has_note",
+      "@type": "@id"
+    },
+    "Conditie.periode": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+      "@type": "@id"
+    },
+    "Conditie.type": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+      "@type": "@id"
+    },
+    "Conditiebeoordeling": "http://www.cidoc-crm.org/cidoc-crm/E14_Condition_Assessment",
+    "Contactinfo": "http://schema.org/ContactPoint",
+    "Contactinfo.adres": {
+      "@id": "http://www.w3.org/ns/locn#address",
+      "@type": "@id"
+    },
+    "Contactinfo.contactnaam": {
+      "@id": "http://xmlns.com/foaf/0.1/name",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.email": {
+      "@id": "http://schema.org/email",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.fax": {
+      "@id": "http://schema.org/faxNumber",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.telefoon": {
+      "@id": "http://schema.org/telephone",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.website": {
+      "@id": "http://xmlns.com/foaf/0.1/page",
+      "@type": "http://www.w3.org/2001/XMLSchema#anyURI"
+    },
+    "Creatie": "http://www.cidoc-crm.org/cidoc-crm/E65_Creation",
+    "Curatie": "http://www.cidoc-crm.org/cidoc-crm/E87_Curation_Activity",
+    "Dimensie": "http://www.cidoc-crm.org/cidoc-crm/E54_Dimension",
+    "Dimensie.beschrijving": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P3_has_note",
+      "@type": "@id"
+    },
+    "Dimensie.eenheid": {
+      "@id": "https://schema.org/unitText",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Dimensie.standaardEenheid": {
+      "@id": "https://schema.org/unitCode",
+      "@type": "@id"
+    },
+    "Dimensie.type": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+      "@type": "@id"
+    },
+    "Dimensie.waarde": {
+      "@id": "https://schema.org/value",
+      "@type": "@id"
+    },
+    "Document": "http://www.cidoc-crm.org/cidoc-crm/E31_Document",
+    "Document.documenteert": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P70_documents",
+      "@type": "@id"
+    },
+    "Entiteit": "http://www.cidoc-crm.org/cidoc-crm/E1_CRM_Entity",
+    "Entiteit.beschrijving": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P3_has_note",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Entiteit.classificatie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P41i_was_classified_by",
+      "@type": "@id"
+    },
+    "Entiteit.identificator": {
+      "@container": "@set",
+      "@id": "http://www.w3.org/ns/adms#identifier",
+      "@type": "@id"
+    },
+    "Entiteit.isHetOnderwerpVan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P129i_is_subject_of",
+      "@type": "@id"
+    },
+    "Entiteit.maaktDeelUitVan": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/isPartOf",
+      "@type": "@id"
+    },
+    "Entiteit.meting": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P39i_was_measured_by",
+      "@type": "@id"
+    },
+    "Entiteit.toekenning": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P140i_was_attributed_by",
+      "@type": "@id"
+    },
+    "Entiteit.type": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+      "@type": "@id"
+    },
+    "Entiteit.wordtGedocumenteerdDoor": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+      "@type": "@id"
+    },
+    "Entiteit.wordtNaarVerwezenDoor": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P67i_is_referred_to_by",
+      "@type": "@id"
+    },
+    "Entiteit.wordtUitgebeeldDoor": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P62i_is_depicted_by",
+      "@type": "@id"
+    },
+    "Entiteit.wordtVoorgesteldDoor": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P138i_has_representation",
+      "@type": "@id"
+    },
+    "ExpressieCreatie": "https://www.iflastandards.info/fr/frbr/frbroo#F28",
+    "GecureerdeCollectie": "http://www.cidoc-crm.org/cidoc-crm/E78_Collection",
+    "GecureerdeCollectie.bestaatUit": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
+      "@type": "@id"
+    },
+    "GecureerdeCollectie.curator": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P109_has_current_or_former_curator",
+      "@type": "@id"
+    },
+    "GecureerdeCollectie.dimensie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
+      "@type": "@id"
+    },
+    "GecureerdeCollectie.gecureerdBij": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P147i_was_curated_by",
+      "@type": "@id"
+    },
+    "GecureerdeCollectie.locatie": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P53_has_former_or_current_location",
+      "@type": "@id"
+    },
+    "GecureerdeCollectie.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Getal": "https://schema.org/Number",
+    "Identificator": "http://www.w3.org/ns/adms#Identifier",
+    "Identificator.identificator": {
+      "@id": "http://www.w3.org/2004/02/skos/core#notation",
+      "@type": "http://www.w3.org/2000/01/rdf-schema#Literal"
+    },
+    "Identificator.toegekendDoor": {
+      "@id": "http://purl.org/dc/terms/creator",
+      "@type": "@id"
+    },
+    "Identificator.toegekendDoor (string)": {
+      "@id": "http://www.w3.org/ns/adms#schemaAgency",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Identificator.toegekendOp": {
+      "@id": "http://purl.org/dc/terms/issued",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "IndividueelWerk": "https://www.iflastandards.info/fr/frbr/frbroo#F14",
+    "IndividueelWerk.isGerealiseerdIn": {
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R9",
+      "@type": "@id"
+    },
+    "InformatieObject": "http://www.cidoc-crm.org/cidoc-crm/E73_Information_Object",
+    "InformatieObject.drager": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+      "@type": "@id"
+    },
+    "InformatieObject.gaatOver": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P129_is_about",
+      "@type": "@id"
+    },
+    "InformatieObject.omvat": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P165_incorporates",
+      "@type": "http://www.cidoc-crm.org/cidoc-crm/E73_Information_Object"
+    },
+    "InformatieObject.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "InformatieObject.verwijstNaar": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P67_refers_to",
+      "@type": "@id"
+    },
+    "Locatie": "http://www.w3.org/ns/prov#Location",
+    "MaterieelDing": "http://www.cidoc-crm.org/cidoc-crm/E18_Physical_Thing",
+    "MaterieelDing.beheerder": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P50_has_current_keeper",
+      "@type": "@id"
+    },
+    "MaterieelDing.bestaatUit": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
+      "@type": "@id"
+    },
+    "MaterieelDing.conditiebeoordeling": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P34i_was_assessed_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.eigenaar": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P52_has_current_owner",
+      "@type": "@id"
+    },
+    "MaterieelDing.isIngekrompenBij": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P113i_was_removed_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.isOvergedragenBijBewaring": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P30i_custody_transferred_through",
+      "@type": "@id"
+    },
+    "MaterieelDing.isOvergedragenBijVerwerving": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P24i_changed_ownership_through",
+      "@type": "@id"
+    },
+    "MaterieelDing.isToegevoegdBij": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P111i_was_added_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.isUitgebreidBij": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P110i_was_augmented_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.isVerwijderdBij": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P112i_was_diminished_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.productie": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.vernietiging": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P13i_was_destroyed_by",
+      "@type": "@id"
+    },
+    "MaterieelDing.wijziging": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P31i_was_modified_by",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk": "http://www.cidoc-crm.org/cidoc-crm/E25_Man-Made_Feature",
+    "MensgemaaktKenmerk.beeldtUit": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.conditie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P44_has_condition",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.dimensie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.draagt": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P128_carries",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.maaktDeelUitVan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P46i_forms_part_of",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.materiaal": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+      "@type": "@id"
+    },
+    "MensgemaaktKenmerk.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "MensgemaaktObject": "http://www.cidoc-crm.org/cidoc-crm/E22_Man-Made_Object",
+    "MensgemaaktObject.beeldtUit": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.conditie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P44_has_condition",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.dimensie": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.draagt": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P128_carries",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.locatie": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.maaktDeelUitVan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P46i_forms_part_of",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.materiaal": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.permanenteLocatie": {
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P54_has_current_permanent_location",
+      "@type": "@id"
+    },
+    "MensgemaaktObject.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "MensgemaaktObject.verhuis": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P25i_moved_by",
+      "@type": "@id"
+    },
+    "Meting": "http://www.cidoc-crm.org/cidoc-crm/E16_Measurement",
+    "OntwerpOfProcedure": "http://www.cidoc-crm.org/cidoc-crm/E29_Design_or_Procedure",
+    "OntwerpOfProcedure.isGeassocieerdMet": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P69_is_associated_with",
+      "@type": "@id"
+    },
+    "Opname": "https://www.iflastandards.info/fr/frbr/frbroo#F26",
+    "Opname.creatie": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R21i",
+      "@type": "@id"
+    },
+    "Opnamesessie": "https://www.iflastandards.info/fr/frbr/frbroo#F29",
+    "Opnamewerk": "https://www.iflastandards.info/fr/frbr/frbroo#F21",
+    "Opnamewerk.realisatie": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R22i",
+      "@type": "@id"
+    },
+    "Organisatie": "http://www.w3.org/ns/org#Organization",
+    "Organisatie.voorkeursnaam": {
+      "@id": "http://www.w3.org/2004/02/skos/core#prefLabel",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Periode": "http://data.europa.eu/m8g/PeriodOfTime",
+    "Periode.begin": {
+      "@id": "http://data.europa.eu/m8g/startTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Periode.einde": {
+      "@id": "http://data.europa.eu/m8g/endTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Persoon": "http://www.w3.org/ns/person#Person",
+    "Persoon.achternaam": {
+      "@id": "http://xmlns.com/foaf/0.1/familyName",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Persoon.voornaam": {
+      "@container": "@set",
+      "@id": "http://xmlns.com/foaf/0.1/givenName",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Productie": "http://www.cidoc-crm.org/cidoc-crm/E12_Production",
+    "Publicatie": "https://www.iflastandards.info/fr/frbr/frbroo#F30",
+    "PublicatieExpressie": "https://www.iflastandards.info/fr/frbr/frbroo#F24",
+    "PublicatieExpressie.creatie": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R24i",
+      "@type": "@id"
+    },
+    "Publicatiewerk": "https://www.iflastandards.info/fr/frbr/frbroo#F19",
+    "Publicatiewerk.realisatie": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R23i",
+      "@type": "@id"
+    },
+    "Recht": "http://www.cidoc-crm.org/cidoc-crm/E30_Right",
+    "Recht.beschrijving": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P3_has_note",
+      "@type": "@id"
+    },
+    "Recht.isInBezitVan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P75i_is_possessed_by",
+      "@type": "@id"
+    },
+    "Recht.isVanToepassingOp": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P104i_applies_to",
+      "@type": "@id"
+    },
+    "Recht.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Recht.type": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+      "@type": "@id"
+    },
+    "Rechtsgrond": "http://data.europa.eu/eli/ontology#LegalResource",
+    "SerieelWerk": "https://www.iflastandards.info/fr/frbr/frbroo#F18",
+    "SerieelWerk.uitgaveregel": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R11",
+      "@type": "@id"
+    },
+    "StandaardEenheid": "https://data.vlaanderen.be/ns/generiek#StandaardEenheid",
+    "Taalobject": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object",
+    "Taalobject.isVertalingVan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P73i_is_translation_of",
+      "@type": "@id"
+    },
+    "Taalobject.taal": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P72_has_language",
+      "@type": "@id"
+    },
+    "Toekenning": "http://www.cidoc-crm.org/cidoc-crm/E13_Attribute_Assignment",
+    "ToevoegingDeel": "http://www.cidoc-crm.org/cidoc-crm/E79_Part_Addition",
+    "TypeBeschrijving": "http://www.w3.org/2004/02/skos/core#Concept",
+    "TypeConditie": "http://www.w3.org/2004/02/skos/core#Concept",
+    "TypeEntiteit": "http://www.w3.org/2004/02/skos/core#Concept",
+    "TypeGrootheid": "http://www.w3.org/2004/02/skos/core#Concept",
+    "TypeMateriaal": "http://www.w3.org/2004/02/skos/core#Concept",
+    "TypeRecht": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Verhuis": "http://www.cidoc-crm.org/cidoc-crm/E9_Move",
+    "Vernietiging": "http://www.cidoc-crm.org/cidoc-crm/E6_Destruction",
+    "Verwerving": "http://www.cidoc-crm.org/cidoc-crm/E8_Acquisition",
+    "VerwijderingDeel": "http://www.cidoc-crm.org/cidoc-crm/E80_Part_Removal",
+    "VisueelItem": "http://www.cidoc-crm.org/cidoc-crm/E36_Visual_Item",
+    "VisueelItem.steltVoor": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P138_represents",
+      "@type": "@id"
+    },
+    "Voorstelling": "https://www.iflastandards.info/fr/frbr/frbroo#F31",
+    "Voorstellingsplan": "https://www.iflastandards.info/fr/frbr/frbroo#F25",
+    "Voorstellingsplan.uitvoering": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R25i",
+      "@type": "@id"
+    },
+    "Voorstellingswerk": "https://www.iflastandards.info/fr/frbr/frbroo#F20",
+    "Werk": "https://www.iflastandards.info/fr/frbr/frbroo#F1",
+    "Werk.afgeleidVan": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R2",
+      "@type": "@id"
+    },
+    "Werk.conceptie": {
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R16i",
+      "@type": "@id"
+    },
+    "Werk.gaatOver": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P129_is_about",
+      "@type": "@id"
+    },
+    "Werk.isGerealiseerdIn": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R3",
+      "@type": "@id"
+    },
+    "Werk.realisatie": {
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R19i",
+      "@type": "@id"
+    },
+    "Werk.titel": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Werk.verwijstNaar": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P67_refers_to",
+      "@type": "@id"
+    },
+    "WettelijkObject": "http://www.cidoc-crm.org/cidoc-crm/E72_Legal_Object",
+    "WettelijkObject.isOnderworpenAan": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P104_is_subject_to",
+      "@type": "@id"
+    },
+    "WettelijkObject.rechtenhouder": {
+      "@container": "@set",
+      "@id": "http://www.cidoc-crm.org/cidoc-crm/P105_right_held_by",
+      "@type": "@id"
+    },
+    "Wijziging": "http://www.cidoc-crm.org/cidoc-crm/E11_Modification",
+    "ZelfstandigeExpressie": "https://www.iflastandards.info/fr/frbr/frbroo#F22",
+    "ZelfstandigeExpressie.creatie": {
+      "@container": "@set",
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R17i",
+      "@type": "@id"
+    },
+    "ZelfstandigeExpressie.realiseert": {
+      "@id": "https://www.iflastandards.info/fr/frbr/frbroo#R9i",
+      "@type": "@id"
+    }
+  }
+}

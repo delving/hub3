@@ -37,6 +37,7 @@ var customNS = []nsEntry{
 	{Prefix: "raw", BaseURI: "http://delving.eu/namespaces/raw/"},
 	{Prefix: "tib", BaseURI: "http://schemas.delving.eu/resource/ns/tib/"},
 	{Prefix: "k3direct", BaseURI: "http://gebouwen.brabantcloud.nl/prop/direct/"},
+	{Prefix: "k3entity", BaseURI: "http://gebouwen.brabantcloud.nl/entity/"},
 	{Prefix: "k3prop", BaseURI: "http://gebouwen.brabantcloud.nl/prop/"},
 	{Prefix: "k3statement", BaseURI: "http://gebouwen.brabantcloud.nl/prop/statement/"},
 	{Prefix: "k3value", BaseURI: "http://gebouwen.brabantcloud.nl/prop/statement/value/"},
@@ -2222,4 +2223,8 @@ var defaultNS = []nsEntry{
 	{Prefix: "zoology", BaseURI: "http://purl.org/NET/biol/zoology#"},
 	{Prefix: "zoomaterms", BaseURI: "http://rdf.ebi.ac.uk/vocabulary/zooma/"},
 	{Prefix: "zr", BaseURI: "http://explain.z3950.org/dtd/2.0/"},
+	// extra
+	{Prefix: "vl-ce", BaseURI: "https://data.vlaanderen.be/ns/cultureel-erfgoed#"},
+	{Prefix: "vl-generiek", BaseURI: "https://data.vlaanderen.be/ns/generiek#"},
+	{Prefix: "edtf", BaseURI: "http://id.loc.gov/datatypes/edtf/"},
 }

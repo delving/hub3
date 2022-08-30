@@ -1,0 +1,100 @@
+syntax = "proto3";
+package mappingpb;
+option go_package = "ikuzo/service/x/mapping/mappingpb";
+
+enum AttrType {
+    XML_LANG = 0;
+    RDF_TYPE = 1;
+    RDF_RESOURCE = 2;
+    RDF_ABOUT = 3;
+    RDF_DATATYPE = 4;
+}
+
+message RecDef {
+    Header header = 1;
+    repeated Namespace namespaces = 2;
+    repeated MappingFunction functions = 3;
+    repeated Attr attrs = 4;
+    Root root = 5;
+    repeated FieldMarker fieldMarkers = 6;
+    repeated Doc docs = 7;
+}
+
+message Mapping {
+    Header header = 1;
+    repeated Fact facts = 2;
+    repeated MappingFunction functions =  3;
+    repeated DynOpt dynOpts = 4;
+    repeated NodeMapping nodeMappings = 5; 
+}
+
+message DynOpt {
+    string path = 1;
+    string value = 2;
+}
+
+message Fact {
+    string key = 1;
+    string value = 2;
+}
+
+message Doc {
+    string path = 1;
+    repeated Para paras = 2;
+}
+
+// TODO(kiivihal): Describe this message.
+message Para {
+    string name = 1;
+    string description = 2;
+}
+
+// todo finish
+message FieldMarker {
+}
+
+message Root {
+    string tag = 1;
+    NodeMapping nodeMapping = 2;
+    repeated Elem elems = 3;
+}
+
+message Elem {
+    string tag = 1;
+    AttrType attrType = 2;
+    Attr attr = 3;
+    NodeMapping nodeMapping = 4;
+    repeated Elem elems = 5;
+}
+
+// TODO(kiivihal): Describe this message.
+message Attr {
+    string tag = 1;
+    bool uriCheck = 2;
+    bool hidden = 3;
+    NodeMapping nodeMapping = 4;
+}
+
+message NodeMapping {
+    string inputPath = 1;
+    string outputPath = 2;
+    string groovyCode = 3;
+}
+
+message MappingFunction {
+    string name = 1;
+    string groovyCode = 2;
+    repeated string sampleInput = 3; // slightly different from before
+}
+
+message Header {
+    string prefix = 1;
+    string version = 2;
+    bool flat = 3;
+    bool locked = 4;
+}
+
+message Namespace {
+    string prefix = 1;
+    string uri = 2;
+}

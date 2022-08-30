@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<record-definition prefix="oslo" version="1.0.1" flat="false">
+	<namespaces>
+		<namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/" />
+
+		<namespace prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#" />
+		<namespace prefix="rdfs" uri="http://www.w3.org/2000/01/rdf-schema#" />
+		<namespace prefix="xsd" uri="http://www.w3.org/2001/XMLSchema#" />
+		<namespace prefix="owl" uri="http://www.w3.org/2002/07/owl#" />
+		<namespace prefix="ebucore" uri="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#" />
+		<namespace prefix="edm" uri="http://www.europeana.eu/schemas/edm/" />
+		<namespace prefix="ore" uri="http://www.openarchives.org/ore/terms/" />
+		<namespace prefix="rdaGr2" uri="http://rdvocab.info/ElementsGr2/" />
+		<namespace prefix="wgs84_pos" uri="http://www.w3.org/2003/01/geo/wgs84_pos#" />
+		<namespace prefix="cc" uri="https://creativecommons.org/ns#" />
+		<namespace prefix="nave" uri="http://schemas.delving.eu/nave/terms/" />
+		<!-- custom namespaces -->
+		<namespace prefix="oslo" uri="https://data.vlaanderen.be/ns/cultureel-erfgoed#" />
+		<namespace prefix="generiek" uri="https://data.vlaanderen.be/ns/generiek#" />
+		<namespace prefix="crm" uri="http://www.cidoc-crm.org/cidoc-crm/" />
+		<namespace prefix="frbroo" uri="https://www.iflastandards.info/fr/frbr/frbroo#" />
+		<namespace prefix="skos" uri="http://www.w3.org/2004/02/skos/core#" />
+		<namespace prefix="adms" uri="http://www.w3.org/ns/adms#" />
+		<namespace prefix="locn" uri="http://www.w3.org/ns/locn#" />
+		<namespace prefix="org" uri="http://www.w3.org/ns/org#" />
+		<namespace prefix="person" uri="http://www.w3.org/ns/person#" />
+		<namespace prefix="prov" uri="http://www.w3.org/ns/prov#" />
+		<namespace prefix="foaf" uri="http://xmlns.com/foaf/0.1/" />
+		<namespace prefix="dcterms" uri="#http://purl.org/dc/terms/#" />
+		<namespace prefix="schema" uri="http://schema.org/" />
+		<namespace prefix="edtf" uri="http://id.loc.gov/datatypes/edtf/" />
+		<namespace prefix="todo" uri="https://wherever/" />
+	</namespaces>
+	<attrs>
+		<attr tag="rdf:about" uriCheck="true" />
+		<attr tag="rdf:resource" />
+		<attr tag="rdf:datatype" />
+		<attr tag="rdf:type" />
+		<attr tag="xml:lang" />
+	</attrs>
+	<root tag="rdf:RDF">
+        <elem tag="nave:oslo_basic" attrs="rdf:about">
+            <elem tag="nave:bron" attrs="xml:lang" />
+            <elem tag="nave:identificator" attrs="xml:lang" />
+            <elem tag="nave:asset" attrs="xml:lang" /><!-- DAMS Identifier -->
+            <elem tag="nave:titel" attrs="xml:lang" /><!-- multiple occurrences -->
+            <elem tag="nave:Type" attrs="rdf:about" ><!-- multiple occurrences -->
+                <elem tag="nave:typeUri" />
+                <elem tag="nave:typeLabel" attrs="xml:lang" />
+            </elem>	
+            <elem tag="nave:huidigeEigenaar" attrs="xml:lang" />
+            <elem tag="nave:Vervaardiger" attrs="rdf:about"><!-- multiple occurrences -->
+                <elem tag="nave:vervaardigerUri" />
+                <elem tag="nave:vervaardigerLabel" attrs="xml:lang" />
+                <elem tag="nave:vervaardigerRol" attrs="xml:lang" />
+            </elem>		
+            <elem tag="nave:vervaardigingDatum" attrs="xml:lang" />
+            <elem tag="nave:VervaardigingLocatie" attrs="rdf:about" >
+                <elem tag="nave:vervaardigingLocatieUri" />
+                <elem tag="nave:vervaardigingLocatieLabel" attrs="xml:lang" />
+            </elem>	
+            <elem tag="nave:Materiaal" attrs="rdf:about" ><!-- multiple occurrences -->
+                <elem tag="nave:materiaalUri" />
+                <elem tag="nave:materiaalLabel" attrs="xml:lang" />
+            </elem>	
+            <elem tag="nave:afmetingen" attrs="xml:lang" /><!-- multiple occurrences -->
+            <elem tag="nave:rechten" attrs="xml:lang" />
+            <elem tag="nave:verwervingMethode" attrs="xml:lang" />
+            <elem tag="nave:verwervingPeriode" attrs="xml:lang" />
+            <elem tag="nave:VorigeEigenaar" attrs="rdf:about" ><!-- multiple occurrences -->
+                <elem tag="nave:vorigeEigenaarUri" />
+                <elem tag="nave:vorigeEigenaarLabel" attrs="xml:lang" />
+            </elem>
+        </elem>
+
+		<elem tag="crm:E22_Man-Made_Object" attrs="rdf:about" label="MensgemaaktObject">
+			<elem tag="crm:P138i_has_representation" attrs="rdf:resource" xsd_type="@id" label="Entiteit.wordtVoorgesteldDoor">
+				<elem tag="crm:E36_Visual_Item" attrs="rdf:about" label="VisueelItem">
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+							<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P3_has_note" attrs="xml:lang" xsd_type="rdf:langString" label="Entiteit.beschrijving"/>
+					<elem tag="adms:identifier" attrs="rdf:resource" xsd_type="@id" label="Entiteit.identificator">
+						<elem tag="adms:Identifier" attrs="rdf:about" label="Identificator">
+							<elem tag="rdfs:label" label="Identificator.label"/>
+							<elem tag="adms:schemaAgency" xsd_type="xsd:string" label="Identificator.toegekendDoor (string)"/>
+							<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+								<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+									<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P140i_was_attributed_by" attrs="rdf:resource" xsd_type="@id" label="Entiteit.toekenning">
+								<elem tag="crm:E13_Attribute_Assignment" attrs="rdf:about" label="Toekenning">
+									<elem tag="crm:P16_used_specific_object" attrs="rdf:resource" xsd_type="@id" label="Activiteit.gebruiktObject">
+										<elem tag="crm:E73_Information_Object" attrs="rdf:about" label="InformatieObject">
+											<elem tag="rdfs:label" label="InformatieObject.label"/>
+											<elem tag="crm:P190_has_symbolic_content" xsd_type="xsd:string" label="InformatieObject.inhoud"/>
+										</elem>
+									</elem>
+									<elem tag="crm:P14_carried_out_by" attrs="rdf:resource" xsd_type="@id" label="Activiteit.uitgevoerdDoor">
+										<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+											<elem tag="rdfs:label" label="Agent.label"/>
+										</elem>
+									</elem>
+									<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+										<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+											<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+										</elem>
+									</elem>
+									<elem tag="rdfs:label" label="Toekenning.label"/>
+									<elem tag="crm:P141_assigned" attrs="rdf:resource" xsd_type="@id" label="Toekenning.toegekendeWaarde">
+										<elem tag="oslo:Waarde" attrs="rdf:about" label="Waarde">
+											<elem tag="rdfs:label" label="Waarde.label"/>
+										</elem>
+									</elem>
+								</elem>
+							</elem>
+							<elem tag="skos:notation" xsd_type="rdfs:Literal" label="Identificator.identificator"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="VisueelItem.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P50_has_current_keeper" attrs="rdf:resource" xsd_type="@id" label="MaterieelDing.beheerder">
+				<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+					<elem tag="rdfs:label" label="Agent.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P129i_is_subject_of" attrs="rdf:resource" xsd_type="@id" label="Entiteit.isHetOnderwerpVan">
+				<elem tag="crm:E33_Linguistic_Object" attrs="rdf:about" label="Taalobject">
+					<elem tag="crm:P190_has_symbolic_content" xsd_type="xsd:string" label="InformatieObject.inhoud"/>
+					<elem tag="rdfs:label" label="Taalobject.label"/>
+					<elem tag="crm:P72_has_language" attrs="rdf:resource" xsd_type="@id" label="Taalobject.taal">
+						<elem tag="skos:Concept" attrs="rdf:about" label="Taalcode">
+							<elem tag="rdfs:label" label="Taalcode.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="crm:P140i_was_attributed_by" attrs="rdf:resource" xsd_type="@id" label="Entiteit.toekenning">
+				<elem tag="crm:E13_Attribute_Assignment" attrs="rdf:about" label="Toekenning">
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+							<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P16_used_specific_object" attrs="rdf:resource" xsd_type="@id" label="Activiteit.gebruiktObject">
+						<elem tag="crm:E73_Information_Object" attrs="rdf:about" label="InformatieObject">
+							<elem tag="rdfs:label" label="InformatieObject.label"/>
+							<elem tag="crm:P190_has_symbolic_content" xsd_type="xsd:string" label="InformatieObject.inhoud"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P14_carried_out_by" attrs="rdf:resource" xsd_type="@id" label="Activiteit.uitgevoerdDoor">
+						<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+							<elem tag="rdfs:label" label="Agent.label"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Toekenning.label"/>
+					<elem tag="crm:P141_assigned" attrs="rdf:resource" xsd_type="@id" label="Toekenning.toegekendeWaarde">
+						<elem tag="oslo:Waarde" attrs="rdf:about" label="Waarde">
+							<elem tag="rdfs:label" label="Waarde.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+				<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+					<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P46_is_composed_of" attrs="rdf:resource" xsd_type="@id" label="MaterieelDing.bestaatUit">
+				<elem tag="crm:E22_Man-Made_Object" attrs="rdf:about" label="MensgemaaktObject">
+					<elem tag="crm:P45_consists_of" attrs="rdf:resource" xsd_type="@id" label="MensgemaaktObject.materiaal">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeMateriaal">
+							<elem tag="rdfs:label" label="TypeMateriaal.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P3_has_note" attrs="xml:lang" xsd_type="rdf:langString" label="Entiteit.beschrijving"/>
+					<elem tag="rdfs:label" label="MensgemaaktObject.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P108i_was_produced_by" attrs="rdf:resource" xsd_type="@id" label="MaterieelDing.productie">
+				<elem tag="crm:E12_Production" attrs="rdf:about" label="Productie">
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+							<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P32_used_general_technique" attrs="rdf:resource" xsd_type="@id" label="Activiteit.gebruikteTechniek">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeTechniek">
+							<elem tag="rdfs:label" label="TypeTechniek.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P16_used_specific_object" attrs="rdf:resource" xsd_type="@id" label="Activiteit.gebruiktObject">
+						<elem tag="crm:E33_Linguistic_Object" attrs="rdf:about" label="Taalobject">
+							<elem tag="crm:P72_has_language" attrs="rdf:resource" xsd_type="@id" label="Taalobject.taal">
+								<elem tag="skos:Concept" attrs="rdf:about" label="Taalcode">
+									<elem tag="rdfs:label" label="Taalcode.label"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P190_has_symbolic_content" xsd_type="xsd:string" label="InformatieObject.inhoud"/>
+							<elem tag="rdfs:label" label="Taalobject.label"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P7_took_place_at" attrs="rdf:resource" xsd_type="@id" label="Gebeurtenis.plaats">
+						<elem tag="prov:Location" attrs="rdf:about" label="Locatie">
+							<elem tag="rdfs:label" label="Locatie.label"/>
+							<elem tag="crm:P74_has_current_or_former_residence" attrs="rdf:resource" xsd_type="@id" label="reverse:Agent.residentie">
+								<elem tag="org:Organization" attrs="rdf:about" label="Organisatie">
+									<elem tag="rdfs:label" label="Organisatie.label"/>
+								</elem>
+							</elem>
+						</elem>
+					</elem>
+					<elem tag="crm:P4_has_time-span" xsd_type="edtf:EDTF" label="Gebeurtenis.tijd">
+						<elem tag="edtf:EDTF" attrs="rdf:about" label="Periode">
+							<elem tag="rdfs:label" label="Periode.label"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Productie.label"/>
+					<elem tag="oslo:Rol.activiteit" attrs="rdf:resource" xsd_type="@id" label="reverse:Rol.activiteit">
+						<elem tag="oslo:Rol" attrs="rdf:about" label="Rol">
+							<elem tag="oslo:Rol.agent" attrs="rdf:resource" xsd_type="@id" label="Rol.agent">
+								<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+									<elem tag="rdfs:label" label="Agent.label"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P14.1_in_the_role_of" attrs="rdf:resource" xsd_type="@id" label="Rol.rol">
+								<elem tag="skos:Concept" attrs="rdf:about" label="TypeRol">
+									<elem tag="rdfs:label" label="TypeRol.label"/>
+								</elem>
+							</elem>
+							<elem tag="rdfs:label" label="Rol.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="crm:P62_depicts" attrs="rdf:resource" xsd_type="@id" label="MensgemaaktObject.beeldtUit">
+				<elem tag="crm:E1_CRM_Entity" attrs="rdf:about" label="Entiteit">
+					<elem tag="rdfs:label" label="Entiteit.label"/>
+					<elem tag="crm:P3_has_note" attrs="xml:lang" xsd_type="rdf:langString" label="Entiteit.beschrijving"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P44_has_condition" attrs="rdf:resource" xsd_type="@id" label="MensgemaaktObject.conditie">
+				<elem tag="crm:E3_Condition_State" attrs="rdf:about" label="Conditie">
+					<elem tag="crm:P3_has_note" attrs="rdf:resource" xsd_type="@id" label="Conditie.beschrijving">
+						<elem tag="oslo:Beschrijving" attrs="rdf:about" label="Beschrijving">
+							<elem tag="rdfs:label" label="Beschrijving.label"/>
+							<elem tag="oslo:tekst" attrs="xml:lang" xsd_type="rdf:langString" label="Beschrijving.tekst"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Conditie.label"/>
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Conditie.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeConditie">
+							<elem tag="rdfs:label" label="TypeConditie.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="crm:P43_has_dimension" attrs="rdf:resource" xsd_type="@id" label="MensgemaaktObject.dimensie">
+				<elem tag="crm:E54_Dimension" attrs="rdf:about" label="Dimensie">
+					<elem tag="org:value" xsd_type="xsd:decimal" label="Dimensie.waarde"/>
+					<elem tag="org:unitCode" attrs="rdf:resource" xsd_type="@id" label="Dimensie.standaardEenheid">
+						<elem tag="generiek:StandaardEenheid" attrs="rdf:about" label="StandaardEenheid">
+							<elem tag="rdfs:label" label="StandaardEenheid.label"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Dimensie.label"/>
+					<elem tag="org:unitText" xsd_type="xsd:string" label="Dimensie.eenheid"/>
+					<elem tag="crm:P3_has_note" attrs="rdf:resource" xsd_type="@id" label="Dimensie.beschrijving">
+						<elem tag="oslo:Beschrijving" attrs="rdf:about" label="Beschrijving">
+							<elem tag="rdfs:label" label="Beschrijving.label"/>
+							<elem tag="oslo:tekst" attrs="xml:lang" xsd_type="rdf:langString" label="Beschrijving.tekst"/>
+						</elem>
+					</elem>
+					<elem tag="crm:P40_observed_dimension" attrs="rdf:resource" xsd_type="@id" label="reverse:Meting.vastgesteldeWaarde">
+						<elem tag="crm:E16_Measurement" attrs="rdf:about" label="Meting">
+							<elem tag="rdfs:label" label="Meting.label"/>
+							<elem tag="crm:P14_carried_out_by" attrs="rdf:resource" xsd_type="@id" label="Activiteit.uitgevoerdDoor">
+								<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+									<elem tag="rdfs:label" label="Agent.label"/>
+								</elem>
+							</elem>
+						</elem>
+					</elem>
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Dimensie.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeGrootheid">
+							<elem tag="rdfs:label" label="TypeGrootheid.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="rdfs:label" label="MensgemaaktObject.label"/>
+			<elem tag="crm:P55_has_current_location" attrs="rdf:resource" xsd_type="@id" label="MensgemaaktObject.locatie">
+				<elem tag="prov:Location" attrs="rdf:about" label="Locatie">
+					<elem tag="rdfs:label" label="Locatie.label"/>
+					<elem tag="crm:P74_has_current_or_former_residence" attrs="rdf:resource" xsd_type="@id" label="reverse:Agent.residentie">
+						<elem tag="org:Organization" attrs="rdf:about" label="Organisatie">
+							<elem tag="rdfs:label" label="Organisatie.label"/>
+						</elem>
+					</elem>
+				</elem>
+			</elem>
+			<elem tag="crm:P102_has_title" attrs="xml:lang" xsd_type="rdf:langString" label="MensgemaaktObject.titel"/>
+			<elem tag="crm:P104_is_subject_to" attrs="rdf:resource" xsd_type="@id" label="WettelijkObject.isOnderworpenAan">
+				<elem tag="crm:E30_Right" attrs="rdf:about" label="Recht">
+					<elem tag="crm:P3_has_note" attrs="rdf:resource" xsd_type="@id" label="Recht.beschrijving">
+						<elem tag="oslo:Beschrijving" attrs="rdf:about" label="Beschrijving">
+							<elem tag="oslo:tekst" attrs="xml:lang" xsd_type="rdf:langString" label="Beschrijving.tekst"/>
+							<elem tag="rdfs:label" label="Beschrijving.label"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Recht.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P105_right_held_by" attrs="rdf:resource" xsd_type="@id" label="WettelijkObject.rechtenhouder">
+				<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+					<elem tag="rdfs:label" label="Agent.label"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P3_has_note" attrs="xml:lang" xsd_type="rdf:langString" label="Entiteit.beschrijving"/>
+			<elem tag="adms:identifier" attrs="rdf:resource" xsd_type="@id" label="Entiteit.identificator">
+				<elem tag="adms:Identifier" attrs="rdf:about" label="Identificator">
+					<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+						<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+							<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+						</elem>
+					</elem>
+					<elem tag="rdfs:label" label="Identificator.label"/>
+					<elem tag="skos:notation" xsd_type="rdfs:Literal" label="Identificator.identificator"/>
+					<elem tag="crm:P140i_was_attributed_by" attrs="rdf:resource" xsd_type="@id" label="Entiteit.toekenning">
+						<elem tag="crm:E13_Attribute_Assignment" attrs="rdf:about" label="Toekenning">
+							<elem tag="crm:P2_has_type" attrs="rdf:resource" xsd_type="@id" label="Entiteit.type">
+								<elem tag="skos:Concept" attrs="rdf:about" label="TypeEntiteit">
+									<elem tag="rdfs:label" label="TypeEntiteit.label"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P16_used_specific_object" attrs="rdf:resource" xsd_type="@id" label="Activiteit.gebruiktObject">
+								<elem tag="crm:E73_Information_Object" attrs="rdf:about" label="InformatieObject">
+									<elem tag="rdfs:label" label="InformatieObject.label"/>
+									<elem tag="crm:P190_has_symbolic_content" xsd_type="xsd:string" label="InformatieObject.inhoud"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P14_carried_out_by" attrs="rdf:resource" xsd_type="@id" label="Activiteit.uitgevoerdDoor">
+								<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+									<elem tag="rdfs:label" label="Agent.label"/>
+								</elem>
+							</elem>
+							<elem tag="crm:P141_assigned" attrs="rdf:resource" xsd_type="@id" label="Toekenning.toegekendeWaarde">
+								<elem tag="oslo:Waarde" attrs="rdf:about" label="Waarde">
+									<elem tag="rdfs:label" label="Waarde.label"/>
+								</elem>
+							</elem>
+							<elem tag="rdfs:label" label="Toekenning.label"/>
+						</elem>
+					</elem>
+					<elem tag="adms:schemaAgency" xsd_type="xsd:string" label="Identificator.toegekendDoor (string)"/>
+				</elem>
+			</elem>
+			<elem tag="crm:P52_has_current_owner" attrs="rdf:resource" xsd_type="@id" label="MaterieelDing.eigenaar">
+				<elem tag="dcterms:Agent" attrs="rdf:about" label="Agent">
+					<elem tag="rdfs:label" label="Agent.label"/>
+				</elem>
+			</elem>
+		</elem>
+
+	</root>
+	<field-markers />
+	<opts>
+	</opts>
+	<docs>
+		<!--Template       -->
+		<!--<para name="URI"></para>-->
+		<!--<para name="Label"></para>-->
+		<!--<para name="Definition"></para>-->
+		<!--<para name="Super-property of"></para>-->
+		<!--<para name="Subproperty of"></para>-->
+		<!--<para name="Subclass of"></para>-->
+		<!--<para name="Equivalent Class"></para>-->
+		<!--<para name="Domain"></para>-->
+		<!--<para name="Range"></para>-->
+		<!--<para name="Equivalent property"></para>-->
+		<!--<para name="Obligation and Occurrence"></para>-->
+		<!--<para name="Example"></para>-->
+		<!--<para name="Rationale"></para>-->
+		<!--<para name="Comment"></para>-->
+		<!--<para name="Note"><![CDATA[    ]]></para>-->
+		<!--<para name="Value type"></para>-->
+		<!--<para name="Cardinality"></para>-->
+		<!--<![CDATA[]]>-->
+		<!--*kolla igenom subprops/superprops-->
+		<!--*"/RDF/skos:Concept/skos:related" ej value type/card.-->
+		<!--&lt;!&ndash;done to here&ndash;&gt;-->
+		<!--  ore:Aggregation, done-->
+	</docs>
+</record-definition>

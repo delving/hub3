@@ -1,0 +1,16 @@
+<pockets orgID="test" datasetID="spec" recdef="edm">
+    <pocket id="1">
+        <csv-record>
+            <map>munten</map>
+            <fotonummer>L_m11a.jpg</fotonummer>
+            <fotonummer-2>L_m11b.jpg</fotonummer-2>
+        </csv-record>
+    </pocket>
+    <pocket id="2">
+        <csv-record>
+            <map>munten</map>
+            <fotonummer>L_m12a.jpg</fotonummer>
+            <fotonummer-2>L_m12b.jpg</fotonummer-2>
+        </csv-record>
+    </pocket>
+</pockets>

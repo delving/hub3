@@ -47,6 +47,10 @@ protobuffer:
 	@make pb.api
 	@make pb.domain
 	@make pb.scan
+	@make pb.mapping
+
+pb.mapping:
+	@protoc --go_out=. ikuzo/service/x/mapping/mappingpb/mapping.proto
 
 pb.scan:
 	@protoc --go_out=. hub3/ead/eadpb/scan.proto
