@@ -237,6 +237,8 @@ enableResize = true
 timeout = 15
 # path where to mount the imageproxy. default: "imageproxy".
 proxyPrefix = "imageproxy"
+# image to serve in case of status code <> 200
+defaultImagePath = ""
 
 [cache]
 # Lifetime of objects in the cache in minutes

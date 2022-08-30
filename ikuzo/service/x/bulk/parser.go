@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/rs/zerolog"
 	"io"
 	"strings"
 	"sync"
@@ -176,8 +177,24 @@ func (p *Parser) dropOrphans(req *Request) error {
 	return nil
 }
 
+func addLogger(datasetID string) zerolog.Logger {
+
+	switch {
+	case strings.HasSuffix(datasetID, "ntfoto"):
+		return log.With().Str("svc", "ntfoto").Logger()
+
+	case strings.HasPrefix(datasetID, "nt0"):
+		return log.With().Str("svc", "nt").Logger()
+
+	default:
+		return log.With().Logger()
+	}
+}
+
 func (p *Parser) process(ctx context.Context, req *Request) error {
 	p.once.Do(func() { p.setDataSet(req) })
+
+	subLogger := addLogger(req.DatasetID)
 
 	if p.ds == nil {
 		return fmt.Errorf("unable to get dataset")
@@ -189,46 +206,46 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 	switch req.Action {
 	case "index":
 		if err := p.Publish(ctx, req); err != nil {
-			log.Error().Err(err).Msg("unable to publish bulk index request")
+			subLogger.Error().Err(err).Msg("unable to publish bulk index request")
 
 			return err
 		}
 	case "increment_revision":
 		ds, err := p.ds.IncrementRevision()
 		if err != nil {
-			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to increment DataSet")
+			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to increment DataSet")
 			return err
 		}
 
-		log.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
 	case "clear_orphans", "drop_orphans":
 		// clear triples
 		if err := p.dropOrphans(req); err != nil {
-			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop orphans")
+			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop orphans")
 			return err
 		}
 
-		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("mark orphans and delete them")
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("mark orphans and delete them")
 	case "disable_index":
 		ok, err := p.ds.DropRecords(ctx, nil)
 		if !ok || err != nil {
-			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to disable index")
+			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to disable index")
 			return err
 		}
 
 		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
-		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("remove dataset from index")
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("remove dataset from index")
 	case "drop_dataset":
 		ok, err := p.ds.DropAll(ctx, nil)
 		if !ok || err != nil {
-			log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop dataset")
+			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop dataset")
 			return err
 		}
 
 		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
-		log.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
 	default:
 		return fmt.Errorf("unknown bulk action: %s", req.Action)
 	}

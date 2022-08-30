@@ -98,3 +98,10 @@ func SetLogger(logger *zerolog.Logger) Option {
 		return nil
 	}
 }
+
+func SetDefaultImagePath(path string) Option {
+	return func(s *Service) error {
+		s.defaultImagePath = path
+		return nil
+	}
+}
