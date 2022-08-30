@@ -117,6 +117,7 @@ func Test_getPageCount(t *testing.T) {
 		{"2 pages", args{archives: 15, rows: 10}, 2},
 		{"3 pages", args{archives: 27, rows: 10}, 3},
 		{"2 pages", args{archives: 31, rows: 10}, 4},
+		{"700 pages", args{archives: 7016, rows: 10}, 702},
 	}
 
 	for _, tt := range tests {

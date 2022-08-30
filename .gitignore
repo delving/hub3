@@ -9,6 +9,7 @@ hub3.iml
 *.swp
 *.swo
 *.tmp
+tag
 
 # build and vendor
 main
@@ -39,6 +40,9 @@ results.bin
 # Data Storage
 # Boltdb
 hub3.db
+data
+docker-data
+index.db
 
 # coverage
 report
