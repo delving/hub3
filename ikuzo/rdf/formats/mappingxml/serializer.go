@@ -11,15 +11,17 @@ import (
 )
 
 type FilterConfig struct {
-	RDFType         rdf.IRI
-	Subject         rdf.Subject
-	URIPrefixFilter string // to filter out private triples
-	HubID           string
-	ContextLevels   int
+	RDFType               rdf.IRI
+	Subject               rdf.Subject
+	URIPrefixFilter       string // to filter out private triples
+	HubID                 string
+	ContextLevels         int
+	WikiBaseTypes         []string
+	WikiBaseTypePredicate rdf.Predicate
 }
 
 // Serialize serialize the Graph to explicit XML.
-// When rootType is given it will use the rdf:Type as the
+// When rootType is given it will use the rdf:type as the
 // root of the XML. When contextLevels is 0 no nested
 // resources are inlined in the XML. A max of 5 levels can
 // be given.
@@ -103,18 +105,53 @@ func createResource(
 	g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element,
 	seen map[rdf.Subject]bool, cfg *FilterConfig,
 ) error {
+	hasFilter := cfg.URIPrefixFilter != ""
+
+	if hasFilter && strings.HasPrefix(rsc.Subject().RawValue(), cfg.URIPrefixFilter) {
+		return nil
+	}
+
+	_, ok := seen[rsc.Subject()]
+	if ok {
+		return nil
+	}
+
+	seen[rsc.Subject()] = true
+
 	rdfType := rsc.Types()[0]
+
+	// log.Printf("predicate: %s %#v", cfg.WikiBaseTypePredicate, cfg)
+	// if strings.Contains(rsc.Subject().RawValue(), "/entity/Q") && cfg.WikiBaseTypePredicate.RawValue() != "" {
+	// p, ok := rsc.Predicates()[cfg.WikiBaseTypePredicate]
+	// if ok {
+	// target, ok := g.Get(rdf.Subject(p.IRI()))
+	// if ok {
+	// label, ok := target.Label()
+	// if ok {
+	// rdfType, _ = rdf.RDF.IRI(strings.Title(strings.Replace(label.RawValue(), " ", "_", -1)))
+	// }
+	// }
+	// }
+	// }
+
+	// support for wikibase names, these never have types.
+	// First type should not be set
+	// for _, baseType := range cfg.WikiBaseTypes {
+	// if strings.Contains(rsc.Subject().RawValue(), "/entity/Q") {
+	// parts := strings.Split(rsc.Subject().RawValue(), "/")
+	// qID := parts[len(parts)-1]
+	// if strings.EqualFold(qID, baseType) {
+	// rdfType, _ = rdf.RDF.IRI(parts[len(parts)-1])
+	// break
+	// }
+	// }
+	// }
 
 	baseURI, label := rdfType.Split()
 
 	ns, err := g.NamespaceManager.GetWithBase(baseURI)
 	if err != nil {
 		return err
-	}
-	hasFilter := cfg.URIPrefixFilter != ""
-
-	if hasFilter && strings.HasPrefix(rsc.Subject().RawValue(), cfg.URIPrefixFilter) {
-		return nil
 	}
 
 	root := parent.CreateElement(fmt.Sprintf("%s:%s", ns.Prefix, label))
@@ -126,16 +163,9 @@ func createResource(
 		root.CreateAttr("rdf:nodeID", rsc.Subject().RawValue())
 	}
 
-	_, ok := seen[rsc.Subject()]
-	if ok {
-		return nil
-	}
-
-	seen[rsc.Subject()] = true
-
 	if len(rsc.Types()) > 1 {
 		for _, rdfType := range rsc.Types()[1:] {
-			xmlType := root.CreateElement("rdf:Type")
+			xmlType := root.CreateElement("rdf:type")
 			xmlType.CreateAttr("rdf:resource", rdfType.RawValue())
 		}
 	}
@@ -153,9 +183,14 @@ func createResource(
 		elem := root.CreateElement(nsLabel)
 
 		for _, object := range p.Objects() {
+			if object.RawValue() == "" {
+				continue
+			}
+
 			switch object.Type() {
 			case rdf.TermLiteral:
 				l := object.(rdf.Literal)
+
 				if l.Lang() != "" {
 					elem.CreateAttr("xml:lang", l.Lang())
 				}

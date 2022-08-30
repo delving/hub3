@@ -45,6 +45,7 @@
 - Enable default orgID as fallback [[GH-157]](https://github.com/delving/hub3/pull/157)
 - Always set modified when indexing fragments.FragmentGraph [[GH-158]](https://github.com/delving/hub3/pull/158)
 - ignore 404 logging fix + updated protobuf definition for scans [[GH_163]](https://github.com/delving/hub3/pull/163)
+- Enable harvest all datasets option in OAI-PMH service  [[GH_165]](https://github.com/delving/hub3/pull/165)
 
 ## Removed
  
@@ -57,6 +58,7 @@
 - [228d44b32](https://github.com/delving/hub3/commit/228d44b32) hub3: fixed predictable ordering for namespace defaults.
 - pagination with LDF hypermedia controls  [[GH-154]](https://github.com/delving/hub3/pull/154)
 - Fixed adding namespaces of types during graph processing [[GH-159]](https://github.com/delving/hub3/pull/159)
+- Typo in `rdf:type` for mappingxml serializer [[GH-165]](https://github.com/delving/hub3/pull/166)
 
 ## Deprecated
 

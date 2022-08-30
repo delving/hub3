@@ -8,3 +8,12 @@ func SetStore(store Store) Option {
 		return nil
 	}
 }
+
+// SetRequireSetSpec determines if a set must be provided when harvesting list.
+// default is true
+func SetRequireSetSpec(allow bool) Option {
+	return func(s *Service) error {
+		s.requireSetSpecForList = allow
+		return nil
+	}
+}
