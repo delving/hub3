@@ -157,11 +157,11 @@ func GetDescriptionIndex(spec string) (*DescriptionIndex, error) {
 }
 
 func getIndexPath(spec string) string {
-	return path.Join(GetDataPath(spec), "description_index.gob")
+	return path.Join("/"+GetDataPath(spec), "description_index.gob")
 }
 
 func getDescriptionPath(spec string) string {
-	return path.Join(GetDataPath(spec), "description.gob")
+	return path.Join("/"+GetDataPath(spec), "description.gob")
 }
 
 func GetDataPath(spec string) string {

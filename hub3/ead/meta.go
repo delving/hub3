@@ -111,5 +111,5 @@ func GetMeta(spec string) (*Meta, error) {
 }
 
 func getMetaPath(spec string) string {
-	return path.Join(GetDataPath(spec), "meta.gob")
+	return path.Join("/"+GetDataPath(spec), "meta.gob")
 }

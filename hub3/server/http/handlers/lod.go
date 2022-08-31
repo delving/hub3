@@ -216,7 +216,7 @@ func RenderLODResource(w http.ResponseWriter, r *http.Request) {
 		// for now only support nt as format
 		if !strings.HasSuffix(lodKey, ".nt") {
 			lodKey = fmt.Sprintf("%s.nt", strings.TrimSuffix(lodKey, "/"))
-			log.Printf("Redirecting to %s", lodKey)
+			log.Printf("Redirecting to %s", domain.LogUserInput(lodKey))
 			http.Redirect(w, r, lodKey, 302)
 			return
 		}

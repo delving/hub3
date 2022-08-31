@@ -1,17 +1,19 @@
 package domain
 
 import (
+	"html"
 	"net/http"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-chi/chi"
 )
 
 func URLParam(r *http.Request, key string) string {
-	return sanitizeParam(chi.URLParam(r, key))
+	return SanitizeParam(chi.URLParam(r, key))
 }
 
-func sanitizeParam(param string) string {
+func SanitizeParam(param string) string {
 	param = filepath.Base(param)
 
 	if param == "." {
@@ -19,4 +21,18 @@ func sanitizeParam(param string) string {
 	}
 
 	return param
+}
+
+// LogUserInput properly escapes user input from query or URL parameters for logging
+//
+// The goal is to prevent XSS and other attacks via user-input in the logging
+func LogUserInput(text string) string {
+	return html.EscapeString(
+		strings.Replace(
+			strings.Replace(text, "\r", "", -1),
+			"\n",
+			"",
+			-1,
+		),
+	)
 }
