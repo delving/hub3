@@ -15,13 +15,16 @@
 package revision
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
 	"code.gitea.io/gitea/modules/git"
+	"code.gitea.io/gitea/modules/setting"
 	gitgo "github.com/go-git/go-git/v5"
 	"github.com/sosedoff/gitkit"
 )
@@ -53,7 +56,8 @@ func NewService(path string) (*Service, error) {
 //
 // An error is only returned if there are underlying FS errors.
 func (s *Service) InitRepository(organization, dataset string) (*Repository, error) {
-	if err := git.InitRepository(s.repoPath(organization, dataset), false); err != nil {
+	setting.Git.HomePath = os.TempDir()
+	if err := git.InitRepository(context.Background(), s.repoPath(organization, dataset), false); err != nil {
 		return nil, err
 	}
 
@@ -71,7 +75,7 @@ func (s *Service) OpenRepository(organization, dataset string) (*Repository, err
 		DatasetID: dataset,
 	}
 
-	gr, err := git.OpenRepository(repo.path)
+	gr, err := git.OpenRepository(context.Background(), repo.path)
 	if err != nil {
 		if err.Error() == "no such file or directory" || errors.Is(err, gitgo.ErrRepositoryNotExists) {
 			return nil, ErrRepositoryNotExists
