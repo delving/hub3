@@ -10,6 +10,8 @@
 
 ### Fixed
 
+- fixed user-input in logging warnings from github code scanning [[GH-170]](https://github.com/delving/hub3/pull/170)
+
 ### Deprecated
 
 ### Removed
