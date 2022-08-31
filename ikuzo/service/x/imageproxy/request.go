@@ -220,8 +220,9 @@ func (req *Request) Write(path string, r io.Reader) (int64, error) {
 }
 
 // existsInCache returns whether a path is stored in the cache
-func existsInCache(path string) (info os.FileInfo, present bool) {
-	file, err := os.Stat(path)
+func existsInCache(rawPath string) (info os.FileInfo, present bool) {
+	cleanPath := path.Join("/", rawPath)
+	file, err := os.Stat(cleanPath)
 	return file, !errors.Is(err, os.ErrNotExist)
 }
 
