@@ -37,6 +37,7 @@ import (
 
 const (
 	WorkingVersion = "working-version"
+	headVersion    = "HEAD"
 )
 
 type Repository struct {
@@ -59,7 +60,7 @@ func (repo *Repository) SingleFlight(path string, r io.Reader, commitMessage str
 
 	commit, commitErr := repo.Commit(commitMessage, nil)
 	if commitErr != nil {
-		return plumbing.ZeroHash, commitErr
+		return plumbing.ZeroHash, fmt.Errorf("unable to commit; %w", commitErr)
 	}
 
 	return commit, nil
@@ -95,8 +96,8 @@ func (repo *Repository) Write(path string, r io.Reader) error {
 // Read returns a Reader for the given path for a specific revision.
 // When the revision is empty the HEAD version in returned.
 func (repo *Repository) Read(path, revision string) (io.ReadCloser, error) {
-	if revision == "" || strings.EqualFold(revision, "head") {
-		revision = "HEAD"
+	if revision == "" || strings.EqualFold(revision, headVersion) {
+		revision = headVersion
 	}
 
 	if revision == WorkingVersion {
@@ -171,7 +172,15 @@ func (repo *Repository) Add(path string) error {
 		path = "."
 	}
 
-	return git.AddChanges(repo.path, false, path)
+	cmd := git.NewCommand(context.Background(), "add")
+	err := cmd.AddArguments("--").AddArguments(path).Run(
+		&git.RunOpts{Dir: repo.path},
+	)
+	if err != nil {
+		return fmt.Errorf("add error: %w", err)
+	}
+
+	return nil
 }
 
 func (repo *Repository) workTree() (*gitgo.Worktree, error) {
@@ -216,9 +225,11 @@ func (repo *Repository) ResetPath(path string) error {
 }
 
 func (repo *Repository) HEAD() (plumbing.Hash, error) {
-	cmd := git.NewCommand("rev-parse")
+	cmd := git.NewCommand(context.Background(), "rev-parse")
 
-	sha, err := cmd.AddArguments("HEAD").RunInDir(repo.path)
+	sha, _, err := cmd.AddArguments(headVersion).RunStdString(
+		&git.RunOpts{Dir: repo.path},
+	)
 	if err != nil {
 		return plumbing.ZeroHash, err
 	}
@@ -227,10 +238,13 @@ func (repo *Repository) HEAD() (plumbing.Hash, error) {
 }
 
 func (repo *Repository) IsClean() bool {
-	cmd := git.NewCommand("status")
+	cmd := git.NewCommand(context.Background(), "status")
 
-	status, err := cmd.AddArguments("--porcelain").RunInDir(repo.path)
+	status, _, err := cmd.AddArguments("--porcelain").RunStdString(
+		&git.RunOpts{Dir: repo.path},
+	)
 	if err != nil {
+		// TODO(kiivihal): add logger for error
 		return false
 	}
 
@@ -245,15 +259,15 @@ func (repo *Repository) diff(path, from, until string) (string, error) {
 		}
 
 		if revisions > 1 {
-			from = "HEAD^"
+			from = headVersion + "^"
 		}
 	}
 
 	if until == "" {
-		until = "HEAD"
+		until = headVersion
 	}
 
-	cmd := git.NewCommand("log").
+	cmd := git.NewCommand(context.Background(), "log").
 		AddArguments("--reverse").
 		AddArguments("--name-status").
 		AddArguments("--no-renames").
@@ -274,15 +288,17 @@ func (repo *Repository) diff(path, from, until string) (string, error) {
 	// TODO(kiivihal): remove this statement
 	log.Printf("diff command: %s", cmd.String())
 
-	return cmd.RunInDir(repo.path)
+	resp, _, err := cmd.RunStdString(&git.RunOpts{Dir: repo.path})
+
+	return resp, err
 }
 
 // revisions returns the number of committed revisions on the current branch
 func (repo *Repository) revisions() (int, error) {
-	resp, err := git.NewCommand("rev-list").
+	resp, _, err := git.NewCommand(context.Background(), "rev-list").
 		AddArguments("--count").
-		AddArguments("HEAD").
-		RunInDir(repo.path)
+		AddArguments(headVersion).
+		RunStdString(&git.RunOpts{Dir: repo.path})
 	if err != nil {
 		return 0, err
 	}

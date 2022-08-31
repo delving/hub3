@@ -36,7 +36,7 @@ type NameSpace struct {
 
 // NameSpaceMap contains all the namespaces
 type NameSpaceMap struct {
-	sync.RWMutex
+	rw          sync.RWMutex
 	prefix2base map[string]string
 	base2prefix map[string]string
 }
@@ -50,16 +50,16 @@ func NewNameSpaceMap() *NameSpaceMap {
 }
 
 // Len counts the number of keys in the Map
-func (n *NameSpaceMap) Len() (int, int) {
+func (n *NameSpaceMap) Len() (prefixes, baseURIs int) {
 	return len(n.prefix2base), len(n.base2prefix)
 }
 
 // Add adds a namespace to the namespace Map
 func (n *NameSpaceMap) Add(prefix, base string) {
-	n.Lock()
+	n.rw.Lock()
 	n.prefix2base[prefix] = base
 	n.base2prefix[base] = prefix
-	n.Unlock()
+	n.rw.Unlock()
 }
 
 // AddNameSpace is a convenience function to add NameSpace objects to the Map
@@ -79,45 +79,52 @@ func NewConfigNameSpaceMap(c *RawConfig) *NameSpaceMap {
 	nsMap := NewNameSpaceMap()
 	nsMap.setDefaultNameSpaces()
 	nsMap.Load(c)
+
 	return nsMap
 }
 
 // GetBaseURI returns the base URI from the prefix
 func (n *NameSpaceMap) GetBaseURI(prefix string) (base string, ok bool) {
-	n.RLock()
+	n.rw.RLock()
 	base, ok = n.prefix2base[prefix]
-	n.RUnlock()
+	n.rw.RUnlock()
+
 	return base, ok
 }
 
 // GetPrefix returns the prefix for a base URI
 func (n *NameSpaceMap) GetPrefix(baseURI string) (prefix string, ok bool) {
-	n.RLock()
+	n.rw.RLock()
 	prefix, ok = n.base2prefix[baseURI]
-	n.RUnlock()
+	n.rw.RUnlock()
+
 	return prefix, ok
 }
 
 // DeletePrefix removes a namespace from the NameSpaceMap
 func (n *NameSpaceMap) DeletePrefix(prefix string) {
-	n.Lock()
+	n.rw.Lock()
+
 	base, ok := n.prefix2base[prefix]
 	if ok {
 		delete(n.base2prefix, base)
 	}
+
 	delete(n.prefix2base, prefix)
-	n.Unlock()
+	n.rw.Unlock()
 }
 
 // DeleteBaseURI removes a namespace from the NameSpaceMap
 func (n *NameSpaceMap) DeleteBaseURI(base string) {
-	n.Lock()
+	n.rw.Lock()
+
 	prefix, ok := n.base2prefix[base]
 	if ok {
 		delete(n.prefix2base, prefix)
 	}
+
 	delete(n.base2prefix, base)
-	n.Unlock()
+	n.rw.Unlock()
 }
 
 // ByPrefix returns the map with prefixes as keys
@@ -126,7 +133,7 @@ func (n *NameSpaceMap) ByPrefix() map[string]string {
 }
 
 // SplitURI takes a given URI and splits it into a base URI and a local name
-func SplitURI(uri string) (base string, name string) {
+func SplitURI(uri string) (base, name string) {
 	index := strings.LastIndex(uri, "#") + 1
 
 	if index > 0 {
@@ -157,8 +164,8 @@ func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
 		hash := xxhash.Checksum64([]byte(base))
 		prefix = fmt.Sprintf("%016x", hash)
 		n.Add(prefix, base)
+		// return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
 		log.Printf("Added default prefix %s for %s", prefix, base)
-		//return "", fmt.Errorf("no prefix found in ns map for %s + %s", base, label)
 	}
 
 	return fmt.Sprintf("%s_%s", prefix, label), nil

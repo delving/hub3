@@ -15,6 +15,7 @@
 package revision
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -141,20 +142,20 @@ func TestService(t *testing.T) {
 	is.True(status.IsClean())
 	is.True(!status.IsUntracked("first.txt"))
 
-	cfs, err := git.GetCommitFileStatus(repo.path, "HEAD")
+	cfs, err := git.GetCommitFileStatus(context.Background(), repo.path, headVersion)
 	is.NoErr(err)
 	is.True(len(cfs.Added) == 1)
 
 	pastCommit, err := repo.gr.GetCommitByPath(".keep")
 	is.NoErr(err)
 
-	head, err := repo.gr.GetCommit("HEAD")
+	head, err := repo.gr.GetCommit(headVersion)
 	is.NoErr(err)
 
 	files, err := head.GetFilesChangedSinceCommit(pastCommit.ID.String())
 	is.NoErr(err)
 
-	commits, err := repo.gr.FileCommitsCount("HEAD", ".keep")
+	commits, err := repo.gr.FileCommitsCount(headVersion, ".keep")
 	is.NoErr(err)
 	is.True(commits == 1)
 

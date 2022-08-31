@@ -283,7 +283,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	w.Header().Add("P_ROWS", strconv.Itoa(int(pager.Rows)))
 
 	// workaround warmer issue ES
-	if res.Hits == nil && pager.Cursor < int32(pager.Total) {
+	if res.Hits == nil && int64(pager.Cursor) < pager.Total {
 		log.Printf("bad response from ES retrying the request")
 		time.Sleep(1 * time.Second)
 		retryCount := r.Context().Value(retryKey)
