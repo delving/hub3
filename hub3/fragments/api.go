@@ -28,6 +28,7 @@ import (
 	"time"
 
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -90,8 +91,6 @@ func SearchRequestFromHex(s string) (*SearchRequest, error) {
 }
 
 // NewFacetField parses the QueryString and creates a FacetField
-//
-//
 func NewFacetField(field string) (*FacetField, error) {
 	ff := FacetField{Size: int32(c.Config.ElasticSearch.FacetSize)}
 
@@ -443,7 +442,11 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 			sb, err := getInterfaceBytes(sa)
 			if err != nil {
-				log.Printf("unable to create bytes from interface %v", sa)
+				log.Printf(
+					"unable to create bytes from interface %v; %s",
+					domain.LogUserInput(fmt.Sprintf("%v", sa)),
+					err,
+				)
 				return sr, err
 			}
 			sr.SearchAfter = sb

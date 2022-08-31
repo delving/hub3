@@ -23,6 +23,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/ikuzo/domain"
 	elastic "github.com/olivere/elastic/v7"
 )
 
@@ -168,7 +169,7 @@ func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error
 		Aggregation("mimeType", mimeTypeAgg).
 		Do(ctx)
 	if err != nil {
-		log.Printf("Unable to get TreeStat for dataset %s; %s", spec, err)
+		log.Printf("Unable to get TreeStat for dataset %s; %s", domain.LogUserInput(spec), err)
 		return nil, err
 	}
 	if res == nil {

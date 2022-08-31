@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-chi/chi"
 	"github.com/mailgun/groupcache"
@@ -208,7 +209,13 @@ func (p *Proxy) SafeHTTP(w http.ResponseWriter, r *http.Request) {
 	case strings.Contains(r.URL.EscapedPath(), "v2") || strings.Contains(r.URL.EscapedPath(), "v1"):
 		// direct access on get is allowed via the proxy on v2 indices
 	case !strings.HasPrefix(r.URL.EscapedPath(), "/_cat"):
-		http.Error(w, fmt.Sprintf("path %q is not allowed on esProxy", r.URL.EscapedPath()), http.StatusBadRequest)
+		http.Error(
+			w,
+			fmt.Sprintf(
+				"path %q is not allowed on esProxy",
+				domain.LogUserInput(r.URL.EscapedPath())),
+			http.StatusBadRequest,
+		)
 		return
 	}
 

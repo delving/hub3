@@ -100,7 +100,6 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-//
 func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
 	orgID := domain.GetOrganizationID(r)
 
@@ -472,7 +471,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					false,
 				)
 				if err != nil {
-					log.Printf(unableToAddQueryFilterMsg, err)
+					log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
@@ -516,7 +515,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					false,
 				)
 				if err != nil {
-					log.Printf(unableToAddQueryFilterMsg, err)
+					log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))
 					http.Error(w, err.Error(), http.StatusBadRequest)
 					return
 				}
@@ -564,7 +563,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				false,
 			)
 			if err != nil {
-				log.Printf(unableToAddQueryFilterMsg, err)
+				log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
@@ -644,7 +643,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				}
 				if !ok {
 					errMsg := fmt.Sprintf("Unable to find node %s in map", tq.GetLeaf())
-					log.Println(errMsg)
+					log.Println(domain.LogUserInput(errMsg))
 				}
 			}
 
@@ -741,7 +740,7 @@ func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, 
 	}
 
 	if !res.Found {
-		return nil, fmt.Errorf("%s was not found", id)
+		return nil, fmt.Errorf("%s was not found", domain.LogUserInput(id))
 	}
 
 	return decodeFragmentGraph(res.Source)

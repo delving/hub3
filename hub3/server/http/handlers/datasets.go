@@ -78,7 +78,7 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 func getDataSetStats(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
-	log.Printf("Get stats for spec %s", spec)
+	log.Printf("Get stats for spec %s", domain.LogUserInput(spec))
 	stats, err := models.CreateDataSetStats(r.Context(), string(orgID), spec)
 	if err != nil {
 		if err == storm.ErrNotFound {

@@ -2,7 +2,7 @@ package domain
 
 import "testing"
 
-func Test_sanitizeParam(t *testing.T) {
+func Test_SanitizeParam(t *testing.T) {
 	type args struct {
 		param string
 	}
@@ -42,7 +42,7 @@ func Test_sanitizeParam(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			if got := sanitizeParam(tt.args.param); got != tt.want {
+			if got := SanitizeParam(tt.args.param); got != tt.want {
 				t.Errorf("sanitizeParam() %s = '%v', want '%v'", tt.name, got, tt.want)
 			}
 		})
