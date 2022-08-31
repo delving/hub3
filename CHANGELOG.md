@@ -2,7 +2,21 @@
 
 ## unreleased 
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.2.1...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.3.0...main
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Deprecated
+
+### Removed
+
+## v0.3.0 (2022-08-31)
+
+- history of changes: see https://github.com/delving/hu3/compare/v0.2.1...v0.3.0
 
 ### Added 
  
@@ -26,6 +40,8 @@
 - Add /def/ to allowed LOD redirect resources [[GH-155]](https://github.com/delving/hub3/pull/155)
 - OAI-PMH service and elasticsearch driver  [[GH-160]](https://github.com/delving/hub3/pull/160)
 - Add config option to ignore certain paths from request logging. [[GH-161]](https://github.com/delving/hub3/pull/161)
+- `GINGER_LOG` runtime variable to log request send to the Ginger posthook endpoint  [[GH-167]](https://github.com/delving/hub3/pull/167)
+- default image support for imageproxy service  [[GH-164]](https://github.com/delving/hub3/pull/164)
 
 ### Changed
 
@@ -44,8 +60,10 @@
 - `/version` endpoint to include orgID and better wrapper for data. [[GH-156]](https://github.com/delving/hub3/pull/156)
 - Enable default orgID as fallback [[GH-157]](https://github.com/delving/hub3/pull/157)
 - Always set modified when indexing fragments.FragmentGraph [[GH-158]](https://github.com/delving/hub3/pull/158)
-- ignore 404 logging fix + updated protobuf definition for scans [[GH_163]](https://github.com/delving/hub3/pull/163)
-- Enable harvest all datasets option in OAI-PMH service  [[GH_165]](https://github.com/delving/hub3/pull/165)
+- ignore 404 logging fix + updated protobuf definition for scans [[GH-163]](https://github.com/delving/hub3/pull/163)
+- Enable harvest all datasets option in OAI-PMH service  [[GH-165]](https://github.com/delving/hub3/pull/165)
+- how wikibase SPARQL-endpoints are harvested [[GH-168]](https://github.com/delving/hub3/pull/168)
+- orphan-control for mets-records  [[GH-164]](https://github.com/delving/hub3/pull/164)
 
 ## Removed
  
@@ -63,6 +81,10 @@
 ## Deprecated
 
 - [e50ac4aea](https://github.com/delving/hub3/commit/e50ac4aea) hub3: deprecate index.Client in favor of elasticsearch driver Client.
+
+### Security
+
+- fixed dependabot alerts and fixed gitea upgrade errors [[GH-169]](https://github.com/delving/hub3/pull/169)
 
 ## v0.2.1 (2022-01-25)
 
@@ -229,7 +251,7 @@
 - ead: allow for deeplinking into EAD tree view
 - ead: support next and previous scrollIDs in the ScrollPager
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.1.6...master
+- history of changes: see https://github.com/delving/hub3/compare/v0.1.6...v0.1.7
 
 ## v0.1.6 (2020-04-22) 
 
