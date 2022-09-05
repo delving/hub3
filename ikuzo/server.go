@@ -82,8 +82,6 @@ type server struct {
 	keyFile string
 	// cancelFunc is called for graceful shutdown of resources and background workers.
 	cancelFunc context.CancelFunc
-	// workers is a pool that manages all the background WorkerServices
-	workers *workerPool
 	// gracefulTimeout maximum duration of graceful shutdown of server. (default: 10 seconds)
 	gracefulTimeout time.Duration
 	// disableRequestLogger stops logging of request information to the global logger
@@ -125,7 +123,6 @@ func newServer(options ...Option) (*server, error) {
 	s := &server{
 		port:            defaultServerPort,
 		cancelFunc:      cancelFunc,
-		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
 		shutdownHooks:   make(map[string]domain.Shutdown),
 		ctx:             ctx,
@@ -316,8 +313,6 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 				Msg("caught shutdown signal, starting graceful shutdown")
 
 			return s.shutdown(&server)
-		case <-s.workers.ctx.Done():
-			return s.workers.ctx.Err()
 		}
 	}
 }
