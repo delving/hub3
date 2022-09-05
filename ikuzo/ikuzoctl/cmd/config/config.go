@@ -48,7 +48,8 @@ type Config struct {
 	Org           map[string]domain.OrganizationConfig `json:"org"`
 	Harvest       `json:"harvest"`
 	OAIPMH        `json:"oaipmh"`
-	NDE           `json:"nde"`
+	NDE           map[string]NDECfg `json:"nde"`
+	NDERegister   NDE               `json:"-" toml:"-"`
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
 	oto           *otohttp.Server
@@ -68,7 +69,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.ImageProxy,
 			&cfg.Harvest,
 			&cfg.NameSpace,
-			&cfg.NDE,
+			&cfg.NDERegister,
 			&cfg.Sitemap,
 			&cfg.Logging,
 			&cfg.OAIPMH,

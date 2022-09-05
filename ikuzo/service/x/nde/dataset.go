@@ -61,7 +61,10 @@ type Catalog struct {
 }
 
 func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
-	r := s.cfg
+	r, ok := s.lookUp[spec]
+	if !ok {
+		return nil, fmt.Errorf("dataset not found: %q", spec)
+	}
 
 	d := &Dataset{
 		Context:               "https://schema.org/",

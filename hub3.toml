@@ -573,7 +573,7 @@ base = "http://www.w3.org/ns/odrl/2/"
 enabled = true
 dataPath = "/tmp/trs"
 
-[NDE]
+[NDE.default]
 enabled = true
 name = "Linked Data van het NA"
 description = "Alle linked data zoals beschikbaar gesteld door het Nationaal Archief."
@@ -581,17 +581,17 @@ defaultLanguages = ["nl"]
 defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
 datasetFmt = "%s/onderzoeken/archief/%s/"
 
-[NDE.publisher]
+[NDE.default.publisher]
 name = "Nationaal Archief"
 altName = "NA"
 url = "https://www.nationaalarchief.nl"
 
-[[NDE.distribution]]
+[[NDE.default.distribution]]
 datasetType = "ead"
 mimeType = "application/pdf"
 downloadFmt = "%s/onderzoeken/archief/%s/download/pdf"
 
-[[NDE.distribution]]
+[[NDE.default.distribution]]
 datasetType = "ead"
 mimeType = "application/xml"
 downloadFmt = "%s/onderzoeken/archief/%s/download/xml"

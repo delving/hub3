@@ -13,6 +13,7 @@ type DistributionCfg struct {
 }
 
 type RegisterConfig struct {
+	URLPrefix        string `json:"urlPrefix"`
 	RDFBaseURL       string
 	Description      string
 	Name             string
@@ -33,7 +34,7 @@ func (r *RegisterConfig) publisherURL() string {
 }
 
 func (r *RegisterConfig) getDatasetURI(datasetID string) string {
-	return fmt.Sprintf("%s/id/dataset/%s", r.RDFBaseURL, datasetID)
+	return fmt.Sprintf("%s/id/dataset/%s/%s", r.RDFBaseURL, r.URLPrefix, datasetID)
 }
 
 func (r *RegisterConfig) GetAgent() Agent {
