@@ -213,15 +213,12 @@ func Test_server_Shutdown(t *testing.T) {
 	// wait for workerpool to be done
 	server = &http.Server{Handler: svr}
 	svr.gracefulTimeout = 1 * time.Nanosecond
-	svr.workers.wg.Add(1)
 
 	errChan := make(chan error, 1)
 
 	go func() {
 		errChan <- svr.shutdown(server)
 	}()
-
-	svr.workers.wg.Done()
 
 	for err := range errChan {
 		is.NoErr(err)

@@ -22,6 +22,7 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
 )
 
@@ -50,6 +51,7 @@ type Config struct {
 	NDE           `json:"nde"`
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
+	ns            *namespace.Service
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
