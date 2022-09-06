@@ -62,6 +62,7 @@ type Service interface {
 type Server interface {
 	ListenAndServe() error
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
+	BackgroundWorkers() error
 }
 
 // Shutdown must be implement by each service that uses background services or connections.

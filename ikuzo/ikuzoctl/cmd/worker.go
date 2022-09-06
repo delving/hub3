@@ -15,33 +15,30 @@
 package cmd
 
 import (
-	"embed"
-
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 )
 
-//go:embed static
-var staticFS embed.FS
-
-// serveCmd represents the serve command
-var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "A high performance webserver",
+// workerCmd represents the worker command
+//
+// This starts hibiken/asynq workers
+var workerCmd = &cobra.Command{
+	Use:   "workers",
+	Short: "Ikuzo background workers",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		initConfig()
-		serve()
+		workers()
 	},
 }
 
 // nolint:gochecknoinits // cobra requires this init
 func init() {
-	rootCmd.AddCommand(serveCmd)
+	rootCmd.AddCommand(workerCmd)
 }
 
-// serve configures and runs the ikuzo server as a silo.
-func serve() {
+// workers configures and runs the ikuzo background workers.
+func workers() {
 	svr, err := setupIkuzo()
 	if err != nil {
 		log.Fatal().
@@ -50,7 +47,7 @@ func serve() {
 			Msg("unable to initialize ikuzo server")
 	}
 
-	err = svr.ListenAndServe()
+	err = svr.BackgroundWorkers()
 	if err != nil {
 		log.Fatal().
 			Err(err).
