@@ -25,7 +25,6 @@ import (
 	"strings"
 	"syscall"
 	"testing"
-	"time"
 
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/matryer/is"
@@ -209,10 +208,6 @@ func Test_server_Shutdown(t *testing.T) {
 	server := &http.Server{Handler: svr}
 	err = svr.shutdown(server)
 	is.NoErr(err)
-
-	// wait for workerpool to be done
-	server = &http.Server{Handler: svr}
-	svr.gracefulTimeout = 1 * time.Nanosecond
 
 	errChan := make(chan error, 1)
 

@@ -277,7 +277,11 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	}
 
 	// start web-server
-	server := http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s}
+	server := http.Server{
+		Addr:              fmt.Sprintf(":%d", s.port),
+		Handler:           s,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 
 	go func() {
 		if s.certFile != "" && s.keyFile != "" {
@@ -289,7 +293,7 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 
 	// watch for quit signals
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	// inject signals for testing
 	for _, sign := range testSignals {
@@ -314,6 +318,8 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 				Msg("caught shutdown signal, starting graceful shutdown")
 
 			return s.shutdown(&server)
+		case <-s.ctx.Done():
+			return s.ctx.Err()
 		}
 	}
 }
