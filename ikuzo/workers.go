@@ -1,8 +1,11 @@
 package ikuzo
 
 func (s *server) BackgroundWorkers() error {
-	// TODO(kiivihal): implement the mux for hibiken workers
 	s.logger.Info().Msg("starting hibiken/asynq background workers")
+	defer s.shutdown(nil)
+	if err := s.ts.StartWorkers(s.ctx); err != nil {
+		return err
+	}
 
 	return nil
 }

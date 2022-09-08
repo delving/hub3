@@ -22,6 +22,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi"
@@ -207,6 +208,13 @@ func SetEnableSentry(dsn string) Option {
 func SetIgnore404Paths(paths []string) Option {
 	return func(s *server) error {
 		s.ignore404Paths = paths
+		return nil
+	}
+}
+
+func SetTaskService(ts *task.Service) Option {
+	return func(s *server) error {
+		s.ts = ts
 		return nil
 	}
 }

@@ -22,7 +22,8 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/pacedotdev/oto/otohttp"
+	"github.com/delving/hub3/ikuzo/service/x/namespace"
+	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/spf13/viper"
 )
 
@@ -37,6 +38,7 @@ type Config struct {
 	Nats          `json:"nats"`
 	EAD           `json:"ead"`
 	DB            `json:"db"`
+	Redis         `json:"redis"`
 	ImageProxy    `json:"imageProxy"`
 	Namespace     `json:"namespace"`
 	PostHooks     []PostHook `json:"posthooks"`
@@ -62,6 +64,8 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 		cfgOptions = []Option{
 			&cfg.DB,
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
+			&cfg.Redis,
+			&cfg.Task,
 			&cfg.Organization,
 			&cfg.HTTP,
 			&cfg.EAD,

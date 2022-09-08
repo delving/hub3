@@ -35,6 +35,7 @@ import (
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/go-chi/chi"
@@ -109,6 +110,8 @@ type server struct {
 	introspect bool
 	// sentry shows if sentry is enabled
 	sentry bool
+	// ts is a *task.Service that is used to manage background workers
+	ts *task.Service
 }
 
 // NewServer returns the default server.
@@ -339,11 +342,13 @@ func (s *server) shutdown(server *http.Server) error {
 	defer cancel()
 
 	log.Info().Msg("stopping web-server")
-	server.SetKeepAlivesEnabled(false)
 
 	g, ctx := errgroup.WithContext(ctx)
 
-	g.Go(func() error { return server.Shutdown(ctx) })
+	if server != nil {
+		server.SetKeepAlivesEnabled(false)
+		g.Go(func() error { return server.Shutdown(ctx) })
+	}
 
 	for _, svc := range s.services {
 		svc := svc

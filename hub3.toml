@@ -7,7 +7,8 @@ maxIdleTime = "15m"
 autoMigrate = true
 
 [redis]
-# redis configuration
+address = "localhost:6379"
+password = "sOmE_sEcUrE_pAsS"
 
 [bucket]
 # file:// is filebased, s3:// is an S3 compatible bucket
@@ -25,6 +26,10 @@ ids = [
 
 
 ### ^^^^^^ new config ^^^^^^ ###
+
+
+
+[redis]
 
 
 
@@ -212,7 +217,6 @@ harvestDelay = 1
 eadHarvestUrl = "http://localhost:3000/oai/ead"
 metsHarvestUrl = "http://localhost:3000/oai/mets"
 harvestPath = "/tmp/oaipmh"
-tagFilters = ["narthex"]
 
 [oaipmh]
 # options: no, transient, persistent
@@ -310,8 +314,7 @@ metrics = true
 workers = 1
 processDigital = false
 processDigitalIfMissing = false
-# if empty everything is allowed
-genreforms = []
+
 searchURL = ""
 genreFormDefault = "other/unknown"
 treeFields = [
