@@ -39,7 +39,7 @@ func init() {
 
 // workers configures and runs the ikuzo background workers.
 func workers() {
-	svr, err := setupIkuzo()
+	svr, err := setupIkuzo(true)
 	if err != nil {
 		log.Fatal().
 			Err(err).

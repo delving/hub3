@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -58,9 +59,19 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	s.client = s.asynqClient()
-	s.scheduler = asynq.NewScheduler(s.redisClientOpt(), nil)
+	s.scheduler = asynq.NewScheduler(
+		s.redisClientOpt(),
+		&asynq.SchedulerOpts{EnqueueErrorHandler: s.errorHandler},
+	)
 	s.server = s.asynqServer()
 	s.mux = asynq.NewServeMux()
+
+	// schedule health ping
+	health := health{taskName: "health:ping"}
+	if err := health.scheduleTask(s.scheduler); err != nil {
+		return s, err
+	}
+	s.RegisterWorkerFunc(health.taskName, health.handleTask)
 
 	return s, nil
 }
@@ -125,4 +136,12 @@ func (s *Service) Shutdown(ctx context.Context) error {
 func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
 	s.log = b.Logger.With().Str("svc", "task").Logger()
 	s.orgs = b.Orgs
+}
+
+func (s *Service) errorHandler(task *asynq.Task, opts []asynq.Option, err error) {
+	if errors.Is(err, asynq.ErrDuplicateTask) || errors.Is(err, asynq.ErrTaskIDConflict) {
+		return
+	}
+
+	s.log.Warn().Msgf("unable to enqueue scheduled task: %#v", task)
 }

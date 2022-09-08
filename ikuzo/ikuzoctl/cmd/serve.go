@@ -42,7 +42,7 @@ func init() {
 
 // serve configures and runs the ikuzo server as a silo.
 func serve() {
-	svr, err := setupIkuzo()
+	svr, err := setupIkuzo(false)
 	if err != nil {
 		log.Fatal().
 			Err(err).

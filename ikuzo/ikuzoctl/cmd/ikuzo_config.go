@@ -9,8 +9,12 @@ import (
 	"github.com/delving/hub3/ikuzo"
 )
 
-func setupIkuzo() (ikuzo.Server, error) {
+func setupIkuzo(background bool) (ikuzo.Server, error) {
 	stdlog.SetFlags(stdlog.LstdFlags | stdlog.Lshortfile)
+
+	if background {
+		cfg.Nats.Enabled = false
+	}
 
 	options, err := cfg.Options()
 	if err != nil {
