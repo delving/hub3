@@ -454,11 +454,11 @@ type ProtoBuf struct {
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
 	Pager      *ScrollPager       `json:"pager"`
+	Peek       map[string]int64   `json:"peek,omitempty"`
 	Pagination *search.Paginator  `json:"pagination,omitempty"`
 	Query      *Query             `json:"query"`
 	Items      []*FragmentGraph   `json:"items,omitempty"`
 	Collapsed  []*Collapsed       `json:"collapse,omitempty"`
-	Peek       map[string]int64   `json:"peek,omitempty"`
 	Facets     []*QueryFacet      `json:"facets,omitempty"`
 	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
 	Tree       []*Tree            `json:"tree,omitempty"`
