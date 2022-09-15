@@ -184,7 +184,7 @@ func (s *Service) handleListIdentifiers(resp *Response) error {
 		return fmt.Errorf("cannot get request config: %w", err)
 	}
 
-	if cfg.DatasetID == "" {
+	if s.requireSetSpecForList && cfg.DatasetID == "" {
 		resp.Error = append(resp.Error, ErrBadArgument)
 		return nil
 	}
@@ -231,7 +231,7 @@ func (s *Service) handleListRecords(resp *Response) error {
 		return fmt.Errorf("cannot get request config: %w", err)
 	}
 
-	if cfg.DatasetID == "" {
+	if s.requireSetSpecForList && cfg.DatasetID == "" {
 		resp.Error = append(resp.Error, ErrBadArgument)
 		return nil
 	}
