@@ -200,6 +200,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Access = n.AccessRestrict
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
+	tree.Genreform = n.Header.Genreform
 
 	if tree.HasDigitalObject {
 		daoCfg := newDaoConfig(cfg, tree)
