@@ -126,7 +126,7 @@ var v2Mapping = `{
 						"periods": {"type": "keyword"},
 						"hasDigitalObject": {"type": "boolean"},
 						"hasRestriction": {"type": "boolean"},
-						"genreform": {"type": "keyword"},
+						"genreform": {"type": "keyword"}
 					}
 				},
 				"recordType": {"type": "short"},
