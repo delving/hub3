@@ -8,6 +8,8 @@
 
 ### Changed
 
+- default behaviour OAI-PMH is to allow harvesting List verb without a set spec parameter [[GH-172]](https://github.com/delving/hub3/pull/172)
+
 ### Fixed
 
 - fixed user-input in logging warnings from github code scanning [[GH-170]](https://github.com/delving/hub3/pull/170)
