@@ -200,7 +200,6 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 	tree.Access = n.AccessRestrict
 	tree.HasRestriction = n.AccessRestrict != ""
 	tree.PhysDesc = n.Header.Physdesc
-	tree.Genreform = n.Header.Genreform
 
 	if tree.HasDigitalObject {
 		daoCfg := newDaoConfig(cfg, tree)
@@ -245,6 +244,21 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 				tree.MimeTypes = daoCfg.MimeTypes
 				tree.DOCount = daoCfg.ObjectCount
 			}
+		}
+	}
+
+
+	if len(config.Config.EAD.Genreforms) > 1 {
+		var b bool
+		for _, a := range config.Config.EAD.Genreforms {
+			if a == n.Header.Genreform {
+				tree.Genreform = n.Header.Genreform
+				b = true
+			}
+		}
+		if !b {
+			log.Error().Msg("Onbekende genreform!")
+			tree.Genreform = config.Config.EAD.GenreFormDefault
 		}
 	}
 

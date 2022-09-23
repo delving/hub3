@@ -279,7 +279,7 @@ metrics = true
 workers = 1
 processDigital = false
 processDigitalIfMissing = false
-
+genreforms = []
 searchURL = ""
 genreFormDefault = "other/unknown"
 treeFields = [
