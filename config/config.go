@@ -261,7 +261,7 @@ type EAD struct {
 	GenreFormDefault string   `json:"genreFormDefault"`
 	TreeFields       []string `json:"treeFields"`
 	SearchFields     []string `json:"searchFields"`
-	Genreforms		 []string   `json:"genreforms"`
+	Genreforms		 []string `json:"genreforms"`
 }
 
 func setDefaults() {
