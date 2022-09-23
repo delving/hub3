@@ -247,6 +247,11 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 	}
 
+	if len(config.Config.EAD.Genreforms) == 0 {
+		tree.Genreform = n.Header.Genreform
+		return tree
+	}
+
 	if len(config.Config.EAD.Genreforms) > 1 {
 		var b bool
 		for _, a := range config.Config.EAD.Genreforms {
