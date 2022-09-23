@@ -247,24 +247,15 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 	}
 
-	if len(config.Config.EAD.Genreforms) == 0 {
-		tree.Genreform = n.Header.Genreform
-		return tree
-	}
-
-	if len(config.Config.EAD.Genreforms) > 1 {
-		var b bool
+	tree.Genreform = func() string {
 		for _, a := range config.Config.EAD.Genreforms {
 			if a == n.Header.Genreform {
-				tree.Genreform = n.Header.Genreform
-				b = true
+				return a
 			}
 		}
-		if !b {
-			log.Error().Msg("Onbekende genreform!")
-			tree.Genreform = config.Config.EAD.GenreFormDefault
-		}
-	}
+		log.Error().Msg("Onbekende genreform!")
+		return config.Config.EAD.GenreFormDefault
+	}()
 
 	return tree
 }
