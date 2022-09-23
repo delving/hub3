@@ -22,7 +22,7 @@ func (o *OAIPMH) NewService(cfg *Config) (*oaipmh.Service, error) {
 
 	svc, err := oaipmh.NewService(
 		oaipmh.SetStore(store),
-		oaipmh.SetRequireSetSpec(false),
+		oaipmh.SetRequireSetSpec(cfg.Harvest.RequireSetSpec),
 	)
 	if err != nil {
 		return nil, err
