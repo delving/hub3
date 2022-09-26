@@ -15,6 +15,7 @@
 package ead
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -211,6 +212,22 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		// must happen here because the check needs the daoCfg to not be written yet
 		hasOrphanedMetsFile := daoCfg.hasOrphanedMetsFile()
 
+		// If cfg.ProcessDigital is disabled we're attempting to update daoCfg with
+		// data from an existing mets file otherwise it will be overwritten with
+		// sensible defaults.
+		if _, err := os.Stat(daoCfg.GetMetsFilePath()); err == nil && !cfg.ProcessDigital {
+			data, err := os.ReadFile(daoCfg.GetMetsFilePath() + ".json")
+			if err == nil {
+				var cfg DaoConfig
+				if err := json.Unmarshal(data, &cfg); err == nil {
+					daoCfg.MimeTypes = cfg.MimeTypes
+					daoCfg.ObjectCount = cfg.ObjectCount
+					daoCfg.FileUUIDs = cfg.FileUUIDs
+					daoCfg.Filenames = cfg.Filenames
+				}
+			}
+		}
+
 		if err := daoCfg.Write(); err != nil {
 			log.Error().Err(err).Msg("unable to write daocfg to disk")
 		}
@@ -240,11 +257,11 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 					cfg.MetsCounter.AppendError(daoCfg.InventoryID, err.Error())
 					return tree
 				}
-
-				tree.MimeTypes = daoCfg.MimeTypes
-				tree.DOCount = daoCfg.ObjectCount
 			}
 		}
+
+		tree.MimeTypes = daoCfg.MimeTypes
+		tree.DOCount = daoCfg.ObjectCount
 	}
 
 	return tree
