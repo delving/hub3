@@ -15,7 +15,6 @@
 package ead
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -215,16 +214,12 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		// If cfg.ProcessDigital is disabled we're attempting to update daoCfg with
 		// data from an existing mets file otherwise it will be overwritten with
 		// sensible defaults.
-		if _, err := os.Stat(daoCfg.GetMetsFilePath()); err == nil && !cfg.ProcessDigital {
-			data, err := os.ReadFile(daoCfg.GetMetsFilePath() + ".json")
-			if err == nil {
-				var cfg DaoConfig
-				if err := json.Unmarshal(data, &cfg); err == nil {
-					daoCfg.MimeTypes = cfg.MimeTypes
-					daoCfg.ObjectCount = cfg.ObjectCount
-					daoCfg.FileUUIDs = cfg.FileUUIDs
-					daoCfg.Filenames = cfg.Filenames
-				}
+		if !cfg.ProcessDigital && daoCfg.daoConfigExists() {
+			if cfg, err := GetDaoConfig(daoCfg.ArchiveID, daoCfg.UUID); err == nil {
+				daoCfg.MimeTypes = cfg.MimeTypes
+				daoCfg.ObjectCount = cfg.ObjectCount
+				daoCfg.FileUUIDs = cfg.FileUUIDs
+				daoCfg.Filenames = cfg.Filenames
 			}
 		}
 
