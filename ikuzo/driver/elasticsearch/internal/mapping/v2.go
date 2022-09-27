@@ -210,7 +210,8 @@ var v2MappingUpdate = `{
       "properties": {
         "physDesc": {"type": "keyword"},
         "periodDesc": { "type": "keyword"},
-		"rawContent": {"type": "text", "store": false}
+		"rawContent": {"type": "text", "store": false},
+		"genreform": {"type": "keyword"}
       }
     },
 	"protobuf": {
