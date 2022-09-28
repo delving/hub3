@@ -247,19 +247,30 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 	}
 
-	if len(config.Config.EAD.Genreforms) == 0 {
-		tree.Genreform = n.Header.Genreform
-		return tree
-	}
-
 	tree.Genreform = func() string {
-		for _, a := range config.Config.EAD.Genreforms {
-			if a == n.Header.Genreform {
-				return a
+		genreForm := n.Header.Genreform
+		if len(config.Config.EAD.Genreforms) > 0 {
+			// reset genreForm value
+			genreForm = ""
+
+			for _, a := range config.Config.EAD.Genreforms {
+				if a == n.Header.Genreform {
+					return a
+				}
+			}
+			if genreForm == "" {
+				log.Warn().
+					Str("genreForm", n.Header.Genreform).
+					Str("defaultValue", config.Config.EAD.GenreFormDefault).
+					Msg("unknown genreForm value, using default")
 			}
 		}
-		log.Error().Msg("Onbekende genreform!")
-		return config.Config.EAD.GenreFormDefault
+
+		if genreForm == "" && config.Config.EAD.GenreFormDefault != "" {
+			return config.Config.EAD.GenreFormDefault
+		}
+
+		return genreForm
 	}()
 
 	return tree
