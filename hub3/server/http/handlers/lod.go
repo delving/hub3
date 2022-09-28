@@ -140,6 +140,13 @@ func lodResolver() http.HandlerFunc {
 		acceptedMimeTypes[mimetype] = queryParam
 	}
 
+	formats := []string{}
+	for _, f := range acceptedLodFormats {
+		formats = append(formats, f)
+	}
+
+	minimalValidResponseSize := 6 // some  formats give back empty data but not zero bytes
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		uri := r.URL.Query().Get("uri")
 		if uri == "" {
@@ -168,31 +175,42 @@ func lodResolver() http.HandlerFunc {
 		}
 
 		orgID := domain.GetOrganizationID(r)
-		query := fmt.Sprintf("describe <%s>", iri)
 
-		resp, statusCode, contentType, err := runSparqlQuery(orgID.String(), query, acceptMimeType)
-		if err != nil {
-			render.Status(r, http.StatusBadRequest)
-			render.PlainText(w, r, string(resp))
-			return
+		var (
+			resp        []byte
+			statusCode  int
+			contentType string
+		)
+
+		queries := []string{iri, uri}
+		for _, q := range queries {
+			query := fmt.Sprintf("describe <%s>", q)
+
+			resp, statusCode, contentType, err = runSparqlQuery(orgID.String(), query, acceptMimeType)
+			if err != nil {
+				render.Status(r, http.StatusBadRequest)
+				render.PlainText(w, r, string(resp))
+				return
+			}
+
+			if len(resp) > minimalValidResponseSize {
+				break
+			}
 		}
-		w.Header().Set(contentTypeKey, contentType)
 
-		formats := []string{}
-		for _, f := range acceptedLodFormats {
-			formats = append(formats, f)
+		if len(resp) < minimalValidResponseSize {
+			statusCode = http.StatusNotFound
 		}
 
 		w.Header().Add("Accept", strings.Join(formats, ", "))
+		w.Header().Set(contentTypeKey, contentType)
+		w.WriteHeader(statusCode)
 
 		_, err = w.Write(resp)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		// TODO(kiivihal): add support for 404 not found. Now always 200 is returned
-		render.Status(r, statusCode)
 	})
 }
 
