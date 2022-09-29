@@ -112,6 +112,7 @@ type Tree struct {
 	Material         string              `json:"material,omitempty"`
 	PhysDesc         string              `json:"physDesc,omitempty"`
 	Fields           map[string][]string `json:"fields,omitempty"`
+	Genreform        string              `json:"genreform,omitempty"`
 }
 
 // DeepCopy creates a deep-copy of a Tree.

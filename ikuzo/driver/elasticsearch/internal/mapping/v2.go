@@ -125,7 +125,8 @@ var v2Mapping = `{
 						"mimeType": {"type": "keyword"},
 						"periods": {"type": "keyword"},
 						"hasDigitalObject": {"type": "boolean"},
-						"hasRestriction": {"type": "boolean"}
+						"hasRestriction": {"type": "boolean"},
+						"genreform": {"type": "keyword"}
 					}
 				},
 				"recordType": {"type": "short"},
@@ -209,7 +210,8 @@ var v2MappingUpdate = `{
       "properties": {
         "physDesc": {"type": "keyword"},
         "periodDesc": { "type": "keyword"},
-		"rawContent": {"type": "text", "store": false}
+		"rawContent": {"type": "text", "store": false},
+		"genreform": {"type": "keyword"}
       }
     },
 	"protobuf": {

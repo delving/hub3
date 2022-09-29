@@ -247,6 +247,32 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 		}
 	}
 
+	tree.Genreform = func() string {
+		genreForm := n.Header.Genreform
+		if len(config.Config.EAD.Genreforms) > 0 {
+			// reset genreForm value
+			genreForm = ""
+
+			for _, a := range config.Config.EAD.Genreforms {
+				if a == n.Header.Genreform {
+					return a
+				}
+			}
+			if genreForm == "" {
+				log.Warn().
+					Str("genreForm", n.Header.Genreform).
+					Str("defaultValue", config.Config.EAD.GenreFormDefault).
+					Msg("unknown genreForm value, using default")
+			}
+		}
+
+		if genreForm == "" && config.Config.EAD.GenreFormDefault != "" {
+			return config.Config.EAD.GenreFormDefault
+		}
+
+		return genreForm
+	}()
+
 	return tree
 }
 
