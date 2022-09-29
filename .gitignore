@@ -85,3 +85,6 @@ frontend/ead/public
 
 # ignore default configuration
 hub3.toml
+
+# ignore local test files
+coverage.txt
