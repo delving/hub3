@@ -51,7 +51,7 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 	case VerbIdentify:
 		s.handleIdentify(resp)
 	case VerbListMetadataFormats:
-		s.handleListMetadataFormats(resp)
+		err = s.handleListMetadataFormats(resp)
 	case VerbGetRecord:
 		err = s.handleGetRecord(resp)
 	case VerbListSets:
@@ -146,6 +146,7 @@ func (s *Service) handleListSets(resp *Response) error {
 func (s *Service) requestConfig(req *Request) (cfg RequestConfig, err error) {
 	if req.ResumptionToken == "" {
 		cfg = req.RequestConfig()
+		cfg.Filters = s.filters
 		cfg.ID, err = s.sid.Generate()
 		if err != nil {
 			return cfg, err
@@ -183,6 +184,8 @@ func (s *Service) handleListIdentifiers(resp *Response) error {
 		}
 		return fmt.Errorf("cannot get request config: %w", err)
 	}
+
+	cfg.Filters = s.filters
 
 	if s.requireSetSpecForList && cfg.DatasetID == "" {
 		resp.Error = append(resp.Error, ErrBadArgument)
@@ -231,6 +234,8 @@ func (s *Service) handleListRecords(resp *Response) error {
 		return fmt.Errorf("cannot get request config: %w", err)
 	}
 
+	cfg.Filters = s.filters
+
 	if s.requireSetSpecForList && cfg.DatasetID == "" {
 		resp.Error = append(resp.Error, ErrBadArgument)
 		return nil
@@ -271,13 +276,13 @@ func (s *Service) handleGetRecord(resp *Response) error {
 
 	q := resp.Request.RequestConfig()
 
-	record, errors, err := s.store.GetRecord(ctx, &q)
+	record, pmhErrors, err := s.store.GetRecord(ctx, &q)
 	if err != nil {
 		return fmt.Errorf("error during listRecords: %w", err)
 	}
 
-	if len(errors) != 0 {
-		resp.Error = errors
+	if len(pmhErrors) != 0 {
+		resp.Error = pmhErrors
 		return nil
 	}
 
