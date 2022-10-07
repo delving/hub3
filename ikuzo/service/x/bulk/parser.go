@@ -21,11 +21,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
 	"io"
 	"strings"
 	"sync"
 	"sync/atomic"
+
+	"github.com/rs/zerolog"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
@@ -178,7 +179,6 @@ func (p *Parser) dropOrphans(req *Request) error {
 }
 
 func addLogger(datasetID string) zerolog.Logger {
-
 	switch {
 	case strings.HasSuffix(datasetID, "ntfoto"):
 		return log.With().Str("svc", "ntfoto").Logger()
@@ -293,6 +293,12 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	}
 
 	_ = fb.Doc()
+
+	for _, tag := range fb.FragmentGraph().Meta.Tags {
+		if tag == "fragmentsOnly" {
+			p.indexTypes = []string{"fragments"}
+		}
+	}
 
 	for _, indexType := range p.indexTypes {
 		switch indexType {
