@@ -130,7 +130,7 @@ func (fr FragmentRequest) GetESPage() int {
 	return int((fr.GetPage() * FRAGMENT_SIZE) - 1)
 }
 
-func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string) *elastic.BoolQuery {
+func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string, shouldQuery ...bool) *elastic.BoolQuery {
 	searchField := fmt.Sprintf("%s", fieldName)
 	if fieldName == "object" {
 		searchField = fmt.Sprintf("%s.keyword", fieldName)
@@ -141,6 +141,10 @@ func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string)
 	if strings.HasPrefix(fieldValue, "-") {
 		fieldValue = strings.TrimPrefix(fieldValue, "-")
 		return q.MustNot(elastic.NewTermQuery(searchField, fieldValue))
+	}
+
+	if len(shouldQuery) > 0 && shouldQuery[0] {
+		return q.Should(elastic.NewTermQuery(searchField, fieldValue))
 	}
 	return q.Must(elastic.NewTermQuery(searchField, fieldValue))
 }
@@ -167,16 +171,21 @@ func (fr *FragmentRequest) BuildQuery() *elastic.BoolQuery {
 
 	// add subjects and exclude
 	subjects := fr.GetSubject()
-	if len(subjects) == 1 {
-		buildQueryClause(q, "subject", subjects[0])
+	if len(subjects) > 0 {
+		sQuery := elastic.NewBoolQuery()
+		for _, subj := range subjects {
+			buildQueryClause(sQuery, "subject", subj, true)
+		}
+
+		q = q.Must(sQuery)
 	}
 
-	// TODO later replace multiple subjects with scanner code and better Bool should queries
-
 	q = q.Must(elastic.NewTermQuery("meta.docType", FragmentDocType))
+
 	if len(fr.GetSpec()) != 0 {
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))
 	}
+
 	return q
 }
 
