@@ -5,10 +5,12 @@
 - history of changes: see https://github.com/delving/hub3/compare/v0.3.0...main
 
 ### Added
+- support for default genreform values while processing EADs [[GH-173]](https://github.com/delving/hub3/pull/173)
 
 ### Changed
 
 - default behaviour OAI-PMH is to allow harvesting List verb without a set spec parameter [[GH-172]](https://github.com/delving/hub3/pull/172)
+- lod resolver returing 404 and trying fallback to original URI  [[GH-174]](https://github.com/delving/hub3/pull/174)
 
 ### Fixed
 
