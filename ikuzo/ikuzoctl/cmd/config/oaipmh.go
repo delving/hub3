@@ -23,6 +23,7 @@ func (o *OAIPMH) NewService(cfg *Config) (*oaipmh.Service, error) {
 	svc, err := oaipmh.NewService(
 		oaipmh.SetStore(store),
 		oaipmh.SetRequireSetSpec(cfg.Harvest.RequireSetSpec),
+		oaipmh.SetTagFilters(cfg.Harvest.TagFilters),
 	)
 	if err != nil {
 		return nil, err

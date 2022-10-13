@@ -22,6 +22,7 @@ type RequestConfig struct {
 	DatasetID      string
 	TotalSize      int
 	Finished       bool
+	Filters        []string
 }
 
 func (q *RequestConfig) IsResumedRequest() bool {
