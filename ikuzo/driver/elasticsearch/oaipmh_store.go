@@ -99,7 +99,7 @@ type resumableResponse struct {
 	pitPayload string // payload for point in time parsing
 }
 
-func addFilters(q *oaipmh.RequestConfig, query *elasticsearch.Query) *elasticsearch.Query {
+func addFilters(q *oaipmh.RequestConfig, query *elastic.BoolQuery) *elastic.BoolQuery {
 	if len(q.Filters) > 0 {
 		fq := elastic.NewBoolQuery()
 		for _, filt := range q.Filters {
