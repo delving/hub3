@@ -79,6 +79,13 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 		}
 	}
 
+	if req.RecordType != "" {
+		tags := strings.Split(req.RecordType, ",")
+		for _, tag := range tags {
+			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
+		}
+	}
+
 	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
 		fg.Meta.Tags = append(fg.Meta.Tags, tags...)
 	}
