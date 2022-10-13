@@ -17,3 +17,12 @@ func SetRequireSetSpec(allow bool) Option {
 		return nil
 	}
 }
+
+// SetTagFilters add filters to limit which records and sets are
+// available for OAI-PMH harvesting
+func SetTagFilters(filters []string) Option {
+	return func(s *Service) error {
+		s.filters = filters
+		return nil
+	}
+}

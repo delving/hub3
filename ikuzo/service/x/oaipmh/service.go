@@ -22,12 +22,14 @@ type Service struct {
 	m                     sync.RWMutex
 	sid                   *shortid.Shortid
 	requireSetSpecForList bool
+	filters               []string
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		steps:                 make(map[string]RequestConfig),
 		requireSetSpecForList: true,
+		filters:               []string{"narthex"},
 	}
 
 	sid, err := shortid.New(1, shortid.DefaultABC, 2342)

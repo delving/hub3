@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -32,8 +31,9 @@ func (c *Client) NewOAIPMHStore() (*OAIPMHStore, error) {
 
 func (o *OAIPMHStore) ListSets(ctx context.Context, q *oaipmh.RequestConfig) (res oaipmh.Resumable, err error) {
 	query := elastic.NewBoolQuery().
-		Must(elastic.NewTermQuery("meta.orgID", q.OrgID)).
-		Must(elastic.NewTermQuery("meta.tags", "narthex"))
+		Must(elastic.NewTermQuery("meta.orgID", q.OrgID))
+
+	query = addFilters(q, query)
 
 	specCountAgg := elastic.NewCardinalityAggregation().
 		Field("meta.spec")
@@ -99,10 +99,23 @@ type resumableResponse struct {
 	pitPayload string // payload for point in time parsing
 }
 
+func addFilters(q *oaipmh.RequestConfig, query *elastic.BoolQuery) *elastic.BoolQuery {
+	if len(q.Filters) > 0 {
+		fq := elastic.NewBoolQuery()
+		for _, filt := range q.Filters {
+			fq = fq.Should(elastic.NewTermQuery("meta.tags", filt))
+		}
+		query = query.Must(fq)
+	}
+
+	return query
+}
+
 func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, headersOnly bool) (resp resumableResponse, err error) {
 	query := elastic.NewBoolQuery().
-		Must(elastic.NewTermQuery("meta.orgID", q.OrgID)).
-		Must(elastic.NewTermQuery("meta.tags", "narthex"))
+		Must(elastic.NewTermQuery("meta.orgID", q.OrgID))
+
+	query = addFilters(q, query)
 
 	if q.DatasetID != "" {
 		query = query.Must(elastic.NewTermQuery("meta.spec", q.DatasetID))
@@ -135,7 +148,6 @@ func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, h
 	}
 
 	search := o.c.search.Search().
-		// Index(IndexNames{}.GetIndexName(q.OrgID)).
 		PointInTime(elastic.NewPointInTimeWithKeepAlive(q.StoreCursor, "1m")).
 		Sort("_shard_doc", true).
 		Size(o.ResponseSize).
@@ -208,8 +220,6 @@ func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.RequestConf
 
 func (o *OAIPMHStore) ListRecords(ctx context.Context, q *oaipmh.RequestConfig) (res oaipmh.Resumable, err error) {
 	resp, err := o.getRecords(ctx, q, false)
-
-	log.Printf("metadataPrefix: %#v", q.FirstRequest)
 
 	for _, raw := range resp.records {
 		rec, getErr := o.getOAIPMHRecord(raw, q.FirstRequest.MetadataPrefix, true)
