@@ -40,18 +40,6 @@ const (
 var lodPathRoute = "/{path:%s}/*"
 
 func RegisterLOD(r chi.Router) {
-	if c.Config.LOD.SingleEndpoint != "" {
-		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.SingleEndpoint), RenderLODResource)
-	} else {
-		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.RDF), RenderLODResource)
-		r.Get(fmt.Sprintf(lodPathRoute, c.Config.LOD.Resource), RenderLODResource)
-		r.Get(
-			// fmt.Sprintf(lodPathRoute, config.Config.LOD.HTML), RenderLODResource)
-			fmt.Sprintf(lodPathRoute, c.Config.LOD.HTML), func(w http.ResponseWriter, r *http.Request) {
-				render.PlainText(w, r, `{"type": "rdf html endpoint"}`)
-			})
-	}
-
 	redirects := []string{
 		idPrefix, resourcePrefix, docPrefix, dataPrefix, defPrefix,
 	}
@@ -60,7 +48,12 @@ func RegisterLOD(r chi.Router) {
 		r.Get(fmt.Sprintf("/%s/*", prefix), lodRedirect)
 	}
 
-	r.Get("/resource", lodResolver())
+	resolver := sparqlLodResolver
+	if strings.EqualFold(c.Config.LOD.Store, "fragments") {
+		resolver = fragmentsLodResolver
+	}
+
+	r.Get("/resource", resolver())
 }
 
 func rewriteLodPrefixes(path string) string {
@@ -122,7 +115,7 @@ func getSparqlSubject(iri, fragment string) (string, error) {
 	return fmt.Sprintf("%s://%s%s", uri.Scheme, uri.Host, path), nil
 }
 
-func lodResolver() http.HandlerFunc {
+func sparqlLodResolver() http.HandlerFunc {
 	acceptedLodFormats := map[string]string{
 		"turtle":    "text/turtle",
 		"json-ld":   "application/ld+json",
@@ -216,52 +209,48 @@ func lodResolver() http.HandlerFunc {
 
 // RenderLODResource returns a list of matching fragments
 // for a LOD resource. This mimicks a SPARQL describe request
-func RenderLODResource(w http.ResponseWriter, r *http.Request) {
-	lodKey := r.URL.Path
 
-	if c.Config.LOD.SingleEndpoint == "" {
-		resourcePrefix := fmt.Sprintf("/%s", c.Config.LOD.Resource)
-		if strings.HasPrefix(lodKey, resourcePrefix) {
-			// todo for  now only support  RDF data
-			lodKey = strings.Replace(lodKey, c.Config.LOD.Resource, c.Config.LOD.RDF, 1)
-			http.Redirect(w, r, lodKey, 302)
-			return
+func fragmentsLodResolver() http.HandlerFunc {
+	// acceptedLodFormats := map[string]string{
+	// "turtle": "text/turtle",
+	// }
+	// _ = acceptedLodFormats
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		uri := r.URL.Query().Get("uri")
+		if uri == "" {
+			uri = r.URL.Query().Get("subject")
 		}
 
-		lodKey = strings.Replace(lodKey, c.Config.LOD.RDF, c.Config.LOD.Resource, 1)
-		lodKey = strings.Replace(lodKey, c.Config.LOD.HTML, c.Config.LOD.Resource, 1)
-	} else {
-		// for now only support nt as format
-		if !strings.HasSuffix(lodKey, ".nt") {
-			lodKey = fmt.Sprintf("%s.nt", strings.TrimSuffix(lodKey, "/"))
-			log.Printf("Redirecting to %s", domain.LogUserInput(lodKey))
-			http.Redirect(w, r, lodKey, 302)
-			return
-		}
-		lodKey = strings.TrimSuffix(lodKey, ".nt")
-	}
-
-	orgID := domain.GetOrganizationID(r)
-
-	fr := fragments.NewFragmentRequest(orgID.String())
-	fr.LodKey = lodKey
-	frags, _, err := fr.Find(r.Context(), index.ESClient())
-	if err != nil || len(frags) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-
+		iri, err := getSparqlSubject(uri, r.URL.Fragment)
 		if err != nil {
-			log.Printf("Unable to list fragments because of: %s", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		log.Printf("Unable to find fragments")
-		return
-	}
+		orgID := domain.GetOrganizationID(r)
 
-	w.Header().Set("Content-Type", "text/n-triples")
-	for _, frag := range frags {
-		fmt.Fprintln(w, frag.Triple)
-	}
+		fr := fragments.NewFragmentRequest(orgID.String())
+		fr.Subject = []string{uri}
+		if iri != uri {
+			fr.Subject = append(fr.Subject, iri)
+		}
+		frags, _, err := fr.Find(r.Context(), index.ESClient())
+		if err != nil || len(frags) == 0 {
+			w.WriteHeader(http.StatusNotFound)
 
-	return
+			if err != nil {
+				log.Printf("Unable to list fragments because of: %s", err)
+				return
+			}
+
+			log.Printf("Unable to find fragments")
+			return
+		}
+
+		w.Header().Add("Accept", "text/turtle")
+		w.Header().Set("Content-Type", "text/turtle")
+		for _, frag := range frags {
+			fmt.Fprintln(w, frag.Triple)
+		}
+	})
 }
