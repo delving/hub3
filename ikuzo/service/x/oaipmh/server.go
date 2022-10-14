@@ -3,7 +3,6 @@ package oaipmh
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -47,7 +46,7 @@ func (s store) GetRepo(ctx context.Context, repo string) (Repo, error) {
 func (s store) ListRepos(ctx context.Context) ([]Repo, error) {
 	var repos []Repo
 
-	files, err := ioutil.ReadDir(s.path)
+	files, err := os.ReadDir(s.path)
 	if err != nil {
 		return repos, err
 	}

@@ -49,7 +49,7 @@ func (fg *FragmentGraph) GetAboutURI() string {
 }
 
 // IsTypeLink checks if the Predicate is a RDF type link
-func (f Fragment) IsTypeLink() bool {
+func (f *Fragment) IsTypeLink() bool {
 	return f.Predicate == RDFType
 }
 
@@ -107,13 +107,13 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 		case "page":
 			page, err := strconv.ParseInt(v[0], 10, 32)
 			if err != nil {
-				return fmt.Errorf("Unable to convert page %s into an int32", v[0])
+				return fmt.Errorf("unable to convert page %s into an int32", v[0])
 			}
 			fr.Page = int32(page)
 		case "echo":
 			fr.Echo = v[0]
 		case "format":
-			break
+			continue
 		default:
 			return fmt.Errorf("unknown parameter: '%s'", k)
 		}
@@ -123,7 +123,7 @@ func (fr *FragmentRequest) ParseQueryString(v url.Values) error {
 
 // GetESPage returns the 0 based page for Elastic Search
 // todo refactor for protobuf
-func (fr FragmentRequest) GetESPage() int {
+func (fr *FragmentRequest) GetESPage() int {
 	if fr.GetPage() < 2 {
 		return 0
 	}
@@ -131,11 +131,11 @@ func (fr FragmentRequest) GetESPage() int {
 }
 
 func buildQueryClause(q *elastic.BoolQuery, fieldName string, fieldValue string, shouldQuery ...bool) *elastic.BoolQuery {
-	searchField := fmt.Sprintf("%s", fieldName)
+	searchField := fieldName
 	if fieldName == "object" {
 		searchField = fmt.Sprintf("%s.keyword", fieldName)
 	}
-	if len(fieldValue) == 0 {
+	if fieldValue == "" {
 		return q
 	}
 	if strings.HasPrefix(fieldValue, "-") {
@@ -165,7 +165,7 @@ func (fr *FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	}
 
 	if fr.HubID != "" {
-		key := fmt.Sprintf("%s", fr.HubID)
+		key := fr.HubID
 		buildQueryClause(q, "meta.hubID", key)
 	}
 

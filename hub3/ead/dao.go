@@ -7,7 +7,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path"
@@ -47,7 +46,7 @@ func (c *DaoClient) GetDaoConfig(archiveID, uuid string) (DaoConfig, error) {
 func (c *DaoClient) GetDigitalObjectCount(archiveID string) (int, error) {
 	var digitalObjects int
 
-	files, err := ioutil.ReadDir(getMetsDirPath(archiveID))
+	files, err := os.ReadDir(getMetsDirPath(archiveID))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return 0, nil
@@ -199,7 +198,7 @@ func assertUniqueFilenames(files []*eadpb.File) error {
 	for _, file := range files {
 		_, exists := fileNames[file.Filename]
 		if exists {
-			return errors.New(fmt.Sprintf("duplicate filename found: %s", file.Filename))
+			return fmt.Errorf("duplicate filename found: %s", file.Filename)
 		}
 
 		fileNames[file.Filename] = file.SortKey
@@ -255,7 +254,7 @@ func (c *DaoClient) StoreMets(cfg *DaoConfig) error {
 		}
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		cfg.GetMetsFilePath(),
 		buf.Bytes(),
 		os.ModePerm,
@@ -447,7 +446,7 @@ func (cfg *DaoConfig) Write() error {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		cfg.getConfigPath(),
 		b,
 		os.ModePerm,

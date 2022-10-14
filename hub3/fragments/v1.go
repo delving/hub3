@@ -162,7 +162,7 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s.SourceURI = fb.fg.GetAboutURI()
 	s.GraphName = fb.fg.Meta.NamedGraphURI
 	now := time.Now()
-	nowString := fmt.Sprintf(now.Format(time.RFC3339))
+	nowString := now.Format(time.RFC3339)
 	s.CreatedAt = nowString
 	s.ModifiedAt = nowString
 
@@ -325,10 +325,11 @@ func (fb *FragmentBuilder) ResolveWebResources(ctx context.Context) error {
 	g.Go(func() error {
 		for graph := range graphs {
 			if graph != nil {
-
-				defer graph.Close()
 				if err := fb.Graph.Parse(graph, "text/turtle"); err != nil {
 					return fmt.Errorf("unable to parse urn RDF; %w", err)
+				}
+				if err := graph.Close(); err != nil {
+					return errors.New("unable to close the graph")
 				}
 			}
 		}
@@ -782,7 +783,6 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 		ie.Value = t.Object.RawValue()
 		ie.Raw = t.Object.RawValue()
 	default:
-
 		return ie, fmt.Errorf("unknown object type: %#v", t.Object)
 	}
 	return ie, nil
@@ -790,7 +790,7 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 
 // CreateESAction creates bulkAPIRequest from map[string]interface{}
 func CreateESAction(indexDoc map[string]interface{}, id, orgID string) (*elastic.BulkIndexRequest, error) {
-	v1Index := fmt.Sprintf("%s", c.Config.ElasticSearch.GetIndexName(orgID))
+	v1Index := c.Config.ElasticSearch.GetIndexName(orgID)
 	r := elastic.NewBulkIndexRequest().
 		Index(v1Index).
 		Type("void_edmrecord").

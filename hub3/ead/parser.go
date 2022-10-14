@@ -19,7 +19,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"strings"
 	"sync/atomic"
@@ -54,7 +54,7 @@ func sanitizeXMLAsString(b []byte) string {
 
 // ReadEAD reads an ead2002 XML from a path
 func ReadEAD(fpath string) (*Cead, error) {
-	rawEAD, err := ioutil.ReadFile(fpath)
+	rawEAD, err := os.ReadFile(fpath)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +238,6 @@ func (cead *Cead) DescriptionGraph(cfg *NodeConfig, unitInfo *UnitInfo) (*fragme
 				log.Error().Err(err).Msg("unable to add triple: %#v")
 			}
 		}
-		return
 	}
 
 	intType := func(value string) r.Term {
@@ -352,7 +351,7 @@ func (ca *Cabstract) CleanAbstract() []string {
 	raw = bytes.ReplaceAll(raw, []byte(" />"), []byte("/>"))
 
 	parts := strings.Split(
-		fmt.Sprintf("%s", raw),
+		string(raw),
 		"<lb/>",
 	)
 	trimmed := []string{}
@@ -368,7 +367,7 @@ func (ca *Cabstract) CleanAbstract() []string {
 }
 
 func (ut *Cunittitle) Title() string {
-	return sanitizer.Sanitize(strings.TrimSpace(fmt.Sprintf("%s", ut.Raw)))
+	return sanitizer.Sanitize(strings.TrimSpace(string(ut.Raw)))
 }
 
 // NewClevel creates a fake c level series struct from the paragraph text.

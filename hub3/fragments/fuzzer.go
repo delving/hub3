@@ -168,7 +168,7 @@ func (fz *Fuzzer) NewFuzzEntry(order int, elem *Celem) (*FuzzEntry, error) {
 		Predicate:   predicate,
 		Tags:        tags,
 		Order:       order,
-		SearchLabel: strings.Replace(elem.Attrtag, ":", "_", 0),
+		SearchLabel: strings.Replace(elem.Attrtag, ":", "_", -1),
 	}
 	return fe, nil
 }
@@ -240,7 +240,7 @@ func NewRecDef(r io.Reader) (*Crecord_dash_definition, error) {
 	return &naa, nil
 }
 
-//// Generated structs for parsing the XML record definition
+// // Generated structs for parsing the XML record definition
 type Cattr struct {
 	XMLName            xml.Name            `xml:"attr,omitempty" json:"attr,omitempty"`
 	Attrtag            string              `xml:"tag,attr"  json:",omitempty"`
@@ -319,7 +319,7 @@ type Copts struct {
 type Cpara struct {
 	XMLName  xml.Name `xml:"para,omitempty" json:"para,omitempty"`
 	Attrname string   `xml:"name,attr"  json:",omitempty"`
-	string   string   `xml:",chardata" json:",omitempty"`
+	Text     string   `xml:",chardata" json:",omitempty"`
 }
 
 type Crecord_dash_definition struct {
@@ -350,7 +350,7 @@ type Csample_dash_input struct {
 
 type Cstring struct {
 	XMLName xml.Name `xml:"string,omitempty" json:"string,omitempty"`
-	string  string   `xml:",chardata" json:",omitempty"`
+	Text    string   `xml:",chardata" json:",omitempty"`
 }
 
 ///////////////////////////

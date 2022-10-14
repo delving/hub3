@@ -43,9 +43,7 @@ func NewService(path string) (*Service, error) {
 	}
 
 	s := &Service{base: path}
-	if strings.HasSuffix(s.base, "/") {
-		s.base = strings.TrimSuffix(s.base, "/")
-	}
+	s.base = strings.TrimSuffix(s.base, "/")
 
 	err := s.setupGitKit()
 

@@ -23,7 +23,6 @@ func (s *Service) searchLabelStats(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
-	return
 }
 
 func (s *Service) predicateStats(w http.ResponseWriter, r *http.Request) {
@@ -36,5 +35,4 @@ func (s *Service) predicateStats(w http.ResponseWriter, r *http.Request) {
 	}
 	fmt.Printf("total hits: %d\n", res.Hits.TotalHits.Value)
 	render.JSON(w, r, res)
-	return
 }

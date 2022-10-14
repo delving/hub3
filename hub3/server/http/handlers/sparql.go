@@ -110,7 +110,6 @@ func sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.Status(r, statusCode)
-	return
 }
 
 func makeSparqlRequest(req *http.Request) (body []byte, statusCode int, contentType string, err error) {
@@ -192,7 +191,6 @@ func graphStoreDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.Status(r, statusCode)
-	return
 }
 
 func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
@@ -240,7 +238,6 @@ func graphStoreUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.Status(r, statusCode)
-	return
 }
 
 // runGraphStoreQuery sends a GraphStore request to the SPARQL-endpoint specified in the configuration

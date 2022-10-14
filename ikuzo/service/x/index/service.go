@@ -20,7 +20,7 @@ import (
 	"errors"
 	"expvar"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -347,7 +347,7 @@ func executePosthook(datasetID string, applyHooks []domain.PostHookService, revi
 
 		if resp.StatusCode > 299 {
 			defer resp.Body.Close()
-			body, readErr := ioutil.ReadAll(resp.Body)
+			body, readErr := io.ReadAll(resp.Body)
 
 			if readErr != nil {
 				log.Error().Err(err).Str("datasetID", datasetID).
@@ -445,7 +445,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 			if err != nil {
 				log.Error().Err(err).Msg("bulk index msg error")
 			} else if res.Status != http.StatusNotFound {
-				body, _ := ioutil.ReadAll(item.Body)
+				body, _ := io.ReadAll(item.Body)
 				log.Error().
 					Str("reason", res.Error.Reason).
 					Str("type", res.Error.Type).

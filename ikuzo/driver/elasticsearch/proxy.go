@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -85,7 +84,7 @@ func (p *Proxy) requestKey(r *http.Request) string {
 		return ""
 	}
 
-	r.Body = ioutil.NopCloser(&buf)
+	r.Body = io.NopCloser(&buf)
 
 	return fmt.Sprintf("%016x", hash.Sum64())
 }
@@ -161,7 +160,7 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 	var buf bytes.Buffer
 
 	if res.IsError() {
-		msg, _ := ioutil.ReadAll(res.Body)
+		msg, _ := io.ReadAll(res.Body)
 		p.log.Warn().RawJSON("error", msg).Msg("elasticsearch error message")
 	}
 

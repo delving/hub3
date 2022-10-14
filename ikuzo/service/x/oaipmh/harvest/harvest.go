@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -101,7 +101,7 @@ func (ht *HarvestTask) writeHarvestInfo() error {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		ht.getHarvestInfoPath(),
 		b,
 		os.ModePerm,
@@ -159,7 +159,7 @@ func (ht *HarvestTask) GetPage(ctx context.Context, request *oai.Request) (*oai.
 		default:
 			// Happy
 			// Read all the data
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return stop{err}
 			}

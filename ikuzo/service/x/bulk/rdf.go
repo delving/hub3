@@ -43,6 +43,7 @@ func (ruf *rdfUploadForm) isValid() error {
 
 var decoder = schema.NewDecoder()
 
+// TODO(kiivihal): review and possible remove
 func (s *Service) HandleRDF(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 
@@ -69,7 +70,7 @@ func (s *Service) HandleRDF(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// todo handle when no form.Spec is given
-	ds, created, err := models.GetOrCreateDataSet(orgID.String(), form.Spec)
+	ds, _, err := models.GetOrCreateDataSet(orgID.String(), form.Spec)
 	if err != nil {
 		log.Printf("Unable to get DataSet for %s\n", form.Spec)
 		render.PlainText(w, r, err.Error())
@@ -77,16 +78,16 @@ func (s *Service) HandleRDF(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if created {
-		// err = fragments.SaveDataSet(orgID.String(), form.Spec, nil)
-		// if err != nil {
-		// log.Printf("Unable to Save DataSet Fragment for %s\n", form.Spec)
-		// if err != nil {
-		// render.PlainText(w, r, err.Error())
-		// return
-		// }
-		// }
-	}
+	// if created {
+	// err = fragments.SaveDataSet(orgID.String(), form.Spec, nil)
+	// if err != nil {
+	// log.Printf("Unable to Save DataSet Fragment for %s\n", form.Spec)
+	// if err != nil {
+	// render.PlainText(w, r, err.Error())
+	// return
+	// }
+	// }
+	// }
 
 	ds, err = ds.IncrementRevision()
 	if err != nil {
@@ -140,5 +141,4 @@ func (s *Service) HandleRDF(w http.ResponseWriter, r *http.Request) {
 
 	render.Status(r, http.StatusCreated)
 	render.PlainText(w, r, "ok")
-	return
 }

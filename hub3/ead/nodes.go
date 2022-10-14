@@ -229,7 +229,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 
 		if cfg.DaoFn != nil {
 			metsExists := true
-			if cfg.ProcessDigitalIfMissing == true {
+			if cfg.ProcessDigitalIfMissing {
 				metsPath := daoCfg.GetMetsFilePath()
 				if _, err := os.Stat(metsPath); err != nil {
 					metsExists = false
@@ -320,7 +320,6 @@ func (n *Node) Triples(cfg *NodeConfig) []*r.Triple {
 		if t != nil {
 			triples = append(triples, t)
 		}
-		return
 	}
 
 	t(s, "cLevel", n.CTag, r.NewLiteral)

@@ -151,6 +151,9 @@ func CreateTreeStats(ctx context.Context, orgID, spec string) (*TreeStats, error
 		false,
 		fub,
 	)
+	if err != nil {
+		return nil, err
+	}
 	q := elastic.NewBoolQuery()
 	q = q.Must(
 		elastic.NewMatchPhraseQuery(c.Config.ElasticSearch.SpecKey, spec),

@@ -12,6 +12,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 )
 
+// TODO(kiivihal): review this code or remove whole file
 var ErrRecordNotFound = errors.New("record not found")
 
 // Record is the primary grouping of triples to represent a search record.

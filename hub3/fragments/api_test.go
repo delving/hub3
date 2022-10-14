@@ -17,7 +17,7 @@ package fragments
 import (
 	"encoding/json"
 	fmt "fmt"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"regexp"
 	"strings"
@@ -738,7 +738,7 @@ func TestFacetURIBuilder_CreateFacetFilterQuery(t *testing.T) {
 			}
 			src, _ := got.Source()
 			queryMap, _ := json.MarshalIndent(src, "", "    ")
-			jsonQuery, _ := ioutil.ReadFile(tt.want)
+			jsonQuery, _ := os.ReadFile(tt.want)
 
 			if diff := cmp.Diff(trimRedundantWhiteSpace(jsonQuery), trimRedundantWhiteSpace(queryMap)); diff != "" {
 				t.Errorf("FacetURIBuilder.CreateFacetFilterQuery() %s mismatch (-want +got):\n%s", tt.name, diff)
@@ -815,7 +815,7 @@ func TestQueryFilter_ElasticFilter(t *testing.T) {
 			}
 			src, _ := got.Source()
 			queryMap, _ := json.MarshalIndent(src, "", "    ")
-			jsonQuery, _ := ioutil.ReadFile(tt.want)
+			jsonQuery, _ := os.ReadFile(tt.want)
 			if diff := cmp.Diff(string(jsonQuery), string(queryMap)+"\n"); diff != "" {
 				t.Errorf("QueryFilter.ElasticFilter() mismatch (-want +got):\n%s", diff)
 			}

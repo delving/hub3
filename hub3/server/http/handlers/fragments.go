@@ -47,7 +47,7 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		render.Error(w, r, err, &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
-			Message:    fmt.Sprint("Unable to list fragments"),
+			Message:    "Unable to list fragments",
 		})
 		return
 	}
@@ -81,9 +81,9 @@ func listFragments(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, res)
 		return
 	case "request":
-		dump, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			render.Error(w, r, err, &render.ErrorConfig{
+		dump, dumpErr := httputil.DumpRequest(r, true)
+		if dumpErr != nil {
+			render.Error(w, r, dumpErr, &render.ErrorConfig{
 				StatusCode: http.StatusBadRequest,
 				Message:    "Unable to dump request",
 			})

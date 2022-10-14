@@ -16,6 +16,8 @@ func TestCleanWebResourceGraph(t *testing.T) {
 
 	// file, err := os.Open("./testdata/rdf-jsonld-dcn.json")
 	file, err := os.Open("./testdata/rdf-ntriples-dcn.nt")
+	is.NoErr(err)
+
 	defer file.Close()
 
 	is.NoErr(err)

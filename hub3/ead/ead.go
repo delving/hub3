@@ -404,8 +404,6 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 
 	for _, label := range cdid.Cunittitle {
 		// todo interpolation of date and title is not correct at the moment.
-		dates := []string{}
-
 		if len(label.Cunitdate) != 0 {
 			header.DateAsLabel = true
 
@@ -416,7 +414,6 @@ func (cdid *Cdid) NewHeader() (*Header, error) {
 				}
 
 				header.Date = append(header.Date, nodeDate)
-				dates = append(dates, nodeDate.Label)
 			}
 		}
 
@@ -470,7 +467,7 @@ func (n *Node) getPathID() string {
 	if eadID == "" || strings.HasPrefix(eadID, "---") {
 		eadID = strconv.FormatUint(n.Order, 10)
 	}
-	return fmt.Sprintf("%s", eadID)
+	return eadID
 }
 
 func (cfg *NodeConfig) UpdatePath(node *Node, parentIDs []string) ([]string, error) {

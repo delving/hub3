@@ -17,7 +17,7 @@ package revision
 import (
 	"context"
 	"errors"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -111,7 +111,7 @@ func TestService(t *testing.T) {
 	r, err := repo.Read(".keep", "")
 	is.NoErr(err)
 
-	content, err := ioutil.ReadAll(r)
+	content, err := io.ReadAll(r)
 	is.NoErr(err)
 	is.Equal(content, []byte("hub3"))
 

@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -115,7 +115,7 @@ func (ph *PostHook) Publish(items ...*domain.PostHookItem) error {
 			defer resp.Body.Close()
 
 			if resp.StatusCode > 299 {
-				body, readErr := ioutil.ReadAll(resp.Body)
+				body, readErr := io.ReadAll(resp.Body)
 
 				if readErr != nil {
 					log.Error().Err(err).Str("datasetID", item.DatasetID).
@@ -281,7 +281,7 @@ func (ph *PostHookJob) cleanPostHookGraph() {
 
 		for uri, v := range rsc {
 			if strings.HasPrefix(uri, ebuCore) {
-				uri = strings.TrimLeft(uri, ebuCore)
+				uri = strings.TrimPrefix(uri, ebuCore)
 				uri = strings.TrimLeft(uri, "/")
 				uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
 			}

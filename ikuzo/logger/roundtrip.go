@@ -16,7 +16,6 @@ package logger
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -24,13 +23,11 @@ import (
 )
 
 // CustomLogger implements the estransport.Logger interface.
-//
 type CustomLogger struct {
 	zerolog.Logger
 }
 
 // LogRoundTrip prints the information about request and response.
-//
 func (l *CustomLogger) LogRoundTrip(
 	req *http.Request,
 	res *http.Response,
@@ -51,11 +48,11 @@ func (l *CustomLogger) LogRoundTrip(
 	// Count number of bytes in request and response.
 	//
 	if req != nil && req.Body != nil && req.Body != http.NoBody {
-		nReq, _ = io.Copy(ioutil.Discard, req.Body)
+		nReq, _ = io.Copy(io.Discard, req.Body)
 	}
 
 	if res != nil && res.Body != nil && res.Body != http.NoBody {
-		nRes, _ = io.Copy(ioutil.Discard, res.Body)
+		nRes, _ = io.Copy(io.Discard, res.Body)
 	}
 
 	// Log event.

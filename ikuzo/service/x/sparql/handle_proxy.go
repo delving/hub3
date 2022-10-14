@@ -3,7 +3,7 @@ package sparql
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -66,8 +66,6 @@ func (s *Service) sparqlProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.Status(r, statusCode)
-
-	return
 }
 
 // runSparqlQuery sends a SPARQL query to the SPARQL-endpoint specified in the configuration
@@ -83,7 +81,7 @@ func (s *Service) runSparqlQuery(repo *Repo, query string) (body []byte, statusC
 	}
 	defer resp.Body.Close()
 
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		s.log.Error().Err(err).Msg("Unable to read the response body with error: %s")
 		return

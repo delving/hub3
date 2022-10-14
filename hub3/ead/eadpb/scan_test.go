@@ -21,9 +21,9 @@ import (
 	"testing"
 
 	"github.com/delving/hub3/hub3/fragments"
-	proto "github.com/golang/protobuf/proto"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	proto "google.golang.org/protobuf/proto"
 )
 
 func TestNewPager(t *testing.T) {

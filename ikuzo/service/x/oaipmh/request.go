@@ -18,7 +18,6 @@ import (
 // 4. In cases where the request that generated this response resulted in a badVerb or badArgument error condition, the repository must return the base URL of the protocol request only. Attributes must not be provided in these cases.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#XMLResponse
-//
 type Request struct {
 	Verb             string `xml:"verb,attr,omitempty"`
 	Identifier       string `xml:"identifier,attr,omitempty"`
@@ -30,8 +29,9 @@ type Request struct {
 	BaseURL          string `xml:",chardata"`
 	completeListSize int
 	orgConfig        *domain.OrganizationConfig
-	cursor           int
-	limit            int
+	// TODO(kiivihal): determine if these can be removed
+	cursor int
+	limit  int
 }
 
 // NewRequest builds a Request from the query paramers of the http.Request

@@ -17,7 +17,6 @@ package ead
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path"
 
@@ -71,7 +70,7 @@ func (di *DescriptionIndex) Write() error {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		getIndexPath(di.spec),
 		buf.Bytes(),
 		os.ModePerm,

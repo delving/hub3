@@ -188,5 +188,4 @@ func createDataSet(w http.ResponseWriter, r *http.Request) {
 	}
 	render.Status(r, http.StatusNotModified)
 	render.JSON(w, r, ds)
-	return
 }

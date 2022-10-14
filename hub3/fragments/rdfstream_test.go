@@ -23,9 +23,9 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var ntriples = `<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/province> "Gemeente Sint-Michielsgestel" .
-<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/municipality> "Gemeente Sint-Michielsgestel" .
-_:b0-af19c481183c3d84 <http://schemas.delving.eu/nave/terms/place> "Berlicum" .`
+// var ntriples = `<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/province> "Gemeente Sint-Michielsgestel" .
+// <http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/municipality> "Gemeente Sint-Michielsgestel" .
+// _:b0-af19c481183c3d84 <http://schemas.delving.eu/nave/terms/place> "Berlicum" .`
 
 var turtle = `@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .

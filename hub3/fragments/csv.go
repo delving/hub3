@@ -17,6 +17,7 @@ package fragments
 import (
 	"bytes"
 	"encoding/csv"
+	"errors"
 	fmt "fmt"
 	"io"
 	"strings"
@@ -290,7 +291,6 @@ func (con *CSVConvertor) CreateHeader(row []string) {
 			con.integerMap[idx] = true
 		}
 	}
-	return
 }
 
 // CreateTriple creates a rdf2go.Triple from the CSV column
@@ -323,7 +323,7 @@ func (con *CSVConvertor) CreateTriple(subject r.Term, idx int, column string) *r
 
 // CreateSubjectResource creates the Subject  URI and type triple for the subject column
 func (con *CSVConvertor) CreateSubjectResource(subjectID string) (r.Term, *r.Triple) {
-	cleanID := strings.Replace(subjectID, "-", "", 0)
+	cleanID := strings.Replace(subjectID, "-", "", -1)
 	sep := "/"
 	if strings.HasSuffix(con.SubjectURIBase, ":") {
 		sep = ""
@@ -341,7 +341,7 @@ func (con *CSVConvertor) CreateSubjectResource(subjectID string) (r.Term, *r.Tri
 func (con *CSVConvertor) GetReader() ([][]string, error) {
 	r := csv.NewReader(con.InputFile)
 	if con.Separator == "" {
-		return nil, fmt.Errorf("Separator cannot be empty")
+		return nil, errors.New("separator cannot be empty")
 	}
 	r.Comma = []rune(con.Separator)[0]
 	r.Comment = '#'

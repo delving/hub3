@@ -43,7 +43,6 @@ func (cdid *Cdid) Triples(referrerSubject r.Term) ([]*r.Triple, error) {
 		if t != nil {
 			triples = append(triples, t)
 		}
-		return
 	}
 
 	str := func(b []byte) string {
@@ -136,7 +135,6 @@ func (cc *Cc) Triples(s r.Term) ([]*r.Triple, error) {
 		if t != nil {
 			triples = append(triples, t)
 		}
-		return
 	}
 
 	extract := func(s r.Term, raw []byte) {

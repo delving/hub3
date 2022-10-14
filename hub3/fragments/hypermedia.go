@@ -131,7 +131,7 @@ func (hmd HyperMediaDataSet) CreateControls() ([]byte, error) {
 	var buf bytes.Buffer
 	err := t.Execute(&buf, hmd)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to execute the hyperMedia template: %v", err)
+		return nil, fmt.Errorf("unable to execute the hyperMedia template: %v", err)
 	}
 	return buf.Bytes(), nil
 }

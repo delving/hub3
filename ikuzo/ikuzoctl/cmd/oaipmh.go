@@ -143,17 +143,13 @@ func init() {
 	oaipmhCmd.AddCommand(getRecordCmd)
 }
 
-// Print the OAI Response object to stdout
-func dump(resp *oai.Response) {
-	fmt.Printf("%#v\n", resp.Identify)
-}
-
 // identify returns the XML response from a remote OAI-PMH endpoint
 func identify(ccmd *cobra.Command, args []string) {
 	if url == "" {
 		fmt.Println("Error: -u or --url is required and must be a valid URL.")
 		return
 	}
+
 	req := (&oai.Request{
 		BaseURL: url,
 		Verb:    "Identify",
@@ -206,6 +202,7 @@ func getPath(fname string) string {
 		sep := string(os.PathSeparator)
 		return fmt.Sprintf("%s%s%s", strings.TrimSuffix(outputPath, sep), sep, fname)
 	}
+
 	return fname
 }
 
@@ -218,11 +215,14 @@ func getIDs() []string {
 	})
 	ids := []string{}
 	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
+
 	file, err := os.Create(fname)
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}
+
 	defer file.Close()
+
 	seen := 0
 	req.HarvestIdentifiers(func(header *oai.Header) {
 		seen++
@@ -232,14 +232,15 @@ func getIDs() []string {
 		fmt.Fprintln(file, header.Identifier)
 		ids = append(ids, header.Identifier)
 	})
+
 	fmt.Printf("\rfinished: %d\n", seen)
+
 	return ids
 }
 
 // listidentifiers writes all identifiers to a file
 func listIdentifiers(ccmd *cobra.Command, args []string) {
 	getIDs()
-	return
 }
 
 func getRecord(ccmd *cobra.Command, args []string) {
@@ -269,7 +270,7 @@ func storeRecord(identifier string, prefix string) string {
 
 func listGetRecords(ccmd *cobra.Command, args []string) {
 	ctx := context.Background()
-	g, ctx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 	ids := make(chan string)
 
 	var completeListSize int
@@ -296,11 +297,7 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 			// fmt.Printf("\rharvested: %d\n", seen)
 			// }
 			// log.Printf("seen %d: %s\n", seen, header.Identifier)
-			select {
-			case ids <- header.Identifier:
-				// case <-ctx.Done():
-				// return ctx.Err()
-			}
+			ids <- header.Identifier
 		})
 		bar.SetTotal(int64(seen))
 		// log.Printf("total seen: %d", seen)
@@ -334,7 +331,6 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		return
 	}
 	bar.Finish()
-	return
 }
 
 // listRecords writes all Records to a file

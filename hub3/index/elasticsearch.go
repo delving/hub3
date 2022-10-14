@@ -27,19 +27,12 @@ import (
 	elastic "github.com/olivere/elastic/v7"
 )
 
-const (
-	fragmentIndexFmt = "%s_frag"
-)
-
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
 type CustomRetrier struct {
 	backoff elastic.Backoff
 }
 
-var (
-	client *elastic.Client
-	ctx    context.Context
-)
+var client *elastic.Client
 
 // ESClient creates or returns an ElasticSearch Client.
 // This function should always be used to perform any ElasticSearch action.
@@ -47,9 +40,6 @@ var (
 func ESClient() *elastic.Client {
 	if client == nil {
 		if config.Config.ElasticSearch.Enabled {
-			// setting up execution context
-			ctx = context.Background()
-
 			// setup ElasticSearch client
 			client = createESClient()
 		} else {
@@ -119,7 +109,8 @@ func (r *CustomRetrier) Retry(
 	retry int,
 	req *http.Request,
 	resp *http.Response,
-	err error) (time.Duration, bool, error) {
+	err error,
+) (time.Duration, bool, error) {
 	// Fail hard on a specific error
 	if err == syscall.ECONNREFUSED {
 		return 0, false, errors.New("elasticsearch or network down")

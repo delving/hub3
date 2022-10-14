@@ -152,7 +152,7 @@ func SplitURI(uri string) (base, name string) {
 // GetSearchLabel returns the search label for a Predicate URI
 func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
 	if strings.HasPrefix(uri, ebuCoreURN) {
-		uri = strings.TrimLeft(uri, ebuCoreURN)
+		uri = strings.TrimPrefix(uri, ebuCoreURN)
 		uri = strings.TrimLeft(uri, "/")
 		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
 	}

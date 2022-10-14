@@ -586,9 +586,7 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 				filterKey = "qf.date"
 			case QueryFilterType_TREEITEM:
 				filterKey = "qf.tree"
-				if strings.HasPrefix(f, "tree.") {
-					f = strings.TrimPrefix(f, "tree.")
-				}
+				f = strings.TrimPrefix(f, "tree.")
 				if strings.HasPrefix(field, "tree.") {
 					matchField := strings.TrimPrefix(field, "tree.")
 					if f == matchField && k == value {
@@ -956,10 +954,10 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 func isAdvancedSearch(query string) bool {
 	parts := strings.Fields(query)
 	for _, p := range parts {
-		switch true {
-		case "AND" == p:
+		switch {
+		case p == "AND":
 			return true
-		case "OR" == p:
+		case p == "OR":
 			return true
 		case strings.HasPrefix(p, "-"):
 			return true
@@ -1091,7 +1089,7 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 		maxAgg := elastic.NewMaxAggregation().Field(field)
 		histAgg := elastic.NewDateHistogramAggregation().
 			Field(field).
-			Interval(facet.DateInterval)
+			FixedInterval(facet.DateInterval)
 
 		filterAgg := elastic.NewFilterAggregation().
 			Filter(fieldTermQuery).
@@ -1817,7 +1815,7 @@ func (sr *SearchRequest) RemoveQueryFilter(filter string) error {
 
 func getKeyAsString(raw json.RawMessage) string {
 	return strings.Trim(
-		fmt.Sprintf("%s", raw),
+		string(raw),
 		"\"",
 	)
 }

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"time"
@@ -49,7 +48,7 @@ func (m *Meta) Write() error {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		getMetaPath(m.DatasetID),
 		buf.Bytes(),
 		os.ModePerm,

@@ -25,7 +25,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/delving/hub3/config"
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
@@ -58,20 +57,17 @@ func RegisterSearch(router chi.Router) {
 	r.Get("/v2", GetScrollResult)
 	r.Get("/v2/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
-		return
 	})
 
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
 		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
 			StatusCode: http.StatusNotFound,
 		})
-		return
 	})
 	r.Get("/v1/{id}", func(w http.ResponseWriter, r *http.Request) {
 		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
 			StatusCode: http.StatusNotFound,
 		})
-		return
 	})
 
 	router.Mount("/api/search", r)
@@ -81,7 +77,6 @@ func RegisterSearch(router chi.Router) {
 	v2.Get("/search", GetScrollResult)
 	v2.Get("/search/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
-		return
 	})
 
 	router.Mount("/v2", v2)
@@ -97,7 +92,6 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ProcessSearchRequest(w, r, searchRequest)
-	return
 }
 
 func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
@@ -231,6 +225,11 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	records, searchAfter, err := decodeFragmentGraphs(res)
+	if err != nil {
+		log.Printf("Unable to decode FragmentGraphs")
+		return
+	}
+
 	searchAfterBin, err := searchRequest.CreateBinKey(searchAfter)
 	if err != nil {
 		log.Printf("Unable to encode searchAfter")
@@ -467,7 +466,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 				err = sr.AddQueryFilter(
-					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+					fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 					false,
 				)
 				if err != nil {
@@ -511,7 +510,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 				err := sr.AddQueryFilter(
-					fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+					fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 					false,
 				)
 				if err != nil {
@@ -559,7 +558,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			sr.Tree.WithFields = searchRequest.Tree.WithFields
 
 			err := sr.AddQueryFilter(
-				fmt.Sprintf("%s:%s", config.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
+				fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
 				false,
 			)
 			if err != nil {
@@ -722,14 +721,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	// currently only JSON is supported. Add switch when protobuf must be returned
 	render.JSON(w, r, result)
-	return
 }
 
 func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, error) {
 	orgID := strings.Split(id, "_")[0]
 
 	res, err := index.ESClient().Get().
-		Index(config.Config.ElasticSearch.GetIndexName(orgID)).
+		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
 		Id(id).
 		Do(ctx)
 	if err != nil {
@@ -797,7 +795,6 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	default:
 		render.JSON(w, r, record)
 	}
-	return
 }
 
 func decodeFragmentGraph(hit json.RawMessage) (*fragments.FragmentGraph, error) {

@@ -37,8 +37,6 @@ const (
 	defPrefix      = "def"
 )
 
-var lodPathRoute = "/{path:%s}/*"
-
 func RegisterLOD(r chi.Router) {
 	redirects := []string{
 		idPrefix, resourcePrefix, docPrefix, dataPrefix, defPrefix,
@@ -125,11 +123,9 @@ func sparqlLodResolver() http.HandlerFunc {
 		"rdfxml":    "application/rdf+xml",
 	}
 
-	acceptHeaders := []string{}
 	acceptedMimeTypes := map[string]string{}
 
 	for queryParam, mimetype := range acceptedLodFormats {
-		acceptHeaders = append(acceptHeaders, mimetype)
 		acceptedMimeTypes[mimetype] = queryParam
 	}
 

@@ -2,7 +2,7 @@ package webapp
 
 import (
 	"embed"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -41,7 +41,7 @@ func TestNewStaticHandler(t *testing.T) {
 
 		is.Equal(res.StatusCode, http.StatusOK)
 		is.True(res.ContentLength != 0)
-		data, err := ioutil.ReadAll(res.Body)
+		data, err := io.ReadAll(res.Body)
 		is.NoErr(err) // you should be able to read the body
 		is.Equal(data, []byte("test data!!\n"))
 

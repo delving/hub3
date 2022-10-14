@@ -5,8 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -93,9 +94,10 @@ func (p *Publisher) Append(request *Request) error {
 // The expected directory structure is:
 //
 // {orgId}
-//		/{datasetID}
-//			/bulk
-//				/{hubid}.jsonl
+//
+//	/{datasetID}
+//		/bulk
+//			/{hubid}.jsonl
 //
 // The jsonl file is assumed to be a bulk.Request serialized on a single line.
 // Inside the struct newlines can be escaped.
@@ -103,7 +105,7 @@ func (p *Publisher) Append(request *Request) error {
 // It will call increment revision at the start and on final submit it will
 // clear orphans.
 func (p *Publisher) Do(ctx context.Context) error {
-	orgIDs, err := ioutil.ReadDir(p.dataPath)
+	orgIDs, err := os.ReadDir(p.dataPath)
 	if err != nil {
 		return fmt.Errorf("unable to find datapath path: %w", err)
 	}
@@ -113,7 +115,7 @@ func (p *Publisher) Do(ctx context.Context) error {
 			continue
 		}
 
-		datasetIDs, err := ioutil.ReadDir(filepath.Join(p.dataPath, orgID.Name()))
+		datasetIDs, err := os.ReadDir(filepath.Join(p.dataPath, orgID.Name()))
 		if err != nil {
 			return fmt.Errorf("unable to find datasetID path: %w", err)
 		}
@@ -125,7 +127,7 @@ func (p *Publisher) Do(ctx context.Context) error {
 
 			recordPath := filepath.Join(p.dataPath, orgID.Name(), datasetID.Name(), "bulk")
 
-			requests, err := ioutil.ReadDir(recordPath)
+			requests, err := os.ReadDir(recordPath)
 			if err != nil {
 				return fmt.Errorf("unable to find path: %w", err)
 			}
@@ -143,7 +145,7 @@ func (p *Publisher) Do(ctx context.Context) error {
 
 				// log.Info().Str("path", requestPath).Msg("file being processed")
 
-				b, err := ioutil.ReadFile(requestPath)
+				b, err := os.ReadFile(requestPath)
 				if err != nil {
 					return fmt.Errorf("unable to read jsonl file; %w", err)
 				}
@@ -186,7 +188,7 @@ func (p *Publisher) send() error {
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		b, err := ioutil.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return err
 		}

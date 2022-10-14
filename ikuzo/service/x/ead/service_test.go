@@ -17,7 +17,6 @@ package ead
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,7 +47,7 @@ func getReader(fname string) (*os.File, int64, error) {
 func getTestService() (*Service, error) {
 	parentDir := os.TempDir()
 
-	eadDir, err := ioutil.TempDir(parentDir, "ead-*")
+	eadDir, err := os.MkdirTemp(parentDir, "ead-*")
 	if err != nil {
 		return nil, err
 	}

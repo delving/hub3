@@ -296,7 +296,7 @@ func (ds DataSet) Delete(ctx context.Context, wp *wp.WorkerPool) error {
 func NewDataSetHistogram(orgID string) ([]*elastic.AggregationBucketHistogramItem, error) {
 	ctx := context.Background()
 	specAgg := elastic.NewTermsAggregation().Field("meta.spec").Size(100).OrderByCountDesc()
-	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").Interval("1D").
+	agg := elastic.NewDateHistogramAggregation().Field("meta.modified").Format("yyyy-MM-dd").FixedInterval("1d").
 		SubAggregation("spec", specAgg)
 	q := elastic.NewMatchAllQuery()
 
@@ -358,12 +358,13 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 		return 0, revisions, counter, tagCounter, err
 	}
 
-	log.Info().Str("orgID", ds.OrgID).Str("datasetID", ds.Spec).Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
-
 	if res == nil {
 		log.Warn().Msgf(unexpectedResponseMsg, res)
 		return 0, revisions, counter, tagCounter, ErrUnexpectedResponse
 	}
+
+	log.Info().Str("orgID", ds.OrgID).Str("datasetID", ds.Spec).Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
+
 	aggs := res.Aggregations
 
 	revAggCount, found := aggs.Terms("revisions")
@@ -453,12 +454,13 @@ func (ds DataSet) createLodFragmentStats(ctx context.Context) (LODFragmentStats,
 		log.Warn().Msgf("Unable to get FragmentStatsBySpec for the dataset: %s", ds.Spec)
 		return fStats, err
 	}
-	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	if res == nil {
 		log.Warn().Msgf(unexpectedResponseMsg, res)
 		return fStats, ErrUnexpectedResponse
 	}
+
+	log.Info().Msgf("total hits: %d\n", res.Hits.TotalHits.Value)
 
 	aggs := res.Aggregations
 

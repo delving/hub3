@@ -1,7 +1,7 @@
 package harvest
 
 import (
-	"io/ioutil"
+	"io"
 	"log"
 	"testing"
 	"time"
@@ -21,14 +21,14 @@ func TestNewMockItems(t *testing.T) {
 	first := items[0]
 	is.Equal(first.GetIdentifier(), "id-1")
 
-	firstData, err := ioutil.ReadAll(first.GetData())
+	firstData, err := io.ReadAll(first.GetData())
 	is.NoErr(err)
 	is.Equal(string(firstData), "doc id-1")
 
 	last := items[len(items)-1]
 	is.Equal(last.GetIdentifier(), "id-10")
 
-	lastData, err := ioutil.ReadAll(last.GetData())
+	lastData, err := io.ReadAll(last.GetData())
 	is.NoErr(err)
 	is.Equal(string(lastData), "doc id-10")
 }

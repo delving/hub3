@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"sync/atomic"
@@ -428,8 +427,8 @@ func (ib *itemBuilder) pop(ee xml.EndElement) error {
 func (ib *itemBuilder) addText(text []byte) error {
 	last, ok := ib.q.Back()
 	if !ok {
-		// TODO determine what to do
 		// when nothing is on the queue. It should never happen.
+		return fmt.Errorf("nothing on the queue; this should never happen")
 	}
 	if last != nil {
 		elem := last.(*DataItem)
@@ -506,21 +505,6 @@ outer:
 	}
 
 	return nil
-}
-
-// queuePath returns a path representation of the non-empty DataItems in the queue.
-func queuePath(q *Deque) string {
-	sb := strings.Builder{}
-	sb.WriteString(fmt.Sprintf("len (%d): ", q.Len()))
-	for idx, elem := range q.List() {
-		if elem != nil {
-			sb.WriteString(fmt.Sprintf("%s", elem.(*DataItem).Tag))
-			if idx != q.Len()-1 {
-				sb.WriteString(" / ")
-			}
-		}
-	}
-	return sb.String()
 }
 
 func newItemBuilder(ctx context.Context) *itemBuilder {
@@ -666,10 +650,10 @@ func (desc *Description) Write() error {
 		return err
 	}
 
-	return ioutil.WriteFile(
+	return os.WriteFile(
 		getDescriptionPath(desc.getSpec()),
 		buf.Bytes(),
-		0644,
+		0o644,
 	)
 }
 

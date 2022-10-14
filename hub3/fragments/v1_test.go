@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -206,7 +205,7 @@ var _ = Describe("V1", func() {
 
 			It("should produce valid json-ld", func() {
 				g := r.NewGraph("")
-				dat, err := ioutil.ReadFile("testdata/test_nave_normalised.jsonld")
+				dat, err := os.ReadFile("testdata/test_nave_normalised.jsonld")
 				Expect(err).ToNot(HaveOccurred())
 				err = g.Parse(bytes.NewReader(dat), "application/ld+json")
 				Expect(err).ToNot(HaveOccurred())

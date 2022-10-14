@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	fmt "fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -144,7 +144,7 @@ func (r *Repo) queryRaw(q string, method, accept string) (*http.Response, error)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		b, err := ioutil.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
 		var msg string
 		if err != nil {
 			msg = "Failed to read response body"
@@ -232,7 +232,7 @@ func (r *Repo) Update(q string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusNoContent {
-		b, err := ioutil.ReadAll(resp.Body)
+		b, err := io.ReadAll(resp.Body)
 		var msg string
 		if err != nil {
 			msg = "Failed to read response body"

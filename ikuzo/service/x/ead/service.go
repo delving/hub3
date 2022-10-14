@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -856,7 +855,7 @@ func (s *Service) storeEAD(r io.Reader, size int64) (*bytes.Buffer, string, erro
 		b = s.PreStoreFn(b)
 	}
 
-	f, err := ioutil.TempFile(s.dataDir, "*")
+	f, err := os.CreateTemp(s.dataDir, "*")
 	if err != nil {
 		return nil, "", fmt.Errorf("unable to create ead tmpFiles; %w", err)
 	}

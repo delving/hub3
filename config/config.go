@@ -262,7 +262,7 @@ type EAD struct {
 	GenreFormDefault string   `json:"genreFormDefault"`
 	TreeFields       []string `json:"treeFields"`
 	SearchFields     []string `json:"searchFields"`
-	Genreforms		 []string `json:"genreforms"`
+	Genreforms       []string `json:"genreforms"`
 }
 
 func setDefaults() {
@@ -448,9 +448,7 @@ func InitConfig() {
 
 	err = viper.Unmarshal(&Config)
 	if err != nil {
-		log.Fatal(
-			fmt.Sprintf("unable to decode into struct, %v", err),
-		)
+		log.Fatalf("unable to decode into struct, %v", err)
 	}
 
 	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)

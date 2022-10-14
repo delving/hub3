@@ -69,7 +69,7 @@ func (bp OldBulkProcessor) Publish(ctx context.Context, msg ...*domainpb.IndexMe
 			Index(m.GetIndexName()).
 			RetryOnConflict(3).
 			Id(m.GetRecordID()).
-			Doc(fmt.Sprintf("%s", m.GetSource()))
+			Doc(string(m.GetSource()))
 
 		bp.bi.Add(r)
 	}
@@ -82,7 +82,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+		render.Error(w, r, errors.New(emptySpecMsg()), &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
 		})
 		return
@@ -126,6 +126,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		render.PlainText(w, r, err.Error())
 		return
 	}
+
 	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
 	err = searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), false)
 	if err != nil {
@@ -146,7 +147,6 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 		searchRequest.Tree.Spec = spec
 	}
 	ProcessSearchRequest(w, r, searchRequest)
-	return
 }
 
 // PDFDownload is a handler that returns a stored PDF for an EAD Archive
@@ -156,27 +156,27 @@ func PDFDownload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "spec cannot be empty", http.StatusBadRequest)
 		return
 	}
+
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.pdf", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.pdf", spec))
 	w.Header().Set(contentTypeKey, "application/pdf")
-	return
 }
 
 // EADDownload is a handler that returns a stored XML for an EAD Archive
 func EADDownload(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+		render.Error(w, r, errors.New(emptySpecMsg()), &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
 		})
 		return
 	}
+
 	eadPath := path.Join(c.Config.EAD.CacheDir, spec, fmt.Sprintf("%s.xml", spec))
 	http.ServeFile(w, r, eadPath)
 	w.Header().Set(contentDispositionKey, fmt.Sprintf("attachment; filename=%s.xml", spec))
 	w.Header().Set(contentTypeKey, r.Header.Get(contentTypeKey))
-	return
 }
 
 func EADMeta(w http.ResponseWriter, r *http.Request) {
@@ -361,7 +361,6 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render.JSON(w, r, stats)
-	return
 }
 
 func eadSearch(w http.ResponseWriter, r *http.Request) {

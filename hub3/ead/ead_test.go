@@ -19,7 +19,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -388,7 +388,7 @@ var _ = Describe("Ead", func() {
 		It("should create an EAD object", func() {
 			path, err := filepath.Abs("./testdata/ead/NL-HaNA_2.08.22.ead.xml")
 			// Expect(err).ToNot(HaveOccurred())
-			// rawEAD, err := ioutil.ReadFile(path)
+			// rawEAD, err := os.ReadFile(path)
 			Expect(err).ToNot(HaveOccurred())
 			// Expect(rawEAD).ToNot(BeNil())
 			ead, err := ReadEAD(path)
@@ -402,7 +402,7 @@ var _ = Describe("Ead", func() {
 		//It("should read all the files in a directory", func() {
 		//path, err := filepath.Abs("/mnt/usb1/ead-production/")
 		//Expect(err).ToNot(HaveOccurred())
-		//files, err := ioutil.ReadDir(path)
+		//files, err := os.ReadDir(path)
 		//Expect(err).ToNot(HaveOccurred())
 		//Expect(files).ToNot(BeEmpty())
 		//for _, f := range files {
@@ -424,7 +424,7 @@ var _ = Describe("Ead", func() {
 		//if len(cfg.Errors) > 0 {
 		//d, err := cfg.ErrorToCSV()
 		//Expect(err).ToNot(HaveOccurred())
-		//err = ioutil.WriteFile(basePath+".duplicate.csv", d, 0644)
+		//err = os.WriteFile(basePath+".duplicate.csv", d, 0644)
 		//Expect(err).ToNot(HaveOccurred())
 		//}
 		//}
@@ -439,7 +439,7 @@ var _ = Describe("Ead", func() {
 			Expect(ead).ToNot(BeNil())
 			b, err := json.Marshal(ead)
 			Expect(err).ToNot(HaveOccurred())
-			f, err := ioutil.TempFile("/tmp", "test.ead")
+			f, err := os.CreateTemp("/tmp", "test.ead")
 			Expect(err).ToNot(HaveOccurred())
 
 			_, err = fmt.Fprint(f, b)
@@ -449,7 +449,7 @@ var _ = Describe("Ead", func() {
 })
 
 func parseUtil(node interface{}, fName string) error {
-	dat, err := ioutil.ReadFile("testdata/ead/" + fName)
+	dat, err := os.ReadFile("testdata/ead/" + fName)
 	if err != nil {
 		return err
 	}

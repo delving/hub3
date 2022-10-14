@@ -201,7 +201,7 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		fb.resources = rm
 	default:
 		return fmt.Errorf(
-			"Unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",
+			"unsupported RDF mimeType %s. Currently, only 'text/turtle' and 'application/ld+json' are supported",
 			mimeType,
 		)
 	}

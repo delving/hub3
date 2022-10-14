@@ -90,7 +90,7 @@ func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 		count, err := v.TripleCount()
 		if err != nil {
 			log.Printf("Unable to count triples: %s", err)
-			return 0, []error{fmt.Errorf("Unable to count triples for %s because :%s", strs[i], err)}
+			return 0, []error{fmt.Errorf("unable to count triples for %s because :%s", strs[i], err)}
 		}
 		triplesStored += count
 	}
