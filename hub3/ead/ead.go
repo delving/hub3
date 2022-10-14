@@ -347,7 +347,7 @@ func (cdid *Cdid) NewNodeIDs() ([]*NodeID, string, error) {
 		}
 
 		switch id.Type {
-		case "ABS", "series_code", "blank", "analoog", "BD", "":
+		case "ABS", "series_code", "blank", "analoog", "BD", "brocade", "":
 			inventoryID = id.ID
 		}
 
