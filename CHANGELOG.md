@@ -2,10 +2,21 @@
 
 ## v0.4.0 (unreleased)
 
+### Changed
+
+- [4acc42e1](https://github.com/delving/hub3/commit/4acc42e1) use modd as livereload server instead of gin
+
 ### Removed
 
 - [5ad3b174](https://github.com/delving/hub3/commit/10f521cf) unused and out of data example directories
 - [991ffc16](https://github.com/delving/hub3/commit/991ffc16) front-end directories will be moved to a different repository
+- [202b9cdd](https://github.com/delving/hub3/commit/202b9cdd) out of date documentation and cleaned up the main README.
+- [ed80a770](https://github.com/delving/hub3/commit/ed80a770) removed pacedotdev/oto RPC service
+
+### Fixed
+- [0569b816](https://github.com/delving/hub3/commit/0569b816) fixed staticcheck linting errors and warnings
+
+
 
 ## v0.3.1 (unreleased)
 
