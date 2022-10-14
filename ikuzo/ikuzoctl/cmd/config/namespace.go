@@ -15,9 +15,8 @@ func (ns NameSpace) AddOptions(cfg *Config) error {
 		return err
 	}
 
-	if err := svc.RegisterOtoService(cfg.getOto()); err != nil {
-		return err
-	}
+	// TODO(kiivihal): register namespace
+	_ = svc
 
 	return nil
 }

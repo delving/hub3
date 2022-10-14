@@ -48,7 +48,6 @@ require (
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.18.1
 	github.com/ory/dockertest v3.3.5+incompatible
-	github.com/pacedotdev/oto/otohttp v0.8.0
 	github.com/parnurzeal/gorequest v0.2.16
 	github.com/piprate/json-gold v0.4.1
 	github.com/pkg/errors v0.9.1

@@ -22,7 +22,6 @@ import (
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/pacedotdev/oto/otohttp"
 	"github.com/spf13/viper"
 )
 
@@ -51,7 +50,6 @@ type Config struct {
 	NDE           `json:"nde"`
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
-	oto           *otohttp.Server
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
@@ -86,10 +84,6 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 	}
 
 	cfg.options = append(cfg.options, ikuzo.SetLogger(&cfg.logger))
-
-	if cfg.oto != nil {
-		cfg.options = append(cfg.options, ikuzo.RegisterOtoServer(cfg.oto))
-	}
 
 	cfg.logger.Info().Str("configPath", viper.ConfigFileUsed()).Msg("starting with config file")
 
@@ -136,12 +130,4 @@ func (cfg *Config) GetIndexService() (*index.Service, error) {
 
 func (cfg *Config) defaultOptions() error {
 	return nil
-}
-
-func (cfg *Config) getOto() *otohttp.Server {
-	if cfg.oto == nil {
-		cfg.oto = otohttp.NewServer()
-	}
-
-	return cfg.oto
 }

@@ -40,7 +40,6 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/docgen"
-	"github.com/pacedotdev/oto/otohttp"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
@@ -107,8 +106,6 @@ type server struct {
 	shutdownHooks map[string]domain.Shutdown
 	// service context
 	ctx context.Context
-	// oto is the OTO generated RCP service
-	oto *otohttp.Server
 	// introspect enables routes for introspection
 	introspect bool
 	// sentry shows if sentry is enabled
@@ -185,12 +182,6 @@ func newServer(options ...Option) (*server, error) {
 	// setting up request logging middleware
 	if !s.disableRequestLogger {
 		s.router.Use(middleware.RequestLogger(&log.Logger, s.ignore404Paths...))
-	}
-
-	// setup oto server
-	if s.oto != nil {
-		log.Info().Msg("starting with oto service")
-		s.router.HandleFunc("/oto/*", s.oto.ServeHTTP)
 	}
 
 	// setting default services

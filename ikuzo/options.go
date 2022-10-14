@@ -25,7 +25,6 @@ import (
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-chi/chi"
-	"github.com/pacedotdev/oto/otohttp"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
@@ -103,16 +102,6 @@ func SetMiddleware(middleware ...func(next http.Handler) http.Handler) Option {
 func SetRouters(rb ...RouterFunc) Option {
 	return func(s *server) error {
 		s.routerFuncs = append(s.routerFuncs, rb...)
-		return nil
-	}
-}
-
-// RegisterOtoServer registers an otohttp.Server.
-//
-// This enables the server to expose RPC on the '/oto/' endpoint
-func RegisterOtoServer(otoServer *otohttp.Server) Option {
-	return func(s *server) error {
-		s.oto = otoServer
 		return nil
 	}
 }
