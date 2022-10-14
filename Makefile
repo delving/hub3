@@ -2,7 +2,7 @@
 
 NAME:=hub3
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
-DESCRIPTION:="Hub3: Linked Open Data Platform"
+DESCRIPTION:="Hub3 (v2): Linked Open Data Platform"
 MODULE:=github.com/delving/hub3/ikuzoctl
 
 GO ?= go
@@ -10,11 +10,15 @@ TEMPDIR:=$(shell mktemp -d)
 VERSION:=$(shell sh -c 'git describe --abbrev=0 --tags')
 GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 
+IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
+
+IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
+#
 # var print rule
 print-%  : ; @echo $* = $($*)
 
 clean:
-	rm -rf build report gin-bin result.bin *.coverprofile */*.coverprofile hub3/hub3.db hub3/models/hub3.db dist server/assets/assets_vfsdata.go
+	rm -rf build report result.bin *.coverprofile */*.coverprofile hub3/hub3.db hub3/models/hub3.db dist server/assets/assets_vfsdata.go
 
 clean-harvesting:
 	rm -rf *_ids.txt *_records.xml
@@ -25,6 +29,12 @@ clean-build:
 
 create-assets:
 	@go generate ./...
+
+# dev dependencies
+install-dev:
+	go install github.com/cortesi/modd/cmd/modd@latest
+	go install github.com/kyoh86/richgo@latest
+	go install honnef.co/go/tools/cmd/staticcheck@latest
 
 benchmark:
 	@richgo test --bench=. -benchmem ./...
@@ -38,11 +48,7 @@ compose-down:
 compose-clean:
 	@docker-compose down --volumes
 
-goreport:
-	@mkdir -p report
-	@rm -rf report/*
-	@goreporter -p ../hub3 -r report -e vendor,cmd,utils -f html
-
+# TODO: replace with buff
 protobuffer:
 	@make pb.api
 	@make pb.domain
@@ -66,37 +72,30 @@ pprof-dev:
 uncovered-ikuzo:
 	richgo test -coverprofile /tmp/c.out ./... ; uncover /tmp/c.out
 
-IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
-
-IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
-
 build:
 	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
 build-static:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
+staticcheck:
+	staticcheck -f stylish ./hub3/... ./config/... ./ikuzo/...
+
 pre-commit:
 	go mod tidy
 	richgo test -cover -race -count=10 ./...
-	golangci-lint run
+	@staticcheck
 
 test:
 	richgo test -cover ./ikuzo/...
-	golangci-lint run
+	@make staticcheck
 
 test-no-cache:
 	richgo test -cover -count=1 ./ikuzo/...
-	golangci-lint run ikuzo
-
-lint-full:
-	golangci-lint run --enable=godox --enable=gomnd --enable=maligned --enable=prealloc --enable=gochecknoglobals --enable=gochecknoinits  ikuzo
+	@make staticcheck
 
 run-dev:
-	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run serve
-
-generate-assets:
-	go run ikuzo/internal/assets/generate.go
+	modd
 
 gen-oto:
 	cp ikuzo/definitions/templates/def.d.ts frontend/gen/def.d.ts
@@ -105,4 +104,3 @@ gen-oto:
 	oto -template ikuzo/definitions/templates/clients.js.plush -ignore Ignorer -pkg generated ikuzo/definitions/*.go > frontend/gen/clients.js
 	oto -template ikuzo/definitions/templates/server.go.plush -ignore Ignorer -pkg generated ikuzo/definitions/namespace.go   | gofmt \
 		> ikuzo/definitions/generated/namespace.gen.go
-

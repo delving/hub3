@@ -57,10 +57,10 @@ func Test_server_fileServer(t *testing.T) {
 
 			workDir, _ := os.Getwd()
 
-			filesDir := filepath.Join(workDir, "../docs")
+			filesDir := filepath.Join(workDir, "./webapp/testdata/docs")
 			svr.fileServer(tt.path, http.Dir(filesDir))
 
-			req, err := http.NewRequest("GET", "/docs/ikuzo/raml/api_v2.raml", nil)
+			req, err := http.NewRequest("GET", "/docs/doc.md", nil)
 			is.NoErr(err)
 
 			w := httptest.NewRecorder()
