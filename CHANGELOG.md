@@ -1,8 +1,15 @@
 # Changelog
 
-## unreleased 
+## v0.4.0 (unreleased)
 
-- history of changes: see https://github.com/delving/hub3/compare/v0.3.0...main
+### Removed
+
+- [5ad3b174](https://github.com/delving/hub3/commit/10f521cf) unused and out of data example directories
+- [991ffc16](https://github.com/delving/hub3/commit/991ffc16) front-end directories will be moved to a different repository
+
+## v0.3.1 (unreleased)
+
+- history of changes: see https://github.com/delving/hub3/compare/v0.3.0...v0.4.0
 
 ### Added
 - support for default genreform values while processing EADs [[GH-173]](https://github.com/delving/hub3/pull/173)

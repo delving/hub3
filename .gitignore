@@ -1,6 +1,6 @@
 # Intellij
 .idea
-hub3.iml
+*.iml
 
 # Apple
 .DS_Store
@@ -21,9 +21,12 @@ build/*
 dist
 utils
 **/build/*
+*.log
 
-# docker images
+# data directories
 docker-data
+data
+_scratch
 
 # TLS cache
 .cache
@@ -38,24 +41,15 @@ vendor/*/
 # Vegeta stress testing
 results.bin
 
-# Data Storage
-# Boltdb
-hub3.db
-data
-docker-data
-index.db
-
 # coverage
 report
 *.coverprofile
 coverage.out
+coverage.txt
 
 # harvested data
 *_ids.txt
 *_records.xml
-
-# vuejs projects
-diw
 
 # generated docs
 public/api
@@ -67,24 +61,8 @@ _scratch
 _bak
 oneoff
 
-# don't commit examples for now
-example
-
-target/
-*.log
-hub3-*.toml
-auth/
-hub3/parser
-
 # don't track node_modules
 node_modules
 
-# ignore certain front-end packages
-frontend/cidoc-crm/public
-frontend/ead/public
-
 # ignore default configuration
 hub3.toml
-
-# ignore local test files
-coverage.txt
