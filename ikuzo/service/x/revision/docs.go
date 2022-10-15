@@ -12,4 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Deprecated: this should be removed in favor of the Object Store
 package revision

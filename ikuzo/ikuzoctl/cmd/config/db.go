@@ -46,8 +46,6 @@ func (db *DB) AddOptions(cfg *Config) error {
 	cfg.logger.Info().Msg("connected to db")
 	db.log = &cfg.logger
 
-	// TODO(kiivihal): run migrations
-
 	db.db = database
 
 	cfg.options = append(cfg.options, ikuzo.SetShutdownHook("db", db))
