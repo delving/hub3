@@ -26,28 +26,24 @@ const (
 )
 
 var _ = Describe("Namespace", func() {
-
 	Describe("Has a NameSpaceMap", func() {
-
 		Context("When creating a New NameSpaceMap", func() {
-
 			It("Should create a Map", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				Expect(nsMap).ToNot(BeNil())
 			})
 		})
 
 		Context("When adding a key to the NamespaceMap", func() {
-
 			It("should have no items", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				prefix2base, base2prefix := nsMap.Len()
 				Expect(prefix2base).To(Equal(0))
 				Expect(prefix2base).To(Equal(base2prefix))
 			})
 
 			It("Should add the key Map", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				Expect(nsMap).ToNot(BeNil())
 				prefix2base, base2prefix := nsMap.Len()
@@ -56,7 +52,7 @@ var _ = Describe("Namespace", func() {
 			})
 
 			It("Should not add the key twice", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				Expect(nsMap).ToNot(BeNil())
@@ -67,9 +63,8 @@ var _ = Describe("Namespace", func() {
 		})
 
 		Context("When retrieving from the NameSpaceMap", func() {
-
 			It("should return not ok when a key is not found", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				base, ok := nsMap.GetBaseURI("dc")
 				Expect(base).To(BeEmpty())
 				Expect(ok).To(BeFalse())
@@ -79,7 +74,7 @@ var _ = Describe("Namespace", func() {
 			})
 
 			It("should return ok when the key is found", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				base, ok := nsMap.GetBaseURI("dc")
 				Expect(base).ToNot(BeEmpty())
@@ -91,9 +86,8 @@ var _ = Describe("Namespace", func() {
 		})
 
 		Context("When deleting a key", func() {
-
 			It("should remove the key from the prefix map", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				prefix2base, base2prefix := nsMap.Len()
 				Expect(prefix2base).To(Equal(1))
@@ -105,7 +99,7 @@ var _ = Describe("Namespace", func() {
 			})
 
 			It("should remove the key from the prefix map", func() {
-				nsMap := c.NewNameSpaceMap()
+				nsMap := c.NewNamespaceMap()
 				nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 				prefix2base, base2prefix := nsMap.Len()
 				Expect(prefix2base).To(Equal(1))
@@ -116,13 +110,10 @@ var _ = Describe("Namespace", func() {
 				Expect(prefix2base).To(Equal(base2prefix))
 			})
 		})
-
 	})
 
 	Describe("Should be able to deal with namespace from a uri", func() {
-
 		Context("When given an URI as a string", func() {
-
 			It("Should split when given an URI with a #", func() {
 				rdfType := "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 				base, name := c.SplitURI(rdfType)
@@ -138,8 +129,7 @@ var _ = Describe("Namespace", func() {
 		})
 
 		Context("when given a URI", func() {
-
-			nsMap := c.NewNameSpaceMap()
+			nsMap := c.NewNamespaceMap()
 			nsMap.Add("dc", "http://purl.org/dc/elements/1.1/")
 
 			It("should return the search label", func() {
@@ -156,6 +146,5 @@ var _ = Describe("Namespace", func() {
 				Expect(label).To(HaveSuffix("_subject"))
 			})
 		})
-
 	})
 })

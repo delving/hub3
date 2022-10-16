@@ -23,7 +23,7 @@ import (
 )
 
 func TestNameSpaceStore(t *testing.T) {
-	store := NewNameSpaceStore()
+	store := NewNamespaceStore()
 	if store.Len() != 0 {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
@@ -99,10 +99,10 @@ func TestNameSpaceStore(t *testing.T) {
 }
 
 // nolint:gocritic
-func TestGetFromNameSpaceStore(t *testing.T) {
+func TestGetFromNamespaceStore(t *testing.T) {
 	is := is.New(t)
 
-	store := NewNameSpaceStore()
+	store := NewNamespaceStore()
 	if store.Len() != 0 {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
@@ -136,7 +136,7 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 
 	nsErr, err := store.GetWithBase("http://unknown.com/base")
 	is.Equal(nsErr, nil)
-	is.Equal(err, domain.ErrNameSpaceNotFound)
+	is.Equal(err, domain.ErrNamespaceNotFound)
 
 	ns2, err := store.GetWithBase(rdf.Base)
 	if err != nil {
@@ -150,7 +150,7 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 	_, err = store.GetWithPrefix(unknown.Prefix)
 	if err != nil {
 		switch err {
-		case domain.ErrNameSpaceNotFound:
+		case domain.ErrNamespaceNotFound:
 		default:
 			t.Errorf("Unexpected error: %#v", err)
 		}

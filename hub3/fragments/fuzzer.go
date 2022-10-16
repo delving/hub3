@@ -29,7 +29,7 @@ import (
 
 // Fuzzer is the builder for building fuzzed records based on a record definition
 type Fuzzer struct {
-	nm       *config.NameSpaceMap
+	nm       *config.NamespaceMap
 	resource []*FuzzResource
 	BaseURL  string
 	f        *fuzz.Fuzzer
@@ -87,8 +87,8 @@ func (fr *FuzzRecord) AddTriples() error {
 	return nil
 }
 
-// ExpandNameSpace converts prefix xml label to fully qualified URLs
-func (fz *Fuzzer) ExpandNameSpace(xmlLabel string) (string, error) {
+// ExpandNamespace converts prefix xml label to fully qualified URLs
+func (fz *Fuzzer) ExpandNamespace(xmlLabel string) (string, error) {
 	if xmlLabel == "" {
 		return "", fmt.Errorf("can't expand empty string")
 	}
@@ -132,7 +132,7 @@ type FuzzResource struct {
 func (fz *Fuzzer) NewFuzzResource(order int, elem *Celem) (*FuzzResource, error) {
 	fr := &FuzzResource{Order: order}
 	if elem.Attrtag != "" {
-		rType, err := fz.ExpandNameSpace(elem.Attrtag)
+		rType, err := fz.ExpandNamespace(elem.Attrtag)
 		if err != nil {
 			return nil, err
 		}
@@ -160,7 +160,7 @@ func (fz *Fuzzer) NewFuzzResource(order int, elem *Celem) (*FuzzResource, error)
 // NewFuzzEntry creates a FuzzEntry from a child elem in the Record Definition
 func (fz *Fuzzer) NewFuzzEntry(order int, elem *Celem) (*FuzzEntry, error) {
 	tags := strings.Split(elem.Attrattrs, ",")
-	predicate, err := fz.ExpandNameSpace(elem.Attrtag)
+	predicate, err := fz.ExpandNamespace(elem.Attrtag)
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (fz *Fuzzer) CreateTriples(subject string, fe *FuzzEntry) []*r.Triple {
 // NewFuzzer creates a Fuzzer for creating Records based on the Record Definition
 func NewFuzzer(recDef *Crecord_dash_definition) (*Fuzzer, error) {
 	fz := &Fuzzer{
-		nm: config.NewNameSpaceMap(),
+		nm: config.NewNamespaceMap(),
 		f:  fuzz.New(),
 	}
 

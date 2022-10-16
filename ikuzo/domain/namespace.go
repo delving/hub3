@@ -24,7 +24,7 @@ import (
 )
 
 var (
-	ErrNameSpaceNotFound       = errors.New("namespace not found")
+	ErrNamespaceNotFound       = errors.New("namespace not found")
 	ErrNameSpaceDuplicateEntry = errors.New("prefix and base stored in different entries")
 	ErrNameSpaceNotValid       = errors.New("prefix or base not valid")
 )
@@ -39,7 +39,6 @@ func (uri URI) String() string {
 
 // Namespace is a container for URI conversions for RDF- and XML-namespaces.
 type Namespace struct {
-
 	// ID is the unique identifier of a namespace.
 	// This identifier will be generated when empty.
 	//

@@ -21,10 +21,10 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 )
 
-// NameSpaceStore is the default namespace.Store for namespace.Service.
+// NamespaceStore is the default namespace.Store for namespace.Service.
 //
 // Note: mutations in this store are ephemeral.
-type NameSpaceStore struct {
+type NamespaceStore struct {
 	sync.RWMutex
 	prefix2base map[string]*domain.Namespace
 	base2prefix map[string]*domain.Namespace
@@ -32,8 +32,8 @@ type NameSpaceStore struct {
 }
 
 // NewNameSpaceStore creates an in-memory namespace.Store.
-func NewNameSpaceStore() *NameSpaceStore {
-	return &NameSpaceStore{
+func NewNameSpaceStore() *NamespaceStore {
+	return &NamespaceStore{
 		prefix2base: make(map[string]*domain.Namespace),
 		base2prefix: make(map[string]*domain.Namespace),
 		namespaces:  make(map[string]*domain.Namespace),
@@ -42,12 +42,12 @@ func NewNameSpaceStore() *NameSpaceStore {
 
 // Len returns the number of stored namespaces.
 // Alternatives Base or Prefixes don't count towards the total.
-func (ms *NameSpaceStore) Len() int {
+func (ms *NamespaceStore) Len() int {
 	return len(ms.namespaces)
 }
 
 // Put stores the NameSpace in the Store
-func (ms *NameSpaceStore) Put(ns *domain.Namespace) error {
+func (ms *NamespaceStore) Put(ns *domain.Namespace) error {
 	if ns == nil {
 		return fmt.Errorf("cannot store empty namespace")
 	}
@@ -73,20 +73,20 @@ func (ms *NameSpaceStore) Put(ns *domain.Namespace) error {
 	return nil
 }
 
-func (ms *NameSpaceStore) delete(ns *domain.Namespace) error {
+func (ms *NamespaceStore) delete(ns *domain.Namespace) error {
 	return ms.Delete(ns.GetID())
 }
 
 // Delete removes a NameSpace from the store.
 //
 // When the Namespace is not found it returns an domain.ErrNameSpaceNotFound error.
-func (ms *NameSpaceStore) Delete(id string) error {
+func (ms *NamespaceStore) Delete(id string) error {
 	ms.Lock()
 	defer ms.Unlock()
 
 	ns, ok := ms.namespaces[id]
 	if !ok {
-		return domain.ErrNameSpaceNotFound
+		return domain.ErrNamespaceNotFound
 	}
 
 	delete(ms.namespaces, id)
@@ -109,36 +109,37 @@ func (ms *NameSpaceStore) Delete(id string) error {
 
 	return nil
 }
-func (ms *NameSpaceStore) Get(id string) (*domain.Namespace, error) {
+
+func (ms *NamespaceStore) Get(id string) (*domain.Namespace, error) {
 	ns, ok := ms.namespaces[id]
 	if !ok {
-		return nil, domain.ErrNameSpaceNotFound
+		return nil, domain.ErrNamespaceNotFound
 	}
 
 	return ns, nil
 }
 
 // GetWithPrefix returns a NameSpace from the store if the prefix is found.
-func (ms *NameSpaceStore) GetWithPrefix(prefix string) (*domain.Namespace, error) {
+func (ms *NamespaceStore) GetWithPrefix(prefix string) (*domain.Namespace, error) {
 	ms.RLock()
 	defer ms.RUnlock()
 
 	ns, ok := ms.prefix2base[prefix]
 	if !ok {
-		return nil, domain.ErrNameSpaceNotFound
+		return nil, domain.ErrNamespaceNotFound
 	}
 
 	return ns, nil
 }
 
 // GetWithBase returns a NameSpace from the store if the base URI is found.
-func (ms *NameSpaceStore) GetWithBase(base string) (*domain.Namespace, error) {
+func (ms *NamespaceStore) GetWithBase(base string) (*domain.Namespace, error) {
 	ms.RLock()
 	defer ms.RUnlock()
 
 	ns, ok := ms.base2prefix[base]
 	if !ok {
-		return nil, domain.ErrNameSpaceNotFound
+		return nil, domain.ErrNamespaceNotFound
 	}
 
 	return ns, nil
@@ -146,7 +147,7 @@ func (ms *NameSpaceStore) GetWithBase(base string) (*domain.Namespace, error) {
 
 // List returns a list of all the stored NameSpace objects.
 // An error is only returned when the underlying datastructure is unavailable.
-func (ms *NameSpaceStore) List() ([]*domain.Namespace, error) {
+func (ms *NamespaceStore) List() ([]*domain.Namespace, error) {
 	namespaces := []*domain.Namespace{}
 	for _, ns := range ms.namespaces {
 		if ns != nil {

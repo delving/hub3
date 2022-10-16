@@ -4,9 +4,9 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
 )
 
-type NameSpace struct{}
+type Namespace struct{}
 
-func (ns NameSpace) AddOptions(cfg *Config) error {
+func (ns Namespace) AddOptions(cfg *Config) error {
 	cfg.logger.Debug().Msg("setting up namespaces")
 	svc, err := namespace.NewService(
 		namespace.WithDefaults(),

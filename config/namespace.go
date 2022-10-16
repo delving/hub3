@@ -27,64 +27,64 @@ const (
 	ebuCoreURN = "urn:ebu:metadata-schema:ebuCore_2014"
 )
 
-// NameSpace is a container for Namespaces base URLs and prefixes
+// Namespace is a container for Namespaces base URLs and prefixes
 // This is used by resolving namespaces in the RDF conversions
-type NameSpace struct {
+type Namespace struct {
 	Base   string `json:"base"`
 	Prefix string `json:"prefix"`
 }
 
-// NameSpaceMap contains all the namespaces
-type NameSpaceMap struct {
+// NamespaceMap contains all the namespaces
+type NamespaceMap struct {
 	rw          sync.RWMutex
 	prefix2base map[string]string
 	base2prefix map[string]string
 }
 
-// NewNameSpaceMap creates a new NameSpaceMap
-func NewNameSpaceMap() *NameSpaceMap {
-	return &NameSpaceMap{
+// NewNamespaceMap creates a new NameSpaceMap
+func NewNamespaceMap() *NamespaceMap {
+	return &NamespaceMap{
 		prefix2base: make(map[string]string),
 		base2prefix: make(map[string]string),
 	}
 }
 
 // Len counts the number of keys in the Map
-func (n *NameSpaceMap) Len() (prefixes, baseURIs int) {
+func (n *NamespaceMap) Len() (prefixes, baseURIs int) {
 	return len(n.prefix2base), len(n.base2prefix)
 }
 
 // Add adds a namespace to the namespace Map
-func (n *NameSpaceMap) Add(prefix, base string) {
+func (n *NamespaceMap) Add(prefix, base string) {
 	n.rw.Lock()
 	n.prefix2base[prefix] = base
 	n.base2prefix[base] = prefix
 	n.rw.Unlock()
 }
 
-// AddNameSpace is a convenience function to add NameSpace objects to the Map
-func (n *NameSpaceMap) AddNameSpace(ns NameSpace) {
+// AddNamespace is a convenience function to add NameSpace objects to the Map
+func (n *NamespaceMap) AddNamespace(ns Namespace) {
 	n.Add(ns.Prefix, ns.Base)
 }
 
 // Load loads the namespaces from the config object
-func (n *NameSpaceMap) Load(c *RawConfig) {
-	for _, ns := range c.NameSpaces {
-		n.AddNameSpace(ns)
+func (n *NamespaceMap) Load(c *RawConfig) {
+	for _, ns := range c.Namespaces {
+		n.AddNamespace(ns)
 	}
 }
 
-// NewConfigNameSpaceMap creates a map from the NameSpaces defined in the config
-func NewConfigNameSpaceMap(c *RawConfig) *NameSpaceMap {
-	nsMap := NewNameSpaceMap()
-	nsMap.setDefaultNameSpaces()
+// NewConfigNamespaceMap creates a map from the NameSpaces defined in the config
+func NewConfigNamespaceMap(c *RawConfig) *NamespaceMap {
+	nsMap := NewNamespaceMap()
+	nsMap.setDefaultNamespaces()
 	nsMap.Load(c)
 
 	return nsMap
 }
 
 // GetBaseURI returns the base URI from the prefix
-func (n *NameSpaceMap) GetBaseURI(prefix string) (base string, ok bool) {
+func (n *NamespaceMap) GetBaseURI(prefix string) (base string, ok bool) {
 	n.rw.RLock()
 	base, ok = n.prefix2base[prefix]
 	n.rw.RUnlock()
@@ -93,7 +93,7 @@ func (n *NameSpaceMap) GetBaseURI(prefix string) (base string, ok bool) {
 }
 
 // GetPrefix returns the prefix for a base URI
-func (n *NameSpaceMap) GetPrefix(baseURI string) (prefix string, ok bool) {
+func (n *NamespaceMap) GetPrefix(baseURI string) (prefix string, ok bool) {
 	n.rw.RLock()
 	prefix, ok = n.base2prefix[baseURI]
 	n.rw.RUnlock()
@@ -102,7 +102,7 @@ func (n *NameSpaceMap) GetPrefix(baseURI string) (prefix string, ok bool) {
 }
 
 // DeletePrefix removes a namespace from the NameSpaceMap
-func (n *NameSpaceMap) DeletePrefix(prefix string) {
+func (n *NamespaceMap) DeletePrefix(prefix string) {
 	n.rw.Lock()
 
 	base, ok := n.prefix2base[prefix]
@@ -115,7 +115,7 @@ func (n *NameSpaceMap) DeletePrefix(prefix string) {
 }
 
 // DeleteBaseURI removes a namespace from the NameSpaceMap
-func (n *NameSpaceMap) DeleteBaseURI(base string) {
+func (n *NamespaceMap) DeleteBaseURI(base string) {
 	n.rw.Lock()
 
 	prefix, ok := n.base2prefix[base]
@@ -128,7 +128,7 @@ func (n *NameSpaceMap) DeleteBaseURI(base string) {
 }
 
 // ByPrefix returns the map with prefixes as keys
-func (n *NameSpaceMap) ByPrefix() map[string]string {
+func (n *NamespaceMap) ByPrefix() map[string]string {
 	return n.prefix2base
 }
 
@@ -150,7 +150,7 @@ func SplitURI(uri string) (base, name string) {
 }
 
 // GetSearchLabel returns the search label for a Predicate URI
-func (n *NameSpaceMap) GetSearchLabel(uri string) (string, error) {
+func (n *NamespaceMap) GetSearchLabel(uri string) (string, error) {
 	if strings.HasPrefix(uri, ebuCoreURN) {
 		uri = strings.TrimPrefix(uri, ebuCoreURN)
 		uri = strings.TrimLeft(uri, "/")
@@ -204,8 +204,8 @@ var defaultNameSpaces = map[string]string{
 	"ead-mets":    "https://archief.nl/def/mets/",
 }
 
-// setDefaultNameSpaces sets the default namespaces that are supported
-func (n *NameSpaceMap) setDefaultNameSpaces() {
+// setDefaultNamespaces sets the default namespaces that are supported
+func (n *NamespaceMap) setDefaultNamespaces() {
 	for prefix, baseURI := range defaultNameSpaces {
 		n.Add(prefix, baseURI)
 	}

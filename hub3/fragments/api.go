@@ -1521,7 +1521,7 @@ func TypeClassAsURI(uri string) (string, error) {
 	}
 
 	label := parts[1]
-	base, ok := c.Config.NameSpaceMap.GetBaseURI(parts[0])
+	base, ok := c.Config.NamespaceMap.GetBaseURI(parts[0])
 	if !ok {
 		return "", fmt.Errorf("namespace for prefix %s is unknown", parts[0])
 	}

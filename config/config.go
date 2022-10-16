@@ -48,8 +48,8 @@ type RawConfig struct {
 	WebResource   `json:"webresource"`
 	ImageProxy    `json:"imageproxy"`
 	LOD           `json:"lod"`
-	NameSpaces    []NameSpace   `json:"namespaces"`
-	NameSpaceMap  *NameSpaceMap `json:"nameSpaceMap"`
+	Namespaces    []Namespace   `json:"namespaces"`
+	NamespaceMap  *NamespaceMap `json:"nameSpaceMap"`
 	RDFTag        `json:"rdftag"`
 	PostHook      []PostHook `json:"postHook"`
 	Cache         `json:"cache"`
@@ -451,7 +451,7 @@ func InitConfig() {
 		log.Fatalf("unable to decode into struct, %v", err)
 	}
 
-	Config.NameSpaceMap = NewConfigNameSpaceMap(&Config)
+	Config.NamespaceMap = NewConfigNamespaceMap(&Config)
 	Config.RDFTagMap = NewRDFTagMap(&Config)
 	Config.DatasetTagMap = NewDataSetTagMap(&Config)
 
