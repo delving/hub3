@@ -36,6 +36,7 @@ func (db *DB) AddOptions(cfg *Config) error {
 		MaxOpenConns: db.MaxOpenConns,
 		MaxIdleConns: db.MaxIdleConns,
 		MaxIdleTime:  db.MaxIdleTime,
+		AutoMigrate:  db.AutoMigrate,
 	}
 
 	database, err := postgresql.OpenDB(dbConfig)

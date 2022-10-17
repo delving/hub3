@@ -14,6 +14,7 @@ type Config struct {
 	MaxOpenConns int
 	MaxIdleConns int
 	MaxIdleTime  string
+	AutoMigrate  bool
 }
 
 func OpenDB(cfg Config) (*sql.DB, error) {
@@ -40,8 +41,10 @@ func OpenDB(cfg Config) (*sql.DB, error) {
 		return nil, err
 	}
 
-	if err := EnsureSchema(cfg.DSN); err != nil {
-		return nil, err
+	if cfg.AutoMigrate {
+		if err := EnsureSchema(cfg.DSN); err != nil {
+			return nil, err
+		}
 	}
 
 	return db, nil

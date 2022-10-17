@@ -9,13 +9,13 @@ import (
 	"github.com/golang-migrate/migrate/v4/source/iofs"
 )
 
-//go:embed migrations
+//go:embed data/migrations
 var migrations embed.FS
 
 const schemaVersion = 1
 
 func EnsureSchema(dsn string) error {
-	sourceInstance, err := iofs.New(migrations, "migrations")
+	sourceInstance, err := iofs.New(migrations, "data/migrations")
 	if err != nil {
 		return fmt.Errorf("invalid source instance, %w", err)
 	}

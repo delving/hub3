@@ -58,8 +58,8 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 
 	if len(cfgOptions) == 0 {
 		cfgOptions = []Option{
+			&cfg.DB,
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
-			// &cfg.DB, // todo enable when postgresql is needed
 			&cfg.Organization,
 			&cfg.HTTP,
 			&cfg.EAD,

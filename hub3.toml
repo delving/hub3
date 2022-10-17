@@ -1,3 +1,33 @@
+[db]
+# dsn from from .envrc
+dsn = "postgres://postgres:pw123@localhost:5433/hub3?sslmode=disable"
+maxOpenConns = 25
+maxIdleConns = 25
+maxIdleTime = "15m"
+autoMigrate = true
+
+[redis]
+# redis configuration
+
+[bucket]
+# file:// is filebased, s3:// is an S3 compatible bucket
+# required: true
+dsn = ""
+
+[orgs]
+ids = [
+    "dcn",
+    "brabantcloud",
+    "utralt",
+    "nl-hana",
+    "niod",
+]
+
+
+### ^^^^^^ new config ^^^^^^ ###
+
+
+
 [org.dcn]
 domains = ["localhost:3000"]
 default = true
