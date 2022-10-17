@@ -30,9 +30,7 @@ import (
 )
 
 var _ = Describe("Naa", func() {
-
 	Context("when parsing a record definition", func() {
-
 		It("should read the whole model", func() {
 			path, err := filepath.Abs("./testdata/naa_0.0.5_record-definition.xml")
 			Expect(err).ToNot(HaveOccurred())
@@ -51,17 +49,16 @@ var _ = Describe("Naa", func() {
 			f := fuzz.New()
 			var ns Cattr
 			f.Fuzz(&ns)
-			//fmt.Printf("ns => %#v\n", ns)
+			// fmt.Printf("ns => %#v\n", ns)
 		})
 	})
-
 })
 
 func TestNewRecDef(t *testing.T) {
-	//path, err := filepath.Abs("./testdata/naa_0.0.5_record-definition.xml")
-	//assert.NoError(t, err, "Unable to create absolute path")
-	//raw, err := ioutil.ReadFile(path)
-	//assert.NoError(t, err, "Unable to open test data")
+	// path, err := filepath.Abs("./testdata/naa_0.0.5_record-definition.xml")
+	// assert.NoError(t, err, "Unable to create absolute path")
+	// raw, err := ioutil.ReadFile(path)
+	// assert.NoError(t, err, "Unable to open test data")
 
 	type args struct {
 		input io.Reader
@@ -91,11 +88,11 @@ func TestNewRecDef(t *testing.T) {
 }
 
 func TestFuzzer_ExpandNameSpace(t *testing.T) {
-	nm := config.NewNameSpaceMap()
+	nm := config.NewNamespaceMap()
 	defURL := "http://example.com/def/"
 	nm.Add("test", defURL)
 	type fields struct {
-		nm       *config.NameSpaceMap
+		nm       *config.NamespaceMap
 		resource []*FuzzResource
 		BaseURL  string
 		f        *fuzz.Fuzzer
@@ -112,16 +109,20 @@ func TestFuzzer_ExpandNameSpace(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"empty string", fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
-			args{xmlLabel: ""}, "", true,
+			"empty string",
+			fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
+			args{xmlLabel: ""},
+			"", true,
 		},
 		{
-			"bad xml label", fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
+			"bad xml label",
+			fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
 			args{xmlLabel: "testtitle"},
 			"", true,
 		},
 		{
-			"simple namespace", fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
+			"simple namespace",
+			fields{nm: nm, BaseURL: "http://example.com/def/", f: fuzz.New()},
 			args{xmlLabel: "test:title"},
 			fmt.Sprintf("%stitle", defURL), false,
 		},
@@ -135,7 +136,7 @@ func TestFuzzer_ExpandNameSpace(t *testing.T) {
 				BaseURL:  tt.fields.BaseURL,
 				f:        tt.fields.f,
 			}
-			got, err := fz.ExpandNameSpace(tt.args.xmlLabel)
+			got, err := fz.ExpandNamespace(tt.args.xmlLabel)
 			if (err != nil) != tt.wantErr {
 				Fail(fmt.Sprintf("Fuzzer.ExpandNameSpace() error = %v, wantErr %v", err, tt.wantErr))
 				return

@@ -25,8 +25,8 @@ import (
 
 var (
 	ErrNamespaceNotFound       = errors.New("namespace not found")
-	ErrNameSpaceDuplicateEntry = errors.New("prefix and base stored in different entries")
-	ErrNameSpaceNotValid       = errors.New("prefix or base not valid")
+	ErrNamespaceDuplicateEntry = errors.New("prefix and base stored in different entries")
+	ErrNamespaceNotValid       = errors.New("prefix or base not valid")
 )
 
 // URI represents a NameSpace URI.

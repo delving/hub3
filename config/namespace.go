@@ -32,6 +32,7 @@ const (
 type Namespace struct {
 	Base   string `json:"base"`
 	Prefix string `json:"prefix"`
+	Weight int    `json:"weight"`
 }
 
 // NamespaceMap contains all the namespaces

@@ -82,9 +82,9 @@ type Service struct {
 //
 // Example:
 //
-//   service, err := namespace.NewService(
-//     namespace.WithDefaults(),
-//	 )
+//	  service, err := namespace.NewService(
+//	    namespace.WithDefaults(),
+//		 )
 //
 // If no Store is configured, Service uses a in-memory store by default.
 //
@@ -133,7 +133,7 @@ func WithDefaults() ServiceOptionFunc {
 // The preferred way to initialize Service is by using NewService()
 func (s *Service) checkStore() {
 	if s.store == nil {
-		s.store = memory.NewNameSpaceStore()
+		s.store = memory.NewNamespaceStore()
 	}
 }
 
@@ -145,7 +145,7 @@ func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 	s.checkStore()
 
 	if base == "" {
-		return nil, domain.ErrNameSpaceNotValid
+		return nil, domain.ErrNamespaceNotValid
 	}
 
 	if prefix == "" {
@@ -165,7 +165,7 @@ func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 
 	ns, err := s.store.GetWithPrefix(prefix)
 	if err != nil {
-		if err != domain.ErrNameSpaceNotFound {
+		if err != domain.ErrNamespaceNotFound {
 			return nil, err
 		}
 	}
@@ -192,7 +192,7 @@ func (s *Service) Put(prefix, base string) (*domain.Namespace, error) {
 
 	ns, err = s.GetWithBase(base)
 	if err != nil {
-		if err != domain.ErrNameSpaceNotFound {
+		if err != domain.ErrNamespaceNotFound {
 			return nil, err
 		}
 	}
@@ -287,7 +287,7 @@ func (s *Service) GetWithBase(baseURI string) (*domain.Namespace, error) {
 
 	ns, err := s.store.GetWithBase(baseURI)
 	if err != nil {
-		if errors.Is(err, domain.ErrNameSpaceNotFound) && strings.HasPrefix(baseURI, "https://") {
+		if errors.Is(err, domain.ErrNamespaceNotFound) && strings.HasPrefix(baseURI, "https://") {
 			baseURI = strings.ReplaceAll(baseURI, "https:", "http:")
 			return s.store.GetWithBase(baseURI)
 		}

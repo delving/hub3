@@ -18,7 +18,7 @@ package namespace
 type nsEntry struct {
 	Prefix  string
 	BaseURI string
-	Prio    int
+	Weight  int // the higher the better
 }
 
 // custom contains custom or legacy namespaces that are used by the Delving platform.
@@ -430,7 +430,7 @@ var defaultNS = []nsEntry{
 	{Prefix: "dbtont", BaseURI: "http://dbtropes.org/ont/"},
 	{Prefix: "dbug", BaseURI: "http://ontologi.es/doap-bugs#"},
 	{Prefix: "dbyago", BaseURI: "http://dbpedia.org/class/yago/"},
-	{Prefix: "dc", BaseURI: "http://purl.org/dc/elements/1.1/", Prio: 1},
+	{Prefix: "dc", BaseURI: "http://purl.org/dc/elements/1.1/", Weight: 100},
 	{Prefix: "dc11", BaseURI: "http://purl.org/dc/elements/1.1/"},
 	{Prefix: "dcam", BaseURI: "http://purl.org/dc/dcam/"},
 	{Prefix: "dcap", BaseURI: "http://purl.org/ws-mmi-dc/terms/"},

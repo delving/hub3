@@ -31,8 +31,8 @@ type NamespaceStore struct {
 	namespaces  map[string]*domain.Namespace
 }
 
-// NewNameSpaceStore creates an in-memory namespace.Store.
-func NewNameSpaceStore() *NamespaceStore {
+// NewNamespaceStore creates an in-memory namespace.Store.
+func NewNamespaceStore() *NamespaceStore {
 	return &NamespaceStore{
 		prefix2base: make(map[string]*domain.Namespace),
 		base2prefix: make(map[string]*domain.Namespace),
