@@ -21,12 +21,13 @@ import (
 	"github.com/matryer/is"
 )
 
-const defaultListSize = 2021
+const defaultListSize = 2195
 
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{
-		Base:   "http://purl.org/dc/elements/1.1/",
+		URI:    "http://purl.org/dc/elements/1.1/",
 		Prefix: "dc",
+		Weight: 100,
 	}
 
 	type args struct {
@@ -68,7 +69,7 @@ func TestService_SearchLabel(t *testing.T) {
 			}
 
 			// add alternative
-			_, err = s.Put("dce", dc.Base)
+			_, err = s.Put("dce", dc.URI, 0)
 			if err != nil {
 				t.Errorf("Service.SearchLabel() unexpected error = %v", err)
 				return
@@ -140,62 +141,49 @@ func TestService_Add(t *testing.T) {
 	type args struct {
 		prefix string
 		base   string
+		weight int
 	}
 
 	tests := []struct {
-		name      string
-		args      args
-		stored    int
-		prefixes  int
-		temporary bool
-		wantErr   bool
+		name    string
+		args    args
+		stored  int
+		wantErr bool
 	}{
 		{
 			"empty base",
-			args{prefix: "dc", base: ""},
+			args{prefix: "dc", base: "", weight: 0},
 			0,
-			0,
-			false,
 			true,
 		},
 		{
 			"empty prefix",
-			args{prefix: "", base: "http://purl.org/dc/elements/1.1/"},
-			1,
-			1,
+			args{prefix: "", base: "http://purl.org/dc/elements/1.1/", weight: 0},
+			0,
 			true,
-			false,
 		},
 		{
-			"setting default over temporary",
-			args{prefix: "dc", base: "http://purl.org/dc/elements/1.1/"},
+			"adding a new pair",
+			args{prefix: "dc", base: "http://purl.org/dc/elements/1.1/", weight: 100},
 			1,
-			1,
-			false,
 			false,
 		},
 		{
 			"adding the same pair again",
-			args{prefix: "dc", base: "http://purl.org/dc/elements/1.1/"},
+			args{prefix: "dc", base: "http://purl.org/dc/elements/1.1/", weight: 100},
 			1,
-			1,
-			false,
 			false,
 		},
 		{
 			"adding the alternative prefix",
-			args{prefix: "dce", base: "http://purl.org/dc/elements/1.1/"},
-			1,
+			args{prefix: "dce", base: "http://purl.org/dc/elements/1.1/", weight: 0},
 			2,
-			false,
 			false,
 		},
 		{
 			"adding new namespace pair",
-			args{prefix: "skos", base: "http://www.w3.org/2004/02/skos/core#"},
-			2,
-			1,
-			false,
+			args{prefix: "skos", base: "http://www.w3.org/2004/02/skos/core#", weight: 0},
+			3,
 			false,
 		},
 	}
@@ -204,7 +192,7 @@ func TestService_Add(t *testing.T) {
 		tt := tt
 
 		t.Run(tt.name, func(t *testing.T) {
-			ns, err := svc.Put(tt.args.prefix, tt.args.base)
+			ns, err := svc.Put(tt.args.prefix, tt.args.base, tt.args.weight)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.Add() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -219,14 +207,6 @@ func TestService_Add(t *testing.T) {
 			if svc.Len() != tt.stored {
 				t.Errorf("Service.Add() stored %d, want %d", svc.Len(), tt.stored)
 			}
-
-			if ns.Temporary != tt.temporary {
-				t.Errorf("Service.Add() temporary %v, want %v", ns.Temporary, tt.temporary)
-			}
-
-			if len(ns.Prefixes()) != tt.prefixes {
-				t.Errorf("Service.Add() number of prefixes %v, want %v", len(ns.Prefixes()), tt.prefixes)
-			}
 		})
 	}
 }
@@ -238,17 +218,17 @@ func TestListDelete(t *testing.T) {
 	svc, err := NewService(WithDefaults())
 	is.NoErr(err)
 
-	namespaces, err := svc.List()
+	namespaces, err := svc.List(nil)
 	is.NoErr(err)
 
 	is.Equal(len(namespaces), defaultListSize)
 
 	first := namespaces[0]
 
-	err = svc.Delete(first.GetID())
+	err = svc.Delete(first.ID)
 	is.NoErr(err)
 
-	namespaces, err = svc.List()
+	namespaces, err = svc.List(nil)
 	is.NoErr(err)
 
 	is.Equal(len(namespaces), defaultListSize-1)
@@ -261,12 +241,28 @@ func TestDefaults(t *testing.T) {
 	is.NoErr(err)
 	is.Equal(svc.Len(), defaultListSize)
 
+	nsList, err := svc.List(&ListOptions{Prefix: "schema"})
+	is.NoErr(err)
+	is.Equal(len(nsList), 1)
+	t.Logf("ns list schema: %#v", nsList)
+
+	nsList, err = svc.List(&ListOptions{URI: "http://schema.org/"})
+	is.NoErr(err)
+	is.Equal(len(nsList), 3)
+	t.Logf("ns list schema from base: %#v", nsList)
+	is.Equal(nsList[len(nsList)-1].Weight, 3)
+	is.Equal(nsList[0].Weight, 100)
+
 	ns, err := svc.GetWithBase("http://schema.org/")
 	is.NoErr(err)
 	t.Logf("ns: %#v", ns)
 	is.Equal(ns.Prefix, "schema")
 
-	// ns, err = svc.GetWithPrefix("sdo")
-	// is.NoErr(err)
-	// is.Equal(ns.Prefix, "schema")
+	ns, err = svc.GetWithPrefix("sdo")
+	is.NoErr(err)
+	is.Equal(ns.Prefix, "sdo")
+
+	ns, err = svc.GetWithPrefix("schema")
+	is.NoErr(err)
+	is.Equal(ns.Prefix, "schema")
 }

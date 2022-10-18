@@ -19,6 +19,7 @@ var DefaultNamespaceManager NamespaceManager
 
 // TODO(kiivihal): replace with better solution
 func init() {
+	// TODO(kiivihal): implement this with new service
 	svc, err := namespace.NewService(namespace.WithDefaults())
 	if err != nil {
 		log.Fatalf("rdf: unable to start namespace service")
