@@ -55,7 +55,7 @@ func logLabelErr(predicate string, err error) {
 
 // NewContext returns the context for the current fragmentresource
 func (fr *FragmentResource) NewContext(predicate, objectID string) *FragmentReferrerContext {
-	searchLabel, err := c.Config.NamespaceMap.GetSearchLabel(predicate)
+	searchLabel, err := rdf.DefaultNamespaceManager.GetSearchLabel(predicate)
 	if err != nil {
 		logLabelErr(predicate, err)
 		searchLabel = ""
@@ -733,7 +733,7 @@ func (fr *FragmentResource) ContextPath() string {
 		rdfType := "rdf_Description"
 		if len(context.GetSubjectClass()) != 0 {
 			rdfType = context.GetSubjectClass()[0]
-			searchLabel, err := c.Config.NamespaceMap.GetSearchLabel(rdfType)
+			searchLabel, err := rdf.DefaultNamespaceManager.GetSearchLabel(rdfType)
 			if err != nil {
 				log.Printf("Unable to create search label for %s  due to %s\n", rdfType, err)
 			}
@@ -787,7 +787,7 @@ func (fe *FragmentEntry) AsLdObject() *r.LdObject {
 
 // NewResourceEntry creates a resource entry for indexing
 func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *ResourceMap) (*ResourceEntry, error) {
-	label, err := c.Config.NamespaceMap.GetSearchLabel(predicate)
+	label, err := rdf.DefaultNamespaceManager.GetSearchLabel(predicate)
 	if err != nil {
 		logLabelErr(predicate, err)
 		label = ""
@@ -1251,7 +1251,7 @@ func (f *Fragment) SetPath(contextPath string) {
 	rdfType := "rdf_Description"
 	if len(f.GetResourceType()) > 0 {
 		rdfType = f.GetResourceType()[0]
-		searchLabel, err := c.Config.NamespaceMap.GetSearchLabel(rdfType)
+		searchLabel, err := rdf.DefaultNamespaceManager.GetSearchLabel(rdfType)
 		if err != nil {
 			logLabelErr(rdfType, err)
 		}
@@ -1839,7 +1839,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 
 	lodKey, _ := fr.CreateLodKey()
 
-	typeLabel, err := c.Config.NamespaceMap.GetSearchLabel(RDFType)
+	typeLabel, err := rdf.DefaultNamespaceManager.GetSearchLabel(RDFType)
 	if err != nil {
 		logLabelErr(RDFType, err)
 		typeLabel = ""
@@ -1876,7 +1876,7 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 	for predicate, entries := range fr.predicates {
 		for _, entry := range entries {
 
-			label, err := c.Config.NamespaceMap.GetSearchLabel(predicate)
+			label, err := rdf.DefaultNamespaceManager.GetSearchLabel(predicate)
 			if err != nil {
 				logLabelErr(predicate, err)
 				label = ""

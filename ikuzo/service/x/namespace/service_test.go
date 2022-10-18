@@ -75,13 +75,13 @@ func TestService_SearchLabel(t *testing.T) {
 				return
 			}
 
-			got, err := s.SearchLabel(tt.args.uri)
+			got, err := s.GetSearchLabel(tt.args.uri)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.SearchLabel() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Service.GetSearchLabel() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("Service.SearchLabel() = %v, want %v", got, tt.want)
+				t.Errorf("Service.GetSearchLabel() = %v, want %v", got, tt.want)
 			}
 		})
 	}

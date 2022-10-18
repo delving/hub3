@@ -16,8 +16,13 @@ package namespace
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain"
+)
+
+const (
+	ebuCoreURN = "urn:ebu:metadata-schema:ebuCore_2014"
 )
 
 // ServiceOptionFunc is a function that configures a Service.
@@ -160,15 +165,21 @@ func (s *Service) List(opts *ListOptions) ([]*domain.Namespace, error) {
 	return s.store.List(opts)
 }
 
-// SearchLabel returns the URI in a short namespaced form.
+// GetSearchLabel returns the URI in a short namespaced form.
 // The string is formatted as namespace prefix
 // and label joined with an underscore, e.g. "dc_title".
 //
 // The underscore is used instead of the more common colon because it mainly
 // used as the search field in Lucene-based search engine, where it would
 // conflict with the separator between the query-field and value.
-func (s *Service) SearchLabel(uri string) (string, error) {
+func (s *Service) GetSearchLabel(uri string) (string, error) {
 	s.checkStore()
+
+	if strings.HasPrefix(uri, ebuCoreURN) {
+		uri = strings.TrimPrefix(uri, ebuCoreURN)
+		uri = strings.TrimLeft(uri, "/")
+		uri = fmt.Sprintf("http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#%s", uri)
+	}
 
 	base, label := domain.SplitURI(uri)
 

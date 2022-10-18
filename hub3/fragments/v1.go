@@ -43,6 +43,7 @@ import (
 
 	"github.com/cnf/structhash"
 	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/rdf"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
@@ -739,7 +740,7 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 
 // GetFieldKey returns the namespaced version of the Predicate of the Triple
 func GetFieldKey(t *r.Triple) (string, error) {
-	return c.Config.NamespaceMap.GetSearchLabel(t.Predicate.RawValue())
+	return rdf.DefaultNamespaceManager.GetSearchLabel(t.Predicate.RawValue())
 }
 
 // CreateV1IndexEntry creates an IndexEntry from a r.Triple
