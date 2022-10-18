@@ -16,7 +16,7 @@ func (ns Namespace) AddOptions(cfg *Config) error {
 	}
 
 	// TODO(kiivihal): register namespace
-	_ = svc
+	cfg.ns = svc
 
 	return nil
 }

@@ -35,6 +35,7 @@ import (
 	"github.com/delving/hub3/ikuzo/middleware"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/go-chi/chi"
@@ -62,6 +63,7 @@ type Service interface {
 type Server interface {
 	ListenAndServe() error
 	ServeHTTP(w http.ResponseWriter, r *http.Request)
+	BackgroundWorkers() error
 }
 
 // Shutdown must be implement by each service that uses background services or connections.
@@ -82,8 +84,6 @@ type server struct {
 	keyFile string
 	// cancelFunc is called for graceful shutdown of resources and background workers.
 	cancelFunc context.CancelFunc
-	// workers is a pool that manages all the background WorkerServices
-	workers *workerPool
 	// gracefulTimeout maximum duration of graceful shutdown of server. (default: 10 seconds)
 	gracefulTimeout time.Duration
 	// disableRequestLogger stops logging of request information to the global logger
@@ -110,6 +110,8 @@ type server struct {
 	introspect bool
 	// sentry shows if sentry is enabled
 	sentry bool
+	// ts is a *task.Service that is used to manage background workers
+	ts *task.Service
 }
 
 // NewServer returns the default server.
@@ -125,7 +127,6 @@ func newServer(options ...Option) (*server, error) {
 	s := &server{
 		port:            defaultServerPort,
 		cancelFunc:      cancelFunc,
-		workers:         newWorkerPool(ctx),
 		gracefulTimeout: defaultShutdownTimeout * time.Second,
 		shutdownHooks:   make(map[string]domain.Shutdown),
 		ctx:             ctx,
@@ -279,7 +280,11 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 	}
 
 	// start web-server
-	server := http.Server{Addr: fmt.Sprintf(":%d", s.port), Handler: s}
+	server := http.Server{
+		Addr:              fmt.Sprintf(":%d", s.port),
+		Handler:           s,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 
 	go func() {
 		if s.certFile != "" && s.keyFile != "" {
@@ -291,7 +296,7 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 
 	// watch for quit signals
 	signalChan := make(chan os.Signal, 1)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 
 	// inject signals for testing
 	for _, sign := range testSignals {
@@ -316,8 +321,8 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 				Msg("caught shutdown signal, starting graceful shutdown")
 
 			return s.shutdown(&server)
-		case <-s.workers.ctx.Done():
-			return s.workers.ctx.Err()
+		case <-s.ctx.Done():
+			return s.ctx.Err()
 		}
 	}
 }
@@ -337,11 +342,13 @@ func (s *server) shutdown(server *http.Server) error {
 	defer cancel()
 
 	log.Info().Msg("stopping web-server")
-	server.SetKeepAlivesEnabled(false)
 
 	g, ctx := errgroup.WithContext(ctx)
 
-	g.Go(func() error { return server.Shutdown(ctx) })
+	if server != nil {
+		server.SetKeepAlivesEnabled(false)
+		g.Go(func() error { return server.Shutdown(ctx) })
+	}
 
 	for _, svc := range s.services {
 		svc := svc

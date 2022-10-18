@@ -35,6 +35,8 @@ install-dev:
 	go install github.com/cortesi/modd/cmd/modd@latest
 	go install github.com/kyoh86/richgo@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go install github.com/bufbuild/buf/cmd/buf@latest
+	go install github.com/codegangsta/gin@latest
 
 benchmark:
 	@richgo test --bench=. -benchmem ./...
@@ -94,5 +96,12 @@ test-no-cache:
 	richgo test -cover -count=1 ./ikuzo/...
 	@make staticcheck
 
-run-dev:
-	modd
+run-workers:
+	gin --port=3010 --path . --build ikuzo/ikuzoctl --bin build/gin-workers -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run workers
+
+generate-assets:
+	go run ikuzo/internal/assets/generate.go
+
+dev-deps:
+	GO111MODULE=on go install github.com/bufbuild/buf/cmd/buf@latest
+	GO111MODULE=on go install github.com/codegangsta/gin@latest
