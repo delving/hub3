@@ -39,7 +39,7 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 	}
 
 	for _, ns := range namespaces {
-		root.CreateAttr(ns.XMLNS(), ns.Base)
+		root.CreateAttr(ns.XMLNS(), ns.URI)
 	}
 
 	for _, rsc := range filtered {

@@ -1,13 +1,13 @@
 package config
 
-import (
-	"github.com/delving/hub3/ikuzo/service/x/namespace"
-)
+import "github.com/delving/hub3/ikuzo/service/x/namespace"
 
-type NameSpace struct{}
+type Namespace struct{}
 
-func (ns NameSpace) AddOptions(cfg *Config) error {
+func (ns Namespace) AddOptions(cfg *Config) error {
 	cfg.logger.Debug().Msg("setting up namespaces")
+
+	// TODO(kiivihal): add new service and add DB
 	svc, err := namespace.NewService(
 		namespace.WithDefaults(),
 	)

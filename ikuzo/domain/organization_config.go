@@ -27,7 +27,6 @@ type OAIPMHConfig struct {
 	RepositoryName string   `json:"repositoryName"`
 	Deleted        string   `json:"deleted"` // no, persistent, transient
 	// HarvestPath    string   `json:"harvestPath"`
-
 }
 
 type OrganizationConfig struct {
@@ -112,6 +111,7 @@ type OrganizationConfig struct {
 		UserName       string `json:"userName"`
 		Password       string `json:"password"`
 	} `json:"sparql,omitempty"`
+	Namespaces []Namespace `json:"namespaces"`
 }
 
 func (cfg *OrganizationConfig) OrgID() string {

@@ -345,6 +345,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				Graph:         string(graph),
 				GraphMimeType: "application/ld+json",
 				RecordType:    "mdr",
+				Tags:          strings.Join(rec.Meta.Tags, ","),
 			}
 
 			bytes, marshalErr := json.Marshal(action)

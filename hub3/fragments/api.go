@@ -29,6 +29,7 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
@@ -1521,13 +1522,15 @@ func TypeClassAsURI(uri string) (string, error) {
 	}
 
 	label := parts[1]
-	base, ok := c.Config.NameSpaceMap.GetBaseURI(parts[0])
-	if !ok {
-		return "", fmt.Errorf("namespace for prefix %s is unknown", parts[0])
+	base, err := rdf.DefaultNamespaceManager.GetWithBase(parts[0])
+	if err != nil {
+		return "", fmt.Errorf("namespace for prefix %s is unknown; %w", parts[0], err)
 	}
-	if strings.HasSuffix(base, "#") || strings.HasSuffix(base, "/") {
+
+	if strings.HasSuffix(base.URI, "#") || strings.HasSuffix(base.URI, "/") {
 		return fmt.Sprintf("%s%s", base, label), nil
 	}
+
 	return fmt.Sprintf("%s/%s", base, label), nil
 }
 

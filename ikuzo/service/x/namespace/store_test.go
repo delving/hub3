@@ -1,18 +1,4 @@
-// Copyright 2020 Delving B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
-package memory
+package namespace
 
 import (
 	"reflect"
@@ -23,13 +9,13 @@ import (
 )
 
 func TestNameSpaceStore(t *testing.T) {
-	store := NewNameSpaceStore()
+	store := NewNamespaceStore()
 	if store.Len() != 0 {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
-	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{URI: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	rdf := &domain.Namespace{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
 
 	tests := []struct {
 		name     string
@@ -99,16 +85,16 @@ func TestNameSpaceStore(t *testing.T) {
 }
 
 // nolint:gocritic
-func TestGetFromNameSpaceStore(t *testing.T) {
+func TestGetFromNamespaceStore(t *testing.T) {
 	is := is.New(t)
 
-	store := NewNameSpaceStore()
+	store := NewNamespaceStore()
 	if store.Len() != 0 {
 		t.Errorf("memoryStore should be empty when initialized; got %d", store.Len())
 	}
 
-	rdf := &domain.Namespace{Base: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
-	dc := &domain.Namespace{Base: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
+	rdf := &domain.Namespace{URI: "http://www.w3.org/1999/02/22-rdf-syntax-ns#", Prefix: "rdf"}
+	dc := &domain.Namespace{URI: "http://purl.org/dc/elements/1.1/", Prefix: "dc"}
 	unknown := &domain.Namespace{Prefix: "unknown"}
 
 	err := store.Put(dc)
@@ -136,9 +122,9 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 
 	nsErr, err := store.GetWithBase("http://unknown.com/base")
 	is.Equal(nsErr, nil)
-	is.Equal(err, domain.ErrNameSpaceNotFound)
+	is.Equal(err, domain.ErrNamespaceNotFound)
 
-	ns2, err := store.GetWithBase(rdf.Base)
+	ns2, err := store.GetWithBase(rdf.URI)
 	if err != nil {
 		t.Errorf("Unexpected error retrieving namespace: %#v", err)
 	}
@@ -150,13 +136,43 @@ func TestGetFromNameSpaceStore(t *testing.T) {
 	_, err = store.GetWithPrefix(unknown.Prefix)
 	if err != nil {
 		switch err {
-		case domain.ErrNameSpaceNotFound:
+		case domain.ErrNamespaceNotFound:
 		default:
 			t.Errorf("Unexpected error: %#v", err)
 		}
 	}
 
-	namespaces, err := store.List()
+	namespaces, err := store.List(nil)
 	is.NoErr(err)
 	is.Equal(len(namespaces), 2)
+}
+
+func TestDuplicateURIS(t *testing.T) {
+	is := is.New(t)
+
+	svc, err := NewService(WithDefaults())
+	is.NoErr(err)
+	is.Equal(svc.Len(), defaultListSize)
+
+	nsStore := svc.store.(*namespaceStore)
+	suspect := []string{}
+
+	for base, nsList := range nsStore.base2prefix {
+		if len(nsList) > 1 {
+			var isSet bool
+			for _, ns := range nsList {
+				if ns.Weight > 20 {
+					isSet = true
+					break
+				}
+			}
+			if !isSet {
+				suspect = append(suspect, base)
+			}
+		}
+	}
+
+	// TODO(kiivihal): finish this in default
+	t.Logf("suspect uris (%d): %#v", len(suspect), suspect)
+	is.Equal(len(suspect), 107)
 }

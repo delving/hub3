@@ -37,7 +37,7 @@ type Config struct {
 	EAD           `json:"ead"`
 	DB            `json:"db"`
 	ImageProxy    `json:"imageProxy"`
-	NameSpace     `json:"nameSpace"`
+	Namespace     `json:"namespace"`
 	PostHooks     []PostHook `json:"posthooks"`
 	options       []ikuzo.Option
 	logger        logger.CustomLogger
@@ -58,14 +58,14 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 
 	if len(cfgOptions) == 0 {
 		cfgOptions = []Option{
+			&cfg.DB,
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
-			// &cfg.DB, // todo enable when postgresql is needed
 			&cfg.Organization,
 			&cfg.HTTP,
 			&cfg.EAD,
 			&cfg.ImageProxy,
 			&cfg.Harvest,
-			&cfg.NameSpace,
+			&cfg.Namespace,
 			&cfg.NDE,
 			&cfg.Sitemap,
 			&cfg.Logging,
