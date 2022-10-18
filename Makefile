@@ -35,6 +35,8 @@ install-dev:
 	go install github.com/cortesi/modd/cmd/modd@latest
 	go install github.com/kyoh86/richgo@latest
 	go install honnef.co/go/tools/cmd/staticcheck@latest
+	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+	go install github.com/JoaoDanielRufino/gcloc/cmd/gcloc@latest
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install github.com/codegangsta/gin@latest
 
@@ -83,6 +85,10 @@ build-static:
 staticcheck:
 	staticcheck -f stylish ./hub3/... ./config/... ./ikuzo/...
 
+
+loc:
+	gcloc --exclude=.idea --exclude=_scratch --exclude=data --exclude=docker-data .
+
 pre-commit:
 	go mod tidy
 	richgo test -cover -race -count=10 ./...
@@ -98,10 +104,3 @@ test-no-cache:
 
 run-workers:
 	gin --port=3010 --path . --build ikuzo/ikuzoctl --bin build/gin-workers -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run workers
-
-generate-assets:
-	go run ikuzo/internal/assets/generate.go
-
-dev-deps:
-	GO111MODULE=on go install github.com/bufbuild/buf/cmd/buf@latest
-	GO111MODULE=on go install github.com/codegangsta/gin@latest

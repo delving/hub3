@@ -27,12 +27,6 @@ ids = [
 
 ### ^^^^^^ new config ^^^^^^ ###
 
-
-
-[redis]
-
-
-
 [org.dcn]
 domains = ["localhost:3000"]
 default = true
@@ -89,9 +83,9 @@ password = ""
 [http]
 # all the configuration for the http sub-command
 # The port of the http server
-port = 3001
+port = 3002
 # The port of the metrics server
-metricsPort = 6060
+metricsPort = 6062
 # certfile = "certs/cert.pem"
 # keyFile = "certs/key.pem"
 
@@ -217,6 +211,7 @@ harvestDelay = 1
 eadHarvestUrl = "http://localhost:3000/oai/ead"
 metsHarvestUrl = "http://localhost:3000/oai/mets"
 harvestPath = "/tmp/oaipmh"
+tagFilters = ["narthex"]
 
 [oaipmh]
 # options: no, transient, persistent
@@ -314,7 +309,8 @@ metrics = true
 workers = 1
 processDigital = false
 processDigitalIfMissing = false
-
+# if empty everything is allowed
+genreforms = []
 searchURL = ""
 genreFormDefault = "other/unknown"
 treeFields = [
