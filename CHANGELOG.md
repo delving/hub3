@@ -2,9 +2,18 @@
 
 ## v0.4.0 (unreleased)
 
+### Added
+ 
+- [72e23e29](https://github.com/delving/hub3/commit/72e23e29) Stream results from elasticsearch with a callback [[GH-181](https://github.com/delving/hub3/pull/181)
+- [385ef623](https://github.com/delving/hub3/commit/385ef623) Asynq based worker configuration [[GH-182](https://github.com/delving/hub3/pull/182)
+
 ### Changed
 
+# TODO add merge requests and commit
+
 - [4acc42e1](https://github.com/delving/hub3/commit/4acc42e1) use modd as livereload server instead of gin
+- [4cf0bbf6](https://github.com/delving/hub3/commit/4cf0bbf6) added support for brocade identifiers as inventory identifiers
+- [148cdac6](https://github.com/delving/hub3/commit/148cdac6) Refactor namespaces service [[GH-179](https://github.com/delving/hub3/pull/179)
 
 ### Removed
 
@@ -12,11 +21,12 @@
 - [991ffc16](https://github.com/delving/hub3/commit/991ffc16) front-end directories will be moved to a different repository
 - [202b9cdd](https://github.com/delving/hub3/commit/202b9cdd) out of date documentation and cleaned up the main README.
 - [ed80a770](https://github.com/delving/hub3/commit/ed80a770) removed pacedotdev/oto RPC service
+- [7ccd7397](https://github.com/delving/hub3/commit/7ccd7397) removed unused packages and proof-of-concept placeholders
 
 ### Fixed
+ 
 - [0569b816](https://github.com/delving/hub3/commit/0569b816) fixed staticcheck linting errors and warnings
-
-
+- [63c9a6a7](https://github.com/delving/hub3/commit/63c9a6a7) fix support for Peek in the search response.
 
 ## v0.3.1 (unreleased)
 
