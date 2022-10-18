@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/delving/hub3/hub3/fragments"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -107,20 +106,6 @@ func (c *Client) next(cfg *StreamConfig, searchAfter []interface{}) ([]*elastic.
 
 	var newSearchAfter []interface{}
 	newSearchAfter = resp.Hits.Hits[len(resp.Hits.Hits)-1].Sort
-	// for _, hit := range resp.Hits.Hits {
-	// newSearchAfter = hit.Sort
-
-	// r, err := decodeFragmentGraph(hit.Source)
-	// if err != nil {
-	// return nil, nil, err
-	// }
-
-	// headers = append(headers, r.Meta)
-	// }
 
 	return resp.Hits.Hits, newSearchAfter, nil
-}
-
-func publishFragments(fg *fragments.FragmentGraph) error {
-	return nil
 }
