@@ -54,6 +54,8 @@ type Config struct {
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
 	ns            *namespace.Service
+	Task          `json:"task"`
+	ts            *task.Service
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
