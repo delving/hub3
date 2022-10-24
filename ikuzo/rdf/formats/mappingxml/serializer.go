@@ -113,6 +113,13 @@ func createResource(
 
 	_, ok := seen[rsc.Subject()]
 	if ok {
+		switch rsc.Subject().Type() {
+		case rdf.TermIRI:
+			parent.CreateAttr("rdf:about", rsc.Subject().RawValue())
+		case rdf.TermBlankNode:
+			parent.CreateAttr("rdf:nodeID", rsc.Subject().RawValue())
+		}
+
 		return nil
 	}
 
@@ -189,6 +196,10 @@ func createResource(
 
 			switch object.Type() {
 			case rdf.TermLiteral:
+				if elem.Text() != "" {
+					elem = root.CreateElement(nsLabel)
+				}
+
 				l := object.(rdf.Literal)
 
 				if l.Lang() != "" {
