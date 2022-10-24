@@ -3,7 +3,7 @@
 ## v0.4.0 (unreleased)
 
 ### Added
- 
+
 - [72e23e29](https://github.com/delving/hub3/commit/72e23e29) Stream results from elasticsearch with a callback [[GH-181](https://github.com/delving/hub3/pull/181)
 - [385ef623](https://github.com/delving/hub3/commit/385ef623) Asynq based worker configuration [[GH-182](https://github.com/delving/hub3/pull/182)
 
@@ -14,6 +14,8 @@
 - [4acc42e1](https://github.com/delving/hub3/commit/4acc42e1) use modd as livereload server instead of gin
 - [4cf0bbf6](https://github.com/delving/hub3/commit/4cf0bbf6) added support for brocade identifiers as inventory identifiers
 - [148cdac6](https://github.com/delving/hub3/commit/148cdac6) Refactor namespaces service [[GH-179](https://github.com/delving/hub3/pull/179)
+- [4b9630ac](https://github.com/delving/hub3/commit/4b9630ac) fix(mappingxml): don't squash literals in a single field
+
 
 ### Removed
 
