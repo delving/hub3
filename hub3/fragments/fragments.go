@@ -219,10 +219,16 @@ func (fr *FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]
 		return fragments, 0, nil
 	}
 
+	seen := map[string]bool{}
+
 	var frtyp Fragment
 	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
 		frag := item.(Fragment)
-		fragments = append(fragments, &frag)
+		_, ok := seen[frag.Triple]
+		if !ok {
+			fragments = append(fragments, &frag)
+			seen[frag.Triple] = true
+		}
 	}
 	return fragments, res.Hits.TotalHits.Value, nil
 }
