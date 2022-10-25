@@ -157,6 +157,7 @@ func (fr *FragmentRequest) BuildQuery() *elastic.BoolQuery {
 	buildQueryClause(q, "object", fr.GetObject())
 	buildQueryClause(q, "lodKey", fr.GetLodKey())
 	buildQueryClause(q, "language", fr.GetLanguage())
+	buildQueryClause(q, "meta.namedGraphURI", fr.GetGraph())
 
 	// support for exclude hubID
 	if fr.ExcludeHubID != "" {
@@ -182,7 +183,7 @@ func (fr *FragmentRequest) BuildQuery() *elastic.BoolQuery {
 
 	q = q.Must(elastic.NewTermQuery("meta.docType", FragmentDocType))
 
-	if len(fr.GetSpec()) != 0 {
+	if fr.GetSpec() != "" {
 		q = q.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, fr.GetSpec()))
 	}
 

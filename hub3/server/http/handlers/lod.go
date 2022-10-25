@@ -217,19 +217,34 @@ func fragmentsLodResolver() http.HandlerFunc {
 			uri = r.URL.Query().Get("subject")
 		}
 
-		iri, err := getSparqlSubject(uri, r.URL.Fragment)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+		orgID := domain.GetOrganizationID(r)
+		fr := fragments.NewFragmentRequest(orgID.String())
+		fr.Subject = []string{}
+
+		if uri != "" {
+			iri, err := getSparqlSubject(uri, r.URL.Fragment)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if uri != "" {
+				fr.Subject = append(fr.Subject, uri)
+			}
+
+			if iri != uri {
+				fr.Subject = append(fr.Subject, iri)
+			}
+		}
+
+		if r.URL.Query().Has("graph") {
+			fr.Graph = r.URL.Query().Get("graph")
+		}
+
+		if fr.Graph == "" && len(fr.Subject) == 0 {
+			http.Error(w, fmt.Errorf("graph or uri parameter is required").Error(), http.StatusBadRequest)
 			return
 		}
 
-		orgID := domain.GetOrganizationID(r)
-
-		fr := fragments.NewFragmentRequest(orgID.String())
-		fr.Subject = []string{uri}
-		if iri != uri {
-			fr.Subject = append(fr.Subject, iri)
-		}
 		frags, _, err := fr.Find(r.Context(), index.ESClient())
 		if err != nil || len(frags) == 0 {
 			w.WriteHeader(http.StatusNotFound)
