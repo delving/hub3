@@ -28,6 +28,10 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 		g.Add(t)
 	}
 
+	if err := g.Inline(); err != nil {
+		return g, err
+	}
+
 	return g, nil
 }
 

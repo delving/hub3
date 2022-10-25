@@ -1,11 +1,13 @@
 package jsonld
 
 import (
+	"bytes"
 	"io"
 	"os"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
+	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/matryer/is"
 )
 
@@ -61,5 +63,27 @@ func TestParseWithContext(t *testing.T) {
 		is.NoErr(err)
 
 		is.Equal(returnedGraph.Len(), 85)
+	})
+}
+
+func TestParseWithCollections(t *testing.T) {
+	t.Run("collections with blank nodes", func(t *testing.T) {
+		is := is.New(t)
+
+		r, err := getReader("with_collections")
+		is.NoErr(err)
+
+		returnedGraph, err := Parse(r, nil)
+		is.NoErr(err)
+
+		stats := returnedGraph.Stats()
+		is.Equal(stats.Predicates, 25)
+
+		var b bytes.Buffer
+		err = ntriples.Serialize(returnedGraph, &b)
+		is.NoErr(err)
+
+		t.Logf("triples: \n %s", b.String())
+		is.Equal(returnedGraph.Len(), 47)
 	})
 }

@@ -3,6 +3,7 @@ package rdf
 import (
 	"fmt"
 	"log"
+	"sort"
 	"sync"
 
 	"github.com/delving/hub3/ikuzo/domain"
@@ -39,6 +40,9 @@ type Graph struct {
 	export         bool // set when all triples read from the graph
 	addAfterExport bool
 
+	// support for collections
+	collections map[Subject][]*Triple
+
 	//
 	index            *GraphIndex
 	stats            *GraphStats
@@ -57,9 +61,116 @@ func NewGraph() *Graph {
 		UseResource:      true,
 		resources:        make(map[Subject]*Resource),
 		NamespaceManager: DefaultNamespaceManager,
+		collections:      make(map[Subject][]*Triple),
 	}
 
 	return g
+}
+
+func (g *Graph) extractCollection(t *Triple) bool {
+	p := t.Predicate.RawValue()
+	if p != RDFCollectionFirst && p != RDFCollectionRest {
+		return false
+	}
+
+	triples, ok := g.collections[t.Subject]
+	if !ok {
+		triples = []*Triple{}
+	}
+
+	triples = append(triples, t)
+	g.collections[t.Subject] = triples
+
+	return true
+}
+
+type collectionConfig struct {
+	seen        map[Subject]bool
+	collections map[string][]Object
+}
+
+func (g *Graph) process(subj Subject, triples []*Triple, cfg *collectionConfig, objs []Object) []Object {
+	cfg.seen[subj] = true
+
+	sort.Slice(triples, func(i, j int) bool {
+		return triples[i].Predicate.RawValue() < triples[j].Predicate.RawValue()
+	})
+
+	for _, t := range triples {
+		switch t.Predicate.RawValue() {
+		case RDFCollectionFirst:
+			objs = append(objs, t.Object)
+		case RDFCollectionRest:
+			if t.Object.RawValue() == RDFCollectionNil {
+				continue
+			}
+
+			nestedTriples, ok := g.collections[t.Object.(Subject)]
+			if ok {
+				objs = g.process(subj, nestedTriples, cfg, objs)
+			}
+		default:
+			log.Printf("unknown collection predicate: %#v", t)
+		}
+	}
+
+	return objs
+}
+
+func (g *Graph) Inline() error {
+	if len(g.collections) == 0 {
+		return nil
+	}
+
+	cfg := &collectionConfig{
+		collections: map[string][]Object{},
+		seen:        map[Subject]bool{},
+	}
+
+	for subj, triples := range g.collections {
+		_, ok := cfg.seen[subj]
+		if ok {
+			// skip if already seen for recursion
+			continue
+		}
+
+		objs := g.process(subj, triples, cfg, []Object{})
+		if len(objs) != 0 {
+			cfg.collections[subj.RawValue()] = objs
+		}
+	}
+
+	// TODO(kiivihal): loop over subj find
+	updates := []*Triple{}
+	for _, t := range g.triples {
+		switch t.Object.Type() {
+		case TermBlankNode, TermIRI:
+			_, ok := cfg.collections[t.Object.RawValue()]
+			if ok {
+				updates = append(updates, t)
+			}
+		}
+	}
+
+	g.Remove(updates...)
+
+	for _, triple := range updates {
+		objs, ok := cfg.collections[triple.Object.RawValue()]
+		if !ok {
+			log.Printf("WARN: object should always be part of collection: %#v", triple.Object)
+		}
+
+		for _, obj := range objs {
+			newTriple := *triple
+			newTriple.Object = obj
+			g.Add(&newTriple)
+		}
+	}
+
+	// remove collections
+	g.collections = make(map[Subject][]*Triple)
+
+	return nil
 }
 
 // AddTriple appends triple to the Graph triples
@@ -70,6 +181,10 @@ func (g *Graph) Add(triples ...*Triple) {
 	}
 
 	for _, t := range triples {
+		if g.extractCollection(t) {
+			continue
+		}
+
 		hash := getHash(t)
 
 		_, ok := g.seen[hash]
@@ -80,7 +195,7 @@ func (g *Graph) Add(triples ...*Triple) {
 		g.lock.Lock()
 		if g.UseIndex {
 			// TODO(kiivihal): what to do with this error
-			g.index.update(t)
+			g.index.update(t, false)
 		}
 
 		if g.UseResource {
@@ -175,16 +290,30 @@ func (g *Graph) Resources() map[Subject]*Resource {
 // return matches
 // }
 
-// // Remove removes a triples from the SortedGraph
-// func (g *Graph) Remove(t *r.Triple) {
-// triples := []*r.Triple{}
-// for _, tt := range g.triples {
-// if t != tt {
-// triples = append(triples, tt)
-// }
-// }
-// g.triples = triples
-// }
+// Remove removes triples from the SortedGraph
+func (g *Graph) Remove(remove ...*Triple) {
+	triples := []*Triple{}
+	for _, tt := range g.triples {
+		var exclude bool
+
+		for _, t := range remove {
+			if t.Equal(tt) {
+				exclude = true
+				g.stats.decrTriples()
+
+				break
+			}
+		}
+
+		if !exclude {
+			triples = append(triples, tt)
+		}
+	}
+
+	g.lock.Lock()
+	g.triples = triples
+	g.lock.Unlock()
+}
 
 // func containsString(s []string, e string) bool {
 // for _, a := range s {

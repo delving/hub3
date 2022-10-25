@@ -20,6 +20,10 @@ func (gs *GraphStats) incTriples() {
 	atomic.AddUint64(&gs.Triples, 1)
 }
 
+func (gs *GraphStats) decrTriples() {
+	atomic.AddUint64(&gs.Triples, ^uint64(0))
+}
+
 type GraphIndex struct {
 	Subjects        map[hasher]uint64
 	Predicates      map[hasher]uint64
@@ -42,30 +46,30 @@ func newIndex() *GraphIndex {
 	}
 }
 
-func (gi *GraphIndex) update(t *Triple) error {
-	gi.updateSubject(t)
-	gi.updatePredicate(t)
-	gi.updateRDFType(t)
+func (gi *GraphIndex) update(t *Triple, remove bool) error {
+	gi.updateSubject(t, remove)
+	gi.updatePredicate(t, remove)
+	gi.updateRDFType(t, remove)
 
-	if err := gi.updateObject(t); err != nil {
+	if err := gi.updateObject(t, remove); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (gi *GraphIndex) updateNamespaceURI(iri IRI) {
+func (gi *GraphIndex) updateNamespaceURI(iri IRI, remove bool) {
 	prefix, _ := iri.Split()
 
 	count, ok := gi.NamespacesURIs[prefix]
 	if !ok {
 		count = 0
 	}
-	count++
-	gi.NamespacesURIs[prefix] = count
+
+	gi.NamespacesURIs[prefix] = getCount(count, remove)
 }
 
-func (gi *GraphIndex) updateSubject(t *Triple) {
+func (gi *GraphIndex) updateSubject(t *Triple, remove bool) {
 	// switch term := t.Subject.(type) {
 	// case *IRI:
 	// gi.updateNamespaceURI(term)
@@ -76,16 +80,23 @@ func (gi *GraphIndex) updateSubject(t *Triple) {
 	if !ok {
 		count = 0
 	}
-	count++
-	gi.Subjects[s] = count
+
+	gi.Subjects[s] = getCount(count, remove)
 }
 
-func (gi *GraphIndex) updatePredicate(t *Triple) {
+func getCount(seed uint64, remove bool) uint64 {
+	if remove {
+		return seed - 1
+	}
+	return seed + 1
+}
+
+func (gi *GraphIndex) updatePredicate(t *Triple, remove bool) {
 	switch term := t.Predicate.(type) {
 	case *IRI:
-		gi.updateNamespaceURI(*term)
+		gi.updateNamespaceURI(*term, remove)
 	case IRI:
-		gi.updateNamespaceURI(term)
+		gi.updateNamespaceURI(term, remove)
 	}
 
 	p := getHash(t.Predicate)
@@ -94,17 +105,17 @@ func (gi *GraphIndex) updatePredicate(t *Triple) {
 	if !ok {
 		count = 0
 	}
-	count++
-	gi.Predicates[p] = count
+
+	gi.Predicates[p] = getCount(count, remove)
 }
 
-func (gi *GraphIndex) updateRDFType(t *Triple) {
+func (gi *GraphIndex) updateRDFType(t *Triple, remove bool) {
 	if t.Predicate.RawValue() == RDFType {
 		switch term := t.Object.(type) {
 		case *IRI:
-			gi.updateNamespaceURI(*term)
+			gi.updateNamespaceURI(*term, remove)
 		case IRI:
-			gi.updateNamespaceURI(term)
+			gi.updateNamespaceURI(term, remove)
 		}
 		o := getHash(t.Object)
 
@@ -112,12 +123,12 @@ func (gi *GraphIndex) updateRDFType(t *Triple) {
 		if !ok {
 			count = 0
 		}
-		count++
-		gi.RDFTypes[o] = count
+
+		gi.RDFTypes[o] = getCount(count, remove)
 	}
 }
 
-func (gi *GraphIndex) updateObject(t *Triple) error {
+func (gi *GraphIndex) updateObject(t *Triple, remove bool) error {
 	switch t.Object.Type() {
 	case TermBlankNode, TermIRI:
 		o := getHash(t.Object)
@@ -126,8 +137,7 @@ func (gi *GraphIndex) updateObject(t *Triple) error {
 		if !ok {
 			count = 0
 		}
-		count++
-		gi.ObjectResources[o] = count
+		gi.ObjectResources[o] = getCount(count, remove)
 	case TermLiteral:
 		o, ok := t.Object.(Literal)
 		if !ok {
@@ -141,8 +151,7 @@ func (gi *GraphIndex) updateObject(t *Triple) error {
 			if !ok {
 				count = 0
 			}
-			count++
-			gi.Languages[l] = count
+			gi.Languages[l] = getCount(count, remove)
 		}
 
 		if o.DataType.Equal(IRI{}) {
@@ -152,8 +161,7 @@ func (gi *GraphIndex) updateObject(t *Triple) error {
 			if !ok {
 				count = 0
 			}
-			count++
-			gi.DataTypes[dt] = count
+			gi.DataTypes[dt] = getCount(count, remove)
 		}
 	}
 

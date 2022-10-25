@@ -3,7 +3,10 @@ package rdf
 import "fmt"
 
 const (
-	RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+	RDFType            = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+	RDFCollectionFirst = "http://www.w3.org/1999/02/22-rdf-syntax-ns#first"
+	RDFCollectionRest  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest"
+	RDFCollectionNil   = "http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"
 )
 
 var IsA = Predicate(IRI{str: RDFType})
