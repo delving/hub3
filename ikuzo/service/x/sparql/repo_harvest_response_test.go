@@ -123,7 +123,9 @@ func TestMappingXML(t *testing.T) {
 			),
 		)
 		is.NoErr(err)
-		t.Logf("subject %s; triples %d", subj, len(resp.Results.Bindings))
+		if len(resp.Results.Bindings) > 200 {
+			t.Logf("subject %s; triples %d", subj, len(resp.Results.Bindings))
+		}
 
 		f.Close()
 

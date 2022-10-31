@@ -128,7 +128,7 @@ func (r *responseWithContext) MappingXML(subject rdf.Subject, wikibaseType strin
 
 	var buf bytes.Buffer
 
-	cfg := mappingxml.FilterConfig{Subject: subject}
+	cfg := mappingxml.FilterConfig{Subject: subject, ContextLevels: 5}
 
 	if wikibaseType != "" {
 		p, _ := rdf.NewIRI(wikibaseType)
