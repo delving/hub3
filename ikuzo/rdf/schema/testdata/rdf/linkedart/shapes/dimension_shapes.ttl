@@ -1,0 +1,83 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+################################
+# DIMENSION
+################################
+la:prop_dimension
+    a sh:PropertyShape;
+
+    sh:property la:prop_ref;
+
+    sh:property la:prop_classified;
+
+    sh:property [
+        sh:class crm:E54_Dimension;
+        sh:minCount 1;
+        sh:severity sh:Violation;
+        sh:message "v35: The object of a 'dimension' predicate must be of type 'Dimension'.";
+    ];
+
+    sh:property [
+        sh:path crm:P90_has_value;
+        sh:property la:prop_numeric;
+        sh:minCount 1;
+        sh:message "v36: Dimension must have a 'value' assigned.";
+        sh:severity sh:Violation;
+    ];
+
+    sh:property [
+        sh:path crm:P91_has_unit;
+        sh:class crm:E58_Measurement_Unit;
+        sh:property la:prop_external_concept;
+        sh:minCount 1;
+        sh:message "v37: Dimension must have a 'unit' assigned.";
+        sh:severity sh:Violation;
+    ];
+
+    sh:property [
+        sh:path crm:P2_has_type;
+        sh:property la:util_termIsDimension;
+        sh:message "v38: Dimension must be 'classified_as' with a term from under AAT's Physical Attributes (aat:300264087).";
+        sh:severity sh:Violation;
+        sh:minCount 1;
+    ];
+
+    sh:property la:prop_anyName;
+
+    sh:property [
+        sh:path crm:P90b_has_upper_value_limit;
+        sh:property la:prop_numeric;
+        sh:minCount 0;
+    ];
+
+    sh:property [
+        sh:path crm:P90a_has_lower_value_limit;
+        sh:property la:prop_numeric;
+        sh:minCount 0;
+    ];
+
+.
+
+la:validate_dimension
+    a sh:NodeShape ;
+    sh:targetObjectsOf crm:P43_has_dimension;
+    sh:property la:prop_dimension;
+.
+

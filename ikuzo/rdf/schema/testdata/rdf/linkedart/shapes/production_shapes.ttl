@@ -1,0 +1,252 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+###########################################################################################################################
+# PRODUCTION  - object_modification
+###########################################################################################################################
+
+
+la:prop_object_activity
+    a sh:PropertyShape;
+
+    sh:property la:prop_ref;
+
+    # identified_by (name or identifier)
+    sh:property la:prop_primaryNameOrIdentifier;
+
+    ###################################################################################################################
+    # recommended to have at least one classified_as predicate
+    ###################################################################################################################
+    sh:property la:prop_classified;
+
+    ###################################################################################################################
+    # recommended to have at least one classified_as predicate
+    ###################################################################################################################
+    sh:property la:prop_classified;
+
+    ###################################################################################################################
+    # recommended that production events have a timespan
+    ###################################################################################################################
+    sh:property la:prop_has_timeSpan;
+
+    ###################################################################################################################
+    # optional for production to be referred by another entity
+    ###################################################################################################################
+    sh:property la:prop_has_referred_to_by;
+
+    ###################################################################################################################
+    # optional for production to take place at a 'Place'
+    ###################################################################################################################
+    sh:property la:prop_has_took_place_at;
+
+    ###################################################################################################################
+    # optional for production to be caused by another 'Activity'
+    ###################################################################################################################
+    sh:property la:prop_has_caused_by;
+
+    ###################################################################################################################
+    # optional for production to be influenced by a 'Person' or 'Group'
+    ###################################################################################################################
+    sh:property la:prop_has_influenced_by;
+
+    ###################################################################################################################
+    # optional for production to be 'carried_out_by' a 'Person' or 'Group'
+    ###################################################################################################################
+    sh:property la:prop_has_carried_out_by;
+
+    ###################################################################################################################
+    # optional for production to have 'used_specific_object'
+    ###################################################################################################################
+    sh:property la:prop_has_used_specific_object;
+
+    ###################################################################################################################
+    # optional for production to have 'technique'
+    ###################################################################################################################
+    sh:property la:prop_has_technique;
+
+    ###################################################################################################################
+    # optional for production to have 'diminished' so long as it refers to a human made object
+    ###################################################################################################################
+    sh:property [
+        sh:path crm:P112_diminished;
+        sh:class crm:E22_Human-Made_Object;
+        sh:minCount 0;
+        sh:severity sh:Violation;
+        sh:message "v57: The predicate 'diminished' must have an object of type 'HumanMadeObject'.";
+    ];
+.
+
+
+######################################################
+# PRODUCTION
+######################################################
+la:prop_production
+    a sh:PropertyShape;
+
+    sh:class crm:E12_Production;
+
+    sh:property la:prop_object_activity;
+
+    ###################################################################################################################
+    # optional for production to have 'part' so long as that 'part' is another production event
+    ###################################################################################################################
+    sh:property [
+        sh:path crm:P9_consists_of;
+        sh:class crm:E12_Production;
+        sh:minCount 0;
+        sh:severity sh:Violation;
+        sh:message "v56: Production 'part' must also be of type 'Production'.";
+    ];
+.
+
+
+la:validate_production
+    a sh:NodeShape;
+    sh:targetClass crm:E12_Production;
+    sh:property la:prop_production;
+.
+
+######################################################
+# PRODUCED_BY 
+######################################################
+la:prop_produced_by
+    a sh:PropertyShape;
+    sh:path crm:P108i_was_produced_by;
+    sh:class crm:E12_Production;
+    sh:minCount 0;
+    sh:message "v54: The object of the 'produced_by' predicate must be of type 'Production'" ;
+    sh:severity sh:Violation;
+.
+
+la:validate_produced_by
+    a sh:NodeShape ;
+    sh:targetSubjectsOf crm:P108i_was_produced_by;
+    sh:property la:prop_produced_by;
+.
+
+######################################################
+# PART REMOVAL
+######################################################
+la:prop_partRemoval
+    a sh:PropertyShape;
+
+    sh:class crm:E80_Part_Removal;
+
+    sh:property la:prop_object_activity;
+
+    ###################################################################################################################
+    # optional for part removal to have 'part' so long as that 'part' is another part removal entity
+    ###################################################################################################################
+    sh:property [
+        sh:path crm:P9_consists_of;
+        sh:class crm:E80_Part_Removal;
+        sh:minCount 0;
+        sh:severity sh:Violation;
+        sh:message "v60: 'PartRemoval' 'part' must also be of type 'PartRemoval'.";
+    ];
+.
+
+
+la:validate_partRemoval
+    a sh:NodeShape;
+    sh:targetClass crm:E80_Part_Removal;
+    sh:property la:prop_partRemoval;
+.
+
+######################################################
+# REMOVED_BY 
+######################################################
+la:prop_removed_by
+    a sh:PropertyShape;
+    sh:path crm:P113i_was_removed_by;
+    sh:class crm:E80_Part_Removal;
+    sh:minCount 0;
+    sh:message "v61: The object of the 'removed_by' predicate must be of type 'PartRemoval'" ;
+    sh:severity sh:Violation;
+.
+
+la:validate_removed_by
+    a sh:NodeShape ;
+    sh:targetSubjectsOf crm:P113i_was_removed_by;
+    sh:property la:prop_removed_by;
+.
+
+
+######################################################
+# DESTRUCTION
+######################################################
+la:prop_destruction
+    a sh:PropertyShape;
+    sh:class crm:E6_Destruction;
+    sh:property la:prop_object_activity;
+.
+
+
+la:validate_destruction
+    a sh:NodeShape;
+    sh:targetClass crm:E6_Destruction;
+    sh:property la:prop_destruction;
+.
+
+######################################################
+# DESTROYED_BY 
+######################################################
+la:prop_destroyed_by
+    a sh:PropertyShape;
+    sh:path crm:P13i_was_destroyed_by;
+    sh:class crm:E6_Destruction;
+    sh:minCount 0;
+    sh:message "v58: The object of the 'destroyed_by' predicate must be a 'Destruction'" ;
+    sh:severity sh:Violation;
+.
+
+la:validate_destroyed_by
+    a sh:NodeShape ;
+    sh:targetSubjectsOf crm:P13i_was_destroyed_by;
+    sh:property la:prop_destroyed_by;
+.
+
+
+######################################################
+# DIMINISHED (only valid for class PartRemoval)
+######################################################
+la:validate_diminished
+    a sh:PropertyShape;
+    sh:targetSubjectsOf crm:P112_diminished;
+    sh:class crm:E80_Part_Removal;
+    sh:message "v62: The 'diminished' predicate can only be used with a subject of type 'PartRemoval'" ;
+    sh:severity sh:Violation;
+.
+
+######################################################################################
+# PART (P6_consists_of in this case) - only usable with 'Production' and 'PartRemoval'
+######################################################################################
+la:validate_part
+    a sh:PropertyShape;
+    sh:targetSubjectsOf crm:P9_consists_of;
+    sh:or ( 
+        [ sh:class crm:E12_Production ]
+        [ sh:class crm:E80_Part_Removal ]
+    );
+    sh:message "w59: The predicate 'part' is only useful with subjects of type 'Production' and 'PartRemoval'.";
+    sh:severity sh:Warning;
+.
+
+

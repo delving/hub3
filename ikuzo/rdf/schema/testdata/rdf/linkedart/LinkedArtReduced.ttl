@@ -1,0 +1,1993 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+crm:P1_is_identified_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property describes the naming or identification of any real world item by a name or any other identifier. \nThis property is intended for identifiers in general use, which form part of the world the model intends to describe, and not merely for internal database identifiers which are specific to a technical system, unless these latter also have a more general use outside the technical context. This property includes in particular identification by mathematical expressions such as coordinate systems used for the identification of instances of E53 Place. The property does not reveal anything about when, where and by whom this identifier was used. A more detailed representation can be made using the fully developed (i.e. indirect) path through E15 Identifier Assignment.\n"@en ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "αναγνωρίζεται ως"@el , "est identifiée par"@fr , "is identified by"@en , "идентифицируется посредством"@ru , "é identificado por"@pt , "有识别称号"@zh , "wird bezeichnet als"@de ;
+        rdfs:range     crm:E41_Appellation ;
+        owl:inverseOf  crm:P1i_identifies .
+
+crm:P182i_starts_after_or_with_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "Inverse of P182"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts after or with the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P185i_ends_after_the_end_of , crm:P176i_starts_after_the_start_of ;
+        owl:inverseOf       crm:P182_ends_before_or_with_the_start_of .
+
+crm:P74_has_current_or_former_residence
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property describes the current or former E53 Place of residence of an E39 Actor. \nThe residence may be either the Place where the Actor resides, or a legally registered address of any kind.\n"@en ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "έχει ή είχε κατοικία"@el , "hat derzeitigen oder früheren Sitz"@de , "имеет текущее или бывшее местожительства"@ru , "reside ou residiu em"@pt , "has current or former residence"@en , "réside ou a résidé à"@fr , "目前或曾经居住於"@zh ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P74i_is_current_or_former_residence_of .
+
+crm:P22_transferred_title_to
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the E39 Actor that acquires the legal ownership of an object as a result of an E8 Acquisition. \nThe property will typically describe an Actor purchasing or otherwise acquiring an object from another Actor. However, title may also be acquired, without any corresponding loss of title by another Actor, through legal fieldwork such as hunting, shooting or fishing.\nIn reality the title is either transferred to or from someone, or both.\n"@en ;
+        rdfs:domain         crm:E8_Acquisition ;
+        rdfs:label          "a fait passer le droit de propriété à"@fr , "transferred title to"@en , "übertrug Besitztitel auf"@de , "μετεβίβασε τον τίτλο σε"@el , "передал право собственности"@ru , "转交所有权给"@zh , "transferiu os direitos de propriedade para"@pt ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P14_carried_out_by ;
+        owl:inverseOf       crm:P22i_acquired_title_through .
+
+crm:P156_occupies  rdf:type  rdf:Property ;
+        rdfs:comment   "This property describes the largest volume in space that an instance of E18 Physical Thing has occupied at any time during its existence, with respect to the reference space relative to itself. This allows you to describe the thing itself as a place that may contain other things, such as a box that may contain coins. In other words, it is the volume that contains all the points which the thing has covered at some time during its existence. In the case of an E26 Physical Feature the default reference space is the one in which the object that bears the feature or at least the surrounding matter of the feature is at rest. In this case there is a 1:1 relation of E26 Feature and E53 Place. For simplicity of implementation multiple inheritance (E26 Feature IsA E53 Place) may be a practical approach.\n\nFor instances of E19 Physical Objects the default reference space is the one which is at rest to the object itself, i.e. which moves together with the object. We include in the occupied space the space filled by the matter of the physical thing and all its inner spaces. \n\nThis property is a subproperty of P161 has spatial projection because it refers to its own domain as reference space for its range, whereas P161 has spatial projection may refer to a place in terms of any reference space. For some instances of E18 Physical Object the relative stability of form may not be sufficient to define a useful local reference space, for instance for an amoeba. In such cases the fully developed path to an external reference space and using a temporal validity component may be adequate to determine the place they have occupied.\n\nIn contrast to P156  occupies, the property P53 has former or current location identifies an instance of E53 Place at which a thing is or has been for some unspecified time span.  Further it does not constrain the reference space of the referred instance of P53 Place.\n\t"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "occupies"@en ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P156i_is_occupied_by .
+
+crm:P17i_motivated  rdf:type  rdf:Property ;
+        rdfs:domain         crm:E1_CRM_Entity ;
+        rdfs:label          "ήταν αφορμή"@el , "regte an"@de , "обусловил"@ru , "motivated"@en , "促动了"@zh , "motivou"@pt , "a motivé"@fr ;
+        rdfs:range          crm:E7_Activity ;
+        rdfs:subPropertyOf  crm:P15i_influenced ;
+        owl:inverseOf       crm:P17_was_motivated_by .
+
+crm:P177_assigned_property_of_type
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property associates an instance of E13 Attribute Assignment with the type of property or relation that this assignment maintains to hold between the item to which it assigns an attribute and the attribute itself. Note that the properties defined by the CIDOC CRM also constitute instances of E55 Type themselves. The direction of the assigned property type is understood to be from the attributed item (the range of property P140 assigned attribute to) to the attribute item (the range of the property P141 assigned). More than one property type may be assigned to hold between two items."@en ;
+        rdfs:domain         crm:E13_Attribute_Assignment ;
+        rdfs:label          "assigned property of type"@en ;
+        rdfs:range          crm:E55_Type ;
+        rdfs:subPropertyOf  crm:P2_has_type .
+
+crm:P180i_was_currency_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "Inverse of P180"@en ;
+        rdfs:domain    crm:E98_Currency ;
+        rdfs:label     "was currency of"@en ;
+        rdfs:range     crm:E97_Monetary_Amount ;
+        owl:inverseOf  crm:P180_has_currency .
+
+la:has_member  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Set ;
+        rdfs:label     "has member"@en ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  la:member_of .
+
+crm:P175_starts_before_or_with_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity starts before or simultaneously with the start of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Astart ≤ Bstart is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets, overlaps, starts, started-by, contains, finished-by, equals}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts before or with the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P174_starts_before_the_end_of ;
+        owl:inverseOf       crm:P175i_starts_with_or_after_the_start_of .
+
+crm:P81a_end_of_the_begin
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This is defined as the first boundary of the property P81"@en ;
+        rdfs:domain   crm:E52_Time-Span ;
+        rdfs:label    "τέλος της αρχής"@el , "fim do início"@pt , "конец начала"@ru , "fin du début"@fr , "Ende des Anfangs"@de , "end of the begin"@en ;
+        rdfs:range    xsd:dateTime .
+
+crm:P173i_ends_after_or_with_the_start_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "The inverse relationship of P173"@en ;
+        rdfs:domain    crm:E2_Temporal_Entity ;
+        rdfs:label     "ends after or with the start of"@en ;
+        rdfs:range     crm:E2_Temporal_Entity ;
+        owl:inverseOf  crm:P173_starts_before_or_with_the_end_of .
+
+crm:P75i_is_possessed_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E30_Right ;
+        rdfs:label     "κατέχεται από"@el , "принадлежит"@ru , "sind im Besitz von"@de , "is possessed by"@en , "são detidos por"@pt , "有拥有者"@zh , "est détenu par"@fr ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P75_possesses .
+
+crm:E13_Attribute_Assignment
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises the actions of making assertions about properties of an object or any relation between two items or concepts. \nThis class allows the documentation of how the respective assignment came about, and whose opinion it was. All the attributes or properties assigned in such an action can also be seen as directly attached to the respective item or concept, possibly as a collection of contradictory values. All cases of properties in this model that are also described indirectly through an action are characterised as \"short cuts\" of this action. This redundant modelling of two alternative views is preferred because many implementations may have good reasons to model either the action or the short cut, and the relation between both alternatives can be captured by simple rules. \nIn particular, the class describes the actions of people making propositions and statements during certain museum procedures, e.g. the person and date when a condition statement was made, an identifier was assigned, the museum object was measured, etc. Which kinds of such assignments and statements need to be documented explicitly in structures of a schema rather than free text, depends on if this information should be accessible by structured queries. \n"@en ;
+        rdfs:label       "屬性指定"@zh , "Απόδοση Ιδιοτήτων"@el , "Affectation d'attribut"@fr , "Attribute Assignment"@en , "Merkmalszuweisung"@de , "Atribuição de Característica"@pt , "Присвоение Атрибута"@ru ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+la:digitally_shows  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    dig:D1_Digital_Object ;
+        rdfs:label     "digitally shows"@en ;
+        rdfs:range     crm:E36_Visual_Item ;
+        owl:inverseOf  la:digitally_shown_by .
+
+crm:E1_CRM_Entity  rdf:type  rdfs:Class ;
+        rdfs:comment  "This class comprises all things in the universe of discourse of the CIDOC Conceptual Reference Model. \nIt is an abstract concept providing for three general properties:\n1.\tIdentification by name or appellation, and in particular by a preferred identifier\n2.\tClassification by type, allowing further refinement of the specific subclass an instance belongs to \n3.\tAttachment of free text for the expression of anything not captured by formal properties\nWith the exception of E59 Primitive Value, all other classes within the CRM are directly or indirectly specialisations of E1 CRM Entity. \n"@en ;
+        rdfs:label    "CRM实体"@zh , "Entidade CRM"@pt , "Entité CRM"@fr , "CRM Сущность"@ru , "CRM Entität"@de , "CRM Entity"@en , "Οντότητα CIDOC CRM"@el .
+
+crm:P1i_identifies  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E41_Appellation ;
+        rdfs:label     "被用来识别"@zh , "identifie"@fr , "είναι αναγνωριστικό"@el , "identifies"@en , "bezeichnet"@de , "identifica"@pt , "идентифицирует"@ru ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P1_is_identified_by .
+
+la:DigitalService  rdf:type  rdfs:Class ;
+        rdfs:comment     ""@en ;
+        rdfs:label       "Digital Service"@en ;
+        rdfs:subClassOf  dig:D1_Digital_Object .
+
+crm:P7_took_place_at  rdf:type  rdf:Property ;
+        rdfs:comment  "This property describes the spatial location of an instance of E4 Period. \n\nThe related E53 Place should be seen as an approximation of the geographical area within which the phenomena that characterise the period in question occurred. P7took place at (witnessed) does not convey any meaning other than spatial positioning (generally on the surface of the earth).  For example, the period \"Révolution française\" can be said to have taken place in “France”, the “Victorian” period, may be said to have taken place in “Britain” and its colonies, as well as other parts of Europe and north America.\nA period can take place at multiple locations.\nIt is a shortcut of the more fully developed path from E4 Period through P161 has spatial projection, E53 Place, P89 falls within (contains) to E53 Place. \n"@en ;
+        rdfs:domain   crm:E4_Period ;
+        rdfs:label    "fand statt in"@de , "совершался на"@ru , "a eu lieu dans"@fr , "ocorreu em"@pt , "έλαβε χώρα σε"@el , "took place at"@en , "发生地在"@zh ;
+        rdfs:range    crm:E53_Place .
+
+crm:P56_bears_feature
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property links an instance of E19 Physical Object to an instance of E26 Physical Feature that it bears.\nAn E26 Physical Feature can only exist on one object. One object may bear more than one E26 Physical Feature. An E27 Site should be considered as an E26 Physical Feature on the surface of the Earth.\nAn instance B of E26 Physical Feature being a detail of the structure of another instance A of E26 Physical Feature can be linked to B by use of the property P46 is composed of (forms part of). This implies that the subfeature B is P56i found on the same E19 Physical Object as A.\nP56 bears feature (is found on) is a shortcut. A more detailed representation can make use of the fully developed (i.e. indirect) path from E19 Physical Object through P59 has section (is located on or\nDefinition of the CIDOC Conceptual Reference Model 149 within), E53 Place, P53 has former or current location (is former or current location of) to E26 Physical Feature.\n"@en ;
+        rdfs:domain         crm:E19_Physical_Object ;
+        rdfs:label          "несет признак"@ru , "possui característica"@pt , "trägt Merkmal"@de , "φέρει μόρφωμα"@el , "présente pour caractéristique"@fr , "有外貌表征"@zh , "bears feature"@en ;
+        rdfs:subPropertyOf  crm:P46_is_composed_of ;
+        owl:inverseOf       crm:P56i_is_found_on .
+
+crm:P56i_is_found_on  rdf:type  rdf:Property ;
+        rdfs:label          "βρίσκεται σε"@el , "se trouve sur"@fr , "é encontrada em"@pt , "is found on"@en , "найден на"@ru , "wird gefunden auf"@de , "被见於"@zh ;
+        rdfs:range          crm:E19_Physical_Object ;
+        rdfs:subPropertyOf  crm:P46i_forms_part_of ;
+        owl:inverseOf       crm:P56_bears_feature .
+
+crm:E21_Person  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises real persons who live or are assumed to have lived. \nLegendary figures that may have existed, such as Ulysses and King Arthur, fall into this class if the documentation refers to them as historical figures. In cases where doubt exists as to whether several persons are in fact identical, multiple instances can be created and linked to indicate their relationship. The CRM does not propose a specific form to support reasoning about possible identity.\n"@en ;
+        rdfs:label       "人物"@zh , "Pessoa"@pt , "Πρόσωπο"@el , "Личность"@ru , "Personne"@fr , "Person"@en , "Person"@de ;
+        rdfs:subClassOf  crm:E39_Actor , crm:E20_Biological_Object .
+
+la:added_member  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Addition ;
+        rdfs:label     "added"@en ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  la:added_member_by .
+
+la:equivalent  rdf:type  rdf:Property ;
+        rdfs:comment  "Similar to skos:exactMatch, the referenced entity is an equivalent instance to the referencing entity. This would not have the same inference issue as exactMatch, whereby the domain and range become skos:Concept, which is equivalent to E55_Type ... and thus everything becomes a Type."@en ;
+        rdfs:domain   crm:E1_CRM_Entity ;
+        rdfs:label    "has equivalent instance"@en ;
+        rdfs:range    crm:E1_CRM_Entity .
+
+crm:P99i_was_dissolved_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E74_Group ;
+        rdfs:label          "foi dissolvido por"@pt , "a été dissous par"@fr , "wurde aufgelöst durch"@de , "был распущен посредством"@ru , "was dissolved by"@en , "διαλύθηκε από"@el , "被解散於"@zh ;
+        rdfs:range          crm:E68_Dissolution ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P99_dissolved .
+
+crm:P146_separated_from
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the instance of E74 Group an instance of E39 Actor leaves through an instance of E86 Leaving.\nAlthough a Leaving activity normally concerns only one instance of E74 Group, it is possible to imagine circumstances under which leaving one E74 Group implies leaving another E74 Group as well.\n"@en ;
+        rdfs:domain         crm:E86_Leaving ;
+        rdfs:label          "脱离了群组"@zh , "entließ von"@de , "separated from"@en ;
+        rdfs:range          crm:E74_Group ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P146i_lost_member_by .
+
+crm:P22i_acquired_title_through
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "adquiriu os direitos de propriedade por meio da"@pt , "erwarb Besitztitel durch"@de , "получил право собственности через"@ru , "απέκτησε τον τίτλο μέσω"@el , "a acquis le droit de propriété du fait de"@fr , "acquired title through"@en , "获取所有权於"@zh ;
+        rdfs:range          crm:E8_Acquisition ;
+        rdfs:subPropertyOf  crm:P14i_performed ;
+        owl:inverseOf       crm:P22_transferred_title_to .
+
+crm:E64_End_of_Existence
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises events that end the existence of any E77 Persistent Item. \nIt may be used for temporal reasoning about things (physical items, groups of people, living beings) ceasing to exist; it serves as a hook for determination of a terminus postquem and antequem. In cases where substance from a Persistent Item continues to exist in a new form, the process would be documented by E81 Transformation.\n"@en ;
+        rdfs:label       "Конец Существования"@ru , "End of Existence"@en , "Τέλος Ύπαρξης"@el , "Fim da Existência"@pt , "Daseinsende"@de , "存在结束"@zh , "Fin d'existence"@fr ;
+        rdfs:subClassOf  crm:E5_Event .
+
+crm:P129i_is_subject_of
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E1_CRM_Entity ;
+        rdfs:label          "é assunto de"@pt , "είναι θέμα  του/της"@el , "被陈述於"@zh , "is subject of"@en , "est le sujet de"@fr , "является предметом для"@ru , "wird behandelt in"@de ;
+        rdfs:range          crm:E89_Propositional_Object ;
+        rdfs:subPropertyOf  crm:P67i_is_referred_to_by ;
+        owl:inverseOf       crm:P129_is_about .
+
+crm:E39_Actor  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises people, either individually or in groups, who have the potential to perform intentional actions of kinds for which someone may be held responsible.\nThe CRM does not attempt to model the inadvertent actions of such actors. Individual people should be documented as instances of E21 Person, whereas groups should be documented as instances of either E74 Group or its subclass E40 Legal Body.\n"@en ;
+        rdfs:label       "Δράστης"@el , "Agente"@pt , "Akteur"@de , "角色"@zh , "Агент"@ru , "Actor"@en , "Agent"@fr ;
+        rdfs:subClassOf  crm:E77_Persistent_Item .
+
+crm:P111i_was_added_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E18_Physical_Thing ;
+        rdfs:label          "被附加於"@zh , "был добавлен посредством"@ru , "προστέθηκε από"@el , "was added by"@en , "a été ajouté par"@fr , "foi adicionado por"@pt , "wurde hinzugefügt durch"@de ;
+        rdfs:range          crm:E79_Part_Addition ;
+        rdfs:subPropertyOf  crm:P16i_was_used_for , crm:P12i_was_present_at ;
+        owl:inverseOf       crm:P111_added .
+
+crm:P20i_was_purpose_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E5_Event ;
+        rdfs:label     "era o propósito de"@pt , "ήταν σκοπός του/της"@el , "был целью для"@ru , "war Zweck von"@de , "之準備活動是"@zh , "was purpose of"@en , "était le but de"@fr ;
+        rdfs:range     crm:E7_Activity ;
+        owl:inverseOf  crm:P20_had_specific_purpose .
+
+crm:E74_Group  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises any gatherings or organizations of E39 Actors that act collectively or in a similar way due to any form of unifying relationship. In the wider sense this class also comprises official positions which used to be regarded in certain contexts as one actor, independent of the current holder of the office, such as the president of a country. In such cases, it may happen that the Group never had more than one member. A joint pseudonym (i.e., a name that seems indicative of an individual but that is actually used as a persona by two or more people) is a particular case of E74 Group.\nA gathering of people becomes an E74 Group when it exhibits organizational characteristics usually typified by a set of ideas or beliefs held in common, or actions performed together. These might be communication, creating some common artifact, a common purpose such as study, worship, business, sports, etc. Nationality can be modeled as membership in an E74 Group (cf. HumanML markup). Married couples and other concepts of family are regarded as particular examples of E74 Group.\n"@en ;
+        rdfs:label       "Menschliche Gruppe"@de , "Groupe"@fr , "群组"@zh , "Группа"@ru , "Group"@en , "Ομάδα"@el , "Grupo"@pt ;
+        rdfs:subClassOf  crm:E39_Actor .
+
+crm:P107i_is_current_or_former_member_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "目前或曾经加入群组"@zh , "является действующим или бывшим членом"@ru , "είναι ή ήταν μέλος του/της"@el , "is current or former member of"@en , "ist derzeitiges oder früheres Mitglied von"@de , "é ou foi membro de"@pt , "est actuel ou ancien membre de"@fr ;
+        rdfs:range     crm:E74_Group ;
+        owl:inverseOf  crm:P107_has_current_or_former_member .
+
+crm:P31_has_modified  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the E24 Physical Human-Made Thing modified in an E11 Modification.\nIf a modification is applied to a non-man-made object, it is regarded as an E22 Human-Made Object from that time onwards. \n"@en ;
+        rdfs:domain         crm:E11_Modification ;
+        rdfs:label          "has modified"@en , "veränderte"@de , "修改了"@zh , "a modifié"@fr , "modificou"@pt , "изменил"@ru , "τροποποίησε"@el ;
+        rdfs:range          crm:E24_Physical_Human-Made_Thing ;
+        rdfs:subPropertyOf  crm:P12_occurred_in_the_presence_of ;
+        owl:inverseOf       crm:P31i_was_modified_by .
+
+la:invalidates  rdf:type  rdf:Property ;
+        rdfs:comment   "The right which is invalidated by a RightAcquisition"@en ;
+        rdfs:domain    la:RightAcquisition ;
+        rdfs:label     "invalidates"@en ;
+        rdfs:range     crm:E30_Right ;
+        owl:inverseOf  la:invalidated_by .
+
+crm:P141i_was_assigned_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "foi atribuído por"@pt , "被指定了属性值於"@zh , "был присвоен посредством"@ru , "wurde zugewiesen durch"@de , "αποδόθηκε από"@el , "was assigned by"@en , "a été attribué par"@fr ;
+        rdfs:range     crm:E13_Attribute_Assignment ;
+        owl:inverseOf  crm:P141_assigned .
+
+skos:broader  rdf:type  rdf:Property ;
+        rdfs:comment   "Or is narrower term of"@en ;
+        rdfs:domain    crm:E55_Type ;
+        rdfs:label     "has broader term"@en ;
+        rdfs:range     crm:E55_Type ;
+        owl:inverseOf  skos:narrower .
+
+crm:P184i_ends_with_or_after_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "Inverse of P184"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends with or after the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P174i_ends_after_the_start_of ;
+        owl:inverseOf       crm:P184_ends_before_or_with_the_end_of .
+
+la:established_by  rdf:type  rdf:Property ;
+        rdfs:comment   "The RightAcquisition that established this Right"@en ;
+        rdfs:domain    crm:E30_Right ;
+        rdfs:label     "established by"@en ;
+        rdfs:range     la:RightAcquisition ;
+        owl:inverseOf  la:establishes .
+
+la:paid_from  rdf:type  rdf:Property ;
+        rdfs:comment  "Who the payment came from"@en ;
+        rdfs:domain   la:Payment ;
+        rdfs:label    "Paid From"@en ;
+        rdfs:range    crm:E39_Actor .
+
+crm:P182_ends_before_or_with_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity ends before or simultaneously with the start of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Aend ≤ Bstart is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends before or at the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P185_ends_before_the_end_of , crm:P176_starts_before_the_start_of ;
+        owl:inverseOf       crm:P182i_starts_after_or_with_the_end_of .
+
+crm:P113_removed  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the E18 Physical Thing that is removed during an E80 Part Removal activity."@en ;
+        rdfs:domain         crm:E80_Part_Removal ;
+        rdfs:label          "удален"@ru , "entfernte"@de , "a enlevé"@fr , "αφαίρεσε"@el , "removed"@en , "移除了"@zh , "removeu"@pt ;
+        rdfs:range          crm:E18_Physical_Thing ;
+        rdfs:subPropertyOf  crm:P12_occurred_in_the_presence_of ;
+        owl:inverseOf       crm:P113i_was_removed_by .
+
+la:digitally_available_via
+        rdf:type       rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    dig:D1_Digital_Object ;
+        rdfs:label     "digitally available via"@en ;
+        rdfs:range     la:DigitalService ;
+        owl:inverseOf  la:digitally_makes_available .
+
+crm:P90_has_value  rdf:type  rdf:Property ;
+        rdfs:comment  "This property allows an E54 Dimension to be approximated by an E60 Number primitive."@en ;
+        rdfs:domain   crm:E54_Dimension ;
+        rdfs:label    "a la valeur"@fr , "имеет значение"@ru , "hat Wert"@de , "tem valor"@pt , "has value"@en , "έχει τιμή"@el , "有数值"@zh ;
+        rdfs:range    rdfs:Literal .
+
+la:Addition  rdf:type    rdfs:Class ;
+        rdfs:comment     "The addition of some entity to a Set"@en ;
+        rdfs:label       "Addition"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+skos:hasTopConcept  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E32_Authority_Document ;
+        rdfs:label     "has top concept"@en ;
+        rdfs:range     crm:E55_Type ;
+        owl:inverseOf  skos:topConceptOf .
+
+crm:E71_Human-Made_Thing
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises discrete, identifiable man-made items that are documented as single units. \nThese items are either intellectual products or man-made physical things, and are characterized by relative stability. They may for instance have a solid physical form, an electronic encoding, or they may be logical concepts or structures.\n"@en ;
+        rdfs:label       "人造物"@zh , "Künstliches"@de , "Human-Made Thing"@en , "Chose fabriquée"@fr , "Ανθρώπινο Δημιούργημα"@el , "Coisa Fabricada"@pt , "Рукотворная Вещь"@ru ;
+        rdfs:subClassOf  crm:E70_Thing .
+
+crm:P72_has_language  rdf:type  rdf:Property ;
+        rdfs:comment   "This property describes the E56 Language of an E33 Linguistic Object. \nLinguistic Objects are composed in one or more human Languages. This property allows these languages to be documented.\n"@en ;
+        rdfs:domain    crm:E33_Linguistic_Object ;
+        rdfs:label     "使用语言"@zh , "has language"@en , "é da língua "@pt , "hat Sprache"@de , "est en langue"@fr , "έχει γλώσσα"@el , "имеет язык"@ru ;
+        rdfs:range     crm:E56_Language ;
+        owl:inverseOf  crm:P72i_is_language_of .
+
+crm:E31_Document  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises identifiable immaterial items that make propositions about reality.\nThese propositions may be expressed in text, graphics, images, audiograms, videograms or by other similar means. Documentation databases are regarded as a special case of E31 Document. This class should not be confused with the term “document” in Information Technology, which is compatible with E73 Information Object.\n"@en ;
+        rdfs:label       "Document"@fr , "文献"@zh , "Documento"@pt , "Τεκμήριο"@el , "Dokument"@de , "Документ"@ru , "Document"@en ;
+        rdfs:subClassOf  crm:E73_Information_Object .
+
+crm:E33_E41_Linguistic_Appellation
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "A merge class for situations beyond Title where both language and appellation are required."@en ;
+        rdfs:label       "Linguistic Appellation"@en ;
+        rdfs:subClassOf  crm:E41_Appellation , crm:E33_Linguistic_Object .
+
+la:paid_to  rdf:type  rdf:Property ;
+        rdfs:comment  "Who the payment went to"@en ;
+        rdfs:domain   la:Payment ;
+        rdfs:label    "Paid To"@en ;
+        rdfs:range    crm:E39_Actor .
+
+crm:P198_holds_or_supports
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property relates one instance of E18 Physical Thing which acts as a container or support to a\nsupported or contained instance of E18 Physical Thing. T ypical examples of E18 Physical Things\nwhich are intended to function as a container or support include shelves, folders or boxes."@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "holds or supports"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P198i_is_held_or_supported_by .
+
+crm:P67_refers_to  rdf:type  rdf:Property ;
+        rdfs:comment   "This property documents that an E89 Propositional Object makes a statement about an instance of E1 CRM Entity. P67 refers to (is referred to by) has the P67.1 has type link to an instance of E55 Type. This is intended to allow a more detailed description of the type of reference. This differs from P129 is about (is subject of), which describes the primary subject or subjects of the E89 Propositional Object.\n"@en ;
+        rdfs:domain    crm:E89_Propositional_Object ;
+        rdfs:label     "论及"@zh , "verweist auf"@de , "ссылается на"@ru , "αναφέρεται σε"@el , "fait référence à"@fr , "referencia"@pt , "refers to"@en ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P67i_is_referred_to_by .
+
+crm:P176i_starts_after_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "The inverse relationship of P176"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts after the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P175i_starts_with_or_after_the_start_of ;
+        owl:inverseOf       crm:P176_starts_before_the_start_of .
+
+crm:E89_Propositional_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises immaterial items, including but not limited to stories, plots, procedural prescriptions, algorithms, laws of physics or images that are, or represent in some sense, sets of propositions about real or imaginary things and that are documented as single units or serve as topics of discourse. \n\t\nThis class also comprises items that are “about” something in the sense of a subject. In the wider sense, this class includes expressions of psychological value such as non-figural art and musical themes. However, conceptual items such as types and classes are not instances of E89 Propositional Object. This should not be confused with the definition of a type, which is indeed an instance of E89 Propositional Object.\n"@en ;
+        rdfs:label       "陈述性物件"@zh , "Propositional Object"@en , "Aussagenobjekt"@de ;
+        rdfs:subClassOf  crm:E28_Conceptual_Object .
+
+crm:P30i_custody_transferred_through
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "a changé de détenteur du fait de"@fr , "custody transferred through"@en , "wechselte Gewahrsam durch"@de , "άλλαξε κατοχή μέσω"@el , "custódia transferida por meio de"@pt , "被移转了保管作业於"@zh , "опека передана через"@ru ;
+        rdfs:range     crm:E10_Transfer_of_Custody ;
+        owl:inverseOf  crm:P30_transferred_custody_of .
+
+la:Payment  rdf:type     rdfs:Class ;
+        rdfs:comment     "Payment of Money"@en ;
+        rdfs:label       "Payment"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P89_falls_within  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies an instance of E53 Place that falls wholly within the extent of another E53 Place.\nIt addresses spatial containment only, and does not imply any relationship between things or phenomena occupying these places.\n"@en ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "περιέχεται σε"@el , "está contido em"@pt , "空间上被包围於"@zh , "содержится в"@ru , "fällt in"@de , "falls within"@en , "s’insère dans"@fr ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P89i_contains .
+
+crm:E81_Transformation
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises the events that result in the simultaneous destruction of one or more than one E77 Persistent Item and the creation of one or more than one E77 Persistent Item that preserves recognizable substance from the first one(s) but has fundamentally different nature and identity. \nAlthough the old and the new instances of E77 Persistent Item are treated as discrete entities having separate, unique identities, they are causally connected through the E81 Transformation; the destruction of the old E77 Persistent Item(s) directly causes the creation of the new one(s) using or preserving some relevant substance. Instances of E81 Transformation are therefore distinct from re-classifications (documented using E17 Type Assignment) or modifications (documented using E11 Modification) of objects that do not fundamentally change their nature or identity. Characteristic cases are reconstructions and repurposing of historical buildings or ruins, fires leaving buildings in ruins, taxidermy of specimen in natural history and the reorganization of a corporate body into a new one.\n"@en ;
+        rdfs:label       "转变"@zh , "Umwandlung"@de , "Трансформация"@ru , "Transformation"@fr , "Transformation"@en , "Transformação"@pt , "Μετατροπή"@el ;
+        rdfs:subClassOf  crm:E63_Beginning_of_Existence , crm:E64_End_of_Existence .
+
+crm:P55i_currently_holds
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "в данный момент содержит"@ru , "hält derzeitig"@de , "é localização atual de"@pt , "currently holds"@en , "είναι θέση του"@el , "目前置放了"@zh , "est localisation actuelle de"@fr ;
+        rdfs:range     crm:E19_Physical_Object ;
+        owl:inverseOf  crm:P55_has_current_location .
+
+crm:P134i_was_continued_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E7_Activity ;
+        rdfs:label          "a été continuée par"@fr , "foi continuada por"@pt , "wurde fortgesetzt durch"@de , "was continued by"@en , "有延续活动"@zh , "συνεχίστηκε από"@el , "был продолжен"@ru ;
+        rdfs:range          crm:E7_Activity ;
+        rdfs:subPropertyOf  crm:P174i_ends_after_the_start_of , crm:P15i_influenced ;
+        owl:inverseOf       crm:P134_continued .
+
+crm:P46_is_composed_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property allows instances of E18 Physical Thing to be analysed into component elements.\n\nComponent elements, since they are themselves instances of E18 Physical Thing, may be further analysed into sub-components, thereby creating a hierarchy of part decomposition. An instance of E18 Physical Thing may be shared between multiple wholes, for example two buildings may share a common wall. This property does not specify when and for how long a component element resided in the respective whole. If  a component is not part of a whole from the beginning of existence or until the end of existence of the whole, the classes E79 Part Addition and E90 Part Removal can be used to document when a component became part of a particular whole and/or when it stopped being a part of it. For the time-span of being part of the respective whole, the component is completely contained in the place the whole occupies.\n\nThis property is intended to describe specific components that are individually documented, rather than general aspects. Overall descriptions of the structure of an instance of E18 Physical Thing are captured by the P3 has note property.\n\nThe instances of E57 Material of which an item of E18 Physical Thing is composed should be documented using P45 consists of (is incorporated in).\n"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "αποτελείται από"@el , "有组件"@zh , "is composed of"@en , "é composto de"@pt , "составлен из"@ru , "est composée de"@fr , "ist zusammengesetzt aus"@de ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P46i_forms_part_of .
+
+crm:P98i_was_born  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E21_Person ;
+        rdfs:label     "был рожден"@ru , "was born"@en , "wurde geboren durch"@de , "veio à vida pelo"@pt , "est né"@fr , "诞生於"@zh , "γεννήθηκε"@el ;
+        rdfs:range     crm:E67_Birth ;
+        owl:inverseOf  crm:P98_brought_into_life .
+
+crm:E41_Appellation  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises signs, either meaningful or not, or arrangements of signs following a specific syntax, that are used or can be used to refer to and identify a specific instance of some class or category within a certain context.\nInstances of E41 Appellation do not identify things by their meaning, even if they happen to have one, but instead by convention, tradition, or agreement. Instances of E41 Appellation are cultural constructs; as such, they have a context, a history, and a use in time and space by some group of users. A given instance of E41 Appellation can have alternative forms, i.e., other instances of E41 Appellation that are always regarded as equivalent independent from the thing it denotes. \nSpecific subclasses of E41 Appellation should be used when instances of E41 Appellation of a characteristic form are used for particular objects. \nE41 Appellation should not be confused with the act of naming something. Cf. E15 Identifier Assignment\n"@en ;
+        rdfs:label       "Designação"@pt , "Benennung"@de , "Ονομασία"@el , "Обозначение"@ru , "称号"@zh , "Appellation"@fr , "Appellation"@en ;
+        rdfs:subClassOf  crm:E90_Symbolic_Object .
+
+la:removed_from_by  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Set ;
+        rdfs:label     "removed from by"@en ;
+        rdfs:range     la:Removal ;
+        owl:inverseOf  la:removed_from .
+
+crm:P140_assigned_attribute_to
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property indicates the item to which an attribute or relation is assigned. "@en ;
+        rdfs:domain    crm:E13_Attribute_Assignment ;
+        rdfs:label     "a affecté un attribut à"@fr , "atribuiu atributo para"@pt , "assigned attribute to"@en , "απέδωσε ιδιότητα σε"@el , "wies Merkmal zu"@de , "присвоил атрибут для"@ru , "指定属性给"@zh ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P140i_was_attributed_by .
+
+crm:P189i_is_approximated_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property associates an instance of E53 Place with another instance of E53 Place, which is defined in the same reference space, and which is used to approximate the former. The property does not necessarily state the quality or accuracy of this approximation, but rather indicates the use of the first instance of place to approximate the second.\nIn common documentation practice, find or encounter spots e.g. in archaeology, botany or zoology are often related to the closest village, river or other named place without detailing the relation, e.g. if it is located within the village or in a certain distance of the specified place. In this case the stated “phenomenal” place found in the documentation can be seen as approximation of the actual encounter spot without more specific knowledge.\nIn more recent documentation often point coordinate information is provided that originates from GPS measurements or georeferencing from a map. This point coordinate information does not state the actual place of the encounter s pot but tries to approximate it with a “declarative” place. The accuracy depends on the methodology used when creating the coordinates. It may be dependent on technical limitations like GPS accuracy but also on the method where the GPS location is taken in relation to the measured feature. If the methodology is known a maximum deviation from the measured point can be calculated and the encounter or feature may be related to the resulting circle using the P171 at some place within property."@en ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "approximates"@en ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P189_approximates .
+
+crm:P15i_influenced  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "оказал влияние на"@ru , "a influencé"@fr , "影响了"@zh , "beeinflußte"@de , "influenciou"@pt , "επηρέασε"@el , "influenced"@en ;
+        rdfs:range     crm:E7_Activity ;
+        owl:inverseOf  crm:P15_was_influenced_by .
+
+crm:E12_Production  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises activities that are designed to, and succeed in, creating one or more new items. \nIt specializes the notion of modification into production. The decision as to whether or not an object is regarded as new is context sensitive. Normally, items are considered “new” if there is no obvious overall similarity between them and the consumed items and material used in their production. In other cases, an item is considered “new” because it becomes relevant to documentation by a modification. For example, the scribbling of a name on a potsherd may make it a voting token. The original potsherd may not be worth documenting, in contrast to the inscribed one. \nThis entity can be collective: the printing of a thousand books, for example, would normally be considered a single event. \nAn event should also be documented using E81 Transformation if it results in the destruction of one or more objects and the simultaneous production of others using parts or material from the originals. In this case, the new items have separate identities and matter is preserved, but identity is not.\n"@en ;
+        rdfs:label       "Production"@en , "Production"@fr , "Herstellung"@de , "Παραγωγή"@el , "Produção"@pt , "生产"@zh , "Событие Производства"@ru ;
+        rdfs:subClassOf  crm:E11_Modification , crm:E63_Beginning_of_Existence .
+
+crm:P17_was_motivated_by
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property describes an item or items that are regarded as a reason for carrying out the E7 Activity. \nFor example, the discovery of a large hoard of treasure may call for a celebration, an order from head quarters can start a military manoeuvre. \n"@en ;
+        rdfs:domain         crm:E7_Activity ;
+        rdfs:label          "был обусловлен посредством"@ru , "wurde angeregt durch"@de , "a été motivée par"@fr , "有促动事物"@zh , "είχε ως αφορμή"@el , "foi motivado por"@pt , "was motivated by"@en ;
+        rdfs:range          crm:E1_CRM_Entity ;
+        rdfs:subPropertyOf  crm:P15_was_influenced_by ;
+        owl:inverseOf       crm:P17i_motivated .
+
+crm:P173_starts_before_or_with_the_end_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity starts before or simultaneously with the end of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Astart ≤ Bend is true.\n This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to the disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets, met-by, overlaps, starts, started-by, contains, finishes, finished-by, equals, during, overlapped by}"@en ;
+        rdfs:domain    crm:E2_Temporal_Entity ;
+        rdfs:label     "starts before or with the end of"@en ;
+        rdfs:range     crm:E2_Temporal_Entity ;
+        owl:inverseOf  crm:P173i_ends_after_or_with_the_start_of .
+
+crm:P91_has_unit  rdf:type  rdf:Property ;
+        rdfs:comment  "This property shows the type of unit an E54 Dimension was expressed in."@en ;
+        rdfs:domain   crm:E54_Dimension ;
+        rdfs:label    "имеет единицу"@ru , "hat Einheit"@de , "tem unidade"@pt , "έχει μονάδα μέτρησης"@el , "has unit"@en , "有单位"@zh , "a pour unité"@fr ;
+        rdfs:range    crm:E58_Measurement_Unit .
+
+crm:P184_ends_before_or_with_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity ends before or simultaneously with the end of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Aend ≤ Bend is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets, overlaps, finished by, start, equals, during, finishes}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends before or with the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P174_starts_before_the_end_of ;
+        owl:inverseOf       crm:P184i_ends_with_or_after_the_end_of .
+
+crm:P180_has_currency
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property establishes the relationship between an instance of E97 Monetary Amount and the currency that it is measured in."@en ;
+        rdfs:domain         crm:E97_Monetary_Amount ;
+        rdfs:label          "has currency"@en ;
+        rdfs:range          crm:E98_Currency ;
+        rdfs:subPropertyOf  crm:P91_has_unit ;
+        owl:inverseOf       crm:P180i_was_currency_of .
+
+crm:P174_starts_before_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity starts definitely before the end of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Astart < Bend is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983] :{before, meets, overlaps, starts, started-by, contains, finishes, finished-by, equals, during, overlapped by} Typically, this property is a consequence of a known influence of some event on another event or activity, such as a novel written by someone being continued by someone else, or the knowledge of a defeat on a distant battlefield causing people to end their ongoing activities"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts before the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P173_starts_before_or_with_the_end_of ;
+        owl:inverseOf       crm:P174i_ends_after_the_start_of .
+
+crm:P108_has_produced
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the E24 Physical Human-Made Thing that came into existence as a result of an E12 Production.\nThe identity of an instance of E24 Physical Human-Made Thing is not defined by its matter, but by its existence as a subject of documentation. An E12 Production can result in the creation of multiple instances of E24 Physical Human-Made Thing.\n"@en ;
+        rdfs:domain         crm:E12_Production ;
+        rdfs:label          "有产出物"@zh , "has produced"@en , "παρήγαγε"@el , "produziu"@pt , "a produit"@fr , "hat hergestellt"@de , "произвел"@ru ;
+        rdfs:range          crm:E24_Physical_Human-Made_Thing ;
+        rdfs:subPropertyOf  crm:P31_has_modified ;
+        owl:inverseOf       crm:P108i_was_produced_by .
+
+crm:P111_added  rdf:type    rdf:Property ;
+        rdfs:comment        "This property identifies the E18 Physical Thing that is added during an E79 Part Addition activity\n"@en ;
+        rdfs:domain         crm:E79_Part_Addition ;
+        rdfs:label          "a ajouté"@fr , "附加上部件"@zh , "added"@en , "добавил"@ru , "fügte hinzu"@de , "προσέθεσε"@el , "adicionou"@pt ;
+        rdfs:range          crm:E18_Physical_Thing ;
+        rdfs:subPropertyOf  crm:P16_used_specific_object , crm:P12_occurred_in_the_presence_of ;
+        owl:inverseOf       crm:P111i_was_added_by .
+
+crm:E69_Death  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the deaths of human beings. \nIf a person is killed, their death should be instantiated as E69 Death and as E7 Activity. The death or perishing of other living beings should be documented using E64 End of Existence.\n"@en ;
+        rdfs:label       "Смерть"@ru , "Mort"@fr , "Θάνατος"@el , "Death"@en , "Morte"@pt , "死亡"@zh , "Tod"@de ;
+        rdfs:subClassOf  crm:E64_End_of_Existence .
+
+crm:P185_ends_before_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity ends definitely before the end of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Aend < Bend is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets, overlaps, starts, during}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends before the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P184_ends_before_or_with_the_end_of ;
+        owl:inverseOf       crm:P185i_ends_after_the_end_of .
+
+crm:E98_Currency  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the units in which a monetary system, supported by an administrative authority or other community, quantifies and arithmetically compares all monetary amounts declared in the unit. The unit of a monetary system must describe a nominal value which is kept constant by its administrative authority and an associated banking system if it exists, and not by market value. For instance, one may pay with grams of gold, but the respective monetary amount would have been agreed as the gold price in US dollars on the day of the payment. Under this definition, British Pounds, U.S. Dollars, and European Euros are examples of currency, but “grams of gold” is not. One monetary system has one and only one currency. Instances of this class must not be confused with coin denominations, such as “Dime” or “Sestertius”. Non-monetary exchange of value in terms of quantities of a particular type of goods, such as cows, do not constitute a currency."@en ;
+        rdfs:label       "Currency"@en ;
+        rdfs:subClassOf  crm:E55_Type .
+
+crm:E18_Physical_Thing
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises all persistent physical items with a relatively stable form, man-made or natural.\n\nDepending on the existence of natural boundaries of such things, the CRM distinguishes the instances of E19 Physical Object from instances of E26 Physical Feature, such as holes, rivers, pieces of land etc. Most instances of E19 Physical Object can be moved (if not too heavy), whereas features are integral to the surrounding matter.\n\nAn instance of E18 Physical Thing occupies not only a particular geometric space, but in the course of its existence it also forms a trajectory through spacetime, which occupies a real, that is phenomenal, volume in spacetime. We include in the occupied space the space filled by the matter of the physical thing and all its inner spaces, such as the interior of a box. Physical things consisting of aggregations of physically unconnected objects, such as a set of chessmen, occupy a number of individually contiguous spacetime volumes equal to the number of unconnected objects that constitute the set.\n\nWe model E18 Physical Thing to be a subclass of E72 Legal Object and of E92 Spacetime volume. The latter is intended as a phenomenal spacetime volume as defined in CRMgeo (Doerr and Hiebel 2013). By virtue of this multiple inheritance we can discuss the physical extent of an E18 Physical Thing without representing each instance of it together with an instance of its associated spacetime volume. This model combines two quite different kinds of substance: an instance of E18 Physical Thing is matter while a spacetime volume is an aggregation of points in spacetime. However, the real spatiotemporal extent of an instance of E18 Physical Thing is regarded to be unique to it, due to all its details and fuzziness; its identity and existence depends uniquely on the identity of the instance of E18 Physical Thing. Therefore this multiple inheritance is unambiguous and effective and furthermore corresponds to the intuitions of natural language.\n\nThe CIDOC CRM is generally not concerned with amounts of matter in fluid or gaseous states. \n"@en ;
+        rdfs:label       "Υλικό Πράγμα"@el , "Chose matérielle"@fr , "Physical Thing"@en , "实体物"@zh , "Физическая Вещь"@ru , "Materielles"@de , "Coisa Material"@pt ;
+        rdfs:subClassOf  crm:E72_Legal_Object , crm:E92_Spacetime_Volume .
+
+crm:P15_was_influenced_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This is a high level property, which captures the relationship between an E7 Activity and anything that may have had some bearing upon it.\nThe property has more specific sub properties.\n"@en ;
+        rdfs:domain    crm:E7_Activity ;
+        rdfs:label     "находился под влиянием"@ru , "επηρεάστηκε από"@el , "a été influencée par"@fr , "foi influenciado por "@pt , "wurde beeinflußt durch"@de , "was influenced by"@en , "有影响事物"@zh ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P15i_influenced .
+
+sci:S19_Encounter_Event
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises activities of S4 Observation (substance) where an E39 Actor encounters an instance of E18 Physical Thing of a kind relevant for the mission of the observation or regarded as potentially relevant for some community (identity). This observation produces knowledge about the existence of the respective thing at a particular place in or on surrounding matter. This knowledge may be new to the group of people the actor belongs to. In that case we would talk about a discovery. The observer may recognize or assign an individual identity of the thing encountered or regard only the type as noteworthy in the associated documentation or report.\n    Note that this representation treats S19 as a subClass of only E7 Activity for ease of implementation, as we do not need the full set of relationships available via the complete hierarcy. In the full CRMsci, it is Activity -> Attribute Assignment -> Observation -> Encounter.\n"@en ;
+        rdfs:label       "Encounter"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P144i_gained_member_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E74_Group ;
+        rdfs:label          "获得成员於"@zh , "erwarb Mitglied durch"@de , "gained member by"@en ;
+        rdfs:range          crm:E85_Joining ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P144_joined_with .
+
+crm:E8_Acquisition  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises transfers of legal ownership from one or more instances of E39 Actor to one or more other instances of E39 Actor. \nThe class also applies to the establishment or loss of ownership of instances of E18 Physical Thing. It does not, however, imply changes of any other kinds of right. The recording of the donor and/or recipient is optional. It is possible that in an instance of E8 Acquisition there is either no donor or no recipient. Depending on the circumstances, it may describe:\n1.\tthe beginning of ownership\n2.\tthe end of ownership\n3.\tthe transfer of ownership\n4.\tthe acquisition from an unknown source \n5.\tthe loss of title due to destruction of the item\nIt may also describe events where a collector appropriates legal title, for example by annexation or field collection. The interpretation of the museum notion of \"accession\" differs between institutions. The CRM therefore models legal ownership (E8 Acquisition) and physical custody (E10 Transfer of Custody) separately. Institutions will then model their specific notions of accession and deaccession as combinations of these.\n"@en ;
+        rdfs:label       "Απόκτηση"@el , "Aquisição"@pt , "Acquisition"@en , "Acquisition"@fr , "Erwerb"@de , "Событие Приобретения"@ru , "征集取得"@zh ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P32_used_general_technique
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property identifies the technique or method that was employed in an activity.\nThese techniques should be drawn from an external E55 Type hierarchy of consistent terminology of general techniques or methods such as embroidery, oil-painting, carbon dating, etc. Specific documented techniques should be described as instances of E29 Design or Procedure. This property identifies the technique that was employed in an act of modification.\n"@en ;
+        rdfs:domain   crm:E7_Activity ;
+        rdfs:label    "χρησιμοποίησε γενική τεχνική"@el , "使用通用技术"@zh , "benutzte das allgemeine Verfahren"@de , "использовал общую технику"@ru , "usou técnica geral"@pt , "used general technique"@en , "a employé comme technique générique"@fr ;
+        rdfs:range    crm:E55_Type .
+
+crm:P174i_ends_after_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "The inverse relationship of P174"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends after the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P173i_ends_after_or_with_the_start_of ;
+        owl:inverseOf       crm:P174_starts_before_the_end_of .
+
+crm:P198i_is_held_or_supported_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   "Inverse of P198"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "is held or supported by"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P198_holds_or_supports .
+
+crm:E9_Move  rdf:type    rdfs:Class ;
+        rdfs:comment     "This class comprises changes of the physical location of the instances of E19 Physical Object. \nNote, that the class E9 Move inherits the property P7 took place at (witnessed): E53 Place. This property should be used to describe the trajectory or a larger area within which a move takes place, whereas the properties P26 moved to (was destination of), P27 moved from (was origin of) describe the start and end points only. Moves may also be documented to consist of other moves (via P9 consists of (forms part of)), in order to describe intermediate stages on a trajectory. In that case, start and end points of the partial moves should match appropriately between each other and with the overall event.\n"@en ;
+        rdfs:label       "Перемещение"@ru , "Μετακίνηση"@el , "Locomoção"@pt , "移动"@zh , "Objektbewegung"@de , "Déplacement"@fr , "Move"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P190_has_symbolic_content
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property associates  an instance of E90 Symbolic Object with a complete, identifying representation of its content in the form of an instance of E62 String. This property only applies to instances of E90 Symbolic Object that can be represented completely in this form. The representation may be more specific than the symbolic level defining the identity condition of the represented. This depends on the type of the symbolic object represented. For instance, if a name has type \"Modern Greek character sequence\", it may be represented in a loss-free Latin transcription, meaning however the sequence of Greek letters. As another example, if the represented object has type \"English words sequence\", American English or British English spelling variants may be chosen to represent the English word \"colour\" without defining a different symbolic object. If a name has type \"European traditional name\", no particular string may define its content."@en ;
+        rdfs:domain   crm:E90_Symbolic_Object ;
+        rdfs:label    "has symbolic content"@en ;
+        rdfs:range    xsd:string .
+
+crm:P146i_lost_member_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E74_Group ;
+        rdfs:label          "失去成员於"@zh , "verlor Mitglied durch"@de , "lost member by"@en ;
+        rdfs:range          crm:E86_Leaving ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P146_separated_from .
+
+crm:P191i_was_duration_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "Inverse of P191 had duration"@en ;
+        rdfs:domain    crm:E54_Dimension ;
+        rdfs:label     "was duration of"@en ;
+        rdfs:range     crm:E52_Time-Span ;
+        owl:inverseOf  crm:P191_had_duration .
+
+crm:P189_approximates
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property associates an instance of E53 Place with another instance of E53 Place, which is defined in the same reference space, and which is used to approximate the former. The property does not necessarily state the quality or accuracy of this approximation, but rather indicates the use of the first instance of place to approximate the second.\nIn common documentation practice, find or encounter spots e.g. in archaeology, botany or zoology are often related to the closest village, river or other named place without detailing the relation, e.g. if it is located within the village or in a certain distance of the specified place. In this case the stated “phenomenal” place found in the documentation can be seen as approximation of the actual encounter spot without more specific knowledge.\nIn more recent documentation often point coordinate information is provided that originates from GPS measurements or georeferencing from a map. This point coordinate information does not state the actual place of the encounter s pot but tries to approximate it with a “declarative” place. The accuracy depends on the methodology used when creating the coordinates. It may be dependent on technical limitations like GPS accuracy but also on the method where the GPS location is taken in relation to the measured feature. If the methodology is known a maximum deviation from the measured point can be calculated and the encounter or feature may be related to the resulting circle using the P171 at some place within property."@en ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "approximates"@en ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P189i_is_approximated_by .
+
+crm:P94_has_created  rdf:type  rdf:Property ;
+        rdfs:comment   "This property allows a conceptual E65 Creation to be linked to the E28 Conceptual Object created by it. \nIt represents the act of conceiving the intellectual content of the E28 Conceptual Object. It does not represent the act of creating the first physical carrier of the E28 Conceptual Object. As an example, this is the composition of a poem, not its commitment to paper.\n"@en ;
+        rdfs:domain    crm:E65_Creation ;
+        rdfs:label     "criou"@pt , "has created"@en , "a créé"@fr , "hat erschaffen"@de , "создал"@ru , "创造了"@zh , "δημιούργησε"@el ;
+        rdfs:range     crm:E28_Conceptual_Object ;
+        owl:inverseOf  crm:P94i_was_created_by .
+
+crm:P43_has_dimension
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property records a E54 Dimension of some E70 Thing.\nIt is a shortcut of the more fully developed path from E70 Thing through P39 measured (was measured by), E16 Measurement P40 observed dimension (was observed in) to E54 Dimension. It offers no information about how and when an E54 Dimension was established, nor by whom.\nAn instance of E54 Dimension is specific to an instance of E70 Thing.\n"@en ;
+        rdfs:domain    crm:E70_Thing ;
+        rdfs:label     "tem dimensão"@pt , "有规模数量"@zh , "έχει μέγεθος"@el , "has dimension"@en , "a pour dimension"@fr , "имеет величину"@ru , "hat Dimension"@de ;
+        rdfs:range     crm:E54_Dimension ;
+        owl:inverseOf  crm:P43i_is_dimension_of .
+
+crm:P20_had_specific_purpose
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies the relationship between a preparatory activity and the event it is intended to be preparation for.\nThis includes activities, orders and other organisational actions, taken in preparation for other activities or events. \nP20 had specific purpose (was purpose of) implies that an activity succeeded in achieving its aim. If it does not succeed, such as the setting of a trap that did not catch anything, one may document the unrealized intention using P21 had general purpose (was purpose of):E55 Type and/or  P33 used specific technique (was used by): E29 Design or Procedure."@en ;
+        rdfs:domain    crm:E7_Activity ;
+        rdfs:label     "avait pour but spécifique"@fr , "hatte den bestimmten Zweck"@de , "had specific purpose"@en , "имел конкретную цель"@ru , "είχε συγκεκριμένο σκοπό"@el , "有特定目地"@zh , "tinha propósito específico"@pt ;
+        rdfs:range     crm:E5_Event ;
+        owl:inverseOf  crm:P20i_was_purpose_of .
+
+crm:P145i_left_by  rdf:type  rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "脱离群组於"@zh , "wurde entlassen durch"@de , "left by"@en ;
+        rdfs:range          crm:E86_Leaving ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P145_separated .
+
+crm:P185i_ends_after_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "Inverse of P185"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends after the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P184i_ends_with_or_after_the_end_of ;
+        owl:inverseOf       crm:P185_ends_before_the_end_of .
+
+crm:E67_Birth  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the births of human beings. E67 Birth is a biological event focussing on the context of people coming into life. (E63 Beginning of Existence comprises the coming into life of any living beings). \nTwins, triplets etc. are brought into life by the same E67 Birth event. The introduction of the E67 Birth event as a documentation element allows the description of a range of family relationships in a simple model. Suitable extensions may describe more details and the complexity of motherhood with the intervention of modern medicine. In this model, the biological father is not seen as a necessary participant in the E67 Birth event.\n"@en ;
+        rdfs:label       "诞生"@zh , "Рождение"@ru , "Geburt"@de , "Nascimento"@pt , "Naissance"@fr , "Γέννηση"@el , "Birth"@en ;
+        rdfs:subClassOf  crm:E63_Beginning_of_Existence .
+
+crm:P73_has_translation
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property describes the source and target of instances of E33Linguistic Object involved in a translation.\nWhen a Linguistic Object is translated into a new language it becomes a new Linguistic Object, despite being conceptually similar to the source object.\n"@en ;
+        rdfs:domain    crm:E33_Linguistic_Object ;
+        rdfs:label     "hat Übersetzung"@de , "has translation"@en , "έχει μετάφραση"@el , "tem tradução"@pt , "a pour traduction"@fr , "有译文"@zh , "имеет перевод"@ru ;
+        rdfs:range     crm:E33_Linguistic_Object ;
+        owl:inverseOf  crm:P73i_is_translation_of .
+
+crm:P94i_was_created_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E28_Conceptual_Object ;
+        rdfs:label     "foi criado por"@pt , "被创造於"@zh , "wurde erschaffen durch"@de , "δημιουργήθηκε από"@el , "a été créé par"@fr , "was created by"@en , "был создан посредством"@ru ;
+        rdfs:range     crm:E65_Creation ;
+        owl:inverseOf  crm:P94_has_created .
+
+crm:P123i_resulted_from
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "προέκυψε από"@el , "resultado de"@pt , "ergab sich aus"@de , "resulted from"@en , "est le résultat de"@fr , "был результатом"@ru , "肇因於"@zh ;
+        rdfs:range     crm:E81_Transformation ;
+        owl:inverseOf  crm:P123_resulted_in .
+
+sci:O19_encountered_object
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property associates an instance of S19 Encounter Event with an instance of E18 Physical\nThing that has been found. e.g. The finding (S19) encountered (O19) the 18 arrowheads (E18) from Lerna in Argolis"@en ;
+        rdfs:domain    sci:S19_Encounter_Event ;
+        rdfs:label     "encountered object"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  sci:O19i_was_object_encountered_at .
+
+la:access_point  rdf:type  rdf:Property ;
+        rdfs:comment  "From an ur- digital object to a single concrete representation.\n        A locator as opposed to an identifier, similar to the approximated_by for Place."@en ;
+        rdfs:domain   dig:D1_Digital_Object ;
+        rdfs:label    "access point"@en ;
+        rdfs:range    dig:D1_Digital_Object .
+
+crm:P29i_received_custody_through
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "received custody through"@en , "erhielt Gewahrsam durch"@de , "est devenu détenteur grâce à"@fr , "получил опеку через"@ru , "παρέλαβε κατοχή μέσω"@el , "取得保管作业於"@zh , "início da custódia por meio de"@pt ;
+        rdfs:range          crm:E10_Transfer_of_Custody ;
+        rdfs:subPropertyOf  crm:P14i_performed ;
+        owl:inverseOf       crm:P29_custody_received_by .
+
+crm:P176_starts_before_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity starts definitely before the start of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Astart < Bstart is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before, meets, overlaps, contains, finished-by}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts before the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P175_starts_before_of_with_the_start_of ;
+        owl:inverseOf       crm:P176i_starts_after_the_start_of .
+
+crm:P62_depicts  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies something that is depicted by an instance of E24 Physical Human-Made Thing. Depicting is meant in the sense that the surface of the E24 Physical Human-Made Thing shows, through its passive optical qualities or form, a representation of the entity depicted. It does not pertain to inscriptions or any other information encoding.\n\nThis property is a shortcut of the more fully developed path from E24 Physical Man-Made Thing through P65 shows visual item (is shown by), E36 Visual Item, P138 represents (has representation) to E1 CRM Entity. P62.1 mode of depiction allows the nature of the depiction to be refined.\n"@en ;
+        rdfs:domain    crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label     "描绘"@zh , "απεικονίζει"@el , "depicts"@en , "figure"@fr , "retrata"@pt , "bildet ab"@de , "описывает"@ru ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P62i_is_depicted_by .
+
+crm:P71_lists  rdf:type     rdf:Property ;
+        rdfs:comment        "This property documents a source E32 Authority Document for an instance of an E1 CRM Entity.\n"@en ;
+        rdfs:domain         crm:E32_Authority_Document ;
+        rdfs:label          "περιλαμβάνει"@el , "define"@pt , "définit"@fr , "lists"@en , "条列出"@zh , "listet"@de , "перечисляет"@ru ;
+        rdfs:range          crm:E1_CRM_Entity ;
+        rdfs:subPropertyOf  crm:P67_refers_to ;
+        owl:inverseOf       crm:P71i_is_listed_in .
+
+crm:P81b_begin_of_the_end
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This is defined as the second boundary of the property P81"@en ;
+        rdfs:domain   crm:E52_Time-Span ;
+        rdfs:label    "begin of the end"@en , "начать в конце"@ru , "début de la fin"@fr , "αρχή του τέλους"@el , "começar do fim"@pt , "Anfang vom Ende"@de ;
+        rdfs:range    xsd:dateTime .
+
+crm:E70_Thing  rdf:type  rdfs:Class ;
+        rdfs:comment     "This general class comprises discrete, identifiable, instances of E77 Persistent Item that are documented as single units, that either consist of matter or depend on being carried by matter and are characterized by relative stability.\nThey may be intellectual products or physical things. They may for instance have a solid physical form, an electronic encoding, or they may be a logical concept or structure.\n"@en ;
+        rdfs:label       "Chose"@fr , "Πράγμα"@el , "Sache"@de , "Coisa"@pt , "Thing"@en , "万物"@zh , ""@ru ;
+        rdfs:subClassOf  crm:E77_Persistent_Item .
+
+crm:P21_had_general_purpose
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property describes an intentional relationship between an E7 Activity and some general goal or purpose. \nThis may involve activities intended as preparation for some type of activity or event. P21had general purpose (was purpose of) differs from P20 had specific purpose (was purpose of) in that no occurrence of an event is implied as the purpose. \n"@en ;
+        rdfs:domain   crm:E7_Activity ;
+        rdfs:label    "tinha propósito geral"@pt , "имел общую цель"@ru , "avait pour but général"@fr , "had general purpose"@en , "有通用目地"@zh , "είχε γενικό σκοπό"@el , "hatte den allgemeinen Zweck"@de ;
+        rdfs:range    crm:E55_Type .
+
+skos:topConceptOf  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E55_Type ;
+        rdfs:label     "is top concept of"@en ;
+        rdfs:range     crm:E32_Authority_Document ;
+        owl:inverseOf  skos:hasTopConcept .
+
+crm:P12_occurred_in_the_presence_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property describes the active or passive presence of an E77 Persistent Item in an E5 Event without implying any specific role. \nIt connects the history of a thing with the E53 Place and E50 Date of an event. For example, an object may be the desk, now in a museum on which a treaty was signed. The presence of an immaterial thing implies the presence of at least one of its carriers.\n"@en ;
+        rdfs:domain    crm:E5_Event ;
+        rdfs:label     "συνέβη παρουσία του/της"@el , "est arrivé en présence de"@fr , "появился в присутствии"@ru , "occurred in the presence of"@en , "ocorreu na presença de"@pt , "fand statt im Beisein von"@de , "发生现场存在"@zh ;
+        rdfs:range     crm:E77_Persistent_Item ;
+        owl:inverseOf  crm:P12i_was_present_at .
+
+crm:P126_employed  rdf:type  rdf:Property ;
+        rdfs:comment  "This property identifies E57 Material employed in an E11 Modification.\nThe E57 Material used during the E11 Modification does not necessarily become incorporated into the E24 Physical Human-Made Thing that forms the subject of the E11 Modification.\n"@en ;
+        rdfs:domain   crm:E11_Modification ;
+        rdfs:label    "χρησιμοποίησε"@el , "verwendete"@de , "a employé"@fr , "采用了材料"@zh , "employed"@en , "empregou"@pt , "использовал"@ru ;
+        rdfs:range    crm:E57_Material .
+
+crm:E90_Symbolic_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises identifiable symbols and any aggregation of symbols, such as characters, identifiers, traffic signs, emblems, texts, data sets, images, musical scores, multimedia objects, computer program code or mathematical formulae that have an objectively recognizable structure and that are documented as single units.\n\tIt includes sets of signs of any nature, which may serve to designate something, or to communicate some propositional content.\n\tAn instance of E90 Symbolic Object does not depend on a specific physical carrier, which can include human memory, and it can exist on one or more carriers simultaneously. An instance of E90 Symbolic Object may or may not have a specific meaning, for example an arbitrary character string.\n\tIn some cases, the content of an instance of E90 Symbolic Object may completely be represented by a serialized content model, such.. as the property P3 has note allows for describing this content model…P3.1 has type: E55 Type to specify the encoding..\n"@en ;
+        rdfs:label       "符号物件"@zh , "Symbolic Object"@en , "Symbolisches Objekt"@de ;
+        rdfs:subClassOf  crm:E72_Legal_Object , crm:E28_Conceptual_Object .
+
+crm:E68_Dissolution  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the events that result in the formal or informal termination of an E74 Group of people. \nIf the dissolution was deliberate, the Dissolution event should also be instantiated as an E7 Activity.\n"@en ;
+        rdfs:label       "Gruppenauflösung"@de , "Роспуск"@ru , "解散"@zh , "Dissolução"@pt , "Διάλυση Ομάδας"@el , "Dissolution"@fr , "Dissolution"@en ;
+        rdfs:subClassOf  crm:E64_End_of_Existence .
+
+crm:P73i_is_translation_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E33_Linguistic_Object ;
+        rdfs:label     "est la traduction de"@fr , "翻译自"@zh , "is translation of"@en , "είναι μετάφραση του/της"@el , "ist Übersetzung von"@de , "é tradução de"@pt , "является переводом"@ru ;
+        rdfs:range     crm:E33_Linguistic_Object ;
+        owl:inverseOf  crm:P73_has_translation .
+
+crm:P30_transferred_custody_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies an item or items of E18 Physical Thing concerned in an E10 Transfer of Custody activity. \nThe property will typically describe the object that is handed over by an E39 Actor to another Actor’s custody. On occasion, physical custody may be transferred involuntarily or illegally – through accident, unsolicited donation, or theft.\n"@en ;
+        rdfs:domain    crm:E10_Transfer_of_Custody ;
+        rdfs:label     "changement de détenteur concernant"@fr , "transferred custody of"@en , "有保管标的物"@zh , "μετεβίβασε κατοχή του/της/των"@el , "transferida custódia de"@pt , "передало опеку на"@ru , "übertrug Gewahrsam über"@de ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P30i_custody_transferred_through .
+
+crm:P183i_starts_after_the_end_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "Inverse of P183"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts after the end of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P182i_starts_with_or_after_the_end_of ;
+        owl:inverseOf       crm:P183_ends_before_the_start_of .
+
+crm:P25i_moved_by  rdf:type  rdf:Property ;
+        rdfs:domain         crm:E19_Physical_Object ;
+        rdfs:label          "μετακινήθηκε από"@el , "a été déplacé par"@fr , "wurde bewegt durch"@de , "moved by"@en , "перемещен посредством"@ru , "foi locomovido por"@pt , "被移动於"@zh ;
+        rdfs:range          crm:E9_Move ;
+        rdfs:subPropertyOf  crm:P12i_was_present_at ;
+        owl:inverseOf       crm:P25_moved .
+
+crm:P183_ends_before_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property specifies that the temporal extent of the domain instance A of E2 Temporal Entity ends definitely before\nthe start of the temporal extent of the range instance B of E2 Temporal Entity. In other words, if A = [Astart, Aend] and B = [Bstart, Bend], we mean Aend < Bstart is true. This property is part of the set of temporal primitives P173 – P176, P182 – P185. This property corresponds to a disjunction (logical OR) of the following Allen temporal relations [Allen, 1983]: {before}"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "ends before the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P182_ends_before_of_at_the_start_of ;
+        owl:inverseOf       crm:P183i_starts_after_the_end_of .
+
+crm:P106i_forms_part_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E90_Symbolic_Object ;
+        rdfs:label     "bildet Teil von"@de , "αποτελεί μέρος του/της"@el , "组成了"@zh , "fait partie de"@fr , "forms part of"@en , "формирует часть"@ru , "faz parte de"@pt ;
+        rdfs:range     crm:E90_Symbolic_Object ;
+        owl:inverseOf  crm:P106_is_composed_of .
+
+crm:P144_joined_with  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the instance of E74 Group of which an instance of E39 Actor becomes a member through an instance of E85 Joining.\nAlthough a Joining activity normally concerns only one instance of E74 Group, it is possible to imagine circumstances under which becoming member of one Group implies becoming member of another Group as well. \nJoining events allow for describing people becoming members of a group with a more detailed path from E74 Group through P144 joined with (gained member by), E85 Joining, P143 joined (was joined by) to E39 Actor, compared to the shortcut offered by P107 has current or former member (is current or former member of).\nThe property P144.1 kind of member can be used to specify the type of membership or the role the member has in the group. \n"@en ;
+        rdfs:domain         crm:E85_Joining ;
+        rdfs:label          "加入成员到"@zh , "verband mit"@de , "joined with"@en ;
+        rdfs:range          crm:E74_Group ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P144i_gained_member_by .
+
+crm:P110_augmented  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the E24 Physical Human-Made Thing that is added to (augmented) in an E79 Part Addition.\nAlthough a Part Addition event normally concerns only one item of Physical Man-Made Thing, it is possible to imagine circumstances under which more than one item might be added to (augmented). For example, the artist Jackson Pollock trailing paint onto multiple canvasses.\n"@en ;
+        rdfs:domain         crm:E79_Part_Addition ;
+        rdfs:label          "увеличил"@ru , "επαύξησε"@el , "扩增了"@zh , "erweiterte"@de , "a augmenté"@fr , "aumentou"@pt , "augmented"@en ;
+        rdfs:range          crm:E24_Physical_Human-Made_Thing ;
+        rdfs:subPropertyOf  crm:P31_has_modified ;
+        owl:inverseOf       crm:P110i_was_augmented_by .
+
+crm:P82b_end_of_the_end
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This is defined as the second boundary of the property P82"@en ;
+        rdfs:domain   crm:E52_Time-Span ;
+        rdfs:label    "τέλος του τέλους"@el , "конец конец"@ru , "fim do fim"@pt , "end of the end"@en , "Ende vom Ende"@de , "fin de la fin"@fr ;
+        rdfs:range    xsd:dateTime .
+
+la:digitally_makes_available
+        rdf:type       rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    dig:D1_Digital_Object ;
+        rdfs:label     "digitally makes available"@en ;
+        rdfs:range     la:DigitalService ;
+        owl:inverseOf  la:digitally_available_via .
+
+crm:E54_Dimension  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises quantifiable properties that can be measured by some calibrated means and can be approximated by values, i.e. points or regions in a mathematical or conceptual space, such as natural or real numbers, RGB values etc.\nAn instance of E54 Dimension represents the true quantity, independent from its numerical approximation, e.g. in inches or in cm. The properties of the class E54 Dimension allow for expressing the numerical approximation of the values of an instance of E54 Dimension. If the true values belong to a non-discrete space, such as spatial distances, it is recommended to record them as approximations by intervals or regions of indeterminacy enclosing the assumed true values. For instance, a length of 5 cm may be recorded as 4.5-5.5 cm, according to the precision of the respective observation. Note, that interoperability of values described in different units depends critically on the representation as value regions.\nNumerical approximations in archaic instances of E58 Measurement Unit used in historical records should be preserved. Equivalents corresponding to current knowledge should be recorded as additional instances of E54 Dimension as appropriate.\n"@en ;
+        rdfs:label       "规模数量"@zh , "Dimensão"@pt , "Dimensions"@fr , "Величина"@ru , "Μέγεθος"@el , "Dimension"@en , "Maß"@de ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+crm:P113i_was_removed_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E18_Physical_Thing ;
+        rdfs:label          "foi removido por"@pt , "a été enlevée par"@fr , "wurde entfernt durch"@de , "αφαιρέθηκε από"@el , "被移除於"@zh , "was removed by"@en , "был удален посредством"@ru ;
+        rdfs:range          crm:E80_Part_Removal ;
+        rdfs:subPropertyOf  crm:P12i_was_present_at ;
+        owl:inverseOf       crm:P113_removed .
+
+la:Removal  rdf:type     rdfs:Class ;
+        rdfs:comment     "The removal of some entity from a Set"@en ;
+        rdfs:label       "Removal"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:E80_Part_Removal  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the activities that result in an instance of E18 Physical Thing being decreased by the removal of a part.\nTypical scenarios include the detachment of an accessory, the removal of a component or part of a composite object, or the deaccessioning of an object from a curated E78 Collection. If the E80 Part Removal results in the total decomposition of the original object into pieces, such that the whole ceases to exist, the activity should instead be modelled as an E81 Transformation, i.e. a simultaneous destruction and production. In cases where the part removed has no discernible identity prior to its removal but does have an identity subsequent to its removal, the activity should be regarded as both E80 Part Removal and E12 Production. This class of activities forms a basis for reasoning about the history, and continuity of identity over time, of objects that are removed from other objects, such as precious gemstones being extracted from different items of jewelry, or cultural artifacts being deaccessioned from different museum collections over their lifespan.\n"@en ;
+        rdfs:label       "Αφαίρεση Μερών"@el , "Teilentfernung"@de , "Удаление Части"@ru , "Remoção de Parte"@pt , "部件删除"@zh , "Part Removal"@en , "Soustraction d'élément"@fr ;
+        rdfs:subClassOf  crm:E11_Modification .
+
+la:added_to_by  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Set ;
+        rdfs:label     "added to by"@en ;
+        rdfs:range     la:Addition ;
+        owl:inverseOf  la:added_to .
+
+la:establishes  rdf:type  rdf:Property ;
+        rdfs:comment   "The right established by a RightAcquisition"@en ;
+        rdfs:domain    la:RightAcquisition ;
+        rdfs:label     "establishes"@en ;
+        rdfs:range     crm:E30_Right ;
+        owl:inverseOf  la:established_by .
+
+crm:P95_has_formed  rdf:type  rdf:Property ;
+        rdfs:comment   "This property links the founding or E66 Formation for an E74 Group with the Group itself."@en ;
+        rdfs:domain    crm:E66_Formation ;
+        rdfs:label     "组成了"@zh , "a fondé"@fr , "formou"@pt , "has formed"@en , "сформировал"@ru , "σχημάτισε"@el , "hat gebildet"@de ;
+        rdfs:range     crm:E74_Group ;
+        owl:inverseOf  crm:P95i_was_formed_by .
+
+crm:P76_has_contact_point
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies an E51 Contact Point of any type that provides access to an E39 Actor by any communication method, such as e-mail or fax.\n"@en ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "έχει σημείο επικοινωνίας"@el , "有联系方式"@zh , "has contact point"@en , "a pour coordonnées individuelles"@fr , "hat Kontaktpunkt"@de , "имеет контакт"@ru , "possui ponto de contato"@pt ;
+        rdfs:range     crm:E41_Appellation ;
+        owl:inverseOf  crm:P76i_provides_access_to .
+
+rdfs:seeAlso  rdf:type  rdf:Property ;
+        rdfs:comment  "A related resource, that is machine readable and related to the current resource."@en ;
+        rdfs:domain   crm:E1_CRM_Entity ;
+        rdfs:label    "seeAlso"@en ;
+        rdfs:range    crm:E73_Information_Object .
+
+crm:E4_Period  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises sets of coherent phenomena or cultural manifestations occurring in time and space.\n\nIt is the social or physical coherence of these phenomena that identify an E4 Period and not the associated spatiotemporal extent. This extent is only the \"ground\" or space in an abstract physical sense that the actual process of growth, spread and retreat has covered. Consequently, different periods can overlap and coexist in time and space, such as when a nomadic culture exists in the same area and time as a sedentary culture. This also means that overlapping land use rights, common among first nations, amounts to overlapping periods.\n\nOften, this class is used to describe prehistoric or historic periods such as the \"Neolithic Period\", the \"Ming Dynasty\" or the \"McCarthy Era\", but also geopolitical units and activities of settlements are regarded as special cases of E4 Period. However, there are no assumptions about the scale of the associated phenomena. In particular all events are seen as synthetic processes consisting of coherent phenomena. Therefore E4 Period is a superclass of E5 Event. For example, a modern clinical E67 Birth can be seen as both an atomic E5 Event and as an E4 Period that consists of multiple activities performed by multiple instances of E39 Actor.\n\nAs the actual extent of an E4 Period in spacetime we regard the trajectories of the participating physical things during their participation in an instance of E4 Period. This includes the open spaces via which these things have interacted and the spaces by which they had the potential to interact during that period or event in the way defined by the type of the respective period or event. Examples include the air in a meeting room transferring the voices of the participants. Since these phenomena are fuzzy, we assume the spatiotemporal extent to be contiguous, except for cases of phenomena spreading out over islands or other separated areas, including geopolitical units distributed over disconnected areas such as islands or colonies.\n\nWhether the trajectories necessary for participants to travel between these areas are regarded as part of the spatiotemporal extent or not has to be decided in each case based on a concrete analysis, taking use of the sea for other purposes than travel, such as fishing, into consideration. One may also argue that the activities to govern disconnected areas imply travelling through spaces connecting them and that these areas hence are spatially connected in a way, but it appears counterintuitive to consider for instance travel routes in international waters as extensions of geopolitical units.\n\nConsequently, an instance of E4 Period may occupy a number of disjoint spacetime volumes, however there must not be a discontinuity in the  timespan covered by these spacetime volumes. This means that an instance of E4 Period must be contiguous in time. If it has ended in all areas, it has ended as a whole. However it may end in one area before another, such as in the Polynesian migration, and it continues as long as it is ongoing in at least  one area.\n\nWe model E4 Period as a subclass of E2 Temporal Entity and of E92 Spacetime volume. The latter is intended as a phenomenal spacetime volume as defined in CRMgeo (Doerr and Hiebel 2013). By virtue of this multiple inheritance we can discuss the physical extent of an E4 Period without representing each instance of it together with an instance of its associated spacetime volume. This model combines two quite different kinds of substance: an instance of E4 Period is a phenomena while a space-time volume is an aggregation of points in spacetime. However, the real spatiotemporal extent of an instance of E4 Period is regarded to be unique to it due to all its details and fuzziness; its identity and existence depends uniquely on the identity of the instance of E4 Period. Therefore this multiple inheritance is unambiguous and effective and furthermore corresponds to the intuitions of natural language.\n\nThere are two different conceptualisations of 'artistic style', defined either by physical features or by historical context. For example, “Impressionism” can be viewed as a period lasting from approximately 1870 to 1905 during which paintings with particular characteristics were produced by a group of artists that included (among others) Monet, Renoir, Pissarro, Sisley and Degas. Alternatively, it can be regarded as a style applicable to all paintings sharing the characteristics of the works produced by the Impressionist painters, regardless of historical context. The first interpretation is an instance of E4 Period, and the second defines morphological object types that fall under E55 Type.\n\nAnother specific case of an E4 Period is the set of activities and phenomena associated with a settlement, such as the populated period of Nineveh.\n"@en ;
+        rdfs:label       "Período"@pt , "Период"@ru , "期间"@zh , "Période"@fr , "Period"@en , "Phase"@de , "Περίοδος"@el ;
+        rdfs:subClassOf  crm:E92_Spacetime_Volume , crm:E2_Temporal_Entity .
+
+crm:P128_carries  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies an E90 Symbolic Object carried by an instance of E18 Physical Thing.\n"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "несет"@ru , "trägt"@de , "est le support de"@fr , "φέρει"@el , "承载信息"@zh , "é o suporte de"@pt , "carries"@en ;
+        rdfs:range     crm:E90_Symbolic_Object ;
+        owl:inverseOf  crm:P128i_is_carried_by .
+
+crm:E36_Visual_Item  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the intellectual or conceptual aspects of recognisable marks and images.\nThis class does not intend to describe the idiosyncratic characteristics of an individual physical embodiment of a visual item, but the underlying prototype. For example, a mark such as the ICOM logo is generally considered to be the same logo when used on any number of publications. The size, orientation and colour may change, but the logo remains uniquely identifiable. The same is true of images that are reproduced many times. This means that visual items are independent of their physical support. \nThe class E36 Visual Item provides a means of identifying and linking together instances of E24 Physical Human-Made Thing that carry the same visual symbols, marks or images etc. The property P62 depicts (is depicted by) between E24 Physical Human-Made Thing and depicted subjects (E1 CRM Entity) can be regarded as a short-cut of the more fully developed path from E24 Physical Human-Made Thing through P65 shows visual item (is shown by), E36 Visual Item, P138 represents (has representation) to E1CRM Entity, which in addition captures the optical features of the depiction.  \n"@en ;
+        rdfs:label       "Visual Item"@en , "Item Visual"@pt , "Οπτικό Στοιχείο"@el , "Item visuel"@fr , "Визуальный Предмет"@ru , "视觉项目"@zh , "Bildliches"@de ;
+        rdfs:subClassOf  crm:E73_Information_Object .
+
+crm:P100i_died_in  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E21_Person ;
+        rdfs:label     "est mort par"@fr , "morreu em"@pt , "starb in"@de , "πέθανε σε"@el , "死亡於"@zh , "died in"@en , "умер в"@ru ;
+        rdfs:range     crm:E69_Death ;
+        owl:inverseOf  crm:P100_was_death_of .
+
+crm:P16_used_specific_object
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property describes the use of material or immaterial things in a way essential to the performance or the outcome of an E7 Activity. \nThis property typically applies to tools, instruments, moulds, raw materials and items embedded in a product. It implies that the presence of the object in question was a necessary condition for the action. For example, the activity of writing this text required the use of a computer. An immaterial thing can be used if at least one of its carriers is present. For example, the software tools on a computer.\nAnother example is the use of a particular name by a particular group of people over some span to identify a thing, such as a settlement. In this case, the physical carriers of this name are at least the people understanding its use.\n"@en ;
+        rdfs:domain         crm:E7_Activity ;
+        rdfs:label          "usou objeto específico"@pt , "a utilisé l'objet spécifique"@fr , "χρησιμοποίησε αντικείμενο"@el , "used specific object"@en , "benutzte das bestimmte Objekt"@de , "使用特定物"@zh , "использовал особый объект"@ru ;
+        rdfs:range          crm:E70_Thing ;
+        rdfs:subPropertyOf  crm:P12_occurred_in_the_presence_of , crm:P15_was_influenced_by ;
+        owl:inverseOf       crm:P16i_was_used_for .
+
+la:current_permanent_custodian_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "Inverse of Current Permanent Custodian"@en ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "Current Permanent Custodian Of"@en ;
+        rdfs:range     crm:E19_Physical_Object ;
+        owl:inverseOf  la:current_permanent_custodian .
+
+crm:P27_moved_from  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies a starting E53 Place of an E9 Move.\n\nA move will be linked to an origin, such as the move of an artefact from storage to display. A move may be linked to many starting instances of E53 Place by multiple instances of this property. In this case the move describes the picking up of a set of objects. The area of the move includes the origin(s), route and destination(s).\nTherefore the described origin is an instance of E53 Place which P89 falls within (contains) the instance of E53 Place the move P7 took place at.\n"@en ;
+        rdfs:domain    crm:E9_Move ;
+        rdfs:label     "μετακινήθηκε από"@el , "locomoveu de"@pt , "有移出地"@zh , "a retiré de"@fr , "moved from"@en , "bewegte weg von"@de , "перемещен из"@ru ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P27i_was_origin_of .
+
+la:current_permanent_custodian
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property records the normal custodian of the object at the time when the assertion was made. The object may have a temporary custodian, for example when it is loaned to another organization for an exhibition or between departments for conservation or storage."@en ;
+        rdfs:domain    crm:E19_Physical_Object ;
+        rdfs:label     "Current Permanent Custodian"@en ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  la:current_permanent_custodian_of .
+
+crm:P52_has_current_owner
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies the E21 Person, E74 Group or E40 Legal Body that was the owner of an instance of E18 Physical Thing at the time of validity of the record or database containing the statement that uses this property.\nP52 has current owner (is current owner of) is a shortcut for the more detailed path from E18 Physical Thing through P24 transferred title of (changed ownership through), E8 Acquisition, P22 transferred title to (acquired title through) to E39 Actor, if and only if this acquisition event is the most recent.\n"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "hat derzeitigen Besitzer"@de , "有现任物主"@zh , "έχει ιδιοκτήτη"@el , "has current owner"@en , "имеет текущего владельца"@ru , "é propriedade de"@pt , "est actuellement possédée par"@fr ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P52i_is_current_owner_of .
+
+crm:P106_is_composed_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property associates an instance of E90 Symbolic Object with a part of it that is by itself an instance of E90 Symbolic Object, such as fragments of texts or clippings from an image.\n"@en ;
+        rdfs:domain    crm:E90_Symbolic_Object ;
+        rdfs:label     " ist zusammengesetzt aus"@de , "αποτελείται από"@el , "est composé de"@fr , "é composto de"@pt , "составлен из"@ru , "有组成元素"@zh , "is composed of"@en ;
+        rdfs:range     crm:E90_Symbolic_Object ;
+        owl:inverseOf  crm:P106i_forms_part_of .
+
+crm:E19_Physical_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises items of a material nature that are units for documentation and have physical boundaries that separate them completely in an objective way from other objects. \nThe class also includes all aggregates of objects made for functional purposes of whatever kind, independent of physical coherence, such as a set of chessmen. Typically, instances of E19 Physical Object can be moved (if not too heavy).\nIn some contexts, such objects, except for aggregates, are also called “bona fide objects” (Smith & Varzi, 2000, pp.401-420), i.e. naturally defined objects. \nThe decision as to what is documented as a complete item, rather than by its parts or components, may be a purely administrative decision or may be a result of the order in which the item was acquired.\n"@en ;
+        rdfs:label       "Физический Объект"@ru , "Objeto Material"@pt , "Physical Object"@en , "Materieller Gegenstand"@de , "Objet matériel"@fr , "实体物件"@zh , "Υλικό Αντικείμενο"@el ;
+        rdfs:subClassOf  crm:E18_Physical_Thing .
+
+crm:P29_custody_received_by
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the E39 Actor or Actors who receive custody of an instance of E18 Physical Thing in an E10 Transfer of Custody activity. \nThe property will typically describe Actors receiving custody of an object when it is handed over from another Actor’s care. On occasion, physical custody may be received involuntarily or illegally – through accident, unsolicited donation, or theft.\nIn reality, custody is either transferred to someone or from someone, or both.\n"@en ;
+        rdfs:domain         crm:E10_Transfer_of_Custody ;
+        rdfs:label          "changement de détenteur au profit de"@fr , "custódia recebida por"@pt , "custody received by"@en , "übertrug Gewahrsam auf"@de , "移转保管作业给"@zh , "опека получена"@ru , "μετεβίβασε κατοχή σε"@el ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P14_carried_out_by ;
+        owl:inverseOf       crm:P29i_received_custody_through .
+
+crm:P89i_contains  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "inclut"@fr , "enthält"@de , "περιέχει"@el , "содержит"@ru , "空间上包含了"@zh , "contains"@en , "contém"@pt ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P89_falls_within .
+
+crm:E86_Leaving  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the activities that result in an instance of E39 Actor to be disassociated from an instance of E74 Group. This class does not imply initiative by either party. It may be the initiative of a third party. \nTypical scenarios include the termination of membership in a social organisation, ending the employment at a company, divorce, and the end of tenure of somebody in an official position."@en ;
+        rdfs:label       "脱离"@zh , "Leaving"@en , "Austritt"@de ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P13i_was_destroyed_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "был уничтожен посредством"@ru , "被毁灭於"@zh , "καταστράφηκε από"@el , "foi destruído por"@pt , "a été détruite par"@fr , "wurde zerstört durch"@de , "was destroyed by"@en ;
+        rdfs:range     crm:E6_Destruction ;
+        owl:inverseOf  crm:P13_destroyed .
+
+crm:P74i_is_current_or_former_residence_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "est ou a été la résidence de"@fr , "является текущим или бывшим местом жительства для"@ru , "é ou foi residência de"@pt , "历年来的居住者包括"@zh , "είναι ή ήταν κατοικία του/της"@el , "is current or former residence of"@en , "ist derzeitiger oder früherer Sitz von"@de ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P74_has_current_or_former_residence .
+
+crm:P11_had_participant
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property describes the active or passive participation of instances of E39 Actors in an E5 Event. \nIt connects the life-line of the related E39 Actor with the E53 Place and E50 Date of the event. The property implies that the Actor was involved in the event but does not imply any causal relationship. The subject of a portrait can be said to have participated in the creation of the portrait.\n"@en ;
+        rdfs:domain         crm:E5_Event ;
+        rdfs:label          "had participant"@en , "tem participante"@pt , "имел участника"@ru , "a eu pour participant"@fr , "有参与者"@zh , "hatte Teilnehmer"@de , "είχε συμμέτοχο"@el ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P12_occurred_in_the_presence_of ;
+        owl:inverseOf       crm:P11i_participated_in .
+
+crm:P45i_is_incorporated_in
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E57_Material ;
+        rdfs:label     "is incorporated in"@en , "est présent dans"@fr , "被用来构成"@zh , "είναι ενσωματωμένος/η/ο σε"@el , "входит в состав"@ru , "está presente em"@pt , "ist enthalten in"@de ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P45_consists_of .
+
+la:paid_amount  rdf:type  rdf:Property ;
+        rdfs:comment  "The amount paid."@en ;
+        rdfs:domain   la:Payment ;
+        rdfs:label    "Paid Amount"@en ;
+        rdfs:range    crm:E97_Monetary_Amount .
+
+crm:E53_Place  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises extents in space, in particular on the surface of the earth, in the pure sense of physics: independent from temporal phenomena and matter. \nThe instances of E53 Place are usually determined by reference to the position of “immobile” objects such as buildings, cities, mountains, rivers, or dedicated geodetic marks. A Place can be determined by combining a frame of reference and a location with respect to this frame. It may be identified by one or more instances of E41 Appellation.\n It is sometimes argued that instances of E53 Place are best identified by global coordinates or absolute reference systems. However, relative references are often more relevant in the context of cultural documentation and tend to be more precise. In particular, we are often interested in position in relation to large, mobile objects, such as ships. For example, the Place at which Nelson died is known with reference to a large mobile object – H.M.S Victory. A resolution of this Place in terms of absolute coordinates would require knowledge of the movements of the vessel and the precise time of death, either of which may be revised, and the result would lack historical and cultural relevance.\nAny object can serve as a frame of reference for E53 Place determination. The model foresees the notion of a \"section\" of an E19 Physical Object as a valid E53 Place determination."@en ;
+        rdfs:label       "Place"@en , "Место"@ru , "Local"@pt , "Τόπος"@el , "地点"@zh , "Ort"@de , "Lieu"@fr ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+crm:E52_Time-Span  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises abstract temporal extents, in the sense of Galilean physics, having a beginning, an end and a duration. \nTime Span has no other semantic connotations. Time-Spans are used to define the temporal extent of instances of E4 Period, E5 Event and any other phenomena valid for a certain time.  \nSince our knowledge of history is imperfect, instances of E52 Time-Span can best be considered as approximations of the actual Time-Spans of temporal entities. The properties of E52 Time-Span are intended to allow these approximations to be expressed precisely.  An extreme case of approximation, might, for example, define an E52 Time-Span having unknown beginning, end and duration. Used as a common E52 Time-Span for two events, it would nevertheless define them as being simultaneous, even if nothing else was known. \n\tAutomatic processing and querying of instances of E52 Time-Span is facilitated if data can be parsed into an E61 Time Primitive.\n"@en ;
+        rdfs:label       "Χρονικό Διάστημα"@el , "Período de Tempo"@pt , "时段"@zh , "Time-Span"@en , "Zeitspanne"@de , "Durée"@fr , "Интервал Времени"@ru ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+crm:E85_Joining  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises the activities that result in an instance of E39 Actor becoming a member of an instance of E74 Group. This class does not imply initiative by either party. It may be the initiative of a third party.\nTypical scenarios include becoming a member of a social organisation, becoming employee of a company, marriage, the adoption of a child by a family and the inauguration of somebody into an official position. \n"@en ;
+        rdfs:label       "加入"@zh , "Joining"@en , "Beitritt"@de ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P75_possesses  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies former or current instances of E30 Rights held by an E39 Actor."@en ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "κατέχει"@el , "拥有"@zh , "possesses"@en , "владеет"@ru , "é detentor de"@pt , "est détenteur de"@fr , "besitzt"@de ;
+        rdfs:range     crm:E30_Right ;
+        owl:inverseOf  crm:P75i_is_possessed_by .
+
+crm:E28_Conceptual_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises non-material products of our minds and other human produced data that \t\thave become objects of a discourse about their identity, circumstances of creation or historical \t\timplication. The production of such information may have been supported by the use of    \t\ttechnical devices such as cameras or computers.\nCharacteristically, instances of this class are created, invented or thought by someone, and then may be documented or communicated between persons. Instances of E28 Conceptual Object have the ability to exist on more than one particular carrier at the same time, such as paper, electronic signals, marks, audio media, paintings, photos, human memories, etc.\nThey cannot be destroyed. They exist as long as they can be found on at least one carrier or in at least one human memory. Their existence ends when the last carrier and the last memory are lost. \n"@en ;
+        rdfs:label       "Концептуальный Объект"@ru , "Begrifflicher Gegenstand"@de , "Objeto Conceitual"@pt , "Νοητικό Αντικείμενο"@el , "概念物件"@zh , "Objet conceptuel"@fr , "Conceptual Object"@en ;
+        rdfs:subClassOf  crm:E71_Human-Made_Thing .
+
+crm:P107_has_current_or_former_member
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property relates an E39 Actor to the E74 Group of which that E39 Actor is a member.\nGroups, Legal Bodies and Persons, may all be members of Groups. A Group necessarily consists of more than one member.\nThis property is a shortcut of the more fully developed path from E74 Group through P144 joined with (gained member by), E85 Joining, P143 joined (was joined by) to E39 Actor\nThe property P107.1 kind of member can be used to specify the type of membership or the role the member has in the group. \n"@en ;
+        rdfs:domain    crm:E74_Group ;
+        rdfs:label     "有现任或前任成员"@zh , "имеет действующего или бывшего члена"@ru , "a pour membre actuel ou ancien"@fr , "tem ou teve membro"@pt , "has current or former member"@en , "έχει ή είχε μέλος"@el , "hat derzeitiges oder früheres Mitglied"@de ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P107i_is_current_or_former_member_of .
+
+la:removed_member  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Removal ;
+        rdfs:label     "removed"@en ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  la:removed_member_by .
+
+la:digitally_carries  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    dig:D1_Digital_Object ;
+        rdfs:label     "digitally carries"@en ;
+        rdfs:range     crm:E90_Symbolic_Object ;
+        owl:inverseOf  la:digitally_carried_by .
+
+crm:P90a_has_lower_value_limit
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property allows the lowest possible value of an E54 Dimension to be approximated by an E60 Number primitive."@en ;
+        rdfs:domain   crm:E54_Dimension ;
+        rdfs:label    "has lower value limit"@en ;
+        rdfs:range    rdfs:Literal .
+
+crm:P9i_forms_part_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E4_Period ;
+        rdfs:label     "αποτελεί μέρος του/της"@el , "forms part of"@en , "附属於"@zh , "fait partie de"@fr , "faz parte de"@pt , "формирует часть"@ru , "bildet Teil von"@de ;
+        rdfs:range     crm:E4_Period ;
+        owl:inverseOf  crm:P9_consists_of .
+
+crm:P138i_has_representation
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E1_CRM_Entity ;
+        rdfs:label          "wird dargestellt durch"@de , "παριστάνεται από"@el , "has representation"@en , "имеет представление"@ru , "est représentée par"@fr , "有图像描绘"@zh , "tem representação"@pt ;
+        rdfs:range          crm:E36_Visual_Item ;
+        rdfs:subPropertyOf  crm:P67i_is_referred_to_by ;
+        owl:inverseOf       crm:P138_represents .
+
+crm:E65_Creation  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises events that result in the creation of conceptual items or immaterial products, such as legends, poems, texts, music, images, movies, laws, types etc.\n"@en ;
+        rdfs:label       "Creation"@en , "Création"@fr , "创造"@zh , "Событие Творения"@ru , "Δημιουργία"@el , "Criação"@pt , "Begriffliche Schöpfung"@de ;
+        rdfs:subClassOf  crm:E63_Beginning_of_Existence , crm:E7_Activity .
+
+rdfs:label  rdf:type      rdf:Property ;
+        rdfs:comment      "A human-readable name for the subject."@en ;
+        rdfs:domain       crm:E1_CRM_Entity ;
+        rdfs:isDefinedBy  rdfs: ;
+        rdfs:label        "label"@en ;
+        rdfs:range        xsd:string .
+
+crm:P82a_begin_of_the_begin
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This is defined as the first boundary of the property P82"@en ;
+        rdfs:domain   crm:E52_Time-Span ;
+        rdfs:label    "начать с начала"@ru , "Anfang des Anfangs"@de , "begin of the begin"@en , "début du début"@fr , "começar do início"@pt , "αρχή της αρχής"@el ;
+        rdfs:range    xsd:dateTime .
+
+crm:P110i_was_augmented_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label          "was augmented by"@en , "a été augmenté par"@fr , "foi aumentada por"@pt , "wurde erweitert durch"@de , "被扩增於"@zh , "επαυξήθηκε από"@el , "был увеличен посредством"@ru ;
+        rdfs:range          crm:E79_Part_Addition ;
+        rdfs:subPropertyOf  crm:P31i_was_modified_by ;
+        owl:inverseOf       crm:P110_augmented .
+
+crm:P199_represents_instance_of_type
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property establishes the relationship between an instance of E36 Visual Item and an instance of E55 Type that characterises the thing depicted. This property is used when the identity of the thing depicted is unknown or unrecorded, but is clearly a particular thing of that type."@en ;
+        rdfs:domain    crm:E36_Visual_Item ;
+        rdfs:label     "represents instance of type"@en ;
+        rdfs:range     crm:E55_Type ;
+        owl:inverseOf  crm:P199i_ .
+
+crm:P27i_was_origin_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "era origem de"@pt , "被作为移出地於"@zh , "war Ausgangsort von"@de , "a été l'origine de"@fr , "was origin of"@en , "был исходной точкой для"@ru , "ήταν αφετηρία του/της"@el ;
+        rdfs:range     crm:E9_Move ;
+        owl:inverseOf  crm:P27_moved_from .
+
+crm:P76i_provides_access_to
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E41_Appellation ;
+        rdfs:label     "παρέχει πρόσβαση σε"@el , "é ponto de contado de"@pt , "被用来联系"@zh , "предоставляет доступ к"@ru , "permettent de contacter"@fr , "provides access to"@en , "bietet Zugang zu"@de ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P76_has_contact_point .
+
+crm:P148_has_component
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property associates an instance of E89 Propositional Object with a structural part of it that is by itself an instance of E89 Propositional Object."@en ;
+        rdfs:domain    crm:E89_Propositional_Object ;
+        rdfs:label     "有组件"@zh , "hat Bestandteil"@de , "has component"@en ;
+        rdfs:range     crm:E89_Propositional_Object ;
+        owl:inverseOf  crm:P148i_is_component_of .
+
+skos:inScheme  rdf:type  rdf:Property ;
+        rdfs:comment    "Relates a resource (for example a concept) to a concept scheme in which it is included."@en ;
+        rdfs:domain     crm:E55_Type ;
+        rdfs:label      "is in scheme"@en ;
+        rdfs:range      crm:E32_Authority_Document ;
+        skos:scopeNote  "A concept may be a member of more than one concept scheme."@en .
+
+la:property_classified_as
+        rdf:type      rdf:Property ;
+        rdfs:comment  "Record dot one properties via Attribute Assignments"@en ;
+        rdfs:domain   crm:E13_Attribute_Assignment ;
+        rdfs:label    "Property Classified As"@en ;
+        rdfs:range    crm:E55_Type .
+
+crm:E77_Persistent_Item
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises items that have a persistent identity, sometimes known as “endurants” in philosophy. \nThey can be repeatedly recognized within the duration of their existence by identity criteria rather than by continuity or observation. Persistent Items can be either physical entities, such as people, animals or things, or conceptual entities such as ideas, concepts, products of the imagination or common names.\nThe criteria that determine the identity of an item are often difficult to establish -; the decision depends largely on the judgement of the observer. For example, a building is regarded as no longer existing if it is dismantled and the materials reused in a different configuration. On the other hand, human beings go through radical and profound changes during their life-span, affecting both material composition and form, yet preserve their identity by other criteria. Similarly, inanimate objects may be subject to exchange of parts and matter. The class E77 Persistent Item does not take any position about the nature of the applicable identity criteria and if actual knowledge about identity of an instance of this class exists. There may be cases, where the identity of an E77 Persistent Item is not decidable by a certain state of knowledge.\nThe main classes of objects that fall outside the scope the E77 Persistent Item class are temporal objects such as periods, events and acts, and descriptive properties. "@en ;
+        rdfs:label       "Постоянная Сущность"@ru , "Seiendes"@de , "Persistent Item"@en , "持续性项目"@zh , "Ον"@el , "Entité persistante"@fr , "Entidade Persistente"@pt ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+crm:P168_place_is_defined_by
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property associates an instance of E53 Place with an instance of E94 Space Primitive that defines it. Syntactic variants or use of different scripts may result in multiple instances of E94 Space Primitive defining exactly the same place. Transformations between different reference systems in general result in new definitions of places approximating each other and not in alternative definitions. Note that it is possible for a place to be defined by phenomena causal to it or other forms of identification rather than by an instance of E94 Space Primitive. In this case, this property must not be used for approximating the respective instance of E53 Place with an instance of E94 Space Primitive. \n\t"@en ;
+        rdfs:domain         crm:E53_Place ;
+        rdfs:label          "place is defined by "@en ;
+        rdfs:range          rdfs:Literal ;
+        rdfs:subPropertyOf  crm:P1_is_identified_by .
+
+crm:P123_resulted_in  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies the E77 Persistent Item or items that are the result of an E81 Transformation. \nNew items replace the transformed item or items, which cease to exist as units of documentation. The physical continuity between the old and the new is expressed by the link to the common Transformation.\n"@en ;
+        rdfs:domain    crm:E81_Transformation ;
+        rdfs:label     "resultou em"@pt , "resulted in"@en , "a eu pour résultat"@fr , "είχε ως αποτέλεσμα"@el , "ergab"@de , "повлек появление"@ru , "转变出"@zh ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P123i_resulted_from .
+
+crm:P25_moved  rdf:type     rdf:Property ;
+        rdfs:comment        "This property identifies an instance of E19 Physical Object that was moved by a move event. A move must concern at least one object.\n\nThe property implies the object's passive participation. For example, Monet's painting \"Impression sunrise\" was moved for the first Impressionist exhibition in 1874. \n"@en ;
+        rdfs:domain         crm:E9_Move ;
+        rdfs:label          "μετεκίνησε"@el , "locomoveu"@pt , "移动了"@zh , "moved"@en , "переместил"@ru , "a déplacé"@fr , "bewegte"@de ;
+        rdfs:range          crm:E19_Physical_Object ;
+        rdfs:subPropertyOf  crm:P12_occurred_in_the_presence_of ;
+        owl:inverseOf       crm:P25i_moved_by .
+
+crm:P43i_is_dimension_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E54_Dimension ;
+        rdfs:label     "est dimension de"@fr , "is dimension of"@en , "ist Dimension von"@de , "é dimensão de"@pt , "является величиной для"@ru , "估量的标的物是"@zh , "είναι μέγεθος του"@el ;
+        rdfs:range     crm:E70_Thing ;
+        owl:inverseOf  crm:P43_has_dimension .
+
+crm:P13_destroyed  rdf:type  rdf:Property ;
+        rdfs:comment   "This property allows specific instances of E18 Physical Thing that have been destroyed to be related to a destruction event. \nDestruction implies the end of an item’s life as a subject of cultural documentation – the physical matter of which the item was composed may in fact continue to exist. A destruction event may be contiguous with a Production that brings into existence a derived object composed partly of matter from the destroyed object.\n"@en ;
+        rdfs:domain    crm:E6_Destruction ;
+        rdfs:label     "毁灭了"@zh , "zerstörte"@de , "уничтожил"@ru , "destroyed"@en , "destruiu"@pt , "a détruit"@fr , "κατέστρεψε"@el ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P13i_was_destroyed_by .
+
+crm:P104_is_subject_to
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property links a particular E72 Legal Object to the instances of E30 Right to which it is subject.\nThe Right is held by an E39 Actor as described by P75 possesses (is possessed by).\n"@en ;
+        rdfs:domain    crm:E72_Legal_Object ;
+        rdfs:label     "υπόκειται σε"@el , "является объектом для"@ru , "Gegenstand von"@de , "est sujet à"@fr , "is subject to"@en , "está sujeito à"@pt , "受制於"@zh ;
+        rdfs:range     crm:E30_Right ;
+        owl:inverseOf  crm:P104i_applies_to .
+
+crm:E5_Event  rdf:type   rdfs:Class ;
+        rdfs:comment     "This class comprises changes of states in cultural, social or physical systems, regardless of scale, brought about by a series or group of coherent physical, cultural, technological or legal phenomena. Such changes of state will affect instances of E77 Persistent Item or its subclasses.\nThe distinction between an E5 Event and an E4 Period is partly a question of the scale of observation. Viewed at a coarse level of detail, an E5 Event is an ‘instantaneous’ change of state. At a fine level, the E5 Event can be analysed into its component phenomena within a space and time frame, and as such can be seen as an E4 Period. The reverse is not necessarily the case: not all instances of E4 Period give rise to a noteworthy change of state.\n"@en ;
+        rdfs:label       "Événement"@fr , "Событие"@ru , "Evento"@pt , "Συμβάν"@el , "Ereignis"@de , "Event"@en , "事件"@zh ;
+        rdfs:subClassOf  crm:E4_Period .
+
+crm:P23_transferred_title_from
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the E39 Actor or Actors who relinquish legal ownership as the result of an E8 Acquisition.\nThe property will typically be used to describe a person donating or selling an object to a museum. In reality title is either transferred to or from someone, or both.\n"@en ;
+        rdfs:domain         crm:E8_Acquisition ;
+        rdfs:label          "μετεβίβασε τον τίτλο από"@el , "原所有权者是"@zh , "transferiu os direitos de propriedade de"@pt , "übertrug Besitztitel von"@de , "a fait passer le droit de propriété de"@fr , "передал право собственности от"@ru , "transferred title from"@en ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P14_carried_out_by ;
+        owl:inverseOf       crm:P23i_surrendered_title_through .
+
+crm:E56_Language  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class is a specialization of E55 Type and comprises the natural languages in the sense of concepts. \nThis type is used categorically in the model without reference to instances of it, i.e. the Model does not foresee the description of instances of instances of E56 Language, e.g.: “instances of  Mandarin Chinese”.\nIt is recommended that internationally or nationally agreed codes and terminology are used to denote instances of E56 Language, such as those defined in ISO 639:1988. \n"@en ;
+        rdfs:label       "语言"@zh , "Γλώσσα"@el , "Language"@en , "Langue"@fr , "Язык"@ru , "Língua"@pt , "Sprache"@de ;
+        rdfs:subClassOf  crm:E55_Type .
+
+crm:E92_Spacetime_Volume
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises 4 dimensional point sets (volumes) in physical spacetime regardless its true geometric form. They may derive their identity from being the extent of a material phenomenon or from being the interpretation of an expression defining an extent in spacetime. \n\tIntersections of instances of E92 Spacetime Volume, Place and Timespan are also regarded as instances of E92 Spacetime Volume.  An instance of E92 Spacetime Volume is either contiguous or composed of a finite number of contiguous subsets. \n\tIts boundaries may be fuzzy due to the properties of the phenomena it derives from or due to the limited precision up to which defining expression can be identified with a real extent in spacetime. The duration of existence of an instance of a spacetime volume is trivially its projection on time.\n"@en ;
+        rdfs:label       "Spacetime Volume"@en ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+dcterms:conformsTo  rdf:type  rdf:Property ;
+        rdfs:comment  "Some thing conforms to some standard"@en ;
+        rdfs:domain   crm:E71_Human-Made_Thing ;
+        rdfs:label    "conforms to"@en ;
+        rdfs:range    crm:E73_Information_Object .
+
+crm:E57_Material  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class is a specialization of E55 Type and comprises the concepts of materials. \nInstances of E57 Material may denote properties of matter before its use, during its use, and as incorporated in an object, such as ultramarine powder, tempera paste, reinforced concrete. Discrete pieces of raw-materials kept in museums, such as bricks, sheets of fabric, pieces of metal, should be modelled individually in the same way as other objects. Discrete used or processed pieces, such as the stones from Nefer Titi's temple, should be modelled as parts (cf. P46 is composed of).\nThis type is used categorically in the model without reference to instances of it, i.e. the Model does not foresee the description of instances of instances of E57 Material, e.g.: “instances of  gold”.\nIt is recommended that internationally or nationally agreed codes and terminology are used."@en ;
+        rdfs:label       "Материал"@ru , "Υλικό"@el , "材料"@zh , "Material"@pt , "Material"@de , "Matériau"@fr , "Material"@en ;
+        rdfs:subClassOf  crm:E55_Type .
+
+crm:E79_Part_Addition
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises activities that result in an instance of E24 Physical Human-Made Thing being increased, enlarged or augmented by the addition of a part. \nTypical scenarios include the attachment of an accessory, the integration of a component, the addition of an element to an aggregate object, or the accessioning of an object into a curated E78 Collection. Objects to which parts are added are, by definition, man-made, since the addition of a part implies a human activity. Following the addition of parts, the resulting man-made assemblages are treated objectively as single identifiable wholes, made up of constituent or component parts bound together either physically (for example the engine becoming a part of the car), or by sharing a common purpose (such as the 32 chess pieces that make up a chess set). This class of activities forms a basis for reasoning about the history and continuity of identity of objects that are integrated into other objects over time, such as precious gemstones being repeatedly incorporated into different items of jewellery, or cultural artifacts being added to different museum instances of E78 Collection over their lifespan.\n"@en ;
+        rdfs:label       "Добавление Части"@ru , "Προσθήκη Μερών"@el , "部件增加"@zh , "Adição de Parte"@pt , "Addition d'élément"@fr , "Part Addition"@en , "Teilhinzufügung"@de ;
+        rdfs:subClassOf  crm:E11_Modification .
+
+crm:P104i_applies_to  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E30_Right ;
+        rdfs:label     "findet Anwendung auf"@de , "se aplicam à"@pt , "applies to"@en , "s’applique à"@fr , "被应用於"@zh , "ισχύει για"@el , "применяется к"@ru ;
+        rdfs:range     crm:E72_Legal_Object ;
+        owl:inverseOf  crm:P104_is_subject_to .
+
+crm:P24i_changed_ownership_through
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "转移了所有权於"@zh , "сменил владельца через"@ru , "ging über in Besitz durch"@de , "a changé de mains du fait de"@fr , "changed ownership through"@en , "mudou de proprietário por meio de"@pt , "άλλαξε ιδιοκτησία μέσω"@el ;
+        rdfs:range     crm:E8_Acquisition ;
+        owl:inverseOf  crm:P24_transferred_title_of .
+
+crm:P112i_was_diminished_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label          "wurde vermindert durch"@de , "a été diminué par"@fr , "foi diminuído por"@pt , "was diminished by"@en , "εξαλείφθηκε από"@el , "被缩减於"@zh , "был уменьшен посредством"@ru ;
+        rdfs:range          crm:E80_Part_Removal ;
+        rdfs:subPropertyOf  crm:P31i_was_modified_by ;
+        owl:inverseOf       crm:P112_diminished .
+
+skos:exactMatch  rdf:type  rdf:Property ;
+        rdfs:comment  "Exact Match, not quite sameAs, good for most uses"@en ;
+        rdfs:domain   crm:E1_CRM_Entity ;
+        rdfs:label    "exactMatch"@en ;
+        rdfs:range    crm:E1_CRM_Entity .
+
+crm:P2_has_type  rdf:type  rdf:Property ;
+        rdfs:comment  "This property allows sub typing of CRM entities - a form of specialisation – through the use of a terminological hierarchy, or thesaurus. \nThe CRM is intended to focus on the high-level entities and relationships needed to describe data structures. Consequently, it does not specialise entities any further than is required for this immediate purpose. However, entities in the isA hierarchy of the CRM may by specialised into any number of sub entities, which can be defined in the E55 Type hierarchy. E51 Contact Point, for example, may be specialised into “e-mail address”, “telephone number”, “post office box”, “URL” etc. none of which figures explicitly in the CRM hierarchy. Sub typing obviously requires consistency between the meaning of the terms assigned and the more general intent of the CRM entity in question.\n"@en ;
+        rdfs:domain   crm:E1_CRM_Entity ;
+        rdfs:label    "έχει τύπο"@el , "имеет тип"@ru , "有类型"@zh , "est de type"@fr , "has type"@en , "hat den Typus"@de , "é do tipo"@pt ;
+        rdfs:range    crm:E55_Type .
+
+la:member_of  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "member of"@en ;
+        rdfs:range     la:Set ;
+        owl:inverseOf  la:has_member .
+
+crm:E2_Temporal_Entity
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises all phenomena, such as the instances of E4 Periods, E5 Events and states, which happen over a limited extent in time. \n\tIn some contexts, these are also called perdurants. This class is disjoint from E77 Persistent Item. This is an abstract class and has no direct instances. E2 Temporal Entity is specialized into E4 Period, which applies to a particular geographic area (defined with a greater or lesser degree of precision), and E3 Condition State, which applies to instances of E18 Physical Thing.\n"@en ;
+        rdfs:label       "Temporal Entity"@en , "Έγχρονη  Οντότητα"@el , "Entité temporelle"@fr , "Временная Сущность"@ru , "Geschehendes"@de , "时间实体"@zh , "Entidade Temporal"@pt ;
+        rdfs:subClassOf  crm:E1_CRM_Entity .
+
+crm:P26i_was_destination_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "era destinação de"@pt , "被作为移入地於"@zh , "war Zielort von"@de , "was destination of"@en , "был пунктом назначения для"@ru , "a été la destination de"@fr , "ήταν προορισμός του/της"@el ;
+        rdfs:range     crm:E9_Move ;
+        owl:inverseOf  crm:P26_moved_to .
+
+crm:P28i_surrendered_custody_through
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "a cessé d’être détenteur à cause de"@fr , "final da custódia por meio de"@pt , "交出保管作业於"@zh , "wurde Gewahrsam übergeben durch"@de , "παρέδωσε κατοχή μέσω"@el , "surrendered custody through"@en , "опека отдана через"@ru ;
+        rdfs:range          crm:E10_Transfer_of_Custody ;
+        rdfs:subPropertyOf  crm:P14i_performed ;
+        owl:inverseOf       crm:P28_custody_surrendered_by .
+
+crm:P145_separated  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the instance of E39 Actor that leaves an instance of E74 Group through an instance of E86 Leaving."@en ;
+        rdfs:domain         crm:E86_Leaving ;
+        rdfs:label          "分离了成员"@zh , "entließ"@de , "separated"@en ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P145i_left_by .
+
+la:RightAcquisition  rdf:type  rdfs:Class ;
+        rdfs:comment     "The acquiring or establishment of a particular E30 Right over some entity "@en ;
+        rdfs:label       "Right Acquisition"@en ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:E66_Formation  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises events that result in the formation of a formal or informal E74 Group of people, such as a club, society, association, corporation or nation. \nE66 Formation does not include the arbitrary aggregation of people who do not act as a collective.\nThe formation of an instance of E74 Group does not require that the group is populated with members at the time of formation. In order to express the joining of members at the time of formation, the respective activity should be simultaneously an instance of both E66 Formation and E85 Joining. \n"@en ;
+        rdfs:label       "Gruppenbildung"@de , "Formation"@fr , "Formation"@en , "Formação"@pt , "Событие Формирования"@ru , "Συγκρότηση Ομάδας"@el , "组成"@zh ;
+        rdfs:subClassOf  crm:E63_Beginning_of_Existence , crm:E7_Activity .
+
+crm:P14_carried_out_by
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property describes the active participation of an E39 Actor in an E7 Activity. \nIt implies causal or legal responsibility. The P14.1 in the role of property of the property allows the nature of an Actor’s participation to be specified.\n"@en ;
+        rdfs:domain         crm:E7_Activity ;
+        rdfs:label          "réalisée par"@fr , "carried out by"@en , "πραγματοποιήθηκε από"@el , "wurde ausgeführt von"@de , "有执行者"@zh , "выполнялся"@ru , "realizada por"@pt ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P14i_performed .
+
+crm:E20_Biological_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises individual items of a material nature, which live, have lived or are natural products of or from living organisms. \nArtificial objects that incorporate biological elements, such as Victorian butterfly frames, can be documented as both instances of E20 Biological Object and E22 Human-Made Object. \n"@en ;
+        rdfs:label       "Biological Object"@en , "生物体"@zh , "Βιολογικό Ακτικείμενο"@el , "Biologischer Gegenstand"@de , "Objet biologique"@fr , "Биологический Объект"@ru , "Objeto Biológico"@pt ;
+        rdfs:subClassOf  crm:E19_Physical_Object .
+
+crm:P11i_participated_in
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "участвовал в"@ru , "συμμετείχε σε"@el , "participated in"@en , "参与了"@zh , "nahm Teil an"@de , "participa em"@pt , "a participé à"@fr ;
+        rdfs:range          crm:E5_Event ;
+        rdfs:subPropertyOf  crm:P12i_was_present_at ;
+        owl:inverseOf       crm:P11_had_participant .
+
+sci:O19i_was_object_encountered_at
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "was encountered at"@en ;
+        rdfs:range     sci:S19_Encounter_Event ;
+        owl:inverseOf  sci:O19_encountered_object .
+
+crm:P65i_is_shown_by  rdf:type  rdf:Property ;
+        rdfs:domain         crm:E36_Visual_Item ;
+        rdfs:label          "wird gezeigt durch"@de , "εμφανίζεται σε"@el , "est présenté par"@fr , "is shown by"@en , "被显示於"@zh , "é apresentado por"@pt , "показан посредством"@ru ;
+        rdfs:range          crm:E24_Physical_Human-Made_Thing ;
+        rdfs:subPropertyOf  crm:P128i_is_carried_by ;
+        owl:inverseOf       crm:P65_shows_visual_item .
+
+crm:P138_represents  rdf:type  rdf:Property ;
+        rdfs:comment        "This property establishes the relationship between an E36 Visual Item and the entity that it visually represents.\nAny entity may be represented visually. This property is part of the fully developed path from E24 Physical Human-Made Thing through P65 shows visual item (is shown by), E36 Visual Item, P138 represents (has representation) to E1 CRM Entity, which is shortcut by P62depicts (is depicted by). P138.1 mode of representation allows the nature of the representation to be refined.\nThis property is also used for the relationship between an original and a digitisation of the original by the use of techniques such as digital photography, flatbed or infrared scanning. Digitisation is here seen as a process with a mechanical, causal component rendering the spatial distribution of structural and optical properties of the original and does not necessarily include any visual similarity identifiable by human observation.\n"@en ;
+        rdfs:domain         crm:E36_Visual_Item ;
+        rdfs:label          "represents"@en , "representa"@pt , "描绘了"@zh , "représente"@fr , "παριστάνει"@el , "stellt dar"@de , "представляет"@ru ;
+        rdfs:range          crm:E1_CRM_Entity ;
+        rdfs:subPropertyOf  crm:P67_refers_to ;
+        owl:inverseOf       crm:P138i_has_representation .
+
+la:digitally_carried_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E90_Symbolic_Object ;
+        rdfs:label     "digitally carried by"@en ;
+        rdfs:range     dig:D1_Digital_Object ;
+        owl:inverseOf  la:digitally_carries .
+
+skos:narrower  rdf:type  rdf:Property ;
+        rdfs:comment   "Or is broader term of"@en ;
+        rdfs:domain    crm:E55_Type ;
+        rdfs:label     "has narrower term"@en ;
+        rdfs:range     crm:E55_Type ;
+        owl:inverseOf  skos:broader .
+
+la:removed_from  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Removal ;
+        rdfs:label     "removed from"@en ;
+        rdfs:range     la:Set ;
+        owl:inverseOf  la:removed_from_by .
+
+la:Set  rdf:type         rdfs:Class ;
+        rdfs:comment     ""@en ;
+        rdfs:label       "Set"@en ;
+        rdfs:subClassOf  crm:E72_Legal_Object , crm:E89_Propositional_Object .
+
+crm:P175i_starts_with_or_after_the_start_of
+        rdf:type            rdf:Property ;
+        rdfs:comment        "The inverse relationship of P175"@en ;
+        rdfs:domain         crm:E2_Temporal_Entity ;
+        rdfs:label          "starts with or after the start of"@en ;
+        rdfs:range          crm:E2_Temporal_Entity ;
+        rdfs:subPropertyOf  crm:P174i_ends_after_the_start_of ;
+        owl:inverseOf       crm:P175_starts_before_or_with_the_start_of .
+
+crm:P72i_is_language_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E56_Language ;
+        rdfs:label     "является языком для"@ru , "被用来撰写"@zh , "é a língua de"@pt , "est la langue de"@fr , "ist Sprache von"@de , "is language of"@en , "είναι γλώσσα του/της"@el ;
+        rdfs:range     crm:E33_Linguistic_Object ;
+        owl:inverseOf  crm:P72_has_language .
+
+crm:P156i_is_occupied_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E53_Place ;
+        rdfs:label     "is occupied by"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P156_occupies .
+
+crm:P128i_is_carried_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E90_Symbolic_Object ;
+        rdfs:label     "wird getragen von"@de , "is carried by"@en , "被承载于"@zh , "a pour support"@fr , "переносится посредством"@ru , "φέρεται από"@el , "é suportado por"@pt ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P128_carries .
+
+crm:P9_consists_of  rdf:type  rdf:Property ;
+        rdfs:comment   "This property associates an instance of E4 Period with another instance of E4 Period that is defined by a subset of the phenomena that define the former. Therefore the spacetime volume of the latter must fall within the spacetime volume of the former.\n"@en ;
+        rdfs:domain    crm:E4_Period ;
+        rdfs:label     "setzt sich zusammen aus"@de , "consiste de"@pt , "αποτελείται από"@el , "consists of"@en , "состоит из"@ru , "consiste en"@fr , "包含子时期"@zh ;
+        rdfs:range     crm:E4_Period ;
+        owl:inverseOf  crm:P9i_forms_part_of .
+
+crm:P148i_is_component_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E89_Propositional_Object ;
+        rdfs:label     "被用来组成"@zh , "ist Bestandteil von"@de , "is component of"@en ;
+        rdfs:range     crm:E89_Propositional_Object ;
+        owl:inverseOf  crm:P148_has_component .
+
+crm:P45_consists_of  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies the instances of E57 Materials of which an instance of E18 Physical Thing is composed.\nAll physical things consist of physical materials. P45 consists of (is incorporated in) allows the different Materials to be recorded. P45 consists of (is incorporated in) refers here to observed Material as opposed to the consumed raw material.\nA Material, such as a theoretical alloy, may not have any physical instances"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "consiste en"@fr , "consists of"@en , "有构成材料"@zh , "αποτελείται από"@el , "consiste de"@pt , "besteht aus"@de , "составлен из"@ru ;
+        rdfs:range     crm:E57_Material ;
+        owl:inverseOf  crm:P45i_is_incorporated_in .
+
+crm:E73_Information_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises identifiable immaterial items, such as a poems, jokes, data sets, images, texts, multimedia objects, procedural prescriptions, computer program code, algorithm or mathematical formulae, that have an objectively recognizable structure and are documented as single units. The encoding structure known as a \"named graph\" also falls under this class, so that each \"named graph\" is an instance of an E73 Information Object. \nAn E73 Information Object does not depend on a specific physical carrier, which can include human memory, and it can exist on one or more carriers simultaneously. \nInstances of E73 Information Object of a linguistic nature should be declared as instances of the E33 Linguistic Object subclass. Instances of E73 Information Object of a documentary nature should be declared as instances of the E31 Document subclass. Conceptual items such as types and classes are not instances of E73 Information Object, nor are ideas without a reproducible expression. \n "@en ;
+        rdfs:label       "信息物件"@zh , "Informationsgegenstand"@de , "Information Object"@en , "Objeto de Informação"@pt , "Информационный Объект"@ru , "Πληροφοριακό Αντικείμενο"@el , "Objet d'information"@fr ;
+        rdfs:subClassOf  crm:E89_Propositional_Object , crm:E90_Symbolic_Object .
+
+la:added_to  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    la:Addition ;
+        rdfs:label     "added to"@en ;
+        rdfs:range     la:Set ;
+        owl:inverseOf  la:added_to_by .
+
+crm:P50_has_current_keeper
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies the E39 Actor or Actors who had custody of an instance of E18 Physical Thing at the time of validity of the record or database containing the statement that uses this property.\n\tP50 has current keeper (is current keeper of) is a shortcut for the more detailed path from E18 Physical Thing through P30 transferred custody of (custody transferred through), E10 Transfer of Custody, P29 custody received by (received custody through) to E39 Actor.\n"@en ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "有现任保管者"@zh , "είναι στην κατοχή του"@el , "hat derzeitigen Betreuer"@de , "имеет текущего смотрителя"@ru , "est actuellement détenu par"@fr , "é guardada por"@pt , "has current keeper"@en ;
+        rdfs:range     crm:E39_Actor ;
+        owl:inverseOf  crm:P50i_is_current_keeper_of .
+
+dc:format  rdf:type   rdf:Property ;
+        rdfs:comment  "The media type of the information object"@en ;
+        rdfs:domain   crm:E73_Information_Object ;
+        rdfs:label    "format"@en ;
+        rdfs:range    xsd:string .
+
+crm:E97_Monetary_Amount
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises quantities of monetary possessions or obligations in terms of their nominal value with respect to a particular currency. These quantities may be abstract accounting units, the nominal value of a heap of coins or bank notes at the time of validity of the respective currency, the nominal value of a bill of exchange or other documents expressing monetary claims or obligations."@en ;
+        rdfs:label       "Monetary Amount"@en ;
+        rdfs:subClassOf  crm:E54_Dimension .
+
+crm:E33_Linguistic_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises identifiable expressions in natural language or languages. \nInstances of E33 Linguistic Object can be expressed in many ways: e.g. as written texts, recorded speech or sign language. However, the CRM treats instances of E33 Linguistic Object independently from the medium or method by which they are expressed. Expressions in formal languages, such as computer code or mathematical formulae, are not treated as instances of E33 Linguistic Object by the CRM. These should be modelled as instances of E73 Information Object.\nThe text of an instance of E33 Linguistic Object can be documented in a note by P3 has note: E62 String\n"@en ;
+        rdfs:label       "Objet linguistique"@fr , "Objeto Lingüístico"@pt , "语言物件"@zh , "Γλωσσικό Αντικείμενο"@el , "Linguistic Object"@en , "Линвистический Объект"@ru , "Sprachlicher Gegenstand"@de ;
+        rdfs:subClassOf  crm:E73_Information_Object .
+
+crm:P108i_was_produced_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label          "был произведен посредством"@ru , "a été produit par"@fr , "wurde hergestellt durch"@de , "被制作於"@zh , "παρήχθη από"@el , "was produced by"@en , "foi produzido por"@pt ;
+        rdfs:range          crm:E12_Production ;
+        rdfs:subPropertyOf  crm:P31i_was_modified_by ;
+        owl:inverseOf       crm:P108_has_produced .
+
+crm:P134_continued  rdf:type  rdf:Property ;
+        rdfs:comment        "This property associates two instances of E7 Activity, where the domain is considered as an intentional continuation of the range. A continuation of an activity may happen when the continued activity is still ongoing or after the continued activity has completely ended. The continuing activity may have started already before it decided to continue the other one. Continuation implies a coherence of intentions and outcomes of the involved activities.\n"@en ;
+        rdfs:domain         crm:E7_Activity ;
+        rdfs:label          "continuou"@pt , "συνέχισε"@el , "setzte sich fort in"@de , "延续了"@zh , "продолжил"@ru , "continued"@en , "est la suite de"@fr ;
+        rdfs:range          crm:E7_Activity ;
+        rdfs:subPropertyOf  crm:P15_was_influenced_by , crm:P174_starts_before_the_end_of ;
+        owl:inverseOf       crm:P134i_was_continued_by .
+
+skos:closeMatch  rdf:type  rdf:Property ;
+        rdfs:comment  "Close Match, good for some uses"@en ;
+        rdfs:domain   crm:E1_CRM_Entity ;
+        rdfs:label    "closeMatch"@en ;
+        rdfs:range    crm:E1_CRM_Entity .
+
+crm:P99_dissolved  rdf:type  rdf:Property ;
+        rdfs:comment        "This property links the disbanding or E68 Dissolution of an E74 Group to the Group itself."@en ;
+        rdfs:domain         crm:E68_Dissolution ;
+        rdfs:label          "löste auf"@de , "dissolved"@en , "распустил"@ru , "διέλυσε"@el , "a dissous"@fr , "解散了"@zh , "dissolveu"@pt ;
+        rdfs:range          crm:E74_Group ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P99i_was_dissolved_by .
+
+crm:P124_transformed  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies the E77 Persistent Item or items that cease to exist due to a E81 Transformation. \nIt is replaced by the result of the Transformation, which becomes a new unit of documentation. The continuity between both items, the new and the old, is expressed by the link to the common Transformation.\n"@en ;
+        rdfs:domain    crm:E81_Transformation ;
+        rdfs:label     "a transformé"@fr , "转变了"@zh , "transformou"@pt , "μετέτρεψε"@el , "трансформировал"@ru , "wandelte um"@de , "transformed"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P124i_was_transformed_by .
+
+crm:P95i_was_formed_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E74_Group ;
+        rdfs:label     "was formed by"@en , "a été fondé par"@fr , "foi formado por"@pt , "σχηματίστηκε από"@el , "была сформирована посредством"@ru , "wurde gebildet von"@de , "被组成於"@zh ;
+        rdfs:range     crm:E66_Formation ;
+        owl:inverseOf  crm:P95_has_formed .
+
+crm:P55_has_current_location
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property records the location of an E19 Physical Object at the time of validity of the record or database containing the statement that uses this property. \n\tThis property is a specialisation of P53 has former or current location (is former or current location of). It indicates that the E53 Place associated with the E19 Physical Object is the current location of the object. The property does not allow any indication of how long the Object has been at the current location. \nP55 has current location (currently holds) is a shortcut. A more detailed representation can make use of the fully developed (i.e. indirect) path from E19 Physical Object through P25 moved (moved by), E9 Move P26 moved to (was destination of) to E53 Place if and only if this Move is the most recent.\n"@en ;
+        rdfs:domain    crm:E19_Physical_Object ;
+        rdfs:label     "hat derzeitigen Standort"@de , "в данный момент находится в"@ru , "é localizado em"@pt , "a pour localisation actuelle"@fr , "目前被置放於"@zh , "βρίσκεται σε"@el , "has current location"@en ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P55i_currently_holds .
+
+crm:P26_moved_to  rdf:type  rdf:Property ;
+        rdfs:comment   "This property identifies a destination of a E9 Move. \nA move will be linked to a destination, such as the move of an artefact from storage to display. A move may be linked to many terminal instances of E53 Place by multiple instances of this property. In this case the move describes a distribution of a set of objects. The area of the move includes the origin(s), route and destination(s).\nTherefore the described destination is an instance of E53 Place which P89 falls within (contains) the instance of E53 Place the move P7 took place at.\n"@en ;
+        rdfs:domain    crm:E9_Move ;
+        rdfs:label     "moved to"@en , "移入物件至"@zh , "locomoveu para"@pt , "перемещен в"@ru , "μετακινήθηκε προς"@el , "bewegte bis zu"@de , "a déplacé vers"@fr ;
+        rdfs:range     crm:E53_Place ;
+        owl:inverseOf  crm:P26i_was_destination_of .
+
+crm:P52i_is_current_owner_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "είναι ιδιοκτήτης του"@el , "is current owner of"@en , "目前拥有"@zh , "ist derzeitiger Besitzer von"@de , "est le propriétaire actuel de"@fr , "является текущим владельцем для"@ru , "é proprietário de"@pt ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P52_has_current_owner .
+
+crm:P71i_is_listed_in
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E1_CRM_Entity ;
+        rdfs:label          "é definido por"@pt , "περιλαμβάνεται σε"@el , "被条列於"@zh , "est défini par"@fr , "перечислен в"@ru , "wird aufgelistet in"@de , "is listed in"@en ;
+        rdfs:range          crm:E32_Authority_Document ;
+        rdfs:subPropertyOf  crm:P67i_is_referred_to_by ;
+        owl:inverseOf       crm:P71_lists .
+
+crm:P4_has_time-span  rdf:type  rdf:Property ;
+        rdfs:comment  "This property describes the temporal confinement of an instance of an E2 Temporal Entity.\nThe related E52 Time-Span is understood as the real Time-Span during which the phenomena were active, which make up the temporal entity instance. It does not convey any other meaning than a positioning on the “time-line” of chronology. The Time-Span in turn is approximated by a set of dates (E61 Time Primitive). A temporal entity can have in reality only one Time-Span, but there may exist alternative opinions about it, which we would express by assigning multiple Time-Spans. Related temporal entities may share a Time-Span. Time-Spans may have completely unknown dates but other descriptions by which we can infer knowledge.\n"@en ;
+        rdfs:domain   crm:E2_Temporal_Entity ;
+        rdfs:label    "a pour durée"@fr , "tem período de tempo"@pt , "имеет временной отрезок"@ru , "has time-span"@en , "hat Zeitspanne"@de , "发生时段是"@zh , "βρισκόταν σε εξέλιξη"@el ;
+        rdfs:range    crm:E52_Time-Span .
+
+crm:E63_Beginning_of_Existence
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises events that bring into existence any E77 Persistent Item. \nIt may be used for temporal reasoning about things (intellectual products, physical items, groups of people, living beings) beginning to exist; it serves as a hook for determination of a terminus post quem and ante quem. "@en ;
+        rdfs:label       "Αρχή Ύπαρξης"@el , "Début d'existence"@fr , "Início da Existência"@pt , "Начало Существования"@ru , "Beginning of Existence"@en , "Daseinsbeginn"@de , "存在开始"@zh ;
+        rdfs:subClassOf  crm:E5_Event .
+
+crm:E72_Legal_Object  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises those material or immaterial items to which instances of E30 Right, such as the right of ownership or use, can be applied. \nThis is true for all E18 Physical Thing. In the case of instances of E28 Conceptual Object, however, the identity of the E28 Conceptual Object or the method of its use may be too ambiguous to reliably establish instances of E30 Right, as in the case of taxa and inspirations. Ownership of corporations is currently regarded as out of scope of the CRM. \n"@en ;
+        rdfs:label       "Объект Права"@ru , "Legal Object"@en , "Objeto Jurídico"@pt , "Objet juridique"@fr , "Νομικό Αντικείμενο"@el , "Rechtsobjekt"@de , "法律物件"@zh ;
+        rdfs:subClassOf  crm:E70_Thing .
+
+crm:P50i_is_current_keeper_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E39_Actor ;
+        rdfs:label     "目前保管"@zh , "является текущим смотрителем для"@ru , "é guardador de"@pt , "ist derzeitiger Betreuer von"@de , "κατέχει"@el , "is current keeper of"@en , "est actuel détenteur de"@fr ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P50_has_current_keeper .
+
+sci:O13_triggers  rdf:type  rdf:Property ;
+        rdfs:domain    crm:E5_Event ;
+        rdfs:label     "triggers"@en ;
+        rdfs:range     crm:E5_Event ;
+        owl:inverseOf  sci:O13i_is_triggered_by .
+
+crm:E24_Physical_Human-Made_Thing
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises all persistent physical items that are purposely created by human activity.\nThis class comprises man-made objects, such as a swords, and man-made features, such as rock art. No assumptions are made as to the extent of modification required to justify regarding an object as man-made. For example, a “cup and ring” carving on bedrock is regarded as instance of E24 Physical Human-Made Thing. \n"@en ;
+        rdfs:label       "Chose matérielle fabriquée"@fr , "Hergestelltes"@de , "Ανθρωπογενές Υλικό Πράγμα"@el , "Coisa Material Fabricada"@pt , "人造实体物"@zh , "Physical Human-Made Thing"@en , "Физическая Рукотворная Вещь"@ru ;
+        rdfs:subClassOf  crm:E18_Physical_Thing , crm:E71_Human-Made_Thing .
+
+la:digitally_shown_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E36_Visual_Item ;
+        rdfs:label     "digitally shown by"@en ;
+        rdfs:range     dig:D1_Digital_Object ;
+        owl:inverseOf  la:digitally_shows .
+
+la:added_member_by  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "added by"@en ;
+        rdfs:range     la:Addition ;
+        owl:inverseOf  la:added_member .
+
+crm:P14i_performed  rdf:type  rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "führte aus"@de , "выполнял"@ru , "executou"@pt , "performed"@en , "执行了"@zh , "a exécuté"@fr , "πραγματοποίησε"@el ;
+        rdfs:range          crm:E7_Activity ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P14_carried_out_by .
+
+crm:P129_is_about  rdf:type  rdf:Property ;
+        rdfs:comment        "This property documents that an E89 Propositional Object has as subject an instance of E1 CRM Entity. \n"@en ;
+        rdfs:domain         crm:E89_Propositional_Object ;
+        rdfs:label          "handelt über"@de , "est au sujet de"@fr , "é sobre"@pt , "касается"@ru , "έχει ως θέμα"@el , "陈述关於"@zh , "is about"@en ;
+        rdfs:range          crm:E1_CRM_Entity ;
+        rdfs:subPropertyOf  crm:P67_refers_to ;
+        owl:inverseOf       crm:P129i_is_subject_of .
+
+crm:P46i_forms_part_of
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "fait partie de"@fr , "αποτελεί μέρος του/της"@el , "bildet Teil von"@de , "forms part of"@en , "формирует часть"@ru , "faz parte de"@pt , "被用来组成"@zh ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P46_is_composed_of .
+
+crm:E42_Identifier  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises strings or codes assigned to instances of E1 CRM Entity in order to identify them uniquely and permanently within the context of one or more organisations. Such codes are often known as inventory numbers, registration codes, etc. and are typically composed of alphanumeric sequences. The class E42 Identifier is not normally used for machine-generated identifiers used for automated processing unless these are also used by human agents."@en ;
+        rdfs:label       "Kennung"@de , "Identificador de Objeto"@pt , "Κωδικός Αναγνώρισης"@el , "标识符"@zh , "Идентификатор Объекта"@ru , "Identificateur d'objet"@fr , "Identifier"@en ;
+        rdfs:subClassOf  crm:E41_Appellation .
+
+crm:P90b_has_upper_value_limit
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property allows the greatest possible value of an E54 Dimension to be approximated by an E60 Number primitive."@en ;
+        rdfs:domain   crm:E54_Dimension ;
+        rdfs:label    "has upper value limit"@en ;
+        rdfs:range    rdfs:Literal .
+
+crm:P65_shows_visual_item
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property documents an E36 Visual Item shown by an instance of E24 Physical Human-Made Thing.\nThis property is similar to P62 depicts (is depicted by) in that it associates an item of E24 Physical Human-Made Thing with a visual representation. However, P65 shows visual item (is shown by) differs from the P62 depicts (is depicted by) property in that it makes no claims about what the E36 Visual Item is deemed to represent. E36 Visual Item identifies a recognisable image or visual symbol, regardless of what this image may or may not represent.\nFor example, all recent British coins bear a portrait of Queen Elizabeth II, a fact that is correctly documented using P62 depicts (is depicted by). Different portraits have been used at different periods, however. P65 shows visual item (is shown by) can be used to refer to a particular portrait.\nP65 shows visual item (is shown by) may also be used for Visual Items such as signs, marks and symbols, for example the 'Maltese Cross' or the 'copyright symbol’ that have no particular representational content. \nThis property is part of the fully developed path from E24 Physical Human-Made Thing through P65 shows visual item (is shown by), E36 Visual Item, P138 represents (has representation) to E1 CRM Entity which is shortcut by, P62 depicts (is depicted by).\n"@en ;
+        rdfs:domain         crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label          "εμφανίζει οπτικό στοιχείο"@el , "apresenta item visual"@pt , "zeigt Bildliches"@de , "显示视觉项目"@zh , "показывает визуальный предмет"@ru , "shows visual item"@en , "présente l'item visuel"@fr ;
+        rdfs:range          crm:E36_Visual_Item ;
+        rdfs:subPropertyOf  crm:P128_carries ;
+        owl:inverseOf       crm:P65i_is_shown_by .
+
+crm:E7_Activity  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises actions intentionally carried out by instances of E39 Actor that result in changes of state in the cultural, social, or physical systems documented. \nThis notion includes complex, composite and long-lasting actions such as the building of a settlement or a war, as well as simple, short-lived actions such as the opening of a door.\n"@en ;
+        rdfs:label       "Δράση"@el , "Activity"@en , "活动"@zh , "Atividade"@pt , "Handlung"@de , "Деятельность"@ru , "Activité"@fr ;
+        rdfs:subClassOf  crm:E5_Event .
+
+crm:E58_Measurement_Unit
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class is a specialization of E55 Type and comprises the types of measurement units: feet, inches, centimetres, litres, lumens, etc. \nThis type is used categorically in the model without reference to instances of it, i.e. the Model does not foresee the description of instances of instances of E58 Measurement Unit, e.g.: “instances of cm”.\nSyst?me International (SI) units or internationally recognized non-SI terms should be used whenever possible. (ISO 1000:1992). Archaic Measurement Units used in historical records should be preserved.\n"@en ;
+        rdfs:label       "Maßeinheit"@de , "Единица Измерения"@ru , "测量单位"@zh , "Unité de mesure"@fr , "Μονάδα Μέτρησης"@el , "Unidade de Medida"@pt , "Measurement Unit"@en ;
+        rdfs:subClassOf  crm:E55_Type .
+
+crm:P143_joined  rdf:type   rdf:Property ;
+        rdfs:comment        "This property identifies the instance of E39 Actor that becomes member of a E74 Group in an E85 Joining.\n \tJoining events allow for describing people becoming members of a group with a more detailed path from E74 Group through P144 joined with (gained member by), E85 Joining, P143 joined (was joined by) to E39 Actor, compared to the shortcut offered by P107 has current or former member (is current or former member of).\n"@en ;
+        rdfs:domain         crm:E85_Joining ;
+        rdfs:label          "加入了成员"@zh , "verband"@de , "joined"@en ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P11_had_participant ;
+        owl:inverseOf       crm:P143i_was_joined_by .
+
+la:invalidated_by  rdf:type  rdf:Property ;
+        rdfs:comment   "The RightAcquisition that invalidated this Right"@en ;
+        rdfs:domain    crm:E30_Right ;
+        rdfs:label     "invalidated by"@en ;
+        rdfs:range     la:RightAcquisition ;
+        owl:inverseOf  la:invalidates .
+
+archaeo:AP25_occurs_during
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property identifies a situation in which the entire instance of the E52 Time-Span of an instance of E2 Temporal Entity is within the instance of the E52 Time-Span of another instance of E2 Temporal Entity that starts before and ends after the included temporal entity."@en ;
+        rdfs:domain   crm:E2_Temporal_Entity ;
+        rdfs:label    "occurs during"@en ;
+        rdfs:range    crm:E2_Temporal_Entity .
+
+crm:P124i_was_transformed_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E18_Physical_Thing ;
+        rdfs:label     "wurde umgewandelt durch"@de , "foi transformado por"@pt , "被转变於"@zh , "μετατράπηκε από"@el , "был трансформирован посредством"@ru , "was transformed by"@en , "a été transformé par"@fr ;
+        rdfs:range     crm:E81_Transformation ;
+        owl:inverseOf  crm:P124_transformed .
+
+crm:P28_custody_surrendered_by
+        rdf:type            rdf:Property ;
+        rdfs:comment        "This property identifies the E39 Actor or Actors who surrender custody of an instance of E18 Physical Thing in an E10 Transfer of Custody activity. \nThe property will typically describe an Actor surrendering custody of an object when it is handed over to someone else’s care. On occasion, physical custody may be surrendered involuntarily – through accident, loss or theft.\nIn reality, custody is either transferred to someone or from someone, or both.\n"@en ;
+        rdfs:domain         crm:E10_Transfer_of_Custody ;
+        rdfs:label          "übergab Gewahrsam an"@de , "有原保管人"@zh , "custody surrendered by"@en , "опека отдана"@ru , "μετεβίβασε κατοχή από"@el , "changement de détenteur au détriment de"@fr , "custódia concedida por"@pt ;
+        rdfs:range          crm:E39_Actor ;
+        rdfs:subPropertyOf  crm:P14_carried_out_by ;
+        owl:inverseOf       crm:P28i_surrendered_custody_through .
+
+la:removed_member_by  rdf:type  rdf:Property ;
+        rdfs:comment   ""@en ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "removed by"@en ;
+        rdfs:range     la:Removal ;
+        owl:inverseOf  la:removed_member .
+
+crm:P31i_was_modified_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E24_Physical_Human-Made_Thing ;
+        rdfs:label          "wurde verändert durch"@de , "τροποποιήθηκε από"@el , "被修改於"@zh , "was modified by"@en , "a été modifié par"@fr , "foi modificada por"@pt , "был изменен посредством"@ru ;
+        rdfs:range          crm:E11_Modification ;
+        rdfs:subPropertyOf  crm:P12i_was_present_at ;
+        owl:inverseOf       crm:P31_has_modified .
+
+crm:P191_had_duration
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property describes the length of time covered by an E52 Time-Span. It allows an E52 Time-Span to be associated with an E54 Dimension representing duration independent from the actual beginning and end."@en ;
+        rdfs:domain    crm:E52_Time-Span ;
+        rdfs:label     "had duration"@en ;
+        rdfs:range     crm:E54_Dimension ;
+        owl:inverseOf  crm:P191i_was_duration_of .
+
+crm:P67i_is_referred_to_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "αναφέρεται από"@el , "é referenciado por"@pt , "wird angeführt von"@de , "имеет ссылку на себя от"@ru , "被论及於"@zh , "est référencé par"@fr , "is referred to by"@en ;
+        rdfs:range     crm:E89_Propositional_Object ;
+        owl:inverseOf  crm:P67_refers_to .
+
+crm:P24_transferred_title_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property identifies the E18 Physical Thing or things involved in an E8 Acquisition. \nIn reality, an acquisition must refer to at least one transferred item.\n"@en ;
+        rdfs:domain    crm:E8_Acquisition ;
+        rdfs:label     "a fait passer le droit de propriété sur"@fr , "transferiu os direitos de propriedade sobre o"@pt , "übertrug Besitz über"@de , "转移所有权的标的物是"@zh , "передал право собственности на"@ru , "μετεβίβασε τον τίτλο του/της"@el , "transferred title of"@en ;
+        rdfs:range     crm:E18_Physical_Thing ;
+        owl:inverseOf  crm:P24i_changed_ownership_through .
+
+crm:E30_Right  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises legal privileges concerning material and immaterial things or their derivatives. \nThese include reproduction and property rights"@en ;
+        rdfs:label       "Право"@ru , "Δικαίωμα"@el , "Droit"@fr , "Recht"@de , "Direitos"@pt , "Right"@en , "权限"@zh ;
+        rdfs:subClassOf  crm:E89_Propositional_Object .
+
+crm:E11_Modification  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises all instances of E7 Activity that create, alter or change E24 Physical Human-Made Thing. \nThis class includes the production of an item from raw materials, and other so far undocumented objects, and the preventive treatment or restoration of an object for conservation. \nSince the distinction between modification and production is not always clear, modification is regarded as the more generally applicable concept. This implies that some items may be consumed or destroyed in a Modification, and that others may be produced as a result of it. An event should also be documented using E81 Transformation if it results in the destruction of one or more objects and the simultaneous production of others using parts or material from the originals. In this case, the new items have separate identities. \nIf the instance of the E29 Design or Procedure utilized for the modification prescribes the use of specific materials, they should be documented using property P68 foresees use of (use foreseen by): E57 Material of E29 Design or Procedure, rather than via P126 employed (was employed in): E57 Material.\n"@en ;
+        rdfs:label       "Τροποποίηση"@el , "Modificação"@pt , "修改"@zh , "Modification"@fr , "Modification"@en , "Bearbeitung"@de , "Событие Изменения"@ru ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:E6_Destruction  rdf:type  rdfs:Class ;
+        rdfs:comment     "This class comprises events that destroy one or more instances of E18 Physical Thing such that they lose their identity as the subjects of documentation.  \nSome destruction events are intentional, while others are independent of human activity. Intentional destruction may be documented by classifying the event as both an E6 Destruction and E7 Activity. \nThe decision to document an object as destroyed, transformed or modified is context sensitive: \n1.  If the matter remaining from the destruction is not documented, the event is modelled solely as E6 Destruction. \n2. An event should also be documented using E81 Transformation if it results in the destruction of one or more objects and the simultaneous production of others using parts or material from the original. In this case, the new items have separate identities. Matter is preserved, but identity is not.\n3. When the initial identity of the changed instance of E18 Physical Thing is preserved, the event should be documented as E11 Modification. \n"@en ;
+        rdfs:label       "摧毁"@zh , "Καταστροφή"@el , "Zerstörung"@de , "Destruição"@pt , "Destruction"@fr , "Destruction"@en , "Разрушение"@ru ;
+        rdfs:subClassOf  crm:E64_End_of_Existence .
+
+crm:P16i_was_used_for
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E70_Thing ;
+        rdfs:label          "wurde benutzt für"@de , "был использован для"@ru , "foi usado por"@pt , "a été utilisé pour"@fr , "was used for"@en , "被用於"@zh , "χρησιμοποιήθηκε για"@el ;
+        rdfs:range          crm:E7_Activity ;
+        rdfs:subPropertyOf  crm:P12i_was_present_at , crm:P15i_influenced ;
+        owl:inverseOf       crm:P16_used_specific_object .
+
+dig:D1_Digital_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises identifiable immaterial items that can be represented as sets of bit sequences, such as data sets, e-texts, images, audio or video items, software, etc., and are documented as single units. Any aggregation of instances of D1 Digital Object into a whole treated as single unit is also regarded as an instance of D1 Digital Object.  This means that for instance, the content of a DVD, an XML file on it, and an element of this file, are regarded as distinct instances of D1 Digital Object, mutually related by the P106 is composed of (forms part of) property. A D1 Digital Object does not depend on a specific physical carrier, and it can exist on one or more carriers simultaneously."@en ;
+        rdfs:label       "Digital Object"@en ;
+        rdfs:subClassOf  crm:E73_Information_Object .
+
+crm:P23i_surrendered_title_through
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "a perdu le droit de propriété du fait de"@fr , "право собственности отдано через"@ru , "交出所有权於"@zh , "surrendered title through"@en , "παρέδωσε τον τίτλο μέσω"@el , "perdeu os direitos de propriedade por meio da"@pt , "trat Besitztitel ab in"@de ;
+        rdfs:range          crm:E8_Acquisition ;
+        rdfs:subPropertyOf  crm:P14i_performed ;
+        owl:inverseOf       crm:P23_transferred_title_from .
+
+crm:P62i_is_depicted_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "απεικονίζεται σε"@el , "é retratada por"@pt , "описан посредством"@ru , "被描绘於"@zh , "wird abgebildet durch"@de , "est figurée sur"@fr , "is depicted by"@en ;
+        rdfs:range     crm:E24_Physical_Human-Made_Thing ;
+        owl:inverseOf  crm:P62_depicts .
+
+crm:P140i_was_attributed_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E1_CRM_Entity ;
+        rdfs:label     "a reçu un attribut par"@fr , "was attributed by"@en , "foi atribuído por"@pt , "получил атрибут посредством"@ru , "被指定属性於"@zh , "χαρακτηρίστηκε από"@el , "bekam Merkmal zugewiesen durch"@de ;
+        rdfs:range     crm:E13_Attribute_Assignment ;
+        owl:inverseOf  crm:P140_assigned_attribute_to .
+
+crm:P143i_was_joined_by
+        rdf:type            rdf:Property ;
+        rdfs:domain         crm:E39_Actor ;
+        rdfs:label          "被加入为成员於"@zh , "wurde verbunden durch"@de , "was joined by"@en ;
+        rdfs:range          crm:E85_Joining ;
+        rdfs:subPropertyOf  crm:P11i_participated_in ;
+        owl:inverseOf       crm:P143_joined .
+
+crm:E32_Authority_Document
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises encyclopaedia, thesauri, authority lists and other documents that define terminology or conceptual systems for consistent use.\n"@en ;
+        rdfs:label       "Πηγή Καθιερωμένων Όρων"@el , "Documento de Referência"@pt , "权威文献"@zh , "Referenzdokument"@de , "Document de référence"@fr , "Authority Document"@en , "Официальный Документ"@ru ;
+        rdfs:subClassOf  crm:E31_Document .
+
+sci:O13i_is_triggered_by
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E5_Event ;
+        rdfs:label     "triggered by"@en ;
+        rdfs:range     crm:E5_Event ;
+        owl:inverseOf  sci:O13_triggers .
+
+crm:P98_brought_into_life
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property links an E67Birth event to an E21 Person in the role of offspring.\nTwins, triplets etc. are brought into life by the same Birth event. This is not intended for use with general Natural History material, only people. There is no explicit method for modelling conception and gestation except by using extensions.\n"@en ;
+        rdfs:domain    crm:E67_Birth ;
+        rdfs:label     "brachte zur Welt"@de , "诞生了"@zh , "a donné vie à"@fr , "породил"@ru , "έφερε στη ζωή"@el , "brought into life"@en , "trouxe à vida"@pt ;
+        rdfs:range     crm:E21_Person ;
+        owl:inverseOf  crm:P98i_was_born .
+
+crm:E22_Human-Made_Object
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises physical objects purposely created by human activity.\nNo assumptions are made as to the extent of modification required to justify regarding an object as man-made. For example, an inscribed piece of rock or a preserved butterfly are both regarded as instances of E22 Human-Made Object.\n"@en ;
+        rdfs:label       "Objeto Fabricado"@pt , "Objet fabriqué"@fr , "Рукотворный Объект"@ru , "Ανθρωπογενές Αντικείμενο"@el , "Künstlicher Gegenstand"@de , "Human-Made Object"@en , "人造物件"@zh ;
+        rdfs:subClassOf  crm:E24_Physical_Human-Made_Thing , crm:E19_Physical_Object .
+
+crm:P139_has_alternative_form
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property establishes a relationship of equivalence between two instances of E41 Appellation independent from any item identified by them. It is a dynamic asymmetric relationship, where the range expresses the derivative, if such a direction can be established. Otherwise, the relationship is symmetric. The relationship is not transitive.\nThe equivalence applies to all cases of use of an instance of E41 Appellation. Multiple names assigned to an object, which are not equivalent for all things identified with a specific instance of E41 Appellation, should be modelled as repeated values of P1 is identified by (identifies). \nP139.1 has type allows the type of derivation, such as “transliteration from Latin 1 to ASCII” be refined..\n"@en ;
+        rdfs:domain   crm:E41_Appellation ;
+        rdfs:label    "имеет альтернативную форму"@ru , "has alternative form"@en , "hat alternative Form"@de , "a pour autre forme"@fr , "有替代称号"@zh , "tem forma alternativa"@pt , "έχει εναλλακτική μορφή"@el ;
+        rdfs:range    crm:E41_Appellation .
+
+crm:P101_had_as_general_use
+        rdf:type      rdf:Property ;
+        rdfs:comment  "This property links an instance of E70 Thing to an E55 Type of usage.\nIt allows the relationship between particular things, both physical and immaterial, and general methods and techniques of use to be documented. Thus it can be asserted that a baseball bat had a general use for sport and a specific use for threatening people during the Great Train Robbery.\n"@en ;
+        rdfs:domain   crm:E70_Thing ;
+        rdfs:label    "had as general use"@en , "tem como uso geral"@pt , "είχε ως γενική χρήση"@el , "被惯用於"@zh , "имел основное применение"@ru , "hatte die allgemeine Verwendung"@de , "avait comme utilisation générale"@fr ;
+        rdfs:range    crm:E55_Type .
+
+crm:P112_diminished  rdf:type  rdf:Property ;
+        rdfs:comment        "This property identifies the E24 Physical Human-Made Thing that was diminished by E80 Part Removal.\nAlthough a Part removal activity normally concerns only one item of Physical Man-Made Thing, it is possible to imagine circumstances under which more than one item might be diminished by a single Part Removal activity. \n"@en ;
+        rdfs:domain         crm:E80_Part_Removal ;
+        rdfs:label          "缩减了"@zh , "verminderte"@de , "εξάλειψε"@el , "diminished"@en , "a diminué"@fr , "diminuiu"@pt , "уменьшил"@ru ;
+        rdfs:range          crm:E24_Physical_Human-Made_Thing ;
+        rdfs:subPropertyOf  crm:P31_has_modified ;
+        owl:inverseOf       crm:P112i_was_diminished_by .
+
+crm:E10_Transfer_of_Custody
+        rdf:type         rdfs:Class ;
+        rdfs:comment     "This class comprises transfers of physical custody of objects between instances of E39 Actor. \nThe recording of the donor and/or recipient is optional. It is possible that in an instance of E10 Transfer of Custody there is either no donor or no recipient. Depending on the circumstances it may describe:\n1.\tthe beginning of custody \n2.\tthe end of custody \n3.\tthe transfer of custody \n4.\tthe receipt of custody from an unknown source\n5.\tthe declared loss of an object\nThe distinction between the legal responsibility for custody and the actual physical possession of the object should be expressed using the property P2 has type (is type of). A specific case of transfer of custody is theft.\nThe interpretation of the museum notion of \"accession\" differs between institutions. The CRM therefore models legal ownership and physical custody separately. Institutions will then model their specific notions of accession and deaccession as combinations of these.\n"@en ;
+        rdfs:label       "Transferência de Custódia"@pt , "Transfer of Custody"@en , "Передача Опеки"@ru , "Μεταβίβαση  Κατοχής"@el , "保管作业转移"@zh , "Übertragung des Gewahrsams"@de , "Changement de détenteur"@fr ;
+        rdfs:subClassOf  crm:E7_Activity .
+
+crm:P199i_has_instance_represented_by
+        rdf:type       rdf:Property ;
+        rdfs:comment   "Inverse of P199"@en ;
+        rdfs:domain    crm:E55_Type ;
+        rdfs:label     "has instance represented by"@en ;
+        rdfs:range     crm:E36_Visual_Item ;
+        owl:inverseOf  crm:P199_represents_instance_of_type .
+
+crm:P100_was_death_of
+        rdf:type       rdf:Property ;
+        rdfs:comment   "This property property links an E69 Death event to the E21 Person that died."@en ;
+        rdfs:domain    crm:E69_Death ;
+        rdfs:label     "был смертью для"@ru , "was death of"@en , "灭亡了"@zh , "ήταν θάνατος του/της"@el , "Tod von"@de , "foi a morte para "@pt , "a été la mort de"@fr ;
+        rdfs:range     crm:E21_Person ;
+        owl:inverseOf  crm:P100i_died_in .
+
+crm:E55_Type  rdf:type   rdfs:Class ;
+        rdfs:comment     "This class comprises concepts denoted by terms from thesauri and controlled vocabularies used to characterize and classify instances of CRM classes. Instances of E55 Type represent concepts  in contrast to instances of E41 Appellation which are used to name instances of CRM classes. \nE55 Type is the CRM’s interface to domain specific ontologies and thesauri. These can be represented in the CRM as subclasses of E55 Type, forming hierarchies of terms, i.e. instances of E55 Type linked via P127 has broader  term (has narrower term). Such hierarchies may be extended with additional properties. \n"@en ;
+        rdfs:label       "Tipo"@pt , "Type"@fr , "Type"@en , "Τύπος"@el , "Тип"@ru , "Typus"@de , "类型"@zh ;
+        rdfs:subClassOf  crm:E28_Conceptual_Object .
+
+crm:P141_assigned  rdf:type  rdf:Property ;
+        rdfs:comment   "This property indicates the attribute that was assigned or the item that was related to the item denoted by a property P140 assigned attribute to in an Attribute assignment action.\n"@en ;
+        rdfs:domain    crm:E13_Attribute_Assignment ;
+        rdfs:label     "απέδωσε"@el , "a attribué"@fr , "wies zu"@de , "atribuiu"@pt , "指定了属性值"@zh , "присвоил"@ru , "assigned"@en ;
+        rdfs:range     crm:E1_CRM_Entity ;
+        owl:inverseOf  crm:P141i_was_assigned_by .
+
+crm:P12i_was_present_at
+        rdf:type       rdf:Property ;
+        rdfs:domain    crm:E77_Persistent_Item ;
+        rdfs:label     "ήταν παρών/παρούσα/παρόν σε"@el , "estava presente no"@pt , "war anwesend bei"@de , "was present at"@en , "присутствовал при"@ru , "était présent à"@fr , "当时在场於"@zh ;
+        rdfs:range     crm:E5_Event ;
+        owl:inverseOf  crm:P12_occurred_in_the_presence_of .

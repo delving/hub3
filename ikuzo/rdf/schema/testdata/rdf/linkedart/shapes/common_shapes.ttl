@@ -1,0 +1,402 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+###################################
+# TODO - CHANGE PROPERTY SHAPES TO NODE SHAPES WHEN NO SH:PATH PRESENT AND VICE-VERSA 
+###################################
+
+# PROCESS
+# 1. Collect all entities and properties defined in the specs
+# 2. Segment all entities into the specific, smallest nodes 
+# 3. Define all specific nodes as Node shapes
+# 4. Define the sh:paths that connect them as property shapes with 
+#       a sh:PropertyShape;
+#       sh:path crm:Pxx_something; 
+#       sh:node la:subEntity;
+#       sh:severity & sh:message
+# 5. 
+
+###################################
+# TODO - ARRAY VS OBJECT VALIDATION
+###################################
+
+la:prop_numeric
+    a sh:PropertyShape;
+    sh:datatype xsd:double;
+    sh:severity sh:Violation;
+    sh:message "v1: The value specified as the object of this predicate must be numeric.";
+.
+
+###########################################################################################################################
+# RDF TYPE  
+###########################################################################################################################
+la:prop_rdf_type
+    a sh:PropertyShape;
+    sh:path rdf:type;
+    sh:minCount 1;
+	sh:message "v2: A type for this node should be supplied with the 'type' property.";
+	sh:severity sh:Violation;
+.
+
+###########################################################################################################################
+# ID - be sure that any entity with an id has a resolvable URI for the id's value
+###########################################################################################################################
+la:util_idPresent
+    a sh:NodeShape;
+    sh:nodeKind sh:IRI;
+.
+
+la:util_isResolvableURI
+    a sh:NodeShape;
+    sh:nodeKind sh:IRI;
+    # make sure the URI for the ndoe starts with http(s?)
+    sh:pattern "^http(s?)://";
+.
+
+la:util_isInternalURI
+    a sh:NodeShape;
+    sh:nodeKind sh:IRI;
+    # make sure the URI matches a pattern supplied to the validation engine at runtime
+    sh:pattern "$baseURLPattern";
+.
+
+la:prop_id
+    a sh:PropertyShape;
+    sh:node la:util_isResolvableURI;
+    sh:severity sh:Violation;
+    sh:message "v3: The 'id' of the node must be a resolvable URI starting with http(s) protocol.";
+    sh:minCount 1;
+.
+
+la:validate_id
+    a sh:NodeShape;
+
+    sh:targetClass crm:E1_CRM_Entity;
+
+    # check ID to make sure it's either not present or if it is present that it is resolvable
+    sh:property [
+        sh:or (
+            [ sh:not [ sh:nodeKind sh:IRI ] ]
+            [ sh:node la:util_isResolvableURI ]
+        );
+        sh:severity sh:Violation;
+        sh:message "v4: The 'id' of each Linked Art node (subclass of E1_CRM_Entity) must be resolvable via http(s) protocol.";
+        sh:minCount 0;
+    ];
+.
+
+###########################################################################################################################
+# _LABEL ensure nodes have required property label
+###########################################################################################################################
+la:prop_label
+    a sh:PropertyShape;
+    sh:path rdfs:label;
+
+    # labels are not required only recommended
+	sh:minCount 1;
+	sh:message "w5: A human readable label for this node should be supplied with the '_label' property.";
+	sh:severity sh:Warning;
+.
+
+
+###########################################################################################################################
+# REFERENCES - EMBEDDED AND EXTERNAL
+###########################################################################################################################
+la:prop_embedded_or_ref_int_uri
+    a sh:PropertyShape;
+
+    sh:property [
+        sh:or (
+            # either no ID is present
+            la:util_idPresent 
+
+            # or the ID matches a templated property shape that is 
+            # overridden by a command line argument to the validator
+            la:util_isInternalURI 
+        );
+
+        # must have an ID that matches the internal base URL pattern
+        sh:node la:util_isInternalURI;
+        sh:severity sh:Violation;
+        sh:message "v6: The id of this node must be populated with a resolvable http(s) URL matching the internal URL pattern '$baseURLPattern'.";
+    ];
+.
+
+la:prop_embedded
+    a sh:PropertyShape;
+    # no ID is present for embedded data (which aren't references)
+    sh:not [ sh:node la:util_idPresent ];
+.
+
+la:prop_ref_external
+    a sh:PropertyShape;
+
+    sh:property la:prop_ref_basic;
+
+    # the entity should not be considered embeddedable - might happen if id is internal 
+    sh:property [
+        sh:not [ sh:property la:prop_embedded ];
+        sh:message "v8: External reference required. Node has shape of an embedded references rather than an external reference.";
+    ];
+
+    sh:property [
+        sh:not [ sh:property la:prop_embedded_or_ref_int_uri ];
+        sh:message "v9: External reference required. Node has shape of an embedded reference with ID matching the baseURLPattern. It is not an external reference.";
+    ];
+
+.
+
+la:prop_ref_basic
+    a sh:PropertyShape;
+
+    # the ID is present
+    sh:property [
+        sh:node la:util_idPresent;
+        sh:message "v10: Basic references must have an id.";
+        sh:severity sh:Violation;
+    ];
+
+    # the ID is resolvable
+    sh:property la:prop_id;
+    sh:property la:prop_rdf_type;
+    sh:property la:prop_label;
+
+    # other properties are forbidden for external references - sh:closed directs the validator to disallow those
+    sh:property [
+        # the two common ref properties must be explicitly added here for sh:closed to work properly
+        sh:property la:prop_rdf_type;
+        sh:property [ sh:path rdfs:label ];
+
+        # external references may also be further classifed if necessary
+        sh:property [ 
+            sh:path crm:P2_has_type;
+            # this is an optional property
+            sh:minCount 0;
+        ];
+
+        # because we have the AAT graph loaded in the data for validation we also have to permit the gvp:broaderExtended property
+        sh:property [
+            sh:path gvp:broaderExtended;
+            sh:minCount 0;
+        ];
+
+        sh:closed true;
+        sh:message "v12: The only properties allowed for basic references are 'id', 'type', '_label', and in some cases, 'classified_as'.";
+        sh:severity sh:Violation;
+    ]
+.
+
+la:prop_ref
+    a sh:PropertyShape;
+    # these ensure the messages embedded in these properties bubble up to the report
+    # otherwise we only get the message for the sh:xone failure
+    sh:property [
+        sh:xone ( 
+            [ sh:property la:prop_embedded ]
+            [ sh:property la:prop_ref_external ]
+        );
+        sh:severity sh:Violation;
+        sh:message "v13: References can be either embedded entities without an ID populated with properties OR an external reference (uri does not match base url pattern) with only a resolvable ID, a type, and _label with no additional properties.";
+    ];
+
+    sh:property la:prop_rdf_type;
+    sh:property la:prop_label;
+.
+
+
+la:validate_reference_external
+    a sh:NodeShape;
+
+    ### all of the Linked Art predicates to references
+    sh:targetObjectsOf (
+        crm:P55_has_current_location
+        crm:P54_has_current_permanent_location
+        crm:P52_has_current_owner
+        la:current_permanent_custodian
+        crm:P50_has_current_keeper
+        crm:P129_is_about
+        crm:P140i_was_attributed_by
+        crm:P14_carried_out_by
+        sci:O13i_is_triggered_by
+        crm:P94i_was_created_by
+        crm:P43_has_dimension
+        la:digitally_carried_by
+        crm:P15_was_influenced_by
+        crm:P106i_forms_part_of
+        crm:P45_consists_of
+        crm:P138_represents
+        crm:P138i_has_representation
+        crm:P128i_is_carried_by
+        crm:P16i_was_used_for
+        crm:P4_has_time-span
+        crm:P7_took_place_at
+    );
+
+    sh:property la:prop_ref;
+.
+
+###########################################################################################################################
+# CLASSIFIED_AS
+###########################################################################################################################
+la:prop_classified
+    a sh:PropertyShape;
+    sh:path crm:P2_has_type;
+    sh:minCount 1;
+    sh:severity sh:Warning;
+    sh:message "w14: Node should be classified by adding one or more statements using the classified_as predicate.";
+.
+
+la:prop_external_concept
+    a sh:PropertyShape;
+    sh:property la:prop_ref_external;
+    sh:property la:prop_classified;
+.
+
+
+
+###########################################################################################################################
+# AAT - TYPE OF WORK TERM property shape for term used to classify other terms as a "type of work" 
+###########################################################################################################################
+la:util_termIsTypeOfWork 
+    a sh:PropertyShape;
+    sh:path crm:P2_has_type ; 
+    sh:hasValue <http://vocab.getty.edu/aat/300435443> ;
+.
+
+
+
+###########################################################################################################################
+# AAT - ARTWORK TERM - terms that are types of artwork should have a broaderExtended property set to the Visual Artwork Type/Materials term
+###########################################################################################################################
+la:util_termIsAnArtworkType
+    a sh:PropertyShape;
+    sh:path gvp:broaderExtended;
+    sh:hasValue aat:300191091;
+.
+
+la:util_termIsDimension
+    a sh:PropertyShape;
+    sh:path gvp:broaderExtended;
+    sh:hasValue aat:300264087;
+.
+
+la:util_termIsMaterial
+    a sh:PropertyShape;
+    sh:path gvp:broaderExtended;
+    sh:hasValue aat:300010358;
+    sh:message "v15: 'made_of' must refer to a material selected from AAT's material substances (aat:300010358).";
+    sh:severity sh:Violation;
+.
+
+la:util_termIsTechnique
+    a sh:PropertyShape;
+    sh:path gvp:broaderExtended;
+    sh:hasValue aat:300053003;
+    sh:message "v55: 'technique' must refer to a technique selected from AAT's processes and techniques by specific type (aat:300053003).";
+    sh:severity sh:Violation;
+.
+
+la:util_has_technique
+    a sh:PropertyShape;
+    sh:path crm:P32_used_general_technique;
+    sh:minCount 0;
+.
+
+la:validate_techniques
+    a sh:NodeShape;
+    sh:targetObjectsOf crm:P32_used_general_technique;
+    sh:property la:util_termIsTechnique;
+.
+
+################################
+# ATTRIBUTED_BY
+################################
+la:prop_attributeAssignment
+    a sh:PropertyShape;
+
+    sh:class crm:E13_Attribute_Assignment;
+
+    sh:property [
+        sh:path (sh:inversePath crm:P140i_was_attributed_by);
+        sh:minCount 1;
+        sh:severity sh:Violation;
+        sh:message "v40: 'AttributeAssignment' can only be an object of the 'attributed_by' predicate.";
+    ];
+
+    # must be a valid reference shape
+    sh:property la:prop_ref;
+
+    # check for a timespan
+    sh:property la:prop_has_timeSpan;
+
+    # should have a name and/or identifier
+    sh:property la:prop_anyName;
+
+    # should be classified further
+    sh:property la:prop_classified;
+
+    # optionally referred to by a linguistic object
+    sh:property la:prop_has_referred_to_by;
+
+    # optionally carried out by a person or group
+    sh:property la:prop_has_carried_out_by;
+.
+
+la:prop_attributed_by_ref
+    a sh:PropertyShape;
+    sh:path crm:P140i_was_attributed_by;
+    sh:class crm:E13_Attribute_Assignment;
+    sh:minCount 1;
+    sh:severity sh:Violation;
+    sh:message "v41: 'attributed_by' predicate must refer to 'type' 'AttributeAssignment'";
+.
+
+
+la:validate_attributed_by
+    a sh:NodeShape;
+    sh:targetSubjectsOf crm:P140i_was_attributed_by;
+    sh:property la:prop_attributed_by_ref;
+ .
+
+la:validate_attributeAssignment
+    a sh:NodeShape;
+    sh:targetClass crm:E13_Attribute_Assignment;
+    sh:property la:prop_attributeAssignment;
+.
+
+
+#######################################
+# CHECK FOR MULTIPLE VALUES OF RDF:TYPE
+#######################################
+la:validate_no_multiple_inheritance
+    a sh:NodeShape;
+
+    sh:targetClass crm:E1_CRM_Entity;
+
+    # here, we're going to test to see if we can constrain the number of classes
+    sh:property [
+        sh:path rdf:type;
+        sh:minCount 1;
+        sh:maxCount 1;
+        sh:severity sh:Violation;
+        sh:message "v52: Multiple 'type'(s) have been assigned to this linked art entity at the uri indicated by the 'id' property.";
+    ];
+.
+
+

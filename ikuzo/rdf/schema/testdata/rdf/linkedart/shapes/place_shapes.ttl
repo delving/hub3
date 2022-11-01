@@ -1,0 +1,44 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+###################################################################################################################################
+# PLACE
+###################################################################################################################################
+la:prop_place_ref
+    a sh:PropertyShape;
+
+    sh:property [
+        sh:class crm:E53_Place;
+        sh:message "v51: Its predicate requires this node to be a 'Place'.";
+        sh:severity sh:Violation;
+    ];
+    sh:property la:prop_ref_basic;
+.
+
+la:prop_has_took_place_at
+    a sh:PropertyShape;
+    sh:path crm:P7_took_place_at;
+    sh:minCount 0;
+.
+
+la:validate_place_refs
+    a sh:Nodeshape;
+    sh:targetObjectsOf crm:P7_took_place_at;
+    sh:property sh:prop_place_ref;

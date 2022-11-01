@@ -1,0 +1,99 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+################################
+# INFLUENCED_BY
+################################
+la:prop_has_influenced_by
+    a sh:PropertyShape;
+    sh:path crm:P15_was_influenced_by;
+    sh:minCount 0;
+.
+
+
+################################
+# CARRIED_OUT_BY
+################################
+la:prop_has_carried_out_by
+    a sh:PropertyShape;
+    sh:path crm:P14_carried_out_by;
+    sh:minCount 0;
+.
+
+la:prop_carried_out_by
+    a sh:PropertyShape;
+
+    # established through the carried_out_by predicate
+    sh:path crm:P14_carried_out_by;
+    sh:minCount 0;
+
+    # must be carried out by either a Person or a Group
+    sh:property [
+        sh:or ( [ sh:class crm:E21_Person ] [ sh:class crm:E74_Group ] );
+        sh:minCount 1;
+        sh:severity sh:Violation;
+        sh:message "v39: 'carried_out_by' must have an object of Person or Group.";
+    ];
+
+    # and must conform to reference requirements
+    sh:property la:prop_ref;
+.
+
+la:validate_carried_out_by
+    a sh:NodeShape;
+    sh:targetSubjectsOf crm:P14_carried_out_by;
+    sh:property la:prop_carried_out_by;
+.
+
+###################################################################################################################################
+# ACTORS (PERSON & GROUP)
+###################################################################################################################################
+la:prop_actor_ref
+    a sh:PropertyShape;
+
+    sh:property [
+        sh:or ( [ sh:class crm:E21_Person ] [ sh:class crm:E74_Group ] );
+        sh:message "v49: Its predicate requires this node to be either a 'Person' or a 'Group'.";
+        sh:severity sh:Violation;
+    ];
+
+    sh:property la:prop_ref_basic;
+.
+
+la:prop_actor
+    a sh:PropertyShape;
+
+    # all actor shapes must conform to either external references or internal with ID
+    sh:or (
+        [ sh:property la:prop_ref_external ]
+        [ sh:property la:prop_embedded_or_ref_int_uri ]
+    );
+    sh:severity sh:Violation;
+    sh:message "v50: 'Person' and 'Group' entities must have an id";
+.
+
+la:validate_person
+    a sh:NodeShape;
+
+    # sh:targetClass crm:E21_Person;
+    sh:targetClass crm:E74_Group;
+
+    sh:property la:prop_actor;
+.
+

@@ -1,0 +1,300 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+###################################################################################################################################
+# USED_SPECIFIC_OBJECT
+###################################################################################################################################
+la:prop_has_used_specific_object
+    a sh:PropertyShape;
+    sh:path crm:P16_used_specific_object;
+    sh:minCount 0;
+.
+
+###################################################################################################################################
+# TOP LEVEL OBJECTS  (objects without a parent)
+###################################################################################################################################
+
+##################################################
+# target for top level objects
+##################################################
+la:target_object_toplevel
+    a sh:SPARQLTarget;
+    sh:select """
+        prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+        prefix la:      <https://linked.art/ns/terms/>
+        SELECT ?this
+        WHERE {
+            ?this a crm:E22_Human-Made_Object .
+            # top level objects don't have a parent
+            filter not exists { ?s crm:P46_is_composed_of ?this }
+            filter not exists { ?s la:equivalent ?this }
+        }
+    """ ;
+.
+
+##############################################################################
+# all validations applicable only to toplevel objects
+##############################################################################
+la:validate_object_toplevel
+    a sh:NodeShape;
+
+    ################################################
+    # only target objects that are toplevel objects
+    ################################################
+    sh:target la:target_object_toplevel;
+
+    ###########################################################################################################################
+    # CLASSIFIED_AS
+    ###########################################################################################################################
+
+    ###########################################################################################################################
+    # top level objects don't have a parent and must be artwork
+    ###########################################################################################################################
+    sh:property [
+        sh:path crm:P2_has_type ;
+        sh:hasValue <http://vocab.getty.edu/aat/300133025>;
+        sh:severity sh:Warning;
+        sh:message "w42: Top level art objects should be classified once as 'art work' (http://vocab.getty.edu/aat/300133025)" ;
+    ];
+
+
+    ###########################################################################################################################
+    # top level objects should be classified with an artwork material or type
+    ###########################################################################################################################
+    sh:property [
+        sh:path crm:P2_has_type;
+        sh:hasValue aat:300033618;
+        # qualified value shape is absolutely necessary here in order to require only one of potentially
+        # multiple classified_as terms assigned to objects - we just need to check to see if one of them
+        # is a material/type term
+        sh:qualifiedValueShape [
+            sh:path gvp:broaderExtended;
+            sh:hasValue aat:300191091;
+        ];
+        sh:qualifiedMinCount 1;
+        sh:severity sh:Warning;
+        sh:message "w43: Top level objects should be classified with an artwork material or type selected from under (aat:300191091).";
+    ];
+
+.
+
+
+
+
+
+###################################################################################################################################
+# STANDARD OBJECTS (objects that are either toplevel or have a parent but not equivalent
+###################################################################################################################################
+
+##################################################
+# target for standard (non-equivalent) objects
+##################################################
+la:target_object_standard
+    a sh:SPARQLTarget;
+    sh:select """
+        prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+        prefix la:      <https://linked.art/ns/terms/>
+        SELECT ?this
+        WHERE {
+            ?this a crm:E22_Human-Made_Object .
+            # non equivalent objects are not objects of an la:equivalent predicate
+            filter not exists { ?s la:equivalent ?this }
+        }
+    """ ;
+.
+
+##############################################################################
+# all validations applicable only to standard objects
+##############################################################################
+la:validate_object_standard
+
+    a sh:NodeShape;
+
+    ##########################################################################
+    # only target objects that are standard (non-equivalent objects)
+    ##########################################################################
+    sh:target la:target_object_standard;
+
+    ##########################################################
+    # IS AN INTERNAL REFERENCE
+    ##########################################################
+
+    # check for primary name OR primary identifier
+    sh:property la:prop_primaryNameOrIdentifier;
+
+    # id needs to be internal
+    sh:property la:prop_embedded_or_ref_int_uri;
+
+    # check for label
+    sh:property la:prop_label;
+    
+    #############################################################################################################
+    # PART
+    # the object of P46_is_composed_of (linked art "part") in the art object context must be an object itself
+    #############################################################################################################
+    sh:property [
+        sh:path crm:P46_is_composed_of;
+        sh:class crm:E22_Human-Made_Object;
+        sh:minCount 0;
+	    sh:severity sh:Violation;
+        sh:message "v44: Object parts must be of type HumanMadeObject.";
+    ];
+
+    #############################################################################################################
+    # PART_OF
+    # the object of P46i_forms_part_of (linked art "part_of") in the art object context must be an object itself
+    #############################################################################################################
+    sh:property [
+        sh:path crm:P46i_forms_part_of;
+        sh:class crm:E22_Human-Made_Object;
+        sh:minCount 0;
+	    sh:severity sh:Violation;
+        sh:message "v45: The object that this object is part of must be a HumanMadeObject.";
+    ];
+
+
+    ###################################################################################################################
+    # each object must have at least one classified_as predicate
+    ###################################################################################################################
+    sh:property la:prop_classified;
+
+
+    ###################################################################################################################
+    # ensure that if a term is present that represents a type of artwork, that it 
+    # is selected from the proper node of the aat and that the term is sub-classified as a visual work material/type 
+    ###################################################################################################################
+    sh:property [
+        sh:path crm:P2_has_type;
+        sh:or ( 
+            [ sh:and (
+                [ sh:not la:util_termIsAnArtworkType ]
+                [ sh:not la:util_termIsTypeOfWork ]
+            ) ]
+            [ sh:and (
+                [ sh:property la:util_termIsAnArtworkType ]
+                [ sh:property la:util_termIsTypeOfWork ]
+            )]
+        );
+        sh:severity sh:Warning;
+        sh:message "w46: Art object material / type terms should be selected from the AAT Visual Artwork Type/Materials (aat:300191091) and sub-classified as a 'type of work' (aat:300435443)" ;
+    ];
+
+
+    ################################
+    # EQUIVALENT
+    ################################
+    sh:property [
+        sh:path la:equivalent;
+        sh:class crm:E22_Human-Made_Object ; # the equivalent object must be HumanMadeObject too
+        sh:property la:prop_ref;
+        sh:property la:prop_ref_external;
+        sh:severity sh:Violation;
+        sh:message "v47: An 'equivalent' object must be an external references to a HumanMadeObject with an id and type specified as 'HumanMadeObject'. No other properties are permitted.";
+    ];
+
+    ################################
+    # MADE_OF
+    ################################
+    sh:property [
+        sh:path crm:P45_consists_of;
+        sh:class crm:E57_Material;
+        sh:severity sh:Violation;
+        sh:message "v48: 'made_of' must refer to a type 'Material'.";
+
+        sh:property la:util_termIsMaterial;
+        sh:property la:prop_ref_external;
+    ];
+
+    ################################
+    # CURRENT_OWNER
+    ################################
+    sh:property [
+        sh:path crm:P52_has_current_owner;
+        sh:property la:prop_actor_ref;
+    ];
+
+    ################################
+    # CURRENT_CUSTODIAN
+    ################################
+    sh:property [
+        sh:path crm:P50_has_current_keeper;
+        sh:property la:prop_actor_ref;
+    ];
+
+    ################################
+    # CURRENT_PERMANENT_CUSTODIAN
+    ################################
+    sh:property [
+        sh:path la:current_permanent_custodian;
+        sh:property la:prop_actor_ref;
+    ];
+
+    ################################
+    # CURRENT_LOCATION
+    ################################
+    sh:property [
+        sh:path crm:P55_has_current_location;
+        sh:property la:prop_place_ref;
+    ];
+
+    ################################
+    # CURRENT_PERMANENT_LOCATION
+    ################################
+    sh:property [
+        sh:path crm:P54_has_current_permanent_location;
+        sh:property la:prop_place_ref;
+    ];
+
+    ####################################################
+    # CARRIES - handled by la:validate_textual_work_refs
+    ####################################################
+
+    ####################################################
+    # SHOWS - handled by la:validate_representation_refs
+    ####################################################
+
+    ####################################################
+    # PRODUCED_BY 
+    ####################################################
+    sh:property [
+        sh:path crm:P108i_was_produced_by;
+        sh:property la:prop_production_ref;
+    ];
+
+.
+
+
+###################################################################################################################################
+# EQUIVALENT OBJECTS (objects of la:equivalent predicate)
+###################################################################################################################################
+
+##############################################################################
+# all validations applicable to equivalent objects
+# equivalent objects are human made objects that are target objects 
+# of an la:equivalent predicate
+##############################################################################
+la:validate_object_equivalent
+    a sh:NodeShape;
+
+    # no need to use SPARQLTarget here since one of the built-ins will due in this case
+    sh:targetObjectsOf la:equivalent;
+
+    sh:property la:prop_ref;
+.

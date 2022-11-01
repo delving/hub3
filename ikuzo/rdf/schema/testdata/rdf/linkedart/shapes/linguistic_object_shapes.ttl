@@ -1,0 +1,140 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+###########################################################################################################################
+# LANGUAGE - language property is present and comes from the AAT's list of languages
+###########################################################################################################################
+la:prop_language
+    a sh:PropertyShape;
+    sh:path ( crm:P72_has_language gvp:broaderExtended );
+    # (aat:300389738) is AAT's primary list of languages
+    sh:hasValue aat:300389738; # AAT list of languages
+    sh:message "w16: Linguistic Objects and Names should have a language assigned from the AAT's list of languages (aat:300389738).";
+    sh:severity sh:Warning;
+.
+
+
+###########################################################################################################################
+# LINGUISTIC OBJECT
+###########################################################################################################################
+la:prop_linguisticObject
+    a sh:PropertyShape;
+
+    sh:class crm:E33_Linguistic_Object;
+    
+    # should have a value for 'content'
+    sh:property [
+        sh:path crm:P190_has_symbolic_content;
+        sh:pattern ".+";
+        sh:minCount 1;
+        sh:message "w17: Linguistic Objects should have 'content' supplied.";
+        sh:severity sh:Warning;
+    ];
+
+
+    # should be classified as a particular category of information
+    sh:property [
+        # check to see if the applied term falls under AAT's category of information 
+        sh:path ( crm:P2_has_type gvp:broaderExtended );
+        sh:hasValue aat:300435412;
+        sh:minCount 1;
+        sh:message "w18: Linguistic Objects should be 'classified_as' a 'category of information' using a term under (aat:300435412).";
+        sh:severity sh:Warning;
+    ];
+
+    sh:property [
+        # check to see if the sub-classification term falls under AAT's documents by form
+        sh:path ( crm:P2_has_type crm:P2_has_type gvp:broaderExtended );
+        sh:hasValue aat:300137954;
+        sh:minCount 1;
+        sh:message "w19: 'category of information' terms should themselves be 'classified_as' 'documents by form' using a term under (aat:300137954).";
+        sh:severity sh:Warning;
+    ];
+
+    # by using node with a property shape, I can force the validation message to use the one below rather than reporting at the individual property level
+    # which can get confusing with the frequency of blank node IDs
+    sh:property la:prop_language;
+.
+
+
+la:target_linguisticObject
+    a sh:SPARQLTarget;
+    sh:select """
+        prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/>
+        SELECT ?this
+        WHERE {
+            ?this a crm:E33_Linguistic_Object .
+            # ignore the class crm:E33_E41_Linguistic_Appellation which inherits 
+            # from multiple classes so it can be validated separately
+            filter not exists { ?this a crm:E33_E41_Linguistic_Appellation }
+        }
+    """ ;
+.
+
+la:validate_linguisticObject
+    a sh:NodeShape;
+    sh:target la:target_linguisticObject;
+    sh:property la:prop_linguisticObject;
+.
+
+######################################################
+# REFERRED_TO_BY (from anything to a Linguistic Object)
+######################################################
+la:prop_referred_to_by
+    a sh:PropertyShape;
+    sh:path crm:P67i_is_referred_to_by;
+    sh:class crm:E33_Linguistic_Object;
+    sh:minCount 0;
+    sh:message "v20: The object of the 'referred_to_by' predicate must be a 'LinguisticObject'" ;
+    sh:severity sh:Violation;
+.
+
+la:prop_has_referred_to_by
+    sh:path crm:P67i_is_referred_to_by;
+    sh:minCount 0;
+.
+
+la:validate_referred_to_by
+    a sh:NodeShape ;
+    sh:targetSubjectsOf crm:P67i_is_referred_to_by;
+    sh:property la:prop_referred_to_by;
+.
+
+################################
+# SUBJECT_OF
+################################
+la:prop_textual_work
+    a sh:PropertyShape;
+    sh:or ( [ sh:class crm:E33_Linguistic_Object ] [ sh:class dig:D1_Digital_Object ] );
+    sh:severity sh:Violation;
+    sh:message "v29: Its predicate requires this node to be assigned the 'type' 'LinguisticObject' or 'DigitalObject'" ;
+.
+
+la:validate_textual_work_refs
+    a sh:NodeShape;
+    sh:targetObjectsOf crm:P128_carries;
+    sh:targetObjectsOf crm:P129i_is_subject_of;
+    sh:property la:prop_ref_basic;
+    sh:property la:prop_textual_work;
+.
+
+
+
+

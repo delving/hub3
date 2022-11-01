@@ -1,0 +1,116 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+######################################################
+# IDENTIFIED_BY (Name or Identifier)
+######################################################
+la:prop_anyName
+    a sh:PropertyShape;
+
+    # see if there's a name or identifier
+    sh:path crm:P1_is_identified_by;
+    sh:qualifiedValueShape [
+        # "Name" is alias to crm:E33_E41
+        sh:class crm:E33_E41_Linguistic_Appellation;
+
+        sh:property [
+            sh:path ( crm:P2_has_type gvp:broaderExtended );
+            # should be assigned from 
+            sh:hasValue aat:300311832; 
+        ];
+        sh:property [
+            sh:path crm:P190_has_symbolic_content;
+            sh:pattern ".+";
+        ];
+        sh:property [
+            sh:path crm:P72_has_language;
+            sh:property [
+                sh:path gvp:broaderExtended;
+                # (aat:300389738) is AAT's primary list of languages
+                sh:hasValue aat:300389738; # AAT list of languages
+            ];
+        ];
+    ];
+    sh:qualifiedMinCount 1;
+    sh:severity sh:Warning;
+    sh:message "w22: Node should be 'identified_by' a type 'Name' which in turn is 'classified_as' a concept selected under (aat:300311832). 'Name' should also have properties 'language', classified further with a language term selected from under (aat:300389738) and finally 'content' that is not blank.";
+.
+
+la:prop_primaryName
+    a sh:PropertyShape;
+
+    # see if there's a name or identifier
+    sh:path crm:P1_is_identified_by;
+    sh:qualifiedValueShape [
+        # "Name" is alias to crm:E33_E41
+        sh:class crm:E33_E41_Linguistic_Appellation;
+        sh:property [
+            sh:path crm:P2_has_type;
+            # Primary Name term in aat
+            sh:hasValue aat:300404670;
+        ];
+        sh:property [
+            sh:path crm:P190_has_symbolic_content;
+            sh:pattern ".+";
+        ];
+        sh:property [
+            sh:path crm:P72_has_language;
+            sh:property [
+                sh:path gvp:broaderExtended;
+                # (aat:300389738) is AAT's primary list of languages
+                sh:hasValue aat:300389738; # AAT list of languages
+            ];
+        ];
+    ];
+    sh:qualifiedMinCount 1;
+    sh:severity sh:Warning;
+    sh:message "w23: Node should be 'identified_by' a type 'Name' which in turn is 'classified_as' a primary name via (aat:300404670). 'Name' should also have properties 'language', classified further with a language term selected from under (aat:300389738) and finally 'content' that is not blank.";
+.
+
+la:prop_identifier
+    a sh:PropertyShape;
+    sh:path crm:P1_is_identified_by;
+    sh:qualifiedValueShape [
+        # "Identifier" is alias to crm:E42_Identifier;
+        sh:class crm:E42_Identifier;
+        sh:property [
+            sh:path crm:P2_has_type;
+            sh:property [
+                sh:path gvp:broaderExtended;
+                sh:hasValue aat:300417447; # AAT "Identification numbers and codes"
+            ]
+        ];
+    ];
+    sh:qualifiedMinCount 1;
+    #sh:severity sh:Warning;
+    #sh:message "w24: Node should be 'identified_by' a type 'Identifier' which in turn is 'classified_as' with a term selected from under 'Identification numbers and codes' (aat:300417447).";
+.
+la:prop_primaryNameOrIdentifier
+    a sh:PropertyShape;
+
+    sh:or (
+        [ sh:property la:prop_primaryName ]
+        [ sh:property la:prop_identifier ]
+    );
+    sh:message "w25: Node should have a primary name or a primary identifier.";
+    sh:severity sh:Warning; 
+    sh:minCount 1;
+.
+

@@ -1,0 +1,70 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+
+######################################################
+# VISUALITEM
+######################################################
+la:prop_visualItem_embedded
+    a sh:PropertyShape ;
+    sh:property la:prop_classified; 
+    sh:property la:prop_primaryNameOrIdentifier;
+.
+
+######################################################
+# REPRESENTATION (from anything to a Visual Work)
+######################################################
+la:prop_visualItem
+    a sh:PropertyShape;
+    sh:class crm:E36_Visual_Item;
+    sh:severity sh:Violation;
+    sh:message "v26: Its predicate requires this node to be of type 'VisualItem'" ;
+.
+
+la:validate_representation_refs
+    a sh:NodeShape ;
+
+    sh:targetObjectsOf crm:P138i_has_representation;
+    sh:targetObjectsOf crm:P65_shows_visual_item;
+
+    sh:property la:prop_visualItem;
+
+    # ensure we have a valid reference
+    sh:property la:prop_ref;
+.
+
+la:validate_representation
+    a sh:NodeShape;
+
+    sh:targetClass crm:E36_Visual_Item;
+
+    # needs to have an ID (I think but waiting clarification on blank nodes from group) 
+    sh:property la:prop_ref_basic;
+
+    sh:property [
+        sh:or (
+            [ sh:property la:prop_ref_external ]
+            [ sh:property la:prop_visualItem_embedded ]
+        );
+        sh:severity sh:Warning;
+        sh:message "w27: VisualItem should have have a primary name or primary identifier and should be classified by adding one or more statements using the classified_as predicate.";
+    ];
+
+.
+

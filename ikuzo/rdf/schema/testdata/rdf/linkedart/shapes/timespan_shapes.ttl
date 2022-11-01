@@ -1,0 +1,153 @@
+@prefix archaeo: <http://www.cidoc-crm.org/cidoc-crm/CRMarchaeo/> .
+@prefix crm:     <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dig:     <http://www.ics.forth.gr/isl/CRMdig/> .
+@prefix geo:     <http://www.ics.forth.gr/isl/CRMgeo/> .
+@prefix la:      <https://linked.art/ns/terms/> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema:  <http://schema.org/> .
+@prefix sci:     <http://www.ics.forth.gr/isl/CRMsci/> .
+@prefix sh:      <http://www.w3.org/ns/shacl#> .
+@prefix skos:    <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix gvp:     <http://vocab.getty.edu/ontology#> .
+@prefix aat:	 <http://vocab.getty.edu/aat/> .
+
+################################
+# TIMESPAN
+################################
+la:prop_format_iso8601
+    a sh:PropertyShape;
+
+    # sh:or ( [ sh:datatype xsd:date ] [ sh:datatype xsd:dateTime ] ) doesn't work unforunately, so sh:pattern is used instead
+    sh:or (
+        # DateTime with Zone, e.g. 2022-01-07T21:40:12+00:00
+        [ sh:pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}[\\+-]\\d{2}:\\d{2}$" ]
+
+        # Date Only, e.g. 2022-01-07
+        [ sh:pattern "^\\d{4}-\\d{2}-\\d{2}$" ]
+
+        # DateTime UTC, 2022-01-07 2022-01-07T21:40:12Z
+        [ sh:pattern "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" ]
+    );
+
+    sh:severity sh:Violation;
+    sh:message "v30: Date-time components of a TimeSpan must be strings representing a date or datetime and conform to ISO 8601 format (see: https://en.wikipedia.org/wiki/ISO_8601)";
+.
+
+la:prop_begin_of_the_begin
+    a sh:PropertyShape;
+    sh:path crm:P82a_begin_of_the_begin;
+    sh:property la:prop_format_iso8601;
+    sh:minCount 1;
+    sh:severity sh:Warning;
+    sh:message "w31: TimeSpans should specify an 'begin_of_the_begin' property in ISO 8601 format.";
+.
+
+
+la:prop_end_of_the_begin
+    a sh:PropertyShape;
+    sh:path crm:P81a_end_of_the_begin;
+    sh:property la:prop_format_iso8601;
+    sh:minCount 0;
+.
+
+
+la:prop_begin_of_the_end
+    a sh:PropertyShape;
+    sh:path crm:P81b_begin_of_the_end;
+    sh:property la:prop_format_iso8601;
+    sh:minCount 0;
+.
+
+
+la:prop_end_of_the_end
+    a sh:PropertyShape;
+    sh:path crm:P82b_end_of_the_end;
+    sh:property la:prop_format_iso8601;
+    sh:minCount 1;
+    sh:severity sh:Warning;
+    sh:message "w32: TimeSpans should specify an 'end_of_the_end' property in ISO 8601 format.";
+.
+
+
+la:prop_duration
+    a sh:PropertyShape;
+    sh:path crm:P191_had_duration;
+    sh:property la:prop_dimension;
+.
+
+la:prop_has_timeSpan
+    a sh:PropertyShape;
+    sh:path crm:P4_has_time-span;
+    sh:minCount 1;
+    sh:severity sh:Warning;
+    sh:message "w53: Node should have a 'timespan' assigned via 'timespan' predicate.";
+.
+
+la:prop_timeSpan_ref
+    a sh:PropertyShape;
+    sh:path crm:P4_has_time-span;
+
+    # must refer to a timespan
+    sh:class crm:E52_Time-Span;
+    sh:minCount 1;
+    sh:severity sh:Violation;
+    sh:message "v33: 'timespan' predicate must have an object of TimeSpan.";
+.
+
+
+la:prop_timeSpan
+    a sh:PropertyShape;
+
+    sh:class crm:E52_Time-Span;
+
+    # timespan must conform to reference requirements
+    sh:property la:prop_ref;
+
+    sh:property [
+        sh:path crm:P2_has_type;
+        # types must be external references
+        sh:property la:prop_ref_external;
+
+        # and they must be classifed references
+        sh:property la:prop_classified;
+        #sh:minCount 1;
+        #sh:severity sh:Warning;
+        #sh:message "w34: The timespan should be further classified with a 'classified_as' statement.";
+    ];
+
+    # some timestamp related properties
+    sh:property la:prop_begin_of_the_begin;
+    sh:property la:prop_end_of_the_begin;
+    sh:property la:prop_begin_of_the_end;
+    sh:property la:prop_end_of_the_end;
+
+    # timespan may have a name
+    sh:property la:prop_primaryName;
+
+    # timespan may have a referred_to_by
+    sh:property la:prop_referred_to_by;
+
+    # timespan may have a duration dimension
+    sh:property la:prop_duration;
+.
+
+
+la:validate_timeSpan_ref
+    a sh:NodeShape;
+    sh:targetSubjectsOf crm:P4_has_time-span;
+    sh:property la:prop_timeSpan_ref;
+.
+
+
+la:validate_timeSpan
+    a sh:NodeShape;
+    sh:targetClass crm:E52_Time-Span;
+    sh:property la:prop_timeSpan;
+.
+
