@@ -85,6 +85,3 @@ frontend/ead/public
 
 # ignore default configuration
 hub3.toml
-
-# don't commit coverage report
-coverage.txt
