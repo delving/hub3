@@ -172,7 +172,10 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig, excludeMetsFiles ...bool) 
 	m.IndexType = domainpb.IndexType_DIGITAL_OBJECTS
 
 	if c.bi != nil {
-		c.bi.Publish(context.Background(), m)
+		err := c.bi.Publish(context.Background(), m)
+		if err != nil {
+			log.Error().Err(err).Msg("unable to publish to index: " + m.RecordID)
+		}
 	}
 
 	if !excludeFiles {
