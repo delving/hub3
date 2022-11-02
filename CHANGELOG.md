@@ -5,8 +5,16 @@
 - history of changes: see https://github.com/delving/hub3/compare/v0.3.0...main
 
 ### Added
+- support for default genreform values while processing EADs [[GH-173]](https://github.com/delving/hub3/pull/173)
+- Add support for tag based filtering via Bulk API [[GH-176]](https://github.com/delving/hub3/pull/176)
+- added tagFilters configuration for oaipmh service [[GH-178]](https://github.com/delving/hub3/pull/178)
 
 ### Changed
+
+- default behaviour OAI-PMH is to allow harvesting List verb without a set spec parameter [[GH-172]](https://github.com/delving/hub3/pull/172)
+- lod resolver returing 404 and trying fallback to original URI  [[GH-174]](https://github.com/delving/hub3/pull/174)
+- Retrieve info from existing mets file if process digital is disabled [[GH-175]](https://github.com/delving/hub3/pull/175)
+- LOD resolver configuration [[GH-177]](https://github.com/delving/hub3/pull/177)
 
 ### Fixed
 

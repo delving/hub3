@@ -15,6 +15,8 @@ type Harvest struct {
 	EadHarvestURL  string   `json:"eadHarvestUrl"`
 	MetsHarvestURL string   `json:"metsHarvestUrl"`
 	HarvestPath    string   `json:"harvestPath"`
+	RequireSetSpec bool     `json:"requireSetSpec"`
+	TagFilters     []string `json:"tagFilters"`
 	service        *harvest.Service
 }
 

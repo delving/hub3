@@ -244,6 +244,7 @@ type LOD struct {
 	RDF               string `json:"rdf"`            // the endpoint that renders the RDF data in the requested RDF format. Currently, JSON-LD and N-triples are supported
 	SingleEndpoint    string `json:"singleEndpoint"` // when this is set it overrides the other endpoints
 	HTMLRedirectRegex string `json:"redirectregex"`  // the regular expression to convert the subject uri to the uri for the external Page view
+	Store             string // default sparql otherwise fragments
 }
 
 // SiteMap holds all the configuration for the sitemap generation
@@ -261,6 +262,7 @@ type EAD struct {
 	GenreFormDefault string   `json:"genreFormDefault"`
 	TreeFields       []string `json:"treeFields"`
 	SearchFields     []string `json:"searchFields"`
+	Genreforms		 []string `json:"genreforms"`
 }
 
 func setDefaults() {
