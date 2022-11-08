@@ -137,7 +137,7 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 		file.MimeType = metsFile.AttrMIMETYPE
 		fa.GetMimeTypes()[file.MimeType]++
 
-		size, err := strconv.ParseInt(metsFile.AttrSIZE, 10, 32)
+		size, err := strconv.ParseInt(metsFile.AttrSIZE, 10, 64)
 		if err != nil {
 			return err
 		}
