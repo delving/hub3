@@ -108,21 +108,21 @@ func TestReadMETS(t *testing.T) {
 		name     string
 		file     *eadpb.File
 		sortKey  int32
-		fileSize int32
+		fileSize int64
 		fileUUID string
 	}{
 		{
 			name:     "first",
 			file:     findingAid.Files[0],
 			sortKey:  1,
-			fileSize: int32(6571877),
+			fileSize: int64(6571877),
 			fileUUID: "f04cdec4-2b56-4f60-bcd3-29cd1a49e25e",
 		},
 		{
 			name:     "last",
 			file:     findingAid.Files[findingAid.GetFileCount()-1],
 			sortKey:  140,
-			fileSize: int32(5066026),
+			fileSize: int64(5066026),
 			fileUUID: "d9125e83-7127-4fd4-bfdb-1312ddb58614",
 		},
 	}
