@@ -566,7 +566,7 @@ func (cfg *DaoConfig) fileTriples(subject string, file *eadpb.File) []*rdf.Tripl
 	}
 
 	t(s, "fileName", file.Filename, rdf.NewLiteral)
-	t(s, "fileSize", string(file.FileSize), rdf.NewLiteral)
+	t(s, "fileSize", fmt.Sprint(file.FileSize), rdf.NewLiteral)
 	t(s, "mimeType", file.MimeType, rdf.NewLiteral)
 	t(s, "file-uuid", file.Fileuuid, rdf.NewLiteral)
 	t(s, "order", string(file.SortKey), rdf.NewLiteral)
