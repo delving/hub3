@@ -137,12 +137,12 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 		file.MimeType = metsFile.AttrMIMETYPE
 		fa.GetMimeTypes()[file.MimeType]++
 
-		size, err := strconv.ParseInt(metsFile.AttrSIZE, 10, 32)
+		size, err := strconv.ParseInt(metsFile.AttrSIZE, 10, 64)
 		if err != nil {
 			return err
 		}
 
-		file.FileSize = int32(size)
+		file.FileSize = size
 
 		if metsFile.CFLocat != nil {
 			file.DownloadURI = metsFile.CFLocat.AttrXlinkSpacehref
