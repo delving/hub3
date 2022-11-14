@@ -273,8 +273,7 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 			if genreForm == "" {
 				log.Warn().
 					Str("genreForm", n.Header.Genreform).
-					Str("defaultValue", config.Config.EAD.GenreFormDefault).
-					Msg("unknown genreForm value, using default")
+					Str("defaultValue", config.Config.EAD.GenreFormDefault)
 			}
 		}
 
