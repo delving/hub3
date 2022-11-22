@@ -49,6 +49,7 @@ type Graph struct {
 	resources        map[Subject]*Resource
 	UseIndex         bool
 	UseResource      bool
+	GraphName        string
 	NamespaceManager NamespaceManager
 }
 

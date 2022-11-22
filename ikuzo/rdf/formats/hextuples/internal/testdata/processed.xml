@@ -1,0 +1,139 @@
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:nave="http://schemas.delving.eu/nave/terms/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+    <ore:Aggregation rdf:about="http://data.brabantcloud.nl/resource/aggregation/brabantse-gebouwen/Q2452">
+        <edm:aggregatedCHO rdf:resource="http://data.brabantcloud.nl/resource/document/brabantse-gebouwen/Q2452"/>
+        <ore:aggregates rdf:resource="https://data.brabantcloud.nl/id/ark:15052/01e9b23c-3e65-4bdf-a730-b882c5bdcb53"/>
+    </ore:Aggregation>
+    <edm:ProvidedCHO rdf:about="http://data.brabantcloud.nl/resource/document/brabantse-gebouwen/Q2452"/>
+    <edm:Agent rdf:about="https://data.brabantcloud.nl/id/ark:15052/6dc0f577-b706-4f18-83a8-50548f252d6f">
+        <skos:prefLabel>Johannes Heijkants</skos:prefLabel>
+        <skos:altLabel>J. Heijkants</skos:altLabel>
+    </edm:Agent>
+    <edm:Place rdf:about="https://data.brabantcloud.nl/id/ark:15052/f5bdff81-6273-4be4-b6a2-e6f086cb5ee8">
+        <wgs84_pos:lat>51.3885</wgs84_pos:lat>
+        <wgs84_pos:long>5.9188</wgs84_pos:long>
+        <skos:prefLabel>Oude Peelstraat 1, Helenaveen</skos:prefLabel>
+        <nave:address>Oude Peelstraat 1</nave:address>
+        <nave:city>Helenaveen</nave:city>
+        <nave:municipality>Gemeente Deurne</nave:municipality>
+    </edm:Place>
+    <skos:Concept rdf:about="https://data.brabantcloud.nl/id/ark:15052/7a44be7c-1bdb-4edb-bb1c-083ee2003c72">
+        <skos:prefLabel>Rooms-Katholieke Kerk</skos:prefLabel>
+        <skos:altLabel>Katholieke Kerk</skos:altLabel>
+        <skos:altLabel>Rooms Katholiek</skos:altLabel>
+        <skos:altLabel>Rooms-Katholiek</skos:altLabel>
+        <skos:altLabel>rooms-katholieke kerk</skos:altLabel>
+    </skos:Concept>
+    <skos:Concept rdf:about="https://data.brabantcloud.nl/id/ark:15052/0a306ffd-cbaa-4361-a90d-37080645c471">
+        <skos:prefLabel xml:lang="nl">Zusters Franciscanessen SFIC</skos:prefLabel>
+        <skos:altLabel xml:lang="nl">Franciscan Sisters of the Immaculate Conception</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Franciscanessen van Veghel</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Franciscanessen van Veghel SFIC</skos:altLabel>
+        <skos:altLabel xml:lang="nl">S.F.I.C.</skos:altLabel>
+        <skos:altLabel xml:lang="nl">SFIC</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Zusters Franciscanessen der Onbevlekte Ontvangenis van de Heilige Moeder Gods</skos:altLabel>
+    </skos:Concept>
+    <nave:BuildingResource rdf:about="https://data.brabantcloud.nl/id/ark:15052/01e9b23c-3e65-4bdf-a730-b882c5bdcb53">
+        <dc:title>Huis van de Heilige Anna</dc:title>
+        <dcterms:alternative>Huis van de H. Anna</dcterms:alternative>
+        <dcterms:alternative>Huize Sint-Anna</dcterms:alternative>
+        <dcterms:alternative>Huize St. Anna</dcterms:alternative>
+        <nave:location rdf:resource="https://data.brabantcloud.nl/id/ark:15052/f5bdff81-6273-4be4-b6a2-e6f086cb5ee8"/>
+        <nave:kloosterOrde rdf:resource="https://data.brabantcloud.nl/id/ark:15052/0a306ffd-cbaa-4361-a90d-37080645c471"/>
+        <nave:religieuzeStroming rdf:resource="https://data.brabantcloud.nl/id/ark:15052/7a44be7c-1bdb-4edb-bb1c-083ee2003c72"/>
+        <nave:architectLabel>Johannes Heijkants</nave:architectLabel>
+        <nave:architect rdf:resource="https://data.brabantcloud.nl/id/ark:15052/6dc0f577-b706-4f18-83a8-50548f252d6f"/>
+        <nave:regioWikiLink>https://www.deurnewiki.nl/wiki/index.php?title=Huize_Sint-Anna</nave:regioWikiLink>
+        <nave:dateCreation>1883-07-31T00:00:00Z</nave:dateCreation>
+        <nave:dateDestruction>1944-11-20T00:00:00Z</nave:dateDestruction>
+        <nave:dateInUse>1884-10-27T00:00:00Z</nave:dateInUse>
+        <nave:dateOutOfUse>1944-11-20T00:00:00Z</nave:dateOutOfUse>
+    </nave:BuildingResource>
+    <nave:BrabantCloudResource>
+        <nave:date>1900 – 2000</nave:date>
+        <nave:date>1800 – 1900</nave:date>
+    </nave:BrabantCloudResource>
+    <nave:DelvingResource>
+        <nave:featured>false</nave:featured>
+        <nave:allowDeepZoom>true</nave:allowDeepZoom>
+        <nave:allowLinkedOpenData>true</nave:allowLinkedOpenData>
+        <nave:allowSourceDownload>false</nave:allowSourceDownload>
+        <nave:public>true</nave:public>
+    </nave:DelvingResource>
+</rdf:RDF>
+<!--<brabantcloud_brabantse-gebouwen_Q2452__3a7fd91b21abbc4b0b694d05596b6f2e4994d76d>-->
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:nave="http://schemas.delving.eu/nave/terms/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:wgs84_pos="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+    <ore:Aggregation rdf:about="http://data.brabantcloud.nl/resource/aggregation/brabantse-gebouwen/Q2477">
+        <edm:aggregatedCHO rdf:resource="http://data.brabantcloud.nl/resource/document/brabantse-gebouwen/Q2477"/>
+        <ore:aggregates rdf:resource="https://data.brabantcloud.nl/id/ark:15052/2ab1039e-8715-4d05-9798-9aeeb30e60c7"/>
+    </ore:Aggregation>
+    <edm:ProvidedCHO rdf:about="http://data.brabantcloud.nl/resource/document/brabantse-gebouwen/Q2477"/>
+    <edm:Agent rdf:about="https://data.brabantcloud.nl/id/ark:15052/360909c2-8b88-4684-adc4-46aabd53efa6">
+        <skos:prefLabel>Louis Kooken</skos:prefLabel>
+        <skos:altLabel>L.J.P. Kooken</skos:altLabel>
+        <skos:altLabel>Louis Joseph Petrus Kooken</skos:altLabel>
+    </edm:Agent>
+    <edm:Place rdf:about="https://data.brabantcloud.nl/id/ark:15052/6659ec5c-c127-4432-ac32-8f67d4ec97a3">
+        <wgs84_pos:lat>51.4409</wgs84_pos:lat>
+        <wgs84_pos:long>5.4575</wgs84_pos:long>
+        <skos:prefLabel>Strijpsestraat 144, Eindhoven</skos:prefLabel>
+        <nave:address>Strijpsestraat 144</nave:address>
+        <nave:city>Eindhoven</nave:city>
+        <nave:municipality>Gemeente Eindhoven</nave:municipality>
+    </edm:Place>
+    <skos:Concept rdf:about="https://data.brabantcloud.nl/id/ark:15052/a6881884-78b7-445e-be53-4c069482a072">
+        <skos:prefLabel>Paulus</skos:prefLabel>
+        <skos:altLabel>Apostel Paulus</skos:altLabel>
+        <skos:altLabel>De Apostel Paulus</skos:altLabel>
+        <skos:altLabel>Paulus (apostel)</skos:altLabel>
+        <skos:altLabel>Paulus van Tarsus</skos:altLabel>
+        <skos:altLabel>Saulus</skos:altLabel>
+        <skos:altLabel>Saulus van Tarsus</skos:altLabel>
+        <skos:altLabel>Sint Paulus</skos:altLabel>
+        <skos:altLabel>Sint-Paulus</skos:altLabel>
+        <skos:altLabel>St. Paulus</skos:altLabel>
+    </skos:Concept>
+    <skos:Concept rdf:about="https://data.brabantcloud.nl/id/ark:15052/7a44be7c-1bdb-4edb-bb1c-083ee2003c72">
+        <skos:prefLabel>Rooms-Katholieke Kerk</skos:prefLabel>
+        <skos:altLabel>Katholieke Kerk</skos:altLabel>
+        <skos:altLabel>Rooms Katholiek</skos:altLabel>
+        <skos:altLabel>Rooms-Katholiek</skos:altLabel>
+        <skos:altLabel>rooms-katholieke kerk</skos:altLabel>
+    </skos:Concept>
+    <skos:Concept rdf:about="https://data.brabantcloud.nl/id/ark:15052/9cc891f8-15a6-441b-aefa-da2b7f749b24">
+        <skos:prefLabel xml:lang="nl">Zusters van Liefde van Tilburg</skos:prefLabel>
+        <skos:altLabel xml:lang="nl">S.C.M.M.</skos:altLabel>
+        <skos:altLabel xml:lang="nl">SCMM</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Sorores Caritatis Matris Misericordiae, S.C.M.M.</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Zusters van Liefde van O.L.V. Moeder van Barmhartigheid</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Zusters van Liefde van Onze Lieve Vrouw, Moeder van Barmhartigheid</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Zusters van Liefde van Onze Lieve Vrouwe van Barmhartigheid SCMM</skos:altLabel>
+        <skos:altLabel xml:lang="nl">Zusters van Tilburg</skos:altLabel>
+    </skos:Concept>
+    <nave:BuildingResource rdf:about="https://data.brabantcloud.nl/id/ark:15052/2ab1039e-8715-4d05-9798-9aeeb30e60c7">
+        <dc:title>Klooster Heilige Paulus</dc:title>
+        <dcterms:alternative>Huis Paulus</dcterms:alternative>
+        <dcterms:alternative>Huize Paulus</dcterms:alternative>
+        <dcterms:alternative>Klooster H. Paulus</dcterms:alternative>
+        <nave:location rdf:resource="https://data.brabantcloud.nl/id/ark:15052/6659ec5c-c127-4432-ac32-8f67d4ec97a3"/>
+        <nave:kloosterOrde rdf:resource="https://data.brabantcloud.nl/id/ark:15052/9cc891f8-15a6-441b-aefa-da2b7f749b24"/>
+        <nave:religieuzeStroming rdf:resource="https://data.brabantcloud.nl/id/ark:15052/7a44be7c-1bdb-4edb-bb1c-083ee2003c72"/>
+        <nave:gewijdAan rdf:resource="https://data.brabantcloud.nl/id/ark:15052/a6881884-78b7-445e-be53-4c069482a072"/>
+        <nave:architectLabel>Louis Kooken</nave:architectLabel>
+        <nave:architect rdf:resource="https://data.brabantcloud.nl/id/ark:15052/360909c2-8b88-4684-adc4-46aabd53efa6"/>
+        <nave:mipLink>https://data.brabantcloud.nl/mip-gallery/brabantcloud_mip_ae031-002749</nave:mipLink>
+        <nave:dateCreation>1909-01-01T00:00:00Z</nave:dateCreation>
+        <nave:dateInUse>1910-01-01T00:00:00Z</nave:dateInUse>
+        <nave:dateOutOfUse>1958-08-20T00:00:00Z</nave:dateOutOfUse>
+    </nave:BuildingResource>
+    <nave:BrabantCloudResource>
+        <nave:date>1900 – 2000</nave:date>
+    </nave:BrabantCloudResource>
+    <nave:DelvingResource>
+        <nave:featured>false</nave:featured>
+        <nave:allowDeepZoom>true</nave:allowDeepZoom>
+        <nave:allowLinkedOpenData>true</nave:allowLinkedOpenData>
+        <nave:allowSourceDownload>false</nave:allowSourceDownload>
+        <nave:public>true</nave:public>
+    </nave:DelvingResource>
+</rdf:RDF>
+<!--<brabantcloud_brabantse-gebouwen_Q2477__c9f58148e36d0f9e2f64231d4b09e438c418fd1f>-->
