@@ -85,7 +85,7 @@ func (c *Client) CreateDefaultMappings(orgs []domain.OrganizationConfig, withAli
 	for _, cfg := range orgs {
 		indices, err := c.createDefaultMappings(cfg, withAlias, withReset)
 		if err != nil {
-			return []string{}, err
+			return []string{}, fmt.Errorf("error with default mapping %s; %w", cfg.OrgID(), err)
 		}
 
 		indexNames = append(indexNames, indices...)

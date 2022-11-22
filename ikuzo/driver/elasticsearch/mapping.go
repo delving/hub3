@@ -41,7 +41,9 @@ func (c *Client) createDefaultMappings(orgCfg domain.OrganizationConfig, withAli
 		if withReset {
 			storedIndexName, aliasErr := indices.alias.Get(indexName)
 			if aliasErr != nil && !errors.Is(aliasErr, ErrAliasNotFound) {
-				return []string{}, aliasErr
+				c.log.Error().Err(err).Str("alias", indexName).
+					Str("index", storedIndexName).Msg("unable to get alias")
+				return []string{}, fmt.Errorf("unable to get alias: %w", aliasErr)
 			}
 
 			if storedIndexName != "" {
