@@ -223,8 +223,20 @@ func (fr *FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]
 	seen := map[string]bool{}
 
 	var frtyp Fragment
-	for _, item := range res.Each(reflect.TypeOf(frtyp)) {
+	for idx, item := range res.Each(reflect.TypeOf(frtyp)) {
 		frag := item.(Fragment)
+
+		// if subject is the prefix of the named graph then return the whole graph
+		if idx == 0 && len(fr.Subject) != 0 {
+			for _, subj := range fr.Subject {
+				if strings.HasPrefix(frag.Meta.GetNamedGraphURI(), subj) {
+					fr.Subject = []string{}
+					fr.Graph = frag.Meta.GetNamedGraphURI()
+					return fr.Find(ctx, client)
+				}
+			}
+		}
+
 		_, ok := seen[frag.Triple]
 		if !ok {
 			fragments = append(fragments, &frag)

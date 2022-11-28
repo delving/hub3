@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/delving/hub3/ikuzo"
@@ -27,6 +28,11 @@ func (db *DB) Shutdown(ctx context.Context) error {
 }
 
 func (db *DB) AddOptions(cfg *Config) error {
+	if db.DSN == "" {
+
+		log.Printf("not starting with DB connection")
+		return nil
+	}
 	if !strings.HasPrefix(db.DSN, "postgres") {
 		return fmt.Errorf("only postgresql is supported for now")
 	}
