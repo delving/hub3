@@ -16,8 +16,7 @@
 - [148cdac6](https://github.com/delving/hub3/commit/148cdac6) Refactor namespaces service [[GH-179](https://github.com/delving/hub3/pull/179)
 - [4b9630ac](https://github.com/delving/hub3/commit/4b9630ac) fix(mappingxml): don't squash literals in a single field
 - [1fe34892](https://github.com/delving/hub3/commit/1fe34892) feat(rdf): add recursion break for mappingxml
-
-
+- [47d39089](https://github.com/delving/hub3/commit/47d39089) feat: added support for graph based resolving uri with blanknodes
 
 ### Removed
 
