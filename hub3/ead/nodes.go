@@ -270,12 +270,6 @@ func CreateTree(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tr
 					return a
 				}
 			}
-			if genreForm == "" {
-				log.Warn().
-					Str("genreForm", n.Header.Genreform).
-					Str("defaultValue", config.Config.EAD.GenreFormDefault).
-					Msg("unknown genreForm value, using default")
-			}
 		}
 
 		if genreForm == "" && config.Config.EAD.GenreFormDefault != "" {
