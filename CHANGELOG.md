@@ -16,6 +16,7 @@
 - Retrieve info from existing mets file if process digital is disabled [[GH-175]](https://github.com/delving/hub3/pull/175)
 - LOD resolver configuration [[GH-177]](https://github.com/delving/hub3/pull/177)
 - Increase bitSize when parsing the SIZE attribute of a mets file [[GH-184]](https://github.com/delving/hub3/pull/184)
+- removed log msg because log file got flooded and other messages got lost [[GH-185]](https://github.com/delving/hub3/pull/185)
 
 ### Fixed
 
