@@ -1308,6 +1308,7 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 
 		s = s.Size(0)
 		s = s.Aggregation(sr.Peek, agg)
+		sr.FacetField = append(sr.FacetField, facetField)
 		return s.Query(query), nil, nil
 	}
 

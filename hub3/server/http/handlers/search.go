@@ -160,6 +160,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			log.Printf("Unable to decode facets: %#v", err)
 			return
 		}
+
 		peek := make(map[string]int64)
 		for _, facet := range aggs {
 			for _, link := range facet.Links {
@@ -716,6 +717,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		if err != nil {
 			log.Printf("Unable to decode facets: %#v", err)
 			return
+		}
+		for _, agg := range aggs {
+			if agg.Field == "meta.tags" {
+				peek := make(map[string]int64)
+				for _, facet := range aggs {
+					for _, link := range facet.Links {
+						peek[link.Value] = link.Count
+					}
+				}
+
+				result.Peek = peek
+			}
 		}
 		result.Facets = aggs
 	}
