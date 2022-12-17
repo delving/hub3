@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/asdine/storm/q"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/models"
 )
@@ -60,10 +61,16 @@ type Catalog struct {
 	Dataset     []*Dataset `json:"dataset,omitempty"`
 }
 
-func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
-	r, ok := s.lookUp[spec]
+func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
+	spec := ds.Spec
+
+	if ds.RecordType == "" {
+		ds.RecordType = "narthex"
+	}
+
+	r, ok := s.lookUp[ds.RecordType]
 	if !ok {
-		return nil, fmt.Errorf("dataset not found: %q", spec)
+		r = s.defaultCfg
 	}
 
 	d := &Dataset{
@@ -72,7 +79,7 @@ func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 		Type:                  "Dataset",
 		Creator:               r.GetAgent(),
 		InLanguage:            r.DefaultLanguages,
-		IncludedInDataCatalog: fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
+		IncludedInDataCatalog: fmt.Sprintf("%s/id/datacatalog/%s", r.RDFBaseURL, r.URLPrefix),
 		Keywords:              []string{},
 		License:               r.DefaultLicense,
 		MainEntityOfPage:      fmt.Sprintf(r.DatasetFmt, r.publisherURL(), spec),
@@ -82,24 +89,17 @@ func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 
 	layoutISO := "2006-01-02"
 
-	meta, err := ead.GetMeta(spec)
-	if !errors.Is(err, ead.ErrFileNotFound) && meta != nil {
-		d.DateCreated = meta.Created.Format(layoutISO)
-		d.DateModified = meta.Updated.Format(layoutISO)
-		d.DatePublished = meta.Updated.Format(layoutISO)
-		d.Description = meta.Label
-		d.Distribution = r.GetDistributions(spec, "ead")
+	if ds.RecordType == "ead" {
+		meta, err := ead.GetMeta(spec)
+		if !errors.Is(err, ead.ErrFileNotFound) && meta != nil {
+			d.DateCreated = meta.Created.Format(layoutISO)
+			d.DateModified = meta.Updated.Format(layoutISO)
+			d.DatePublished = meta.Updated.Format(layoutISO)
+			d.Description = meta.Label
+			d.Distribution = r.GetDistributions(spec, "ead")
 
-		return d, nil
-	}
-
-	ds, err := models.GetDataSet(orgID, spec)
-	if err != nil {
-		return nil, err
-	}
-
-	if ds.RecordType == "" {
-		ds.RecordType = "narthex"
+			return d, nil
+		}
 	}
 
 	d.DateCreated = ds.Created.Format(layoutISO)
@@ -111,29 +111,42 @@ func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
 	return d, nil
 }
 
-func (s *Service) getDatasets(orgID string) ([]string, error) {
-	datasets := []string{}
-
-	sets, err := models.ListDataSets(orgID)
+func (s *Service) getDataset(orgID, spec string) (*Dataset, error) {
+	ds, err := models.GetDataSet(orgID, spec)
 	if err != nil {
-		return datasets, err
+		return nil, fmt.Errorf("unable to find dataset: %s [%s]", spec, orgID)
 	}
 
-	for _, set := range sets {
-		datasets = append(datasets, set.Spec)
+	d, err := s.createDataSet(ds)
+	if err != nil {
+		return nil, err
 	}
 
-	return datasets, nil
+	return d, nil
 }
 
-func (s *Service) AddDatasets(orgID string, catalog *Catalog) error {
-	datasets, err := s.getDatasets(orgID)
-	if err != nil {
-		return err
+func (s *Service) getDatasets(orgID string, tag string) ([]*models.DataSet, error) {
+	query := models.ORM().Select(q.And(
+		q.Eq("OrgID", orgID),
+		q.Eq("RecordType", tag),
+	))
+
+	var sets []*models.DataSet
+	if err := query.Find(&sets); err != nil {
+		return sets, err
 	}
 
-	for _, spec := range datasets {
-		dataset, err := s.getDataset(orgID, spec)
+	return sets, nil
+}
+
+func (s *Service) AddDatasets(orgID string, catalog *Catalog, tag string) error {
+	datasets, err := s.getDatasets(orgID, tag)
+	if err != nil {
+		return fmt.Errorf("unable to get datasets from store: %w", err)
+	}
+
+	for _, ds := range datasets {
+		dataset, err := s.createDataSet(ds)
 		if err != nil {
 			return err
 		}

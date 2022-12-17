@@ -83,7 +83,7 @@ func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 
 	catalog := cfg.newCatalog()
 
-	if err := s.AddDatasets(orgID.String(), catalog); err != nil {
+	if err := s.AddDatasets(orgID.String(), catalog, cfg.RecordTypeFilter); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

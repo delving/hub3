@@ -2,7 +2,6 @@ package nde
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -24,9 +23,10 @@ type RegisterConfig struct {
 		AltName string
 		URL     string
 	}
-	DataPath      string // for ead support for now. Replace with dataset service later
-	DatasetFmt    string
-	Distributions []DistributionCfg
+	DataPath         string // for ead support for now. Replace with dataset service later
+	DatasetFmt       string
+	Distributions    []DistributionCfg
+	RecordTypeFilter string
 }
 
 func (r *RegisterConfig) publisherURL() string {
@@ -50,16 +50,26 @@ func (r *RegisterConfig) GetAgent() Agent {
 func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distribution {
 	distributions := []Distribution{}
 
-	log.Printf("%#v", r.Distributions)
-
 	for _, cfg := range r.Distributions {
 		if !strings.EqualFold(cfg.DatasetType, datasetType) {
 			continue
 		}
 
+		contentUrl := cfg.DownloadFmt
+		fmtCnt := strings.Count(cfg.DownloadFmt, "%s")
+
+		if fmtCnt > 0 {
+			switch fmtCnt {
+			case 1:
+				contentUrl = fmt.Sprintf(cfg.DownloadFmt, spec)
+			case 2:
+				contentUrl = fmt.Sprintf(cfg.DownloadFmt, r.Publisher.URL, spec)
+			}
+		}
+
 		distributions = append(distributions, Distribution{
 			Type:           "DataDownload",
-			ContentURL:     fmt.Sprintf(cfg.DownloadFmt, r.publisherURL(), spec),
+			ContentURL:     contentUrl,
 			EncodingFormat: cfg.MimeType,
 		})
 	}

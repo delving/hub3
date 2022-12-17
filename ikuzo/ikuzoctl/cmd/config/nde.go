@@ -22,8 +22,9 @@ type NDECfg struct {
 		AltName string `json:"altName"`
 		URL     string `json:"url"`
 	} `json:"publisher"`
-	DatasetFmt   string                `json:"datasetFmt"`
-	Distribution []nde.DistributionCfg `json:"distribution"`
+	DatasetFmt       string                `json:"datasetFmt"`
+	Distribution     []nde.DistributionCfg `json:"distribution"`
+	RecordTypeFilter string                `json:"recordTypeFilter"`
 }
 
 func (n *NDE) createConfig(cfg *Config) ([]*nde.RegisterConfig, error) {
@@ -44,6 +45,7 @@ func (n *NDE) createConfig(cfg *Config) ([]*nde.RegisterConfig, error) {
 			DefaultLicense:   ndeCfg.DefaultLicense,
 			DefaultLanguages: ndeCfg.DefaultLanguages,
 			Distributions:    ndeCfg.Distribution,
+			RecordTypeFilter: ndeCfg.RecordTypeFilter,
 			Publisher: struct {
 				Name    string
 				AltName string
