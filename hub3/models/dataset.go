@@ -150,6 +150,8 @@ type DataSet struct {
 	Fingerprint      string `json:"fingerPrint"`
 }
 
+var DatasetPreSaveFn func(ds *DataSet) error
+
 // Access determines the which types of access are enabled for this dataset
 type Access struct {
 	OAIPMH bool `json:"oaipmh"`
@@ -272,6 +274,12 @@ func ListDataSets(orgID string) ([]*DataSet, error) {
 
 // Save saves the DataSet to BoltDB
 func (ds DataSet) Save() error {
+	if DatasetPreSaveFn != nil {
+		if err := DatasetPreSaveFn(&ds); err != nil {
+			return fmt.Errorf("pre save error: %w", err)
+		}
+	}
+
 	ds.Modified = time.Now()
 	return ORM().Save(&ds)
 }

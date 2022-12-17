@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/asdine/storm"
 	"github.com/delving/hub3/hub3/fragments"
@@ -68,6 +69,21 @@ func listDataSets(w http.ResponseWriter, r *http.Request) {
 		})
 
 		return
+	}
+
+	if strings.EqualFold(r.URL.Query().Get("applyPreSave"), "true") {
+		total := len(sets)
+
+		for idx, ds := range sets {
+			if err := ds.Save(); err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if idx%250 == 0 && idx > 0 {
+				log.Printf("presaved %d of %d", idx, total)
+			}
+		}
 	}
 
 	render.Status(r, http.StatusOK)
