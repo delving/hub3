@@ -8,6 +8,7 @@
 - support for default genreform values while processing EADs [[GH-173]](https://github.com/delving/hub3/pull/173)
 - Add support for tag based filtering via Bulk API [[GH-176]](https://github.com/delving/hub3/pull/176)
 - added tagFilters configuration for oaipmh service [[GH-178]](https://github.com/delving/hub3/pull/178)
+- support for multiple NDE-Registers [[GH-171]](https://github.com/delving/hub3/pull/171)
 
 ### Changed
 
@@ -21,6 +22,7 @@
 ### Fixed
 
 - fixed user-input in logging warnings from github code scanning [[GH-170]](https://github.com/delving/hub3/pull/170)
+- fix support for Peek in the search response. [[GH-186]](https://github.com/delving/hub3/pull/186)
 
 ### Deprecated
 

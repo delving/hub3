@@ -146,6 +146,16 @@ func (p *Parser) RDFBulkInsert() []error {
 	return errs
 }
 
+func containsString(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (p *Parser) setDataSet(req *Request) {
 	ds, _, dsError := models.GetOrCreateDataSet(req.OrgID, req.DatasetID)
 	if dsError != nil {
@@ -155,6 +165,24 @@ func (p *Parser) setDataSet(req *Request) {
 
 	if ds.RecordType == "" {
 		ds.RecordType = "narthex"
+	}
+
+	if req.Tags != "" {
+		var changed bool
+
+		tags := strings.Split(req.Tags, ",")
+		for _, tag := range tags {
+			if !containsString(ds.Tags, tag) {
+				ds.Tags = append(ds.Tags, tag)
+				changed = true
+			}
+		}
+
+		if changed {
+			if err := ds.Save(); err != nil {
+				log.Printf("unable to save dataset: %s [%s]", err, ds.Spec)
+			}
+		}
 	}
 
 	p.stats.Spec = req.DatasetID

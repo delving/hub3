@@ -575,25 +575,69 @@ base = "http://www.w3.org/ns/odrl/2/"
 enabled = true
 dataPath = "/tmp/trs"
 
-[NDE]
+[NDE.default]
 enabled = true
 name = "Linked Data van het NA"
 description = "Alle linked data zoals beschikbaar gesteld door het Nationaal Archief."
 defaultLanguages = ["nl"]
 defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
 datasetFmt = "%s/onderzoeken/archief/%s/"
+recordTypeFilter = "ead"
 
-[NDE.publisher]
+[NDE.default.publisher]
 name = "Nationaal Archief"
 altName = "NA"
 url = "https://www.nationaalarchief.nl"
 
-[[NDE.distribution]]
+[[NDE.default.distribution]]
 datasetType = "ead"
 mimeType = "application/pdf"
 downloadFmt = "%s/onderzoeken/archief/%s/download/pdf"
 
-[[NDE.distribution]]
+[[NDE.default.distribution]]
 datasetType = "ead"
 mimeType = "application/xml"
 downloadFmt = "%s/onderzoeken/archief/%s/download/xml"
+
+[NDE.nt]
+enabled = true
+name = "nt Linked Data van het NA"
+description = "nt Alle linked data zoals beschikbaar gesteld door het Nationaal Archief."
+defaultLanguages = ["nl"]
+defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
+datasetFmt = "%s/onderzoeken/index/%s?activeTab=nt"
+RecordTypeFilter = "nt"
+
+[NDE.nt.publisher]
+name = "Nationaal Archief"
+altName = "NA"
+url = "https://www.nationaalarchief.nl"
+
+[[NDE.nt.distribution]]
+datasetType = "nt"
+mimeType = "application/zip"
+downloadFmt = "%s/onderzoeken/index/%s/download"
+
+[NDE.photo]
+enabled = true
+name = "photo Linked Data van het NA"
+description = "photo Alle linked data zoals beschikbaar gesteld door het Nationaal Archief."
+defaultLanguages = ["nl"]
+defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
+datasetFmt = "%s/onderzoeken/index/%s?activeTab=photo"
+RecordTypeFilter = "photo"
+
+[NDE.photo.publisher]
+name = "Nationaal Archief"
+altName = "NA"
+url = "https://www.nationaalarchief.nl"
+
+[[NDE.photo.distribution]]
+datasetType = "photo"
+mimeType = "application/xml"
+downloadFmt = "https://service.archief.nl/gaf/oai/!open_oai.OAIHandler?verb=ListRecords&set=%s&metadataPrefix=oai_dc"
+
+[[NDE.photo.distribution]]
+datasetType = "photo"
+mimeType = "application/sparql-query"
+downloadFmt = "https://www.nationaalarchief.nl/onderzoeken/sparql"
