@@ -68,7 +68,7 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 		ds.RecordType = "narthex"
 	}
 
-	r, ok := s.lookUp[ds.RecordType]
+	r, ok := s.recordTypeLookup[ds.RecordType]
 	if !ok {
 		r = s.defaultCfg
 	}
@@ -133,7 +133,7 @@ func (s *Service) getDatasets(orgID string, tag string) ([]*models.DataSet, erro
 
 	var sets []*models.DataSet
 	if err := query.Find(&sets); err != nil {
-		return sets, err
+		return sets, fmt.Errorf("no sets match query %s %s; %w", orgID, tag, err)
 	}
 
 	return sets, nil

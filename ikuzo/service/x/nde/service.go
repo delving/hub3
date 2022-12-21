@@ -16,14 +16,16 @@ import (
 type Option func(*Service) error
 
 type Service struct {
-	defaultCfg *RegisterConfig
-	cfgs       []*RegisterConfig
-	lookUp     map[string]*RegisterConfig
+	defaultCfg       *RegisterConfig
+	cfgs             []*RegisterConfig
+	lookUp           map[string]*RegisterConfig
+	recordTypeLookup map[string]*RegisterConfig
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		lookUp: map[string]*RegisterConfig{},
+		lookUp:           map[string]*RegisterConfig{},
+		recordTypeLookup: map[string]*RegisterConfig{},
 	}
 
 	// apply options
@@ -34,11 +36,12 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	for _, cfg := range s.cfgs {
-		if cfg.URLPrefix == "default" {
+		if cfg.Default {
 			s.defaultCfg = cfg
 		}
 
 		s.lookUp[cfg.URLPrefix] = cfg
+		s.recordTypeLookup[cfg.RecordTypeFilter] = cfg
 	}
 
 	return s, nil
@@ -70,6 +73,15 @@ func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 	s.renderJSONLD(w, r, dataset, http.StatusOK)
 }
 
+func (s *Service) enabledConfig() []string {
+	var cfgs []string
+	for prefix := range s.lookUp {
+		cfgs = append(cfgs, prefix)
+	}
+
+	return cfgs
+}
+
 func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 
@@ -77,7 +89,12 @@ func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 
 	cfg, ok := s.lookUp[cfgName]
 	if !ok {
-		http.Error(w, fmt.Errorf("unable to find config: %q", cfgName).Error(), http.StatusNotFound)
+		http.Error(
+			w,
+			fmt.Errorf("unable to find config: %q \n allowed config: %#v", cfgName, s.enabledConfig()).Error(),
+			http.StatusNotFound,
+		)
+
 		return
 	}
 
