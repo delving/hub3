@@ -23,8 +23,8 @@ services:
       memlock:
         soft: -1
         hard: -1
-    networks:
-      - esnet
+    # networks:
+      # - esnet
 
   dejavu:
     image: appbaseio/dejavu
@@ -63,8 +63,8 @@ services:
         - "1GB"
         - "--max_msgs"
         - "1000000"
-    networks:
-      - esnet
+    # networks:
+      # - esnet
 
   postgresql:
     image: postgis/postgis:latest
@@ -73,6 +73,10 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_PASSWORD: pw123
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
+      POSTGRES_DB: hub3
+      PGDATA: /data/postgres
 
   redis:
       image: "redis:alpine"
@@ -88,16 +92,12 @@ services:
 
       environment:
         - REDIS_REPLICATION_MODE=master
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
-      POSTGRES_DB: hub3
-      PGDATA: /data/postgres
     # volumes:
        # - ./docker-data/postgres:/data/postgres
 
-      networks:
-        node_net:
-          ipv4_address: 172.28.1.4
+      # networks:
+        # node_net:
+          # ipv4_address: 10.200.1.4
 
   asynqmon:
       image: "hibiken/asynqmon"
@@ -106,17 +106,21 @@ services:
         - REDIS_URL=redis://:sOmE_sEcUrE_pAsS@redis:6379/0
 
       ports:
-        - "8080:8080"
+        - "8088:8080"
 
-      networks:
-        node_net:
+      # networks:
+        # node_net:
 
 
 # networking
 networks:
-  node_net:
+  default:
     ipam:
-      driver: default
       config:
-        - subnet: 172.28.0.0/16
-  esnet:
+      - subnet: 10.202.0.0/16
+  # node_net:
+    # ipam:
+      # driver: default
+      # config:
+        # - subnet: 10.200.0.0/16
+  # esnet:
