@@ -9,6 +9,7 @@
 - Add support for tag based filtering via Bulk API [[GH-176]](https://github.com/delving/hub3/pull/176)
 - added tagFilters configuration for oaipmh service [[GH-178]](https://github.com/delving/hub3/pull/178)
 - support for multiple NDE Register configurations [[GH-171]](https://github.com/delving/hub3/pull/171)
+-  allow for custom url-prefixes in the nde register urls  [[GH-188]](https://github.com/delving/hub3/pull/188)
 
 ### Changed
 
