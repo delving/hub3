@@ -12,15 +12,16 @@ import (
 func (s *Service) Routes(router chi.Router) {
 	router.Get("/id/datacatalog/*", s.lodRedirect)
 	router.Get("/id/dataset/*", s.lodRedirect)
-	router.Get("/doc/datacatalog", defaultRedirect)
-	router.Get("/doc/dataset/{spec}", defaultRedirect)
+	router.Get("/id/datacatalog/", s.lodRedirect)
+	router.Get("/doc/datacatalog", s.defaultRedirect)
+	router.Get("/doc/dataset/{spec}", s.defaultRedirect)
 	router.Get("/doc/datacatalog/{cfgName}", s.HandleCatalog)
 	router.Get("/doc/dataset/{cfgName}/{spec}", s.HandleDataset)
 }
 
 func (s *Service) lodRedirect(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasPrefix(r.URL.Path, "/id/") {
-		http.Error(w, "unknow lod prefix", http.StatusBadRequest)
+		http.Error(w, "unknown lod prefix", http.StatusBadRequest)
 		return
 	}
 
@@ -28,10 +29,10 @@ func (s *Service) lodRedirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, newPath, http.StatusFound)
 }
 
-func defaultRedirect(w http.ResponseWriter, r *http.Request) {
+func (s *Service) defaultRedirect(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		newPath := fmt.Sprintf("%s/default", r.URL.Path)
+		newPath := fmt.Sprintf("%s/%s", r.URL.Path, s.defaultCfg.URLPrefix)
 		http.Redirect(w, r, newPath, http.StatusFound)
 
 		return
@@ -41,7 +42,7 @@ func defaultRedirect(w http.ResponseWriter, r *http.Request) {
 	newpath := []string{
 		parts[0],
 		parts[1],
-		"default",
+		s.defaultCfg.URLPrefix,
 		parts[2],
 	}
 

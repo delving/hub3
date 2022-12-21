@@ -11,6 +11,7 @@ import (
 type NDE struct{}
 
 type NDECfg struct {
+	Default          bool
 	URLPrefix        string   `json:"urlPrefix"`
 	Enabled          bool     `json:"enabled"`
 	Description      string   `json:"description"`
@@ -35,8 +36,13 @@ func (n *NDE) createConfig(cfg *Config) ([]*nde.RegisterConfig, error) {
 			return nil, fmt.Errorf("NDE config must be set for register")
 		}
 
+		if ndeCfg.URLPrefix == "" {
+			ndeCfg.URLPrefix = name
+		}
+
 		config := &nde.RegisterConfig{
-			URLPrefix:        name,
+			Default:          ndeCfg.Default,
+			URLPrefix:        ndeCfg.URLPrefix,
 			DataPath:         cfg.EAD.CacheDir,
 			DatasetFmt:       ndeCfg.DatasetFmt,
 			RDFBaseURL:       cfg.RDF.BaseURL,
