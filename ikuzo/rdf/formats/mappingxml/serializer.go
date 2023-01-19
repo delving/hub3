@@ -10,6 +10,11 @@ import (
 	"github.com/delving/hub3/ikuzo/rdf"
 )
 
+const (
+	rdfResource = "rdf:resource"
+	rdfNodeID   = "rdf:nodeID"
+)
+
 type FilterConfig struct {
 	RDFType               rdf.IRI
 	Subject               rdf.Subject
@@ -128,9 +133,9 @@ func createResource(
 	if ok || len(seen) > cfg.ContextLevels {
 		switch rsc.Subject().Type() {
 		case rdf.TermIRI:
-			parent.CreateAttr("rdf:resource", rsc.Subject().RawValue())
+			parent.CreateAttr(rdfResource, rsc.Subject().RawValue())
 		case rdf.TermBlankNode:
-			parent.CreateAttr("rdf:nodeID", rsc.Subject().RawValue())
+			parent.CreateAttr(rdfNodeID, rsc.Subject().RawValue())
 		}
 
 		return nil
@@ -153,13 +158,13 @@ func createResource(
 	case rdf.TermIRI:
 		root.CreateAttr("rdf:about", rsc.Subject().RawValue())
 	case rdf.TermBlankNode:
-		root.CreateAttr("rdf:nodeID", rsc.Subject().RawValue())
+		root.CreateAttr(rdfNodeID, rsc.Subject().RawValue())
 	}
 
 	if len(rsc.Types()) > 1 {
 		for _, rdfType := range rsc.Types()[1:] {
 			xmlType := root.CreateElement("rdf:type")
-			xmlType.CreateAttr("rdf:resource", rdfType.RawValue())
+			xmlType.CreateAttr(rdfResource, rdfType.RawValue())
 		}
 	}
 
@@ -202,7 +207,7 @@ func createResource(
 
 				nestedRsc, ok := g.Get(rdf.Subject(bnode))
 				if !ok {
-					elem.CreateAttr("rdf:nodeID", bnode.RawValue())
+					elem.CreateAttr(rdfNodeID, bnode.RawValue())
 					continue
 				}
 
@@ -218,7 +223,7 @@ func createResource(
 
 				nestedRsc, ok := g.Get(rdf.Subject(iri))
 				if !ok {
-					elem.CreateAttr("rdf:resource", iri.RawValue())
+					elem.CreateAttr(rdfResource, iri.RawValue())
 					continue
 				}
 
