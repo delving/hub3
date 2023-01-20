@@ -10,6 +10,11 @@ import (
 	"github.com/delving/hub3/ikuzo/rdf"
 )
 
+const (
+	rdfResource = "rdf:resource"
+	rdfNodeID   = "rdf:nodeID"
+)
+
 type FilterConfig struct {
 	RDFType               rdf.IRI
 	Subject               rdf.Subject
@@ -28,6 +33,10 @@ type FilterConfig struct {
 func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 	filtered := filterResources(g.Resources(), cfg)
 
+	if cfg.ContextLevels == 0 {
+		cfg.ContextLevels = 5
+	}
+
 	doc := etree.NewDocument()
 	doc.Indent(2)
 	root := doc.CreateElement("rdf:RDF")
@@ -43,7 +52,7 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 	}
 
 	for _, rsc := range filtered {
-		if resourceErr := createResource(g, rsc, root, map[rdf.Subject]bool{}, cfg); resourceErr != nil {
+		if resourceErr := createResource(g, rsc, root, []string{}, cfg); resourceErr != nil {
 			return resourceErr
 		}
 	}
@@ -101,9 +110,18 @@ func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig)
 	return filtered
 }
 
+func isElementExist(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
 func createResource(
 	g *rdf.Graph, rsc *rdf.Resource, parent *etree.Element,
-	seen map[rdf.Subject]bool, cfg *FilterConfig,
+	seen []string, cfg *FilterConfig,
 ) error {
 	hasFilter := cfg.URIPrefixFilter != ""
 
@@ -111,41 +129,21 @@ func createResource(
 		return nil
 	}
 
-	_, ok := seen[rsc.Subject()]
-	if ok {
+	ok := isElementExist(seen, rsc.Subject().RawValue())
+	if ok || len(seen) > cfg.ContextLevels {
+		switch rsc.Subject().Type() {
+		case rdf.TermIRI:
+			parent.CreateAttr(rdfResource, rsc.Subject().RawValue())
+		case rdf.TermBlankNode:
+			parent.CreateAttr(rdfNodeID, rsc.Subject().RawValue())
+		}
+
 		return nil
 	}
 
-	seen[rsc.Subject()] = true
+	seen = append(seen, rsc.Subject().RawValue())
 
 	rdfType := rsc.Types()[0]
-
-	// log.Printf("predicate: %s %#v", cfg.WikiBaseTypePredicate, cfg)
-	// if strings.Contains(rsc.Subject().RawValue(), "/entity/Q") && cfg.WikiBaseTypePredicate.RawValue() != "" {
-	// p, ok := rsc.Predicates()[cfg.WikiBaseTypePredicate]
-	// if ok {
-	// target, ok := g.Get(rdf.Subject(p.IRI()))
-	// if ok {
-	// label, ok := target.Label()
-	// if ok {
-	// rdfType, _ = rdf.RDF.IRI(strings.Title(strings.Replace(label.RawValue(), " ", "_", -1)))
-	// }
-	// }
-	// }
-	// }
-
-	// support for wikibase names, these never have types.
-	// First type should not be set
-	// for _, baseType := range cfg.WikiBaseTypes {
-	// if strings.Contains(rsc.Subject().RawValue(), "/entity/Q") {
-	// parts := strings.Split(rsc.Subject().RawValue(), "/")
-	// qID := parts[len(parts)-1]
-	// if strings.EqualFold(qID, baseType) {
-	// rdfType, _ = rdf.RDF.IRI(parts[len(parts)-1])
-	// break
-	// }
-	// }
-	// }
 
 	baseURI, label := rdfType.Split()
 
@@ -160,13 +158,13 @@ func createResource(
 	case rdf.TermIRI:
 		root.CreateAttr("rdf:about", rsc.Subject().RawValue())
 	case rdf.TermBlankNode:
-		root.CreateAttr("rdf:nodeID", rsc.Subject().RawValue())
+		root.CreateAttr(rdfNodeID, rsc.Subject().RawValue())
 	}
 
 	if len(rsc.Types()) > 1 {
 		for _, rdfType := range rsc.Types()[1:] {
 			xmlType := root.CreateElement("rdf:type")
-			xmlType.CreateAttr("rdf:resource", rdfType.RawValue())
+			xmlType.CreateAttr(rdfResource, rdfType.RawValue())
 		}
 	}
 
@@ -189,6 +187,10 @@ func createResource(
 
 			switch object.Type() {
 			case rdf.TermLiteral:
+				if elem.Text() != "" {
+					elem = root.CreateElement(nsLabel)
+				}
+
 				l := object.(rdf.Literal)
 
 				if l.Lang() != "" {
@@ -205,7 +207,7 @@ func createResource(
 
 				nestedRsc, ok := g.Get(rdf.Subject(bnode))
 				if !ok {
-					elem.CreateAttr("rdf:nodeID", bnode.RawValue())
+					elem.CreateAttr(rdfNodeID, bnode.RawValue())
 					continue
 				}
 
@@ -221,7 +223,7 @@ func createResource(
 
 				nestedRsc, ok := g.Get(rdf.Subject(iri))
 				if !ok {
-					elem.CreateAttr("rdf:resource", iri.RawValue())
+					elem.CreateAttr(rdfResource, iri.RawValue())
 					continue
 				}
 

@@ -1,6 +1,5 @@
 <http://klek.si/208B7R> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/CreativeWork> .
 <http://klek.si/208B7R> <http://schema.org/license> "http://creativecommons.org/publicdomain/zero/1.0/" .
-<http://klek.si/208B7R> <http://schema.org/identifier> "http://klek.si/208B7R" .
 <http://klek.si/208B7R> <http://schema.org/dateCreated> "2021-12-16T21:38:11" .
 <http://klek.si/208B7R> <http://schema.org/dateModified> "2022-01-24T10:34:30" .
 <http://klek.si/208B7R> <http://schema.org/image> _:b0 .
@@ -20,6 +19,7 @@ _:b2 <http://schema.org/name> "Vitrine 8"@nl .
 <http://klek.si/208Z7R> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/CreativeWork> .
 <http://klek.si/208Z7R> <http://schema.org/license> "http://creativecommons.org/publicdomain/zero/1.0/" .
 <http://klek.si/208Z7R> <http://schema.org/identifier> "http://klek.si/208Z7R" .
+<http://klek.si/208Z7R> <http://schema.org/identifier> "http://klek.si/208Z7T" .
 <http://klek.si/208Z7R> <http://schema.org/dateCreated> "2021-10-19T17:56:11" .
 <http://klek.si/208Z7R> <http://schema.org/dateModified> "2022-01-24T10:34:30" .
 <http://klek.si/208Z7R> <http://schema.org/image> _:b3 .

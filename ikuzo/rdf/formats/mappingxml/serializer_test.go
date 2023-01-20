@@ -34,9 +34,11 @@ func TestSerialize(t *testing.T) {
 		err = Serialize(g, &buf, &cfg)
 		is.NoErr(err)
 
-		b, err := os.ReadFile("./testdata/rdf.golden.xml")
+		want, err := os.ReadFile("./testdata/rdf.golden.xml")
 		is.NoErr(err)
-		if diff := cmp.Diff(string(b), buf.String()+"\n"); diff != "" {
+		got := buf.String() + "\n"
+		t.Logf("output: %s", got)
+		if diff := cmp.Diff(string(want), got); diff != "" {
 			t.Errorf("mapping xml = mismatch (-want +got):\n%s", diff)
 		}
 	})
