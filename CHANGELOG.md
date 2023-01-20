@@ -24,6 +24,7 @@
 
 - fixed user-input in logging warnings from github code scanning [[GH-170]](https://github.com/delving/hub3/pull/170)
 - fix support for Peek in the search response. [[GH-186]](https://github.com/delving/hub3/pull/186)
+- merging of string literals in mappingXML serialization format [[GH-189]](https://github.com/delving/hub3/pull/189)
 
 ### Deprecated
 
