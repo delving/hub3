@@ -85,7 +85,7 @@ func testDataGraph(empty bool) (*FragmentBuilder, error) {
 		return fb, err
 	}
 	if !empty {
-		fb.ParseGraph(bytes.NewReader(dat), "application/ld+json")
+		fb.ParseResolvedGraph(bytes.NewReader(dat), "application/ld+json")
 	}
 	return fb, nil
 }

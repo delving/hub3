@@ -1,6 +1,10 @@
 package rdf
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/kiivihal/rdf2go"
+)
 
 const (
 	RDFType            = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -82,4 +86,48 @@ func (triple Triple) GetRDFType() (string, bool) {
 	default:
 		return "", false
 	}
+}
+
+// asLegacyTriple converts a rdf.Triple to legacy package Triple
+//
+// NOTE: This function should be removed when the rdf2go package is
+// no used
+func (triple Triple) asLegacyTriple() (*rdf2go.Triple, error) {
+	var s, p, o rdf2go.Term
+	switch subj := triple.Subject; subj.Type() {
+	case TermBlankNode:
+		s = rdf2go.NewBlankNode(subj.RawValue())
+	default:
+		s = rdf2go.NewResource(subj.RawValue())
+	}
+
+	switch pred := triple.Predicate; pred.Type() {
+	case TermBlankNode:
+		p = rdf2go.NewBlankNode(pred.RawValue())
+	default:
+		p = rdf2go.NewResource(pred.RawValue())
+	}
+
+	switch obj := triple.Object; obj.Type() {
+	case TermBlankNode:
+		o = rdf2go.NewBlankNode(obj.RawValue())
+	case TermIRI:
+		o = rdf2go.NewResource(obj.RawValue())
+	case TermLiteral:
+		lit, ok := obj.(Literal)
+		if !ok {
+			return nil, fmt.Errorf("unable to convert literal")
+		}
+		switch {
+		case lit.Lang() != "":
+			o = rdf2go.NewLiteralWithLanguage(lit.RawValue(), lit.Lang())
+		case lit.DataType.RawValue() != "":
+			o = rdf2go.NewLiteralWithDatatype(lit.RawValue(), rdf2go.NewResource(lit.DataType.RawValue()))
+		default:
+			o = rdf2go.NewLiteral(lit.RawValue())
+		}
+	}
+
+	newTriple := rdf2go.NewTriple(s, p, o)
+	return newTriple, nil
 }

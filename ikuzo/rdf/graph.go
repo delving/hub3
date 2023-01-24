@@ -8,6 +8,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
+	"github.com/kiivihal/rdf2go"
 )
 
 // DefaultNamespaceManager can be set at package level to
@@ -314,6 +315,23 @@ func (g *Graph) Remove(remove ...*Triple) {
 	g.lock.Lock()
 	g.triples = triples
 	g.lock.Unlock()
+}
+
+// AsLegacyGraph converts the Graph into an *rdf2go.Graph
+//
+// NOTE: this function can be removed when rdf2go package
+// is no longer used as a dependency.
+func (g *Graph) AsLegacyGraph() (*rdf2go.Graph, error) {
+	legacyGraph := rdf2go.NewGraph("")
+	for _, triple := range g.Triples() {
+		legacyTriple, convErr := triple.asLegacyTriple()
+		if convErr != nil {
+			return nil, convErr
+		}
+
+		legacyGraph.Add(legacyTriple)
+	}
+	return legacyGraph, nil
 }
 
 // func containsString(s []string, e string) bool {

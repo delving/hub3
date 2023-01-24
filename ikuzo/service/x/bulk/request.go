@@ -92,7 +92,7 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 
 	fb := fragments.NewFragmentBuilder(fg)
 
-	err := fb.ParseGraph(strings.NewReader(req.Graph), req.GraphMimeType)
+	err := fb.ParseResolvedGraph(strings.NewReader(req.Graph), req.GraphMimeType)
 	if err != nil {
 		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
 	}

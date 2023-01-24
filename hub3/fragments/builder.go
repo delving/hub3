@@ -26,6 +26,10 @@ import (
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
+	"github.com/delving/hub3/ikuzo/rdf"
+	"github.com/delving/hub3/ikuzo/rdf/formats/jsonld"
+	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
+	"github.com/delving/hub3/ikuzo/rdf/formats/rdfxml"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 )
@@ -177,6 +181,36 @@ func (fb *FragmentBuilder) IsDomainExternal(obj string) (bool, error) {
 func (fb *FragmentBuilder) IsGraphExternal(obj r.Term) bool {
 	found := fb.Graph.One(obj, nil, nil)
 	return found == nil
+}
+
+// ParseResolvedGraph used the new rdf.Graph to do the primary parsing of RDF records
+func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string) error {
+	g := rdf.NewGraph()
+	var err error
+	switch mimeType {
+	case "text/turtle":
+		_, err = ntriples.Parse(rdfData, g)
+	case "application/ld+json":
+		_, err = jsonld.Parse(rdfData, g)
+	case "application/rdf+xml":
+		_, err = rdfxml.Parse(rdfData, g)
+	default:
+		return fmt.Errorf(
+			"unsupported RDF mimeType %s. Currently, only 'text/turtle', 'application/rdf+xml' and 'application/ld+json' are supported",
+			mimeType,
+		)
+	}
+	if err != nil {
+		log.Printf("Unable to parse RDF string into graph: %v\n%#v\n", err, rdfData)
+		return err
+	}
+
+	fb.Graph, err = g.AsLegacyGraph()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // ParseGraph creates a RDF2Go Graph

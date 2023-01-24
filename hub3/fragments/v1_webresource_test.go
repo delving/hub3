@@ -22,7 +22,7 @@ func TestCleanWebResourceGraph(t *testing.T) {
 
 	is.NoErr(err)
 	// err = fb.ParseGraph(file, "application/ld+json")
-	err = fb.ParseGraph(file, "text/turtle")
+	err = fb.ParseResolvedGraph(file, "text/turtle")
 	is.NoErr(err)
 
 	is.Equal(fb.Graph.Len(), 64)
