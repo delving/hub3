@@ -56,21 +56,21 @@ func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distributi
 			continue
 		}
 
-		contentUrl := cfg.DownloadFmt
+		contentURL := cfg.DownloadFmt
 		fmtCnt := strings.Count(cfg.DownloadFmt, "%s")
 
 		if fmtCnt > 0 {
 			switch fmtCnt {
 			case 1:
-				contentUrl = fmt.Sprintf(cfg.DownloadFmt, spec)
+				contentURL = fmt.Sprintf(cfg.DownloadFmt, spec)
 			case 2:
-				contentUrl = fmt.Sprintf(cfg.DownloadFmt, r.Publisher.URL, spec)
+				contentURL = fmt.Sprintf(cfg.DownloadFmt, r.Publisher.URL, spec)
 			}
 		}
 
 		distributions = append(distributions, Distribution{
 			Type:           "DataDownload",
-			ContentURL:     contentUrl,
+			ContentURL:     contentURL,
 			EncodingFormat: cfg.MimeType,
 		})
 	}
@@ -80,9 +80,12 @@ func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distributi
 
 func (r *RegisterConfig) newCatalog() *Catalog {
 	c := &Catalog{
-		Context:     "https://schema.org/",
+		Context: []any{
+			"https://schema.org/",
+			map[string]string{"hydra": "http://www.w3.org/ns/hydra/core#"},
+		},
+		Type:        []string{"DataCatalog", "hydra:Collection"},
 		ID:          fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
-		Type:        "DataCatalog",
 		Dataset:     []*Dataset{},
 		Description: r.Description,
 		Name:        r.Name,

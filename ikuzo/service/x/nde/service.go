@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi"
+
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi"
 )
 
 type Option func(*Service) error
@@ -99,6 +100,17 @@ func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 	}
 
 	catalog := cfg.newCatalog()
+
+	total, err := s.getDatasetsCount(orgID.String(), cfg.RecordTypeFilter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := catalog.addHydraView(r.URL.Query().Get("page"), total); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	if err := s.AddDatasets(orgID.String(), catalog, cfg.RecordTypeFilter); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
