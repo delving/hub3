@@ -85,7 +85,7 @@ func (c *Catalog) addHydraView(currentPage string, totalSize int) error {
 	return nil
 }
 
-const hydraObjectPerPage = 500
+const hydraObjectPerPage = 1000
 
 type HydraView struct {
 	ID          string            `json:"@id,omitempty"`
