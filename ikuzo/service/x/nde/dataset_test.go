@@ -7,6 +7,10 @@ import (
 )
 
 func TestHydraView_setPager(t *testing.T) {
+	const baseID = "/catalog"
+	const hydraType = "hydra:PartialCollectionView"
+	firstPage := map[string]string{"@id": "/catalog?page=1"}
+
 	type fields struct {
 		Type        string
 		baseID      string
@@ -21,16 +25,16 @@ func TestHydraView_setPager(t *testing.T) {
 		{
 			"no page",
 			fields{
-				Type:        "hydra:PartialCollectionView",
-				baseID:      "/catalog",
+				Type:        hydraType,
+				baseID:      baseID,
 				total:       100,
 				currentPage: 0,
 			},
 			&HydraView{
 				ID:          "/catalog?page=1",
-				Type:        "hydra:PartialCollectionView",
-				First:       map[string]string{"@id": "/catalog?page=1"},
-				baseID:      "/catalog",
+				Type:        hydraType,
+				baseID:      baseID,
+				First:       firstPage,
 				TotalItems:  100,
 				currentPage: 1,
 			},
@@ -39,17 +43,17 @@ func TestHydraView_setPager(t *testing.T) {
 			"no page; more pages returned",
 			fields{
 				Type:        "hydra:PartialCollectionView",
-				baseID:      "/catalog",
+				baseID:      baseID,
 				total:       7012,
 				currentPage: 0,
 			},
 			&HydraView{
 				ID:          "/catalog?page=1",
-				Type:        "hydra:PartialCollectionView",
-				First:       map[string]string{"@id": "/catalog?page=1"},
+				Type:        hydraType,
+				First:       firstPage,
 				Next:        map[string]string{"@id": "/catalog?page=2"},
 				Last:        map[string]string{"@id": "/catalog?page=7"},
-				baseID:      "/catalog",
+				baseID:      baseID,
 				TotalItems:  7012,
 				currentPage: 1,
 			},
@@ -57,18 +61,18 @@ func TestHydraView_setPager(t *testing.T) {
 		{
 			"with page; more pages returned",
 			fields{
-				Type:        "hydra:PartialCollectionView",
-				baseID:      "/catalog",
+				Type:        hydraType,
+				baseID:      baseID,
 				total:       7012,
 				currentPage: 4,
 			},
 			&HydraView{
 				ID:          "/catalog?page=4",
-				Type:        "hydra:PartialCollectionView",
+				Type:        hydraType,
 				First:       map[string]string{"@id": "/catalog?page=1"},
 				Next:        map[string]string{"@id": "/catalog?page=5"},
 				Last:        map[string]string{"@id": "/catalog?page=7"},
-				baseID:      "/catalog",
+				baseID:      baseID,
 				TotalItems:  7012,
 				currentPage: 4,
 			},
