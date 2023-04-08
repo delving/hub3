@@ -36,7 +36,7 @@ func (cfg *Config) taskService() (*task.Service, error) {
 
 func (t *Task) newService(cfg *Config) (*task.Service, error) {
 	svc, err := task.NewService(
-		task.SetRedisConfig(cfg.Redis.redisConfig()),
+		task.SetRedisConfig(cfg.redisConfig()),
 		task.SetNrWorkers(t.NrWorkers),
 	)
 	if err != nil {

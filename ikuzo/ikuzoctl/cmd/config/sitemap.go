@@ -7,8 +7,8 @@ import (
 
 type Sitemap struct{}
 
-func (s *Sitemap) NewService(cfg *Config) (*sitemap.Service, error) {
-	client, err := cfg.ElasticSearch.NewCustomClient(cfg.log)
+func (s *Sitemap) NewService(cfg *Config) (*sitemap.Service, error){
+	client, err := cfg.NewCustomClient(cfg.log)
 	if err != nil {
 		return nil, err
 	}

@@ -18,14 +18,15 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
+	"github.com/go-chi/chi"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/delving/hub3/ikuzo/webapp"
-	"github.com/getsentry/sentry-go"
-	"github.com/go-chi/chi"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
@@ -169,6 +170,7 @@ func SetShutdownHook(name string, hook Shutdown) Option {
 	}
 }
 
+// nolint: unusedparams
 func SetEnableLegacyConfig(cfgFile string) Option {
 	return func(s *server) error {
 		// this initializes the hub3 configuration object that has global state

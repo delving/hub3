@@ -671,25 +671,25 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 // DeleteAllIndexRecords deletes all the records from the Search Index linked to this dataset
 func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) (int, error) {
 	q := elastic.NewBoolQuery().Should(
-		elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec),
+		elastic.NewTermQuery(c.Config.SpecKey, ds.Spec),
 		elastic.NewTermQuery("spec.raw", ds.Spec),
 	)
 
 	indices := []string{}
 
-	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+	for _, indexType := range c.Config.IndexTypes {
 		switch indexType {
 		case v1Type:
-			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName(ds.OrgID))
+			indices = append(indices, c.Config.GetV1IndexName(ds.OrgID))
 		case v2Type:
-			indices = append(indices, c.Config.ElasticSearch.GetIndexName(ds.OrgID))
+			indices = append(indices, c.Config.GetIndexName(ds.OrgID))
 		case fragmentType:
-			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
+			indices = append(indices, c.Config.FragmentIndexName(ds.OrgID))
 		}
 	}
 
-	if c.Config.ElasticSearch.DigitalObjectSuffix != "" {
-		indices = append(indices, c.Config.ElasticSearch.GetDigitalObjectIndexName(ds.OrgID))
+	if c.Config.DigitalObjectSuffix != "" {
+		indices = append(indices, c.Config.GetDigitalObjectIndexName(ds.OrgID))
 	}
 
 	res, err := index.ESClient().DeleteByQuery().

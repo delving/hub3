@@ -30,7 +30,7 @@ func (n *NDE) createConfig(cfg *Config) (*nde.RegisterConfig, error) {
 	config := &nde.RegisterConfig{
 		DataPath:         cfg.EAD.CacheDir,
 		DatasetFmt:       n.DatasetFmt,
-		RDFBaseURL:       cfg.RDF.BaseURL,
+		RDFBaseURL:       cfg.BaseURL,
 		Description:      n.Description,
 		Name:             n.Name,
 		DefaultLicense:   n.DefaultLicense,

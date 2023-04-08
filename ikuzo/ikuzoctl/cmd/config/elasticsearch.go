@@ -19,6 +19,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
@@ -27,8 +30,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/esproxy"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/elastic/go-elasticsearch/v8/esutil"
-	"github.com/rs/zerolog/log"
 )
 
 type ElasticSearch struct {
@@ -95,7 +96,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 	if e.Proxy {
 		proxySvc, proxyErr := esproxy.NewService(
 			esproxy.SetElasticClient(client),
-			esproxy.SetEnableIntrospect(cfg.Logging.DevMode),
+			esproxy.SetEnableIntrospect(cfg.DevMode),
 		)
 		if proxyErr != nil {
 			return fmt.Errorf("unable to create ES proxy: %w", proxyErr)
