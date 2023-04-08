@@ -17,6 +17,8 @@ package config
 import (
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
@@ -24,7 +26,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
 	"github.com/delving/hub3/ikuzo/service/x/task"
-	"github.com/spf13/viper"
+	"github.com/delving/hub3/ikuzo/service/x/trs"
 )
 
 type Option interface {
@@ -56,6 +58,8 @@ type Config struct {
 	ns            *namespace.Service
 	Task          `json:"task"`
 	ts            *task.Service
+	TRS           `json:"trs"`
+	trs           *trs.Service
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
@@ -67,6 +71,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.DB,
 			&cfg.ElasticSearch, // elastic first because others could depend on the client
 			&cfg.Redis,
+			&cfg.TRS,
 			&cfg.Task,
 			&cfg.Organization,
 			&cfg.HTTP,
@@ -102,6 +107,18 @@ func SetViperDefaults() {
 	// setting defaults
 	viper.SetDefault("HTTP.port", 3001)
 	viper.SetDefault("TimeRevisionStore.dataPath", "/tmp/trs")
+}
+
+func (cfg *Config) GetTRSService() (*trs.Service, error) {
+	if cfg.trs != nil {
+		return cfg.trs, nil
+	}
+
+	if err := cfg.TRS.AddOptions(cfg); err != nil {
+		return nil, err
+	}
+
+	return cfg.trs, nil
 }
 
 func (cfg *Config) GetIndexService() (*index.Service, error) {
