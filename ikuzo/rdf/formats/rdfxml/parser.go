@@ -3,8 +3,9 @@ package rdfxml
 import (
 	"io"
 
-	"github.com/delving/hub3/ikuzo/rdf"
 	xmlrdf "github.com/knakk/rdf"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
@@ -18,6 +19,10 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	}
 
 	g.Add(triples...)
+
+	if err := g.Inline(); err != nil {
+		return g, err
+	}
 
 	return g, nil
 }
