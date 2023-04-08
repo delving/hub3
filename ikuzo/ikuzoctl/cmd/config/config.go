@@ -17,6 +17,8 @@ package config
 import (
 	"fmt"
 
+	"github.com/spf13/viper"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
@@ -24,7 +26,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
 	"github.com/delving/hub3/ikuzo/service/x/task"
-	"github.com/spf13/viper"
 )
 
 type Option interface {
@@ -50,7 +51,8 @@ type Config struct {
 	Org           map[string]domain.OrganizationConfig `json:"org"`
 	Harvest       `json:"harvest"`
 	OAIPMH        `json:"oaipmh"`
-	NDE           `json:"nde"`
+	NDE           map[string]NDECfg `json:"nde"`
+	NDERegister   NDE               `json:"-" toml:"-"`
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
 	ns            *namespace.Service
@@ -74,7 +76,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.ImageProxy,
 			&cfg.Harvest,
 			&cfg.Namespace,
-			&cfg.NDE,
+			&cfg.NDERegister,
 			&cfg.Sitemap,
 			&cfg.Logging,
 			&cfg.OAIPMH,

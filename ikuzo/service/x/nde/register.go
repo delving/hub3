@@ -2,7 +2,6 @@ package nde
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -13,6 +12,8 @@ type DistributionCfg struct {
 }
 
 type RegisterConfig struct {
+	Default          bool
+	URLPrefix        string `json:"urlPrefix"`
 	RDFBaseURL       string
 	Description      string
 	Name             string
@@ -23,9 +24,10 @@ type RegisterConfig struct {
 		AltName string
 		URL     string
 	}
-	DataPath      string // for ead support for now. Replace with dataset service later
-	DatasetFmt    string
-	Distributions []DistributionCfg
+	DataPath         string // for ead support for now. Replace with dataset service later
+	DatasetFmt       string
+	Distributions    []DistributionCfg
+	RecordTypeFilter string
 }
 
 func (r *RegisterConfig) publisherURL() string {
@@ -33,7 +35,7 @@ func (r *RegisterConfig) publisherURL() string {
 }
 
 func (r *RegisterConfig) getDatasetURI(datasetID string) string {
-	return fmt.Sprintf("%s/id/dataset/%s", r.RDFBaseURL, datasetID)
+	return fmt.Sprintf("%s/id/dataset/%s/%s", r.RDFBaseURL, r.URLPrefix, datasetID)
 }
 
 func (r *RegisterConfig) GetAgent() Agent {
@@ -49,16 +51,26 @@ func (r *RegisterConfig) GetAgent() Agent {
 func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distribution {
 	distributions := []Distribution{}
 
-	log.Printf("%#v", r.Distributions)
-
 	for _, cfg := range r.Distributions {
 		if !strings.EqualFold(cfg.DatasetType, datasetType) {
 			continue
 		}
 
+		contentURL := cfg.DownloadFmt
+		fmtCnt := strings.Count(cfg.DownloadFmt, "%s")
+
+		if fmtCnt > 0 {
+			switch fmtCnt {
+			case 1:
+				contentURL = fmt.Sprintf(cfg.DownloadFmt, spec)
+			case 2:
+				contentURL = fmt.Sprintf(cfg.DownloadFmt, r.Publisher.URL, spec)
+			}
+		}
+
 		distributions = append(distributions, Distribution{
 			Type:           "DataDownload",
-			ContentURL:     fmt.Sprintf(cfg.DownloadFmt, r.publisherURL(), spec),
+			ContentURL:     contentURL,
 			EncodingFormat: cfg.MimeType,
 		})
 	}
@@ -68,9 +80,12 @@ func (r *RegisterConfig) GetDistributions(spec, datasetType string) []Distributi
 
 func (r *RegisterConfig) newCatalog() *Catalog {
 	c := &Catalog{
-		Context:     "https://schema.org/",
+		Context: []any{
+			"https://schema.org/",
+			map[string]string{"hydra": "http://www.w3.org/ns/hydra/core#"},
+		},
+		Type:        []string{"DataCatalog", "hydra:Collection"},
 		ID:          fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
-		Type:        "DataCatalog",
 		Dataset:     []*Dataset{},
 		Description: r.Description,
 		Name:        r.Name,

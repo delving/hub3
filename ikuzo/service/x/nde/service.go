@@ -5,21 +5,29 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi"
 
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi"
 )
 
 type Option func(*Service) error
 
 type Service struct {
-	cfg *RegisterConfig
+	defaultCfg       *RegisterConfig
+	cfgs             []*RegisterConfig
+	lookUp           map[string]*RegisterConfig
+	recordTypeLookup map[string]*RegisterConfig
 }
 
 func NewService(options ...Option) (*Service, error) {
-	s := &Service{}
+	s := &Service{
+		lookUp:           map[string]*RegisterConfig{},
+		recordTypeLookup: map[string]*RegisterConfig{},
+	}
 
 	// apply options
 	for _, option := range options {
@@ -28,12 +36,21 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	for _, cfg := range s.cfgs {
+		if cfg.Default {
+			s.defaultCfg = cfg
+		}
+
+		s.lookUp[cfg.URLPrefix] = cfg
+		s.recordTypeLookup[cfg.RecordTypeFilter] = cfg
+	}
+
 	return s, nil
 }
 
-func SetConfig(cfg *RegisterConfig) Option {
+func SetConfig(cfgs []*RegisterConfig) Option {
 	return func(s *Service) error {
-		s.cfg = cfg
+		s.cfgs = cfgs
 		return nil
 	}
 }
@@ -57,12 +74,45 @@ func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 	s.renderJSONLD(w, r, dataset, http.StatusOK)
 }
 
+func (s *Service) enabledConfig() []string {
+	var cfgs []string
+	for prefix := range s.lookUp {
+		cfgs = append(cfgs, prefix)
+	}
+
+	return cfgs
+}
+
 func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 
-	catalog := s.cfg.newCatalog()
+	cfgName := chi.URLParam(r, "cfgName")
 
-	if err := s.AddDatasets(orgID.String(), catalog); err != nil {
+	cfg, ok := s.lookUp[cfgName]
+	if !ok {
+		http.Error(
+			w,
+			fmt.Errorf("unable to find config: %q \n allowed config: %#v", cfgName, s.enabledConfig()).Error(),
+			http.StatusNotFound,
+		)
+
+		return
+	}
+
+	catalog := cfg.newCatalog()
+
+	total, err := s.getDatasetsCount(orgID.String(), cfg.RecordTypeFilter)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := catalog.addHydraView(r.URL.Query().Get("page"), total); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if err := s.AddDatasets(orgID.String(), catalog, cfg.RecordTypeFilter); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

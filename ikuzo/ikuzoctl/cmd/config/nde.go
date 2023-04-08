@@ -7,7 +7,12 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/nde"
 )
 
-type NDE struct {
+// NDE is a place-holder struct for configurations
+type NDE struct{}
+
+type NDECfg struct {
+	Default          bool
+	URLPrefix        string   `json:"urlPrefix"`
 	Enabled          bool     `json:"enabled"`
 	Description      string   `json:"description"`
 	Name             string   `json:"name"`
@@ -18,36 +23,50 @@ type NDE struct {
 		AltName string `json:"altName"`
 		URL     string `json:"url"`
 	} `json:"publisher"`
-	DatasetFmt   string                `json:"datasetFmt"`
-	Distribution []nde.DistributionCfg `json:"distribution"`
+	DatasetFmt       string                `json:"datasetFmt"`
+	Distribution     []nde.DistributionCfg `json:"distribution"`
+	RecordTypeFilter string                `json:"recordTypeFilter"`
 }
 
-func (n *NDE) createConfig(cfg *Config) (*nde.RegisterConfig, error) {
-	if n.Name == "" {
-		return nil, fmt.Errorf("NDE config must be set for register")
+func (n *NDE) createConfig(cfg *Config) ([]*nde.RegisterConfig, error) {
+	var cfgs []*nde.RegisterConfig
+
+	for name, ndeCfg := range cfg.NDE {
+		if ndeCfg.Name == "" {
+			return nil, fmt.Errorf("NDE config must be set for register")
+		}
+
+		if ndeCfg.URLPrefix == "" {
+			ndeCfg.URLPrefix = name
+		}
+
+		config := &nde.RegisterConfig{
+			Default:          ndeCfg.Default,
+			URLPrefix:        ndeCfg.URLPrefix,
+			DataPath:         cfg.EAD.CacheDir,
+			DatasetFmt:       ndeCfg.DatasetFmt,
+			RDFBaseURL:       cfg.RDF.BaseURL,
+			Description:      ndeCfg.Description,
+			Name:             ndeCfg.Name,
+			DefaultLicense:   ndeCfg.DefaultLicense,
+			DefaultLanguages: ndeCfg.DefaultLanguages,
+			Distributions:    ndeCfg.Distribution,
+			RecordTypeFilter: ndeCfg.RecordTypeFilter,
+			Publisher: struct {
+				Name    string
+				AltName string
+				URL     string
+			}{
+				Name:    ndeCfg.Publisher.Name,
+				AltName: ndeCfg.Publisher.AltName,
+				URL:     ndeCfg.Publisher.URL,
+			},
+		}
+
+		cfgs = append(cfgs, config)
 	}
 
-	config := &nde.RegisterConfig{
-		DataPath:         cfg.EAD.CacheDir,
-		DatasetFmt:       n.DatasetFmt,
-		RDFBaseURL:       cfg.RDF.BaseURL,
-		Description:      n.Description,
-		Name:             n.Name,
-		DefaultLicense:   n.DefaultLicense,
-		DefaultLanguages: n.DefaultLanguages,
-		Distributions:    n.Distribution,
-		Publisher: struct {
-			Name    string
-			AltName string
-			URL     string
-		}{
-			Name:    n.Publisher.Name,
-			AltName: n.Publisher.AltName,
-			URL:     n.Publisher.URL,
-		},
-	}
-
-	return config, nil
+	return cfgs, nil
 }
 
 func (n *NDE) NewService(cfg *Config) (*nde.Service, error) {

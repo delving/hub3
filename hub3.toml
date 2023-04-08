@@ -1,5 +1,4 @@
 [db]
-# dsn from from .envrc
 dsn = "postgres://postgres:pw123@localhost:5433/hub3?sslmode=disable"
 maxOpenConns = 25
 maxIdleConns = 25
@@ -15,9 +14,12 @@ password = "sOmE_sEcUrE_pAsS"
 # required: true
 dsn = ""
 
+[trs]
+path = "/tmp/data"
+
 [orgs]
 ids = [
-    "dcn",
+    # "brabantcloud",
     "brabantcloud",
     "utralt",
     "nl-hana",
@@ -26,20 +28,31 @@ ids = [
 
 
 ### ^^^^^^ new config ^^^^^^ ###
-
-[org.dcn]
-domains = ["localhost:3000"]
+[org.brabantcloud]
+domains = ["localhost:3000", "localhost:3002"]
 default = true
 
-[[org.dcn.sitemaps]]
+[[org.brabantcloud.sitemaps]]
 id = "all"
 baseURL = "http://localhost:3000"
 filters = "meta.tags:narthex"
 
-[org.dcn.oaipmh]
+[org.brabantcloud.oaipmh]
 enabled = true
 adminEmails = ["info@delving.eu"]
-repositoryName = "DCN OAI-PMH repository"
+repositoryName = "brabantcloud OAI-PMH repository"
+
+[org.brabantcloud.elasticsearch]
+# indexTypes enabled types for the bulk index service
+indexTypes = ["v2"]
+# configuration for MimimumShouldMatch
+minimumShouldMatch = "2<70%"
+shards = 3
+replicas = 2
+# the name of the index. If empty it is the name of the OrgId
+# indexName = "brabantcloud"
+# if non-empty digital objects will be indexed in a dedicated v2 index
+digitalObjectSuffix = ""
 
 [org.hub3]
 domains = ["localhost:3001"]
@@ -61,7 +74,7 @@ minimumShouldMatch = "2<70%"
 shards = 3
 replicas = 2
 # the name of the index. If empty it is the name of the OrgId
-# indexName = "dcn"
+# indexName = "brabantcloud"
 # if non-empty digital objects will be indexed in a dedicated v2 index
 # digitalObjectSuffix = "scans"
 
@@ -443,6 +456,10 @@ isoDate = [
     "https://archief.nl/def/ead/dateiso",
     #"http://schemas.delving.eu/nave/terms/date",
 ]
+
+[[namespaces]]
+prefix="ace"
+base="https://data.antwerp.be/ns/cultureel-erfgoed#"
 
 [[namespaces]]
 base = "http://www.musip.nl/"
