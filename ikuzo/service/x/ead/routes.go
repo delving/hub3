@@ -3,7 +3,7 @@ package ead
 import "github.com/go-chi/chi"
 
 func (s *Service) Routes(pattern string, r chi.Router) {
-	r.Delete("/api/datasets/{spec}", s.CancelTask)
+	// r.Delete("/api/datasets/{spec}", s.CancelTask)
 	r.Delete("/api/ead/{spec}/mets/{UUID}", s.DaoClient.HandleDelete)
 
 	r.Get("/api/ead/tasks", s.Tasks)
