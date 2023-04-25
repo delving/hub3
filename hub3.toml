@@ -1,53 +1,23 @@
-[org.dcn]
-domains = ["localhost:3000"]
+[org.nl-hana]
+customID = "NL-HaNA"
+domains = ["localhost:3000", "hub3.nl-hana:3000"]
 default = true
 
-[[org.dcn.sitemaps]]
+[[org.nl-hana.sitemaps]]
 id = "all"
 baseURL = "http://localhost:3000"
 filters = "meta.tags:narthex"
 
-[org.dcn.oaipmh]
+[org.nl-hana.oaipmh]
 enabled = true
 adminEmails = ["info@delving.eu"]
 repositoryName = "DCN OAI-PMH repository"
 
-[org.hub3]
-domains = ["localhost:3001"]
-customID = "hub3"
-default = true
-
-
-###################################
-#    NIOD                          #
-###################################
-[org.niod]
-domains = ["hub3.niod:3000"]
-
-[org.niod.elasticsearch]
-# indexTypes enabled types for the bulk index service
-indexTypes = ["v2"]
-# configuration for MimimumShouldMatch
-minimumShouldMatch = "2<70%"
-shards = 3
-replicas = 2
-# the name of the index. If empty it is the name of the OrgId
-# indexName = "dcn"
-# if non-empty digital objects will be indexed in a dedicated v2 index
-# digitalObjectSuffix = "scans"
-
-[org.niod.sparql]
-enabled = true
-# the fully qualified URL including the port
-sparqlHost = "http://localhost:3033"
-# the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
-sparqlPath = "/%s/sparql"
-# sparqlUpdate path is the path to the write endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
-sparqlUpdatePath = "/%s/update"
-# dataPath is the path to the GraphStore Protocol endpoint
-dataPath = "/%s/data"
-# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-storeRecords = false
+[bulk]
+dbPath = "hub3-bulksvc2.db"
+[bulk.minio]
+host = ""
+bucket = ""
 userName = ""
 password = ""
 

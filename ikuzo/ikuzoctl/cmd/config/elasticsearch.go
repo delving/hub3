@@ -19,6 +19,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
@@ -27,8 +30,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/esproxy"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/elastic/go-elasticsearch/v8/esutil"
-	"github.com/rs/zerolog/log"
 )
 
 type ElasticSearch struct {
@@ -122,6 +123,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		bulk.SetIndexService(is),
 		bulk.SetIndexTypes(e.IndexTypes...),
 		bulk.SetPostHookService(postHooks...),
+		bulk.SetDBPath(cfg.Bulk.DBPath),
 	)
 	if bulkErr != nil {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)

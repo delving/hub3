@@ -17,13 +17,14 @@ package config
 import (
 	"fmt"
 
+	"github.com/pacedotdev/oto/otohttp"
+	"github.com/spf13/viper"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/pacedotdev/oto/otohttp"
-	"github.com/spf13/viper"
 )
 
 type Option interface {
@@ -51,6 +52,7 @@ type Config struct {
 	NDE           map[string]NDECfg `json:"nde"`
 	NDERegister   NDE               `json:"-" toml:"-"`
 	RDF           `json:"rdf"`
+	Bulk          `json:"bulk"`
 	Sitemap       `json:"sitemap"`
 	oto           *otohttp.Server
 }

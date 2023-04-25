@@ -16,12 +16,19 @@ package bulk
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
+
+	stdlog "log"
+
+	_ "github.com/marcboeker/go-duckdb"
+
+	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
 )
 
 var _ domain.Service = (*Service)(nil)
@@ -32,12 +39,15 @@ type Service struct {
 	postHooks  map[string][]domain.PostHookService
 	log        zerolog.Logger
 	orgs       domain.OrgConfigRetriever
+	dbPath     string
+	db         *sql.DB
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		indexTypes: []string{"v2"},
 		postHooks:  map[string][]domain.PostHookService{},
+		dbPath:     "hub3-bulksvc.db",
 	}
 
 	// apply options
@@ -47,7 +57,47 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if err := s.setupDB(); err != nil {
+		stdlog.Printf("unable to setup db: %q", err)
+		return nil, err
+	}
+
 	return s, nil
+}
+
+func (s *Service) setupDB() error {
+	db, err := sql.Open("duckdb", s.dbPath+"?access_mode=READ_WRITE")
+	if err != nil {
+		s.log.Error().Err(err).Msgf("unable to open duckdb at %s", s.dbPath)
+		return err
+	}
+
+	pingErr := db.Ping()
+	if pingErr != nil {
+		return pingErr
+	}
+	s.db = db
+
+	if setupErr := s.setupTables(); setupErr != nil {
+		return setupErr
+	}
+
+	s.log.Info().Str("path", s.dbPath).Msg("started duckdb for bulk service")
+	log.Printf("started duckdb for bulk service; %q", s.dbPath)
+
+	return nil
+}
+
+func (s *Service) setupTables() error {
+	query := `create table if not exists dataset (
+    orgID text,
+    datasetID text,
+    published boolean,
+);
+create unique index if not exists org_dataset_idx ON dataset (orgID, datasetID);
+	`
+	_, err := s.db.Exec(query)
+	return err
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -57,10 +107,11 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	s.db.Close()
 	return s.index.Shutdown(ctx)
 }
 
 func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
-	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.log = b.Logger.With().Str("svc", "bulk").Logger()
 	s.orgs = b.Orgs
 }

@@ -7,6 +7,17 @@ import (
 
 type Option func(*Service) error
 
+func SetDBPath(path string) Option {
+	return func(s *Service) error {
+		if path == "" {
+			return nil
+		}
+
+		s.dbPath = path
+		return nil
+	}
+}
+
 func SetIndexService(is *index.Service) Option {
 	return func(s *Service) error {
 		s.index = is
