@@ -168,7 +168,7 @@ require (
 	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/rychipman/easylex v0.0.0-20160129204217-49ee7767142f // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/sergi/go-diff v1.2.0 // indirect
+	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/snabb/diagio v1.0.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
