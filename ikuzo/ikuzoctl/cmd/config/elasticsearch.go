@@ -124,9 +124,10 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		bulk.SetIndexTypes(e.IndexTypes...),
 		bulk.SetPostHookService(postHooks...),
 		bulk.SetDBPath(cfg.Bulk.DBPath),
+		bulk.SetBlobConfig(cfg.Bulk.Minio),
 	)
 	if bulkErr != nil {
-		return fmt.Errorf("unable to create bulk service; %w", isErr)
+		return fmt.Errorf("unable to create bulk service; %w", bulkErr)
 	}
 
 	cfg.options = append(

@@ -3,9 +3,10 @@ package config
 type Bulk struct {
 	DBPath string `json:"dbPath,omitempty"`
 	Minio  struct {
-		Host     string `json:"host,omitempty"`
-		Bucket   string `json:"bucket,omitempty"`
-		UserName string `json:"userName,omitempty"`
-		Password string `json:"password,omitempty"`
+		Endpoint        string `json:"endpoint,omitempty"`
+		AccessKeyID     string `json:"accessKeyID,omitempty"`
+		SecretAccessKey string `json:"secretAccessKey,omitempty"`
+		UseSSL          bool   `json:"useSSL,omitempty"`
+		BucketName      string `json:"bucketName,omitempty"`
 	} `json:"minio,omitempty"`
 }

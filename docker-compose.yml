@@ -19,6 +19,20 @@ services:
     networks:
       - esnet
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./docker-data/minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: Strong#Pass#2023
+      MINIO_ACCESS_KEY: "kPxADQXcHFbR9i1V"
+      MINIO_SECRET_KEY: "LiwsjNxulYJVyey50U1ypTabt8BiMWiU"
+    command: server --console-address ":9001" /data
+
   fuseki:
     image: zacanbot/fuseki
     container_name: hub3-fuseki
@@ -58,7 +72,6 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_PASSWORD: pw123
-
 
 networks:
   esnet:

@@ -16,10 +16,11 @@ repositoryName = "DCN OAI-PMH repository"
 [bulk]
 dbPath = "hub3-bulksvc2.db"
 [bulk.minio]
-host = ""
-bucket = ""
-userName = ""
-password = ""
+endpoint = "127.0.0.1:9000"
+accessKeyId = "kPxADQXcHFbR9i1V"
+secretAccessKey = "LiwsjNxulYJVyey50U1ypTabt8BiMWiU"
+useSSL = false
+bucketName = "bulk-svc"
 
 [http]
 # all the configuration for the http sub-command
