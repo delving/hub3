@@ -46,6 +46,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.26
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nats-io/stan.go v0.10.2
+	github.com/oklog/ulid v1.3.1
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.18.1

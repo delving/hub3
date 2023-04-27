@@ -37,16 +37,17 @@ import (
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	index      *index.Service
-	indexTypes []string
-	postHooks  map[string][]domain.PostHookService
-	log        zerolog.Logger
-	orgs       domain.OrgConfigRetriever
-	dbPath     string
-	db         *sql.DB
-	ctx        context.Context
-	blobCfg    BlobConfig
-	mc         *minio.Client
+	index       *index.Service
+	indexTypes  []string
+	postHooks   map[string][]domain.PostHookService
+	log         zerolog.Logger
+	orgs        domain.OrgConfigRetriever
+	dbPath      string
+	db          *sql.DB
+	ctx         context.Context
+	blobCfg     BlobConfig
+	mc          *minio.Client
+	logRequests bool
 }
 
 func NewService(options ...Option) (*Service, error) {

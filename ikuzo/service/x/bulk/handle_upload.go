@@ -1,12 +1,16 @@
 package bulk
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
+
+	"github.com/go-chi/render"
+	"github.com/minio/minio-go/v7"
+	"github.com/rs/zerolog/log"
 
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
 )
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
@@ -55,6 +59,8 @@ func (s *Service) NewParser() *Parser {
 		indexTypes:    s.indexTypes,
 		bi:            s.index,
 		sparqlUpdates: []fragments.SparqlUpdate{},
+		s:             s,
+		graphs:        map[string]*fragments.FragmentBuilder{},
 	}
 
 	if len(s.postHooks) != 0 {
@@ -62,4 +68,15 @@ func (s *Service) NewParser() *Parser {
 	}
 
 	return p
+}
+
+func (s *Service) GetGraph(hubID string, versionID string) error {
+	parts := strings.Split(hubID, "_")
+	path := fmt.Sprintf("%s/%s/fg/%s.json", parts[0], parts[1], parts[2])
+	_, err := s.mc.GetObject(s.ctx, s.blobCfg.BucketName, path, minio.GetObjectOptions{VersionID: versionID})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

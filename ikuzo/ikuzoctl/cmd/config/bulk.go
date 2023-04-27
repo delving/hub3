@@ -1,8 +1,9 @@
 package config
 
 type Bulk struct {
-	DBPath string `json:"dbPath,omitempty"`
-	Minio  struct {
+	DBPath        string `json:"dbPath,omitempty"`
+	StoreRequests bool
+	Minio         struct {
 		Endpoint        string `json:"endpoint,omitempty"`
 		AccessKeyID     string `json:"accessKeyID,omitempty"`
 		SecretAccessKey string `json:"secretAccessKey,omitempty"`

@@ -23,10 +23,11 @@ import (
 	"log"
 	"strings"
 
-	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	rdf "github.com/kiivihal/gon3"
 	r "github.com/kiivihal/rdf2go"
+
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 )
 
 // parseTurtleFile creates a graph from an uploaded file
@@ -241,6 +242,8 @@ func (upl *RDFUploader) IndexFragments(bi BulkIndex) (int, error) {
 				Triples:       triples.String(),
 				NamedGraphURI: fg.Meta.NamedGraphURI,
 				Spec:          fg.Meta.Spec,
+				HubID:         fg.Meta.HubID,
+				OrgID:         fg.Meta.OrgID,
 				SpecRevision:  revision,
 			}
 			triples.Reset()

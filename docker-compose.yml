@@ -22,7 +22,7 @@ services:
   minio:
     image: minio/minio
     ports:
-      - "9000:9000"
+      - "9010:9000"
       - "9001:9001"
     volumes:
       - ./docker-data/minio_storage:/data

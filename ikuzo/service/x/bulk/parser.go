@@ -22,11 +22,18 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
+	"github.com/minio/minio-go/v7"
+	"github.com/oklog/ulid"
 	"github.com/rs/zerolog"
+
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
@@ -34,8 +41,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/rs/zerolog/log"
-	"golang.org/x/sync/errgroup"
 
 	rdf "github.com/kiivihal/rdf2go"
 )
@@ -50,13 +55,15 @@ type Parser struct {
 	sparqlUpdates []fragments.SparqlUpdate // store all the triples here for bulk insert
 	postHooks     []*domain.PostHookItem
 	m             sync.RWMutex
+	s             *Service
+	graphs        map[string]*fragments.FragmentBuilder // TODO: probably remove this later
+	rawRequest    bytes.Buffer
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	ctx, done := context.WithCancel(ctx)
 	g, gctx := errgroup.WithContext(ctx)
 	_ = gctx
-
 	defer done()
 
 	workers := 4
@@ -64,7 +71,9 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	actions := make(chan Request)
 
 	g.Go(func() error {
-		defer close(actions)
+		defer func() {
+			close(actions)
+		}()
 
 		scanner := bufio.NewScanner(r)
 		buf := make([]byte, 0, 64*1024)
@@ -74,6 +83,11 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 			var req Request
 			b := scanner.Bytes()
 
+			if p.s.logRequests {
+				b = append(b, '\n')
+				p.rawRequest.Write(b)
+			}
+
 			if err := json.Unmarshal(b, &req); err != nil {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
@@ -81,6 +95,8 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				continue
 			}
+
+			p.once.Do(func() { p.setDataSet(&req) })
 
 			select {
 			case actions <- req:
@@ -128,10 +144,82 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 		log.Warn().Err(err).Msg("context canceled during bulk indexing")
 	}
 
+	if p.s.logRequests {
+		if err := p.storeRequest(); err != nil {
+			p.s.log.Warn().Err(err).Msg("unable to store request for debugging")
+		}
+	}
+
+	p.s.log.Info().Msgf("graphs: %d", len(p.graphs))
+
 	if config.Config.RDF.RDFStoreEnabled {
 		if errs := p.RDFBulkInsert(); errs != nil {
 			return errs[0]
 		}
+	}
+
+	if err := p.StoreGraphs(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// logRequest logs the bulk request to disk for inspection and reuse
+func (p *Parser) storeRequest() error {
+	u, err := ulid.New(ulid.Now(), nil)
+	if err != nil {
+		p.s.log.Error().Err(err).Msg("unable to create ulid")
+		return err
+	}
+
+	path := fmt.Sprintf("/tmp/%s_%s_%d_%s.ldjson", p.ds.OrgID, p.ds.Spec, p.ds.Revision, u.String())
+	return os.WriteFile(path, p.rawRequest.Bytes(), os.ModePerm)
+}
+
+func (p *Parser) StoreGraphs() error {
+	opts := minio.SnowballOptions{
+		Opts: minio.PutObjectOptions{ContentType: "application/json"},
+		// Keep in memory. We use this since we have small total payload.
+		InMemory: true,
+		// Compress data when uploading to a MinIO host.
+		Compress: true,
+	}
+
+	input := make(chan minio.SnowballObject, 10)
+
+	go func() {
+		defer close(input)
+		for _, su := range p.sparqlUpdates {
+
+			key := fmt.Sprintf("%s/%s/fg/%s.json", su.OrgID, su.Spec, su.HubID)
+			input <- minio.SnowballObject{
+				Key:     key,
+				Size:    int64(len(su.Triples)),
+				ModTime: time.Now(),
+				Content: strings.NewReader(su.Triples),
+			}
+		}
+
+		// TODO: store sparql update with content hash and store it under conten-hash
+
+		// for _, fb := range p.graphs {
+		// 	fg := fb.FragmentGraph()
+		//
+		// 	key := fmt.Sprintf("%s/%s/fg/%s.json", fg.Meta.OrgID, fg.Meta.Spec, fg.Meta.HubID)
+		// 	size, r, _ := fg.Reader()
+		// 	input <- minio.SnowballObject{
+		// 		Key:     key,
+		// 		Size:    int64(size),
+		// 		ModTime: time.Now(),
+		// 		Content: r,
+		// 	}
+		// }
+	}()
+
+	err := p.s.mc.PutObjectsSnowball(context.TODO(), p.s.blobCfg.BucketName, opts, input)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -157,9 +245,9 @@ func containsString(s []string, e string) bool {
 }
 
 func (p *Parser) setDataSet(req *Request) {
-	ds, _, dsError := models.GetOrCreateDataSet(req.OrgID, req.DatasetID)
-	if dsError != nil {
-		// log error
+	ds, _, dsErr := models.GetOrCreateDataSet(req.OrgID, req.DatasetID)
+	if dsErr != nil {
+		p.s.log.Error().Err(dsErr).Msg("unable to get or create dataset")
 		return
 	}
 
@@ -220,8 +308,6 @@ func addLogger(datasetID string) zerolog.Logger {
 }
 
 func (p *Parser) process(ctx context.Context, req *Request) error {
-	p.once.Do(func() { p.setDataSet(req) })
-
 	subLogger := addLogger(req.DatasetID)
 
 	if p.ds == nil {
@@ -229,7 +315,6 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 	}
 
 	req.Revision = p.ds.Revision
-	// TODO(kiivihal): add logger
 
 	switch req.Action {
 	case "index":
@@ -328,6 +413,10 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		}
 	}
 
+	p.m.Lock()
+	p.graphs[fb.FragmentGraph().Meta.HubID] = fb
+	p.m.Unlock()
+
 	for _, indexType := range p.indexTypes {
 		switch indexType {
 		case "v1":
@@ -393,10 +482,14 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 		Triples:       b.String(),
 		NamedGraphURI: req.NamedGraphURI,
 		Spec:          req.DatasetID,
-		SpecRevision:  req.Revision,
+		HubID:         req.HubID,
+		OrgID:         req.OrgID,
+		// SpecRevision:  req.Revision, // TODO: This can only be removed after the orphan control is fixed
 	}
 
+	p.m.Lock()
 	p.sparqlUpdates = append(p.sparqlUpdates, su)
+	p.m.Unlock()
 
 	return nil
 }
@@ -430,7 +523,7 @@ func encodeTerm(iterm rdf.Term) string {
 func serializeNTriples(g *rdf.Graph, w io.Writer) error {
 	var err error
 
-	for triple := range g.IterTriples() {
+	for triple := range g.IterTriplesOrdered() {
 		s := encodeTerm(triple.Subject)
 		if strings.HasPrefix(s, "<urn:private/") {
 			continue

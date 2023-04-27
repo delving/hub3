@@ -15,8 +15,9 @@ repositoryName = "DCN OAI-PMH repository"
 
 [bulk]
 dbPath = "hub3-bulksvc2.db"
+storeRequests = false
 [bulk.minio]
-endpoint = "127.0.0.1:9000"
+endpoint = "127.0.0.1:9010"
 accessKeyId = "kPxADQXcHFbR9i1V"
 secretAccessKey = "LiwsjNxulYJVyey50U1ypTabt8BiMWiU"
 useSSL = false

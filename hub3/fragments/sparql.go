@@ -26,16 +26,20 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/delving/hub3/config"
 	"github.com/parnurzeal/gorequest"
+
+	"github.com/delving/hub3/config"
 )
 
 // SparqlUpdate contains the elements to perform a SPARQL update query
 type SparqlUpdate struct {
-	Triples       string `json:"triples"`
-	NamedGraphURI string `json:"graphUri"`
-	Spec          string `json:"datasetSpec"`
-	SpecRevision  int    `json:"specRevision"`
+	Triples         string `json:"triples,omitempty"`
+	PreviousTriples string `json:"previousTriples,omitempty"`
+	NamedGraphURI   string `json:"graphUri,omitempty"`
+	OrgID           string `json:"orgID,omitempty"`
+	HubID           string `json:"hubID,omitempty"`
+	Spec            string `json:"datasetSpec,omitempty"`
+	SpecRevision    int    `json:"specRevision,omitempty"`
 }
 
 // TripleCount counts the number of Ntriples in a string

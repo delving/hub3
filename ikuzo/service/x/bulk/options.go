@@ -47,6 +47,13 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
+func SetLogRequests(enable bool) Option {
+	return func(s *Service) error {
+		s.logRequests = enable
+		return nil
+	}
+}
+
 func SetPostHookService(hooks ...domain.PostHookService) Option {
 	return func(s *Service) error {
 		for _, hook := range hooks {
