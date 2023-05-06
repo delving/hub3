@@ -26,6 +26,9 @@ func (s *Service) lodRedirect(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newPath := strings.Replace(r.URL.Path, "/id/", "/doc/", 1)
+	if r.URL.RawQuery != "" {
+		newPath = newPath + "?" + r.URL.RawQuery
+	}
 	http.Redirect(w, r, newPath, http.StatusFound)
 }
 
