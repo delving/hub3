@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
 	"github.com/rs/zerolog"

@@ -28,7 +28,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/render"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 var (

@@ -32,7 +32,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	elastic "github.com/olivere/elastic/v7"
 )
 

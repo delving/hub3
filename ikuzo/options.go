@@ -25,7 +25,7 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/delving/hub3/ikuzo/webapp"
 	"github.com/getsentry/sentry-go"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.

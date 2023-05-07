@@ -8,7 +8,7 @@ import (
 
 	_ "embed"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 //go:embed explore.html

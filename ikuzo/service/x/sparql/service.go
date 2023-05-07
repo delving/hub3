@@ -8,7 +8,7 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/service/x/lod"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/knakk/sparql"
 	"github.com/rs/zerolog"
 )

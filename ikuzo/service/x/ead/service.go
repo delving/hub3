@@ -43,7 +43,7 @@ import (
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh/harvest"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"

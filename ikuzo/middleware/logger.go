@@ -21,11 +21,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/justinas/alice"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"
+
+	"github.com/delving/hub3/ikuzo/domain"
 )
 
 func (lc *lineChecker) generateLookupPaths(paths ...string) {

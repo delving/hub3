@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 var ErrConfigNotFound = errors.New("sitemap configuration not found")

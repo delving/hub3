@@ -33,8 +33,8 @@ import (
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	elastic "github.com/olivere/elastic/v7"
 )
 

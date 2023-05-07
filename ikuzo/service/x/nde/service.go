@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/ikuzo/domain"

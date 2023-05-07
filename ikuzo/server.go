@@ -30,15 +30,9 @@ import (
 
 	_ "net/http/pprof"
 
-	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/delving/hub3/ikuzo/middleware"
-	"github.com/delving/hub3/ikuzo/render"
-	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/docgen"
 	"github.com/rs/xid"
@@ -46,6 +40,13 @@ import (
 	"github.com/rs/zerolog/hlog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/logger"
+	"github.com/delving/hub3/ikuzo/middleware"
+	"github.com/delving/hub3/ikuzo/render"
+	"github.com/delving/hub3/ikuzo/service/organization"
+	"github.com/delving/hub3/ikuzo/service/x/task"
 )
 
 const (

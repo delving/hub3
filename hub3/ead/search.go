@@ -27,7 +27,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/hlog"
 )

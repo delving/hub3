@@ -28,7 +28,7 @@ import (
 	"github.com/OneOfOne/xxhash"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/mailgun/groupcache"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/hlog"

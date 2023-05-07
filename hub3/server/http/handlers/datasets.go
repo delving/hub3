@@ -24,7 +24,7 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/render"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 var specRoute = "/{spec}"

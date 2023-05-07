@@ -18,7 +18,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	rdf "github.com/kiivihal/rdf2go"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog/log"

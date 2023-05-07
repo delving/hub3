@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/delving/hub3/ikuzo/logger"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 )
 
 var ErrServiceNotEnabled = fmt.Errorf("service not enabled for this organization")

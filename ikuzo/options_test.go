@@ -24,8 +24,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-chi/chi"
-	mw "github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	mw "github.com/go-chi/chi/v5/middleware"
 
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/matryer/is"

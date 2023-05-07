@@ -17,9 +17,9 @@ require (
 	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200716073932-4f0b75746dc1
 	github.com/gammazero/workerpool v1.1.2
 	github.com/getsentry/sentry-go v0.13.0
-	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
-	github.com/go-chi/docgen v1.0.5
+	github.com/go-chi/docgen v1.2.0
 	github.com/go-chi/render v1.0.1
 	github.com/go-git/go-git/v5 v5.4.3-0.20210630082519-b4368b2a2ca4
 	github.com/golang-migrate/migrate/v4 v4.15.1

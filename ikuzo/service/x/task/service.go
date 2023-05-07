@@ -8,7 +8,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/storage/x/redis"
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"

@@ -1,6 +1,6 @@
 package harvest
 
-import "github.com/go-chi/chi"
+import "github.com/go-chi/chi/v5"
 
 func (s *Service) Routes(pattern string, r chi.Router) {
 	r.Get("/oai/!open_oai.OAIHandler", s.ServeHTTP)

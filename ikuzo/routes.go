@@ -20,7 +20,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	mw "github.com/go-chi/chi/middleware"
+	mw "github.com/go-chi/chi/v5/middleware"
 )
 
 // DefaultMiddleware are the default functions applied to the global router.
