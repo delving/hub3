@@ -36,13 +36,12 @@ services:
     image: zacanbot/fuseki
     container_name: hub3-fuseki
     environment:
-        JVM_ARGS: -Xmx1g
+      JVM_ARGS: -Xmx1g
+      ADMIN_PASSWORD: pw123
     ports:
       - "3033:3030"
     volumes:
         - ./docker-data/fuseki/data:/data/fuseki
-    environment:
-      - ADMIN_PASSWORD=pw123
     command:
         ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
 
@@ -72,7 +71,6 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_PASSWORD: pw123
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
       POSTGRES_DB: hub3

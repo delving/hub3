@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/url"
@@ -9,6 +10,7 @@ import (
 
 type OrgConfigRetriever interface {
 	RetrieveConfig(orgID string) (cfg OrganizationConfig, ok bool)
+	Configs(ctx context.Context) (cfgs []OrganizationConfig, err error)
 }
 
 type ArchesConfig struct {

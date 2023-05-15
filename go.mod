@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.18
+go 1.20
 
 require (
 	code.gitea.io/gitea v1.17.1
