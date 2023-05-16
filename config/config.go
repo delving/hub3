@@ -22,10 +22,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/delving/hub3/ikuzo/logger"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/rs/zerolog"
 	"github.com/spf13/viper"
+
+	"github.com/delving/hub3/ikuzo/logger"
 )
 
 var (
@@ -156,20 +157,21 @@ type HTTP struct {
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
-	SparqlEnabled    bool   `json:"sparqlEnabled"`    // Enable the SPARQL proxy
-	SparqlHost       string `json:"sparqlHost"`       // the base-url to the SPARQL endpoint including the scheme and the port
-	SparqlPath       string `json:"sparqlPath"`       // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	SparqlUpdatePath string `json:"sparqlUpdatePath"` // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	GraphStorePath   string `json:"dataPath"`         // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-	BaseURL          string `json:"baseUrl"`          // the RDF baseUrl used for minting new URIs (should not include scheme)
-	BaseScheme       string `json:"baseScheme"`       // the scheme (http or https) used in the baseURL
-	RDFStoreEnabled  bool   `json:"rdfStoreEnabled"`  // Store to Triple Store while saving RDF
+	SparqlEnabled     bool     `json:"sparqlEnabled,omitempty"`    // Enable the SPARQL proxy
+	SparqlHost        string   `json:"sparqlHost,omitempty"`       // the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlPath        string   `json:"sparqlPath,omitempty"`       // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	SparqlUpdatePath  string   `json:"sparqlUpdatePath,omitempty"` // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	GraphStorePath    string   `json:"dataPath,omitempty"`         // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+	BaseURL           string   `json:"baseUrl,omitempty"`          // the RDF baseUrl used for minting new URIs (should not include scheme)
+	BaseScheme        string   `json:"baseScheme,omitempty"`       // the scheme (http or https) used in the baseURL
+	RDFStoreEnabled   bool     `json:"rdfStoreEnabled,omitempty"`  // Store to Triple Store while saving RDF
+	StoreSparqlDeltas bool     `json:"storeSparqlDeltas,omitempty"`
+	Tags              string   `json:"tags,omitempty" mapstructure:"tags"`
+	DefaultFormat     string   `json:"defaultFormat,omitempty"`
+	RDFStoreTags      []string `json:"rdfStoreTags,omitempty"` // the tags that trigger storage in the triple-store
 	// the RDF entryPoints. Lookups are made on the fully qualified URIs. It is sometimes needed to support other baseUrls as well.
 	// The entry-points need to be fully qualified, i.e. with their scheme.
-	RoutedEntryPoints []string `json:"RoutedEntryPoints"`
-	Tags              string   `json:"tags" mapstructure:"tags"`
-	DefaultFormat     string   `json:"defaultFormat"`
-	RDFStoreTags      []string `json:"rdfStoreTags"` // the tags that trigger storage in the triple-store
+	RoutedEntryPoints []string `json:"RoutedEntryPoints,omitempty"`
 }
 
 func (rdf *RDF) HasStoreTag(tags []string) bool {
@@ -262,7 +264,7 @@ type EAD struct {
 	GenreFormDefault string   `json:"genreFormDefault"`
 	TreeFields       []string `json:"treeFields"`
 	SearchFields     []string `json:"searchFields"`
-	Genreforms		 []string `json:"genreforms"`
+	Genreforms       []string `json:"genreforms"`
 }
 
 func setDefaults() {

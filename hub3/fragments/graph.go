@@ -38,8 +38,8 @@ func (fg *FragmentGraph) Marshal() ([]byte, error) {
 
 func (fg *FragmentGraph) Reader() (int, io.Reader, error) {
 	// TODO: idempotency is an issue
-	// fg.Meta.Modified = 0
-	// fg.Meta.Revision = 0
+	fg.Meta.Modified = 0
+	fg.Meta.Revision = 0
 	b, err := json.MarshalIndent(fg, "", "    ")
 	if err != nil {
 		return 0, nil, err

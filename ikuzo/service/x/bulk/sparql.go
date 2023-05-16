@@ -5,49 +5,67 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/delving/hub3/hub3/fragments"
 )
 
-func diffAsSparqlUpdate(previous, current, graphURI, spec string) (updateQuery string, err error) {
-	if graphURI == "" {
-		return "", fmt.Errorf("graphURI cannot be empty: %q", graphURI)
-	}
-	added, removed := diffTriples(previous, current)
+var (
+	datasetSpecFmt  string = "http://schemas.delving.eu/nave/terms/datasetSpec"
+	contentHashFmt  string = "http://schemas.delving.eu/nave/terms/contentHash"
+	specRevisionFmt string = "http://schemas.delving.eu/nave/terms/specRevision"
+)
 
-	updateQuery = generateSPARQLUpdateQuery(added, removed, graphURI, spec)
+type DiffConfig struct {
+	su              *fragments.SparqlUpdate
+	previousTriples string
+	previousHash    string
+}
+
+func diffAsSparqlUpdate(cfg *DiffConfig) (updateQuery string, err error) {
+	if cfg.su.NamedGraphURI == "" {
+		return "", fmt.Errorf("graphURI cannot be empty: %q", cfg.su.NamedGraphURI)
+	}
+	added, removed := diffTriples(cfg.previousTriples, cfg.su.Triples)
+
+	updateQuery = generateSPARQLUpdateQuery(added, removed, cfg)
 
 	return updateQuery, nil
 }
 
-func generateSPARQLUpdateQuery(added, removed []string, graphURI, spec string) string {
+func generateSPARQLUpdateQuery(added, removed []string, cfg *DiffConfig) string {
 	var sb strings.Builder
 
 	if len(added) == 0 && len(removed) == 0 {
 		return ""
 	}
+	// <{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}" .
+	// <{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/contentHash> "{{.RDFHash}}" .
+	// <{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/specRevision> "{{.SpecRevision}}"^^<http://www.w3.org/2001/XMLSchema#integer> .
 
 	if len(removed) != 0 {
 		// Construct the DELETE statement
 		sb.WriteString("DELETE DATA {\n")
 		sb.WriteString("GRAPH <")
-		sb.WriteString(graphURI)
+		sb.WriteString(cfg.su.NamedGraphURI)
 		sb.WriteString("> { ")
 		for _, triple := range removed {
 			sb.WriteString(triple + "\n")
 		}
 		sb.WriteString(" }\n")
 		sb.WriteString("}\n")
-
 	}
 
 	if len(added) != 0 {
 		// Construct the INSERT statement
 		sb.WriteString("INSERT DATA {\n")
 		sb.WriteString("GRAPH <")
-		sb.WriteString(graphURI)
+		sb.WriteString(cfg.su.NamedGraphURI)
 		sb.WriteString("> { ")
-		if spec != "" {
-			sb.WriteString(fmt.Sprintf("<%s> <http://schemas.delving.eu/nave/terms/datasetSpec> \"%s\" .\n", graphURI, spec))
-		}
+		// TODO: generate from DiffConfig
+		// if su.Spec != "" {
+		// 	sb.WriteString(fmt.Sprintf("<%s> <http://schemas.delving.eu/nave/terms/datasetSpec> \"%s\" .\n", su.NamedGraphURI, su.Spec))
+		// 	sb.WriteString(fmt.Sprintf("<%s> <http://schemas.delving.eu/nave/terms/contentHash> \"%s\" .\n", su.NamedGraphURI, su.RDFHash))
+		// }
 		for _, triple := range added {
 			sb.WriteString(triple + "\n")
 		}

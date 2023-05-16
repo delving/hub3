@@ -23,11 +23,12 @@ import (
 	"time"
 
 	"github.com/asdine/storm/q"
+	wp "github.com/gammazero/workerpool"
+	"github.com/rs/zerolog/log"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
-	wp "github.com/gammazero/workerpool"
-	"github.com/rs/zerolog/log"
 
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -720,6 +721,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 // DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
 	if c.Config.RDF.RDFStoreEnabled {
+		// TODO: only do this for non-delta
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
 			log.Warn().Msgf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)

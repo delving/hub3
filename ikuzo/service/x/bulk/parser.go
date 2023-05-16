@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -153,12 +154,82 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	p.s.log.Info().Msgf("graphs: %d", len(p.graphs))
 
 	if config.Config.RDF.RDFStoreEnabled {
-		if errs := p.RDFBulkInsert(); errs != nil {
-			return errs[0]
+		if config.Config.RDF.StoreSparqlDeltas {
+			if err := p.StoreGraphDeltas(); err != nil {
+				return err
+			}
+		} else {
+			if errs := p.RDFBulkInsert(); errs != nil {
+				return errs[0]
+			}
 		}
 	}
 
-	if err := p.StoreGraphs(); err != nil {
+	return nil
+}
+
+func (p *Parser) StoreGraphDeltas() error {
+	// extract the ids and get a query for all stored entries
+	ids := []string{}
+	for _, su := range p.sparqlUpdates {
+		ids = append(ids, su.HubID)
+	}
+
+	// get previously stored updates
+	previousUpdates, err := p.s.getPreviousUpdates(ids)
+	if err != nil {
+		return err
+	}
+	lookUp := map[string]*fragments.SparqlUpdate{}
+	for _, prev := range previousUpdates {
+		lookUp[prev.HubID] = prev
+	}
+
+	// check which updates have changed
+	changed := []*DiffConfig{}
+	for _, current := range p.sparqlUpdates {
+		prev, ok := lookUp[current.HubID]
+		if !ok {
+			// new so add it
+			changed = append(changed, &DiffConfig{su: &current})
+			continue
+		}
+
+		if prev.RDFHash == current.RDFHash {
+			// same has so skip it
+			continue
+		}
+
+		changed = append(changed, &DiffConfig{su: &current, previousTriples: prev.Triples, previousHash: prev.RDFHash})
+	}
+
+	var sparqlUpdate strings.Builder
+	for _, cfg := range changed {
+		update, err := diffAsSparqlUpdate(cfg)
+		if err != nil {
+			return err
+		}
+		sparqlUpdate.WriteString(update)
+	}
+
+	// update the diffs in the triple store
+	errs := fragments.UpdateViaSparql(p.ds.OrgID, sparqlUpdate.String())
+	if errs != nil {
+		return errs[0]
+	}
+
+	// store the graphs in the S3 bucket
+	if err := p.StoreGraphs(changed); err != nil {
+		return err
+	}
+
+	// store the update hashes
+	if err := p.s.storeUpdatedHashes(changed); err != nil {
+		return err
+	}
+
+	// update revision for all seen ids
+	if err := p.s.incrementRevisionForSeen(ids); err != nil {
 		return err
 	}
 
@@ -177,7 +248,7 @@ func (p *Parser) storeRequest() error {
 	return os.WriteFile(path, p.rawRequest.Bytes(), os.ModePerm)
 }
 
-func (p *Parser) StoreGraphs() error {
+func (p *Parser) StoreGraphs(diffs []*DiffConfig) error {
 	opts := minio.SnowballOptions{
 		Opts: minio.PutObjectOptions{ContentType: "application/json"},
 		// Keep in memory. We use this since we have small total payload.
@@ -190,31 +261,16 @@ func (p *Parser) StoreGraphs() error {
 
 	go func() {
 		defer close(input)
-		for _, su := range p.sparqlUpdates {
+		for _, diff := range diffs {
 
-			key := fmt.Sprintf("%s/%s/fg/%s.json", su.OrgID, su.Spec, su.HubID)
+			key := fmt.Sprintf("%s/%s/rdf/%s.ntriples", diff.su.OrgID, diff.su.Spec, diff.su.GetHash())
 			input <- minio.SnowballObject{
 				Key:     key,
-				Size:    int64(len(su.Triples)),
+				Size:    int64(len(diff.su.Triples)),
 				ModTime: time.Now(),
-				Content: strings.NewReader(su.Triples),
+				Content: strings.NewReader(diff.su.Triples),
 			}
 		}
-
-		// TODO: store sparql update with content hash and store it under conten-hash
-
-		// for _, fb := range p.graphs {
-		// 	fg := fb.FragmentGraph()
-		//
-		// 	key := fmt.Sprintf("%s/%s/fg/%s.json", fg.Meta.OrgID, fg.Meta.Spec, fg.Meta.HubID)
-		// 	size, r, _ := fg.Reader()
-		// 	input <- minio.SnowballObject{
-		// 		Key:     key,
-		// 		Size:    int64(size),
-		// 		ModTime: time.Now(),
-		// 		Content: r,
-		// 	}
-		// }
 	}()
 
 	err := p.s.mc.PutObjectsSnowball(context.TODO(), p.s.blobCfg.BucketName, opts, input)
@@ -289,6 +345,23 @@ func (p *Parser) dropOrphans(req *Request) error {
 
 	if err := p.bi.Publish(context.Background(), m); err != nil {
 		return err
+	}
+
+	if config.Config.RDF.RDFStoreEnabled {
+		if config.Config.RDF.StoreSparqlDeltas {
+			orphans, err := p.s.findOrphans(p.ds.OrgID, p.ds.Spec, p.ds.Revision)
+			if err != nil {
+				return err
+			}
+			if err := p.s.dropOrphans(orphans); err != nil {
+				return err
+			}
+		} else {
+			_, err := models.DeleteGraphsOrphansBySpec(p.ds.OrgID, p.ds.Spec, p.ds.Revision)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -484,8 +557,10 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 		Spec:          req.DatasetID,
 		HubID:         req.HubID,
 		OrgID:         req.OrgID,
-		// SpecRevision:  req.Revision, // TODO: This can only be removed after the orphan control is fixed
+		SpecRevision:  req.Revision, // TODO: This can only be removed after the orphan control is fixed
 	}
+
+	su.GetHash()
 
 	p.m.Lock()
 	p.sparqlUpdates = append(p.sparqlUpdates, su)
@@ -523,6 +598,8 @@ func encodeTerm(iterm rdf.Term) string {
 func serializeNTriples(g *rdf.Graph, w io.Writer) error {
 	var err error
 
+	triples := []string{}
+
 	for triple := range g.IterTriplesOrdered() {
 		s := encodeTerm(triple.Subject)
 		if strings.HasPrefix(s, "<urn:private/") {
@@ -536,10 +613,14 @@ func serializeNTriples(g *rdf.Graph, w io.Writer) error {
 			continue
 		}
 
-		_, err = fmt.Fprintf(w, "%s %s %s .\n", s, p, o)
-		if err != nil {
-			return err
-		}
+		triples = append(triples, fmt.Sprintf("%s %s %s .", s, p, o))
+	}
+
+	sort.Strings(triples)
+
+	_, err = fmt.Fprint(w, strings.Join(triples, "\n"))
+	if err != nil {
+		return err
 	}
 
 	return nil

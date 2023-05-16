@@ -26,6 +26,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/OneOfOne/xxhash"
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/delving/hub3/config"
@@ -33,13 +34,21 @@ import (
 
 // SparqlUpdate contains the elements to perform a SPARQL update query
 type SparqlUpdate struct {
-	Triples         string `json:"triples,omitempty"`
-	PreviousTriples string `json:"previousTriples,omitempty"`
-	NamedGraphURI   string `json:"graphUri,omitempty"`
-	OrgID           string `json:"orgID,omitempty"`
-	HubID           string `json:"hubID,omitempty"`
-	Spec            string `json:"datasetSpec,omitempty"`
-	SpecRevision    int    `json:"specRevision,omitempty"`
+	Triples       string `json:"triples,omitempty"`
+	NamedGraphURI string `json:"graphUri,omitempty"`
+	OrgID         string `json:"orgID,omitempty"`
+	HubID         string `json:"hubID,omitempty"`
+	Spec          string `json:"datasetSpec,omitempty"`
+	SpecRevision  int    `json:"specRevision,omitempty"`
+	RDFHash       string `json:"rdfHash,omitempty"`
+}
+
+func (su *SparqlUpdate) GetHash() string {
+	if su.RDFHash != "" {
+		return su.RDFHash
+	}
+
+	return hash(su.Triples)
 }
 
 // TripleCount counts the number of Ntriples in a string
@@ -73,6 +82,7 @@ func executeTemplate(tmplString string, name string, model interface{}) string {
 func (su SparqlUpdate) String() string {
 	t := `GRAPH <{{.NamedGraphURI}}> {
 		<{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/datasetSpec> "{{.Spec}}" .
+		<{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/contentHash> "{{.RDFHash}}" .
 		<{{.NamedGraphURI}}> <http://schemas.delving.eu/nave/terms/specRevision> "{{.SpecRevision}}"^^<http://www.w3.org/2001/XMLSchema#integer> .
 		{{ .Triples }}
 	}`
@@ -94,7 +104,7 @@ func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 		count, err := v.TripleCount()
 		if err != nil {
 			log.Printf("Unable to count triples: %s", err)
-			return 0, []error{fmt.Errorf("Unable to count triples for %s because :%s", strs[i], err)}
+			return 0, []error{fmt.Errorf("unable to count triples for %s because :%s", strs[i], err)}
 		}
 		triplesStored += count
 	}
@@ -131,4 +141,15 @@ func UpdateViaSparql(orgID, update string) []error {
 		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
 	}
 	return nil
+}
+
+type hasher string
+
+func hash(input string) string {
+	hash := xxhash.Checksum64([]byte(input))
+	return fmt.Sprintf("%d", hash)
+}
+
+func getHash(input fmt.Stringer) hasher {
+	return hasher(hash(input.String()))
 }
