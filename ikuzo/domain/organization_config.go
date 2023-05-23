@@ -14,13 +14,14 @@ type OrgConfigRetriever interface {
 }
 
 type ArchesConfig struct {
-	Enabled           bool   `json:"enabled"`
-	URL               string `json:"url"`
-	OAuthClientID     string `json:"oAuthClientID"`
-	OAuthClientSecret string `json:"oAuthClientSecret"`
-	UserName          string `json:"userName"`
-	Password          string `json:"password"`
-	DSN               string `json:"dsn"` // arches postgresql
+	Enabled           bool   `json:"enabled,omitempty"`
+	SyncEnabled       bool   `json:"syncEnabled,omitempty"`
+	URL               string `json:"url,omitempty"`
+	OAuthClientID     string `json:"oAuthClientID,omitempty"`
+	OAuthClientSecret string `json:"oAuthClientSecret,omitempty"`
+	UserName          string `json:"userName,omitempty"`
+	Password          string `json:"password,omitempty"`
+	DSN               string `json:"dsn,omitempty"` // arches postgresql
 }
 
 type OAIPMHConfig struct {
@@ -44,9 +45,10 @@ type OrganizationConfig struct {
 	Arches      *ArchesConfig `json:"arches"`
 	// archivespace config
 	ArchivesSpace struct {
-		Enabled      bool   `json:"enabled"`
-		URL          string `json:"url"`
-		RepositoryID string `json:"repositoryID"`
+		Enabled      bool     `json:"enabled"`
+		URL          string   `json:"url"`
+		RepositoryID string   `json:"repositoryID"`
+		SyncTypes    []string `json:"syncTypes"`
 	} `json:"archivesspace"`
 	// Sitemaps       []SitemapConfig `json:"sitemaps,omitempty"`
 	Sitemaps []struct {
