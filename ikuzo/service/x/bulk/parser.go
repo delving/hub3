@@ -29,7 +29,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/minio/minio-go/v7"
 	"github.com/oklog/ulid"
 	"github.com/rs/zerolog"
 
@@ -59,6 +58,19 @@ type Parser struct {
 	s             *Service
 	graphs        map[string]*fragments.FragmentBuilder // TODO: probably remove this later
 	rawRequest    bytes.Buffer
+	store         *redisStore
+}
+
+func (p *Parser) setUpdateDataset(ds *models.DataSet) {
+	p.m.Lock()
+	p.ds = ds
+	p.m.Unlock()
+}
+
+func (p *Parser) dataset() *models.DataSet {
+	p.m.RLock()
+	defer p.m.RUnlock()
+	return p.ds
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -96,8 +108,11 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				continue
 			}
-
-			p.once.Do(func() { p.setDataSet(&req) })
+			if p.dataset() == nil {
+				p.once.Do(func() {
+					p.setDataSet(&req)
+				})
+			}
 
 			select {
 			case actions <- req:
@@ -152,6 +167,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	}
 
 	p.s.log.Info().Msgf("graphs: %d", len(p.graphs))
+	p.s.log.Info().Msgf("%#v", config.Config.RDF)
 
 	if config.Config.RDF.RDFStoreEnabled {
 		if config.Config.RDF.StoreSparqlDeltas {
@@ -168,8 +184,37 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	return nil
 }
 
+// TODO: implement this
 func (p *Parser) StoreGraphDeltas() error {
-	// extract the ids and get a query for all stored entries
+	p.s.log.Info().Str("storeName", p.store.revisionSetName(rdfType, false)).Int("graphs", len(p.sparqlUpdates)).Msg("store deltas")
+	updates := []fragments.SparqlUpdate{}
+	for _, su := range p.sparqlUpdates {
+		known, err := p.store.addID(su.HubID, rdfType, su.GetHash())
+		if err != nil {
+			return err
+		}
+		if known {
+			continue
+		}
+		p.s.log.Info().Msgf("unknown hubID: %s", su.HubID)
+		updates = append(updates, su)
+		if err := p.store.storeRDFData(su); err != nil {
+			return err
+		}
+	}
+
+	p.s.log.Info().Int("submitted", len(p.sparqlUpdates)).Int("changed", len(updates)).Msg("after delta check")
+
+	p.sparqlUpdates = updates
+	if errs := p.RDFBulkInsert(); errs != nil {
+		return errs[0]
+	}
+
+	return nil
+}
+
+// TODO: remove this
+func (p *Parser) StoreGraphDeltasOld() error {
 	ids := []string{}
 	for _, su := range p.sparqlUpdates {
 		ids = append(ids, su.HubID)
@@ -213,15 +258,15 @@ func (p *Parser) StoreGraphDeltas() error {
 	}
 
 	// update the diffs in the triple store
-	errs := fragments.UpdateViaSparql(p.ds.OrgID, sparqlUpdate.String())
+	errs := fragments.UpdateViaSparql(p.dataset().OrgID, sparqlUpdate.String())
 	if errs != nil {
 		return errs[0]
 	}
 
 	// store the graphs in the S3 bucket
-	if err := p.StoreGraphs(changed); err != nil {
-		return err
-	}
+	// if err := p.StoreGraphs(changed); err != nil {
+	// 	return err
+	// }
 
 	// store the update hashes
 	if err := p.s.storeUpdatedHashes(changed); err != nil {
@@ -248,42 +293,10 @@ func (p *Parser) storeRequest() error {
 	return os.WriteFile(path, p.rawRequest.Bytes(), os.ModePerm)
 }
 
-func (p *Parser) StoreGraphs(diffs []*DiffConfig) error {
-	opts := minio.SnowballOptions{
-		Opts: minio.PutObjectOptions{ContentType: "application/json"},
-		// Keep in memory. We use this since we have small total payload.
-		InMemory: true,
-		// Compress data when uploading to a MinIO host.
-		Compress: true,
-	}
-
-	input := make(chan minio.SnowballObject, 10)
-
-	go func() {
-		defer close(input)
-		for _, diff := range diffs {
-
-			key := fmt.Sprintf("%s/%s/rdf/%s.ntriples", diff.su.OrgID, diff.su.Spec, diff.su.GetHash())
-			input <- minio.SnowballObject{
-				Key:     key,
-				Size:    int64(len(diff.su.Triples)),
-				ModTime: time.Now(),
-				Content: strings.NewReader(diff.su.Triples),
-			}
-		}
-	}()
-
-	err := p.s.mc.PutObjectsSnowball(context.TODO(), p.s.blobCfg.BucketName, opts, input)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // RDFBulkInsert inserts all triples from the bulkRequest in one SPARQL update statement
 func (p *Parser) RDFBulkInsert() []error {
 	triplesStored, errs := fragments.RDFBulkInsert(p.ds.OrgID, p.sparqlUpdates)
+	p.stats.GraphsStored = uint64(len(p.sparqlUpdates))
 	p.sparqlUpdates = nil
 	p.stats.TriplesStored = uint64(triplesStored)
 
@@ -300,11 +313,11 @@ func containsString(s []string, e string) bool {
 	return false
 }
 
-func (p *Parser) setDataSet(req *Request) {
+func (p *Parser) setDataSet(req *Request) error {
 	ds, _, dsErr := models.GetOrCreateDataSet(req.OrgID, req.DatasetID)
 	if dsErr != nil {
 		p.s.log.Error().Err(dsErr).Msg("unable to get or create dataset")
-		return
+		return dsErr
 	}
 
 	if ds.RecordType == "" {
@@ -331,8 +344,39 @@ func (p *Parser) setDataSet(req *Request) {
 
 	p.stats.Spec = req.DatasetID
 	p.stats.OrgID = req.OrgID
-	req.Revision = ds.Revision
-	p.ds = ds
+	p.stats.SpecRevision = uint64(ds.Revision)
+	p.setUpdateDataset(ds)
+
+	p.store = &redisStore{
+		orgID: req.OrgID,
+		spec:  req.DatasetID,
+		c:     p.s.rc,
+	}
+
+	return nil
+}
+
+func (p *Parser) dropGraphOrphans() error {
+	p.s.log.Info().Msg("dropping orphans")
+	orphans, err := p.store.findOrphans(rdfType)
+	if err != nil {
+		return err
+	}
+	p.s.log.Info().Int("orphanCount", len(orphans)).Msgf("%#v", orphans)
+	if len(orphans) == 0 {
+		return nil
+	}
+
+	updateQuery, err := p.store.dropOrphansQuery(orphans)
+	if err != nil {
+		return err
+	}
+
+	errs := fragments.UpdateViaSparql(p.stats.OrgID, updateQuery)
+	if len(errs) != 0 {
+		return errs[0]
+	}
+	return nil
 }
 
 func (p *Parser) dropOrphans(req *Request) error {
@@ -349,14 +393,16 @@ func (p *Parser) dropOrphans(req *Request) error {
 
 	if config.Config.RDF.RDFStoreEnabled {
 		if config.Config.RDF.StoreSparqlDeltas {
-			orphans, err := p.s.findOrphans(p.ds.OrgID, p.ds.Spec, p.ds.Revision)
-			if err != nil {
-				return err
-			}
-			if err := p.s.dropOrphans(orphans); err != nil {
-				return err
-			}
+			go func() {
+				// block for orphanWait seconds to allow cluster to be in sync
+				timer := time.NewTimer(time.Second * time.Duration(5))
+				<-timer.C
+				if err := p.dropGraphOrphans(); err != nil {
+					p.s.log.Error().Err(err).Msg("unable to drop graph orphans")
+				}
+			}()
 		} else {
+			p.s.log.Info().Msg("wrong orphan")
 			_, err := models.DeleteGraphsOrphansBySpec(p.ds.OrgID, p.ds.Spec, p.ds.Revision)
 			if err != nil {
 				return err
@@ -380,10 +426,28 @@ func addLogger(datasetID string) zerolog.Logger {
 	}
 }
 
+func (p *Parser) IncrementRevision() (int, error) {
+	previous := p.ds.Revision
+	ds, err := p.dataset().IncrementRevision()
+	if err != nil {
+		return 0, err
+	}
+
+	if err := p.store.SetRevision(ds.Revision, previous); err != nil {
+		return 0, err
+	}
+
+	p.setUpdateDataset(ds)
+
+	p.stats.SpecRevision = uint64(ds.Revision)
+
+	return ds.Revision, nil
+}
+
 func (p *Parser) process(ctx context.Context, req *Request) error {
 	subLogger := addLogger(req.DatasetID)
 
-	if p.ds == nil {
+	if p.dataset() == nil {
 		return fmt.Errorf("unable to get dataset")
 	}
 
@@ -397,13 +461,12 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			return err
 		}
 	case "increment_revision":
-		ds, err := p.ds.IncrementRevision()
+		revision, err := p.IncrementRevision()
 		if err != nil {
 			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to increment DataSet")
-			return err
 		}
 
-		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", revision).Msg("Incremented dataset")
 	case "clear_orphans", "drop_orphans":
 		// clear triples
 		if err := p.dropOrphans(req); err != nil {
@@ -578,6 +641,7 @@ type Stats struct {
 	RecordsStored      uint64 `json:"recordsStored"` // originally json was records_stored
 	JSONErrors         uint64 `json:"jsonErrors"`
 	TriplesStored      uint64 `json:"triplesStored"`
+	GraphsStored       uint64 `json:"graphsStored"`
 	PostHooksSubmitted uint64 `json:"postHooksSubmitted"`
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
 }

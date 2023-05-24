@@ -7,17 +7,6 @@ import (
 
 type Option func(*Service) error
 
-func SetDBPath(path string) Option {
-	return func(s *Service) error {
-		if path == "" {
-			return nil
-		}
-
-		s.dbPath = path
-		return nil
-	}
-}
-
 type BlobConfig struct {
 	Endpoint        string `json:"endpoint,omitempty"`
 	AccessKeyID     string `json:"accessKeyID,omitempty"`

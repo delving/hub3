@@ -16,19 +16,16 @@ package bulk
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 
 	stdlog "log"
 
+	"github.com/go-redis/redis/v8"
 	_ "github.com/marcboeker/go-duckdb"
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 
 	"github.com/go-chi/chi"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
@@ -42,19 +39,16 @@ type Service struct {
 	postHooks   map[string][]domain.PostHookService
 	log         zerolog.Logger
 	orgs        domain.OrgConfigRetriever
-	dbPath      string
-	db          *sql.DB
 	ctx         context.Context
 	blobCfg     BlobConfig
-	mc          *minio.Client
 	logRequests bool
+	rc          *redis.Client
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		indexTypes: []string{"v2"},
 		postHooks:  map[string][]domain.PostHookService{},
-		dbPath:     "hub3-bulksvc.db",
 		ctx:        context.Background(),
 	}
 
@@ -65,91 +59,30 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
-	if err := s.setupDB(); err != nil {
-		stdlog.Printf("unable to setup db: %q", err)
+	if err := s.setupRedis(); err != nil {
+		stdlog.Printf("unable to setup redis: %q", err)
 		return nil, err
-	}
-
-	if blobSetupErr := s.setupBlobStorage(); blobSetupErr != nil {
-		return nil, blobSetupErr
 	}
 
 	return s, nil
 }
 
-func (s *Service) setupDB() error {
-	db, err := sql.Open("duckdb", s.dbPath+"?access_mode=READ_WRITE")
-	if err != nil {
-		s.log.Error().Err(err).Msgf("unable to open duckdb at %s", s.dbPath)
-		return err
-	}
-
-	pingErr := db.Ping()
-	if pingErr != nil {
-		return pingErr
-	}
-	s.db = db
-
-	if setupErr := s.setupTables(); setupErr != nil {
-		return setupErr
-	}
-
-	s.log.Info().Str("path", s.dbPath).Msg("started duckdb for bulk service")
-	log.Printf("started duckdb for bulk service; %q", s.dbPath)
-
-	return nil
-}
-
-func (s *Service) setupTables() error {
-	query := `create table if not exists dataset (
-    orgID text,
-    datasetID text,
-    published boolean,
-);
-create unique index if not exists org_dataset_idx ON dataset (orgID, datasetID);
-	`
-	_, err := s.db.Exec(query)
-	return err
-}
-
-func (s *Service) setupBlobStorage() error {
-	if s.blobCfg.Endpoint == "" {
-		return fmt.Errorf("blob storage config must have endpoint")
-	}
-	// Initialize minio client object.
-	minioClient, err := minio.New(s.blobCfg.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(s.blobCfg.AccessKeyID, s.blobCfg.SecretAccessKey, ""),
-		Secure: s.blobCfg.UseSSL,
+func (s *Service) setupRedis() error {
+	// Create a new Redis client
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",   // Redis server address
+		Password: "sOmE_sEcUrE_pAsS", // Redis password (if required)
+		DB:       1,                  // Redis database index
 	})
+
+	// Ping the Redis server to check if it's running
+	pong, err := client.Ping(context.Background()).Result()
 	if err != nil {
 		return err
 	}
+	fmt.Println("Connected to Redis:", pong)
 
-	s.mc = minioClient
-
-	err = minioClient.MakeBucket(s.ctx, s.blobCfg.BucketName, minio.MakeBucketOptions{})
-	if err != nil {
-		// Check to see if we already own this bucket (which happens if you run this twice)
-		exists, errBucketExists := minioClient.BucketExists(s.ctx, s.blobCfg.BucketName)
-		if errBucketExists == nil && exists {
-			log.Printf("We already own %s\n", s.blobCfg.BucketName)
-		} else {
-			return err
-		}
-	} else {
-		s.log.Info().Msgf("Successfully created %s\n", s.blobCfg.BucketName)
-	}
-
-	bucketCfg, err := s.mc.GetBucketVersioning(s.ctx, s.blobCfg.BucketName)
-	if err != nil {
-		return err
-	}
-
-	if !bucketCfg.Enabled() {
-		if err := s.mc.EnableVersioning(s.ctx, s.blobCfg.BucketName); err != nil {
-			return fmt.Errorf("version must be enabled for bucket %s; %w", s.blobCfg.BucketName, err)
-		}
-	}
+	s.rc = client
 
 	return nil
 }
@@ -161,7 +94,6 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
-	s.db.Close()
 	return s.index.Shutdown(ctx)
 }
 

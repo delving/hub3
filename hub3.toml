@@ -109,7 +109,7 @@ apikey = ''
 [logging]
 devmode = true
 sentryDSN = ""
-level = "debug"
+level = "info"
 withCaller = true
 consoleLogger = true
 # "*" ignores all 404
@@ -120,9 +120,13 @@ exclude404Path = []
 
 [rdf]
 # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-rdfStoreEnabled = false
+rdfStoreEnabled = true
+# enable storing only changed triples in the triple store
+storeSparqlDeltas = true
 # the fully qualified URL including the port
 sparqlHost = "http://localhost:3033"
+sparqlUsername = "admin"
+sparqlPassword = "pw123"
 # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
 #sparqlPath = "/bigdata/namespace/%s/sparql"
 sparqlPath = "/%s/sparql"

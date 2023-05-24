@@ -41,6 +41,7 @@ type SparqlUpdate struct {
 	Spec          string `json:"datasetSpec,omitempty"`
 	SpecRevision  int    `json:"specRevision,omitempty"`
 	RDFHash       string `json:"rdfHash,omitempty"`
+	SkipDrop      bool
 }
 
 func (su *SparqlUpdate) GetHash() string {
@@ -100,7 +101,9 @@ func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 	triplesStored := 0
 	for i, v := range sparqlUpdates {
 		strs[i] = v.String()
-		graphs[i] = fmt.Sprintf("DROP GRAPH <%s>;", v.NamedGraphURI)
+		if v.SkipDrop {
+			graphs[i] = fmt.Sprintf("DROP GRAPH <%s>;", v.NamedGraphURI)
+		}
 		count, err := v.TripleCount()
 		if err != nil {
 			log.Printf("Unable to count triples: %s", err)
@@ -119,6 +122,9 @@ func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 // UpdateViaSparql is a post to sparql function that tasks a valid SPARQL update query
 func UpdateViaSparql(orgID, update string) []error {
 	request := gorequest.New()
+	if config.Config.SparqlPassword != "" && config.Config.SparqlUsername != "" {
+		request = request.SetBasicAuth(config.Config.SparqlUsername, config.Config.SparqlPassword)
+	}
 	postURL := config.Config.GetSparqlUpdateEndpoint(orgID, "")
 
 	parameters := url.Values{}
@@ -137,7 +143,7 @@ func UpdateViaSparql(orgID, update string) []error {
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		// log.Println(body)
 		log.Printf("unable to store sparqlUpdate: %s", update)
-		log.Println(resp)
+		// log.Println(resp)
 		return []error{fmt.Errorf("store error for SparqlUpdate:%s", body)}
 	}
 	return nil

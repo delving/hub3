@@ -123,7 +123,6 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		bulk.SetIndexService(is),
 		bulk.SetIndexTypes(e.IndexTypes...),
 		bulk.SetPostHookService(postHooks...),
-		bulk.SetDBPath(cfg.Bulk.DBPath),
 		bulk.SetBlobConfig(cfg.Bulk.Minio),
 		bulk.SetLogRequests(cfg.Bulk.StoreRequests),
 	)

@@ -157,8 +157,10 @@ type HTTP struct {
 
 // RDF holds all the configuration for SPARQL queries and RDF conversions
 type RDF struct {
-	SparqlEnabled     bool     `json:"sparqlEnabled,omitempty"`    // Enable the SPARQL proxy
-	SparqlHost        string   `json:"sparqlHost,omitempty"`       // the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlEnabled     bool   `json:"sparqlEnabled,omitempty"` // Enable the SPARQL proxy
+	SparqlHost        string `json:"sparqlHost,omitempty"`    // the base-url to the SPARQL endpoint including the scheme and the port
+	SparqlUsername    string
+	SparqlPassword    string
 	SparqlPath        string   `json:"sparqlPath,omitempty"`       // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	SparqlUpdatePath  string   `json:"sparqlUpdatePath,omitempty"` // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 	GraphStorePath    string   `json:"dataPath,omitempty"`         // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
