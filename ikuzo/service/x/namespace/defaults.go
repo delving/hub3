@@ -58,6 +58,7 @@ type nsEntry struct {
 // custom contains custom or legacy namespaces that are used by the Delving platform.
 var customNS = []nsEntry{
 	{Prefix: "abm", BaseURI: "http://purl.org/abm/sen"},
+	{Prefix: "dlod", BaseURI: "https://data.antwerp.be/def/dlod/"},
 	{Prefix: "custom", BaseURI: "http://www.delving.eu/namespaces/custom/"},
 	{Prefix: "delving", BaseURI: "http://schemas.delving.eu/"},
 	{Prefix: "ead-rdf", BaseURI: "http://archief.nl/def/ead/"},

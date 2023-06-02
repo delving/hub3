@@ -15,6 +15,7 @@
 // Run 'make protobuffer' from the root directory to generate 'api.pb.go'.
 syntax = "proto3";
 package fragments;
+
 option go_package = "hub3/fragments";
 
 // Query object
@@ -22,15 +23,15 @@ option go_package = "hub3/fragments";
 enum ResponseFormatType {
   JSON = 0;
   PROTOBUF = 1;
-  // not supported 
+  // not supported
   XML = 2;
-  // not supported 
+  // not supported
   JSONP = 3;
-  // not supported 
+  // not supported
   KML = 4;
-  // not supported 
+  // not supported
   GEOCLUSTER = 5;
-  // not supported 
+  // not supported
   GEOJSON = 6;
   // not supported
   GEOBUF = 7;
@@ -58,28 +59,27 @@ enum ResponseBlockType {
 }
 
 enum FacetType {
-    TERMS = 0;
-    HISTOGRAM = 1;
-    MINMAX = 2;
-    TREEFACET = 3;
-    TAGS = 4;
-    METATAGS = 5;
-    FIELDS = 6;
+  TERMS = 0;
+  HISTOGRAM = 1;
+  MINMAX = 2;
+  TREEFACET = 3;
+  TAGS = 4;
+  METATAGS = 5;
+  FIELDS = 6;
 }
 
 enum QueryFilterType {
-    TEXT = 0;
-    ID = 1;
-    EXCLUDE = 2;
-    EXISTS = 3;
-    RANGE = 4;
-    DATERANGE = 5;
-    ISODATE = 6;
-    TREEITEM = 7;
-    ENTRYTAG = 8;
-    SEARCHLABEL = 9;
+  TEXT = 0;
+  ID = 1;
+  EXCLUDE = 2;
+  EXISTS = 3;
+  RANGE = 4;
+  DATERANGE = 5;
+  ISODATE = 6;
+  TREEITEM = 7;
+  ENTRYTAG = 8;
+  SEARCHLABEL = 9;
 }
-
 
 message FilterValue {
   repeated string value = 1;
@@ -102,7 +102,7 @@ message QueryFilter {
   QueryFilterType type = 9;
   string lte = 10;
   string gte = 11;
-  // Path is the full query path 
+  // Path is the full query path
 }
 
 message FacetField {
@@ -116,7 +116,6 @@ message FacetField {
   string dateInterval = 8;
   string aggField = 9;
 }
-
 
 message TreeQuery {
   string cLevel = 1;
@@ -155,7 +154,7 @@ message SearchRequest {
   repeated QueryFilter HiddenQueryFilter = 7;
   repeated ResponseBlockType disable = 8;
   repeated ResponseBlockType enable = 9;
-  repeated FacetField facetField  = 10;
+  repeated FacetField facetField = 10;
   int32 FacetLimit = 11;
   bool FacetAndBoolType = 12;
   string sortBy = 13;
@@ -169,7 +168,7 @@ message SearchRequest {
   float max_y = 19;
   // add support for polygon
   repeated string field = 20;
-  GeoType geoType = 21; 
+  GeoType geoType = 21;
   // qr
   string QueryRefinement = 22;
   bytes searchAfter = 23;
@@ -187,6 +186,7 @@ message SearchRequest {
   string orgIDKey = 35;
   string collapseFormat = 36;
   bool v1Mode = 37;
+  repeated string contextIndex = 38;
 }
 
 enum GeoType {
@@ -213,17 +213,16 @@ message DetailRequest {
   int32 mltCount = 4;
   string mltQueryFilter = 5;
   string mltFilterKey = 6;
-  // searchRequest is a serialised form of the search result and is the return 
+  // searchRequest is a serialised form of the search result and is the return
   // to results link
   string searchRequest = 7;
   // resultIndex is the point where this detail object is in the search result order
   int32 resultIndex = 8;
   // converter for result fields
-  string converter = 9; 
+  string converter = 9;
   // the type of id used in the ?id field
   IdType idType = 10;
 }
-
 
 // Base Response objects
 
@@ -241,7 +240,6 @@ message PaginationLink {
   bool isLinked = 2;
   int32 pageNumber = 3;
 }
-
 
 message FragmentPager {
   bytes firstPage = 1;
@@ -286,7 +284,7 @@ message FaceLink {
   string displayString = 5;
 }
 
-// V1 
+// V1
 
 message MetadataFieldV1 {
   repeated string field = 1;
@@ -304,7 +302,7 @@ message SearchResultWrapperV1 {
 
 // Full SearchResult
 message SearchResultV1 {
-  Query query = 1; 
+  Query query = 1;
   Pagination pagination = 2;
   repeated MetadataItemV1 items = 3;
   repeated Facet facets = 4;
@@ -316,10 +314,9 @@ message DetailResult {
 }
 
 /*service FragmentService           {*/
-  /*rpc Search (FragmentRequest) returns (FragmentSearchResponse);*/
-  /*rpc Update (FragmentGraph) returns (FragmentUpdateResponse);*/
+/*rpc Search (FragmentRequest) returns (FragmentSearchResponse);*/
+/*rpc Update (FragmentGraph) returns (FragmentUpdateResponse);*/
 /*}*/
-
 
 message FragmentSearchResponse {
   FragmentRequest request = 1;
@@ -329,15 +326,13 @@ message FragmentSearchResponse {
 }
 
 message FragmentUpdateResponse {
-    int32 graphsStored = 1;
-    string spec = 2;
-    bool hasErrors = 3;
-    repeated FragmentError errors = 4;
+  int32 graphsStored = 1;
+  string spec = 2;
+  bool hasErrors = 3;
+  repeated FragmentError errors = 4;
 }
 
-message FragmentError {
-    
-}
+message FragmentError {}
 
 message FragmentRequest {
   repeated string subject = 1;
@@ -356,46 +351,46 @@ message FragmentRequest {
 }
 
 /*enum ObjectType {*/
-  /*RESOURCE = 0;*/
-  /*LITERAL = 1;*/
+/*RESOURCE = 0;*/
+/*LITERAL = 1;*/
 /*}*/
 
 /*enum ObjectXSDType {*/
-  /*STRING = 0;*/
-  /*BOOLEAN = 1;*/
-  /*DECIMAL = 2;*/
-  /*FLOAT = 3;*/
-  /*DOUBLE = 4;*/
-  /*DATETIME = 5;*/
-  /*TIME = 6;*/
-  /*DATE = 7;*/
-  /*GYEARMONTH = 8;*/
-  /*GYEAR = 9;*/
-  /*GMONTHDAY = 10;*/
-  /*GDAY = 11;*/
-  /*GMONTH = 12;*/
-  /*HEXBINARY = 13;*/
-  /*BASE64BINARY = 14;*/
-  /*ANYURI = 15;*/
-  /*NORMALIZEDSTRING = 16;*/
-  /*TOKEN = 17;*/
-  /*LANGUAGE = 18;*/
-  /*NMTOKEN = 19;*/
-  /*NAME = 20;*/
-  /*NCNAME = 21;*/
-  /*INTEGER = 22;*/
-  /*NONPOSITIVEINTEGER = 23;*/
-  /*NEGATIVEINTEGER = 24;*/
-  /*LONG = 25;*/
-  /*INT = 26;*/
-  /*SHORT = 27;*/
-  /*BYTE = 28;*/
-  /*NONNEGATIVEINTEGER = 29;*/
-  /*UNSIGNEDLONG = 30;*/
-  /*UNSIGNEDINT = 31;*/
-  /*UNSIGNEDSHORT = 32;*/
-  /*UNSIGNEDBYTE = 33;*/
-  /*POSITIVEINTEGER = 34;*/
+/*STRING = 0;*/
+/*BOOLEAN = 1;*/
+/*DECIMAL = 2;*/
+/*FLOAT = 3;*/
+/*DOUBLE = 4;*/
+/*DATETIME = 5;*/
+/*TIME = 6;*/
+/*DATE = 7;*/
+/*GYEARMONTH = 8;*/
+/*GYEAR = 9;*/
+/*GMONTHDAY = 10;*/
+/*GDAY = 11;*/
+/*GMONTH = 12;*/
+/*HEXBINARY = 13;*/
+/*BASE64BINARY = 14;*/
+/*ANYURI = 15;*/
+/*NORMALIZEDSTRING = 16;*/
+/*TOKEN = 17;*/
+/*LANGUAGE = 18;*/
+/*NMTOKEN = 19;*/
+/*NAME = 20;*/
+/*NCNAME = 21;*/
+/*INTEGER = 22;*/
+/*NONPOSITIVEINTEGER = 23;*/
+/*NEGATIVEINTEGER = 24;*/
+/*LONG = 25;*/
+/*INT = 26;*/
+/*SHORT = 27;*/
+/*BYTE = 28;*/
+/*NONNEGATIVEINTEGER = 29;*/
+/*UNSIGNEDLONG = 30;*/
+/*UNSIGNEDINT = 31;*/
+/*UNSIGNEDSHORT = 32;*/
+/*UNSIGNEDBYTE = 33;*/
+/*POSITIVEINTEGER = 34;*/
 /*}*/
 
 enum RecordType {
@@ -407,28 +402,26 @@ enum RecordType {
 }
 
 /*type FragmentGraph struct {*/
-	/*OrgID         string   `json:"orgID"`*/
-	/*Spec          string   `json:"spec"`*/
-	/*HubID         string   `json:"hubID"`*/
-	/*Revision      int32    `json:"revision"`*/
-	/*NamedGraphURI string   `json:"namedGraphURI"`*/
-	/*Tags          []string `json:"tags"`*/
-	/*Graph         *r.Graph `json:"graph"`*/
-	/*MimeType      string   `json:"mimeType"`*/
+/*OrgID         string   `json:"orgID"`*/
+/*Spec          string   `json:"spec"`*/
+/*HubID         string   `json:"hubID"`*/
+/*Revision      int32    `json:"revision"`*/
+/*NamedGraphURI string   `json:"namedGraphURI"`*/
+/*Tags          []string `json:"tags"`*/
+/*Graph         *r.Graph `json:"graph"`*/
+/*MimeType      string   `json:"mimeType"`*/
 /*}*/
 
-
-
 /*message FragmentGraph {*/
-  /*Header meta = 1;*/
+/*Header meta = 1;*/
 
-  /*string entryURI = 2;*/
-  /*string namedGraphURI = 3;*/
-  /*RecordType recordType = 4;*/
+/*string entryURI = 2;*/
+/*string namedGraphURI = 3;*/
+/*RecordType recordType = 4;*/
 
-  /*repeated Fragment fragments = 5;*/
-  /*repeated ResultSummary summary = 6;*/
-  /*[>repeated FragmentResource resources = 7;<]*/
+/*repeated Fragment fragments = 5;*/
+/*repeated ResultSummary summary = 6;*/
+/*[>repeated FragmentResource resources = 7;<]*/
 /*}*/
 
 message FragmentGraphDoc {
@@ -443,7 +436,6 @@ message FragmentGraphDoc {
   repeated FragmentResourceDoc resources = 7;
 }
 
-
 // FragmentReferrerContext holds the referrer in formation for creating new fragments
 message FragmentReferrerContext {
   string Subject = 1;
@@ -457,12 +449,12 @@ message FragmentReferrerContext {
 }
 
 /*message FragmentResource {*/
-  /*string ID = 1;*/
-  /*repeated string Types = 2;*/
-  /*repeated FragmentReferrerContext GraphExternalContext = 3;*/
-  /*repeated FragmentReferrerContext Context = 4;*/
-  /*map<string, FragmentEntry> Predicates = 6;*/
-  /*repeated FragmentReferrerContext ObjectIDs = 7;*/
+/*string ID = 1;*/
+/*repeated string Types = 2;*/
+/*repeated FragmentReferrerContext GraphExternalContext = 3;*/
+/*repeated FragmentReferrerContext Context = 4;*/
+/*map<string, FragmentEntry> Predicates = 6;*/
+/*repeated FragmentReferrerContext ObjectIDs = 7;*/
 /*}*/
 
 message FragmentResourceDoc {
@@ -474,16 +466,14 @@ message FragmentResourceDoc {
   repeated FragmentReferrerContext ObjectIDs = 7;
 }
 
-
-
 /*message FragmentEntry {*/
-  /*string ID = 1;*/
-  /*string Value = 2;*/
-  /*string Language = 3;*/
-  /*string Datatype = 4;*/
-  /*string Entrytype = 5;*/
-  /*string Triple = 6;*/
-  /*FragmentResource Inline = 7;*/
+/*string ID = 1;*/
+/*string Value = 2;*/
+/*string Language = 3;*/
+/*string Datatype = 4;*/
+/*string Entrytype = 5;*/
+/*string Triple = 6;*/
+/*FragmentResource Inline = 7;*/
 /*}*/
 
 message FragmentEntryDoc {
@@ -525,9 +515,9 @@ message ResultSummary {
 message Header {
   // The tenant identifier for this RecordType.
   string orgID = 1;
-  // The spec is the unique dataset string to identify which dataset  this 
+  // The spec is the unique dataset string to identify which dataset  this
   // Fragment belongs to
-  string spec = 2; 
+  string spec = 2;
   // The revision is used to determine which version is an orphan and should be removed
   int32 revision = 3;
   // The hubId is the unique identifier for any document record in hub3
@@ -535,7 +525,7 @@ message Header {
   // Each fragment can be tagged with additional metadata. This can be queried for.
   // Some examples are 'resource', 'literal', 'bnode', 'rdfType', etc.
   repeated string tags = 5;
-  // The document type for ElasticSearch. This is a constant value 
+  // The document type for ElasticSearch. This is a constant value
   string docType = 6;
   // The subject of the graph stored
   string entryURI = 7;
@@ -555,7 +545,6 @@ message Header {
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments
 // API
 message Fragment {
-  
   // Generic Header for all ElasticSearch records
   Header meta = 1;
 
@@ -572,8 +561,8 @@ message Fragment {
   // ISO 693 represenation of language code
   string language = 11;
   // Human readable version of the xsd:dataType
-  string dataType = 12; 
-  
+  string dataType = 12;
+
   // The n-triples representation of the triple. Used to quickly render
   // RDF from a FragmentQuery
   string triple = 13;
@@ -587,7 +576,7 @@ message Fragment {
   // and @xsd:type must be added in addition to the normal fields.
   repeated string path = 16;
 
-  // nestedPath is used for generating statistics with the graph path. 
+  // nestedPath is used for generating statistics with the graph path.
   // It is repeated because @type, @lang and @xsd:type must be added in addition to the normal fields.
   repeated string nestedPath = 20;
 
