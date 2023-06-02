@@ -25,15 +25,16 @@ import (
 	"time"
 	"unicode"
 
+	r "github.com/kiivihal/rdf2go"
+	elastic "github.com/olivere/elastic/v7"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic/v7"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -1425,6 +1426,10 @@ func (rm *ResourceMap) AppendTriple(t *r.Triple, resolved bool) error {
 
 // AppendOrderedTriple appends a triple to a subject map
 func (rm *ResourceMap) AppendOrderedTriple(t *r.Triple, resolved bool, order int) error {
+	if t.Object.RawValue() == "" {
+		return nil
+	}
+
 	id := t.GetSubjectID()
 	fr, ok := rm.resources[id]
 	if !ok {
@@ -1955,3 +1960,4 @@ func NowInMillis() int64 {
 func LastModified(millis int64) time.Time {
 	return time.Unix(0, millis*int64(time.Millisecond))
 }
+

@@ -90,12 +90,6 @@ services:
 
       environment:
         - REDIS_REPLICATION_MODE=master
-    # volumes:
-       # - ./docker-data/postgres:/data/postgres
-
-      # networks:
-        # node_net:
-          # ipv4_address: 10.200.1.4
 
   asynqmon:
       image: "hibiken/asynqmon"

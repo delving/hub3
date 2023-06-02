@@ -27,14 +27,15 @@ import (
 	"strings"
 	"time"
 
-	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/google/go-cmp/cmp"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/segmentio/ksuid"
 	proto "google.golang.org/protobuf/proto"
+
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 const (
@@ -232,6 +233,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 					return sr, err
 				}
 			}
+		case "contextIndex":
+			sr.ContextIndex = v
 		case "facet.field":
 			for _, ff := range v {
 				if ff == "" {
@@ -777,8 +780,16 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 	query := elastic.NewBoolQuery()
 	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
-	// TODO(kiivihal): fix this. check if this works for all queries
-	query = query.Must(elastic.NewTermQuery(sr.OrgIDKey, sr.OrgID))
+	orgQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery(sr.OrgIDKey, sr.OrgID))
+	if len(sr.ContextIndex) != 0 {
+		for _, index := range sr.ContextIndex {
+			if index != "" {
+				orgQuery = orgQuery.Should(elastic.NewTermQuery(sr.OrgIDKey, strings.TrimSuffix(index, "v2")))
+			}
+		}
+	}
+
+	query = query.Must(orgQuery)
 
 	metaSpecPrefix := "meta.spec:"
 
@@ -1217,8 +1228,15 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 	}
 
+	indices := []string{c.Config.ElasticSearch.GetIndexName(sr.OrgID)}
+	if len(sr.ContextIndex) != 0 {
+		indices = append(indices, sr.ContextIndex...)
+	}
+
+	log.Printf("configured indices: %#v", indices)
+
 	s := ec.Search().
-		Index(c.Config.ElasticSearch.GetIndexName(sr.OrgID)).
+		Index(indices...).
 		TrackTotalHits(c.Config.ElasticSearch.TrackTotalHits).
 		Preference(sr.GetSessionID()).
 		Size(int(sr.GetResponseSize()))

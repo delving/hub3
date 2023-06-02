@@ -10,10 +10,11 @@ import (
 	"time"
 
 	"github.com/OneOfOne/xxhash"
-	cfg "github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/fragments"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
+
+	cfg "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
 )
 
 // SearchRequest holds all information for EAD search
@@ -24,6 +25,7 @@ type SearchRequest struct {
 	RawQuery         string
 	Service          *elastic.SearchService
 	FacetFields      []string
+	ContextIndex     []string
 	Filters          []*fragments.QueryFilter
 	FacetSize        int
 	FacetAndBoolType bool
@@ -61,7 +63,6 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 		sr.rlog.Error().Err(err).
 			Str("param", p).
 			Msgf("unable to convert %v to int", v)
-
 	}
 
 	for p, v := range params {
