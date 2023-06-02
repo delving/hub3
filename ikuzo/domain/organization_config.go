@@ -22,6 +22,7 @@ type ArchesConfig struct {
 	UserName          string `json:"userName,omitempty"`
 	Password          string `json:"password,omitempty"`
 	DSN               string `json:"dsn,omitempty"` // arches postgresql
+	ModelPath         string `json:"modelPath,omitempty"`
 }
 
 type OAIPMHConfig struct {
