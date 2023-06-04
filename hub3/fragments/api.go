@@ -40,9 +40,11 @@ import (
 
 const (
 	qfKey              = "qf"
+	qfKeyList          = "qf[]"
 	qfIDKey            = "qf.id"
 	qfIDKeyList        = "qf.id[]"
 	qfExistList        = "qf.exist[]"
+	qfExist            = "qf.exist"
 	qfDateRangeKey     = "qf.dateRange"
 	responseSize       = int32(16)
 	metaTags           = "meta.tags"
@@ -163,16 +165,22 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			continue
 		}
 
+		qfCfg := QueryFilterConfig{}
+		if strings.HasPrefix(p, "hqf") {
+			p = strings.TrimPrefix(p, "h")
+			qfCfg.Hidden = true
+		}
+
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
-		case qfKey, "qf[]":
+		case qfKey, qfKeyList:
 			for _, qf := range v {
 				if qf == "" {
 					continue
 				}
 
-				err := sr.AddQueryFilter(qf, false)
+				err := sr.AddQueryFilter(qf, qfCfg)
 				if err != nil {
 					return sr, err
 				}
@@ -183,7 +191,9 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 					continue
 				}
 
-				err := sr.AddQueryFilter(qf, true)
+				qfCfg.IsIDFilter = true
+
+				err := sr.AddQueryFilter(qf, qfCfg)
 				if err != nil {
 					return sr, err
 				}
@@ -194,7 +204,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 					continue
 				}
 
-				err := sr.AddDateRangeFilter(qf)
+				err := sr.AddDateRangeFilter(qf, qfCfg)
 				if err != nil {
 					return sr, err
 				}
@@ -216,7 +226,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 					continue
 				}
 
-				err := sr.AddDateFilter(qf)
+				err := sr.AddDateFilter(qf, qfCfg)
 				if err != nil {
 					return sr, err
 				}
@@ -228,7 +238,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 					continue
 				}
 
-				err := sr.AddFieldExistFilter(qf)
+				err := sr.AddFieldExistFilter(qf, qfCfg)
 				if err != nil {
 					return sr, err
 				}
@@ -684,17 +694,21 @@ func (bcb *BreadCrumbBuilder) BreadCrumbs() []*BreadCrumb {
 
 // AppendBreadCrumb creates a BreadCrumb
 func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
+	if qf.Hidden {
+		// don't append hidden queries
+		return
+	}
 	bc := &BreadCrumb{IsLast: true}
 
 	switch param {
-	case "query":
+	case "query", "q":
 		if qf.GetValue() != "" {
 			bc.Display = qf.GetValue()
 			bc.Href = fmt.Sprintf("q=%s", qf.GetValue())
 			bc.Value = qf.GetValue()
 			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
-	case "qf[]", qfKey, qfIDKey, qfIDKeyList:
+	case qfKeyList, qfKey, qfIDKey, qfIDKeyList:
 		if !strings.HasSuffix(param, "[]") {
 			param = fmt.Sprintf("%s[]", param)
 		}
@@ -816,7 +830,6 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 		}
-
 	}
 
 	if strings.HasPrefix(sr.GetSortBy(), "random") {
@@ -956,6 +969,21 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 			sr.Tree.FillTree = true
 		}
+	}
+
+	// TODO: add support for hidden query filters
+	if len(sr.HiddenQueryFilter) > 0 {
+		fub, err := NewFacetURIBuilder("", sr.HiddenQueryFilter)
+		if err != nil {
+			return nil, err
+		}
+
+		hiddenFilterQuery, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+		if err != nil {
+			return nil, err
+		}
+
+		query = query.Filter(hiddenFilterQuery)
 	}
 
 	return query, nil
@@ -1473,6 +1501,11 @@ func NewQueryFilter(filter string) (*QueryFilter, error) {
 		filter = strings.TrimPrefix(filter, "-")
 	}
 
+	if strings.HasPrefix(filter, "~") {
+		qf.Hidden = true
+		filter = strings.TrimPrefix(filter, "~")
+	}
+
 	// fill empty type classes
 	filter = strings.Replace(filter, "[]", `[a]`, -1)
 
@@ -1690,10 +1723,24 @@ func (qf *QueryFilter) Equal(oqf *QueryFilter) bool {
 	return qf.AsString() == oqf.AsString()
 }
 
+type QueryFilterConfig struct {
+	Hidden     bool
+	IsIDFilter bool
+}
+
+func (sr *SearchRequest) appendQueryFilter(qf *QueryFilter) {
+	switch qf.Hidden {
+	case true:
+		sr.HiddenQueryFilter = append(sr.HiddenQueryFilter, qf)
+	default:
+		sr.QueryFilter = append(sr.QueryFilter, qf)
+	}
+}
+
 // AddQueryFilter adds a QueryFilter to the SearchRequest
 // The raw query from the QueryString are added here. This function converts
 // this string to a QueryFilter.
-func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
+func (sr *SearchRequest) AddQueryFilter(filter string, cfg QueryFilterConfig) error {
 	if filter == "" {
 		// continue if string is empty
 		return nil
@@ -1704,9 +1751,13 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 		return err
 	}
 	qf.Type = QueryFilterType_TEXT
-	if id {
+	if cfg.IsIDFilter {
 		qf.ID = true
 		qf.Type = QueryFilterType_ID
+	}
+
+	if cfg.Hidden {
+		qf.Hidden = cfg.Hidden
 	}
 
 	switch qf.SearchLabel {
@@ -1722,7 +1773,8 @@ func (sr *SearchRequest) AddQueryFilter(filter string, id bool) error {
 			return nil
 		}
 	}
-	sr.QueryFilter = append(sr.QueryFilter, qf)
+
+	sr.appendQueryFilter(qf)
 	return nil
 }
 
@@ -1754,31 +1806,32 @@ func (sr *SearchRequest) AddTreeFilter(filter string) error {
 }
 
 // AddDateFilter adds a filter for Date Querying.
-func (sr *SearchRequest) AddDateFilter(filter string) error {
+func (sr *SearchRequest) AddDateFilter(filter string, cfg QueryFilterConfig) error {
 	qf, err := NewQueryFilter(filter)
 	if err != nil {
 		return err
 	}
 	qf.Type = QueryFilterType_ISODATE
+	qf.Hidden = cfg.Hidden
 
-	sr.QueryFilter = append(sr.QueryFilter, qf)
+	sr.appendQueryFilter(qf)
 	return nil
 }
 
 // AddDateRangeFilter extracts a start and end date from the QueryFilter.Value
 // add appends it to the QueryFilter Array.
-func (sr *SearchRequest) AddDateRangeFilter(filter string) error {
-	qf, err := NewDateRangeFilter(filter)
+func (sr *SearchRequest) AddDateRangeFilter(filter string, cfg QueryFilterConfig) error {
+	qf, err := NewDateRangeFilter(filter, cfg)
 	if err != nil {
 		return err
 	}
 
-	sr.QueryFilter = append(sr.QueryFilter, qf)
+	sr.appendQueryFilter(qf)
 	return nil
 }
 
 // NewDateRangeFilter creates a new QueryFilter from the input string.
-func NewDateRangeFilter(filter string) (*QueryFilter, error) {
+func NewDateRangeFilter(filter string, cfg QueryFilterConfig) (*QueryFilter, error) {
 	// sometimes javascript front-ends send null for empty filters, so these need to be removed.
 	if strings.Contains(filter, "null") {
 		filter = strings.ReplaceAll(filter, "null", "")
@@ -1788,6 +1841,7 @@ func NewDateRangeFilter(filter string) (*QueryFilter, error) {
 	if err != nil {
 		return nil, err
 	}
+	qf.Hidden = cfg.Hidden
 
 	if qf.Value == "~" || qf.Value == "" {
 		return nil, fmt.Errorf(
@@ -1820,12 +1874,13 @@ func NewDateRangeFilter(filter string) (*QueryFilter, error) {
 // AddFieldExistFilter adds a query to filter on records where this fields exists.
 // This query for now works on any field level. It is not possible to specify
 // context path.
-func (sr *SearchRequest) AddFieldExistFilter(filter string) error {
+func (sr *SearchRequest) AddFieldExistFilter(filter string, cfg QueryFilterConfig) error {
 	qf := &QueryFilter{}
 	qf.Exists = true
+	qf.Hidden = cfg.Hidden
 	qf.Type = QueryFilterType_EXISTS
 	qf.SearchLabel = filter
-	sr.QueryFilter = append(sr.QueryFilter, qf)
+	sr.appendQueryFilter(qf)
 	return nil
 }
 

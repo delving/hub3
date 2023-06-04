@@ -25,6 +25,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
+	elastic "github.com/olivere/elastic/v7"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
@@ -32,8 +35,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	"github.com/go-chi/chi/v5"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 var (
@@ -128,7 +129,7 @@ func TreeList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	searchRequest.ItemFormat = fragments.ItemFormatType_TREE
-	err = searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), false)
+	err = searchRequest.AddQueryFilter(fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, spec), fragments.QueryFilterConfig{})
 	if err != nil {
 		log.Println("Unable to add QueryFilter")
 		render.Status(r, http.StatusBadRequest)

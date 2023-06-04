@@ -102,6 +102,7 @@ message QueryFilter {
   QueryFilterType type = 9;
   string lte = 10;
   string gte = 11;
+  bool hidden = 12;
   // Path is the full query path
 }
 

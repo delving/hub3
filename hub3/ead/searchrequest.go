@@ -148,7 +148,7 @@ func newSearchRequest(params url.Values) (*SearchRequest, error) {
 			}
 		case "qf.dateRange", "qf.dateRange[]":
 			for _, filter := range v {
-				qf, err := fragments.NewDateRangeFilter(filter)
+				qf, err := fragments.NewDateRangeFilter(filter, fragments.QueryFilterConfig{})
 				if err != nil {
 					sr.rlog.Error().Err(err).
 						Str("param", p).

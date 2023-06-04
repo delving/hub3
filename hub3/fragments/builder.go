@@ -24,14 +24,15 @@ import (
 	"sort"
 	"strings"
 
+	r "github.com/kiivihal/rdf2go"
+	"github.com/microcosm-cc/bluemonday"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/jsonld"
 	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/delving/hub3/ikuzo/rdf/formats/rdfxml"
-	r "github.com/kiivihal/rdf2go"
-	"github.com/microcosm-cc/bluemonday"
 )
 
 type BulkIndex interface {

@@ -25,6 +25,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	elastic "github.com/olivere/elastic/v7"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
@@ -33,9 +37,6 @@ import (
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 var (
@@ -469,7 +470,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 				err = sr.AddQueryFilter(
 					fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
-					false,
+					fragments.QueryFilterConfig{},
 				)
 				if err != nil {
 					log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))
@@ -513,7 +514,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 				err := sr.AddQueryFilter(
 					fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
-					false,
+					fragments.QueryFilterConfig{},
 				)
 				if err != nil {
 					log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))
@@ -561,7 +562,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 			err := sr.AddQueryFilter(
 				fmt.Sprintf("%s:%s", c.Config.ElasticSearch.SpecKey, searchRequest.Tree.GetSpec()),
-				false,
+				fragments.QueryFilterConfig{},
 			)
 			if err != nil {
 				log.Printf(unableToAddQueryFilterMsg, domain.LogUserInput(err.Error()))

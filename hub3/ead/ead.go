@@ -28,12 +28,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/delving/hub3/config"
-	"github.com/delving/hub3/hub3/fragments"
-	"github.com/delving/hub3/ikuzo/service/x/index"
 	r "github.com/kiivihal/rdf2go"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog/log"
+
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/service/x/index"
 )
 
 const pathSep string = "~"
