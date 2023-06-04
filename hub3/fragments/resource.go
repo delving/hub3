@@ -1533,7 +1533,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 			}
 
 			_, ok := includeMap[entry.SearchLabel]
-			if !ok && tq != nil {
+			if !ok && tq != nil && len(includeMap) > 0 {
 				continue
 			}
 
@@ -1960,4 +1960,3 @@ func NowInMillis() int64 {
 func LastModified(millis int64) time.Time {
 	return time.Unix(0, millis*int64(time.Millisecond))
 }
-

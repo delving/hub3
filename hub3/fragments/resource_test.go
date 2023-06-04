@@ -18,11 +18,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/delving/hub3/config"
-	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"github.com/delving/hub3/config"
+	. "github.com/delving/hub3/hub3/fragments"
 )
 
 var _ = Describe("Resource", func() {
@@ -650,7 +651,6 @@ func TestTreeQuery_IsNavigatedQuery(t *testing.T) {
 		fields fields
 		want   bool
 	}{
-
 		{
 			"not a navigated query",
 			fields{},
