@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/olivere/elastic/v7"
+
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/mappingxml"
 	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
-	"github.com/olivere/elastic/v7"
 )
 
 var _ oaipmh.Store = (*OAIPMHStore)(nil)
@@ -93,8 +94,13 @@ func (o *OAIPMHStore) ListSets(ctx context.Context, q *oaipmh.RequestConfig) (re
 	return res, err
 }
 
+type recordWrapper struct {
+	HubID string
+	Data  json.RawMessage
+}
+
 type resumableResponse struct {
-	records    []json.RawMessage
+	records    []recordWrapper
 	total      int64
 	pitPayload string // payload for point in time parsing
 }
@@ -182,7 +188,11 @@ func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, h
 
 	var hit *elastic.SearchHit
 	for _, hit = range res.Hits.Hits {
-		resp.records = append(resp.records, hit.Source)
+		wrapper := recordWrapper{
+			HubID: hit.Id,
+			Data:  hit.Source,
+		}
+		resp.records = append(resp.records, wrapper)
 	}
 
 	if hit != nil && len(hit.Sort) > 0 {
@@ -203,8 +213,8 @@ func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.RequestConf
 		return
 	}
 
-	for _, raw := range resp.records {
-		rec, getErr := o.getOAIPMHRecord(raw, q.FirstRequest.MetadataPrefix, true)
+	for _, wrapper := range resp.records {
+		rec, getErr := o.getOAIPMHRecord(wrapper, q.FirstRequest.MetadataPrefix, true)
 		if getErr != nil {
 			return res, getErr
 		}
@@ -252,7 +262,12 @@ func (o *OAIPMHStore) GetRecord(ctx context.Context, q *oaipmh.RequestConfig) (r
 		return
 	}
 
-	record, err = o.getOAIPMHRecord(res.Source, q.FirstRequest.MetadataPrefix, false)
+	wrapper := recordWrapper{
+		HubID: res.Id,
+		Data:  res.Source,
+	}
+
+	record, err = o.getOAIPMHRecord(wrapper, q.FirstRequest.MetadataPrefix, false)
 	if err != nil {
 		o.c.log.Error().Err(err).Msg("unable to serialize record")
 		return
@@ -302,11 +317,11 @@ func (o *OAIPMHStore) serialize(format string, fg *fragments.FragmentGraph, w io
 	return oaipmh.ErrCannotDisseminateFormat
 }
 
-func (o *OAIPMHStore) getOAIPMHRecord(source json.RawMessage, format string, onlyHeader bool) (record oaipmh.Record, err error) {
-	fg, err := decodeFragmentGraph(source)
+func (o *OAIPMHStore) getOAIPMHRecord(wrapper recordWrapper, format string, onlyHeader bool) (record oaipmh.Record, err error) {
+	fg, err := decodeFragmentGraph(wrapper.Data)
 	if err != nil {
-		o.c.log.Error().Err(err).Msg("unable to get FragmentGraph")
-		return
+		o.c.log.Error().Err(err).Str("hubID", wrapper.HubID).RawJSON("rawMessage", wrapper.Data).Msg("unable to get FragmentGraph")
+		return record, fmt.Errorf("unable to decode oai-pmh record %q; %w", wrapper.HubID, err)
 	}
 
 	var buf bytes.Buffer
