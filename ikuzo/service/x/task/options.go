@@ -17,3 +17,10 @@ func SetNrWorkers(i int) Option {
 		return nil
 	}
 }
+
+func SetHasExternalWorkers(external bool) Option {
+	return func(s *Service) error {
+		s.externalWorkers = external
+		return nil
+	}
+}

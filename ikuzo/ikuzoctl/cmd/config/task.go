@@ -8,11 +8,12 @@ import (
 )
 
 type Task struct {
-	NrWorkers int
+	NrWorkers       int
+	ExternalWorkers bool
 }
 
 func (t *Task) AddOptions(cfg *Config) error {
-	svc, err := cfg.taskService()
+	svc, err := cfg.GetTaskService()
 	if err != nil {
 		return err
 	}
@@ -26,7 +27,7 @@ func (t *Task) AddOptions(cfg *Config) error {
 	return nil
 }
 
-func (cfg *Config) taskService() (*task.Service, error) {
+func (cfg *Config) GetTaskService() (*task.Service, error) {
 	if cfg.ts != nil {
 		return cfg.ts, nil
 	}
@@ -38,6 +39,7 @@ func (t *Task) newService(cfg *Config) (*task.Service, error) {
 	svc, err := task.NewService(
 		task.SetRedisConfig(cfg.Redis.redisConfig()),
 		task.SetNrWorkers(t.NrWorkers),
+		task.SetHasExternalWorkers(t.ExternalWorkers),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("unable to setup task service from cfg; %w", err)

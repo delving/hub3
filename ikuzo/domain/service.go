@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/go-chi/chi/v5"
+	"github.com/hibiken/asynq"
+
+	"github.com/delving/hub3/ikuzo/logger"
 )
 
 var ErrServiceNotEnabled = fmt.Errorf("service not enabled for this organization")
@@ -33,6 +35,13 @@ type Router interface {
 }
 
 type ServiceBuilder struct {
-	Logger *logger.CustomLogger
-	Orgs   OrgConfigRetriever
+	Logger      *logger.CustomLogger
+	Orgs        OrgConfigRetriever
+	TaskService TaskService
+}
+
+type TaskService interface {
+	RegisterWorkerFunc(pattern string, handler func(context.Context, *asynq.Task) error)
+	ScheduleTask(cronspec string, task *asynq.Task, opts ...asynq.Option) (entryID string, err error)
+	EnqueueTask(task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error)
 }

@@ -46,10 +46,10 @@ type OrganizationConfig struct {
 	Arches      *ArchesConfig `json:"arches"`
 	// archivespace config
 	ArchivesSpace struct {
-		Enabled      bool     `json:"enabled"`
-		URL          string   `json:"url"`
-		RepositoryID string   `json:"repositoryID"`
-		SyncTypes    []string `json:"syncTypes"`
+		Enabled       bool     `json:"enabled"`
+		URL           string   `json:"url"`
+		RepositoryID  string   `json:"repositoryID"`
+		SyncDataTypes []string `json:"syncDataTypes"`
 	} `json:"archivesspace"`
 	// Sitemaps       []SitemapConfig `json:"sitemaps,omitempty"`
 	Sitemaps []struct {

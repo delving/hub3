@@ -29,7 +29,7 @@ func (h *health) scheduleTask(scheduler *asynq.Scheduler) error {
 		"@every 30s",
 		t,
 		asynq.TaskID("mytaskid"),
-		asynq.Retention(15*time.Second),
+		asynq.Retention(15*time.Minute),
 		asynq.Unique(15*time.Second),
 	)
 	if err != nil {

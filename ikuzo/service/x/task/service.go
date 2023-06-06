@@ -4,14 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/delving/hub3/ikuzo/storage/x/redis"
 	"github.com/go-chi/chi/v5"
 	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/errgroup"
+
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/storage/x/redis"
 )
 
 var (
@@ -30,15 +32,20 @@ const (
 type ScheduleTask struct{}
 
 type Service struct {
-	orgs      domain.OrgConfigRetriever
-	log       zerolog.Logger
-	redisCfg  *redis.Config
-	client    *asynq.Client
-	server    *asynq.Server
-	mux       *asynq.ServeMux
-	nrWorkers int
-	queues    map[string]int
-	scheduler *asynq.Scheduler
+	orgs            domain.OrgConfigRetriever
+	log             zerolog.Logger
+	redisCfg        *redis.Config
+	client          *asynq.Client
+	server          *asynq.Server
+	mux             *asynq.ServeMux
+	nrWorkers       int
+	queues          map[string]int
+	scheduler       *asynq.Scheduler
+	externalWorkers bool
+}
+
+func (s *Service) HasExternalWorkers() bool {
+	return s.externalWorkers
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -66,17 +73,18 @@ func NewService(options ...Option) (*Service, error) {
 	s.server = s.asynqServer()
 	s.mux = asynq.NewServeMux()
 
-	// schedule health ping
-	health := health{taskName: "health:ping"}
-	if err := health.scheduleTask(s.scheduler); err != nil {
+	// schedule h ping
+	h := health{taskName: "health:ping"}
+	if err := h.scheduleTask(s.scheduler); err != nil {
 		return s, err
 	}
-	s.RegisterWorkerFunc(health.taskName, health.handleTask)
+	s.RegisterWorkerFunc(h.taskName, h.handleTask)
 
 	return s, nil
 }
 
 func (s *Service) RegisterWorkerFunc(pattern string, handler func(context.Context, *asynq.Task) error) {
+	log.Printf("registering handler patters: %s", pattern)
 	s.mux.HandleFunc(pattern, handler)
 }
 
@@ -99,10 +107,10 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Service) StartWorkers(ctx context.Context) error {
 	g, _ := errgroup.WithContext(ctx)
 
-	s.log.Info().Msg("starting asynq scheduler")
-	g.Go(func() error { return s.scheduler.Run() })
 	s.log.Info().Msg("starting asynq server")
 	g.Go(func() error { return s.server.Run(s.mux) })
+	s.log.Info().Msg("starting asynq scheduler")
+	g.Go(func() error { return s.scheduler.Run() })
 
 	s.log.Info().Msg("asynq workers are listening")
 

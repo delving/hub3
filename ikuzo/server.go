@@ -113,6 +113,8 @@ type server struct {
 	sentry bool
 	// ts is a *task.Service that is used to manage background workers
 	ts *task.Service
+	// externalWorkers is set when no background workers should be setup in this process
+	externalWorkers bool
 }
 
 // NewServer returns the default server.
@@ -223,8 +225,9 @@ func (s *server) registerService(svc domain.Service) error {
 	s.registerRouter("", svc)
 
 	builder := &domain.ServiceBuilder{
-		Orgs:   s.organizations,
-		Logger: s.logger,
+		Orgs:        s.organizations,
+		Logger:      s.logger,
+		TaskService: s.ts,
 	}
 
 	// set organization service
@@ -306,6 +309,12 @@ func (s *server) listenAndServe(testSignals ...interface{}) error {
 			signalChan <- v
 		case error:
 			errChan <- v
+		}
+	}
+
+	if !s.externalWorkers {
+		if err := s.BackgroundWorkers(); err != nil {
+			return fmt.Errorf("unable to start background workers: %w", err)
 		}
 	}
 

@@ -18,14 +18,15 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/getsentry/sentry-go"
+	"github.com/go-chi/chi/v5"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/logger"
 	"github.com/delving/hub3/ikuzo/service/organization"
 	"github.com/delving/hub3/ikuzo/service/x/task"
 	"github.com/delving/hub3/ikuzo/webapp"
-	"github.com/getsentry/sentry-go"
-	"github.com/go-chi/chi/v5"
 )
 
 // RouterFunc is a callback that registers routes to the ikuzo.Server.
@@ -215,6 +216,7 @@ func SetIgnore404Paths(paths []string) Option {
 func SetTaskService(ts *task.Service) Option {
 	return func(s *server) error {
 		s.ts = ts
+		s.externalWorkers = ts.HasExternalWorkers()
 		return nil
 	}
 }
