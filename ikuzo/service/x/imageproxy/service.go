@@ -28,12 +28,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog"
 	"golang.org/x/sync/singleflight"
 
-	lru "github.com/hashicorp/golang-lru"
+	"github.com/delving/hub3/ikuzo/domain"
+
+	lru "github.com/hashicorp/golang-lru/v2"
 )
 
 var ErrRemoteResourceNotFound = errors.New("remote resource not found")
@@ -42,7 +43,7 @@ var ErrRemoteResourceNotFound = errors.New("remote resource not found")
 
 type Service struct {
 	client           http.Client
-	lruCache         *lru.ARCCache
+	lruCache         *lru.ARCCache[string, []byte]
 	cacheDir         string // The path to the imageCache
 	maxSizeCacheDir  int    //  max size of the cache directory on disk in kb
 	timeOut          int    // timelimit for request served by this proxy. 0 is for no timeout
