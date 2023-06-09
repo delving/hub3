@@ -1,0 +1,699 @@
+{
+  "meta": {
+    "orgID": "NL-HaNA",
+    "spec": "2-24-01-04ntfoto",
+    "revision": 22,
+    "hubID": "NL-HaNA_2-24-01-04ntfoto_a9280850-d0b4-102d-bcf8-003048976d84",
+    "tags": [
+      "narthex",
+      "mdr",
+      "oaipmh"
+    ],
+    "docType": "graph",
+    "entryURI": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+    "namedGraphURI": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84/graph",
+    "modified": 1686130098413
+  },
+  "resources": [
+    {
+      "id": "https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein",
+      "types": [
+        "http://www.w3.org/ns/odrl/2/Policy"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        },
+        {
+          "Subject": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Archiefbeschrijving"
+          ],
+          "Predicate": "http://www.w3.org/ns/odrl/2/hasPolicy",
+          "SearchLabel": "odrl_hasPolicy",
+          "Level": 2,
+          "ObjectID": "https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein",
+          "Label": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Nationaal Archief, CC0",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/rightsHolder",
+          "searchLabel": "dcterms_rightsHolder",
+          "level": 3,
+          "order": 1
+        },
+        {
+          "@value": "Set B: Rechtenvrij / Publiek Domein",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 13
+        },
+        {
+          "@value": "Set B: Rechtenvrij / Publiek Domein",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/ns/odrl/2/permission",
+          "searchLabel": "odrl_permission",
+          "level": 3,
+          "order": 31
+        }
+      ]
+    },
+    {
+      "id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84",
+      "types": [
+        "https://archief.nl/def/ontologie/Archiefeenheid",
+        "http://www.w3.org/ns/odrl/2/Asset"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        },
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        },
+        {
+          "Subject": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Archiefbeschrijving"
+          ],
+          "Predicate": "http://xmlns.com/foaf/0.1/primaryTopic",
+          "SearchLabel": "foaf_primaryTopic",
+          "Level": 2,
+          "ObjectID": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "906-6720",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/bestanddeelnummer",
+          "searchLabel": "nao_bestanddeelnummer",
+          "level": 3,
+          "order": 2
+        },
+        {
+          "@id": "https://archief.nl/def/Foto",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/isArchiefeenheidtype",
+          "searchLabel": "nao_isArchiefeenheidtype",
+          "level": 3,
+          "order": 3
+        },
+        {
+          "@value": "NL-HaNA_2.24.01.04_0_906-6720",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/archiefLink",
+          "searchLabel": "nao_archiefLink",
+          "level": 3,
+          "order": 12
+        },
+        {
+          "@value": "2.24.01.04",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/toegangsnummer",
+          "searchLabel": "nao_toegangsnummer",
+          "level": 3,
+          "order": 28
+        },
+        {
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 39
+        },
+        {
+          "@value": "Negatief (zwart/wit)",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/isMateriaaltype",
+          "searchLabel": "nao_isMateriaaltype",
+          "level": 3,
+          "order": 41
+        },
+        {
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 45
+        },
+        {
+          "@value": "4 x 5 inch",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/format",
+          "searchLabel": "dc_format",
+          "level": 3,
+          "order": 60
+        }
+      ]
+    },
+    {
+      "id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "SearchLabel": "edm_hasView",
+          "Level": 1,
+          "ObjectID": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Direct beschikbaar",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/download",
+          "searchLabel": "nao_download",
+          "level": 2,
+          "order": 4
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/default/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceDefault",
+          "searchLabel": "nao_webserviceDefault",
+          "level": 2,
+          "order": 5
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/original/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceImage",
+          "searchLabel": "nao_webserviceImage",
+          "level": 2,
+          "order": 18
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/icon/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceIcon",
+          "searchLabel": "nao_webserviceIcon",
+          "level": 2,
+          "order": 29
+        },
+        {
+          "@value": "e035da5a-7480-45d5-b512-67ff11be75f9",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/du-uuid",
+          "searchLabel": "nao_du-uuid",
+          "level": 2,
+          "order": 30
+        },
+        {
+          "@value": "Foto met fileUUID: a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 34
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "@value": "Foto met fileUUID: a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceThumbnail",
+          "searchLabel": "nao_webserviceThumbnail",
+          "level": 2,
+          "order": 44
+        },
+        {
+          "@value": "a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/file-uuid",
+          "searchLabel": "nao_file-uuid",
+          "level": 2,
+          "order": 48
+        },
+        {
+          "@id": "https://service.archief.nl/iip/e0/35/da/5a/74/80/45/d5/b5/12/67/ff/11/be/75/f9/a70340ee-d986-44f9-bc56-3284ace96fa6.jp2/info.json",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceIIIF",
+          "searchLabel": "nao_webserviceIIIF",
+          "level": 2,
+          "order": 49
+        },
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/volgnummer",
+          "searchLabel": "nao_volgnummer",
+          "level": 2,
+          "order": 50
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/original/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/webserviceOriginal",
+          "searchLabel": "nao_webserviceOriginal",
+          "level": 2,
+          "order": 51
+        },
+        {
+          "@value": "a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/handle-uuid",
+          "searchLabel": "nao_handle-uuid",
+          "level": 2,
+          "order": 55
+        }
+      ]
+    },
+    {
+      "id": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+      "types": [
+        "https://archief.nl/def/ontologie/Recordaggregatie"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 1,
+          "tags": [
+            "objectID"
+          ],
+          "order": 7
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "@value": "Foto met fileUUID: a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "order": 14
+        },
+        {
+          "@id": "https://archief.nl/id/vervaardiger/duinen__van__anefo",
+          "@value": "Duinen, […] van / Anefo",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/terms/creator",
+          "searchLabel": "dcterms_creator",
+          "level": 1,
+          "order": 17
+        },
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/default/a70340ee-d986-44f9-bc56-3284ace96fa6",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "tags": [
+            "thumbnail"
+          ],
+          "order": 20
+        },
+        {
+          "@id": "https://archief.nl/def/FotoRecord",
+          "entrytype": "Resource",
+          "predicate": "https://archief.nl/def/ontologie/isAggregatietype",
+          "searchLabel": "nao_isAggregatietype",
+          "level": 1,
+          "order": 21
+        },
+        {
+          "@id": "http://hdl.handle.net/10648/a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownAt",
+          "searchLabel": "edm_isShownAt",
+          "level": 1,
+          "tags": [
+            "landingPage"
+          ],
+          "order": 24
+        },
+        {
+          "@id": "https://archief.nl/doc/2.24.01.04ntfoto",
+          "entrytype": "Resource",
+          "predicate": "http://www.openarchives.org/ore/terms/isAggregatedBy",
+          "searchLabel": "ore_isAggregatedBy",
+          "level": 1,
+          "order": 25
+        },
+        {
+          "@value": "Record over foto",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 1,
+          "tags": [
+            "label"
+          ],
+          "order": 43
+        },
+        {
+          "@id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84",
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Resource",
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "order": 46
+        },
+        {
+          "@value": "Record over foto",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 1,
+          "tags": [
+            "label"
+          ],
+          "order": 53
+        },
+        {
+          "@id": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "@value": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Resource",
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "order": 58
+        }
+      ]
+    },
+    {
+      "id": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+      "types": [
+        "https://archief.nl/def/ontologie/Archiefbeschrijving"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84",
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Resource",
+          "predicate": "http://xmlns.com/foaf/0.1/primaryTopic",
+          "searchLabel": "foaf_primaryTopic",
+          "level": 2,
+          "order": 8
+        },
+        {
+          "@value": "Nederlandse tenniskampioenschappen op de METS-banen te Scheveningen. Dames dubbel kwartfinale. Vlnr. Jopie Roos-van der Wal, Truid Blaisse-Terwindt tegen Bokhorst en Berna Thung",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/description",
+          "searchLabel": "dc_description",
+          "level": 2,
+          "tags": [
+            "description"
+          ],
+          "order": 15
+        },
+        {
+          "@id": "http://data.beeldengeluid.nl/gtaa/45285",
+          "@value": "Zuid-Holland",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/terms/subject",
+          "searchLabel": "dcterms_subject",
+          "level": 2,
+          "order": 16
+        },
+        {
+          "@id": "http://data.beeldengeluid.nl/gtaa/42198",
+          "@value": "Scheveningen",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/terms/subject",
+          "searchLabel": "dcterms_subject",
+          "level": 2,
+          "order": 22
+        },
+        {
+          "@value": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 26
+        },
+        {
+          "@value": "Fotocollectie Anefo",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/titelFotocollectie",
+          "searchLabel": "nao_titelFotocollectie",
+          "level": 2,
+          "order": 27
+        },
+        {
+          "@id": "https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein",
+          "@value": "Set B: Rechtenvrij / Publiek Domein",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/ns/odrl/2/hasPolicy",
+          "searchLabel": "odrl_hasPolicy",
+          "level": 2,
+          "order": 32
+        },
+        {
+          "@value": "1954-08-20",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/date",
+          "searchLabel": "dcterms_date",
+          "level": 2,
+          "order": 37
+        },
+        {
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/toelichting",
+          "searchLabel": "nao_toelichting",
+          "level": 2,
+          "order": 38
+        },
+        {
+          "@value": "Zuid-Holland",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/trefwoordLocatie",
+          "searchLabel": "nao_trefwoordLocatie",
+          "level": 2,
+          "order": 40
+        },
+        {
+          "@value": "Scheveningen",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/trefwoordLocatie",
+          "searchLabel": "nao_trefwoordLocatie",
+          "level": 2,
+          "order": 54
+        },
+        {
+          "@value": "tenniskampioenschappen",
+          "entrytype": "Literal",
+          "predicate": "https://archief.nl/def/ontologie/trefwoordAlgemeen",
+          "searchLabel": "nao_trefwoordAlgemeen",
+          "level": 2,
+          "order": 57
+        },
+        {
+          "@value": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 59
+        }
+      ]
+    },
+    {
+      "id": "https://archief.nl/id/vervaardiger/duinen__van__anefo",
+      "types": [
+        "https://archief.nl/def/ontologie/Agent"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://purl.org/dc/terms/creator",
+          "SearchLabel": "dcterms_creator",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/vervaardiger/duinen__van__anefo"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Duinen, […] van / Anefo",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 9
+        },
+        {
+          "@value": "Duinen, […] van / Anefo (vervaardiger)",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 33
+        }
+      ]
+    },
+    {
+      "id": "http://data.beeldengeluid.nl/gtaa/45285",
+      "types": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        },
+        {
+          "Subject": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Archiefbeschrijving"
+          ],
+          "Predicate": "http://purl.org/dc/terms/subject",
+          "SearchLabel": "dcterms_subject",
+          "Level": 2,
+          "ObjectID": "http://data.beeldengeluid.nl/gtaa/45285"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Zuid-Holland",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 19
+        }
+      ]
+    },
+    {
+      "id": "http://data.beeldengeluid.nl/gtaa/42198",
+      "types": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Recordaggregatie"
+          ],
+          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "SearchLabel": "ore_aggregates",
+          "Level": 1,
+          "ObjectID": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "Label": "Record over foto"
+        },
+        {
+          "Subject": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+          "SubjectClass": [
+            "https://archief.nl/def/ontologie/Archiefbeschrijving"
+          ],
+          "Predicate": "http://purl.org/dc/terms/subject",
+          "SearchLabel": "dcterms_subject",
+          "Level": 2,
+          "ObjectID": "http://data.beeldengeluid.nl/gtaa/42198"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Scheveningen",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 42
+        }
+      ]
+    }
+  ]
+}
