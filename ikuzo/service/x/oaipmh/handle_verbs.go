@@ -11,7 +11,7 @@ import (
 	"github.com/delving/hub3/ikuzo/render"
 )
 
-func (s *Service) handleVerb() http.HandlerFunc {
+func (s *Service) HandleVerb() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := NewRequest(r)
 
