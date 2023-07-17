@@ -1106,6 +1106,9 @@ func (re *ResourceEntry) AsTriple(subject rdf.Subject) (*rdf.Triple, error) {
 	case resourceType:
 		object, err = rdf.NewIRI(re.ID)
 	case literal:
+		if strings.TrimSpace(re.Value) == "" {
+			return nil, fmt.Errorf("empty object literal is not allowed: %s -> %s", re.ID, re.Predicate)
+		}
 		switch {
 		case re.Language != "":
 			object, err = rdf.NewLiteralWithLang(re.Value, re.Language)
