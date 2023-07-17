@@ -1,0 +1,318 @@
+{
+  "meta": {
+    "orgID": "NL-HaNA",
+    "spec": "2-24-01-04ntfoto",
+    "revision": 24,
+    "hubID": "NL-HaNA_2-24-01-04ntfoto_a9280850-d0b4-102d-bcf8-003048976d84",
+    "tags": [
+      "narthex",
+      "mdr",
+      "oaipmh"
+    ],
+    "docType": "graph",
+    "entryURI": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+    "namedGraphURI": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84/graph",
+    "modified": 1688479622713
+  },
+  "jsonld": [
+    {
+      "@id": "https://archief.nl/doc/fotorecord/a9280850-d0b4-102d-bcf8-003048976d84",
+      "@type": [
+        "https://archief.nl/def/ontologie/Recordaggregatie"
+      ],
+      "http://purl.org/dc/elements/1.1/identifier": [
+        {
+          "@value": "a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://purl.org/dc/terms/creator": [
+        {
+          "@id": "https://archief.nl/id/vervaardiger/duinen__van__anefo"
+        }
+      ],
+      "http://www.europeana.eu/schemas/edm/hasView": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "http://www.europeana.eu/schemas/edm/isShownAt": [
+        {
+          "@id": "http://hdl.handle.net/10648/a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://www.europeana.eu/schemas/edm/isShownBy": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/default/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "http://www.openarchives.org/ore/terms/aggregates": [
+        {
+          "@id": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84"
+        },
+        {
+          "@id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://www.openarchives.org/ore/terms/isAggregatedBy": [
+        {
+          "@id": "https://archief.nl/doc/2.24.01.04ntfoto"
+        }
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Record over foto"
+        }
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Record over foto"
+        }
+      ],
+      "https://archief.nl/def/ontologie/isAggregatietype": [
+        {
+          "@id": "https://archief.nl/def/FotoRecord"
+        }
+      ]
+    },
+    {
+      "@id": "https://archief.nl/id/beschrijving/a9280850-d0b4-102d-bcf8-003048976d84",
+      "@type": [
+        "https://archief.nl/def/ontologie/Archiefbeschrijving"
+      ],
+      "http://purl.org/dc/elements/1.1/description": [
+        {
+          "@value": "Nederlandse tenniskampioenschappen op de METS-banen te Scheveningen. Dames dubbel kwartfinale. Vlnr. Jopie Roos-van der Wal, Truid Blaisse-Terwindt tegen Bokhorst en Berna Thung"
+        }
+      ],
+      "http://purl.org/dc/terms/date": [
+        {
+          "@value": "1954-08-20"
+        }
+      ],
+      "http://purl.org/dc/terms/subject": [
+        {
+          "@id": "http://data.beeldengeluid.nl/gtaa/45285"
+        },
+        {
+          "@id": "http://data.beeldengeluid.nl/gtaa/42198"
+        }
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Beschrijving van a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://www.w3.org/ns/odrl/2/hasPolicy": [
+        {
+          "@id": "https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein"
+        }
+      ],
+      "http://xmlns.com/foaf/0.1/primaryTopic": [
+        {
+          "@id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "https://archief.nl/def/ontologie/titelFotocollectie": [
+        {
+          "@value": "Fotocollectie Anefo"
+        }
+      ],
+      "https://archief.nl/def/ontologie/toelichting": [
+        {
+          "@value": "",
+          "@language": "nl"
+        }
+      ],
+      "https://archief.nl/def/ontologie/trefwoordAlgemeen": [
+        {
+          "@value": "tenniskampioenschappen"
+        }
+      ],
+      "https://archief.nl/def/ontologie/trefwoordLocatie": [
+        {
+          "@value": "Zuid-Holland"
+        },
+        {
+          "@value": "Scheveningen"
+        }
+      ]
+    },
+    {
+      "@id": "https://archief.nl/id/foto/a9280850-d0b4-102d-bcf8-003048976d84",
+      "@type": [
+        "https://archief.nl/def/ontologie/Archiefeenheid",
+        "http://www.w3.org/ns/odrl/2/Asset"
+      ],
+      "http://purl.org/dc/elements/1.1/format": [
+        {
+          "@value": "4 x 5 inch"
+        }
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Archiefeenheid met identifier: a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "https://archief.nl/def/ontologie/archiefLink": [
+        {
+          "@value": "NL-HaNA_2.24.01.04_0_906-6720"
+        }
+      ],
+      "https://archief.nl/def/ontologie/bestanddeelnummer": [
+        {
+          "@value": "906-6720"
+        }
+      ],
+      "https://archief.nl/def/ontologie/isArchiefeenheidtype": [
+        {
+          "@id": "https://archief.nl/def/Foto"
+        }
+      ],
+      "https://archief.nl/def/ontologie/isMateriaaltype": [
+        {
+          "@value": "Negatief (zwart/wit)"
+        }
+      ],
+      "https://archief.nl/def/ontologie/toegangsnummer": [
+        {
+          "@value": "2.24.01.04"
+        }
+      ]
+    },
+    {
+      "@id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6",
+      "@type": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Foto met fileUUID: a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/download": [
+        {
+          "@value": "Direct beschikbaar"
+        }
+      ],
+      "https://archief.nl/def/ontologie/du-uuid": [
+        {
+          "@value": "e035da5a-7480-45d5-b512-67ff11be75f9"
+        }
+      ],
+      "https://archief.nl/def/ontologie/file-uuid": [
+        {
+          "@value": "a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/handle-uuid": [
+        {
+          "@value": "a9280850-d0b4-102d-bcf8-003048976d84"
+        }
+      ],
+      "https://archief.nl/def/ontologie/volgnummer": [
+        {
+          "@value": "1"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceDefault": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/default/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceIIIF": [
+        {
+          "@id": "https://service.archief.nl/iip/e0/35/da/5a/74/80/45/d5/b5/12/67/ff/11/be/75/f9/a70340ee-d986-44f9-bc56-3284ace96fa6.jp2/info.json"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceIcon": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/icon/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceImage": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/original/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceOriginal": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/original/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ],
+      "https://archief.nl/def/ontologie/webserviceThumbnail": [
+        {
+          "@id": "https://service.archief.nl/gaf/api/file/v1/thumb/a70340ee-d986-44f9-bc56-3284ace96fa6"
+        }
+      ]
+    },
+    {
+      "@id": "https://archief.nl/def/Policy/set_b_rechtenvrij__publiek_domein",
+      "@type": [
+        "http://www.w3.org/ns/odrl/2/Policy"
+      ],
+      "http://purl.org/dc/terms/rightsHolder": [
+        {
+          "@value": "Nationaal Archief, CC0"
+        }
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Set B: Rechtenvrij / Publiek Domein"
+        }
+      ],
+      "http://www.w3.org/ns/odrl/2/permission": [
+        {
+          "@value": "Set B: Rechtenvrij / Publiek Domein"
+        }
+      ]
+    },
+    {
+      "@id": "http://data.beeldengeluid.nl/gtaa/45285",
+      "@type": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Zuid-Holland"
+        }
+      ]
+    },
+    {
+      "@id": "https://archief.nl/id/vervaardiger/duinen__van__anefo",
+      "@type": [
+        "https://archief.nl/def/ontologie/Agent"
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "Duinen, […] van / Anefo (vervaardiger)"
+        }
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Duinen, […] van / Anefo"
+        }
+      ]
+    },
+    {
+      "@id": "http://data.beeldengeluid.nl/gtaa/42198",
+      "@type": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "http://www.w3.org/2004/02/skos/core#prefLabel": [
+        {
+          "@value": "Scheveningen"
+        }
+      ]
+    }
+  ]
+}

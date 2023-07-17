@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
+
 	"github.com/delving/hub3/ikuzo/rdf"
 )
 
