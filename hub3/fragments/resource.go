@@ -25,15 +25,16 @@ import (
 	"time"
 	"unicode"
 
+	r "github.com/kiivihal/rdf2go"
+	elastic "github.com/olivere/elastic/v7"
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
-	r "github.com/kiivihal/rdf2go"
-	elastic "github.com/olivere/elastic/v7"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -1113,9 +1114,9 @@ func (re *ResourceEntry) AsTriple(subject rdf.Subject) (*rdf.Triple, error) {
 		case re.Language != "":
 			object, err = rdf.NewLiteralWithLang(re.Value, re.Language)
 		case re.DataType != "":
-			dt, err := rdf.NewIRI(re.DataType)
-			if err != nil {
-				return nil, err
+			dt, iriErr := rdf.NewIRI(re.DataType)
+			if iriErr != nil {
+				return nil, iriErr
 			}
 			object, err = rdf.NewLiteralWithType(re.Value, dt)
 		default:
@@ -1123,6 +1124,7 @@ func (re *ResourceEntry) AsTriple(subject rdf.Subject) (*rdf.Triple, error) {
 		}
 	default:
 		log.Printf("bad datatype: '%#v'", re)
+		return nil, fmt.Errorf("unknown RDF datatype; '%#v'", re.EntryType)
 	}
 
 	if err != nil {

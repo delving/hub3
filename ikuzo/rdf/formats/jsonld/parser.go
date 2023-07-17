@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
-	"github.com/delving/hub3/ikuzo/rdf"
 	jsonld "github.com/kiivihal/gojsonld"
 	"github.com/piprate/json-gold/ld"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
@@ -154,19 +156,20 @@ func ldnode2term(node ld.Node) (rdf.Term, error) {
 }
 
 func jtriple2triple(triple *jsonld.Triple) (*rdf.Triple, error) {
+	errorFmt := fmt.Sprintf("error with converting triple %q; ", triple.String()) + "%w"
 	s, err := jterm2term(triple.Subject)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(errorFmt, err)
 	}
 
 	p, err := jterm2term(triple.Predicate)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(errorFmt, err)
 	}
 
 	o, err := jterm2term(triple.Object)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(errorFmt, err)
 	}
 
 	return rdf.NewTriple(s.(rdf.Subject), p.(rdf.Predicate), o.(rdf.Object)), nil
@@ -177,6 +180,9 @@ func jterm2term(term jsonld.Term) (rdf.Term, error) {
 	case *jsonld.BlankNode:
 		return rdf.NewBlankNode(term.RawValue())
 	case *jsonld.Literal:
+		if strings.TrimSpace(term.RawValue()) == "" {
+			return nil, fmt.Errorf("empty string literal value as object is not allowed")
+		}
 		if len(term.Language) > 0 {
 			return rdf.NewLiteralWithLang(term.RawValue(), term.Language)
 		}
