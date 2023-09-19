@@ -40,6 +40,7 @@ type Dataset struct {
 	Type                  string         `json:"@type,omitempty"`
 	ID                    string         `json:"@id,omitempty"`
 	Name                  string         `json:"name,omitempty"`
+	Identifier            string         `json:"identifier,omitempty"`
 	Description           string         `json:"description,omitempty"`
 	License               string         `json:"license,omitempty"`
 	DateCreated           string         `json:"dateCreated,omitempty"`
@@ -147,6 +148,7 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 		Keywords:              []string{},
 		License:               r.DefaultLicense,
 		Name:                  spec,
+		Identifier:            spec,
 		Publisher:             r.GetAgent(),
 	}
 
@@ -164,6 +166,7 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 			d.DatePublished = meta.Updated.Format(layoutISO)
 			d.Description = meta.Label
 			d.Distribution = r.GetDistributions(spec, "ead")
+			d.Name = meta.Label
 
 			return d, nil
 		}
