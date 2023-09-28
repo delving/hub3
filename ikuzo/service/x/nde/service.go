@@ -7,10 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 )
 
@@ -21,6 +25,11 @@ type Service struct {
 	cfgs             []*RegisterConfig
 	lookUp           map[string]*RegisterConfig
 	recordTypeLookup map[string]*RegisterConfig
+	orgs             domain.OrgConfigRetriever
+	log              zerolog.Logger
+	ctx              context.Context
+	cancel           context.CancelFunc
+	orgID            string
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -45,19 +54,28 @@ func NewService(options ...Option) (*Service, error) {
 		s.recordTypeLookup[cfg.RecordTypeFilter] = cfg
 	}
 
-	return s, nil
-}
+	s.ctx, s.cancel = context.WithCancel(context.Background())
 
-func SetConfig(cfgs []*RegisterConfig) Option {
-	return func(s *Service) error {
-		s.cfgs = cfgs
-		return nil
-	}
+	go func() {
+		if err := s.scheduleNarthexUpdate(); err != nil {
+			s.log.Err(err).Msg("unable to run scheduled narthex update")
+		}
+	}()
+
+	return s, nil
 }
 
 func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+			}
+		}()
+	}
 
 	dataset, err := s.getDataset(orgID.String(), spec)
 	if err != nil {
@@ -85,6 +103,14 @@ func (s *Service) enabledConfig() []string {
 
 func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+			}
+		}()
+	}
 
 	cfgName := chi.URLParam(r, "cfgName")
 
@@ -124,7 +150,13 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	s.cancel()
 	return nil
+}
+
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }
 
 // JSON marshals 'v' to JSON, automatically escaping HTML and setting the
@@ -146,4 +178,60 @@ func (s *Service) renderJSONLD(w http.ResponseWriter, r *http.Request, v interfa
 	}
 
 	w.Write(buf.Bytes())
+}
+
+func (s *Service) scheduleNarthexUpdate() error {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	eg, _ := errgroup.WithContext(s.ctx)
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			if err := eg.Wait(); err != nil {
+				return fmt.Errorf("error while waiting for go-routines to shut down: %w", err)
+			}
+			return s.ctx.Err()
+		case <-ticker.C:
+			if s.orgID == "" { // only run when the orgID is set
+				continue
+			}
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				// handle err
+				return err
+			}
+		}
+	}
+}
+
+func (s *Service) updateTitles(ctx context.Context, orgID string) error {
+	titles, err := models.GetNDETitles(orgID)
+	if err != nil {
+		return err
+	}
+
+	for _, title := range titles {
+		if title.Spec == "" {
+			continue
+		}
+
+		if s.ctx.Err() != nil {
+			return s.ctx.Err()
+		}
+
+		ds, err := models.GetDataSet(orgID, title.Spec)
+		if err != nil {
+			s.log.Warn().Err(err).Msgf("unable to find a dataset with spec %q", title.Spec)
+			continue
+		}
+
+		ds.Description = title.Description
+		ds.Rights = title.Rights
+		if err := ds.Save(); err != nil {
+			s.log.Error().Err(err).Msgf("unable to save dataset info for: %q", title.Spec)
+		}
+	}
+
+	return nil
 }

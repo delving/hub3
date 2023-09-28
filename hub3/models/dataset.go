@@ -123,31 +123,32 @@ type DataSetStats struct {
 // DataSet contains all the known informantion for a hub3 metadata dataset
 type DataSet struct {
 	// MapToPrefix string    `json:"mapToPrefix"`
-	Spec             string    `json:"spec" storm:"id,index,unique"`
-	URI              string    `json:"uri" storm:"unique,index"`
-	Revision         int       `json:"revision"` // revision is used to mark the latest version of ingested RDFRecords
-	FragmentRevision int       `json:"fragmentRevision"`
-	Modified         time.Time `json:"modified" storm:"index"`
-	Created          time.Time `json:"created"`
-	Deleted          bool      `json:"deleted"`
-	OrgID            string    `json:"orgID"`
-	Access           `json:"access" storm:"inline"`
-	Tags             []string `json:"tags"`
-	RecordType       string   `json:"recordType"` //
-	Label            string   `json:"label"`
-	Owner            string   `json:"owner"`
-	Abstract         []string `json:"abstract"`
-	Period           []string `json:"period"`
-	Length           string   `json:"length"`
-	Files            string   `json:"files"`
-	Language         string   `json:"language"`
-	Material         string   `json:"material"`
-	ArchiveCreator   []string `json:"archiveCreator"`
-	MetsFiles        int      `json:"metsFiles"`
-	Description      string   `json:"description"`
-	Clevels          int      `json:"clevels"`
-	DaoStats         `json:"daoStats" storm:"inline"`
-	Fingerprint      string `json:"fingerPrint"`
+	Spec             string    `json:"spec,omitempty" storm:"id,index,unique"`
+	URI              string    `json:"uri,omitempty" storm:"unique,index"`
+	Revision         int       `json:"revision,omitempty"` // revision is used to mark the latest version of ingested RDFRecords
+	FragmentRevision int       `json:"fragmentRevision,omitempty"`
+	Modified         time.Time `json:"modified,omitempty" storm:"index"`
+	Created          time.Time `json:"created,omitempty"`
+	Deleted          bool      `json:"deleted,omitempty"`
+	OrgID            string    `json:"orgID,omitempty"`
+	Tags             []string  `json:"tags,omitempty"`
+	RecordType       string    `json:"recordType,omitempty"` //
+	Label            string    `json:"label,omitempty"`
+	Owner            string    `json:"owner,omitempty"`
+	Abstract         []string  `json:"abstract,omitempty"`
+	Period           []string  `json:"period,omitempty"`
+	Length           string    `json:"length,omitempty"`
+	Files            string    `json:"files,omitempty"`
+	Language         string    `json:"language,omitempty"`
+	Material         string    `json:"material,omitempty"`
+	ArchiveCreator   []string  `json:"archiveCreator,omitempty"`
+	MetsFiles        int       `json:"metsFiles,omitempty"`
+	Description      string    `json:"description,omitempty"`
+	Clevels          int       `json:"clevels,omitempty"`
+	Rights           string    `json:"rights,omitempty"`
+	Fingerprint      string    `json:"fingerPrint,omitempty"`
+	Access           `json:"access,omitempty" storm:"inline"`
+	DaoStats         `json:"daoStats,omitempty" storm:"inline"`
 }
 
 var DataSetPreSaveFn func(ds *DataSet) error
