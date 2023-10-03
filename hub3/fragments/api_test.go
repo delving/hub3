@@ -565,7 +565,7 @@ func TestNewDateRangeFilter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewDateRangeFilter(tt.args.filter)
+			got, err := NewDateRangeFilter(tt.args.filter, QueryFilterConfig{})
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewDateRangeFilter() error = %v, wantErr %v", err, tt.wantErr)
 				return
