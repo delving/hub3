@@ -6,9 +6,10 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/kiivihal/rdf2go"
+
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
-	"github.com/kiivihal/rdf2go"
 )
 
 // DefaultNamespaceManager can be set at package level to
@@ -40,6 +41,9 @@ type Graph struct {
 	// order uint64
 	export         bool // set when all triples read from the graph
 	addAfterExport bool
+
+	// store an error
+	err error
 
 	// support for collections
 	collections map[Subject][]*Triple

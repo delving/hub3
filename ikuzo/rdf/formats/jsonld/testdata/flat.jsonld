@@ -18,7 +18,7 @@
     "@id": "http://data.brabantcloud.nl/resource/document/museum-klok-en-peel/2458",
     "http://purl.org/dc/elements/1.1/title": [
       {
-        "@value": "Terracottabel type bo [Periode van de Strijdende Staten]",
+        "@value": "Terracottabel type bo <> [Periode van de Strijdende Staten]",
         "@language": "nl"
       }
     ],

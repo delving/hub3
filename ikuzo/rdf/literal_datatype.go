@@ -22,7 +22,7 @@ var (
 
 	// Time and date:
 
-	// xsdDate = IRI{str: "http://www.w3.org/2001/XMLSchema#date"}
+	xsdDate = IRI{str: "http://www.w3.org/2001/XMLSchema#date"}
 	// xsdTime          = IRI{str: "http://www.w3.org/2001/XMLSchema#time"}
 	xsdDateTime = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTime"} // time.Time
 	// xsdDateTimeStamp = IRI{str: "http://www.w3.org/2001/XMLSchema#dateTimeStamp"}
@@ -61,6 +61,7 @@ var (
 		xsdDouble, xsdFloat,
 		// Time and date:
 		xsdDateTime,
+		xsdDate,
 		// Limited-range integer numbers
 		xsdByte, xsdInt,
 		// Various

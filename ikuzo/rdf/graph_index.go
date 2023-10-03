@@ -24,6 +24,7 @@ func (gs *GraphStats) decrTriples() {
 	atomic.AddUint64(&gs.Triples, ^uint64(0))
 }
 
+// NOTE: only used for existence checks
 type GraphIndex struct {
 	Subjects        map[hasher]uint64
 	Predicates      map[hasher]uint64

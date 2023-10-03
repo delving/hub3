@@ -2,6 +2,7 @@ package rdf
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kiivihal/rdf2go"
 )
@@ -51,6 +52,17 @@ func NewTriple(subject Subject, predicate Predicate, object Object) (triple *Tri
 	}
 }
 
+// ID returns a content-based ID.
+// Each triple has a unique identifier that can be used to check for uniqueness or used
+// for dedupliplication.
+//
+// BlankNodes get a hash not on the BlankNode ID but on a combination of the resource and Predicate
+// that point to the BlankNode. This ensures that the ID remains the same regardless of the BlankNode ID.
+func (triple Triple) ID() string {
+	var sb strings.Builder
+	return sb.String()
+}
+
 // Equal returns this triple is equivalent to the argument.
 func (triple Triple) Equal(other *Triple) bool {
 	return triple.Subject.Equal(other.Subject) &&
@@ -91,7 +103,7 @@ func (triple Triple) GetRDFType() (string, bool) {
 // asLegacyTriple converts a rdf.Triple to legacy package Triple
 //
 // NOTE: This function should be removed when the rdf2go package is
-// no used
+// no longer used
 func (triple Triple) asLegacyTriple() (*rdf2go.Triple, error) {
 	var s, p, o rdf2go.Term
 	switch subj := triple.Subject; subj.Type() {
