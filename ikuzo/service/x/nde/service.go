@@ -52,6 +52,9 @@ func NewService(options ...Option) (*Service, error) {
 	for _, cfg := range s.cfgs {
 		if cfg.Default {
 			s.defaultCfg = cfg
+			if cfg.OrgID != "" {
+				s.orgID = cfg.OrgID
+			}
 		}
 
 		s.lookUp[cfg.URLPrefix] = cfg

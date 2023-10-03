@@ -12,6 +12,7 @@ type DistributionCfg struct {
 }
 
 type RegisterConfig struct {
+	OrgID            string
 	Default          bool
 	URLPrefix        string `json:"urlPrefix"`
 	RDFBaseURL       string
