@@ -461,7 +461,7 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		},
 	}
 
-	if m.GetSource() != nil {
+	if m.GetSource() != nil && !m.GetDeleted() {
 		// Body is an `io.Reader` with the payload
 		bulkMsg.Body = bytes.NewReader(m.GetSource())
 	}
