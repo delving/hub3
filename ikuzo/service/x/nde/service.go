@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -30,6 +31,7 @@ type Service struct {
 	ctx              context.Context
 	cancel           context.CancelFunc
 	orgID            string
+	m                sync.RWMutex
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -180,6 +182,25 @@ func (s *Service) renderJSONLD(w http.ResponseWriter, r *http.Request, v interfa
 	w.Write(buf.Bytes())
 }
 
+func (s *Service) HandleNarthexSync(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+			}
+		}()
+	}
+
+	err := s.updateTitles(s.ctx, s.orgID)
+	if err != nil {
+		s.log.Error().Err(err).Msg("unable to run narthex sync")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
 func (s *Service) scheduleNarthexUpdate() error {
 	ticker := time.NewTicker(1 * time.Hour)
 	defer ticker.Stop()
@@ -198,14 +219,17 @@ func (s *Service) scheduleNarthexUpdate() error {
 				continue
 			}
 			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
-				// handle err
-				return err
+				s.log.Error().Err(err).Msg("unable to run narthex sync")
 			}
 		}
 	}
 }
 
 func (s *Service) updateTitles(ctx context.Context, orgID string) error {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	s.log.Info().Msg("starting narthex-nde update sync")
 	titles, err := models.GetNDETitles(orgID)
 	if err != nil {
 		return err
@@ -233,5 +257,6 @@ func (s *Service) updateTitles(ctx context.Context, orgID string) error {
 		}
 	}
 
+	s.log.Info().Msg("finished narthex-nde update sync")
 	return nil
 }
