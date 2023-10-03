@@ -19,6 +19,8 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 )
 
+var narthexMsg = "unable to run scheduled narthex update"
+
 type Option func(*Service) error
 
 type Service struct {
@@ -60,7 +62,7 @@ func NewService(options ...Option) (*Service, error) {
 
 	go func() {
 		if err := s.scheduleNarthexUpdate(); err != nil {
-			s.log.Err(err).Msg("unable to run scheduled narthex update")
+			s.log.Err(err).Msg(narthexMsg)
 		}
 	}()
 
@@ -74,7 +76,7 @@ func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 		s.orgID = orgID.String()
 		go func() {
 			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
-				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+				s.log.Error().Err(err).Msg(narthexMsg)
 			}
 		}()
 	}
@@ -109,7 +111,7 @@ func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 		s.orgID = orgID.String()
 		go func() {
 			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
-				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+				s.log.Error().Err(err).Msg(narthexMsg)
 			}
 		}()
 	}
