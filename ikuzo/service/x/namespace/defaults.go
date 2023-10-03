@@ -77,6 +77,7 @@ var customNS = []nsEntry{
 	{Prefix: "k3value", BaseURI: "http://gebouwen.brabantcloud.nl/prop/statement/value/"},
 	{Prefix: "k3ref", BaseURI: "http://gebouwen.brabantcloud.nl/prop/reference/"},
 	{Prefix: "k3qual", BaseURI: "http://gebouwen.brabantcloud.nl/prop/qualifier/"},
+	{Prefix: "ace", BaseURI: "https://data.antwerp.be/ns/cultureel-erfgoed#"},
 }
 
 var defaultNS = []nsEntry{
