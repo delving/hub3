@@ -107,6 +107,15 @@ SELECT *
 WHERE {
   ?s ?p ?o .
 } LIMIT {{.Limit}} OFFSET {{.Offset}}
+
+# tag: harvestNDEInfo
+SELECT *
+WHERE {
+  ?subject <http://schemas.delving.eu/narthex/terms/datasetSpec> ?spec;
+           <http://schemas.delving.eu/narthex/terms/datasetRights> ?rights;
+           <http://schemas.delving.eu/narthex/terms/datasetDescription> ?description.
+}
+LIMIT 1000
 `
 
 var queryBank sparql.Bank
@@ -195,6 +204,49 @@ func DeleteGraphsOrphansBySpec(orgID, spec string, revision int) (bool, error) {
 		return false, errs[0]
 	}
 	return true, nil
+}
+
+type NDEInfo struct {
+	OrgID       string
+	Spec        string
+	Rights      string
+	Description string
+}
+
+func GetNDETitles(orgID string) ([]NDEInfo, error) {
+	entries := []NDEInfo{}
+	query, err := queryBank.Prepare("harvestNDEInfo")
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := SparqlRepo(orgID).Query(query)
+	if err != nil {
+		logUnableToQueryEndpoint([]error{err})
+		return entries, err
+	}
+	for _, v := range res.Solutions() {
+		info := NDEInfo{OrgID: orgID}
+
+		spec, ok := v["spec"]
+		if !ok {
+			log.Printf("spec cannot be empty")
+			continue
+		}
+		info.Spec = spec.String()
+
+		description, ok := v["description"]
+		if ok {
+			info.Description = description.String()
+		}
+		rights, ok := v["rights"]
+		if ok {
+			info.Rights = rights.String()
+		}
+		entries = append(entries, info)
+	}
+
+	return entries, nil
 }
 
 // CountRevisionsBySpec counts each revision available in the spec

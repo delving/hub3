@@ -7,12 +7,19 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain"
 )
+
+var narthexMsg = "unable to run scheduled narthex update"
 
 type Option func(*Service) error
 
@@ -21,6 +28,12 @@ type Service struct {
 	cfgs             []*RegisterConfig
 	lookUp           map[string]*RegisterConfig
 	recordTypeLookup map[string]*RegisterConfig
+	orgs             domain.OrgConfigRetriever
+	log              zerolog.Logger
+	ctx              context.Context
+	cancel           context.CancelFunc
+	orgID            string
+	m                sync.RWMutex
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -39,25 +52,37 @@ func NewService(options ...Option) (*Service, error) {
 	for _, cfg := range s.cfgs {
 		if cfg.Default {
 			s.defaultCfg = cfg
+			if cfg.OrgID != "" {
+				s.orgID = cfg.OrgID
+			}
 		}
 
 		s.lookUp[cfg.URLPrefix] = cfg
 		s.recordTypeLookup[cfg.RecordTypeFilter] = cfg
 	}
 
-	return s, nil
-}
+	s.ctx, s.cancel = context.WithCancel(context.Background())
 
-func SetConfig(cfgs []*RegisterConfig) Option {
-	return func(s *Service) error {
-		s.cfgs = cfgs
-		return nil
-	}
+	go func() {
+		if err := s.scheduleNarthexUpdate(); err != nil {
+			s.log.Err(err).Msg(narthexMsg)
+		}
+	}()
+
+	return s, nil
 }
 
 func (s *Service) HandleDataset(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg(narthexMsg)
+			}
+		}()
+	}
 
 	dataset, err := s.getDataset(orgID.String(), spec)
 	if err != nil {
@@ -85,6 +110,14 @@ func (s *Service) enabledConfig() []string {
 
 func (s *Service) HandleCatalog(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg(narthexMsg)
+			}
+		}()
+	}
 
 	cfgName := chi.URLParam(r, "cfgName")
 
@@ -124,7 +157,13 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	s.cancel()
 	return nil
+}
+
+func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
+	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.orgs = b.Orgs
 }
 
 // JSON marshals 'v' to JSON, automatically escaping HTML and setting the
@@ -146,4 +185,83 @@ func (s *Service) renderJSONLD(w http.ResponseWriter, r *http.Request, v interfa
 	}
 
 	w.Write(buf.Bytes())
+}
+
+func (s *Service) HandleNarthexSync(w http.ResponseWriter, r *http.Request) {
+	orgID := domain.GetOrganizationID(r)
+	if s.orgID == "" {
+		s.orgID = orgID.String()
+		go func() {
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg("unable to run narthex update titles")
+			}
+		}()
+	}
+
+	err := s.updateTitles(s.ctx, s.orgID)
+	if err != nil {
+		s.log.Error().Err(err).Msg("unable to run narthex sync")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Service) scheduleNarthexUpdate() error {
+	ticker := time.NewTicker(1 * time.Hour)
+	defer ticker.Stop()
+
+	eg, _ := errgroup.WithContext(s.ctx)
+
+	for {
+		select {
+		case <-s.ctx.Done():
+			if err := eg.Wait(); err != nil {
+				return fmt.Errorf("error while waiting for go-routines to shut down: %w", err)
+			}
+			return s.ctx.Err()
+		case <-ticker.C:
+			if s.orgID == "" { // only run when the orgID is set
+				continue
+			}
+			if err := s.updateTitles(s.ctx, s.orgID); err != nil {
+				s.log.Error().Err(err).Msg("unable to run narthex sync")
+			}
+		}
+	}
+}
+
+func (s *Service) updateTitles(ctx context.Context, orgID string) error {
+	s.m.Lock()
+	defer s.m.Unlock()
+
+	s.log.Info().Msg("starting narthex-nde update sync")
+	titles, err := models.GetNDETitles(orgID)
+	if err != nil {
+		return err
+	}
+
+	for _, title := range titles {
+		if title.Spec == "" {
+			continue
+		}
+
+		if s.ctx.Err() != nil {
+			return s.ctx.Err()
+		}
+
+		ds, err := models.GetDataSet(orgID, title.Spec)
+		if err != nil {
+			s.log.Warn().Err(err).Msgf("unable to find a dataset with spec %q", title.Spec)
+			continue
+		}
+
+		ds.Description = title.Description
+		ds.Rights = title.Rights
+		if err := ds.Save(); err != nil {
+			s.log.Error().Err(err).Msgf("unable to save dataset info for: %q", title.Spec)
+		}
+	}
+
+	s.log.Info().Msg("finished narthex-nde update sync")
+	return nil
 }

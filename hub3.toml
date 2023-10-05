@@ -585,6 +585,7 @@ defaultLicense = "http://creativecommons.org/publicdomain/zero/1.0/"
 datasetFmt = "%s/onderzoeken/archief/%s/"
 recordTypeFilter = "ead"
 urlPrefix = "toegang"
+orgID = "NL-HaNA"
 
 [NDE.toegang.publisher]
 name = "Nationaal Archief"

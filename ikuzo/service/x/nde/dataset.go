@@ -147,9 +147,13 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 		IncludedInDataCatalog: fmt.Sprintf("%s/id/datacatalog/%s", r.RDFBaseURL, r.URLPrefix),
 		Keywords:              []string{},
 		License:               r.DefaultLicense,
-		Name:                  spec,
+		Name:                  ds.Description,
 		Identifier:            spec,
 		Publisher:             r.GetAgent(),
+	}
+
+	if d.Name == "" {
+		d.Name = spec
 	}
 
 	if r.DatasetFmt != "" {

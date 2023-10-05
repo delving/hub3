@@ -323,8 +323,11 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	_ = fb.Doc()
 
 	for _, tag := range fb.FragmentGraph().Meta.Tags {
-		if tag == "fragmentsOnly" {
+		switch tag {
+		case "fragmentsOnly":
 			p.indexTypes = []string{"fragments"}
+		case "rdfOnly":
+			p.indexTypes = []string{}
 		}
 	}
 
