@@ -19,7 +19,8 @@ func (s *Service) asynqServer() *asynq.Server {
 			// Specify how many concurrent workers to use
 			Concurrency: s.nrWorkers,
 			// Optionally specify multiple queues with different priority.
-			Queues: s.queues,
+			Queues:         s.queues,
+			StrictPriority: true,
 		},
 	)
 

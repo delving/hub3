@@ -20,7 +20,9 @@ var (
 	_             domain.Service = (*Service)(nil)
 	defaultQueues                = map[string]int{
 		"critical": 6,
-		"default":  3,
+		"fast":     5,
+		"default":  4,
+		"bulk":     2,
 		"low":      1,
 	}
 )
