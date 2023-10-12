@@ -16,7 +16,7 @@ services:
       - http.cors.enabled=true
       - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
       - http.cors.allow-credentials=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     volumes:
         - ./docker-data/esdata1:/usr/share/elasticsearch/data
     ulimits:
@@ -25,12 +25,6 @@ services:
         hard: -1
     # networks:
       # - esnet
-
-  dejavu:
-    image: appbaseio/dejavu
-    container_name: dejavu
-    ports:
-        - 1358:1358
 
   fuseki:
     image: zacanbot/fuseki
@@ -91,28 +85,9 @@ services:
       environment:
         - REDIS_REPLICATION_MODE=master
 
-  asynqmon:
-      image: "hibiken/asynqmon"
-
-      environment:
-        - REDIS_URL=redis://:sOmE_sEcUrE_pAsS@redis:6379/0
-
-      ports:
-        - "8088:8080"
-
-      # networks:
-        # node_net:
-
-
 # networking
 networks:
   default:
     ipam:
       config:
       - subnet: 10.202.0.0/16
-  # node_net:
-    # ipam:
-      # driver: default
-      # config:
-        # - subnet: 10.200.0.0/16
-  # esnet:
