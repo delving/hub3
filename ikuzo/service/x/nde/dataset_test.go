@@ -77,6 +77,25 @@ func TestHydraView_setPager(t *testing.T) {
 				currentPage: 4,
 			},
 		},
+		{
+			"with page; before last returned",
+			fields{
+				Type:        hydraType,
+				baseID:      baseID,
+				total:       7012,
+				currentPage: 13,
+			},
+			&HydraView{
+				ID:          "/catalog?page=13",
+				Type:        hydraType,
+				First:       map[string]string{"@id": "/catalog?page=1"},
+				Next:        map[string]string{"@id": "/catalog?page=14"},
+				Last:        map[string]string{"@id": "/catalog?page=14"},
+				baseID:      baseID,
+				TotalItems:  7012,
+				currentPage: 13,
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

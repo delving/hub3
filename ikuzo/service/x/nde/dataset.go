@@ -118,7 +118,7 @@ func (hv *HydraView) setPager() {
 	hv.First = map[string]string{"@id": hv.hydraPage(1)}
 	next := hv.currentPage + 1
 	totalPages := int(hv.TotalItems / hydraObjectPerPage)
-	if next < totalPages {
+	if next <= totalPages {
 		hv.Next = map[string]string{"@id": hv.hydraPage(next)}
 	}
 	if totalPages > 1 {
