@@ -42,9 +42,9 @@ Start the server with the default configuration.
 
     $ hub3 http
 
-For development setup, see [Develop](./docs/development.md).
+For development setup, see [Develop](./docs/hub3/development.md).
 
-For deployment instructions, see [Deployment](./docs/deployment.md).
+For deployment instructions, see [Deployment](./docs/hub3/deployment.md).
 
 ## Changelog
 
