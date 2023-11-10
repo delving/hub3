@@ -264,6 +264,8 @@ func (fb *FragmentBuilder) GetUrns() []string {
 		s := strings.Trim(t.Subject.String(), "<>")
 		if strings.HasPrefix(s, "urn:") {
 			urns = append(urns, s)
+			// remove urn this will be added by the ResolveRemoteWebResources call
+			fb.Graph.Remove(t)
 		}
 	}
 
