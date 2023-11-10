@@ -36,13 +36,16 @@ func (fg *FragmentGraph) Marshal() ([]byte, error) {
 	return json.Marshal(fg)
 }
 
-func (fg *FragmentGraph) Reader() (io.Reader, error) {
+func (fg *FragmentGraph) Reader() (int, io.Reader, error) {
+	// TODO: idempotency is an issue
+	fg.Meta.Modified = 0
+	fg.Meta.Revision = 0
 	b, err := json.MarshalIndent(fg, "", "    ")
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
-	return bytes.NewReader(b), nil
+	return len(b), bytes.NewReader(b), nil
 }
 
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {

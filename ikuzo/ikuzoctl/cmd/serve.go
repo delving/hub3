@@ -19,10 +19,11 @@ import (
 
 	stdlog "log"
 
-	"github.com/delving/hub3/hub3/server/http/handlers"
-	"github.com/delving/hub3/ikuzo"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
+
+	"github.com/delving/hub3/hub3/server/http/handlers"
+	"github.com/delving/hub3/ikuzo"
 )
 
 //go:embed static
@@ -50,6 +51,7 @@ func serve() {
 
 	options, err := cfg.Options()
 	if err != nil {
+		stdlog.Printf("unable to create options: %s", err)
 		log.Fatal().
 			Err(err).
 			Stack().

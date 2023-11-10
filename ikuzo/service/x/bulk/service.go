@@ -16,28 +16,40 @@ package bulk
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+
+	stdlog "log"
+
+	"github.com/go-redis/redis/v8"
+	_ "github.com/marcboeker/go-duckdb"
+
+	"github.com/go-chi/chi"
+	"github.com/rs/zerolog"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/go-chi/chi"
-	"github.com/rs/zerolog"
 )
 
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	index      *index.Service
-	indexTypes []string
-	postHooks  map[string][]domain.PostHookService
-	log        zerolog.Logger
-	orgs       domain.OrgConfigRetriever
+	index       *index.Service
+	indexTypes  []string
+	postHooks   map[string][]domain.PostHookService
+	log         zerolog.Logger
+	orgs        domain.OrgConfigRetriever
+	ctx         context.Context
+	blobCfg     BlobConfig
+	logRequests bool
+	rc          *redis.Client
 }
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		indexTypes: []string{"v2"},
 		postHooks:  map[string][]domain.PostHookService{},
+		ctx:        context.Background(),
 	}
 
 	// apply options
@@ -47,7 +59,32 @@ func NewService(options ...Option) (*Service, error) {
 		}
 	}
 
+	if err := s.setupRedis(); err != nil {
+		stdlog.Printf("unable to setup redis: %q", err)
+		return nil, err
+	}
+
 	return s, nil
+}
+
+func (s *Service) setupRedis() error {
+	// Create a new Redis client
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",   // Redis server address
+		Password: "sOmE_sEcUrE_pAsS", // Redis password (if required)
+		DB:       1,                  // Redis database index
+	})
+
+	// Ping the Redis server to check if it's running
+	pong, err := client.Ping(context.Background()).Result()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Connected to Redis:", pong)
+
+	s.rc = client
+
+	return nil
 }
 
 func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +98,6 @@ func (s *Service) Shutdown(ctx context.Context) error {
 }
 
 func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
-	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
+	s.log = b.Logger.With().Str("svc", "bulk").Logger()
 	s.orgs = b.Orgs
 }
