@@ -23,11 +23,12 @@ import (
 	"time"
 
 	"github.com/asdine/storm/q"
+	wp "github.com/gammazero/workerpool"
+	"github.com/rs/zerolog/log"
+
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
-	wp "github.com/gammazero/workerpool"
-	"github.com/rs/zerolog/log"
 
 	elastic "github.com/olivere/elastic/v7"
 )
@@ -250,11 +251,18 @@ func DeleteDataSet(orgID, spec string, ctx context.Context) error {
 
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() (*DataSet, error) {
-	err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, "Revision", ds.Revision+1)
-	if err != nil {
-		log.Warn().Err(err).Str("datasetID", ds.Spec).Msg("Unable to update field in dataset")
+	updates := map[string]any{
+		"Revision": ds.Revision + 1,
+		"Modified": time.Now(),
+	}
 
-		return nil, err
+	for k, v := range updates {
+		err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, k, v)
+		if err != nil {
+			log.Warn().Err(err).Str("datasetID", ds.Spec).Msgf("Unable to update %q field in dataset", k)
+			return nil, err
+		}
+
 	}
 
 	freshDs, err := GetDataSet(ds.OrgID, ds.Spec)
