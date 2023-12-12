@@ -28,6 +28,7 @@ func (s *Service) HandleVerb() http.HandlerFunc {
 
 		resp, err := s.Do(r.Context(), &req)
 		if err != nil {
+			s.log.Err(err).Msgf("unable to perform action: %#v", req)
 			render.Error(w, r, err, nil)
 			return
 		}

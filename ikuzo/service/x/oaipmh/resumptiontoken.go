@@ -3,6 +3,7 @@ package oaipmh
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -20,7 +21,8 @@ type RawToken struct {
 func parseToken(input string) (RawToken, error) {
 	parts := strings.SplitN(input, tokenSep, 3)
 	if len(parts) != 3 {
-		return RawToken{}, ErrBadResumptionToken
+		log.Printf("parts %#v from %s", parts, input)
+		return RawToken{}, ErrResumptionTokenMalformed
 	}
 
 	seen, err := strconv.ParseInt(parts[1], 10, 0)
