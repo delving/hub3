@@ -111,6 +111,8 @@ var (
 	prefix     string
 	identifier string
 	outputPath string
+	from       string
+	until      string
 )
 
 func init() {
@@ -120,12 +122,18 @@ func init() {
 
 	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listIdentifiersCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
+	listIdentifiersCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
 	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	listRecordsCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
+	listRecordsCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
 
 	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 	listGetRecordCmd.Flags().BoolVarP(&storeEAD, "storeEAD", "", false, "Process and store EAD records")
+	listGetRecordCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
+	listGetRecordCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
 
 	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
 	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
@@ -212,6 +220,8 @@ func getIDs() []string {
 		Verb:           "ListIdentifiers",
 		Set:            spec,
 		MetadataPrefix: prefix,
+		From:           from,
+		Until:          until,
 	})
 	ids := []string{}
 	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
@@ -286,6 +296,8 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 			Verb:           "ListIdentifiers",
 			Set:            spec,
 			MetadataPrefix: prefix,
+			From:           from,
+			Until:          until,
 		})
 		req.HarvestIdentifiers(func(header *oai.Header) {
 			if req.CompleteListSize != 0 && completeListSize == 0 {
@@ -340,7 +352,10 @@ func listRecords(ccmd *cobra.Command, args []string) {
 		Verb:           "ListRecords",
 		Set:            spec,
 		MetadataPrefix: prefix,
+		From:           from,
+		Until:          until,
 	})
+
 	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_records.xml", spec, prefix)))
 	if err != nil {
 		log.Fatal("Cannot create file", err)
