@@ -56,6 +56,7 @@ type Graph struct {
 	UseResource      bool
 	GraphName        string
 	NamespaceManager NamespaceManager
+	Subject          Subject
 }
 
 func NewGraph() *Graph {
