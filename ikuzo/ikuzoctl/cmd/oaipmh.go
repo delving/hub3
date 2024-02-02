@@ -24,6 +24,7 @@ import (
 	"syscall"
 
 	pb "github.com/cheggaaa/pb/v3"
+	"github.com/gocarina/gocsv"
 	"github.com/kiivihal/goharvest/oai"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
@@ -113,6 +114,7 @@ var (
 	outputPath string
 	from       string
 	until      string
+	idCSV      string
 )
 
 func init() {
@@ -134,6 +136,7 @@ func init() {
 	listGetRecordCmd.Flags().BoolVarP(&storeEAD, "storeEAD", "", false, "Process and store EAD records")
 	listGetRecordCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
 	listGetRecordCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
+	listGetRecordCmd.Flags().StringVarP(&idCSV, "idCSV", "", "", "csv with ids to be harvested")
 
 	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
 	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
@@ -267,15 +270,41 @@ func storeRecord(identifier string, prefix string) string {
 	})
 	var record string
 	req.Harvest(func(r *oai.Response) {
+		if r.Error.Code != "" {
+			log.Printf("error harvesting record %q; %#v", identifier, r.Error)
+			return
+		}
+
 		record = r.GetRecord.Record.Metadata.GoString()
 		file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
 		if err != nil {
 			log.Fatal("Cannot create file", err)
 		}
+		fmt.Fprintf(file, "<record id=\"%s\">\n", identifier)
 		fmt.Fprintln(file, record)
+		fmt.Fprintln(file, "</record>\n")
 	})
 
 	return record
+}
+
+type dataIDS struct {
+	Identifier string `csv:"identifier"`
+}
+
+func idsFromCSV(fname string) ([]dataIDS, error) {
+	var ids []dataIDS
+	f, err := os.Open(fname)
+	if err != nil {
+		return ids, err
+	}
+	defer f.Close()
+
+	if err := gocsv.UnmarshalFile(f, &ids); err != nil { // Load clients from file
+		return ids, err
+	}
+
+	return ids, nil
 }
 
 func listGetRecords(ccmd *cobra.Command, args []string) {
@@ -290,6 +319,23 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 	g.Go(func() error {
 		defer close(ids)
 		seen := 0
+
+		if idCSV != "" {
+			identifiers, err := idsFromCSV(idCSV)
+			if err != nil {
+				return err
+			}
+			bar.SetTotal(int64(len(identifiers)))
+			for _, id := range identifiers {
+				seen++
+				if id.Identifier == "" {
+					continue
+				}
+				ids <- id.Identifier
+			}
+
+			return nil
+		}
 
 		req := (&oai.Request{
 			BaseURL:        url,
