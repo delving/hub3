@@ -1825,7 +1825,7 @@ var defaultNS = []nsEntry{
 	{Prefix: "sdmxd", BaseURI: "http://purl.org/linked-data/sdmx/2009/dimension#", Weight: 100},
 	{Prefix: "sdmxdim", BaseURI: "http://purl.org/linked-data/sdmx/2009/dimension#"},
 	{Prefix: "sdmxm", BaseURI: "http://purl.org/linked-data/sdmx/2009/measure#"},
-	{Prefix: "sdo", BaseURI: "http://schema.org/"},
+	{Prefix: "sdo", BaseURI: "https://schema.org/"},
 	{Prefix: "sdshare", BaseURI: "http://www.sdshare.org/2012/extension/"},
 	{Prefix: "sdt", BaseURI: "http://statisticaldata.linkedwidgets.org/terms/"},
 	{Prefix: "sdterms", BaseURI: "http://statisticaldata.linkedwidgets.org/terms/"},

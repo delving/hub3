@@ -1,11 +1,17 @@
 package sparql
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -26,10 +32,22 @@ type HarvestConfig struct {
 		IncrementalWhereClause string // using the From timestamp to harvest an incremental set
 		GetGraphQuery          string // sparql query to get full graph. ?subject is injected for each
 	}
-	From          time.Time // the time of the last harvest
-	GraphMimeType string    // if the subject can be harvested directly which mime-type to use
-	MaxSubjects   int
-	PageSize      int
+	From              time.Time // the time of the last harvest
+	GraphMimeType     string    // if the subject can be harvested directly which mime-type to use
+	MaxSubjects       int
+	PageSize          int
+	TotalSizeSubjects int
+	HarvestErrors     map[string]error
+	rw                sync.RWMutex
+}
+
+func (cfg *HarvestConfig) AddError(subject string, err error) {
+	cfg.rw.Lock()
+	if len(cfg.HarvestErrors) == 0 {
+		cfg.HarvestErrors = map[string]error{}
+	}
+	cfg.HarvestErrors[subject] = err
+	cfg.rw.Unlock()
 }
 
 func (cfg *HarvestConfig) getRepo() (*sparql.Repo, error) {
@@ -41,18 +59,90 @@ func (cfg *HarvestConfig) getRepo() (*sparql.Repo, error) {
 	return repo, nil
 }
 
-func HarvestSubjects(ctx context.Context, cfg HarvestConfig, ids chan string) (err error) {
+func HarvestWithContext(ctx context.Context, cfg *HarvestConfig, subject string) (res *responseWithContext, err error) {
+	q := fmt.Sprintf(
+		`
+		SELECT * WHERE {
+		BIND(<%s> as ?s1)
+		?s1 ?p1 ?o1 .
+		FILTER (?o1 != ?s1)
+		OPTIONAL {?o1 ?p2 ?o2 .
+			OPTIONAL {?o2 ?p3 ?o3
+					?o3 ?p4 ?o4 .
+				}
+			}
+		}
+		LIMIT 1000`,
+		subject,
+	)
+
+	http.DefaultClient.Timeout = 10 * time.Second
+
+	repo, err := cfg.getRepo()
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := repo.Query(q)
+	if err != nil {
+		return nil, err
+	}
+
+	b, err := json.Marshal(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("bindings pre: %#v", string(b))
+
+	replacements := map[string]string{
+		"Value":    "value",
+		"Type":     "type",
+		"DataType": "datatype",
+		"Vars":     "vars",
+		"Head":     "head",
+		"Link":     "link",
+		"Results":  "results",
+		"Bindings": "bindings",
+	}
+
+	for oldKey, newValue := range replacements {
+		oldValue := []byte(fmt.Sprintf("\"%s\":", oldKey))
+		newValueBytes := []byte(fmt.Sprintf("\"%s\":", newValue))
+		b = bytes.ReplaceAll(b, oldValue, newValueBytes)
+	}
+
+	log.Printf("bindings post: %#v", string(b))
+
+	if err := json.Unmarshal(b, &res); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (err error) {
+	defer close(ids)
+
+	layout := "2006-01-02T15:04:05.999Z"
+
 	whereClause := cfg.Queries.WhereClause
 	if !cfg.From.IsZero() {
 		whereClause = cfg.Queries.IncrementalWhereClause
+		whereClause = strings.ReplaceAll(whereClause, "~~DATE~~", cfg.From.Format(layout))
 	}
 
 	countQuery := fmt.Sprintf(
-		"%s \n select (count(?%s) as ?count) where {%s}",
+		`%s
+		select (count(?%s) as ?count)
+		where {%s}
+	    `,
 		cfg.Queries.NamespacePrefix,
 		cfg.Queries.SubjectVar,
 		whereClause,
 	)
+
+	slog.Info("count query", "query", countQuery)
 
 	repo, err := cfg.getRepo()
 	if err != nil {
@@ -77,7 +167,11 @@ func HarvestSubjects(ctx context.Context, cfg HarvestConfig, ids chan string) (e
 		return fmt.Errorf("error converting string to integer: %w", err)
 	}
 
-	_ = totalIDs
+	if totalIDs == 0 {
+		return nil
+	}
+
+	cfg.TotalSizeSubjects = totalIDs
 	var offSet int
 	pageSize := 5000
 	if cfg.PageSize != 0 {
@@ -130,8 +224,6 @@ harvestLoop:
 		offSet += pageSize
 	}
 
-	close(ids)
-
 	return
 }
 
@@ -139,13 +231,13 @@ func Harvest(ctx context.Context, repo *Repo, query string) (responses []*respon
 	return
 }
 
-func getSubject(c *http.Client, uri string) (io.ReadCloser, error) {
+func getSubject(c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
 
-	req.Header.Set("Accept", "text/turtle")
+	req.Header.Set("Accept", mimeType)
 
 	response, err := c.Do(req)
 	if err != nil {
@@ -160,18 +252,32 @@ func getSubject(c *http.Client, uri string) (io.ReadCloser, error) {
 	return response.Body, nil
 }
 
-func HarvestGraphs(ctx context.Context, cfg HarvestConfig, cb func(g *rdf.Graph) error) (err error) {
+func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph) error) (err error) {
 	subjects := make(chan string)
 	g, _ := errgroup.WithContext(ctx)
 
 	// Produce
 	g.Go(func() error {
-		return HarvestSubjects(ctx, cfg, subjects)
+		if len(cfg.HarvestErrors) == 0 {
+			return HarvestSubjects(ctx, cfg, subjects)
+		}
+		oldErrors := cfg.HarvestErrors
+		cfg.HarvestErrors = map[string]error{}
+		for subject := range oldErrors {
+			subjects <- subject
+		}
+		close(subjects)
+		return nil
 	})
 
 	graphs := make(chan *rdf.Graph)
 
-	c := retryablehttp.NewClient().StandardClient()
+	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = nil
+	retryClient.RetryMax = 3
+	retryClient.HTTPClient.Timeout = 8 * time.Second
+
+	c := retryClient.StandardClient()
 
 	// Map
 	nWorkers := 4
@@ -186,19 +292,25 @@ func HarvestGraphs(ctx context.Context, cfg HarvestConfig, cb func(g *rdf.Graph)
 			}()
 
 			for subject := range subjects {
-				body, err := getSubject(c, subject)
+				body, err := getSubject(c, subject, cfg.GraphMimeType)
 				if err != nil {
-					return err
+					slog.Error("unable to retrieve rdf", "uri", subject, "error", err)
+					cfg.AddError(subject, err)
+					continue
 				}
 
 				g, err := ntriples.Parse(body, nil)
 				if err != nil {
-					return err
+					cfg.AddError(subject, err)
+					slog.Error("unable to parse rdf", "uri", subject, "error", err)
+					continue
 				}
 
 				s, err := rdf.NewIRI(subject)
 				if err != nil {
-					return err
+					cfg.AddError(subject, err)
+					slog.Error("unable to parse subject", "uri", subject, "error", err)
+					continue
 				}
 
 				g.Subject = rdf.Subject(s)

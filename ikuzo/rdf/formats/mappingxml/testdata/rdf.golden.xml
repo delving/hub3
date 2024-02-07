@@ -1,1 +1,34 @@
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:schema="http://schema.org/"><schema:CreativeWork rdf:about="http://klek.si/208B7R"><schema:alternateName xml:lang="nl">Mantelhaak met Medusakop. Romeins?</schema:alternateName><schema:contentLocation><schema:Place rdf:nodeID="b2"><schema:name xml:lang="nl">Vitrine 8</schema:name></schema:Place></schema:contentLocation><schema:dateCreated>2021-12-16T21:38:11</schema:dateCreated><schema:dateModified>2022-01-24T10:34:30</schema:dateModified><schema:description xml:lang="nl">Zware bronzen mantelhaak met kop van Medusa</schema:description><schema:identifier>http://klek.si/208B7R</schema:identifier><schema:image><schema:ImageObject rdf:nodeID="b0"><schema:contentUrl>http://cdn.klek.si/files/61bbb5459062bb74659daa5f/jpeg/small</schema:contentUrl><schema:encodingFormat>image/jpeg</schema:encodingFormat></schema:ImageObject><schema:ImageObject rdf:nodeID="b1"><schema:contentUrl>http://cdn.klek.si/files/61bbb5539062bb74659daa60/jpeg/small</schema:contentUrl><schema:encodingFormat>image/jpeg</schema:encodingFormat></schema:ImageObject></schema:image><schema:license>http://creativecommons.org/publicdomain/zero/1.0/</schema:license><schema:name xml:lang="nl">Mantelhaak</schema:name></schema:CreativeWork><schema:CreativeWork rdf:about="http://klek.si/208Z7R"><schema:dateCreated>2021-10-19T17:56:11</schema:dateCreated><schema:dateModified>2022-01-24T10:34:30</schema:dateModified><schema:identifier>http://klek.si/208Z7R</schema:identifier><schema:image><schema:ImageObject rdf:nodeID="b3"><schema:contentUrl>http://cdn.klek.si/files/61896c749062bb74659da897/jpeg/small</schema:contentUrl><schema:encodingFormat>image/jpeg</schema:encodingFormat></schema:ImageObject></schema:image><schema:license>http://creativecommons.org/publicdomain/zero/1.0/</schema:license></schema:CreativeWork></rdf:RDF>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sdo="https://schema.org/" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <sdo:CreativeWork rdf:about="https://klek.si/pqx31b/01339n">
+        <dc:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
+        <skos:prefLabel xml:lang="nl">Glazen buisje</skos:prefLabel>
+        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1950-01-01</sdo:dateCreated>
+        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1990-01-01</sdo:dateCreated>
+        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-02-03T14:47:27.151Z</sdo:dateCreated>
+        <sdo:dateCreated xml:lang="nl">XXc - XXd</sdo:dateCreated>
+        <sdo:dateModified rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2024-02-01T12:22:04.218Z</sdo:dateModified>
+        <sdo:description xml:lang="nl">Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken&lt;br/&gt;</sdo:description>
+        <sdo:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
+        <sdo:image>
+            <sdo:ImageObject rdf:about="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original">
+                <sdo:contentSize>8257</sdo:contentSize>
+                <sdo:contentUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"/>
+                <sdo:encodingFormat>image/jpeg</sdo:encodingFormat>
+                <sdo:thumbnailUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/thumbnail"/>
+                <sdo:uploadDate rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-04-12T21:42:47.621Z</sdo:uploadDate>
+            </sdo:ImageObject>
+        </sdo:image>
+        <sdo:itemCondition xml:lang="nl">slecht aan twee zijden afgebroken</sdo:itemCondition>
+        <sdo:keywords xml:lang="nl">interieur</sdo:keywords>
+        <sdo:keywords xml:lang="nl">laboratorium</sdo:keywords>
+        <sdo:keywords xml:lang="nl">natuurkunde</sdo:keywords>
+        <sdo:keywords xml:lang="nl">natuurwetenschap</sdo:keywords>
+        <sdo:keywords xml:lang="nl">onderwijs</sdo:keywords>
+        <sdo:keywords xml:lang="nl">scheikunde</sdo:keywords>
+        <sdo:material xml:lang="nl">glas</sdo:material>
+        <sdo:name xml:lang="nl">Glazen buisje</sdo:name>
+        <sdo:size xml:lang="nl">diameter 0.5cm</sdo:size>
+        <sdo:size xml:lang="nl">hoogte 21cm resthoogte</sdo:size>
+    </sdo:CreativeWork>
+</rdf:RDF>
+

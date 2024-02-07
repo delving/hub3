@@ -35,10 +35,10 @@ type results struct {
 }
 
 type Entry struct {
-	Type     TermType `json:"type"` // "uri", "literal", "typed-literal" or "bnode"
-	XMLLang  string   `json:"xml:lang"`
-	Value    string   `json:"value"`
-	DataType string   `json:"datatype"`
+	Type     TermType
+	XMLLang  string `json:"xml:lang"`
+	Value    string
+	DataType string
 }
 
 func (e *Entry) asSubject() (rdf.Subject, error) {

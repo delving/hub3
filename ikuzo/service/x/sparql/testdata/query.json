@@ -1,88 +1,89 @@
 {
     "head": {
-        "vars": ["s", "p", "o", "p2", "o2", "p3", "o3", "p4", "o4"]
+        "vars": ["s1", "p1", "o1", "p2", "o2", "p3", "o3", "p4", "o4"]
     },
     "results": {
-        "bindings": [{
-                "s": {
+        "bindings": [
+            {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
                 },
-                "o": {
+                "o1": {
                     "type": "uri",
                     "value": "https://schema.org/CreativeWork"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/license"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "http://creativecommons.org/publicdomain/zero/1.0/"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/identifier"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "https://klek.si/208B7R"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/dateCreated"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "2021-12-16T21:38:11"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/dateModified"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "2022-01-24T10:34:30"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b0"
                 },
@@ -96,15 +97,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b0"
                 },
@@ -118,15 +119,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b0"
                 },
@@ -140,15 +141,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b1"
                 },
@@ -162,15 +163,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b1"
                 },
@@ -184,15 +185,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b1"
                 },
@@ -206,60 +207,60 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/name"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "xml:lang": "nl",
                     "value": "Mantelhaak"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/description"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "xml:lang": "nl",
                     "value": "Zware bronzen mantelhaak met kop van Medusa"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/alternateName"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "xml:lang": "nl",
                     "value": "Mantelhaak met Medusakop. Romeins?"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/contentLocation"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b2"
                 },
@@ -273,15 +274,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208B7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/contentLocation"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b2"
                 },
@@ -296,85 +297,85 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
                 },
-                "o": {
+                "o1": {
                     "type": "uri",
                     "value": "https://schema.org/CreativeWork"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/license"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "http://creativecommons.org/publicdomain/zero/1.0/"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/identifier"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "https://klek.si/208Z7R"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/dateCreated"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "2021-10-19T17:56:11"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/dateModified"
                 },
-                "o": {
+                "o1": {
                     "type": "literal",
                     "value": "2022-01-24T10:34:30"
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b3"
                 },
@@ -388,15 +389,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b3"
                 },
@@ -410,15 +411,15 @@
                 }
             },
             {
-                "s": {
+                "s1": {
                     "type": "uri",
                     "value": "https://klek.si/208Z7R"
                 },
-                "p": {
+                "p1": {
                     "type": "uri",
                     "value": "https://schema.org/image"
                 },
-                "o": {
+                "o1": {
                     "type": "bnode",
                     "value": "b3"
                 },

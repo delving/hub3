@@ -5,10 +5,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/delving/hub3/ikuzo/rdf"
-	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/google/go-cmp/cmp"
 	"github.com/matryer/is"
+
+	"github.com/delving/hub3/ikuzo/rdf"
+	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 )
 
 func TestSerialize(t *testing.T) {
@@ -26,13 +27,15 @@ func TestSerialize(t *testing.T) {
 		_, err = ntriples.Parse(f, g)
 		is.NoErr(err)
 
-		iri, err := rdf.SCHEMA.IRI("CreativeWork")
+		iri, err := rdf.NewIRI("https://schema.org/CreativeWork")
 		is.NoErr(err)
 
 		cfg := FilterConfig{RDFType: iri}
 		var buf bytes.Buffer
 		err = Serialize(g, &buf, &cfg)
 		is.NoErr(err)
+
+		os.WriteFile("/tmp/data.xml", buf.Bytes(), os.ModePerm)
 
 		b, err := os.ReadFile("./testdata/rdf.golden.xml")
 		is.NoErr(err)
@@ -45,16 +48,16 @@ func TestSerialize(t *testing.T) {
 		is := is.New(t)
 
 		is.Equal(g.Len(), 28)
-		is.Equal(len(g.Resources()), 6)
+		is.Equal(len(g.Resources()), 2)
 
-		iri, err := rdf.SCHEMA.IRI("CreativeWork")
+		iri, err := rdf.NewIRI("https://schema.org/CreativeWork")
 		is.NoErr(err)
 
 		cfg := FilterConfig{RDFType: iri}
 		filtered := filterResources(g.Resources(), &cfg)
-		is.Equal(len(filtered), 2)
+		is.Equal(len(filtered), 1)
 
-		s, err := rdf.NewIRI("http://klek.si/208B7R")
+		s, err := rdf.NewIRI("https://klek.si/pqx31b/01339n")
 		is.NoErr(err)
 		cfg = FilterConfig{Subject: s}
 		filtered = filterResources(g.Resources(), &cfg)

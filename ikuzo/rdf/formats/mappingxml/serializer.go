@@ -33,7 +33,7 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 	}
 
 	doc := etree.NewDocument()
-	doc.Indent(2)
+	doc.Indent(4)
 	root := doc.CreateElement("rdf:RDF")
 	root.CreateAttr("xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
 
@@ -51,6 +51,8 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 			return resourceErr
 		}
 	}
+
+	doc.Indent(4)
 
 	_, err = doc.WriteTo(w)
 	if err != nil {

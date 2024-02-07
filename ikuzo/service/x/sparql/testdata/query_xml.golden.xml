@@ -1,0 +1,26 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sdo="https://schema.org/">
+    <sdo:CreativeWork rdf:about="https://klek.si/208B7R">
+        <sdo:alternateName xml:lang="nl">Mantelhaak met Medusakop. Romeins?</sdo:alternateName>
+        <sdo:contentLocation>
+            <sdo:Place rdf:nodeID="b2">
+                <sdo:name xml:lang="nl">Vitrine 8</sdo:name>
+            </sdo:Place>
+        </sdo:contentLocation>
+        <sdo:dateCreated>2021-12-16T21:38:11</sdo:dateCreated>
+        <sdo:dateModified>2022-01-24T10:34:30</sdo:dateModified>
+        <sdo:description xml:lang="nl">Zware bronzen mantelhaak met kop van Medusa</sdo:description>
+        <sdo:identifier>https://klek.si/208B7R</sdo:identifier>
+        <sdo:image>
+            <sdo:ImageObject rdf:nodeID="b0">
+                <sdo:contentUrl>https://cdn.klek.si/files/61bbb5459062bb74659daa5f/jpeg/small</sdo:contentUrl>
+                <sdo:encodingFormat>image/jpeg</sdo:encodingFormat>
+            </sdo:ImageObject>
+            <sdo:ImageObject rdf:nodeID="b1">
+                <sdo:contentUrl>https://cdn.klek.si/files/61bbb5539062bb74659daa60/jpeg/small</sdo:contentUrl>
+                <sdo:encodingFormat>image/jpeg</sdo:encodingFormat>
+            </sdo:ImageObject>
+        </sdo:image>
+        <sdo:license>http://creativecommons.org/publicdomain/zero/1.0/</sdo:license>
+        <sdo:name xml:lang="nl">Mantelhaak</sdo:name>
+    </sdo:CreativeWork>
+</rdf:RDF>

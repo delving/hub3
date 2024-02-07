@@ -1,0 +1,735 @@
+{
+    "head": {
+        "vars": ["s", "p", "o", "p1", "o2", "p3", "o3"]
+    },
+    "results": {
+        "bindings": [
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                    "type": "literal",
+                    "value": "2023-04-12T21:42:47.621Z"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://schema.org/uploadDate"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "type": "literal",
+                    "value": "8257"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentSize"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "https://schema.org/ImageObject"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "type": "literal",
+                    "value": "image/jpeg"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://schema.org/encodingFormat"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/thumbnail"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentUrl"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://schema.org/thumbnailUrl"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/thumbnail"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/thumbnailUrl"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "image/jpeg"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/encodingFormat"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "8257"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/contentSize"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                    "type": "literal",
+                    "value": "2023-04-12T21:42:47.621Z"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://schema.org/uploadDate"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://schema.org/ImageObject"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/image"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "uri",
+                    "value": "https://schema.org/CreativeWork"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "diameter 0.5cm",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/size>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "diameter 0.5cm",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/size"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "glas",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/material>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "glas",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/material"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/2004/02/skos/core#prefLabel"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/name>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<http://www.w3.org/2004/02/skos/core#prefLabel>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/name"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken<br/>",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/description"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken<br/>",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/description>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "hoogte 21cm resthoogte",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/size>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "hoogte 21cm resthoogte",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/size"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "interieur",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "interieur",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "laboratorium",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "laboratorium",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "natuurkunde",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "natuurkunde",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "natuurwetenschap",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "natuurwetenschap",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "onderwijs",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "onderwijs",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "scheikunde",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/keywords"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "scheikunde",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/keywords>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "slecht aan twee zijden afgebroken",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/itemCondition>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "slecht aan twee zijden afgebroken",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/itemCondition"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "XXc - XXd",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "literal",
+                    "value": "@nl@<https://schema.org/dateCreated>"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            },
+            {
+                "o": {
+                    "type": "literal",
+                    "value": "XXc - XXd",
+                    "xml:lang": "nl"
+                },
+                "p": {
+                    "type": "uri",
+                    "value": "https://schema.org/dateCreated"
+                },
+                "s": {
+                    "type": "uri",
+                    "value": "https://klek.si/pqx31b/01339n"
+                }
+            }
+        ]
+    }
+}

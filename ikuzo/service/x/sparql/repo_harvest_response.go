@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/mappingxml"
@@ -11,29 +12,29 @@ import (
 )
 
 type responseWithContext struct {
-	Head    Head           `json:"head"`
-	Results contextResults `json:"results"`
+	Head    Head
+	Results contextResults
 }
 
 type Head struct {
-	Vars []string `json:"vars"`
+	Vars []string
 }
 
 type contextResults struct {
-	Bindings []*contextBinding `json:"bindings"`
+	Bindings []*contextBinding
 }
 
 type contextBinding struct {
-	S  *Entry `json:"s"`
-	P  *Entry `json:"p"`
-	O  *Entry `json:"o,omitempty"`
-	P2 *Entry `json:"p2,omitempty"`
-	O2 *Entry `json:"o2,omitempty"`
-	P3 *Entry `json:"p3,omitempty"`
-	O3 *Entry `json:"o3,omitempty"`
-	P4 *Entry `json:"p4,omitempty"`
-	O4 *Entry `json:"o4,omitempty"`
-	G  *Entry `json:"g,omitempty"`
+	S1 *Entry
+	P1 *Entry
+	O1 *Entry
+	P2 *Entry
+	O2 *Entry
+	P3 *Entry
+	O3 *Entry
+	P4 *Entry
+	O4 *Entry
+	G  *Entry
 }
 
 func newResponse(r io.Reader) (*responseWithContext, error) {
@@ -47,6 +48,10 @@ func newResponse(r io.Reader) (*responseWithContext, error) {
 }
 
 func addTriple(g *rdf.Graph, s *Entry, p *Entry, o *Entry) error {
+	if strings.HasPrefix(p.Value, "@") {
+		return nil
+	}
+
 	t, err := newTriple(s, p, o)
 	if err != nil {
 		return err
@@ -79,12 +84,12 @@ func newTriple(s *Entry, p *Entry, o *Entry) (*rdf.Triple, error) {
 func (r *responseWithContext) Graph() (*rdf.Graph, error) {
 	g := rdf.NewGraph()
 	for _, b := range r.Results.Bindings {
-		if err := addTriple(g, b.S, b.P, b.O); err != nil {
+		if err := addTriple(g, b.S1, b.P1, b.O1); err != nil {
 			return nil, err
 		}
 
 		if b.P2 != nil && b.O2 != nil {
-			if err := addTriple(g, b.O, b.P2, b.O2); err != nil {
+			if err := addTriple(g, b.O1, b.P2, b.O2); err != nil {
 				return nil, err
 			}
 		}
