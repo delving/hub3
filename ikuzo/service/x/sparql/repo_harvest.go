@@ -24,6 +24,7 @@ import (
 )
 
 type HarvestConfig struct {
+	Spec    string
 	URL     string
 	Queries struct {
 		NamespacePrefix        string
@@ -39,6 +40,7 @@ type HarvestConfig struct {
 	TotalSizeSubjects int
 	HarvestErrors     map[string]error
 	rw                sync.RWMutex
+	OutputDir         string
 }
 
 func (cfg *HarvestConfig) AddError(subject string, err error) {

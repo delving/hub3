@@ -21,8 +21,11 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
+
+	"github.com/pelletier/go-toml"
 
 	"github.com/spf13/cobra"
 
@@ -48,6 +51,7 @@ var (
 	}
 
 	harvestFrom string
+	harvestCfg  string
 )
 
 func init() {
@@ -56,37 +60,17 @@ func init() {
 	rootCmd.AddCommand(sparqlCmd)
 
 	harvestCmd.Flags().StringVarP(&harvestFrom, "from", "f", "", "timestamp to harvest from")
+	harvestCmd.Flags().StringVarP(&harvestCfg, "cfg", "c", "", "path to the harvest toml configuration")
 
 	sparqlCmd.AddCommand(harvestCmd)
 }
 
 // listRecords writes all Records to a file
 func harvestXML(ccmd *cobra.Command, args []string) {
-	cfg := sparql.HarvestConfig{
-		URL: "https://eu.api.kleksi.com/apps/pqx31b/datasets/default/sparql",
-		Queries: struct {
-			NamespacePrefix        string
-			WhereClause            string
-			SubjectVar             string
-			IncrementalWhereClause string
-			GetGraphQuery          string
-		}{
-			NamespacePrefix: `
-			PREFIX schema: <https://schema.org/>
-			PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-			`,
-			WhereClause: "?s schema:identifier ?identifier .",
-			SubjectVar:  "identifier",
-			IncrementalWhereClause: `
-				?s schema:identifier ?identifier ;
-				schema:dateModified ?dateModified .
-				FILTER(?dateModified > "~~DATE~~"^^xsd:dateTime)
-			`,
-			GetGraphQuery: "",
-		},
-		GraphMimeType: "application/n-triples",
-		// MaxSubjects:   200,
-		PageSize: 500,
+	cfg, err := decodeConfig(harvestCfg)
+	if err != nil {
+		slog.Error("unable to decode config", "error", err, "path", harvestCfg)
+		return
 	}
 
 	if harvestFrom != "" {
@@ -104,11 +88,21 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 
 	timeStart := time.Now()
 
-	fname := "/tmp/kleksi"
+	if cfg.OutputDir == "" {
+		cfg.OutputDir = "/tmp"
+	}
+
+	if cfg.Spec == "" {
+		slog.Error("the spec must be defined in the harvest config", "path", harvestCfg)
+		return
+	}
+
+	fname := filepath.Join(cfg.OutputDir, cfg.Spec)
 	if !cfg.From.IsZero() {
 		fname += "_incremental"
 	}
-	file, createErr := os.Create(fname + ".xml")
+	outputFname := fname + ".xml"
+	file, createErr := os.Create(outputFname)
 	if createErr != nil {
 		slog.Error("Cannot create file", "error", createErr)
 		return
@@ -153,7 +147,7 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 		return nil
 	}
 
-	harvestErr := sparql.HarvestGraphs(ctx, &cfg, cb)
+	harvestErr := sparql.HarvestGraphs(ctx, cfg, cb)
 	if harvestErr != nil {
 		slog.Error("unable to harvest all graphs", "error", harvestErr)
 		fmt.Fprintln(file, "</records>")
@@ -165,7 +159,7 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 	if len(cfg.HarvestErrors) > 0 {
 		cfg.TotalSizeSubjects = len(cfg.HarvestErrors)
 		slog.Info("retrying errors", "total", cfg.TotalSizeSubjects)
-		harvestErr := sparql.HarvestGraphs(ctx, &cfg, cb)
+		harvestErr := sparql.HarvestGraphs(ctx, cfg, cb)
 		if harvestErr != nil {
 			slog.Error("unable to harvest all graphs", "error", harvestErr)
 			fmt.Fprintln(file, "</records>")
@@ -174,7 +168,11 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 		totalHarvested += cfg.TotalSizeSubjects
 	}
 
-	slog.Info("finished harvesting the sparql endpoint", "totalHarvested", totalHarvested, "errors", len(cfg.HarvestErrors))
+	slog.Info(
+		"finished harvesting the sparql endpoint",
+		"totalHarvested", totalHarvested, "errors", len(cfg.HarvestErrors),
+		"filename", outputFname,
+	)
 
 	fmt.Fprintln(file, "</records>")
 }
@@ -206,4 +204,19 @@ func prettyDuration(d time.Duration) string {
 	}
 
 	return result
+}
+
+func decodeConfig(path string) (cfg *sparql.HarvestConfig, err error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return cfg, fmt.Errorf("unable to find configuration; %w", err)
+	}
+
+	var config sparql.HarvestConfig
+	decodeErr := toml.NewDecoder(f).Decode(&config)
+	if decodeErr != nil {
+		return cfg, fmt.Errorf("unable to decode %s; %w", path, decodeErr)
+	}
+
+	return &config, nil
 }
