@@ -286,6 +286,41 @@ func (g *Graph) Resources() map[Subject]*Resource {
 	return g.resources
 }
 
+type TripleFilter interface {
+	Filter(t *Triple) bool
+}
+
+func (g *Graph) FilterTriples(f TripleFilter) []*Triple {
+	triples := []*Triple{}
+	for _, t := range g.Triples() {
+		if f.Filter(t) {
+			triples = append(triples, t)
+		}
+	}
+
+	return triples
+}
+
+type ResourceFilter interface {
+	Filter(rsc *Resource) bool
+}
+
+func (g *Graph) FilterResources(f ResourceFilter) []*Resource {
+	var resources []*Resource
+
+	if len(g.resources) == 0 {
+		return resources
+	}
+
+	for _, rsc := range g.resources {
+		if f.Filter(rsc) {
+			resources = append(resources, rsc)
+		}
+	}
+
+	return resources
+}
+
 // // ByPredicate returns a list of triples that have the same predicate
 // func (g *Graph) ByPredicate(predicate r.Term) []*r.Triple {
 // matches := []*r.Triple{}
