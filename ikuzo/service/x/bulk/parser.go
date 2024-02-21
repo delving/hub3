@@ -22,11 +22,16 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"strings"
 	"sync"
 	"sync/atomic"
 
 	"github.com/rs/zerolog"
+	"github.com/teris-io/shortid"
+
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
@@ -34,8 +39,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/rs/zerolog/log"
-	"golang.org/x/sync/errgroup"
 
 	rdf "github.com/kiivihal/rdf2go"
 )
@@ -158,9 +161,21 @@ func (p *Parser) setDataSet(req *Request) {
 	}
 
 	p.stats.Spec = req.DatasetID
+	p.stats.DatasetID = req.DatasetID
 	p.stats.OrgID = req.OrgID
 	req.Revision = ds.Revision
 	p.ds = ds
+
+	req.setTags()
+
+	for _, tag := range req.resolvedTags {
+		switch tag {
+		case "fragmentsOnly":
+			p.indexTypes = []string{"fragments"}
+		case "rdfOnly":
+			p.indexTypes = []string{}
+		}
+	}
 }
 
 func (p *Parser) dropOrphans(req *Request) error {
@@ -294,12 +309,6 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 
 	_ = fb.Doc()
 
-	for _, tag := range fb.FragmentGraph().Meta.Tags {
-		if tag == "fragmentsOnly" {
-			p.indexTypes = []string{"fragments"}
-		}
-	}
-
 	for _, indexType := range p.indexTypes {
 		switch indexType {
 		case "v1":
@@ -361,6 +370,13 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 		return fmt.Errorf("unable to convert RDF graph; %w", err)
 	}
 
+	for _, tag := range strings.Split(req.Tags, ",") {
+		if strings.EqualFold(tag, "nomergegraph") {
+			req.NamedGraphURI = strings.ReplaceAll(req.NamedGraphURI, "/graph", fmt.Sprintf("/%s/graph", req.DatasetID))
+			break
+		}
+	}
+
 	su := fragments.SparqlUpdate{
 		Triples:       b.String(),
 		NamedGraphURI: req.NamedGraphURI,
@@ -368,7 +384,9 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 		SpecRevision:  req.Revision,
 	}
 
+	p.m.Lock()
 	p.sparqlUpdates = append(p.sparqlUpdates, su)
+	p.m.Unlock()
 
 	return nil
 }
@@ -386,14 +404,18 @@ type Stats struct {
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
 }
 
-func encodeTerm(iterm rdf.Term) string {
+func encodeTerm(iterm rdf.Term, shortID string) string {
 	switch term := iterm.(type) {
 	case *rdf.Resource:
 		return fmt.Sprintf("<%s>", term.URI)
 	case *rdf.Literal:
 		return term.String()
 	case *rdf.BlankNode:
-		return term.String()
+		id := term.RawValue()
+		if len(id) < 5 {
+			id = id + "-" + shortID
+		}
+		return fmt.Sprintf("<urn:bnode:%s>", id)
 	}
 
 	return ""
@@ -402,18 +424,27 @@ func encodeTerm(iterm rdf.Term) string {
 func serializeNTriples(g *rdf.Graph, w io.Writer) error {
 	var err error
 
+	shortID, err := shortid.Generate()
+	if err != nil {
+		return fmt.Errorf("unable to generated shortID: %w", err)
+	}
+
+	slog.Debug("serializing ntriples with bnode seed", "seed", shortID)
+
 	for triple := range g.IterTriples() {
-		s := encodeTerm(triple.Subject)
+		s := encodeTerm(triple.Subject, shortID)
 		if strings.HasPrefix(s, "<urn:private/") {
 			continue
 		}
 
-		p := encodeTerm(triple.Predicate)
-		o := encodeTerm(triple.Object)
+		p := encodeTerm(triple.Predicate, shortID)
+		o := encodeTerm(triple.Object, shortID)
 
 		if strings.HasPrefix(o, "<urn:private/") {
 			continue
 		}
+
+		slog.Debug("serialized triple", "s", s, "p", p, "o", o)
 
 		_, err = fmt.Fprintf(w, "%s %s %s .\n", s, p, o)
 		if err != nil {

@@ -16,22 +16,28 @@ package bulk
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-co-op/gocron"
+	"github.com/rs/zerolog"
+	"github.com/teris-io/shortid"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/go-chi/chi/v5"
-	"github.com/rs/zerolog"
 )
 
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	index      *index.Service
-	indexTypes []string
-	postHooks  map[string][]domain.PostHookService
-	log        zerolog.Logger
-	orgs       domain.OrgConfigRetriever
+	index             *index.Service
+	indexTypes        []string
+	postHooks         map[string][]domain.PostHookService
+	log               zerolog.Logger
+	orgs              domain.OrgConfigRetriever
+	scheduler         *gocron.Scheduler
+	harvestConfigPath string
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -45,6 +51,16 @@ func NewService(options ...Option) (*Service, error) {
 		if err := option(s); err != nil {
 			return nil, err
 		}
+	}
+
+	sid, err := shortid.New(1, shortid.DefaultABC, 2305)
+	if err != nil {
+		return nil, err
+	}
+	shortid.SetDefault(sid)
+
+	if err := s.scheduleTasks(); err != nil {
+		return s, fmt.Errorf("unable to start scheduled tasks for bulk service; %w", err)
 	}
 
 	return s, nil

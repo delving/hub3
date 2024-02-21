@@ -21,6 +21,13 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
+func SetHarvestPath(path string) Option {
+	return func(s *Service) error {
+		s.harvestConfigPath = path
+		return nil
+	}
+}
+
 func SetPostHookService(hooks ...domain.PostHookService) Option {
 	return func(s *Service) error {
 		for _, hook := range hooks {

@@ -29,8 +29,13 @@ func TestSerializeTurtle(t *testing.T) {
 		rdf2go.NewResource("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"),
 		rdf2go.NewLiteral("http://www.europeana.eu/schemas/edm/WebResource"),
 	)
+	g.AddTriple(
+		rdf2go.NewBlankNode("b0"),
+		rdf2go.NewResource("http://purl.org/dc/elements/1.1/title"),
+		rdf2go.NewLiteral("hello"),
+	)
 
-	is.Equal(g.Len(), 3)
+	is.Equal(g.Len(), 4)
 
 	var buf bytes.Buffer
 	err := serializeNTriples(g, &buf)
@@ -40,6 +45,8 @@ func TestSerializeTurtle(t *testing.T) {
 	is.True(!strings.Contains(rdf, "urn:private/")) // serialized rdf should not contain urn:private
 	t.Logf("rdf: %s", rdf)
 	is.True(strings.HasSuffix(rdf, " .\n"))
+	is.True(!strings.Contains(rdf, "_:b0"))
+	is.True(strings.Contains(rdf, "urn:bnode:b0-"))
 }
 
 type LogMessage struct {
@@ -47,7 +54,6 @@ type LogMessage struct {
 }
 
 func testAddLogger(is *is.I, datasetID string, svc string) {
-
 	bytesBuffer := bytes.Buffer{}
 
 	logger := addLogger(datasetID)
@@ -62,7 +68,6 @@ func testAddLogger(is *is.I, datasetID string, svc string) {
 }
 
 func TestAddLogger(t *testing.T) {
-
 	is := is.New(t)
 
 	//	ntfoto

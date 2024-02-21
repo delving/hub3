@@ -20,11 +20,12 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/rs/zerolog/log"
 )
 
 type Request struct {
@@ -41,6 +42,8 @@ type Request struct {
 	SubjectType   string `json:"subjectType"`
 	Revision      int    `json:"revision"`
 	Tags          string `json:"tags,omitempty"`
+	resolvedTags  []string
+	indexTypes    []string
 }
 
 func (req *Request) valid() error {
@@ -61,6 +64,27 @@ func (req *Request) valid() error {
 	return nil
 }
 
+func (req *Request) setTags() {
+	req.resolvedTags = []string{"narthex", "mdr"}
+	if req.Tags != "" {
+		tags := strings.Split(req.Tags, ",")
+		for _, tag := range tags {
+			req.resolvedTags = append(req.resolvedTags, strings.TrimSpace(tag))
+		}
+	}
+
+	if req.RecordType != "" {
+		tags := strings.Split(req.RecordType, ",")
+		for _, tag := range tags {
+			req.resolvedTags = append(req.resolvedTags, strings.TrimSpace(tag))
+		}
+	}
+
+	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
+		req.resolvedTags = append(req.resolvedTags, tags...)
+	}
+}
+
 func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuilder, error) {
 	fg := fragments.NewFragmentGraph()
 	fg.Meta.OrgID = req.OrgID
@@ -68,34 +92,18 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.Spec = req.DatasetID
 	fg.Meta.Revision = int32(revision)
 	fg.Meta.NamedGraphURI = req.NamedGraphURI
-	fg.Meta.EntryURI = fg.GetAboutURI()
 	fg.Meta.Modified = fragments.NowInMillis()
-	fg.Meta.Tags = []string{"narthex", "mdr"}
-
-	if req.Tags != "" {
-		tags := strings.Split(req.Tags, ",")
-		for _, tag := range tags {
-			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
-		}
-	}
-
-	if req.RecordType != "" {
-		tags := strings.Split(req.RecordType, ",")
-		for _, tag := range tags {
-			fg.Meta.Tags = append(fg.Meta.Tags, strings.TrimSpace(tag))
-		}
-	}
-
-	if tags, ok := config.Config.DatasetTagMap.Get(req.DatasetID); ok {
-		fg.Meta.Tags = append(fg.Meta.Tags, tags...)
-	}
+	fg.Meta.Tags = req.resolvedTags
 
 	fb := fragments.NewFragmentBuilder(fg)
 
+	// slog.Info("received mime-type from bulk request", "mime-type", req.GraphMimeType)reque
 	err := fb.ParseResolvedGraph(strings.NewReader(req.Graph), req.GraphMimeType)
 	if err != nil {
 		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
 	}
+
+	fg.Meta.EntryURI = fg.GetAboutURI()
 
 	return fb, nil
 }
