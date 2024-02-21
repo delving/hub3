@@ -84,7 +84,7 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 		cfg.From = parsedTime
 	}
 
-	slog.Info("starting sparql harvest")
+	slog.Info("starting sparql harvest", "cfg", cfg)
 
 	timeStart := time.Now()
 
@@ -102,6 +102,7 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 		fname += "_incremental"
 	}
 	outputFname := fname + ".xml"
+
 	file, createErr := os.Create(outputFname)
 	if createErr != nil {
 		slog.Error("Cannot create file", "error", createErr)
@@ -126,6 +127,9 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 	fmt.Fprintln(file, "<records>")
 
 	cb := func(g *rdf.Graph) error {
+		if g == nil {
+			return fmt.Errorf("cannot process nil *rdf.Graph")
+		}
 		fmt.Fprintf(file, "<record id=\"%s\">\n", g.Subject.RawValue())
 
 		filterCfg := &mappingxml.FilterConfig{Subject: g.Subject}
