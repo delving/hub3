@@ -19,6 +19,7 @@ import (
 	fmt "fmt"
 	"io"
 	"net/url"
+	reflect "reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -42,6 +43,7 @@ const (
 	resourceType                  = "Resource"
 	bnode                         = "Bnode"
 	unknownTargetUriMessageFormat = "unknown target URI: %s"
+	rdfTagName                    = "rdf"
 )
 
 var ctx context.Context
@@ -704,6 +706,84 @@ type FragmentResource struct {
 	objectIDs            []*FragmentReferrerContext
 }
 
+func (fr *FragmentResource) UnmarshalRDF(v any) error {
+	val := reflect.ValueOf(v).Elem()
+
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Type().Field(i)
+		searchLabel := field.Tag.Get("rdf")
+		if searchLabel == "" || searchLabel == "-" {
+			continue
+		}
+
+		entries := fr.GetByResourcesBySearchLabel(searchLabel)
+		if len(entries) == 0 && !strings.HasPrefix(searchLabel, "@") {
+			continue
+		}
+
+		fieldVal := val.Field(i)
+
+		if fieldVal.CanSet() {
+			switch searchLabel {
+			case "@id":
+				fieldVal.Set(reflect.ValueOf(fr.ID))
+				continue
+			case "@types":
+				fieldVal.Set(reflect.ValueOf(fr.Types))
+				continue
+			}
+
+			switch fieldVal.Kind() {
+			case reflect.Slice:
+				sliceType := fieldVal.Type().Elem()
+				switch sliceType.Kind() {
+				case reflect.String:
+					var strs []string
+					for _, entry := range entries {
+						if entry.Value != "" {
+							strs = append(strs, entry.Value)
+						}
+					}
+					if len(strs) > 0 {
+						fieldVal.Set(reflect.ValueOf(strs))
+					}
+				case reflect.Struct:
+					newSlice := reflect.MakeSlice(fieldVal.Type(), 0, len(entries))
+					for _, entry := range entries {
+						child := reflect.New(sliceType)
+
+						if err := entry.Inline.UnmarshalRDF(child.Interface()); err != nil {
+							return err
+						}
+
+						newSlice = reflect.Append(newSlice, child.Elem())
+					}
+
+					fieldVal.Set(newSlice)
+				default:
+					fmt.Printf("unknown sliceType kind: %#v", sliceType.Kind())
+				}
+			case reflect.Struct:
+				if err := entries[0].Inline.UnmarshalRDF(fieldVal.Addr().Interface()); err != nil {
+					return err
+				}
+			case reflect.Int:
+				intVal, err := strconv.Atoi(entries[0].Value)
+				if err != nil {
+					return err
+				}
+
+				fieldVal.SetInt(int64(intVal))
+			default:
+				// Direct assignment for non-slice, non-struct types
+				fieldVal.Set(reflect.ValueOf(entries[0].Value))
+			}
+		}
+	}
+
+	return nil
+}
+
 // BySortOrder implements sort.Interface for []*FragmentResource based on
 // the Order field in the first FragmentEntry.
 type BySortOrder []*FragmentResource
@@ -755,6 +835,18 @@ func (fr *FragmentResource) ObjectIDs() []*FragmentReferrerContext {
 // Predicates returns a map of FragmentEntry
 func (fr *FragmentResource) Predicates() map[string][]*FragmentEntry {
 	return fr.predicates
+}
+
+func (fr *FragmentResource) GetByResourcesBySearchLabel(searchLabel string) []*ResourceEntry {
+	var resources []*ResourceEntry
+	for _, entry := range fr.Entries {
+		if entry.SearchLabel != searchLabel {
+			continue
+		}
+		resources = append(resources, entry)
+	}
+
+	return resources
 }
 
 // SetEntries sets the ResourceEntries for indexing
@@ -1787,10 +1879,14 @@ func (fg *FragmentGraph) CreateHeader(docType string) *Header {
 // AddTags adds a tag string to the tags array of the Header
 func (m *Header) AddTags(tags ...string) {
 	for _, tag := range tags {
-		if !contains(m.Tags, tag) {
+		if !m.HasTag(tag) {
 			m.Tags = append(m.Tags, tag)
 		}
 	}
+}
+
+func (m *Header) HasTag(tag string) bool {
+	return contains(m.Tags, tag)
 }
 
 // AddTags adds a tag string to the tags array of the Header
@@ -1906,8 +2002,8 @@ func (fr *FragmentResource) CreateFragments(fg *FragmentGraph) ([]*Fragment, err
 			} else {
 				frag.Object = entry.Value
 			}
-			frag.Triple = strings.Replace(entry.Triple, entry.ID, fg.NormalisedResource(entry.ID), -1)
-			frag.Triple = strings.Replace(frag.Triple, fr.ID, frag.Subject, -1)
+			frag.Triple = strings.ReplaceAll(entry.Triple, entry.ID, fg.NormalisedResource(entry.ID))
+			frag.Triple = strings.ReplaceAll(frag.Triple, fr.ID, frag.Subject)
 			frag.Meta.AddTags(entry.EntryType)
 			if lodKey != "" {
 				frag.LodKey = lodKey

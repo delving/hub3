@@ -1,0 +1,1619 @@
+{
+    "meta": {
+        "orgID": "nk",
+        "spec": "nk-merged",
+        "revision": 4,
+        "hubID": "nk_nk-merged_NK1066",
+        "docType": "graph",
+        "entryURI": "https://wo2.collectienederland.nl/id/nk/NK1066",
+        "namedGraphURI": "https://wo2.collectienederland.nl/id/nk/NK1066/graph",
+        "modified": 1708269783144
+    },
+    "resources": [
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/nk/NK1066/finalStatus",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/nk/NK1066/finalStatus",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "restitutionStatus",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 1
+                },
+                {
+                    "@value": "Huidige restitutie status",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 18
+                },
+                {
+                    "@value": "999",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 29
+                },
+                {
+                    "@value": "To Be Inserted",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 88
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/na-05-05-1945",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/na-05-05-1945",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "RCE",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 3
+                },
+                {
+                    "@value": "In bezit gekomen",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 30
+                },
+                {
+                    "@value": "900",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 38
+                },
+                {
+                    "@value": "Rijksbeheer",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 53
+                },
+                {
+                    "@value": "Na 05-05-1945",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_date",
+                    "searchLabel": "nk_timeline_date",
+                    "level": 2,
+                    "order": 105
+                },
+                {
+                    "@value": "rijksbeheer",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 136
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/nk/NK1066",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/NKRecord"],
+            "graphExternalContext": null,
+            "context": null,
+            "entries": [
+                {
+                    "@value": "NK-collectie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/collectionType",
+                    "searchLabel": "nk_collectionType",
+                    "level": 1,
+                    "order": 4
+                },
+                {
+                    "@value": "NK1066",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/cleanID",
+                    "searchLabel": "nk_cleanID",
+                    "level": 1,
+                    "order": 6
+                },
+                {
+                    "@value": "NK1066",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/baseID",
+                    "searchLabel": "nk_baseID",
+                    "level": 1,
+                    "order": 7
+                },
+                {
+                    "@value": "Hamburg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 8
+                },
+                {
+                    "@value": "tapijt",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/object_name_filter",
+                    "searchLabel": "nk_object_name_filter",
+                    "level": 1,
+                    "order": 14
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09--Flotow-(2),-Von",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 16
+                },
+                {
+                    "@value": "Flotow (2), Von",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 17
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1941-04-Mumm,-R.A.",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 19
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1923-1933-Alsberg,-M.",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 20
+                },
+                {
+                    "@value": "Mumm, R.A.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 26
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09-1943-11-09-Marle-&-Bignell,-Van",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 33
+                },
+                {
+                    "@value": "Zwitserland",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 35
+                },
+                {
+                    "@value": "Parijs",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 44
+                },
+                {
+                    "@value": "Alsberg, M.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 49
+                },
+                {
+                    "@value": "Textiel",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/object_category_filter",
+                    "searchLabel": "nk_object_category_filter",
+                    "level": 1,
+                    "order": 77
+                },
+                {
+                    "@value": "Vloerkleed, engels",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/title",
+                    "searchLabel": "dc_title",
+                    "level": 1,
+                    "tags": ["label", "title"],
+                    "order": 80
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1943-11-09-Heim-in-Holland",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 92
+                },
+                {
+                    "@value": "Gerestitueerd",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/currentRestitutionState",
+                    "searchLabel": "nk_currentRestitutionState",
+                    "level": 1,
+                    "order": 94
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 1,
+                    "order": 95
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/2010-07-09",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 98
+                },
+                {
+                    "@value": "Vloerkleed, engels",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/recordTitle",
+                    "searchLabel": "nk_recordTitle",
+                    "level": 1,
+                    "order": 103
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "@value": "-",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "searchLabel": "nk_cho",
+                    "level": 1,
+                    "order": 107
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/nk/NK1066/finalStatus",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 111
+                },
+                {
+                    "@value": "Heim in Holland",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 116
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://www.europeana.eu/schemas/edm/object",
+                    "searchLabel": "edm_object",
+                    "level": 1,
+                    "tags": ["thumbnail"],
+                    "order": 118
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/-1923-Seligman,-G.",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 123
+                },
+                {
+                    "@value": "2010-07-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/currentRestitutionStateDate",
+                    "searchLabel": "nk_currentRestitutionStateDate",
+                    "level": 1,
+                    "order": 128
+                },
+                {
+                    "@value": "NK1066",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/identifier",
+                    "searchLabel": "dc_identifier",
+                    "level": 1,
+                    "tags": ["objectID"],
+                    "order": 129
+                },
+                {
+                    "@value": "nk",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/spec",
+                    "searchLabel": "nk_spec",
+                    "level": 1,
+                    "order": 133
+                },
+                {
+                    "@value": "Seligman, G.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 134
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/1000,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+                    "searchLabel": "edm_isShownBy",
+                    "level": 1,
+                    "tags": ["thumbnail"],
+                    "order": 135
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1933-1941-04-Gruyter,-De",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 138
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1066/na-05-05-1945",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 141
+                },
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 147
+                },
+                {
+                    "@value": "Adam, R.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creator_filter",
+                    "searchLabel": "nk_creator_filter",
+                    "level": 1,
+                    "order": 150
+                },
+                {
+                    "@value": "Marle & Bignell, Van",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 151
+                },
+                {
+                    "@value": "Gruyter, De",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 155
+                },
+                {
+                    "@id": "https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Resource",
+                    "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "searchLabel": "edm_hasView",
+                    "level": 1,
+                    "order": 156
+                },
+                {
+                    "@value": "NK-Collectie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/collectionType",
+                    "searchLabel": "nk_collectionType",
+                    "level": 1,
+                    "order": 159
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09--Flotow-(2),-Von",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09--Flotow-(2),-Von"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Flotow (2), Von",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 10
+                },
+                {
+                    "@value": "1943-11-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 23
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 43
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 47
+                },
+                {
+                    "@value": "Hamburg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 55
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 72
+                },
+                {
+                    "@value": "Archief SNK nr.141, 917, 920",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 91
+                },
+                {
+                    "@value": "kunsthandel",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 137
+                },
+                {
+                    "@value": "7",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 143
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09-1943-11-09-Marle-&-Bignell,-Van",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1943-11-09-1943-11-09-Marle-&-Bignell,-Van"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 11
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 48
+                },
+                {
+                    "@value": "veiling",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 57
+                },
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 62
+                },
+                {
+                    "@value": "6",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 73
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 102
+                },
+                {
+                    "@value": "Archief SNK nr.133, 917; Vlg.cat. Van Marle & Bignell, Den Haag, 9 november 1943, nr.75",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 114
+                },
+                {
+                    "@value": "Marle & Bignell, Van",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 161
+                },
+                {
+                    "@value": "1943-11-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 166
+                },
+                {
+                    "@value": "1943-11-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 167
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1933-1941-04-Gruyter,-De",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1933-1941-04-Gruyter,-De",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 12
+                },
+                {
+                    "@value": "1933",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 27
+                },
+                {
+                    "@value": "3",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 63
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 64
+                },
+                {
+                    "@value": "1941-04",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 68
+                },
+                {
+                    "@value": "Dit tapijt werd in april 1941 geconfisqueerd door R.A. Mumm voor Heim in Holland.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 74
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 75
+                },
+                {
+                    "@value": "Gruyter, De",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 78
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 93
+                },
+                {
+                    "@value": "transportbedrijf",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 106
+                },
+                {
+                    "@value": "Archief SNK nr.133, 917,",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 168
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:Bece62625X2D0735X2D4c93X2DbccdX2D7773eefe9546",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/Production"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "Label": "Vloerkleed, engels"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+                    "SearchLabel": "nk_productionDate",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:Bece62625X2D0735X2D4c93X2DbccdX2D7773eefe9546"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "1770",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateStart",
+                    "searchLabel": "nk_dateStart",
+                    "level": 3,
+                    "order": 13
+                },
+                {
+                    "@value": "1779",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateEnd",
+                    "searchLabel": "nk_dateEnd",
+                    "level": 3,
+                    "order": 86
+                },
+                {
+                    "@value": "1770 - 1779",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/datePeriod",
+                    "searchLabel": "nk_datePeriod",
+                    "level": 3,
+                    "order": 127
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1941-04-Mumm,-R.A.",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1941-04-Mumm,-R.A."
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Archief SNK nr.133, 141, 917, 920",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 15
+                },
+                {
+                    "@value": "Mumm, R.A.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 31
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 32
+                },
+                {
+                    "@value": "1941-04",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 42
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 46
+                },
+                {
+                    "@value": "1941-04",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 89
+                },
+                {
+                    "@value": "Verwalter",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 90
+                },
+                {
+                    "@value": "4",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 120
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 142
+                },
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 165
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/cho/NK1066",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/CHO"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Vloerkleed, engels",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/description",
+                    "searchLabel": "dc_description",
+                    "level": 2,
+                    "tags": ["description"],
+                    "order": 21
+                },
+                {
+                    "@value": "tapijt",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/objectName",
+                    "searchLabel": "nave_objectName",
+                    "level": 2,
+                    "order": 28
+                },
+                {
+                    "@id": "urn:bnode:Bfbfd16efX2Dac34X2D4330X2D858cX2Ddffd9cec005e",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "searchLabel": "nk_creator",
+                    "level": 2,
+                    "order": 60
+                },
+                {
+                    "@value": "Axminster[GB]",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/productionPlace",
+                    "searchLabel": "nk_productionPlace",
+                    "level": 2,
+                    "order": 61
+                },
+                {
+                    "@id": "urn:bnode:Bece62625X2D0735X2D4c93X2DbccdX2D7773eefe9546",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+                    "searchLabel": "nk_productionDate",
+                    "level": 2,
+                    "order": 65
+                },
+                {
+                    "@value": "2010-07-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/disposal_date",
+                    "searchLabel": "nk_disposal_date",
+                    "level": 2,
+                    "order": 66
+                },
+                {
+                    "@value": "-",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/title",
+                    "searchLabel": "dc_title",
+                    "level": 2,
+                    "tags": ["label", "title"],
+                    "order": 69
+                },
+                {
+                    "@value": "2010-07-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/deaccessionDate",
+                    "searchLabel": "nk_deaccessionDate",
+                    "level": 2,
+                    "order": 71
+                },
+                {
+                    "@value": "tapijt",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 76
+                },
+                {
+                    "@value": "#2",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/barcode",
+                    "searchLabel": "nk_barcode",
+                    "level": 2,
+                    "order": 79
+                },
+                {
+                    "@value": "UIT",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/user_code",
+                    "searchLabel": "nk_user_code",
+                    "level": 2,
+                    "order": 87
+                },
+                {
+                    "@value": "NK1066",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/objectNumber",
+                    "searchLabel": "nk_objectNumber",
+                    "level": 2,
+                    "order": 100
+                },
+                {
+                    "@value": "Restitutie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/barcodeLabel",
+                    "searchLabel": "nk_barcodeLabel",
+                    "level": 2,
+                    "order": 108
+                },
+                {
+                    "@id": "urn:bnode:B68ddc5eaX2Db6f5X2D442eX2D8bf0X2D07b587ace508",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
+                    "searchLabel": "nk_dimension",
+                    "level": 2,
+                    "order": 131
+                },
+                {
+                    "@value": "Afgevoerd terugovergedragen RMA 1960-02-24 macht. OKW 1959-10-29 nr. 70078; terugovergedragen beschikking Minister/Staatssecretaris, d.d. 2006-12-19, kenmerk DCE-06-49702 gerestitueerd aan mw. R. Alsberg-Hunter oorspronkelijke eigenaar familie Stern-Lippmann, definitief overgedragen d.d. 2010-07-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/disposal",
+                    "searchLabel": "nk_disposal",
+                    "level": 2,
+                    "order": 132
+                },
+                {
+                    "@value": "restitutie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/disposal_method",
+                    "searchLabel": "nk_disposal_method",
+                    "level": 2,
+                    "order": 140
+                },
+                {
+                    "@value": "toegepaste kunst",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/objectCategory",
+                    "searchLabel": "nave_objectCategory",
+                    "level": 2,
+                    "order": 163
+                }
+            ]
+        },
+        {
+            "id": "https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+            "types": ["http://www.europeana.eu/schemas/edm/WebResource"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "SearchLabel": "edm_hasView",
+                    "Level": 1,
+                    "ObjectID": "https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+                    "searchLabel": "nave_thumbSmall",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 22
+                },
+                {
+                    "@value": "1",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+                    "searchLabel": "nave_resourceSortOrder",
+                    "level": 2,
+                    "order": 81
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg.dzi",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUri",
+                    "searchLabel": "nave_deepZoomUri",
+                    "level": 2,
+                    "order": 104
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/aba1980c-18c9-4ec4-3163-29efff75be8f.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+                    "searchLabel": "nave_thumbLarge",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 157
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/-1923-Seligman,-G.",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/-1923-Seligman,-G.",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 25
+                },
+                {
+                    "@value": "Seligman, G.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 34
+                },
+                {
+                    "@value": "1",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 51
+                },
+                {
+                    "@value": "1923",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 110
+                },
+                {
+                    "@value": "Parijs",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 130
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 149
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 154
+                },
+                {
+                    "@value": "Archief SNK nr.917",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 158
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1923-1933-Alsberg,-M.",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1923-1933-Alsberg,-M."
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 36
+                },
+                {
+                    "@value": "collectie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 37
+                },
+                {
+                    "@value": "1923",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 56
+                },
+                {
+                    "@value": "Dit tapijt werd in 1933 in bewaring gegeven bij de firma De Gruyter in Den Haag.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 67
+                },
+                {
+                    "@value": "Archief SNK nr.133, 141, 917, 920",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 83
+                },
+                {
+                    "@value": "Zwitserland",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 101
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 124
+                },
+                {
+                    "@value": "Alsberg, M.",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 144
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 145
+                },
+                {
+                    "@value": "1933",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 148
+                },
+                {
+                    "@value": "2",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 160
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/2010-07-09",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/2010-07-09",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "restitutionCase",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 39
+                },
+                {
+                    "@value": "Gerestitueerd",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_status",
+                    "searchLabel": "nk_timeline_status",
+                    "level": 2,
+                    "order": 40
+                },
+                {
+                    "@value": "950",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 41
+                },
+                {
+                    "@value": "Restitutie advies",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 45
+                },
+                {
+                    "@value": "https://www.restitutiecommissie.nl/adviezen/advies_158.html",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_link",
+                    "searchLabel": "nk_timeline_link",
+                    "level": 2,
+                    "order": 54
+                },
+                {
+                    "@value": "2010-07-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_date",
+                    "searchLabel": "nk_timeline_date",
+                    "level": 2,
+                    "order": 109
+                },
+                {
+                    "@value": "Stern-Lippmann",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 119
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1943-11-09-Heim-in-Holland",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1066/1941-04-1943-11-09-Heim-in-Holland",
+                    "Label": "Vloerkleed, engels"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 59
+                },
+                {
+                    "@value": "1943-11-09",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 84
+                },
+                {
+                    "@value": "Archief SNK nr.133, 917, 920",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 96
+                },
+                {
+                    "@value": "1941-04",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 112
+                },
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 113
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 125
+                },
+                {
+                    "@value": "5",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 126
+                },
+                {
+                    "@value": "Heim in Holland",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 146
+                },
+                {
+                    "@value": "BHG",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 153
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:B68ddc5eaX2Db6f5X2D442eX2D8bf0X2D07b587ace508",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/Dimension"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "Label": "Vloerkleed, engels"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
+                    "SearchLabel": "nk_dimension",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:B68ddc5eaX2Db6f5X2D442eX2D8bf0X2D07b587ace508",
+                    "Label": "-"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "600 cm",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/heightLength",
+                    "searchLabel": "nk_heightLength",
+                    "level": 3,
+                    "order": 70
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:Bfbfd16efX2Dac34X2D4330X2D858cX2Ddffd9cec005e",
+            "types": null,
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "Label": "Vloerkleed, engels"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "SearchLabel": "nk_creator",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:Bfbfd16efX2Dac34X2D4330X2D858cX2Ddffd9cec005e"
+                }
+            ],
+            "entries": [
+                {
+                    "@id": "urn:bnode:B7957744bX2D9122X2D403cX2D864eX2D5cf09e4241e7",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                    "searchLabel": "nk_Creator",
+                    "level": 3,
+                    "order": 115
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:Bfbfd16efX2Dac34X2D4330X2D858cX2Ddffd9cec005e",
+            "types": null,
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "Label": "Vloerkleed, engels"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1066",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "SearchLabel": "nk_creator",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:Bfbfd16efX2Dac34X2D4330X2D858cX2Ddffd9cec005e"
+                }
+            ],
+            "entries": [
+                {
+                    "@id": "urn:bnode:B7957744bX2D9122X2D403cX2D864eX2D5cf09e4241e7",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                    "searchLabel": "nk_Creator",
+                    "level": 3,
+                    "order": 115
+                }
+            ]
+        }
+    ]
+}

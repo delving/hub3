@@ -3,6 +3,7 @@ package fragments
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
@@ -22,6 +23,9 @@ type FragmentGraph struct {
 }
 
 func (fg *FragmentGraph) Graph() (*rdf.Graph, error) {
+	if len(fg.Resources) == 0 {
+		return nil, fmt.Errorf("unable to create *rdf.Graph because resources is empty")
+	}
 	g := rdf.NewGraph()
 	for _, rsc := range fg.Resources {
 		if err := rsc.AddTo(g); err != nil {

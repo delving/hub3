@@ -191,6 +191,8 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 	switch mimeType {
 	case "text/turtle":
 		_, err = ntriples.Parse(rdfData, g)
+	case "application/n-triples":
+		_, err = ntriples.Parse(rdfData, g)
 	case "application/ld+json":
 		_, err = jsonld.Parse(rdfData, g)
 	case "application/rdf+xml":
@@ -218,7 +220,7 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 	var err error
 	switch mimeType {
-	case "text/turtle":
+	case "text/turtle", "application/n-triples":
 		err = fb.Graph.Parse(rdf, mimeType)
 	case "application/ld+json":
 		err = fb.Graph.Parse(rdf, mimeType)

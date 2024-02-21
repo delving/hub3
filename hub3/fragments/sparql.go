@@ -20,14 +20,16 @@ import (
 	fmt "fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strings"
 	"text/template"
 	"time"
 
-	"github.com/delving/hub3/config"
 	"github.com/parnurzeal/gorequest"
+
+	"github.com/delving/hub3/config"
 )
 
 // SparqlUpdate contains the elements to perform a SPARQL update query
@@ -106,6 +108,8 @@ func RDFBulkInsert(orgID string, sparqlUpdates []SparqlUpdate) (int, []error) {
 func UpdateViaSparql(orgID, update string) []error {
 	request := gorequest.New()
 	postURL := config.Config.GetSparqlUpdateEndpoint(orgID, "")
+
+	slog.Debug("sparql update url", "url", postURL, "orgID", orgID)
 
 	parameters := url.Values{}
 	parameters.Add("update", update)
