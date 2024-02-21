@@ -102,5 +102,8 @@ test-no-cache:
 	richgo test -cover -count=1 ./ikuzo/...
 	@make staticcheck
 
+run-dev:
+	gin --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run serve
+
 run-workers:
 	gin --port=3010 --path . --build ikuzo/ikuzoctl --bin build/gin-workers -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run workers
