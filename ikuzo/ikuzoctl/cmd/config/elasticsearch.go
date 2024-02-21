@@ -76,6 +76,8 @@ type ElasticSearch struct {
 	UserName string `json:"userName"`
 	// Password is the BasicAuth password
 	Password string `json:"password"`
+	// Path where the harvester toml configuration files are
+	HarvestConfigPath string `json:"harvestConfigPath"`
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -122,6 +124,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		bulk.SetIndexService(is),
 		bulk.SetIndexTypes(e.IndexTypes...),
 		bulk.SetPostHookService(postHooks...),
+		bulk.SetHarvestPath(e.HarvestConfigPath),
 	)
 	if bulkErr != nil {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)
