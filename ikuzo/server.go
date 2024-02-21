@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -134,6 +135,12 @@ func newServer(options ...Option) (*server, error) {
 		shutdownHooks:   make(map[string]domain.Shutdown),
 		ctx:             ctx,
 	}
+
+	h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelInfo,
+	})
+	slog.SetDefault(slog.New(h))
 
 	s.setRouterdefaults()
 
