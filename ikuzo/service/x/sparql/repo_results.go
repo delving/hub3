@@ -19,26 +19,26 @@ const (
 
 // Results holds the parsed results of a application/sparql-results+json response.
 type Results struct {
-	Head    Header
-	Results results
+	Head    Header  `json:"head,omitempty"`
+	Results results `json:"results,omitempty"`
 }
 
 type Header struct {
-	Link []string
-	Vars []string
+	Link []string `json:"link,omitempty"`
+	Vars []string `json:"vars,omitempty"`
 }
 
 type results struct {
-	Distinct bool
-	Ordered  bool
-	Bindings []map[string]*Entry
+	Distinct bool                `json:"distinct,omitempty"`
+	Ordered  bool                `json:"ordered,omitempty"`
+	Bindings []map[string]*Entry `json:"bindings,omitempty"`
 }
 
 type Entry struct {
-	Type     TermType
-	XMLLang  string `json:"xml:lang"`
-	Value    string
-	DataType string
+	Type     TermType `json:"type,omitempty"`
+	XMLLang  string   `json:"xml:lang,omitempty"`
+	Value    string   `json:"value,omitempty"`
+	DataType string   `json:"datatype,omitempty"`
 }
 
 func (e *Entry) asSubject() (rdf.Subject, error) {

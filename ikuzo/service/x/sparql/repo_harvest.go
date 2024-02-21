@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
-	"log"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -23,7 +23,14 @@ import (
 	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 )
 
+type HarvestDataSet struct {
+	Spec      string
+	Revision  int
+	LastCheck time.Time
+}
+
 type HarvestConfig struct {
+	OrgID   string
 	Spec    string
 	URL     string
 	Queries struct {
@@ -40,7 +47,12 @@ type HarvestConfig struct {
 	TotalSizeSubjects int
 	HarvestErrors     map[string]error
 	rw                sync.RWMutex
+	client            *http.Client
 	OutputDir         string
+	LastCheck         time.Time
+	TargetDatasets    map[string]int
+	Tags              []string
+	repo              *sparql.Repo
 }
 
 func (cfg *HarvestConfig) AddError(subject string, err error) {
@@ -53,33 +65,56 @@ func (cfg *HarvestConfig) AddError(subject string, err error) {
 }
 
 func (cfg *HarvestConfig) getRepo() (*sparql.Repo, error) {
-	repo, err := sparql.NewRepo(cfg.URL, sparql.Timeout(time.Millisecond*1500))
-	if err != nil {
-		return nil, err
+	if cfg.repo == nil {
+		repo, err := sparql.NewRepo(cfg.URL, sparql.Timeout(time.Second*10))
+		if err != nil {
+			return nil, err
+		}
+
+		cfg.repo = repo
 	}
 
-	return repo, nil
+	return cfg.repo, nil
 }
 
 func HarvestWithContext(ctx context.Context, cfg *HarvestConfig, subject string) (res *responseWithContext, err error) {
-	q := fmt.Sprintf(
-		`
-		SELECT * WHERE {
-		BIND(<%s> as ?s1)
-		?s1 ?p1 ?o1 .
-		FILTER (?o1 != ?s1)
-		OPTIONAL {?o1 ?p2 ?o2 .
-			OPTIONAL {?o2 ?p3 ?o3
+	queryFmt := `
+		SELECT *
+		WHERE {
+		graph ?graph {
+			BIND(<%s> as ?s1)
+			?s1 ?p1 ?o1 .
+			OPTIONAL {
+				?o1 ?p2 ?o2 .
+				OPTIONAL {
+					?o2 ?p3 ?o3 .
+					OPTIONAL {
 					?o3 ?p4 ?o4 .
+						OPTIONAL {
+							?o4 ?p5 ?o5 .
+							OPTIONAL {
+								?o5 ?p6 ?o .
+
+							}
+						}
+					}
 				}
 			}
+	    }
 		}
-		LIMIT 1000`,
+		LIMIT 2500`
+
+	if cfg.Queries.GetGraphQuery != "" {
+		queryFmt = cfg.Queries.GetGraphQuery
+	}
+	if !strings.Contains(queryFmt, "BIND(<%s> as ?s1)") {
+		return nil, errors.New("getGraphQuery should contain 'BIND(<%s> as ?s1)'")
+	}
+
+	q := fmt.Sprintf(
+		queryFmt,
 		subject,
 	)
-
-	http.DefaultClient.Timeout = 10 * time.Second
-
 	repo, err := cfg.getRepo()
 	if err != nil {
 		return nil, err
@@ -94,8 +129,6 @@ func HarvestWithContext(ctx context.Context, cfg *HarvestConfig, subject string)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf("bindings pre: %#v", string(b))
 
 	replacements := map[string]string{
 		"Value":    "value",
@@ -113,8 +146,6 @@ func HarvestWithContext(ctx context.Context, cfg *HarvestConfig, subject string)
 		newValueBytes := []byte(fmt.Sprintf("\"%s\":", newValue))
 		b = bytes.ReplaceAll(b, oldValue, newValueBytes)
 	}
-
-	log.Printf("bindings post: %#v", string(b))
 
 	if err := json.Unmarshal(b, &res); err != nil {
 		return nil, err
@@ -136,15 +167,13 @@ func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (
 
 	countQuery := fmt.Sprintf(
 		`%s
-		select (count(?%s) as ?count)
+		select (count(distinct ?%s) as ?count)
 		where {%s}
 	    `,
 		cfg.Queries.NamespacePrefix,
 		cfg.Queries.SubjectVar,
 		whereClause,
 	)
-
-	slog.Info("count query", "query", countQuery)
 
 	repo, err := cfg.getRepo()
 	if err != nil {
@@ -184,7 +213,7 @@ func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (
 harvestLoop:
 	for offSet <= totalIDs {
 		pagingQuery := fmt.Sprintf(
-			"%s \n select ?%s where {%s} OFFSET %d LIMIT %d",
+			"%s \n select distinct ?%s where {%s} OFFSET %d LIMIT %d",
 			cfg.Queries.NamespacePrefix,
 			cfg.Queries.SubjectVar,
 			whereClause,
@@ -229,8 +258,46 @@ harvestLoop:
 	return
 }
 
-func Harvest(ctx context.Context, repo *Repo, query string) (responses []*responseWithContext, err error) {
-	return
+func harvestGraph(ctx context.Context, cfg *HarvestConfig, subject string) (*rdf.Graph, error) {
+	resp, err := HarvestWithContext(ctx, cfg, subject)
+	if err != nil {
+		return nil, fmt.Errorf("unable to harvest with context: %w", err)
+	}
+
+	g, err := resp.Graph()
+	if err != nil {
+		return nil, err
+	}
+
+	s, err := rdf.NewIRI(subject)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse subject; %w", err)
+	}
+
+	g.Subject = rdf.Subject(s)
+
+	return g, nil
+}
+
+func harvestSubject(ctx context.Context, subject string, cfg *HarvestConfig) (*rdf.Graph, error) {
+	body, err := getSubject(cfg.client, subject, cfg.GraphMimeType)
+	if err != nil {
+		return nil, fmt.Errorf("unable to retrieve rdf: %w", err)
+	}
+
+	g, err := ntriples.Parse(body, nil)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse rdf: %w", err)
+	}
+
+	s, err := rdf.NewIRI(subject)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse subject; %w", err)
+	}
+
+	g.Subject = rdf.Subject(s)
+
+	return g, nil
 }
 
 func getSubject(c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
@@ -277,9 +344,10 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 	retryClient := retryablehttp.NewClient()
 	retryClient.Logger = nil
 	retryClient.RetryMax = 3
+
 	retryClient.HTTPClient.Timeout = 8 * time.Second
 
-	c := retryClient.StandardClient()
+	cfg.client = retryClient.StandardClient()
 
 	// Map
 	nWorkers := 4
@@ -293,29 +361,25 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 				}
 			}()
 
+			var err error
 			for subject := range subjects {
-				body, err := getSubject(c, subject, cfg.GraphMimeType)
-				if err != nil {
-					slog.Error("unable to retrieve rdf", "uri", subject, "error", err)
-					cfg.AddError(subject, err)
-					continue
+				var g *rdf.Graph
+				switch {
+				case cfg.GraphMimeType != "":
+					g, err = harvestSubject(ctx, subject, cfg)
+					if err != nil {
+						cfg.AddError(subject, err)
+						slog.Error("unable to harvest subject", "uri", subject, "error", err)
+						continue
+					}
+				default:
+					g, err = harvestGraph(ctx, cfg, subject)
+					if err != nil {
+						cfg.AddError(subject, err)
+						slog.Error("unable to harvest subject", "uri", subject, "error", err)
+						continue
+					}
 				}
-
-				g, err := ntriples.Parse(body, nil)
-				if err != nil {
-					cfg.AddError(subject, err)
-					slog.Error("unable to parse rdf", "uri", subject, "error", err)
-					continue
-				}
-
-				s, err := rdf.NewIRI(subject)
-				if err != nil {
-					cfg.AddError(subject, err)
-					slog.Error("unable to parse subject", "uri", subject, "error", err)
-					continue
-				}
-
-				g.Subject = rdf.Subject(s)
 
 				select {
 				case <-ctx.Done():

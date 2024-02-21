@@ -12,12 +12,12 @@ import (
 )
 
 type responseWithContext struct {
-	Head    Head
-	Results contextResults
+	Head    Head           `json:"head,omitempty"`
+	Results contextResults `json:"results,omitempty"`
 }
 
 type Head struct {
-	Vars []string
+	Vars []string `json:"vars,omitempty"`
 }
 
 type contextResults struct {
@@ -25,16 +25,20 @@ type contextResults struct {
 }
 
 type contextBinding struct {
-	S1 *Entry
-	P1 *Entry
-	O1 *Entry
-	P2 *Entry
-	O2 *Entry
-	P3 *Entry
-	O3 *Entry
-	P4 *Entry
-	O4 *Entry
-	G  *Entry
+	S1    *Entry `json:"s1,omitempty"`
+	P1    *Entry `json:"p1,omitempty"`
+	O1    *Entry `json:"o1,omitempty"`
+	P2    *Entry `json:"p2,omitempty"`
+	O2    *Entry `json:"o2,omitempty"`
+	P3    *Entry `json:"p3,omitempty"`
+	O3    *Entry `json:"o3,omitempty"`
+	P4    *Entry `json:"p4,omitempty"`
+	O4    *Entry `json:"o4,omitempty"`
+	P5    *Entry `json:"p5,omitempty"`
+	O5    *Entry `json:"o5,omitempty"`
+	P6    *Entry `json:"p6,omitempty"`
+	O6    *Entry `json:"o6,omitempty"`
+	Graph *Entry `json:"graph,omitempty"`
 }
 
 func newResponse(r io.Reader) (*responseWithContext, error) {
@@ -102,6 +106,18 @@ func (r *responseWithContext) Graph() (*rdf.Graph, error) {
 
 		if b.P4 != nil && b.O4 != nil {
 			if err := addTriple(g, b.O3, b.P4, b.O4); err != nil {
+				return nil, err
+			}
+		}
+
+		if b.P5 != nil && b.O5 != nil {
+			if err := addTriple(g, b.O4, b.P5, b.O5); err != nil {
+				return nil, err
+			}
+		}
+
+		if b.P6 != nil && b.O6 != nil {
+			if err := addTriple(g, b.O5, b.P6, b.O6); err != nil {
 				return nil, err
 			}
 		}
