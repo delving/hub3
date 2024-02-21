@@ -149,6 +149,7 @@ type DataSet struct {
 	Clevels          int      `json:"clevels"`
 	DaoStats         `json:"daoStats" storm:"inline"`
 	Fingerprint      string `json:"fingerPrint"`
+	InProgress       bool
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -252,8 +253,9 @@ func DeleteDataSet(orgID, spec string, ctx context.Context) error {
 // IncrementRevision bumps the latest revision of the DataSet
 func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 	updates := map[string]any{
-		"Revision": ds.Revision + 1,
-		"Modified": time.Now(),
+		"Revision":   ds.Revision + 1,
+		"Modified":   time.Now(),
+		"InProgress": true,
 	}
 
 	for k, v := range updates {
@@ -262,7 +264,6 @@ func (ds *DataSet) IncrementRevision() (*DataSet, error) {
 			log.Warn().Err(err).Str("datasetID", ds.Spec).Msgf("Unable to update %q field in dataset", k)
 			return nil, err
 		}
-
 	}
 
 	freshDs, err := GetDataSet(ds.OrgID, ds.Spec)
@@ -721,6 +722,18 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 // DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
+	updates := map[string]any{
+		"InProgress": false,
+	}
+
+	for k, v := range updates {
+		err := ORM().UpdateField(&DataSet{Spec: ds.Spec}, k, v)
+		if err != nil {
+			log.Warn().Err(err).Str("datasetID", ds.Spec).Msgf("Unable to update %q field in dataset", k)
+			return false, err
+		}
+	}
+
 	if c.Config.RDF.RDFStoreEnabled {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
