@@ -282,7 +282,7 @@ func storeRecord(identifier string, prefix string) string {
 		}
 		fmt.Fprintf(file, "<record id=\"%s\">\n", identifier)
 		fmt.Fprintln(file, record)
-		fmt.Fprintln(file, "</record>\n")
+		fmt.Fprintln(file, "</record>")
 	})
 
 	return record
