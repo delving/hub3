@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.20
+go 1.21
 
 require (
 	code.gitea.io/gitea v1.17.1
@@ -21,11 +21,13 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/docgen v1.2.0
 	github.com/go-chi/render v1.0.1
+	github.com/go-co-op/gocron v1.37.0
 	github.com/go-git/go-git/v5 v5.4.3-0.20210630082519-b4368b2a2ca4
+	github.com/gocarina/gocsv v0.0.0-20231116093920-b87c2d0e983a
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/protobuf v1.5.3
 	github.com/google/go-cmp v0.5.8
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.4.0
 	github.com/gorilla/schema v1.2.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
@@ -51,6 +53,7 @@ require (
 	github.com/onsi/gomega v1.18.1
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/parnurzeal/gorequest v0.2.16
+	github.com/pelletier/go-toml v1.9.5
 	github.com/piprate/json-gold v0.4.1
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.0
@@ -62,7 +65,7 @@ require (
 	github.com/sosedoff/gitkit v0.2.1-0.20191202022816-7182d43c6254
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.2
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
 	github.com/testcontainers/testcontainers-go v0.11.1
 	github.com/tidwall/gjson v1.12.1
@@ -113,7 +116,6 @@ require (
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.3.1 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/gocarina/gocsv v0.0.0-20231116093920-b87c2d0e983a // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
@@ -170,7 +172,6 @@ require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
 	github.com/opencontainers/runc v1.1.4 // indirect
-	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
