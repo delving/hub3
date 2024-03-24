@@ -1,93 +1,110 @@
 version: '3'
 services:
-  elasticsearch1:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
-    container_name: elasticsearch7
-    ports:
-      - "9200:9200"
-      #- "9300:9300"
-    environment:
-      - cluster.name=hub3_cluster
-      - node.name=elasticsearch1
-      - cluster.initial_master_nodes=elasticsearch1
-      - xpack.security.enabled=false
-      - bootstrap.memory_lock=true
-      - http.cors.allow-origin=http://localhost:1358,http://127.0.0.1:1358
-      - http.cors.enabled=true
-      - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-      - http.cors.allow-credentials=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    volumes:
-        - ./docker-data/esdata1:/usr/share/elasticsearch/data
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    # networks:
-      # - esnet
+    elasticsearch1:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
+        container_name: elasticsearch7
+        ports:
+            - '9200:9200'
+            #- "9300:9300"
+        environment:
+            - cluster.name=hub3_cluster
+            - node.name=elasticsearch1
+            - cluster.initial_master_nodes=elasticsearch1
+            - xpack.security.enabled=false
+            - bootstrap.memory_lock=true
+            - http.cors.allow-origin=http://localhost:1358,http://127.0.0.1:1358
+            - http.cors.enabled=true
+            - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
+            - http.cors.allow-credentials=true
+            - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+        volumes:
+            - ~/data_no_backup/docker-data/hub3/esdata1:/usr/share/elasticsearch/data
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        # networks:
+        # - esnet
 
-  fuseki:
-    image: zacanbot/fuseki
-    container_name: hub3-fuseki
-    environment:
-      JVM_ARGS: -Xmx256m
-      ADMIN_PASSWORD: pw123
-    ports:
-      - "3033:3030"
-    volumes:
-        - ./docker-data/fuseki/data:/data/fuseki
-    command:
-        ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
+    fuseki:
+        # image: zacanbot/fuseki
+        image: stain/jena-fuseki
+        container_name: hub3-fuseki
+        environment:
+            JVM_ARGS: -Xmx256m
+            ADMIN_PASSWORD: pw123
+        ports:
+            - '3033:3030'
+        volumes:
+            - ~/data_no_backup/docker-data/hub3/fuseki/data:/data/fuseki
+        command:
+            [
+                '/jena-fuseki/fuseki-server',
+                '--set',
+                'tdb:unionDefaultGraph=true',
+            ]
 
-  # TODO: remove this when nats code is removed
-  nats:
-    image: nats-streaming
-    ports:
-      - "8222:8222"
-      - "4222:4222"
-    command:
-        - "--cluster_id"
-        - "hub3-nats"
-        - "--http_port"
-        - "8222"
-        - "--port"
-        - "4222"
-        - "--max_bytes" 
-        - "500MB"
-        - "--max_msgs"
-        - "1000000"
-    # networks:
-      # - esnet
+    # TODO: remove this when nats code is removed
+    nats:
+        image: nats-streaming
+        ports:
+            - '8222:8222'
+            - '4222:4222'
+        command:
+            - '--cluster_id'
+            - 'hub3-nats'
+            - '--http_port'
+            - '8222'
+            - '--port'
+            - '4222'
+            - '--max_bytes'
+            - '500MB'
+            - '--max_msgs'
+            - '1000000'
+        # networks:
+        # - esnet
 
-  postgresql:
-    image: postgis/postgis:latest
-    restart: always
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
-      POSTGRES_DB: hub3
-      PGDATA: /data/postgres
+    postgresql:
+        image: postgis/postgis:latest
+        ports:
+            - '5433:5432'
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER:-postgres}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
+            POSTGRES_DB: hub3
+            PGDATA: /data/postgres
 
-  redis:
-      image: "redis:alpine"
+    redis:
+        image: 'redis:alpine'
 
-      command: redis-server --requirepass sOmE_sEcUrE_pAsS
+        command: redis-server --requirepass sOmE_sEcUrE_pAsS
 
-      ports:
-        - "6379:6379"
+        ports:
+            - '6379:6379'
 
-      volumes:
-        - $PWD/docker-data/redis-data:/var/lib/redis
-        - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+        volumes:
+            - ~/data_no_backup/docker-data/hub3/redis-data:/var/lib/redis
+            - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
 
-      environment:
-        - REDIS_REPLICATION_MODE=master
+        environment:
+            - REDIS_REPLICATION_MODE=master
+
+    minio:
+        image: minio/minio
+        ports:
+            - '9000:9000'
+            - '9001:9001'
+        environment:
+            - MINIO_ROOT_USER=minio_admin
+            - MINIO_ROOT_PASSWORD=minio_admin
+            - MINIO_DEFAULT_BUCKETS=hub3-dev
+        volumes:
+            - ~/data_no_backup/docker-data/hub3/minio_storage:/data
+        command: server  --console-address :9001 /data
 
 # networking
 networks:
-  default:
-    ipam:
-      config:
-      - subnet: 10.202.0.0/16
+    default:
+        ipam:
+            config:
+                - subnet: 10.202.0.0/16
