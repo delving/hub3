@@ -43,7 +43,7 @@ var ErrRemoteResourceNotFound = errors.New("remote resource not found")
 
 type Service struct {
 	client           http.Client
-	lruCache         *lru.ARCCache[string, []byte]
+	lruCache         *lru.Cache[string, []byte]
 	cacheDir         string // The path to the imageCache
 	maxSizeCacheDir  int    //  max size of the cache directory on disk in kb
 	timeOut          int    // timelimit for request served by this proxy. 0 is for no timeout

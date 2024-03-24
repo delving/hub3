@@ -25,7 +25,7 @@ func SetMaxSizeCacheDir(size int) Option {
 
 func SetLruCacheSize(size int) Option {
 	return func(s *Service) error {
-		lruCache, err := lru.NewARC[string, []byte](size)
+		lruCache, err := lru.New[string, []byte](size)
 		if err != nil {
 			return fmt.Errorf("unable to create lru: %w", err)
 		}
