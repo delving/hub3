@@ -12,12 +12,29 @@ import (
 
 // SearchResponse contains the EAD Search response.
 type SearchResponse struct {
-
 	// ArchiveCount returns the number of collapsed Archives that match the search  query
 	ArchiveCount int `json:"archiveCount"`
 
 	// Cursor the location of the first result in the ElasticSearch search response
 	Cursor int `json:"cursor"`
+
+	// SelectedArchive in the detail search. When empty it is a generic ead.SearchResponse
+	SelectedArchive string `json:"selectedArchive"`
+
+	// CurrentPage the page the result is currently on
+	CurrentPage int `json:"currentPage"`
+
+	// HasNext if there is a next Page
+	HasNext bool `json:"hasNext"`
+
+	// HasPrevious - if there is a previous page
+	HasPrevious bool `json:"hasPrevious"`
+
+	// PreviousPage in the search response
+	PreviousPage int
+
+	// NextPage in the search response
+	NextPage int
 
 	// TotalPages is the total number of pages in the search response
 	TotalPages int `json:"totalPages"`
@@ -52,7 +69,6 @@ type SearchResponse struct {
 
 // CLevel holds the search results per clevel entry in the an EAD Archive.
 type CLevelEntry struct {
-
 	// Path is the unique key to the path of the clevel in the archive tree
 	Path string `json:"path"`
 

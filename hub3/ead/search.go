@@ -17,19 +17,21 @@ package ead
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"strings"
 	"sync"
 	"unsafe"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog/hlog"
+
 	cfg "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/chi/v5"
-	"github.com/olivere/elastic/v7"
-	"github.com/rs/zerolog/hlog"
 )
 
 const (
@@ -89,6 +91,7 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 	}
 
 	sr.Query = query
+
 	sr.Service = s
 
 	return sr, nil
@@ -289,6 +292,14 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 	return eadResponse, nil
 }
 
+func getPageNumber(cursor, totalPages, rowSize int) int {
+	if cursor == 0 || totalPages == 0 {
+		return 1
+	}
+
+	return (cursor / rowSize) + 1
+}
+
 func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 	once.Do(newBigCache)
 
@@ -335,6 +346,11 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 	}
 
 	s := req.Service
+	s = s.Size(req.Rows)
+	if req.Page > 1 {
+		s = s.From(getCursor(req.Rows, req.Page))
+	}
+
 	query := req.Query
 
 	query = query.Must(elastic.NewTermQuery(specField, inventoryID))
@@ -365,7 +381,9 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 		}
 	}
 
-	req.Query = req.Query.Must(postFilter)
+	query = query.Must(postFilter)
+	req.Query = query
+	slog.Debug("ead detail search query", "req", req, "query", query)
 
 	resp, err := s.
 		Query(query).
@@ -422,6 +440,17 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 
 	if resp == nil || resp.TotalHits() == 0 {
 		return eadResponse, nil
+	}
+
+	eadResponse.CurrentPage = getPageNumber(cursor, eadResponse.TotalPages, req.Rows)
+	eadResponse.HasPrevious = eadResponse.CurrentPage > 1
+	eadResponse.HasNext = (eadResponse.CurrentPage + 1) < eadResponse.TotalPages
+	eadResponse.SelectedArchive = inventoryID
+	if eadResponse.HasPrevious {
+		eadResponse.PreviousPage = eadResponse.CurrentPage - 1
+	}
+	if eadResponse.HasNext {
+		eadResponse.NextPage = eadResponse.CurrentPage + 1
 	}
 
 	eadResponse.CLevels = []CLevelEntry{}

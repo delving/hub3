@@ -68,6 +68,34 @@ func Test_getCursor(t *testing.T) {
 	}
 }
 
+func Test_GetPageNumber(t *testing.T) {
+	type args struct {
+		cursor     int
+		totalPages int
+		rowSize    int
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{"first page", args{0, 100, 10}, 1},
+		{"first page", args{0, 0, 10}, 1},
+		{"second page", args{10, 100, 10}, 2},
+		{"eigth page", args{70, 100, 10}, 8},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getPageNumber(tt.args.cursor, tt.args.totalPages, tt.args.rowSize); got != tt.want {
+				t.Errorf("getCursor() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func Test_isAdvancedSearch(t *testing.T) {
 	type args struct {
 		query string
