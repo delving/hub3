@@ -28,11 +28,10 @@ func SanitizeParam(param string) string {
 // The goal is to prevent XSS and other attacks via user-input in the logging
 func LogUserInput(text string) string {
 	return html.EscapeString(
-		strings.Replace(
-			strings.Replace(text, "\r", "", -1),
+		strings.ReplaceAll(
+			strings.ReplaceAll(text, "\r", ""),
 			"\n",
 			"",
-			-1,
 		),
 	)
 }

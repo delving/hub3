@@ -832,6 +832,9 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 	}
 
+	// add support for highlighting
+	// add support for suggest queries
+
 	if strings.HasPrefix(sr.GetSortBy(), "random") {
 		randomFunc := elastic.NewRandomFunction()
 

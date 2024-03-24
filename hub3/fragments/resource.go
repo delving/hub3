@@ -84,6 +84,8 @@ type ResourceMap struct {
 }
 
 // Tree holds all the core information for building Navigational Trees from RDF graphs
+// @1~15~100~1021
+// @1~5~10
 type Tree struct {
 	Leaf             string              `json:"leaf,omitempty"`
 	Parent           string              `json:"parent,omitempty"`
