@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"log"
@@ -183,8 +184,13 @@ func harvestAdlibXML(ccmd *cobra.Command, args []string) {
 	fmt.Fprintln(file, "</pockets>")
 
 	if len(cfg.HarvestErrors) > 0 {
+		var buf bytes.Buffer
 		for pageURL, errStr := range cfg.HarvestErrors {
+			buf.WriteString(errStr + "\n")
 			slog.Error("retrieve errors", "page", pageURL, "error", errStr)
+		}
+		if writeErr := os.WriteFile(fname+".errors.txt", buf.Bytes(), os.ModePerm); writeErr != nil {
+			slog.Error("unable to write error file", "error", writeErr)
 		}
 	}
 
@@ -234,10 +240,8 @@ func timeRemaining(startTime time.Time, recordsProcessed, totalRecords int) stri
 
 	timeRequired := float64(totalRecords) / rate
 
-	// Convert timeRequiredSeconds to time.Duration
 	timeRequiredDuration := time.Duration(timeRequired) * time.Second
 
-	// Extract hours, minutes, and seconds from timeRequiredDuration
 	hours := int(timeRequiredDuration.Hours())
 	minutes := int(timeRequiredDuration.Minutes()) % 60
 	seconds := int(timeRequiredDuration.Seconds()) % 60
