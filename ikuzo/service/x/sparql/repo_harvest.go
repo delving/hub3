@@ -94,7 +94,6 @@ func HarvestWithContext(ctx context.Context, cfg *HarvestConfig, subject string)
 							?o4 ?p5 ?o5 .
 							OPTIONAL {
 								?o5 ?p6 ?o .
-
 							}
 						}
 					}

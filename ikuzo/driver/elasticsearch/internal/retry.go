@@ -9,6 +9,7 @@ import (
 func NewClient(retry, timeout int) *retryablehttp.Client {
 	c := retryablehttp.NewClient()
 	c.RetryMax = retry
+	c.Logger = nil
 
 	if timeout == 0 {
 		timeout = 15

@@ -73,6 +73,7 @@ func (r *Repo) setClient() {
 	c := retryablehttp.NewClient()
 	c.RetryMax = r.cfg.Transport.Retry
 	c.HTTPClient.Timeout = time.Duration(r.cfg.Transport.Timeout) * time.Second
+	c.Logger = nil
 	r.client = c
 }
 

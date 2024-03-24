@@ -36,6 +36,7 @@ type PublisherStats struct {
 func NewPublisher(host, dataPath string) *Publisher {
 	client := retryablehttp.NewClient()
 	client.RetryMax = 5
+	client.Logger = nil
 
 	log.Logger = log.With().Caller().Logger()
 
