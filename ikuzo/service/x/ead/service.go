@@ -31,8 +31,15 @@ import (
 	"sync/atomic"
 	"time"
 
+	r "github.com/kiivihal/rdf2go"
+
 	"github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
 
 	eadHub3 "github.com/delving/hub3/hub3/ead"
 	"github.com/delving/hub3/hub3/fragments"
@@ -43,10 +50,6 @@ import (
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/service/x/index"
 	"github.com/delving/hub3/ikuzo/service/x/oaipmh/harvest"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -63,6 +66,8 @@ var _ domain.Service = (*Service)(nil)
 
 type ProcessFn func(s *Service, parentCtx context.Context, t *Task) error
 
+type CustomTriplesFn func(ctx context.Context, subject r.Term, recordID string) ([]*r.Triple, error)
+
 type Service struct {
 	index                   *index.Service
 	dataDir                 string
@@ -70,6 +75,7 @@ type Service struct {
 	CreateTreeFn            CreateTreeFn
 	PreStoreFn              PreStoreFn
 	DaoFn                   DaoFn
+	CustomTriplesFn         CustomTriplesFn
 	ProcessFn               ProcessFn
 	DaoClient               *eadHub3.DaoClient
 	processDigital          bool
@@ -327,6 +333,7 @@ func Process(s *Service, parentCtx context.Context, t *Task) error {
 
 	cfg := eadHub3.NewNodeConfig(gctx)
 	cfg.CreateTree = s.CreateTreeFn
+	cfg.CustomTriplesFn = s.CustomTriplesFn
 	cfg.DaoFn = s.DaoFn
 	cfg.Spec = t.Meta.DatasetID
 	cfg.OrgID = t.Meta.OrgID

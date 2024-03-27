@@ -15,15 +15,18 @@
 package ead
 
 import (
+	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
 
+	r "github.com/kiivihal/rdf2go"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
-	r "github.com/kiivihal/rdf2go"
 )
 
 const FragmentGraphDocType = "ead"
@@ -320,6 +323,14 @@ func (n *Node) Triples(cfg *NodeConfig) []*r.Triple {
 		if t != nil {
 			triples = append(triples, t)
 		}
+	}
+
+	if cfg.CustomTriplesFn != nil {
+		customTriples, err := cfg.CustomTriplesFn(context.Background(), s, n.BranchID)
+		if err != nil {
+			slog.Error("unable to add custom triples", "error", err, "branchID", n.BranchID)
+		}
+		triples = append(triples, customTriples...)
 	}
 
 	t(s, "cLevel", n.CTag, r.NewLiteral)

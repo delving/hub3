@@ -34,6 +34,20 @@ func SetCreateTree(fn CreateTreeFn) Option {
 	}
 }
 
+func SetCustomTriplesFn(fn CustomTriplesFn) Option {
+	return func(s *Service) error {
+		s.CustomTriplesFn = fn
+		return nil
+	}
+}
+
+func SetProcessFn(fn ProcessFn) Option {
+	return func(s *Service) error {
+		s.ProcessFn = fn
+		return nil
+	}
+}
+
 func SetIndexService(is *index.Service) Option {
 	return func(s *Service) error {
 		s.index = is

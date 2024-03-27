@@ -76,6 +76,7 @@ type NodeConfig struct {
 	IndexService            *index.Service
 	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	DaoFn                   func(cfg *DaoConfig) error
+	CustomTriplesFn         func(ctx context.Context, subject r.Term, recordID string) ([]*r.Triple, error)
 	ContentIdentical        bool
 	Nodes                   chan *Node
 	ProcessDigital          bool
