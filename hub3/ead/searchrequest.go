@@ -43,6 +43,10 @@ type SearchRequest struct {
 	postFilter       elastic.Query
 }
 
+func (sr *SearchRequest) IsSearch() bool {
+	return sr.RawQuery != "" || len(sr.Filters) > 0
+}
+
 func newSearchRequest(params url.Values) (*SearchRequest, error) {
 	sr := &SearchRequest{
 		Page:            1,

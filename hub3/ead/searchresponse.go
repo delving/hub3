@@ -65,6 +65,9 @@ type SearchResponse struct {
 
 	// Service is the elasticsearch query
 	Service interface{} `json:"service,omitempty"`
+
+	// IsSearch is a boolean that is true when q or qf is used a query param
+	IsSearch bool `json:"isSearch"`
 }
 
 // CLevel holds the search results per clevel entry in the an EAD Archive.

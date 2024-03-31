@@ -289,6 +289,8 @@ func PerformClusteredSearch(r *http.Request) (*SearchResponse, error) {
 		storeResponseInCache(requestKey, eadResponse, searchRequest.rlog)
 	}
 
+	eadResponse.IsSearch = searchRequest.IsSearch()
+
 	return eadResponse, nil
 }
 
