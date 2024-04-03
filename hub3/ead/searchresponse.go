@@ -6,8 +6,10 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/delving/hub3/hub3/fragments"
 	elastic "github.com/olivere/elastic/v7"
+
+	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/search"
 )
 
 // SearchResponse contains the EAD Search response.
@@ -68,6 +70,9 @@ type SearchResponse struct {
 
 	// IsSearch is a boolean that is true when q or qf is used a query param
 	IsSearch bool `json:"isSearch"`
+
+	// Pagination for search response
+	Pagination *search.Paginator `json:"pagination"`
 }
 
 // CLevel holds the search results per clevel entry in the an EAD Archive.
@@ -177,6 +182,12 @@ func createSearchResponse(sr *SearchRequest, collapseResponse, aggResponse *elas
 	}
 
 	eadResponse.Cursor = cursor
+
+	var pageErr error
+	eadResponse.Pagination, pageErr = search.NewPaginator(eadResponse.ArchiveCount, sr.Rows, sr.Page, cursor)
+	if pageErr != nil {
+		return nil, fmt.Errorf("unable to create paginator; %w", pageErr)
+	}
 
 	if !sr.enableDescriptionSearch() {
 		eadResponse.TotalDescriptionCount = 0

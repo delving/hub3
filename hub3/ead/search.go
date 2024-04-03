@@ -32,6 +32,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/search"
 )
 
 const (
@@ -63,6 +64,8 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 		return nil, err
 	}
 
+	slog.Info("ead search request", "sr", sr, "filters", sr.Filters)
+
 	tagQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery(metaTags, "ead"))
 	if includeDescription && sr.enableDescriptionSearch() {
 		tagQuery = tagQuery.Should(elastic.NewTermQuery(metaTags, "eadDesc"))
@@ -91,6 +94,8 @@ func buildSearchRequest(r *http.Request, includeDescription bool) (*SearchReques
 	}
 
 	sr.Query = query
+
+	slog.Info("elasticsearch query", "query", query)
 
 	sr.Service = s
 
@@ -442,6 +447,12 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 
 	if resp == nil || resp.TotalHits() == 0 {
 		return eadResponse, nil
+	}
+
+	var pageErr error
+	eadResponse.Pagination, pageErr = search.NewPaginator(eadResponse.ArchiveCount, req.Rows, getPageNumber(cursor, eadResponse.TotalPages, req.Rows), cursor)
+	if pageErr != nil {
+		return nil, fmt.Errorf("unable to create paginator; %w", pageErr)
 	}
 
 	eadResponse.CurrentPage = getPageNumber(cursor, eadResponse.TotalPages, req.Rows)

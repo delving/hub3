@@ -344,6 +344,9 @@ func Process(s *Service, parentCtx context.Context, t *Task) error {
 	cfg.ProcessDigital = t.Meta.ProcessDigital
 	cfg.ProcessDigitalIfMissing = t.Meta.ProcessDigitalIfMissing
 	cfg.ProcessAccessTime = t.Meta.ProcessAccessTime
+	if cfg.CustomTriplesFn != nil {
+		cfg.IDWithPath = false
+	}
 
 	cfg.Nodes = make(chan *eadHub3.Node, 2000)
 

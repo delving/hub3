@@ -119,6 +119,9 @@ func (n *Node) getSecondBranch() string {
 func (n *Node) FragmentGraph(cfg *NodeConfig) (*fragments.FragmentGraph, *fragments.ResourceMap, error) {
 	rm := fragments.NewEmptyResourceMap(cfg.OrgID)
 	id := n.Path
+	if !cfg.IDWithPath {
+		id = n.getPathID()
+	}
 	subject := n.GetSubject(cfg)
 	header := &fragments.Header{
 		OrgID: cfg.OrgID,
@@ -326,7 +329,7 @@ func (n *Node) Triples(cfg *NodeConfig) []*r.Triple {
 	}
 
 	if cfg.CustomTriplesFn != nil {
-		customTriples, err := cfg.CustomTriplesFn(context.Background(), s, n.BranchID)
+		customTriples, err := cfg.CustomTriplesFn(context.Background(), s, n.getPathID())
 		if err != nil {
 			slog.Error("unable to add custom triples", "error", err, "branchID", n.BranchID)
 		}

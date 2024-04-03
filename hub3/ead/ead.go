@@ -77,6 +77,7 @@ type NodeConfig struct {
 	CreateTree              func(cfg *NodeConfig, n *Node, hubID string, id string) *fragments.Tree
 	DaoFn                   func(cfg *DaoConfig) error
 	CustomTriplesFn         func(ctx context.Context, subject r.Term, recordID string) ([]*r.Triple, error)
+	IDWithPath              bool
 	ContentIdentical        bool
 	Nodes                   chan *Node
 	ProcessDigital          bool
@@ -146,8 +147,9 @@ func NewNodeConfig(ctx context.Context) *NodeConfig {
 			uniqueCounter: map[string]int{},
 			inError:       map[string]string{},
 		},
-		labels: make(map[string]string),
-		HubIDs: make(chan *NodeEntry, 100),
+		labels:     make(map[string]string),
+		HubIDs:     make(chan *NodeEntry, 100),
+		IDWithPath: true,
 	}
 }
 
