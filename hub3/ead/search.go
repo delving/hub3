@@ -450,7 +450,7 @@ func PerformDetailSearch(r *http.Request) (*SearchResponse, error) {
 	}
 
 	var pageErr error
-	eadResponse.Pagination, pageErr = search.NewPaginator(eadResponse.ArchiveCount, req.Rows, getPageNumber(cursor, eadResponse.TotalPages, req.Rows), cursor)
+	eadResponse.Pagination, pageErr = search.NewPaginator(eadResponse.TotalClevelCount, req.Rows, getPageNumber(cursor, eadResponse.TotalPages, req.Rows), cursor)
 	if pageErr != nil {
 		return nil, fmt.Errorf("unable to create paginator; %w", pageErr)
 	}
