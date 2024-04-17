@@ -253,7 +253,6 @@ func getIDs() []string {
 	})
 
 	bar.Finish()
-	fmt.Printf("\rfinished: %d\n", seen)
 
 	return ids
 }
