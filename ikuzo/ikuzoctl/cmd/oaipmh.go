@@ -237,15 +237,22 @@ func getIDs() []string {
 	defer file.Close()
 
 	seen := 0
+	completeListSize := 0
+	bar := pb.New(0)
+	bar.Start()
+
 	req.HarvestIdentifiers(func(header *oai.Header) {
-		seen++
-		if seen%250 == 0 {
-			fmt.Printf("\rharvested: %d\n", seen)
+		if req.CompleteListSize != 0 && completeListSize == 0 {
+			completeListSize = req.CompleteListSize
+			bar.SetTotal(int64(completeListSize))
 		}
+		seen++
+		bar.Increment()
 		fmt.Fprintln(file, header.Identifier)
 		ids = append(ids, header.Identifier)
 	})
 
+	bar.Finish()
 	fmt.Printf("\rfinished: %d\n", seen)
 
 	return ids
