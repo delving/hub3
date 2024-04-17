@@ -206,7 +206,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				collapsedIds = int(*collapseCount.Value)
 			}
 		}
-		searchRequest.ResponseSize = searchRequest.CollapseSize
 
 		result.Pager, err = searchRequest.ScrollPagers(int64(collapsedIds))
 		if err != nil {
