@@ -115,6 +115,8 @@ var (
 	from       string
 	until      string
 	idCSV      string
+	userName   string
+	password   string
 )
 
 func init() {
@@ -144,6 +146,8 @@ func init() {
 	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
 	oaipmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
 	oaipmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
+	oaipmhCmd.PersistentFlags().StringVarP(&userName, "username", "", "", "BasicAuth username")
+	oaipmhCmd.PersistentFlags().StringVarP(&password, "password", "", "", "BasicAuth password")
 
 	oaipmhCmd.AddCommand(identifyCmd)
 	oaipmhCmd.AddCommand(listDataSetsCmd)
@@ -162,8 +166,10 @@ func identify(ccmd *cobra.Command, args []string) {
 	}
 
 	req := (&oai.Request{
-		BaseURL: url,
-		Verb:    "Identify",
+		BaseURL:  url,
+		Verb:     "Identify",
+		UserName: userName,
+		Password: password,
 	})
 	req.Harvest(func(resp *oai.Response) {
 		fmt.Printf("%#v\n\n", resp.Identify)
@@ -173,8 +179,10 @@ func identify(ccmd *cobra.Command, args []string) {
 // listDataSets returns the datasets from a remote OAI-PMH endpoint
 func listDatasets(ccmd *cobra.Command, args []string) {
 	req := (&oai.Request{
-		BaseURL: url,
-		Verb:    "ListSets",
+		BaseURL:  url,
+		Verb:     "ListSets",
+		UserName: userName,
+		Password: password,
 	})
 	req.Harvest(func(resp *oai.Response) {
 		for idx, set := range resp.ListSets.Set {
@@ -193,8 +201,10 @@ func listDatasets(ccmd *cobra.Command, args []string) {
 // listMetadataFormats returns the available metadataformats from a remote OAI-PMH endpoint
 func listMetadataFormats(ccmd *cobra.Command, args []string) {
 	req := (&oai.Request{
-		BaseURL: url,
-		Verb:    "ListMetadataFormats",
+		BaseURL:  url,
+		Verb:     "ListMetadataFormats",
+		UserName: userName,
+		Password: password,
 	})
 	req.Harvest(func(resp *oai.Response) {
 		for idx, format := range resp.ListMetadataFormats.MetadataFormat {
@@ -225,6 +235,8 @@ func getIDs() []string {
 		MetadataPrefix: prefix,
 		From:           from,
 		Until:          until,
+		UserName:       userName,
+		Password:       password,
 	})
 	ids := []string{}
 	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
@@ -273,6 +285,8 @@ func storeRecord(identifier string, prefix string) string {
 		Verb:           "GetRecord",
 		MetadataPrefix: prefix,
 		Identifier:     identifier,
+		UserName:       userName,
+		Password:       password,
 	})
 	var record string
 	req.Harvest(func(r *oai.Response) {
@@ -350,6 +364,8 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 			MetadataPrefix: prefix,
 			From:           from,
 			Until:          until,
+			UserName:       userName,
+			Password:       password,
 		})
 		req.HarvestIdentifiers(func(header *oai.Header) {
 			if req.CompleteListSize != 0 && completeListSize == 0 {
@@ -406,6 +422,8 @@ func listRecords(ccmd *cobra.Command, args []string) {
 		MetadataPrefix: prefix,
 		From:           from,
 		Until:          until,
+		UserName:       userName,
+		Password:       password,
 	})
 
 	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_records.xml", spec, prefix)))
@@ -437,10 +455,15 @@ func listRecords(ccmd *cobra.Command, args []string) {
 			bar.SetTotal(int64(completeListSize))
 		}
 		seen++
-		// log.Printf("%d => %s", seen, r.Header.Identifier)
 		bar.Increment()
 		fmt.Fprintf(file, `<pocket id="%s">\n`, r.Header.Identifier)
-		fmt.Fprintln(file, r.Metadata.GoString())
+		body := r.Metadata.GoString()
+		if body == "" {
+			fmt.Fprintln(file, r.GoString())
+		} else {
+			fmt.Fprintln(file, r.Metadata.GoString())
+		}
+
 		fmt.Fprintln(file, "</pocket>")
 	})
 	fmt.Fprintln(file, "</pockets>")

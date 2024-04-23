@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.22
+go 1.22.2
 
 require (
 	code.gitea.io/gitea v1.17.1
@@ -35,7 +35,7 @@ require (
 	github.com/hibiken/asynq v0.24.1
 	github.com/hibiken/asynqmon v0.7.2
 	github.com/justinas/alice v1.2.0
-	github.com/kiivihal/goharvest v0.0.0-20210928083513-2a6fbc307f6d
+	github.com/kiivihal/goharvest v0.0.0-20240422102824-7857453a3dea
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
 	github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e
 	github.com/kiivihal/rdf2go v0.1.5
@@ -122,7 +122,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/pprof v0.0.0-20230602150820-91b7bce49751 // indirect
-	github.com/gopherjs/gopherjs v0.0.0-20190910122728-9d188e94fb99 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
