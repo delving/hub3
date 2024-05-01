@@ -21,7 +21,7 @@ import (
 	"github.com/matryer/is"
 )
 
-const defaultListSize = 2197
+const defaultListSize = 2198
 
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{
@@ -248,7 +248,7 @@ func TestDefaults(t *testing.T) {
 
 	nsList, err = svc.List(&ListOptions{URI: "http://schema.org/"})
 	is.NoErr(err)
-	is.Equal(len(nsList), 3)
+	is.Equal(len(nsList), 2)
 	t.Logf("ns list schema from base: %#v", nsList)
 	is.Equal(nsList[len(nsList)-1].Weight, 3)
 	is.Equal(nsList[0].Weight, 100)
