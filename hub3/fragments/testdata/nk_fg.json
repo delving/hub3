@@ -166,6 +166,7 @@
                 },
                 {
                     "@value": "Hamburg",
+                    "@language": "nl",
                     "entrytype": "Literal",
                     "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
                     "searchLabel": "nk_location_filter",
@@ -230,6 +231,16 @@
                 },
                 {
                     "@value": "Zwitserland",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 35
+                },
+                {
+                    "@value": "Switzerland",
+                    "@language": "en",
                     "entrytype": "Literal",
                     "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
                     "searchLabel": "nk_location_filter",
@@ -238,6 +249,16 @@
                 },
                 {
                     "@value": "Parijs",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 44
+                },
+                {
+                    "@value": "Paris",
+                    "@language": "en",
                     "entrytype": "Literal",
                     "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
                     "searchLabel": "nk_location_filter",
@@ -262,6 +283,17 @@
                 },
                 {
                     "@value": "Vloerkleed, engels",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/title",
+                    "searchLabel": "dc_title",
+                    "level": 1,
+                    "tags": ["label", "title"],
+                    "order": 80
+                },
+                {
+                    "@value": "Carpet, english",
+                    "@language": "en",
                     "entrytype": "Literal",
                     "predicate": "http://purl.org/dc/elements/1.1/title",
                     "searchLabel": "dc_title",
@@ -411,6 +443,7 @@
                 },
                 {
                     "@value": "Den Haag",
+                    "@language": "nl",
                     "entrytype": "Literal",
                     "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
                     "searchLabel": "nk_location_filter",

@@ -18,6 +18,7 @@ import (
 	"context"
 	fmt "fmt"
 	"io"
+	"log/slog"
 	"net/url"
 	reflect "reflect"
 	"sort"
@@ -735,6 +736,14 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 				continue
 			}
 
+			// if fieldVal.Type() == reflect.TypeOf([]rdf.LiteralOrResource{}) {
+			// 	d, _ := json.Marshal(fr)
+			// 	if err := os.WriteFile(fmt.Sprintf("/tmp/%s.json", strings.ReplaceAll(fr.ID, "/", "_")), d, os.ModePerm); err != nil {
+			// 		slog.Error("unable to write file", "err", err)
+			// 	}
+			// 	// slog.Info("processing resource", "id", fr.ID, "data", string(d))
+			// }
+
 			switch fieldVal.Kind() {
 			case reflect.Slice:
 				sliceType := fieldVal.Type().Elem()
@@ -754,6 +763,20 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 					for _, entry := range entries {
 						child := reflect.New(sliceType)
 
+						if fieldVal.Type() == reflect.TypeOf([]rdf.LiteralOrResource{}) {
+							slog.Debug("entries for rdf.LiteralOrResource", "entries", entries, "size", len(entries), "entry", entry)
+							lor := reflect.New(sliceType).Elem()
+
+							lor.FieldByName("ID").SetString(entry.ID)
+							lor.FieldByName("Value").SetString(entry.Value)
+							lor.FieldByName("Language").SetString(entry.Language)
+							lor.FieldByName("DataType").SetString(entry.DataType)
+
+							newSlice = reflect.Append(newSlice, lor)
+
+							continue
+						}
+
 						if err := entry.Inline.UnmarshalRDF(child.Interface()); err != nil {
 							return err
 						}
@@ -766,8 +789,19 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 					fmt.Printf("unknown sliceType kind: %#v", sliceType.Kind())
 				}
 			case reflect.Struct:
-				if err := entries[0].Inline.UnmarshalRDF(fieldVal.Addr().Interface()); err != nil {
-					return err
+				if fieldVal.Type() == reflect.TypeOf(rdf.LiteralOrResource{}) {
+					entry := entries[0]
+
+					lor := reflect.New(fieldVal.Type()).Elem()
+					lor.FieldByName("ID").SetString(entry.ID)
+					lor.FieldByName("Value").SetString(entry.Value)
+					lor.FieldByName("Language").SetString(entry.Language)
+					lor.FieldByName("DataType").SetString(entry.DataType)
+					fieldVal.Set(lor)
+				} else {
+					if err := entries[0].Inline.UnmarshalRDF(fieldVal.Addr().Interface()); err != nil {
+						return err
+					}
 				}
 			case reflect.Int:
 				intVal, err := strconv.Atoi(entries[0].Value)

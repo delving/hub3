@@ -3,27 +3,30 @@ package internal
 import (
 	"sort"
 	"strings"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 type BaseRecord struct {
-	Type                 []string         `json:"@type,omitempty" rdf:"@types"`
-	ID                   string           `json:"@id,omitempty" rdf:"@id"`
-	BaseID               string           `json:"baseID,omitempty" rdf:"nk_baseID"`
-	Context              Context          `json:"@context,omitempty" rdf:"-"`
-	BaseType             string           `json:"baseType,omitempty" rdf:"nk_baseType"`
-	EdmIsShownBy         string           `json:"edm:isShownBy,omitempty" rdf:"edm_isShownBy"`
-	EdmObject            string           `json:"edm:object,omitempty" rdf:"edm_object"`
-	CleanID              string           `json:"cleanID,omitempty" rdf:"nk_cleanID"`
-	DcIdentifier         string           `json:"dc:identifier,omitempty" rdf:"dc_identifier"`
-	DcTitle              string           `json:"dc:title,omitempty" rdf:"dc_title"`
-	RestitutionState     string           `json:"currentRestitutionState,omitempty" rdf:"nk_currentRestitutionState"`
-	RestitutionStateDate []string         `json:"currentRestitutionStateDate,omitempty" rdf:"nk_currentRestitutionDate"`
-	ObjectNameFilter     []string         `json:"object_name_filter,omitempty" rdf:"object_name_filter"`
-	EdmHasView           []HasView        `json:"edm:hasView,omitempty" rdf:"edm_hasView"`
-	RestitutionCases     []Case           `json:"sourceCases,omitempty"`
-	Timeline             []Timeline       `json:"timeline,omitempty" rdf:"nk_timeline"`
-	Cho                  []CHO            `json:"cho,omitempty" rdf:"nk_cho"`
-	SNKDeclaration       []SNKDeclaration `json:"snkDeclaration,omitempty" rdf:"nk_snkDeclaration"`
+	Type                 []string                `json:"@type,omitempty" rdf:"@types"`
+	ID                   string                  `json:"@id,omitempty" rdf:"@id"`
+	BaseID               string                  `json:"baseID,omitempty" rdf:"nk_baseID"`
+	Context              Context                 `json:"@context,omitempty" rdf:"-"`
+	BaseType             string                  `json:"baseType,omitempty" rdf:"nk_baseType"`
+	EdmIsShownBy         string                  `json:"edm:isShownBy,omitempty" rdf:"edm_isShownBy"`
+	EdmObject            string                  `json:"edm:object,omitempty" rdf:"edm_object"`
+	CleanID              string                  `json:"cleanID,omitempty" rdf:"nk_cleanID"`
+	DcIdentifier         string                  `json:"dc:identifier,omitempty" rdf:"dc_identifier"`
+	DcTitle              string                  `json:"dc:title,omitempty" rdf:"dc_title"`
+	RestitutionState     string                  `json:"currentRestitutionState,omitempty" rdf:"nk_currentRestitutionState"`
+	RestitutionStateDate []string                `json:"currentRestitutionStateDate,omitempty" rdf:"nk_currentRestitutionDate"`
+	ObjectNameFilter     []string                `json:"object_name_filter,omitempty" rdf:"object_name_filter"`
+	LocationFilter       []rdf.LiteralOrResource `json:"location_filter,omitempty" rdf:"nk_location_filter"`
+	EdmHasView           []HasView               `json:"edm:hasView,omitempty" rdf:"edm_hasView"`
+	RestitutionCases     []Case                  `json:"sourceCases,omitempty"`
+	Timeline             []Timeline              `json:"timeline,omitempty" rdf:"nk_timeline"`
+	Cho                  []CHO                   `json:"cho,omitempty" rdf:"nk_cho"`
+	SNKDeclaration       []SNKDeclaration        `json:"snkDeclaration,omitempty" rdf:"nk_snkDeclaration"`
 	dzi                  []string
 }
 
@@ -111,29 +114,29 @@ type Dimension struct {
 }
 
 type CHO struct {
-	ObjectNumber       string           `json:"objectNumber" rdf:"nk_objectNumber"`
-	Badge              string           `json:"badge" rdf:"nk_badge"`
-	DcSubject          []string         `json:"dc:subject,omitempty" rdf:"dc_subject"`
-	DcDescription      []string         `json:"dc:description" rdf:"dc_description"`
-	Dimension          Dimension        `json:"dimension,omitempty" rdf:"nk_dimension"`
-	Barcode            []string         `json:"barcode" rdf:"nk_barcode"`
-	BarcodeLabel       []string         `json:"barcodeLabel" rdf:"nk_barcodeLabel"`
-	NrOfParts          []string         `json:"nrOfParts,omitempty" rdf:"nk_nrOfParts"`
-	DcTitle            []string         `json:"dc:title" rdf:"dc_title"`
-	NaveMaterial       []string         `json:"nave:material" rdf:"nave_material"`
-	NaveTechnique      []string         `json:"nave:technique" rdf:"nave_technique"`
-	NaveObjectName     []string         `json:"nave:objectName,omitempty" rdf:"nave_objectName"`
-	NaveObjectCategory []string         `json:"nave:objectCategory,omitempty" rdf:"nave_objectCategory"`
-	UserCode           string           `json:"user_code" rdf:"nk_userCode"`
-	Creator            []Creator        `json:"creator" rdf:"nk_creator"`
-	ProductionPlace    []string         `json:"productionPlace,omitempty" rdf:"nk_productionPlace"`
-	ProductionDate     []ProductionDate `json:"productionDate" rdf:"nk_productionDate"`
-	Type               []string         `json:"@type" rdf:"@types"`
-	Thumbnail          string           `json:"thumbnail,omitempty" rdf:"nk_thumbnail"`
-	ID                 string           `json:"@id" rdf:"@id"`
-	ObjectNameFilter   []string         `json:"objectNameFilter,omitempty" rdf:"nk_objectNameFilter"`
-	RestitutionState   string           `json:"restitutionState" rdf:"nk_restitutionState"`
-	RestitutionDate    string           `json:"restitutionDate" rdf:"nk_restitutionDate"`
+	ObjectNumber       string                  `json:"objectNumber" rdf:"nk_objectNumber"`
+	Badge              string                  `json:"badge" rdf:"nk_badge"`
+	DcSubject          []string                `json:"dc:subject,omitempty" rdf:"dc_subject"`
+	DcDescription      []string                `json:"dc:description" rdf:"dc_description"`
+	Dimension          Dimension               `json:"dimension,omitempty" rdf:"nk_dimension"`
+	Barcode            []string                `json:"barcode" rdf:"nk_barcode"`
+	BarcodeLabel       []string                `json:"barcodeLabel" rdf:"nk_barcodeLabel"`
+	NrOfParts          []string                `json:"nrOfParts,omitempty" rdf:"nk_nrOfParts"`
+	DcTitle            []rdf.LiteralOrResource `json:"dc:title" rdf:"dc_title"`
+	NaveMaterial       []string                `json:"nave:material" rdf:"nave_material"`
+	NaveTechnique      []string                `json:"nave:technique" rdf:"nave_technique"`
+	NaveObjectName     []string                `json:"nave:objectName,omitempty" rdf:"nave_objectName"`
+	NaveObjectCategory []string                `json:"nave:objectCategory,omitempty" rdf:"nave_objectCategory"`
+	UserCode           string                  `json:"user_code" rdf:"nk_userCode"`
+	Creator            []Creator               `json:"creator" rdf:"nk_creator"`
+	ProductionPlace    []string                `json:"productionPlace,omitempty" rdf:"nk_productionPlace"`
+	ProductionDate     []ProductionDate        `json:"productionDate" rdf:"nk_productionDate"`
+	Type               []string                `json:"@type" rdf:"@types"`
+	Thumbnail          string                  `json:"thumbnail,omitempty" rdf:"nk_thumbnail"`
+	ID                 string                  `json:"@id" rdf:"@id"`
+	ObjectNameFilter   []string                `json:"objectNameFilter,omitempty" rdf:"nk_objectNameFilter"`
+	RestitutionState   string                  `json:"restitutionState" rdf:"nk_restitutionState"`
+	RestitutionDate    string                  `json:"restitutionDate" rdf:"nk_restitutionDate"`
 }
 
 // Creators returns a deduplicated sorted list of creators
