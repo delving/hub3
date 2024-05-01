@@ -35,7 +35,7 @@ require (
 	github.com/hibiken/asynq v0.24.1
 	github.com/hibiken/asynqmon v0.7.2
 	github.com/justinas/alice v1.2.0
-	github.com/kiivihal/goharvest v0.0.0-20240422102824-7857453a3dea
+	github.com/kiivihal/goharvest v0.0.0-20240428141957-3409996de81d
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
 	github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e
 	github.com/kiivihal/rdf2go v0.1.5
