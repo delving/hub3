@@ -169,14 +169,16 @@ func buildFacetRequest(r *http.Request) (*SearchRequest, error) {
 		return nil, requestErr
 	}
 
-	req.FacetFields = append(
-		req.FacetFields,
-		[]string{
-			"tree.hasDigitalObject",
-			"tree.mimeType",
-			"ead-rdf_genreform",
-		}...,
-	)
+	if !strings.EqualFold(r.URL.Query().Get("facet.reset"), "true") {
+		req.FacetFields = append(
+			req.FacetFields,
+			[]string{
+				"tree.hasDigitalObject",
+				"tree.mimeType",
+				"ead-rdf_genreform",
+			}...,
+		)
+	}
 
 	if err := req.SetFragmentURIBuilder(); err != nil {
 		return nil, err
