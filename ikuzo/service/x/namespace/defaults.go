@@ -1727,6 +1727,7 @@ var defaultNS = []nsEntry{
 	{Prefix: "rfd", BaseURI: "http://com.intrinsec//ontology#"},
 	{Prefix: "rgml", BaseURI: "http://purl.org/puninj/2001/05/rgml-schema#"},
 	{Prefix: "rich", BaseURI: "http://rdf.data-vocabulary.org/"},
+	{Prefix: "rico", BaseURI: "https://www.ica.org/standards/RiC/ontology#"},
 	{Prefix: "rif", BaseURI: "http://www.w3.org/2007/rif#"},
 	{Prefix: "rimmf", BaseURI: "http://rimmf.com/vocab/"},
 	{Prefix: "rlno", BaseURI: "http://rdflivenews.aksw.org/ontology/"},
