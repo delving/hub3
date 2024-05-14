@@ -27,7 +27,7 @@ type Graph struct {
 
 	// Embed contains embed.Data objects serialized as bytes
 	// These can be used to store structs that should be accesible directly from the index
-	Embed []embed.Raw
+	Embed []embed.Raw `json:"-"`
 
 	// contextIsSet is used to make sure the context is always set before the graph is used for indexing
 	contextIsSet bool
@@ -154,8 +154,8 @@ func (g *Graph) addContextLevels() error {
 		return fmt.Errorf("cannot set context levels on empty Resources list")
 	}
 
-	subject, ok := g.Resource(g.Header.EntryURI)
-	if !ok {
+	subject, created := g.Resource(g.Header.EntryURI)
+	if created {
 		return fmt.Errorf("subject %s is not part of the graph", g.Header.EntryURI)
 	}
 
