@@ -170,6 +170,9 @@ var v2Mapping = `{
 								"order": {"type": "integer"},
 								"integer": {"type": "integer"},
 								"tags": {"type": "keyword"},
+								"mType": {"type": "keyword"},
+								"mRole": {"type": "keyword"},
+								"mFilterID": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",
 									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
@@ -234,7 +237,10 @@ var v2MappingUpdate = `{
 				"properties": {
 					"intRange": {"type": "integer_range"},
 					"float": {"type": "float"},
-					"level": {"type": "integer"}
+					"level": {"type": "integer"},
+					"mType": {"type": "keyword"},
+					"mRole": {"type": "keyword"},
+					"mFilterID": {"type": "keyword"}
 				}
 			}
 		}
