@@ -100,11 +100,11 @@ func (triple Triple) GetRDFType() (string, bool) {
 	}
 }
 
-// asLegacyTriple converts a rdf.Triple to legacy package Triple
+// AsLegacyTriple converts a rdf.Triple to legacy package Triple
 //
 // NOTE: This function should be removed when the rdf2go package is
 // no longer used
-func (triple Triple) asLegacyTriple() (*rdf2go.Triple, error) {
+func (triple Triple) AsLegacyTriple() (*rdf2go.Triple, error) {
 	var s, p, o rdf2go.Term
 	switch subj := triple.Subject; subj.Type() {
 	case TermBlankNode:

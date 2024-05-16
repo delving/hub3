@@ -364,7 +364,7 @@ func (g *Graph) Remove(remove ...*Triple) {
 func (g *Graph) AsLegacyGraph() (*rdf2go.Graph, error) {
 	legacyGraph := rdf2go.NewGraph("")
 	for _, triple := range g.Triples() {
-		legacyTriple, convErr := triple.asLegacyTriple()
+		legacyTriple, convErr := triple.AsLegacyTriple()
 		if convErr != nil {
 			return nil, convErr
 		}
