@@ -95,8 +95,52 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 	ProcessSearchRequest(w, r, searchRequest)
 }
 
+func addPager(searchRequest *fragments.SearchRequest, totalHits int64, result *fragments.ScrollResultV4) (*fragments.ScrollPager, error) {
+	var err error
+	var paginator *search.Paginator
+	if searchRequest.V1Mode {
+		paginator, err = search.NewPaginator(
+			int(totalHits),
+			int(searchRequest.GetResponseSize()),
+			int(searchRequest.GetPage()),
+			int(searchRequest.GetStart()),
+		)
+		if err != nil {
+			log.Printf("Unable to create Paginator: %s\n", err.Error())
+			return nil, err
+		}
+
+		searchRequest.Start = int32(paginator.Start) - 1
+
+		if err := paginator.AddPageLinks(); err != nil {
+			log.Println("Unable to create PageLinks")
+			return nil, err
+		}
+	}
+
+	pager, err := searchRequest.ScrollPagers(totalHits)
+	if err != nil {
+		log.Println("Unable to create Scroll Pager. ")
+		return nil, err
+	}
+
+	if paginator != nil {
+		if pager.Cursor == int32(0) && paginator.Start != 0 {
+			pager.Cursor = int32(paginator.Start)
+		}
+		result.Pagination = paginator
+	}
+
+	result.Pager = pager
+
+	return pager, nil
+}
+
 func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest *fragments.SearchRequest) {
 	orgID := domain.GetOrganizationID(r)
+
+	result := &fragments.ScrollResultV4{}
+	var res *elastic.SearchResult
 
 	s, fub, err := searchRequest.ElasticSearchService(index.ESClient())
 	if err != nil {
@@ -113,7 +157,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	}
 
-	res, err := s.Do(r.Context())
+	res, err = s.Do(r.Context())
 	echoRequest := NewEchoSearchRequest(r, searchRequest, s, res)
 	if err != nil {
 		if echoRequest.HasEcho() {
@@ -163,7 +207,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 		}
 
-		result := &fragments.ScrollResultV4{}
 		result.Peek = peek
 		render.JSON(w, r, result)
 		return
@@ -194,7 +237,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 		}
 
-		result := &fragments.ScrollResultV4{}
+		q, _, err := searchRequest.NewUserQuery()
+		if err != nil {
+			log.Printf("Unable to create User Query")
+			return
+		}
+		q.Numfound = int32(res.TotalHits())
+		result.Query = q
+
 		result.Collapsed = records
 
 		var collapsedIds int
@@ -207,9 +257,9 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 		}
 
-		result.Pager, err = searchRequest.ScrollPagers(int64(collapsedIds))
+		_, err = addPager(searchRequest, int64(collapsedIds), result)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			log.Printf("Unable to add pager: %s", err)
 			return
 		}
 
@@ -239,39 +289,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	searchRequest.SearchAfter = searchAfterBin
 
-	var paginator *search.Paginator
-	if searchRequest.V1Mode {
-		paginator, err = search.NewPaginator(
-			int(res.TotalHits()),
-			int(searchRequest.GetResponseSize()),
-			int(searchRequest.GetPage()),
-			int(searchRequest.GetStart()),
-		)
-		if err != nil {
-			log.Printf("Unable to create Paginator: %s\n", err.Error())
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		searchRequest.Start = int32(paginator.Start) - 1
-
-		if err := paginator.AddPageLinks(); err != nil {
-			log.Println("Unable to create PageLinks")
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
-
-	pager, err := searchRequest.ScrollPagers(res.TotalHits())
+	pager, err := addPager(searchRequest, res.TotalHits(), result)
 	if err != nil {
-		log.Println("Unable to create Scroll Pager. ")
+		log.Printf("Unable to add pager: %s", err)
 		return
-	}
-
-	if paginator != nil {
-		if pager.Cursor == int32(0) && paginator.Start != 0 {
-			pager.Cursor = int32(paginator.Start)
-		}
 	}
 
 	// Add scrollID pager information to the header
@@ -363,14 +384,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
-	result := &fragments.ScrollResultV4{}
-	result.Pager = pager
 	// TODO(kiivihal): how to enable or disable this
-
-	if paginator != nil {
-		result.Pagination = paginator
-	}
-
 	var textQuery *memory.TextQuery
 
 	if searchRequest.Query != "" {
