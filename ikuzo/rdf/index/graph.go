@@ -144,6 +144,30 @@ func (g *Graph) Resource(subject string) (*Resource, bool) {
 	return rsc, true
 }
 
+// SearchLabel returns the Enties with the same SearchLabel.
+// When subject is not empty, only resources with that subject ID
+// will be used to retrieve the matching []*Entry.
+func (g *Graph) SearchLabel(subject, label string) (entries []*Entry) {
+	resources := g.Resources
+	if subject != "" {
+		rsc, created := g.Resource(subject)
+		if created {
+			return // subject not found so return immediately
+		}
+		resources = []*Resource{rsc}
+	}
+
+	for _, rsc := range resources {
+		for _, entry := range rsc.Entries {
+			if entry.SearchLabel == label {
+				entries = append(entries, entry)
+			}
+		}
+	}
+
+	return entries
+}
+
 // addContextLevels recurses the root resources and sets the contextRefs
 func (g *Graph) addContextLevels() error {
 	if g.Header.EntryURI == "" {
