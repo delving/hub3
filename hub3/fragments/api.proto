@@ -188,6 +188,7 @@ message SearchRequest {
   string collapseFormat = 36;
   bool v1Mode = 37;
   repeated string contextIndex = 38;
+  string searchFields = 39;
 }
 
 enum GeoType {
