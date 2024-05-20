@@ -102,6 +102,7 @@ type ElasticSearch struct {
 	IndexTypes          []string `json:"indexTypes"`
 	MaxTreeSize         int      `json:"maxTreeSize"`
 	OrphanWait          int      `json:"orphanWait"`
+	SearchFields        []string `json:"searchFields"`
 }
 
 func (es *ElasticSearch) FragmentIndexName(orgID string) string {

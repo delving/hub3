@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	fmt "fmt"
 	"log"
+	"log/slog"
 	"math/rand"
 	"net/url"
 	"sort"
@@ -54,6 +55,7 @@ const (
 	treeCLevel         = "tree.cLevel"
 	resourcesEntries   = "resources.entries"
 	entriesSearchLabel = "resources.entries.searchLabel"
+	entriesValue       = "resources.entries.@value"
 	facetDisplayLabel  = "%s (%d)"
 )
 
@@ -245,6 +247,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			}
 		case "contextIndex":
 			sr.ContextIndex = v
+		case "searchFields":
+			sr.SearchFields = params.Get(p)
 		case "facet.field":
 			for _, ff := range v {
 				if ff == "" {
@@ -477,6 +481,10 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 
 	if sr.Page != 0 {
 		sr.Start = getCursorFromPage(sr.GetPage(), sr.GetResponseSize())
+	}
+
+	if sr.SearchFields == "" {
+		sr.SearchFields = "full_text"
 	}
 
 	return sr, nil
@@ -822,12 +830,15 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			rawQuery = strings.Join(all, " ")
 		}
 		if rawQuery != "" {
-			qs := elastic.NewQueryStringQuery(escapeRawQuery(rawQuery))
-			qs.DefaultOperator("and")
+			fields := strings.Split(sr.SearchFields, ",")
+			if len(fields) == 0 {
+				fields = c.Config.ElasticSearch.SearchFields
+			}
+			qs, err := QueryFromSearchFields(rawQuery, fields...)
+			if err != nil {
+				return query, err
+			}
 
-			qs = qs.
-				Field("full_text").
-				MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 			query = query.Must(qs)
 		}
 	}
@@ -1031,6 +1042,21 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 		aggs[fieldName] = agg
 	}
 	return aggs, nil
+}
+
+func createFieldedSubQuery(field, userQuery string, boost float64) elastic.Query {
+	fieldTermQuery := elastic.NewTermQuery(entriesSearchLabel, field)
+
+	uq := elastic.NewQueryStringQuery(escapeRawQuery(userQuery))
+	uq = uq.DefaultOperator("and")
+	switch {
+	case boost < 0, boost > 0:
+		uq = uq.FieldWithBoost(entriesValue, boost)
+	default:
+		uq = uq.Field(entriesValue)
+	}
+
+	return elastic.NewBoolQuery().Must(fieldTermQuery, uq)
 }
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
@@ -2087,32 +2113,60 @@ func escapeRawQuery(query string) string {
 	return strings.Join(parts, " ")
 }
 
+func getBoost(input string) (field string, boost float64) {
+	parts := strings.Split(input, "^")
+	if len(parts) < 2 {
+		return parts[0], 0
+	}
+
+	boost, err := strconv.ParseFloat(parts[1], 64)
+	if err != nil {
+		slog.Error("unable to parse boost from search field", "field", input, "error", err)
+		return parts[0], 0
+	}
+
+	return parts[0], boost
+}
+
 func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error) {
 	q := elastic.NewQueryStringQuery(escapeRawQuery(query))
 	q.DefaultOperator("and")
 
+	var directFields, nestedFields []string
+
+	// filter fields
 	for _, field := range fields {
-		parts := strings.Split(field, "^")
-		if len(parts) == 1 {
-			q = q.Field(parts[0])
+		if field == "full_text" || (strings.HasPrefix(field, "tree.") || strings.HasPrefix(field, "meta.")) {
+			directFields = append(directFields, field)
 			continue
 		}
+		nestedFields = append(nestedFields, field)
+	}
 
-		if len(parts) > 1 {
-			boost, err := strconv.ParseFloat(parts[1], 64)
-			if err != nil {
-				return q, fmt.Errorf("unable to parse boost float for searchField from %s; %w", field, err)
-			}
-
-			q = q.FieldWithBoost(parts[0], boost)
+	for _, field := range directFields {
+		f, boost := getBoost(field)
+		if boost != 0 {
+			q = q.FieldWithBoost(f, boost)
+			continue
 		}
+		q = q.Field(f)
 	}
 
+	nbq := elastic.NewBoolQuery()
+
+	for _, field := range nestedFields {
+		f, boost := getBoost(field)
+		nbq.Should(createFieldedSubQuery(f, query, boost))
+	}
+
+	nq := elastic.NewNestedQuery(resourcesEntries, nbq)
+
+	bq := elastic.NewBoolQuery().Should(q, nq)
 	if !isAdvancedSearch(query) {
-		q = q.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+		bq = bq.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 	}
 
-	return q, nil
+	return bq, nil
 }
 
 func (h *Header) LastModified() time.Time {
