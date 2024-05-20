@@ -33,51 +33,56 @@ import (
 
 type ElasticSearch struct {
 	// enable elasticsearch client
-	Enabled bool
+	Enabled bool `json:"enabled,omitempty"`
 	// urls to connect to elasticsearch cluster
-	Urls []string
+	Urls []string `json:"urls,omitempty"`
 	// enable elasticsearch caching proxy
-	Proxy bool
+	Proxy bool `json:"proxy,omitempty"`
 	// number of elasticsearch workers. default: 1
-	Workers int
+	Workers int `json:"workers,omitempty"`
 	// maxRetries number of client retries. default: 5
-	MaxRetries int
+	MaxRetries int `json:"maxRetries,omitempty"`
 	// clientTimeOut seconds for the client to time out. default 10
-	ClientTimeOut int
+	ClientTimeOut int `json:"clientTimeOut,omitempty"`
 	// gather elasticsearch metrics
-	Metrics bool
+	Metrics bool `json:"metrics,omitempty"`
 	// elasticsearch client
-	client *es.Client
+	client *es.Client `json:"client,omitempty"`
 	// BulkIndexer
-	bi *esutil.BulkIndexer
+	bi *esutil.BulkIndexer `json:"bi,omitempty"`
 	// IndexService
-	is *index.Service
+	is *index.Service `json:"is,omitempty"`
 	// base of the index aliases
-	IndexName string
+	IndexName string `json:"indexName,omitempty"`
 	// if non-empty digital objects will be indexed in a dedicated v2 index
-	DigitalObjectSuffix string
+	DigitalObjectSuffix string `json:"digitalObjectSuffix,omitempty"`
 	// number of shards. default 1
-	Shards int
+	Shards int `json:"shards,omitempty"`
 	// number of replicas. default 0
-	Replicas int
+	Replicas int `json:"replicas,omitempty"`
 	// logger
-	logger *logger.CustomLogger
+	logger *logger.CustomLogger `json:"logger,omitempty"`
 	// UseRemoteIndexer is true when a separate process reads of the queue
-	UseRemoteIndexer bool
+	UseRemoteIndexer bool `json:"useRemoteIndexer,omitempty"`
 	// IndexTypes options are v1, v2, fragment
-	IndexTypes []string
+	IndexTypes []string `json:"indexTypes,omitempty"`
 	// use FastHTTP transport for communication with the ElasticSearch cluster
-	FastHTTP bool `json:"fastHTTP"`
+	FastHTTP bool `json:"fastHTTP,omitempty"`
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
-	OrphanWait int
+	OrphanWait int `json:"orphanWait,omitempty"`
 	// once makes sure that createmapping is only run once
-	once sync.Once
+	once sync.Once `json:"once,omitempty"`
 	// UserName is the BasicAuth username
-	UserName string `json:"userName"`
+	UserName string `json:"userName,omitempty"`
 	// Password is the BasicAuth password
-	Password string `json:"password"`
+	Password string `json:"password,omitempty"`
 	// Path where the harvester toml configuration files are
-	HarvestConfigPath string `json:"harvestConfigPath"`
+	HarvestConfigPath string `json:"harvestConfigPath,omitempty"`
+	// SearchFields is a string with comma-separated fields and their boosts. This is used as the
+	// fallback when no searchfields are given in the query
+	SearchFields string `json:"searchFields,omitempty"`
+	// MinimumShouldMatch is default setting for userQueries
+	MinimumShouldMatch string `json:"minimumShouldMatch"`
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
