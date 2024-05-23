@@ -2145,7 +2145,7 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 
 	for _, field := range directFields {
 		f, boost := getBoost(field)
-		if boost != 0 {
+		if boost > 0 || boost < 0 {
 			q = q.FieldWithBoost(f, boost)
 			continue
 		}
