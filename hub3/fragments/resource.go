@@ -978,10 +978,10 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 						continue
 					}
 					re.DateRange = &indexRange
-					if indexRange.Greater != "" {
+					if indexRange.Greater != "" && indexRange.Greater != "--01" {
 						re.Date = append(re.Date, indexRange.Greater)
 					}
-					if indexRange.Less != "" {
+					if indexRange.Less != "" && indexRange.Less != "--01" {
 						re.Date = append(re.Date, indexRange.Less)
 					}
 				case "latLong":
