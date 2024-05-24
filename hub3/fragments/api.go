@@ -2129,8 +2129,7 @@ func getBoost(input string) (field string, boost float64) {
 }
 
 func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error) {
-	q := elastic.NewQueryStringQuery(escapeRawQuery(query))
-	q.DefaultOperator("and")
+	bq := elastic.NewBoolQuery()
 
 	var directFields, nestedFields []string
 
@@ -2143,6 +2142,8 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 		nestedFields = append(nestedFields, field)
 	}
 
+	q := elastic.NewQueryStringQuery(escapeRawQuery(query))
+	q.DefaultOperator("and")
 	for _, field := range directFields {
 		f, boost := getBoost(field)
 		if boost > 0 || boost < 0 {
@@ -2152,16 +2153,21 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 		q = q.Field(f)
 	}
 
-	nbq := elastic.NewBoolQuery()
+	if len(directFields) > 0 {
+		bq = bq.Should(q)
+	}
 
+	nbq := elastic.NewBoolQuery()
 	for _, field := range nestedFields {
 		f, boost := getBoost(field)
 		nbq.Should(createFieldedSubQuery(f, query, boost))
 	}
 
-	nq := elastic.NewNestedQuery(resourcesEntries, nbq)
+	if len(nestedFields) > 0 {
+		nq := elastic.NewNestedQuery(resourcesEntries, nbq)
+		bq = bq.Should(nq)
+	}
 
-	bq := elastic.NewBoolQuery().Should(q, nq)
 	if !isAdvancedSearch(query) {
 		bq = bq.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
 	}
