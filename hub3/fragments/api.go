@@ -317,7 +317,13 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
 		case "sortBy":
-			sr.SortBy = params.Get(p)
+			sortKey := params.Get(p)
+			if strings.HasPrefix(sortKey, "^") {
+				sr.SortAsc = true
+				sortKey = strings.TrimPrefix(sortKey, "^")
+			}
+			sr.SortBy = sortKey
+
 		case "sortAsc":
 			if strings.EqualFold(params.Get(p), "true") {
 				sr.SortAsc = true
@@ -1247,9 +1253,11 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	switch {
 	case sr.Tree != nil && sr.GetSortBy() == "":
 		fieldSort = elastic.NewFieldSort("tree.sortKey")
+	case sr.GetSortBy() == "_score":
+		fieldSort = elastic.NewFieldSort("_score")
 	case strings.HasPrefix(sr.GetSortBy(), "random"), sr.GetSortBy() == "":
 		fieldSort = elastic.NewFieldSort("_score").Desc()
-	case strings.HasPrefix(sr.GetSortBy(), "tree."):
+	case strings.HasPrefix(sr.GetSortBy(), "tree."), strings.HasPrefix(sr.GetSortBy(), "meta."):
 		fieldSort = elastic.NewFieldSort(sr.GetSortBy())
 	case strings.HasSuffix(sr.GetSortBy(), "_int"):
 		field := strings.TrimSuffix(sr.GetSortBy(), "_int")
@@ -1257,21 +1265,19 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		fieldSort = elastic.NewFieldSort("resources.entries.integer").
 			NestedPath(resourcesEntries).
 			NestedFilter(sortNestedQuery)
-		if sr.SortAsc {
-			fieldSort = fieldSort.Asc()
-		} else {
-			fieldSort = fieldSort.Desc()
-		}
 	default:
 		sortNestedQuery := elastic.NewTermQuery(entriesSearchLabel, sr.GetSortBy())
-		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").
-			NestedPath(resourcesEntries).
-			NestedFilter(sortNestedQuery)
-		if sr.SortAsc {
-			fieldSort = fieldSort.Asc()
-		} else {
-			fieldSort = fieldSort.Desc()
-		}
+		nestedSort := elastic.NewNestedSort(resourcesEntries).
+			// Path(resourcesEntries).
+			Filter(sortNestedQuery)
+
+		fieldSort = elastic.NewFieldSort("resources.entries.@value.keyword").NestedSort(nestedSort)
+	}
+
+	if sr.SortAsc {
+		fieldSort = fieldSort.Asc()
+	} else {
+		fieldSort = fieldSort.Desc()
 	}
 
 	if sr.Tree != nil && sr.GetResponseSize() != 1 {
