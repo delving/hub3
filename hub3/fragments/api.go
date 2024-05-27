@@ -279,6 +279,14 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			if fbt != "" {
 				sr.FacetAndBoolType = strings.EqualFold(fbt, "and")
 			}
+		case "facet.mergeFilter":
+			sr.FacetMergeFilter = append(sr.FacetMergeFilter, v...)
+		case "facetOrBetween", "facet.orBetween":
+			slog.Info("facet or between", "p", p, "v", v)
+			fbt := params.Get(p)
+			if fbt != "" {
+				sr.ORBetweenFacets = strings.EqualFold(fbt, "true")
+			}
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":
@@ -516,13 +524,19 @@ func RandSeq(n int) string {
 // FacetURIBuilder is used for creating facet filter fields
 // TODO implement pop and push for creating facets links
 type FacetURIBuilder struct {
-	query   string
-	filters map[string]map[string]*QueryFilter
+	query             string
+	filters           map[string]map[string]*QueryFilter
+	ORBetweenFacets   bool
+	facetMergeFilters map[string][]string
 }
 
 // NewFacetURIBuilder creates a builder for Facet links
 func NewFacetURIBuilder(query string, filters []*QueryFilter) (*FacetURIBuilder, error) {
-	fub := &FacetURIBuilder{query: query, filters: make(map[string]map[string]*QueryFilter)}
+	fub := &FacetURIBuilder{
+		query:             query,
+		filters:           make(map[string]map[string]*QueryFilter),
+		facetMergeFilters: map[string][]string{},
+	}
 
 	for _, f := range filters {
 		if err := fub.AddFilter(f); err != nil {
@@ -531,6 +545,21 @@ func NewFacetURIBuilder(query string, filters []*QueryFilter) (*FacetURIBuilder,
 	}
 
 	return fub, nil
+}
+
+func (fub *FacetURIBuilder) AddFacetMergeFilters(filters []string) {
+	for _, filter := range filters {
+		var mergeFields []string
+		parts := strings.Split(filter, ",")
+		if len(parts) < 2 {
+			continue
+		}
+		for _, p := range parts {
+			mergeFields = append(mergeFields, strings.TrimSpace(p))
+		}
+		// TODO: add check if mergeField already exists
+		fub.facetMergeFilters[filter] = mergeFields
+	}
 }
 
 func (fub *FacetURIBuilder) hasQueryFilter(field, value string) bool {
@@ -641,12 +670,30 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 
 // CreateFacetFilterQuery creates an elasticsearch Query to filter facets
 // for the Facet Aggregation specified by 'filterfield'.
-func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery bool) (elastic.Query, error) {
+func (fub *FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery bool) (elastic.Query, error) {
+	for k, filters := range fub.facetMergeFilters {
+		_, known := fub.filters[k]
+		if known {
+			continue
+		}
+		merged := map[string]*QueryFilter{}
+		for _, searchLabel := range filters {
+			qfs := fub.filters[searchLabel]
+			for nestedk, nestedv := range qfs {
+				merged["m:"+nestedk] = nestedv
+			}
+			delete(fub.filters, searchLabel)
+		}
+		fub.filters[k] = merged
+	}
+
 	q := elastic.NewBoolQuery()
 	var fieldFilters []string
 	for k := range fub.filters {
 		fieldFilters = append(fieldFilters, k)
 	}
+
+	slog.Debug("fub output", "fieldFilters", fieldFilters, "filters", fub.filters, "mergeFilters", fub.facetMergeFilters)
 
 	sort.Slice(fieldFilters, func(i, j int) bool { return fieldFilters[i] < fieldFilters[j] })
 
@@ -690,7 +737,13 @@ func (fub FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery b
 		if !active {
 			continue
 		}
-		q = q.Must(fieldQ)
+
+		switch fub.ORBetweenFacets {
+		case true:
+			q = q.Should(fieldQ)
+		default:
+			q = q.Must(fieldQ)
+		}
 	}
 
 	return q, nil
@@ -997,6 +1050,8 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		if err != nil {
 			return nil, err
 		}
+		fub.ORBetweenFacets = sr.ORBetweenFacets
+		fub.AddFacetMergeFilters(sr.FacetMergeFilter)
 
 		hiddenFilterQuery, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
 		if err != nil {
@@ -1346,6 +1401,8 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		log.Println("Unable to FacetURIBuilder")
 		return s, nil, err
 	}
+	fub.ORBetweenFacets = sr.ORBetweenFacets
+	fub.AddFacetMergeFilters(sr.FacetMergeFilter)
 
 	// Add post filters
 	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
