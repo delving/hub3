@@ -970,7 +970,9 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			for _, label := range labels {
 				switch label {
 				case "isoDate":
-					re.Date = append(re.Date, re.Value)
+					if re.Value != "" && re.Value != "--01" {
+						re.Date = append(re.Date, re.Value)
+					}
 				case "dateRange":
 					indexRange, err := CreateDateRange(re.Value)
 					if err != nil {

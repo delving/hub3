@@ -204,7 +204,7 @@ func (ir IndexRange) Valid() error {
 // CreateDateRange creates a date indexRange
 func createDateRange(period string) (IndexRange, error) {
 	ir := IndexRange{}
-	parts := strings.FieldsFunc(period, splitPeriod)
+	parts := strings.FieldsFunc(strings.TrimSpace(period), splitPeriod)
 	switch len(parts) {
 	case 1:
 		// start and end year
@@ -239,7 +239,13 @@ func hyphenateDate(date string) (string, error) {
 }
 
 func padYears(year string, start bool) (string, error) {
-	parts := strings.Split(year, "-")
+	var parts []string
+	for _, p := range strings.Split(year, "-") {
+		if strings.TrimSpace(p) != "" {
+			parts = append(parts, strings.TrimSpace(p))
+		}
+	}
+
 	switch len(parts) {
 	case 3:
 		return year, nil
