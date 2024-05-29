@@ -46,7 +46,6 @@ type Resource struct {
 // When the fingerprint is known, it will replace and otherwise append.
 func (rsc *Resource) Add(entry *Entry) {
 	entry.processTags()
-	hash := entry.Fingerprint()
 	if entry.Predicate == "" && entry.SearchLabel != "" {
 		p, err := getPredicate(entry.SearchLabel)
 		if err != nil {
@@ -54,6 +53,7 @@ func (rsc *Resource) Add(entry *Entry) {
 		}
 		entry.Predicate = p
 	}
+	hash := entry.Fingerprint()
 
 	rsc.mu.Lock()
 	defer rsc.mu.Unlock()

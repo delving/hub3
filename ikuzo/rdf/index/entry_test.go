@@ -1,6 +1,8 @@
 package index
 
-import "testing"
+import (
+	"testing"
+)
 
 func Test_padYears(t *testing.T) {
 	type args struct {
@@ -153,6 +155,77 @@ func Test_hyphenateDate(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("hyphenateDate() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntry_Fingerprint(t *testing.T) {
+	type fields struct {
+		ID                string
+		Predicate         string
+		SearchLabel       string
+		Value             string
+		Language          string
+		DataType          string
+		EntryType         EntryType
+		Level             int32
+		Order             int
+		Tags              []string
+		TypeIndexField    TypeIndexField
+		CustomFilterField CustomFilterField
+		Inline            *Resource
+		fingerprint       string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		// source="&{ID: Predicate:https://data.antwerp.be/def/dlod/isConnectedTo SearchLabel:dlod_isConnectedTo Value:au::5099 Language: DataType: EntryType:Literal Level:0 Order:12 Tags:[] TypeIndexField:{Date:[] DateRange:<nil> Integer:0 Float:0 IntRange:<nil> LatLong:} CustomFilterField:{FilterIDs:[] Type: Role:} Inline:<nil> fingerprint:12991542146013111616}" target="&{ID: Predicate:https://data.antwerp.be/def/dlod/isRelatedTo SearchLabel:dlod_isRelatedTo Value:au::5099 Language: DataType: EntryType:Literal Level:0 Order:16 Tags:[] TypeIndexField:{Date:[] DateRange:<nil> Integer:0 Float:0 IntRange:<nil> LatLong:} CustomFilterField:{FilterIDs:[] Type: Role:} Inline:<nil> fingerprint:12991542146013111616}"
+		{
+			name: "",
+			fields: fields{
+				Predicate:   "https://data.antwerp.be/def/dlod/isConnectedTo",
+				SearchLabel: "dlod_isConnectedTo",
+				Value:       "au::5099",
+				EntryType:   "Literal",
+				Order:       12,
+			},
+			want: "1799388965257883955",
+		},
+		{
+			name: "",
+			fields: fields{
+				Predicate:   "https://data.antwerp.be/def/dlod/isRelatedTo",
+				SearchLabel: "dlod_isRelatedTo",
+				Value:       "au::5099",
+				EntryType:   "Literal",
+				Order:       16,
+			},
+			want: "10987807126339939380",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			e := &Entry{
+				ID:                tt.fields.ID,
+				Predicate:         tt.fields.Predicate,
+				SearchLabel:       tt.fields.SearchLabel,
+				Value:             tt.fields.Value,
+				Language:          tt.fields.Language,
+				DataType:          tt.fields.DataType,
+				EntryType:         tt.fields.EntryType,
+				Level:             tt.fields.Level,
+				Order:             tt.fields.Order,
+				Tags:              tt.fields.Tags,
+				TypeIndexField:    tt.fields.TypeIndexField,
+				CustomFilterField: tt.fields.CustomFilterField,
+				Inline:            tt.fields.Inline,
+				fingerprint:       tt.fields.fingerprint,
+			}
+			if got := e.Fingerprint(); got != tt.want {
+				t.Errorf("Entry.Fingerprint() = %v, want %v", got, tt.want)
 			}
 		})
 	}

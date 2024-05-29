@@ -126,6 +126,7 @@ func (e *Entry) Fingerprint() string {
 	d := xxhash.New64()
 	d.WriteString(e.ID)
 	d.WriteString(e.Predicate)
+	d.WriteString(e.SearchLabel)
 	d.WriteString(e.Value)
 	d.WriteString(e.Language)
 	d.WriteString(e.DataType)
