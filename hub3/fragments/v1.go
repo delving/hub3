@@ -42,11 +42,12 @@ import (
 	"time"
 
 	"github.com/cnf/structhash"
-	c "github.com/delving/hub3/config"
-	"github.com/delving/hub3/ikuzo/rdf"
 	r "github.com/kiivihal/rdf2go"
 	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
+
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/rdf"
 
 	"github.com/olivere/elastic/v7"
 
@@ -575,11 +576,11 @@ func (fb *FragmentBuilder) AddDefaults(wr r.Term, s r.Term, g *r.Graph) {
 		log.Printf("should find thumbLarge: %s, %s \n %s", wr.String(), s.String(), "")
 	}
 	if isShownBy != nil {
-		g.AddTriple(s, GetEDMField("isShownBy"), isShownBy)
+		g.AddTriple(s, GetEDMField("isShownBy"), r.NewResource(isShownBy.RawValue()))
 	}
 	object := fb.GetObject(wr, GetNaveField("thumbSmall"))
 	if object != nil {
-		g.AddTriple(s, GetEDMField("object"), isShownBy)
+		g.AddTriple(s, GetEDMField("object"), r.NewResource(object.RawValue()))
 	}
 }
 
