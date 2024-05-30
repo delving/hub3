@@ -190,8 +190,8 @@ type CustomFilterField struct {
 
 // IndexRange is used for indexing ranges.
 type IndexRange struct {
-	Greater string `json:"gte"`
-	Less    string `json:"lte"`
+	Greater string `json:"gte,omitempty"`
+	Less    string `json:"lte,omitempty"`
 }
 
 // Valid checks if Less is smaller than Greater.
