@@ -176,6 +176,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		switch p {
 		case "q", "query":
 			sr.Query = params.Get(p)
+		case "rq":
+			sr.QueryRefinement = params.Get(p)
 		case qfKey, qfKeyList:
 			for _, qf := range v {
 				if qf == "" {
@@ -483,6 +485,10 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			}
 			sr.SearchAfter = sb
 		}
+	}
+
+	if sr.GetQueryRefinement() != "" {
+		sr.Query = sr.Query + " AND (" + sr.GetQueryRefinement() + ")"
 	}
 
 	if sr.Tree != nil && sr.GetResponseSize() != int32(1) && sr.Page != 0 {
@@ -876,6 +882,7 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 	if sr.GetQuery() != "" {
 		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", metaSpecPrefix, 1)
+
 		if strings.Contains(rawQuery, metaSpec) {
 			all := []string{}
 			for _, part := range strings.Split(rawQuery, " ") {
