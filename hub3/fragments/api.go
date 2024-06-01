@@ -487,7 +487,9 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		}
 	}
 
-	if sr.GetQueryRefinement() != "" {
+	if sr.GetQueryRefinement() != "" && sr.GetQuery() == "" {
+		sr.Query = sr.GetQueryRefinement()
+	} else {
 		sr.Query = sr.Query + " AND (" + sr.GetQueryRefinement() + ")"
 	}
 
