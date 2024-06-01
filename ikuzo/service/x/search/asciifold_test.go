@@ -1319,6 +1319,11 @@ func TestNativeASCIIFolding(t *testing.T) {
 			args{"行くぞ"},
 			"行くそ",
 		},
+		{
+			"Uppercase O umlaut",
+			args{"Österreichischen Bundestheater [Wenen (A)]"},
+			"Osterreichischen Bundestheater [Wenen (A)]",
+		},
 	}
 
 	for _, tt := range tests {
