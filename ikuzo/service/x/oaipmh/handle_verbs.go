@@ -78,14 +78,25 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 }
 
 func (s *Service) handleIdentify(resp *Response) {
+	cfg := resp.Request.orgConfig.OAIPMH
 	resp.Identify = &Identify{
-		RepositoryName:    resp.Request.orgConfig.OAIPMH.RepositoryName,
+		RepositoryName:    cfg.RepositoryName,
 		BaseURL:           resp.Request.BaseURL,
 		ProtocolVersion:   "2.0",
-		AdminEmail:        resp.Request.orgConfig.OAIPMH.AdminEmails,
-		DeletedRecord:     "no", // TODO(kiivihal): change later to persistent
+		AdminEmail:        cfg.AdminEmails,
 		EarliestDatestamp: "1970-01-01T00:00:00Z",
 		Granularity:       "YYYY-MM-DDThh:mm:ssZ",
+	}
+
+	if cfg.BaseURL != "" {
+		resp.Identify.BaseURL = cfg.BaseURL
+	}
+
+	switch cfg.DeletedRecordType {
+	case "persistent", "transient":
+		resp.Identify.DeletedRecord = cfg.DeletedRecordType
+	default:
+		resp.Identify.DeletedRecord = "no"
 	}
 }
 

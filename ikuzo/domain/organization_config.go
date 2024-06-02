@@ -100,10 +100,12 @@ type OrganizationConfig struct {
 		} `json:"defaults"`
 	} `json:"elasticSearch,omitempty"`
 	OAIPMH struct {
-		Enabled        bool     `json:"enabled"`
-		AdminEmails    []string `json:"adminEmails"`
-		RepositoryName string   `json:"repositoryName"`
-		ResponseSize   int      `json:"responseSize"`
+		Enabled           bool     `json:"enabled,omitempty"`
+		AdminEmails       []string `json:"adminEmails,omitempty"`
+		RepositoryName    string   `json:"repositoryName,omitempty"`
+		ResponseSize      int      `json:"responseSize,omitempty"`
+		DeletedRecordType string   `json:"deletedRecordType,omitempty"`
+		BaseURL           string   `json:"baseURL,omitempty"`
 	} `json:"oaipmh,omitempty"`
 	RDF struct {
 		RDFBaseURL     string `json:"rdfBaseURL"`
