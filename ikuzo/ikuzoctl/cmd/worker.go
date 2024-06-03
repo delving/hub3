@@ -32,11 +32,6 @@ var workerCmd = &cobra.Command{
 	},
 }
 
-// nolint:gochecknoinits // cobra requires this init
-func init() {
-	rootCmd.AddCommand(workerCmd)
-}
-
 // workers configures and runs the ikuzo background workers.
 func workers() {
 	svr, err := setupIkuzo(true)

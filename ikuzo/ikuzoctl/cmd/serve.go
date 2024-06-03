@@ -35,9 +35,8 @@ var serveCmd = &cobra.Command{
 	},
 }
 
-// nolint:gochecknoinits // cobra requires this init
-func init() {
-	rootCmd.AddCommand(serveCmd)
+func newServeCmd() *cobra.Command {
+	return serveCmd
 }
 
 // serve configures and runs the ikuzo server as a silo.

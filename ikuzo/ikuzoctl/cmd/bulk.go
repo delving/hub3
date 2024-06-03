@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,12 +43,12 @@ var bulkCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(bulkCmd)
-
+func newBulkCmd() *cobra.Command {
 	bulkCmd.Flags().StringVarP(&requestPath, "dataPath", "p", ".", "Full path to orgIDs for the bulk.Requests.")
 	bulkCmd.Flags().StringVarP(&publishHost, "host", "", "http://localhost:3001", "network host of where target hub3 is running")
 	bulkCmd.Flags().IntVarP(&chunkSize, "chunkSize", "", 500, "size of number of records send per batch")
+
+	return bulkCmd
 }
 
 func publish(ctx context.Context, host, dataPath string) error {

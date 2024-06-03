@@ -17,7 +17,6 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -54,15 +53,13 @@ var (
 	harvestCfg  string
 )
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	rootCmd.AddCommand(sparqlCmd)
-
+func newSparqlCmd() *cobra.Command {
 	harvestCmd.Flags().StringVarP(&harvestFrom, "from", "f", "", "timestamp to harvest from")
 	harvestCmd.Flags().StringVarP(&harvestCfg, "cfg", "c", "", "path to the harvest toml configuration")
 
 	sparqlCmd.AddCommand(harvestCmd)
+
+	return sparqlCmd
 }
 
 // listRecords writes all Records to a file

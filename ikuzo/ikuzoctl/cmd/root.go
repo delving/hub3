@@ -59,6 +59,18 @@ func Execute() {
 	// start cobra configuration
 	cobra.OnInitialize(initConfig)
 
+	rootCmd.AddCommand(
+		NewOaiPmhCmd(),
+		newAdlibCmd(),
+		newBulkCmd(),
+		newEadResyncCmd(),
+		newIndexCmd(),
+		newServeCmd(),
+		newSparqlCmd(),
+		versionCmd,
+		workerCmd,
+	)
+
 	if err := rootCmd.Execute(); err != nil {
 		log.Fatal().Err(err).Msg("unable to start ikuzoctl")
 	}

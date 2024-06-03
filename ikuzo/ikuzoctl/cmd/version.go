@@ -30,8 +30,3 @@ var versionCmd = &cobra.Command{
 		fmt.Printf("%s\n", info)
 	},
 }
-
-// nolint:gochecknoinits // cobra requires init for setup
-func init() {
-	rootCmd.AddCommand(versionCmd)
-}

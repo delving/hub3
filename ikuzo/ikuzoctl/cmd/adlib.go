@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -59,11 +58,7 @@ var (
 	adlibConfig     string
 )
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	rootCmd.AddCommand(adlibCmd)
-
+func newAdlibCmd() *cobra.Command {
 	adlibHarvestCmd.Flags().StringVarP(&adlibFrom, "from", "f", "", "timestamp to harvest from")
 	adlibHarvestCmd.Flags().StringVarP(&adlibURL, "url", "u", "", "url to harvest from")
 	adlibHarvestCmd.Flags().StringVarP(&adlibDatabase, "database", "d", "", "database to harvest from")
@@ -73,6 +68,7 @@ func init() {
 	adlibHarvestCmd.Flags().StringVarP(&adlibOutputDir, "outputDir", "o", "/tmp", "directory to write the filename to")
 
 	adlibCmd.AddCommand(adlibHarvestCmd)
+	return adlibCmd
 }
 
 // listRecords writes all Records to a file

@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,14 +56,13 @@ var (
 	dataset   string
 )
 
-func init() {
-	rootCmd.AddCommand(indexCmd)
-
+func newIndexCmd() *cobra.Command {
 	indexCmd.Flags().StringVarP(&indexMode, "indexMode", "m", "v2", "which mode of indexing is used")
 	indexCmd.Flags().StringVarP(&dataPath, "path", "p", "", "which directory contains the source records")
 	indexCmd.Flags().StringVarP(&orgID, "orgID", "", "", "orgID of the records")
 	indexCmd.Flags().StringVarP(&dataset, "dataset", "", "", "dataset spec of the records")
 	indexCmd.Flags().BoolVarP(&offline, "offline", "o", false, "build a new index but not set the default alias")
+	return indexCmd
 }
 
 func indexRecords() error {

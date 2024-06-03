@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"strings"
@@ -30,163 +31,63 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	// oaiPmhCmd represents the oaipmh command
-	oaiPmhCmd = &cobra.Command{
-		Use:   "oaipmh",
-		Short: "Harvesting an OAI-PMH endpoint.",
-	}
-
-	// identifyCmd subcommand to identify remote OAI-PMH target
-	identifyCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "identify",
-		Short: "Identify OAI-PMH response",
-
-		Run: identify,
-	}
-
-	// listDataSetsCmd subcommand to list all datasets remote OAI-PMH target
-	listDataSetsCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "datasets",
-		Short: "list all available datasets",
-
-		Run: listDatasets,
-	}
-	// listMetadataFormatsCmd subcommand to list all datasets remote OAI-PMH target
-	listMetadataFormatsCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "formats",
-		Short: "list all available metadataformats",
-
-		Run: listMetadataFormats,
-	}
-	// listIdentifiersCmd subcommand harvest all identifiers to a file
-	listIdentifiersCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "identifiers",
-		Short: "harvest all identifiers for a spec and MetadataPrefix",
-
-		Run: listIdentifiers,
-	}
-
-	// listRecordsCmd subcommand harvest all Records to a file
-	listRecordsCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "records",
-		Short: "harvest all Records for a spec and MetadataPrefix",
-
-		Run: listRecords,
-	}
-
-	// listGetRecordCmd subcommand harvest all Records to a file
-	listGetRecordCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "listget",
-		Short: "store records listed with the listIdentifiers command and store them individually",
-
-		Run: listGetRecords,
-	}
-
-	// getRecordCmd subcommand gets a single records and saves it to a file
-	getRecordCmd = &cobra.Command{
-		Hidden: false,
-
-		Use:   "record",
-		Short: "get a single record for an identifier and a MetadataPrefix",
-
-		Run: getRecord,
-	}
-
-	url        string
-	verbose    bool
-	storeEAD   bool
+type pmhCfg struct {
+	outputPath string
 	spec       string
 	prefix     string
 	identifier string
-	outputPath string
+	url        string
 	from       string
 	until      string
 	idCSV      string
 	userName   string
 	password   string
-)
+	configPath string
+	verbose    bool
+	storeEAD   bool
+}
 
-func init() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-
-	rootCmd.AddCommand(NewOaiPmhCmd())
+func addPmhCommonFlags(cmd *cobra.Command, cfg *pmhCfg) {
+	cmd.Flags().StringVarP(&cfg.spec, "spec", "s", "", "The spec of the dataset to be harvested")
+	cmd.Flags().StringVarP(&cfg.prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
+	cmd.Flags().StringVarP(&cfg.from, "from", "", "", "from date to be harvested")
+	cmd.Flags().StringVarP(&cfg.until, "until", "", "", "until date to be harvested")
 }
 
 func NewOaiPmhCmd() *cobra.Command {
-	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
-	listIdentifiersCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
-	listIdentifiersCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
-	listRecordsCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listRecordsCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
-	listRecordsCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
-	listRecordsCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
+	// oaiPmhCmd represents the oaipmh command
+	oaiPmhCmd := &cobra.Command{
+		Use:   "oaipmh",
+		Short: "Harvesting an OAI-PMH endpoint.",
+	}
 
-	listGetRecordCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
-	listGetRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
-	listGetRecordCmd.Flags().BoolVarP(&storeEAD, "storeEAD", "", false, "Process and store EAD records")
-	listGetRecordCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
-	listGetRecordCmd.Flags().StringVarP(&until, "until", "", "", "until date to be harvested")
-	listGetRecordCmd.Flags().StringVarP(&idCSV, "idCSV", "", "", "csv with ids to be harvested")
+	cfg := &pmhCfg{}
 
-	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
-	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
+	oaiPmhCmd.PersistentFlags().BoolVarP(&cfg.verbose, "verbose", "v", false, "Verbose")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.userName, "username", "", "", "BasicAuth username")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.password, "password", "", "", "BasicAuth password")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.configPath, "config", "c", "", "config file (default is $HOME/.app.yaml)")
 
-	oaiPmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
-	oaiPmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
-	oaiPmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
-	oaiPmhCmd.PersistentFlags().StringVarP(&userName, "username", "", "", "BasicAuth username")
-	oaiPmhCmd.PersistentFlags().StringVarP(&password, "password", "", "", "BasicAuth password")
-
-	oaiPmhCmd.AddCommand(identifyCmd)
-	oaiPmhCmd.AddCommand(listDataSetsCmd)
-	oaiPmhCmd.AddCommand(listMetadataFormatsCmd)
-	oaiPmhCmd.AddCommand(listIdentifiersCmd)
-	oaiPmhCmd.AddCommand(listRecordsCmd)
-	oaiPmhCmd.AddCommand(listGetRecordCmd)
-	oaiPmhCmd.AddCommand(getRecordCmd)
+	oaiPmhCmd.AddCommand(identifyCmd(cfg))
+	oaiPmhCmd.AddCommand(listIdentifiersCmd(cfg))
+	oaiPmhCmd.AddCommand(listRecordsCmd(cfg))
+	oaiPmhCmd.AddCommand(listDataSetsCmd(cfg))
+	oaiPmhCmd.AddCommand(listGetRecordCmd(cfg))
+	oaiPmhCmd.AddCommand(listMetadataFormatsCmd(cfg))
+	oaiPmhCmd.AddCommand(getRecordCmd(cfg))
 
 	return oaiPmhCmd
 }
 
-// identify returns the XML response from a remote OAI-PMH endpoint
-func identify(ccmd *cobra.Command, args []string) {
-	if url == "" {
-		fmt.Println("Error: -u or --url is required and must be a valid URL.")
-		return
-	}
-
-	req := (&oai.Request{
-		BaseURL:  url,
-		Verb:     "Identify",
-		UserName: userName,
-		Password: password,
-	})
-	req.Harvest(func(resp *oai.Response) {
-		fmt.Printf("%#v\n\n", resp.Identify)
-	})
-}
-
 // listDataSets returns the datasets from a remote OAI-PMH endpoint
-func listDatasets(ccmd *cobra.Command, args []string) {
+func listDatasets(cfg *pmhCfg) {
 	req := (&oai.Request{
-		BaseURL:  url,
+		BaseURL:  cfg.url,
 		Verb:     "ListSets",
-		UserName: userName,
-		Password: password,
+		UserName: cfg.userName,
+		Password: cfg.password,
 	})
 	req.Harvest(func(resp *oai.Response) {
 		for idx, set := range resp.ListSets.Set {
@@ -195,7 +96,7 @@ func listDatasets(ccmd *cobra.Command, args []string) {
 			if set.SetName != "None" {
 				fmt.Printf("Name:\t\t%s\n", set.SetName)
 			}
-			if len(set.SetDescription.Body) > 0 && verbose {
+			if len(set.SetDescription.Body) > 0 && cfg.verbose {
 				fmt.Printf("Description:\n%s\n", set.SetDescription)
 			}
 		}
@@ -203,18 +104,18 @@ func listDatasets(ccmd *cobra.Command, args []string) {
 }
 
 // listMetadataFormats returns the available metadataformats from a remote OAI-PMH endpoint
-func listMetadataFormats(ccmd *cobra.Command, args []string) {
+func listMetadataFormats(cfg *pmhCfg) {
 	req := (&oai.Request{
-		BaseURL:  url,
+		BaseURL:  cfg.url,
 		Verb:     "ListMetadataFormats",
-		UserName: userName,
-		Password: password,
+		UserName: cfg.userName,
+		Password: cfg.password,
 	})
 	req.Harvest(func(resp *oai.Response) {
 		for idx, format := range resp.ListMetadataFormats.MetadataFormat {
 			fmt.Printf("\n========= %d =========\n", idx)
 			fmt.Printf("prefix:\t\t%s\n", format.MetadataPrefix)
-			if verbose {
+			if cfg.verbose {
 				fmt.Printf("schema:\t\t%s\n", format.Schema)
 				fmt.Printf("namespace:\t%s\n", format.MetadataNamespace)
 			}
@@ -222,89 +123,42 @@ func listMetadataFormats(ccmd *cobra.Command, args []string) {
 	})
 }
 
-func getPath(fname string) string {
-	if outputPath != "" {
+func getPath(cfg *pmhCfg, fname string) string {
+	if cfg.outputPath != "" {
 		sep := string(os.PathSeparator)
-		return fmt.Sprintf("%s%s%s", strings.TrimSuffix(outputPath, sep), sep, fname)
+		return fmt.Sprintf("%s%s%s", strings.TrimSuffix(cfg.outputPath, sep), sep, fname)
 	}
 
 	return fname
 }
 
-func getIDs() []string {
+func getRecord(cfg *pmhCfg) {
+	os.MkdirAll(cfg.outputPath, os.ModePerm)
+	storeRecord(cfg.identifier, cfg)
+}
+
+func storeRecord(id string, cfg *pmhCfg) string {
 	req := (&oai.Request{
-		BaseURL:        url,
-		Verb:           "ListIdentifiers",
-		Set:            spec,
-		MetadataPrefix: prefix,
-		From:           from,
-		Until:          until,
-		UserName:       userName,
-		Password:       password,
-	})
-	ids := []string{}
-	fname := getPath(fmt.Sprintf("%s_%s_ids.txt", spec, prefix))
-
-	file, err := os.Create(fname)
-	if err != nil {
-		log.Fatal("Cannot create file", err)
-	}
-
-	defer file.Close()
-
-	seen := 0
-	completeListSize := 0
-	bar := pb.New(0)
-	bar.Start()
-
-	req.HarvestIdentifiers(func(header *oai.Header) {
-		if req.CompleteListSize != 0 && completeListSize == 0 {
-			completeListSize = req.CompleteListSize
-			bar.SetTotal(int64(completeListSize))
-		}
-		seen++
-		bar.Increment()
-		fmt.Fprintln(file, header.Identifier)
-		ids = append(ids, header.Identifier)
-	})
-
-	bar.Finish()
-
-	return ids
-}
-
-// listidentifiers writes all identifiers to a file
-func listIdentifiers(ccmd *cobra.Command, args []string) {
-	getIDs()
-}
-
-func getRecord(ccmd *cobra.Command, args []string) {
-	os.MkdirAll(outputPath, os.ModePerm)
-	storeRecord(identifier, prefix)
-}
-
-func storeRecord(identifier string, prefix string) string {
-	req := (&oai.Request{
-		BaseURL:        url,
+		BaseURL:        cfg.url,
 		Verb:           "GetRecord",
-		MetadataPrefix: prefix,
-		Identifier:     identifier,
-		UserName:       userName,
-		Password:       password,
+		MetadataPrefix: cfg.prefix,
+		Identifier:     id,
+		UserName:       cfg.userName,
+		Password:       cfg.password,
 	})
 	var record string
 	req.Harvest(func(r *oai.Response) {
 		if r.Error.Code != "" {
-			log.Printf("error harvesting record %q; %#v", identifier, r.Error)
+			log.Printf("error harvesting record %q; %#v", id, r.Error)
 			return
 		}
 
 		record = r.GetRecord.Record.Metadata.GoString()
-		file, err := os.Create(getPath(fmt.Sprintf("%s_%s_record.xml", identifier, prefix)))
+		file, err := os.Create(getPath(cfg, fmt.Sprintf("%s_%s_record.xml", id, cfg.prefix)))
 		if err != nil {
 			log.Fatal("Cannot create file", err)
 		}
-		fmt.Fprintf(file, "<record id=\"%s\">\n", identifier)
+		fmt.Fprintf(file, "<record id=\"%s\">\n", id)
 		fmt.Fprintln(file, record)
 		fmt.Fprintln(file, "</record>")
 	})
@@ -331,7 +185,7 @@ func idsFromCSV(fname string) ([]dataIDS, error) {
 	return ids, nil
 }
 
-func listGetRecords(ccmd *cobra.Command, args []string) {
+func listGetRecords(cfg *pmhCfg) {
 	ctx := context.Background()
 	g, _ := errgroup.WithContext(ctx)
 	ids := make(chan string)
@@ -344,8 +198,8 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		defer close(ids)
 		seen := 0
 
-		if idCSV != "" {
-			identifiers, err := idsFromCSV(idCSV)
+		if cfg.idCSV != "" {
+			identifiers, err := idsFromCSV(cfg.idCSV)
 			if err != nil {
 				return err
 			}
@@ -362,14 +216,14 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		}
 
 		req := (&oai.Request{
-			BaseURL:        url,
+			BaseURL:        cfg.url,
 			Verb:           "ListIdentifiers",
-			Set:            spec,
-			MetadataPrefix: prefix,
-			From:           from,
-			Until:          until,
-			UserName:       userName,
-			Password:       password,
+			Set:            cfg.spec,
+			MetadataPrefix: cfg.prefix,
+			From:           cfg.from,
+			Until:          cfg.until,
+			UserName:       cfg.userName,
+			Password:       cfg.password,
 		})
 		req.HarvestIdentifiers(func(header *oai.Header) {
 			if req.CompleteListSize != 0 && completeListSize == 0 {
@@ -388,7 +242,7 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		return nil
 	})
 
-	os.MkdirAll(outputPath, os.ModePerm)
+	os.MkdirAll(cfg.outputPath, os.ModePerm)
 
 	// c := make(chan string)
 	const numDigesters = 5
@@ -396,7 +250,7 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 		g.Go(func() error {
 			for id := range ids {
 				id := id
-				storeRecord(id, prefix)
+				storeRecord(id, cfg)
 				bar.Increment()
 			}
 			return nil
@@ -418,19 +272,19 @@ func listGetRecords(ccmd *cobra.Command, args []string) {
 }
 
 // listRecords writes all Records to a file
-func listRecords(ccmd *cobra.Command, args []string) {
+func listRecords(cfg *pmhCfg) {
 	req := (&oai.Request{
-		BaseURL:        url,
+		BaseURL:        cfg.url,
 		Verb:           "ListRecords",
-		Set:            spec,
-		MetadataPrefix: prefix,
-		From:           from,
-		Until:          until,
-		UserName:       userName,
-		Password:       password,
+		Set:            cfg.spec,
+		MetadataPrefix: cfg.prefix,
+		From:           cfg.from,
+		Until:          cfg.until,
+		UserName:       cfg.userName,
+		Password:       cfg.password,
 	})
 
-	file, err := os.Create(getPath(fmt.Sprintf("%s_%s_records.xml", spec, prefix)))
+	file, err := os.Create(getPath(cfg, fmt.Sprintf("%s_%s_records.xml", cfg.spec, cfg.prefix)))
 	if err != nil {
 		log.Fatal("Cannot create file", err)
 	}
@@ -472,4 +326,179 @@ func listRecords(ccmd *cobra.Command, args []string) {
 	})
 	fmt.Fprintln(file, "</pockets>")
 	bar.Finish()
+}
+
+// identifyCmd subcommand to identify remote OAI-PMH target
+func identifyCmd(cfg *pmhCfg) *cobra.Command {
+	identifyCmd := &cobra.Command{
+		Hidden: false,
+		Use:    "identify",
+		Short:  "Identify OAI-PMH response",
+		Run: func(cmd *cobra.Command, args []string) {
+			identify(cfg)
+		},
+	}
+
+	return identifyCmd
+}
+
+// identify returns the XML response from a remote OAI-PMH endpoint
+func identify(cfg *pmhCfg) {
+	if cfg.url == "" {
+		fmt.Println("Error: -u or --url is required and must be a valid URL.")
+		return
+	}
+
+	req := (&oai.Request{
+		BaseURL:  cfg.url,
+		Verb:     "Identify",
+		UserName: cfg.userName,
+		Password: cfg.password,
+	})
+	req.Harvest(func(resp *oai.Response) {
+		fmt.Printf("%#v\n\n", resp.Identify)
+	})
+}
+
+// listIdentifiersCmd subcommand harvest all identifiers to a file
+func listIdentifiersCmd(cfg *pmhCfg) *cobra.Command {
+	listIdentifiersCmd := &cobra.Command{
+		Hidden: false,
+		Use:    "identifiers",
+		Short:  "harvest all identifiers for a spec and MetadataPrefix",
+		Run: func(cmd *cobra.Command, args []string) {
+			listIdentifiers(cfg)
+		},
+	}
+
+	addPmhCommonFlags(listIdentifiersCmd, cfg)
+
+	return listIdentifiersCmd
+}
+
+// listidentifiers writes all identifiers to a file
+func listIdentifiers(cfg *pmhCfg) {
+	slog.Info("listIdentifiers", "cfg", cfg)
+	getIDs(cfg)
+}
+
+func getIDs(cfg *pmhCfg) []string {
+	req := (&oai.Request{
+		BaseURL:        cfg.url,
+		Verb:           "ListIdentifiers",
+		Set:            cfg.spec,
+		MetadataPrefix: cfg.prefix,
+		From:           cfg.from,
+		Until:          cfg.until,
+		UserName:       cfg.userName,
+		Password:       cfg.password,
+	})
+	ids := []string{}
+	fname := getPath(cfg, fmt.Sprintf("%s_%s_ids.txt", cfg.spec, cfg.prefix))
+
+	file, err := os.Create(fname)
+	if err != nil {
+		log.Fatal("Cannot create file", err)
+	}
+
+	defer file.Close()
+
+	seen := 0
+	completeListSize := 0
+	bar := pb.New(0)
+	bar.Start()
+
+	req.HarvestIdentifiers(func(header *oai.Header) {
+		if req.CompleteListSize != 0 && completeListSize == 0 {
+			completeListSize = req.CompleteListSize
+			bar.SetTotal(int64(completeListSize))
+		}
+		seen++
+		bar.Increment()
+		fmt.Fprintln(file, header.Identifier)
+		ids = append(ids, header.Identifier)
+	})
+
+	bar.Finish()
+
+	return ids
+}
+
+// listRecordsCmd subcommand harvest all Records to a file
+func listRecordsCmd(cfg *pmhCfg) *cobra.Command {
+	listRecordsCmd := &cobra.Command{
+		Hidden: false,
+		Use:    "records",
+		Short:  "harvest all Records for a spec and MetadataPrefix",
+		Run: func(cmd *cobra.Command, args []string) {
+			listRecords(cfg)
+		},
+	}
+
+	addPmhCommonFlags(listRecordsCmd, cfg)
+
+	return listRecordsCmd
+}
+
+// listDataSetsCmd subcommand to list all datasets remote OAI-PMH target
+func listDataSetsCmd(cfg *pmhCfg) *cobra.Command {
+	cmd := &cobra.Command{
+		Hidden: false,
+		Use:    "datasets",
+		Short:  "list all available datasets",
+		Run: func(cmd *cobra.Command, args []string) {
+			listDatasets(cfg)
+		},
+	}
+
+	return cmd
+}
+
+// listGetRecordCmd subcommand harvest all Records to a file
+func listGetRecordCmd(cfg *pmhCfg) *cobra.Command {
+	cmd := &cobra.Command{
+		Hidden: false,
+		Use:    "listget",
+		Short:  "store records listed with the listIdentifiers command and store them individually",
+		Run: func(cmd *cobra.Command, args []string) {
+			listGetRecords(cfg)
+		},
+	}
+
+	addPmhCommonFlags(cmd, cfg)
+	cmd.Flags().BoolVarP(&cfg.storeEAD, "storeEAD", "", false, "Process and store EAD records")
+	cmd.Flags().StringVarP(&cfg.idCSV, "idCSV", "", "", "csv with ids to be harvested")
+
+	return cmd
+}
+
+func getRecordCmd(cfg *pmhCfg) *cobra.Command {
+	// cmd subcommand gets a single records and saves it to a file
+	cmd := &cobra.Command{
+		Hidden: false,
+
+		Use:   "record",
+		Short: "get a single record for an identifier and a MetadataPrefix",
+		Run: func(cmd *cobra.Command, args []string) {
+			getRecord(cfg)
+		},
+	}
+	cmd.Flags().StringVarP(&cfg.prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
+	cmd.Flags().StringVarP(&cfg.identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
+
+	return cmd
+}
+
+// listMetadataFormatsCmd subcommand to list all datasets remote OAI-PMH target
+func listMetadataFormatsCmd(cfg *pmhCfg) *cobra.Command {
+	cmd := &cobra.Command{
+		Hidden: false,
+		Use:    "formats",
+		Short:  "list all available metadataformats",
+		Run: func(cmd *cobra.Command, args []string) {
+			listMetadataFormats(cfg)
+		},
+	}
+
+	return cmd
 }
