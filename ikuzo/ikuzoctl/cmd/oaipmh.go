@@ -31,8 +31,8 @@ import (
 )
 
 var (
-	// oaipmhCmd represents the oaipmh command
-	oaipmhCmd = &cobra.Command{
+	// oaiPmhCmd represents the oaipmh command
+	oaiPmhCmd = &cobra.Command{
 		Use:   "oaipmh",
 		Short: "Harvesting an OAI-PMH endpoint.",
 	}
@@ -122,8 +122,10 @@ var (
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	rootCmd.AddCommand(oaipmhCmd)
+	rootCmd.AddCommand(NewOaiPmhCmd())
+}
 
+func NewOaiPmhCmd() *cobra.Command {
 	listIdentifiersCmd.Flags().StringVarP(&spec, "spec", "s", "", "The spec of the dataset to be harvested")
 	listIdentifiersCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 	listIdentifiersCmd.Flags().StringVarP(&from, "from", "", "", "from date to be harvested")
@@ -143,19 +145,21 @@ func init() {
 	getRecordCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
 	getRecordCmd.Flags().StringVarP(&identifier, "identifier", "i", "", "The metadataPrefix of the dataset to be harvested")
 
-	oaipmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
-	oaipmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
-	oaipmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
-	oaipmhCmd.PersistentFlags().StringVarP(&userName, "username", "", "", "BasicAuth username")
-	oaipmhCmd.PersistentFlags().StringVarP(&password, "password", "", "", "BasicAuth password")
+	oaiPmhCmd.PersistentFlags().StringVarP(&url, "url", "u", "", "URL of the OAI-PMH endpoint (required)")
+	oaiPmhCmd.PersistentFlags().StringVarP(&outputPath, "output", "o", "", "Output path of the harvested content. Default: current directory")
+	oaiPmhCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose")
+	oaiPmhCmd.PersistentFlags().StringVarP(&userName, "username", "", "", "BasicAuth username")
+	oaiPmhCmd.PersistentFlags().StringVarP(&password, "password", "", "", "BasicAuth password")
 
-	oaipmhCmd.AddCommand(identifyCmd)
-	oaipmhCmd.AddCommand(listDataSetsCmd)
-	oaipmhCmd.AddCommand(listMetadataFormatsCmd)
-	oaipmhCmd.AddCommand(listIdentifiersCmd)
-	oaipmhCmd.AddCommand(listRecordsCmd)
-	oaipmhCmd.AddCommand(listGetRecordCmd)
-	oaipmhCmd.AddCommand(getRecordCmd)
+	oaiPmhCmd.AddCommand(identifyCmd)
+	oaiPmhCmd.AddCommand(listDataSetsCmd)
+	oaiPmhCmd.AddCommand(listMetadataFormatsCmd)
+	oaiPmhCmd.AddCommand(listIdentifiersCmd)
+	oaiPmhCmd.AddCommand(listRecordsCmd)
+	oaiPmhCmd.AddCommand(listGetRecordCmd)
+	oaiPmhCmd.AddCommand(getRecordCmd)
+
+	return oaiPmhCmd
 }
 
 // identify returns the XML response from a remote OAI-PMH endpoint
