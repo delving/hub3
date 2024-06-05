@@ -567,7 +567,11 @@ func (fub *FacetURIBuilder) AddFacetMergeFilters(filters []string) {
 		for _, p := range parts {
 			mergeFields = append(mergeFields, strings.TrimSpace(p))
 		}
-		// TODO: add check if mergeField already exists
+
+		known, ok := fub.facetMergeFilters[filter]
+		if ok {
+			mergeFields = append(mergeFields, known...)
+		}
 		fub.facetMergeFilters[filter] = mergeFields
 	}
 }
@@ -690,7 +694,7 @@ func (fub *FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery 
 		for _, searchLabel := range filters {
 			qfs := fub.filters[searchLabel]
 			for nestedk, nestedv := range qfs {
-				merged["m:"+nestedk] = nestedv
+				merged["m:"+nestedk+nestedv.GetSearchLabel()] = nestedv
 			}
 			delete(fub.filters, searchLabel)
 		}
