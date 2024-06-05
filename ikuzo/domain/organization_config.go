@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,6 +24,41 @@ type ArchesConfig struct {
 	Password          string `json:"password,omitempty"`
 	DSN               string `json:"dsn,omitempty"` // arches postgresql
 	ModelPath         string `json:"modelPath,omitempty"`
+}
+
+type SitemapConfig struct {
+	ID            string   `json:"id,omitempty"`
+	BaseURL       string   `json:"baseURL,omitempty"`
+	Query         string   `json:"query,omitempty"`
+	Filters       []string `json:"filters,omitempty"` // qf and q URL params
+	OrgID         string   `json:"-,omitempty"`
+	ExcludedSpecs []string `json:"excludedSpecs,omitempty"`
+	DataPath      string   `json:"dataPath,omitempty"`
+	RelPathFmt    string   `json:"relPathFmt,omitempty"`
+	ContextIndex  string   `json:"contetxIndex,omitempty"`
+}
+
+func (cfg *SitemapConfig) IsExcludedSpec(spec string) bool {
+	for _, excluded := range cfg.ExcludedSpecs {
+		if strings.EqualFold(spec, excluded) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (cfg *SitemapConfig) Path(spec string, page int) string {
+	return filepath.Join(cfg.DataPath, cfg.OrgID, spec, fmt.Sprint(page)+".xml")
+}
+
+func (cfg *SitemapConfig) URL(id string) string {
+	if cfg.RelPathFmt == "" {
+		return id
+	}
+	parts := strings.Split(id, "/")
+	path := fmt.Sprintf(cfg.RelPathFmt, parts[len(parts)-1])
+	return fmt.Sprintf("%s%s", cfg.BaseURL, path)
 }
 
 type OAIPMHConfig struct {
@@ -52,16 +88,8 @@ type OrganizationConfig struct {
 		SyncDataTypes []string `json:"syncDataTypes,omitempty"`
 		SyncEnabled   bool     `json:"syncEnabled,omitempty"`
 	} `json:"archivesspace,omitempty"`
-	// Sitemaps       []SitemapConfig `json:"sitemaps,omitempty"`
-	Sitemaps []struct {
-		ID            string   `json:"id"`
-		BaseURL       string   `json:"baseURL"`
-		Query         string   `json:"query"`
-		Filters       []string `json:"filters"` // qf and q URL params
-		OrgID         string   `json:"-"`
-		ExcludedSpecs []string `json:"excludedSpecs"`
-	} `json:"sitemaps"`
-	Config struct {
+	Sitemaps []SitemapConfig `json:"sitemaps,omitempty"`
+	Config   struct {
 		Identifiers struct {
 			ArkNAAN      string `json:"arkNAAN"`
 			IsilCode     string `json:"isilCode"`
