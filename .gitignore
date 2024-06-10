@@ -25,7 +25,7 @@ utils
 
 # data directories
 docker-data
-data
+# data
 _scratch
 
 # TLS cache
