@@ -5,26 +5,44 @@ services:
         container_name: elasticsearch7
         ports:
             - '9200:9200'
-            #- "9300:9300"
+            - '9300:9300'
         environment:
             - cluster.name=hub3_cluster
             - node.name=elasticsearch1
             - cluster.initial_master_nodes=elasticsearch1
-            - xpack.security.enabled=false
+            - logger.level=WARN
             - bootstrap.memory_lock=true
-            - http.cors.allow-origin=http://localhost:1358,http://127.0.0.1:1358
+            - http.cors.allow-origin=http://localhost:1358,http://127.0.0.1:5601
             - http.cors.enabled=true
             - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
             - http.cors.allow-credentials=true
-            - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+            - 'ES_JAVA_OPTS=-Xms1024m -Xmx1024m'
+            - xpack.security.enabled=false
+            - xpack.monitoring.collection.enabled=true
         volumes:
             - ~/data_no_backup/docker-data/hub3/esdata1:/usr/share/elasticsearch/data
         ulimits:
             memlock:
                 soft: -1
                 hard: -1
+        restart: 'unless-stopped'
         # networks:
         # - esnet
+    #
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.14.1
+        container_name: kibana
+        environment:
+            - ELASTICSEARCH_HOSTS=http://elasticsearch1:9200
+            - xpack.security.enabled=false
+            - xpack.reporting.roles.enabled=false
+        ports:
+            - 5601:5601
+        # networks:
+        #   - es-net
+        depends_on:
+            - elasticsearch1
+        restart: 'unless-stopped'
 
     fuseki:
         # image: zacanbot/fuseki
