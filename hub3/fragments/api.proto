@@ -191,6 +191,8 @@ message SearchRequest {
   string searchFields = 39;
   bool ORBetweenFacets = 40;
   repeated string FacetMergeFilter = 41;
+  string facetFilter = 42;
+  string facetExpand = 43;
 }
 
 enum GeoType {

@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	log "log"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -33,6 +34,7 @@ import (
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
@@ -87,12 +89,158 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 	searchRequest, err := fragments.NewSearchRequest(orgID.String(), r.URL.Query())
 	if err != nil {
-		log.Println("Unable to create Search request")
+		slog.Error("unable to create search request", "error", err, "url", r.URL.String())
 		render.Status(r, http.StatusBadRequest)
 		render.PlainText(w, r, err.Error())
 		return
 	}
+
+	if searchRequest.FacetExpand != "" {
+		ProcessExpandedFacet(w, r, searchRequest)
+		return
+	}
+
 	ProcessSearchRequest(w, r, searchRequest)
+}
+
+type CompFacet struct {
+	Query  string
+	Field  string
+	Total  int64
+	Cursor string
+	Links  []*fragments.FacetLink
+}
+
+func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.SearchRequest) {
+	sr.ResponseSize = 0
+
+	indices := []string{c.Config.GetIndexName(sr.OrgID)}
+	if len(sr.ContextIndex) != 0 {
+		indices = append(indices, sr.ContextIndex...)
+	}
+
+	s := index.ESClient().Search().
+		Index(indices...).
+		TrackTotalHits(false).
+		Preference(sr.GetSessionID()).
+		Size(int(sr.GetResponseSize()))
+
+	userQuery, err := sr.ElasticQuery()
+	if err != nil {
+		render.Error(w, r, fmt.Errorf("unable to build query result: %w", err), nil)
+		return
+	}
+
+	if sr.FacetFilter != "" {
+		userQuery.(*elastic.BoolQuery).Must(buildCompositeQuery(sr.FacetExpand, sr.FacetFilter))
+	}
+
+	fub, err := fragments.NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
+	if err != nil {
+		slog.Error("Unable to FacetURIBuilder", "error", err, "searchRequest", sr)
+		render.Error(w, r, err, &render.ErrorConfig{
+			StatusCode: http.StatusBadRequest,
+			Message:    "unable to build FacetURIBuilder",
+			OrgID:      sr.OrgID,
+		})
+		return
+	}
+	fub.ORBetweenFacets = sr.ORBetweenFacets
+	fub.AddFacetMergeFilters(sr.FacetMergeFilter)
+
+	facetQuery, err := fub.CreateFacetFilterQuery(sr.FacetExpand, sr.FacetAndBoolType)
+	if err != nil {
+		render.Error(w, r, err, nil)
+		return
+	}
+
+	userQuery.(*elastic.BoolQuery).Must(facetQuery)
+
+	// TODO: add filter from qf/hqf to the aggregation filter
+	nestedAgg := buildCompositeAggregation(sr.FacetExpand)
+	s = s.Aggregation("nested_agg", nestedAgg)
+
+	s = s.Query(userQuery)
+
+	if strings.EqualFold(r.URL.Query().Get("echo"), "searchService") {
+		b, debugErr := elasticsearch.Debug{}.SearchService(s)
+		if debugErr != nil {
+			http.Error(w, debugErr.Error(), http.StatusInternalServerError)
+			return
+		}
+		render.JSON(w, r, json.RawMessage(b))
+		return
+	}
+
+	resp, err := s.Do(r.Context())
+	if err != nil {
+		render.Error(w, r, err, nil)
+		return
+	}
+
+	facet := CompFacet{
+		Query: sr.FacetFilter,
+		Field: sr.FacetExpand,
+		Links: []*fragments.FacetLink{},
+	}
+
+	qf := fragments.QueryFacet{Field: facet.Field}
+
+	slog.Info("composite aggregation took", "milliseconds", resp.TookInMillis)
+	if agg, found := resp.Aggregations.Nested("nested_agg"); found {
+		if filtered, found := agg.Filter("filtered_labels"); found {
+			if uniqueSearchLabels, found := filtered.Cardinality("unique_searchLabels"); found {
+				facet.Total = int64(*uniqueSearchLabels.Value)
+			}
+			if compositeAgg, found := filtered.Composite("composite_agg"); found {
+				for _, b := range compositeAgg.Buckets {
+					key := fmt.Sprint(b.Key["count"])
+					fl := &fragments.FacetLink{
+						Value:         key,
+						Count:         b.DocCount,
+						DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+					}
+					fragments.SetFacetLink(key, &qf, fl, fub)
+					facet.Links = append(facet.Links, fl)
+				}
+			}
+		}
+	}
+
+	render.JSON(w, r, facet)
+}
+
+func buildCompositeQuery(field, query string) elastic.Query {
+	return elastic.NewNestedQuery("resources.entries",
+		elastic.NewBoolQuery().
+			Must(
+				elastic.NewMatchPhrasePrefixQuery("resources.entries.@value", query),
+				elastic.NewTermQuery("resources.entries.searchLabel", field),
+			),
+	)
+}
+
+func buildCompositeAggregation(field string) *elastic.NestedAggregation {
+	compositeAgg := elastic.NewCompositeAggregation().
+		Size(20).
+		Sources(
+			elastic.NewCompositeAggregationTermsValuesSource("count").
+				Field("resources.entries.@value.keyword").
+				Order("asc"),
+		)
+
+	aggs := elastic.NewNestedAggregation().
+		Path("resources.entries").
+		SubAggregation("filtered_labels",
+			elastic.NewFilterAggregation().
+				Filter(elastic.NewTermQuery("resources.entries.searchLabel", field)).
+				SubAggregation("unique_searchLabels",
+					elastic.NewCardinalityAggregation().Field("resources.entries.@value.keyword"),
+				).
+				SubAggregation("composite_agg", compositeAgg),
+		)
+
+	return aggs
 }
 
 func addPager(searchRequest *fragments.SearchRequest, totalHits int64, result *fragments.ScrollResultV4) (*fragments.ScrollPager, error) {

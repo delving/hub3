@@ -289,6 +289,10 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			if fbt != "" {
 				sr.ORBetweenFacets = strings.EqualFold(fbt, "true")
 			}
+		case "facet.expand":
+			sr.FacetExpand = params.Get(p)
+		case "facet.filter":
+			sr.FacetFilter = params.Get(p)
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":
@@ -684,7 +688,7 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 
 // CreateFacetFilterQuery creates an elasticsearch Query to filter facets
 // for the Facet Aggregation specified by 'filterfield'.
-func (fub *FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery bool) (elastic.Query, error) {
+func (fub *FacetURIBuilder) CreateFacetFilterQuery(filterField string, andQuery bool) (*elastic.BoolQuery, error) {
 	for k, filters := range fub.facetMergeFilters {
 		_, known := fub.filters[k]
 		if known {
@@ -2073,7 +2077,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 								Count:         b.DocCount,
 								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 							}
-							setFacetLink(key, qf, fl, fb)
+							SetFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
 						}
 					}
@@ -2124,7 +2128,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
 					}
 
-					setFacetLink(key, qf, fl, fb)
+					SetFacetLink(key, qf, fl, fb)
 
 					qf.Links = append(qf.Links, fl)
 				}
@@ -2136,7 +2140,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 	return aggs, nil
 }
 
-func setFacetLink(key string, qf *QueryFacet, fl *FacetLink, fb *FacetURIBuilder) {
+func SetFacetLink(key string, qf *QueryFacet, fl *FacetLink, fb *FacetURIBuilder) {
 	if fb != nil {
 		url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
 
@@ -2247,7 +2251,7 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 	}
 
 	if !isAdvancedSearch(query) {
-		bq = bq.MinimumShouldMatch(c.Config.ElasticSearch.MinimumShouldMatch)
+		bq = bq.MinimumShouldMatch(c.Config.MinimumShouldMatch)
 	}
 
 	return bq, nil

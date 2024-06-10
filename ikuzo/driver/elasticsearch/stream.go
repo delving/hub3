@@ -104,8 +104,7 @@ func (c *Client) next(cfg *StreamConfig, searchAfter []interface{}) ([]*elastic.
 		return nil, nil, ErrEndOfScroll
 	}
 
-	var newSearchAfter []interface{}
-	newSearchAfter = resp.Hits.Hits[len(resp.Hits.Hits)-1].Sort
+	newSearchAfter := resp.Hits.Hits[len(resp.Hits.Hits)-1].Sort
 
 	return resp.Hits.Hits, newSearchAfter, nil
 }
