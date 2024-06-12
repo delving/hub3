@@ -141,6 +141,7 @@ type CompFacet struct {
 	Field  string
 	Total  int64
 	Cursor string
+	Next   string
 	Links  []*fragments.FacetLink
 }
 
@@ -225,6 +226,14 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 
 	if len(facet.Links) < int(sr.GetFacetLimit()) {
 		facet.Cursor = ""
+	}
+
+	if facet.Cursor != "" {
+		params := r.URL.Query()
+		params.Set("facet.cursor", facet.Cursor)
+		next := r.Clone(context.Background())
+		next.URL.RawQuery = params.Encode()
+		facet.Next = next.URL.String()
 	}
 
 	render.JSON(w, r, facet)
