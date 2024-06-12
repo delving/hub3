@@ -293,6 +293,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			sr.FacetExpand = params.Get(p)
 		case "facet.filter":
 			sr.FacetFilter = params.Get(p)
+		case "facet.cursor":
+			sr.FacetCursor = params.Get(p)
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":

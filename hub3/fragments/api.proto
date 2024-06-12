@@ -193,6 +193,7 @@ message SearchRequest {
   repeated string FacetMergeFilter = 41;
   string facetFilter = 42;
   string facetExpand = 43;
+  string facetCursor = 44;
 }
 
 enum GeoType {

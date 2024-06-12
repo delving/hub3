@@ -16,6 +16,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	log "log"
@@ -103,6 +104,38 @@ func GetScrollResult(w http.ResponseWriter, r *http.Request) {
 	ProcessSearchRequest(w, r, searchRequest)
 }
 
+func encodeAfterKey(data map[string]any) (string, error) {
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+
+	base64Data := base64.URLEncoding.EncodeToString(jsonData)
+
+	urlSafeData := url.QueryEscape(base64Data)
+	return urlSafeData, nil
+}
+
+func decodeAfterKey(encoded string) (map[string]interface{}, error) {
+	base64Data, err := url.QueryUnescape(encoded)
+	if err != nil {
+		return nil, err
+	}
+
+	jsonData, err := base64.URLEncoding.DecodeString(base64Data)
+	if err != nil {
+		return nil, err
+	}
+
+	var data map[string]any
+	err = json.Unmarshal(jsonData, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 type CompFacet struct {
 	Query  string
 	Field  string
@@ -168,6 +201,13 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 					facet.Total = int64(*uniqueSearchLabels.Value)
 				}
 				if compositeAgg, found := filtered.Composite("composite_agg"); found {
+					if len(compositeAgg.AfterKey) > 0 {
+						facet.Cursor, err = encodeAfterKey(compositeAgg.AfterKey)
+						if err != nil {
+							slog.Error("unable to set after key", "sr", sr, "key", compositeAgg.AfterKey, "error", err)
+						}
+					}
+
 					for _, b := range compositeAgg.Buckets {
 						key := fmt.Sprint(b.Key["count"])
 						fl := &fragments.FacetLink{
@@ -181,6 +221,10 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 				}
 			}
 		}
+	}
+
+	if len(facet.Links) < int(sr.GetFacetLimit()) {
+		facet.Cursor = ""
 	}
 
 	render.JSON(w, r, facet)
@@ -244,11 +288,23 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 		),
 	)
 
+	if sr.GetFacetLimit() == 0 {
+		sr.FacetLimit = 20
+	}
+
 	compAgg := elastic.NewCompositeAggregation().
-		Size(20).
+		Size(int(sr.GetFacetLimit())).
 		Sources(
 			elastic.NewCompositeAggregationTermsValuesSource("count").Field("resources.entries.@value.keyword").Order("asc"),
 		)
+
+	if sr.FacetCursor != "" {
+		afterKey, err := decodeAfterKey(sr.FacetCursor)
+		if err != nil {
+			return nil, err
+		}
+		compAgg = compAgg.AggregateAfter(afterKey)
+	}
 
 	filteredLabelsAgg := elastic.NewFilterAggregation().Filter(
 		elastic.NewBoolQuery().Must(nestedFilters...),
