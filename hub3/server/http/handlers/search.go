@@ -112,55 +112,24 @@ type CompFacet struct {
 }
 
 func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.SearchRequest) {
-	sr.ResponseSize = 0
-
 	indices := []string{c.Config.GetIndexName(sr.OrgID)}
 	if len(sr.ContextIndex) != 0 {
 		indices = append(indices, sr.ContextIndex...)
+	}
+
+	cfg, err := newNestedQueryAgg(sr)
+	if err != nil {
+		render.Error(w, r, fmt.Errorf("unable to build query result: %w", err), nil)
+		return
 	}
 
 	s := index.ESClient().Search().
 		Index(indices...).
 		TrackTotalHits(false).
 		Preference(sr.GetSessionID()).
-		Size(int(sr.GetResponseSize()))
-
-	userQuery, err := sr.ElasticQuery()
-	if err != nil {
-		render.Error(w, r, fmt.Errorf("unable to build query result: %w", err), nil)
-		return
-	}
-
-	if sr.FacetFilter != "" {
-		userQuery.(*elastic.BoolQuery).Must(buildCompositeQuery(sr.FacetExpand, sr.FacetFilter))
-	}
-
-	fub, err := fragments.NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
-	if err != nil {
-		slog.Error("Unable to FacetURIBuilder", "error", err, "searchRequest", sr)
-		render.Error(w, r, err, &render.ErrorConfig{
-			StatusCode: http.StatusBadRequest,
-			Message:    "unable to build FacetURIBuilder",
-			OrgID:      sr.OrgID,
-		})
-		return
-	}
-	fub.ORBetweenFacets = sr.ORBetweenFacets
-	fub.AddFacetMergeFilters(sr.FacetMergeFilter)
-
-	facetQuery, err := fub.CreateFacetFilterQuery(sr.FacetExpand, sr.FacetAndBoolType)
-	if err != nil {
-		render.Error(w, r, err, nil)
-		return
-	}
-
-	userQuery.(*elastic.BoolQuery).Must(facetQuery)
-
-	// TODO: add filter from qf/hqf to the aggregation filter
-	nestedAgg := buildCompositeAggregation(sr.FacetExpand)
-	s = s.Aggregation("nested_agg", nestedAgg)
-
-	s = s.Query(userQuery)
+		Size(0).
+		Query(cfg.q).
+		Aggregation("comp_agg", cfg.aggs)
 
 	if strings.EqualFold(r.URL.Query().Get("echo"), "searchService") {
 		b, debugErr := elasticsearch.Debug{}.SearchService(s)
@@ -178,6 +147,11 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 		return
 	}
 
+	if strings.EqualFold(r.URL.Query().Get("echo"), "searchResponse") {
+		render.JSON(w, r, resp)
+		return
+	}
+
 	facet := CompFacet{
 		Query: sr.FacetFilter,
 		Field: sr.FacetExpand,
@@ -187,21 +161,23 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 	qf := fragments.QueryFacet{Field: facet.Field}
 
 	slog.Info("composite aggregation took", "milliseconds", resp.TookInMillis)
-	if agg, found := resp.Aggregations.Nested("nested_agg"); found {
-		if filtered, found := agg.Filter("filtered_labels"); found {
-			if uniqueSearchLabels, found := filtered.Cardinality("unique_searchLabels"); found {
-				facet.Total = int64(*uniqueSearchLabels.Value)
-			}
-			if compositeAgg, found := filtered.Composite("composite_agg"); found {
-				for _, b := range compositeAgg.Buckets {
-					key := fmt.Sprint(b.Key["count"])
-					fl := &fragments.FacetLink{
-						Value:         key,
-						Count:         b.DocCount,
-						DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+	if filtAgg, found := resp.Aggregations.Filter("comp_agg"); found {
+		if agg, found := filtAgg.Nested("nested_agg"); found {
+			if filtered, found := agg.Filter("filtered_labels"); found {
+				if uniqueSearchLabels, found := filtered.Cardinality("unique_searchLabels"); found {
+					facet.Total = int64(*uniqueSearchLabels.Value)
+				}
+				if compositeAgg, found := filtered.Composite("composite_agg"); found {
+					for _, b := range compositeAgg.Buckets {
+						key := fmt.Sprint(b.Key["count"])
+						fl := &fragments.FacetLink{
+							Value:         key,
+							Count:         b.DocCount,
+							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+						}
+						fragments.SetFacetLink(key, &qf, fl, cfg.fub)
+						facet.Links = append(facet.Links, fl)
 					}
-					fragments.SetFacetLink(key, &qf, fl, fub)
-					facet.Links = append(facet.Links, fl)
 				}
 			}
 		}
@@ -210,37 +186,86 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 	render.JSON(w, r, facet)
 }
 
-func buildCompositeQuery(field, query string) elastic.Query {
-	return elastic.NewNestedQuery("resources.entries",
-		elastic.NewBoolQuery().
-			Must(
-				elastic.NewMatchPhrasePrefixQuery("resources.entries.@value", query),
-				elastic.NewTermQuery("resources.entries.searchLabel", field),
-			),
-	)
+type compConfig struct {
+	q    elastic.Query
+	aggs *elastic.FilterAggregation
+	fub  *fragments.FacetURIBuilder
 }
 
-func buildCompositeAggregation(field string) *elastic.NestedAggregation {
-	compositeAgg := elastic.NewCompositeAggregation().
+func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
+	baseQuery, err := sr.ElasticQuery()
+	if err != nil {
+		return nil, err
+	}
+
+	nestedFilters := []elastic.Query{}
+
+	compFilter := elastic.NewBoolQuery().Must(
+		elastic.NewTermQuery("resources.entries.searchLabel", sr.FacetExpand),
+	)
+
+	if sr.FacetFilter != "" {
+		compFilter = compFilter.Must(
+			elastic.NewMatchPhrasePrefixQuery("resources.entries.@value", sr.FacetFilter),
+		)
+	}
+	nestedFilters = append(nestedFilters, compFilter)
+
+	fub, err := fragments.NewFacetURIBuilder(sr.GetQuery(), sr.GetQueryFilter())
+	if err != nil {
+		slog.Error("Unable to FacetURIBuilder", "error", err, "searchRequest", sr)
+		return nil, err
+	}
+	fub.ORBetweenFacets = sr.ORBetweenFacets
+	fub.AddFacetMergeFilters(sr.FacetMergeFilter)
+
+	facetFilter, err := fub.CreateFacetFilterQuery(sr.FacetExpand, sr.FacetAndBoolType)
+	if err != nil {
+		return nil, err
+	}
+
+	mainFilter := elastic.NewBoolQuery().Must(
+		baseQuery,
+		facetFilter,
+		elastic.NewNestedQuery("resources.entries",
+			elastic.NewBoolQuery().Must(
+				nestedFilters...,
+			),
+		),
+	)
+
+	query := elastic.NewBoolQuery().Must(
+		baseQuery,
+		facetFilter,
+		elastic.NewNestedQuery("resources.entries",
+			elastic.NewBoolQuery().Must(
+				compFilter,
+			),
+		),
+	)
+
+	compAgg := elastic.NewCompositeAggregation().
 		Size(20).
 		Sources(
-			elastic.NewCompositeAggregationTermsValuesSource("count").
-				Field("resources.entries.@value.keyword").
-				Order("asc"),
+			elastic.NewCompositeAggregationTermsValuesSource("count").Field("resources.entries.@value.keyword").Order("asc"),
 		)
 
-	aggs := elastic.NewNestedAggregation().
-		Path("resources.entries").
-		SubAggregation("filtered_labels",
-			elastic.NewFilterAggregation().
-				Filter(elastic.NewTermQuery("resources.entries.searchLabel", field)).
-				SubAggregation("unique_searchLabels",
-					elastic.NewCardinalityAggregation().Field("resources.entries.@value.keyword"),
-				).
-				SubAggregation("composite_agg", compositeAgg),
-		)
+	filteredLabelsAgg := elastic.NewFilterAggregation().Filter(
+		elastic.NewBoolQuery().Must(nestedFilters...),
+	).SubAggregation("composite_agg", compAgg).
+		SubAggregation("unique_searchLabels", elastic.NewCardinalityAggregation().Field("resources.entries.@value.keyword"))
 
-	return aggs
+	nestedAgg := elastic.NewNestedAggregation().Path("resources.entries").SubAggregation("filtered_labels", filteredLabelsAgg)
+
+	compAggFilter := elastic.NewFilterAggregation().Filter(
+		mainFilter,
+	).SubAggregation("nested_agg", nestedAgg)
+
+	return &compConfig{
+		q:    query,
+		aggs: compAggFilter,
+		fub:  fub,
+	}, nil
 }
 
 func addPager(searchRequest *fragments.SearchRequest, totalHits int64, result *fragments.ScrollResultV4) (*fragments.ScrollPager, error) {
