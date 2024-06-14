@@ -544,7 +544,6 @@ func (tp *TreePaging) CalculatePaging() {
 		tp.HasNext = true
 		tp.PageNext = tp.PageLast + 1
 	}
-	return
 }
 
 func (tp *TreePaging) setFirstLastPage() {
@@ -569,7 +568,6 @@ func (tp *TreePaging) setFirstLastPage() {
 	}
 	tp.PageFirst = min
 	tp.PageLast = max
-	return
 }
 
 // TreePageEntry contains information how to merge pages from different responses.
@@ -888,7 +886,7 @@ func CreateDateRange(period string) (IndexRange, error) {
 		ir.Greater, _ = padYears(parts[0], true)
 		ir.Less, _ = padYears(parts[1], false)
 	default:
-		return ir, fmt.Errorf("Unable to create data range for: %#v", parts)
+		return ir, fmt.Errorf("unable to create data range for: %#v", parts)
 	}
 
 	if err := ir.Valid(); err != nil {
@@ -898,11 +896,11 @@ func CreateDateRange(period string) (IndexRange, error) {
 	return ir, nil
 }
 
-func padYears(year string, start bool) (string, error) {
-	parts := strings.Split(year, "-")
+func padYears(date string, start bool) (string, error) {
+	parts := strings.Split(date, "-")
 	switch len(parts) {
 	case 3:
-		return year, nil
+		return date, nil
 	case 2:
 		year := parts[0]
 		month := parts[1]
@@ -930,15 +928,15 @@ func padYears(year string, start bool) (string, error) {
 				return fmt.Sprintf("%s-12-31", year), nil
 			}
 		default:
-			// try to hyphenate the date
-			date, err := hyphenateDate(year)
+			// try to hyphenate the formattedDate
+			formattedDate, err := hyphenateDate(year)
 			if err != nil {
 				return "", err
 			}
-			return padYears(date, start)
+			return padYears(formattedDate, start)
 		}
 	}
-	return "", fmt.Errorf("unsupported case for padding: %s", year)
+	return "", fmt.Errorf("unsupported case for padding: %s", date)
 }
 
 // hyphenateDate converts a string of date string into the hyphenated form.
@@ -952,7 +950,7 @@ func hyphenateDate(date string) (string, error) {
 	case 8:
 		return fmt.Sprintf("%s-%s-%s", date[:4], date[4:6], date[6:]), nil
 	}
-	return "", fmt.Errorf("Unable to hyphenate date string: %#v", date)
+	return "", fmt.Errorf("unable to hyphenate date string: %#v", date)
 }
 
 func splitPeriod(c rune) bool {
@@ -977,12 +975,12 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
 	if len(rm.resources) == 0 {
-		return nil, fmt.Errorf("ResourceMap cannot be empty for subjecURI: %s", subjectURI)
+		return nil, fmt.Errorf("subjectURI %q must be present in ResourceMap", subjectURI)
 	}
 
 	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
-		return nil, fmt.Errorf("Subject %s is not part of the graph", subjectURI)
+		return nil, fmt.Errorf("subject %s is not part of the graph", subjectURI)
 	}
 
 	linkedObjects := map[string]*FragmentResource{}
@@ -1188,7 +1186,7 @@ func NewResourceMap(orgID string, g *r.Graph) (*ResourceMap, error) {
 	}
 
 	if g.Len() == 0 {
-		return rm, fmt.Errorf("The graph cannot be empty")
+		return rm, fmt.Errorf("the graph cannot be empty")
 	}
 
 	seen := 0
@@ -1314,8 +1312,6 @@ func (f *Fragment) SetPath(contextPath string) {
 		f.NestedPath = append(f.NestedPath, path)
 		f.Path = append(f.Path, typedLabel)
 	}
-
-	return
 }
 
 // CreateTriple creates a *rdf2go.Triple from a Fragment

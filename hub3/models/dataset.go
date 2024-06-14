@@ -728,7 +728,7 @@ func (ds DataSet) deleteAllIndexRecords(ctx context.Context, wp *wp.WorkerPool) 
 
 // DropOrphans removes all records of different revision that the current from the attached datastores
 func (ds DataSet) DropOrphans(ctx context.Context, p *elastic.BulkProcessor, wp *wp.WorkerPool) (bool, error) {
-	if c.Config.RDF.RDFStoreEnabled {
+	if c.Config.RDF.RDFStoreEnabled && !c.Config.RDF.StoreSparqlDeltas {
 		ok, err := ds.deleteGraphsOrphans()
 		if !ok || err != nil {
 			log.Warn().Msgf("Unable to remove RDF orphan graphs from spec %s: %s", ds.Spec, err)

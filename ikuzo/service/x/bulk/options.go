@@ -7,6 +7,21 @@ import (
 
 type Option func(*Service) error
 
+type BlobConfig struct {
+	Endpoint        string `json:"endpoint,omitempty"`
+	AccessKeyID     string `json:"accessKeyID,omitempty"`
+	SecretAccessKey string `json:"secretAccessKey,omitempty"`
+	UseSSL          bool   `json:"useSSL,omitempty"`
+	BucketName      string `json:"bucketName,omitempty"`
+}
+
+func SetBlobConfig(cfg BlobConfig) Option {
+	return func(s *Service) error {
+		s.blobCfg = cfg
+		return nil
+	}
+}
+
 func SetIndexService(is *index.Service) Option {
 	return func(s *Service) error {
 		s.index = is
@@ -17,6 +32,13 @@ func SetIndexService(is *index.Service) Option {
 func SetIndexTypes(indexTypes ...string) Option {
 	return func(s *Service) error {
 		s.indexTypes = indexTypes
+		return nil
+	}
+}
+
+func SetLogRequests(enable bool) Option {
+	return func(s *Service) error {
+		s.logRequests = enable
 		return nil
 	}
 }
