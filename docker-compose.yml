@@ -1,4 +1,3 @@
-version: '3'
 services:
     elasticsearch1:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
@@ -50,11 +49,12 @@ services:
         container_name: hub3-fuseki
         environment:
             JVM_ARGS: -Xmx256m
-            ADMIN_PASSWORD: pw123
+            # ADMIN_PASSWORD: pw123
         ports:
             - '3033:3030'
         volumes:
             - ~/data_no_backup/docker-data/hub3/fuseki/data:/data/fuseki
+            - ./shiro.ini:/fuseki/shiro.ini
         command:
             [
                 '/jena-fuseki/fuseki-server',
@@ -107,18 +107,18 @@ services:
         environment:
             - REDIS_REPLICATION_MODE=master
 
-    minio:
-        image: minio/minio
-        ports:
-            - '9000:9000'
-            - '9001:9001'
-        environment:
-            - MINIO_ROOT_USER=minio_admin
-            - MINIO_ROOT_PASSWORD=minio_admin
-            - MINIO_DEFAULT_BUCKETS=hub3-dev
-        volumes:
-            - ~/data_no_backup/docker-data/hub3/minio_storage:/data
-        command: server  --console-address :9001 /data
+    # minio:
+    #     image: minio/minio
+    #     ports:
+    #         - '9099:9000'
+    #         - '9001:9001'
+    #     environment:
+    #         - MINIO_ROOT_USER=minio_admin
+    #         - MINIO_ROOT_PASSWORD=minio_admin
+    #         - MINIO_DEFAULT_BUCKETS=hub3-dev
+    #     volumes:
+    #         - ~/data_no_backup/docker-data/hub3/minio_storage:/data
+    #     command: server  --console-address :9001 /data
 
 # networking
 networks:
