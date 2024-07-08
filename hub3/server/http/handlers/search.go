@@ -137,12 +137,12 @@ func decodeAfterKey(encoded string) (map[string]interface{}, error) {
 }
 
 type CompFacet struct {
-	Query  string
-	Field  string
-	Total  int64
-	Cursor string
-	Next   string
-	Links  []*fragments.FacetLink
+	Query  string                 `json:"query,omitempty"`
+	Field  string                 `json:"field,omitempty"`
+	Total  int64                  `json:"total,omitempty"`
+	Cursor string                 `json:"cursor,omitempty"`
+	Next   string                 `json:"next,omitempty"`
+	Links  []*fragments.FacetLink `json:"links,omitempty"`
 }
 
 func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.SearchRequest) {

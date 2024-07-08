@@ -57,6 +57,7 @@ protobuffer:
 	@make pb.api
 	@make pb.domain
 	@make pb.scan
+	@make viewconfig.api
 
 pb.scan:
 	@protoc --go_out=. hub3/ead/eadpb/scan.proto
@@ -68,6 +69,8 @@ pb.domain:
 pb.api:
 	@protoc --go_out=. hub3/fragments/api.proto
 
+viewconfig.api:
+	@protoc --go_out=. hub3/fragments/viewconfig.proto
 
 pprof-dev:
 	@pprof --http localhost:6060 -seconds 30 http://localhost:3000/debug/pprof/profile

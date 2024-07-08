@@ -109,7 +109,7 @@ func UpdateViaSparql(orgID, update string) []error {
 	request := gorequest.New()
 	postURL := config.Config.GetSparqlUpdateEndpoint(orgID, "")
 
-	slog.Debug("sparql update url", "url", postURL, "orgID", orgID)
+	slog.Info("sparql update url", "url", postURL, "orgID", orgID, "updateQuery", update)
 
 	parameters := url.Values{}
 	parameters.Add("update", update)

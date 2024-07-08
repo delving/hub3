@@ -54,7 +54,7 @@ func init() {
 }
 
 func logLabelErr(predicate string, err error) {
-	log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
+	// log.Printf("Unable to create search label for %s  due to %s\n", predicate, err)
 }
 
 // NewContext returns the context for the current fragmentresource
