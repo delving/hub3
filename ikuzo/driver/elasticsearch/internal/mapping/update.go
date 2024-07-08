@@ -26,7 +26,7 @@ import (
 // this is needed for all mappings that have strict fields.
 const (
 	v2MappingSha       = "4ec95d8f193d9c35"
-	v2UpdateMappingSha = "2612f82c229ffa5a"
+	v2UpdateMappingSha = "1befe8d0db219e35"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 
