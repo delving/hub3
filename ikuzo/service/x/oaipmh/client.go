@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 )
@@ -51,7 +51,7 @@ func (request *Request) Harvest(batchCallback func(*Response)) {
 		request.MetadataPrefix = ""
 		request.From = ""
 		request.ResumptionToken = resumptionToken
-		request.completeListSize = completeListSize
+		request.CompleteListSize = completeListSize
 		request.Harvest(batchCallback)
 	}
 }
@@ -64,8 +64,17 @@ func (request *Request) Perform() (oaiResponse *Response) {
 		Timeout: timeout,
 	}
 
-	err := retry(10, time.Second, func() error {
-		resp, err := client.Get(request.GetFullURL())
+	err := retry(40, time.Second, func() error {
+		req, err := http.NewRequest(http.MethodGet, request.GetFullURL(), nil)
+		if err != nil {
+			return err
+		}
+
+		if request.UserName != "" && request.Password != "" {
+			req.SetBasicAuth(request.UserName, request.Password)
+		}
+
+		resp, err := client.Do(req)
 		if err != nil {
 			return err
 		}
@@ -74,28 +83,35 @@ func (request *Request) Perform() (oaiResponse *Response) {
 		// reading all the content body's data
 		defer resp.Body.Close()
 
+		data, err := io.ReadAll(resp.Body)
+		if err != nil {
+			slog.Error("unable to read body", "err", err, "url", request.GetFullURL())
+			return stop{err}
+		}
+
+		l := slog.With(
+			"status_code", resp.StatusCode, "url", request.GetFullURL(),
+			"body", string(data),
+		)
+
 		s := resp.StatusCode
 		switch {
 		case s >= 500:
 			// Retry
+			l.Warn("server error")
 			return fmt.Errorf("server error: %v", s)
 		case s == 408:
 			// Retry
+			l.Warn("timeout")
 			return fmt.Errorf("timeout error: %v", s)
 		case s >= 400:
 			// Don't retry, it was client's fault
+			l.Warn("client error; stopping retry")
 			return stop{fmt.Errorf("client error: %v", s)}
 		default:
-			// Happy
-			// Read all the data
-			body, err := io.ReadAll(resp.Body)
+			err = xml.Unmarshal(data, &oaiResponse)
 			if err != nil {
-				return stop{err}
-			}
-
-			// Unmarshall all the data
-			err = xml.Unmarshal(body, &oaiResponse)
-			if err != nil {
+				l.Error("unable to unmarshal OAI-PMH response", "error", err, "response", string(data))
 				return stop{err}
 			}
 
@@ -104,7 +120,7 @@ func (request *Request) Perform() (oaiResponse *Response) {
 	})
 	if err != nil {
 		// unable to harvest panic for now
-		log.Printf("problem url: %s", request.GetFullURL())
+		slog.Error("unable to finish oai-pmh harvest", "error", err, "url", request.GetFullURL())
 		panic(err)
 	}
 	return

@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/delving/hub3/hub3/ead"
-	"github.com/delving/hub3/ikuzo/service/x/oaipmh/harvest"
-	"github.com/kiivihal/goharvest/oai"
 	"github.com/rs/zerolog/log"
+
+	"github.com/delving/hub3/hub3/ead"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh/harvest"
 )
 
 type EADHarvester struct {
@@ -25,7 +26,7 @@ func NewEADHarvester(s *Service) (EADHarvester, error) {
 	return EADHarvester{s: s}, nil
 }
 
-func (e *EADHarvester) ProcessEadFromOai(r *oai.Response) {
+func (e *EADHarvester) ProcessEadFromOai(r *oaipmh.Response) {
 	if r.Request.Verb != harvest.VerbListRecords {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting ead records")
 		return
@@ -50,7 +51,7 @@ func (e *EADHarvester) ProcessEadFromOai(r *oai.Response) {
 	}
 }
 
-func (e *EADHarvester) processRecord(record *oai.Record) error {
+func (e *EADHarvester) processRecord(record *oaipmh.Record) error {
 	archiveID := record.Header.Identifier
 	body := record.Metadata.Body
 
@@ -102,7 +103,7 @@ func NewMetsHarvest(c *ead.DaoClient) (MetsHarvester, error) {
 	}, nil
 }
 
-func (m *MetsHarvester) ProcessMetsFromOai(r *oai.Response) {
+func (m *MetsHarvester) ProcessMetsFromOai(r *oaipmh.Response) {
 	if r.Request.Verb != harvest.VerbListIdentifiers {
 		log.Warn().Str("verb", r.Request.Verb).Msg("verb is not supported for getting mets headers")
 		return
@@ -125,7 +126,7 @@ func (m *MetsHarvester) ProcessMetsFromOai(r *oai.Response) {
 	}
 }
 
-func (m MetsHarvester) processHeader(header oai.Header) error {
+func (m MetsHarvester) processHeader(header oaipmh.Header) error {
 	uuid := header.Identifier
 
 	archiveID, _ := extractSpecs(header.SetSpec)

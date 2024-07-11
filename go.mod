@@ -35,7 +35,6 @@ require (
 	github.com/hibiken/asynq v0.24.1
 	github.com/hibiken/asynqmon v0.7.2
 	github.com/justinas/alice v1.2.0
-	github.com/kiivihal/goharvest v0.0.0-20240428141957-3409996de81d
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
 	github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e
 	github.com/kiivihal/rdf2go v0.1.5
@@ -61,6 +60,7 @@ require (
 	github.com/rs/xid v1.5.0
 	github.com/rs/zerolog v1.33.0
 	github.com/sajari/fuzzy v1.0.0
+	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/segmentio/ksuid v1.0.4
 	github.com/snabb/sitemap v1.0.4
 	github.com/sosedoff/gitkit v0.4.0
@@ -159,6 +159,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/docker-image-spec v1.3.1 // indirect
 	github.com/moby/patternmatcher v0.6.0 // indirect
@@ -199,6 +200,7 @@ require (
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.2.2 // indirect
+	github.com/smartystreets/goconvey v1.8.1 // indirect
 	github.com/snabb/diagio v1.0.4 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
@@ -228,6 +230,7 @@ require (
 	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect
 	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect

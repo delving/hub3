@@ -5,10 +5,6 @@ import (
 	"time"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
-
 func retry(attempts int, sleep time.Duration, f func() error) error {
 	if err := f(); err != nil {
 		if s, ok := err.(stop); ok {

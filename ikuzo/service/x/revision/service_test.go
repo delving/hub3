@@ -87,7 +87,7 @@ func TestService(t *testing.T) {
 	t.Run("NewRepo", testNewRepo(s, org, ds))
 
 	repo, err := s.OpenRepository(org, ds)
-	is.NoErr(err)
+	is.NoErr(err) // unable to open repository
 
 	status, err := repo.Status()
 	is.NoErr(err)

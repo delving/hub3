@@ -10,7 +10,6 @@ import "encoding/xml"
 // formats available from a repository
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#MetadataNamespaces
-//
 type ListMetadataFormats struct {
 	MetadataFormat []MetadataFormat `xml:"metadataFormat"`
 }
@@ -27,7 +26,6 @@ type ListMetadataFormats struct {
 // specified in the request has been deleted.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#ListIdentifiers
-//
 type ListIdentifiers struct {
 	Headers         []Header         `xml:"header"`
 	ResumptionToken *ResumptionToken `xml:"resumptionToken"`
@@ -43,7 +41,6 @@ type ListIdentifiers struct {
 // available from the repository or from the specified item.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#GetRecord
-//
 type GetRecord struct {
 	Record Record `xml:"record"`
 }
@@ -64,8 +61,7 @@ type ListRecords struct {
 
 // ListSets represents a list of Sets
 //
-//  http://www.openarchives.org/OAI/openarchivesprotocol.html#Set
-//
+//	http://www.openarchives.org/OAI/openarchivesprotocol.html#Set
 type ListSets struct {
 	Set             []Set            `xml:"set"`
 	ResumptionToken *ResumptionToken `xml:"resumptionToken"`
@@ -99,7 +95,6 @@ type ListSets struct {
 // OAI-PMH request.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#XMLResponse
-//
 type Response struct {
 	XMLName            xml.Name `xml:"OAI-PMH,omitempty"`
 	AttrXmlns          string   `xml:"xmlns,attr"`
@@ -129,15 +124,12 @@ func (resp *Response) GetResumptionToken() (hasResumptionToken bool, resumptionT
 		return
 	}
 
-	// First attempt to obtain a resumption token from a ListIdentifiers response
-	resumptionToken = resp.ListIdentifiers.ResumptionToken.Token
-
-	if resumptionToken != "" {
+	if resp.ListIdentifiers != nil {
+		resumptionToken = resp.ListIdentifiers.ResumptionToken.Token
 		completeListSize = resp.ListIdentifiers.ResumptionToken.CompleteListSize
 	}
 
-	// Then attempt to obtain a resumption token from a ListRecords response
-	if resumptionToken == "" {
+	if resp.ListRecords != nil {
 		resumptionToken = resp.ListRecords.ResumptionToken.Token
 		completeListSize = resp.ListRecords.ResumptionToken.CompleteListSize
 	}

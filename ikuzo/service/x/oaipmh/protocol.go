@@ -42,7 +42,6 @@ func (ab About) String() string {
 // XML schema describing the structure of the description container.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#Identify
-//
 type Description struct {
 	Body []byte `xml:",innerxml"`
 }
@@ -76,16 +75,15 @@ func (ab Description) String() string {
 // - cannotDisseminateFormat: The metadata format identified by the value
 // given for the metadataPrefix argument is not supported by the item or by
 // the repository.
-// - idDoesNotExist:	The value of the identifier argument is unknown or illegal
-//  in this repository.
-// - noRecordsMatch:	The combination of the values of the from, until, set and
-//  metadataPrefix arguments results in an empty list.
-// - noMetadataFormats:	There are no metadata formats available for the
-//  specified item.
-// - noSetHierarchy:	The repository does not support sets.
+//   - idDoesNotExist:	The value of the identifier argument is unknown or illegal
+//     in this repository.
+//   - noRecordsMatch:	The combination of the values of the from, until, set and
+//     metadataPrefix arguments results in an empty list.
+//   - noMetadataFormats:	There are no metadata formats available for the
+//     specified item.
+//   - noSetHierarchy:	The repository does not support sets.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#ErrorConditions
-//
 type Error struct {
 	Code            string `xml:"code,attr"`
 	Message         string `xml:",chardata"`
@@ -110,17 +108,18 @@ func (err Error) Is(target error) bool {
 // It contains:
 // 1. The metadataPrefix - a string to specify the metadata format in OAI-PMH
 // requests issued to the repository. metadataPrefix consists of any valid URI
-//  unreserved characters. metadataPrefix arguments are used in ListRecords,
-//  ListIdentifiers, and GetRecord requests to retrieve records, or the headers
-//   of records that include metadata in the format specified by the
-//    metadataPrefix;
+//
+//	unreserved characters. metadataPrefix arguments are used in ListRecords,
+//	ListIdentifiers, and GetRecord requests to retrieve records, or the headers
+//	 of records that include metadata in the format specified by the
+//	  metadataPrefix;
+//
 // 2. The metadata schema URL - the URL of an XML schema to test validity of
 // metadata expressed according to the format;
-// 3. The XML namespace URI that is a global identifier of the metadata format.
-//  (http://www.w3.org/TR/1999/REC-xml-names-19990114/Overview.html)
+//  3. The XML namespace URI that is a global identifier of the metadata format.
+//     (http://www.w3.org/TR/1999/REC-xml-names-19990114/Overview.html)
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#MetadataNamespaces
-//
 type MetadataFormat struct {
 	MetadataPrefix    string `xml:"metadataPrefix"`
 	Schema            string `xml:"schema,omitempty"`
@@ -242,6 +241,12 @@ type Record struct {
 	Header   Header   `xml:"header"`
 	Metadata Metadata `xml:"metadata"`
 	About    About    `xml:"about"`
+	Raw      []byte   `xml:",innerxml"`
+}
+
+// GoString returns the innerxml wrapped with <record> tags
+func (r *Record) GoString() string {
+	return "<record>\n" + string(r.Raw) + "</record>\n"
 }
 
 // ResumptionToken is a token that manages the flow control during harvesting.
@@ -294,7 +299,6 @@ type ResumptionToken struct {
 // usage of this container.
 //
 // http://www.openarchives.org/OAI/openarchivesprotocol.html#Set
-//
 type Set struct {
 	SetSpec        string      `xml:"setSpec"`
 	SetName        string      `xml:"setName,omitempty"`

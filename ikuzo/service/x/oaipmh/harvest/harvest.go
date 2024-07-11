@@ -13,9 +13,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/delving/hub3/config"
-	"github.com/kiivihal/goharvest/oai"
 	"github.com/rs/zerolog/log"
+
+	"github.com/delving/hub3/config"
+	"github.com/delving/hub3/ikuzo/service/x/oaipmh"
 )
 
 const (
@@ -33,7 +34,7 @@ type HarvestInfo struct {
 	Error        string
 }
 
-type HarvestCallback func(r *oai.Response) error
+type HarvestCallback func(r *oaipmh.Response) error
 
 type HarvestMetrics struct {
 	Errors           []error
@@ -52,7 +53,7 @@ type HarvestTask struct {
 	Name        string
 	CheckEvery  time.Duration
 	HarvestInfo *HarvestInfo
-	Request     oai.Request
+	Request     oaipmh.Request
 	CallbackFn  HarvestCallback
 	rw          sync.Mutex
 	running     bool
@@ -112,7 +113,7 @@ func (ht *HarvestTask) getHarvestInfoPath() string {
 	return filepath.Join(config.Config.EAD.CacheDir, ht.Name+"_harvest.json")
 }
 
-func (ht *HarvestTask) BuildRequest() *oai.Request {
+func (ht *HarvestTask) BuildRequest() *oaipmh.Request {
 	if err := ht.getOrCreateHarvestInfo(); err != nil {
 		log.Error().Err(err).Msg("unable to get harvest info")
 	}
@@ -125,7 +126,7 @@ func (ht *HarvestTask) BuildRequest() *oai.Request {
 	return &req
 }
 
-func (ht *HarvestTask) GetPage(ctx context.Context, request *oai.Request) (*oai.Response, error) {
+func (ht *HarvestTask) GetPage(ctx context.Context, request *oaipmh.Request) (*oaipmh.Response, error) {
 	if ht.Client == nil {
 		timeout := 60 * time.Second
 		ht.Client = &http.Client{
@@ -133,7 +134,7 @@ func (ht *HarvestTask) GetPage(ctx context.Context, request *oai.Request) (*oai.
 		}
 	}
 
-	var oaiResponse *oai.Response
+	var oaiResponse *oaipmh.Response
 
 	err := retry(10, time.Second, func() error {
 		resp, err := ht.Client.Get(request.GetFullURL())
@@ -181,7 +182,7 @@ func (ht *HarvestTask) GetPage(ctx context.Context, request *oai.Request) (*oai.
 	return oaiResponse, nil
 }
 
-func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error {
+func (ht *HarvestTask) harvest(ctx context.Context, request *oaipmh.Request) error {
 	log.Debug().
 		Str("name", ht.Name).
 		Str("url", request.GetFullURL()).
@@ -196,18 +197,22 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 		return err
 	}
 
-	switch resp.Error.Code {
+	var respErr oaipmh.Error
+	if len(resp.Error) > 0 {
+		respErr = resp.Error[0]
+	}
+
+	switch respErr.Code {
 	case "noRecordMatch":
 		ht.m.NoRecordsMatch = true
 		return ErrNoRecordsMatch
 	case "error":
-		pmhErr := resp.Error
 		err := fmt.Errorf(
-			"OAI-PMH response returns an error %s: %s", pmhErr.Code, pmhErr.Message,
+			"OAI-PMH response returns an error %s: %s", respErr.Code, respErr.Message,
 		)
 		log.Error().Err(err).Str("verb", resp.Request.Verb).
-			Str("error.code", resp.Error.Code).
-			Str("error.message", resp.Error.Message).
+			Str("error.code", respErr.Code).
+			Str("error.message", respErr.Message).
 			Str("url", request.GetFullURL()).
 			Msg("response returns an error")
 
@@ -229,7 +234,7 @@ func (ht *HarvestTask) harvest(ctx context.Context, request *oai.Request) error 
 	}
 
 	// Check for a resumptionToken
-	hasResumptionToken, token, completeListSize := resp.ResumptionToken()
+	hasResumptionToken, token, completeListSize := resp.GetResumptionToken()
 
 	switch ht.Request.Verb {
 	case VerbListIdentifiers:

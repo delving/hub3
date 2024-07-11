@@ -27,11 +27,13 @@ type Request struct {
 	Set              string `xml:"set,attr,omitempty"`
 	ResumptionToken  string `xml:"resumptionToken,attr,omitempty"`
 	BaseURL          string `xml:",chardata"`
-	completeListSize int
+	CompleteListSize int
 	orgConfig        *domain.OrganizationConfig
-	// TODO(kiivihal): determine if these can be removed
-	cursor int
-	limit  int
+
+	// for basic auth support via the API
+	UserName       string
+	Password       string
+	lastHarvestURL string
 }
 
 // NewRequest builds a Request from the query paramers of the http.Request
