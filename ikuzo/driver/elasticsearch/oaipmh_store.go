@@ -248,7 +248,7 @@ func (o *OAIPMHStore) ListRecords(ctx context.Context, q *oaipmh.RequestConfig) 
 
 func (o *OAIPMHStore) GetRecord(ctx context.Context, q *oaipmh.RequestConfig) (record oaipmh.Record, errors []oaipmh.Error, err error) {
 	if q.FirstRequest.Identifier == "" {
-		errors = append(errors, oaipmh.ErrIdDoesNotExist)
+		errors = append(errors, oaipmh.ErrIDDoesNotExist)
 		return
 	}
 
@@ -333,7 +333,9 @@ func (o *OAIPMHStore) getOAIPMHRecord(wrapper recordWrapper, format string, only
 	record.Header.Identifier = fg.Meta.HubID
 	record.Header.DateStamp = fg.Meta.LastModified().UTC().Format(oaipmh.TimeFormat)
 	record.Header.SetSpec = []string{fg.Meta.Spec}
-	record.Metadata = oaipmh.Metadata{Body: buf.Bytes()}
+	if !onlyHeader {
+		record.Metadata = oaipmh.Metadata{Body: buf.Bytes()}
+	}
 
 	return record, nil
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/delving/hub3/ikuzo/domain"
 )
@@ -27,13 +28,14 @@ type Request struct {
 	Set              string `xml:"set,attr,omitempty"`
 	ResumptionToken  string `xml:"resumptionToken,attr,omitempty"`
 	BaseURL          string `xml:",chardata"`
-	CompleteListSize int
+	CompleteListSize int    `xml:"-"`
 	orgConfig        *domain.OrganizationConfig
 
 	// for basic auth support via the API
-	UserName       string
-	Password       string
-	lastHarvestURL string
+	UserName string        `xml:"-"`
+	Password string        `xml:"-"`
+	Timeout  time.Duration `xml:"-"`
+	client   *http.Client  `xml:"-"`
 }
 
 // NewRequest builds a Request from the query paramers of the http.Request

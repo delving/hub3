@@ -11,82 +11,116 @@ import (
 
 // HarvestIdentifiers arvest the identifiers of a complete OAI set
 // call the identifier callback function for each Header
-func (request *Request) HarvestIdentifiers(callback func(*Header)) {
+func (request *Request) HarvestIdentifiers(callback func(*Header) error) error {
 	request.Verb = "ListIdentifiers"
-	request.Harvest(func(resp *Response) {
+	return request.Harvest(func(resp *Response) error {
+		if resp.ListIdentifiers == nil {
+			return nil
+		}
+
 		headers := resp.ListIdentifiers.Headers
 		for _, header := range headers {
-			callback(&header)
+			if err := callback(&header); err != nil {
+				return err
+			}
 		}
+		return nil
 	})
 }
 
-// HarvestRecords harvest the identifiers of a complete OAI set
-// call the identifier callback function for each Header
-func (request *Request) HarvestRecords(callback func(*Record)) {
+// HarvestRecords harvest the records of a complete OAI set
+// call the record callback function for each Record
+func (request *Request) HarvestRecords(callback func(*Record) error) error {
 	request.Verb = "ListRecords"
-	request.Harvest(func(resp *Response) {
+	return request.Harvest(func(resp *Response) error {
+		if resp.ListRecords == nil {
+			return nil
+		}
+
 		records := resp.ListRecords.Records
 		for _, record := range records {
-			callback(&record)
+			if err := callback(&record); err != nil {
+				return err
+			}
 		}
+		return nil
 	})
 }
 
 // Harvest perform a harvest of a complete OAI set, or simply one request
 // call the batchCallback function argument with the OAI responses
-func (request *Request) Harvest(batchCallback func(*Response)) {
-	// Use Perform to get the OAI response
-	oaiResponse := request.Perform()
+func (request *Request) Harvest(batchCallback func(*Response) error) error {
+	for {
+		// Use Perform to get the OAI response
+		oaiResponse, err := request.perform()
+		if err != nil {
+			slog.Info("unable to perform harvest; stopping now", "error", err)
+			return err
+		}
 
-	// Execute the callback function with the response
-	batchCallback(oaiResponse)
+		if oaiResponse == nil {
+			slog.Error("oai-pmh response is empty")
+			return fmt.Errorf("unable to run batchCallback on an empty response")
+		}
 
-	// Check for a resumptionToken
-	hasResumptionToken, resumptionToken, completeListSize := oaiResponse.GetResumptionToken()
+		// Execute the callback function with the response
+		if batchErr := batchCallback(oaiResponse); batchErr != nil {
+			return fmt.Errorf("unable to perform batch callback; %w ", batchErr)
+		}
 
-	// Harvest further if there is a resumption token
-	if hasResumptionToken {
+		// Check for a resumptionToken
+		hasResumptionToken, resumptionToken, completeListSize := oaiResponse.GetResumptionToken()
+
+		// Break the loop if there is no resumption token
+		if !hasResumptionToken {
+			break
+		}
+
+		// Prepare the request for the next iteration
 		request.Set = ""
 		request.MetadataPrefix = ""
 		request.From = ""
 		request.ResumptionToken = resumptionToken
 		request.CompleteListSize = completeListSize
-		request.Harvest(batchCallback)
 	}
+	return nil
 }
 
-// Perform an HTTP GET request using the OAI Requests fields
+// perform an HTTP GET request using the OAI Requests fields
 // and return an OAI Response reference
-func (request *Request) Perform() (oaiResponse *Response) {
-	timeout := time.Duration(60 * time.Second)
-	client := http.Client{
-		Timeout: timeout,
+func (request *Request) perform() (oaiResponse *Response, err error) {
+	if request.client == nil {
+		if request.Timeout == 0 {
+			request.Timeout = time.Duration(60 * time.Second)
+		}
+		request.client = &http.Client{
+			Timeout: request.Timeout,
+		}
 	}
 
-	err := retry(40, time.Second, func() error {
-		req, err := http.NewRequest(http.MethodGet, request.GetFullURL(), nil)
-		if err != nil {
-			return err
+	err = retry(40, time.Second, func() error {
+		req, requestErr := http.NewRequest(http.MethodGet, request.GetFullURL(), nil)
+		if requestErr != nil {
+			return requestErr
 		}
 
 		if request.UserName != "" && request.Password != "" {
 			req.SetBasicAuth(request.UserName, request.Password)
 		}
 
-		resp, err := client.Do(req)
-		if err != nil {
-			return err
+		resp, requestErr := request.client.Do(req)
+		if requestErr != nil {
+			return requestErr
 		}
 
 		// Make sure the response body object will be closed after
 		// reading all the content body's data
 		defer resp.Body.Close()
 
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			slog.Error("unable to read body", "err", err, "url", request.GetFullURL())
-			return stop{err}
+		data, readErr := io.ReadAll(resp.Body)
+		if readErr != nil {
+			slog.Error("unable to read body", "err", readErr, "url", request.GetFullURL())
+			return stop{readErr}
 		}
 
 		l := slog.With(
@@ -109,19 +143,19 @@ func (request *Request) Perform() (oaiResponse *Response) {
 			l.Warn("client error; stopping retry")
 			return stop{fmt.Errorf("client error: %v", s)}
 		default:
-			err = xml.Unmarshal(data, &oaiResponse)
-			if err != nil {
-				l.Error("unable to unmarshal OAI-PMH response", "error", err, "response", string(data))
-				return stop{err}
+			marshallErr := xml.Unmarshal(data, &oaiResponse)
+			if marshallErr != nil {
+				l.Error("unable to unmarshal OAI-PMH response", "error", marshallErr, "response", string(data))
+				return stop{marshallErr}
 			}
 
 			return nil
 		}
 	})
 	if err != nil {
-		// unable to harvest panic for now
 		slog.Error("unable to finish oai-pmh harvest", "error", err, "url", request.GetFullURL())
-		panic(err)
+		return nil, err
 	}
-	return
+
+	return oaiResponse, nil
 }

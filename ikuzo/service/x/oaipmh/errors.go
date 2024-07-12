@@ -26,7 +26,7 @@ var (
 		applicableVerbs: []Verb{VerbGetRecord, VerbListIdentifiers, VerbListRecords},
 	}
 
-	ErrIdDoesNotExist = Error{
+	ErrIDDoesNotExist = Error{
 		Code: "idDoesNotExist",
 		Message: "The value of the identifier argument is unknown or illegal " +
 			"in this repository.",

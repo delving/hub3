@@ -25,7 +25,6 @@ import (
 	"syscall"
 	"time"
 
-	pb "github.com/cheggaaa/pb/v3"
 	"github.com/gocarina/gocsv"
 	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
@@ -92,7 +91,7 @@ func listDatasets(cfg *pmhCfg) {
 		UserName: cfg.userName,
 		Password: cfg.password,
 	})
-	req.Harvest(func(resp *oaipmh.Response) {
+	err := req.Harvest(func(resp *oaipmh.Response) error {
 		for idx, set := range resp.ListSets.Set {
 			fmt.Printf("\n========= %d =========\n", idx)
 			fmt.Printf("Spec\t\t%s\n", set.SetSpec)
@@ -103,7 +102,11 @@ func listDatasets(cfg *pmhCfg) {
 				fmt.Printf("Description:\n%s\n", set.SetDescription)
 			}
 		}
+		return nil
 	})
+	if err != nil {
+		slog.Error("unable to list datasets: %s", err)
+	}
 }
 
 // listMetadataFormats returns the available metadataformats from a remote OAI-PMH endpoint
@@ -114,7 +117,7 @@ func listMetadataFormats(cfg *pmhCfg) {
 		UserName: cfg.userName,
 		Password: cfg.password,
 	})
-	req.Harvest(func(resp *oaipmh.Response) {
+	err := req.Harvest(func(resp *oaipmh.Response) error {
 		for idx, format := range resp.ListMetadataFormats.MetadataFormat {
 			fmt.Printf("\n========= %d =========\n", idx)
 			fmt.Printf("prefix:\t\t%s\n", format.MetadataPrefix)
@@ -123,7 +126,11 @@ func listMetadataFormats(cfg *pmhCfg) {
 				fmt.Printf("namespace:\t%s\n", format.MetadataNamespace)
 			}
 		}
+		return nil
 	})
+	if err != nil {
+		slog.Error("unable to list datasets: %s", err)
+	}
 }
 
 func getPath(cfg *pmhCfg, fname string) string {
@@ -135,12 +142,12 @@ func getPath(cfg *pmhCfg, fname string) string {
 	return fname
 }
 
-func getRecord(cfg *pmhCfg) {
+func getRecord(cfg *pmhCfg) (string, error) {
 	os.MkdirAll(cfg.outputPath, os.ModePerm)
-	storeRecord(cfg.identifier, cfg)
+	return storeRecord(cfg.identifier, cfg)
 }
 
-func storeRecord(id string, cfg *pmhCfg) string {
+func storeRecord(id string, cfg *pmhCfg) (string, error) {
 	req := (&oaipmh.Request{
 		BaseURL:        cfg.url,
 		Verb:           "GetRecord",
@@ -150,27 +157,31 @@ func storeRecord(id string, cfg *pmhCfg) string {
 		Password:       cfg.password,
 	})
 	var record string
-	req.Harvest(func(r *oaipmh.Response) {
+	err := req.Harvest(func(r *oaipmh.Response) error {
 		if len(r.Error) > 0 {
 			errs := []string{}
 			for _, e := range r.Error {
 				errs = append(errs, e.Error())
 			}
 			slog.Error("error harvesting record", "id", id, "errors", errs)
-			return
+			return r.Error[0]
 		}
 
 		record = r.GetRecord.Record.Metadata.String()
 		file, err := os.Create(getPath(cfg, fmt.Sprintf("%s_%s_record.xml", id, cfg.prefix)))
 		if err != nil {
-			log.Fatal("Cannot create file", err)
+			return fmt.Errorf("unable to creat output file: %s", err)
 		}
 		fmt.Fprintf(file, "<record id=\"%s\">\n", id)
 		fmt.Fprintln(file, record)
 		fmt.Fprintln(file, "</record>")
+		return nil
 	})
+	if err != nil {
+		return "", err
+	}
 
-	return record
+	return record, nil
 }
 
 type dataIDS struct {
@@ -197,9 +208,7 @@ func listGetRecords(cfg *pmhCfg) {
 	g, _ := errgroup.WithContext(ctx)
 	ids := make(chan string)
 
-	var completeListSize int
-	bar := pb.New(completeListSize)
-	bar.Start()
+	var progress *progress
 
 	g.Go(func() error {
 		defer close(ids)
@@ -210,7 +219,7 @@ func listGetRecords(cfg *pmhCfg) {
 			if err != nil {
 				return err
 			}
-			bar.SetTotal(int64(len(identifiers)))
+			progress.bar.ChangeMax(len(identifiers))
 			for _, id := range identifiers {
 				seen++
 				if id.Identifier == "" {
@@ -232,20 +241,14 @@ func listGetRecords(cfg *pmhCfg) {
 			UserName:       cfg.userName,
 			Password:       cfg.password,
 		})
-		req.HarvestIdentifiers(func(header *oaipmh.Header) {
-			if req.CompleteListSize != 0 && completeListSize == 0 {
-				completeListSize = req.CompleteListSize
-				bar.SetTotal(int64(completeListSize))
-			}
-			seen++
-			// if seen%250 == 0 {
-			// fmt.Printf("\rharvested: %d\n", seen)
-			// }
-			// log.Printf("seen %d: %s\n", seen, header.Identifier)
+
+		progress = newProgress(req)
+
+		req.HarvestIdentifiers(func(header *oaipmh.Header) error {
+			progress.processRequest(req)
 			ids <- header.Identifier
+			return nil
 		})
-		bar.SetTotal(int64(seen))
-		// log.Printf("total seen: %d", seen)
 		return nil
 	})
 
@@ -257,8 +260,10 @@ func listGetRecords(cfg *pmhCfg) {
 		g.Go(func() error {
 			for id := range ids {
 				id := id
-				storeRecord(id, cfg)
-				bar.Increment()
+				if _, err := storeRecord(id, cfg); err != nil {
+					slog.Error("unable to store record", "id", id, "error", err)
+				}
+				// TODO: maybe increment bar here
 			}
 			return nil
 		})
@@ -272,10 +277,8 @@ func listGetRecords(cfg *pmhCfg) {
 	// results sent on the channel.
 	if err := g.Wait(); err != nil {
 		log.Println(err)
-		bar.Finish()
-		return
 	}
-	bar.Finish()
+	progress.finish()
 }
 
 // listRecords writes all Records to a file
@@ -308,42 +311,13 @@ func listRecords(cfg *pmhCfg) {
 		os.Exit(1)
 	}()
 
-	seen := 0
-	completeListSize := 0
-
-	bar := progressbar.NewOptions(seen,
-		progressbar.OptionSetWidth(40),
-		progressbar.OptionSetDescription("Progress:"),
-		progressbar.OptionSetWriter(os.Stdout),
-		progressbar.OptionClearOnFinish(),
-		progressbar.OptionShowCount(),
-		progressbar.OptionFullWidth(),
-	)
-
-	var urls []string
 	fmt.Fprintln(file, `<?xml version="1.0" encoding="UTF-8" ?>`)
 	fmt.Fprintln(file, "<pockets>")
 
-	req.HarvestRecords(func(r *oaipmh.Record) {
-		if req.CompleteListSize != 0 && completeListSize == 0 {
-			completeListSize = req.CompleteListSize
-			bar.ChangeMax(completeListSize)
-		}
-		seen++
+	progress := newProgress(req)
 
-		var hasChanges bool
-		urls, hasChanges = addHarvestURL(urls, req.GetFullURL())
-		if hasChanges {
-			clearScreen()
-			moveCursor(1, 1)
-			fmt.Println("Last 10 Urls:")
-			printURLs(urls)
-
-			moveCursor(13, 1)
-			bar.Set(seen)
-			barStr := bar.String()
-			fmt.Println(barStr)
-		}
+	cb := func(r *oaipmh.Record) error {
+		progress.processRequest(req)
 
 		fmt.Fprintf(file, `<pocket id="%s">\n`, r.Header.Identifier)
 		body := r.Metadata.String()
@@ -354,9 +328,12 @@ func listRecords(cfg *pmhCfg) {
 		}
 
 		fmt.Fprintln(file, "</pocket>")
-	})
+		return nil
+	}
+
+	req.HarvestRecords(cb)
 	fmt.Fprintln(file, "</pockets>")
-	bar.Finish()
+	progress.finish()
 
 	slog.Info("finished harvesting", "date", time.Now())
 }
@@ -388,8 +365,9 @@ func identify(cfg *pmhCfg) {
 		UserName: cfg.userName,
 		Password: cfg.password,
 	})
-	req.Harvest(func(resp *oaipmh.Response) {
+	req.Harvest(func(resp *oaipmh.Response) error {
 		fmt.Printf("%#v\n\n", resp.Identify)
+		return nil
 	})
 }
 
@@ -436,23 +414,16 @@ func getIDs(cfg *pmhCfg) []string {
 
 	defer file.Close()
 
-	seen := 0
-	completeListSize := 0
-	bar := pb.New(0)
-	bar.Start()
+	progress := newProgress(req)
 
-	req.HarvestIdentifiers(func(header *oaipmh.Header) {
-		if req.CompleteListSize != 0 && completeListSize == 0 {
-			completeListSize = req.CompleteListSize
-			bar.SetTotal(int64(completeListSize))
-		}
-		seen++
-		bar.Increment()
+	req.HarvestIdentifiers(func(header *oaipmh.Header) error {
+		progress.processRequest(req)
 		fmt.Fprintln(file, header.Identifier)
 		ids = append(ids, header.Identifier)
+		return nil
 	})
 
-	bar.Finish()
+	progress.finish()
 
 	return ids
 }
@@ -513,7 +484,9 @@ func getRecordCmd(cfg *pmhCfg) *cobra.Command {
 		Use:   "record",
 		Short: "get a single record for an identifier and a MetadataPrefix",
 		Run: func(cmd *cobra.Command, args []string) {
-			getRecord(cfg)
+			if _, err := getRecord(cfg); err != nil {
+				slog.Error("unable to harvest record", "error", err)
+			}
 		},
 	}
 	cmd.Flags().StringVarP(&cfg.prefix, "prefix", "p", "", "The metadataPrefix of the record to be harvested")
@@ -538,6 +511,81 @@ func listMetadataFormatsCmd(cfg *pmhCfg) *cobra.Command {
 
 // progress bar setup
 
+type progress struct {
+	request          *oaipmh.Request
+	bar              *progressbar.ProgressBar
+	urls             []string
+	completeListSize int
+	seen             int
+}
+
+func newProgress(req *oaipmh.Request) *progress {
+	bar := progressbar.NewOptions(0,
+		progressbar.OptionSetWidth(40),
+		progressbar.OptionSetDescription("Progress:"),
+		progressbar.OptionSetWriter(os.Stdout),
+		progressbar.OptionClearOnFinish(),
+		progressbar.OptionShowCount(),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionShowElapsedTimeOnFinish(),
+		progressbar.OptionShowIts(),
+		progressbar.OptionEnableColorCodes(true),
+	)
+	return &progress{
+		request:          req,
+		bar:              bar,
+		urls:             []string{},
+		completeListSize: 0,
+		seen:             0,
+	}
+}
+
+func (p *progress) addURL(req *oaipmh.Request) (isChanged bool) {
+	harvestURL := req.GetFullURL()
+	if len(p.urls) == 0 {
+		p.urls = append(p.urls, harvestURL)
+		return true
+	}
+
+	if harvestURL == p.urls[len(p.urls)-1] {
+		return false
+	}
+
+	if len(p.urls) >= 10 {
+		p.urls = p.urls[1:]
+	}
+	p.urls = append(p.urls, harvestURL)
+
+	return true
+}
+
+func (p *progress) finish() {
+	if p.bar != nil {
+		p.bar.Finish()
+	}
+}
+
+func (p *progress) processRequest(req *oaipmh.Request) {
+	changed := p.addURL(req)
+	if changed {
+		if req.CompleteListSize != 0 && p.completeListSize == 0 {
+			p.completeListSize = req.CompleteListSize
+			p.bar.ChangeMax(p.completeListSize)
+		}
+
+		clearScreen()
+		moveCursor(1, 1)
+		fmt.Println("Last 10 Urls:")
+		printURLs(p.urls)
+
+		moveCursor(13, 1)
+		p.bar.Set(p.seen)
+		barStr := p.bar.String()
+		fmt.Println(barStr)
+	}
+	p.seen++
+}
+
 // clearScreen clears the terminal screen
 func clearScreen() {
 	fmt.Print("\033[H\033[2J")
@@ -553,20 +601,4 @@ func printURLs(urls []string) {
 	for _, harvestURL := range urls {
 		fmt.Println(harvestURL)
 	}
-}
-
-// addHarvestURL adds a new action to the list and keeps only the last 10 actions
-func addHarvestURL(urls []string, harvestURL string) (lastUrls []string, isChanged bool) {
-	if len(urls) == 0 {
-		return append(urls, harvestURL), true
-	}
-
-	if harvestURL == urls[len(urls)-1] {
-		return urls, false
-	}
-
-	if len(urls) >= 10 {
-		urls = urls[1:]
-	}
-	return append(urls, harvestURL), true
 }

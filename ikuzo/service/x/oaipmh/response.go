@@ -124,12 +124,12 @@ func (resp *Response) GetResumptionToken() (hasResumptionToken bool, resumptionT
 		return
 	}
 
-	if resp.ListIdentifiers != nil {
+	if resp.ListIdentifiers != nil && resp.ListIdentifiers.ResumptionToken != nil {
 		resumptionToken = resp.ListIdentifiers.ResumptionToken.Token
 		completeListSize = resp.ListIdentifiers.ResumptionToken.CompleteListSize
 	}
 
-	if resp.ListRecords != nil {
+	if resp.ListRecords != nil && resp.ListRecords.ResumptionToken != nil {
 		resumptionToken = resp.ListRecords.ResumptionToken.Token
 		completeListSize = resp.ListRecords.ResumptionToken.CompleteListSize
 	}
