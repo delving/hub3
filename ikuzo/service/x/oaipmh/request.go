@@ -32,9 +32,9 @@ type Request struct {
 	orgConfig        *domain.OrganizationConfig
 
 	// for basic auth support via the API
-	UserName string        `xml:"-"`
-	Password string        `xml:"-"`
-	Timeout  time.Duration `xml:"-"`
+	UserName string        `xml:"-"` // basicauth user name
+	Password string        `xml:"-"` // basicauth password
+	Timeout  time.Duration `xml:"-"` // TimeOut for the *http.Client
 	client   *http.Client  `xml:"-"`
 }
 
