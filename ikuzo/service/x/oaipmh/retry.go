@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-func retry(attempts int, sleep time.Duration, f func() error) error {
-	if err := f(); err != nil {
+func retry(attempts int, sleep time.Duration, f func(triesRemaining int) error) error {
+	if err := f(attempts); err != nil {
 		if s, ok := err.(stop); ok {
 			// Return the original error for later checking
 			return s.error

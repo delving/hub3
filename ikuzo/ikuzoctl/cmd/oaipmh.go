@@ -47,6 +47,7 @@ type pmhCfg struct {
 	configPath string
 	verbose    bool
 	storeEAD   bool
+	debugOut   string
 }
 
 func addPmhCommonFlags(cmd *cobra.Command, cfg *pmhCfg) {
@@ -71,6 +72,7 @@ func NewOaiPmhCmd() *cobra.Command {
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.userName, "username", "", "", "BasicAuth username")
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.password, "password", "", "", "BasicAuth password")
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.configPath, "config", "c", "", "config file (default is $HOME/.app.yaml)")
+	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.debugOut, "debugOut", "", "", "directory where the requested pages are stored")
 
 	oaiPmhCmd.AddCommand(identifyCmd(cfg))
 	oaiPmhCmd.AddCommand(listIdentifiersCmd(cfg))
@@ -292,6 +294,7 @@ func listRecords(cfg *pmhCfg) {
 		Until:          cfg.until,
 		UserName:       cfg.userName,
 		Password:       cfg.password,
+		DebugOut:       cfg.debugOut,
 	})
 
 	file, err := os.Create(getPath(cfg, fmt.Sprintf("%s_%s_records.xml", cfg.spec, cfg.prefix)))

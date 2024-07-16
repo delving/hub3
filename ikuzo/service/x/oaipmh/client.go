@@ -6,6 +6,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -86,6 +89,28 @@ func (request *Request) Harvest(batchCallback func(*Response) error) error {
 	return nil
 }
 
+func (request *Request) writeDebug(b []byte, triesRemaining int) error {
+	if request.DebugOut == "" {
+		return nil
+	}
+	if err := os.MkdirAll(request.DebugOut, os.ModePerm); err != nil {
+		slog.Error("unable to write debug directory", "error", err)
+		return err
+	}
+
+	token := request.ResumptionToken
+	if token == "" {
+		token = "first_page"
+	}
+	if strings.Contains(token, "/") {
+		token = strings.ReplaceAll(token, "/", "-")
+	}
+
+	fname := filepath.Join(request.DebugOut, fmt.Sprintf("%06d_%s_%d.xml", request.pagesSeen, token, triesRemaining))
+
+	return os.WriteFile(fname, b, os.ModePerm)
+}
+
 // perform an HTTP GET request using the OAI Requests fields
 // and return an OAI Response reference
 func (request *Request) perform() (oaiResponse *Response, err error) {
@@ -98,7 +123,9 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 		}
 	}
 
-	err = retry(40, time.Second, func() error {
+	request.pagesSeen++
+
+	err = retry(40, time.Second, func(triesRemaining int) error {
 		req, requestErr := http.NewRequest(http.MethodGet, request.GetFullURL(), nil)
 		if requestErr != nil {
 			return requestErr
@@ -121,6 +148,11 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 		if readErr != nil {
 			slog.Error("unable to read body", "err", readErr, "url", request.GetFullURL())
 			return stop{readErr}
+		}
+
+		if err := request.writeDebug(data, triesRemaining); err != nil {
+			slog.Error("unable to write debug file", "error", err)
+			return stop{err}
 		}
 
 		l := slog.With(
