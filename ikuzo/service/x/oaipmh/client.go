@@ -1,6 +1,7 @@
 package oaipmh
 
 import (
+	"bytes"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -23,6 +24,7 @@ func (request *Request) HarvestIdentifiers(callback func(*Header) error) error {
 
 		headers := resp.ListIdentifiers.Headers
 		for _, header := range headers {
+			request.recordsSeen++
 			if err := callback(&header); err != nil {
 				return err
 			}
@@ -42,6 +44,7 @@ func (request *Request) HarvestRecords(callback func(*Record) error) error {
 
 		records := resp.ListRecords.Records
 		for _, record := range records {
+			request.recordsSeen++
 			if err := callback(&record); err != nil {
 				return err
 			}
@@ -150,9 +153,9 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 			return stop{readErr}
 		}
 
-		if err := request.writeDebug(data, triesRemaining); err != nil {
-			slog.Error("unable to write debug file", "error", err)
-			return stop{err}
+		if writeErr := request.writeDebug(data, triesRemaining); writeErr != nil {
+			slog.Error("unable to write debug file", "error", writeErr)
+			return stop{writeErr}
 		}
 
 		l := slog.With(
@@ -177,8 +180,18 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 		default:
 			marshallErr := xml.Unmarshal(data, &oaiResponse)
 			if marshallErr != nil {
-				l.Error("unable to unmarshal OAI-PMH response", "error", marshallErr, "response", string(data))
-				return stop{marshallErr}
+				if bytes.Contains(data, []byte("<OAI-PMH>")) {
+					l.Error("unable to unmarshal OAI-PMH response; no retry", "error", marshallErr, "response", string(data))
+					return stop{marshallErr}
+				}
+				l.Error("unable to unmarshal OAI-PMH response; retrying", "error", marshallErr, "response", string(data))
+				return fmt.Errorf("bad oai-pmh response, so retrying")
+			}
+
+			hasToken, _, completeListSize := oaiResponse.GetResumptionToken()
+			if completeListSize == 0 || (completeListSize < request.CompleteListSize && !hasToken) {
+				l.Error("invalid OAI-PMH resumable response; so retrying", "response", string(data))
+				return fmt.Errorf("invalid resumable oai-pmh response, so retrying")
 			}
 
 			return nil

@@ -32,12 +32,13 @@ type Request struct {
 	orgConfig        *domain.OrganizationConfig
 
 	// for basic auth support via the API
-	UserName  string        `xml:"-"` // basicauth user name
-	Password  string        `xml:"-"` // basicauth password
-	Timeout   time.Duration `xml:"-"` // TimeOut for the *http.Client
-	client    *http.Client  `xml:"-"`
-	DebugOut  string
-	pagesSeen int
+	UserName    string        `xml:"-"` // basicauth user name
+	Password    string        `xml:"-"` // basicauth password
+	Timeout     time.Duration `xml:"-"` // TimeOut for the *http.Client
+	client      *http.Client  `xml:"-"`
+	DebugOut    string
+	pagesSeen   int
+	recordsSeen int
 }
 
 // NewRequest builds a Request from the query paramers of the http.Request
