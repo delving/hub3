@@ -116,6 +116,7 @@ message FacetField {
   FacetType type = 7;
   string dateInterval = 8;
   string aggField = 9;
+  string language = 10;
 }
 
 message TreeQuery {

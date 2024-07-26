@@ -117,6 +117,14 @@ func NewFacetField(field string) (*FacetField, error) {
 		return nil, errors.Wrap(err, "Unable to unmarshal facetfield: field cannot be empty")
 	}
 
+	if strings.Contains(field, "@") {
+		before, after, found := strings.Cut(field, "@")
+		if found {
+			ff.Field = before
+			ff.Language = after
+		}
+	}
+
 	if ff.Name == "" {
 		ff.Name = ff.Field
 	}
@@ -1253,8 +1261,18 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 			SubAggregation("inner", filterAgg)
 		facetFilterAgg = facetFilterAgg.SubAggregation("filter", innerAgg)
 	default:
+		var pathFilter elastic.Query
+		pathFilter = fieldTermQuery
+		if facet.GetLanguage() != "" {
+			langPath := fmt.Sprintf("%s.@language", path)
+			langTermQuery := elastic.NewTermQuery(langPath, facet.GetLanguage())
+			pathFilter = elastic.NewBoolQuery().Must(
+				fieldTermQuery, langTermQuery,
+			)
+		}
+
 		filterAgg := elastic.NewFilterAggregation().
-			Filter(fieldTermQuery).
+			Filter(pathFilter).
 			SubAggregation("value", labelAgg)
 		testAgg := elastic.NewNestedAggregation().Path(path)
 		testAgg = testAgg.SubAggregation("inner", filterAgg)

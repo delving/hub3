@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
@@ -20,13 +21,15 @@ type BaseRecord struct {
 	DcTitle              string                  `json:"dc:title,omitempty" rdf:"dc_title"`
 	RestitutionState     string                  `json:"currentRestitutionState,omitempty" rdf:"nk_currentRestitutionState"`
 	RestitutionStateDate []string                `json:"currentRestitutionStateDate,omitempty" rdf:"nk_currentRestitutionDate"`
-	ObjectNameFilter     []string                `json:"object_name_filter,omitempty" rdf:"object_name_filter"`
-	LocationFilter       []rdf.LiteralOrResource `json:"location_filter,omitempty" rdf:"nk_location_filter"`
+	ObjectNameFilter     []rdf.LiteralOrResource `json:"object_name_filter,omitempty" rdf:"object_name_filter"`
+	CreatorFilter        []rdf.LiteralOrResource `json:"creator_filter,omitempty" rdf:"nk_creator_filter"`
 	EdmHasView           []HasView               `json:"edm:hasView,omitempty" rdf:"edm_hasView"`
 	RestitutionCases     []Case                  `json:"sourceCases,omitempty"`
 	Timeline             []Timeline              `json:"timeline,omitempty" rdf:"nk_timeline"`
 	Cho                  []CHO                   `json:"cho,omitempty" rdf:"nk_cho"`
 	SNKDeclaration       []SNKDeclaration        `json:"snkDeclaration,omitempty" rdf:"nk_snkDeclaration"`
+	SNKRegistration      []SNKRegistration       `rdf:"nk_snkRegistration"`
+	ResearchInformation  ResearchInformation     `rdf:"nk_researchInformation"`
 	dzi                  []string
 }
 
@@ -67,31 +70,31 @@ type Context struct {
 }
 
 type HasView struct {
-	Type            []string `json:"@type" rdf:"@types"`
-	ID              string   `json:"@id" rdf:"@id"`
-	RdfLabel        string   `json:"rdf:label" rdf:"rdf_label"`
-	NaveThumbSmall  string   `json:"nave:thumbSmall" rdf:"nave_thumbSmall"`
-	NaveThumbLarge  string   `json:"nave:thumbLarge" rdf:"nave_thumbLarge"`
-	NaveDeepZoomURI string   `json:"nave:deepZoomUri" rdf:"nave_deepZoomUri"`
+	Type            []string              `json:"@type" rdf:"@types"`
+	ID              string                `json:"@id" rdf:"@id"`
+	RdfLabel        rdf.LiteralOrResource `json:"rdf:label" rdf:"rdf_label"`
+	NaveThumbSmall  string                `json:"nave:thumbSmall" rdf:"nave_thumbSmall"`
+	NaveThumbLarge  string                `json:"nave:thumbLarge" rdf:"nave_thumbLarge"`
+	NaveDeepZoomURI string                `json:"nave:deepZoomUri" rdf:"nave_deepZoomUri"`
 }
 
 type Timeline struct {
-	TimelineType      string         `json:"timeline_type" rdf:"nk_timeline_type"`
-	TimelineHeader    string         `json:"timeline_header" rdf:"nk_timeline_header"`
-	TimelineValue     string         `json:"timeline_value" rdf:"nk_timeline_value"`
-	TimelineCaseID    string         `json:"timeline_caseID" rdf:"nk_timeline_caseID"`
-	TimelineCaseNote  string         `json:"timeline_caseNote" rdf:"nk_timeline_caseNote"`
-	TimelineDate      string         `json:"timeline_date,omitempty" rdf:"nk_timeline_date"`
-	TimelineOwner     string         `json:"timeline_owner" rdf:"nk_timeline_owner"`
-	TimelineSortOrder int            `json:"timeline_sort_order" rdf:"nk_timeline_sort_order"`
-	TimelineLocation  string         `json:"timeline_location,omitempty" rdf:"nk_timeline_location"`
-	TimelineSource    TimelineSource `json:"timeline_source,omitempty" rdf:"nk_timeline_source"`
-	TimelineRole      string         `json:"timeline_role,omitempty" rdf:"nk_timeline_role"`
-	TimelineNotes     []string       `json:"timeline_notes,omitempty" rdf:"nk_timeline_notes"`
-	TimelineStartDate string         `json:"timeline_start_date,omitempty" rdf:"nk_timeline_start_date"`
-	TimelineEndDate   string         `json:"timeline_end_date,omitempty" rdf:"nk_timeline_end_data"`
-	TimelineStatus    string         `json:"timeline_status,omitempty" rdf:"nk_timeline_status"`
-	TimelineLink      string         `json:"timeline_link,omitempty" rdf:"nk_timeline_link"`
+	TimelineType      rdf.LiteralOrResource `json:"timeline_type" rdf:"nk_timeline_type"`
+	TimelineHeader    rdf.LiteralOrResource `json:"timeline_header" rdf:"nk_timeline_header"`
+	TimelineValue     rdf.LiteralOrResource `json:"timeline_value" rdf:"nk_timeline_value"`
+	TimelineCaseID    rdf.LiteralOrResource `json:"timeline_caseID" rdf:"nk_timeline_caseID"`
+	TimelineCaseNote  rdf.LiteralOrResource `json:"timeline_caseNote" rdf:"nk_timeline_caseNote"`
+	TimelineDate      rdf.LiteralOrResource `json:"timeline_date,omitempty" rdf:"nk_timeline_date"`
+	TimelineOwner     rdf.LiteralOrResource `json:"timeline_owner" rdf:"nk_timeline_owner"`
+	TimelineSortOrder int                   `json:"timeline_sort_order" rdf:"nk_timeline_sort_order"`
+	TimelineLocation  rdf.LiteralOrResource `json:"timeline_location,omitempty" rdf:"nk_timeline_location"`
+	TimelineSource    TimelineSource        `json:"timeline_source,omitempty" rdf:"nk_timeline_source"`
+	TimelineRole      rdf.LiteralOrResource `json:"timeline_role,omitempty" rdf:"nk_timeline_role"`
+	TimelineNotes     []string              `json:"timeline_notes,omitempty" rdf:"nk_timeline_notes"`
+	TimelineStartDate rdf.LiteralOrResource `json:"timeline_start_date,omitempty" rdf:"nk_timeline_start_date"`
+	TimelineEndDate   rdf.LiteralOrResource `json:"timeline_end_date,omitempty" rdf:"nk_timeline_end_date"`
+	TimelineStatus    rdf.LiteralOrResource `json:"timeline_status,omitempty" rdf:"nk_timeline_status"`
+	TimelineLink      rdf.LiteralOrResource `json:"timeline_link,omitempty" rdf:"nk_timeline_link"`
 }
 
 type TimelineSource []string
@@ -101,7 +104,7 @@ func (t TimelineSource) String() string {
 }
 
 func (t Timeline) Contains(target string) bool {
-	return strings.Contains(t.TimelineValue, target)
+	return strings.Contains(t.TimelineValue.Value, target)
 }
 
 type Dimension struct {
@@ -116,27 +119,47 @@ type Dimension struct {
 type CHO struct {
 	ObjectNumber       string                  `json:"objectNumber" rdf:"nk_objectNumber"`
 	Badge              string                  `json:"badge" rdf:"nk_badge"`
-	DcSubject          []string                `json:"dc:subject,omitempty" rdf:"dc_subject"`
-	DcDescription      []string                `json:"dc:description" rdf:"dc_description"`
+	DcSubject          []rdf.LiteralOrResource `json:"dc:subject,omitempty" rdf:"dc_subject"`
+	DcDescription      []rdf.LiteralOrResource `json:"dc:description" rdf:"dc_description"`
 	Dimension          Dimension               `json:"dimension,omitempty" rdf:"nk_dimension"`
-	Barcode            []string                `json:"barcode" rdf:"nk_barcode"`
-	BarcodeLabel       []string                `json:"barcodeLabel" rdf:"nk_barcodeLabel"`
-	NrOfParts          []string                `json:"nrOfParts,omitempty" rdf:"nk_nrOfParts"`
+	Barcode            []rdf.LiteralOrResource `json:"barcode" rdf:"nk_barcode"`
+	BarcodeLabel       []rdf.LiteralOrResource `json:"barcodeLabel" rdf:"nk_barcodeLabel"`
+	NrOfParts          []rdf.LiteralOrResource `json:"nrOfParts,omitempty" rdf:"nk_nrOfParts"`
 	DcTitle            []rdf.LiteralOrResource `json:"dc:title" rdf:"dc_title"`
-	NaveMaterial       []string                `json:"nave:material" rdf:"nave_material"`
-	NaveTechnique      []string                `json:"nave:technique" rdf:"nave_technique"`
-	NaveObjectName     []string                `json:"nave:objectName,omitempty" rdf:"nave_objectName"`
-	NaveObjectCategory []string                `json:"nave:objectCategory,omitempty" rdf:"nave_objectCategory"`
-	UserCode           string                  `json:"user_code" rdf:"nk_userCode"`
+	NaveMaterial       []rdf.LiteralOrResource `json:"nave:material" rdf:"nave_material"`
+	NaveTechnique      []rdf.LiteralOrResource `json:"nave:technique" rdf:"nave_technique"`
+	NaveObjectName     []rdf.LiteralOrResource `json:"nave:objectName,omitempty" rdf:"nave_objectName"`
+	NaveObjectCategory []rdf.LiteralOrResource `json:"nave:objectCategory,omitempty" rdf:"nave_objectCategory"`
+	UserCode           rdf.LiteralOrResource   `json:"user_code" rdf:"nk_userCode"`
 	Creator            []Creator               `json:"creator" rdf:"nk_creator"`
-	ProductionPlace    []string                `json:"productionPlace,omitempty" rdf:"nk_productionPlace"`
+	ProductionPlace    []rdf.LiteralOrResource `json:"productionPlace,omitempty" rdf:"nk_productionPlace"`
 	ProductionDate     []ProductionDate        `json:"productionDate" rdf:"nk_productionDate"`
 	Type               []string                `json:"@type" rdf:"@types"`
-	Thumbnail          string                  `json:"thumbnail,omitempty" rdf:"nk_thumbnail"`
+	Thumbnail          rdf.LiteralOrResource   `json:"thumbnail,omitempty" rdf:"nk_thumbnail"`
 	ID                 string                  `json:"@id" rdf:"@id"`
-	ObjectNameFilter   []string                `json:"objectNameFilter,omitempty" rdf:"nk_objectNameFilter"`
-	RestitutionState   string                  `json:"restitutionState" rdf:"nk_restitutionState"`
-	RestitutionDate    string                  `json:"restitutionDate" rdf:"nk_restitutionDate"`
+	ObjectNameFilter   []rdf.LiteralOrResource `json:"objectNameFilter,omitempty" rdf:"nk_objectNameFilter"`
+	RestitutionState   rdf.LiteralOrResource   `json:"restitutionState" rdf:"nk_restitutionState"`
+	RestitutionDate    rdf.LiteralOrResource   `json:"restitutionDate" rdf:"nk_restitutionDate"`
+}
+
+func (cho CHO) CreatorLinks() []string {
+	unique := map[string]bool{}
+	creators := []string{}
+	for _, creator := range cho.Creator {
+		for _, name := range creator.CreatorName {
+			if _, ok := unique[name.String()]; !ok {
+				unique[name.String()] = true
+				if len(creator.RKDArtistLink) > 0 {
+					name.Value = fmt.Sprintf(`<a href="%s">%s</a>`, creator.RKDArtistLink[0].String(), name.String())
+				}
+				creators = append(creators, name.String())
+			}
+		}
+	}
+
+	sort.Strings(creators)
+
+	return creators
 }
 
 // Creators returns a deduplicated sorted list of creators
@@ -145,9 +168,9 @@ func (cho CHO) CreatorNames() []string {
 	creators := []string{}
 	for _, creator := range cho.Creator {
 		for _, name := range creator.CreatorName {
-			if _, ok := unique[name]; !ok {
-				unique[name] = true
-				creators = append(creators, name)
+			if _, ok := unique[name.Value]; !ok {
+				unique[name.Value] = true
+				creators = append(creators, name.Value)
 			}
 		}
 	}
@@ -166,12 +189,13 @@ type ProductionDate struct {
 }
 
 type Creator struct {
-	CreatorName  []string `json:"creatorName" rdf:"nk_creatorName"`
-	CreationRole []string `json:"creationRole" rdf:"nk_creationRole"`
-	DateOfBirth  []string `json:"dateOfBirth" rdf:"nk_dateOfBirth"`
-	DateOfDeath  []string `json:"dateOfDeath" rdf:"nk_dateOfDeath"`
-	Type         []string `json:"@type" rdf:"@types"`
-	Badge        string   `json:"badge" rdf:"nk_badge"`
+	CreatorName   []rdf.LiteralOrResource `json:"creatorName" rdf:"nk_creatorName"`
+	CreationRole  []rdf.LiteralOrResource `json:"creationRole" rdf:"nk_creationRole"`
+	DateOfBirth   []rdf.LiteralOrResource `json:"dateOfBirth" rdf:"nk_dateOfBirth"`
+	DateOfDeath   []rdf.LiteralOrResource `json:"dateOfDeath" rdf:"nk_dateOfDeath"`
+	Type          []string                `json:"@type" rdf:"@types"`
+	Badge         string                  `json:"badge" rdf:"nk_badge"`
+	RKDArtistLink []rdf.LiteralOrResource `rdf:"nk_rkdArtistLink"`
 }
 
 type Source struct {
@@ -190,12 +214,30 @@ type Source struct {
 }
 
 type SNKDeclaration struct {
-	Name   string `json:"declarationName,omitempty" rdf:"nk_snkName"`
-	Date   string `json:"declarationDate,omitempty" rdf:"nk_snkDate"`
-	Source string `json:"declarationSource,omitempty" rdf:"nk_snkSource"`
-	Place  string `json:"declarationPlace,omitempty" rdf:"nk_snkPlace"`
-	Number string `json:"declarationNumber,omitempty" rdf:"nk_snkNumber"`
-	Status string `json:"declarationStatus,omitempty" rdf:"nk_snkStatus"`
+	Name     rdf.LiteralOrResource   `json:"declarationName,omitempty" rdf:"nk_snkName"`
+	Date     rdf.LiteralOrResource   `json:"declarationDate,omitempty" rdf:"nk_snkDate"`
+	Source   rdf.LiteralOrResource   `json:"declarationSource,omitempty" rdf:"nk_snkSource"`
+	Place    rdf.LiteralOrResource   `json:"declarationPlace,omitempty" rdf:"nk_snkPlace"`
+	Number   rdf.LiteralOrResource   `json:"declarationNumber,omitempty" rdf:"nk_snkNumber"`
+	Status   rdf.LiteralOrResource   `json:"declarationStatus,omitempty" rdf:"nk_snkStatus"`
+	Claimant []rdf.LiteralOrResource `rdf:"nk_snkClaimant"`
+}
+
+type SNKRegistration struct {
+	ID     string                `rdf:"@id"`
+	Type   []string              `rdf:"@types"`
+	Term   rdf.LiteralOrResource `rdf:"nk_snkRegistrationTerm"`
+	Number rdf.LiteralOrResource `rdf:"nk_snkRegistrationNumber"`
+	VV     rdf.LiteralOrResource `rdf:"nk_snkRegistrationVV"`
+}
+
+type ResearchInformation struct {
+	Conclusion rdf.LiteralOrResource `rdf:"nk_researchConclusion"`
+	Remark     rdf.LiteralOrResource `rdf:"nk_researchRemark"`
+}
+
+func (ri *ResearchInformation) IsEmpty() bool {
+	return ri.Conclusion.Value == ""
 }
 
 func (br *BaseRecord) DeepZoomImages() []string {
@@ -216,7 +258,7 @@ func (br *BaseRecord) DeepZoomImages() []string {
 }
 
 type Case struct {
-	ID    string `json:"caseID"`
-	Title string `json:"caseTitle"`
-	Link  string `json:"caseLink"`
+	ID    string                `json:"caseID"`
+	Title rdf.LiteralOrResource `json:"caseTitle"`
+	Link  rdf.LiteralOrResource `json:"caseLink"`
 }
