@@ -185,7 +185,9 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		case "q", "query":
 			sr.Query = params.Get(p)
 		case "rq":
-			sr.QueryRefinement = strings.TrimSpace(params.Get(p))
+			for _, rq := range v {
+				sr.QueryRefinement = append(sr.QueryRefinement, strings.TrimSpace(rq))
+			}
 		case qfKey, qfKeyList:
 			for _, qf := range v {
 				if qf == "" {
@@ -501,12 +503,11 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		}
 	}
 
-	if sr.GetQueryRefinement() != "" {
-		if sr.GetQuery() == "" {
-			sr.Query = sr.GetQueryRefinement()
-		} else {
-			sr.Query = sr.Query + " AND (" + sr.GetQueryRefinement() + ")"
+	if len(sr.GetQueryRefinement()) > 0 {
+		for _, rq := range sr.GetQueryRefinement() {
+			sr.Query += " AND (" + rq + ")"
 		}
+		sr.Query = strings.TrimPrefix(sr.Query, " AND ")
 	}
 
 	if sr.Tree != nil && sr.GetResponseSize() != int32(1) && sr.Page != 0 {

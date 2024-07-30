@@ -172,7 +172,7 @@ message SearchRequest {
   repeated string field = 20;
   GeoType geoType = 21;
   // qr
-  string QueryRefinement = 22;
+  repeated string QueryRefinement = 22;
   bytes searchAfter = 23;
   ItemFormatType itemFormat = 24;
   bool Paging = 25;
