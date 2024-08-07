@@ -17,6 +17,7 @@ package bulk
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -59,7 +60,9 @@ func NewService(options ...Option) (*Service, error) {
 	}
 	shortid.SetDefault(sid)
 
+	slog.Info("start scheduling tasks")
 	if err := s.scheduleTasks(); err != nil {
+		slog.Error("unable to start scheduled task for bulk service", "error", err)
 		return s, fmt.Errorf("unable to start scheduled tasks for bulk service; %w", err)
 	}
 

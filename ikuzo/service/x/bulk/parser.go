@@ -23,6 +23,8 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -53,6 +55,7 @@ type Parser struct {
 	sparqlUpdates []fragments.SparqlUpdate // store all the triples here for bulk insert
 	postHooks     []*domain.PostHookItem
 	m             sync.RWMutex
+	debugPath     string
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -156,6 +159,11 @@ func (p *Parser) setDataSet(req *Request) {
 		return
 	}
 
+	if err := p.debugSetup(req.OrgID, req.DatasetID); err != nil {
+		slog.Error("unable to setup debug for bulk API request", "error", err)
+		p.debugPath = ""
+	}
+
 	if ds.RecordType == "" {
 		ds.RecordType = "narthex"
 	}
@@ -206,10 +214,38 @@ func addLogger(datasetID string) zerolog.Logger {
 	}
 }
 
+func (p *Parser) debugSetup(orgID, datasetID string) error {
+	if p.debugPath == "" {
+		return nil
+	}
+
+	p.debugPath = filepath.Join(p.debugPath, orgID, datasetID)
+
+	if err := os.MkdirAll(p.debugPath, os.ModePerm); err != nil {
+		slog.Error("unable to create debug dir", "error", err)
+		return err
+	}
+
+	return nil
+}
+
+func (p *Parser) debugWrite(req *Request) error {
+	b, err := json.Marshal(req)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(filepath.Join(p.debugPath, req.HubID+".json"), b, os.ModePerm)
+}
+
 func (p *Parser) process(ctx context.Context, req *Request) error {
 	p.once.Do(func() { p.setDataSet(req) })
 
 	subLogger := addLogger(req.DatasetID)
+
+	if writeErr := p.debugWrite(req); writeErr != nil {
+		slog.Error("unable to write debug messages from bulk api", "error", writeErr)
+	}
 
 	if p.ds == nil {
 		return fmt.Errorf("unable to get dataset")
@@ -307,7 +343,11 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		return err
 	}
 
-	_ = fb.Doc()
+	_, err = fb.Doc()
+	if err != nil {
+		log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to build fg doc")
+		return err
+	}
 
 	for _, indexType := range p.indexTypes {
 		switch indexType {

@@ -165,7 +165,6 @@ func (gi *graphIndexer) hasChanges() (hasChange bool) {
 		}
 
 		if ds.InProgress {
-			// when any of the datasets is InProgress we cannot harvest
 			return false
 		}
 
@@ -226,7 +225,10 @@ func (gi *graphIndexer) IndexGraph(g *rdf.Graph) error {
 	}
 
 	fb.ResourceMap()
-	_ = fb.Doc()
+	_, err = fb.Doc()
+	if err != nil {
+		return err
+	}
 
 	processErr := processV2(context.Background(), fb, gi.s.index)
 	if processErr != nil {

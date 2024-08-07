@@ -2,11 +2,13 @@ package bulk
 
 import (
 	"net/http"
+	"os"
+
+	"github.com/go-chi/render"
+	"github.com/rs/zerolog/log"
 
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain"
-	"github.com/go-chi/render"
-	"github.com/rs/zerolog/log"
 )
 
 // bulkApi receives bulkActions in JSON form (1 per line) and processes them in
@@ -55,6 +57,7 @@ func (s *Service) NewParser() *Parser {
 		indexTypes:    s.indexTypes,
 		bi:            s.index,
 		sparqlUpdates: []fragments.SparqlUpdate{},
+		debugPath:     os.Getenv("HUB3_BULK_DEBUG_PATH"),
 	}
 
 	if len(s.postHooks) != 0 {

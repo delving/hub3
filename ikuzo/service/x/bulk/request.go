@@ -97,7 +97,7 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 
 	fb := fragments.NewFragmentBuilder(fg)
 
-	// slog.Info("received mime-type from bulk request", "mime-type", req.GraphMimeType)reque
+	// slog.Info("received mime-type from bulk request", "mime-type", req.GraphMimeType)
 	err := fb.ParseResolvedGraph(strings.NewReader(req.Graph), req.GraphMimeType)
 	if err != nil {
 		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
@@ -148,7 +148,11 @@ func (req *Request) processV2(ctx context.Context, fb *fragments.FragmentBuilder
 }
 
 func processV2(ctx context.Context, fb *fragments.FragmentBuilder, bi index.BulkIndex) error {
-	m, err := fb.Doc().IndexMessage()
+	fg, err := fb.Doc()
+	if err != nil {
+		return err
+	}
+	m, err := fg.IndexMessage()
 	if err != nil {
 		return err
 	}
