@@ -467,7 +467,7 @@ func (c *RawConfig) GetSparqlEndpoint(orgID, dbName string) string {
 		log.Fatal(err)
 	}
 
-	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName)
+	u.Path = fmt.Sprintf(c.RDF.SparqlPath, dbName+"-data")
 
 	return u.String()
 }
@@ -484,7 +484,7 @@ func (c *RawConfig) GetSparqlUpdateEndpoint(orgID, dbName string) string {
 		log.Fatal(err)
 	}
 
-	u.Path = fmt.Sprintf(c.RDF.SparqlUpdatePath, dbName)
+	u.Path = fmt.Sprintf(c.RDF.SparqlUpdatePath, dbName+"-data")
 
 	return u.String()
 }
@@ -501,7 +501,7 @@ func (c *RawConfig) GetGraphStoreEndpoint(orgID, dbName string) string {
 		log.Fatal(err)
 	}
 
-	u.Path = fmt.Sprintf(c.RDF.GraphStorePath, dbName)
+	u.Path = fmt.Sprintf(c.RDF.GraphStorePath, dbName+"-data")
 
 	log.Printf("GraphStore endpoint: %s", u)
 

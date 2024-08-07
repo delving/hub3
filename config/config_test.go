@@ -4,7 +4,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//	http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,7 +56,7 @@ var _ = Describe("Config", func() {
 
 			It("should use the sparql path from the configuration", func() {
 				Expect(Config.RDF.SparqlPath).To(ContainSubstring("%s"))
-				Expect(endpoint).To(ContainSubstring("/test/sparql"))
+				Expect(endpoint).To(ContainSubstring("/test-data/sparql"))
 			})
 		})
 
@@ -64,7 +64,7 @@ var _ = Describe("Config", func() {
 			endpoint := Config.GetSparqlEndpoint("test", "hub32")
 			It("should use dbName to inject into the sparql path", func() {
 				orgID := "test"
-				Expect(endpoint).To(ContainSubstring("/hub32/"))
+				Expect(endpoint).To(ContainSubstring("/hub32-data/"))
 				Expect(endpoint).ToNot(ContainSubstring(fmt.Sprintf("/%s/", orgID)))
 			})
 		})
