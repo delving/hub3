@@ -257,7 +257,7 @@ harvestLoop:
 	return
 }
 
-func harvestGraph(ctx context.Context, cfg *HarvestConfig, subject string) (*rdf.Graph, error) {
+func HarvestGraph(ctx context.Context, cfg *HarvestConfig, subject string) (*rdf.Graph, error) {
 	resp, err := HarvestWithContext(ctx, cfg, subject)
 	if err != nil {
 		return nil, fmt.Errorf("unable to harvest with context: %w", err)
@@ -372,7 +372,7 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 						continue
 					}
 				default:
-					g, err = harvestGraph(ctx, cfg, subject)
+					g, err = HarvestGraph(ctx, cfg, subject)
 					if err != nil {
 						cfg.AddError(subject, err)
 						slog.Error("unable to harvest subject", "uri", subject, "error", err)

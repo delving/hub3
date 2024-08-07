@@ -33,7 +33,7 @@ type Record struct {
 }
 
 func path(hubID domain.HubID, version int32) string {
-	parts := []string{hubID.OrgID, hubID.DatasetID}
+	parts := []string{hubID.OrgID().String(), hubID.DatasetID.ID}
 	if version > 0 {
 		parts = append(parts, "records-tmp", fmt.Sprintf("%d", version))
 	} else {
@@ -96,8 +96,8 @@ func (r *Record) Write(path string) error {
 			return err
 		}
 
-		if err := ensureDir(filepath.Dir(fname)); err != nil {
-			return err
+		if ensureErr := ensureDir(filepath.Dir(fname)); ensureErr != nil {
+			return ensureErr
 		}
 		prev = r
 	}

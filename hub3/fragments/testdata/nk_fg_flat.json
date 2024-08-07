@@ -1,0 +1,1717 @@
+{
+    "meta": {
+        "orgID": "nk",
+        "spec": "nk",
+        "revision": 32,
+        "hubID": "nk_nk_NK1145",
+        "docType": "graph",
+        "entryURI": "https://wo2.collectienederland.nl/id/nk/NK1145",
+        "namedGraphURI": "https://wo2.collectienederland.nl/id/nk/NK1145/graph",
+        "modified": 1722149152117
+    },
+    "resources": [
+        {
+            "id": "https://wo2.collectienederland.nl/id/nk/NK1145",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/NKRecord"],
+            "graphExternalContext": null,
+            "context": null,
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 1,
+                    "order": 1
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 2
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 9
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 17
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 25
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 37
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B.",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 51
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E.",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "searchLabel": "nk_timeline",
+                    "level": 1,
+                    "order": 65
+                },
+                {
+                    "@value": "NK1145",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/baseID",
+                    "searchLabel": "nk_baseID",
+                    "level": 1,
+                    "order": 76
+                },
+                {
+                    "@id": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Resource",
+                    "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "searchLabel": "edm_hasView",
+                    "level": 1,
+                    "order": 77
+                },
+                {
+                    "@id": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg",
+                    "entrytype": "Resource",
+                    "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "searchLabel": "edm_hasView",
+                    "level": 1,
+                    "order": 83
+                },
+                {
+                    "@id": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg",
+                    "entrytype": "Resource",
+                    "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "searchLabel": "edm_hasView",
+                    "level": 1,
+                    "order": 89
+                },
+                {
+                    "@id": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg",
+                    "entrytype": "Resource",
+                    "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "searchLabel": "edm_hasView",
+                    "level": 1,
+                    "order": 95
+                },
+                {
+                    "@value": "Geen verzoek",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/currentRestitutionState",
+                    "searchLabel": "nk_currentRestitutionState",
+                    "level": 1,
+                    "order": 102
+                },
+                {
+                    "@value": "De Ivan Wiliki te Moskou",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/title",
+                    "searchLabel": "dc_title",
+                    "level": 1,
+                    "tags": ["label", "title"],
+                    "order": 103
+                },
+                {
+                    "@value": "Bauer, M.A.J.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creator_filter",
+                    "searchLabel": "nk_creator_filter",
+                    "level": 1,
+                    "order": 104
+                },
+                {
+                    "@value": "papier",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/material_filter",
+                    "searchLabel": "nk_material_filter",
+                    "level": 1,
+                    "order": 105
+                },
+                {
+                    "@value": "drukinkt",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/material_filter",
+                    "searchLabel": "nk_material_filter",
+                    "level": 1,
+                    "order": 106
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "@value": "De Ivan Wiliki te Moskou",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "searchLabel": "nk_cho",
+                    "level": 1,
+                    "order": 107
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://www.europeana.eu/schemas/edm/object",
+                    "searchLabel": "edm_object",
+                    "level": 1,
+                    "tags": ["thumbnail"],
+                    "order": 140
+                },
+                {
+                    "@value": "NK1145",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/identifier",
+                    "searchLabel": "dc_identifier",
+                    "level": 1,
+                    "tags": ["objectID"],
+                    "order": 141
+                },
+                {
+                    "@value": "NK-collectie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/collectionType",
+                    "searchLabel": "nk_collectionType",
+                    "level": 1,
+                    "order": 142
+                },
+                {
+                    "@value": "Grafiek/Foto's",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/object_category_filter",
+                    "searchLabel": "nk_object_category_filter",
+                    "level": 1,
+                    "order": 143
+                },
+                {
+                    "@value": "NK1145",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/cleanID",
+                    "searchLabel": "nk_cleanID",
+                    "level": 1,
+                    "order": 144
+                },
+                {
+                    "@value": "ets",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/object_name_filter",
+                    "searchLabel": "nk_object_name_filter",
+                    "level": 1,
+                    "order": 145
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/1000,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+                    "searchLabel": "edm_isShownBy",
+                    "level": 1,
+                    "tags": ["thumbnail"],
+                    "order": 146
+                },
+                {
+                    "@value": "nk",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/spec",
+                    "searchLabel": "nk_spec",
+                    "level": 1,
+                    "order": 147
+                },
+                {
+                    "@value": "Göpel, E.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 148
+                },
+                {
+                    "@value": "Westendorp-Osieck, B.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 149
+                },
+                {
+                    "@value": "Führermuseum",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 150
+                },
+                {
+                    "@value": "Wisselingh & Co, E.J. van",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+                    "searchLabel": "nk_owner_filter",
+                    "level": 1,
+                    "order": 151
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+                    "searchLabel": "nk_snkRegistration",
+                    "level": 1,
+                    "order": 152
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+                    "searchLabel": "nk_snkRegistration",
+                    "level": 1,
+                    "order": 156
+                },
+                {
+                    "@value": "Amsterdam",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 161
+                },
+                {
+                    "@value": "Linz",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 162
+                },
+                {
+                    "@value": "Den Haag",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+                    "searchLabel": "nk_location_filter",
+                    "level": 1,
+                    "order": 163
+                },
+                {
+                    "@id": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration",
+                    "searchLabel": "nk_snkDeclaration",
+                    "level": 1,
+                    "order": 164
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Geen verzoek",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_status",
+                    "searchLabel": "nk_timeline_status",
+                    "level": 2,
+                    "order": 3
+                },
+                {
+                    "@value": "Restitutie advies",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 4
+                },
+                {
+                    "@value": "restitutionCase",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 6
+                },
+                {
+                    "@value": "950",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 7
+                },
+                {
+                    "@value": "1960-01-01",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_date",
+                    "searchLabel": "nk_timeline_date",
+                    "level": 2,
+                    "order": 8
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Rijksbeheer",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 10
+                },
+                {
+                    "@value": "In bezit gekomen",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 11
+                },
+                {
+                    "@value": "rijksbeheer",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 13
+                },
+                {
+                    "@value": "900",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 14
+                },
+                {
+                    "@value": "Na 05-05-1945",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_date",
+                    "searchLabel": "nk_timeline_date",
+                    "level": 2,
+                    "order": 15
+                },
+                {
+                    "@value": "RCE",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 16
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Huidige restitutie status",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 18
+                },
+                {
+                    "@value": "Geen verzoek",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 19
+                },
+                {
+                    "@value": "restitutionStatus",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 21
+                },
+                {
+                    "@value": "999",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 22
+                },
+                {
+                    "@value": "De herkomstgegevens zijn sluitend.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 23
+                },
+                {
+                    "@value": "The provenance data are conclusive.",
+                    "@language": "en",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 24
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 26
+                },
+                {
+                    "@value": "Führermuseum",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 27
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 29
+                },
+                {
+                    "@value": "4",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 30
+                },
+                {
+                    "@value": "BHG",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 31
+                },
+                {
+                    "@value": "Linz",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 32
+                },
+                {
+                    "@value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 33
+                },
+                {
+                    "@value": "museum",
+                    "@language": "en",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 34
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 36
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 38
+                },
+                {
+                    "@value": "Wisselingh & Co, E.J. van",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 39
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 41
+                },
+                {
+                    "@value": "2",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 42
+                },
+                {
+                    "@value": "BHG",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 43
+                },
+                {
+                    "@value": "Amsterdam",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 44
+                },
+                {
+                    "@value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575; Archief Van Wisselingh nr.112",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 45
+                },
+                {
+                    "@value": "kunsthandel",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 46
+                },
+                {
+                    "@value": "art dealers",
+                    "@language": "en",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 47
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 48
+                },
+                {
+                    "@value": "Op 10 augustus 1943 werd de collectie Bauer-etsen en bloc door kunsthandel Van Wisselingh gekocht van Mevrouw B. Westendorp-Osieck. Op dezelfde datum werd de collectie door Van Wisselingh doorverkocht aan E. Göpel.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 49
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 50
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B.",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 52
+                },
+                {
+                    "@value": "Westendorp-Osieck, B.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 53
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 55
+                },
+                {
+                    "@value": "1",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 56
+                },
+                {
+                    "@value": "BHG",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 57
+                },
+                {
+                    "@value": "Amsterdam",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 58
+                },
+                {
+                    "@value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575; Archief Van Wisselingh nr.139, 141, 142",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 59
+                },
+                {
+                    "@value": "collectie",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 60
+                },
+                {
+                    "@value": "collection",
+                    "@language": "en",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+                    "searchLabel": "nk_timeline_role",
+                    "level": 2,
+                    "order": 61
+                },
+                {
+                    "@value": "1930-12",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 62
+                },
+                {
+                    "@value": "Mr. H.K. Westendorp, de in 1941 overleden echtgenoot van B. Westendorp-Osieck, had in de loop van tientallen jaren een collectie etsen van Marius Bauer verworven van kunsthandel Van Wisselingh, die de verkoop van alle Bauer-etsen in handen had. In de archieven van Van Wisselingh zijn betalingen voor aankoop van Bauer-etsen gevonden door Westendorp lopend van 1893 to december 1930.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_notes",
+                    "searchLabel": "nk_timeline_notes",
+                    "level": 2,
+                    "order": 63
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 64
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E.",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+                    "SearchLabel": "nk_timeline",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "Herkomst",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+                    "searchLabel": "nk_timeline_header",
+                    "level": 2,
+                    "order": 66
+                },
+                {
+                    "@value": "Göpel, E.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+                    "searchLabel": "nk_timeline_value",
+                    "level": 2,
+                    "order": 67
+                },
+                {
+                    "@value": "herkomstreconstructie",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+                    "searchLabel": "nk_timeline_type",
+                    "level": 2,
+                    "order": 69
+                },
+                {
+                    "@value": "3",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+                    "searchLabel": "nk_timeline_sort_order",
+                    "level": 2,
+                    "order": 70
+                },
+                {
+                    "@value": "BHG",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+                    "searchLabel": "nk_timeline_owner",
+                    "level": 2,
+                    "order": 71
+                },
+                {
+                    "@value": "Den Haag",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+                    "searchLabel": "nk_timeline_location",
+                    "level": 2,
+                    "order": 72
+                },
+                {
+                    "@value": "Archief SNK nr.385",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+                    "searchLabel": "nk_timeline_source",
+                    "level": 2,
+                    "order": 73
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date",
+                    "searchLabel": "nk_timeline_start_date",
+                    "level": 2,
+                    "order": 74
+                },
+                {
+                    "@value": "1943-08-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date",
+                    "searchLabel": "nk_timeline_end_date",
+                    "level": 2,
+                    "order": 75
+                }
+            ]
+        },
+        {
+            "id": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+            "types": ["http://www.europeana.eu/schemas/edm/WebResource"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "SearchLabel": "edm_hasView",
+                    "Level": 1,
+                    "ObjectID": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg.dzi",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUri",
+                    "searchLabel": "nave_deepZoomUri",
+                    "level": 2,
+                    "order": 78
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+                    "searchLabel": "nave_thumbLarge",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 79
+                },
+                {
+                    "@value": "1",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+                    "searchLabel": "nave_resourceSortOrder",
+                    "level": 2,
+                    "order": 80
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+                    "searchLabel": "nave_thumbSmall",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 82
+                }
+            ]
+        },
+        {
+            "id": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg",
+            "types": ["http://www.europeana.eu/schemas/edm/WebResource"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "SearchLabel": "edm_hasView",
+                    "Level": 1,
+                    "ObjectID": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg.dzi",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUri",
+                    "searchLabel": "nave_deepZoomUri",
+                    "level": 2,
+                    "order": 84
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+                    "searchLabel": "nave_thumbLarge",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 85
+                },
+                {
+                    "@value": "4",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+                    "searchLabel": "nave_resourceSortOrder",
+                    "level": 2,
+                    "order": 86
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+                    "searchLabel": "nave_thumbSmall",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 88
+                }
+            ]
+        },
+        {
+            "id": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg",
+            "types": ["http://www.europeana.eu/schemas/edm/WebResource"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "SearchLabel": "edm_hasView",
+                    "Level": 1,
+                    "ObjectID": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg.dzi",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUri",
+                    "searchLabel": "nave_deepZoomUri",
+                    "level": 2,
+                    "order": 90
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+                    "searchLabel": "nave_thumbLarge",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 91
+                },
+                {
+                    "@value": "3",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+                    "searchLabel": "nave_resourceSortOrder",
+                    "level": 2,
+                    "order": 92
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+                    "searchLabel": "nave_thumbSmall",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 94
+                }
+            ]
+        },
+        {
+            "id": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg",
+            "types": ["http://www.europeana.eu/schemas/edm/WebResource"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
+                    "SearchLabel": "edm_hasView",
+                    "Level": 1,
+                    "ObjectID": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg.dzi",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUri",
+                    "searchLabel": "nave_deepZoomUri",
+                    "level": 2,
+                    "order": 96
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+                    "searchLabel": "nave_thumbLarge",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 97
+                },
+                {
+                    "@value": "2",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+                    "searchLabel": "nave_resourceSortOrder",
+                    "level": 2,
+                    "order": 98
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+                    "searchLabel": "nave_thumbSmall",
+                    "level": 2,
+                    "tags": ["thumbnail"],
+                    "order": 100
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/cho/NK1145",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/CHO"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 2,
+                    "order": 108
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 2,
+                    "order": 109
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 2,
+                    "order": 110
+                },
+                {
+                    "@value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/thumbnail",
+                    "searchLabel": "nk_thumbnail",
+                    "level": 2,
+                    "order": 111
+                },
+                {
+                    "@value": "papier",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/material",
+                    "searchLabel": "nave_material",
+                    "level": 2,
+                    "order": 112
+                },
+                {
+                    "@value": "drukinkt",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/material",
+                    "searchLabel": "nave_material",
+                    "level": 2,
+                    "order": 113
+                },
+                {
+                    "@value": "De Ivan Wiliki te Moskou",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/title",
+                    "searchLabel": "dc_title",
+                    "level": 2,
+                    "tags": ["label", "title"],
+                    "order": 115
+                },
+                {
+                    "@value": "De Ivan Wiliki te Moskou",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/description",
+                    "searchLabel": "dc_description",
+                    "level": 2,
+                    "tags": ["description"],
+                    "order": 116
+                },
+                {
+                    "@value": "topografie",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 117
+                },
+                {
+                    "@value": "stadsgezicht",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 118
+                },
+                {
+                    "@value": "werk op papier",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 119
+                },
+                {
+                    "@value": "prent",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 120
+                },
+                {
+                    "@value": "architectuur",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 121
+                },
+                {
+                    "@value": "religie",
+                    "entrytype": "Literal",
+                    "predicate": "http://purl.org/dc/elements/1.1/subject",
+                    "searchLabel": "dc_subject",
+                    "level": 2,
+                    "tags": ["subject"],
+                    "order": 122
+                },
+                {
+                    "@value": "NK1145",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/objectNumber",
+                    "searchLabel": "nk_objectNumber",
+                    "level": 2,
+                    "order": 123
+                },
+                {
+                    "@value": "ets",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/objectName",
+                    "searchLabel": "nave_objectName",
+                    "level": 2,
+                    "order": 124
+                },
+                {
+                    "@id": "urn:bnode:B7d9fbb38X2D7d34X2D4656X2D9f5aX2D2037bd2ebe14",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+                    "searchLabel": "nk_productionDate",
+                    "level": 2,
+                    "order": 125
+                },
+                {
+                    "@value": "ets",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/technique",
+                    "searchLabel": "nave_technique",
+                    "level": 2,
+                    "order": 130
+                },
+                {
+                    "@value": "Nederland",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/productionPlace",
+                    "searchLabel": "nk_productionPlace",
+                    "level": 2,
+                    "order": 131
+                },
+                {
+                    "@value": "oude kunst",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "http://schemas.delving.eu/nave/terms/objectCategory",
+                    "searchLabel": "nave_objectCategory",
+                    "level": 2,
+                    "order": 132
+                },
+                {
+                    "@id": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "searchLabel": "nk_creator",
+                    "level": 2,
+                    "order": 133
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:B7d9fbb38X2D7d34X2D4656X2D9f5aX2D2037bd2ebe14",
+            "types": ["https://wo2.collectienederland.nl/nk/terms/Production"],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "Label": "De Ivan Wiliki te Moskou"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+                    "SearchLabel": "nk_productionDate",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:B7d9fbb38X2D7d34X2D4656X2D9f5aX2D2037bd2ebe14",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "1900 - 1900",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/datePeriod",
+                    "searchLabel": "nk_datePeriod",
+                    "level": 3,
+                    "order": 126
+                },
+                {
+                    "@value": "1900",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateEnd",
+                    "searchLabel": "nk_dateEnd",
+                    "level": 3,
+                    "order": 128
+                },
+                {
+                    "@value": "1900",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateStart",
+                    "searchLabel": "nk_dateStart",
+                    "level": 3,
+                    "order": 129
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+            "types": null,
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "Label": "De Ivan Wiliki te Moskou"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "SearchLabel": "nk_creator",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@id": "urn:bnode:Baf12112dX2Db9cbX2D47a5X2D820aX2Da67bfaedabab",
+                    "entrytype": "Resource",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                    "searchLabel": "nk_Creator",
+                    "level": 3,
+                    "order": 134
+                }
+            ]
+        },
+        {
+            "id": "urn:bnode:Baf12112dX2Db9cbX2D47a5X2D820aX2Da67bfaedabab",
+            "types": null,
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+                    "SearchLabel": "nk_cho",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "Label": "De Ivan Wiliki te Moskou"
+                },
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/cho/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/CHO"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                    "SearchLabel": "nk_creator",
+                    "Level": 2,
+                    "ObjectID": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+                    "Label": "De Ivan Wiliki te Moskou"
+                },
+                {
+                    "Subject": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                    "SearchLabel": "nk_Creator",
+                    "Level": 3,
+                    "ObjectID": "urn:bnode:Baf12112dX2Db9cbX2D47a5X2D820aX2Da67bfaedabab"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "1932-07-18",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfDeath",
+                    "searchLabel": "nk_dateOfDeath",
+                    "level": 4,
+                    "order": 135
+                },
+                {
+                    "@value": "Bauer, M.A.J.",
+                    "@language": "nl",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+                    "searchLabel": "nk_creatorName",
+                    "level": 4,
+                    "order": 136
+                },
+                {
+                    "@value": "inventor/bedenker/ontwerper",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/creationRole",
+                    "searchLabel": "nk_creationRole",
+                    "level": 4,
+                    "order": 137
+                },
+                {
+                    "@value": "https://rkd.nl/explore/artists/5113",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/rkdArtistLink",
+                    "searchLabel": "nk_rkdArtistLink",
+                    "level": 4,
+                    "order": 138
+                },
+                {
+                    "@value": "1867-01-25",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfBirth",
+                    "searchLabel": "nk_dateOfBirth",
+                    "level": 4,
+                    "order": 139
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+                    "SearchLabel": "nk_snkRegistration",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "44701",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+                    "searchLabel": "nk_snkRegistrationNumber",
+                    "level": 2,
+                    "order": 154
+                },
+                {
+                    "@value": "München (Collecting point)",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm",
+                    "searchLabel": "nk_snkRegistrationTerm",
+                    "level": 2,
+                    "order": 155
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+                    "SearchLabel": "nk_snkRegistration",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "47",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+                    "searchLabel": "nk_snkRegistrationNumber",
+                    "level": 2,
+                    "order": 158
+                },
+                {
+                    "@value": "W",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationVV",
+                    "searchLabel": "nk_snkRegistrationVV",
+                    "level": 2,
+                    "order": 159
+                },
+                {
+                    "@value": "Wisselingh",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm",
+                    "searchLabel": "nk_snkRegistrationTerm",
+                    "level": 2,
+                    "order": 160
+                }
+            ]
+        },
+        {
+            "id": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014",
+            "types": [
+                "https://wo2.collectienederland.nl/nk/terms/SNKDeclaration"
+            ],
+            "graphExternalContext": null,
+            "context": [
+                {
+                    "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+                    "SubjectClass": [
+                        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                    ],
+                    "Predicate": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration",
+                    "SearchLabel": "nk_snkDeclaration",
+                    "Level": 1,
+                    "ObjectID": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014",
+                    "Label": "De Ivan Wiliki te Moskou"
+                }
+            ],
+            "entries": [
+                {
+                    "@value": "1945-10-10",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkDate",
+                    "searchLabel": "nk_snkDate",
+                    "level": 2,
+                    "order": 166
+                },
+                {
+                    "@value": "3014",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkNumber",
+                    "searchLabel": "nk_snkNumber",
+                    "level": 2,
+                    "order": 167
+                },
+                {
+                    "@value": "Wisselingh & Co, E.J. van",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkName",
+                    "searchLabel": "nk_snkName",
+                    "level": 2,
+                    "order": 168
+                },
+                {
+                    "@value": "Archief SNK nr.385",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkSource",
+                    "searchLabel": "nk_snkSource",
+                    "level": 2,
+                    "order": 169
+                },
+                {
+                    "@value": "onbekend",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkStatus",
+                    "searchLabel": "nk_snkStatus",
+                    "level": 2,
+                    "order": 170
+                },
+                {
+                    "@value": "Amsterdam",
+                    "entrytype": "Literal",
+                    "predicate": "https://wo2.collectienederland.nl/nk/terms/snkPlace",
+                    "searchLabel": "nk_snkPlace",
+                    "level": 2,
+                    "order": 171
+                }
+            ]
+        }
+    ]
+}

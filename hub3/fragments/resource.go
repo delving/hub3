@@ -84,6 +84,10 @@ type ResourceMap struct {
 	orgID     string
 }
 
+func (rm *ResourceMap) Len() int {
+	return len(rm.resources)
+}
+
 // Tree holds all the core information for building Navigational Trees from RDF graphs
 // @1~15~100~1021
 // @1~5~10
@@ -709,6 +713,26 @@ type FragmentResource struct {
 	objectIDs            []*FragmentReferrerContext
 }
 
+func (fr *FragmentResource) FilterEntries(searchLabel string) (entries []*ResourceEntry) {
+	for _, entry := range fr.Entries {
+		if entry.SearchLabel == searchLabel {
+			entries = append(entries, entry)
+		}
+	}
+
+	return entries
+}
+
+// func (fr *FragmentResource) RecurseByPath(searchLabels []string) *FragmentResource  {
+// 	for _, entry := range fr.Entries {
+// 		if entry.SearchLabel == searchLabels[0] {
+// 			if len(searchLabels) == 1
+// 		}
+// 	}
+//
+// 	return nil
+// }
+
 func (fr *FragmentResource) UnmarshalRDF(v any) error {
 	val := reflect.ValueOf(v).Elem()
 
@@ -736,14 +760,6 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 				continue
 			}
 
-			// if fieldVal.Type() == reflect.TypeOf([]rdf.LiteralOrResource{}) {
-			// 	d, _ := json.Marshal(fr)
-			// 	if err := os.WriteFile(fmt.Sprintf("/tmp/%s.json", strings.ReplaceAll(fr.ID, "/", "_")), d, os.ModePerm); err != nil {
-			// 		slog.Error("unable to write file", "err", err)
-			// 	}
-			// 	// slog.Info("processing resource", "id", fr.ID, "data", string(d))
-			// }
-
 			switch fieldVal.Kind() {
 			case reflect.Slice:
 				sliceType := fieldVal.Type().Elem()
@@ -764,7 +780,6 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 						child := reflect.New(sliceType)
 
 						if fieldVal.Type() == reflect.TypeOf([]rdf.LiteralOrResource{}) {
-							slog.Debug("entries for rdf.LiteralOrResource", "entries", entries, "size", len(entries), "entry", entry)
 							lor := reflect.New(sliceType).Elem()
 
 							lor.FieldByName("ID").SetString(entry.ID)
@@ -773,7 +788,6 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 							lor.FieldByName("DataType").SetString(entry.DataType)
 
 							newSlice = reflect.Append(newSlice, lor)
-
 							continue
 						}
 
@@ -789,18 +803,19 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 					fmt.Printf("unknown sliceType kind: %#v", sliceType.Kind())
 				}
 			case reflect.Struct:
-				if fieldVal.Type() == reflect.TypeOf(rdf.LiteralOrResource{}) {
-					entry := entries[0]
+				for _, entry := range entries {
+					if fieldVal.Type() == reflect.TypeOf(rdf.LiteralOrResource{}) {
 
-					lor := reflect.New(fieldVal.Type()).Elem()
-					lor.FieldByName("ID").SetString(entry.ID)
-					lor.FieldByName("Value").SetString(entry.Value)
-					lor.FieldByName("Language").SetString(entry.Language)
-					lor.FieldByName("DataType").SetString(entry.DataType)
-					fieldVal.Set(lor)
-				} else {
-					if err := entries[0].Inline.UnmarshalRDF(fieldVal.Addr().Interface()); err != nil {
-						return err
+						lor := reflect.New(fieldVal.Type()).Elem()
+						lor.FieldByName("ID").SetString(entry.ID)
+						lor.FieldByName("Value").SetString(entry.Value)
+						lor.FieldByName("Language").SetString(entry.Language)
+						lor.FieldByName("DataType").SetString(entry.DataType)
+						fieldVal.Set(lor)
+					} else {
+						if err := entry.Inline.UnmarshalRDF(fieldVal.Addr().Interface()); err != nil {
+							return err
+						}
 					}
 				}
 			case reflect.Int:
@@ -876,6 +891,12 @@ func (fr *FragmentResource) Predicates() map[string][]*FragmentEntry {
 func (fr *FragmentResource) GetByResourcesBySearchLabel(searchLabel string) []*ResourceEntry {
 	var resources []*ResourceEntry
 	for _, entry := range fr.Entries {
+		if entry.Inline != nil {
+			entries := entry.Inline.GetByResourcesBySearchLabel(searchLabel)
+			if len(entries) > 0 {
+				resources = append(resources, entries...)
+			}
+		}
 		if entry.SearchLabel != searchLabel {
 			continue
 		}
@@ -1110,7 +1131,7 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 
 	subject, ok := rm.GetResource(subjectURI)
 	if !ok {
-		return nil, fmt.Errorf("subject %s is not part of the graph", subjectURI)
+		return nil, fmt.Errorf("subject %q is not part of the graph", subjectURI)
 	}
 
 	linkedObjects := map[string]*FragmentResource{}
@@ -1156,6 +1177,48 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 					level3.SubjectClass = level3Resource.Types
 				}
 				level4Resource.AppendContext(level1, level2, level3)
+
+				for _, level4 := range level4Resource.objectIDs {
+					level4.Level = 4
+					level5Resource, ok := rm.GetResource(level4.ObjectID)
+					if !ok {
+						log.Debug().Msgf(unknownTargetUriMessageFormat, level4.ObjectID)
+						continue
+					}
+					linkedObjects[level4.ObjectID] = level4Resource
+					if len(level4.GetSubjectClass()) == 0 {
+						level4.SubjectClass = level4Resource.Types
+					}
+					level5Resource.AppendContext(level1, level2, level3, level4)
+
+					for _, level5 := range level5Resource.objectIDs {
+						level5.Level = 5
+						level6Resource, ok := rm.GetResource(level5.ObjectID)
+						if !ok {
+							log.Debug().Msgf(unknownTargetUriMessageFormat, level5.ObjectID)
+							continue
+						}
+						linkedObjects[level5.ObjectID] = level5Resource
+						if len(level5.GetSubjectClass()) == 0 {
+							level5.SubjectClass = level5Resource.Types
+						}
+						level6Resource.AppendContext(level1, level2, level3, level4, level5)
+
+						for _, level6 := range level6Resource.objectIDs {
+							level6.Level = 6
+							level7Resource, ok := rm.GetResource(level6.ObjectID)
+							if !ok {
+								log.Debug().Msgf(unknownTargetUriMessageFormat, level6.ObjectID)
+								continue
+							}
+							linkedObjects[level6.ObjectID] = level6Resource
+							if len(level6.GetSubjectClass()) == 0 {
+								level6.SubjectClass = level6Resource.Types
+							}
+							level7Resource.AppendContext(level1, level2, level3, level4, level5, level6)
+						}
+					}
+				}
 			}
 		}
 	}
@@ -1316,7 +1379,7 @@ func NewResourceMap(orgID string, g *r.Graph) (*ResourceMap, error) {
 	}
 
 	seen := 0
-	for t := range g.IterTriples() {
+	for t := range g.IterTriplesOrdered() {
 		seen++
 		err := rm.AppendOrderedTriple(t, false, seen)
 		if err != nil {

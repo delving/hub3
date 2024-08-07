@@ -118,18 +118,21 @@ func (fb *FragmentBuilder) FragmentGraph() *FragmentGraph {
 }
 
 // Doc is a helper function to return an index document
-func (fb *FragmentBuilder) Doc() *FragmentGraph {
+func (fb *FragmentBuilder) Doc() (*FragmentGraph, error) {
 	if len(fb.fg.Resources) == 0 {
-		_ = fb.fg.SetResources(fb.resources)
+		_, err := fb.fg.SetResources(fb.resources)
+		if err != nil {
+			return fb.fg, err
+		}
 	}
-	return fb.fg
+	return fb.fg, nil
 }
 
 // SetResources returns the struct of the FragmentGraph object that is converted to a fragmentDoc record in ElasticSearch
-func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
+func (fg *FragmentGraph) SetResources(rm *ResourceMap) (*FragmentGraph, error) {
 	if rm == nil {
 		log.Print("Unable to access resources, returning raw fragmentgraph.")
-		return fg
+		return fg, nil
 	}
 
 	// TODO(kiivihal): decide how to use this later
@@ -139,24 +142,24 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) *FragmentGraph {
 	// return fg
 	// }
 
-	resources, err := rm.SetContextLevels(fg.GetAboutURI())
+	_, err := rm.SetContextLevels(fg.GetAboutURI())
 	if err != nil {
 		log.Printf("Unable to set context: %s", err)
-		return fg
+		return fg, err
 	}
-	//unlinked := []string{}
-	//for key, _ := range rm.Resources() {
-	//_, ok := resources[key]
-	//if !ok {
-	//unlinked = append(unlinked, key)
-	//}
-	//}
-	//if len(unlinked) != 0 {
-	//log.Printf("unlinked resources: %#v", unlinked)
-	//}
+	// unlinked := []string{}
+	// for key := range rm.Resources() {
+	// 	_, ok := resources[key]
+	// 	if !ok {
+	// 		unlinked = append(unlinked, key)
+	// 	}
+	// }
+	// if len(unlinked) != 0 {
+	// 	log.Printf("unlinked resources: %#v", unlinked)
+	// }
 
-	fg.Resources = rm.ResourcesList(resources)
-	return fg
+	fg.Resources = rm.ResourcesList(nil)
+	return fg, nil
 }
 
 // GetRDF returns a byte Array for the Flat JSON-LD serialized RDF

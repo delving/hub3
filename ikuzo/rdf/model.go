@@ -7,7 +7,7 @@ type Model struct {
 	ID   string   `json:"@id,omitempty" rdf:"@id"`
 }
 
-// LiteralOrResource can be used as datatype for
+// LiteralOrResource can be used as datatype for RDF objects
 type LiteralOrResource struct {
 	ID       string
 	Value    string

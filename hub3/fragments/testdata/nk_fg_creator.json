@@ -1,0 +1,77 @@
+{
+    "id": "urn:bnode:Baf12112dX2Db9cbX2D47a5X2D820aX2Da67bfaedabab",
+    "types": null,
+    "graphExternalContext": null,
+    "context": [
+        {
+            "Subject": "https://wo2.collectienederland.nl/id/nk/NK1145",
+            "SubjectClass": [
+                "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+            ],
+            "Predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+            "SearchLabel": "nk_cho",
+            "Level": 1,
+            "ObjectID": "https://wo2.collectienederland.nl/id/cho/NK1145",
+            "Label": "De Ivan Wiliki te Moskou"
+        },
+        {
+            "Subject": "https://wo2.collectienederland.nl/id/cho/NK1145",
+            "SubjectClass": ["https://wo2.collectienederland.nl/nk/terms/CHO"],
+            "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+            "SearchLabel": "nk_creator",
+            "Level": 2,
+            "ObjectID": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+            "Label": "De Ivan Wiliki te Moskou"
+        },
+        {
+            "Subject": "urn:bnode:B4f6a1e06X2D5071X2D4bffX2Da7a7X2Df6a0614ae2bd",
+            "Predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+            "SearchLabel": "nk_Creator",
+            "Level": 3,
+            "ObjectID": "urn:bnode:Baf12112dX2Db9cbX2D47a5X2D820aX2Da67bfaedabab"
+        }
+    ],
+    "entries": [
+        {
+            "@value": "1932-07-18",
+            "entrytype": "Literal",
+            "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfDeath",
+            "searchLabel": "nk_dateOfDeath",
+            "level": 4,
+            "order": 135
+        },
+        {
+            "@value": "Bauer, M.A.J.",
+            "@language": "nl",
+            "entrytype": "Literal",
+            "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+            "searchLabel": "nk_creatorName",
+            "level": 4,
+            "order": 136
+        },
+        {
+            "@value": "inventor/bedenker/ontwerper",
+            "entrytype": "Literal",
+            "predicate": "https://wo2.collectienederland.nl/nk/terms/creationRole",
+            "searchLabel": "nk_creationRole",
+            "level": 4,
+            "order": 137
+        },
+        {
+            "@value": "https://rkd.nl/explore/artists/5113",
+            "entrytype": "Literal",
+            "predicate": "https://wo2.collectienederland.nl/nk/terms/rkdArtistLink",
+            "searchLabel": "nk_rkdArtistLink",
+            "level": 4,
+            "order": 138
+        },
+        {
+            "@value": "1867-01-25",
+            "entrytype": "Literal",
+            "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfBirth",
+            "searchLabel": "nk_dateOfBirth",
+            "level": 4,
+            "order": 139
+        }
+    ]
+}

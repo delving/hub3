@@ -78,11 +78,11 @@ func atLang(lang string) string {
 // String returns the NTriples representation of this literal string.
 func (l Literal) String() string {
 	str := l.str
-	str = strings.Replace(str, "\\", "\\\\", -1)
-	str = strings.Replace(str, "\"", "\\\"", -1)
-	str = strings.Replace(str, "\n", "\\n", -1)
-	str = strings.Replace(str, "\r", "\\r", -1)
-	str = strings.Replace(str, "\t", "\\t", -1)
+	str = strings.ReplaceAll(str, "\\", "\\\\")
+	str = strings.ReplaceAll(str, "\"", "\\\"")
+	str = strings.ReplaceAll(str, "\n", "\\n")
+	str = strings.ReplaceAll(str, "\r", "\\r")
+	str = strings.ReplaceAll(str, "\t", "\\t")
 
 	str = fmt.Sprintf("%q", str)
 

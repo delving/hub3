@@ -9,8 +9,8 @@ import (
 )
 
 type BaseRecord struct {
-	Type                 []string                `json:"@type,omitempty" rdf:"@types"`
 	ID                   string                  `json:"@id,omitempty" rdf:"@id"`
+	Type                 []string                `json:"@type,omitempty" rdf:"@types"`
 	BaseID               string                  `json:"baseID,omitempty" rdf:"nk_baseID"`
 	Context              Context                 `json:"@context,omitempty" rdf:"-"`
 	BaseType             string                  `json:"baseType,omitempty" rdf:"nk_baseType"`
@@ -117,29 +117,30 @@ type Dimension struct {
 }
 
 type CHO struct {
-	ObjectNumber       string                  `json:"objectNumber" rdf:"nk_objectNumber"`
-	Badge              string                  `json:"badge" rdf:"nk_badge"`
+	ID                 string                  `json:"@id,omitempty" rdf:"@id"`
+	Type               []string                `json:"@type,omitempty" rdf:"@types"`
+	Order              int                     `json:"order,omitempty" rdf:"nave_order"`
+	ObjectNumber       string                  `json:"objectNumber,omitempty" rdf:"nk_objectNumber"`
+	Badge              string                  `json:"badge,omitempty" rdf:"nk_badge"`
 	DcSubject          []rdf.LiteralOrResource `json:"dc:subject,omitempty" rdf:"dc_subject"`
-	DcDescription      []rdf.LiteralOrResource `json:"dc:description" rdf:"dc_description"`
+	DcDescription      []rdf.LiteralOrResource `json:"dc:description,omitempty" rdf:"dc_description"`
 	Dimension          Dimension               `json:"dimension,omitempty" rdf:"nk_dimension"`
-	Barcode            []rdf.LiteralOrResource `json:"barcode" rdf:"nk_barcode"`
-	BarcodeLabel       []rdf.LiteralOrResource `json:"barcodeLabel" rdf:"nk_barcodeLabel"`
+	Barcode            []rdf.LiteralOrResource `json:"barcode,omitempty" rdf:"nk_barcode"`
+	BarcodeLabel       []rdf.LiteralOrResource `json:"barcodeLabel,omitempty" rdf:"nk_barcodeLabel"`
 	NrOfParts          []rdf.LiteralOrResource `json:"nrOfParts,omitempty" rdf:"nk_nrOfParts"`
-	DcTitle            []rdf.LiteralOrResource `json:"dc:title" rdf:"dc_title"`
-	NaveMaterial       []rdf.LiteralOrResource `json:"nave:material" rdf:"nave_material"`
-	NaveTechnique      []rdf.LiteralOrResource `json:"nave:technique" rdf:"nave_technique"`
+	DcTitle            []rdf.LiteralOrResource `json:"dc:title,omitempty" rdf:"dc_title"`
+	NaveMaterial       []rdf.LiteralOrResource `json:"nave:material,omitempty" rdf:"nave_material"`
+	NaveTechnique      []rdf.LiteralOrResource `json:"nave:technique,omitempty" rdf:"nave_technique"`
 	NaveObjectName     []rdf.LiteralOrResource `json:"nave:objectName,omitempty" rdf:"nave_objectName"`
 	NaveObjectCategory []rdf.LiteralOrResource `json:"nave:objectCategory,omitempty" rdf:"nave_objectCategory"`
-	UserCode           rdf.LiteralOrResource   `json:"user_code" rdf:"nk_userCode"`
-	Creator            []Creator               `json:"creator" rdf:"nk_creator"`
+	UserCode           rdf.LiteralOrResource   `json:"user_code,omitempty" rdf:"nk_userCode"`
+	Creator            []Creator               `json:"creator,omitempty" rdf:"nk_creator"`
 	ProductionPlace    []rdf.LiteralOrResource `json:"productionPlace,omitempty" rdf:"nk_productionPlace"`
-	ProductionDate     []ProductionDate        `json:"productionDate" rdf:"nk_productionDate"`
-	Type               []string                `json:"@type" rdf:"@types"`
+	ProductionDate     []ProductionDate        `json:"productionDate,omitempty" rdf:"nk_productionDate"`
 	Thumbnail          rdf.LiteralOrResource   `json:"thumbnail,omitempty" rdf:"nk_thumbnail"`
-	ID                 string                  `json:"@id" rdf:"@id"`
 	ObjectNameFilter   []rdf.LiteralOrResource `json:"objectNameFilter,omitempty" rdf:"nk_objectNameFilter"`
-	RestitutionState   rdf.LiteralOrResource   `json:"restitutionState" rdf:"nk_restitutionState"`
-	RestitutionDate    rdf.LiteralOrResource   `json:"restitutionDate" rdf:"nk_restitutionDate"`
+	RestitutionState   rdf.LiteralOrResource   `json:"restitutionState,omitempty" rdf:"nk_restitutionState"`
+	RestitutionDate    rdf.LiteralOrResource   `json:"restitutionDate,omitempty" rdf:"nk_restitutionDate"`
 }
 
 func (cho CHO) CreatorLinks() []string {
@@ -181,19 +182,21 @@ func (cho CHO) CreatorNames() []string {
 }
 
 type ProductionDate struct {
+	ID         string   `json:"@id,omitempty" rdf:"@id"`
+	Type       []string `json:"@type,omitempty" rdf:"@types"`
 	DateStart  []string `json:"dateStart" rdf:"nk_dateStart"`
 	DateEnd    []string `json:"dateEnd" rdf:"nk_dateEnd"`
 	DatePeriod []string `json:"datePeriod" rdf:"nk_datePeriod"`
-	Type       []string `json:"@type" rdf:"@types"`
 	Badge      string   `json:"badge" rdf:"nk_badge"`
 }
 
 type Creator struct {
+	ID            string                  `json:"@id,omitempty" rdf:"@id"`
+	Type          []string                `json:"@type,omitempty" rdf:"@types"`
 	CreatorName   []rdf.LiteralOrResource `json:"creatorName" rdf:"nk_creatorName"`
 	CreationRole  []rdf.LiteralOrResource `json:"creationRole" rdf:"nk_creationRole"`
 	DateOfBirth   []rdf.LiteralOrResource `json:"dateOfBirth" rdf:"nk_dateOfBirth"`
-	DateOfDeath   []rdf.LiteralOrResource `json:"dateOfDeath" rdf:"nk_dateOfDeath"`
-	Type          []string                `json:"@type" rdf:"@types"`
+	DateOfDeath   []string                `json:"dateOfDeath" rdf:"nk_dateOfDeath"`
 	Badge         string                  `json:"badge" rdf:"nk_badge"`
 	RKDArtistLink []rdf.LiteralOrResource `rdf:"nk_rkdArtistLink"`
 }
