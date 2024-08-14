@@ -1,0 +1,4078 @@
+{
+    "head": {
+        "vars": [
+            "s1",
+            "p1",
+            "o1",
+            "p2",
+            "o2",
+            "p3",
+            "o3",
+            "p4",
+            "o4",
+            "p5",
+            "o5",
+            "p6",
+            "o6",
+            "graph"
+        ]
+    },
+    "results": {
+        "bindings": [
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/thumbnail"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_status"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Geen verzoek"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Restitutie advies"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "restitutionCase"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "950"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1960-01-01"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Rijksbeheer"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "In bezit gekomen"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "rijksbeheer"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "900"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Na 05-05-1945"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/na-05-05-1945"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_owner"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "RCE"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Huidige restitutie status"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Geen verzoek"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "restitutionStatus"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "999"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "restitutionStatus"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_notes"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "De herkomstgegevens zijn sluitend."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/nk/NK1145/finalStatus"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_notes"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "en",
+                    "value": "The provenance data are conclusive."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Herkomst"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Führermuseum"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "herkomstreconstructie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "4"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_owner"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "BHG"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_location"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Linz"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_source"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "en",
+                    "value": "museum"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "museum"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10--F%C3%BChrermuseum"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Herkomst"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Wisselingh & Co, E.J. van"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "herkomstreconstructie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "2"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_owner"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "BHG"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_location"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Amsterdam"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_source"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575; Archief Van Wisselingh nr.112"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "kunsthandel"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "en",
+                    "value": "art dealers"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_notes"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Op 10 augustus 1943 werd de collectie Bauer-etsen en bloc door kunsthandel Van Wisselingh gekocht van Mevrouw B. Westendorp-Osieck. Op dezelfde datum werd de collectie door Van Wisselingh doorverkocht aan E. Göpel."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-Wisselingh-&-Co,-E.J.-van"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Herkomst"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Westendorp-Osieck, B."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "herkomstreconstructie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_owner"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "BHG"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_location"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Amsterdam"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_source"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Archief SNK nr.385, 910; Bundesarchiv Koblenz B323 nr.575; Archief Van Wisselingh nr.139, 141, 142"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "collectie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_role"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "en",
+                    "value": "collection"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1930-12"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_notes"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Mr. H.K. Westendorp, de in 1941 overleden echtgenoot van B. Westendorp-Osieck, had in de loop van tientallen jaren een collectie etsen van Marius Bauer verworven van kunsthandel Van Wisselingh, die de verkoop van alle Bauer-etsen in handen had. In de archieven van Van Wisselingh zijn betalingen voor aankoop van Bauer-etsen gevonden door Westendorp lopend van 1893 to december 1930."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1930-12-1943-08-10-Westendorp-Osieck,-B."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_header"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Herkomst"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_value"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Göpel, E."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_type"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "herkomstreconstructie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "3"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_owner"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "BHG"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_location"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Den Haag"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_source"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Archief SNK nr.385"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_start_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/timeline/NK1145/1943-08-10-1943-08-10-G%C3%B6pel,-E."
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/timeline_end_date"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1943-08-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/baseID"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK1145"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/deepZoomUri"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg.dzi"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbLarge"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/resourceSortOrder"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/WebResource"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbSmall"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/deepZoomUri"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg.dzi"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbLarge"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/resourceSortOrder"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "4"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/WebResource"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbSmall"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/deepZoomUri"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg.dzi"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbLarge"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/resourceSortOrder"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "3"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/WebResource"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbSmall"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/deepZoomUri"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg.dzi"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbLarge"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/resourceSortOrder"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "2"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/WebResource"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/hasView"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/thumbSmall"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/currentRestitutionState"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "Geen verzoek"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/title"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "De Ivan Wiliki te Moskou"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Bauer, M.A.J."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/material_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "papier"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/material_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "drukinkt"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/thumbnail"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1d7eac5b-cb9b-168f-33b3-b2b6ddaf4efe.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/thumbnail"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/b6783d30-64da-1487-9c1d-78cad78e9100.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/thumbnail"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/1bd280e5-4d8d-9d9f-93c3-b1d940f555d2.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/thumbnail"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/material"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "papier"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/material"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "drukinkt"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/CHO"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/title"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "De Ivan Wiliki te Moskou"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/description"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "De Ivan Wiliki te Moskou"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "topografie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "stadsgezicht"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "werk op papier"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "prent"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "architectuur"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/subject"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "religie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/objectNumber"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "NK1145"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/objectName"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "ets"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/productionDate"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B838176a7X2D54eeX2D4eb6X2D9f80X2D2e4ba11f31ff"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/datePeriod"
+                },
+                "o3": {
+                    "type": "literal",
+                    "value": "1900 - 1900"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/productionDate"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B838176a7X2D54eeX2D4eb6X2D9f80X2D2e4ba11f31ff"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Production"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/productionDate"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B838176a7X2D54eeX2D4eb6X2D9f80X2D2e4ba11f31ff"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/dateEnd"
+                },
+                "o3": {
+                    "type": "literal",
+                    "value": "1900"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/productionDate"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B838176a7X2D54eeX2D4eb6X2D9f80X2D2e4ba11f31ff"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/dateStart"
+                },
+                "o3": {
+                    "type": "literal",
+                    "value": "1900"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/technique"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "ets"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/productionPlace"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Nederland"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://schemas.delving.eu/nave/terms/objectCategory"
+                },
+                "o2": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "oude kunst"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B420db3c9X2D4a8fX2D439eX2D815eX2Db349700bee2a"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Creator"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "urn:bnode:B027cd5b5X2D101eX2D4a0bX2D976dX2D355597224b33"
+                },
+                "p4": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/dateOfDeath"
+                },
+                "o4": {
+                    "type": "literal",
+                    "value": "1932-07-18"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B420db3c9X2D4a8fX2D439eX2D815eX2Db349700bee2a"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Creator"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "urn:bnode:B027cd5b5X2D101eX2D4a0bX2D976dX2D355597224b33"
+                },
+                "p4": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creatorName"
+                },
+                "o4": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Bauer, M.A.J."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B420db3c9X2D4a8fX2D439eX2D815eX2Db349700bee2a"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Creator"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "urn:bnode:B027cd5b5X2D101eX2D4a0bX2D976dX2D355597224b33"
+                },
+                "p4": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creationRole"
+                },
+                "o4": {
+                    "type": "literal",
+                    "value": "inventor/bedenker/ontwerper"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B420db3c9X2D4a8fX2D439eX2D815eX2Db349700bee2a"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Creator"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "urn:bnode:B027cd5b5X2D101eX2D4a0bX2D976dX2D355597224b33"
+                },
+                "p4": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/rkdArtistLink"
+                },
+                "o4": {
+                    "type": "literal",
+                    "value": "https://rkd.nl/explore/artists/5113"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cho"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/cho/NK1145"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/creator"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "urn:bnode:B420db3c9X2D4a8fX2D439eX2D815eX2Db349700bee2a"
+                },
+                "p3": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/Creator"
+                },
+                "o3": {
+                    "type": "uri",
+                    "value": "urn:bnode:B027cd5b5X2D101eX2D4a0bX2D976dX2D355597224b33"
+                },
+                "p4": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/dateOfBirth"
+                },
+                "o4": {
+                    "type": "literal",
+                    "value": "1867-01-25"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/object"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://purl.org/dc/elements/1.1/identifier"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK1145"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/collectionType"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK-collectie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/collectionType"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK-collectie"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/object_category_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Grafiek/Foto's"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cleanID"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK1145"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/cleanID"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "NK1145"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/object_name_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "ets"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "http://www.europeana.eu/schemas/edm/isShownBy"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "https://media.delving.org/imageproxy/1000,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/c2c7b29a-fdb0-bc53-bcf0-89f31c0bbc18.jpg"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/spec"
+                },
+                "o1": {
+                    "type": "literal",
+                    "value": "nk"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-rce-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/owner_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Göpel, E."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/owner_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Westendorp-Osieck, B."
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/owner_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Führermuseum"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/owner_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Wisselingh & Co, E.J. van"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "44701"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/44701"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "München (Collecting point)"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "47"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationVV"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "W"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-registration/NK1145/47"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Wisselingh"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/location_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Amsterdam"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/location_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Linz"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/location_filter"
+                },
+                "o1": {
+                    "type": "literal",
+                    "xml:lang": "nl",
+                    "value": "Den Haag"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+                },
+                "o2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/SNKDeclaration"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDate"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "1945-10-10"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkNumber"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "3014"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkName"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Wisselingh & Co, E.J. van"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkSource"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Archief SNK nr.385"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkStatus"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "onbekend"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            },
+            {
+                "s1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145"
+                },
+                "p1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration"
+                },
+                "o1": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/snk-declaration/NK1145/Archief-SNK-nr.385/3014"
+                },
+                "p2": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/nk/terms/snkPlace"
+                },
+                "o2": {
+                    "type": "literal",
+                    "value": "Amsterdam"
+                },
+                "graph": {
+                    "type": "uri",
+                    "value": "https://wo2.collectienederland.nl/id/nk/NK1145/nk-bhg-adlib/graph"
+                }
+            }
+        ]
+    }
+}
