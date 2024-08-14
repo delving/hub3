@@ -305,6 +305,17 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			sr.FacetFilter = params.Get(p)
 		case "facet.cursor":
 			sr.FacetCursor = params.Get(p)
+		case "lang":
+			langs := v
+			for _, lang := range langs {
+				if strings.Contains(lang, ",") {
+					parts := strings.Split(lang, ",")
+					sr.Language = append(sr.Language, parts...)
+					continue
+				}
+				sr.Language = append(sr.Language, lang)
+			}
+
 		case "format":
 			switch params.Get(p) {
 			case "protobuf":

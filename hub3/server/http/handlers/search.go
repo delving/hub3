@@ -646,7 +646,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	case fragments.ItemFormatType_SUMMARY:
 		for _, rec := range records {
-			rec.NewResultSummary()
+			rec.NewResultSummary(searchRequest.Language...)
 			rec.Resources = nil
 			rec.ProtoBuf = nil
 		}
@@ -1013,6 +1013,7 @@ func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	// TODO(kiivihal): add more like this support to the query
 	id := chi.URLParam(r, "id")
+	lang := r.URL.Query().Get("lang")
 
 	record, err := GetSearchRecord(r.Context(), id)
 	if err != nil {
@@ -1030,7 +1031,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.NewJSONLD()
 		record.Resources = nil
 	case "summary":
-		record.NewResultSummary()
+		record.NewResultSummary(lang)
 		record.Resources = nil
 	case "grouped":
 		_, err := record.NewGrouped()

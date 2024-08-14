@@ -18,7 +18,6 @@ import (
 	"context"
 	fmt "fmt"
 	"io"
-	"log/slog"
 	"net/url"
 	reflect "reflect"
 	"sort"
@@ -1688,8 +1687,15 @@ func (fr *FragmentResource) GetLevel() int32 {
 
 // NewResultSummary creates a Summary from the FragmentGraph based on the
 // RDFTag configuration.
-func (fg *FragmentGraph) NewResultSummary() *ResultSummary {
+func (fg *FragmentGraph) NewResultSummary(langs ...string) *ResultSummary {
 	fg.Summary = &ResultSummary{}
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			fg.Summary.AddEntry(entry, langs...)
+		}
+	}
+
+	// second run to add values with no language match
 	for _, rsc := range fg.Resources {
 		for _, entry := range rsc.Entries {
 			fg.Summary.AddEntry(entry)
@@ -1897,14 +1903,30 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 	return subject, nil
 }
 
+func addWithLanguage(entry *ResourceEntry, lang string) string {
+	if entry.Language == "" {
+		return entry.Value
+	}
+
+	if lang == "" || entry.Language == lang {
+		return fmt.Sprintf("%s [%s]", entry.Value, entry.Language)
+	}
+
+	return ""
+}
+
 // AddEntry adds Summary fields based on the ResourceEntry tags
-func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
+func (sum *ResultSummary) AddEntry(entry *ResourceEntry, langs ...string) {
 	// TODO(kiivihal): decide on returning []string instead of string
+	var defaultLang string
+	if len(langs) > 0 {
+		defaultLang = langs[0]
+	}
 	for _, tag := range entry.Tags {
 		switch tag {
 		case "title":
 			if sum.Title == "" {
-				sum.Title = entry.Value
+				sum.Title = addWithLanguage(entry, defaultLang)
 			}
 		case "thumbnail":
 			// Always prefer edm:object for the thumbnail.
@@ -1918,15 +1940,16 @@ func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
 			}
 		case "subject":
 			if sum.Subject == "" {
-				sum.Subject = entry.Value
+				sum.Subject = addWithLanguage(entry, defaultLang)
 			}
 		case "creator":
 			if sum.Creator == "" {
-				sum.Creator = entry.Value
+				sum.Creator = addWithLanguage(entry, defaultLang)
+				sum.Creator = addWithLanguage(entry, defaultLang)
 			}
 		case "description":
 			if sum.Description == "" {
-				sum.Description = entry.Value
+				sum.Description = addWithLanguage(entry, defaultLang)
 			}
 		case "landingPage":
 			if sum.LandingPage == "" {
@@ -1942,7 +1965,7 @@ func (sum *ResultSummary) AddEntry(entry *ResourceEntry) {
 			}
 		case "objectType":
 			if sum.ObjectType == "" {
-				sum.ObjectType = entry.Value
+				sum.ObjectType = addWithLanguage(entry, defaultLang)
 			}
 		case "objectID":
 			if sum.ObjectID == "" {

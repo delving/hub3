@@ -20,6 +20,10 @@ func (lor *LiteralOrResource) String() string {
 		return lor.ID
 	}
 
+	if lor.Value == "-" {
+		return ""
+	}
+
 	return lor.Value
 }
 
