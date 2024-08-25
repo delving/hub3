@@ -24,12 +24,10 @@ import (
 )
 
 var _ = Describe("Builder", func() {
-
 	Describe("FragmentBuilder", func() {
 		fb, err := testDataGraph(false)
 
 		Context("when creating a new builder", func() {
-
 			It("should have empty graph when parse is called", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fb.Graph.Len()).ToNot(Equal(0))
@@ -44,11 +42,9 @@ var _ = Describe("Builder", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(rm.Resources()).ToNot(BeNil())
 			})
-
 		})
 
 		Context("when giving access", func() {
-
 			It("should give back a pointer to the FragmentGraph", func() {
 				Expect(fb.FragmentGraph()).ToNot(BeNil())
 			})
@@ -56,7 +52,6 @@ var _ = Describe("Builder", func() {
 			It("should give back a pointer to the FragmentGraph that can be converted to JSON", func() {
 				Expect(fb.Doc()).ToNot(BeNil())
 			})
-
 		})
 
 		Context("when a graphName is present", func() {
@@ -66,24 +61,24 @@ var _ = Describe("Builder", func() {
 			fg := testFragmentGraph(spec, rev, ng)
 
 			It("should extract the about or source uri", func() {
-				sourceURI := fg.GetAboutURI()
+				sourceURI, err := fg.GetAboutURI()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(sourceURI).ToNot(BeEmpty())
 				Expect(sourceURI).ToNot(HaveSuffix("/graph"))
 			})
 		})
 
 		Describe("When receiving a Triple", func() {
-
 			spec := "test-spec"
 			rev := int32(1)
 			ng := "urn:1/graph"
 			fg := testFragmentGraph(spec, rev, ng)
 			fb := NewFragmentBuilder(fg)
 
-			//Context("with an object resource", func() {
+			// Context("with an object resource", func() {
 
-			//t := r.NewTriple(URIRef("http://example.com/resource/1"), URIRef("urn:subject"), URIRef("urn:target"))
-			//f, err := fb.CreateFragment(t)
+			// t := r.NewTriple(URIRef("http://example.com/resource/1"), URIRef("urn:subject"), URIRef("urn:target"))
+			// f, err := fb.CreateFragment(t)
 
 			//It("should not have a header without calling AddHeader", func() {
 			//Expect(t).ToNot(BeNil())
@@ -100,8 +95,8 @@ var _ = Describe("Builder", func() {
 			//Expect(f.GetLodKey()).To(Equal("/1"))
 			//})
 
-			//It("should have a spec", func() {
-			//Expect(f.GetSpec()).To(Equal(spec))
+			// It("should have a spec", func() {
+			// Expect(f.GetSpec()).To(Equal(spec))
 
 			//Expect(f.GetPredicate()).To(Equal("urn:subject"))
 			//})
@@ -159,33 +154,32 @@ var _ = Describe("Builder", func() {
 			//Expect(t).To(Equal(ObjectType_RESOURCE))
 			//})
 
-			//It("should create a lodKey with a url fragment", func() {
-			//t := r.NewTriple(URIRef("http://example.com/resource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
-			//f, err := fb.CreateFragment(t)
-			//Expect(err).ToNot(HaveOccurred())
+			// It("should create a lodKey with a url fragment", func() {
+			// t := r.NewTriple(URIRef("http://example.com/resource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
+			// f, err := fb.CreateFragment(t)
+			// Expect(err).ToNot(HaveOccurred())
 
-			//key, err := f.CreateLodKey()
-			//Expect(key).ToNot(BeEmpty())
-			//Expect(err).ToNot(HaveOccurred())
+			// key, err := f.CreateLodKey()
+			// Expect(key).ToNot(BeEmpty())
+			// Expect(err).ToNot(HaveOccurred())
 
 			//Expect(key).To(HaveSuffix("#a"))
 			//})
 
-			//It("should give back on empty lodKey when the path does not start with Config.Lod.Resource HavePrefix", func() {
-			//t := r.NewTriple(URIRef("http://example.com/bresource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
-			//f, err := fb.CreateFragment(t)
-			//Expect(err).ToNot(HaveOccurred())
+			// It("should give back on empty lodKey when the path does not start with Config.Lod.Resource HavePrefix", func() {
+			// t := r.NewTriple(URIRef("http://example.com/bresource/1#a"), URIRef("urn:subject"), URIRef("urn:target"))
+			// f, err := fb.CreateFragment(t)
+			// Expect(err).ToNot(HaveOccurred())
 
-			//key, err := f.CreateLodKey()
-			//Expect(key).To(BeEmpty())
-			//Expect(err).ToNot(HaveOccurred())
+			// key, err := f.CreateLodKey()
+			// Expect(key).To(BeEmpty())
+			// Expect(err).ToNot(HaveOccurred())
 
 			//})
 
 			//})
 
 			Context("When receiving a object resource link", func() {
-
 				g := r.NewGraph(c.Config.RDF.BaseURL)
 				t1 := r.NewTriple(NSRef("1"), NSRef("subject"), NSRef("2"))
 				t2 := r.NewTriple(NSRef("1"), NSRef("subject"), NSRef("3"))
@@ -208,67 +202,65 @@ var _ = Describe("Builder", func() {
 				fb.Graph = g
 
 				It("should mark the fragment not graphExternal if subject present in graph", func() {
-					//frag, err := fb.CreateFragment(t1)
-					//Expect(t1).ToNot(BeNil())
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(frag).ToNot(BeNil())
-					//external := fb.IsGraphExternal(t1.Object)
-					//Expect(external).To(BeFalse())
+					// frag, err := fb.CreateFragment(t1)
+					// Expect(t1).ToNot(BeNil())
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(frag).ToNot(BeNil())
+					// external := fb.IsGraphExternal(t1.Object)
+					// Expect(external).To(BeFalse())
 					// todo reimplement with tags
-					//Expect(frag.GraphExternalLink).To(BeFalse())
-
+					// Expect(frag.GraphExternalLink).To(BeFalse())
 				})
 
 				It("should mark the fragment not graphExternal if subject present in graph", func() {
-					//frag, err := fb.CreateFragment(t2)
-					//Expect(t2).ToNot(BeNil())
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(frag).ToNot(BeNil())
-					//external := fb.IsGraphExternal(t2.Object)
-					//Expect(external).To(BeTrue())
+					// frag, err := fb.CreateFragment(t2)
+					// Expect(t2).ToNot(BeNil())
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(frag).ToNot(BeNil())
+					// external := fb.IsGraphExternal(t2.Object)
+					// Expect(external).To(BeTrue())
 					// todo reimplement with tags
 					// Expect(frag.GraphExternalLink).To(BeTrue())
 				})
 
 				It("should mark the fragment as domainExternal when the host differs from the RDF base url", func() {
-					//frag, err := fb.CreateFragment(t3)
-					//Expect(t3).ToNot(BeNil())
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(frag).ToNot(BeNil())
-					//external, err := fb.IsDomainExternal(frag.Object)
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(external).To(BeTrue())
+					// frag, err := fb.CreateFragment(t3)
+					// Expect(t3).ToNot(BeNil())
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(frag).ToNot(BeNil())
+					// external, err := fb.IsDomainExternal(frag.Object)
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(external).To(BeTrue())
 					// todo reimplement with tags
-					//Expect(frag.DomainExternalLink).To(BeTrue())
+					// Expect(frag.DomainExternalLink).To(BeTrue())
 				})
 
 				It("should mark the fragment as not domainExternal when the host equals the RDF base url", func() {
-					//frag, err := fb.CreateFragment(t2)
-					//Expect(t2).ToNot(BeNil())
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(frag).ToNot(BeNil())
-					//external, err := fb.IsDomainExternal(frag.Object)
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(external).To(BeFalse())
+					// frag, err := fb.CreateFragment(t2)
+					// Expect(t2).ToNot(BeNil())
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(frag).ToNot(BeNil())
+					// external, err := fb.IsDomainExternal(frag.Object)
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(external).To(BeFalse())
 					// todo reimplement with tags
-					//Expect(frag.DomainExternalLink).To(BeFalse())
+					// Expect(frag.DomainExternalLink).To(BeFalse())
 				})
 
 				It("should not make type links as external", func() {
-					//frag, err := fb.CreateFragment(t4)
-					//Expect(t4).ToNot(BeNil())
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(frag).ToNot(BeNil())
+					// frag, err := fb.CreateFragment(t4)
+					// Expect(t4).ToNot(BeNil())
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(frag).ToNot(BeNil())
 					// todo reimplement with tags
-					//Expect(frag.IsTypeLink()).To(BeTrue())
-					//Expect(frag.GetTypeLink()).To(BeTrue())
+					// Expect(frag.IsTypeLink()).To(BeTrue())
+					// Expect(frag.GetTypeLink()).To(BeTrue())
 				})
-
 			})
 
-			//Context("when getting the ObjectXSDType", func() {
+			// Context("when getting the ObjectXSDType", func() {
 
-			//It("should return the XSD label", func() {
+			// It("should return the XSD label", func() {
 
 			//})
 
@@ -280,9 +272,8 @@ var _ = Describe("Builder", func() {
 			//})
 
 			Context("when receiving a triple with a literal object", func() {
-
-				//t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_STRING))
-				//f, err := fb.CreateFragment(t)
+				// t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_STRING))
+				// f, err := fb.CreateFragment(t)
 
 				//It("should have literal as objecttype", func() {
 				//Expect(err).ToNot(HaveOccurred())
@@ -305,8 +296,8 @@ var _ = Describe("Builder", func() {
 			})
 
 			Context("when receiving a triple with a literal and language", func() {
-				//t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "en", ObjectXSDType_STRING))
-				//f, err := fb.CreateFragment(t)
+				// t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "en", ObjectXSDType_STRING))
+				// f, err := fb.CreateFragment(t)
 
 				//It("should have a language", func() {
 				//Expect(err).ToNot(HaveOccurred())
@@ -323,28 +314,24 @@ var _ = Describe("Builder", func() {
 			})
 
 			Context("when receiving a triple with literal and type", func() {
-
 				It("should have the custom dataType", func() {
-					//t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_DATE))
-					//f, err := fb.CreateFragment(t)
-					//Expect(err).ToNot(HaveOccurred())
-					//Expect(f.GetDataType()).To(Equal(ObjectXSDType_DATE))
-					//Expect(f.GetXSDRaw()).To(Equal("xsd:date"))
+					// t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "", ObjectXSDType_DATE))
+					// f, err := fb.CreateFragment(t)
+					// Expect(err).ToNot(HaveOccurred())
+					// Expect(f.GetDataType()).To(Equal(ObjectXSDType_DATE))
+					// Expect(f.GetXSDRaw()).To(Equal("xsd:date"))
 				})
 			})
 		})
-
 	})
 
 	Describe("when creating a fragment", func() {
-
-		//fg := testFragmentGraph("test", int32(1), "urn:1/graph")
-		//fb := NewFragmentBuilder(fg)
+		// fg := testFragmentGraph("test", int32(1), "urn:1/graph")
+		// fb := NewFragmentBuilder(fg)
 
 		Context("and converting it to a BulkIndexRequest", func() {
-
-			//t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "en", ObjectXSDType_STRING))
-			//f, err := fb.CreateFragment(t)
+			// t := r.NewTriple(URIRef("urn:1"), URIRef("urn:subject"), Literal("river", "en", ObjectXSDType_STRING))
+			// f, err := fb.CreateFragment(t)
 
 			//It("the fragment should be valid", func() {
 			//Expect(err).ToNot(HaveOccurred())
@@ -390,5 +377,4 @@ var _ = Describe("Builder", func() {
 			//})
 		})
 	})
-
 })

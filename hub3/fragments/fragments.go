@@ -44,8 +44,12 @@ const FRAGMENT_SIZE = 100
 const RDFType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 
 // GetAboutURI returns the subject of the FragmentGraph
-func (fg *FragmentGraph) GetAboutURI() string {
-	return strings.TrimSuffix(fg.Meta.NamedGraphURI, "/graph")
+func (fg *FragmentGraph) GetAboutURI() (string, error) {
+	if fg.Meta.EntryURI == "" {
+		return "", fmt.Errorf("fg.Meta.EntryURI cannot be empty; it must always be set")
+	}
+
+	return fg.Meta.EntryURI, nil
 }
 
 // IsTypeLink checks if the Predicate is a RDF type link

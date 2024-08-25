@@ -56,6 +56,7 @@ type Parser struct {
 	postHooks     []*domain.PostHookItem
 	m             sync.RWMutex
 	debugPath     string
+	recDef        RecDefResolver
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -168,6 +169,10 @@ func (p *Parser) setDataSet(req *Request) {
 		ds.RecordType = "narthex"
 	}
 
+	if req.RecDefID != "" {
+		ds.RecDefID = req.RecDefID
+	}
+
 	p.stats.Spec = req.DatasetID
 	p.stats.DatasetID = req.DatasetID
 	p.stats.OrgID = req.OrgID
@@ -230,6 +235,9 @@ func (p *Parser) debugSetup(orgID, datasetID string) error {
 }
 
 func (p *Parser) debugWrite(req *Request) error {
+	if p.debugPath == "" {
+		return nil
+	}
 	b, err := json.Marshal(req)
 	if err != nil {
 		return err
@@ -243,6 +251,8 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 
 	subLogger := addLogger(req.DatasetID)
 
+	slog.Debug("bulk request", "data", req)
+
 	if writeErr := p.debugWrite(req); writeErr != nil {
 		slog.Error("unable to write debug messages from bulk api", "error", writeErr)
 	}
@@ -250,6 +260,12 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 	if p.ds == nil {
 		return fmt.Errorf("unable to get dataset")
 	}
+
+	aboutUri, err := p.recDef.Resolve(req.RecDefID)
+	if err != nil {
+		return fmt.Errorf("unable to resolve recDefID %q; %w", req.RecDefID, err)
+	}
+	req.aboutTypeURI = aboutUri
 
 	req.Revision = p.ds.Revision
 	// TODO(kiivihal): add logger
@@ -380,7 +396,10 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 	}
 
 	if p.postHooks != nil {
-		subject := strings.TrimSuffix(req.NamedGraphURI, "/graph")
+		subject, err := fb.FragmentGraph().GetAboutURI()
+		if err != nil {
+			return err
+		}
 		g := fb.Graph
 
 		p.m.Lock()

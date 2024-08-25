@@ -28,11 +28,9 @@ import (
 )
 
 var _ = Describe("Nodes", func() {
-
 	config.InitConfig()
 
 	Describe("converting to RDF", func() {
-
 		Context("from a header", func() {
 			dsc := new(Cdsc)
 			err := parseUtil(dsc, "ead.1.xml")
@@ -111,7 +109,8 @@ var _ = Describe("Nodes", func() {
 				Expect(node.Type).To(Equal("series"))
 				fr, _, err := node.FragmentGraph(cfg)
 				Expect(err).ToNot(HaveOccurred())
-				s := fr.GetAboutURI()
+				s, err := fr.GetAboutURI()
+				Expect(err).ToNot(HaveOccurred())
 				Expect(s).To(Equal("http://data.hub3.org/test/archive/test_spec/A"))
 			})
 
@@ -129,10 +128,9 @@ var _ = Describe("Nodes", func() {
 				Expect(err).ToNot(HaveOccurred())
 				Expect(fr).ToNot(BeNil())
 				// TODO enable later again
-				//Expect(fr.Resources).ToNot(BeNil())
-				//Expect(fr.Resources).To(HaveLen(1))
+				// Expect(fr.Resources).ToNot(BeNil())
+				// Expect(fr.Resources).To(HaveLen(1))
 			})
-
 		})
 
 		Context("when creating triples with parents", func() {
@@ -158,7 +156,6 @@ var _ = Describe("Nodes", func() {
 				Expect(triples).ToNot(BeEmpty())
 				Expect(triples).To(HaveLen(11))
 			})
-
 		})
 
 		Context("when creating triples from a Header", func() {
@@ -196,7 +193,6 @@ var _ = Describe("Nodes", func() {
 					date = dates[0]
 					Expect(date).ToNot(BeNil())
 				})
-
 			})
 
 			Context("check unitIDs", func() {
@@ -209,12 +205,9 @@ var _ = Describe("Nodes", func() {
 					id = ids[0]
 					Expect(id).ToNot(BeNil())
 				})
-
 			})
-
 		})
 	})
-
 })
 
 // nolint:gocritic

@@ -83,6 +83,8 @@ type ElasticSearch struct {
 	SearchFields string `json:"searchFields,omitempty"`
 	// MinimumShouldMatch is default setting for userQueries
 	MinimumShouldMatch string `json:"minimumShouldMatch"`
+	// RecDef map rec-def codes to the rdf:type of their subject
+	RecDef map[string]string `json:"recDef`
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -130,6 +132,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 		bulk.SetIndexTypes(e.IndexTypes...),
 		bulk.SetPostHookService(postHooks...),
 		bulk.SetHarvestPath(e.HarvestConfigPath),
+		bulk.SetRecDefResolver(e.RecDef),
 	)
 	if bulkErr != nil {
 		return fmt.Errorf("unable to create bulk service; %w", isErr)

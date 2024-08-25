@@ -733,6 +733,10 @@ func (fr *FragmentResource) FilterEntries(searchLabel string) (entries []*Resour
 // }
 
 func (fr *FragmentResource) UnmarshalRDF(v any) error {
+	if fr == nil {
+		return nil
+	}
+
 	val := reflect.ValueOf(v).Elem()
 
 	for i := 0; i < val.NumField(); i++ {
@@ -982,6 +986,10 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		re.Float = i
 	}
 
+	if c.Config.RDFTagMap == nil {
+		return re, nil
+	}
+
 	labels, ok := c.Config.RDFTagMap.Get(predicate)
 	if ok {
 		re.AddTags(labels...)
@@ -1020,6 +1028,7 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 			}
 		}
 	}
+
 	return re, nil
 }
 
@@ -1125,7 +1134,7 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 // SetContextLevels sets FragmentReferrerContext to each level from the root
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
 	if len(rm.resources) == 0 {
-		return nil, fmt.Errorf("resourceMap cannot be empty for subjecURI: %s", subjectURI)
+		return nil, fmt.Errorf("resourceMap cannot be empty for subjectURI: %s", subjectURI)
 	}
 
 	subject, ok := rm.GetResource(subjectURI)
@@ -1379,6 +1388,7 @@ func NewResourceMap(orgID string, g *r.Graph) (*ResourceMap, error) {
 
 	seen := 0
 	for t := range g.IterTriplesOrdered() {
+		// slog.Info("resource map triples", "orgID", orgID, "triple", t)
 		seen++
 		err := rm.AppendOrderedTriple(t, false, seen)
 		if err != nil {
@@ -1607,6 +1617,8 @@ func CreateFragmentEntry(t *r.Triple, resolved bool, order int) (*FragmentEntry,
 		if len(o.Language) > 0 {
 			entry.Language = o.Language
 		}
+	default:
+		panic(fmt.Sprintf("unknown object type: %#v", o))
 	}
 	return entry, ""
 }
@@ -1630,6 +1642,10 @@ func (rm *ResourceMap) AppendOrderedTriple(t *r.Triple, resolved bool, order int
 		rm.resources[id] = fr
 		fr.predicates = make(map[string][]*FragmentEntry)
 	}
+
+	defer func() {
+		rm.resources[id] = fr
+	}()
 
 	ttype, ok := t.GetRDFType()
 	if ok {
@@ -1893,10 +1909,14 @@ func (fg *FragmentGraph) NewGrouped() (*FragmentResource, error) {
 	}
 
 	// only return the subject
-	subject, ok := rm.GetResource(fg.GetAboutURI())
+	subjectURI, err := fg.GetAboutURI()
+	if err != nil {
+		return nil, err
+	}
+	subject, ok := rm.GetResource(subjectURI)
 
 	if !ok {
-		return nil, fmt.Errorf("unable to find root of the graph for %s", fg.GetAboutURI())
+		return nil, fmt.Errorf("unable to find root of the graph for %q", subjectURI)
 	}
 
 	fg.Resources = []*FragmentResource{subject}
@@ -1909,7 +1929,8 @@ func addWithLanguage(entry *ResourceEntry, lang string) string {
 	}
 
 	if lang == "" || entry.Language == lang {
-		return fmt.Sprintf("%s [%s]", entry.Value, entry.Language)
+		// TODO: how to show with language tag
+		return fmt.Sprintf("%s", entry.Value)
 	}
 
 	return ""

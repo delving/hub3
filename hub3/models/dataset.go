@@ -132,6 +132,7 @@ type DataSet struct {
 	Created          time.Time `json:"created"`
 	Deleted          bool      `json:"deleted"`
 	OrgID            string    `json:"orgID"`
+	RecDefID         string    `json:"RecDefID"`
 	Access           `json:"access" storm:"inline"`
 	Tags             []string `json:"tags"`
 	RecordType       string   `json:"recordType"` //

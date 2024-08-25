@@ -39,6 +39,7 @@ type Service struct {
 	orgs              domain.OrgConfigRetriever
 	scheduler         *gocron.Scheduler
 	harvestConfigPath string
+	recdef            RecDefResolver
 }
 
 func NewService(options ...Option) (*Service, error) {

@@ -141,8 +141,13 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) (*FragmentGraph, error) {
 	// log.Printf("Unable to resolve fragment resources: %s", err)
 	// return fg
 	// }
+	//
 
-	_, err := rm.SetContextLevels(fg.GetAboutURI())
+	subject, err := fg.GetAboutURI()
+	if err != nil {
+		return nil, err
+	}
+	_, err = rm.SetContextLevels(subject)
 	if err != nil {
 		log.Printf("Unable to set context: %s", err)
 		return fg, err
@@ -210,6 +215,31 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 		log.Printf("Unable to parse RDF string into graph: %v\n%#v\n", err, rdfData)
 		return err
 	}
+
+	fb.fg.Meta.EntryURI, err = g.GetAboutURI(fb.fg.Meta.AboutTypeURI)
+	if err != nil {
+		return fmt.Errorf("unable to retrieve aboutType %q from graph; %w", fb.fg.Meta.AboutTypeURI, err)
+	}
+
+	rm := NewEmptyResourceMap(fb.fg.Meta.GetOrgID())
+
+	seen := 0
+	for _, t := range g.Triples() {
+		// slog.Info("resource map triples", "orgID", orgID, "triple", t)
+		seen++
+
+		lt, convErr := t.AsLegacyTriple()
+		if convErr != nil {
+			return convErr
+		}
+
+		err := rm.AppendOrderedTriple(lt, false, seen)
+		if err != nil {
+			return fmt.Errorf("unable to add ordered triple: %w", err)
+		}
+	}
+
+	fb.resources = rm
 
 	fb.Graph, err = g.AsLegacyGraph()
 	if err != nil {

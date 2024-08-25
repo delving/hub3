@@ -12,6 +12,7 @@ import (
 func TestCleanWebResourceGraph(t *testing.T) {
 	is := is.New(t)
 	fg := NewFragmentGraph()
+	fg.Meta.AboutTypeURI = "http://www.openarchives.org/ore/terms/Aggregation"
 	fb := NewFragmentBuilder(fg)
 
 	// file, err := os.Open("./testdata/rdf-jsonld-dcn.json")

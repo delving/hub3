@@ -58,6 +58,7 @@ func (s *Service) NewParser() *Parser {
 		bi:            s.index,
 		sparqlUpdates: []fragments.SparqlUpdate{},
 		debugPath:     os.Getenv("HUB3_BULK_DEBUG_PATH"),
+		recDef:        s.recdef,
 	}
 
 	if len(s.postHooks) != 0 {

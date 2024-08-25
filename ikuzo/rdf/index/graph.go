@@ -180,7 +180,7 @@ func (g *Graph) addContextLevels() error {
 
 	subject, created := g.Resource(g.Header.EntryURI)
 	if created {
-		return fmt.Errorf("subject %s is not part of the graph", g.Header.EntryURI)
+		return fmt.Errorf("subject %q is not part of the graph [context-levels]", g.Header.EntryURI)
 	}
 
 	if err := g.setContextRefs(subject, immutable.NewSet(contextHasher{})); err != nil {

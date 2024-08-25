@@ -160,8 +160,13 @@ func NewSystem(indexDoc map[string]interface{}, fb *FragmentBuilder) *System {
 	s.Spec = fb.fg.Meta.GetSpec()
 	s.Preview = fmt.Sprintf("detail/foldout/void_edmrecord/%s", fb.fg.Meta.GetHubID())
 	// s.Caption = ""
-	s.AboutURI = fb.fg.GetAboutURI()
-	s.SourceURI = fb.fg.GetAboutURI()
+	subjectURI, err := fb.fg.GetAboutURI()
+	if err != nil {
+		log.Printf("Unable to get aboutURI; %s", err)
+		return nil
+	}
+	s.AboutURI = subjectURI
+	s.SourceURI = subjectURI
 	s.GraphName = fb.fg.Meta.NamedGraphURI
 	now := time.Now()
 	nowString := now.Format(time.RFC3339)
@@ -726,7 +731,11 @@ func CreateV1IndexDoc(fb *FragmentBuilder, recordTypes ...string) (map[string]in
 	}
 	indexDoc["spec"] = fb.fg.Meta.GetSpec()
 	indexDoc["orgID"] = fb.fg.Meta.GetOrgID()
-	indexDoc["entryURI"] = fb.fg.GetAboutURI()
+	subjectURI, err := fb.fg.GetAboutURI()
+	if err != nil {
+		return nil, err
+	}
+	indexDoc["entryURI"] = subjectURI
 	indexDoc["revision"] = fb.fg.Meta.GetRevision()
 	indexDoc["hubID"] = fb.fg.Meta.GetHubID()
 	system := NewSystem(indexDoc, fb)

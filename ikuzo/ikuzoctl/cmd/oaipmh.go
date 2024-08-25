@@ -107,7 +107,7 @@ func listDatasets(cfg *pmhCfg) {
 		return nil
 	})
 	if err != nil {
-		slog.Error("unable to list datasets: %s", err)
+		slog.Error("unable to list datasets", "error", err)
 	}
 }
 
@@ -131,7 +131,7 @@ func listMetadataFormats(cfg *pmhCfg) {
 		return nil
 	})
 	if err != nil {
-		slog.Error("unable to list datasets: %s", err)
+		slog.Error("unable to list datasets", "error", err)
 	}
 }
 

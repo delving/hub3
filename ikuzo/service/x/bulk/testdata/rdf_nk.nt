@@ -1,0 +1,63 @@
+_:Bdda65455X2De7d9X2D4740X2D8ad4X2D0f61c3d4819d <https://wo2.collectienederland.nl/nk/terms/dateOfDeath> "1796" .
+_:Bdda65455X2De7d9X2D4740X2D8ad4X2D0f61c3d4819d <https://wo2.collectienederland.nl/nk/terms/dateOfBirth> "1750" .
+_:Bdda65455X2De7d9X2D4740X2D8ad4X2D0f61c3d4819d <https://wo2.collectienederland.nl/nk/terms/creationRole> "werkplaats/fabriek" .
+_:Bdda65455X2De7d9X2D4740X2D8ad4X2D0f61c3d4819d <https://wo2.collectienederland.nl/nk/terms/creatorName> "Höchst"@nl .
+_:Becd58b94X2Dc411X2D4ff6X2D936dX2D6e5df46c3719 <https://wo2.collectienederland.nl/nk/terms/heightLength> "7 cm" .
+_:Becd58b94X2Dc411X2D4ff6X2D936dX2D6e5df46c3719 <https://wo2.collectienederland.nl/nk/terms/depthDiameter> "13 cm" .
+_:Becd58b94X2Dc411X2D4ff6X2D936dX2D6e5df46c3719 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/Dimension> .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_value> "In bezit gekomen"@nl .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_type> "rijksbeheer" .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_sort_order> "900" .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_owner> "RCE"@nl .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_header> "Rijksbeheer" .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <https://wo2.collectienederland.nl/nk/terms/timeline_date> "Na 05-05-1945" .
+<https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/TimelineEntry> .
+_:B53f935c2X2D8ef1X2D4b0dX2Da9a2X2D72d9026bd379 <https://wo2.collectienederland.nl/nk/terms/datePeriod> "1746 - 1796" .
+_:B53f935c2X2D8ef1X2D4b0dX2Da9a2X2D72d9026bd379 <https://wo2.collectienederland.nl/nk/terms/dateStart> "1746" .
+_:B53f935c2X2D8ef1X2D4b0dX2Da9a2X2D72d9026bd379 <https://wo2.collectienederland.nl/nk/terms/dateEnd> "1796" .
+_:B53f935c2X2D8ef1X2D4b0dX2Da9a2X2D72d9026bd379 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/Production> .
+_:Bf62c2b03X2D2aa2X2D4f51X2D9f13X2D7691cc1dd50c <https://wo2.collectienederland.nl/nk/terms/Creator> _:Bdda65455X2De7d9X2D4740X2D8ad4X2D0f61c3d4819d .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/cho> <https://wo2.collectienederland.nl/id/cho/NK587-D1-2> .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/NKRecord> .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/material_filter> "glazuur"@nl .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/timeline> <https://wo2.collectienederland.nl/id/timeline/nk/NK587/finalStatus> .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/collectionType> "NK-collectie" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/thumbnail> "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/creator_filter> "Höchst"@nl .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/object_category_filter> "Huishoudelijke voorwerpen"@nl .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://www.europeana.eu/schemas/edm/hasView> <https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/timeline> <https://wo2.collectienederland.nl/id/timeline/NK587-D1-2/na-05-05-1945> .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/object_name_filter> "kop en schotel"@nl .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://purl.org/dc/elements/1.1/identifier> "NK587" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://purl.org/dc/elements/1.1/title> "-"@nl .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://www.europeana.eu/schemas/edm/object> "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/spec> "nk" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/baseID> "NK587" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <http://www.europeana.eu/schemas/edm/isShownBy> "https://media.delving.org/imageproxy/1000,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/cleanID> "NK587-D1-2" .
+<https://wo2.collectienederland.nl/id/nk/NK587> <https://wo2.collectienederland.nl/nk/terms/material_filter> "porselein"@nl .
+<https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "1" .
+<https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .
+<https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .
+<https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUri> "https://media.delving.org/imageproxy/deepzoom/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg.dzi" .
+<https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<https://wo2.collectienederland.nl/id/timeline/nk/NK587/finalStatus> <https://wo2.collectienederland.nl/nk/terms/timeline_type> "restitutionStatus" .
+<https://wo2.collectienederland.nl/id/timeline/nk/NK587/finalStatus> <https://wo2.collectienederland.nl/nk/terms/timeline_sort_order> "999" .
+<https://wo2.collectienederland.nl/id/timeline/nk/NK587/finalStatus> <https://wo2.collectienederland.nl/nk/terms/timeline_header> "Huidige restitutie status" .
+<https://wo2.collectienederland.nl/id/timeline/nk/NK587/finalStatus> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/TimelineEntry> .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://purl.org/dc/elements/1.1/title> "-"@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://schemas.delving.eu/nave/terms/objectName> "kop en schotel"@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://wo2.collectienederland.nl/nk/terms/CHO> .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://purl.org/dc/elements/1.1/subject> "kop" .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/dimension> _:Becd58b94X2Dc411X2D4ff6X2D936dX2D6e5df46c3719 .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://schemas.delving.eu/nave/terms/objectCategory> "toegepaste kunst"@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://schemas.delving.eu/nave/terms/material> "glazuur"@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://schemas.delving.eu/nave/terms/material> "porselein"@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/productionPlace> "Duitsland" .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/creator> _:Bf62c2b03X2D2aa2X2D4f51X2D9f13X2D7691cc1dd50c .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://purl.org/dc/elements/1.1/subject> "keramiek" .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/productionDate> _:B53f935c2X2D8ef1X2D4b0dX2Da9a2X2D72d9026bd379 .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://purl.org/dc/elements/1.1/subject> "schotel" .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/objectNumber> "NK587-D1-2" .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <http://purl.org/dc/elements/1.1/description> "Kop-en-schotel, porselein, glazuur, polychroom bloemdecor, gouden rand."@nl .
+<https://wo2.collectienederland.nl/id/cho/NK587-D1-2> <https://wo2.collectienederland.nl/nk/terms/thumbnail> "https://media.delving.org/imageproxy/500,smartcrop/https://images.memorix.nl/rce/thumb/fullsize/722970b4-bb58-9d2d-2dee-af6b39e3ddf7.jpg" .

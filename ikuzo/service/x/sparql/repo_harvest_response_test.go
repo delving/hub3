@@ -85,7 +85,9 @@ func TestReadResponse(t *testing.T) {
 		is.Equal(lg.Len(), 171)
 
 		fg := fragments.NewFragmentGraph()
-		fg.Meta.EntryURI = "https://wo2.collectienederland.nl/id/nk/NK1145"
+		fg.Meta.AboutTypeURI = "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+		fg.Meta.EntryURI, err = g.GetAboutURI(fg.Meta.AboutTypeURI)
+		is.NoErr(err)
 		fb := fragments.NewFragmentBuilder(fg)
 
 		fb.Graph, err = g.AsLegacyGraph()
@@ -94,6 +96,6 @@ func TestReadResponse(t *testing.T) {
 		fb.ResourceMap()
 		indexFG, err := fb.Doc()
 		is.NoErr(err)
-		is.Equal(len(indexFG.Resources), 10)
+		is.Equal(len(indexFG.Resources), 19)
 	})
 }

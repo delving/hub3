@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -32,7 +33,7 @@ type Request struct {
 	HubID         string `json:"hubId"`
 	OrgID         string `json:"orgID"`
 	DatasetID     string `json:"dataset"`
-	LocalID       string `json:"localID"`
+	LocalID       string `json:"localId"`
 	NamedGraphURI string `json:"graphUri"`
 	RecordType    string `json:"type"`
 	Action        string `json:"action"`
@@ -42,6 +43,8 @@ type Request struct {
 	SubjectType   string `json:"subjectType"`
 	Revision      int    `json:"revision"`
 	Tags          string `json:"tags,omitempty"`
+	RecDefID      string `json:"recDefId,omitempty"`
+	aboutTypeURI  string
 	resolvedTags  []string
 	indexTypes    []string
 }
@@ -94,16 +97,20 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	fg.Meta.NamedGraphURI = req.NamedGraphURI
 	fg.Meta.Modified = fragments.NowInMillis()
 	fg.Meta.Tags = req.resolvedTags
+	fg.Meta.RecDefID = req.RecDefID
+	fg.Meta.AboutTypeURI = req.aboutTypeURI
 
 	fb := fragments.NewFragmentBuilder(fg)
 
-	// slog.Info("received mime-type from bulk request", "mime-type", req.GraphMimeType)
+	slog.Debug("received mime-type from bulk request", "mime-type", req.GraphMimeType, "graph", req.Graph)
 	err := fb.ParseResolvedGraph(strings.NewReader(req.Graph), req.GraphMimeType)
 	if err != nil {
 		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
 	}
 
-	fg.Meta.EntryURI = fg.GetAboutURI()
+	if fg.Meta.EntryURI == "" {
+		return nil, fmt.Errorf("fg.Meta.EntryURI cannot be empty")
+	}
 
 	return fb, nil
 }

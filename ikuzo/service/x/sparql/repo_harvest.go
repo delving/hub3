@@ -53,6 +53,7 @@ type HarvestConfig struct {
 	TargetDatasets    map[string]int
 	Tags              []string
 	repo              *sparql.Repo
+	AboutTypeURI      string
 }
 
 func (cfg *HarvestConfig) AddError(subject string, err error) {

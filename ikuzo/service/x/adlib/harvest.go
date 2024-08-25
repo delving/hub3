@@ -67,7 +67,7 @@ func (he harvestError) createSingleRecordPages() (pages []string, err error) {
 func (he harvestError) harvestPageWithErrors(ctx context.Context, c *Client, cfg *HarvestConfig, records chan *internal.Crecord) error {
 	errorPages, err := he.createSingleRecordPages()
 	if err != nil {
-		slog.Error("unable to create single record pages: %w", err)
+		slog.Error("unable to create single record pages", "error", err)
 		return err
 	}
 

@@ -52,6 +52,7 @@ func (s *Service) harvestSparqlDatasets() {
 }
 
 func (s *Service) processSparqlDataset(path string) error {
+	var hasError bool
 	cfg, err := decodeConfig(path)
 	if err != nil {
 		return err
@@ -74,6 +75,11 @@ func (s *Service) processSparqlDataset(path string) error {
 	}
 
 	defer func() {
+		if hasError {
+			for k := range cfg.TargetDatasets {
+				cfg.TargetDatasets[k] = 0
+			}
+		}
 		cfg.LastCheck = time.Now()
 		writeErr := writeConfig(path, cfg)
 		if writeErr != nil {
@@ -95,6 +101,7 @@ func (s *Service) processSparqlDataset(path string) error {
 	harvestErr := sparql.HarvestGraphs(context.Background(), cfg, indexer.IndexGraph)
 	if harvestErr != nil {
 		slog.Info("unable to harvest sparql graphs", "datasetID", cfg.Spec, "error", harvestErr)
+		hasError = true
 		return harvestErr
 	}
 
@@ -161,6 +168,7 @@ func (gi *graphIndexer) hasChanges() (hasChange bool) {
 		if err != nil {
 			hasChange = true
 			updated[targetSpec] = 0
+			slog.Error("unable to get dataset", "dataset", targetSpec, "error", err)
 			continue
 		}
 
@@ -203,8 +211,7 @@ func (gi *graphIndexer) IndexGraph(g *rdf.Graph) error {
 	fg.Meta.Spec = gi.cfg.Spec
 	fg.Meta.Revision = int32(gi.ds.Revision)
 	fg.Meta.Modified = fragments.NowInMillis()
-	fg.Meta.NamedGraphURI = fmt.Sprintf("%s/graph", g.Subject.RawValue())
-	fg.Meta.EntryURI = fg.GetAboutURI()
+	fg.Meta.NamedGraphURI = fmt.Sprintf("urn:%s/graph", fg.Meta.HubID)
 	fg.Meta.Tags = gi.cfg.Tags
 
 	if strings.HasSuffix(fg.Meta.HubID, "_") {
@@ -219,15 +226,20 @@ func (gi *graphIndexer) IndexGraph(g *rdf.Graph) error {
 	fb := fragments.NewFragmentBuilder(fg)
 
 	var err error
+	fg.Meta.EntryURI, err = g.GetAboutURI(gi.cfg.AboutTypeURI)
+
 	fb.Graph, err = g.AsLegacyGraph()
 	if err != nil {
 		return err
 	}
 
-	fb.ResourceMap()
+	_, err = fb.ResourceMap()
+	if err != nil {
+		return fmt.Errorf("unable to create ResourceMap; %w", err)
+	}
 	_, err = fb.Doc()
 	if err != nil {
-		return err
+		return fmt.Errorf("unable to creat index doc; %w", err)
 	}
 
 	processErr := processV2(context.Background(), fb, gi.s.index)

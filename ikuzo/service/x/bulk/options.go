@@ -21,6 +21,13 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
+func SetRecDefResolver(data map[string]string) Option {
+	return func(s *Service) error {
+		s.recdef = RecDefResolver{data}
+		return nil
+	}
+}
+
 func SetHarvestPath(path string) Option {
 	return func(s *Service) error {
 		s.harvestConfigPath = path

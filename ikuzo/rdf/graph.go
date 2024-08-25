@@ -253,6 +253,10 @@ func (g *Graph) Namespaces() (ns []*domain.Namespace, err error) {
 		ns = append(ns, n)
 	}
 
+	sort.SliceStable(ns, func(i, j int) bool {
+		return ns[i].Prefix < ns[j].Prefix
+	})
+
 	return ns, nil
 }
 
@@ -280,6 +284,22 @@ func (g *Graph) updateResources(t *Triple) {
 func (g *Graph) Get(s Subject) (rsc *Resource, ok bool) {
 	rsc, ok = g.resources[s]
 	return
+}
+
+func (g *Graph) GetByType(iri IRI) (subjects []Subject) {
+	for _, t := range g.Triples() {
+		if !t.Predicate.Equal(IsA) {
+			continue
+		}
+
+		if t.Object.RawValue() != iri.RawValue() {
+			continue
+		}
+
+		subjects = append(subjects, t.Subject)
+	}
+
+	return subjects
 }
 
 func (g *Graph) Resources() map[Subject]*Resource {
@@ -374,11 +394,19 @@ func (g *Graph) AsLegacyGraph() (*rdf2go.Graph, error) {
 	return legacyGraph, nil
 }
 
-// func containsString(s []string, e string) bool {
-// for _, a := range s {
-// if a == e {
-// return true
-// }
-// }
-// return false
-// }
+// GetAboutURI returns the first matching rdf.type object from the graph.
+// It returns an error when the aboutRDFType is invalid or the aboutRDFType cannot be found
+// in the rdf.Graph.
+func (g *Graph) GetAboutURI(aboutRDFType string) (string, error) {
+	aboutType, err := NewIRI(aboutRDFType)
+	if err != nil {
+		return "", fmt.Errorf("unable to create rdf AboutTypeURI; %w", err)
+	}
+
+	aboutURI := g.GetByType(aboutType)
+	if len(aboutURI) == 0 {
+		return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutType)
+	}
+
+	return aboutURI[0].RawValue(), nil
+}
