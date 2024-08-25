@@ -736,7 +736,6 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 	if fr == nil {
 		return nil
 	}
-
 	val := reflect.ValueOf(v).Elem()
 
 	for i := 0; i < val.NumField(); i++ {

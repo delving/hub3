@@ -5,6 +5,7 @@ import "errors"
 // errors
 var (
 	ErrIDTooLong          = errors.New("identifier is too long")
+	ErrIDTooShort         = errors.New("identifier is too short")
 	ErrIDNotLowercase     = errors.New("uppercase not allowed in identifier")
 	ErrIDInvalidCharacter = errors.New("only letters and numbers are allowed in organization")
 	ErrIDCannotBeEmpty    = errors.New("empty string is not a valid identifier")

@@ -24,13 +24,23 @@ import (
 type orgIDKey struct{}
 
 var (
+	// MinLengthID is the MinLengthID for an identifier
+	MinLengthID = 2
+
 	// MaxLengthID the maximum length of an identifier
 	MaxLengthID = 12
 
-	// protected organization names
-	protected = []OrganizationID{
+	// MaxLengthDatasetID is the maximum length of an dataset identifier
+	MaxLengthDatasetID = 24
+
+	// protectedOrgIDs organization names
+	protectedOrgIDs = []OrganizationID{
 		OrganizationID("public"),
 		OrganizationID("all"),
+	}
+
+	protectedDatasetIDs = []string{
+		"public", "all", "cache", "shared",
 	}
 )
 
@@ -46,7 +56,7 @@ type OrganizationFilter struct {
 
 // OrganizationID represents a short identifier for an Organization.
 //
-// The maximum length is MaxLengthID.
+// The maximum length is MaxLengthID. The minimum length is MinLengthID
 //
 // In JSON the OrganizationID is represented as 'orgID'.
 type OrganizationID string
@@ -70,20 +80,27 @@ func NewOrganizationID(input string) (OrganizationID, error) {
 
 // Valid validates the identifier.
 //
+// - ErrIDCannotBeEmpty is returned when the id is empty
+//
 // - ErrIDTooLong is returned when ID is too long
 //
-// - ErrIDInvalidCharacter is returned when ID contains non-letters
+// - ErrIDTooShort is returned when ID is too short
 //
+// - ErrIDInvalidCharacter is returned when ID contains non-letters
 func (id OrganizationID) Valid() error {
 	if id == "" {
 		return ErrIDCannotBeEmpty
 	}
 
 	if len(id) > MaxLengthID {
-		return ErrIDTooLong
+		return fmt.Errorf("maximum length = %d; %w", MaxLengthDatasetID, ErrIDTooLong)
 	}
 
-	for _, p := range protected {
+	if len(id) < MinLengthID {
+		return fmt.Errorf("minimum length = %d; %w", MinLengthID, ErrIDTooShort)
+	}
+
+	for _, p := range protectedOrgIDs {
 		if id == p {
 			return ErrIDExists
 		}

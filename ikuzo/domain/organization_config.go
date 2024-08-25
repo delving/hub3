@@ -208,7 +208,7 @@ func (cfg *OrganizationConfig) GetDigitalObjectIndexName() string {
 // When the dbName is empty the OrgId from the configuration is used.
 func (cfg *OrganizationConfig) GetSparqlEndpoint(dbName string) string {
 	if dbName == "" {
-		dbName = cfg.OrgID()
+		dbName = cfg.OrgID() + "-data"
 	}
 
 	u, err := url.Parse(cfg.SPARQL.Host)
@@ -225,7 +225,7 @@ func (cfg *OrganizationConfig) GetSparqlEndpoint(dbName string) string {
 // When the dbName is empty the OrgId from the configuration is used.
 func (cfg *OrganizationConfig) GetSparqlUpdateEndpoint(dbName string) string {
 	if dbName == "" {
-		dbName = cfg.OrgID()
+		dbName = cfg.OrgID() + "-data"
 	}
 
 	u, err := url.Parse(cfg.SPARQL.Host)
@@ -242,7 +242,7 @@ func (cfg *OrganizationConfig) GetSparqlUpdateEndpoint(dbName string) string {
 // When the dbName is empty the OrgId from the configuration is used.
 func (cfg *OrganizationConfig) GetGraphStoreEndpoint(dbName string) string {
 	if dbName == "" {
-		dbName = cfg.OrgID()
+		dbName = cfg.OrgID() + "-data"
 	}
 
 	u, err := url.Parse(cfg.SPARQL.Host)

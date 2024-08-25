@@ -6,8 +6,7 @@ import (
 )
 
 type HubID struct {
-	OrgID     string
-	DatasetID string
+	DatasetID DatasetID
 	LocalID   string
 }
 
@@ -23,13 +22,21 @@ func NewHubID(input string) (HubID, error) {
 		}
 	}
 
+	datasetID, err := NewDatasetID(parts[0], parts[1])
+	if err != nil {
+		return HubID{}, err
+	}
+
 	return HubID{
-		OrgID:     parts[0],
-		DatasetID: parts[1],
+		DatasetID: datasetID,
 		LocalID:   parts[2],
 	}, nil
 }
 
+func (h HubID) OrgID() OrganizationID {
+	return h.DatasetID.OrgID
+}
+
 func (h HubID) String() string {
-	return fmt.Sprintf("%s_%s_%s", h.OrgID, h.DatasetID, h.LocalID)
+	return fmt.Sprintf("%s_%s", h.DatasetID.String(), h.LocalID)
 }

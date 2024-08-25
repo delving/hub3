@@ -20,25 +20,25 @@ func TestNewHubID(t *testing.T) {
 		{
 			"valid",
 			args{input: "org_spec_123"},
-			HubID{OrgID: "org", DatasetID: "spec", LocalID: "123"},
+			HubID{DatasetID: DatasetID{OrganizationID("org"), "spec"}, LocalID: "123"},
 			false,
 		},
 		{
 			"invalid empty",
 			args{input: ""},
-			HubID{OrgID: "", DatasetID: "", LocalID: ""},
+			HubID{DatasetID: DatasetID{OrganizationID(""), ""}, LocalID: ""},
 			true,
 		},
 		{
 			"invalid missing id",
 			args{input: "org_spec"},
-			HubID{OrgID: "", DatasetID: "", LocalID: ""},
+			HubID{DatasetID: DatasetID{OrganizationID(""), ""}, LocalID: ""},
 			true,
 		},
 		{
 			"invalid missing id",
 			args{input: "org_spec_"},
-			HubID{OrgID: "", DatasetID: "", LocalID: ""},
+			HubID{DatasetID: DatasetID{OrganizationID(""), ""}, LocalID: ""},
 			true,
 		},
 	}
