@@ -188,9 +188,22 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 				return fmt.Errorf("bad oai-pmh response, so retrying")
 			}
 
-			hasToken, _, completeListSize := oaiResponse.GetResumptionToken()
-			if completeListSize == 0 || (completeListSize < request.CompleteListSize && !hasToken) {
+			var listSize int
+			switch {
+			case oaiResponse.ListRecords != nil:
+				listSize = len(oaiResponse.ListRecords.Records)
+			case oaiResponse.ListIdentifiers != nil:
+				listSize = len(oaiResponse.ListIdentifiers.Headers)
+			}
+
+			hasToken, token, tokenListSize := oaiResponse.GetResumptionToken()
+			if (request.recordsSeen+listSize) <= request.CompleteListSize && !hasToken {
 				l.Error("invalid OAI-PMH resumable response; so retrying", "response", string(data))
+				slog.Info("retrying invalid request",
+					"expected_completeListSize", request.CompleteListSize, "records_returned", listSize,
+					"records_seen", request.recordsSeen, "url", request.GetFullURL(),
+					"token", token, "tokenListSize", tokenListSize,
+				)
 				return fmt.Errorf("invalid resumable oai-pmh response, so retrying")
 			}
 
