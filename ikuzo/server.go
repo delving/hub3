@@ -455,9 +455,11 @@ func (s *server) recoverer(next http.Handler) http.Handler {
 					Str("method", r.Method).
 					Str("url", r.URL.String()).
 					Int("status", http.StatusInternalServerError).
-					Bytes("debug_stack", debug.Stack()).
+					Str("debug_stack", string(debug.Stack())).
 					Dict("params", middleware.LogParamsAsDict(r.URL.Query())).
 					Msgf("Recover from Panic: %s", rvr)
+
+				fmt.Printf("recoverred from error stack: %s\n", debug.Stack())
 
 				err := fmt.Errorf("%s; error logged with request_id: %s", errText, requestID)
 				s.respondWithError(w, r, err, http.StatusInternalServerError)
