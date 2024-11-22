@@ -79,6 +79,55 @@ var customNS = []nsEntry{
 	{Prefix: "k3qual", BaseURI: "http://gebouwen.brabantcloud.nl/prop/qualifier/"},
 	{Prefix: "ace", BaseURI: "https://data.antwerp.be/ns/cultureel-erfgoed#"},
 	{Prefix: "nk", BaseURI: "https://wo2.collectienederland.nl/nk/terms/"},
+	{
+		Prefix:  "crmdig",
+		BaseURI: "http://www.ics.forth.gr/isl/CRMext/CRMdig/",
+	},
+
+	{
+		Prefix:  "lrm",
+		BaseURI: "https://www.iflastandards.info/ns/lrm/lrmoo#",
+	},
+
+	{
+		Prefix:  "oslo",
+		BaseURI: "https://data.vlaanderen.be/ns/cultureel-erfgoed#",
+	},
+
+	{
+		Prefix:  "vl-generiek",
+		BaseURI: "https://data.vlaanderen.be/ns/generiek#",
+	},
+
+	{
+		Prefix:  "vl-persoon",
+		BaseURI: "https://data.vlaanderen.be/context/persoon-basis#",
+	},
+
+	{
+		Prefix:  "cest",
+		BaseURI: "https://www.projectcest.be/wiki/Publicatie:Invulboek_objecten/Veld/",
+	},
+
+	{
+		Prefix:  "edtf",
+		BaseURI: "http://id.loc.gov/datatypes/edtf/",
+	},
+
+	{
+		Prefix:  "locn",
+		BaseURI: "http://www.w3.org/ns/locn#",
+	},
+
+	{
+		Prefix:  "person",
+		BaseURI: "http://www.w3.org/ns/person#",
+	},
+
+	{
+		Prefix:  "la",
+		BaseURI: "https://linked.art/ns/terms/",
+	},
 }
 
 var defaultNS = []nsEntry{
