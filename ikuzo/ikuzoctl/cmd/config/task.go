@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/service/x/task"
@@ -13,6 +14,10 @@ type Task struct {
 }
 
 func (t *Task) AddOptions(cfg *Config) error {
+	if cfg.RedisConfig().Address == "" {
+		slog.Warn("unable to configure task service because redis is undefined in the configuration")
+		return nil
+	}
 	svc, err := cfg.GetTaskService()
 	if err != nil {
 		return err
