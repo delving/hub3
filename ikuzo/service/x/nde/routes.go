@@ -35,6 +35,10 @@ func (s *Service) lodRedirect(w http.ResponseWriter, r *http.Request) {
 func (s *Service) defaultRedirect(w http.ResponseWriter, r *http.Request) {
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
+		if s.defaultCfg == nil {
+			http.NotFound(w, r)
+			return
+		}
 		newPath := fmt.Sprintf("%s/%s", r.URL.Path, s.defaultCfg.URLPrefix)
 		http.Redirect(w, r, newPath, http.StatusFound)
 
