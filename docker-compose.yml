@@ -28,20 +28,20 @@ services:
         # networks:
         # - esnet
     #
-    kibana:
-        image: docker.elastic.co/kibana/kibana:7.14.1
-        container_name: kibana
-        environment:
-            - ELASTICSEARCH_HOSTS=http://elasticsearch1:9200
-            - xpack.security.enabled=false
-            - xpack.reporting.roles.enabled=false
-        ports:
-            - 5601:5601
-        # networks:
-        #   - es-net
-        depends_on:
-            - elasticsearch1
-        restart: 'unless-stopped'
+    # kibana:
+    #     image: docker.elastic.co/kibana/kibana:7.14.1
+    #     container_name: kibana
+    #     environment:
+    #         - ELASTICSEARCH_HOSTS=http://elasticsearch1:9200
+    #         - xpack.security.enabled=false
+    #         - xpack.reporting.roles.enabled=false
+    #     ports:
+    #         - 5601:5601
+    #     # networks:
+    #     #   - es-net
+    #     depends_on:
+    #         - elasticsearch1
+    #     restart: 'unless-stopped'
 
     fuseki:
         # image: zacanbot/fuseki
@@ -54,7 +54,7 @@ services:
             - '3033:3030'
         volumes:
             - ~/data_no_backup/docker-data/hub3/fuseki/data:/data/fuseki
-            - ./shiro.ini:/fuseki/shiro.ini
+            - ./shiro.ini:/fuseki/shiro.ini.6
         command:
             [
                 '/jena-fuseki/fuseki-server',
@@ -83,7 +83,7 @@ services:
         # - esnet
 
     postgresql:
-        image: postgis/postgis:latest
+        image: postgis/postgis:15-3.5
         ports:
             - '5433:5432'
         environment:
