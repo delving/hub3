@@ -636,7 +636,7 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 	var selected bool
 
 	if fub.query != "" {
-		fields = append(fields, fmt.Sprintf("q=%s", fub.query))
+		fields = append(fields, fmt.Sprintf("q=%s", ensureURLEncoding(fub.query)))
 	}
 
 	// todo replace with sort at builder level
@@ -702,10 +702,20 @@ func (fub FacetURIBuilder) CreateFacetFilterURI(field, value string) (string, bo
 			key = qfIDKey
 			field = strings.TrimSuffix(field, ".id")
 		}
-		fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, field, value))
+		fields = append(fields, fmt.Sprintf("%s[]=%s:%s", key, field, ensureURLEncoding(value)))
 	}
 
 	return strings.Join(fields, "&"), selected
+}
+
+func ensureURLEncoding(s string) string {
+	decoded, err := url.QueryUnescape(s)
+	if err != nil {
+		slog.Error("unable to decoded string", "err", err, "input", s)
+		return s
+	}
+
+	return url.QueryEscape(decoded)
 }
 
 // CreateFacetFilterQuery creates an elasticsearch Query to filter facets

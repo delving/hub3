@@ -949,3 +949,25 @@ func Test_getCursorFromPage(t *testing.T) {
 		})
 	}
 }
+
+func TestEnsureURLEncoding(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"hello%20world", "hello+world"},
+		{"%3Chtml%3E", "%3Chtml%3E"},
+		{"normalstring", "normalstring"},
+		{"invalid%2string", "invalid%2string"},
+		{"First & Second", "First+%26+Second"},
+		{"First &amp; Second", "First+%26amp%3B+Second"},
+		{"\"au::123\"", "%22au%3A%3A123%22"},
+	}
+
+	for _, test := range tests {
+		result := ensureURLEncoding(test.input)
+		if result != test.expected {
+			t.Errorf("ensureURLEncoding(%s) = %s; expected %s", test.input, result, test.expected)
+		}
+	}
+}
