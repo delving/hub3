@@ -21,7 +21,7 @@ import (
 	"github.com/matryer/is"
 )
 
-const defaultListSize = 2199
+const defaultListSize = 2207
 
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{

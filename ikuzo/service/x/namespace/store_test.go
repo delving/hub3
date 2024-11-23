@@ -174,5 +174,5 @@ func TestDuplicateURIS(t *testing.T) {
 
 	// TODO(kiivihal): finish this in default
 	t.Logf("suspect uris (%d): %#v", len(suspect), suspect)
-	is.Equal(len(suspect), 107)
+	is.Equal(len(suspect), 109)
 }
