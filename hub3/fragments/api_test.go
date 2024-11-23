@@ -359,6 +359,18 @@ func TestSearchRequest_NewUserQuery(t *testing.T) {
 			1,
 			false,
 		},
+		{
+			"encoded query",
+			fields{Query: "test & more"},
+			&Query{
+				Terms: "test & more",
+				BreadCrumbs: []*BreadCrumb{
+					{Href: "q=test+%26+more", Display: "test & more", Value: "test & more", IsLast: true},
+				},
+			},
+			1,
+			false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -406,11 +418,11 @@ func TestAppendBreadCrumb(t *testing.T) {
 		{
 			"simple filter query",
 			args{
-				param: "qf[]", qf: &QueryFilter{Value: "boerderij", SearchLabel: "dc_subject"},
-				path: "q=test&qf[]=dc_subject:boerderij",
+				param: "qf[]", qf: &QueryFilter{Value: "boerderij & koe", SearchLabel: "dc_subject"},
+				path: "q=test&qf[]=dc_subject:boerderij+%26+koe",
 			},
 			&BreadCrumb{
-				Href: "q=test&qf[]=dc_subject:boerderij", Display: "dc_subject:boerderij", Value: "boerderij",
+				Href: "q=test&qf[]=dc_subject:boerderij+%26+koe", Display: "dc_subject:boerderij & koe", Value: "boerderij & koe",
 				Field: "dc_subject", IsLast: true,
 			}, false,
 		},

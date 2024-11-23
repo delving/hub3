@@ -821,7 +821,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 	case "query", "q":
 		if qf.GetValue() != "" {
 			bc.Display = qf.GetValue()
-			bc.Href = fmt.Sprintf("q=%s", qf.GetValue())
+			bc.Href = fmt.Sprintf("q=%s", ensureURLEncoding(qf.GetValue()))
 			bc.Value = qf.GetValue()
 			bcb.hrefPath = append(bcb.hrefPath, bc.Href)
 		}
@@ -830,7 +830,8 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			param = fmt.Sprintf("%s[]", param)
 		}
 
-		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
+		qfs := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), ensureURLEncoding(qf.GetValue()))
+		qfsDisplay := fmt.Sprintf("%s:%s", qf.GetSearchLabel(), qf.GetValue())
 
 		if qf.Exclude {
 			qfs = fmt.Sprintf("-%s", qfs)
@@ -842,7 +843,7 @@ func (bcb *BreadCrumbBuilder) AppendBreadCrumb(param string, qf *QueryFilter) {
 			bc.Href = bcb.GetPath() + "&" + bc.Href
 		}
 		bcb.hrefPath = append(bcb.hrefPath, href)
-		bc.Display = qfs
+		bc.Display = qfsDisplay
 		bc.Field = qf.GetSearchLabel()
 		bc.Value = qf.GetValue()
 	case qfExistList, "qf.exist":
