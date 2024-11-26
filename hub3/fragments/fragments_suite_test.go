@@ -44,14 +44,15 @@ var _ = BeforeSuite(func() {
 	config.InitConfig()
 
 	req := testcontainers.ContainerRequest{
-		Image:        "docker.elastic.co/elasticsearch/elasticsearch:7.14.1",
+		Image:        "opensearchproject/opensearch:2.18.0",
 		ExposedPorts: []string{"9200"},
-		WaitingFor:   wait.ForLog("indices into cluster_state"),
+		WaitingFor:   wait.ForLog("Cluster health status changed from [YELLOW] to [GREEN]"),
 		Env: map[string]string{
-			"discovery.type":         "single-node",
-			"cluster.name":           "ikuzo_cluster",
-			"xpack.security.enabled": "false",
-			"ES_JAVA_OPTS":           "-Xms1024m -Xmx1024m",
+			"discovery.type":                    "single-node",
+			"cluster.name":                      "ikuzo_cluster",
+			"plugins.security.disabled":         "true",
+			"OPENSEARCH_JAVA_OPTS":              "-Xms1024m -Xmx1024m",
+			"OPENSEARCH_INITIAL_ADMIN_PASSWORD": "YourStrongPassword!1",
 		},
 	}
 
