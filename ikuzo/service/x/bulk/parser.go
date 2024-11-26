@@ -247,6 +247,10 @@ func (p *Parser) debugWrite(req *Request) error {
 }
 
 func (p *Parser) process(ctx context.Context, req *Request) error {
+	if req.RecDefID == "" {
+		req.RecDefID = p.recDef.defaultRecDefID
+	}
+
 	p.once.Do(func() { p.setDataSet(req) })
 
 	subLogger := addLogger(req.DatasetID)
@@ -261,11 +265,13 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		return fmt.Errorf("unable to get dataset")
 	}
 
-	aboutUri, err := p.recDef.Resolve(req.RecDefID)
-	if err != nil {
-		return fmt.Errorf("unable to resolve recDefID %q; %w", req.RecDefID, err)
+	if req.aboutTypeURI == "" {
+		aboutURI, err := p.recDef.Resolve(req.RecDefID)
+		if err != nil {
+			return fmt.Errorf("unable to resolve recDefID %q; %w", req.RecDefID, err)
+		}
+		req.aboutTypeURI = aboutURI
 	}
-	req.aboutTypeURI = aboutUri
 
 	req.Revision = p.ds.Revision
 	// TODO(kiivihal): add logger

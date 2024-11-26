@@ -216,9 +216,11 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 		return err
 	}
 
-	fb.fg.Meta.EntryURI, err = g.GetAboutURI(fb.fg.Meta.AboutTypeURI)
-	if err != nil {
-		return fmt.Errorf("unable to retrieve aboutType %q from graph; %w", fb.fg.Meta.AboutTypeURI, err)
+	if fb.fg.Meta.EntryURI == "" {
+		fb.fg.Meta.EntryURI, err = g.GetAboutURI(fb.fg.Meta.AboutTypeURI)
+		if err != nil {
+			return fmt.Errorf("unable to retrieve aboutType %q from graph; %w", fb.fg.Meta.AboutTypeURI, err)
+		}
 	}
 
 	rm := NewEmptyResourceMap(fb.fg.Meta.GetOrgID())

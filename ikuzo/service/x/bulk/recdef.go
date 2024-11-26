@@ -3,7 +3,8 @@ package bulk
 import "fmt"
 
 type RecDefResolver struct {
-	m map[string]string
+	m               map[string]string
+	defaultRecDefID string
 }
 
 func (rdr *RecDefResolver) Resolve(recDefID string) (string, error) {

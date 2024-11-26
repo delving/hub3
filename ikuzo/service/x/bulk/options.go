@@ -21,9 +21,9 @@ func SetIndexTypes(indexTypes ...string) Option {
 	}
 }
 
-func SetRecDefResolver(data map[string]string) Option {
+func SetRecDefResolver(data map[string]string, defaultRecDefID string) Option {
 	return func(s *Service) error {
-		s.recdef = RecDefResolver{data}
+		s.recdef = RecDefResolver{m: data, defaultRecDefID: defaultRecDefID}
 		return nil
 	}
 }

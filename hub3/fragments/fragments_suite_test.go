@@ -46,8 +46,7 @@ var _ = BeforeSuite(func() {
 	req := testcontainers.ContainerRequest{
 		Image:        "docker.elastic.co/elasticsearch/elasticsearch:7.14.1",
 		ExposedPorts: []string{"9200"},
-		// WaitingFor:   wait.ForHTTP(":9200/"),
-		WaitingFor: wait.ForLog("indices into cluster_state"),
+		WaitingFor:   wait.ForLog("indices into cluster_state"),
 		Env: map[string]string{
 			"discovery.type":         "single-node",
 			"cluster.name":           "ikuzo_cluster",
