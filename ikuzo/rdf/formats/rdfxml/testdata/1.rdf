@@ -18,6 +18,8 @@
         <dc:subject>van der Meer</dc:subject>
         <dc:subject>Bertels</dc:subject>
         <dc:title>personen</dc:title>
+        <dc:title></dc:title>
+        <dc:title xml:lang="nl"></dc:title>
         <dcterms:created>1947-1958</dcterms:created>
         <dcterms:spatial rdf:resource="http://sws.geonames.org/2759059"/>
         <edm:type>IMAGE</edm:type>

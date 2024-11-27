@@ -26,7 +26,10 @@ func TestSerialize(t *testing.T) {
 	err = Serialize(g, &buf)
 	is.NoErr(err)
 
-	if diff := cmp.Diff(string(b), buf.String()); diff != "" {
+	golden, err := os.ReadFile("./testdata/rdf_serialized.nt")
+	is.NoErr(err)
+
+	if diff := cmp.Diff(string(golden), buf.String()); diff != "" {
 		t.Errorf("serialize = mismatch (-want +got):\n%s", diff)
 	}
 }

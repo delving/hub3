@@ -1,10 +1,12 @@
 package rdfxml
 
 import (
+	"errors"
 	"io"
 
-	"github.com/delving/hub3/ikuzo/rdf"
 	xmlrdf "github.com/knakk/rdf"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
@@ -36,6 +38,9 @@ func decodeRDFXML(r io.Reader) ([]*rdf.Triple, error) {
 	for _, t := range triples {
 		newT, err := convertTriple(t)
 		if err != nil {
+			if errors.Is(err, rdf.ErrEmptyLiteral) {
+				continue
+			}
 			return newTriples, err
 		}
 

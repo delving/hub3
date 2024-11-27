@@ -207,7 +207,7 @@ func TestLiteral(t *testing.T) {
 			{"a", xsdString, ""},
 			{[]byte("123"), xsdByte, ""},
 			{struct{ a, b string }{"1", "2"}, IRI{}, `cannot infer XSD datatype from struct { a string; b string }{a:"1", b:"2"}`},
-			{"", xsdString, "invalid literal value: cannot be empty"},
+			{"", xsdString, "literal value cannot be empty"},
 		}
 
 		for _, tt := range tests {

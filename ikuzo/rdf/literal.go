@@ -169,7 +169,7 @@ func isValidDataType(dt IRI) bool {
 func (l Literal) Validate() *validator.Validator {
 	v := validator.New()
 
-	v.Check(l.str != "", "literal", ErrInvalidLiteral, "cannot be empty")
+	v.Check(l.str != "", "literal", ErrEmptyLiteral, "cannot be empty")
 
 	if l.lang != "" {
 		validateLanguageTag(v, l.lang)
@@ -214,9 +214,8 @@ func NewLiteralInferred(v interface{}) (Literal, error) {
 		return Literal{val: t, str: fmt.Sprintf("%v", t), DataType: xsdInteger}, nil
 	case string:
 		if strings.TrimSpace(t) == "" {
-			return Literal{}, fmt.Errorf("%w: cannot be empty", ErrInvalidLiteral)
+			return Literal{}, ErrEmptyLiteral
 		}
-
 		return Literal{str: t, DataType: xsdString}, nil
 	case float32, float64:
 		return Literal{val: t, str: fmt.Sprintf("%v", t), DataType: xsdDouble}, nil

@@ -30,4 +30,7 @@ var (
 
 	// ErrInvalidLiteral is returned when the RDF Literal value is invalid
 	ErrInvalidLiteral = errors.New("invalid literal value")
+
+	// ErrEmptyLiteral is returned when the RDF Literal value is empty
+	ErrEmptyLiteral = errors.New("literal value cannot be empty")
 )

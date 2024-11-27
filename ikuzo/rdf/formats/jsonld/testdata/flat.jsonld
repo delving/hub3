@@ -13,6 +13,13 @@
     "http://purl.org/dc/terms/createdRaw": [
       {
         "@value": "-481 t/m -221"
+      },
+      {
+        "@value": ""
+      },
+      {
+        "@value": "",
+        "@language": "nl"
       }
     ],
     "@id": "http://data.brabantcloud.nl/resource/document/museum-klok-en-peel/2458",

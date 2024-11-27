@@ -1,11 +1,13 @@
 package ntriples
 
 import (
+	"errors"
 	"fmt"
 	"io"
 
-	"github.com/delving/hub3/ikuzo/rdf"
 	gonrdf "github.com/kiivihal/gon3"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
@@ -22,6 +24,9 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	for triple := range parser.IterTriples() {
 		t, err := rdftriple2triple(triple)
 		if err != nil {
+			if errors.Is(err, rdf.ErrEmptyLiteral) {
+				continue
+			}
 			return g, err
 		}
 

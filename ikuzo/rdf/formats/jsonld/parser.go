@@ -5,13 +5,15 @@ package jsonld
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 
-	"github.com/delving/hub3/ikuzo/rdf"
 	jsonld "github.com/kiivihal/gojsonld"
 	"github.com/piprate/json-gold/ld"
+
+	"github.com/delving/hub3/ikuzo/rdf"
 )
 
 func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
@@ -43,6 +45,9 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	for triple := range dataSet.IterTriples() {
 		t, err := jtriple2triple(triple)
 		if err != nil {
+			if errors.Is(err, rdf.ErrEmptyLiteral) {
+				continue
+			}
 			return g, err
 		}
 
