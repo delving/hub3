@@ -61,7 +61,6 @@ func NewClient(cfg *Config) (*Client, error) {
 		Metrics:    !cfg.DisableMetrics,
 		MaxRetries: cfg.MaxRetries,
 		Timeout:    cfg.Timeout,
-		FastHTTP:   false,
 	}
 
 	esclient, err := internal.NewElasticClient(&indexCfg)
@@ -75,7 +74,7 @@ func NewClient(cfg *Config) (*Client, error) {
 }
 
 func (c *Client) Ping() (*externalAPI.Response, error) {
-	return c.index.Info()
+	return c.index.Ping()
 }
 
 // CreateDefaultMappings creates index mappings for all supplied organizations

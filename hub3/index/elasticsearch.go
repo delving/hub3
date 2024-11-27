@@ -17,14 +17,15 @@ package index
 import (
 	"context"
 	"errors"
-	"fmt"
+	"log/slog"
 	"net/http"
 	"syscall"
 	"time"
 
+	elastic "github.com/olivere/elastic/v7"
+
 	"github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/logger"
-	elastic "github.com/olivere/elastic/v7"
 )
 
 // CustomRetrier for configuring the retrier for the ElasticSearch client.
@@ -87,7 +88,7 @@ func createESClient() *elastic.Client {
 	if client == nil {
 		c, err := elastic.NewClient(options...)
 		if err != nil {
-			fmt.Printf("Unable to connect to ElasticSearch. %s\n", err)
+			slog.Error("Unable to connect to ElasticSearch", "error", err, "options", options, "config", config.Config.ElasticSearch)
 		}
 
 		client = c

@@ -14,7 +14,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/cnf/structhash v0.0.0-20201127153200-e1b16c1ebc08
 	github.com/docker/go-connections v0.5.0
-	github.com/elastic/go-elasticsearch/v8 v8.0.0-20200716073932-4f0b75746dc1
+	github.com/elastic/go-elasticsearch/v8 v8.16.0
 	github.com/gammazero/workerpool v1.1.3
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/go-chi/chi/v5 v5.1.0
@@ -108,6 +108,7 @@ require (
 	github.com/djherbis/nio/v3 v3.0.1 // indirect
 	github.com/docker/docker v27.3.1+incompatible // indirect
 	github.com/docker/go-units v0.5.0 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.6.0 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect

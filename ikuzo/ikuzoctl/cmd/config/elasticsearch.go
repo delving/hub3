@@ -19,6 +19,9 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"github.com/rs/zerolog/log"
+
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain"
 	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
@@ -27,8 +30,6 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/service/x/esproxy"
 	"github.com/delving/hub3/ikuzo/service/x/index"
-	"github.com/elastic/go-elasticsearch/v8/esutil"
-	"github.com/rs/zerolog/log"
 )
 
 type ElasticSearch struct {
@@ -66,8 +67,6 @@ type ElasticSearch struct {
 	UseRemoteIndexer bool `json:"useRemoteIndexer,omitempty"`
 	// IndexTypes options are v1, v2, fragment
 	IndexTypes []string `json:"indexTypes,omitempty"`
-	// use FastHTTP transport for communication with the ElasticSearch cluster
-	FastHTTP bool `json:"fastHTTP,omitempty"`
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
 	OrphanWait int `json:"orphanWait,omitempty"`
 	// once makes sure that createmapping is only run once

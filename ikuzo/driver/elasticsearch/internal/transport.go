@@ -15,76 +15,81 @@
 package internal
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
-	"strings"
-
-	"github.com/valyala/fasthttp"
 )
 
-// Transport implements the estransport interface with
-// the github.com/valyala/fasthttp HTTP client.
-//
-// adapted from https://github.com/elastic/go-elasticsearch/blob/master/_examples/fasthttp/fasthttp.go
-type Transport struct{}
+type CustomTransport struct {
+	*http.Transport
+}
 
-// RoundTrip performs the request and returns a response or error
-func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
-	freq := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(freq)
+// RoundTrip implements the http.RoundTripper interface
+// This is a workaround to support both Elasticsearch and OpenSearch
+func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("User-Agent", "elasticsearch/8.16.0")
+	req.Header.Set("X-Elastic-Client-Meta", "es=8.16.0,go=1.23.3,t=8.6.0")
 
-	fres := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseResponse(fres)
+	if req.Method == "HEAD" && req.URL.Path == "/" {
+		return &http.Response{
+			Status:     "200 OK",
+			StatusCode: 200,
+			Proto:      "HTTP/1.1",
+			ProtoMajor: 1,
+			ProtoMinor: 1,
+			Header: http.Header{
+				"X-Found":           []string{"true"},
+				"Server":            []string{"elasticsearch/8.16.0"},
+				"X-Elastic-Product": []string{"Elasticsearch"},
+			},
+			Body:          io.NopCloser(bytes.NewReader([]byte{})),
+			ContentLength: 0,
+			Request:       req,
+		}, nil
+	}
 
-	t.copyRequest(freq, req)
-
-	err := fasthttp.Do(freq, fres)
+	resp, err := t.Transport.RoundTrip(req)
 	if err != nil {
 		return nil, err
 	}
+	resp.Header.Set("X-Elastic-Product", "Elasticsearch")
 
-	res := &http.Response{Header: make(http.Header)}
-	t.copyResponse(res, fres)
-
-	return res, nil
-}
-
-// copyRequest converts a http.Request to fasthttp.Request
-func (t *Transport) copyRequest(dst *fasthttp.Request, src *http.Request) *fasthttp.Request {
-	if src.Method == "GET" && src.Body != nil {
-		src.Method = "POST"
-	}
-
-	dst.SetHost(src.Host)
-	dst.SetRequestURI(src.URL.String())
-
-	dst.Header.SetRequestURI(src.URL.String())
-	dst.Header.SetMethod(src.Method)
-
-	for k, vv := range src.Header {
-		for _, v := range vv {
-			dst.Header.Set(k, v)
+	if req.Method == "GET" && req.URL.Path == "/" {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read response body: %v", err)
 		}
+		resp.Body.Close()
+
+		var data map[string]interface{}
+		if err := json.Unmarshal(body, &data); err != nil {
+			return nil, fmt.Errorf("failed to parse JSON: %v\nBody: %s", err, string(body))
+		}
+
+		modifiedData := map[string]interface{}{
+			"name":         "opensearch-node",
+			"cluster_name": "opensearch-cluster",
+			"version": map[string]interface{}{
+				"number":       "7.10.2", // Or match your OpenSearch version
+				"build_type":   "docker",
+				"build_hash":   "unknown",
+				"build_date":   "2023-01-01T00:00:00.000Z",
+				"distribution": "elasticsearch",
+			},
+			"tagline": "You Know, for Search",
+		}
+
+		modifiedBody, err := json.Marshal(modifiedData)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal modified JSON: %v", err)
+		}
+
+		resp.Body = io.NopCloser(bytes.NewReader(modifiedBody))
+		resp.ContentLength = int64(len(modifiedBody))
+		resp.Header.Set("Content-Length", fmt.Sprintf("%d", len(modifiedBody)))
 	}
 
-	if src.Body != nil {
-		dst.SetBodyStream(src.Body, -1)
-	}
-
-	return dst
-}
-
-// copyResponse converts a http.Response to fasthttp.Response
-func (t *Transport) copyResponse(dst *http.Response, src *fasthttp.Response) *http.Response {
-	dst.StatusCode = src.StatusCode()
-
-	src.Header.VisitAll(func(k, v []byte) {
-		dst.Header.Set(string(k), string(v))
-	})
-
-	// Cast to a string to make a copy seeing as src.Body() won't
-	// be valid after the response is released back to the pool (fasthttp.ReleaseResponse).
-	dst.Body = io.NopCloser(strings.NewReader(string(src.Body())))
-
-	return dst
+	return resp, nil
 }

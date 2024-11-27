@@ -18,7 +18,6 @@ type ElasticConfig struct {
 	Logger     *logger.CustomLogger
 	Metrics    bool
 	MaxRetries int
-	FastHTTP   bool
 	Timeout    int
 }
 
@@ -63,10 +62,7 @@ func NewElasticClient(cfg *ElasticConfig) (*elasticsearch.Client, error) {
 		innerCfg.Password = cfg.Password
 	}
 
-	if cfg.FastHTTP {
-		// Custom transport based on fasthttp
-		innerCfg.Transport = &Transport{}
-	}
+	innerCfg.Transport = &CustomTransport{Transport: &http.Transport{}}
 
 	client, err := elasticsearch.NewClient(innerCfg)
 

@@ -1,60 +1,50 @@
 services:
-    elasticsearch1:
-        image: docker.elastic.co/elasticsearch/elasticsearch:7.14.1
-        container_name: elasticsearch7
-        ports:
-            - '9200:9200'
-            - '9300:9300'
+    opensearch:
+        image: opensearchproject/opensearch:latest
         environment:
-            - cluster.name=hub3_cluster
-            - node.name=elasticsearch1
-            - cluster.initial_master_nodes=elasticsearch1
-            - logger.level=WARN
+            - discovery.type=single-node
             - bootstrap.memory_lock=true
-            - http.cors.allow-origin=http://localhost:1358,http://127.0.0.1:5601
-            - http.cors.enabled=true
-            - http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization
-            - http.cors.allow-credentials=true
-            - 'ES_JAVA_OPTS=-Xms1024m -Xmx1024m'
-            - xpack.security.enabled=false
-            - xpack.monitoring.collection.enabled=true
-        volumes:
-            - ~/data_no_backup/docker-data/hub3/esdata1:/usr/share/elasticsearch/data
+            - 'OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m'
+            - 'DISABLE_SECURITY_PLUGIN=true' # For development only
+            - 'DISABLE_INSTALL_DEMO_CONFIG=true'
         ulimits:
             memlock:
                 soft: -1
                 hard: -1
-        restart: 'unless-stopped'
+            nofile:
+                soft: 65536
+                hard: 65536
+        volumes:
+            - ~/data_no_backup/docker-data/hub3/opensearch-data:/usr/share/opensearch/data
+        ports:
+            - '9200:9200'
+            - '9600:9600'
         # networks:
-        # - esnet
-    #
-    # kibana:
-    #     image: docker.elastic.co/kibana/kibana:7.14.1
-    #     container_name: kibana
-    #     environment:
-    #         - ELASTICSEARCH_HOSTS=http://elasticsearch1:9200
-    #         - xpack.security.enabled=false
-    #         - xpack.reporting.roles.enabled=false
-    #     ports:
-    #         - 5601:5601
-    #     # networks:
-    #     #   - es-net
-    #     depends_on:
-    #         - elasticsearch1
-    #     restart: 'unless-stopped'
+        #   - opensearch-net
+
+    opensearch-dashboards:
+        image: opensearchproject/opensearch-dashboards:latest
+        environment:
+            - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+            - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true' # For development only
+        ports:
+            - '5601:5601'
+        depends_on:
+            - opensearch
+        # networks:
+        #   - opensearch-net
 
     fuseki:
-        # image: zacanbot/fuseki
         image: stain/jena-fuseki
         container_name: hub3-fuseki
         environment:
             JVM_ARGS: -Xmx256m
             # ADMIN_PASSWORD: pw123
         ports:
-            - '3033:3030'
+            - '3034:3030'
         volumes:
-            - ~/data_no_backup/docker-data/hub3/fuseki/data:/data/fuseki
-            - ./shiro.ini:/fuseki/shiro.ini.6
+            - ~/data_no_backup/docker-data/hub3/fuseki2.4/data:/data/fuseki
+            # - ./shiro.ini:/fuseki/shiro.ini.6
         command:
             [
                 '/jena-fuseki/fuseki-server',
@@ -119,6 +109,9 @@ services:
     #     volumes:
     #         - ~/data_no_backup/docker-data/hub3/minio_storage:/data
     #     command: server  --console-address :9001 /data
+
+volumes:
+    opensearch-data:
 
 # networking
 networks:
