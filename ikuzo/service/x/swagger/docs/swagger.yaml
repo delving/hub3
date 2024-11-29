@@ -1,0 +1,365 @@
+basePath: /v2
+definitions:
+  fragments.FragmentGraph:
+    properties:
+      fields:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      highlights:
+        items:
+          $ref: '#/definitions/fragments.ResourceEntryHighlight'
+        type: array
+      jsonld:
+        items:
+          additionalProperties: true
+          type: object
+        type: array
+      meta:
+        $ref: '#/definitions/fragments.Header'
+      protobuf:
+        $ref: '#/definitions/fragments.ProtoBuf'
+      resources:
+        items:
+          $ref: '#/definitions/fragments.FragmentResource'
+        type: array
+      summary:
+        $ref: '#/definitions/fragments.ResultSummary'
+      tree:
+        $ref: '#/definitions/fragments.Tree'
+    type: object
+  fragments.FragmentReferrerContext:
+    properties:
+      Label:
+        type: string
+      Level:
+        type: integer
+      ObjectID:
+        type: string
+      Predicate:
+        type: string
+      SearchLabel:
+        type: string
+      SortKey:
+        type: integer
+      Subject:
+        type: string
+      SubjectClass:
+        items:
+          type: string
+        type: array
+    type: object
+  fragments.FragmentResource:
+    properties:
+      context:
+        items:
+          $ref: '#/definitions/fragments.FragmentReferrerContext'
+        type: array
+      entries:
+        items:
+          $ref: '#/definitions/fragments.ResourceEntry'
+        type: array
+      graphExternalContext:
+        items:
+          $ref: '#/definitions/fragments.FragmentReferrerContext'
+        type: array
+      id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      types:
+        items:
+          type: string
+        type: array
+    type: object
+  fragments.Header:
+    properties:
+      docType:
+        description: The document type for ElasticSearch. This is a constant value
+        type: string
+      entryURI:
+        description: The subject of the graph stored
+        type: string
+      groupID:
+        description: id to group sub-set of records for spec that can be used for
+          orphancontrol
+        type: string
+      hubID:
+        description: The hubId is the unique identifier for any document record in
+          hub3
+        type: string
+      modified:
+        description: miliseconds since epoch
+        type: integer
+      namedGraphURI:
+        description: the graph name of the graph stored
+        type: string
+      orgID:
+        description: The tenant identifier for this RecordType.
+        type: string
+      revision:
+        description: The revision is used to determine which version is an orphan
+          and should be removed
+        type: integer
+      sourceID:
+        description: |-
+          sourceID the record being publlished. this can be a commit sha or generated per
+          indexing run
+        type: string
+      sourcePath:
+        description: commit path to source
+        type: string
+      spec:
+        description: |-
+          The spec is the unique dataset string to identify which dataset  this
+          Fragment belongs to
+        type: string
+      tags:
+        description: |-
+          Each fragment can be tagged with additional metadata. This can be queried for.
+          Some examples are 'resource', 'literal', 'bnode', 'rdfType', etc.
+        items:
+          type: string
+        type: array
+    type: object
+  fragments.IndexRange:
+    properties:
+      gte:
+        type: string
+      lte:
+        type: string
+    type: object
+  fragments.ProtoBuf:
+    properties:
+      data:
+        type: string
+      messageType:
+        type: string
+    type: object
+  fragments.ResourceEntry:
+    properties:
+      '@id':
+        type: string
+      '@language':
+        type: string
+      '@type':
+        type: string
+      '@value':
+        type: string
+      dateRange:
+        $ref: '#/definitions/fragments.IndexRange'
+      entrytype:
+        type: string
+      float:
+        type: number
+      inline:
+        $ref: '#/definitions/fragments.FragmentResource'
+      intRange:
+        $ref: '#/definitions/fragments.IndexRange'
+      integer:
+        type: integer
+      isoDate:
+        items:
+          type: string
+        type: array
+      latLong:
+        type: string
+      level:
+        type: integer
+      order:
+        type: integer
+      predicate:
+        type: string
+      searchLabel:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  fragments.ResourceEntryHighlight:
+    properties:
+      markdown:
+        items:
+          type: string
+        type: array
+      searchLabel:
+        type: string
+    type: object
+  fragments.ResultSummary:
+    properties:
+      collection:
+        type: string
+      creator:
+        type: string
+      datasetTitle:
+        type: string
+      date:
+        type: string
+      description:
+        type: string
+      landingPage:
+        type: string
+      latLong:
+        type: string
+      objectID:
+        type: string
+      objectType:
+        type: string
+      owner:
+        type: string
+      subCollection:
+        type: string
+      subject:
+        type: string
+      thumbnail:
+        type: string
+      title:
+        type: string
+    type: object
+  fragments.Tree:
+    properties:
+      access:
+        type: string
+      agencyCode:
+        type: string
+      cLevel:
+        type: string
+      childCount:
+        type: integer
+      content:
+        items:
+          type: string
+        type: array
+      daoLink:
+        type: string
+      depth:
+        type: integer
+      description:
+        items:
+          type: string
+        type: array
+      doCount:
+        type: integer
+      fields:
+        additionalProperties:
+          items:
+            type: string
+          type: array
+        type: object
+      genreform:
+        type: string
+      hasChildren:
+        type: boolean
+      hasDigitalObject:
+        type: boolean
+      hasRestriction:
+        type: boolean
+      hubID:
+        type: string
+      inline:
+        items:
+          $ref: '#/definitions/fragments.Tree'
+        type: array
+      inventoryID:
+        type: string
+      label:
+        type: string
+      leaf:
+        type: string
+      manifestLink:
+        type: string
+      material:
+        type: string
+      mimeType:
+        items:
+          type: string
+        type: array
+      parent:
+        type: string
+      periodDesc:
+        items:
+          type: string
+        type: array
+      periods:
+        items:
+          type: string
+        type: array
+      physDesc:
+        type: string
+      rawContent:
+        items:
+          type: string
+        type: array
+      sortKey:
+        type: integer
+      title:
+        type: string
+      type:
+        type: string
+      unitID:
+        type: string
+    type: object
+  render.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      description:
+        type: string
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+host: petstore.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server Petstore server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /accounts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/fragments.FragmentGraph'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/render.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/render.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/render.ErrorResponse'
+      summary: Show an account
+      tags:
+      - accounts
+swagger: "2.0"

@@ -1,0 +1,6 @@
+[gerrit]
+host=gerrit.delving.io
+port=29418
+project=hub3
+defaultbranch=dev-v0.5
+
