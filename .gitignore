@@ -12,6 +12,9 @@
 tag
 tags
 
+# config
+.gitreview
+
 # build and vendor
 main
 gin-bin
@@ -27,6 +30,7 @@ utils
 docker-data
 # data
 _scratch
+hub3.db
 
 # TLS cache
 .cache
@@ -54,7 +58,6 @@ coverage.txt
 # generated docs
 public/api
 public/tests
-docs/ikuzo/raml/build
 
 # scratch pad
 _scratch
