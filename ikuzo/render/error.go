@@ -39,7 +39,7 @@ func (ec *ErrorConfig) deepCopy() *ErrorConfig {
 	}
 }
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Status      string `json:"status"`
 	Code        int    `json:"code"`
 	Message     string `json:"message"`
@@ -90,7 +90,7 @@ func Error(w http.ResponseWriter, r *http.Request, err error, cfg *ErrorConfig) 
 
 	Status(r, cfg.StatusCode)
 
-	resp := errorResponse{
+	resp := ErrorResponse{
 		Status:      http.StatusText(cfg.StatusCode),
 		Code:        cfg.StatusCode,
 		Message:     err.Error(),
