@@ -8,15 +8,12 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/organization"
-	"github.com/delving/hub3/ikuzo/service/x/revision"
 	"github.com/delving/hub3/ikuzo/service/x/search/es"
 	"github.com/delving/hub3/ikuzo/service/x/sparql"
 	"github.com/rs/zerolog"
 )
 
-var (
-	ErrDataSetNotFound = errors.New("dataset not found")
-)
+var ErrDataSetNotFound = errors.New("dataset not found")
 
 type Store interface {
 	// Delete a DataSet
@@ -36,12 +33,11 @@ type Store interface {
 type Option func(*Service) error
 
 type Service struct {
-	store    Store
-	org      *organization.Service
-	log      zerolog.Logger
-	search   *es.Service
-	sparql   *sparql.Service
-	revision *revision.Service
+	store  Store
+	org    *organization.Service
+	log    zerolog.Logger
+	search *es.Service
+	sparql *sparql.Service
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -80,7 +76,6 @@ func (s *Service) Shutdown(ctx context.Context) error {
 }
 
 func (s *Service) CreateDataSetStats(ctx context.Context, orgID, datasetID string) error {
-
 	return nil
 }
 
@@ -156,5 +151,4 @@ func (s *Service) Save(ctx context.Context, ds *DataSet) error {
 func (s *Service) DropResources(ctx context.Context, datasetID string) error {
 	// TODO(kiivihal): implement me call each registered resource store and drop resources
 	return nil
-
 }
