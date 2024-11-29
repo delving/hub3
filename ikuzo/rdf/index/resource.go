@@ -3,6 +3,7 @@ package index
 import (
 	"log/slog"
 	"slices"
+	"strings"
 	"sync"
 
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -73,9 +74,20 @@ func (rsc *Resource) Add(entry *Entry) {
 
 // AddTo converts the Resource.Entries to triples and adds them to the rdf.Graph
 func (rsc *Resource) AddTo(g *rdf.Graph) error {
-	subject, err := rdf.NewIRI(rsc.ID)
-	if err != nil {
-		return err
+	var subject rdf.Subject
+	var err error
+
+	switch {
+	case strings.HasPrefix(rsc.ID, "_:"), strings.HasPrefix(rsc.ID, "b"):
+		subject, err = rdf.NewBlankNode(rsc.ID)
+		if err != nil {
+			return err
+		}
+	default:
+		subject, err = rdf.NewIRI(rsc.ID)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, rdfType := range rsc.Types {

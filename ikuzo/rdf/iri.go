@@ -95,6 +95,11 @@ func (u IRI) Validate() *validator.Validator {
 	return v
 }
 
+// Empty returns whether the IRI is empty.
+func (u IRI) Empty() bool {
+	return u.str == ""
+}
+
 // Split returns the prefix and suffix of the IRI string, splitted at the first
 // '/' or '#' character, in reverse order of the string.
 //

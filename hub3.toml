@@ -17,6 +17,11 @@ dsn = ""
 [trs]
 path = "/tmp/data"
 
+[pid]
+dataPath = "./data"
+fallbackTripleStores = ["https://data.brabantcloud.nl/k3/query/"]
+fallbackNaan = { "15052" = "https://data.brabantcloud.nl/k3/query/" }
+
 [orgs]
 ids = [
   # "brabantcloud",
@@ -29,7 +34,7 @@ ids = [
 
 ### ^^^^^^ new config ^^^^^^ ###
 [org.brabantcloud]
-domains = ["localhost:3000", "localhost:3002"]
+domains = ["localhost:3000", "localhost:3002", "hub3.brabantcloud:3000"]
 default = true
 
 [[org.brabantcloud.sitemaps]]
@@ -54,31 +59,7 @@ replicas = 2
 # if non-empty digital objects will be indexed in a dedicated v2 index
 digitalObjectSuffix = ""
 defaultRecDefID = "edm"
-[org.brabantcloud.elasticsearch.recDef]
-nkc = ["https://wo2.collectienederland.nl/nk/terms/NKRecord"]
-edm = ["http://www.openarchives.org/ore/terms/Aggregation"]
-crmterm = [
-  "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
-  "http://www.cidoc-crm.org/cidoc-crm/E57_Material",
-  "http://www.cidoc-crm.org/cidoc-crm/E58_Measurement_Unit",
-  "http://www.cidoc-crm.org/cidoc-crm/E7_Activity",
-  "http://www.cidoc-crm.org/cidoc-crm/E5_Event",
-  "http://www.cidoc-crm.org/cidoc-crm/E4_Period",
-  "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
-  "http://www.cidoc-crm.org/cidoc-crm/E56_Language",
-  "http://www.cidoc-crm.org/cidoc-crm/E74_Group",
-  "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
-]
-crmbib = ["https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"]
-crmass = ["http://www.ics.forth.gr/isl/CRMext/CRMdig/D1_Digital_Object"]
-crmmus = [
-  "http://www.cidoc-crm.org/cidoc-crm/E8_Acquisition",
-  "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
-]
-crmare = [
-  "http://www.cidoc-crm.org/cidoc-crm/E8_Acquisition",
-  "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
-]
+recDef = { nkc = "https://wo2.collectienederland.nl/nk/terms/NKRecord", edm = "http://www.openarchives.org/ore/terms/Aggregation" }
 
 [org.hub3]
 domains = ["localhost:3001"]
@@ -189,32 +170,7 @@ maxTreeSize = 251
 # orphanWait is the time in seconds that the goroutine waits for the cluster to be in sync before sending delete query
 orphanWait = 15
 defaultRecDefID = "edm"
-[elasticsearch.recDef]
-nkc = ["https://wo2.collectienederland.nl/nk/terms/NKRecord"]
-edm = ["http://www.openarchives.org/ore/terms/Aggregation"]
-crmterm = [
-  "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
-  "http://www.cidoc-crm.org/cidoc-crm/E57_Material",
-  "http://www.cidoc-crm.org/cidoc-crm/E58_Measurement_Unit",
-  "http://www.cidoc-crm.org/cidoc-crm/E7_Activity",
-  "http://www.cidoc-crm.org/cidoc-crm/E5_Event",
-  "http://www.cidoc-crm.org/cidoc-crm/E4_Period",
-  "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
-  "http://www.cidoc-crm.org/cidoc-crm/E56_Language",
-  "http://www.cidoc-crm.org/cidoc-crm/E74_Group",
-  "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
-]
-crmbib = ["https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"]
-crmass = ["http://www.ics.forth.gr/isl/CRMext/CRMdig/D1_Digital_Object"]
-crmmus = [
-  "http://www.cidoc-crm.org/cidoc-crm/E8_Acquisition",
-  "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
-]
-crmare = [
-  "http://www.cidoc-crm.org/cidoc-crm/E8_Acquisition",
-  "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
-]
-
+recDef = { nkc = "https://wo2.collectienederland.nl/nk/terms/NKRecord", edm = "http://www.openarchives.org/ore/terms/Aggregation" }
 
 [[posthooks]]
 name = "ginger"

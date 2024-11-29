@@ -41,7 +41,9 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/service/x/index"
+	"github.com/delving/hub3/ikuzo/service/x/pid"
 
+	irdf "github.com/delving/hub3/ikuzo/rdf"
 	rdf "github.com/kiivihal/rdf2go"
 )
 
@@ -57,6 +59,7 @@ type Parser struct {
 	m             sync.RWMutex
 	debugPath     string
 	recDef        RecDefResolver
+	s             *Service
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -110,7 +113,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				a := a
 
 				if err := p.process(ctx, &a); err != nil {
-					log.Error().Err(err).Msg("unable to process action")
+					log.Error().Err(err).Str("orgID", a.OrgID).Msg("unable to process action")
 					return err
 				}
 
@@ -393,6 +396,15 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		}
 	}
 
+	g, err := fb.FragmentGraph().Graph()
+	if err != nil {
+		return fmt.Errorf("unable to get graph: %w", err)
+	}
+
+	if err := p.schedulePID(req.HubID, g); err != nil {
+		return fmt.Errorf("unable to schedule PID: %w", err)
+	}
+
 	// TODO(kiivihal): get the configuration values via injection instead of global config
 	if config.Config.RDF.RDFStoreEnabled {
 		if err := p.AppendRDFBulkRequest(req, fb.Graph); err != nil {
@@ -423,6 +435,35 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 				Revision:  int(fb.FragmentGraph().Meta.Revision),
 			},
 		)
+	}
+
+	return nil
+}
+
+func (p *Parser) schedulePID(hubID string, g *irdf.Graph) error {
+	id, err := domain.NewHubID(hubID)
+	if err != nil {
+		return fmt.Errorf("unable to create hubID: %w", err)
+	}
+
+	pidData, err := pid.Extract(id, g)
+	if err != nil {
+		return fmt.Errorf("unable to extract PID: %w", err)
+	}
+
+	// don't enqueue anything if pid is empty
+	if pidData == nil {
+		return nil
+	}
+
+	task, err := pid.NewSavePIDTask(pidData)
+	if err != nil {
+		return fmt.Errorf("unable to create save PID task: %w", err)
+	}
+
+	_, err = p.s.EnqueueTask(task)
+	if err != nil {
+		return fmt.Errorf("unable to enqueue task: %w", err)
 	}
 
 	return nil

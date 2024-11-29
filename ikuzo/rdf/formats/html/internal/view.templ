@@ -1,0 +1,597 @@
+package internal
+
+import (
+	"fmt"
+	"github.com/delving/hub3/ikuzo/rdf"
+	"strings"
+)
+
+// Helper to get the display name of a term, handling different term types
+func getDisplayName(term rdf.Term) string {
+	switch t := term.(type) {
+	case rdf.IRI:
+		// Extract the last part of the URI for display
+		parts := strings.Split(t.RawValue(), "/")
+		if len(parts) > 0 {
+			lastPart := parts[len(parts)-1]
+			if idx := strings.LastIndex(lastPart, "#"); idx != -1 {
+				return lastPart[idx+1:]
+			}
+			return lastPart
+		}
+		return t.RawValue()
+	case rdf.BlankNode:
+		return t.RawValue()
+	case rdf.Literal:
+		return t.RawValue()
+	default:
+		return term.String()
+	}
+}
+
+// Helper to get a term's full value
+func getFullValue(term rdf.Term) string {
+	return term.RawValue()
+}
+
+// Helper to determine if a term is a URI that should be linked to
+func isLinkable(term rdf.Term) bool {
+	_, ok := term.(rdf.IRI)
+	return ok
+}
+
+// Helper to get the graph name if available
+func getGraphName(graph *rdf.Graph) string {
+	return graph.GraphName
+}
+
+// Helper to get language tag for literals if available
+func getLangTag(obj rdf.Object) string {
+	if obj.Type() != rdf.TermLiteral {
+		return ""
+	}
+
+	return obj.(rdf.Literal).Lang()
+}
+
+// Helper to get datatype for literals if available
+func getDataType(obj rdf.Object) string {
+	if lit, ok := obj.(rdf.Literal); ok {
+		dtParts := strings.Split(lit.DataType.RawValue(), "/")
+		if len(dtParts) > 0 {
+			lastPart := dtParts[len(dtParts)-1]
+			if idx := strings.LastIndex(lastPart, "#"); idx != -1 {
+				return lastPart[idx+1:]
+			}
+			return lastPart
+		}
+		return lit.DataType.RawValue()
+	}
+
+	return ""
+}
+
+// Helper to determine if this is an rdf:type predicate
+func isRdfType(pred rdf.Predicate) bool {
+	return pred.RawValue() == "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+}
+
+// Group triples by subject
+func groupTriplesBySubject(graph *rdf.Graph) map[rdf.Subject]map[rdf.Predicate][]rdf.Object {
+	result := make(map[rdf.Subject]map[rdf.Predicate][]rdf.Object)
+
+	for _, triple := range graph.Triples() {
+		if _, ok := result[triple.Subject]; !ok {
+			result[triple.Subject] = make(map[rdf.Predicate][]rdf.Object)
+		}
+		result[triple.Subject][triple.Predicate] = append(result[triple.Subject][triple.Predicate], triple.Object)
+	}
+
+	return result
+}
+
+templ RDFResource(graph *rdf.Graph, resource rdf.Subject) {
+	<div class="container mx-auto px-4 py-8">
+		<!-- HTMX Error Message - Moved to the top -->
+		<div
+			id="htmx-error"
+			class="hidden mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 dark:bg-red-900 dark:border-red-600 dark:text-red-100"
+			role="alert"
+		>
+			<p class="font-bold">Error</p>
+			<p>Failed to load resource. Please try again or check the URI.</p>
+		</div>
+		<div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+			<div class="p-6">
+				<h1 class="text-2xl font-bold mb-4 truncate dark:text-white">
+					{ getFullValue(resource) }
+				</h1>
+				<div class="mb-6">
+					<div>
+						<h2 class="text-lg font-semibold mb-2 dark:text-white">Resource</h2>
+						<p class="text-gray-700 dark:text-gray-300 break-all">{ resource.String() }</p>
+						<!-- External URI Link -->
+						<a
+							href={ templ.SafeURL(resource.RawValue()) }
+							target="_blank"
+							rel="noopener noreferrer"
+							class="inline-flex items-center mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+						>
+							Visit external URI
+							<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+							</svg>
+						</a>
+					</div>
+					<!-- Graph Name display with link if available -->
+					if graphName := getGraphName(graph); graphName != "" {
+						<div class="mt-2">
+							<h3 class="text-md font-medium dark:text-white">Graph:</h3>
+							<a
+								href={ templ.SafeURL(fmt.Sprintf("/resource?uri=%s", graphName)) }
+								class="text-blue-600 dark:text-blue-400 hover:underline break-all"
+								hx-get={ fmt.Sprintf("/resource?uri=%s", graphName) }
+								hx-target="#main-content"
+								hx-push-url="true"
+								hx-indicator="#htmx-error"
+							>
+								{ graphName }
+							</a>
+						</div>
+					}
+				</div>
+				<!-- Tabs for different views -->
+				<div
+					id="resource-tabs"
+					x-data="{ activeTab: 'properties' }"
+					class="mb-6"
+				>
+					<div class="border-b border-gray-200 dark:border-gray-700">
+						<ul class="flex flex-wrap -mb-px">
+							<li class="mr-2">
+								<a
+									id="tab-properties"
+									@click.prevent="activeTab = 'properties'"
+									:class="{ 'border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500': activeTab === 'properties', 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 'properties' }"
+									class="inline-block p-4 border-b-2 rounded-t-lg cursor-pointer"
+								>
+									Properties
+								</a>
+							</li>
+							<li class="mr-2">
+								<a
+									id="tab-raw"
+									@click.prevent="activeTab = 'raw'"
+									:class="{ 'border-blue-600 text-blue-600 dark:text-blue-500 dark:border-blue-500': activeTab === 'raw', 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300': activeTab !== 'raw' }"
+									class="inline-block p-4 border-b-2 rounded-t-lg cursor-pointer"
+									hx-get={ fmt.Sprintf("/resource/raw?uri=%s&format=jsonld", resource.RawValue()) }
+									hx-target="#raw-code-content"
+									_="on htmx:afterSwap wait 10ms then call Prism.highlightAll()"
+									hx-trigger="click once"
+								>
+									Raw RDF
+								</a>
+							</li>
+						</ul>
+					</div>
+					<!-- Properties tab content -->
+					<div x-show="activeTab === 'properties'" id="properties-content">
+						@rdfProperties(graph, resource)
+					</div>
+					<!-- Raw RDF tab content -->
+					<div x-show="activeTab === 'raw'" id="raw-content" x-cloak class="mt-4 bg-gray-100 dark:bg-gray-900 rounded-md overflow-auto">
+						<!-- Format selection for raw RDF view -->
+						<div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-end">
+							<div x-data="{ selectedFormat: 'jsonld' }" class="flex items-center">
+								<label for="rdf-format" class="mr-2 text-sm font-medium text-gray-700 dark:text-gray-300">Format:</label>
+								<select
+									id="rdf-format"
+									x-model="selectedFormat"
+									name="format"
+									class="block w-36 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-800 dark:text-gray-300"
+									hx-get={ fmt.Sprintf("/resource/raw?uri=%s", resource.RawValue()) }
+									hx-target="#raw-code-content"
+									hx-trigger="change"
+									hx-include="this"
+									_="on change wait 50ms then call Prism.highlightAll()"
+								>
+									<option value="jsonld">JSON-LD</option>
+									<option value="turtle">Turtle</option>
+									<option value="n3">N3</option>
+									<option value="ntriples">N-Triples</option>
+									<option value="rdfxml">RDF/XML</option>
+								</select>
+								<a
+									class="ml-4 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 inline-flex items-center"
+									@click={ "window.location.href='/resource/download?uri=' + encodeURIComponent('" + resource.RawValue() + "') + '&format=' + selectedFormat" }
+								>
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+										<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+									</svg>
+									Download
+								</a>
+							</div>
+						</div>
+						<div id="raw-code-content" class="p-4" _="on htmx:afterSwap wait 10ms then call Prism.highlightAll()">
+							<div class="text-center py-8" id="raw-loading">
+								<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+								</svg>
+								<p class="mt-2 text-gray-600 dark:text-gray-400">Loading RDF data...</p>
+							</div>
+							<pre class="language-turtle">
+								<!-- RDF content will be loaded here -->
+							</pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+}
+
+templ rdfProperties(graph *rdf.Graph, subject rdf.Subject) {
+	<div class="space-y-6">
+		@rdfTypes(graph, subject)
+		<div class="divide-y divide-gray-200 dark:divide-gray-700">
+			for pred, objects := range groupTriplesBySubject(graph)[subject] {
+				if !isRdfType(pred) {
+					<div class="py-4">
+						<h3 class="text-md font-medium dark:text-white">
+							<span class="text-blue-600 dark:text-blue-400">{ getDisplayName(pred) }</span>
+							<span class="text-xs text-gray-500 ml-2 break-all">{ getFullValue(pred) }</span>
+						</h3>
+						<ul class="mt-2 space-y-2">
+							for _, obj := range objects {
+								<li class="pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+									if isLinkable(obj) {
+										<a
+											href={ templ.SafeURL(fmt.Sprintf("/resource?uri=%s", obj.RawValue())) }
+											class="text-blue-600 dark:text-blue-400 hover:underline break-all flex items-start"
+											hx-get={ fmt.Sprintf("/resource?uri=%s", obj.RawValue()) }
+											hx-target="#main-content"
+											hx-push-url="true"
+											hx-indicator="#htmx-error"
+										>
+											<span>{ getDisplayName(obj) }</span>
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+											</svg>
+										</a>
+										<div class="text-xs text-gray-500 mt-1 break-all">{ getFullValue(obj) }</div>
+										<!-- External link -->
+										<a
+											href={ templ.SafeURL(obj.RawValue()) }
+											target="_blank"
+											rel="noopener noreferrer"
+											class="inline-flex items-center mt-1 text-xs text-gray-500 hover:text-blue-500 dark:hover:text-blue-400"
+										>
+											<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+												<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+											</svg>
+											Visit external URI
+										</a>
+									} else {
+										<div class="text-gray-800 dark:text-gray-200 break-all">{ obj.RawValue() }</div>
+										if lang := getLangTag(obj); lang != "" {
+											<span class="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300 px-2 py-1 rounded-full mt-1 inline-block">
+												{ lang }
+											</span>
+										}
+										if dataType := getDataType(obj); dataType != "" {
+											<span class="text-xs bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300 px-2 py-1 rounded-full mt-1 inline-block ml-1">
+												{ dataType }
+											</span>
+										}
+									}
+								</li>
+							}
+						</ul>
+					</div>
+				}
+			}
+		</div>
+	</div>
+}
+
+templ rdfTypes(graph *rdf.Graph, subject rdf.Subject) {
+	<div class="py-4">
+		<h3 class="text-md font-medium text-gray-700 dark:text-gray-300 mb-2">Types</h3>
+		<div class="flex flex-wrap gap-2">
+			for pred, objects := range groupTriplesBySubject(graph)[subject] {
+				if isRdfType(pred) {
+					for _, obj := range objects {
+						<span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-3 py-1 rounded-full text-sm flex items-center">
+							if isLinkable(obj) {
+								<a
+									href={ templ.SafeURL(fmt.Sprintf("/resource?uri=%s", obj.RawValue())) }
+									class="hover:underline"
+									hx-get={ fmt.Sprintf("/resource?uri=%s", obj.RawValue()) }
+									hx-target="#main-content"
+									hx-push-url="true"
+									hx-indicator="#htmx-error"
+								>
+									{ getDisplayName(obj) }
+								</a>
+							} else {
+								{ getDisplayName(obj) }
+							}
+						</span>
+					}
+				}
+			}
+		</div>
+	</div>
+}
+
+// Main handler template that wraps the resource view
+templ RDFView(graph *rdf.Graph, resource rdf.Subject) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<title>RDF Resource: { getDisplayName(resource) }</title>
+			<link href="https://cdn.jsdelivr.net/npm/flowbite@2.2.0/dist/flowbite.min.css" rel="stylesheet"/>
+			<script src="https://unpkg.com/htmx.org@1.9.4"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
+			<script src="https://unpkg.com/alpinejs@3.13.0/dist/cdn.min.js" defer></script>
+			<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css"/>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-turtle.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-n4js.min.js"></script>
+			<style>
+				/* Additional custom styles can go here */
+				@media (max-width: 640px) {
+					.break-all {
+						word-break: break-all;
+					}
+				}
+				
+				/* Raw RDF code styling */
+				pre.language-turtle {
+					max-height: 60vh;
+					overflow-y: auto;
+				}
+				
+				/* Add a style for JSON-LD formatting */
+				pre.language-json {
+					max-height: 60vh;
+					overflow-y: auto;
+				}
+				
+				/* Add default Alpine x-cloak style */
+				[x-cloak] { 
+					display: none !important; 
+				}
+			</style>
+		</head>
+		<body class="bg-gray-100 dark:bg-gray-900 min-h-screen">
+			<nav class="bg-white border-gray-200 dark:bg-gray-800">
+				<div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+					<a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
+						<span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">RDF Explorer</span>
+					</a>
+					<div class="flex md:order-2">
+						<button id="theme-toggle" type="button" class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+							<svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+								<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+							</svg>
+							<svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+								<path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>
+							</svg>
+						</button>
+					</div>
+				</div>
+			</nav>
+			<main
+				id="main-content"
+				class="container mx-auto py-4 px-4"
+				_="on htmx:afterSwap 
+          if event.target.id == 'main-content'
+            wait 50ms
+            then
+              // Fix tab content visibility
+              set #properties-content.style.display to 'block'
+              set #raw-content.style.display to 'none'
+              
+              // Fix tab styling for properties tab (make active)
+              add .border-blue-600 .text-blue-600 .dark:text-blue-500 .dark:border-blue-500 to #tab-properties
+              remove .border-transparent .hover:text-gray-600 .hover:border-gray-300 .dark:hover:text-gray-300 from #tab-properties
+              
+              // Fix tab styling for raw tab (make inactive)
+              remove .border-blue-600 .text-blue-600 .dark:text-blue-500 .dark:border-blue-500 from #tab-raw
+              add .border-transparent .hover:text-gray-600 .hover:border-gray-300 .dark:hover:text-gray-300 to #tab-raw"
+			>
+				@RDFResource(graph, resource)
+			</main>
+			<script src="https://cdn.jsdelivr.net/npm/flowbite@2.2.0/dist/flowbite.min.js"></script>
+			<script>
+				// Initialize theme toggle
+				const themeToggleBtn = document.getElementById('theme-toggle');
+				const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+				const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+				// Change the icons inside the button based on previous settings
+				if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					themeToggleLightIcon.classList.remove('hidden');
+					document.documentElement.classList.add('dark');
+				} else {
+					themeToggleDarkIcon.classList.remove('hidden');
+					document.documentElement.classList.remove('dark');
+				}
+
+				themeToggleBtn.addEventListener('click', function() {
+					// Toggle icons
+					themeToggleDarkIcon.classList.toggle('hidden');
+					themeToggleLightIcon.classList.toggle('hidden');
+
+					// If set via local storage previously
+					if (localStorage.getItem('color-theme')) {
+						if (localStorage.getItem('color-theme') === 'light') {
+							document.documentElement.classList.add('dark');
+							localStorage.setItem('color-theme', 'dark');
+						} else {
+							document.documentElement.classList.remove('dark');
+							localStorage.setItem('color-theme', 'light');
+						}
+					} else {
+						// If NOT set via local storage previously
+						if (document.documentElement.classList.contains('dark')) {
+							document.documentElement.classList.remove('dark');
+							localStorage.setItem('color-theme', 'light');
+						} else {
+							document.documentElement.classList.add('dark');
+							localStorage.setItem('color-theme', 'dark');
+						}
+					}
+				});
+				
+				// HTMX error handling
+				document.addEventListener('htmx:responseError', function(event) {
+					document.getElementById('htmx-error').classList.remove('hidden');
+					setTimeout(function() {
+						document.getElementById('htmx-error').classList.add('hidden');
+					}, 5000);
+				});
+
+      document.addEventListener('htmx:afterSwap', function(event) {
+          if (event.detail.target.id === 'raw-code-content') {
+              console.log("Raw content swapped, applying syntax highlighting");
+              
+              // Hide the loading indicator
+              const loadingElement = document.getElementById('raw-loading');
+              if (loadingElement) {
+                  loadingElement.style.display = 'none';
+              }
+              
+              // Update Prism highlighting based on format
+              const formatSelect = document.getElementById('rdf-format');
+              if (formatSelect) {
+                  const selectedFormat = formatSelect.value;
+                  console.log("Selected format:", selectedFormat);
+                  
+                  const preElement = event.detail.target.querySelector('pre');
+                  if (preElement) {
+                      console.log("Found pre element:", preElement);
+                      
+                      // Remove all language classes
+                      preElement.className = '';
+                      
+                      // Add the appropriate language class
+                      if (selectedFormat === 'jsonld') {
+                          preElement.classList.add('language-json');
+                      } else if (selectedFormat === 'rdfxml') {
+                          preElement.classList.add('language-markup');
+                      } else {
+                          preElement.classList.add('language-turtle');
+                      }
+                      
+                      // Force Prism to rehighlight
+                      console.log("Calling Prism.highlightElement");
+                      Prism.highlightElement(preElement);
+                      
+                      // For debugging, let's also try highlighting all
+                      setTimeout(function() {
+                          console.log("Calling Prism.highlightAll");
+                          Prism.highlightAll();
+                      }, 100);
+                  } else {
+                      console.log("No pre element found in", event.detail.target);
+                  }
+              }
+          }
+      });
+
+         // Only define this if it doesn't exist yet
+        if (!Prism.languages.turtle) {
+            // Custom syntax definition for Turtle/N-Triples
+            Prism.languages.turtle = {
+                'comment': /#.*/,
+                'prefix': {
+                    pattern: /@prefix\s+[a-zA-Z0-9-_]+:\s+<[^>]+>\s*\./,
+                    inside: {
+                        'punctuation': /[@:]/,
+                        'namespace': {
+                            pattern: /[a-zA-Z0-9-_]+:/,
+                            inside: {
+                                'punctuation': /:/
+                            }
+                        },
+                        'uri': {
+                            pattern: /<[^>]+>/,
+                            inside: {
+                                'punctuation': /[<>]/
+                            }
+                        }
+                    }
+                },
+                'string': {
+                    pattern: /"[^"]*"(?:\^\^<[^>]+>)?(?:@[a-z-]+)?/,
+                    greedy: true,
+                    inside: {
+                        'punctuation': /[\^@]/,
+                        'datatype': {
+                            pattern: /<[^>]+>/,
+                            inside: {
+                                'punctuation': /[<>]/
+                            }
+                        },
+                        'lang-tag': /@[a-z-]+/
+                    }
+                },
+                'uri': {
+                    pattern: /<[^>]+>/,
+                    inside: {
+                        'punctuation': /[<>]/
+                    }
+                },
+                'namespace': {
+                    pattern: /[a-zA-Z0-9-_]+:/,
+                    inside: {
+                        'punctuation': /:/
+                    }
+                },
+                'predicate': {
+                    pattern: /\s+[a-zA-Z][a-zA-Z0-9-_]*:/,
+                    inside: {
+                        'namespace': {
+                            pattern: /[a-zA-Z][a-zA-Z0-9-_]*:/,
+                            inside: {
+                                'punctuation': /:/
+                            }
+                        }
+                    }
+                },
+                'subject': {
+                    pattern: /^[^ ]+ /m,
+                    inside: {
+                        'uri': {
+                            pattern: /<[^>]+>/,
+                            inside: {
+                                'punctuation': /[<>]/
+                            }
+                        },
+                        'namespace': {
+                            pattern: /[a-zA-Z0-9-_]+:/,
+                            inside: {
+                                'punctuation': /:/
+                            }
+                        },
+                        'blank-node': /_:[a-zA-Z0-9-_]+/
+                    }
+                },
+                'punctuation': /[.;,]/
+            };
+        }
+        
+        // Make N-Triples use the same syntax highlighting as Turtle
+        Prism.languages.ntriples = Prism.languages.turtle;
+
+			</script>
+		</body>
+	</html>
+}

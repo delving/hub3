@@ -58,6 +58,7 @@ type Config struct {
 	ns            *namespace.Service
 	Task          `json:"task"`
 	ts            *task.Service
+	PID           `json:"pid"`
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
@@ -80,6 +81,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.Sitemap,
 			&cfg.Logging,
 			&cfg.OAIPMH,
+			&cfg.PID,
 		}
 	}
 

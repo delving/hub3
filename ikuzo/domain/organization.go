@@ -152,7 +152,11 @@ func GetOrganizationID(r *http.Request) OrganizationID {
 //
 // This Organization is set by middleware and available for each request
 func GetOrganization(r *http.Request) (Organization, bool) {
-	rawOrg := r.Context().Value(orgIDKey{})
+	return GetOrganizationFromCtx(r.Context())
+}
+
+func GetOrganizationFromCtx(ctx context.Context) (Organization, bool) {
+	rawOrg := ctx.Value(orgIDKey{})
 	if rawOrg != nil {
 		organization, ok := rawOrg.(Organization)
 		if ok {

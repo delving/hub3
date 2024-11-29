@@ -33,6 +33,14 @@ func (fg *FragmentGraph) Graph() (*rdf.Graph, error) {
 		}
 	}
 
+	subj, err := rdf.NewIRI(fg.Meta.EntryURI)
+	if err != nil {
+		return nil, err
+	}
+
+	g.GraphName = fg.Meta.GetNamedGraphURI()
+
+	g.Subject = rdf.Subject(subj)
 	return g, nil
 }
 

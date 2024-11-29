@@ -211,7 +211,7 @@ func TreeDescriptionSearch(w http.ResponseWriter, r *http.Request) {
 
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+		render.Error(w, r, errors.New(emptySpecMsg()), &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
 		})
 		return
@@ -343,7 +343,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 	orgID := domain.GetOrganizationID(r)
 	spec := chi.URLParam(r, "spec")
 	if spec == "" {
-		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+		render.Error(w, r, errors.New(emptySpecMsg()), &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
 		})
 
@@ -351,7 +351,7 @@ func treeStats(w http.ResponseWriter, r *http.Request) {
 	}
 	stats, err := fragments.CreateTreeStats(r.Context(), string(orgID), spec)
 	if err != nil {
-		render.Error(w, r, fmt.Errorf(emptySpecMsg()), &render.ErrorConfig{
+		render.Error(w, r, errors.New(emptySpecMsg()), &render.ErrorConfig{
 			StatusCode: http.StatusBadRequest,
 		})
 		return

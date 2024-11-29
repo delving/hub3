@@ -3,6 +3,7 @@ package io
 
 import (
 	"bufio"
+	"compress/gzip"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,10 +15,10 @@ import (
 // CompressionType represents supported compression formats
 type CompressionType int
 
-// TODO: add gzip compression support
 const (
 	NoCompression CompressionType = iota
 	ZstdCompression
+	GzipCompression
 )
 
 // GetCompressionType determines compression type from file extension
@@ -26,6 +27,8 @@ func GetCompressionType(filename string) CompressionType {
 	switch ext {
 	case ".zst", ".zstd":
 		return ZstdCompression
+	case ".gz", ".gzip":
+		return GzipCompression
 	default:
 		return NoCompression
 	}
@@ -37,7 +40,6 @@ func OpenCompressedFile(filename string) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	compressionType := GetCompressionType(filename)
 	switch compressionType {
 	case ZstdCompression:
@@ -50,6 +52,16 @@ func OpenCompressedFile(filename string) (io.ReadCloser, error) {
 			decoder: decoder,
 			file:    file,
 		}, nil
+	case GzipCompression:
+		reader, err := gzip.NewReader(file)
+		if err != nil {
+			file.Close()
+			return nil, err
+		}
+		return &gzipReadCloser{
+			reader: reader,
+			file:   file,
+		}, nil
 	default:
 		return file, nil
 	}
@@ -61,7 +73,6 @@ func CreateCompressedWriter(filename string) (io.WriteCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	compressionType := GetCompressionType(filename)
 	switch compressionType {
 	case ZstdCompression:
@@ -73,6 +84,12 @@ func CreateCompressedWriter(filename string) (io.WriteCloser, error) {
 		return &zstdWriteCloser{
 			encoder: encoder,
 			file:    file,
+		}, nil
+	case GzipCompression:
+		writer := gzip.NewWriter(file)
+		return &gzipWriteCloser{
+			writer: writer,
+			file:   file,
 		}, nil
 	default:
 		return file, nil
@@ -110,6 +127,42 @@ func (z *zstdWriteCloser) Close() error {
 		return err
 	}
 	return z.file.Close()
+}
+
+// gzipReadCloser wraps gzip.Reader to properly close both reader and underlying file
+type gzipReadCloser struct {
+	reader *gzip.Reader
+	file   *os.File
+}
+
+func (g *gzipReadCloser) Read(p []byte) (int, error) {
+	return g.reader.Read(p)
+}
+
+func (g *gzipReadCloser) Close() error {
+	if err := g.reader.Close(); err != nil {
+		g.file.Close()
+		return err
+	}
+	return g.file.Close()
+}
+
+// gzipWriteCloser wraps gzip.Writer to properly close both writer and underlying file
+type gzipWriteCloser struct {
+	writer *gzip.Writer
+	file   *os.File
+}
+
+func (g *gzipWriteCloser) Write(p []byte) (int, error) {
+	return g.writer.Write(p)
+}
+
+func (g *gzipWriteCloser) Close() error {
+	if err := g.writer.Close(); err != nil {
+		g.file.Close()
+		return err
+	}
+	return g.file.Close()
 }
 
 // CreateBufferedReader creates a buffered reader for a file with optional compression

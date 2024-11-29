@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ebucore="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:nave="http://schemas.delving.eu/nave/terms/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <ore:Aggregation rdf:about="http://data.brabantcloud.nl/resource/aggregation/enb-389-objecten/enb-389.objecten-e0bddc04-6202-fd3d-4ea1-4f725ef3da83-006b90dd-43a9-60bc-0e79-6b38c4d094ea">
+    <edm:aggregatedCHO rdf:resource="http://data.brabantcloud.nl/resource/document/enb-389-objecten/enb-389.objecten-e0bddc04-6202-fd3d-4ea1-4f725ef3da83-006b90dd-43a9-60bc-0e79-6b38c4d094ea"/>
+    <edm:dataProvider>Museum De Looierij</edm:dataProvider>
+    <edm:hasView rdf:resource="https://images.memorix.nl/enb_389/thumb/1000x1000/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg"/>
+    <edm:isShownAt rdf:resource="https://delooierij.nl/collectie/objecten/?diw-id=brabantcloud_enb-389-objecten_enb-389.objecten-e0bddc04-6202-fd3d-4ea1-4f725ef3da83-006b90dd-43a9-60bc-0e79-6b38c4d094ea"/>
+    <edm:isShownBy rdf:resource="httpss://images.memorix.nl/enb_389/thumb/1000x1000/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg"/>
+    <edm:object rdf:resource="https://images.memorix.nl/enb_389/thumb/500x500/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg"/>
+    <edm:provider>Erfgoed Brabant</edm:provider>
+    <edm:rights rdf:resource="https://rightsstatements.org/vocab/InC/1.0/"/>
+    <nave:pid rdf:resource="https://n2t.net/ark:/63960/006b90dd-43a9-60bc-0e79-6b38c4d094ea"/>
+  </ore:Aggregation>
+  <edm:ProvidedCHO rdf:about="http://data.brabantcloud.nl/resource/document/enb-389-objecten/enb-389.objecten-e0bddc04-6202-fd3d-4ea1-4f725ef3da83-006b90dd-43a9-60bc-0e79-6b38c4d094ea">
+    <dc:description>&lt;p&gt; een reepje olifantenhuid. Niet zo dik als je zou denken.. voor een dikhuid dan&lt;br&gt;&lt;/p&gt;</dc:description>
+    <dc:identifier>04014</dc:identifier>
+    <dc:rights>Museum de Looierij</dc:rights>
+    <dc:subject>Huid</dc:subject>
+    <dc:title>Olifantshuid</dc:title>
+    <dc:type>Olifantenhuid</dc:type>
+    <dc:type>Huid</dc:type>
+    <dcterms:extent>: 200x30 mm</dcterms:extent>
+    <dcterms:medium>Ongelooide huid</dcterms:medium>
+    <edm:type>IMAGE</edm:type>
+  </edm:ProvidedCHO>
+  <edm:WebResource rdf:about="https://images.memorix.nl/enb_389/thumb/1000x1000/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg">
+    <edm:rights rdf:resource="http://rightsstatements.org/vocab/InC/1.0/"/>
+    <ebucore:hasMimeType>image/jpeg</ebucore:hasMimeType>
+    <nave:deepZoomUrl>httpss://images.memorix.nl/enb_389/deepzoom/59300093-9537-f07d-ab3d-0eeb327ebabb.dzi</nave:deepZoomUrl>
+    <nave:resourceSortOrder>1</nave:resourceSortOrder>
+    <nave:thumbSmall>https://images.memorix.nl/enb_389/thumb/500x500/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg</nave:thumbSmall>
+    <nave:thumbLarge>https://images.memorix.nl/enb_389/thumb/1000x1000/59300093-9537-f07d-ab3d-0eeb327ebabb.jpg</nave:thumbLarge>
+    <nave:allowDeepZoom>true</nave:allowDeepZoom>
+    <nave:allowSourceDownload>true</nave:allowSourceDownload>
+    <nave:allowPublicWebView>true</nave:allowPublicWebView>
+  </edm:WebResource>
+  <nave:BrabantCloudResource>
+    <nave:collection>Museum De Looierij</nave:collection>
+    <nave:collectionType>Objecten</nave:collectionType>
+    <nave:collectionPart>Leer</nave:collectionPart>
+    <nave:objectnameAatLabel>Huid</nave:objectnameAatLabel>
+    <nave:materialAatLabel>Ongelooide huid</nave:materialAatLabel>
+    <nave:subjectAatLabel>Huid</nave:subjectAatLabel>
+    <nave:subcollectionPart>Materiaal</nave:subcollectionPart>
+  </nave:BrabantCloudResource>
+  <nave:DelvingResource>
+    <nave:featured>false</nave:featured>
+    <nave:allowDeepZoom>true</nave:allowDeepZoom>
+    <nave:allowLinkedOpenData>true</nave:allowLinkedOpenData>
+    <nave:allowSourceDownload>false</nave:allowSourceDownload>
+    <nave:public>true</nave:public>
+  </nave:DelvingResource>
+</rdf:RDF>
+<!--<urn:brabantcloud_enb-389-objecten_enb-389.objecten-e0bddc04-6202-fd3d-4ea1-4f725ef3da83-006b90dd-43a9-60bc-0e79-6b38c4d094ea/graph__5c43bf6f2405eeb9361264db0340066cd7a96cfc>-->

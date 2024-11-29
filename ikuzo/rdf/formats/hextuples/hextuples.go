@@ -10,7 +10,7 @@ import (
 
 // hexPosition describes the position the data has in a HexTuple slice.
 //
-//go:generate stringer -type=HexPosition
+//go:generate stringer -type=hexPosition
 type hexPosition int
 
 const (

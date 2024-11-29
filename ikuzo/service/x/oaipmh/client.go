@@ -189,24 +189,45 @@ func (request *Request) perform() (oaiResponse *Response, err error) {
 			}
 
 			var listSize int
+			var isEmptyResponse bool
+
 			switch {
 			case oaiResponse.ListRecords != nil:
 				listSize = len(oaiResponse.ListRecords.Records)
+				isEmptyResponse = listSize == 0
 			case oaiResponse.ListIdentifiers != nil:
 				listSize = len(oaiResponse.ListIdentifiers.Headers)
+				isEmptyResponse = listSize == 0
+			default:
+				// If we're here, we have neither ListRecords nor ListIdentifiers
+				// This might be a valid empty response if it's the final page
+				isEmptyResponse = true
 			}
 
-			hasToken, token, tokenListSize := oaiResponse.GetResumptionToken()
-			if (request.recordsSeen+listSize) <= request.CompleteListSize && !hasToken {
-				l.Error("invalid OAI-PMH resumable response; so retrying", "response", string(data))
-				slog.Info("retrying invalid request",
-					"expected_completeListSize", request.CompleteListSize, "records_returned", listSize,
-					"records_seen", request.recordsSeen, "url", request.GetFullURL(),
-					"token", token, "tokenListSize", tokenListSize,
+			hasToken, _, tokenListSize := oaiResponse.GetResumptionToken()
+
+			// Check if we've received all expected records
+			isComplete := request.CompleteListSize > 0 && (request.recordsSeen+listSize) >= request.CompleteListSize
+
+			// Check for an invalid state: no token but harvest is incomplete
+			if !hasToken && !isComplete && request.CompleteListSize > 0 && !isEmptyResponse {
+				// We're expecting more records but got no resumption token
+				l.Error("missing resumption token in incomplete harvest; retrying", "response", string(data))
+				slog.Info("retrying due to missing resumption token",
+					"expected_completeListSize", request.CompleteListSize,
+					"records_returned", listSize,
+					"records_seen", request.recordsSeen,
+					"url", request.GetFullURL(),
+					"tokenListSize", tokenListSize,
 				)
-				return fmt.Errorf("invalid resumable oai-pmh response, so retrying")
+				return fmt.Errorf("missing resumption token in incomplete harvest; retrying")
 			}
 
+			// If we get here, either:
+			// 1. We have a resumption token (harvest continues)
+			// 2. We have no token but harvest is complete (normal completion)
+			// 3. We have no token, but don't know the complete list size (assume complete)
+			// All these cases are valid
 			return nil
 		}
 	})

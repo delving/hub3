@@ -35,7 +35,7 @@ type SitemapConfig struct {
 	ExcludedSpecs []string `json:"excludedSpecs,omitempty"`
 	DataPath      string   `json:"dataPath,omitempty"`
 	RelPathFmt    string   `json:"relPathFmt,omitempty"`
-	ContextIndex  string   `json:"contetxIndex,omitempty"`
+	ContextIndex  string   `json:"contextIndex,omitempty"`
 }
 
 func (cfg *SitemapConfig) IsExcludedSpec(spec string) bool {

@@ -92,6 +92,10 @@ func (g *Graph) Graph() (*rdf.Graph, error) {
 		}
 	}
 
+	subj, _ := rdf.NewIRI(g.Header.EntryURI)
+
+	rg.Subject = rdf.Subject(subj)
+
 	return rg, nil
 }
 

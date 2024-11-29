@@ -72,3 +72,6 @@ hub3.toml
 
 # misc
 tools/cmd/index_narthex/*.sh
+
+# data for tests
+data

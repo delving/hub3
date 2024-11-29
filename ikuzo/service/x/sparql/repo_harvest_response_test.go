@@ -55,7 +55,7 @@ func TestReadResponse(t *testing.T) {
 
 		expected, err := os.ReadFile("./testdata/query_xml.golden.xml")
 		is.NoErr(err)
-		t.Logf(xml)
+		t.Log(xml)
 		if diff := cmp.Diff(string(expected), xml); diff != "" {
 			t.Errorf("mappingXML = mismatch (-want +got):\n%s", diff)
 		}

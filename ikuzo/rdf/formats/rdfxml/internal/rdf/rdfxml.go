@@ -274,6 +274,71 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 	}
 }
 
+// parseXMLPropElemOrNodeEnd parses property elements of a containing
+// element node, or the end of that element node.
+func parseXMLPropElemOrNodeEnd(d *rdfXMLDecoder) parseXMLFn {
+	switch elem := d.tok.(type) {
+	case xml.StartElement:
+		// The element node has more property elements.
+
+		if elem.Name.Space == rdfNS && (elem.Name.Local == elLi || isLn(elem.Name.Local)) {
+			// We're in a rdf:Bag, TODO and/or rdf:XXX?
+			return parseXMLPropElem
+		}
+
+		if len(elem.Attr) == 0 {
+			// Since there are no attributes we don't get any hint of
+			// the content of the property element. It can either be a
+			// string literal, or a new node element. In either case, store
+			// the relation from current subject as predicate before continuing.
+			d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
+			d.nextXMLToken()
+
+			return parseXMLCharDataOrElemNode
+		}
+
+		// Handle default case, not covered in above contitionals:
+		return parseXMLPropElem
+	case xml.EndElement:
+		// Reached the end of an element node.
+
+		// Restore parent context, if any:
+		d.popContext()
+
+		if d.current.Subj != nil {
+			// Parent context restored, with subject set.
+			// Continue looking for property elements, or the closing
+			// of that element node:
+			d.nextXMLToken()
+			return parseXMLPropElemOrNodeEnd
+		}
+
+		// Continue look for more node elements:
+		d.nextXMLToken()
+		return parseXMLNodeElem
+	default: // xml.Comment, xml.CharData, xml.Directive, xml.ProcInst:
+		d.nextXMLToken()
+		return parseXMLPropElemOrNodeEnd
+	}
+}
+
+// parseXMLPropElemEnd parses the closing tag of a property element. It should
+// only be called when a full triple is ready to be emitted.
+func parseXMLPropElemEnd(d *rdfXMLDecoder) parseXMLFn {
+	switch elem := d.tok.(type) {
+	case xml.EndElement:
+		d.reifyCheck()
+		d.lang = "" // clear the in-scope xml:lang
+
+		return nil
+	case xml.CharData, xml.Comment, xml.ProcInst:
+		d.nextXMLToken()
+		return parseXMLPropElemEnd
+	default:
+		panic(fmt.Errorf("unexpected XML token: %v", elem))
+	}
+}
+
 // parseXMLNodeElem parses node elements. It will establish the subject of the triple,
 // unless its a empty rdf:Description node.
 func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
@@ -350,22 +415,25 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 			}
 		}
 
+		// Handle all other XML elements (non-rdf:Description)
+
+		// First check for rdf:about since it's the most specific identifier
 		if as := attrRDF(elem, elAbout); as != nil {
 			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
-		}
-
-		if as := attrRDF(elem, elID); as != nil {
+		} else if as := attrRDF(elem, elID); as != nil {
+			// Next try rdf:ID
 			d.current.Subj = IRI{str: d.resolve(d.ctx.Base, "#"+as[0].Value)}
-		}
-
-		if d.current.Subj == nil {
+		} else {
+			// If no identifier is provided, create a blank node
 			d.current.Subj = Blank{id: d.GenerateID()}
 		}
 
+		// Add the rdf:type triple
 		d.current.Pred = rdfType
-		d.current.Obj = IRI{elem.Name.Space + elem.Name.Local}
+		d.current.Obj = IRI{str: elem.Name.Space + elem.Name.Local}
 		d.triples = append(d.triples, d.current)
 
+		// Handle any attribute-value pairs as additional properties
 		if as := attrRestWithLn(elem); as != nil {
 			for _, a := range as {
 				d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
@@ -393,316 +461,7 @@ func parseXMLNodeElem(d *rdfXMLDecoder) parseXMLFn {
 	}
 }
 
-// parseXMLPropElemOrNodeEnd parses property elements of a containing
-// element node, or the end of that element node.
-func parseXMLPropElemOrNodeEnd(d *rdfXMLDecoder) parseXMLFn {
-	switch elem := d.tok.(type) {
-	case xml.StartElement:
-		// The element node has more property elements.
-
-		if elem.Name.Space == rdfNS && (elem.Name.Local == elLi || isLn(elem.Name.Local)) {
-			// We're in a rdf:Bag, TODO and/or rdf:XXX?
-			return parseXMLPropElem
-		}
-
-		if len(elem.Attr) == 0 {
-			// Since there are no attributes we don't get any hint of
-			// the content of the property element. It can either be a
-			// string literal, or a new node element. In either case, store
-			// the relation from current subject as predicate before continuing.
-			d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
-			d.nextXMLToken()
-
-			return parseXMLCharDataOrElemNode
-		}
-
-		// Handle default case, not covered in above contitionals:
-		return parseXMLPropElem
-	case xml.EndElement:
-		// Reached the end of an element node.
-
-		// Restore parent context, if any:
-		d.popContext()
-
-		if d.current.Subj != nil {
-			// Parent context restored, with subject set.
-			// Continue looking for property elements, or the closing
-			// of that element node:
-			d.nextXMLToken()
-			return parseXMLPropElemOrNodeEnd
-		}
-
-		// Continue look for more node elements:
-		d.nextXMLToken()
-		return parseXMLNodeElem
-	default: // xml.Comment, xml.CharData, xml.Directive, xml.ProcInst:
-		d.nextXMLToken()
-		return parseXMLPropElemOrNodeEnd
-	}
-}
-
-// parseXMLCharDataOrElemNode parses the tokens after a property element
-// with no attributes, finding either a string literal or a new element node.
-// This function will establish the object of the triple.
-func parseXMLCharDataOrElemNode(d *rdfXMLDecoder) parseXMLFn {
-	var charData string
-
-first:
-	switch elem := d.tok.(type) {
-	case xml.CharData:
-		charData = string(elem)
-	case xml.StartElement:
-		// Add current element to path
-		d.appendElementToPath(elem)
-
-		d.pushContext()
-		d.pushContext()
-
-		if elem.Name.Space == rdfNS {
-			switch elem.Name.Local {
-			case elDescription:
-				if len(elem.Attr) == 0 {
-					d.current.Obj = Blank{id: d.GenerateID()}
-					d.triples = append(d.triples, d.current)
-					d.current.Subj = d.current.Obj.(Subject)
-					d.nextState = parseXMLPropElemOrNodeEnd
-					return nil
-				}
-
-				d.storePrefixNS(elem)
-
-				if as := attrRest(elem); as != nil {
-					d.current.Obj = Blank{id: d.GenerateID()}
-					d.triples = append(d.triples, d.current)
-					d.reifyCheck()
-
-					d.current.Subj = d.current.Obj.(Subject)
-
-					for _, a := range as {
-						d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
-						d.parseObjLiteral(a.Value)
-						d.triples = append(d.triples, d.current)
-					}
-
-					d.nextState = parseXMLPropElemOrNodeEnd
-					return nil
-				}
-
-				if as := attrRDF(elem, elNodeID); as != nil {
-					if as[0].Value == "" {
-						d.current.Obj = Blank{id: d.GenerateID()}
-					} else {
-						d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
-					}
-					d.triples = append(d.triples, d.current)
-					d.reifyCheck()
-
-					d.current.Subj = d.current.Obj.(Subject)
-					d.nextState = parseXMLPropElemOrNodeEnd
-					return nil
-				}
-
-				d.current.Obj = Blank{id: d.GenerateID()}
-				d.triples = append(d.triples, d.current)
-				d.reifyCheck()
-
-				d.current.Subj = d.current.Obj.(Subject)
-				d.nextState = parseXMLPropElemOrNodeEnd
-				return nil
-
-			default:
-				// Handle other RDF namespace elements that aren't Description
-				// Create a blank node and establish the rdf:type triple
-				d.current.Obj = Blank{id: d.GenerateID()}
-				d.triples = append(d.triples, d.current)
-				d.reifyCheck()
-
-				// Set the subject to the newly created blank node
-				d.current.Subj = d.current.Obj.(Subject)
-
-				// Add rdf:type triple for this nested resource
-				typePredicate := rdfType
-				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
-				d.triples = append(d.triples, Triple{
-					Subj: d.current.Subj,
-					Pred: typePredicate,
-					Obj:  typeObject,
-				})
-
-				d.nextState = parseXMLPropElemOrNodeEnd
-				return nil
-			}
-		} else {
-			// For non-RDF namespaces, create a blank node
-			d.current.Obj = Blank{id: d.GenerateID()}
-			d.triples = append(d.triples, d.current)
-			d.reifyCheck()
-
-			// Set the subject to the newly created blank node
-			d.current.Subj = d.current.Obj.(Subject)
-
-			// Add rdf:type triple for this nested resource
-			typePredicate := rdfType
-			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
-			d.triples = append(d.triples, Triple{
-				Subj: d.current.Subj,
-				Pred: typePredicate,
-				Obj:  typeObject,
-			})
-
-			// Continue parsing property elements of this node
-			d.nextState = parseXMLPropElemOrNodeEnd
-			return nil
-		}
-
-	case xml.EndElement:
-		// Remove element from path when leaving
-		d.removeLastElementFromPath()
-
-		d.parseObjLiteral("")
-		d.triples = append(d.triples, d.current)
-		d.reifyCheck()
-		d.nextState = parseXMLPropElemOrNodeEnd
-		return nil
-
-	default:
-		d.nextXMLToken()
-		goto first
-	}
-
-	d.nextXMLToken()
-
-second:
-	switch elem := d.tok.(type) {
-	case xml.StartElement:
-		// Add element to path
-		d.appendElementToPath(elem)
-
-		d.pushContext()
-		d.pushContext()
-
-		if elem.Name.Space == rdfNS {
-			switch elem.Name.Local {
-			case elDescription:
-				d.storePrefixNS(elem)
-
-				if as := attrRest(elem); as != nil {
-					d.current.Obj = Blank{id: d.GenerateID()}
-					d.triples = append(d.triples, d.current)
-					d.reifyCheck()
-
-					d.current.Subj = d.current.Obj.(Subject)
-
-					for _, a := range as {
-						d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
-						d.parseObjLiteral(a.Value)
-						d.triples = append(d.triples, d.current)
-					}
-
-					d.nextState = parseXMLPropElemOrNodeEnd
-					return nil
-				}
-
-				if as := attrRDF(elem, elNodeID); as != nil {
-					if as[0].Value == "" {
-						d.current.Obj = Blank{id: d.GenerateID()}
-					} else {
-						d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
-					}
-					d.triples = append(d.triples, d.current)
-					d.reifyCheck()
-
-					d.current.Subj = d.current.Obj.(Subject)
-					d.nextState = parseXMLPropElemOrNodeEnd
-					return nil
-				}
-
-				d.current.Obj = Blank{id: d.GenerateID()}
-				d.triples = append(d.triples, d.current)
-				d.reifyCheck()
-
-				d.current.Subj = d.current.Obj.(Subject)
-				d.nextState = parseXMLPropElemOrNodeEnd
-				return nil
-
-			default:
-				// Handle other RDF namespace elements that aren't Description
-				// Create a blank node and establish the rdf:type triple
-				d.current.Obj = Blank{id: d.GenerateID()}
-				d.triples = append(d.triples, d.current)
-				d.reifyCheck()
-
-				// Set the subject to the newly created blank node
-				d.current.Subj = d.current.Obj.(Subject)
-
-				// Add rdf:type triple for this nested resource
-				typePredicate := rdfType
-				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
-				d.triples = append(d.triples, Triple{
-					Subj: d.current.Subj,
-					Pred: typePredicate,
-					Obj:  typeObject,
-				})
-
-				d.nextState = parseXMLPropElemOrNodeEnd
-				return nil
-			}
-		} else {
-			// For non-RDF namespaces, create a blank node
-			d.current.Obj = Blank{id: d.GenerateID()}
-			d.triples = append(d.triples, d.current)
-			d.reifyCheck()
-
-			// Set the subject to the newly created blank node
-			d.current.Subj = d.current.Obj.(Subject)
-
-			// Add rdf:type triple for this nested resource
-			typePredicate := rdfType
-			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
-			d.triples = append(d.triples, Triple{
-				Subj: d.current.Subj,
-				Pred: typePredicate,
-				Obj:  typeObject,
-			})
-
-			// Continue parsing property elements of this node
-			d.nextState = parseXMLPropElemOrNodeEnd
-			return nil
-		}
-
-	case xml.EndElement:
-		// Remove element from path
-		d.removeLastElementFromPath()
-
-		d.parseObjLiteral(charData)
-		d.triples = append(d.triples, d.current)
-		d.nextState = parseXMLPropElemOrNodeEnd
-		return parseXMLPropElemEnd
-
-	default:
-		d.nextXMLToken()
-		goto second
-	}
-}
-
-// parseXMLPropElemEnd parses the closing tag of a property element. It should
-// only be called when a full triple is ready to be emitted.
-func parseXMLPropElemEnd(d *rdfXMLDecoder) parseXMLFn {
-	switch elem := d.tok.(type) {
-	case xml.EndElement:
-		d.reifyCheck()
-		d.lang = "" // clear the in-scope xml:lang
-
-		return nil
-	case xml.CharData, xml.Comment, xml.ProcInst:
-		d.nextXMLToken()
-		return parseXMLPropElemEnd
-	default:
-		panic(fmt.Errorf("unexpected XML token: %v", elem))
-	}
-}
-
-// Modified parseXMLPropElem function to handle rdf:type for nested resources
+// parseXMLPropElem function to handle rdf:about for nested resources
 func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 	switch elem := d.tok.(type) {
 	case xml.StartElement:
@@ -731,6 +490,29 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 
 		if a := attrRDF(elem, elID); a != nil {
 			d.reifyID = "#" + a[0].Value
+		}
+
+		// Handle rdf:about earlier to ensure it takes precedence
+		if as := attrRDF(elem, elAbout); as != nil {
+			d.current.Obj = IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+			d.triples = append(d.triples, d.current)
+			d.reifyCheck()
+
+			d.pushContext()
+			d.current.Subj = d.current.Obj.(Subject)
+
+			// Handle any additional attributes
+			if ar := attrRest(elem); ar != nil {
+				for _, a := range ar {
+					d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
+					d.parseObjLiteral(a.Value)
+					d.triples = append(d.triples, d.current)
+				}
+			}
+
+			d.nextXMLToken()
+			d.nextState = parseXMLPropElemOrNodeEnd
+			return nil
 		}
 
 		if as := attrRDF(elem, elParseType); as != nil {
@@ -792,6 +574,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			d.reifyCheck()
 
 			d.pushContext()
+			d.current.Subj = d.current.Obj.(Subject)
 			d.nextState = parseXMLPropElemOrNodeEnd
 			return nil
 		}
@@ -833,6 +616,370 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 	default: // xml.Comment, xml.CharData, xml.Directive, xml.ProcInst:
 		d.nextXMLToken()
 		return parseXMLPropElem
+	}
+}
+
+// parseXMLCharDataOrElemNode parses the tokens after a property element
+// with no attributes, finding either a string literal or a new element node.
+// This function will establish the object of the triple.
+func parseXMLCharDataOrElemNode(d *rdfXMLDecoder) parseXMLFn {
+	var charData string
+
+first:
+	switch elem := d.tok.(type) {
+	case xml.CharData:
+		charData = string(elem)
+	case xml.StartElement:
+		// Add current element to path
+		d.appendElementToPath(elem)
+
+		d.pushContext()
+		d.pushContext()
+
+		if elem.Name.Space == rdfNS {
+			switch elem.Name.Local {
+			case elDescription:
+				d.storePrefixNS(elem)
+
+				// Handle rdf:about attribute in nested Description elements
+				if as := attrRDF(elem, elAbout); as != nil {
+					// Create an IRI for the subject from the about attribute
+					iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+					// Set the object of the current triple to this IRI
+					d.current.Obj = iriValue
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					// Set the subject of future triples to this IRI
+					d.current.Subj = iriValue
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				if as := attrRest(elem); as != nil {
+					d.current.Obj = Blank{id: d.GenerateID()}
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					d.current.Subj = d.current.Obj.(Subject)
+
+					for _, a := range as {
+						d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
+						d.parseObjLiteral(a.Value)
+						d.triples = append(d.triples, d.current)
+					}
+
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				if as := attrRDF(elem, elNodeID); as != nil {
+					if as[0].Value == "" {
+						d.current.Obj = Blank{id: d.GenerateID()}
+					} else {
+						d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
+					}
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					d.current.Subj = d.current.Obj.(Subject)
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				d.current.Subj = d.current.Obj.(Subject)
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+
+			default:
+				// Handle non-Description elements with rdf:about
+				if as := attrRDF(elem, elAbout); as != nil {
+					// Create an IRI for the subject from the about attribute
+					iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+					// Set the object of the current triple to this IRI
+					d.current.Obj = iriValue
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					// Set the subject of future triples to this IRI
+					d.current.Subj = iriValue
+
+					// Add rdf:type triple for this nested resource
+					d.triples = append(d.triples, Triple{
+						Subj: d.current.Subj,
+						Pred: rdfType,
+						Obj:  IRI{str: elem.Name.Space + elem.Name.Local},
+					})
+
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				// Handle other RDF namespace elements that aren't Description
+				// Create a blank node and establish the rdf:type triple
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject to the newly created blank node
+				d.current.Subj = d.current.Obj.(Subject)
+
+				// Add rdf:type triple for this nested resource
+				typePredicate := rdfType
+				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: typePredicate,
+					Obj:  typeObject,
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+			}
+		} else {
+			// Handle non-RDF namespace elements with rdf:about
+			if as := attrRDF(elem, elAbout); as != nil {
+				// Create an IRI for the subject from the about attribute
+				iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+				// Set the object of the current triple to this IRI
+				d.current.Obj = iriValue
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject of future triples to this IRI
+				d.current.Subj = iriValue
+
+				// Add rdf:type triple for this nested resource
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: rdfType,
+					Obj:  IRI{str: elem.Name.Space + elem.Name.Local},
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+			}
+
+			// For non-RDF namespaces without rdf:about, create a blank node
+			d.current.Obj = Blank{id: d.GenerateID()}
+			d.triples = append(d.triples, d.current)
+			d.reifyCheck()
+
+			// Set the subject to the newly created blank node
+			d.current.Subj = d.current.Obj.(Subject)
+
+			// Add rdf:type triple for this nested resource
+			typePredicate := rdfType
+			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+			d.triples = append(d.triples, Triple{
+				Subj: d.current.Subj,
+				Pred: typePredicate,
+				Obj:  typeObject,
+			})
+
+			// Continue parsing property elements of this node
+			d.nextState = parseXMLPropElemOrNodeEnd
+			return nil
+		}
+
+	case xml.EndElement:
+		// Remove element from path when leaving
+		d.removeLastElementFromPath()
+
+		d.parseObjLiteral("")
+		d.triples = append(d.triples, d.current)
+		d.reifyCheck()
+		d.nextState = parseXMLPropElemOrNodeEnd
+		return nil
+
+	default:
+		d.nextXMLToken()
+		goto first
+	}
+
+	d.nextXMLToken()
+
+second:
+	switch elem := d.tok.(type) {
+	case xml.StartElement:
+		// Add element to path
+		d.appendElementToPath(elem)
+
+		d.pushContext()
+		d.pushContext()
+
+		if elem.Name.Space == rdfNS {
+			switch elem.Name.Local {
+			case elDescription:
+				d.storePrefixNS(elem)
+
+				// Handle rdf:about attribute in nested Description elements
+				if as := attrRDF(elem, elAbout); as != nil {
+					// Create an IRI for the subject from the about attribute
+					iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+					// Set the object of the current triple to this IRI
+					d.current.Obj = iriValue
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					// Set the subject of future triples to this IRI
+					d.current.Subj = iriValue
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				if as := attrRest(elem); as != nil {
+					d.current.Obj = Blank{id: d.GenerateID()}
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					d.current.Subj = d.current.Obj.(Subject)
+
+					for _, a := range as {
+						d.current.Pred = IRI{str: a.Name.Space + a.Name.Local}
+						d.parseObjLiteral(a.Value)
+						d.triples = append(d.triples, d.current)
+					}
+
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				if as := attrRDF(elem, elNodeID); as != nil {
+					if as[0].Value == "" {
+						d.current.Obj = Blank{id: d.GenerateID()}
+					} else {
+						d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
+					}
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					d.current.Subj = d.current.Obj.(Subject)
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				d.current.Subj = d.current.Obj.(Subject)
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+
+			default:
+				// Handle non-Description elements with rdf:about
+				if as := attrRDF(elem, elAbout); as != nil {
+					// Create an IRI for the subject from the about attribute
+					iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+					// Set the object of the current triple to this IRI
+					d.current.Obj = iriValue
+					d.triples = append(d.triples, d.current)
+					d.reifyCheck()
+
+					// Set the subject of future triples to this IRI
+					d.current.Subj = iriValue
+
+					// Add rdf:type triple for this nested resource
+					d.triples = append(d.triples, Triple{
+						Subj: d.current.Subj,
+						Pred: rdfType,
+						Obj:  IRI{str: elem.Name.Space + elem.Name.Local},
+					})
+
+					d.nextState = parseXMLPropElemOrNodeEnd
+					return nil
+				}
+
+				// Handle other RDF namespace elements that aren't Description
+				// Create a blank node and establish the rdf:type triple
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject to the newly created blank node
+				d.current.Subj = d.current.Obj.(Subject)
+
+				// Add rdf:type triple for this nested resource
+				typePredicate := rdfType
+				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: typePredicate,
+					Obj:  typeObject,
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+			}
+		} else {
+			// Handle non-RDF namespace elements with rdf:about
+			if as := attrRDF(elem, elAbout); as != nil {
+				// Create an IRI for the subject from the about attribute
+				iriValue := IRI{str: d.resolve(d.ctx.Base, as[0].Value)}
+
+				// Set the object of the current triple to this IRI
+				d.current.Obj = iriValue
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject of future triples to this IRI
+				d.current.Subj = iriValue
+
+				// Add rdf:type triple for this nested resource
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: rdfType,
+					Obj:  IRI{str: elem.Name.Space + elem.Name.Local},
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
+			}
+
+			// For non-RDF namespaces without rdf:about, create a blank node
+			d.current.Obj = Blank{id: d.GenerateID()}
+			d.triples = append(d.triples, d.current)
+			d.reifyCheck()
+
+			// Set the subject to the newly created blank node
+			d.current.Subj = d.current.Obj.(Subject)
+
+			// Add rdf:type triple for this nested resource
+			typePredicate := rdfType
+			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+			d.triples = append(d.triples, Triple{
+				Subj: d.current.Subj,
+				Pred: typePredicate,
+				Obj:  typeObject,
+			})
+
+			// Continue parsing property elements of this node
+			d.nextState = parseXMLPropElemOrNodeEnd
+			return nil
+		}
+
+	case xml.EndElement:
+		// Remove element from path
+		d.removeLastElementFromPath()
+
+		d.parseObjLiteral(charData)
+		d.triples = append(d.triples, d.current)
+		d.nextState = parseXMLPropElemOrNodeEnd
+		return parseXMLPropElemEnd
+
+	default:
+		d.nextXMLToken()
+		goto second
 	}
 }
 

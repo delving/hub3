@@ -20,6 +20,28 @@ func TestParseXMLRDF(t *testing.T) {
 	is.NoErr(err)
 
 	is.Equal(g.Len(), 48)
+	is.Equal(g.Triples()[0].Subject.RawValue(), "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3")
+}
+
+func TestParseNestedXMLRDF(t *testing.T) {
+	is := is.New(t)
+	dat, err := os.Open("../../index/testdata/rdf_brocade.rdf.xml")
+	is.NoErr(err)
+
+	g, err := Parse(dat, nil, "test_seed")
+	is.NoErr(err)
+
+	is.Equal(g.Len(), 105)
+	is.Equal(g.Triples()[0].Subject.RawValue(), "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499")
+
+	var found bool
+	for _, t := range g.Triples() {
+		if t.Subject.RawValue() == "https://data.antwerp.be/id/term/brocade-authorities/a::pt.42:1" {
+			found = true
+		}
+	}
+
+	is.True(found) // the subject for the nested about should be found
 }
 
 func TestTripleConversion(t *testing.T) {

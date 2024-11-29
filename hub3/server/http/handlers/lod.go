@@ -51,7 +51,7 @@ func RegisterLOD(r chi.Router) {
 		resolver = fragmentsLodResolver
 	}
 
-	r.Get("/resource", resolver())
+	r.Get("/resource-old", resolver())
 }
 
 func rewriteLodPrefixes(path string) string {
