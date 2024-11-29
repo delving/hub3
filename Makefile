@@ -39,6 +39,7 @@ install-dev:
 	go install github.com/JoaoDanielRufino/gcloc/cmd/gcloc@latest
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install github.com/codegangsta/gin@latest
+	go install github.com/swaggo/swag/v2/cmd/swag@latest
 
 benchmark:
 	@richgo test --bench=. -benchmem ./...
@@ -110,3 +111,6 @@ run-dev:
 
 run-workers:
 	gin --port=3010 --path . --build ikuzo/ikuzoctl --bin build/gin-workers -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run workers
+
+swagger:
+	swag init --output ./ikuzo/services/x/swagger/docs -g ikuzo/ikuzoctl/main.go

@@ -78,7 +78,7 @@ func RegisterSearch(router chi.Router) {
 
 	v2 := chi.NewRouter()
 	v2.Use(middleware.Throttle(100))
-	v2.Get("/search", GetScrollResult)
+
 	v2.Get("/search/{id}", func(w http.ResponseWriter, r *http.Request) {
 		getSearchRecord(w, r)
 	})
@@ -1010,6 +1010,18 @@ func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, 
 	return decodeFragmentGraph(res.Source)
 }
 
+// ShowAccount godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         accounts
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Account ID"
+// @Success      200  {object}  fragments.FragmentGraph
+// @Failure      400  {object}  render.ErrorResponse
+// @Failure      404  {object}  render.ErrorResponse
+// @Failure      500  {object}  render.ErrorResponse
+// @Router       /accounts/{id} [get]
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	// TODO(kiivihal): add more like this support to the query
 	id := chi.URLParam(r, "id")

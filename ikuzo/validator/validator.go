@@ -60,8 +60,8 @@ func (v *Validator) AddError(key string, err error, message string) {
 //
 // This can be used to build easy to read list of checks.
 //
-//		v.Check(f.Page > 0, "page", errors.New("invalid param"), "must be greater than zero")
-//		v.Check(f.Page <= 10_000_000, "page", nil, "must be a maximum of 10 million")
+//	v.Check(f.Page > 0, "page", errors.New("invalid param"), "must be greater than zero")
+//	v.Check(f.Page <= 10_000_000, "page", nil, "must be a maximum of 10 million")
 func (v *Validator) Check(ok bool, key string, err error, message string) {
 	if !ok {
 		v.AddError(key, err, message)
