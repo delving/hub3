@@ -22,6 +22,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-co-op/gocron"
+	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog"
 	"github.com/teris-io/shortid"
 
@@ -40,6 +41,7 @@ type Service struct {
 	scheduler         *gocron.Scheduler
 	harvestConfigPath string
 	recdef            RecDefResolver
+	ts                domain.TaskService
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -83,4 +85,9 @@ func (s *Service) Shutdown(ctx context.Context) error {
 func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
 	s.log = b.Logger.With().Str("svc", "sitemap").Logger()
 	s.orgs = b.Orgs
+	s.ts = b.TaskService
+}
+
+func (s *Service) EnqueueTask(task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+	return s.ts.EnqueueTask(task, opts...)
 }
