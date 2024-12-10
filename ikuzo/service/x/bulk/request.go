@@ -44,7 +44,7 @@ type Request struct {
 	Revision      int    `json:"revision"`
 	Tags          string `json:"tags,omitempty"`
 	RecDefID      string `json:"recDefId,omitempty"`
-	aboutTypeURI  string
+	aboutTypeURI  []string
 	resolvedTags  []string
 	indexTypes    []string
 }

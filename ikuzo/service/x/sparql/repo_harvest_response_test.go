@@ -85,7 +85,7 @@ func TestReadResponse(t *testing.T) {
 		is.Equal(lg.Len(), 171)
 
 		fg := fragments.NewFragmentGraph()
-		fg.Meta.AboutTypeURI = "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+		fg.Meta.AboutTypeURI = []string{"https://wo2.collectienederland.nl/nk/terms/NKRecord"}
 		fg.Meta.EntryURI, err = g.GetAboutURI(fg.Meta.AboutTypeURI)
 		is.NoErr(err)
 		fb := fragments.NewFragmentBuilder(fg)

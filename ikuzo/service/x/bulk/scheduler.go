@@ -226,7 +226,7 @@ func (gi *graphIndexer) IndexGraph(g *rdf.Graph) error {
 	fb := fragments.NewFragmentBuilder(fg)
 
 	var err error
-	fg.Meta.EntryURI, err = g.GetAboutURI(gi.cfg.AboutTypeURI)
+	fg.Meta.EntryURI, err = g.GetAboutURI([]string{gi.cfg.AboutTypeURI})
 
 	fb.Graph, err = g.AsLegacyGraph()
 	if err != nil {

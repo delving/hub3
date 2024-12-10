@@ -397,16 +397,20 @@ func (g *Graph) AsLegacyGraph() (*rdf2go.Graph, error) {
 // GetAboutURI returns the first matching rdf.type object from the graph.
 // It returns an error when the aboutRDFType is invalid or the aboutRDFType cannot be found
 // in the rdf.Graph.
-func (g *Graph) GetAboutURI(aboutRDFType string) (string, error) {
-	aboutType, err := NewIRI(aboutRDFType)
-	if err != nil {
-		return "", fmt.Errorf("unable to create rdf AboutTypeURI; %w", err)
+func (g *Graph) GetAboutURI(aboutRDFTypes []string) (string, error) {
+	for _, aboutRDFType := range aboutRDFTypes {
+		aboutType, err := NewIRI(aboutRDFType)
+		if err != nil {
+			return "", fmt.Errorf("unable to create rdf AboutTypeURI; %w", err)
+		}
+
+		aboutURI := g.GetByType(aboutType)
+		if len(aboutURI) == 0 {
+			continue
+		}
+
+		return aboutURI[0].RawValue(), nil
 	}
 
-	aboutURI := g.GetByType(aboutType)
-	if len(aboutURI) == 0 {
-		return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutType)
-	}
-
-	return aboutURI[0].RawValue(), nil
+	return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutRDFTypes)
 }

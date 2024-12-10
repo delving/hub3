@@ -20,7 +20,7 @@ func TestParseGraph(t *testing.T) {
 		Graph:         string(b),
 		GraphMimeType: "application/n-triples",
 		RecDefID:      "nkc",
-		aboutTypeURI:  "https://wo2.collectienederland.nl/nk/terms/NKRecord",
+		aboutTypeURI:  []string{"https://wo2.collectienederland.nl/nk/terms/NKRecord"},
 	}
 
 	fb, err := req.createFragmentBuilder(10)

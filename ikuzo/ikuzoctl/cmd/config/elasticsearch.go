@@ -83,7 +83,7 @@ type ElasticSearch struct {
 	// MinimumShouldMatch is default setting for userQueries
 	MinimumShouldMatch string `json:"minimumShouldMatch"`
 	// RecDef map rec-def codes to the rdf:type of their subject
-	RecDef map[string]string `json:"recDef"`
+	RecDef map[string][]string `json:"recDef"`
 	// DefaultRecDef is the default recDef for the index
 	DefaultRecDef string `json:"defaultRecDef"`
 }

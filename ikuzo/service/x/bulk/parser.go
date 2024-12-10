@@ -265,7 +265,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		return fmt.Errorf("unable to get dataset")
 	}
 
-	if req.aboutTypeURI == "" {
+	if len(req.aboutTypeURI) == 0 {
 		aboutURI, err := p.recDef.Resolve(req.RecDefID)
 		if err != nil {
 			return fmt.Errorf("unable to resolve recDefID %q; %w", req.RecDefID, err)
