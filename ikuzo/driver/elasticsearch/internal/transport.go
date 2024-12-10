@@ -64,8 +64,8 @@ func (t *CustomTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		resp.Body.Close()
 
 		var data map[string]interface{}
-		if err := json.Unmarshal(body, &data); err != nil {
-			return nil, fmt.Errorf("failed to parse JSON: %v\nBody: %s", err, string(body))
+		if marshalErr := json.Unmarshal(body, &data); marshalErr != nil {
+			return nil, fmt.Errorf("failed to parse JSON: %v\nBody: %s", marshalErr, string(body))
 		}
 
 		modifiedData := map[string]interface{}{

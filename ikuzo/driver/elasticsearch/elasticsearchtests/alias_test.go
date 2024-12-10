@@ -48,10 +48,7 @@ func TestAlias(t *testing.T) {
 	is.True(errors.Is(err, elasticsearch.ErrAliasNotFound))
 	is.Equal(indexName, "")
 
-	err = alias.Delete("hub3test-alias", "")
-	is.True(errors.Is(err, elasticsearch.ErrIndexNotFound))
-
-	err = alias.Delete("hub3test-alias", "")
+	err = alias.Delete("hub3test-alias", "unknownindex")
 	is.True(errors.Is(err, elasticsearch.ErrIndexNotFound))
 
 	// alias not created because unknown index
