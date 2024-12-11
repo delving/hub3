@@ -20,6 +20,7 @@ import (
 	fmt "fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net/url"
 	"sort"
 	"strings"
@@ -149,7 +150,9 @@ func (fg *FragmentGraph) SetResources(rm *ResourceMap) (*FragmentGraph, error) {
 	}
 	_, err = rm.SetContextLevels(subject)
 	if err != nil {
-		log.Printf("Unable to set context: %s", err)
+		slog.Error(
+			"Unable to set context:", "error", err, "subject", subject, "orgID", fg.Meta.OrgID,
+			"spec", fg.Meta.Spec, "hubID", fg.Meta.HubID)
 		return fg, err
 	}
 	// unlinked := []string{}

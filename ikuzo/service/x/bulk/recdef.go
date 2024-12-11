@@ -15,3 +15,7 @@ func (rdr *RecDefResolver) Resolve(recDefID string) ([]string, error) {
 
 	return uri, nil
 }
+
+func (rdf *RecDefResolver) List() map[string][]string {
+	return rdf.m
+}

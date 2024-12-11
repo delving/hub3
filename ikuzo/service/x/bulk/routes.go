@@ -6,4 +6,5 @@ func (s *Service) Routes(pattern string, r chi.Router) {
 	r.Post("/api/index/bulk", s.Handle)
 	r.Post("/api/index/rdf", s.HandleRDF)
 	r.Get("/api/bulk/debug/sparql", s.handleBulkDebug)
+	r.Get("/api/bulk/recdefs", s.handleRecDefs)
 }
