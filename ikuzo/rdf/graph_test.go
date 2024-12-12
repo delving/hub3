@@ -67,10 +67,10 @@ func TestGraph(t *testing.T) {
 		returnedGraph, err := ntriples.Parse(f, g)
 		is.NoErr(err)
 
-		is.Equal(returnedGraph.Len(), 47)
+		is.Equal(returnedGraph.Len(), 48)
 		expected := &rdf.GraphStats{
-			Languages: 1, ObjectIRIs: 14, Predicates: 41, Resources: 5, Triples: 47,
-			Namespaces: 9,
+			Languages: 1, ObjectIRIs: 14, Predicates: 42, Resources: 5, Triples: 48,
+			Namespaces: 10,
 		}
 		if diff := cmp.Diff(expected, g.Stats()); diff != "" {
 			t.Errorf("graphStats = mismatch (-want +got):\n%s", diff)
@@ -79,6 +79,6 @@ func TestGraph(t *testing.T) {
 		namespaces, err := g.Namespaces()
 		is.NoErr(err)
 		t.Logf("namespaces: %v", namespaces)
-		is.Equal(len(namespaces), 9)
+		is.Equal(len(namespaces), 10)
 	})
 }

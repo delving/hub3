@@ -47,3 +47,4 @@ _:b1 <http://schemas.delving.eu/nave/terms/objectNumber> "2458" .
 _:b1 <http://schemas.delving.eu/nave/terms/thumbLarge> "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/500" .
 _:b1 <http://schemas.delving.eu/nave/terms/thumbSmall> "https://media.delving.org/thumbnail/brabantcloud/museum-klok-en-peel/2458-Bel_type_bo_terracotta_China_strijdende_staten_voorkant/220" .
 _:b1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/BrabantCloudResource> .
+_:b1 <http://www.cidoc-crm.org/cidoc-crm/P3_has_note> "\\Upsilon$< Measurement of <tex>$d\\sigma/dy$</tex> of Drell-Yan <tex>$e^{+}e^{-}$</tex> pairs in the Z mass region from <tex>$p\\overline{p}$</tex> collisions at <tex>$\\sqrt{s}$</tex>=1.96 TeV" .

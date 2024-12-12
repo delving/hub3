@@ -69,7 +69,9 @@ var v2Mapping = `{
 						"modified": {"type": "date"},
 						"sourceID": {"type": "keyword"},
 						"sourcePath": {"type": "keyword"},
-						"groupID": {"type": "keyword"}
+						"groupID": {"type": "keyword"},
+						"recDefID": {"type": "keyword"},
+						"aboutTypeURI": {"type": "keyword"}
 					}
 				},
 				"protobuf": {
@@ -206,7 +208,9 @@ var v2MappingUpdate = `{
 		"properties": {
 			"sourceID": {"type": "keyword"},
 			"sourcePath": {"type": "keyword"},
-			"groupID": {"type": "keyword"}
+			"groupID": {"type": "keyword"},
+			"recDefID": {"type": "keyword"},
+			"aboutTypeURI": {"type": "keyword"}
 		}
 	},
     "tree": {

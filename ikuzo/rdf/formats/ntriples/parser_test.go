@@ -32,7 +32,7 @@ func TestParse(t *testing.T) {
 		is.NoErr(err)
 		is.Equal(g, returnedGraph)
 
-		is.Equal(g.Len(), 47)
+		is.Equal(g.Len(), 48)
 	})
 
 	t.Run("parse ntriples without graph", func(t *testing.T) {
@@ -44,6 +44,6 @@ func TestParse(t *testing.T) {
 		returnedGraph, err := Parse(r, nil)
 		is.NoErr(err)
 
-		is.Equal(returnedGraph.Len(), 47)
+		is.Equal(returnedGraph.Len(), 48)
 	})
 }

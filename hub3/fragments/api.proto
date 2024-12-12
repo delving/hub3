@@ -564,8 +564,8 @@ message Header {
   string sourcePath = 11;
   // id to group sub-set of records for spec that can be used for orphancontrol
   string groupID = 12;
-  string RecDefID = 13;
-  repeated string AboutTypeURI = 14;
+  string recDefID = 13;
+  repeated string aboutTypeURI = 14;
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments
