@@ -404,12 +404,17 @@ func (g *Graph) GetAboutURI(aboutRDFTypes []string) (string, error) {
 			return "", fmt.Errorf("unable to create rdf AboutTypeURI; %w", err)
 		}
 
-		aboutURI := g.GetByType(aboutType)
-		if len(aboutURI) == 0 {
+		aboutURIs := g.GetByType(aboutType)
+		if len(aboutURIs) == 0 {
 			continue
 		}
 
-		return aboutURI[0].RawValue(), nil
+		for _, s := range aboutURIs {
+			if s.Type() != TermIRI {
+				continue
+			}
+			return s.RawValue(), nil
+		}
 	}
 
 	return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutRDFTypes)

@@ -19,10 +19,12 @@ import (
 	fmt "fmt"
 	"net/url"
 	"os"
+	"testing"
 
 	c "github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
 	r "github.com/kiivihal/rdf2go"
+	"github.com/matryer/is"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -62,6 +64,27 @@ func NSRef(uri string) r.Term {
 //}
 //return r.NewLiteral(value)
 //}
+
+func TestCrmFragmentGraph(t *testing.T) {
+	is := is.New(t)
+
+	fg := NewFragmentGraph()
+	fg.Meta.OrgID = "datahub"
+	fg.Meta.Spec = "brocade-catalog"
+	fg.Meta.Revision = 0
+	fg.Meta.HubID = fmt.Sprintf("%s_%s_1", fg.Meta.OrgID, fg.Meta.Spec)
+	fg.Meta.AboutTypeURI = []string{"https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"}
+
+	fb := NewFragmentBuilder(fg)
+	dat, err := os.ReadFile("./testdata/crm.nt")
+	is.NoErr(err)
+	err = fb.ParseResolvedGraph(bytes.NewReader(dat), "application/n-triples")
+	is.NoErr(err)
+
+	resolvedFg, err := fb.Doc()
+	is.NoErr(err)
+	is.Equal(resolvedFg.Meta.EntryURI, "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10")
+}
 
 func testFragmentGraph(spec string, rev int32, ng string) *FragmentGraph {
 	fg := NewFragmentGraph()
