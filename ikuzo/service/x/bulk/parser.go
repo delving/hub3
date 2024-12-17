@@ -73,34 +73,44 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	g.Go(func() error {
 		defer close(actions)
 
-		scanner := bufio.NewScanner(r)
-		buf := make([]byte, 0, 64*1024)
-		scanner.Buffer(buf, 5*1024*1024)
+		reader := bufio.NewReader(r)
 
-		for scanner.Scan() {
+		// processLine handles a single line of input
+		processLine := func(line []byte) error {
 			var req Request
-			b := scanner.Bytes()
-
-			if err := json.Unmarshal(b, &req); err != nil {
+			if err := json.Unmarshal(line, &req); err != nil {
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
 				log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
-				log.Debug().Str("svc", "bulk").Str("raw", scanner.Text()).Err(err).Msg("wrong json input")
+				log.Debug().Str("svc", "bulk").Str("raw", string(line)).Err(err).Msg("wrong json input")
 				atomic.AddUint64(&p.stats.JSONErrors, 1)
-				continue
+				return nil // non-fatal error
 			}
 
 			select {
 			case actions <- req:
+				atomic.AddUint64(&p.stats.TotalReceived, 1)
+				return nil
 			case <-gctx.Done():
 				return gctx.Err()
 			}
-			atomic.AddUint64(&p.stats.TotalReceived, 1)
 		}
 
-		if scanner.Err() != nil {
-			return scanner.Err()
-		}
+		for {
+			line, err := reader.ReadBytes('\n')
+			if err != nil && err != io.EOF {
+				return err
+			}
 
+			if len(line) > 0 {
+				if err := processLine(line); err != nil {
+					return err
+				}
+			}
+
+			if err == io.EOF {
+				break
+			}
+		}
 		return nil
 	})
 
@@ -110,7 +120,7 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				a := a
 
 				if err := p.process(ctx, &a); err != nil {
-					log.Error().Err(err).Msg("unable to process action")
+					log.Error().Err(err).Str("hubID", a.HubID).Msg("unable to process action")
 					return err
 				}
 

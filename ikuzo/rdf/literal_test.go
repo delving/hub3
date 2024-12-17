@@ -315,6 +315,11 @@ func TestIsValidDataType(t *testing.T) {
 	is.True(!isValidDataType(IRI{})) // nil is not a valid dataType
 
 	is.True(isValidDataType(xsdString))
+
+	xsdDecimal := IRI{"xsd:decimal"}
+	l := Literal{DataType: xsdDecimal}
+	is.True(isValidDataType(l.DataType))
+	is.Equal(l.DataType, xsdDecimal)
 }
 
 func TestLiteral_String(t *testing.T) {

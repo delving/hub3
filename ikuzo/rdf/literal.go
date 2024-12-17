@@ -157,6 +157,10 @@ func isValidDataType(dt IRI) bool {
 		return false
 	}
 
+	if strings.HasPrefix(dt.RawValue(), "xsd:") {
+		dt.str = strings.ReplaceAll(dt.str, "xsd:", "http://www.w3.org/2001/XMLSchema#")
+	}
+
 	for _, other := range SupportDataTypes {
 		if dt.Equal(other) {
 			return true
