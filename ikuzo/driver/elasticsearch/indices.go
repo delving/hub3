@@ -42,10 +42,10 @@ func (idx *Indices) Create(alias, mapping string, withAlias bool) (indexName str
 
 	indexName = fmt.Sprintf("%s_%s", alias, time.Now().Format("20060102150405.999"))
 
-	res, err := idx.client.index.Indices.Create(
+	res, err := idx.client.es.Indices.Create(
 		indexName,
-		idx.client.index.Indices.Create.WithBody(strings.NewReader(mapping)),
-		idx.client.index.Indices.Create.WithWaitForActiveShards("1"),
+		idx.client.es.Indices.Create.WithBody(strings.NewReader(mapping)),
+		idx.client.es.Indices.Create.WithWaitForActiveShards("1"),
 	)
 	if err != nil {
 		return "", fmt.Errorf("elastic Indices.Create: %w", err)
@@ -71,7 +71,7 @@ func (idx *Indices) Create(alias, mapping string, withAlias bool) (indexName str
 //
 // If the error does not exist an ErrIndexNotExist error is returned.
 func (idx *Indices) Delete(indexName string) error {
-	res, err := idx.client.index.Indices.Delete(
+	res, err := idx.client.es.Indices.Delete(
 		[]string{indexName},
 	)
 	if err != nil {
@@ -86,7 +86,7 @@ func (idx *Indices) Delete(indexName string) error {
 }
 
 func (idx Indices) Exists(indexName string) error {
-	res, err := idx.client.index.Indices.Exists(
+	res, err := idx.client.es.Indices.Exists(
 		[]string{indexName},
 	)
 	if err != nil {

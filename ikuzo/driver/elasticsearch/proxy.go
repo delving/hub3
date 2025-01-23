@@ -47,7 +47,7 @@ type Proxy struct {
 
 func NewProxy(es *Client) (*Proxy, error) {
 	p := &Proxy{
-		es:  es.index,
+		es:  es.es,
 		cfg: es.cfg,
 	}
 

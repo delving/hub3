@@ -2,10 +2,12 @@ package index
 
 import (
 	"bytes"
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
+	"slices"
 
 	"github.com/benbjohnson/immutable"
 
@@ -50,12 +52,13 @@ func NewGraph(header Header) (*Graph, error) {
 
 // AddGraph adds the triples from the rdf.Graph to the Resources list
 func (g *Graph) AddGraph(graph *rdf.Graph) error {
-	for subj, r := range graph.Resources() {
-		rsc, created := g.Resource(subj.RawValue())
+	for _, r := range graph.ResourcesOrdered() {
+		rsc, created := g.Resource(r.Subject().RawValue())
 		if created {
 			for _, t := range r.Types() {
 				rsc.Types = append(rsc.Types, t.RawValue())
 			}
+			rsc.order = r.Order()
 		}
 		entries, err := getEntries(r)
 		if err != nil {
@@ -114,8 +117,21 @@ func (g *Graph) IndexMessage() (*domainpb.IndexMessage, error) {
 	}, nil
 }
 
+func GraphFromBytes(data []byte) (*Graph, error) {
+	var g Graph
+	err := json.Unmarshal(data, &g)
+	if err != nil {
+		return nil, err
+	}
+
+	return &g, nil
+}
+
 // Marshal returns the Graph as []byte marshalled as JSON
 func (g *Graph) Marshal() ([]byte, error) {
+	slices.SortStableFunc(g.Resources, func(a, b *Resource) int {
+		return cmp.Compare(a.order, b.order)
+	})
 	return json.Marshal(g)
 }
 

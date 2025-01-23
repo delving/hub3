@@ -49,6 +49,7 @@ require (
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/onsi/ginkgo v1.16.5
 	github.com/onsi/gomega v1.33.1
+	github.com/opensearch-project/opensearch-go v1.1.0
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/parnurzeal/gorequest v0.3.0
 	github.com/pelletier/go-toml v1.9.5
@@ -68,12 +69,11 @@ require (
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569
 	github.com/testcontainers/testcontainers-go v0.34.0
 	github.com/tidwall/gjson v1.17.1
+	github.com/tidwall/sjson v1.2.5
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/xitongsys/parquet-go v1.6.2
 	golang.org/x/sync v0.9.0
 	golang.org/x/text v0.20.0
-	google.golang.org/genproto/googleapis/api v0.0.0-20240528184218-531527333157
-	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.34.2
 )
 
@@ -99,7 +99,6 @@ require (
 	github.com/cpuguy83/dockercfg v0.3.2 // indirect
 	github.com/cyphar/filepath-securejoin v0.2.5 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/deiu/gon3 v0.0.0-20241129160627-433c36af8ac1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/distribution/reference v0.6.0 // indirect
 	github.com/djherbis/buffer v1.2.0 // indirect
@@ -224,6 +223,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
+	google.golang.org/grpc v1.65.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect

@@ -17,7 +17,7 @@ func TestResource(t *testing.T) {
 		is = is.New(t)
 		rsc := NewResource(&subject)
 		is.True(rsc.subject == &subject)
-		is.Equal(len(rsc.predicates), 0)
+		is.Equal(len(rsc.predicateLookup), 0)
 	})
 
 	t.Run("Add triple", func(t *testing.T) {
@@ -32,7 +32,7 @@ func TestResource(t *testing.T) {
 		triple := NewTriple(Subject(subject), Predicate(p), Object(o))
 		rsc := NewResource(&subject)
 		rsc.Add(triple)
-		is.Equal(len(rsc.predicates), 1)
+		is.Equal(len(rsc.predicateLookup), 1)
 	})
 
 	t.Run("AddSimpleLiteral() without PredicateURIBase", func(t *testing.T) {
@@ -41,7 +41,7 @@ func TestResource(t *testing.T) {
 
 		rsc.AddSimpleLiteral("title", "simple title")
 		is.True(rsc.HasErrors())
-		is.Equal(len(rsc.predicates), 0)
+		is.Equal(len(rsc.predicateLookup), 0)
 	})
 
 	t.Run("AddSimpleLiteral() with PredicateURIBase", func(t *testing.T) {
@@ -51,7 +51,7 @@ func TestResource(t *testing.T) {
 		rsc.PredicateURIBase = DC
 		rsc.AddSimpleLiteral("title", "simple title")
 		is.True(!rsc.HasErrors())
-		is.Equal(len(rsc.predicates), 1)
+		is.Equal(len(rsc.predicateLookup), 1)
 	})
 
 	t.Run("AddSimpleLiteral() with language option", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestResource(t *testing.T) {
 		rsc.PredicateURIBase = DC
 		rsc.AddSimpleLiteral("title", "simple title", WithLanguage("nl"))
 		is.True(!rsc.HasErrors())
-		is.Equal(len(rsc.predicates), 1)
+		is.Equal(len(rsc.predicateLookup), 1)
 		triples := rsc.Triples()
 		is.Equal(len(triples), 1)
 		is.Equal(triples[0].String(), "<urn:subject/123> <http://purl.org/dc/elements/1.1/title> \"simple title\"@nl .")
@@ -81,7 +81,7 @@ func TestResource(t *testing.T) {
 			t.Logf("errors: %s", err)
 		}
 		is.True(!rsc.HasErrors())
-		is.Equal(len(rsc.predicates), 1)
+		is.Equal(len(rsc.predicateLookup), 1)
 		triples := rsc.Triples()
 		is.Equal(len(triples), 1)
 		is.Equal(
@@ -95,9 +95,9 @@ func TestResource(t *testing.T) {
 
 		rsc := NewResource(&subject)
 		rsc.PredicateURIBase = RDFS
-		t.Logf("predicates: %#v", rsc.predicates)
+		t.Logf("predicates: %#v", rsc.predicateLookup)
 		rsc.AddSimpleLiteral("prefLabel", "altLabel")
-		t.Logf("predicates: %#v", rsc.predicates)
+		t.Logf("predicates: %#v", rsc.predicateLookup)
 		noLabel, ok := rsc.Label()
 		t.Logf("predicates: %#v", noLabel)
 		t.Logf("no label: %s %t", noLabel, ok)

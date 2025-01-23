@@ -23,7 +23,7 @@ func (c *Client) NewBulkIndexer(orgs []domain.OrganizationConfig, workers int) (
 	numWorkers := workers
 
 	bi, err := esutil.NewBulkIndexer(esutil.BulkIndexerConfig{
-		Client:        c.index,         // The Elasticsearch client
+		Client:        c.es,            // The Elasticsearch client
 		NumWorkers:    numWorkers,      // The number of worker goroutines
 		FlushBytes:    flushBytes,      // The flush threshold in bytes
 		FlushInterval: 5 * time.Second, // The periodic flush interval

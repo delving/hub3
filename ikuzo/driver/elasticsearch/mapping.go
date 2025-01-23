@@ -98,7 +98,7 @@ func (c *Client) createDefaultMappings(orgCfg domain.OrganizationConfig, withAli
 }
 
 func (c *Client) isMappingValid(indexName string) (bool, error) {
-	res, err := c.index.Indices.GetMapping(c.index.Indices.GetMapping.WithIndex(indexName))
+	res, err := c.es.Indices.GetMapping(c.es.Indices.GetMapping.WithIndex(indexName))
 	if err != nil {
 		return false, err
 	}
@@ -118,7 +118,7 @@ func (c *Client) isMappingValid(indexName string) (bool, error) {
 }
 
 func (c *Client) mappingUpdate(indexName, esMapping string) error {
-	resp, err := c.index.Indices.PutMapping([]string{indexName}, strings.NewReader(esMapping))
+	resp, err := c.es.Indices.PutMapping([]string{indexName}, strings.NewReader(esMapping))
 	if err != nil {
 		return fmt.Errorf("unable to update mapping; %w", err)
 	}

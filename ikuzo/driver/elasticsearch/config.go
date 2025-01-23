@@ -24,6 +24,8 @@ type Config struct {
 	Timeout int
 	// DisableMetrics disables publishing metrics to expvar
 	DisableMetrics bool
+	// IsOpenSearch uses the native opensearch driver
+	IsOpenSearch bool
 }
 
 // Valid validates the configuration. When the Configuration is

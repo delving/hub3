@@ -2,7 +2,6 @@ package rdf
 
 import (
 	"fmt"
-	"sort"
 )
 
 type Option func(obj *Literal) error
@@ -11,16 +10,18 @@ type Option func(obj *Literal) error
 type Resource struct {
 	subject          Subject
 	types            []IRI
-	predicates       map[Predicate]*resourcePredicate
+	predicateLookup  map[Predicate]*resourcePredicate
+	predicates       []*resourcePredicate
 	errors           []error
 	PredicateURIBase *IRIBuilder `json:"-"`
 	inFatalError     bool
+	order            int
 }
 
 func NewResource(subject Subject) *Resource {
 	return &Resource{
-		subject:    subject,
-		predicates: map[Predicate]*resourcePredicate{},
+		subject:         subject,
+		predicateLookup: map[Predicate]*resourcePredicate{},
 	}
 }
 
@@ -31,7 +32,7 @@ func (r *Resource) Subject() Subject {
 func (r *Resource) Label() (Literal, bool) {
 	l, _ := RDFS.IRI("label")
 
-	o, ok := r.predicates[Predicate(l)]
+	o, ok := r.predicateLookup[Predicate(l)]
 	if ok {
 		for _, obj := range o.Objects() {
 			if obj.Type() == TermLiteral {
@@ -54,28 +55,19 @@ func (r *Resource) Types() []IRI {
 }
 
 func (r *Resource) Predicates() map[Predicate]*resourcePredicate {
-	return r.predicates
+	return r.predicateLookup
 }
 
 func (r *Resource) SortedPredicates() []*resourcePredicate {
-	var predicates []*resourcePredicate
-	for _, rp := range r.predicates {
-		predicates = append(predicates, rp)
-	}
-
-	sort.Slice(predicates, func(i, j int) bool {
-		return predicates[i].iri.RawValue() < predicates[j].iri.RawValue()
-	})
-
-	return predicates
+	return r.predicates
 }
 
 func (r *Resource) Triples() []*Triple {
 	triples := []*Triple{}
 
-	for p, objects := range r.predicates {
-		for _, obj := range objects.objects {
-			triples = append(triples, NewTriple(r.subject, p, obj))
+	for _, predicate := range r.predicates {
+		for _, obj := range predicate.objects {
+			triples = append(triples, NewTriple(r.subject, predicate.IRI(), obj))
 		}
 	}
 
@@ -83,12 +75,14 @@ func (r *Resource) Triples() []*Triple {
 }
 
 func (r *Resource) Add(t *Triple) {
-	rp, present := r.predicates[t.Predicate]
+	rp, present := r.predicateLookup[t.Predicate]
 	if !present {
 		rp = &resourcePredicate{
-			iri:     t.Predicate.(IRI),
-			objects: map[hasher]Object{},
+			iri:          t.Predicate.(IRI),
+			objectLookup: map[hasher]Object{},
+			objects:      []Object{},
 		}
+		r.predicates = append(r.predicates, rp)
 	}
 
 	if rp.iri.Equal(IsA) {
@@ -96,10 +90,11 @@ func (r *Resource) Add(t *Triple) {
 	}
 
 	h := getHash(t.Object)
-	if _, ok := rp.objects[h]; !ok {
-		rp.objects[h] = t.Object
+	if _, ok := rp.objectLookup[h]; !ok {
+		rp.objectLookup[h] = t.Object
+		rp.objects = append(rp.objects, t.Object)
 
-		r.predicates[t.Predicate] = rp
+		r.predicateLookup[t.Predicate] = rp
 	}
 }
 
@@ -127,12 +122,14 @@ func (r *Resource) AddSimpleLiteral(predicateLabel, value string, options ...Opt
 		return
 	}
 
-	rp, present := r.predicates[p]
+	rp, present := r.predicateLookup[p]
 	if !present {
 		rp = &resourcePredicate{
-			iri:     p,
-			objects: map[hasher]Object{},
+			iri:          p,
+			objectLookup: map[hasher]Object{},
+			objects:      []Object{},
 		}
+		r.predicates = append(r.predicates, rp)
 	}
 
 	l, err := NewLiteral(value)
@@ -154,10 +151,11 @@ func (r *Resource) AddSimpleLiteral(predicateLabel, value string, options ...Opt
 	}
 
 	h := getHash(l)
-	if _, ok := rp.objects[h]; !ok {
-		rp.objects[h] = l
+	if _, ok := rp.objectLookup[h]; !ok {
+		rp.objectLookup[h] = l
+		rp.objects = append(rp.objects, l)
 
-		r.predicates[p] = rp
+		r.predicateLookup[p] = rp
 	}
 }
 
@@ -169,9 +167,15 @@ func (r *Resource) addError(err error) {
 	r.errors = append(r.errors, err)
 }
 
+// Order returns the order of the Resource based on the insertion order
+func (r *Resource) Order() int {
+	return r.order
+}
+
 type resourcePredicate struct {
-	iri     IRI
-	objects map[hasher]Object
+	iri          IRI
+	objectLookup map[hasher]Object
+	objects      []Object
 }
 
 func (rp *resourcePredicate) IRI() IRI {
@@ -179,15 +183,7 @@ func (rp *resourcePredicate) IRI() IRI {
 }
 
 func (rp *resourcePredicate) Objects() (objects []Object) {
-	for _, object := range rp.objects {
-		objects = append(objects, object)
-	}
-
-	sort.Slice(objects, func(i, j int) bool {
-		return objects[i].RawValue() < objects[j].RawValue()
-	})
-
-	return objects
+	return rp.objects
 }
 
 // WithDataType is an Option to set a DataType on AddSimpleLiteral()

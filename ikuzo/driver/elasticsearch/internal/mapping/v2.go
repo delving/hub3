@@ -55,6 +55,7 @@ var v2Mapping = `{
 			"dynamic": "strict",
 			"date_detection" : false,
 			"properties": {
+				"_checksum": {"type": "keyword"},
 				"meta": {
 					"type": "object",
 					"properties": {
@@ -203,6 +204,7 @@ func V2MappingUpdate() string {
 // 'strict' on dynamic creating of new fields in the index.
 var v2MappingUpdate = `{
   "properties": {
+	"_checksum": {"type": "keyword"},
 	"meta": {
 		"type": "object",
 		"properties": {

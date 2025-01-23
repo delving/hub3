@@ -35,7 +35,7 @@ func TestSerialize(t *testing.T) {
 		err = Serialize(g, &buf, &cfg)
 		is.NoErr(err)
 
-		os.WriteFile("/tmp/data.xml", buf.Bytes(), os.ModePerm)
+		// os.WriteFile("/tmp/data.xml", buf.Bytes(), os.ModePerm)
 
 		b, err := os.ReadFile("./testdata/rdf.golden.xml")
 		is.NoErr(err)

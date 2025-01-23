@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"github.com/olivere/elastic/v7"
 )
@@ -22,20 +23,28 @@ func (c *Client) Stream(
 	ctx context.Context, cfg *StreamConfig,
 	fn func(hit *elastic.SearchHit) error,
 ) (seen int, err error) {
+	slog.Info("starting streaming", "cfg", cfg, "urls", c.cfg.Urls)
 	// Create a Point In Time
-	openResp, err := c.search.OpenPointInTime(cfg.IndexNames...).
+	pitReq := c.search.OpenPointInTime(cfg.IndexNames...).
 		KeepAlive("1m").
-		Pretty(true).
-		Do(context.Background())
+		Pretty(true)
+
+	if err := pitReq.Validate(); err != nil {
+		slog.Error("unable to validate point in time request", "error", err)
+		return 0, fmt.Errorf("unable to validate point in time request: %w", err)
+	}
+
+	openResp, err := pitReq.Do(ctx)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("unable to open point in time: %w", err)
 	}
 
 	defer func() {
-		_, err := c.search.ClosePointInTime(openResp.Id).Pretty(true).Do(context.Background())
+		resp, err := c.search.ClosePointInTime(openResp.Id).Pretty(true).Do(context.Background())
 		if err != nil {
 			c.log.Error().Err(err).Msg("unable to close point in time")
 		}
+		slog.Debug("closing point in time", "id", openResp.Id, "succeeded", resp.Succeeded, "freeing resources", resp.NumFreed)
 	}()
 
 	cfg.pitID = openResp.Id
@@ -55,7 +64,7 @@ func (c *Client) Stream(
 
 		for _, hit := range hits {
 			if fnErr := fn(hit); fnErr != nil {
-				return 0, fnErr
+				return 0, fmt.Errorf("error processing hit: %w", fnErr)
 			}
 		}
 		esPage++
@@ -63,11 +72,11 @@ func (c *Client) Stream(
 
 	if err != nil {
 		if !errors.Is(err, ErrEndOfScroll) {
-			return 0, err
+			return 0, fmt.Errorf("unable to process page %d: %w", esPage, err)
 		}
 
 		if totalSeen == 0 {
-			return totalSeen, fmt.Errorf("no hits for query %#v, with error: %v", cfg.Query, err)
+			return totalSeen, nil
 		}
 	}
 
@@ -80,7 +89,7 @@ func (c *Client) next(cfg *StreamConfig, searchAfter []interface{}) ([]*elastic.
 	search := c.search.Search().
 		Size(pageSize).
 		Query(cfg.Query).
-		PointInTime(elastic.NewPointInTimeWithKeepAlive(cfg.pitID, "1m")).
+		PointInTime(elastic.NewPointInTimeWithKeepAlive(cfg.pitID, "10m")).
 		Sort("meta.hubID", true)
 
 	if cfg.Fsc != nil {

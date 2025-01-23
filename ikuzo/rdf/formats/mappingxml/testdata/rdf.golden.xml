@@ -2,10 +2,10 @@
     <sdo:CreativeWork rdf:about="https://klek.si/pqx31b/01339n">
         <dc:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
         <skos:prefLabel xml:lang="nl">Glazen buisje</skos:prefLabel>
+        <sdo:dateCreated xml:lang="nl">XXc - XXd</sdo:dateCreated>
         <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1950-01-01</sdo:dateCreated>
         <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1990-01-01</sdo:dateCreated>
         <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-02-03T14:47:27.151Z</sdo:dateCreated>
-        <sdo:dateCreated xml:lang="nl">XXc - XXd</sdo:dateCreated>
         <sdo:dateModified rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2024-02-01T12:22:04.218Z</sdo:dateModified>
         <sdo:description xml:lang="nl">Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken&lt;br/&gt;</sdo:description>
         <sdo:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>

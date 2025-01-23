@@ -4,17 +4,16 @@ import (
 	"errors"
 	"io"
 
-	xmlrdf "github.com/knakk/rdf"
-
 	"github.com/delving/hub3/ikuzo/rdf"
+	irdf "github.com/delving/hub3/ikuzo/rdf/formats/rdfxml/internal/rdf"
 )
 
-func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
+func Parse(r io.Reader, g *rdf.Graph, seed string) (*rdf.Graph, error) {
 	if g == nil {
 		g = rdf.NewGraph()
 	}
 
-	triples, err := decodeRDFXML(r)
+	triples, err := decodeRDFXML(r, seed)
 	if err != nil {
 		return nil, err
 	}
@@ -25,10 +24,10 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 }
 
 // decodeRDFXML parses RDF-XML into triples
-func decodeRDFXML(r io.Reader) ([]*rdf.Triple, error) {
+func decodeRDFXML(r io.Reader, seed string) ([]*rdf.Triple, error) {
 	var newTriples []*rdf.Triple
 
-	dec := xmlrdf.NewTripleDecoder(r, xmlrdf.RDFXML)
+	dec := irdf.NewRDFXMLDecoder(r, irdf.WithSeed(seed), irdf.WithIDStrategy(irdf.DeterministicIDs))
 
 	triples, err := dec.DecodeAll()
 	if err != nil {
@@ -51,14 +50,14 @@ func decodeRDFXML(r io.Reader) ([]*rdf.Triple, error) {
 }
 
 // convertTriple converts a knakk/rdf Triple to a kiivihal/rdf2go Triple
-func convertTriple(triple xmlrdf.Triple) (*rdf.Triple, error) {
+func convertTriple(triple irdf.Triple) (*rdf.Triple, error) {
 	var (
 		s   rdf.Subject
 		err error
 	)
 
 	switch triple.Subj.Type() {
-	case xmlrdf.TermBlank:
+	case irdf.TermBlank:
 		s, err = rdf.NewBlankNode(triple.Subj.String())
 		if err != nil {
 			return nil, err
@@ -78,13 +77,13 @@ func convertTriple(triple xmlrdf.Triple) (*rdf.Triple, error) {
 	var o rdf.Object
 
 	switch triple.Obj.Type() {
-	case xmlrdf.TermBlank:
+	case irdf.TermBlank:
 		o, err = rdf.NewBlankNode(triple.Obj.String())
 		if err != nil {
 			return nil, err
 		}
-	case xmlrdf.TermLiteral:
-		l := triple.Obj.(xmlrdf.Literal)
+	case irdf.TermLiteral:
+		l := triple.Obj.(irdf.Literal)
 		if l.Lang() != "" {
 			o, err = rdf.NewLiteralWithLang(l.String(), l.Lang())
 			if err != nil {
@@ -114,7 +113,7 @@ func convertTriple(triple xmlrdf.Triple) (*rdf.Triple, error) {
 			return nil, err
 		}
 
-	case xmlrdf.TermIRI:
+	case irdf.TermIRI:
 		o, err = rdf.NewIRI(triple.Obj.String())
 		if err != nil {
 			return nil, err

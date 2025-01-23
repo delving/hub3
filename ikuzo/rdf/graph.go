@@ -1,8 +1,10 @@
 package rdf
 
 import (
+	"cmp"
 	"fmt"
 	"log"
+	"slices"
 	"sort"
 	"sync"
 
@@ -10,6 +12,7 @@ import (
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/service/x/namespace"
+	"github.com/delving/hub3/ikuzo/validator"
 )
 
 // DefaultNamespaceManager can be set at package level to
@@ -69,6 +72,7 @@ func NewGraph() *Graph {
 		resources:        make(map[Subject]*Resource),
 		NamespaceManager: DefaultNamespaceManager,
 		collections:      make(map[Subject][]*Triple),
+		Subject:          nullSubject{},
 	}
 
 	return g
@@ -275,6 +279,7 @@ func (g *Graph) updateResources(t *Triple) {
 	rsc, ok := g.resources[t.Subject]
 	if !ok {
 		rsc = NewResource(t.Subject)
+		rsc.order = len(g.resources) + 1
 	}
 
 	rsc.Add(t)
@@ -304,6 +309,19 @@ func (g *Graph) GetByType(iri IRI) (subjects []Subject) {
 
 func (g *Graph) Resources() map[Subject]*Resource {
 	return g.resources
+}
+
+func (g *Graph) ResourcesOrdered() []*Resource {
+	// TODO: build resources when it is empty
+	var resources []*Resource
+	for _, rsc := range g.resources {
+		resources = append(resources, rsc)
+	}
+	slices.SortStableFunc(resources, func(a, b *Resource) int {
+		return cmp.Compare(a.order, b.order)
+	})
+
+	return resources
 }
 
 type TripleFilter interface {
@@ -351,6 +369,21 @@ func (g *Graph) FilterResources(f ResourceFilter) []*Resource {
 // }
 // return matches
 // }
+
+// SubjectSafe returns the first Subject in the Graph if it is not explicitely set already.
+func (g *Graph) SubjectSafe() Subject {
+	if g.Subject.RawValue() != "" {
+		return g.Subject
+	}
+
+	if len(g.triples) == 0 {
+		return g.Subject
+	}
+
+	g.Subject = g.triples[0].Subject
+
+	return g.Subject
+}
 
 // Remove removes triples from the SortedGraph
 func (g *Graph) Remove(remove ...*Triple) {
@@ -419,3 +452,13 @@ func (g *Graph) GetAboutURI(aboutRDFTypes []string) (string, error) {
 
 	return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutRDFTypes)
 }
+
+// Internal null subject implementation
+type nullSubject struct{}
+
+func (n nullSubject) ValidAsSubject()                {}
+func (n nullSubject) Equal(t Term) bool              { return false }
+func (n nullSubject) RawValue() string               { return "" }
+func (n nullSubject) String() string                 { return "" }
+func (n nullSubject) Type() TermType                 { return TermIRI }
+func (n nullSubject) Validate() *validator.Validator { return validator.New() }

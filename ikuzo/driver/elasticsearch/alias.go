@@ -35,7 +35,7 @@ func (c *Client) Alias() Alias {
 // When the index does not exist ErrIndexNotExists is returned
 // When the alias is already defined, ErrAliasExist is returned
 func (a *Alias) Create(alias, indexName string) error {
-	res, conErr := a.client.index.Indices.PutAlias(
+	res, conErr := a.client.es.Indices.PutAlias(
 		[]string{indexName},
 		alias,
 	)
@@ -57,8 +57,8 @@ func (a *Alias) Create(alias, indexName string) error {
 //
 // When the alias is not found an ErrAliasNotFound error is returned.
 func (a *Alias) Get(name string) (indexName string, err error) {
-	res, conErr := a.client.index.Indices.GetAlias(
-		a.client.index.Indices.GetAlias.WithName(name),
+	res, conErr := a.client.es.Indices.GetAlias(
+		a.client.es.Indices.GetAlias.WithName(name),
 	)
 	if conErr != nil {
 		return "", conErr
@@ -95,7 +95,7 @@ func (a *Alias) Update(name, indexName string) (oldIndexName string, err error) 
 		return oldIndexName, err
 	}
 
-	res, conErr := a.client.index.Indices.UpdateAliases(
+	res, conErr := a.client.es.Indices.UpdateAliases(
 		strings.NewReader(
 			fmt.Sprintf(
 				`
@@ -133,7 +133,7 @@ func (a *Alias) Update(name, indexName string) (oldIndexName string, err error) 
 //
 // When the indexName is empty it will search for the indexName using GetAlias().
 func (a *Alias) Delete(name, indexName string) error {
-	res, conErr := a.client.index.Indices.DeleteAlias(
+	res, conErr := a.client.es.Indices.DeleteAlias(
 		[]string{indexName},
 		[]string{name},
 	)

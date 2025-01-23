@@ -207,7 +207,7 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 	case "application/ld+json":
 		_, err = jsonld.Parse(rdfData, g)
 	case "application/rdf+xml":
-		_, err = rdfxml.Parse(rdfData, g)
+		_, err = rdfxml.Parse(rdfData, g, fb.fg.Meta.HubID)
 	default:
 		return fmt.Errorf(
 			"unsupported RDF mimeType %s. Currently, only 'text/turtle', 'application/rdf+xml' and 'application/ld+json' are supported",

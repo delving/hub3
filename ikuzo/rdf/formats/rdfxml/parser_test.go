@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
-	xmlrdf "github.com/knakk/rdf"
+	xmlrdf "github.com/delving/hub3/ikuzo/rdf/formats/rdfxml/internal/rdf"
 	"github.com/matryer/is"
 )
 
@@ -16,7 +16,7 @@ func TestParseXMLRDF(t *testing.T) {
 	dat, err := os.Open("testdata/1.rdf")
 	is.NoErr(err)
 
-	g, err := Parse(dat, nil)
+	g, err := Parse(dat, nil, "test_seed")
 	is.NoErr(err)
 
 	is.Equal(g.Len(), 48)

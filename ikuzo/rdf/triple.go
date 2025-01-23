@@ -39,6 +39,7 @@ type Triple struct {
 	Subject   Subject
 	Predicate Predicate
 	Object    Object
+	order     int
 }
 
 // TODO(kiivihal): add triple validator

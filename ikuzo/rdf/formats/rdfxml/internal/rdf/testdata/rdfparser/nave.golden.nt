@@ -1,0 +1,50 @@
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.openarchives.org/ore/terms/Aggregation> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/aggregatedCHO> <http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/dataProvider> "Heemkundekring 'De Plaets'" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/hasView> <http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/isShownAt> <http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/isShownBy> <http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/object> <http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/provider> "Erfgoed Brabant" .
+<http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/rights> <http://www.europeana.eu/rights/rr-f/> .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/ProvidedCHO> .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/description> "Mr. Johan Marcelus van der Meer en zijn vrouw Anna Marie Bertels. Hij was burgemeester van de gemeente Berlicum van 1947 tot 1958. Hier is hij zojuist geridderd voor zijn aandeel in de wederopbouw na de oorlog van 1940-1945." .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/format> "foto" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/identifier> "1470" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/subject> "Burgemeester" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/subject> "Ridderorde" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/subject> "van der Meer" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/subject> "Bertels" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/title> "personen" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/title> "" .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/elements/1.1/title> ""@nl .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/terms/created> "1947-1958"@nl .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://purl.org/dc/terms/spatial> <http://sws.geonames.org/2759059> .
+<http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3> <http://www.europeana.eu/schemas/edm/type> "IMAGE" .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/WebResource> .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <urn:ebu:metadata-schema:ebuCore_2014/hasMimeType> "image/jpeg" .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <http://schemas.delving.eu/nave/terms/deepZoomUrl> "http://images.memorix.nl/enb_10/deepzoom/77c2b3c4-5297-0605-7f59-b5f752b8ae29.dzi" .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <http://schemas.delving.eu/nave/terms/resourceSortOrder> "1" .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <http://schemas.delving.eu/nave/terms/thumbSmall> "http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg" .
+<http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg> <http://schemas.delving.eu/nave/terms/thumbLarge> "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg" .
+<http://sws.geonames.org/2759059> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/Place> .
+<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/country> "Nederland" .
+<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/province> "Gemeente Sint-Michielsgestel" .
+<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/municipality> "Gemeente Sint-Michielsgestel" .
+<http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/city> "Berlicum" .
+_:bbdad5d8fdc6f0077 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/BrabantCloudResource> .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collection> "Heemkundekring 'De Plaets'" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collectionType> "Beeldmateriaal" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collectionPart> "personen" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/date> "1947-1958" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/dimensionNote> "5044-14" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/place> "Berlicum" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionEnd> "1958" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionPeriod> "1947-1958" .
+_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionStart> "1947" .
+_:b67fd7c0234553e3b <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DelvingResource> .
+_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/featured> "false" .
+_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowLinkedOpenData> "true" .
+_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowSourceDownload> "false" .
+_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/public> "true" .

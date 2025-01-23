@@ -25,8 +25,8 @@ import (
 // this should prevent changes to the mapping that are not reflected in the update.
 // this is needed for all mappings that have strict fields.
 const (
-	v2MappingSha       = "1f06d3948f4f69a3"
-	v2UpdateMappingSha = "ed64fd76cee8f813"
+	v2MappingSha       = "c2078821166e846c"
+	v2UpdateMappingSha = "9dacc9851941790d"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 

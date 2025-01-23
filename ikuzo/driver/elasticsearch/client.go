@@ -1,13 +1,17 @@
 package elasticsearch
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch/internal"
 	"github.com/elastic/go-elasticsearch/v8"
 	externalAPI "github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/olivere/elastic/v7"
+	"github.com/opensearch-project/opensearch-go"
 	"github.com/rs/zerolog"
 )
 
@@ -18,7 +22,8 @@ type Response = externalAPI.Response
 type Client struct {
 	cfg            *Config
 	search         *elastic.Client
-	index          *elasticsearch.Client
+	es             *elasticsearch.Client
+	opensearch     *opensearch.Client
 	disableMetrics bool
 	log            zerolog.Logger
 }
@@ -44,8 +49,8 @@ func NewClient(cfg *Config) (*Client, error) {
 		HTTPRetries:      cfg.MaxRetries,
 		UserName:         cfg.UserName,
 		Password:         cfg.Password,
-		EnableTrace:      false,
-		EnableInfo:       false,
+		EnableTrace:      true,
+		EnableInfo:       true,
 	}
 
 	client := Client{
@@ -68,13 +73,58 @@ func NewClient(cfg *Config) (*Client, error) {
 		return nil, fmt.Errorf("unable to create elastic search client; %w", err)
 	}
 
-	client.index = esclient
+	client.es = esclient
 
 	return &client, nil
 }
 
 func (c *Client) Ping() (*externalAPI.Response, error) {
-	return c.index.Ping()
+	return c.es.Ping()
+}
+
+// Bulk sends a bulk request to Elasticsearch.
+// `bulkData` should be a JSON-formatted byte slice containing bulk operations.
+func (c *Client) Bulk(ctx context.Context, bulkData io.Reader) error {
+	// Use the Bulk API
+	res, err := c.es.Bulk(bulkData, c.es.Bulk.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("failed to execute bulk request: %w", err)
+	}
+	defer res.Body.Close()
+
+	// Check for request errors
+	if res.IsError() {
+		return fmt.Errorf("bulk request failed: %s", res.String())
+	}
+
+	// Success
+	// fmt.Println("Bulk request completed successfully.")
+	return nil
+}
+
+// Bulk sends a bulk request to Elasticsearch.
+// `bulkData` should be a JSON-formatted byte slice containing bulk operations.
+func (c *Client) BulkWithResponse(ctx context.Context, bulkData io.Reader) (io.Reader, error) {
+	// Use the Bulk API
+	res, err := c.es.Bulk(bulkData, c.es.Bulk.WithContext(ctx))
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute bulk request: %w", err)
+	}
+	defer res.Body.Close()
+
+	// Check for request errors
+	if res.IsError() {
+		return nil, fmt.Errorf("bulk request failed: %s", res.String())
+	}
+
+	// Success
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, res.Body)
+	if err != nil {
+		return nil, err
+	}
+	// fmt.Println("Bulk request completed successfully.")
+	return &buf, nil
 }
 
 // CreateDefaultMappings creates index mappings for all supplied organizations

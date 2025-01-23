@@ -37,7 +37,8 @@ type Resource struct {
 	// predicates           map[string][]*FragmentEntry
 	// objectIDs []*ContextRef
 
-	mu sync.RWMutex
+	mu    sync.RWMutex
+	order int
 }
 
 // Add will add an Entry to Resource.Entries
@@ -191,10 +192,10 @@ func (rsc *Resource) predicate(p string) (entries []*Entry) {
 }
 
 func getEntries(r *rdf.Resource) (entries []*Entry, err error) {
-	for p, rp := range r.Predicates() {
+	for _, rp := range r.SortedPredicates() {
 		for _, obj := range rp.Objects() {
 
-			e := entryFromObject(p, obj)
+			e := entryFromObject(rp.IRI(), obj)
 			entries = append(entries, e)
 		}
 	}
