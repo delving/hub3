@@ -74,7 +74,7 @@ func (et ErrorType) Error() error {
 		return ErrIndexNotFound
 	case "aliases_not_found_exception":
 		return ErrAliasNotFound
-	case "mapper_parsing_exception", "parse_exception":
+	case "mapper_parsing_exception", "parse_exception", "illegal_argument_exception":
 		log.Error().
 			RawJSON("reason", []byte(et.Reason)).
 			Str("error_type", et.Type).
