@@ -1,0 +1,28 @@
+// testdata/test.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <record id="1">
+        <title>First Record</title>
+        <description>This is a test description</description>
+        <tags>
+            <tag>test</tag>
+            <tag>example</tag>
+        </tags>
+        <metadata date="2024-02-19">
+            <author>John Doe</author>
+            <category>Test</category>
+        </metadata>
+    </record>
+    <record id="2">
+        <title>Second Record</title>
+        <description>Another test description</description>
+        <tags>
+            <tag>sample</tag>
+            <tag>test</tag>
+        </tags>
+        <metadata date="2024-02-19">
+            <author>Jane Smith</author>
+            <category>Example</category>
+        </metadata>
+    </record>
+</root>
