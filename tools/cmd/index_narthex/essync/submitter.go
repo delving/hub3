@@ -88,6 +88,11 @@ func (bp *BulkProcessor) Process(ctx context.Context, reader io.Reader) error {
 	go bp.updateStats(ctx)
 
 	scanner := bufio.NewScanner(reader)
+
+	// Increase the buffer size
+	const maxCapacity = 1024 * 1024 * 10 // 10MB or adjust as needed
+	buf := make([]byte, maxCapacity)
+	scanner.Buffer(buf, maxCapacity)
 	currentWorker := 0
 
 	for scanner.Scan() {
@@ -237,7 +242,12 @@ func (w *worker) flush() {
 	}
 
 	if err := json.NewDecoder(res).Decode(&bulkResponse); err != nil {
-		w.processor.logger.Error("failed to parse bulk response", "error", err)
+		var body []byte
+		body, readErr := io.ReadAll(res)
+		if readErr != nil {
+			w.processor.logger.Error("failed to read bulk response body", "error", readErr)
+		}
+		w.processor.logger.Error("failed to parse bulk response", "error", err, "response", string(body))
 		w.processor.metrics.errors.Value.Add(1)
 		return
 	}
