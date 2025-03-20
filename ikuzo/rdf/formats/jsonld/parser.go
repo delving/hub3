@@ -80,9 +80,6 @@ func ParseWithContext(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	// testing caching
 	cdl := ld.NewCachingDocumentLoader(nl)
 	// cdl.PreloadWithMapping(map[string]string{
-	// "https://schema.org/": "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
-	// "http://schema.org/":  "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
-	// "https://schema.org":  "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
 	// "http://schema.org":   "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
 	// })
 

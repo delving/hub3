@@ -511,15 +511,44 @@ first:
 				return nil
 
 			default:
-				panic(fmt.Errorf("parseXMLCharDataOrElemNode first: TODO rdf:!Description"))
+				// Handle other RDF namespace elements that aren't Description
+				// Create a blank node and establish the rdf:type triple
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject to the newly created blank node
+				d.current.Subj = d.current.Obj.(Subject)
+
+				// Add rdf:type triple for this nested resource
+				typePredicate := rdfType
+				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: typePredicate,
+					Obj:  typeObject,
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
 			}
 		} else {
 			// For non-RDF namespaces, create a blank node
 			d.current.Obj = Blank{id: d.GenerateID()}
 			d.triples = append(d.triples, d.current)
+			d.reifyCheck()
 
 			// Set the subject to the newly created blank node
 			d.current.Subj = d.current.Obj.(Subject)
+
+			// Add rdf:type triple for this nested resource
+			typePredicate := rdfType
+			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+			d.triples = append(d.triples, Triple{
+				Subj: d.current.Subj,
+				Pred: typePredicate,
+				Obj:  typeObject,
+			})
 
 			// Continue parsing property elements of this node
 			d.nextState = parseXMLPropElemOrNodeEnd
@@ -597,15 +626,44 @@ second:
 				return nil
 
 			default:
-				panic(fmt.Errorf("parseXMLCharDataOrElemNode second: TODO rdf:!Description"))
+				// Handle other RDF namespace elements that aren't Description
+				// Create a blank node and establish the rdf:type triple
+				d.current.Obj = Blank{id: d.GenerateID()}
+				d.triples = append(d.triples, d.current)
+				d.reifyCheck()
+
+				// Set the subject to the newly created blank node
+				d.current.Subj = d.current.Obj.(Subject)
+
+				// Add rdf:type triple for this nested resource
+				typePredicate := rdfType
+				typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+				d.triples = append(d.triples, Triple{
+					Subj: d.current.Subj,
+					Pred: typePredicate,
+					Obj:  typeObject,
+				})
+
+				d.nextState = parseXMLPropElemOrNodeEnd
+				return nil
 			}
 		} else {
 			// For non-RDF namespaces, create a blank node
 			d.current.Obj = Blank{id: d.GenerateID()}
 			d.triples = append(d.triples, d.current)
+			d.reifyCheck()
 
 			// Set the subject to the newly created blank node
 			d.current.Subj = d.current.Obj.(Subject)
+
+			// Add rdf:type triple for this nested resource
+			typePredicate := rdfType
+			typeObject := IRI{str: elem.Name.Space + elem.Name.Local}
+			d.triples = append(d.triples, Triple{
+				Subj: d.current.Subj,
+				Pred: typePredicate,
+				Obj:  typeObject,
+			})
 
 			// Continue parsing property elements of this node
 			d.nextState = parseXMLPropElemOrNodeEnd
@@ -644,7 +702,7 @@ func parseXMLPropElemEnd(d *rdfXMLDecoder) parseXMLFn {
 	}
 }
 
-// parseXMLPropElem parses a property elements.
+// Modified parseXMLPropElem function to handle rdf:type for nested resources
 func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 	switch elem := d.tok.(type) {
 	case xml.StartElement:
@@ -725,7 +783,7 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 
 		if as := attrRDF(elem, elNodeID); as != nil {
 			if as[0].Value == "" {
-				// Generate deterministic ID for empty nodeID using path before this element
+				// Generate deterministic ID for empty nodeID using path
 				d.current.Obj = Blank{id: d.GenerateID()}
 			} else {
 				d.current.Obj = Blank{id: fmt.Sprintf("_:%s", as[0].Value)}
@@ -749,8 +807,8 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 		if as := attrRest(elem); as != nil {
 			d.current.Obj = Blank{id: d.GenerateID()}
 			d.triples = append(d.triples, d.current)
-			d.pushContext()
 
+			d.pushContext()
 			d.reifyCheck()
 
 			d.current.Subj = d.current.Obj.(Subject)

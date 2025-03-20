@@ -34,3 +34,13 @@ var (
 	// ErrEmptyLiteral is returned when the RDF Literal value is empty
 	ErrEmptyLiteral = errors.New("literal value cannot be empty")
 )
+
+// TODO: create a golang 1.24 generator with errors
+// Each return the CustomError type
+type GraphError struct {
+	Triple Triple
+}
+
+func (ge GraphError) Errors() []error {
+	return ge.Triple.Errors()
+}

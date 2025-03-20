@@ -1,4 +1,4 @@
-# rdf
+## rdf
 
 This package introduces data structures for representing RDF resources, and includes functions for parsing and serialization of RDF data.
 
