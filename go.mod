@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.23.4
+go 1.24.1
 
 require (
 	code.gitea.io/gitea v1.17.1
@@ -72,7 +72,7 @@ require (
 	github.com/tidwall/sjson v1.2.5
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	github.com/xitongsys/parquet-go v1.6.2
-	golang.org/x/sync v0.9.0
+	golang.org/x/sync v0.11.0
 	golang.org/x/text v0.20.0
 	google.golang.org/protobuf v1.34.2
 )
@@ -214,6 +214,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/goleak v1.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.29.0 // indirect
 	golang.org/x/exp v0.0.0-20240707233637-46b078467d37 // indirect

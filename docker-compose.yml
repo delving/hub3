@@ -1,121 +1,138 @@
 services:
-    opensearch:
-        image: opensearchproject/opensearch:latest
-        environment:
-            - discovery.type=single-node
-            - bootstrap.memory_lock=true
-            - 'OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m'
-            - 'DISABLE_SECURITY_PLUGIN=true' # For development only
-            - 'DISABLE_INSTALL_DEMO_CONFIG=true'
-        ulimits:
-            memlock:
-                soft: -1
-                hard: -1
-            nofile:
-                soft: 65536
-                hard: 65536
-        volumes:
-            - ~/data_no_backup/docker-data/hub3/opensearch-data:/usr/share/opensearch/data
-        ports:
-            - '9200:9200'
-            - '9600:9600'
-        # networks:
-        #   - opensearch-net
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.17.13 # Replace with the latest 7.x version
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node # Ensures single-node operation
+  #     - bootstrap.memory_lock=true # Locks memory to avoid swapping
+  #     - "ES_JAVA_OPTS=-Xms1g -Xmx1g" # Set JVM heap size (adjust as needed)
+  #     - xpack.security.enabled=false # Disables security (useful for development)
+  #     - xpack.monitoring.enabled=true # Enables monitoring features
+  #     - "logger.org.elasticsearch=DEBUG"
+  #     # - "ES_LOG_STYLE=console" # shows full stack traces
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - ~/data_no_backup/docker-data/hub3/elasticsearch-data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - "9200:9200" # Expose the Elasticsearch HTTP API
+  #     - "9300:9300" # Expose the transport node communication port
 
-    opensearch-dashboards:
-        image: opensearchproject/opensearch-dashboards:latest
-        environment:
-            - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
-            - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true' # For development only
-        ports:
-            - '5601:5601'
-        depends_on:
-            - opensearch
-        # networks:
-        #   - opensearch-net
+  opensearch:
+    image: opensearchproject/opensearch:latest
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "DISABLE_SECURITY_PLUGIN=true" # For development only
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - ~/data_no_backup/docker-data/hub3/opensearch-data:/usr/share/opensearch/data
+    ports:
+      - "9200:9200"
+      - "9600:9600"
+    # networks:
+    #   - opensearch-net
 
-    fuseki:
-        image: stain/jena-fuseki
-        container_name: hub3-fuseki
-        environment:
-            JVM_ARGS: -Xmx256m
-            # ADMIN_PASSWORD: pw123
-        ports:
-            - '3034:3030'
-        volumes:
-            - ~/data_no_backup/docker-data/hub3/fuseki2.4/data:/data/fuseki
-            # - ./shiro.ini:/fuseki/shiro.ini.6
-        command:
-            [
-                '/jena-fuseki/fuseki-server',
-                '--set',
-                'tdb:unionDefaultGraph=true',
-            ]
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true" # For development only
+    ports:
+      - "5601:5601"
+    depends_on:
+      - opensearch
+    # networks:
+    #   - opensearch-net
 
-    # TODO: remove this when nats code is removed
-    nats:
-        image: nats-streaming
-        ports:
-            - '8222:8222'
-            - '4222:4222'
-        command:
-            - '--cluster_id'
-            - 'hub3-nats'
-            - '--http_port'
-            - '8222'
-            - '--port'
-            - '4222'
-            - '--max_bytes'
-            - '500MB'
-            - '--max_msgs'
-            - '1000000'
-        # networks:
-        # - esnet
+  fuseki:
+    image: stain/jena-fuseki
+    container_name: hub3-fuseki
+    environment:
+      JVM_ARGS: -Xmx256m
+      # ADMIN_PASSWORD: pw123
+    ports:
+      - "3034:3030"
+    volumes:
+      - ~/data_no_backup/docker-data/hub3/fuseki2.4/data:/data/fuseki
+      # - ./shiro.ini:/fuseki/shiro.ini.6
+    command:
+      ["/jena-fuseki/fuseki-server", "--set", "tdb:unionDefaultGraph=true"]
 
-    postgresql:
-        image: postgis/postgis:15-3.5
-        ports:
-            - '5433:5432'
-        environment:
-            POSTGRES_USER: ${POSTGRES_USER:-postgres}
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
-            POSTGRES_DB: hub3
-            PGDATA: /data/postgres
+  # TODO: remove this when nats code is removed
+  nats:
+    image: nats-streaming
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    command:
+      - "--cluster_id"
+      - "hub3-nats"
+      - "--http_port"
+      - "8222"
+      - "--port"
+      - "4222"
+      - "--max_bytes"
+      - "500MB"
+      - "--max_msgs"
+      - "1000000"
+    # networks:
+    # - esnet
 
-    redis:
-        image: 'redis:alpine'
+  postgresql:
+    image: postgis/postgis:15-3.5
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pw123}
+      POSTGRES_DB: hub3
+      PGDATA: /data/postgres
 
-        command: redis-server --requirepass sOmE_sEcUrE_pAsS
+  redis:
+    image: "redis:alpine"
 
-        ports:
-            - '6379:6379'
+    command: redis-server --requirepass sOmE_sEcUrE_pAsS
 
-        volumes:
-            - ~/data_no_backup/docker-data/hub3/redis-data:/var/lib/redis
-            - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
 
-        environment:
-            - REDIS_REPLICATION_MODE=master
+    volumes:
+      - ~/data_no_backup/docker-data/hub3/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
 
-    # minio:
-    #     image: minio/minio
-    #     ports:
-    #         - '9099:9000'
-    #         - '9001:9001'
-    #     environment:
-    #         - MINIO_ROOT_USER=minio_admin
-    #         - MINIO_ROOT_PASSWORD=minio_admin
-    #         - MINIO_DEFAULT_BUCKETS=hub3-dev
-    #     volumes:
-    #         - ~/data_no_backup/docker-data/hub3/minio_storage:/data
-    #     command: server  --console-address :9001 /data
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # minio:
+  #     image: minio/minio
+  #     ports:
+  #         - '9099:9000'
+  #         - '9001:9001'
+  #     environment:
+  #         - MINIO_ROOT_USER=minio_admin
+  #         - MINIO_ROOT_PASSWORD=minio_admin
+  #         - MINIO_DEFAULT_BUCKETS=hub3-dev
+  #     volumes:
+  #         - ~/data_no_backup/docker-data/hub3/minio_storage:/data
+  #     command: server  --console-address :9001 /data
 
 volumes:
-    opensearch-data:
+  opensearch-data:
 
 # networking
 networks:
-    default:
-        ipam:
-            config:
-                - subnet: 10.202.0.0/16
+  default:
+    ipam:
+      config:
+        - subnet: 10.202.0.0/16

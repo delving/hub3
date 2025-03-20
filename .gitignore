@@ -69,3 +69,6 @@ node_modules
 
 # ignore default configuration
 hub3.toml
+
+# misc
+tools/cmd/index_narthex/*.sh
