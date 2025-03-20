@@ -1,0 +1,16 @@
+version: v1
+plugins:
+    - plugin: buf.build/protocolbuffers/go
+      out: gen
+      opt: paths=source_relative
+    - plugin: buf.build/grpc/go
+      out: gen
+      opt: paths=source_relative
+    - plugin: buf.build/community/google-gnostic-openapi:v0.7.0
+      out: gen/openapi
+      opt:
+          #     - v3
+          #     - openapi
+          - json
+      #     - fq_schema_naming=true
+      #     - json_names=true
