@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
@@ -12,7 +11,6 @@ import (
 	"github.com/delving/hub3/tools/cmd/source_analyzer/processor"
 	"github.com/delving/hub3/tools/cmd/source_analyzer/sip"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -20,7 +18,6 @@ var (
 	inputFile      string
 	outputDir      string
 	compressOutput bool
-	logLevel       string
 	// legacy command flags
 	maxUniqueLength int
 	elementStep     int
@@ -51,7 +48,6 @@ var legacyCmd = &cobra.Command{
            Generates detailed statistics about paths, values, and namespaces.
            Compatible with the original Java SIP analyzer.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		setLogger()
 		// Create configuration
 		config := &sip.Config{
 			InputFile:            inputFile,
@@ -84,8 +80,6 @@ var legacyCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVar(&logLevel, "log-level", "info", "log level (debug, info, warn, error)")
-
 	analyzeCmd.Flags().StringVarP(&inputFile, "input", "i", "", "Input XML file to analyze (can be .zst compressed)")
 	analyzeCmd.Flags().StringVarP(&outputDir, "output", "o", "", "Output directory for analysis results")
 	analyzeCmd.Flags().BoolVarP(&compressOutput, "compress-output", "c", false, "Compress output files using zstd")
@@ -103,8 +97,6 @@ func init() {
 	legacyCmd.Flags().BoolVarP(&compressOutput, "compress-output", "c", false, "Compress output files using zstd")
 
 	rootCmd.AddCommand(legacyCmd)
-
-	viper.BindPFlag("log.level", rootCmd.Flags().Lookup("log-level"))
 }
 
 func main() {
@@ -117,7 +109,7 @@ func main() {
 func runAnalysis() error {
 	// Check if output directory exists and remove it
 	if _, err := os.Stat(outputDir); err == nil {
-		slog.Debug("Removing existing output directory", "outputDir", outputDir)
+		fmt.Printf("Removing existing output directory: %s\n", outputDir)
 		if err := os.RemoveAll(outputDir); err != nil {
 			return fmt.Errorf("failed to remove existing output directory: %v", err)
 		}
@@ -171,32 +163,4 @@ func (l *analysisListener) Success(stats *sip.Stats) {
 
 func (l *analysisListener) Failure(message string, err error) {
 	fmt.Printf("Analysis failed: %s\nError: %v\n", message, err)
-}
-
-// Parse log level
-func parseLogLevel(s string) (level slog.Level) {
-	switch s {
-	case "debug":
-		level = slog.LevelDebug
-	case "info":
-		level = slog.LevelInfo
-	case "warn", "warning":
-		level = slog.LevelWarn
-	case "error":
-		level = slog.LevelError
-	default:
-		level = slog.LevelInfo
-	}
-
-	return level
-}
-
-func setLogger() {
-	logLevel := parseLogLevel(viper.GetString("log-level"))
-	opts := &slog.HandlerOptions{
-		Level:     logLevel,
-		AddSource: true,
-	}
-	handler := slog.NewTextHandler(os.Stdout, opts)
-	slog.SetDefault(slog.New(handler))
 }
