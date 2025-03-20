@@ -111,6 +111,24 @@ func (s *Service) GetWithBase(baseURI string) (*domain.Namespace, error) {
 	return ns[0], nil
 }
 
+func (s *Service) Expand(input string) (string, error) {
+	before, after, found := strings.Cut(input, ":")
+	if !found {
+		return input, fmt.Errorf("cannot find namespace prefix in %q", input)
+	}
+
+	if strings.HasPrefix(before, "http") {
+		return input, nil
+	}
+
+	ns, err := s.GetWithPrefix(before)
+	if err != nil {
+		return input, fmt.Errorf("cannot find namespace for %q; %w", before, err)
+	}
+
+	return ns.URI + after, nil
+}
+
 // checkStore sets the default store when no store is set.
 // This makes the default useful when the struct is directly initialized.
 // The preferred way to initialize Service is by using NewService()

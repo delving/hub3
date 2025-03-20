@@ -265,4 +265,8 @@ func TestDefaults(t *testing.T) {
 	ns, err = svc.GetWithPrefix("schema")
 	is.NoErr(err)
 	is.Equal(ns.Prefix, "schema")
+
+	fullURI, err := svc.Expand("lrm:F3_Manifestation")
+	is.NoErr(err)
+	is.Equal(fullURI, "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation")
 }
