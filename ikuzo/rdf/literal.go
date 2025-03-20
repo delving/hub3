@@ -166,6 +166,15 @@ func isValidDataType(dt IRI) bool {
 	return false
 }
 
+func (l *Literal) Valid() error {
+	v := l.Validate()
+	if v.Valid() {
+		return nil
+	}
+
+	return v.ErrorOrNil()
+}
+
 func (l Literal) Validate() *validator.Validator {
 	v := validator.New()
 

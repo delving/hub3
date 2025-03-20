@@ -60,6 +60,7 @@ type Graph struct {
 	GraphName        string
 	NamespaceManager NamespaceManager
 	Subject          Subject
+	firstErr         error
 }
 
 func NewGraph() *Graph {
@@ -76,6 +77,12 @@ func NewGraph() *Graph {
 	}
 
 	return g
+}
+
+// Err returns the first non-EOF error that was encountered by the [Scanner].
+func (g *Graph) Err() error {
+	// TODO: implement me
+	return nil
 }
 
 func (g *Graph) extractCollection(t *Triple) bool {
@@ -185,7 +192,8 @@ func (g *Graph) Inline() error {
 }
 
 // AddTriple appends triple to the Graph triples
-// Note: there is no deduplication. The same triple can be added multiple times
+// Note: there is deduplication. Only the first triple is added.
+// Subsequent identical triples are ignored.
 func (g *Graph) Add(triples ...*Triple) {
 	if g.export {
 		g.addAfterExport = true
@@ -462,3 +470,4 @@ func (n nullSubject) RawValue() string               { return "" }
 func (n nullSubject) String() string                 { return "" }
 func (n nullSubject) Type() TermType                 { return TermIRI }
 func (n nullSubject) Validate() *validator.Validator { return validator.New() }
+func (n nullSubject) Valid() error                   { return nil }

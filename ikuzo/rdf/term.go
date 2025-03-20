@@ -14,13 +14,12 @@ const (
 	TermLiteral
 )
 
-// A Term is the value of a subject, predicate or object,  i.e. a IRI reference, BlankNode or
+// A Term is the value of a subject, predicate or object, i.e. a IRI reference, BlankNode or
 // Literal.
 //
 // To work with the underlying concrete type,  use a type assertion or a type switch.
 //
-//	  t, ok := term.(IRI)
-//
+//	t, ok := term.(IRI)
 type Term interface {
 	// Equal returns whether this term is equal to another.
 	Equal(Term) bool

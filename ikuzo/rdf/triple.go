@@ -53,6 +53,21 @@ func NewTriple(subject Subject, predicate Predicate, object Object) (triple *Tri
 	}
 }
 
+func (triple Triple) Valid() error {
+	return nil
+}
+
+// Errors returns all errors for this Triple.
+// When the array is empty no errors are found.
+func (triple Triple) Errors() (errs []error) {
+	// TODO: implement triple validation
+	// if err := triple.Subject.Valid(); err != nil {
+	// 	errs = append(errs, err)
+	// }
+
+	return errs
+}
+
 // ID returns a content-based ID.
 // Each triple has a unique identifier that can be used to check for uniqueness or used
 // for dedupliplication.

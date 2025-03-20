@@ -25,12 +25,19 @@ type IRI struct {
 func NewIRI(iri string) (IRI, error) {
 	uri := IRI{str: iri}
 
-	v := uri.Validate()
+	return uri, nil
+}
+
+// Valid returns an error if it's not valid, otherwise nil is returned
+//
+// A valid IRI cannot be empty, or contain any of the disallowed characters: [\x00-\x20<>"{}|^`\].
+func (iri IRI) Valid() error {
+	v := iri.Validate()
 	if !v.Valid() {
-		return IRI{}, v.ErrorOrNil()
+		return v.ErrorOrNil()
 	}
 
-	return uri, nil
+	return nil
 }
 
 // Equal returns whether this resource is equal to another.
