@@ -134,3 +134,17 @@ func TestGraph_MarshalFromGraph(t *testing.T) {
 		t.Errorf("Marshal() mismatch (-want +got):\n%s", diff)
 	}
 }
+
+func TestGraphInline(t *testing.T) {
+	is := is.New(t)
+
+	_, graph, err := getGraphByFile("./testdata/rdf_brocade.rdf.xml", "rdfxml")
+	is.NoErr(err)
+
+	is.Equal(len(graph.roots), 0)
+
+	err = graph.Inline()
+	is.NoErr(err)
+	is.Equal(len(graph.roots), 1)
+	is.Equal(graph.roots[0].Types, []string{"https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"})
+}

@@ -20,7 +20,7 @@ type ContextRef struct {
 	Label        string   `json:"Label,omitempty"`
 }
 
-// containsContext determines if a FragmentReferrerContext is already part of list.
+// containsContext determines if a ContextRef is already part of list.
 //
 // Deduplication is important to not provide false counts for context levels
 func containsContext(s []*ContextRef, e *ContextRef) bool {

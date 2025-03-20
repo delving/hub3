@@ -99,7 +99,7 @@ func (rsc *Resource) AddTo(g *rdf.Graph) error {
 	return nil
 }
 
-// appendContext adds the referrerContext to the FragmentResource
+// appendContext adds the referrerContext to the Resource
 //
 // Calling this method increments the context level/depth of the resource
 func (rsc *Resource) AppendContext(ctxs ...*ContextRef) {

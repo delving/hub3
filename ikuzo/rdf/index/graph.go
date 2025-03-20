@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	"github.com/benbjohnson/immutable"
+	"github.com/tidwall/sjson"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -18,6 +19,10 @@ import (
 
 // Graph is an indexable representation of an rdf namedgraph.
 type Graph struct {
+	// Checksum is a hash of the Graph without the header.Modified
+	// and header.Revision. This is used to determine if the Graph has changed.
+	Checksum string `json:"_ checksum,omitempty"`
+
 	// Header is the header of the Graph with queryable meta information
 	Header Header `json:"meta,omitempty"`
 
@@ -33,6 +38,9 @@ type Graph struct {
 
 	// contextIsSet is used to make sure the context is always set before the graph is used for indexing
 	contextIsSet bool
+
+	// roots are the ids of the root resources of the Graph
+	roots []*Resource
 }
 
 // NewGraph returns a new Graph. When the header is not valid an error is returned
@@ -108,6 +116,23 @@ func (g *Graph) IndexMessage() (*domainpb.IndexMessage, error) {
 		return nil, err
 	}
 
+	checkSumData := b
+
+	deletePaths := []string{"_checksum", "meta.modified", "meta.revision"}
+	for _, p := range deletePaths {
+		b, err = sjson.DeleteBytes(checkSumData, p)
+		if err != nil {
+			return nil, fmt.Errorf("unable to remove path %q; %w", p, err)
+		}
+	}
+
+	checksum := checksum(checkSumData)
+
+	b, err = sjson.SetBytes(b, "_checksum", checksum)
+	if err != nil {
+		return nil, fmt.Errorf("unable to set checksum; %w", err)
+	}
+
 	return &domainpb.IndexMessage{
 		OrganisationID: g.Header.OrgID,
 		DatasetID:      g.Header.Spec,
@@ -143,6 +168,45 @@ func (fg *Graph) Reader() (io.Reader, error) {
 	}
 
 	return bytes.NewReader(b), nil
+}
+
+// Inline inlines the Graph by removing the contextRefs
+func (fg *Graph) Inline() error {
+	lookup := make(map[string]*Resource)
+	for _, rsc := range fg.Resources {
+		lookup[rsc.ID] = rsc
+	}
+
+	targets := map[string][]string{}
+
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			if entry.EntryType == Literal {
+				continue
+			}
+
+			target, ok := lookup[entry.ID]
+			if !ok {
+				continue
+			}
+
+			entry.Inline = target
+			targets[target.ID] = rsc.Types
+		}
+	}
+
+	if len(fg.Resources) > 0 {
+		fg.roots = []*Resource{fg.Resources[0]}
+	}
+
+	// for _, rsc := range fg.Resources {
+	// 	_, ok := targets[rsc.ID]
+	// 	if !ok {
+	// 		fg.roots = append(fg.roots, rsc)
+	// 	}
+	// }
+
+	return nil
 }
 
 // Resource creates or returns a Resource from the Graph.

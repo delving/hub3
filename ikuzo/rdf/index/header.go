@@ -31,9 +31,6 @@ type Header struct {
 	// miliseconds since epoch
 	Modified int64 `json:"modified,omitempty"`
 
-	// sourceID is the unique fingerprint of the Graph data. This excludes the header.
-	SourceID string `protobuf:"bytes,10,opt,name=sourceID,proto3" json:"sourceID,omitempty"`
-
 	// The revision is used to determine which version is an orphan and should be removed.
 	Revision int32 `json:"revision,omitempty"`
 }

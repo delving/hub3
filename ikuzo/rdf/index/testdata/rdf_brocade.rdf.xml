@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:crm="http://www.cidoc-crm.org/cidoc-crm/" xmlns:lrm="https://www.iflastandards.info/ns/lrm/lrmoo#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <lrm:F3_Manifestation rdf:about="https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499">
+    <crm:P43_has_dimension>
+      <crm:E54_Dimension>
+        <crm:P129i_is_subject_of>
+          <crm:E33_Linguistic_Object>
+            <crm:P190_has_symbolic_content>1 v.</crm:P190_has_symbolic_content>
+            <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/co-pg"/>
+          </crm:E33_Linguistic_Object>
+        </crm:P129i_is_subject_of>
+      </crm:E54_Dimension>
+    </crm:P43_has_dimension>
+    <crm:P102_has_title>
+      <crm:E35_Title>
+        <crm:P72_has_language rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/lg/dut"/>
+        <crm:P190_has_symbolic_content>Keur van proza- en dichtstukken</crm:P190_has_symbolic_content>
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h"/>
+      </crm:E35_Title>
+    </crm:P102_has_title>
+    <crm:P2_has_type>
+      <crm:E55_Type rdf:about="https://data.antwerp.be/id/term/brocade-catalog/dr/paper">
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/dr"/>
+      </crm:E55_Type>
+    </crm:P2_has_type>
+    <crm:P2_has_type>
+      <crm:E55_Type rdf:about="https://data.antwerp.be/id/term/brocade-authorities/a::pt.42:1">
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-authorities/ty/pt"/>
+      </crm:E55_Type>
+    </crm:P2_has_type>
+    <crm:P129_is_about rdf:resource="https://data.antwerp.be/id/term/brocade-authorities/a::839.3:1"/>
+    <crm:P128i_is_carried_by>
+      <crm:E22_Human-Made_Object>
+        <crm:P50_has_current_keeper rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/library/lh"/>
+        <crm:P55_has_current_location>
+          <crm:E53_Place>
+            <crm:P1_is_identified_by>
+              <crm:E41_Appellation>
+                <crm:P190_has_symbolic_content>B 365k</crm:P190_has_symbolic_content>
+              </crm:E41_Appellation>
+            </crm:P1_is_identified_by>
+            <crm:P1_is_identified_by>
+              <crm:E42_Identifier>
+                <crm:P190_has_symbolic_content>p:lvd:811200</crm:P190_has_symbolic_content>
+              </crm:E42_Identifier>
+            </crm:P1_is_identified_by>
+            <crm:P129i_is_subject_of>
+              <crm:E33_Linguistic_Object>
+                <crm:P190_has_symbolic_content>1</crm:P190_has_symbolic_content>
+                <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/holding-pkbz"/>
+              </crm:E33_Linguistic_Object>
+            </crm:P129i_is_subject_of>
+          </crm:E53_Place>
+        </crm:P55_has_current_location>
+        <crm:P46_is_composed_of rdf:resource="https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:958980"/>
+        <crm:P1_is_identified_by>
+          <crm:E41_Appellation>
+            <crm:P190_has_symbolic_content>1</crm:P190_has_symbolic_content>
+          </crm:E41_Appellation>
+        </crm:P1_is_identified_by>
+      </crm:E22_Human-Made_Object>
+    </crm:P128i_is_carried_by>
+    <crm:P106_is_composed_of>
+      <crm:E33_Linguistic_Object>
+        <crm:P72_has_language rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/lg/dut"/>
+      </crm:E33_Linguistic_Object>
+    </crm:P106_is_composed_of>
+    <crm:P70i_is_documented_in>
+      <crm:E31_Document>
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog"/>
+        <crm:P1_is_identified_by>
+          <crm:E42_Identifier rdf:about="https://anet.be/record/lvdopac/c:lvd:538499"/>
+        </crm:P1_is_identified_by>
+      </crm:E31_Document>
+    </crm:P70i_is_documented_in>
+    <crm:P1_is_identified_by rdf:resource="https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499"/>
+    <crm:P1_is_identified_by>
+      <crm:E42_Identifier>
+        <crm:P190_has_symbolic_content>2869124408</crm:P190_has_symbolic_content>
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclcwork"/>
+      </crm:E42_Identifier>
+    </crm:P1_is_identified_by>
+    <crm:P1_is_identified_by>
+      <crm:E42_Identifier>
+        <crm:P190_has_symbolic_content>902333836</crm:P190_has_symbolic_content>
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclc"/>
+      </crm:E42_Identifier>
+    </crm:P1_is_identified_by>
+    <crm:P129i_is_subject_of>
+      <crm:E33_Linguistic_Object>
+        <crm:P190_has_symbolic_content>7 ed.</crm:P190_has_symbolic_content>
+        <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/ed"/>
+      </crm:E33_Linguistic_Object>
+    </crm:P129i_is_subject_of>
+    <crm:P94i_was_created_by>
+      <lrm:F28_Expression_Creation>
+        <crm:P01i_is_domain_of>
+          <crm:PC14_carried_out_by>
+            <crm:P02_has_range>
+              <crm:E39_Actor rdf:about="https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1">
+                <crm:P1_is_identified_by>
+                  <crm:E41_Appellation>
+                    <crm:P190_has_symbolic_content>sr.</crm:P190_has_symbolic_content>
+                    <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/nm-ex"/>
+                  </crm:E41_Appellation>
+                </crm:P1_is_identified_by>
+                <crm:P1_is_identified_by>
+                  <crm:E41_Appellation>
+                    <crm:P190_has_symbolic_content>Jan</crm:P190_has_symbolic_content>
+                    <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/nm-vn"/>
+                  </crm:E41_Appellation>
+                </crm:P1_is_identified_by>
+                <crm:P1_is_identified_by>
+                  <crm:E41_Appellation>
+                    <crm:P190_has_symbolic_content>Beers, van</crm:P190_has_symbolic_content>
+                    <crm:P2_has_type rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/nm-fn"/>
+                  </crm:E41_Appellation>
+                </crm:P1_is_identified_by>
+              </crm:E39_Actor>
+            </crm:P02_has_range>
+            <crm:P14.1_in_the_role_of rdf:resource="https://data.antwerp.be/id/term/brocade-catalog/fu/com"/>
+          </crm:PC14_carried_out_by>
+        </crm:P01i_is_domain_of>
+      </lrm:F28_Expression_Creation>
+    </crm:P94i_was_created_by>
+    <lrm:R24i_was_created_through>
+      <lrm:F30_Manifestation_Creation>
+        <crm:P14_carried_out_by>
+          <crm:E39_Actor>
+            <crm:P1_is_identified_by>
+              <crm:E41_Appellation>
+                <crm:P190_has_symbolic_content>Buschmann</crm:P190_has_symbolic_content>
+              </crm:E41_Appellation>
+            </crm:P1_is_identified_by>
+          </crm:E39_Actor>
+        </crm:P14_carried_out_by>
+        <crm:P4_has_time-span>
+          <crm:E52_Time-Span>
+            <crm:P82a_begin_of_the_begin>1895</crm:P82a_begin_of_the_begin>
+          </crm:E52_Time-Span>
+        </crm:P4_has_time-span>
+        <crm:P01i_is_domain_of>
+          <crm:PC14_carried_out_by>
+            <crm:P02_has_range>
+              <crm:E39_Actor>
+                <crm:P1_is_identified_by>
+                  <crm:E41_Appellation>
+                    <crm:P190_has_symbolic_content>Buschmann</crm:P190_has_symbolic_content>
+                  </crm:E41_Appellation>
+                </crm:P1_is_identified_by>
+              </crm:E39_Actor>
+            </crm:P02_has_range>
+          </crm:PC14_carried_out_by>
+        </crm:P01i_is_domain_of>
+        <crm:P7_took_place_at>
+          <crm:E53_Place>
+            <crm:P1_is_identified_by>
+              <crm:E41_Appellation>
+                <crm:P190_has_symbolic_content>Antwerpen</crm:P190_has_symbolic_content>
+              </crm:E41_Appellation>
+            </crm:P1_is_identified_by>
+          </crm:E53_Place>
+        </crm:P7_took_place_at>
+      </lrm:F30_Manifestation_Creation>
+    </lrm:R24i_was_created_through>
+  </lrm:F3_Manifestation>
+  <crm:E22_Human-Made_Object rdf:about="https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:958980">
+    <crm:P1_is_identified_by>
+      <crm:E42_Identifier>
+        <crm:P190_has_symbolic_content>o:lvd:958980</crm:P190_has_symbolic_content>
+      </crm:E42_Identifier>
+    </crm:P1_is_identified_by>
+  </crm:E22_Human-Made_Object>
+  <crm:E22_Human-Made_Object rdf:about="brocade"/>
+</rdf:RDF>
+<!--<urn:datahub_brocade-catalog_c-lvd-538499/graph__0962fe48660be8f98c4cebc949b0b059cf68b0bd>-->
