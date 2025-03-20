@@ -95,12 +95,13 @@ type OrganizationConfig struct {
 			IsilCode     string `json:"isilCode"`
 			BrocadeOrgID string `json:"brocadeOrgID"`
 		} `json:"identifiers"`
-		ShortName   string   `json:"shortName"`
-		SubTitle    string   `json:"subTitle"`
-		Description string   `json:"description"`
-		Location    string   `json:"location"`
-		PuiURL      string   `json:"puiURL"`
-		Services    []string `json:"services"`
+		ShortName     string   `json:"shortName"`
+		SubTitle      string   `json:"subTitle"`
+		Description   string   `json:"description"`
+		Location      string   `json:"location"`
+		PuiURL        string   `json:"puiURL"`
+		RemoteHub3URL string   `json:"remoteHub3URL"`
+		Services      []string `json:"services"`
 	} `json:"config"`
 	ElasticSearch struct {
 		// base of the index aliases
