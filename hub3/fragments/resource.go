@@ -462,17 +462,18 @@ type ProtoBuf struct {
 
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager      *ScrollPager       `json:"pager"`
-	Peek       map[string]int64   `json:"peek,omitempty"`
-	Pagination *search.Paginator  `json:"pagination,omitempty"`
-	Query      *Query             `json:"query"`
-	Items      []*FragmentGraph   `json:"items,omitempty"`
-	Collapsed  []*Collapsed       `json:"collapse,omitempty"`
-	Facets     []*QueryFacet      `json:"facets,omitempty"`
-	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
-	Tree       []*Tree            `json:"tree,omitempty"`
-	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
-	ProtoBuf   *ProtoBuf          `json:"-"`
+	Pager        *ScrollPager       `json:"pager,omitempty"`
+	Peek         map[string]int64   `json:"peek,omitempty"`
+	Query        *Query             `json:"query"`
+	Pagination   *search.Paginator  `json:"pagination,omitempty"`
+	Items        []*FragmentGraph   `json:"items,omitempty"`
+	Collapsed    []*Collapsed       `json:"collapsed,omitempty"`
+	Facets       []*QueryFacet      `json:"facets,omitempty"`
+	TreeHeader   *TreeHeader        `json:"treeHeader,omitempty"`
+	Tree         []*Tree            `json:"tree,omitempty"`
+	TreePage     map[string][]*Tree `json:"treePage,omitempty"`
+	ProtoBuf     *ProtoBuf          `json:"protoBuf,omitempty"`
+	RelatedItems []*ItemV1          `json:"relatedItems,omitempty"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -677,26 +678,29 @@ func (tpe *TreePageEntry) SameLeaf(other *TreePageEntry) bool {
 
 // QueryFacet contains all the information for an ElasticSearch Aggregation
 type QueryFacet struct {
-	Name        string       `json:"name"`
-	Field       string       `json:"field"`
-	IsSelected  bool         `json:"isSelected"`
-	I18n        string       `json:"i18N,omitempty"`
-	Total       int64        `json:"total"`
-	MissingDocs int64        `json:"missingDocs"`
-	OtherDocs   int64        `json:"otherDocs"`
-	Min         string       `json:"min,omitempty"`
-	Max         string       `json:"max,omitempty"`
-	Type        string       `json:"type,omitempty"`
-	Links       []*FacetLink `json:"links"`
+	Name         string       `json:"name"`
+	Field        string       `json:"field"`
+	IsSelected   bool         `json:"isSelected"`
+	I18n         string       `json:"i18N,omitempty"`
+	Total        int64        `json:"total"`
+	MissingDocs  int64        `json:"missingDocs"`
+	OtherDocs    int64        `json:"otherDocs"`
+	Min          string       `json:"min,omitempty"`
+	Max          string       `json:"max,omitempty"`
+	Type         string       `json:"type,omitempty"`
+	DateInterval string       `json:"dateInterval,omitempty"`
+	Links        []*FacetLink `json:"links"`
 }
 
 // FacetLink contains all the information for creating a filter for this facet
 type FacetLink struct {
-	URL           string `json:"url"`
-	IsSelected    bool   `json:"isSelected"`
-	Value         string `json:"value"`
-	DisplayString string `json:"displayString"`
-	Count         int64  `json:"count"`
+	URL                string `json:"url"`
+	IsSelected         bool   `json:"isSelected"`
+	Value              string `json:"value"`
+	DisplayString      string `json:"displayString"`
+	Count              int64  `json:"count"`
+	BucketKey          string `json:"bucketKey,omitempty"`
+	BucketKeyAsNumber  int64  `json:"bucketKeyAsNumber,omitempty"`
 }
 
 // FragmentResource holds all the conttext information for a resource

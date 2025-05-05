@@ -14,7 +14,7 @@ type Task struct {
 }
 
 func (t *Task) AddOptions(cfg *Config) error {
-	if cfg.RedisConfig().Address == "" {
+	if cfg.RedisConfig().Address == "" && cfg.RedisConfig().Sentinel.Address == "" {
 		slog.Warn("unable to configure task service because redis is undefined in the configuration")
 		return nil
 	}

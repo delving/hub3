@@ -1,0 +1,33 @@
+package components
+
+// RapiDocPage renders a full HTML page with the RapiDoc component
+// It takes a Swagger/OpenAPI spec URL as input
+templ RapiDocPage(specURL, title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+			<title>{ title }</title>
+			<style>
+				body {
+					margin: 0;
+					padding: 0;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+				}
+				.rapidoc-container {
+					height: 100vh;
+					width: 100%;
+				}
+				rapi-doc {
+					width: 100%;
+					height: 100%;
+				}
+			</style>
+		</head>
+		<body>
+			@RapiDoc(specURL)
+		</body>
+	</html>
+}

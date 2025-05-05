@@ -3,7 +3,9 @@ package stats
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -135,6 +137,51 @@ func (cr *ConsoleReporter) Complete(values []MetricValue) {
 	}
 	b, _ := json.MarshalIndent(m, "", "  ")
 	println(string(b))
+}
+
+type ProgressReporter struct {
+	interval time.Duration
+}
+
+func NewProgressReporter(interval time.Duration) *ProgressReporter {
+	return &ProgressReporter{interval: interval}
+}
+
+func (pr *ProgressReporter) Start(ctx context.Context, opType string) error {
+	fmt.Printf("Starting %s...\n", opType)
+	return nil
+}
+
+func (pr *ProgressReporter) Update(values []MetricValue) {
+	// Build progress string
+	var parts []string
+	for _, mv := range values {
+		switch mv.Name {
+		case "duration":
+			parts = append(parts, fmt.Sprintf("time: %v", mv.Value))
+		case "processed":
+			parts = append(parts, fmt.Sprintf("processed: %v", mv.Value))
+		case "processed_per_second":
+			parts = append(parts, fmt.Sprintf("rate: %.1f/s", mv.Value))
+		case "errors":
+			if val, ok := mv.Value.(int64); ok && val > 0 {
+				parts = append(parts, fmt.Sprintf("errors: %v", mv.Value))
+			}
+		}
+	}
+	
+	// Write to same line using carriage return
+	fmt.Printf("\r%s", strings.Join(parts, " | "))
+}
+
+func (pr *ProgressReporter) Complete(values []MetricValue) {
+	// Move to new line and print final stats
+	fmt.Printf("\n")
+	var parts []string
+	for _, mv := range values {
+		parts = append(parts, fmt.Sprintf("%s: %v", mv.Name, mv.Value))
+	}
+	fmt.Printf("Complete: %s\n", strings.Join(parts, " | "))
 }
 
 type MultiReporter struct {

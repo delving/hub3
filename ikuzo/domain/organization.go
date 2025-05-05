@@ -31,7 +31,7 @@ var (
 	MaxLengthID = 12
 
 	// MaxLengthDatasetID is the maximum length of an dataset identifier
-	MaxLengthDatasetID = 24
+	MaxLengthDatasetID = 75
 
 	// protectedOrgIDs organization names
 	protectedOrgIDs = []OrganizationID{

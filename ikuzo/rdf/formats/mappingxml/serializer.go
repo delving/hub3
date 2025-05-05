@@ -3,6 +3,7 @@ package mappingxml
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"sort"
 	"strings"
 
@@ -18,6 +19,36 @@ type FilterConfig struct {
 	ContextLevels         int
 	WikiBaseTypes         []string
 	WikiBaseTypePredicate rdf.Predicate
+	AllowedRDFTypes       []rdf.IRI
+	SkipPredicatNamespace []string
+	ExcludePrefixes       []string // prefixes to exclude for both subjects and predicates
+	ExcludeTypePrefixes   []string // prefixes to exclude for rdf:type - skip whole resource if any type matches
+}
+
+func (fc *FilterConfig) HasNoFilters() bool {
+	if fc.RDFType.RawValue() != "" {
+		return false
+	}
+
+	if fc.Subject != nil && fc.Subject.RawValue() != "" {
+		return false
+	}
+
+	if fc.URIPrefixFilter != "" {
+		return false
+	}
+
+	if len(fc.ExcludePrefixes) > 0 {
+		return false
+	}
+
+	if len(fc.ExcludeTypePrefixes) > 0 {
+		return false
+	}
+
+	// TODO: add other filter options
+
+	return true
 }
 
 // Serialize serialize the Graph to explicit XML.
@@ -26,6 +57,10 @@ type FilterConfig struct {
 // resources are inlined in the XML. A max of 5 levels can
 // be given.
 func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
+	if cfg == nil {
+		cfg = &FilterConfig{}
+	}
+
 	filtered := filterResources(g.Resources(), cfg)
 
 	if cfg.ContextLevels == 0 {
@@ -59,17 +94,57 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 		return err
 	}
 
+	slog.Info("finished serialize", "resources", len(filtered))
+
 	return nil
+}
+
+// hasExcludedPrefix checks if a value starts with any of the excluded prefixes
+func hasExcludedPrefix(value string, excludePrefixes []string) bool {
+	for _, prefix := range excludePrefixes {
+		if strings.HasPrefix(value, prefix) {
+			return true
+		}
+	}
+	return false
 }
 
 func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig) []*rdf.Resource {
 	var filtered []*rdf.Resource
+	if cfg.HasNoFilters() {
+		for _, rsc := range resources {
+			filtered = append(filtered, rsc)
+		}
+		return filtered
+	}
 
 	hasFilter := cfg.URIPrefixFilter != ""
+	hasExcludePrefixes := len(cfg.ExcludePrefixes) > 0
+	hasExcludeTypePrefixes := len(cfg.ExcludeTypePrefixes) > 0
 
 	for _, rsc := range resources {
-		if hasFilter && strings.HasPrefix(rsc.Subject().String(), cfg.URIPrefixFilter) {
+		// Skip if subject matches URIPrefixFilter
+		if hasFilter && strings.HasPrefix(rsc.Subject().RawValue(), cfg.URIPrefixFilter) {
 			continue
+		}
+
+		// Skip if subject matches any excluded prefix
+		if hasExcludePrefixes && hasExcludedPrefix(rsc.Subject().RawValue(), cfg.ExcludePrefixes) {
+			continue
+		}
+
+		// Skip if any rdf:type matches excluded type prefixes
+		if hasExcludeTypePrefixes {
+			hasExcludedType := false
+			for _, rdfType := range rsc.Types() {
+				if hasExcludedPrefix(rdfType.RawValue(), cfg.ExcludeTypePrefixes) {
+					hasExcludedType = true
+					break
+				}
+			}
+			if hasExcludedType {
+				continue
+			}
 		}
 
 		if !cfg.RDFType.Equal(rdf.IRI{}) {
@@ -88,7 +163,7 @@ func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig)
 			continue
 		}
 
-		if !cfg.Subject.Equal(rdf.IRI{}) {
+		if cfg.Subject != nil && !cfg.Subject.Equal(rdf.IRI{}) {
 			if rsc.Subject().Equal(cfg.Subject) {
 				filtered = append(filtered, rsc)
 				return filtered
@@ -121,9 +196,24 @@ func createResource(
 	seen []string, cfg *FilterConfig,
 ) error {
 	hasFilter := cfg.URIPrefixFilter != ""
+	hasExcludePrefixes := len(cfg.ExcludePrefixes) > 0
+	hasExcludeTypePrefixes := len(cfg.ExcludeTypePrefixes) > 0
 
 	if hasFilter && strings.HasPrefix(rsc.Subject().RawValue(), cfg.URIPrefixFilter) {
 		return nil
+	}
+
+	if hasExcludePrefixes && hasExcludedPrefix(rsc.Subject().RawValue(), cfg.ExcludePrefixes) {
+		return nil
+	}
+
+	// Skip if any rdf:type matches excluded type prefixes
+	if hasExcludeTypePrefixes {
+		for _, rdfType := range rsc.Types() {
+			if hasExcludedPrefix(rdfType.RawValue(), cfg.ExcludeTypePrefixes) {
+				return nil
+			}
+		}
 	}
 
 	ok := isElementExist(seen, rsc.Subject().RawValue())
@@ -167,6 +257,11 @@ func createResource(
 
 	for _, p := range rsc.SortedPredicates() {
 		if p.IRI().Equal(rdf.IsA) {
+			continue
+		}
+
+		// Skip predicates that match excluded prefixes
+		if len(cfg.ExcludePrefixes) > 0 && hasExcludedPrefix(p.IRI().RawValue(), cfg.ExcludePrefixes) {
 			continue
 		}
 
@@ -215,6 +310,10 @@ func createResource(
 				iri := object.(rdf.IRI)
 
 				if hasFilter && strings.HasPrefix(iri.RawValue(), cfg.URIPrefixFilter) {
+					continue
+				}
+
+				if hasExcludePrefixes && hasExcludedPrefix(iri.RawValue(), cfg.ExcludePrefixes) {
 					continue
 				}
 

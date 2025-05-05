@@ -75,3 +75,8 @@ tools/cmd/index_narthex/*.sh
 
 # data for tests
 data
+
+# deployment scripts
+deploy
+
+**/.claude/settings.local.json

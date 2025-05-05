@@ -26,6 +26,7 @@ type Client struct {
 	opensearch     *opensearch.Client
 	disableMetrics bool
 	log            zerolog.Logger
+	pit            *PITClient
 }
 
 func NewClient(cfg *Config) (*Client, error) {
@@ -57,6 +58,13 @@ func NewClient(cfg *Config) (*Client, error) {
 		cfg:    cfg,
 		search: internal.NewOlivereClient(&searchCfg),
 		log:    cfg.Logger.With().Str("svc", "elasticsearch").Logger(),
+	}
+
+	var err error
+
+	client.pit, err = NewPITClient(cfg.Urls, cfg.UserName, cfg.Password)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create pit client; %w", err)
 	}
 
 	indexCfg := internal.ElasticConfig{

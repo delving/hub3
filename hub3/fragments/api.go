@@ -15,6 +15,7 @@ package fragments
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
@@ -72,9 +73,10 @@ func logConvErr(p string, v []string, err error) {
 func DefaultSearchRequest(cfg *c.RawConfig) *SearchRequest {
 	id := ksuid.New()
 	sr := &SearchRequest{
-		ResponseSize: responseSize,
-		SessionID:    id.String(),
-		OrgIDKey:     cfg.ElasticSearch.OrgIDKey,
+		ResponseSize:      responseSize,
+		SessionID:         id.String(),
+		OrgIDKey:          cfg.ElasticSearch.OrgIDKey,
+		MoreLikeThisCount: 4,
 	}
 
 	return sr
@@ -136,6 +138,9 @@ func NewFacetField(field string) (*FacetField, error) {
 		ff.Type = FacetType_METATAGS
 	case strings.HasPrefix(ff.Field, "tag"):
 		ff.Type = FacetType_TAGS
+	case strings.HasPrefix(ff.Field, "histogram."):
+		ff.Type = FacetType_HISTOGRAM
+		ff.Field = strings.TrimPrefix(ff.Field, "histogram.")
 	case strings.EqualFold(ff.Field, "searchLabel"):
 		ff.Type = FacetType_FIELDS
 	}
@@ -350,6 +355,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_FLAT
 			case "tree":
 				sr.ItemFormat = ItemFormatType_TREE
+			case "v1":
+				sr.ItemFormat = ItemFormatType_V1
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
@@ -511,6 +518,15 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			sr.SearchAfter = sb
+		case "mlt":
+			sr.MoreLikeThis = strings.EqualFold(params.Get(p), "true")
+		case "mlt.count":
+			count, err := strconv.ParseInt(params.Get(p), 10, 32)
+			if err != nil {
+				logConvErr(p, v, err)
+				return sr, err
+			}
+			sr.MoreLikeThisCount = int32(count)
 		}
 	}
 
@@ -1157,6 +1173,232 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 	return aggs, nil
 }
 
+// ExecuteWithParallelAggregations executes the search with parallel aggregations when beneficial
+// This method completely handles the parallel execution and merges results transparently
+func (sr *SearchRequest) ExecuteWithParallelAggregations(ec *elastic.Client, ctx context.Context) (*elastic.SearchResult, error) {
+	const parallelThreshold = 3
+
+	// Get the main search service
+	mainService, fub, err := sr.ElasticSearchService(ec)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create search service: %w", err)
+	}
+
+	// If we don't have many facets, execute normally
+	if len(sr.FacetField) <= parallelThreshold || sr.Paging {
+		return mainService.Do(ctx)
+	}
+
+	slog.Info("executing search with parallel aggregations", "facetCount", len(sr.FacetField))
+
+	// Execute main query without aggregations for documents
+	mainResult, err := mainService.Do(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute main search: %w", err)
+	}
+
+	// Build base query for aggregations
+	baseQuery, err := sr.ElasticQuery()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build base query: %w", err)
+	}
+
+	// Execute aggregations in parallel
+	aggregationResults, err := sr.executeParallelAggregations(ec, fub, baseQuery, ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute parallel aggregations: %w", err)
+	}
+
+	// Merge aggregation results into main result
+	mergedResult := sr.mergeAggregationResults(mainResult, aggregationResults)
+
+	return mergedResult, nil
+}
+
+// executeParallelAggregations runs aggregation queries in parallel batches
+func (sr *SearchRequest) executeParallelAggregations(ec *elastic.Client, fub *FacetURIBuilder, baseQuery elastic.Query, ctx context.Context) (map[string]*elastic.SearchResult, error) {
+	const batchSize = 2 // Number of facets per batch
+
+	results := make(map[string]*elastic.SearchResult)
+
+	// Create base search service configuration
+	indices := []string{c.Config.ElasticSearch.GetIndexName(sr.OrgID)}
+	if len(sr.ContextIndex) != 0 {
+		indices = append(indices, sr.ContextIndex...)
+	}
+
+	// Split facets into batches
+	batches := sr.createFacetBatches(batchSize)
+	numBatches := len(batches)
+
+	slog.Info("executing parallel aggregations in batches",
+		"totalFacets", len(sr.FacetField),
+		"batchSize", batchSize,
+		"numBatches", numBatches)
+
+	// Channels for batch results
+	errs := make(chan error, numBatches)
+	resultsChan := make(chan map[string]*elastic.SearchResult, numBatches)
+
+	// Execute each batch in parallel
+	for batchIndex, batch := range batches {
+		go func(batchIdx int, facetBatch []*FacetField) {
+			batchResults, err := sr.executeBatchAggregations(ec, fub, baseQuery, ctx, indices, facetBatch, batchIdx)
+			if err != nil {
+				errs <- fmt.Errorf("batch %d failed: %w", batchIdx, err)
+				return
+			}
+			resultsChan <- batchResults
+		}(batchIndex, batch)
+	}
+
+	// Collect results from all batches
+	for i := 0; i < numBatches; i++ {
+		select {
+		case batchResults := <-resultsChan:
+			// Merge batch results into main results map
+			for field, result := range batchResults {
+				results[field] = result
+			}
+		case err := <-errs:
+			return nil, err
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
+
+	return results, nil
+}
+
+// createFacetBatches splits facets into batches of specified size
+func (sr *SearchRequest) createFacetBatches(batchSize int) [][]*FacetField {
+	var batches [][]*FacetField
+
+	for i := 0; i < len(sr.FacetField); i += batchSize {
+		end := i + batchSize
+		if end > len(sr.FacetField) {
+			end = len(sr.FacetField)
+		}
+		batches = append(batches, sr.FacetField[i:end])
+	}
+
+	return batches
+}
+
+// executeBatchAggregations executes a batch of facets in a single query
+func (sr *SearchRequest) executeBatchAggregations(ec *elastic.Client, fub *FacetURIBuilder, baseQuery elastic.Query, ctx context.Context, indices []string, facetBatch []*FacetField, batchIndex int) (map[string]*elastic.SearchResult, error) {
+	// Create search service for this batch
+	s := ec.Search().
+		Index(indices...).
+		TrackTotalHits(false).
+		Preference(sr.GetSessionID()).
+		Size(0). // Only want aggregations, not documents
+		Query(baseQuery)
+
+	// Add all facets in this batch as aggregations
+	batchFieldNames := make([]string, 0, len(facetBatch))
+	for _, facetField := range facetBatch {
+		// Create a size-limited copy of the facet field
+		facetCopy := *facetField
+		if sr.FacetLimit != 0 {
+			facetCopy.Size = sr.FacetLimit
+		}
+
+		// Create aggregation for this specific field
+		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, &facetCopy, fub)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create aggregation for %s: %w", facetField.GetField(), err)
+		}
+
+		fieldName := facetField.GetField()
+		if facetField.ById {
+			fieldName = fmt.Sprintf("%s.id", fieldName)
+		}
+
+		s = s.Aggregation(fieldName, agg)
+		batchFieldNames = append(batchFieldNames, fieldName)
+	}
+
+	// Apply post filters
+	postFilter, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create post filter for batch %d: %w", batchIndex, err)
+	}
+	s = s.PostFilter(postFilter)
+
+	// Execute the batch query
+	res, err := s.Do(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute batch %d with fields %v: %w", batchIndex, batchFieldNames, err)
+	}
+
+	// Since we executed multiple aggregations in one query, we create individual
+	// "results" for each field to maintain compatibility with the merging logic
+	batchResults := make(map[string]*elastic.SearchResult)
+	for _, fieldName := range batchFieldNames {
+		// Create a result that contains only this field's aggregation
+		fieldResult := &elastic.SearchResult{
+			TookInMillis: res.TookInMillis,
+			Aggregations: make(elastic.Aggregations),
+			TimedOut:     res.TimedOut,
+			Status:       res.Status,
+		}
+
+		// Copy only this field's aggregation
+		if res.Aggregations != nil {
+			if aggData, exists := res.Aggregations[fieldName]; exists {
+				fieldResult.Aggregations[fieldName] = aggData
+			}
+		}
+
+		batchResults[fieldName] = fieldResult
+	}
+
+	slog.Debug("completed batch aggregation",
+		"batchIndex", batchIndex,
+		"fieldsInBatch", batchFieldNames,
+		"tookMs", res.TookInMillis)
+
+	return batchResults, nil
+}
+
+// mergeAggregationResults combines parallel aggregation results into the main search result
+func (sr *SearchRequest) mergeAggregationResults(mainResult *elastic.SearchResult, aggregationResults map[string]*elastic.SearchResult) *elastic.SearchResult {
+	if len(aggregationResults) == 0 {
+		return mainResult
+	}
+
+	// Create a map to collect all aggregations
+	allAggregations := make(elastic.Aggregations)
+
+	// Copy existing aggregations from main result (if any)
+	if mainResult.Aggregations != nil {
+		for key, value := range mainResult.Aggregations {
+			allAggregations[key] = value
+		}
+	}
+
+	// Add aggregations from parallel results
+	for _, result := range aggregationResults {
+		if result != nil && result.Aggregations != nil {
+			for aggName, aggResult := range result.Aggregations {
+				allAggregations[aggName] = aggResult
+			}
+		}
+	}
+
+	// Create a new result that copies the main result but with merged aggregations
+	mergedResult := &elastic.SearchResult{
+		TookInMillis: mainResult.TookInMillis,
+		Hits:         mainResult.Hits,
+		Aggregations: allAggregations,
+		TimedOut:     mainResult.TimedOut,
+		Status:       mainResult.Status,
+	}
+
+	return mergedResult
+}
+
 func createFieldedSubQuery(field, userQuery string, boost float64) elastic.Query {
 	fieldTermQuery := elastic.NewTermQuery(entriesSearchLabel, field)
 
@@ -1266,7 +1508,8 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 			facet.DateInterval = "1y"
 		}
 
-		field := fmt.Sprintf("resources.entries.%s", "isoDate")
+		// Use the isoDate field from the nested entries for the histogram
+		field := fmt.Sprintf("%s.isoDate", path)
 		minAgg := elastic.NewMinAggregation().Field(field)
 		maxAgg := elastic.NewMaxAggregation().Field(field)
 		histAgg := elastic.NewDateHistogramAggregation().
@@ -1523,10 +1766,9 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 	}
 
 	// Add aggregations
-	if !sr.V1Mode {
-		if sr.Paging {
-			return s.Query(query), nil, err
-		}
+	// Skip aggregations only for paging requests (both V1 and V2)
+	if sr.Paging {
+		return s.Query(query), fub, err
 	}
 
 	aggs, err := sr.Aggregations(fub)
@@ -1838,13 +2080,12 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 	}
 
 	nestedBoolQuery = nestedBoolQuery.Must(nq)
-	mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
 
 	// resource.types query
 	if qf.GetTypeClass() != "" {
 		tc, err := TypeClassAsURI(qf.GetTypeClass())
 		if err != nil {
-			return mainQuery, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
+			return nil, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
 		}
 		typeQuery := elastic.NewTermQuery("resources.types", tc)
 		nestedBoolQuery = nestedBoolQuery.Must(typeQuery)
@@ -1858,7 +2099,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		if level2.GetTypeClass() != "" {
 			tc, err := TypeClassAsURI(level2.GetTypeClass())
 			if err != nil {
-				return mainQuery, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
+				return nil, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
 			}
 			classQuery := elastic.NewTermQuery("resources.context.SubjectClass", tc)
 			levelq = levelq.Must(classQuery)
@@ -1868,6 +2109,7 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 		nestedBoolQuery = nestedBoolQuery.Must(lq)
 	}
 
+	mainQuery := elastic.NewNestedQuery("resources", nestedBoolQuery)
 	return mainQuery, nil
 }
 
@@ -2069,6 +2311,13 @@ func (sr *SearchRequest) DecodeFacets(res *elastic.SearchResult, fb *FacetURIBui
 	for _, field := range sr.FacetField {
 		facet, ok := queryFacets[field.Field]
 		if ok {
+			// Enrich facet with FacetField metadata for histograms
+			if field.Type == FacetType_HISTOGRAM {
+				facet.Type = "histogram"
+				if field.DateInterval != "" {
+					facet.DateInterval = field.DateInterval
+				}
+			}
 			orderedFacets = append(orderedFacets, facet)
 		}
 	}
@@ -2127,6 +2376,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 					histogram, ok := inner.Histogram("histogram")
 					if ok {
 						valid = true
+						qf.Type = "histogram"
 						for _, b := range histogram.Buckets {
 							key := *b.KeyAsString
 							url, isSelected := fb.CreateFacetFilterURI(qf.Field, key)
@@ -2134,12 +2384,21 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 							if isSelected && !qf.IsSelected {
 								qf.IsSelected = true
 							}
+
+							// Extract bucket key and timestamp for histogram buckets
+							bucketKey := key
+							var bucketKeyAsNumber int64
+							// For histogram buckets, the Key is typically a timestamp (float64)
+							bucketKeyAsNumber = int64(b.Key)
+
 							fl := &FacetLink{
-								URL:           url,
-								IsSelected:    isSelected,
-								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								URL:               url,
+								IsSelected:        isSelected,
+								Value:             key,
+								Count:             b.DocCount,
+								DisplayString:     fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								BucketKey:         bucketKey,
+								BucketKeyAsNumber: bucketKeyAsNumber,
 							}
 							qf.Links = append(qf.Links, fl)
 						}

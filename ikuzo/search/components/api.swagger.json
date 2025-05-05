@@ -1,0 +1,2124 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Hub3 Search API",
+    "description": "The Hub3 Search API provides endpoints for searching, faceting, and retrieving records with support for hierarchical (tree) navigation.\n\nThis API allows you to search across all records in the system, with rich filtering, faceting, and pagination options.\nIt also supports hierarchical tree navigation for archival finding aids and similar structured content.",
+    "version": "2.0",
+    "contact": {
+      "name": "Delving B.V.",
+      "url": "https://delving.eu",
+      "email": "info@delving.eu"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Default server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "search",
+      "description": "Search across all records with filtering and faceting"
+    },
+    {
+      "name": "records",
+      "description": "Retrieve individual records by identifier"
+    },
+    {
+      "name": "facets",
+      "description": "Detailed facet information and values"
+    }
+  ],
+  "paths": {
+    "/api/search/v2": {
+      "get": {
+        "operationId": "searchV2",
+        "summary": "Search for records (v2 API)",
+        "description": "Execute a search query with filtering, faceting, and pagination options using the v2 API format",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Main search query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "qf[]",
+            "in": "query",
+            "description": "Query filters in format field:value",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "qf.id[]",
+            "in": "query",
+            "description": "ID-based query filters in format field:id",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "qf.exist[]",
+            "in": "query",
+            "description": "Existence filters for fields",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "qf.dateRange",
+            "in": "query",
+            "description": "Date range filters in format field:start~end",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "qf.date[]",
+            "in": "query",
+            "description": "Date filters in ISO format",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "qf.tree[]",
+            "in": "query",
+            "description": "Tree filters for hierarchical data",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "facet.field",
+            "in": "query",
+            "description": "Fields to generate facets for",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "facet.limit",
+            "in": "query",
+            "description": "Maximum number of facet values to return",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "facet.boolType",
+            "in": "query",
+            "description": "Boolean logic for facets (and/or)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "and",
+                "or"
+              ]
+            }
+          },
+          {
+            "name": "facet.orBetween",
+            "in": "query",
+            "description": "Whether to use OR logic between facets",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "facet.mergeFilter",
+            "in": "query",
+            "description": "Facet fields to merge",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "facet.expand",
+            "in": "query",
+            "description": "Field to expand into its own facet result",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "facet.filter",
+            "in": "query",
+            "description": "Filter to apply to expanded facet",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "facet.cursor",
+            "in": "query",
+            "description": "Cursor for paginated facet results",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rows",
+            "in": "query",
+            "description": "Number of results per page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 16,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "Start position (0-based)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "Field to sort by (prefix with ^ for ascending)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortAsc",
+            "in": "query",
+            "description": "Whether to sort in ascending order",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Response format",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "default",
+                "jsonld",
+                "bulkaction"
+              ]
+            }
+          },
+          {
+            "name": "itemFormat",
+            "in": "query",
+            "description": "Format for individual items",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "summary",
+                "fragmentGraph",
+                "jsonld",
+                "flat",
+                "tree",
+                "grouped"
+              ]
+            }
+          },
+          {
+            "name": "peek",
+            "in": "query",
+            "description": "Field to peek at facet values without returning results",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Language preference (comma-separated for multiple)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collapseOn",
+            "in": "query",
+            "description": "Field to collapse results on",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "collapseFormat",
+            "in": "query",
+            "description": "Format for collapsed results",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "default",
+                "flat"
+              ]
+            }
+          },
+          {
+            "name": "collapseSize",
+            "in": "query",
+            "description": "Number of items per collapse group",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 5
+            }
+          },
+          {
+            "name": "searchFields",
+            "in": "query",
+            "description": "Fields to search in (comma-separated)",
+            "schema": {
+              "type": "string",
+              "default": "full_text"
+            }
+          },
+          {
+            "name": "contextIndex",
+            "in": "query",
+            "description": "Additional indices to search",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "scrollID",
+            "in": "query",
+            "description": "Scroll ID for pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "searchAfter",
+            "in": "query",
+            "description": "Search after cursor for pagination",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "echo",
+            "in": "query",
+            "description": "Debug parameter to echo request details",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "searchService",
+                "searchResponse"
+              ]
+            }
+          },
+          {
+            "name": "byLeaf",
+            "in": "query",
+            "description": "Tree leaf identifier",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fillTree",
+            "in": "query",
+            "description": "Whether to fill the complete tree structure",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "byDepth",
+            "in": "query",
+            "description": "Filter by tree depth",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "byChildCount",
+            "in": "query",
+            "description": "Filter by child count",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "byParent",
+            "in": "query",
+            "description": "Filter by parent node",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "byType",
+            "in": "query",
+            "description": "Filter by node type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "byLabel",
+            "in": "query",
+            "description": "Search for nodes by label",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "byQuery",
+            "in": "query",
+            "description": "Search for nodes by query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withFields",
+            "in": "query",
+            "description": "Whether to include field data in tree nodes",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "hasDigitalObject",
+            "in": "query",
+            "description": "Filter for nodes with digital objects",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "paging",
+            "in": "query",
+            "description": "Whether this is a paged tree request",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "pageMode",
+            "in": "query",
+            "description": "Paging mode (append/prepend)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "append",
+                "prepend"
+              ]
+            }
+          },
+          {
+            "name": "hasRestriction",
+            "in": "query",
+            "description": "Filter for nodes with access restrictions",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "byUnitID",
+            "in": "query",
+            "description": "Filter by unit ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "allParents",
+            "in": "query",
+            "description": "Whether to include all parent nodes",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "byMimeType",
+            "in": "query",
+            "description": "Filter by MIME type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "cursorHint",
+            "in": "query",
+            "description": "Cursor position hint",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "treePage",
+            "in": "query",
+            "description": "Tree page numbers",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of tree nodes per page",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 250
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResultV2"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search/v1": {
+      "get": {
+        "operationId": "searchV1",
+        "summary": "Search for records (v1 API - deprecated)",
+        "description": "Execute a search query using the v1 API format (deprecated, use v2 instead)",
+        "tags": [
+          "search"
+        ],
+        "deprecated": true,
+        "responses": {
+          "404": {
+            "description": "V1 API is not enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search/v2/{id}": {
+      "get": {
+        "operationId": "getRecordV2",
+        "summary": "Get a record by ID (v2 API)",
+        "description": "Retrieve a single record by its ID with format options",
+        "tags": [
+          "records"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Record ID (format: orgID_spec_localID)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "description": "Language preference",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemFormat",
+            "in": "query",
+            "description": "Format for the returned record",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "flat",
+                "jsonld",
+                "summary",
+                "grouped"
+              ]
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Response format",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jsonld"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FragmentGraph"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/search/v1/{id}": {
+      "get": {
+        "operationId": "getRecordV1",
+        "summary": "Get a record by ID (v1 API - deprecated)",
+        "description": "Retrieve a single record by its ID using the v1 API format (deprecated, use v2 instead)",
+        "tags": [
+          "records"
+        ],
+        "deprecated": true,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Record ID (format: orgID_spec_localID)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "V1 API is not enabled or record not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/search": {
+      "get": {
+        "operationId": "v2Search",
+        "summary": "Search for records (alternate v2 API path)",
+        "description": "Execute a search query with filtering, faceting, and pagination options using the v2 API format (alternative path)",
+        "tags": [
+          "search"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api~1search~1v2/get/parameters"
+          }
+        ],
+        "responses": {
+          "$ref": "#/paths/~1api~1search~1v2/get/responses"
+        }
+      }
+    },
+    "/v2/search/{id}": {
+      "get": {
+        "operationId": "v2GetRecord",
+        "summary": "Get a record by ID (alternate v2 API path)",
+        "description": "Retrieve a single record by its ID with format options (alternative path)",
+        "tags": [
+          "records"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/paths/~1api~1search~1v2~1{id}/get/parameters"
+          }
+        ],
+        "responses": {
+          "$ref": "#/paths/~1api~1search~1v2~1{id}/get/responses"
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "description": "HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message"
+          },
+          "details": {
+            "type": "string",
+            "description": "Additional error details"
+          }
+        }
+      },
+      "Header": {
+        "type": "object",
+        "description": "Metadata for fragment graph containing identification and versioning information",
+        "properties": {
+          "org_id": {
+            "type": "string",
+            "description": "Organization identifier"
+          },
+          "spec": {
+            "type": "string",
+            "description": "Dataset specification"
+          },
+          "hub_id": {
+            "type": "string",
+            "description": "Unique Hub identifier"
+          },
+          "doc_type": {
+            "type": "string",
+            "description": "Document type information"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Revision number for versioning"
+          },
+          "modified": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Last modification timestamp in Unix milliseconds"
+          },
+          "entry_uri": {
+            "type": "string",
+            "description": "Entry URI"
+          },
+          "named_graph_uri": {
+            "type": "string",
+            "description": "Named graph URI"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of tags associated with this graph"
+          }
+        }
+      },
+      "FacetField": {
+        "type": "object",
+        "description": "Configuration for a facet field used in search aggregations",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Field name to use for faceting"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name for the facet"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Maximum number of facet values to return"
+          },
+          "by_name": {
+            "type": "boolean",
+            "description": "Whether to order by name instead of count"
+          },
+          "asc": {
+            "type": "boolean",
+            "description": "Whether to use ascending order (default is descending)"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language filter for faceting"
+          },
+          "by_id": {
+            "type": "boolean",
+            "description": "Whether to facet by ID instead of value"
+          },
+          "date_interval": {
+            "type": "string",
+            "description": "Date interval for date histogram facets (e.g. '1y')"
+          },
+          "agg_field": {
+            "type": "string",
+            "description": "Field to use for aggregation if different from primary field"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "DEFAULT",
+              "METATAGS",
+              "TREEFACET",
+              "TAGS",
+              "FIELDS",
+              "MINMAX",
+              "HISTOGRAM"
+            ],
+            "description": "Type of facet to generate"
+          }
+        }
+      },
+      "QueryFilter": {
+        "type": "object",
+        "description": "Filter to narrow search results based on field-value pairs",
+        "properties": {
+          "search_label": {
+            "type": "string",
+            "description": "The search field label to filter on"
+          },
+          "value": {
+            "type": "string",
+            "description": "The value to filter for"
+          },
+          "type_class": {
+            "type": "string",
+            "description": "Type class for contextual filtering"
+          },
+          "exclude": {
+            "type": "boolean",
+            "description": "Whether to exclude matches (NOT condition)"
+          },
+          "hidden": {
+            "type": "boolean",
+            "description": "Whether this filter should be hidden from user interfaces"
+          },
+          "level1": {
+            "$ref": "#/components/schemas/ContextQueryFilter"
+          },
+          "level2": {
+            "$ref": "#/components/schemas/ContextQueryFilter"
+          },
+          "id": {
+            "type": "boolean",
+            "description": "Whether this is an ID filter"
+          },
+          "exists": {
+            "type": "boolean",
+            "description": "Whether to filter for field existence"
+          },
+          "gte": {
+            "type": "string",
+            "description": "Greater than or equal date for range filtering"
+          },
+          "lte": {
+            "type": "string",
+            "description": "Less than or equal date for range filtering"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "ID",
+              "EXISTS",
+              "DATERANGE",
+              "ISODATE",
+              "TREEITEM",
+              "ENTRYTAG",
+              "SEARCHLABEL"
+            ],
+            "description": "Type of query filter to apply"
+          }
+        }
+      },
+      "ContextQueryFilter": {
+        "type": "object",
+        "description": "Context level filter for nested document structures",
+        "properties": {
+          "search_label": {
+            "type": "string",
+            "description": "Search label for context level"
+          },
+          "type_class": {
+            "type": "string",
+            "description": "Type class for context level"
+          }
+        }
+      },
+      "TreeQuery": {
+        "type": "object",
+        "description": "Configuration for hierarchical tree-based searches and navigation",
+        "properties": {
+          "leaf": {
+            "type": "string",
+            "description": "The leaf identifier to navigate to"
+          },
+          "parent": {
+            "type": "string",
+            "description": "Parent node identifier"
+          },
+          "label": {
+            "type": "string",
+            "description": "Label to search for within the tree"
+          },
+          "query": {
+            "type": "string",
+            "description": "Text query to apply to the tree"
+          },
+          "depth": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Depths to filter for"
+          },
+          "child_count": {
+            "type": "string",
+            "description": "Filter by child count"
+          },
+          "type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Types to filter for"
+          },
+          "c_level": {
+            "type": "string",
+            "description": "Classification level"
+          },
+          "unit_id": {
+            "type": "string",
+            "description": "Unit identifier"
+          },
+          "mime_type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "MIME types to filter for"
+          },
+          "with_fields": {
+            "type": "boolean",
+            "description": "Whether to include field data"
+          },
+          "has_digital_object": {
+            "type": "boolean",
+            "description": "Filter for items with digital objects"
+          },
+          "has_restriction": {
+            "type": "boolean",
+            "description": "Filter for items with access restrictions"
+          },
+          "all_parents": {
+            "type": "boolean",
+            "description": "Whether to include all parent nodes"
+          },
+          "fill_tree": {
+            "type": "boolean",
+            "description": "Whether to fill the complete tree structure"
+          },
+          "is_search": {
+            "type": "boolean",
+            "description": "Whether this is a search within the tree"
+          },
+          "is_paging": {
+            "type": "boolean",
+            "description": "Whether this is a paged tree request"
+          },
+          "page_mode": {
+            "type": "string",
+            "description": "Paging mode (append/prepend)"
+          },
+          "page": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Pages to retrieve"
+          },
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of results per page"
+          },
+          "cursor_hint": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Cursor position hint"
+          },
+          "org_id": {
+            "type": "string",
+            "description": "Organization identifier"
+          },
+          "spec": {
+            "type": "string",
+            "description": "Dataset specification"
+          }
+        }
+      },
+      "IndexRange": {
+        "type": "object",
+        "description": "Range values for dates or numbers",
+        "properties": {
+          "greater": {
+            "type": "string",
+            "description": "Greater than or equal value"
+          },
+          "less": {
+            "type": "string",
+            "description": "Less than or equal value"
+          }
+        }
+      },
+      "ResourceEntry": {
+        "type": "object",
+        "description": "Data entry for a field within a resource",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ID of the resource (if resource type)"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value of the field (if literal type)"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language tag for the value"
+          },
+          "data_type": {
+            "type": "string",
+            "description": "Data type of the value"
+          },
+          "entry_type": {
+            "type": "string",
+            "description": "Type of entry (Literal, Resource, or Bnode)"
+          },
+          "predicate": {
+            "type": "string",
+            "description": "Predicate URI of the field"
+          },
+          "search_label": {
+            "type": "string",
+            "description": "Search label for the field"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Hierarchical level of the field"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags associated with this field"
+          },
+          "date": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "ISO date values"
+          },
+          "date_range": {
+            "$ref": "#/components/schemas/IndexRange"
+          },
+          "integer": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Integer value for numeric fields"
+          },
+          "float": {
+            "type": "number",
+            "format": "double",
+            "description": "Float value for numeric fields"
+          },
+          "int_range": {
+            "$ref": "#/components/schemas/IndexRange"
+          },
+          "lat_long": {
+            "type": "string",
+            "description": "Latitude/longitude for geo fields"
+          },
+          "inline": {
+            "$ref": "#/components/schemas/FragmentResource"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Sort order of the field"
+          }
+        }
+      },
+      "Tree": {
+        "type": "object",
+        "description": "Node in a hierarchical tree structure, typically used for archival finding aids",
+        "properties": {
+          "leaf": {
+            "type": "string",
+            "description": "Leaf identifier"
+          },
+          "parent": {
+            "type": "string",
+            "description": "Parent node identifier"
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label for the node"
+          },
+          "c_level": {
+            "type": "string",
+            "description": "Classification level"
+          },
+          "unit_id": {
+            "type": "string",
+            "description": "Unit identifier"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the node"
+          },
+          "hub_id": {
+            "type": "string",
+            "description": "Hub identifier"
+          },
+          "child_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of child nodes"
+          },
+          "depth": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Depth in the tree hierarchy"
+          },
+          "has_children": {
+            "type": "boolean",
+            "description": "Whether the node has children"
+          },
+          "has_digital_object": {
+            "type": "boolean",
+            "description": "Whether the node has associated digital objects"
+          },
+          "has_restriction": {
+            "type": "boolean",
+            "description": "Whether the node has access restrictions"
+          },
+          "dao_link": {
+            "type": "string",
+            "description": "Digital archival object link"
+          },
+          "manifest_link": {
+            "type": "string",
+            "description": "IIIF manifest link"
+          },
+          "mime_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "MIME types of associated digital objects"
+          },
+          "do_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Count of digital objects"
+          },
+          "inline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tree"
+            },
+            "description": "Inlined child nodes"
+          },
+          "sort_key": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Sort key for ordering"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Time periods associated with the node"
+          },
+          "content": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Content text"
+          },
+          "raw_content": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Raw content text"
+          },
+          "access": {
+            "type": "string",
+            "description": "Access information"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the node"
+          },
+          "description": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Description text"
+          },
+          "inventory_id": {
+            "type": "string",
+            "description": "Inventory identifier"
+          },
+          "agency_code": {
+            "type": "string",
+            "description": "Agency code"
+          },
+          "period_desc": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Period descriptions"
+          },
+          "material": {
+            "type": "string",
+            "description": "Material information"
+          },
+          "phys_desc": {
+            "type": "string",
+            "description": "Physical description"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Fields indexed by name"
+          },
+          "genreform": {
+            "type": "string",
+            "description": "Genre/form information"
+          }
+        }
+      },
+      "FragmentReferrerContext": {
+        "type": "object",
+        "description": "Context information about how resources are connected",
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "Subject identifier"
+          },
+          "subject_class": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Classes of the subject"
+          },
+          "predicate": {
+            "type": "string",
+            "description": "Predicate linking subject to object"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Hierarchical level"
+          },
+          "object_id": {
+            "type": "string",
+            "description": "Object identifier"
+          },
+          "search_label": {
+            "type": "string",
+            "description": "Search label for the predicate"
+          },
+          "label": {
+            "type": "string",
+            "description": "Display label"
+          }
+        }
+      },
+      "FragmentResource": {
+        "type": "object",
+        "description": "A resource from an RDF graph with its properties and connections",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Resource identifier (URI)"
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "RDF types of the resource"
+          },
+          "graph_external_context": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FragmentReferrerContext"
+            },
+            "description": "External context references"
+          },
+          "context": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FragmentReferrerContext"
+            },
+            "description": "Context information about this resource's position in the graph"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceEntry"
+            },
+            "description": "Resource properties as field entries"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags associated with this resource"
+          }
+        }
+      },
+      "ResultSummary": {
+        "type": "object",
+        "description": "Summary of a record with its key fields for display in search results",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the record"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject of the record"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the record"
+          },
+          "creator": {
+            "type": "string",
+            "description": "Creator of the record"
+          },
+          "collection": {
+            "type": "string",
+            "description": "Collection the record belongs to"
+          },
+          "sub_collection": {
+            "type": "string",
+            "description": "Sub-collection the record belongs to"
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "URL to thumbnail image"
+          },
+          "landing_page": {
+            "type": "string",
+            "description": "URL to landing page"
+          },
+          "owner": {
+            "type": "string",
+            "description": "Owner of the record"
+          },
+          "object_id": {
+            "type": "string",
+            "description": "Object identifier"
+          },
+          "date": {
+            "type": "string",
+            "description": "Date associated with the record"
+          },
+          "object_type": {
+            "type": "string",
+            "description": "Type of the object"
+          }
+        }
+      },
+      "ResourceEntryHighlight": {
+        "type": "object",
+        "description": "Highlighted text fragments showing search term matches",
+        "properties": {
+          "search_label": {
+            "type": "string",
+            "description": "Field where the match was found"
+          },
+          "mark_down": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Text fragments with highlights"
+          }
+        }
+      },
+      "ScrollPager": {
+        "type": "object",
+        "description": "Pagination information for scrolling through search results",
+        "properties": {
+          "previous_scroll_id": {
+            "type": "string",
+            "description": "ID to fetch the previous page"
+          },
+          "next_scroll_id": {
+            "type": "string",
+            "description": "ID to fetch the next page"
+          },
+          "cursor": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current cursor position"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total number of results"
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of rows per page"
+          }
+        }
+      },
+      "BreadCrumb": {
+        "type": "object",
+        "description": "Navigation breadcrumb for search filters and queries",
+        "properties": {
+          "display": {
+            "type": "string",
+            "description": "Display text"
+          },
+          "href": {
+            "type": "string",
+            "description": "Link to navigate to this filter state"
+          },
+          "is_last": {
+            "type": "boolean",
+            "description": "Whether this is the last breadcrumb in the trail"
+          },
+          "field": {
+            "type": "string",
+            "description": "Field this breadcrumb applies to"
+          },
+          "value": {
+            "type": "string",
+            "description": "Value for this breadcrumb filter"
+          }
+        }
+      },
+      "Query": {
+        "type": "object",
+        "description": "Search query information",
+        "properties": {
+          "terms": {
+            "type": "string",
+            "description": "Search query terms"
+          },
+          "bread_crumbs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BreadCrumb"
+            },
+            "description": "Breadcrumb trail for filters"
+          },
+          "numfound": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of results found"
+          }
+        }
+      },
+      "Fragment": {
+        "type": "object",
+        "description": "A single RDF triple with subject, predicate, object and context information",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject of the triple"
+          },
+          "predicate": {
+            "type": "string",
+            "description": "Predicate of the triple"
+          },
+          "object": {
+            "type": "string",
+            "description": "Object of the triple"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language of the object (if literal)"
+          },
+          "data_type": {
+            "type": "string",
+            "description": "Data type of the object (if typed literal)"
+          },
+          "object_type": {
+            "type": "string",
+            "description": "Type of the object (Resource, Literal, BNode)"
+          },
+          "lod_key": {
+            "type": "string",
+            "description": "Linked Open Data key"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Sort order in the original graph"
+          },
+          "triple": {
+            "type": "string",
+            "description": "Complete triple as string"
+          },
+          "search_label": {
+            "type": "string",
+            "description": "Search label for the predicate"
+          },
+          "level": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Hierarchical level in the graph"
+          },
+          "resource_type": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Types of the resource"
+          },
+          "path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Path in the graph structure"
+          },
+          "nested_path": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Nested path in document structure"
+          }
+        }
+      },
+      "FragmentGraph": {
+        "type": "object",
+        "description": "A complete RDF graph with its resources and presentation formats",
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/Header"
+          },
+          "tree": {
+            "$ref": "#/components/schemas/Tree"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FragmentResource"
+            },
+            "description": "Resources in this graph"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ResultSummary"
+          },
+          "jsonld": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "JSON-LD representation"
+          },
+          "fields": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Flattened fields by name"
+          },
+          "highlights": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourceEntryHighlight"
+            },
+            "description": "Search result highlights"
+          },
+          "proto_buf": {
+            "type": "object",
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "description": "Type of the serialized message"
+              },
+              "data": {
+                "type": "string",
+                "description": "Serialized protobuf data"
+              }
+            },
+            "description": "Protobuf serialized data if requested"
+          }
+        }
+      },
+      "Collapsed": {
+        "type": "object",
+        "description": "Search results grouped by a common field value",
+        "properties": {
+          "field": {
+            "type": "string",
+            "description": "Field that results are collapsed on"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title for this group"
+          },
+          "hit_count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of records in this group"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FragmentGraph"
+            },
+            "description": "Sample records from this group"
+          }
+        }
+      },
+      "TreePageEntry": {
+        "type": "object",
+        "description": "Entry point for tree navigation",
+        "properties": {
+          "c_level": {
+            "type": "string",
+            "description": "Classification level"
+          },
+          "sort_key": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Sort key for ordering"
+          },
+          "expanded_ids": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Map of expanded node IDs"
+          },
+          "depth": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Depth in tree hierarchy"
+          }
+        }
+      },
+      "TreeSearching": {
+        "type": "object",
+        "description": "Information about a search within a hierarchical tree",
+        "properties": {
+          "is_search": {
+            "type": "boolean",
+            "description": "Whether this is a search operation"
+          },
+          "hits_total": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of hits"
+          },
+          "current_hit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current hit position"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "Whether there are more hits after current"
+          },
+          "has_previous": {
+            "type": "boolean",
+            "description": "Whether there are hits before current"
+          },
+          "by_label": {
+            "type": "string",
+            "description": "Label being searched for"
+          },
+          "by_unit_id": {
+            "type": "string",
+            "description": "Unit ID being searched for"
+          },
+          "by_query": {
+            "type": "string",
+            "description": "Query text being searched for"
+          }
+        }
+      },
+      "TreePaging": {
+        "type": "object",
+        "description": "Paging information for tree navigation",
+        "properties": {
+          "page_size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of results per page"
+          },
+          "nr_pages": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of pages"
+          },
+          "has_next": {
+            "type": "boolean",
+            "description": "Whether there is a next page"
+          },
+          "has_previous": {
+            "type": "boolean",
+            "description": "Whether there is a previous page"
+          },
+          "page_next": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Next page number"
+          },
+          "page_previous": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Previous page number"
+          },
+          "page_current": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "description": "Current page numbers (multi-page view)"
+          },
+          "page_first": {
+            "type": "integer",
+            "format": "int32",
+            "description": "First page number"
+          },
+          "page_last": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Last page number"
+          },
+          "result_first": {
+            "$ref": "#/components/schemas/TreePageEntry"
+          },
+          "result_last": {
+            "$ref": "#/components/schemas/TreePageEntry"
+          },
+          "result_active": {
+            "$ref": "#/components/schemas/TreePageEntry"
+          },
+          "hits_on_page": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TreePageEntry"
+            },
+            "description": "Map of hits on this page"
+          },
+          "hits_on_page_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of hits on this page"
+          },
+          "hits_total_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of hits"
+          },
+          "active_hit": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Position of active hit"
+          },
+          "same_leaf": {
+            "type": "boolean",
+            "description": "Whether all results are in the same leaf"
+          },
+          "is_search": {
+            "type": "boolean",
+            "description": "Whether this is a search operation"
+          }
+        }
+      },
+      "TreeHeader": {
+        "type": "object",
+        "description": "Header information for tree view rendering",
+        "properties": {
+          "active_id": {
+            "type": "string",
+            "description": "ID of the active node"
+          },
+          "expanded_ids": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "Map of expanded node IDs"
+          },
+          "previous_scroll_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Previous scroll IDs for navigation"
+          },
+          "paging": {
+            "$ref": "#/components/schemas/TreePaging"
+          },
+          "searching": {
+            "$ref": "#/components/schemas/TreeSearching"
+          }
+        }
+      },
+      "CompFacet": {
+        "type": "object",
+        "description": "Expanded facet with detailed information and pagination",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Query filter applied to this facet"
+          },
+          "field": {
+            "type": "string",
+            "description": "Field this facet is based on"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total number of values for this facet"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Cursor for pagination"
+          },
+          "next": {
+            "type": "string",
+            "description": "URL for next page of facet values"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetLink"
+            },
+            "description": "Facet value links"
+          }
+        }
+      },
+      "FacetLink": {
+        "type": "object",
+        "description": "A facet value with count and selection information",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to select this facet value"
+          },
+          "is_selected": {
+            "type": "boolean",
+            "description": "Whether this value is currently selected"
+          },
+          "value": {
+            "type": "string",
+            "description": "The facet value"
+          },
+          "display_string": {
+            "type": "string",
+            "description": "Formatted display string (typically 'value (count)')"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of documents with this facet value"
+          }
+        }
+      },
+      "Paginator": {
+        "type": "object",
+        "description": "Pagination information for V1 API compatibility",
+        "properties": {
+          "current_page": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Current page number"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of pages"
+          },
+          "start": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Start position"
+          },
+          "rows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of rows per page"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Page links"
+          }
+        }
+      },
+      "SearchResultV2": {
+        "type": "object",
+        "description": "Complete search results with pagination, facets, and result items",
+        "properties": {
+          "pager": {
+            "$ref": "#/components/schemas/ScrollPager"
+          },
+          "peek": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "Peek counts for facet values"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Paginator"
+          },
+          "query": {
+            "$ref": "#/components/schemas/Query"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FragmentGraph"
+            },
+            "description": "Result items"
+          },
+          "collapsed": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Collapsed"
+            },
+            "description": "Collapsed result groups"
+          },
+          "facets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/QueryFacet"
+            },
+            "description": "Facet information"
+          },
+          "tree_header": {
+            "$ref": "#/components/schemas/TreeHeader"
+          },
+          "tree": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tree"
+            },
+            "description": "Tree structure"
+          },
+          "tree_page": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Tree"
+              }
+            },
+            "description": "Tree pages by node ID"
+          },
+          "proto_buf": {
+            "type": "object",
+            "properties": {
+              "message_type": {
+                "type": "string",
+                "description": "Type of the serialized message"
+              },
+              "data": {
+                "type": "string",
+                "description": "Serialized protobuf data"
+              }
+            }
+          }
+        }
+      },
+      "QueryFacet": {
+        "type": "object",
+        "description": "Facet field configuration with calculated values",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Display name of the facet"
+          },
+          "field": {
+            "type": "string",
+            "description": "Field used for faceting"
+          },
+          "is_selected": {
+            "type": "boolean",
+            "description": "Whether any value in this facet is selected"
+          },
+          "i18n": {
+            "type": "string",
+            "description": "i18n key for facet label"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total number of documents with values for this facet"
+          },
+          "missing_docs": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of documents missing values for this facet"
+          },
+          "other_docs": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Number of documents with other values"
+          },
+          "min": {
+            "type": "string",
+            "description": "Minimum value (for range facets)"
+          },
+          "max": {
+            "type": "string",
+            "description": "Maximum value (for range facets)"
+          },
+          "type": {
+            "type": "string",
+            "description": "Facet type"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FacetLink"
+            },
+            "description": "Facet value links"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "API key for authentication"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

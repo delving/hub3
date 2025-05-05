@@ -1,0 +1,230 @@
+# EDM Format Converters Configuration
+# This file contains field mappings for various converter formats
+
+[base]
+# Base shared field mappings used by all converters
+mappings = [
+  { source = "dc_title", target = "dc_title" },
+  { source = "dc_Title", target = "dc_Title" },
+  { source = "dc_creator", target = "dc_creator" },
+  { source = "dc_subject", target = "dc_subject" },
+  { source = "dc_description", target = "dc_description" },
+  { source = "dc_publisher", target = "dc_publisher" },
+  { source = "dc_contributor", target = "dc_contributor" },
+  { source = "dc_date", target = "dc_date" },
+  { source = "dc_type", target = "dc_type" },
+  { source = "dc_format", target = "dc_format" },
+  { source = "dc_identifier", target = "dc_identifier" },
+  { source = "dc_source", target = "dc_source" },
+  { source = "dc_language", target = "dc_language" },
+  { source = "dc_relation", target = "dc_relation" },
+  { source = "dc_coverage", target = "dc_coverage" },
+  { source = "dc_rights", target = "dc_rights" },
+  { source = "dcterms_created", target = "dcterms_created" },
+  { source = "dcterms_extent", target = "dcterms_extent" },
+  { source = "dcterms_hasFormat", target = "dcterms_hasFormat" },
+  { source = "dcterms_hasPart", target = "dcterms_hasPart" },
+  { source = "dcterms_hasVersion", target = "dcterms_hasVersion" },
+  { source = "dcterms_isFormatOf", target = "dcterms_isFormatOf" },
+  { source = "dcterms_isPartOf", target = "dcterms_isPartOf" },
+  { source = "dcterms_isReferencedBy", target = "dcterms_isReferencedBy" },
+  { source = "dcterms_isReplacedBy", target = "dcterms_isReplacedBy" },
+  { source = "dcterms_isRequiredBy", target = "dcterms_isRequiredBy" },
+  { source = "dcterms_isVersionOf", target = "dcterms_isVersionOf" },
+  { source = "dcterms_issued", target = "dcterms_issued" },
+  { source = "dcterms_medium", target = "dcterms_medium" },
+  { source = "dcterms_references", target = "dcterms_references" },
+  { source = "dcterms_replaces", target = "dcterms_replaces" },
+  { source = "dcterms_requires", target = "dcterms_requires" },
+  { source = "dcterms_tableOfContents", target = "dcterms_tableOfContents" },
+  { source = "dcterms_alternative", target = "dcterms_alternative" },
+  { source = "dcterms_spatial", target = "dcterms_spatial" },
+  { source = "dcterms_temporal", target = "dcterms_temporal" },
+  { source = "dcterms_provenance", target = "dcterms_provenance" },
+  { source = "dcterms_rightsHolder", target = "dcterms_rightsHolder" },
+  { source = "europeana_aggregatedCHO", target = "edm_aggregatedCHO" },
+  { source = "europeana_begin", target = "edm_begin" },
+  { source = "europeana_collectionName", target = "edm_collectionName" },
+  { source = "europeana_collectionTitle", target = "edm_collectionTitle" },
+  { source = "europeana_country", target = "edm_country" },
+  { source = "europeana_currentLocation", target = "edm_currentLocation" },
+  { source = "europeana_dataProvider", target = "edm_dataProvider" },
+  { source = "europeana_end", target = "edm_end" },
+  { source = "europeana_hasMet", target = "edm_hasMet" },
+  { source = "europeana_hasView", target = "edm_hasView" },
+  { source = "europeana_isRelatedTo", target = "edm_isRelatedTo" },
+  { source = "europeana_isRepresentationOf", target = "edm_isRepresentationOf" },
+  { source = "europeana_isShownAt", target = "edm_isShownAt" },
+  { source = "europeana_isShownBy", target = "edm_isShownBy" },
+  { source = "europeana_language", target = "edm_language" },
+  { source = "europeana_object", target = "edm_object" },
+  { source = "europeana_provider", target = "edm_provider" },
+  { source = "europeana_rights", target = "edm_rights" },
+  { source = "europeana_source", target = "edm_source" },
+  { source = "europeana_type", target = "edm_type" },
+  { source = "europeana_unstored", target = "edm_unstored" },
+  { source = "europeana_uri", target = "edm_uri" },
+]
+
+[delving]
+# Delving-specific field mappings
+mappings = [
+  { source = "delving_year", target = "delving_year" },
+  { source = "delving_thumbnail", target = "nave_thumbnail" },
+  { source = "delving_deepZoomUrl", target = "nave_deepZoomUrl" },
+  { source = "delving_fullTextObjectUrl", target = "nave_fullTextObjectUrl" },
+  { source = "delving_fullText", target = "nave_fullText" },
+  { source = "delving_geohash", target = "point" },
+]
+
+[converters.tib]
+key = "tib"
+namespace = "http://schemas.delving.eu/resource/ns/tib/"
+query_replacers = { "europeana_" = "edm_", "tib_" = "nave_" }
+mappings = [
+  { source = "tib_citName", target = "nave_citName" },
+  { source = "tib_citOldId", target = "nave_citOldId" },
+  { source = "tib_thumbLarge", target = "nave_thumbLarge" },
+  { source = "tib_thumbSmall", target = "nave_thumbSmall" },
+  { source = "tib_collection", target = "nave_collection" },
+  { source = "tib_creatorRole", target = "nave_creatorRole" },
+  { source = "tib_productionPeriod", target = "nave_productionPeriod" },
+  { source = "tib_productionStart", target = "nave_productionStart" },
+  { source = "tib_productionEnd", target = "nave_productionEnd" },
+  { source = "tib_creatorBirthYear", target = "nave_creatorBirthYear" },
+  { source = "tib_creatorDeathYear", target = "nave_creatorDeathYear" },
+  { source = "tib_formatted", target = "nave_formatted" },
+  { source = "tib_year", target = "nave_year" },
+  { source = "tib_dimension", target = "nave_dimension" },
+  { source = "tib_objectNumber", target = "nave_objectNumber" },
+  { source = "tib_objectSoort", target = "nave_objectSoort" },
+  { source = "tib_material", target = "nave_material" },
+  { source = "tib_place", target = "nave_place" },
+  { source = "tib_technique", target = "nave_technique" },
+  { source = "tib_color", target = "nave_color" },
+  { source = "tib_colorHex", target = "nave_colorHex" },
+  { source = "tib_design", target = "nave_design" },
+  { source = "tib_exhibition", target = "nave_exhibition" },
+  { source = "tib_subjectDepicted", target = "nave_subjectDepicted" },
+  { source = "tib_date", target = "nave_date" },
+  { source = "tib_collectionPart", target = "nave_collectionPart" },
+  { source = "tib_person", target = "nave_person" },
+  { source = "tib_region", target = "nave_region" },
+  { source = "tib_event", target = "nave_event" },
+  { source = "tib_theme", target = "nave_theme" },
+  { source = "tib_pageStart", target = "nave_pageStart" },
+  { source = "tib_pageEnd", target = "nave_pageEnd" },
+  { source = "tib_pages", target = "nave_pages" },
+  { source = "tib_vindplaats", target = "nave_vindplaats" },
+  { source = "tib_location", target = "nave_location" },
+  { source = "tib_imageCopyright", target = "nave_imageCopyright" },
+  { source = "tib_imageCreator", target = "nave_imageCreator" },
+]
+
+[converters.ese]
+key = "ese"
+namespace = "http://www.europeana.eu/schemas/ese/"
+mappings = []                                      # ESE doesn't need additional mappings beyond base
+query_replacers = { "europeana_" = "edm_" }
+
+[converters.edm]
+key = "edm"
+namespace = "http://www.europeana.eu/schemas/edm/"
+mappings = []                                      # EDM doesn't need additional mappings beyond base
+
+[converters.edm-strict]
+key = "edm-strict"
+namespace = "http://www.europeana.eu/schemas/edm/"
+mappings = []                                      # EDM Strict doesn't need additional mappings beyond base
+
+[converters.v2]
+key = "v2"
+namespace = ""
+mappings = []  # V2 doesn't need additional mappings
+
+
+[converters.icn]
+key = "icn"
+namespace = "http://www.icn.nl/schemas/icn/"
+query_replacers = { "europeana_" = "edm_", "icn_" = "nave_" }
+mappings = [
+  { source = "icn_acceptedStateCharges", target = "nave_acceptedStateCharges" },
+  { source = "icn_acceptedStateChargesReason", target = "nave_acceptedStateChargesReason" },
+  { source = "icn_acquiredWithHelpFrom", target = "nave_acquiredWithHelpFrom" },
+  { source = "icn_acquisitionMeans", target = "nave_acquisitionMeans" },
+  { source = "icn_acquisitionYear", target = "nave_acquisitionYear" },
+  { source = "icn_collectionPart", target = "nave_collectionPart" },
+  { source = "icn_collectionType", target = "nave_collectionType" },
+  { source = "icn_creatorRole", target = "nave_creatorRole" },
+  { source = "icn_creatorYearOfBirth", target = "nave_creatorYearOfBirth" },
+  { source = "icn_creatorYearOfDeath", target = "nave_creatorYearOfDeath" },
+  { source = "icn_currentLocation", target = "nave_currentLocation" },
+  { source = "icn_deepzoomURL", target = "nave_thumbLarge" },
+  { source = "icn_expulsionMeans", target = "nave_expulsionMeans" },
+  { source = "icn_expulsionYear", target = "nave_expulsionYear" },
+  { source = "icn_legalStatus", target = "nave_legalStatus" },
+  { source = "icn_location", target = "nave_location" },
+  { source = "icn_material", target = "nave_material" },
+  { source = "icn_musipCollectionDisplayName", target = "nave_musipCollectionDisplayName" },
+  { source = "icn_musipCollectionUri", target = "nave_musipCollectionUri" },
+  { source = "icn_musipMuseumDisplayName", target = "nave_musipMuseumDisplayName" },
+  { source = "icn_musipMuseumUri", target = "nave_musipMuseumUri" },
+  { source = "icn_physicalState", target = "nave_physicalState" },
+  { source = "icn_productionPeriod", target = "nave_productionPeriod" },
+  { source = "icn_productionPlace", target = "nave_productionPlace" },
+  { source = "icn_province", target = "nave_province" },
+  { source = "icn_purchasePrice", target = "nave_purchasePrice" },
+  { source = "icn_rijksCollection", target = "nave_rijksCollection" },
+  { source = "icn_subjectDepicted", target = "nave_subjectDepicted" },
+  { source = "icn_technique", target = "nave_technique" },
+  { source = "icn_thumbLarge", target = "nave_thumbLarge" },
+  { source = "icn_thumbSmall", target = "nave_thumbSmall" },
+  { source = "icn_dimension", target = "nave_dimension" },
+  { source = "icn_productionStart", target = "nave_productionStart" },
+  { source = "icn_productionEnd", target = "nave_productionEnd" },
+  { source = "icn_objectNumber", target = "nave_objectNumber" },
+  { source = "icn_objectSoort", target = "nave_objectSoort" },
+]
+
+[converters.abm]
+key = "abm"
+namespace = "http://purl.org/abm/sen"
+query_replacers = { "europeana_" = "edm_", "abm_" = "nave_" }
+mappings = [
+  { source = "abm_municipality", target = "nave_municipality" },
+  { source = "abm_municipalityNr", target = "nave_municipalityNr" },
+  { source = "abm_aboutPerson", target = "nave_aboutPerson" },
+  { source = "abm_county", target = "nave_county" },
+  { source = "abm_countyNr", target = "nave_countyNr" },
+  { source = "abm_country", target = "nave_country" },
+  { source = "abm_namedPlace", target = "nave_namedPlace" },
+  { source = "abm_estateName", target = "nave_estateName" },
+  { source = "abm_estateNr", target = "nave_estateNr" },
+  { source = "abm_propertyName", target = "nave_propertyName" },
+  { source = "abm_propertyNr", target = "nave_propertyNr" },
+  { source = "abm_contentProvider", target = "nave_contentProvider" },
+  { source = "abm_address", target = "nave_address" },
+  { source = "abm_digitised", target = "nave_digitised" },
+  { source = "abm_introduction", target = "nave_introduction" },
+  { source = "abm_classification", target = "nave_classification" },
+  { source = "abm_utm", target = "nave_utm" },
+  { source = "abm_polygon_utm", target = "nave_polygon_utm" },
+  { source = "abm_polygon_latLong", target = "nave_polygon_latLong" },
+  { source = "abm_latLong", target = "nave_latLong" },
+  { source = "abm_type", target = "nave_type" },
+  { source = "abm_collectionType", target = "nave_collectionType" },
+  { source = "abm_category", target = "nave_category" },
+  { source = "abm_creatorUri", target = "nave_creatorUri" },
+  { source = "abm_videoUri", target = "nave_videoUri" },
+  { source = "abm_soundUri", target = "nave_soundUri" },
+  { source = "abm_imageUri", target = "nave_imageUri" },
+  { source = "abm_textUri", target = "nave_textUri" },
+]
+
+[defaults]
+# Default values for documents
+record_type = "mdr"
+has_digital_object_field = "delving_hasDigitalObject"
+has_geo_hash_field = "delving_hasGeoHash"
+has_landing_page_field = "delving_hasLandingPage"
+file_path_prefix = "file:///opt"

@@ -63,6 +63,7 @@ enum ItemFormatType {
   JSONLD = 3;
   FLAT = 4;
   TREE = 5;
+  V1 = 6;
 }
 
 enum ResponseBlockType {
@@ -211,6 +212,8 @@ message SearchRequest {
   string facetExpand = 43;
   string facetCursor = 44;
   repeated string language = 45;
+  bool moreLikeThis = 46;
+  int32 moreLikeThisCount = 47;
 }
 
 enum GeoType {
@@ -298,6 +301,11 @@ message Facet {
   int32 missingDocs = 5;
   int32 otherDocs = 6;
   repeated FaceLink links = 7;
+  // Histogram-specific fields
+  string min = 8;
+  string max = 9;
+  string dateInterval = 10;
+  string field = 11;
 }
 
 message FaceLink {
@@ -306,6 +314,9 @@ message FaceLink {
   string value = 3;
   int32 count = 4;
   string displayString = 5;
+  // Histogram-specific fields for bucket metadata
+  string bucketKey = 6;
+  int64 bucketKeyAsNumber = 7;
 }
 
 // V1

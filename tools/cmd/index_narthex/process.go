@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -39,6 +40,126 @@ func processPath(path string) (string, string) {
 	}
 
 	return baseDir, prefix
+}
+
+// findProcessableDirectories discovers all subdirectories containing processed RDF files
+func findProcessableDirectories(parentPath string) ([]string, error) {
+	return findProcessableDirectoriesWithPattern(parentPath, "")
+}
+
+// findProcessableDirectoriesWithPattern discovers subdirectories with a custom or default pattern
+func findProcessableDirectoriesWithPattern(parentPath, customPattern string) ([]string, error) {
+	entries, err := os.ReadDir(parentPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read parent directory %s: %w", parentPath, err)
+	}
+
+	var directories []string
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+
+		dirPath := filepath.Join(parentPath, entry.Name())
+		
+		// Check if this directory contains processed RDF files using all patterns
+		_, err := findProcessedFileWithPattern(dirPath, customPattern)
+		if err != nil {
+			slog.Debug("no processed files found in directory", "dir", dirPath, "error", err)
+			continue
+		}
+
+		// If we found processed files, add this directory to the list
+		directories = append(directories, dirPath)
+	}
+
+	// Sort directories for consistent processing order
+	sort.Strings(directories)
+	
+	if len(directories) == 0 {
+		return nil, fmt.Errorf("no subdirectories with processed RDF files found in %s", parentPath)
+	}
+
+	return directories, nil
+}
+
+// findProcessedFile tries multiple patterns to find a processed RDF file in a directory
+func findProcessedFile(dirPath string) (string, error) {
+	return findProcessedFileWithPattern(dirPath, "")
+}
+
+// findProcessedFileWithPattern tries to find a processed RDF file using custom or default patterns
+func findProcessedFileWithPattern(dirPath, customPattern string) (string, error) {
+	var patterns []string
+	
+	if customPattern != "" {
+		// Use only the custom pattern if provided
+		patterns = []string{customPattern}
+	} else {
+		// Use default patterns - ordered from most specific to most general
+		patterns = []string{
+			"__processed_",           // Matches __processed_<model>.rdf.zst (your pattern)
+			"__processed.rdf",        // Original exact pattern
+			"_processed_",            // Alternative with single underscore
+			"processed_",             // Without leading underscores
+			".rdf",                   // Any .rdf file
+			"_processed.rdf", 
+			"processed.rdf",
+			"__processed.xml",
+			"_processed.xml",
+			"processed.xml",
+		}
+	}
+
+	var allErrors []string
+	for _, pattern := range patterns {
+		rdfPath, err := essync.FindLatestPath(dirPath, pattern)
+		if err != nil {
+			allErrors = append(allErrors, fmt.Sprintf("pattern '%s': %v", pattern, err))
+			continue
+		}
+		if rdfPath != "" {
+			slog.Debug("found processed file", "dir", dirPath, "file", rdfPath, "pattern", pattern)
+			return rdfPath, nil
+		}
+		allErrors = append(allErrors, fmt.Sprintf("pattern '%s': no matching files", pattern))
+	}
+
+	patternDesc := "default patterns"
+	if customPattern != "" {
+		patternDesc = fmt.Sprintf("custom pattern '%s'", customPattern)
+	}
+	
+	return "", fmt.Errorf("no processed files found in %s using %s. Details: %s", dirPath, patternDesc, strings.Join(allErrors, "; "))
+}
+
+// processSingleDirectory processes a single directory containing RDF files
+func processSingleDirectory(dirPath, targetIndex, customPattern string) (*NarthexStats, error) {
+	rdfXML, err := findProcessedFileWithPattern(dirPath, customPattern)
+	if err != nil {
+		return nil, err
+	}
+
+	slog.Info("processing directory", "dir", dirPath, "rdfFile", rdfXML)
+
+	r, err := openXMLReader(rdfXML)
+	if err != nil {
+		return nil, fmt.Errorf("unable to open processed mapping file: %w", err)
+	}
+	defer r.Close()
+
+	cfg := Config{IndexName: targetIndex}
+	cfg.OutputPath, cfg.DatePrefix = processPath(rdfXML)
+	if cfg.DatePrefix == "" {
+		return nil, fmt.Errorf("unable to extract date prefix from path (expected prefix before '__' in the filename)")
+	}
+
+	stats, err := ParseNarthex(r, cfg)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse narthex: %w", err)
+	}
+
+	return stats, nil
 }
 
 // openXMLReader opens either a plain XML file or a zst-compressed XML file
@@ -174,6 +295,9 @@ func ParseNarthex(r io.Reader, cfg Config) (*NarthexStats, error) {
 		return stats, err
 	}
 
+	// Print newline after progress updates to move to next line
+	fmt.Println()
+
 	if err := stats.writer.Close(); err != nil {
 		return nil, fmt.Errorf("unable to close stats writer; %w", err)
 	}
@@ -189,11 +313,11 @@ func scanRecords(scanner *bufio.Scanner, stats *NarthexStats, jobs chan<- record
 		if bytes.HasPrefix(b, linePrefix) {
 			atomic.AddInt64(&stats.Records, 1)
 			if atomic.LoadInt64(&stats.Records)%5000 == 0 {
-				slog.Info("progress update",
-					"records", atomic.LoadInt64(&stats.Records),
-					"lines", atomic.LoadInt64(&stats.Lines),
-					"converted", atomic.LoadInt64(&stats.Converted),
-					"errors", len(stats.Errors))
+				fmt.Printf("\rProgress: records=%d lines=%d converted=%d errors=%d", 
+					atomic.LoadInt64(&stats.Records),
+					atomic.LoadInt64(&stats.Lines),
+					atomic.LoadInt64(&stats.Converted),
+					len(stats.Errors))
 			}
 
 			hubID, _, err := extractID(b)

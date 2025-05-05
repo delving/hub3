@@ -21,6 +21,7 @@ import (
 	"fmt"
 	log "log"
 	"log/slog"
+	"maps"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -34,10 +35,12 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/hub3/index"
+	"github.com/delving/hub3/hub3/server/http/handlers/legacy"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/delving/hub3/ikuzo/search"
+	"github.com/delving/hub3/ikuzo/search/components"
 	"github.com/delving/hub3/ikuzo/service/x/bulk"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
@@ -52,6 +55,36 @@ type contextKey string
 
 const retryKey contextKey = "retry"
 
+// Assuming you have a request
+func manipulateV1Request(req *http.Request) error {
+	// Get the current query values
+	query := req.URL.Query()
+
+	query.Set("v1.mode", "true")
+	query.Set("itemFormat", "v1")
+
+	orgID := domain.GetOrganizationID(req)
+
+	conv, err := legacy.DefaultConverter("", orgID.String())
+	if err != nil {
+		return err
+	}
+
+	cfg := conv.Configuration()
+	if cfg != nil {
+		for _, facet := range cfg.DefaultFacets {
+			query.Add("facet.field", facet.Field)
+		}
+	}
+
+	// Update the request URL with modified query
+	queryStr := query.Encode()
+	queryStr = conv.ReplaceQueryString(queryStr, false)
+	queryStr = strings.ReplaceAll(queryStr, "_facet", "")
+	req.URL.RawQuery = queryStr
+	return nil
+}
+
 func RegisterSearch(router chi.Router) {
 	r := chi.NewRouter()
 
@@ -64,14 +97,17 @@ func RegisterSearch(router chi.Router) {
 	})
 
 	r.Get("/v1", func(w http.ResponseWriter, r *http.Request) {
-		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
-			StatusCode: http.StatusNotFound,
-		})
+		manipulateV1Request(r)
+		if r.URL.Query().Get("id") != "" {
+			getSearchRecord(w, r)
+			return
+		}
+
+		GetScrollResult(w, r)
 	})
 	r.Get("/v1/{id}", func(w http.ResponseWriter, r *http.Request) {
-		render.Error(w, r, fmt.Errorf("v1 not enabled"), &render.ErrorConfig{
-			StatusCode: http.StatusNotFound,
-		})
+		manipulateV1Request(r)
+		getSearchRecord(w, r)
 	})
 
 	router.Mount("/api/search", r)
@@ -84,6 +120,16 @@ func RegisterSearch(router chi.Router) {
 	})
 
 	router.Mount("/v2", v2)
+
+	v3 := chi.NewRouter()
+	v3.Use(middleware.Throttle(100))
+	v3.Get("/search", GetScrollResult)
+	v3.Get("/search/{id}", func(w http.ResponseWriter, r *http.Request) {
+		getSearchRecord(w, r)
+	})
+	v3.Mount("/", components.Routes())
+
+	router.Mount("/api/v3", v3)
 }
 
 func GetScrollResult(w http.ResponseWriter, r *http.Request) {
@@ -395,7 +441,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 	}
 
-	res, err = s.Do(r.Context())
+	start := time.Now()
+	
+	// Use parallel aggregations if beneficial, otherwise normal execution
+	res, err = searchRequest.ExecuteWithParallelAggregations(index.ESClient(), r.Context())
+	
+	// Measure elapsed time
+	elapsed := time.Since(start)
+	slog.Info("Search completed successfully", slog.Duration("elapsed", elapsed))
 	echoRequest := NewEchoSearchRequest(r, searchRequest, s, res)
 	if err != nil {
 		if echoRequest.HasEcho() {
@@ -656,6 +709,27 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			rec.Resources = nil
 			rec.ProtoBuf = nil
 		}
+
+	case fragments.ItemFormatType_V1:
+		for _, rec := range records {
+			rec.NewFields(nil)
+			rec.Resources = nil
+			rec.Item = &fragments.ItemV1{
+				DocID:   rec.Meta.HubID,
+				DocType: "void_edmrecord",
+				Fields:  map[string][]string{},
+			}
+			maps.Copy(rec.Item.Fields, rec.Fields)
+			conv, err := legacy.DefaultConverter(rec.Meta.EntryURI, rec.Meta.OrgID)
+			if err != nil {
+				render.Error(w, r, err, &render.DefaultConfig)
+				return
+			}
+			rec.Item.Fields = conv.Convert(rec.Item.Fields, true)
+			rec.Meta = nil
+			rec.Fields = nil
+		}
+
 	case fragments.ItemFormatType_TREE:
 		result.Pagination = nil
 		leafs := []*fragments.Tree{}
@@ -985,18 +1059,78 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		result.Facets = aggs
 	}
 
+	if searchRequest.V1Mode {
+		result.Pager = nil
+		conv, err := legacy.DefaultConverter("", orgID.String())
+		if err != nil {
+			render.Error(w, r, err, &render.DefaultConfig)
+			return
+		}
+
+		for _, bc := range result.Query.BreadCrumbs {
+			bc.Href = conv.ReplaceQueryString(bc.Href, true)
+			bc.Display = conv.ReplaceQueryString(bc.Display, true)
+		}
+
+		for _, facet := range result.Facets {
+			facet.Field = conv.ReplaceQueryString(facet.Field, true)
+			facet.Name = conv.ReplaceQueryString(facet.Name, true)
+
+			for _, link := range facet.Links {
+				link.URL = conv.ReplaceQueryString(link.URL, true)
+			}
+		}
+
+		wrapper := resultWrapper{Result: result}
+
+		jsonpCallback := r.URL.Query().Get("callback")
+		if jsonpCallback != "" && r.URL.Query().Get("format") == "jsonp" {
+			// Marshal the data to JSON
+			jsonData, err := json.Marshal(wrapper)
+			if err != nil {
+				render.Error(w, r, err, &render.DefaultConfig)
+				return
+			}
+
+			// Set the content type for JSONP
+			w.Header().Set("Content-Type", "application/javascript")
+
+			// Write the response with the callback wrapper
+			fmt.Fprintf(w, "%s(%s);", jsonpCallback, jsonData)
+			return
+		}
+
+		render.JSON(w, r, wrapper)
+		return
+
+	}
+
 	// currently only JSON is supported. Add switch when protobuf must be returned
 	render.JSON(w, r, result)
+}
+
+type resultWrapper struct {
+	Result *fragments.ScrollResultV4 `json:"result"`
+}
+
+type resultDetailWrapper struct {
+	Result *fragments.FragmentGraph `json:"result"`
 }
 
 func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, error) {
 	orgID := strings.Split(id, "_")[0]
 
+	indexName := c.Config.ElasticSearch.GetIndexName(orgID)
+
 	res, err := index.ESClient().Get().
-		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
+		Index(indexName).
 		Id(id).
 		Do(ctx)
 	if err != nil {
+		if elastic.IsNotFound(err) {
+			// Document exists in index but cannot be found with this ID
+			return nil, fmt.Errorf("document with ID %s not found in index %s", id, indexName)
+		}
 		return nil, err
 	}
 	if res == nil {
@@ -1013,20 +1147,85 @@ func GetSearchRecord(ctx context.Context, id string) (*fragments.FragmentGraph, 
 func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	// TODO(kiivihal): add more like this support to the query
 	id := chi.URLParam(r, "id")
+	if id == "" {
+		id = r.URL.Query().Get("id")
+	}
 	lang := r.URL.Query().Get("lang")
 
 	record, err := GetSearchRecord(r.Context(), id)
 	if err != nil {
-		fmt.Printf("Unable to decode RDFRecord: %#v", err)
+		slog.Warn("Unable to decode RDFRecord: %#v", "error", err, "id", id)
 		render.JSON(w, r, []string{})
 		render.Status(r, 404)
 		return
 	}
 
-	switch r.URL.Query().Get("itemFormat") {
+	itemFormat := r.URL.Query().Get("itemFormat")
+
+	if r.URL.Query().Get("v1.mode") == "true" {
+		itemFormat = "v1"
+	}
+
+	switch itemFormat {
 	case "flat":
 		record.NewFields(nil)
 		record.Resources = nil
+	case "v1":
+		record.NewFields(nil)
+		record.Resources = nil
+		record.Item = &fragments.ItemV1{
+			DocID:   record.Meta.HubID,
+			DocType: "void_edmrecord",
+			Fields:  map[string][]string{},
+		}
+		maps.Copy(record.Item.Fields, record.Fields)
+		conv, err := legacy.DefaultConverter(record.Meta.EntryURI, record.Meta.OrgID)
+		if err != nil {
+			render.Error(w, r, err, &render.DefaultConfig)
+			return
+		}
+		record.Item.Fields = conv.Convert(record.Item.Fields, true)
+		cfg := conv.Configuration()
+
+		var sb strings.Builder
+		for _, field := range cfg.MLT.Fields {
+			vals, ok := record.Item.Fields[field]
+			if !ok {
+				continue
+			}
+			for _, v := range vals {
+				sb.WriteString(v + " ")
+			}
+		}
+		likeText := sb.String()
+
+		recs, err := MoreLikeThisNestedSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, likeText, cfg.MLT.DefaultCount)
+		if err != nil {
+			render.Error(w, r, err, &render.DefaultConfig)
+			return
+		}
+
+		for _, rec := range recs {
+			fg, err := decodeFragmentGraph(rec)
+			if err != nil {
+				render.Error(w, r, err, &render.DefaultConfig)
+				return
+			}
+
+			fg.NewFields(nil)
+
+			item := &fragments.ItemV1{
+				DocID:   fg.Meta.HubID,
+				DocType: "void_edmrecord",
+				Fields:  map[string][]string{},
+			}
+			maps.Copy(item.Fields, fg.Fields)
+			item.Fields = conv.Convert(item.Fields, true)
+			record.MoreLikeThis = append(record.MoreLikeThis, item)
+		}
+
+		record.Meta = nil
+		record.Fields = nil
 	case "jsonld":
 		record.NewJSONLD()
 		record.Resources = nil
@@ -1059,6 +1258,26 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	//return
 	//}
 	//render.Data(w, r, output)
+	case "jsonp":
+		jsonpCallback := r.URL.Query().Get("callback")
+		if jsonpCallback == "" {
+			jsonpCallback = "callback"
+		}
+		wrapper := resultDetailWrapper{Result: record}
+		// Marshal the data to JSON
+		jsonData, err := json.Marshal(wrapper)
+		if err != nil {
+			render.Error(w, r, err, &render.DefaultConfig)
+			return
+		}
+
+		// Set the content type for JSONP
+		w.Header().Set("Content-Type", "application/javascript")
+
+		// Write the response with the callback wrapper
+		fmt.Fprintf(w, "%s(%s);", jsonpCallback, jsonData)
+		return
+
 	default:
 		render.JSON(w, r, record)
 	}

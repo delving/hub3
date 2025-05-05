@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -50,6 +51,8 @@ var (
 type processFlags struct {
 	path        string
 	targetIndex string
+	all         bool
+	pattern     string
 }
 
 type downloadFlags struct {
@@ -68,6 +71,7 @@ type detectFlags struct {
 	queryString   string
 	fnameFilter   string
 	statsInterval time.Duration
+	all           bool
 }
 
 type submitFlags struct {
@@ -76,7 +80,9 @@ type submitFlags struct {
 	workers       int
 	batchSize     int
 	statsInterval time.Duration
+	all           bool
 }
+
 
 var (
 	pFlags   processFlags
@@ -87,8 +93,10 @@ var (
 
 func init() {
 	// process command flags
-	processCmd.Flags().StringVar(&pFlags.path, "path", "", "directory that contains the narthex rdf-xml files")
+	processCmd.Flags().StringVar(&pFlags.path, "path", "", "directory that contains the narthex rdf-xml files (or parent directory when using --all)")
 	processCmd.Flags().StringVar(&pFlags.targetIndex, "index", "", "elasticsearch index to write to")
+	processCmd.Flags().BoolVar(&pFlags.all, "all", false, "process all subdirectories in the specified path")
+	processCmd.Flags().StringVar(&pFlags.pattern, "pattern", "", "custom pattern to search for (overrides default patterns)")
 	processCmd.MarkFlagRequired("path")
 	processCmd.MarkFlagRequired("index")
 
@@ -102,23 +110,25 @@ func init() {
 	downloadCmd.MarkFlagRequired("output")
 
 	// detect command flags
-	detectCmd.Flags().StringVarP(&detFlags.inputFile, "input", "i", "", "Input file path (required)")
-	detectCmd.Flags().StringVarP(&detFlags.outputFile, "output", "o", "", "Output file path (required)")
+	detectCmd.Flags().StringVarP(&detFlags.inputFile, "input", "i", "", "Input file path (or parent directory when using --all) (required)")
+	detectCmd.Flags().StringVarP(&detFlags.outputFile, "output", "o", "", "Output file path (base name when using --all) (required)")
 	detectCmd.Flags().StringVarP(&detFlags.esURL, "url", "u", "http://localhost:9200", "Elasticsearch URL")
 	detectCmd.Flags().StringVarP(&detFlags.indexName, "index", "n", "", "Index name (required)")
 	detectCmd.Flags().StringVarP(&detFlags.queryString, "query", "q", "", "Query JSON string")
 	detectCmd.Flags().StringVarP(&detFlags.fnameFilter, "fnameFilter", "", "", "Filter for lastest containing substring in input file path is a directory")
 	detectCmd.Flags().DurationVar(&detFlags.statsInterval, "stats-interval", 1*time.Second, "Statistics update interval")
+	detectCmd.Flags().BoolVar(&detFlags.all, "all", false, "detect changes for all subdirectories in the specified input path")
 	detectCmd.MarkFlagRequired("input")
 	detectCmd.MarkFlagRequired("output")
 	detectCmd.MarkFlagRequired("index")
 
 	// submit command flags
-	submitCmd.Flags().StringVarP(&subFlags.changesFile, "changes", "c", "", "Changes file path (required)")
+	submitCmd.Flags().StringVarP(&subFlags.changesFile, "changes", "c", "", "Changes file path (or parent directory when using --all) (required)")
 	submitCmd.Flags().StringVarP(&subFlags.esURL, "url", "u", "http://localhost:9200", "Elasticsearch URL")
 	submitCmd.Flags().IntVarP(&subFlags.workers, "workers", "w", 4, "Number of worker goroutines")
 	submitCmd.Flags().IntVar(&subFlags.batchSize, "batch-size", 1000, "Maximum batch size for bulk requests")
 	submitCmd.Flags().DurationVar(&subFlags.statsInterval, "stats-interval", 1*time.Second, "Statistics update interval")
+	submitCmd.Flags().BoolVar(&subFlags.all, "all", false, "submit all changes files found in subdirectories of the specified path")
 	submitCmd.MarkFlagRequired("changes")
 
 	// Add all commands to root
@@ -126,6 +136,25 @@ func init() {
 }
 
 func runDetect(cmd *cobra.Command, args []string) error {
+	if detFlags.all {
+		return runDetectAll()
+	}
+	return runDetectSingle()
+}
+
+func runDetectSingle() error {
+	return detectChangesForPath(detFlags.inputFile, detFlags.outputFile)
+}
+
+func runDetectAll() error {
+	directories, err := findProcessableDirectories(detFlags.inputFile)
+	if err != nil {
+		return err
+	}
+
+	slog.Info("found directories to detect changes", "count", len(directories), "parentPath", detFlags.inputFile)
+
+	// Create a shared Elasticsearch client to avoid expvar collision
 	cfg := elasticsearch.Config{
 		Urls: []string{detFlags.esURL},
 	}
@@ -134,14 +163,50 @@ func runDetect(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error creating ES client: %w", err)
 	}
 
+	successCount := 0
+	for i, dirPath := range directories {
+		dirName := filepath.Base(dirPath)
+		outputFile := generateOutputFileName(detFlags.outputFile, dirName)
+		
+		slog.Info("detecting changes for directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath, "output", outputFile)
+		
+		if err := detectChangesForPathWithClient(client, dirPath, outputFile); err != nil {
+			slog.Error("failed to detect changes for directory", "dir", dirPath, "error", err)
+			continue
+		}
+		
+		successCount++
+		slog.Info("completed change detection", "dir", dirPath, "output", outputFile)
+	}
+
+	slog.Info("finished detecting changes for all directories",
+		"successfulDirs", successCount,
+		"totalDirs", len(directories))
+
+	return nil
+}
+
+func detectChangesForPath(inputPath, outputPath string) error {
+	cfg := elasticsearch.Config{
+		Urls: []string{detFlags.esURL},
+	}
+	client, err := elasticsearch.NewClient(&cfg)
+	if err != nil {
+		return fmt.Errorf("error creating ES client: %w", err)
+	}
+
+	return detectChangesForPathWithClient(client, inputPath, outputPath)
+}
+
+func detectChangesForPathWithClient(client *elasticsearch.Client, inputPath, outputPath string) error {
 	// Setup reporters
 	logger := slog.Default()
 	reporter := stats.NewMultiReporter(
 		stats.NewSlogReporter(logger, detFlags.statsInterval),
-		// stats.NewConsoleReporter(5*time.Second),
+		stats.NewProgressReporter(detFlags.statsInterval),
 	)
 
-	detector, err := essync.NewChangeDetector(detFlags.outputFile, reporter)
+	detector, err := essync.NewChangeDetector(outputPath, reporter)
 	if err != nil {
 		return fmt.Errorf("error creating detector: %w", err)
 	}
@@ -161,43 +226,94 @@ func runDetect(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error loading existing docs: %w", err)
 	}
 
-	if err := detector.DetectChanges(detFlags.inputFile, opts); err != nil {
+	if err := detector.DetectChanges(inputPath, opts); err != nil {
 		return fmt.Errorf("error detecting changes: %w", err)
 	}
 
 	return nil
 }
 
+func generateOutputFileName(baseName, dirName string) string {
+	ext := filepath.Ext(baseName)
+	
+	// Generate timestamp in format YYYY-MM-DDTHHMISS
+	timestamp := time.Now().Format("2006-01-02T150405")
+	
+	// Use consistent naming: timestamp__index.jsonl.zst
+	if strings.HasSuffix(baseName, ".zst") {
+		return fmt.Sprintf("%s__%s__index.jsonl.zst", timestamp, dirName)
+	} else if strings.HasSuffix(baseName, ".jsonl") {
+		return fmt.Sprintf("%s__%s__index.jsonl", timestamp, dirName)
+	} else {
+		// Fallback to old naming if extension is unexpected
+		nameWithoutExt := strings.TrimSuffix(baseName, ext)
+		return fmt.Sprintf("%s_%s%s", nameWithoutExt, dirName, ext)
+	}
+}
+
 func runProcess(cmd *cobra.Command, args []string) error {
-	rdfXML, err := essync.FindLatestPath(pFlags.path, "__processed.rdf")
+	if pFlags.all {
+		return runProcessAll()
+	}
+	return runProcessSingle()
+}
+
+func runProcessSingle() error {
+	stats, err := processSingleDirectory(pFlags.path, pFlags.targetIndex, pFlags.pattern)
 	if err != nil {
-		return fmt.Errorf("unable to find processed file; %w", err)
+		return err
 	}
 
-	slog.Info("path to the processed rdf file", "resolvedPath", rdfXML, "sourcePath", pFlags.path)
-
-	if rdfXML == "" {
-		return fmt.Errorf("no '_processed.rdf' file found in %s", pFlags.path)
-	}
-
-	r, err := openXMLReader(rdfXML)
-	if err != nil {
-		return fmt.Errorf("unable to open processed mapping file: %w", err)
-	}
-	defer r.Close()
-	cfg := Config{IndexName: pFlags.targetIndex}
-	cfg.OutputPath, cfg.DatePrefix = processPath(rdfXML)
-	if cfg.DatePrefix == "" {
-		return fmt.Errorf("unable to extract date prefix from path (expected prefix before '__' in the filename)")
-	}
-	stats, err := ParseNarthex(r, cfg)
-	if err != nil {
-		return fmt.Errorf("unable to parse narthex: %w", err)
-	}
 	slog.Info("finished processing narthex file",
 		"records", stats.Records,
 		"lines", stats.Lines,
 		"converted", stats.Converted)
+	return nil
+}
+
+func runProcessAll() error {
+	directories, err := findProcessableDirectoriesWithPattern(pFlags.path, pFlags.pattern)
+	if err != nil {
+		return err
+	}
+
+	slog.Info("found directories to process", "count", len(directories), "parentPath", pFlags.path)
+
+	var totalStats NarthexStats
+	var processedCount int
+
+	for i, dirPath := range directories {
+		slog.Info("processing directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath)
+		
+		stats, err := processSingleDirectory(dirPath, pFlags.targetIndex, pFlags.pattern)
+		if err != nil {
+			slog.Error("failed to process directory", "dir", dirPath, "error", err)
+			continue
+		}
+
+		// Aggregate statistics
+		totalStats.Records += stats.Records
+		totalStats.Lines += stats.Lines
+		totalStats.Converted += stats.Converted
+		totalStats.Errors = append(totalStats.Errors, stats.Errors...)
+		processedCount++
+
+		slog.Info("completed directory", 
+			"dir", dirPath,
+			"records", stats.Records,
+			"lines", stats.Lines,
+			"converted", stats.Converted,
+			"errors", len(stats.Errors))
+	}
+
+	slog.Info("finished processing all directories",
+		"processedDirs", processedCount,
+		"totalDirs", len(directories),
+		"totalRecords", totalStats.Records,
+		"totalLines", totalStats.Lines,
+		"totalConverted", totalStats.Converted,
+		"totalErrors", len(totalStats.Errors))
+
 	return nil
 }
 
@@ -213,6 +329,25 @@ func runDownload(cmd *cobra.Command, args []string) error {
 }
 
 func runSubmit(cmd *cobra.Command, args []string) error {
+	if subFlags.all {
+		return runSubmitAll()
+	}
+	return runSubmitSingle()
+}
+
+func runSubmitSingle() error {
+	return submitChangesFile(subFlags.changesFile)
+}
+
+func runSubmitAll() error {
+	changesFiles, err := findChangesFiles(subFlags.changesFile)
+	if err != nil {
+		return err
+	}
+
+	slog.Info("found changes files to submit", "count", len(changesFiles), "parentPath", subFlags.changesFile)
+
+	// Create a shared Elasticsearch client to avoid expvar collision
 	cfg := elasticsearch.Config{
 		Urls: []string{subFlags.esURL},
 	}
@@ -221,14 +356,55 @@ func runSubmit(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error creating ES client: %w", err)
 	}
 
+	successCount := 0
+	for i, changesFile := range changesFiles {
+		// Print progress on a single line
+		fmt.Printf("\rSubmitting changes files: %d/%d | Current: %s", i+1, len(changesFiles), filepath.Base(changesFile))
+		
+		if err := submitChangesFileWithClientAndReporter(client, changesFile, false); err != nil {
+			fmt.Printf("\n") // Move to new line for error
+			slog.Error("failed to submit changes file", "file", changesFile, "error", err)
+			continue
+		}
+		
+		successCount++
+	}
+	
+	// Move to new line and print final result
+	fmt.Printf("\n")
+
+	slog.Info("finished submitting all changes files",
+		"successfulFiles", successCount,
+		"totalFiles", len(changesFiles))
+
+	return nil
+}
+
+func submitChangesFile(changesFilePath string) error {
+	cfg := elasticsearch.Config{
+		Urls: []string{subFlags.esURL},
+	}
+	client, err := elasticsearch.NewClient(&cfg)
+	if err != nil {
+		return fmt.Errorf("error creating ES client: %w", err)
+	}
+
+	return submitChangesFileWithClient(client, changesFilePath)
+}
+
+func submitChangesFileWithClient(client *elasticsearch.Client, changesFilePath string) error {
+	return submitChangesFileWithClientAndReporter(client, changesFilePath, true)
+}
+
+func submitChangesFileWithClientAndReporter(client *elasticsearch.Client, changesFilePath string, useSlogReporter bool) error {
 	var reader io.ReadCloser
-	file, err := os.Open(subFlags.changesFile)
+	file, err := os.Open(changesFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
 	}
 	defer file.Close()
 
-	if strings.HasSuffix(subFlags.changesFile, ".zst") {
+	if strings.HasSuffix(changesFilePath, ".zst") {
 		decoder, err := zstd.NewReader(file)
 		if err != nil {
 			return fmt.Errorf("failed to create zstd decoder: %w", err)
@@ -239,11 +415,17 @@ func runSubmit(cmd *cobra.Command, args []string) error {
 		reader = file
 	}
 
-	// Create multiple reporters
-	reporters := stats.NewMultiReporter(
-		stats.NewSlogReporter(slog.Default(), subFlags.statsInterval),
-		// essync.NewConsoleReporter(subFlags.statsInterval),
-	)
+	// Create reporters based on context
+	var reporters stats.Reporter
+	if useSlogReporter {
+		reporters = stats.NewMultiReporter(
+			stats.NewSlogReporter(slog.Default(), subFlags.statsInterval),
+			stats.NewProgressReporter(subFlags.statsInterval),
+		)
+	} else {
+		// When processing multiple files, only use ProgressReporter to avoid interfering with batch progress
+		reporters = stats.NewProgressReporter(subFlags.statsInterval)
+	}
 
 	processor := essync.NewBulkProcessor(essync.Config{
 		NumWorkers:    subFlags.workers,
@@ -259,6 +441,93 @@ func runSubmit(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+// isIndexOrChangesFile checks if a filename matches index or changes file patterns
+func isIndexOrChangesFile(fileName string) bool {
+	// Check for timestamp__index pattern (e.g., 2025-05-21T232728__index.jsonl.zst)
+	if strings.Contains(fileName, "__index") && (strings.HasSuffix(fileName, ".jsonl") || strings.HasSuffix(fileName, ".jsonl.zst") || strings.HasSuffix(fileName, ".zst")) {
+		return true
+	}
+	// Check for legacy changes pattern
+	if strings.Contains(fileName, "changes") && (strings.HasSuffix(fileName, ".jsonl") || strings.HasSuffix(fileName, ".jsonl.zst") || strings.HasSuffix(fileName, ".zst")) {
+		return true
+	}
+	return false
+}
+
+// findLatestIndexFile finds the most recent index file in a directory based on timestamp
+func findLatestIndexFile(dirPath string) string {
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		slog.Debug("error reading directory for latest index file", "dir", dirPath, "error", err)
+		return ""
+	}
+
+	var latestFile string
+	var latestTime string
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		
+		fileName := entry.Name()
+		if !isIndexOrChangesFile(fileName) {
+			continue
+		}
+
+		// Extract timestamp from filename (format: YYYY-MM-DDTHHMISS__)
+		if strings.Contains(fileName, "__index") {
+			parts := strings.Split(fileName, "__")
+			if len(parts) >= 2 {
+				timestamp := parts[0]
+				// Compare timestamps lexicographically (works for ISO format)
+				if timestamp > latestTime {
+					latestTime = timestamp
+					latestFile = filepath.Join(dirPath, fileName)
+				}
+			}
+		} else {
+			// For legacy changes files, just take the first one found
+			if latestFile == "" {
+				latestFile = filepath.Join(dirPath, fileName)
+			}
+		}
+	}
+
+	return latestFile
+}
+
+func findChangesFiles(parentPath string) ([]string, error) {
+	entries, err := os.ReadDir(parentPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read parent directory %s: %w", parentPath, err)
+	}
+
+	var changesFiles []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			// Look for index/changes files in subdirectories and find the latest one
+			subDirPath := filepath.Join(parentPath, entry.Name())
+			latestFile := findLatestIndexFile(subDirPath)
+			if latestFile != "" {
+				changesFiles = append(changesFiles, latestFile)
+			}
+		} else {
+			// Look for index/changes files directly in the parent directory
+			fileName := entry.Name()
+			if isIndexOrChangesFile(fileName) {
+				changesFiles = append(changesFiles, filepath.Join(parentPath, fileName))
+			}
+		}
+	}
+
+	if len(changesFiles) == 0 {
+		return nil, fmt.Errorf("no index or changes files found in %s (looking for patterns like YYYY-MM-DDTHHMISS__index.jsonl.zst or *changes*.jsonl/.zst)", parentPath)
+	}
+
+	return changesFiles, nil
 }
 
 func main() {

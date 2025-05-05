@@ -26,16 +26,37 @@ fallbackNaan = { "15052" = "https://data.brabantcloud.nl/k3/query/" }
 ids = [
   # "brabantcloud",
   "brabantcloud",
-  "utralt",
-  "nl-hana",
-  "datahub",
+  # "utralt",
+  # "nl-hana",
+  # "datahub",
 ]
 
 
 ### ^^^^^^ new config ^^^^^^ ###
 [org.brabantcloud]
-domains = ["localhost:3000", "localhost:3002", "hub3.brabantcloud:3000"]
+domains = ["localhost:3000", "localhost:3002", "hub3.brabantcloud:3002"]
 default = true
+
+[org.brabantcloud.v1]
+convertor.type = "tib"
+convertor.path = "./convertors.toml"
+defaultFacets = [
+  { field = "nave_collection", name = "Collection", max_size = 350 },
+  { field = "nave_collectionPart", name = "CollectionPart", max_size = 0 },
+  { field = "nave_objectSoort", name = "Category", max_size = 0 },
+  { field = "dc_creator", name = "Creator", max_size = 0 },
+  { field = "nave_date", name = "Date", max_size = 0 },
+  { field = "nave_place", name = "Place", max_size = 0 },
+  { field = "dc_subject", name = "Subject", max_size = 0 },
+  { field = "nave_material", name = "Material", max_size = 0 },
+  { field = "nave_technique", name = "Technique", max_size = 0 },
+  { field = "nave_color", name = "Kleur", max_size = 0 },
+  { field = "nave_subjectDepicted", name = "Subject Depicted", max_size = 0 },
+  { field = "nave_person", name = "Person", max_size = 0 },
+  { field = "dc_type", name = "Object type", max_size = 0 },
+]
+mlt.fields = ["dc_subject", "dc_title", "dc_description", "edm_dataProvider"]
+mlt.defaultCount = 4
 
 [[org.brabantcloud.sitemaps]]
 id = "all"
@@ -48,6 +69,8 @@ adminEmails = ["info@delving.eu"]
 repositoryName = "brabantcloud OAI-PMH repository"
 
 [org.brabantcloud.elasticsearch]
+# skipUpdateMappings = false
+# urls = ["https://hub3.seisan.delving.io"]
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v2"]
 # configuration for MimimumShouldMatch
@@ -70,35 +93,35 @@ default = true
 ###################################
 #    datahub                          #
 ###################################
-[org.datahub]
-domains = ["hub3.datahub:3000", "hub3.datahub:3001"]
-
-[org.datahub.elasticsearch]
-# indexTypes enabled types for the bulk index service
-indexTypes = ["v2"]
-# configuration for MimimumShouldMatch
-minimumShouldMatch = "2<70%"
-shards = 3
-replicas = 2
-# the name of the index. If empty it is the name of the OrgId
-# indexName = "brabantcloud"
-# if non-empty digital objects will be indexed in a dedicated v2 index
-# digitalObjectSuffix = "scans"
-
-[org.datahub.sparql]
-enabled = true
-# the fully qualified URL including the port
-sparqlHost = "http://localhost:3033"
-# the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
-sparqlPath = "/%s/sparql"
-# sparqlUpdate path is the path to the write endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
-sparqlUpdatePath = "/%s/update"
-# dataPath is the path to the GraphStore Protocol endpoint
-dataPath = "/%s/data"
-# Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
-storeRecords = false
-userName = ""
-password = ""
+# [org.datahub]
+# domains = ["hub3.datahub:3000", "hub3.datahub:3001"]
+#
+# [org.datahub.elasticsearch]
+# # indexTypes enabled types for the bulk index service
+# indexTypes = ["v2"]
+# # configuration for MimimumShouldMatch
+# minimumShouldMatch = "2<70%"
+# shards = 3
+# replicas = 2
+# # the name of the index. If empty it is the name of the OrgId
+# # indexName = "brabantcloud"
+# # if non-empty digital objects will be indexed in a dedicated v2 index
+# # digitalObjectSuffix = "scans"
+#
+# [org.datahub.sparql]
+# enabled = true
+# # the fully qualified URL including the port
+# sparqlHost = "http://localhost:3033"
+# # the path to the SPARQL endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+# sparqlPath = "/%s/sparql"
+# # sparqlUpdate path is the path to the write endpoint. A '%s' can be inserted in the path to be replaced with the orgId.
+# sparqlUpdatePath = "/%s/update"
+# # dataPath is the path to the GraphStore Protocol endpoint
+# dataPath = "/%s/data"
+# # Enable storing of the RDF records in the triple store specified in sparqlUpdatePath (default: false)
+# storeRecords = false
+# userName = ""
+# password = ""
 
 [http]
 # all the configuration for the http sub-command
@@ -119,14 +142,14 @@ subjectID = "hub3-bulk-index"
 url = "nats://localhost:4222"
 
 [ElasticSearch]
+# the urls where we can find elasticsearch
+urls = ["http://localhost:9200"]
 # enable the elasticsearch search api
 enabled = true
 # don't run internal bulk indexer. Remote process reads the index queue
 useRemoteIndexer = false
 # collect client metrics
 metrics = true
-# the urls where we can find elasticsearch
-urls = ["http://localhost:9200"]
 # the name of the index. If empty it is the name of the OrgId
 indexName = "hub3"
 # if non-empty digital objects will be indexed in a dedicated v2 index
@@ -138,7 +161,7 @@ fragments = false
 # index in V1 mode (will disable fragments and v2 style indexing)
 indexV1 = false
 # Enable trace logging of ElasticSearch 
-enableTrace = false
+enableTrace = true
 # Enable info logging of ElasticSearch
 enableInfo = true
 # key to use for searching and deleting spec (spec.raw for v5 style index)

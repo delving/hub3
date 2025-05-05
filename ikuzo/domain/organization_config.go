@@ -14,6 +14,24 @@ type OrgConfigRetriever interface {
 	Configs(ctx context.Context) (cfgs []OrganizationConfig, err error)
 }
 
+type FacetConfig struct {
+	Field   string
+	Name    string
+	MaxSize int
+}
+
+type V1Config struct {
+	MLT struct {
+		Fields       []string `json:"fields"`
+		DefaultCount int      `json:"defaultCount"`
+	} `json:"mlt"`
+	DefaultFacets []FacetConfig `json:"default_facets"`
+	Convertor     struct {
+		Path string `json:"path"`
+		Type string `json:"type"`
+	} `json:"convertor"`
+}
+
 type ArchesConfig struct {
 	Enabled           bool   `json:"enabled,omitempty"`
 	SyncEnabled       bool   `json:"syncEnabled,omitempty"`
@@ -87,7 +105,7 @@ type OrganizationConfig struct {
 		RepositoryID  string   `json:"repositoryID,omitempty"`
 		SyncDataTypes []string `json:"syncDataTypes,omitempty"`
 		SyncEnabled   bool     `json:"syncEnabled,omitempty"`
-	} `json:"archivesspace,omitempty"`
+	} `json:"archivesSpace,omitempty"`
 	Sitemaps []SitemapConfig `json:"sitemaps,omitempty"`
 	Config   struct {
 		Identifiers struct {
@@ -104,6 +122,7 @@ type OrganizationConfig struct {
 		Services      []string `json:"services"`
 	} `json:"config"`
 	ElasticSearch struct {
+		SkipUpdateMappings bool `json:"skipUpdateMappings"`
 		// base of the index aliases
 		IndexName string `json:"indexName,omitempty"`
 		// if non-empty digital objects will be indexed in a dedicated v2 index
@@ -142,15 +161,16 @@ type OrganizationConfig struct {
 		MintOrgIDURL   string `json:"mintOrgIDURL"`
 	} `json:"rdf,omitempty"`
 	SPARQL struct {
-		Enabled        bool   `json:"enabled"`    // Enable the SPARQL proxy
-		Host           string `json:"host"`       // the base-url to the SPARQL endpoint including the scheme and the port
-		QueryPath      string `json:"queryPath"`  // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-		UpdatePath     string `json:"updatePath"` // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
-		GraphStorePath string `json:"dataPath"`   // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+		Enabled        bool   `json:"enabled"`        // Enable the SPARQL proxy
+		Host           string `json:"host"`           // the base-url to the SPARQL endpoint including the scheme and the port
+		QueryPath      string `json:"queryPath"`      // the relative path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+		UpdatePath     string `json:"updatePath"`     // the relative path of the update endpoint. This can should contain the database name that is injected when the sparql endpoint is build
+		GraphStorePath string `json:"graphStorePath"` // the relative GraphStore path of the endpoint. This can should contain the database name that is injected when the sparql endpoint is build
 		UserName       string `json:"userName"`
 		Password       string `json:"password"`
 	} `json:"sparql,omitempty"`
 	Namespaces []Namespace `json:"namespaces"`
+	V1         V1Config    `json:"v1"`
 }
 
 func (cfg *OrganizationConfig) OrgID() string {

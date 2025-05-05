@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 
 	"github.com/olivere/elastic/v7"
 
@@ -72,7 +73,7 @@ func (o *OAIPMHStore) ListSets(ctx context.Context, q *oaipmh.RequestConfig) (re
 		res.Sets = append(res.Sets, oaipmh.Set{
 			SetSpec: specLabel,
 			SetDescription: oaipmh.Description{
-				Body: []byte(fmt.Sprintf("<totalRecords>%d</totalRecords>", int(spec.DocCount))),
+				Body: fmt.Appendf(nil, "<totalRecords>%d</totalRecords>", int(spec.DocCount)),
 			},
 		})
 	}
@@ -142,20 +143,18 @@ func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, h
 	}
 
 	if q.CurrentRequest.HarvestID == "" {
-		openResp, openErr := o.c.search.OpenPointInTime(IndexNames{}.GetIndexName(q.OrgID)).
-			KeepAlive("1m").
-			Pretty(true).
-			Do(context.Background())
+		pitID, openErr := o.c.pit.CreatePIT(ctx, IndexNames{}.GetIndexName(q.OrgID), "1m")
 		if openErr != nil {
-			return resp, openErr
+			slog.Error("error opening point in time API", "error", openErr)
+			return resp, fmt.Errorf("open point in time error; %w", openErr)
 		}
 
-		q.StoreCursor = openResp.Id
+		q.StoreCursor = pitID
 	}
 
 	search := o.c.search.Search().
 		PointInTime(elastic.NewPointInTimeWithKeepAlive(q.StoreCursor, "1m")).
-		Sort("_shard_doc", true).
+		Sort("_id", true).
 		Size(o.ResponseSize).
 		Query(query)
 
@@ -179,7 +178,8 @@ func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, h
 	res, err := search.Do(ctx)
 	if err != nil {
 		o.c.log.Error().Err(err).Msg("unable to get record")
-		return resp, err
+		slog.Error("raw result", "resp", res, "query", q)
+		return resp, fmt.Errorf("error during search; %w", err)
 	}
 
 	if !q.IsResumedRequest() {
@@ -204,7 +204,7 @@ func (o *OAIPMHStore) getRecords(ctx context.Context, q *oaipmh.RequestConfig, h
 		resp.pitPayload = nextSearchAfter
 	}
 
-	return resp, err
+	return resp, nil
 }
 
 func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.RequestConfig) (res oaipmh.Resumable, err error) {
@@ -230,9 +230,13 @@ func (o *OAIPMHStore) ListIdentifiers(ctx context.Context, q *oaipmh.RequestConf
 
 func (o *OAIPMHStore) ListRecords(ctx context.Context, q *oaipmh.RequestConfig) (res oaipmh.Resumable, err error) {
 	resp, err := o.getRecords(ctx, q, false)
+	if err != nil {
+		slog.Error("unable to get records", "error", err, "config", q)
+		return res, fmt.Errorf("es store ListRecords error; %w", err)
+	}
 
 	for _, raw := range resp.records {
-		rec, getErr := o.getOAIPMHRecord(raw, q.FirstRequest.MetadataPrefix, true)
+		rec, getErr := o.getOAIPMHRecord(raw, q.FirstRequest.MetadataPrefix, false)
 		if getErr != nil {
 			return res, getErr
 		}
@@ -294,15 +298,27 @@ func (o *OAIPMHStore) serialize(format string, fg *fragments.FragmentGraph, w io
 		fmt.Fprintln(w, "]]>")
 
 		return nil
-	case "rdfxml", "oai_dc":
+	case "rdfxml", "oai_dc", "edm":
+		slog.Info("record graph", "len", g.Len(), "uri", fg.Meta.GetEntryURI())
+
+		err = mappingxml.Serialize(g, w, nil)
+		if err != nil {
+			o.c.log.Error().Err(err).Msg("unable to get serialize mappingxml")
+			return err
+		}
+
+		return nil
+	case "edm-strict":
 		iri, err := rdf.NewIRI(fg.Meta.GetEntryURI())
 		if err != nil {
 			return err
 		}
 
 		cfg := &mappingxml.FilterConfig{
-			Subject:         iri,
-			URIPrefixFilter: "urn:private",
+			Subject:             iri,
+			URIPrefixFilter:     "urn:private",
+			ExcludePrefixes:     []string{"http://schemas.delving.eu/nave/terms/"},
+			ExcludeTypePrefixes: []string{"http://schemas.delving.eu/nave/terms/"},
 		}
 
 		err = mappingxml.Serialize(g, w, cfg)
@@ -342,11 +358,6 @@ func (o *OAIPMHStore) getOAIPMHRecord(wrapper recordWrapper, format string, only
 
 func (o *OAIPMHStore) ListMetadataFormats(ctx context.Context, q *oaipmh.RequestConfig) (formats []oaipmh.MetadataFormat, err error) {
 	formats = []oaipmh.MetadataFormat{
-		// {
-		// MetadataPrefix:    "ntriples",
-		// Schema:            "",
-		// MetadataNamespace: "http://www.europeana.eu/schemas/edm/",
-		// },
 		{
 			MetadataPrefix:    "rdfxml",
 			Schema:            "",
@@ -356,6 +367,16 @@ func (o *OAIPMHStore) ListMetadataFormats(ctx context.Context, q *oaipmh.Request
 			MetadataPrefix:    "oai_dc",
 			Schema:            "http://www.openarchives.org/OAI/2.0/oai_dc.xsd",
 			MetadataNamespace: "http://www.openarchives.org/OAI/2.0/oai_dc/",
+		},
+		{
+			MetadataPrefix:    "edm",
+			Schema:            "",
+			MetadataNamespace: "http://www.europeana.eu/schemas/edm/",
+		},
+		{
+			MetadataPrefix:    "edm-strict",
+			Schema:            "",
+			MetadataNamespace: "http://www.europeana.eu/schemas/edm/",
 		},
 	}
 
