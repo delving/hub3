@@ -5,9 +5,7 @@ import (
 	"fmt"
 )
 
-var (
-	ErrInvalidPage = errors.New("invalid page range requested")
-)
+var ErrInvalidPage = errors.New("invalid page range requested")
 
 type Paginator struct {
 	Start              int        `json:"start"` //  start is 1 based
@@ -29,9 +27,9 @@ type Paginator struct {
 }
 
 type PageLink struct {
-	Start      int
-	IsLinked   bool
-	PageNumber int
+	Start      int  `json:"start"`
+	IsLinked   bool `json:"isLinked"`
+	PageNumber int  `json:"pageNumber"`
 }
 
 // NewPaginator creates a Paginator without PageLinks.

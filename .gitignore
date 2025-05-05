@@ -75,3 +75,6 @@ tools/cmd/index_narthex/*.sh
 
 # data for tests
 data
+
+# deployment scripts
+deploy

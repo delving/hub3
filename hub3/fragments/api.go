@@ -72,9 +72,10 @@ func logConvErr(p string, v []string, err error) {
 func DefaultSearchRequest(cfg *c.RawConfig) *SearchRequest {
 	id := ksuid.New()
 	sr := &SearchRequest{
-		ResponseSize: responseSize,
-		SessionID:    id.String(),
-		OrgIDKey:     cfg.ElasticSearch.OrgIDKey,
+		ResponseSize:      responseSize,
+		SessionID:         id.String(),
+		OrgIDKey:          cfg.ElasticSearch.OrgIDKey,
+		MoreLikeThisCount: 4,
 	}
 
 	return sr
@@ -350,6 +351,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_FLAT
 			case "tree":
 				sr.ItemFormat = ItemFormatType_TREE
+			case "v1":
+				sr.ItemFormat = ItemFormatType_V1
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
@@ -511,6 +514,15 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			sr.SearchAfter = sb
+		case "mlt":
+			sr.MoreLikeThis = strings.EqualFold(params.Get(p), "true")
+		case "mlt.count":
+			count, err := strconv.ParseInt(params.Get(p), 10, 32)
+			if err != nil {
+				logConvErr(p, v, err)
+				return sr, err
+			}
+			sr.MoreLikeThisCount = int32(count)
 		}
 	}
 

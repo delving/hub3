@@ -4,6 +4,7 @@ go 1.24.1
 
 require (
 	code.gitea.io/gitea v1.17.1
+	github.com/BurntSushi/toml v1.5.0
 	github.com/OneOfOne/xxhash v1.2.8
 	github.com/a-h/templ v0.3.833
 	github.com/allegro/bigcache v1.2.1

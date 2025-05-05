@@ -90,7 +90,7 @@ func (et ErrorType) Error() error {
 		return ErrAliasNotFound
 	}
 
-	return fmt.Errorf("unknown error type: %s", et.Type)
+	return fmt.Errorf("unknown error type: %q", et.Type)
 }
 
 func read(r io.Reader) string {

@@ -63,6 +63,7 @@ enum ItemFormatType {
   JSONLD = 3;
   FLAT = 4;
   TREE = 5;
+  V1 = 6;
 }
 
 enum ResponseBlockType {
@@ -211,6 +212,8 @@ message SearchRequest {
   string facetExpand = 43;
   string facetCursor = 44;
   repeated string language = 45;
+  bool moreLikeThis = 46;
+  int32 moreLikeThisCount = 47;
 }
 
 enum GeoType {

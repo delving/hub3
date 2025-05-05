@@ -462,17 +462,18 @@ type ProtoBuf struct {
 
 // ScrollResultV4 intermediate non-protobuf search results
 type ScrollResultV4 struct {
-	Pager      *ScrollPager       `json:"pager"`
-	Peek       map[string]int64   `json:"peek,omitempty"`
-	Pagination *search.Paginator  `json:"pagination,omitempty"`
-	Query      *Query             `json:"query"`
-	Items      []*FragmentGraph   `json:"items,omitempty"`
-	Collapsed  []*Collapsed       `json:"collapse,omitempty"`
-	Facets     []*QueryFacet      `json:"facets,omitempty"`
-	TreeHeader *TreeHeader        `json:"treeHeader,omitempty"`
-	Tree       []*Tree            `json:"tree,omitempty"`
-	TreePage   map[string][]*Tree `json:"treePage,omitempty"`
-	ProtoBuf   *ProtoBuf          `json:"-"`
+	Pager        *ScrollPager       `json:"pager,omitempty"`
+	Peek         map[string]int64   `json:"peek,omitempty"`
+	Query        *Query             `json:"query"`
+	Pagination   *search.Paginator  `json:"pagination,omitempty"`
+	Items        []*FragmentGraph   `json:"items,omitempty"`
+	Collapsed    []*Collapsed       `json:"collapsed,omitempty"`
+	Facets       []*QueryFacet      `json:"facets,omitempty"`
+	TreeHeader   *TreeHeader        `json:"treeHeader,omitempty"`
+	Tree         []*Tree            `json:"tree,omitempty"`
+	TreePage     map[string][]*Tree `json:"treePage,omitempty"`
+	ProtoBuf     *ProtoBuf          `json:"protoBuf,omitempty"`
+	RelatedItems []*ItemV1          `json:"relatedItems,omitempty"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.

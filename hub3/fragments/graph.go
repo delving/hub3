@@ -12,14 +12,23 @@ import (
 
 // FragmentGraph is a container for all entries of an RDF Named Graph
 type FragmentGraph struct {
-	Meta       *Header                   `json:"meta,omitempty"`
-	Tree       *Tree                     `json:"tree,omitempty"`
-	Resources  []*FragmentResource       `json:"resources,omitempty"`
-	Summary    *ResultSummary            `json:"summary,omitempty"`
-	JSONLD     []map[string]interface{}  `json:"jsonld,omitempty"`
-	Fields     map[string][]string       `json:"fields,omitempty"`
-	Highlights []*ResourceEntryHighlight `json:"highlights,omitempty"`
-	ProtoBuf   *ProtoBuf                 `json:"protobuf,omitempty"`
+	Meta         *Header                   `json:"meta,omitempty"`
+	Tree         *Tree                     `json:"tree,omitempty"`
+	Resources    []*FragmentResource       `json:"resources,omitempty"`
+	Summary      *ResultSummary            `json:"summary,omitempty"`
+	JSONLD       []map[string]interface{}  `json:"jsonld,omitempty"`
+	Fields       map[string][]string       `json:"fields,omitempty"`
+	Highlights   []*ResourceEntryHighlight `json:"highlights,omitempty"`
+	ProtoBuf     *ProtoBuf                 `json:"protoBuf,omitempty"`
+	Item         *ItemV1                   `json:"item,omitempty"`
+	MoreLikeThis []*ItemV1                 `json:"relatedItems,omitempty"`
+}
+
+// ItemV1 represents a single search result item
+type ItemV1 struct {
+	DocID   string              `json:"doc_id"`
+	DocType string              `json:"doc_type"`
+	Fields  map[string][]string `json:"fields"`
 }
 
 func (fg *FragmentGraph) Graph() (*rdf.Graph, error) {

@@ -3,6 +3,7 @@ package mappingxml
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"sort"
 	"strings"
 
@@ -18,6 +19,26 @@ type FilterConfig struct {
 	ContextLevels         int
 	WikiBaseTypes         []string
 	WikiBaseTypePredicate rdf.Predicate
+	AllowedRDFTypes       []rdf.IRI
+	SkipPredicatNamespace []string
+}
+
+func (fc *FilterConfig) HasNoFilters() bool {
+	if fc.RDFType.RawValue() != "" {
+		return false
+	}
+
+	if fc.Subject != nil && fc.Subject.RawValue() != "" {
+		return false
+	}
+
+	if fc.URIPrefixFilter != "" {
+		return false
+	}
+
+	// TODO: add other filter options
+
+	return true
 }
 
 // Serialize serialize the Graph to explicit XML.
@@ -26,6 +47,10 @@ type FilterConfig struct {
 // resources are inlined in the XML. A max of 5 levels can
 // be given.
 func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
+	if cfg == nil {
+		cfg = &FilterConfig{}
+	}
+
 	filtered := filterResources(g.Resources(), cfg)
 
 	if cfg.ContextLevels == 0 {
@@ -59,11 +84,19 @@ func Serialize(g *rdf.Graph, w io.Writer, cfg *FilterConfig) error {
 		return err
 	}
 
+	slog.Info("finished serialize", "resources", len(filtered))
+
 	return nil
 }
 
 func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig) []*rdf.Resource {
 	var filtered []*rdf.Resource
+	if cfg.HasNoFilters() {
+		for _, rsc := range resources {
+			filtered = append(filtered, rsc)
+		}
+		return filtered
+	}
 
 	hasFilter := cfg.URIPrefixFilter != ""
 
@@ -88,7 +121,7 @@ func filterResources(resources map[rdf.Subject]*rdf.Resource, cfg *FilterConfig)
 			continue
 		}
 
-		if !cfg.Subject.Equal(rdf.IRI{}) {
+		if cfg.Subject != nil && !cfg.Subject.Equal(rdf.IRI{}) {
 			if rsc.Subject().Equal(cfg.Subject) {
 				filtered = append(filtered, rsc)
 				return filtered

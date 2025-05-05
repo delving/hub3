@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/delving/hub3/hub3/server/http/handlers/legacy"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/go-chi/chi/v5"
 	"github.com/rs/zerolog"
@@ -74,6 +75,13 @@ func (s *Service) AddOrgs(orgs map[string]domain.OrganizationConfig) error {
 		org := domain.Organization{
 			Config: orgCfg,
 			ID:     orgID,
+		}
+
+		if orgCfg.V1.Convertor.Path != "" {
+			registerErr := legacy.RegisterOrgConverterWithTypeString(id, &orgCfg.V1)
+			if registerErr != nil {
+				return fmt.Errorf("unable to register org convertor; %w", registerErr)
+			}
 		}
 
 		if err := s.Put(context.TODO(), &org); err != nil {
