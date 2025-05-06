@@ -13,7 +13,7 @@ GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
 
 IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
-#
+
 # var print rule
 print-%  : ; @echo $* = $($*)
 
@@ -30,18 +30,9 @@ clean-build:
 create-assets:
 	@go generate ./...
 
-# dev dependencies
-install-dev:
-	go install github.com/cortesi/modd/cmd/modd@latest
-	go install github.com/kyoh86/richgo@latest
-	go install honnef.co/go/tools/cmd/staticcheck@latest
-	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-	go install github.com/JoaoDanielRufino/gcloc/cmd/gcloc@latest
-	go install github.com/bufbuild/buf/cmd/buf@latest
-	go install github.com/codegangsta/gin@latest
 
 benchmark:
-	@richgo test --bench=. -benchmem ./...
+	@go tool richgo test --bench=. -benchmem ./...
 
 compose-up:
 	@docker-compose up
@@ -52,7 +43,6 @@ compose-down:
 compose-clean:
 	@docker-compose down --volumes
 
-# TODO: replace with buff
 protobuffer:
 	@make pb.api
 	@make pb.domain
@@ -77,7 +67,7 @@ pprof-dev:
 
 # ikuzo specific make actions 
 uncovered-ikuzo:
-	richgo test -coverprofile /tmp/c.out ./... ; uncover /tmp/c.out
+	go tool richgo test -coverprofile /tmp/c.out ./... ; uncover /tmp/c.out
 
 build:
 	go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
@@ -86,7 +76,7 @@ build-static:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
 staticcheck:
-	staticcheck -f stylish ./hub3/... ./config/... ./ikuzo/...
+	go tool staticcheck -f stylish ./hub3/... ./config/... ./ikuzo/...
 
 
 loc:
@@ -94,19 +84,19 @@ loc:
 
 pre-commit:
 	go mod tidy
-	richgo test -cover -race -count=10 ./...
-	@staticcheck
+	go tool richgo test -cover -race -count=10 ./...
+	go tool staticcheck
 
 test:
-	richgo test -cover ./ikuzo/...
+	go tool richgo test -cover ./ikuzo/...
 	@make staticcheck
 
 test-no-cache:
-	richgo test -cover -count=1 ./ikuzo/...
+	go tool richgo test -cover -count=1 ./ikuzo/...
 	@make staticcheck
 
 run-dev:
-	gin -a 3002 --path . --build ikuzo/ikuzoctl -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run serve
+	@go tool air
 
 run-workers:
-	gin --port=3010 --path . --build ikuzo/ikuzoctl --bin build/gin-workers -i -buildArgs "-tags=dev -race -ldflags '${IKUZOLDFLAGS}'" run workers
+	@go tool air -c .air.workers.toml

@@ -110,7 +110,7 @@ metricsPort = 6062
 # keyFile = "certs/key.pem"
 
 [nats]
-enabled = true
+enabled = false
 clusterID = "hub3-nats"
 clientID = "hub3-pub"
 durableName = "hub3-worker"
