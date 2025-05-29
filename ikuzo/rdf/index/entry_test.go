@@ -1,6 +1,9 @@
 package index
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -226,6 +229,96 @@ func TestEntry_Fingerprint(t *testing.T) {
 			}
 			if got := e.Fingerprint(); got != tt.want {
 				t.Errorf("Entry.Fingerprint() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEntry_MarshalJSON(t *testing.T) {
+	tests := []struct {
+		name       string
+		entry      *Entry
+		wantFields []string
+		wantErr    bool
+	}{
+		{
+			name: "literal with search label",
+			entry: &Entry{
+				ID:          "",
+				Predicate:   "http://purl.org/dc/elements/1.1/title",
+				SearchLabel: "dc_title",
+				Value:       "Test Title",
+				EntryType:   Literal,
+			},
+			wantFields: []string{"dc_title", "searchLabel", "@value"},
+			wantErr:    false,
+		},
+		{
+			name: "resource without dynamic field",
+			entry: &Entry{
+				ID:          "http://example.org/resource/1",
+				Predicate:   "http://purl.org/dc/elements/1.1/relation",
+				SearchLabel: "dc_relation",
+				EntryType:   ResourceType,
+			},
+			wantFields: []string{"searchLabel", "@id"},
+			wantErr:    false,
+		},
+		{
+			name: "literal without search label",
+			entry: &Entry{
+				Predicate: "http://purl.org/dc/elements/1.1/description",
+				Value:     "Test Description",
+				EntryType: Literal,
+			},
+			wantFields: []string{"@value"},
+			wantErr:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotData, err := json.Marshal(tt.entry)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Entry.MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			// Convert JSON to string for easier inspection
+			gotStr := string(gotData)
+
+			// Check that all expected fields exist in the JSON
+			for _, field := range tt.wantFields {
+				if !strings.Contains(gotStr, field) {
+					t.Errorf("Entry.MarshalJSON() = %v, missing expected field %q", gotStr, field)
+				}
+			}
+
+			// If this is a test for dynamic field addition, verify the dynamic field was added
+			if tt.entry.EntryType == Literal && tt.entry.SearchLabel != "" && tt.entry.Value != "" {
+				expectedDynamicField := fmt.Sprintf(`"%s":"%s"`, tt.entry.SearchLabel, tt.entry.Value)
+				if !strings.Contains(gotStr, expectedDynamicField) {
+					t.Errorf("Entry.MarshalJSON() = %v, missing dynamic field %q", gotStr, expectedDynamicField)
+				}
+			}
+
+			// Test unmarshaling back
+			var unmarshaled Entry
+			err = json.Unmarshal(gotData, &unmarshaled)
+			if err != nil {
+				t.Errorf("Failed to unmarshal JSON back to Entry: %v", err)
+				return
+			}
+
+			// Verify essential fields were preserved
+			if unmarshaled.SearchLabel != tt.entry.SearchLabel {
+				t.Errorf("Unmarshaled entry searchLabel = %v, want %v", unmarshaled.SearchLabel, tt.entry.SearchLabel)
+			}
+			if unmarshaled.Value != tt.entry.Value {
+				t.Errorf("Unmarshaled entry value = %v, want %v", unmarshaled.Value, tt.entry.Value)
+			}
+			if unmarshaled.EntryType != tt.entry.EntryType {
+				t.Errorf("Unmarshaled entry entryType = %v, want %v", unmarshaled.EntryType, tt.entry.EntryType)
 			}
 		})
 	}

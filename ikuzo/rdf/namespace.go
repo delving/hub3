@@ -7,4 +7,5 @@ type NamespaceManager interface {
 	GetWithBase(base string) (ns *domain.Namespace, err error)
 	GetSearchLabel(uri string) (label string, err error)
 	Expand(input string) (uri string, err error)
+	Put(prefix, base string, weight int) (*domain.Namespace, error)
 }

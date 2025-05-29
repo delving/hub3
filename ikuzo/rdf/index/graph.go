@@ -92,7 +92,10 @@ func (g *Graph) Graph() (*rdf.Graph, error) {
 		}
 	}
 
-	subj, _ := rdf.NewIRI(g.Header.EntryURI)
+	subj, iriErr := rdf.NewIRI(g.Header.EntryURI)
+	if iriErr != nil {
+		return rg, fmt.Errorf("cannot create iri %s; %w", g.Header.EntryURI, iriErr)
+	}
 
 	rg.Subject = rdf.Subject(subj)
 
@@ -102,11 +105,17 @@ func (g *Graph) Graph() (*rdf.Graph, error) {
 // IndexMessage converts the Graph into a domainpb.IndexMessage.
 //
 // This is the way in which the Graph is submitted for indexing.
-func (g *Graph) IndexMessage() (*domainpb.IndexMessage, error) {
+func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
+	// First set context levels and apply tags if provided
 	if !g.contextIsSet {
 		if err := g.addContextLevels(); err != nil {
 			return nil, err
 		}
+	}
+
+	// Apply tags if provided
+	if tagMap != nil && tagMap.Len() > 0 {
+		g.ApplyTags(tagMap)
 	}
 
 	g.prune()

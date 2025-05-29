@@ -1,6 +1,7 @@
 package index
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -290,4 +291,80 @@ func padYears(year string, start bool) (string, error) {
 
 func splitPeriod(c rune) bool {
 	return !unicode.IsNumber(c) && c != '-'
+}
+
+// MarshalJSON is a custom JSON marshaler for Entry that adds the SearchLabel as a field with Value as its value.
+// This allows for dynamic field mapping in search engines where the SearchLabel becomes a key in the JSON.
+func (e *Entry) MarshalJSON() ([]byte, error) {
+	// Create a copy of the entry to avoid recursive marshaling
+	type EntryAlias Entry
+	aliasEntry := struct {
+		*EntryAlias
+	}{
+		EntryAlias: (*EntryAlias)(e),
+	}
+
+	// Marshal the alias entry to a map
+	data, err := json.Marshal(aliasEntry)
+	if err != nil {
+		return nil, err
+	}
+
+	// Only add the dynamic field if Entry is a Literal and has a value and search label
+	if e.EntryType == Literal && e.Value != "" && e.SearchLabel != "" {
+		// Parse the JSON into a map
+		var entryMap map[string]interface{}
+		if err := json.Unmarshal(data, &entryMap); err != nil {
+			return nil, err
+		}
+
+		// Add the SearchLabel as a field with Value as its value
+		entryMap[e.SearchLabel] = e.Value
+
+		// Marshal the map back to JSON
+		return json.Marshal(entryMap)
+	}
+
+	return data, nil
+}
+
+// UnmarshalJSON is a custom JSON unmarshaler for Entry that checks for dynamic fields.
+func (e *Entry) UnmarshalJSON(data []byte) error {
+	// Create a map to unmarshal the JSON data
+	var entryMap map[string]interface{}
+	if err := json.Unmarshal(data, &entryMap); err != nil {
+		return err
+	}
+
+	// Create a copy of the map without the potential dynamic field
+	cleanMap := make(map[string]interface{})
+	for k, v := range entryMap {
+		cleanMap[k] = v
+	}
+
+	// Get SearchLabel field
+	if sl, ok := entryMap["searchLabel"]; ok && sl != nil {
+		if slStr, ok := sl.(string); ok {
+			// Check if the SearchLabel is also used as a dynamic field
+			if _, exists := entryMap[slStr]; exists {
+				// Remove from the clean map to avoid double unmarshaling
+				delete(cleanMap, slStr)
+			}
+		}
+	}
+
+	// Marshal the clean map back to JSON
+	cleanData, err := json.Marshal(cleanMap)
+	if err != nil {
+		return err
+	}
+
+	// Unmarshal to an alias to avoid recursive unmarshaling
+	type EntryAlias Entry
+	aliasEntry := (*EntryAlias)(e)
+	if err := json.Unmarshal(cleanData, aliasEntry); err != nil {
+		return err
+	}
+
+	return nil
 }

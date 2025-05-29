@@ -15,7 +15,7 @@ func Test_randStringBytesMask(t *testing.T) {
 	unique := map[string]bool{}
 
 	count := 500
-	for i := 0; i < count; i++ {
+	for range count {
 		got := randStringBytesMask(idSize)
 		is.True(len(got) == idSize)
 		is.True(got != "")

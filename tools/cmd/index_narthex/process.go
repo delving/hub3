@@ -412,7 +412,7 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 		return fmt.Errorf("unable to add graph: %w", err)
 	}
 
-	mesg, err := fg.IndexMessage()
+	mesg, err := fg.IndexMessage(nil)
 	if err != nil {
 		return fmt.Errorf("unable to create index message: %w", err)
 	}
