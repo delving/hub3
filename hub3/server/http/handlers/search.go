@@ -442,10 +442,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	start := time.Now()
-	
+
 	// Use parallel aggregations if beneficial, otherwise normal execution
 	res, err = searchRequest.ExecuteWithParallelAggregations(index.ESClient(), r.Context())
-	
+
 	// Measure elapsed time
 	elapsed := time.Since(start)
 	slog.Info("Search completed successfully", slog.Duration("elapsed", elapsed))
@@ -1060,7 +1060,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	}
 
 	if searchRequest.V1Mode {
-		result.Pager = nil
+		addPager(searchRequest, result.Pager.Total, result)
 		conv, err := legacy.DefaultConverter("", orgID.String())
 		if err != nil {
 			render.Error(w, r, err, &render.DefaultConfig)
@@ -1071,6 +1071,15 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			bc.Href = conv.ReplaceQueryString(bc.Href, true)
 			bc.Display = conv.ReplaceQueryString(bc.Display, true)
 		}
+
+		slog.Info("v1 mode", "itemFormat", r.URL.Query())
+
+		if !strings.EqualFold(r.URL.Query().Get("itemFormat"), "v1") {
+			render.JSON(w, r, result)
+			return
+		}
+
+		result.Pager = nil
 
 		for _, facet := range result.Facets {
 			facet.Field = conv.ReplaceQueryString(facet.Field, true)
