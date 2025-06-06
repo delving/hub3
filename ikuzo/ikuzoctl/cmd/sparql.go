@@ -51,11 +51,13 @@ var (
 
 	harvestFrom string
 	harvestCfg  string
+	debugFlag   bool
 )
 
 func newSparqlCmd() *cobra.Command {
 	harvestCmd.Flags().StringVarP(&harvestFrom, "from", "f", "", "timestamp to harvest from")
 	harvestCmd.Flags().StringVarP(&harvestCfg, "cfg", "c", "", "path to the harvest toml configuration")
+	harvestCmd.Flags().BoolVarP(&debugFlag, "debug", "d", false, "enable debug logging")
 
 	sparqlCmd.AddCommand(harvestCmd)
 
@@ -64,6 +66,17 @@ func newSparqlCmd() *cobra.Command {
 
 // listRecords writes all Records to a file
 func harvestXML(ccmd *cobra.Command, args []string) {
+	// Set log level based on debug flag
+	if debugFlag {
+		// Create a new logger with debug level
+		h := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})
+		logger := slog.New(h)
+		slog.SetDefault(logger)
+		slog.Debug("Debug logging enabled")
+	}
+
 	cfg, err := decodeConfig(harvestCfg)
 	if err != nil {
 		slog.Error("unable to decode config", "error", err, "path", harvestCfg)

@@ -308,6 +308,10 @@ func getSubject(c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
 
 	req.Header.Set("Accept", mimeType)
 
+	// Generate curl command equivalent for logging
+	curlCmd := fmt.Sprintf("curl -X GET -L '%s' -H 'Accept: %s'", uri, mimeType)
+	slog.Debug("SPARQL request as curl command", "curl", curlCmd)
+
 	response, err := c.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error making request: %w", err)
