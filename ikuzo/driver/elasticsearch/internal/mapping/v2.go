@@ -201,11 +201,11 @@ var v2Mapping = `{
 								"mFilterID": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",
-									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
+									"format": "yyyy-MM-dd'T'HH:mm:ssXXX||yyyy-MM-dd'T'HH:mm:ss.SSSXXX||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
 								},
 								"dateRange": {
 									"type": "date_range",
-									"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
+									"format": "yyyy-MM-dd'T'HH:mm:ssXXX||yyyy-MM-dd'T'HH:mm:ss.SSSXXX||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
 								},
 								"intRange": {"type": "integer_range"},
 								"float": {"type": "float"},

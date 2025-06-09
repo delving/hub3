@@ -141,7 +141,9 @@ func NewFacetField(field string) (*FacetField, error) {
 	case strings.HasPrefix(ff.Field, "histogram."):
 		ff.Type = FacetType_HISTOGRAM
 		ff.Field = strings.TrimPrefix(ff.Field, "histogram.")
-	case strings.EqualFold(ff.Field, "searchLabel"):
+	case strings.HasPrefix(ff.Field, "n."):
+		ff.Type = FacetType_TERMS
+	default:
 		ff.Type = FacetType_FIELDS
 	}
 
@@ -1176,7 +1178,7 @@ func (sr *SearchRequest) Aggregations(fub *FacetURIBuilder) (map[string]elastic.
 // ExecuteWithParallelAggregations executes the search with parallel aggregations when beneficial
 // This method completely handles the parallel execution and merges results transparently
 func (sr *SearchRequest) ExecuteWithParallelAggregations(ec *elastic.Client, ctx context.Context) (*elastic.SearchResult, error) {
-	const parallelThreshold = 3
+	const parallelThreshold = 20
 
 	// Get the main search service
 	mainService, fub, err := sr.ElasticSearchService(ec)
@@ -1217,7 +1219,7 @@ func (sr *SearchRequest) ExecuteWithParallelAggregations(ec *elastic.Client, ctx
 
 // executeParallelAggregations runs aggregation queries in parallel batches
 func (sr *SearchRequest) executeParallelAggregations(ec *elastic.Client, fub *FacetURIBuilder, baseQuery elastic.Query, ctx context.Context) (map[string]*elastic.SearchResult, error) {
-	const batchSize = 2 // Number of facets per batch
+	const batchSize = 5 // Number of facets per batch
 
 	results := make(map[string]*elastic.SearchResult)
 
@@ -1416,7 +1418,43 @@ func createFieldedSubQuery(field, userQuery string, boost float64) elastic.Query
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
 func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *FacetField, fub *FacetURIBuilder) (elastic.Aggregation, error) {
+	// For fields type, use the fields-based aggregation
+	if facet.GetType() == FacetType_FIELDS {
+		return CreateAggregationByFields(facet, sr.FacetAndBoolType, fub)
+	}
+
 	return CreateAggregationBySearchLabel(path, facet, sr.FacetAndBoolType, fub)
+}
+
+// CreateAggregationByFields creates Elastic aggregations using the fields object instead of nested resources
+func CreateAggregationByFields(facet *FacetField, facetAndBoolType bool, fub *FacetURIBuilder) (elastic.Aggregation, error) {
+	// The path to the field values is now fields.{searchLabel}.keyword
+	fieldPath := fmt.Sprintf("fields.%s.keyword", facet.GetField())
+
+	// Create a terms aggregation on the field
+	termsAgg := elastic.NewTermsAggregation().
+		Field(fieldPath).
+		Size(int(facet.GetSize()))
+
+	// Configure sorting based on facet parameters
+	if facet.GetByName() {
+		termsAgg = termsAgg.OrderByKey(facet.GetAsc())
+	} else {
+		termsAgg = termsAgg.OrderByCount(facet.GetAsc())
+	}
+
+	// Add filters
+	facetFilters, err := fub.CreateFacetFilterQuery(facet.GetField(), facetAndBoolType)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unable to create FacetFilterQuery")
+	}
+
+	// Create the filter aggregation with the terms sub-aggregation
+	facetFilterAgg := elastic.NewFilterAggregation().
+		Filter(facetFilters).
+		SubAggregation("object", termsAgg)
+
+	return facetFilterAgg, nil
 }
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
@@ -1995,6 +2033,16 @@ func (qf *QueryFilter) SetExclude(q *elastic.BoolQuery, qs ...elastic.Query) *el
 func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 	nestedBoolQuery := elastic.NewBoolQuery()
 
+	// Check if this is a FIELDSMAP query (if it was marked as such)
+	if qf.Type == QueryFilterType_FIELDSMAP {
+		// Use the fields object directly
+		fieldPath := fmt.Sprintf("fields.%s.keyword", qf.SearchLabel)
+		return qf.SetExclude(
+			elastic.NewBoolQuery(),
+			elastic.NewTermQuery(fieldPath, qf.Value),
+		), nil
+	}
+
 	// resource.entries queries
 	labelQ := elastic.NewTermQuery(entriesSearchLabel, qf.SearchLabel)
 
@@ -2161,6 +2209,11 @@ func (sr *SearchRequest) AddQueryFilter(filter string, cfg QueryFilterConfig) er
 		qf.Type = QueryFilterType_ENTRYTAG
 	case "searchLabel":
 		qf.Type = QueryFilterType_SEARCHLABEL
+	}
+
+	// If facet type is FIELDS, use the FIELDSMAP query filter type
+	if facet, ok := facetFieldBySearchLabel(sr.FacetField, qf.SearchLabel); ok && facet.GetType() == FacetType_FIELDS {
+		qf.Type = QueryFilterType_FIELDSMAP
 	}
 
 	// todo replace later with map lookup that can be reused
@@ -2333,6 +2386,39 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 
 	var aggs []*QueryFacet
 	for k := range res.Aggregations {
+		// First check if this is a fields-based aggregation (direct filter with object terms)
+		objectFilter, ok := res.Aggregations.Filter(k)
+		if ok {
+			value, ok := objectFilter.Terms("object")
+			if ok {
+				qf := &QueryFacet{
+					Name:        k, // todo add get by name to fb
+					Field:       k,
+					Total:       objectFilter.DocCount,
+					MissingDocs: value.SumOfOtherDocCount,
+					Links:       []*FacetLink{},
+				}
+
+				for _, b := range value.Buckets {
+					key := KeyAsString(b)
+
+					fl := &FacetLink{
+						Value:         key,
+						Count:         b.DocCount,
+						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+					}
+
+					SetFacetLink(key, qf, fl, fb)
+
+					qf.Links = append(qf.Links, fl)
+				}
+
+				aggs = append(aggs, qf)
+				continue
+			}
+		}
+
+		// If not a fields-based aggregation, check if it's a nested aggregation
 		facetFilter, ok := res.Aggregations.Nested(k)
 		if ok {
 			facet, ok := facetFilter.Filter("filter")
@@ -2407,35 +2493,6 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						aggs = append(aggs, qf)
 					}
 				}
-			}
-		}
-		objectFilter, ok := res.Aggregations.Filter(k)
-		if ok {
-			value, ok := objectFilter.Terms("object")
-			if ok {
-				qf := &QueryFacet{
-					Name:        k, // todo add get by name to fb
-					Field:       k,
-					Total:       objectFilter.DocCount,
-					MissingDocs: value.SumOfOtherDocCount,
-					Links:       []*FacetLink{},
-				}
-
-				for _, b := range value.Buckets {
-					key := KeyAsString(b)
-
-					fl := &FacetLink{
-						Value:         key,
-						Count:         b.DocCount,
-						DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
-					}
-
-					SetFacetLink(key, qf, fl, fb)
-
-					qf.Links = append(qf.Links, fl)
-				}
-
-				aggs = append(aggs, qf)
 			}
 		}
 	}
@@ -2561,4 +2618,14 @@ func QueryFromSearchFields(query string, fields ...string) (elastic.Query, error
 
 func (h *Header) LastModified() time.Time {
 	return LastModified(h.Modified)
+}
+
+// facetFieldBySearchLabel finds a facet field with the given search label
+func facetFieldBySearchLabel(facetFields []*FacetField, searchLabel string) (*FacetField, bool) {
+	for _, field := range facetFields {
+		if field.GetField() == searchLabel {
+			return field, true
+		}
+	}
+	return nil, false
 }

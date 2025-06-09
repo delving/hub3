@@ -95,6 +95,7 @@ enum QueryFilterType {
   TREEITEM = 7;
   ENTRYTAG = 8;
   SEARCHLABEL = 9;
+  FIELDSMAP = 10;
 }
 
 message FilterValue {
