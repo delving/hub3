@@ -250,11 +250,11 @@ func TestEntry_MarshalJSON(t *testing.T) {
 				Value:       "Test Title",
 				EntryType:   Literal,
 			},
-			wantFields: []string{"dc_title", "searchLabel", "@value"},
+			wantFields: []string{"searchLabel", "@value"},
 			wantErr:    false,
 		},
 		{
-			name: "resource without dynamic field",
+			name: "resource with search label",
 			entry: &Entry{
 				ID:          "http://example.org/resource/1",
 				Predicate:   "http://purl.org/dc/elements/1.1/relation",
@@ -294,11 +294,11 @@ func TestEntry_MarshalJSON(t *testing.T) {
 				}
 			}
 
-			// If this is a test for dynamic field addition, verify the dynamic field was added
+			// Dynamic fields should NOT be included (as that functionality has been removed)
 			if tt.entry.EntryType == Literal && tt.entry.SearchLabel != "" && tt.entry.Value != "" {
-				expectedDynamicField := fmt.Sprintf(`"%s":"%s"`, tt.entry.SearchLabel, tt.entry.Value)
-				if !strings.Contains(gotStr, expectedDynamicField) {
-					t.Errorf("Entry.MarshalJSON() = %v, missing dynamic field %q", gotStr, expectedDynamicField)
+				unexpectedDynamicField := fmt.Sprintf(`"%s":"%s"`, tt.entry.SearchLabel, tt.entry.Value)
+				if strings.Contains(gotStr, unexpectedDynamicField) {
+					t.Errorf("Entry.MarshalJSON() = %v, contains unexpected dynamic field %q that should have been removed", gotStr, unexpectedDynamicField)
 				}
 			}
 

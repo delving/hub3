@@ -3,6 +3,7 @@ package index
 import (
 	"bytes"
 	"cmp"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,13 +25,17 @@ type Graph struct {
 	Checksum string `json:"_ checksum,omitempty"`
 
 	// Header is the header of the Graph with queryable meta information
-	Header Header `json:"meta,omitempty"`
+	Header Header `json:"meta"`
 
 	//
 	// Tree       *Tree                     `json:"tree,omitempty"`
 
 	// Resources conains a list of triples grouped by their resource Subject
 	Resources []*Resource `json:"resources,omitempty"`
+
+	// Fields is a map of predicate to object values for optimized indexing
+	// Used for aggregations and search
+	Fields map[string][]string `json:"fields,omitempty"`
 
 	// Embed contains embed.Data objects serialized as bytes
 	// These can be used to store structs that should be accesible directly from the index
@@ -117,6 +122,9 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 	if tagMap != nil && tagMap.Len() > 0 {
 		g.ApplyTags(tagMap)
 	}
+
+	// Generate fields for optimized indexing
+	g.GenerateFields()
 
 	g.prune()
 
@@ -264,16 +272,46 @@ func (g *Graph) SearchLabel(subject, label string) (entries []*Entry) {
 // addContextLevels recurses the root resources and sets the contextRefs
 func (g *Graph) addContextLevels() error {
 	if g.Header.EntryURI == "" {
+		slog.Debug("EntryURI is empty - cannot set context levels")
 		return fmt.Errorf("g.Meta.EntryURI cannot be empty when setting context levels")
 	}
 
 	if len(g.Resources) == 0 {
+		slog.Debug("Resources list is empty - cannot set context levels")
 		return fmt.Errorf("cannot set context levels on empty Resources list")
+	}
+
+	// Debug log all resource IDs to help troubleshoot
+	if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+		resourceIDs := make([]string, 0, len(g.Resources))
+		for _, r := range g.Resources {
+			resourceIDs = append(resourceIDs, r.ID)
+		}
+		slog.Debug("Resources in graph",
+			"count", len(g.Resources),
+			"entryURI", g.Header.EntryURI,
+			"resourceIDs", resourceIDs)
 	}
 
 	subject, created := g.Resource(g.Header.EntryURI)
 	if created {
-		return fmt.Errorf("subject %q is not part of the graph [context-levels]", g.Header.EntryURI)
+		slog.Warn("Subject not found in graph resources, attempting to use first resource instead",
+			"entryURI", g.Header.EntryURI,
+			"resourcesCount", len(g.Resources))
+
+		// Try to use the first resource as a fallback
+		if len(g.Resources) > 0 {
+			firstResource := g.Resources[0]
+			slog.Info("Using first resource as entry point for context levels",
+				"original_entryURI", g.Header.EntryURI,
+				"new_entryURI", firstResource.ID)
+
+			// Update the EntryURI to match the first resource
+			g.Header.EntryURI = firstResource.ID
+			subject = firstResource
+		} else {
+			return fmt.Errorf("subject %q is not part of the graph and no alternative resources available [context-levels]", g.Header.EntryURI)
+		}
 	}
 
 	if err := g.setContextRefs(subject, immutable.NewSet(contextHasher{})); err != nil {
@@ -299,32 +337,113 @@ func (g *Graph) prune() {
 	}
 }
 
-// setContextRefs recurses into nested resources until it reached the end of the graph or recures on itself
+// ContextIsSet returns whether context levels have been set for the graph
+func (g *Graph) ContextIsSet() bool {
+	return g.contextIsSet
+}
+
+// GenerateFields creates a map of searchLabel to object values
+// for optimized indexing. This consolidates values from all resources
+// in the graph into a flattened structure for easier search and aggregation.
+// Values are deduplicated to ensure each unique value appears only once per searchLabel.
+func (g *Graph) GenerateFields() {
+	if g.Fields != nil && len(g.Fields) > 0 {
+		// Fields already generated
+		return
+	}
+
+	// Initialize the fields map
+	g.Fields = make(map[string][]string)
+
+	// Track values we've already seen for each searchLabel to avoid duplicates
+	valuesSeen := make(map[string]map[string]struct{})
+
+	// Process all resources
+	for _, rsc := range g.Resources {
+		for _, entry := range rsc.Entries {
+			// Skip non-literal entries
+			if entry.EntryType != Literal {
+				continue
+			}
+
+			// Skip empty values
+			if entry.Value == "" {
+				continue
+			}
+
+			// Skip entries without a searchLabel
+			if entry.SearchLabel == "" {
+				continue
+			}
+
+			// Use searchLabel as the key
+			if _, ok := g.Fields[entry.SearchLabel]; !ok {
+				g.Fields[entry.SearchLabel] = []string{}
+				valuesSeen[entry.SearchLabel] = make(map[string]struct{})
+			}
+
+			// Check if we've already seen this value for this searchLabel
+			if _, seen := valuesSeen[entry.SearchLabel][entry.Value]; !seen {
+				// Add the value to the fields map
+				g.Fields[entry.SearchLabel] = append(g.Fields[entry.SearchLabel], entry.Value)
+				// Mark this value as seen
+				valuesSeen[entry.SearchLabel][entry.Value] = struct{}{}
+			}
+		}
+	}
+}
+
+// setContextRefs recurses into nested resources until it reaches the end of the graph or recures on itself
 func (g *Graph) setContextRefs(rsc *Resource, parents immutable.Set[ContextRef]) error {
+	// Make sure GraphExternalContext is initialized for this resource
+	if rsc.GraphExternalContext == nil {
+		rsc.GraphExternalContext = []*ContextRef{}
+	}
+
 	for _, ctxLevel := range rsc.objectIDs() {
+		// Set the level for all context references
+		ctxLevel.Level = int32(parents.Len() + 1)
+		if len(ctxLevel.SubjectClass) == 0 {
+			ctxLevel.SubjectClass = rsc.Types
+		}
+
+		// Check for recursion
 		if parents.Has(ctxLevel) {
 			var paths []string
 			for _, p := range parents.Items() {
 				paths = append(paths, p.ObjectID)
 			}
 			slog.Debug("subject cannot recurse on itself", "subject", ctxLevel.ObjectID, "resource", rsc.ID, "paths", paths)
+
+			// Even though we're skipping recursion, add this as an external context
+			rsc.GraphExternalContext = append(rsc.GraphExternalContext, &ctxLevel)
 			continue
 		}
+
+		// Try to find the referenced resource
 		nestedResource, ok := g.Resource(ctxLevel.ObjectID)
 		if !ok {
 			slog.Debug("subject is not part of the graph", "subject", ctxLevel.ObjectID, "resource", rsc.ID)
+
+			// Even though the resource isn't found in the graph, we should still add the reference
+			// to the GraphExternalContext of the current resource to maintain the connection
+			if rsc.GraphExternalContext == nil {
+				rsc.GraphExternalContext = []*ContextRef{}
+			}
+			rsc.GraphExternalContext = append(rsc.GraphExternalContext, &ctxLevel)
 			continue
 		}
-		ctxLevel.Level = int32(parents.Len() + 1)
-		if len(ctxLevel.SubjectClass) == 0 {
-			ctxLevel.SubjectClass = rsc.Types
-		}
 
+		// Resource found in graph, add to internal context
 		nestedResource.AppendContext(&ctxLevel)
 		parents = parents.Add(ctxLevel)
 		if err := g.setContextRefs(nestedResource, parents); err != nil {
 			return err
 		}
 	}
+
+	// Always set the contextIsSet flag even if we didn't find all references
+	g.contextIsSet = true
+
 	return nil
 }

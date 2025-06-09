@@ -61,7 +61,7 @@ func findProcessableDirectoriesWithPattern(parentPath, customPattern string) ([]
 		}
 
 		dirPath := filepath.Join(parentPath, entry.Name())
-		
+
 		// Check if this directory contains processed RDF files using all patterns
 		_, err := findProcessedFileWithPattern(dirPath, customPattern)
 		if err != nil {
@@ -75,7 +75,7 @@ func findProcessableDirectoriesWithPattern(parentPath, customPattern string) ([]
 
 	// Sort directories for consistent processing order
 	sort.Strings(directories)
-	
+
 	if len(directories) == 0 {
 		return nil, fmt.Errorf("no subdirectories with processed RDF files found in %s", parentPath)
 	}
@@ -91,19 +91,19 @@ func findProcessedFile(dirPath string) (string, error) {
 // findProcessedFileWithPattern tries to find a processed RDF file using custom or default patterns
 func findProcessedFileWithPattern(dirPath, customPattern string) (string, error) {
 	var patterns []string
-	
+
 	if customPattern != "" {
 		// Use only the custom pattern if provided
 		patterns = []string{customPattern}
 	} else {
 		// Use default patterns - ordered from most specific to most general
 		patterns = []string{
-			"__processed_",           // Matches __processed_<model>.rdf.zst (your pattern)
-			"__processed.rdf",        // Original exact pattern
-			"_processed_",            // Alternative with single underscore
-			"processed_",             // Without leading underscores
-			".rdf",                   // Any .rdf file
-			"_processed.rdf", 
+			"__processed_",    // Matches __processed_<model>.rdf.zst (your pattern)
+			"__processed.rdf", // Original exact pattern
+			"_processed_",     // Alternative with single underscore
+			"processed_",      // Without leading underscores
+			".rdf",            // Any .rdf file
+			"_processed.rdf",
 			"processed.rdf",
 			"__processed.xml",
 			"_processed.xml",
@@ -129,37 +129,14 @@ func findProcessedFileWithPattern(dirPath, customPattern string) (string, error)
 	if customPattern != "" {
 		patternDesc = fmt.Sprintf("custom pattern '%s'", customPattern)
 	}
-	
+
 	return "", fmt.Errorf("no processed files found in %s using %s. Details: %s", dirPath, patternDesc, strings.Join(allErrors, "; "))
 }
 
 // processSingleDirectory processes a single directory containing RDF files
+// This is kept for backward compatibility
 func processSingleDirectory(dirPath, targetIndex, customPattern string) (*NarthexStats, error) {
-	rdfXML, err := findProcessedFileWithPattern(dirPath, customPattern)
-	if err != nil {
-		return nil, err
-	}
-
-	slog.Info("processing directory", "dir", dirPath, "rdfFile", rdfXML)
-
-	r, err := openXMLReader(rdfXML)
-	if err != nil {
-		return nil, fmt.Errorf("unable to open processed mapping file: %w", err)
-	}
-	defer r.Close()
-
-	cfg := Config{IndexName: targetIndex}
-	cfg.OutputPath, cfg.DatePrefix = processPath(rdfXML)
-	if cfg.DatePrefix == "" {
-		return nil, fmt.Errorf("unable to extract date prefix from path (expected prefix before '__' in the filename)")
-	}
-
-	stats, err := ParseNarthex(r, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to parse narthex: %w", err)
-	}
-
-	return stats, nil
+	return processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern, nil)
 }
 
 // openXMLReader opens either a plain XML file or a zst-compressed XML file
@@ -242,6 +219,7 @@ type Config struct {
 	IndexName  string
 	DatePrefix string
 	OutputPath string
+	TagMap     *index.TagMap
 }
 
 var (
@@ -313,7 +291,7 @@ func scanRecords(scanner *bufio.Scanner, stats *NarthexStats, jobs chan<- record
 		if bytes.HasPrefix(b, linePrefix) {
 			atomic.AddInt64(&stats.Records, 1)
 			if atomic.LoadInt64(&stats.Records)%5000 == 0 {
-				fmt.Printf("\rProgress: records=%d lines=%d converted=%d errors=%d", 
+				fmt.Printf("\rProgress: records=%d lines=%d converted=%d errors=%d",
 					atomic.LoadInt64(&stats.Records),
 					atomic.LoadInt64(&stats.Lines),
 					atomic.LoadInt64(&stats.Converted),
@@ -397,6 +375,14 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 	}
 
 	subjectURI := g.SubjectSafe()
+	
+	// Add debugging info about the RDF graph
+	slog.Debug("RDF graph info before index conversion", 
+		"hubID", hubID,
+		"subjectURI", subjectURI.RawValue(), 
+		"triples", len(g.Triples()),
+		"resources", len(g.Resources()),
+		"graphName", g.GraphName)
 
 	header, err := createHeader(hubID, subjectURI.RawValue())
 	if err != nil {
@@ -411,11 +397,200 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 	if err := fg.AddGraph(g); err != nil {
 		return fmt.Errorf("unable to add graph: %w", err)
 	}
+	
+	// Debug the graph resources before IndexMessage
+	entryURIExists := resourceExists(fg, fg.Header.EntryURI)
+	slog.Debug("Index Graph info before IndexMessage",
+		"resources_count", len(fg.Resources),
+		"entryURI", fg.Header.EntryURI,
+		"entryURI_in_resources", entryURIExists)
+	
+	// If EntryURI doesn't exist in resources, try to find alternative subject
+	if !entryURIExists && len(fg.Resources) > 0 {
+		slog.Warn("EntryURI not found in graph resources, attempting to fix",
+			"entryURI", fg.Header.EntryURI,
+			"resources_count", len(fg.Resources))
+			
+		// Use the subject URI from the RDF graph as EntryURI if available
+		if subjectURI.RawValue() != "" && resourceExists(fg, subjectURI.RawValue()) {
+			slog.Info("Using subjectURI as EntryURI",
+				"original", fg.Header.EntryURI,
+				"new", subjectURI.RawValue())
+			fg.Header.EntryURI = subjectURI.RawValue()
+		} else if len(fg.Resources) > 0 {
+			// Use the first resource as EntryURI if no better option
+			newEntryURI := fg.Resources[0].ID
+			slog.Info("Using first resource as EntryURI",
+				"original", fg.Header.EntryURI,
+				"new", newEntryURI)
+			fg.Header.EntryURI = newEntryURI
+		}
+	}
 
-	mesg, err := fg.IndexMessage(nil)
+	// Use the TagMap if provided
+	mesg, err := fg.IndexMessage(stats.cfg.TagMap)
 	if err != nil {
+		slog.Error("Error creating index message", "error", err, "entryURI", fg.Header.EntryURI)
 		return fmt.Errorf("unable to create index message: %w", err)
 	}
+	
+	// Debug the graph resources after IndexMessage
+	// Check if we can detect context references in resources
+	hasContextRefs := false
+	contextCount := 0
+	hasExternalContextRefs := false
+	externalContextCount := 0
+	
+	// Check if context is set in the graph
+	slog.Debug("Graph context status", "contextIsSet", fg.ContextIsSet())
+	
+	// Print details of the first few resources
+	if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
+		slog.Debug("Detailed resource information after IndexMessage:")
+		
+		// Examine the message source
+		sourceBytes := mesg.Source
+		sampleSize := 256 // Show first 256 bytes as sample
+		if len(sourceBytes) < sampleSize {
+			sampleSize = len(sourceBytes)
+		}
+		slog.Debug("Source bytes sample", "sample", string(sourceBytes[:sampleSize]))
+		
+		// Try to understand the actual structure
+		var data interface{}
+		if err := json.Unmarshal(sourceBytes, &data); err != nil {
+			slog.Error("Failed to unmarshal Source as JSON (any type)", "error", err)
+		} else {
+			// Determine the actual type of the data
+			switch v := data.(type) {
+			case map[string]interface{}:
+				// It's an object as expected
+				keys := make([]string, 0, len(v))
+				for k := range v {
+					keys = append(keys, k)
+				}
+				slog.Debug("Source is a JSON object", "keys", keys)
+				
+				// Check for resources field
+				if resources, ok := v["resources"]; ok {
+					resourcesType := fmt.Sprintf("%T", resources)
+					slog.Debug("Resources field found", "type", resourcesType)
+					
+					// If resources is an array, examine the first item
+					if resourcesArr, ok := resources.([]interface{}); ok && len(resourcesArr) > 0 {
+						slog.Debug("Resources is an array", "count", len(resourcesArr))
+						
+						if firstResource, ok := resourcesArr[0].(map[string]interface{}); ok {
+							// Get resource keys
+							resourceKeys := make([]string, 0, len(firstResource))
+							for k := range firstResource {
+								resourceKeys = append(resourceKeys, k)
+							}
+							slog.Debug("First resource", "keys", resourceKeys)
+							
+							// Check for context and external context
+							examineContextField(firstResource, "context")
+							examineContextField(firstResource, "graphExternalContext")
+						} else {
+							slog.Debug("First resource is not an object", 
+								"type", fmt.Sprintf("%T", resourcesArr[0]))
+						}
+					}
+				}
+			case []interface{}:
+				// It's an array
+				slog.Debug("Source is a JSON array", "length", len(v))
+				if len(v) > 0 {
+					slog.Debug("First array element type", "type", fmt.Sprintf("%T", v[0]))
+				}
+			case string:
+				// It's a string, which might be the issue
+				slog.Debug("Source is a JSON string", "length", len(v))
+				
+				// Try to parse the string as JSON
+				var nestedData interface{}
+				if err := json.Unmarshal([]byte(v), &nestedData); err != nil {
+					slog.Debug("String is not valid JSON", "error", err)
+				} else {
+					slog.Debug("String contains valid JSON", "type", fmt.Sprintf("%T", nestedData))
+				}
+			default:
+				slog.Debug("Source is an unexpected JSON type", "type", fmt.Sprintf("%T", data))
+			}
+		}
+	}
+	
+	// Limit to first 3 resources to avoid flooding logs
+	resourcesLimit := 3
+	for i, r := range fg.Resources {
+		if i >= resourcesLimit {
+			break
+		}
+		
+		// Check if context references have correct levels
+		contextLevels := []int32{}
+		for _, ctx := range r.Context {
+			contextLevels = append(contextLevels, ctx.Level)
+		}
+		
+		// Check if external context references have correct levels
+		externalLevels := []int32{}
+		for _, ctx := range r.GraphExternalContext {
+			externalLevels = append(externalLevels, ctx.Level)
+		}
+		
+		slog.Debug(fmt.Sprintf("Resource #%d", i),
+			"id", r.ID,
+			"types", r.Types,
+			"entries_count", len(r.Entries),
+			"context_count", len(r.Context),
+			"context_levels", contextLevels,
+			"external_context_count", len(r.GraphExternalContext),
+			"external_context_levels", externalLevels)
+	}
+	
+	for _, r := range fg.Resources {
+		if len(r.Context) > 0 {
+			hasContextRefs = true
+			contextCount += len(r.Context)
+		}
+		
+		if r.GraphExternalContext != nil && len(r.GraphExternalContext) > 0 {
+			hasExternalContextRefs = true
+			externalContextCount += len(r.GraphExternalContext)
+		}
+	}
+	
+	// Look for resource type entries and external contexts
+	resourceEntryCount := 0
+	resourcesWithContext := 0
+	resourcesWithExternalContext := 0
+	
+	for _, r := range fg.Resources {
+		for _, e := range r.Entries {
+			if e.EntryType == index.ResourceType || e.EntryType == index.Bnode {
+				resourceEntryCount++
+			}
+		}
+		
+		if r.Context != nil && len(r.Context) > 0 {
+			resourcesWithContext++
+		}
+		
+		if r.GraphExternalContext != nil && len(r.GraphExternalContext) > 0 {
+			resourcesWithExternalContext++
+		}
+	}
+	
+	slog.Debug("Index Graph after IndexMessage",
+		"context_refs_found", hasContextRefs,
+		"context_count", contextCount,
+		"resources_with_context", resourcesWithContext,
+		"external_context_refs_found", hasExternalContextRefs,
+		"external_context_count", externalContextCount,
+		"resources_with_external_context", resourcesWithExternalContext,
+		"resource_entry_count", resourceEntryCount,
+		"resource_count", len(fg.Resources))
 	mesg.IndexName = stats.cfg.IndexName
 
 	rec, err := toBulkRecord(mesg)
@@ -518,4 +693,54 @@ func calculateChecksum(data map[string]interface{}) string {
 	bytes, _ := json.Marshal(data)
 	hash := sha256.Sum256(bytes)
 	return hex.EncodeToString(hash[:])
+}
+
+// Helper function to check if a resource with a given ID exists in the graph
+func resourceExists(g *index.Graph, id string) bool {
+	for _, r := range g.Resources {
+		if r.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// Helper function to get keys from a map for debugging
+func getMapKeys(m map[string]interface{}) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+// Helper function to examine context fields in resources
+func examineContextField(resource map[string]interface{}, fieldName string) {
+	if field, exists := resource[fieldName]; exists {
+		fieldType := fmt.Sprintf("%T", field)
+		slog.Debug(fmt.Sprintf("Resource %s field found", fieldName), "type", fieldType)
+		
+		if contextArr, ok := field.([]interface{}); ok {
+			slog.Debug(fmt.Sprintf("Resource %s is an array", fieldName), "count", len(contextArr))
+			
+			// Examine first context item if available
+			if len(contextArr) > 0 {
+				contextItemType := fmt.Sprintf("%T", contextArr[0])
+				slog.Debug(fmt.Sprintf("First %s item type", fieldName), "type", contextItemType)
+				
+				// If it's an object, show its keys
+				if contextItem, ok := contextArr[0].(map[string]interface{}); ok {
+					contextKeys := make([]string, 0, len(contextItem))
+					for k := range contextItem {
+						contextKeys = append(contextKeys, k)
+					}
+					slog.Debug(fmt.Sprintf("First %s item keys", fieldName), "keys", contextKeys)
+				}
+			}
+		} else {
+			slog.Debug(fmt.Sprintf("Resource %s is not an array", fieldName))
+		}
+	} else {
+		slog.Debug(fmt.Sprintf("Resource %s field not found", fieldName))
+	}
 }

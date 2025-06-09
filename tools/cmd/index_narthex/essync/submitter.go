@@ -235,8 +235,8 @@ func (w *worker) flush() {
 		Errors bool `json:"errors"`
 		Items  []struct {
 			Index struct {
-				Status int    `json:"status"`
-				Error  string `json:"error,omitempty"`
+				Status int         `json:"status"`
+				Error  interface{} `json:"error,omitempty"` // Using interface{} to handle both string and object error formats
 			} `json:"index"`
 		} `json:"items"`
 	}
@@ -259,9 +259,31 @@ func (w *worker) flush() {
 			successCount++
 		} else {
 			w.processor.metrics.errors.Value.Add(1)
+			
+			// Handle error that can be either a string or an object
+			var errorMsg string
+			switch err := item.Index.Error.(type) {
+			case string:
+				errorMsg = err
+			case map[string]interface{}:
+				// If error is an object, try to extract useful information
+				if reason, ok := err["reason"].(string); ok {
+					errorMsg = reason
+				} else {
+					// Fall back to JSON representation
+					errorBytes, _ := json.Marshal(err) 
+					errorMsg = string(errorBytes)
+					// Print the full error object for debugging
+					w.processor.logger.Debug("full error object", "error_details", err)
+				}
+			default:
+				// Fall back to %v format for other cases
+				errorMsg = fmt.Sprintf("%v", err)
+			}
+			
 			w.processor.logger.Error("document indexing failed",
 				"status", item.Index.Status,
-				"error", item.Index.Error)
+				"error", errorMsg)
 		}
 	}
 

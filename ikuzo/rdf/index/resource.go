@@ -33,7 +33,7 @@ type Resource struct {
 	// Context contains an ordered list of Referrers from the root Resource of the graph to the current Resource
 	Context []*ContextRef `json:"context"`
 
-	// GraphExternalContext []*ContextRef `json:"graphExternalContext"`
+	GraphExternalContext []*ContextRef `json:"graphExternalContext"`
 	// Tags                 []string      `json:"tags,omitempty"`
 	// predicates           map[string][]*FragmentEntry
 	// objectIDs []*ContextRef
@@ -51,7 +51,7 @@ func (rsc *Resource) Add(entry *Entry) {
 	if entry.Predicate == "" && entry.SearchLabel != "" {
 		p, err := getPredicate(entry.SearchLabel)
 		if err != nil {
-			slog.Warn("unable to create predicate", "searchLabel", searchLabel)
+			slog.Warn("unable to create predicate", "searchLabel", entry.SearchLabel)
 		}
 		entry.Predicate = p
 	}

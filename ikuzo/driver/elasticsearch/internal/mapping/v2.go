@@ -52,8 +52,28 @@ var v2Mapping = `{
 		}
 	},
 	"mappings":{
-			"dynamic": "strict",
+			"dynamic": true,
 			"date_detection" : false,
+			"_source": {
+				"excludes": ["fields"]
+			},
+			"dynamic_templates": [
+				{
+					"fields_as_multi_field": {
+						"path_match": "fields.*",
+						"mapping": {
+							"type": "text",
+							"fields": {
+								"keyword": {
+									"type": "keyword",
+									"ignore_above": 256,
+									"doc_values": true
+								}
+							}
+						}
+					}
+				}
+			],
 			"properties": {
 				"_checksum": {"type": "keyword"},
 				"meta": {
@@ -134,6 +154,9 @@ var v2Mapping = `{
 				},
 				"recordType": {"type": "short"},
 				"full_text": {"type": "text"},
+				"fields": {
+					"type": "object"
+				},
 				"resources": {
 					"type": "nested",
 					"properties": {
@@ -203,6 +226,26 @@ func V2MappingUpdate() string {
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.
 var v2MappingUpdate = `{
+  "_source": {
+    "excludes": ["fields"]
+  },
+  "dynamic_templates": [
+    {
+      "fields_as_multi_field": {
+        "path_match": "fields.*",
+        "mapping": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256,
+              "doc_values": true
+            }
+          }
+        }
+      }
+    }
+  ],
   "properties": {
 	"_checksum": {"type": "keyword"},
 	"meta": {
@@ -214,6 +257,9 @@ var v2MappingUpdate = `{
 			"recDefID": {"type": "keyword"},
 			"aboutTypeURI": {"type": "keyword"}
 		}
+	},
+    "fields": {
+		"type": "object"
 	},
     "tree": {
       "properties": {

@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"unicode"
 )
 
@@ -100,10 +101,8 @@ func (id OrganizationID) Valid() error {
 		return fmt.Errorf("minimum length = %d; %w", MinLengthID, ErrIDTooShort)
 	}
 
-	for _, p := range protectedOrgIDs {
-		if id == p {
-			return ErrIDExists
-		}
+	if slices.Contains(protectedOrgIDs, id) {
+		return ErrIDExists
 	}
 
 	for _, r := range id {

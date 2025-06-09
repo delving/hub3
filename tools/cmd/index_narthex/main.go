@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/delving/hub3/ikuzo/driver/elasticsearch"
+	"github.com/delving/hub3/ikuzo/rdf/index"
 	"github.com/delving/hub3/tools/cmd/index_narthex/essync"
 	"github.com/delving/hub3/tools/cmd/index_narthex/stats"
 	"github.com/klauspost/compress/zstd"
@@ -53,6 +54,8 @@ type processFlags struct {
 	targetIndex string
 	all         bool
 	pattern     string
+	tagMapFile  string
+	debug       bool
 }
 
 type downloadFlags struct {
@@ -97,6 +100,8 @@ func init() {
 	processCmd.Flags().StringVar(&pFlags.targetIndex, "index", "", "elasticsearch index to write to")
 	processCmd.Flags().BoolVar(&pFlags.all, "all", false, "process all subdirectories in the specified path")
 	processCmd.Flags().StringVar(&pFlags.pattern, "pattern", "", "custom pattern to search for (overrides default patterns)")
+	processCmd.Flags().StringVar(&pFlags.tagMapFile, "tagmap", "", "path to TOML file containing RDF tag mappings")
+	processCmd.Flags().BoolVar(&pFlags.debug, "debug", false, "enable debug logging")
 	processCmd.MarkFlagRequired("path")
 	processCmd.MarkFlagRequired("index")
 
@@ -259,7 +264,46 @@ func runProcess(cmd *cobra.Command, args []string) error {
 }
 
 func runProcessSingle() error {
-	stats, err := processSingleDirectory(pFlags.path, pFlags.targetIndex, pFlags.pattern)
+	// Set debug logging if requested
+	if pFlags.debug {
+		logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})
+		logger := slog.New(logHandler)
+		slog.SetDefault(logger)
+		slog.Debug("Debug logging enabled")
+	}
+
+	// Load tag map if provided
+	var tagMap *index.TagMap
+	var err error
+	
+	tagMapFile := pFlags.tagMapFile
+	if tagMapFile == "" {
+		// Try default locations
+		defaultLocations := []string{
+			"hub3.toml",
+			"./config/hub3.toml",
+		}
+		
+		for _, loc := range defaultLocations {
+			if _, err := os.Stat(loc); err == nil {
+				tagMapFile = loc
+				slog.Info("using default tag map file", "path", tagMapFile)
+				break
+			}
+		}
+	}
+	
+	if tagMapFile != "" {
+		tagMap, err = LoadRDFTagMapFromTOML(tagMapFile)
+		if err != nil {
+			return fmt.Errorf("failed to load tag map: %w", err)
+		}
+		slog.Info("loaded tag map", "file", tagMapFile, "entries", tagMap.Len())
+	}
+	
+	stats, err := processSingleDirectoryWithTagMap(pFlags.path, pFlags.targetIndex, pFlags.pattern, tagMap)
 	if err != nil {
 		return err
 	}
@@ -272,6 +316,16 @@ func runProcessSingle() error {
 }
 
 func runProcessAll() error {
+	// Set debug logging if requested
+	if pFlags.debug {
+		logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+			Level: slog.LevelDebug,
+		})
+		logger := slog.New(logHandler)
+		slog.SetDefault(logger)
+		slog.Debug("Debug logging enabled")
+	}
+
 	directories, err := findProcessableDirectoriesWithPattern(pFlags.path, pFlags.pattern)
 	if err != nil {
 		return err
@@ -279,13 +333,41 @@ func runProcessAll() error {
 
 	slog.Info("found directories to process", "count", len(directories), "parentPath", pFlags.path)
 
+	// Load tag map if provided
+	var tagMap *index.TagMap
+	
+	tagMapFile := pFlags.tagMapFile
+	if tagMapFile == "" {
+		// Try default locations
+		defaultLocations := []string{
+			"hub3.toml",
+			"./config/hub3.toml",
+		}
+		
+		for _, loc := range defaultLocations {
+			if _, err := os.Stat(loc); err == nil {
+				tagMapFile = loc
+				slog.Info("using default tag map file", "path", tagMapFile)
+				break
+			}
+		}
+	}
+	
+	if tagMapFile != "" {
+		tagMap, err = LoadRDFTagMapFromTOML(tagMapFile)
+		if err != nil {
+			return fmt.Errorf("failed to load tag map: %w", err)
+		}
+		slog.Info("loaded tag map", "file", tagMapFile, "entries", tagMap.Len())
+	}
+
 	var totalStats NarthexStats
 	var processedCount int
 
 	for i, dirPath := range directories {
 		slog.Info("processing directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath)
 		
-		stats, err := processSingleDirectory(dirPath, pFlags.targetIndex, pFlags.pattern)
+		stats, err := processSingleDirectoryWithTagMap(dirPath, pFlags.targetIndex, pFlags.pattern, tagMap)
 		if err != nil {
 			slog.Error("failed to process directory", "dir", dirPath, "error", err)
 			continue

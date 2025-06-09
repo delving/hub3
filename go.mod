@@ -81,7 +81,6 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/air-verse/air v1.61.7 // indirect
 	github.com/bep/godartsass v1.2.0 // indirect
 	github.com/bep/godartsass/v2 v2.1.0 // indirect
