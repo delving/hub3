@@ -474,6 +474,16 @@ type ScrollResultV4 struct {
 	TreePage     map[string][]*Tree `json:"treePage,omitempty"`
 	ProtoBuf     *ProtoBuf          `json:"protoBuf,omitempty"`
 	RelatedItems []*ItemV1          `json:"relatedItems,omitempty"`
+	Layout       *Layout            `json:"layout,omitempty"`
+}
+
+type Layout struct {
+	Layout []LayoutItem `json:"layout"`
+}
+
+type LayoutItem struct {
+	Name string `json:"name"`
+	I18n string `json:"i18n"`
 }
 
 // TreeHeader contains rendering hints for the consumer of the TreeView API.
@@ -681,7 +691,7 @@ type QueryFacet struct {
 	Name         string       `json:"name"`
 	Field        string       `json:"field"`
 	IsSelected   bool         `json:"isSelected"`
-	I18n         string       `json:"i18N,omitempty"`
+	I18n         string       `json:"i18n,omitempty"`
 	Total        int64        `json:"total"`
 	MissingDocs  int64        `json:"missingDocs"`
 	OtherDocs    int64        `json:"otherDocs"`
@@ -694,13 +704,13 @@ type QueryFacet struct {
 
 // FacetLink contains all the information for creating a filter for this facet
 type FacetLink struct {
-	URL                string `json:"url"`
-	IsSelected         bool   `json:"isSelected"`
-	Value              string `json:"value"`
-	DisplayString      string `json:"displayString"`
-	Count              int64  `json:"count"`
-	BucketKey          string `json:"bucketKey,omitempty"`
-	BucketKeyAsNumber  int64  `json:"bucketKeyAsNumber,omitempty"`
+	URL               string `json:"url"`
+	IsSelected        bool   `json:"isSelected"`
+	Value             string `json:"value"`
+	DisplayString     string `json:"displayString"`
+	Count             int64  `json:"count"`
+	BucketKey         string `json:"bucketKey,omitempty"`
+	BucketKeyAsNumber int64  `json:"bucketKeyAsNumber,omitempty"`
 }
 
 // FragmentResource holds all the conttext information for a resource

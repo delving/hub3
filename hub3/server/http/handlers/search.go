@@ -1083,12 +1083,25 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 		for _, facet := range result.Facets {
 			facet.Field = conv.ReplaceQueryString(facet.Field, true)
-			facet.Name = conv.ReplaceQueryString(facet.Name, true)
+			facet.Name = conv.ReplaceQueryString(facet.Name, true) + "_facet"
+			facet.I18n = conv.ReplaceQueryString(facet.Name, true)
 
 			for _, link := range facet.Links {
 				link.URL = conv.ReplaceQueryString(link.URL, true)
 			}
 		}
+
+		layout := fragments.Layout{
+			Layout: []fragments.LayoutItem{},
+		}
+		for k, v := range conv.Layout() {
+			item := fragments.LayoutItem{
+				Name: k,
+				I18n: v,
+			}
+			layout.Layout = append(layout.Layout, item)
+		}
+		result.Layout = &layout
 
 		wrapper := resultWrapper{Result: result}
 

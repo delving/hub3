@@ -1552,7 +1552,9 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 		maxAgg := elastic.NewMaxAggregation().Field(field)
 		histAgg := elastic.NewDateHistogramAggregation().
 			Field(field).
-			FixedInterval(facet.DateInterval)
+			// CalendarInterval(facet.DateInterval)
+			// .Format("yyyy")
+			Interval(facet.DateInterval)
 
 		filterAgg := elastic.NewFilterAggregation().
 			Filter(fieldTermQuery).
@@ -2473,9 +2475,7 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 
 							// Extract bucket key and timestamp for histogram buckets
 							bucketKey := key
-							var bucketKeyAsNumber int64
-							// For histogram buckets, the Key is typically a timestamp (float64)
-							bucketKeyAsNumber = int64(b.Key)
+							bucketKeyAsNumber := int64(b.Key)
 
 							fl := &FacetLink{
 								URL:               url,

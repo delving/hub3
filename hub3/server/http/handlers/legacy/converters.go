@@ -71,6 +71,7 @@ type Converter interface {
 	GetQueryReplacers(reverse bool) map[string]string
 	ReplaceQueryString(queryString string, reverse bool) string
 	Configuration() *domain.V1Config
+	Layout() map[string]string
 }
 
 // BaseConverter implements common functionality for all converters
@@ -92,6 +93,19 @@ func (bc *BaseConverter) Configuration() *domain.V1Config {
 		return nil
 	}
 	return cfg.V1Config
+}
+
+func (bc *BaseConverter) Layout() (layout map[string]string) {
+	layout = map[string]string{}
+	for k := range bc.DelvingMappings {
+		layout[k] = k
+	}
+
+	for k := range bc.FieldMappings {
+		layout[k] = k
+	}
+
+	return layout
 }
 
 // GetConverterKey returns the converter's key identifier
