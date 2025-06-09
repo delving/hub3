@@ -1088,6 +1088,14 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 			for _, link := range facet.Links {
 				link.URL = conv.ReplaceQueryString(link.URL, true)
+				// if strings.Contains(link.URL, "q=") {
+				s, err := removeQParam(link.URL)
+				if err != nil {
+					slog.Info("unable to parse facet link", "url", link.URL, "error", err)
+					continue
+				}
+				link.URL = s
+				// }
 			}
 		}
 
@@ -1386,7 +1394,7 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 	}
 
 	var records []*fragments.FragmentGraph
-	var searchAfter []interface{}
+	var searchAfter []any
 	for _, hit := range res.Hits.Hits {
 		searchAfter = hit.Sort
 		r, err := decodeFragmentGraph(hit.Source)
@@ -1401,4 +1409,20 @@ func decodeFragmentGraphs(res *elastic.SearchResult) ([]*fragments.FragmentGraph
 		records = append(records, r)
 	}
 	return records, searchAfter, nil
+}
+
+func removeQParam(urlStr string) (string, error) {
+	u, err := url.ParseQuery(urlStr)
+	if err != nil {
+		return "", err
+	}
+
+	u.Del("q")
+	u.Del("query")
+
+	q := u.Encode()
+	if !strings.HasPrefix(q, "&") {
+		q = "&" + q
+	}
+	return q, nil
 }
