@@ -461,10 +461,12 @@ latLong = [
 dateRange = [
   "https://archief.nl/def/ead/dateNormal",
   "https://archief.nl/def/ead/periodDesc",
+  "http://schemas.delving.eu/nave/terms/date",
 ]
 isoDate = [
   "https://archief.nl/def/ead/dateiso",
-  #"http://schemas.delving.eu/nave/terms/date",
+  "http://schemas.delving.eu/nave/terms/dateCreation",
+  "http://schemas.delving.eu/nave/terms/dateInUse",
 ]
 
 [[namespaces]]
