@@ -39,7 +39,8 @@ var v2Mapping = `{
 			"mapping.depth.limit": 20,
 			"mapping.nested_fields.limit": 50,
 			"number_of_shards": %d,
-			"number_of_replicas": %d
+			"number_of_replicas": %d,
+			"query.default_field": "full_text"
 		},
 		"analysis": {
 			"analyzer": {
@@ -223,6 +224,11 @@ func V2MappingUpdate() string {
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.
 var v2MappingUpdate = `{
+  "settings": {
+    "index": {
+      "query.default_field": "full_text"
+    }
+  },
   "dynamic_templates": [
     {
       "fields_as_multi_field": {

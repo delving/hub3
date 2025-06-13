@@ -24,6 +24,7 @@ import (
 	"log/slog"
 	"math/rand"
 	"net/url"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -954,24 +955,16 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 
 	query = query.Must(orgQuery)
 
-	metaSpecPrefix := "meta.spec:"
-
 	if sr.GetQuery() != "" {
-		rawQuery := strings.Replace(sr.GetQuery(), "delving_spec:", metaSpecPrefix, 1)
 
-		if strings.Contains(rawQuery, metaSpec) {
-			all := []string{}
-			for _, part := range strings.Split(rawQuery, " ") {
-				if strings.HasPrefix(part, metaSpecPrefix) {
-					spec := strings.TrimPrefix(part, metaSpecPrefix)
-					query = query.Must(elastic.NewTermQuery(metaSpec, spec))
-					continue
-				}
-				all = append(all, part)
-			}
-			rawQuery = strings.Join(all, " ")
-		}
-		if rawQuery != "" {
+		rawQuery := transformQuery(sr.GetQuery())
+
+		if hasSearchFields(rawQuery) {
+			q := elastic.NewQueryStringQuery(escapeRawQuery(rawQuery))
+			q.DefaultOperator("and")
+			query = query.Must(q)
+
+		} else if rawQuery != "" {
 			fields := strings.Split(sr.SearchFields, ",")
 			if len(fields) == 0 {
 				fields = c.Config.ElasticSearch.SearchFields
@@ -2641,4 +2634,18 @@ func facetFieldBySearchLabel(facetFields []*FacetField, searchLabel string) (*Fa
 		}
 	}
 	return nil, false
+}
+
+// transformQuery transforms a query string by:
+// - Replacing patterns like "dc_creator_text:" with "fields.dc_creator:"
+// - Replacing "delving_spec" with "meta.spec"
+func transformQuery(query string) string {
+	// Replace *_text: patterns with fields.*:
+	textPattern := regexp.MustCompile(`(\w+)_text:`)
+	result := textPattern.ReplaceAllString(query, "fields.$1:")
+
+	// Replace delving_spec with meta.spec only when followed by :
+	result = regexp.MustCompile(`\bdelving_spec:`).ReplaceAllString(result, "meta.spec:")
+
+	return result
 }
