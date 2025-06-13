@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -11,88 +12,79 @@ import (
 	"github.com/delving/hub3/hub3/index"
 )
 
-// MoreLikeThisNestedSearch performs a moreLikeThis query and returns just the inner hit sources
-func MoreLikeThisNestedSearch(
+// MoreLikeThisSearch performs a moreLikeThis query using a document ID and returns document sources
+func MoreLikeThisSearch(
 	orgID string,
 	hubID string,
 	searchLabels []string,
-	likeText string,
 	size int,
 ) ([]json.RawMessage, error) {
 	// Create a client
 	client := index.ESClient()
 
+	// Build the searchLabel fields array for more_like_this
+	searchLabelFields := make([]string, len(searchLabels))
+	for i, label := range searchLabels {
+		searchLabel := label
+		if !strings.HasPrefix(searchLabel, "fields.") {
+			searchLabel = fmt.Sprintf("fields.%s", label)
+		}
+		searchLabelFields[i] = searchLabel
+	}
+
 	rawQuery := fmt.Sprintf(`{
     "query": {
-        "bool": {
-            "must": [
+        "more_like_this": {
+            "fields": %s,
+            "like": [
                 {
-                    "nested": {
-                        "path": "resources.entries",
-                        "query": {
-                            "bool": {
-                                "filter": {
-                                    "terms": {
-                                        "resources.entries.searchLabel": %s
-                                    }
-                                },
-                                "must": {
-                                    "more_like_this": {
-                                        "fields": ["resources.entries.@value"],
-                                        "like": %s,
-                                        "min_term_freq": 1,
-                                        "max_query_terms": 25,
-                                        "min_doc_freq": 1
-                                    }
-                                }
-                            }
-                        },
-                        "inner_hits": {
-                            "_source": true,
-                            "size": 5
-                        },
-                        "score_mode": "avg"
-                    }
+                    "_index": "%s",
+                    "_id": "%s"
                 }
             ],
-            "must_not": [
-                {
-                    "term": {
-                        "meta.hubID": "%s"
-                    }
-                }
-            ]
+            "min_term_freq": 1,
+            "max_query_terms": 15,
+            "min_doc_freq": 1
         }
     },
     "size": %d
 }`,
-		marshalStringSlice(searchLabels),
-		fmt.Sprintf(`"%s"`, escapeJSON(likeText)),
-		escapeJSON(hubID),
+		marshalStringSlice(searchLabelFields),
+		c.Config.ElasticSearch.GetIndexName(orgID),
+		hubID,
 		size)
 
-	// Create a context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	slog.Info("mlt", "rawQuery", rawQuery, "docID", hubID)
+	println(rawQuery)
 
 	// Perform the search using raw query
 	res, err := client.Search().
 		Index(c.Config.ElasticSearch.GetIndexName(orgID)).
-		Source(strings.NewReader(rawQuery)).
+		Source(rawQuery).
 		Pretty(true).
 		Do(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("search error: %w", err)
 	}
 
-	// Process results - collect all inner hit sources
-	var innerHitSources []json.RawMessage
+	slog.Info("mlt query", "hits", len(res.Hits.Hits), "totalHits", res.Hits.TotalHits)
 
+	// Process results - collect document sources
+	var sources []json.RawMessage
+	count := 0
 	for _, hit := range res.Hits.Hits {
-		innerHitSources = append(innerHitSources, hit.Source)
+		slog.Info("mlt query sources", "doc", hit.Id)
+		if count >= size {
+			break
+		}
+		sources = append(sources, hit.Source)
+		count++
 	}
 
-	return innerHitSources, nil
+	return sources, nil
 }
 
 // Helper function to properly escape JSON strings

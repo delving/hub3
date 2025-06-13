@@ -68,7 +68,7 @@ func NewPaginator(total, pageSize, currentPage, cursor int) (*Paginator, error) 
 }
 
 func (p *Paginator) getPageNumber() (int, error) {
-	if p.NumFound < 1 {
+	if p.NumFound < 1 || p.Rows < 1 {
 		return 1, nil
 	}
 
@@ -142,7 +142,7 @@ func (p *Paginator) getPageLinks() ([]PageLink, error) {
 }
 
 func (p *Paginator) setPaging() error {
-	if p.NumFound > 0 {
+	if p.NumFound > 0 && p.Rows > 0 {
 		p.FirstPage = 1
 		p.LastPage = (p.NumFound / p.Rows)
 

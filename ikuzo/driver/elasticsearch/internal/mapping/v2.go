@@ -54,9 +54,6 @@ var v2Mapping = `{
 	"mappings":{
 			"dynamic": true,
 			"date_detection" : false,
-			"_source": {
-				"excludes": ["fields"]
-			},
 			"dynamic_templates": [
 				{
 					"fields_as_multi_field": {
@@ -226,9 +223,6 @@ func V2MappingUpdate() string {
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.
 var v2MappingUpdate = `{
-  "_source": {
-    "excludes": ["fields"]
-  },
   "dynamic_templates": [
     {
       "fields_as_multi_field": {

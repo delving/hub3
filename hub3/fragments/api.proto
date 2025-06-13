@@ -215,6 +215,7 @@ message SearchRequest {
   repeated string language = 45;
   bool moreLikeThis = 46;
   int32 moreLikeThisCount = 47;
+  string facetFull = 48;
 }
 
 enum GeoType {

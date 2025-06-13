@@ -183,7 +183,7 @@ func (bc *BaseConverter) getHubID() (string, string) {
 	localID := parts[len(parts)-1]
 
 	// Clean localID similar to RDFRecord.clean_local_id
-	re := regexp.MustCompile(`[^\w-]`)
+	re := regexp.MustCompile(`[^\w-\.]`)
 	cleanLocalID := re.ReplaceAllString(localID, "")
 
 	hubID := fmt.Sprintf("%s_%s_%s", bc.OrgID, spec, cleanLocalID)

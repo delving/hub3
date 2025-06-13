@@ -466,7 +466,7 @@ type ScrollResultV4 struct {
 	Peek         map[string]int64   `json:"peek,omitempty"`
 	Query        *Query             `json:"query"`
 	Pagination   *search.Paginator  `json:"pagination,omitempty"`
-	Items        []*FragmentGraph   `json:"items,omitempty"`
+	Items        []*FragmentGraph   `json:"items"`
 	Collapsed    []*Collapsed       `json:"collapsed,omitempty"`
 	Facets       []*QueryFacet      `json:"facets,omitempty"`
 	TreeHeader   *TreeHeader        `json:"treeHeader,omitempty"`

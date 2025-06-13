@@ -532,6 +532,19 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		}
 	}
 
+	facetFull := params.Get("facet.full")
+	if facetFull != "" {
+		facet, err := NewFacetField(facetFull)
+		if err != nil {
+			return nil, err
+		}
+
+		facet.Size = 2000
+
+		sr.FacetField = []*FacetField{facet}
+		sr.ResponseSize = 0
+	}
+
 	if len(sr.GetQueryRefinement()) > 0 {
 		for _, rq := range sr.GetQueryRefinement() {
 			sr.Query += " AND (" + rq + ")"

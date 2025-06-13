@@ -81,6 +81,7 @@ func manipulateV1Request(req *http.Request) error {
 	queryStr := query.Encode()
 	queryStr = conv.ReplaceQueryString(queryStr, false)
 	queryStr = strings.ReplaceAll(queryStr, "_facet", "")
+	queryStr = strings.ReplaceAll(queryStr, ".raw", "")
 	req.URL.RawQuery = queryStr
 	return nil
 }
@@ -1111,6 +1112,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		}
 		result.Layout = &layout
 
+		if len(result.Items) == 0 {
+			result.Items = []*fragments.FragmentGraph{}
+		}
+
+		fullFacet := r.URL.Query().Get("facet.full")
+		if fullFacet != "" {
+			facetOnly := fragments.ScrollResultV4{}
+			facetOnly.Facets = result.Facets
+
+			result = &facetOnly
+		}
+
 		wrapper := resultWrapper{Result: result}
 
 		jsonpCallback := r.URL.Query().Get("callback")
@@ -1226,10 +1239,12 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 			for _, v := range vals {
 				sb.WriteString(v + " ")
 			}
+			sb.WriteString(" ")
 		}
-		likeText := sb.String()
 
-		recs, err := MoreLikeThisNestedSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, likeText, cfg.MLT.DefaultCount)
+		mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
+
+		recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltCount)
 		if err != nil {
 			render.Error(w, r, err, &render.DefaultConfig)
 			return
@@ -1237,6 +1252,12 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 		for _, rec := range recs {
 			fg, err := decodeFragmentGraph(rec)
+			if err != nil {
+				render.Error(w, r, err, &render.DefaultConfig)
+				return
+			}
+
+			mltConv, err := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
 			if err != nil {
 				render.Error(w, r, err, &render.DefaultConfig)
 				return
@@ -1250,8 +1271,8 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 				Fields:  map[string][]string{},
 			}
 			maps.Copy(item.Fields, fg.Fields)
-			item.Fields = conv.Convert(item.Fields, true)
-			record.MoreLikeThis = append(record.MoreLikeThis, item)
+			item.Fields = mltConv.Convert(item.Fields, true)
+			record.AddMoreLikeThis(item)
 		}
 
 		record.Meta = nil
@@ -1425,4 +1446,18 @@ func removeQParam(urlStr string) (string, error) {
 		q = "&" + q
 	}
 	return q, nil
+}
+
+func parseMltCount(values url.Values, defaultCount int) int {
+	countStr := values.Get("mlt.count")
+	if countStr == "" {
+		return defaultCount
+	}
+
+	count, err := strconv.Atoi(countStr)
+	if err != nil {
+		return defaultCount
+	}
+
+	return count
 }

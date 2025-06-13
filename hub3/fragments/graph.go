@@ -21,7 +21,11 @@ type FragmentGraph struct {
 	Highlights   []*ResourceEntryHighlight `json:"highlights,omitempty"`
 	ProtoBuf     *ProtoBuf                 `json:"protoBuf,omitempty"`
 	Item         *ItemV1                   `json:"item,omitempty"`
-	MoreLikeThis []*ItemV1                 `json:"relatedItems,omitempty"`
+	MoreLikeThis *RelatedItems             `json:"relatedItems,omitempty"`
+}
+
+type RelatedItems struct {
+	Items []*ItemV1 `json:"item"`
 }
 
 // ItemV1 represents a single search result item
@@ -29,6 +33,13 @@ type ItemV1 struct {
 	DocID   string              `json:"doc_id"`
 	DocType string              `json:"doc_type"`
 	Fields  map[string][]string `json:"fields"`
+}
+
+func (fg *FragmentGraph) AddMoreLikeThis(item *ItemV1) {
+	if fg.MoreLikeThis == nil {
+		fg.MoreLikeThis = &RelatedItems{}
+	}
+	fg.MoreLikeThis.Items = append(fg.MoreLikeThis.Items, item)
 }
 
 func (fg *FragmentGraph) Graph() (*rdf.Graph, error) {
