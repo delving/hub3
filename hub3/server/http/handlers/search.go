@@ -82,6 +82,7 @@ func manipulateV1Request(req *http.Request) error {
 	queryStr = conv.ReplaceQueryString(queryStr, false)
 	queryStr = strings.ReplaceAll(queryStr, "_facet", "")
 	queryStr = strings.ReplaceAll(queryStr, ".raw", "")
+	queryStr = strings.ReplaceAll(queryStr, "delving_spec", "meta.spec")
 	req.URL.RawQuery = queryStr
 	return nil
 }
@@ -1243,8 +1244,12 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		}
 
 		mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
+		var mltFilterKeys []string
+		if r.URL.Query().Has("mlt.filterkey") {
+			mltFilterKeys = r.URL.Query()["mlt.filterkey"]
+		}
 
-		recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltCount)
+		recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
 		if err != nil {
 			render.Error(w, r, err, &render.DefaultConfig)
 			return

@@ -785,7 +785,7 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 			ie.Raw = value[:256]
 		}
 		// replace double quotes a single quote
-		ie.Raw = strings.Replace(ie.Raw, "\"", "'", -1)
+		ie.Raw = strings.ReplaceAll(ie.Raw, "\"", "'")
 		l := t.Object.(*r.Literal)
 		ie.Language = l.Language
 	case *r.BlankNode:

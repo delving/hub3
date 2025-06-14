@@ -978,6 +978,22 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 		}
 	}
 
+	if len(sr.HiddenQueryFilter) > 0 {
+		fub, err := NewFacetURIBuilder("", sr.HiddenQueryFilter)
+		if err != nil {
+			return nil, err
+		}
+		fub.ORBetweenFacets = sr.ORBetweenFacets
+		fub.AddFacetMergeFilters(sr.FacetMergeFilter)
+
+		hiddenFilterQuery, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
+		if err != nil {
+			return nil, err
+		}
+
+		query = query.Filter(hiddenFilterQuery)
+	}
+
 	// add support for highlighting
 	// add support for suggest queries
 
@@ -1118,23 +1134,6 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			query = query.Must(q)
 			sr.Tree.FillTree = true
 		}
-	}
-
-	// TODO: add support for hidden query filters
-	if len(sr.HiddenQueryFilter) > 0 {
-		fub, err := NewFacetURIBuilder("", sr.HiddenQueryFilter)
-		if err != nil {
-			return nil, err
-		}
-		fub.ORBetweenFacets = sr.ORBetweenFacets
-		fub.AddFacetMergeFilters(sr.FacetMergeFilter)
-
-		hiddenFilterQuery, err := fub.CreateFacetFilterQuery("", sr.FacetAndBoolType)
-		if err != nil {
-			return nil, err
-		}
-
-		query = query.Filter(hiddenFilterQuery)
 	}
 
 	return query, nil

@@ -1751,7 +1751,10 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 			var entryKey string
 			switch entry.EntryType {
 			case "Resource":
-				entryKey = entry.ID
+				entryKey = entry.Value
+				if entry.Value == "" {
+					entryKey = entry.ID
+				}
 			default:
 				entryKey = entry.Value
 			}
@@ -1806,7 +1809,7 @@ func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[s
 			}
 		}
 
-		// log.Printf("flat fields: %#v", fg.Fields)
+		log.Printf("flat fields: %#v", fg.Fields)
 
 		return fg.Fields
 	}

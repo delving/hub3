@@ -17,6 +17,7 @@ func MoreLikeThisSearch(
 	orgID string,
 	hubID string,
 	searchLabels []string,
+	filters []string,
 	size int,
 ) ([]json.RawMessage, error) {
 	// Create a client
@@ -32,27 +33,86 @@ func MoreLikeThisSearch(
 		searchLabelFields[i] = searchLabel
 	}
 
-	rawQuery := fmt.Sprintf(`{
+	// Create the more_like_this part of the query which is common to both cases
+	mltQuery := fmt.Sprintf(`{
+        "fields": %s,
+        "like": [
+            {
+                "_index": "%s",
+                "_id": "%s"
+            }
+        ],
+        "min_term_freq": 1,
+        "max_query_terms": 15,
+        "min_doc_freq": 1
+    }`,
+		marshalStringSlice(searchLabelFields),
+		c.Config.ElasticSearch.GetIndexName(orgID),
+		hubID)
+	
+	var queryJSON string
+	
+	// Process filters if we have any
+	if len(filters) > 0 {
+		// Process filters and add "fields." prefix if needed
+		processedFilters := make([]string, len(filters))
+		for i, filter := range filters {
+			// Skip adding prefix if it's already a meta or tree field
+			if strings.HasPrefix(filter, "meta.") || strings.HasPrefix(filter, "tree.") {
+				processedFilters[i] = filter
+			} else if !strings.HasPrefix(filter, "fields.") {
+				// Add fields prefix if not already there
+				processedFilters[i] = fmt.Sprintf("fields.%s", filter)
+			} else {
+				processedFilters[i] = filter
+			}
+		}
+		
+		// Create filter terms JSON
+		var filterTerms []string
+		for _, filter := range processedFilters {
+			// Split the filter into field:value
+			parts := strings.SplitN(filter, ":", 2)
+			if len(parts) == 2 {
+				field := parts[0]
+				value := parts[1]
+				
+				// Escape any quotes in the value
+				value = escapeJSON(value)
+				
+				// Create the term filter JSON
+				filterTerm := fmt.Sprintf(`{"term":{"%s":"%s"}}`, field, value)
+				filterTerms = append(filterTerms, filterTerm)
+			}
+		}
+		
+		// Join filter terms with commas
+		filtersJSON := strings.Join(filterTerms, ",")
+		
+		// Build the combined bool query with must (more_like_this) and should (OR) for filters
+		queryJSON = fmt.Sprintf(`{
     "query": {
-        "more_like_this": {
-            "fields": %s,
-            "like": [
-                {
-                    "_index": "%s",
-                    "_id": "%s"
-                }
-            ],
-            "min_term_freq": 1,
-            "max_query_terms": 15,
-            "min_doc_freq": 1
+        "bool": {
+            "must": {
+                "more_like_this": %s
+            },
+            "should": [%s],
+            "minimum_should_match": 1
         }
     },
     "size": %d
-}`,
-		marshalStringSlice(searchLabelFields),
-		c.Config.ElasticSearch.GetIndexName(orgID),
-		hubID,
-		size)
+}`, mltQuery, filtersJSON, size)
+	} else {
+		// No filters, just use the more_like_this query directly
+		queryJSON = fmt.Sprintf(`{
+    "query": {
+        "more_like_this": %s
+    },
+    "size": %d
+}`, mltQuery, size)
+	}
+	
+	rawQuery := queryJSON
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
