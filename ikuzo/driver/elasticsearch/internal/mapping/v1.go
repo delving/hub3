@@ -31,9 +31,10 @@ func V1ESMapping(shards, replicas int) string {
 var v1Mapping = `{
   "settings": {
     "index": {
-      "mapping.total_fields.limit": 1000,
+      "mapping.total_fields.limit": 2000,
       "mapping.depth.limit": 20,
       "mapping.nested_fields.limit": 50,
+	  "max_result_window": 50000,
       "number_of_shards": %d,
       "number_of_replicas": %d
     },

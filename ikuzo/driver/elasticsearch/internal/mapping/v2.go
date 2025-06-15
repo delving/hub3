@@ -36,6 +36,7 @@ var v2Mapping = `{
 	"settings": {
 		"index": {
 			"mapping.total_fields.limit": 1000,
+	 		"mapping.nested_objects.limit": 50000,
 			"mapping.depth.limit": 20,
 			"mapping.nested_fields.limit": 50,
 			"number_of_shards": %d,
