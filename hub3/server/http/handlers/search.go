@@ -574,6 +574,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		return
 	}
 
+	itemTypePath := r.URL.Query().Get("itemTypePath")
+	if itemTypePath != "" {
+		for _, record := range records {
+			record.Meta.ItemType = record.ItemType(itemTypePath)
+		}
+	}
+
 	searchAfterBin, err := searchRequest.CreateBinKey(searchAfter)
 	if err != nil {
 		log.Printf("Unable to encode searchAfter")
@@ -1208,6 +1215,11 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Query().Get("v1.mode") == "true" {
 		itemFormat = "v1"
+	}
+
+	itemTypePath := r.URL.Query().Get("itemTypePath")
+	if itemTypePath != "" {
+		record.Meta.ItemType = record.ItemType(itemTypePath)
 	}
 
 	switch itemFormat {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -33,6 +34,22 @@ type ItemV1 struct {
 	DocID   string              `json:"doc_id"`
 	DocType string              `json:"doc_type"`
 	Fields  map[string][]string `json:"fields"`
+}
+
+func (fg *FragmentGraph) ItemType(path string) string {
+	// only the first one is returned
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			if entry.SearchLabel == path {
+				if entry.Value != "" {
+					return strings.ToLower(entry.Value)
+				}
+			}
+		}
+	}
+
+	// nothing found return default
+	return "default"
 }
 
 func (fg *FragmentGraph) AddMoreLikeThis(item *ItemV1) {
