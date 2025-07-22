@@ -1084,6 +1084,22 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		slog.Info("v1 mode", "itemFormat", r.URL.Query())
 
 		if !strings.EqualFold(r.URL.Query().Get("itemFormat"), "v1") {
+			jsonpCallback := r.URL.Query().Get("callback")
+			if jsonpCallback != "" && r.URL.Query().Get("format") == "jsonp" {
+				// Marshal the data to JSON
+				jsonData, err := json.Marshal(result)
+				if err != nil {
+					render.Error(w, r, err, &render.DefaultConfig)
+					return
+				}
+
+				// Set the content type for JSONP
+				w.Header().Set("Content-Type", "application/javascript")
+
+				// Write the response with the callback wrapper
+				fmt.Fprintf(w, "%s(%s);", jsonpCallback, jsonData)
+				return
+			}
 			render.JSON(w, r, result)
 			return
 		}
@@ -1154,23 +1170,6 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 		render.JSON(w, r, wrapper)
 		return
 
-	}
-
-	jsonpCallback := r.URL.Query().Get("callback")
-	if jsonpCallback != "" && r.URL.Query().Get("format") == "jsonp" {
-		// Marshal the data to JSON
-		jsonData, err := json.Marshal(result)
-		if err != nil {
-			render.Error(w, r, err, &render.DefaultConfig)
-			return
-		}
-
-		// Set the content type for JSONP
-		w.Header().Set("Content-Type", "application/javascript")
-
-		// Write the response with the callback wrapper
-		fmt.Fprintf(w, "%s(%s);", jsonpCallback, jsonData)
-		return
 	}
 
 	// currently only JSON is supported. Add switch when protobuf must be returned
