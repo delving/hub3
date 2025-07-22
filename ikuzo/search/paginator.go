@@ -96,29 +96,40 @@ func (p *Paginator) AddPageLinks() error {
 }
 
 func (p *Paginator) getPageLinks() ([]PageLink, error) {
-	pagingWindow := 10
-
-	firstPage := p.FirstPage
-	if firstPage < 1 {
+	totalLinksWanted := 10
+	
+	// Calculate the ideal window
+	firstPage := 1
+	lastPage := p.LastPage
+	
+	if p.LastPage <= totalLinksWanted {
+		// If total pages <= 10, show all pages
 		firstPage = 1
-	}
-
-	if p.CurrentPage > 1 {
-		firstPage = p.CurrentPage - 4
-		pagingWindow = p.CurrentPage + 4
-	}
-
-	if firstPage < 1 {
-		firstPage = 1
-	}
-
-	if p.LastPage < pagingWindow {
-		pagingWindow = p.LastPage
+		lastPage = p.LastPage
+	} else {
+		// Try to center the current page with 5 on each side
+		firstPage = p.CurrentPage - 5
+		lastPage = p.CurrentPage + 4
+		
+		// Adjust if we're too close to the beginning
+		if firstPage < 1 {
+			firstPage = 1
+			lastPage = totalLinksWanted
+		}
+		
+		// Adjust if we're too close to the end
+		if lastPage > p.LastPage {
+			lastPage = p.LastPage
+			firstPage = p.LastPage - totalLinksWanted + 1
+			if firstPage < 1 {
+				firstPage = 1
+			}
+		}
 	}
 
 	links := []PageLink{}
 
-	for i := firstPage; i <= pagingWindow; i++ {
+	for i := firstPage; i <= lastPage; i++ {
 		start := ((i - 1) * p.Rows) + 1
 		if start < 1 {
 			start = 1

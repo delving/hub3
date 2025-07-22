@@ -281,6 +281,7 @@ func TestPaginator_getPageLinks(t *testing.T) {
 			"while paging full paging window",
 			args{1000, 16, 8, 113},
 			[]PageLink{
+				{Start: 33, IsLinked: true, PageNumber: 3},
 				{Start: 49, IsLinked: true, PageNumber: 4},
 				{Start: 65, IsLinked: true, PageNumber: 5},
 				{Start: 81, IsLinked: true, PageNumber: 6},
@@ -297,6 +298,8 @@ func TestPaginator_getPageLinks(t *testing.T) {
 			"while paging with limit",
 			args{162, 16, 8, 113},
 			[]PageLink{
+				{Start: 17, IsLinked: true, PageNumber: 2},
+				{Start: 33, IsLinked: true, PageNumber: 3},
 				{Start: 49, IsLinked: true, PageNumber: 4},
 				{Start: 65, IsLinked: true, PageNumber: 5},
 				{Start: 81, IsLinked: true, PageNumber: 6},
@@ -323,6 +326,28 @@ func TestPaginator_getPageLinks(t *testing.T) {
 			false,
 		},
 		{
+			"page 2 should return 10 links when there are many pages",
+			args{
+				total:       1000,
+				pageSize:    16,
+				currentPage: 2,
+				cursor:      0,
+			},
+			[]PageLink{
+				{Start: 1, IsLinked: true, PageNumber: 1},
+				{Start: 17, IsLinked: false, PageNumber: 2},
+				{Start: 33, IsLinked: true, PageNumber: 3},
+				{Start: 49, IsLinked: true, PageNumber: 4},
+				{Start: 65, IsLinked: true, PageNumber: 5},
+				{Start: 81, IsLinked: true, PageNumber: 6},
+				{Start: 97, IsLinked: true, PageNumber: 7},
+				{Start: 113, IsLinked: true, PageNumber: 8},
+				{Start: 129, IsLinked: true, PageNumber: 9},
+				{Start: 145, IsLinked: true, PageNumber: 10},
+			},
+			false,
+		},
+		{
 			"paging limited paging window",
 			args{
 				total:       176,
@@ -331,6 +356,7 @@ func TestPaginator_getPageLinks(t *testing.T) {
 				cursor:      97,
 			},
 			[]PageLink{
+				{Start: 1, IsLinked: true, PageNumber: 1},
 				{Start: 17, IsLinked: true, PageNumber: 2},
 				{Start: 33, IsLinked: true, PageNumber: 3},
 				{Start: 49, IsLinked: true, PageNumber: 4},
