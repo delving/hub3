@@ -401,6 +401,27 @@ paths:
           schema:
             type: string
             enum: [jsonld]
+        - name: moreLikeThis
+          in: query
+          description: Enable More Like This functionality to find similar records
+          schema:
+            type: boolean
+            default: false
+        - name: moreLikeThisCount
+          in: query
+          description: Number of similar records to return when moreLikeThis is enabled
+          schema:
+            type: integer
+            format: int32
+            default: 10
+            minimum: 1
+            maximum: 100
+        - name: moreLikeThisFields
+          in: query
+          description: Fields to use for More Like This similarity matching (comma-separated)
+          schema:
+            type: string
+            example: dc.title,dc.description,dc.subject
       responses:
         "200":
           description: Successful response
@@ -1114,6 +1135,11 @@ components:
           description: Resources in this graph
         summary:
           $ref: "#/components/schemas/ResultSummary"
+        moreLikeThis:
+          type: array
+          items:
+            $ref: "#/components/schemas/MoreLikeThisItem"
+          description: Similar records when moreLikeThis is enabled
         jsonld:
           type: array
           items:
@@ -1476,6 +1502,42 @@ components:
           items:
             $ref: "#/components/schemas/FacetLink"
           description: Facet value links
+
+    MoreLikeThisItem:
+      type: object
+      description: A similar record found via More Like This functionality
+      properties:
+        _id:
+          type: string
+          description: Unique identifier of the similar record
+        score:
+          type: number
+          format: float
+          description: Similarity score (higher is more similar)
+        fields:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Field values of the similar record
+        summary:
+          $ref: "#/components/schemas/ResultSummary"
+        fragmentGraph:
+          $ref: "#/components/schemas/FragmentGraph"
+        itemFormat:
+          type: string
+          description: Format of the returned item
+          enum:
+            - summary
+            - fragmentGraph
+            - jsonld
+            - flat
+            - tree
+            - grouped
+      required:
+        - _id
+        - score
 
   securitySchemes:
     ApiKeyAuth:
