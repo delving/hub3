@@ -1,0 +1,179 @@
+% Hub3 API Documentation Template
+\documentclass[11pt,a4paper]{article}
+
+% Essential packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage[margin=2.5cm, headheight=2cm, footskip=1.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{calc}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{datetime}
+
+% Brand colors (overridden by brand-specific includes)
+\definecolor{brandprimary}{RGB}{41, 118, 176}
+\definecolor{brandsecondary}{RGB}{25, 85, 140}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+\definecolor{codebg}{RGB}{248, 248, 248}
+
+% Include brand-specific settings if they exist
+$if(BRANDCONFIG)$
+  \input{$BRANDCONFIG$}
+$endif$
+
+% Set up hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=brandprimary,
+    urlcolor=brandprimary,
+    citecolor=brandprimary
+}
+
+% Define tightlist for pandoc compatibility
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Pandoc syntax highlighting (when using --listings)
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% Code listing style
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  frameround=tttt,
+  rulecolor=\color{lightgray},
+  keywordstyle=\color{brandsecondary}\bfseries,
+  stringstyle=\color{brandprimary},
+  commentstyle=\color{gray}\itshape,
+  showstringspaces=false,
+  tabsize=2
+}
+
+% Better section formatting
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{brandsecondary}}
+  {\thesection}{0.5em}{}
+  [\titlerule]
+  
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{brandsecondary}}
+  {\thesubsection}{0.5em}{}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries\color{brandsecondary}}
+  {\thesubsubsection}{0.5em}{}
+
+\titlespacing*{\section}{0pt}{1.5\baselineskip}{1\baselineskip}
+\titlespacing*{\subsection}{0pt}{1.2\baselineskip}{0.8\baselineskip}
+\titlespacing*{\subsubsection}{0pt}{1\baselineskip}{0.5\baselineskip}
+
+% Header and footer setup
+\pagestyle{fancy}
+\fancyhf{}
+
+% Logo in header - uses brand logo
+\fancyhead[L]{%
+  $if(BRANDLOGO)$%
+    \includegraphics[height=1.5cm]{$BRANDLOGO$}%
+  $endif$%
+}
+\fancyhead[R]{API Documentation}
+
+% Footer with metadata
+\fancyfoot[L]{%
+    \scriptsize
+    $if(brandname)$$brandname$$else$Hub3 API$endif$\\
+    Generated: \today\\
+    Git SHA: $gitsha$
+}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{%
+    \scriptsize
+    Version: $apiversion$\\
+    Build: $timestamp$
+}
+
+% Line under the header
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Custom title page
+\newcommand{\customtitlepage}{
+  \thispagestyle{empty}
+  \begin{center}
+    \vspace*{1cm}
+    
+    % Logo
+    $if(BRANDLOGO)$
+      \includegraphics[height=3cm]{$BRANDLOGO$}\\[1cm]
+    $endif$
+    
+    % Title
+    {\fontsize{24}{28}\selectfont\textbf{\textcolor{brandsecondary}{$title$}}}
+    
+    \vspace{1cm}
+    
+    % Subtitle
+    $if(subtitle)$
+    {\Large\textcolor{brandprimary}{$subtitle$}}
+    \vspace{0.5cm}
+    $endif$
+    
+    % Version info box
+    \begin{tcolorbox}[
+      colback=lightgray,
+      colframe=brandprimary,
+      width=0.7\textwidth,
+      arc=2mm,
+      boxrule=0.5pt
+    ]
+      \centering
+      \textbf{Version Information}\\[0.3cm]
+      API Version: $apiversion$\\
+      Build Date: \today\\
+      Build Time: $timestamp$\\
+      Git SHA: \texttt{$gitsha$}
+    \end{tcolorbox}
+    
+    \vfill
+    
+    % Organization info
+    $if(brandname)$
+    {\large $brandname$}\\
+    $endif$
+    $if(brandwebsite)$
+    \url{$brandwebsite$}
+    $endif$
+    
+  \end{center}
+  \newpage
+}
+
+% Begin document
+\begin{document}
+
+% Custom title page
+\customtitlepage
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% Main content
+$body$
+
+\end{document}

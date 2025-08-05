@@ -1,0 +1,116 @@
+% Hub3 API Documentation Template - Simplified
+\documentclass[11pt,a4paper]{article}
+
+% Essential packages
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage[margin=2.5cm, headheight=2cm, footskip=1.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{tcolorbox}
+
+% Brand colors
+\definecolor{brandprimary}{RGB}{41, 118, 176}
+\definecolor{brandsecondary}{RGB}{25, 85, 140}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+\definecolor{codebg}{RGB}{248, 248, 248}
+
+% Set up hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=brandprimary,
+    urlcolor=brandprimary
+}
+
+% Define tightlist for pandoc compatibility
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% Define passthrough for pandoc inline code
+\newcommand{\passthrough}[1]{#1}
+
+% Pandoc code highlighting
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+
+% Code listing style
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{lightgray},
+  keywordstyle=\color{brandsecondary}\bfseries,
+  stringstyle=\color{brandprimary},
+  showstringspaces=false
+}
+
+% Section formatting
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{brandsecondary}}
+  {\thesection}{0.5em}{}
+  
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{brandsecondary}}
+  {\thesubsection}{0.5em}{}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{$if(BRANDLOGO)$\includegraphics[height=1.2cm]{$BRANDLOGO$}$endif$}
+\fancyhead[R]{API Documentation}
+\fancyfoot[L]{\scriptsize Delving B.V.\\Generated: \today}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{\scriptsize Version: $apiversion$\\Build: $timestamp$}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Begin document
+\begin{document}
+
+% Title page
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  
+  $if(BRANDLOGO)$
+  \includegraphics[height=3cm]{$BRANDLOGO$}\\[2cm]
+  $endif$
+  
+  {\Huge\bfseries\color{brandsecondary} $title$}\\[1cm]
+  
+  $if(subtitle)$
+  {\Large\color{brandprimary} $subtitle$}\\[2cm]
+  $endif$
+  
+  \begin{tcolorbox}[colback=lightgray, colframe=brandprimary, width=0.8\textwidth]
+    \centering
+    \textbf{Version Information}\\[0.5em]
+    API Version: $apiversion$\\
+    Build Date: \today\\
+    Build ID: \texttt{$timestamp$}\\
+    Git SHA: \texttt{$gitsha$}
+  \end{tcolorbox}
+  
+  \vfill
+  
+  {\large Delving B.V.}\\
+  \url{https://www.delving.eu}
+  
+\end{titlepage}
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% Main content
+$body$
+
+\end{document}
