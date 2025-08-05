@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important Guidelines
+- **Temporary Files**: All temporary files, test outputs, and build artifacts MUST be added to the `./tmp` directory. This directory is ignored by git.
+
 ## Build Commands
 - Build main executable: `make build`
 - Run tests: `make test` or `make test-no-cache`

@@ -80,3 +80,12 @@ data
 deploy
 
 **/.claude/settings.local.json
+
+# Temporary files and build artifacts
+# IMPORTANT: All temporary files MUST be added to the ./tmp directory
+tmp/
+*.pdf
+test-intermediate.*
+
+# Generated documentation PDFs
+pdf/*.pdf
