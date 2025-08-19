@@ -14,8 +14,6 @@ type PID struct {
 func (p *PID) AddOptions(cfg *Config) error {
 	svc, err := pid.NewService(
 		pid.DataPath(p.DataPath),
-		pid.FallbackTripleStore(p.FallbackTripleStore),
-		pid.FallbackNaan(p.FallbackNaan),
 	)
 	if err != nil {
 		return err

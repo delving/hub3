@@ -10,7 +10,22 @@ type Store interface {
 type StoreResponse struct {
 	CurrentPID *PID
 	OtherIDs   []*PID
-	Fallback   string
+}
+
+func (sr StoreResponse) GetSupportedProfiles() (profiles []*ProfileInfo) {
+	if sr.CurrentPID.DataSet == "brabantse-gebouwen" {
+		profiles = append(profiles, &ProfileInfo{
+			URI:   "urn:profile/schema",
+			Token: "schema",
+		})
+	}
+
+	profiles = append(profiles, &ProfileInfo{
+		URI:   "urn:profile/edm",
+		Token: "edm",
+	})
+
+	return profiles
 }
 
 func NewStoreResponse(pids []*PID) (resp StoreResponse) {

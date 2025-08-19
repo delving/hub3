@@ -1,7 +1,6 @@
 package pid
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -17,7 +16,6 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/html"
-	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/delving/hub3/ikuzo/render"
 	"github.com/olivere/elastic/v7"
 )
@@ -58,6 +56,9 @@ func (s *Service) handleArk() http.HandlerFunc {
 			}
 		}
 
+		// Handle profile negotiation
+		r = SetProfileHeaders(r, w, &resp)
+
 		if strings.EqualFold(r.URL.Query().Get("format"), "json") {
 			render.JSON(w, r, resp)
 			return
@@ -68,26 +69,8 @@ func (s *Service) handleArk() http.HandlerFunc {
 		}
 
 		if resp.Empty() {
-			slog.Error("unable to find pid", "error", err, "pid", ark)
-			for naan, endpoint := range s.fallbackNaan {
-				slog.Info("checking fallback", "naan", naan, "endpoint", endpoint)
-				if strings.Contains(ark, "/"+naan+"/") {
-					resp = StoreResponse{
-						CurrentPID: &PID{
-							ID:         "",
-							ExternalID: ark,
-							Type:       Ark,
-							IsShownAt:  "",
-						},
-						OtherIDs: []*PID{},
-						Fallback: endpoint,
-					}
-				}
-			}
-			if resp.Empty() {
-				s.renderError(w, r, ErrPIDNotFound, http.StatusNotFound)
-				return
-			}
+			s.renderError(w, r, ErrPIDNotFound, http.StatusNotFound)
+			return
 		}
 
 		if resp.Tombstone() {
@@ -100,31 +83,10 @@ func (s *Service) handleArk() http.HandlerFunc {
 			return
 		}
 
-		var g *rdf.Graph
-		switch {
-		case resp.Fallback != "":
-			subj := "https://n2t.net/" + resp.CurrentPID.ExternalID
-			b, err := s.SparqlQuery(r.Context(), resp.Fallback, subj)
-			if err != nil {
-				s.renderError(w, r, err, http.StatusBadRequest)
-				return
-			}
-
-			g, err = ntriples.Parse(bytes.NewReader(b), nil)
-			if err != nil {
-				slog.Error("unable to parse graph; %w", "error", err)
-				s.renderError(w, r, err, http.StatusBadRequest)
-				return
-			}
-
-			s, _ := rdf.NewIRI(subj)
-			g.Subject = rdf.Subject(s)
-		default:
-			g, err = s.GetGraph(r.Context(), resp.CurrentPID.Meta.HubID)
-			if err != nil {
-				s.renderError(w, r, err, http.StatusBadRequest)
-				return
-			}
+		g, err := s.GetGraph(r.Context(), resp.CurrentPID.HubID)
+		if err != nil {
+			s.renderError(w, r, err, http.StatusBadRequest)
+			return
 		}
 
 		err = html.RenderRDF(w, r, g)
@@ -189,28 +151,54 @@ func (s *Service) SparqlQuery(ctx context.Context, endpoint, uri string) ([]byte
 	return body, nil
 }
 
+func isSchema(rsc *fragments.FragmentResource) bool {
+	for _, ttype := range rsc.Types {
+		switch ttype {
+		case "https://schema.org/LandmarksOrHistoricalBuildings", "https://schema.org/PostalAddress":
+			slog.Info("isSchema selected", "ttype", ttype)
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Service) GetGraph(ctx context.Context, uri string) (*rdf.Graph, error) {
 	fg, err := s.getSearchRecord(ctx, uri)
 	if err != nil {
-		for _, endpoint := range s.fallbackTripleStores {
-			b, queryErr := s.SparqlQuery(ctx, endpoint, uri)
-			if queryErr != nil {
-				slog.Error("unable to get search record; %w", "error", queryErr, "uri", uri)
-				continue
-			}
-			if len(b) == 0 {
-				continue
-			}
-
-			g, parseErr := ntriples.Parse(bytes.NewReader(b), nil)
-			if parseErr != nil {
-				slog.Error("unable to parse graph; %w", "error", parseErr)
-				continue
-			}
-
-			return g, nil
-		}
 		return nil, fmt.Errorf("unable to get search record: %w", err)
+	}
+
+	selectedProfile := GetSelectedProfile(ctx)
+
+	if fg.Meta.Spec == "brabantse-gebouwen" {
+		if selectedProfile == "urn:profile/schema" {
+			var resources []*fragments.FragmentResource
+			for _, rsc := range fg.Resources {
+				if isSchema(rsc) {
+					var entries []*fragments.ResourceEntry
+					for _, entry := range rsc.Entries {
+						switch {
+						case strings.HasPrefix(entry.SearchLabel, "schema_"):
+							entries = append(entries, entry)
+						case strings.HasPrefix(entry.SearchLabel, "skos_"):
+							entries = append(entries, entry)
+						}
+					}
+					rsc.Entries = entries
+					resources = append(resources, rsc)
+				}
+			}
+			fg.Resources = resources
+			return fg.Graph()
+		}
+
+		var resources []*fragments.FragmentResource
+		for _, rsc := range fg.Resources {
+			if !isSchema(rsc) {
+				resources = append(resources, rsc)
+			}
+		}
+		fg.Resources = resources
 	}
 
 	return fg.Graph()

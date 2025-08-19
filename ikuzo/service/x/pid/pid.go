@@ -125,7 +125,7 @@ func isHandle(pid string) bool {
 * - function to save multiple pids at the same time
  */
 func (s *Service) process(p SavePayload) (pids []*PID, err error) {
-	store, err := s.GetStore(p.Meta.OrgID.String())
+	store, err := s.GetStore(p.OrgID.String())
 	if err != nil {
 		return pids, fmt.Errorf("unable to get store: %w", err)
 	}
@@ -170,9 +170,7 @@ func extractRelativePath(uri string) (string, error) {
 
 	path := parsedURL.Path
 	// Remove leading slash if it exists
-	if strings.HasPrefix(path, "/") {
-		path = path[1:]
-	}
+	path = strings.TrimPrefix(path, "/")
 
 	return path, nil
 }

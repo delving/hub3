@@ -18,13 +18,11 @@ import (
 var _ domain.Service = (*Service)(nil)
 
 type Service struct {
-	orgs                 domain.OrgConfigRetriever
-	log                  zerolog.Logger
-	ts                   domain.TaskService
-	dataPath             string
-	fallbackTripleStores []string
-	fallbackNaan         map[string]string
-	orms                 map[string]Store
+	orgs     domain.OrgConfigRetriever
+	log      zerolog.Logger
+	ts       domain.TaskService
+	dataPath string
+	orms     map[string]Store
 }
 
 func NewService(options ...Option) (*Service, error) {
