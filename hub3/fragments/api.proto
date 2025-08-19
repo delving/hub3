@@ -64,6 +64,7 @@ enum ItemFormatType {
   FLAT = 4;
   TREE = 5;
   V1 = 6;
+  SEMANTIC = 7;
 }
 
 enum ResponseBlockType {

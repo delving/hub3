@@ -739,6 +739,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			rec.Fields = nil
 		}
 
+	case fragments.ItemFormatType_SEMANTIC:
+		for _, rec := range records {
+			rec.Semantic = rec.GenerateSemantic()
+			// Clear other formats to reduce payload
+			rec.Resources = nil
+			rec.Fields = nil
+			rec.JSONLD = nil
+			rec.Summary = nil
+			rec.ProtoBuf = nil
+			rec.Item = nil
+		}
+
 	case fragments.ItemFormatType_TREE:
 		result.Pagination = nil
 		leafs := []*fragments.Tree{}
@@ -1313,6 +1325,15 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 	case "jsonld":
 		record.NewJSONLD()
 		record.Resources = nil
+	case "semantic":
+		record.Semantic = record.GenerateSemantic()
+		// Clear other formats to reduce payload
+		record.Resources = nil
+		record.Fields = nil
+		record.JSONLD = nil
+		record.Summary = nil
+		record.ProtoBuf = nil
+		record.Item = nil
 	case "summary":
 		record.NewResultSummary(lang)
 		record.Resources = nil

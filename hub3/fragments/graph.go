@@ -23,6 +23,7 @@ type FragmentGraph struct {
 	ProtoBuf     *ProtoBuf                 `json:"protoBuf,omitempty"`
 	Item         *ItemV1                   `json:"item,omitempty"`
 	MoreLikeThis *RelatedItems             `json:"relatedItems,omitempty"`
+	Semantic     *SemanticView             `json:"semantic,omitempty"`
 }
 
 type RelatedItems struct {

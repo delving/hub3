@@ -140,6 +140,7 @@ const (
 	ItemFormatType_FLAT          ItemFormatType = 4
 	ItemFormatType_TREE          ItemFormatType = 5
 	ItemFormatType_V1            ItemFormatType = 6
+	ItemFormatType_SEMANTIC      ItemFormatType = 7
 )
 
 // Enum value maps for ItemFormatType.
@@ -152,6 +153,7 @@ var (
 		4: "FLAT",
 		5: "TREE",
 		6: "V1",
+		7: "SEMANTIC",
 	}
 	ItemFormatType_value = map[string]int32{
 		"SUMMARY":       0,
@@ -161,6 +163,7 @@ var (
 		"FLAT":          4,
 		"TREE":          5,
 		"V1":            6,
+		"SEMANTIC":      7,
 	}
 )
 
@@ -4061,7 +4064,7 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\n" +
 	"\x06LDJSON\x10\b\x12\x0e\n" +
 	"\n" +
-	"BULKACTION\x10\t*e\n" +
+	"BULKACTION\x10\t*s\n" +
 	"\x0eItemFormatType\x12\v\n" +
 	"\aSUMMARY\x10\x00\x12\x11\n" +
 	"\rFRAGMENTGRAPH\x10\x01\x12\v\n" +
@@ -4070,7 +4073,8 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\x06JSONLD\x10\x03\x12\b\n" +
 	"\x04FLAT\x10\x04\x12\b\n" +
 	"\x04TREE\x10\x05\x12\x06\n" +
-	"\x02V1\x10\x06*Q\n" +
+	"\x02V1\x10\x06\x12\f\n" +
+	"\bSEMANTIC\x10\a*Q\n" +
 	"\x11ResponseBlockType\x12\t\n" +
 	"\x05QUERY\x10\x00\x12\t\n" +
 	"\x05ITEMS\x10\x01\x12\n" +
