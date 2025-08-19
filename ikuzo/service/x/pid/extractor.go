@@ -2,6 +2,7 @@ package pid
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain"
@@ -51,15 +52,14 @@ func Extract(hubID domain.HubID, g *rdf.Graph) (*PID, error) {
 		}
 
 		a, ok := rsc.Predicates()[rdf.Predicate(isShownAt)]
-		if !ok {
-			return pid, fmt.Errorf("unable to get isShownAt predicate")
-		}
-
-		for _, obj := range a.Objects() {
-			if obj.RawValue() == "" {
-				continue
+		if ok {
+			slog.Warn("unable to find isShownAt predicate", "id", pid.ID, "pid", pid.ExternalID)
+			for _, obj := range a.Objects() {
+				if obj.RawValue() == "" {
+					continue
+				}
+				pid.IsShownAt = obj.RawValue()
 			}
-			pid.IsShownAt = obj.RawValue()
 		}
 
 		return pid, nil
