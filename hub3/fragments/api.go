@@ -360,6 +360,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				sr.ItemFormat = ItemFormatType_TREE
 			case "v1":
 				sr.ItemFormat = ItemFormatType_V1
+			case "semantic":
+				sr.ItemFormat = ItemFormatType_SEMANTIC
 			default:
 				sr.ItemFormat = ItemFormatType_SUMMARY
 			}
