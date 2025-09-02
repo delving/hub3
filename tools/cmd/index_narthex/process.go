@@ -256,7 +256,7 @@ func ParseNarthex(r io.Reader, cfg Config) (*NarthexStats, error) {
 	}
 
 	// Start 4 worker goroutines
-	for i := 0; i < 4; i++ {
+	for range 4 {
 		g.Go(func() error {
 			return processRecords(ctx, stats, jobs)
 		})
@@ -375,11 +375,11 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 	}
 
 	subjectURI := g.SubjectSafe()
-	
+
 	// Add debugging info about the RDF graph
-	slog.Debug("RDF graph info before index conversion", 
+	slog.Debug("RDF graph info before index conversion",
 		"hubID", hubID,
-		"subjectURI", subjectURI.RawValue(), 
+		"subjectURI", subjectURI.RawValue(),
 		"triples", len(g.Triples()),
 		"resources", len(g.Resources()),
 		"graphName", g.GraphName)
@@ -397,20 +397,20 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 	if err := fg.AddGraph(g); err != nil {
 		return fmt.Errorf("unable to add graph: %w", err)
 	}
-	
+
 	// Debug the graph resources before IndexMessage
 	entryURIExists := resourceExists(fg, fg.Header.EntryURI)
 	slog.Debug("Index Graph info before IndexMessage",
 		"resources_count", len(fg.Resources),
 		"entryURI", fg.Header.EntryURI,
 		"entryURI_in_resources", entryURIExists)
-	
+
 	// If EntryURI doesn't exist in resources, try to find alternative subject
 	if !entryURIExists && len(fg.Resources) > 0 {
 		slog.Warn("EntryURI not found in graph resources, attempting to fix",
 			"entryURI", fg.Header.EntryURI,
 			"resources_count", len(fg.Resources))
-			
+
 		// Use the subject URI from the RDF graph as EntryURI if available
 		if subjectURI.RawValue() != "" && resourceExists(fg, subjectURI.RawValue()) {
 			slog.Info("Using subjectURI as EntryURI",
@@ -433,21 +433,21 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 		slog.Error("Error creating index message", "error", err, "entryURI", fg.Header.EntryURI)
 		return fmt.Errorf("unable to create index message: %w", err)
 	}
-	
+
 	// Debug the graph resources after IndexMessage
 	// Check if we can detect context references in resources
 	hasContextRefs := false
 	contextCount := 0
 	hasExternalContextRefs := false
 	externalContextCount := 0
-	
+
 	// Check if context is set in the graph
 	slog.Debug("Graph context status", "contextIsSet", fg.ContextIsSet())
-	
+
 	// Print details of the first few resources
 	if slog.Default().Enabled(context.Background(), slog.LevelDebug) {
 		slog.Debug("Detailed resource information after IndexMessage:")
-		
+
 		// Examine the message source
 		sourceBytes := mesg.Source
 		sampleSize := 256 // Show first 256 bytes as sample
@@ -455,7 +455,7 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 			sampleSize = len(sourceBytes)
 		}
 		slog.Debug("Source bytes sample", "sample", string(sourceBytes[:sampleSize]))
-		
+
 		// Try to understand the actual structure
 		var data interface{}
 		if err := json.Unmarshal(sourceBytes, &data); err != nil {
@@ -470,16 +470,16 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 					keys = append(keys, k)
 				}
 				slog.Debug("Source is a JSON object", "keys", keys)
-				
+
 				// Check for resources field
 				if resources, ok := v["resources"]; ok {
 					resourcesType := fmt.Sprintf("%T", resources)
 					slog.Debug("Resources field found", "type", resourcesType)
-					
+
 					// If resources is an array, examine the first item
 					if resourcesArr, ok := resources.([]interface{}); ok && len(resourcesArr) > 0 {
 						slog.Debug("Resources is an array", "count", len(resourcesArr))
-						
+
 						if firstResource, ok := resourcesArr[0].(map[string]interface{}); ok {
 							// Get resource keys
 							resourceKeys := make([]string, 0, len(firstResource))
@@ -487,12 +487,12 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 								resourceKeys = append(resourceKeys, k)
 							}
 							slog.Debug("First resource", "keys", resourceKeys)
-							
+
 							// Check for context and external context
 							examineContextField(firstResource, "context")
 							examineContextField(firstResource, "graphExternalContext")
 						} else {
-							slog.Debug("First resource is not an object", 
+							slog.Debug("First resource is not an object",
 								"type", fmt.Sprintf("%T", resourcesArr[0]))
 						}
 					}
@@ -506,7 +506,7 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 			case string:
 				// It's a string, which might be the issue
 				slog.Debug("Source is a JSON string", "length", len(v))
-				
+
 				// Try to parse the string as JSON
 				var nestedData interface{}
 				if err := json.Unmarshal([]byte(v), &nestedData); err != nil {
@@ -519,26 +519,26 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 			}
 		}
 	}
-	
+
 	// Limit to first 3 resources to avoid flooding logs
 	resourcesLimit := 3
 	for i, r := range fg.Resources {
 		if i >= resourcesLimit {
 			break
 		}
-		
+
 		// Check if context references have correct levels
 		contextLevels := []int32{}
 		for _, ctx := range r.Context {
 			contextLevels = append(contextLevels, ctx.Level)
 		}
-		
+
 		// Check if external context references have correct levels
 		externalLevels := []int32{}
 		for _, ctx := range r.GraphExternalContext {
 			externalLevels = append(externalLevels, ctx.Level)
 		}
-		
+
 		slog.Debug(fmt.Sprintf("Resource #%d", i),
 			"id", r.ID,
 			"types", r.Types,
@@ -548,40 +548,40 @@ func processRecord(stats *NarthexStats, hubID string, recordData []byte) error {
 			"external_context_count", len(r.GraphExternalContext),
 			"external_context_levels", externalLevels)
 	}
-	
+
 	for _, r := range fg.Resources {
 		if len(r.Context) > 0 {
 			hasContextRefs = true
 			contextCount += len(r.Context)
 		}
-		
-		if r.GraphExternalContext != nil && len(r.GraphExternalContext) > 0 {
+
+		if len(r.GraphExternalContext) > 0 {
 			hasExternalContextRefs = true
 			externalContextCount += len(r.GraphExternalContext)
 		}
 	}
-	
+
 	// Look for resource type entries and external contexts
 	resourceEntryCount := 0
 	resourcesWithContext := 0
 	resourcesWithExternalContext := 0
-	
+
 	for _, r := range fg.Resources {
 		for _, e := range r.Entries {
 			if e.EntryType == index.ResourceType || e.EntryType == index.Bnode {
 				resourceEntryCount++
 			}
 		}
-		
-		if r.Context != nil && len(r.Context) > 0 {
+
+		if len(r.Context) > 0 {
 			resourcesWithContext++
 		}
-		
-		if r.GraphExternalContext != nil && len(r.GraphExternalContext) > 0 {
+
+		if len(r.GraphExternalContext) > 0 {
 			resourcesWithExternalContext++
 		}
 	}
-	
+
 	slog.Debug("Index Graph after IndexMessage",
 		"context_refs_found", hasContextRefs,
 		"context_count", contextCount,
@@ -719,15 +719,15 @@ func examineContextField(resource map[string]interface{}, fieldName string) {
 	if field, exists := resource[fieldName]; exists {
 		fieldType := fmt.Sprintf("%T", field)
 		slog.Debug(fmt.Sprintf("Resource %s field found", fieldName), "type", fieldType)
-		
+
 		if contextArr, ok := field.([]interface{}); ok {
 			slog.Debug(fmt.Sprintf("Resource %s is an array", fieldName), "count", len(contextArr))
-			
+
 			// Examine first context item if available
 			if len(contextArr) > 0 {
 				contextItemType := fmt.Sprintf("%T", contextArr[0])
 				slog.Debug(fmt.Sprintf("First %s item type", fieldName), "type", contextItemType)
-				
+
 				// If it's an object, show its keys
 				if contextItem, ok := contextArr[0].(map[string]interface{}); ok {
 					contextKeys := make([]string, 0, len(contextItem))
@@ -744,3 +744,4 @@ func examineContextField(resource map[string]interface{}, fieldName string) {
 		slog.Debug(fmt.Sprintf("Resource %s field not found", fieldName))
 	}
 }
+

@@ -649,13 +649,15 @@ type DatasetAnalysis struct {
 
 // AnalysisResults holds all dataset analysis results
 type AnalysisResults struct {
-	TotalDatasets    int                    `json:"total_datasets"`
-	RDFDatasets      int                    `json:"rdf_datasets"`
-	NonRDFDatasets   int                    `json:"non_rdf_datasets"`
-	RDFSpecs         []string               `json:"rdf_specs"`
-	Aggregators      map[string]int         `json:"aggregators"`
-	RDFAggregators   map[string]int         `json:"rdf_aggregators"`
-	DatasetAnalyses  []DatasetAnalysis      `json:"dataset_analyses"`
+	TotalDatasets       int                       `json:"total_datasets"`
+	RDFDatasets         int                       `json:"rdf_datasets"`
+	NonRDFDatasets      int                      `json:"non_rdf_datasets"`
+	RDFSpecs            []string                 `json:"rdf_specs"`
+	Aggregators         map[string]int           `json:"aggregators"`
+	RDFAggregators      map[string]int           `json:"rdf_aggregators"`
+	AggregatorDatasets  map[string][]string      `json:"aggregator_datasets"`
+	RDFAggregatorDatasets map[string][]string    `json:"rdf_aggregator_datasets"`
+	DatasetAnalyses     []DatasetAnalysis        `json:"dataset_analyses"`
 }
 
 // findDatasetDirectories discovers all subdirectories that could contain dataset files
@@ -872,9 +874,11 @@ func runAnalyzeAll() error {
 	slog.Info("found directories to analyze", "count", len(directories), "parentPath", aFlags.path)
 
 	results := AnalysisResults{
-		DatasetAnalyses: make([]DatasetAnalysis, 0, len(directories)),
-		Aggregators:     make(map[string]int),
-		RDFAggregators:  make(map[string]int),
+		DatasetAnalyses:       make([]DatasetAnalysis, 0, len(directories)),
+		Aggregators:           make(map[string]int),
+		RDFAggregators:        make(map[string]int),
+		AggregatorDatasets:    make(map[string][]string),
+		RDFAggregatorDatasets: make(map[string][]string),
 	}
 	successCount := 0
 
@@ -891,14 +895,16 @@ func runAnalyzeAll() error {
 			if analysis.IsRDF {
 				results.RDFDatasets++
 				results.RDFSpecs = append(results.RDFSpecs, dirName)
-				// Track RDF-specific aggregator counts
+				// Track RDF-specific aggregator counts and datasets
 				if analysis.Aggregator != "" {
 					results.RDFAggregators[analysis.Aggregator]++
+					results.RDFAggregatorDatasets[analysis.Aggregator] = append(results.RDFAggregatorDatasets[analysis.Aggregator], dirName)
 				}
 			}
-			// Track overall aggregator counts
+			// Track overall aggregator counts and datasets
 			if analysis.Aggregator != "" {
 				results.Aggregators[analysis.Aggregator]++
+				results.AggregatorDatasets[analysis.Aggregator] = append(results.AggregatorDatasets[analysis.Aggregator], dirName)
 			}
 			successCount++
 			slog.Info("completed analysis", "dir", dirPath, "spec", dirName, "isRDF", analysis.IsRDF, "aggregator", analysis.Aggregator)
@@ -937,6 +943,11 @@ func runAnalyzeAll() error {
 	fmt.Printf("\nRDF aggregators (RDF datasets only):\n")
 	for aggregator, count := range results.RDFAggregators {
 		fmt.Printf("- %s: %d RDF datasets\n", aggregator, count)
+		if datasets, exists := results.RDFAggregatorDatasets[aggregator]; exists {
+			for _, dataset := range datasets {
+				fmt.Printf("  * %s\n", dataset)
+			}
+		}
 	}
 	
 	fmt.Printf("\nRDF-XML dataset specs:\n")
@@ -971,10 +982,12 @@ func runAnalyzeSingle() error {
 	// Write JSON output if requested
 	if aFlags.jsonOutput != "" {
 		results := AnalysisResults{
-			TotalDatasets:   1,
-			DatasetAnalyses: []DatasetAnalysis{analysis},
-			Aggregators:     make(map[string]int),
-			RDFAggregators:  make(map[string]int),
+			TotalDatasets:         1,
+			DatasetAnalyses:       []DatasetAnalysis{analysis},
+			Aggregators:           make(map[string]int),
+			RDFAggregators:        make(map[string]int),
+			AggregatorDatasets:    make(map[string][]string),
+			RDFAggregatorDatasets: make(map[string][]string),
 		}
 		if analysis.IsRDF {
 			results.RDFDatasets = 1
@@ -982,6 +995,7 @@ func runAnalyzeSingle() error {
 			// Track RDF aggregator
 			if analysis.Aggregator != "" {
 				results.RDFAggregators[analysis.Aggregator] = 1
+				results.RDFAggregatorDatasets[analysis.Aggregator] = []string{dirName}
 			}
 		} else {
 			results.NonRDFDatasets = 1
@@ -989,6 +1003,7 @@ func runAnalyzeSingle() error {
 		// Track overall aggregator
 		if analysis.Aggregator != "" {
 			results.Aggregators[analysis.Aggregator] = 1
+			results.AggregatorDatasets[analysis.Aggregator] = []string{dirName}
 		}
 		
 		if err := writeJSONOutput(aFlags.jsonOutput, results, aFlags.rdfOnly); err != nil {
@@ -1034,13 +1049,15 @@ func writeJSONOutput(filename string, results AnalysisResults, rdfOnly bool) err
 		}
 		
 		outputResults = AnalysisResults{
-			TotalDatasets:    results.TotalDatasets,    // Keep original total for context
-			RDFDatasets:      results.RDFDatasets,      // Keep RDF count
-			NonRDFDatasets:   results.NonRDFDatasets,   // Keep non-RDF count for context
-			RDFSpecs:         results.RDFSpecs,         // Keep RDF specs list
-			Aggregators:      results.Aggregators,      // Keep all aggregator data for context
-			RDFAggregators:   results.RDFAggregators,   // Keep RDF aggregator data
-			DatasetAnalyses:  rdfAnalyses,              // Only RDF analyses
+			TotalDatasets:         results.TotalDatasets,         // Keep original total for context
+			RDFDatasets:           results.RDFDatasets,           // Keep RDF count
+			NonRDFDatasets:        results.NonRDFDatasets,       // Keep non-RDF count for context
+			RDFSpecs:              results.RDFSpecs,              // Keep RDF specs list
+			Aggregators:           results.Aggregators,           // Keep all aggregator data for context
+			RDFAggregators:        results.RDFAggregators,        // Keep RDF aggregator data
+			AggregatorDatasets:    results.AggregatorDatasets,    // Keep dataset lists per aggregator
+			RDFAggregatorDatasets: results.RDFAggregatorDatasets, // Keep RDF dataset lists per aggregator
+			DatasetAnalyses:       rdfAnalyses,                  // Only RDF analyses
 		}
 		
 		slog.Info("filtered JSON output to RDF datasets only", 

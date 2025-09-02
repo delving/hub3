@@ -9,6 +9,7 @@ import (
 	"io"
 	"log/slog"
 	"slices"
+	"sync"
 
 	"github.com/benbjohnson/immutable"
 	"github.com/tidwall/sjson"
@@ -46,6 +47,12 @@ type Graph struct {
 
 	// roots are the ids of the root resources of the Graph
 	roots []*Resource
+	
+	// entryOrder tracks the global order counter for entries to ensure consistent ordering
+	entryOrder int
+	
+	// mu protects the entryOrder counter for concurrent access
+	mu sync.Mutex
 }
 
 // NewGraph returns a new Graph. When the header is not valid an error is returned
@@ -63,10 +70,23 @@ func NewGraph(header Header) (*Graph, error) {
 	return &g, nil
 }
 
+// nextOrder returns the next global order value in a thread-safe manner
+func (g *Graph) nextOrder() int {
+	g.mu.Lock()
+	defer g.mu.Unlock()
+	g.entryOrder++
+	return g.entryOrder
+}
+
 // AddGraph adds the triples from the rdf.Graph to the Resources list
 func (g *Graph) AddGraph(graph *rdf.Graph) error {
 	for _, r := range graph.ResourcesOrdered() {
-		rsc, created := g.Resource(r.Subject().RawValue())
+		// Use String() for blank nodes to preserve _: prefix, RawValue() for IRIs
+		subjectID := r.Subject().RawValue()
+		if r.Subject().Type() == rdf.TermBlankNode {
+			subjectID = r.Subject().String()
+		}
+		rsc, created := g.Resource(subjectID)
 		if created {
 			for _, t := range r.Types() {
 				rsc.Types = append(rsc.Types, t.RawValue())
@@ -79,10 +99,21 @@ func (g *Graph) AddGraph(graph *rdf.Graph) error {
 		}
 
 		for _, e := range entries {
+			e.Order = g.nextOrder()
 			rsc.Add(e)
 		}
 	}
 	return nil
+}
+
+// setEntryLevels sets the Level field for all entries based on their resource's context depth
+func (g *Graph) setEntryLevels() {
+	for _, rsc := range g.Resources {
+		level := rsc.GetLevel()
+		for _, entry := range rsc.Entries {
+			entry.Level = level
+		}
+	}
 }
 
 // Graph returns the triples in the Graph as a *rdf.Graph
@@ -117,6 +148,9 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 			return nil, err
 		}
 	}
+	
+	// Set entry levels based on resource context depth
+	g.setEntryLevels()
 
 	// Apply tags if provided
 	if tagMap != nil && tagMap.Len() > 0 {
@@ -421,10 +455,8 @@ func (g *Graph) setContextRefs(rsc *Resource, parents immutable.Set[ContextRef])
 		}
 
 		// Try to find the referenced resource
-		nestedResource, ok := g.Resource(ctxLevel.ObjectID)
-		if !ok {
-			slog.Debug("subject is not part of the graph", "subject", ctxLevel.ObjectID, "resource", rsc.ID)
-
+		nestedResource, wasCreated := g.Resource(ctxLevel.ObjectID)
+		if wasCreated {
 			// Even though the resource isn't found in the graph, we should still add the reference
 			// to the GraphExternalContext of the current resource to maintain the connection
 			if rsc.GraphExternalContext == nil {

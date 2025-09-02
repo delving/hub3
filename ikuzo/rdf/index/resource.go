@@ -222,7 +222,7 @@ func entryFromObject(pred rdf.Predicate, obj rdf.Object) *Entry {
 
 	switch obj.Type() {
 	case rdf.TermBlankNode:
-		e.ID = obj.RawValue()
+		e.ID = obj.String()  // Use String() to get _: prefix for blank nodes
 		e.EntryType = Bnode
 	case rdf.TermIRI:
 		e.ID = obj.RawValue()
