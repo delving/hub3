@@ -35,6 +35,8 @@ type ImageProxy struct {
 	LruCacheSize     int
 	EnableResize     bool
 	DefaultImagePath string
+	VipsPath         string
+	VipsCliPath      string
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -56,6 +58,8 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetAllowedMimeTypes(ip.AllowedMimeTypes),
 		imageproxy.SetAllowPorts(ip.AllowPorts),
 		imageproxy.SetDefaultImagePath(ip.DefaultImagePath),
+		imageproxy.SetVipsPath(ip.VipsPath),
+		imageproxy.SetVipsCliPath(ip.VipsCliPath),
 	)
 	if err != nil {
 		return err

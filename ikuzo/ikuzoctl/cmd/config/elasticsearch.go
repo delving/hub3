@@ -200,6 +200,10 @@ func (e *ElasticSearch) CreateDefaultMappings(esClient *es.Client, orgs []domain
 }
 
 func (e *ElasticSearch) NewCustomClient(l *logger.CustomLogger) (*es.Client, error) {
+	if !e.Enabled {
+		return nil, fmt.Errorf("elasticsearch is not enabled")
+	}
+
 	if e.client != nil {
 		return e.client, nil
 	}
@@ -210,8 +214,11 @@ func (e *ElasticSearch) NewCustomClient(l *logger.CustomLogger) (*es.Client, err
 	cfg.Password = e.Password
 	cfg.MaxRetries = e.MaxRetries
 	cfg.Timeout = e.ClientTimeOut
-	logConv := l.With().Logger()
-	cfg.Logger = &logConv
+	
+	if l != nil {
+		logConv := l.With().Logger()
+		cfg.Logger = &logConv
+	}
 
 	esClient, err := es.NewClient(cfg)
 	if err != nil {

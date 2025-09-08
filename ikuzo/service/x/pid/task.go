@@ -14,6 +14,10 @@ const (
 )
 
 func (s *Service) registerTaskHandlers() error {
+	if s.ts == nil {
+		return fmt.Errorf("task service is nil")
+	}
+	
 	s.log.Info().Msg("scheduling sync task handlers")
 	s.ts.RegisterWorkerFunc(pidSavetype, s.HandleSavePidTask)
 	return nil

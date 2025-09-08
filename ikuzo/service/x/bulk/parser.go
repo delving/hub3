@@ -463,7 +463,8 @@ func (p *Parser) schedulePID(hubID string, g *irdf.Graph) error {
 
 	_, err = p.s.EnqueueTask(task)
 	if err != nil {
-		return fmt.Errorf("unable to enqueue task: %w", err)
+		log.Error().Err(err).Str("hubID", hubID).Msg("unable to enqueue PID task, continuing without PID processing")
+		return nil // Don't fail the whole bulk operation just because PID task failed
 	}
 
 	return nil

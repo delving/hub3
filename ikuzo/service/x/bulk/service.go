@@ -89,5 +89,8 @@ func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
 }
 
 func (s *Service) EnqueueTask(task *asynq.Task, opts ...asynq.Option) (*asynq.TaskInfo, error) {
+	if s.ts == nil {
+		return nil, fmt.Errorf("task service not available")
+	}
 	return s.ts.EnqueueTask(task, opts...)
 }

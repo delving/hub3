@@ -232,6 +232,8 @@ type ImageProxy struct {
 	Deepzoom         bool     `json:"deepzoom"`         // Enable deepzoom of remote images.
 	ProxyPrefix      string   `json:"proxyPrefix"`      // The prefix where we mount the imageproxy. default: imageproxy. default: imageproxy.
 	DefaultImagePath string   `json:"defaultImagePath"` // Default image in case the image cannot be found.
+	VipsPath         string   `json:"vipsPath"`         // Custom path to vips binary (empty for system PATH)
+	VipsCliPath      string   `json:"vipsCliPath"`      // Custom path to vips-cli binary (empty to disable)
 }
 
 // LOD holds all the configuration for the Linked Open Data (LOD) functionality
@@ -347,6 +349,11 @@ func setDefaults() {
 	viper.SetDefault("ImageProxy.deepzoom", true)
 	viper.SetDefault("ImageProxy.proxyPrefix", "imageproxy")
 	viper.SetDefault("ImageProxy.DefaultImagePath", "")
+	viper.SetDefault("ImageProxy.VipsPath", "")
+	viper.SetDefault("ImageProxy.VipsCliPath", "")
+
+	// sitemap
+	viper.SetDefault("Sitemap.enabled", false)
 
 	// webresource
 	viper.SetDefault("WebResource.enabled", true)
@@ -370,6 +377,9 @@ func setDefaults() {
 
 	// sitemap
 	viper.SetDefault("SiteMap.Enabled", false)
+
+	// pid 
+	viper.SetDefault("PID.enabled", false)
 
 	// ead
 	viper.SetDefault("EAD.CacheDir", "/tmp/ead")

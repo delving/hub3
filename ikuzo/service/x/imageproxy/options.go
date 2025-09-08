@@ -105,3 +105,17 @@ func SetDefaultImagePath(path string) Option {
 		return nil
 	}
 }
+
+func SetVipsPath(path string) Option {
+	return func(s *Service) error {
+		s.vipsPath = path
+		return nil
+	}
+}
+
+func SetVipsCliPath(path string) Option {
+	return func(s *Service) error {
+		s.vipsCliPath = path
+		return nil
+	}
+}

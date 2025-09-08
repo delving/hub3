@@ -61,6 +61,8 @@ type Service struct {
 	cancelWorker     context.CancelFunc
 	orgs             domain.OrgConfigRetriever
 	defaultImagePath string // The path to the defaultimage
+	vipsPath         string // Custom path to vips binary (empty for system PATH)
+	vipsCliPath      string // Custom path to vips-cli binary (empty to disable)
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -97,48 +99,119 @@ func NewService(options ...Option) (*Service, error) {
 }
 
 func (s *Service) checkForVips() bool {
-	_, err := exec.LookPath("vips")
-	if err != nil {
-		s.log.Warn().Msg("libvips is not installed so disabling imageproxy resize options")
+	vipsPath := s.getVipsPath()
+	if vipsPath == "" {
+		s.log.Warn().Msg("vips binary not found so disabling imageproxy resize options")
 		return false
 	}
 
+	s.log.Info().Str("vipsPath", vipsPath).Msg("found vips binary")
 	return true
 }
 
-func deepZoomExternally(from string) error {
-	cleanFrom := strings.TrimSuffix(from, ".dzi")
-	args := []string{
-		"dzsave",
-		cleanFrom,
-		cleanFrom,
+func (s *Service) getVipsPath() string {
+	if s.vipsPath != "" {
+		if _, err := os.Stat(s.vipsPath); err == nil {
+			return s.vipsPath
+		}
+		s.log.Warn().Str("path", s.vipsPath).Msg("custom vips path not found")
 	}
-
-	path, err := exec.LookPath("vips")
-	if err != nil {
-		return err
+	
+	if s.vipsCliPath != "" {
+		if _, err := os.Stat(s.vipsCliPath); err == nil {
+			return s.vipsCliPath
+		}
+		s.log.Warn().Str("path", s.vipsCliPath).Msg("custom vips-cli path not found")
 	}
-
-	cmd := exec.Command(path, args...)
-
-	return cmd.Run()
+	
+	if path, err := exec.LookPath("vips"); err == nil {
+		return path
+	}
+	
+	return ""
 }
 
-func resizeExternally(from, to, size string) error {
-	args := []string{
-		"--size", size,
-		"--output", to,
-		from,
+func (s *Service) deepZoomExternally(from string) error {
+	cleanFrom := strings.TrimSuffix(from, ".dzi")
+	
+	vipsPath := s.getVipsPath()
+	if vipsPath == "" {
+		return fmt.Errorf("vips binary not found")
 	}
 
-	path, err := exec.LookPath("vipsthumbnail")
+	var args []string
+	
+	// Check if using vips-cli which has different command structure
+	if strings.Contains(vipsPath, "vips-cli") {
+		args = []string{
+			"dzsave",
+			cleanFrom,
+			cleanFrom,
+		}
+	} else {
+		// Standard vips command structure
+		args = []string{
+			"dzsave",
+			cleanFrom,
+			cleanFrom,
+		}
+	}
+
+	cmd := exec.Command(vipsPath, args...)
+	s.log.Info().Str("command", vipsPath).Strs("args", args).Str("from", cleanFrom).Msg("executing dzsave command")
+	
+	err := cmd.Run()
 	if err != nil {
-		return err
+		s.log.Error().Err(err).Str("command", vipsPath).Strs("args", args).Msg("dzsave command failed")
+	}
+	return err
+}
+
+func (s *Service) resizeExternally(from, to, size string) error {
+	vipsPath := s.getVipsPath()
+	if vipsPath == "" {
+		return fmt.Errorf("vips binary not found")
 	}
 
-	cmd := exec.Command(path, args...)
+	var cmd *exec.Cmd
 
-	return cmd.Run()
+	// Check if using vips-cli which has different command structure
+	if strings.Contains(vipsPath, "vips-cli") {
+		args := []string{
+			"thumbnail",
+			"--size", size,
+			"--output", to,
+			from,
+		}
+		cmd = exec.Command(vipsPath, args...)
+	} else {
+		// Try to use vipsthumbnail first (preferred for thumbnailing)
+		if thumbnailPath, err := exec.LookPath("vipsthumbnail"); err == nil {
+			args := []string{
+				"--size", size,
+				"--output", to,
+				from,
+			}
+			cmd = exec.Command(thumbnailPath, args...)
+		} else {
+			// Fallback to vips thumbnail command
+			args := []string{
+				"thumbnail",
+				from,
+				to,
+				size,
+			}
+			cmd = exec.Command(vipsPath, args...)
+		}
+	}
+
+	s.log.Info().Str("command", cmd.Path).Strs("args", cmd.Args[1:]).Str("from", from).Str("to", to).Str("size", size).Msg("executing resize command")
+	
+	err := cmd.Run()
+	if err != nil {
+		s.log.Error().Err(err).Str("command", cmd.Path).Strs("args", cmd.Args[1:]).Msg("resize command failed")
+	}
+	return err
 }
 
 func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
@@ -203,7 +276,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					err := resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+					err := s.resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
 					if err == nil {
 						info, ok := existsInCache(req.cacheKeyPath())
 						if ok {
@@ -231,7 +304,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					err := deepZoomExternally(req.downloadedSourcePath())
+					err := s.deepZoomExternally(req.downloadedSourcePath())
 					if err == nil {
 						info, ok := existsInCache(req.cacheKeyPath())
 						if ok {
@@ -257,9 +330,12 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	}
 
 	// check cache
-	r, err := req.Read(req.cacheKeyPath())
+	cachePath := req.cacheKeyPath()
+	s.log.Debug().Str("cachePath", cachePath).Str("sourceURL", req.SourceURL).Str("subPath", req.SubPath).Msg("attempting to read from cache")
+	
+	r, err := req.Read(cachePath)
 	if err != nil && !errors.Is(err, ErrCacheKeyNotFound) {
-		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unexpected error reading from cache")
+		s.log.Error().Err(err).Str("url", req.SourceURL).Str("cachePath", cachePath).Msg("unexpected error reading from cache")
 		s.m.IncError()
 
 		return err

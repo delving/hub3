@@ -55,8 +55,12 @@ func (s *Service) SetServiceBuilder(b *domain.ServiceBuilder) {
 	s.orgs = b.Orgs
 	s.ts = b.TaskService
 
-	if err := s.registerTaskHandlers(); err != nil {
-		s.log.Fatal().Err(err).Msg("unable to register task handlers")
+	if s.ts != nil {
+		if err := s.registerTaskHandlers(); err != nil {
+			s.log.Error().Err(err).Msg("unable to register task handlers, continuing without task support")
+		}
+	} else {
+		s.log.Warn().Msg("task service not available, skipping task handler registration")
 	}
 
 	rdf.SetDefault(s)

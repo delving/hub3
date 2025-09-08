@@ -6,12 +6,17 @@ import (
 )
 
 type PID struct {
+	Enabled             bool              `json:"enabled"`
 	DataPath            string            `json:"dataPath"`
 	FallbackTripleStore []string          `json:"fallbackTripleStore"`
 	FallbackNaan        map[string]string `json:"fallbackNaan"`
 }
 
 func (p *PID) AddOptions(cfg *Config) error {
+	if !p.Enabled {
+		return nil
+	}
+
 	svc, err := pid.NewService(
 		pid.DataPath(p.DataPath),
 	)

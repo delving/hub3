@@ -127,7 +127,7 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 			req.SubPath = deepZoomSuffix
 		}
 
-		if strings.Contains(req.SourceURL, "_files/") && strings.HasSuffix(req.SourceURL, ".jpeg") {
+		if strings.Contains(req.SourceURL, "_files/") && (strings.HasSuffix(req.SourceURL, ".jpeg") || strings.HasSuffix(req.SourceURL, ".jpg")) {
 			parts := strings.Split(req.SourceURL, "_files/")
 			req.SourceURL = parts[0]
 			req.SubPath = "_files/" + parts[len(parts)-1]
@@ -191,6 +191,21 @@ func (req *Request) Read(path string) (io.ReadCloser, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		if os.IsNotExist(err) {
+			// For deepzoom tiles, try alternate extension (.jpg vs .jpeg)
+			if strings.Contains(path, "_files/") {
+				alternatePath := ""
+				if strings.HasSuffix(path, ".jpg") {
+					alternatePath = strings.TrimSuffix(path, ".jpg") + ".jpeg"
+				} else if strings.HasSuffix(path, ".jpeg") {
+					alternatePath = strings.TrimSuffix(path, ".jpeg") + ".jpg"
+				}
+				
+				if alternatePath != "" {
+					if f, altErr := os.Open(alternatePath); altErr == nil {
+						return f, nil
+					}
+				}
+			}
 			return nil, ErrCacheKeyNotFound
 		}
 

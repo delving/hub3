@@ -5,7 +5,9 @@ import (
 	"github.com/delving/hub3/ikuzo/service/x/sitemap"
 )
 
-type Sitemap struct{}
+type Sitemap struct {
+	Enabled bool `json:"enabled"`
+}
 
 func (s *Sitemap) NewService(cfg *Config) (*sitemap.Service, error) {
 	client, err := cfg.ElasticSearch.NewCustomClient(cfg.log)
@@ -26,6 +28,10 @@ func (s *Sitemap) NewService(cfg *Config) (*sitemap.Service, error) {
 }
 
 func (s *Sitemap) AddOptions(cfg *Config) error {
+	if !s.Enabled || !cfg.ElasticSearch.Enabled {
+		return nil
+	}
+
 	svc, err := s.NewService(cfg)
 	if err != nil {
 		return err
