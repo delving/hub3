@@ -399,8 +399,12 @@ func (s *Service) storeSource(req *Request) error {
 	if len(s.allowedMimeTypes) != 0 {
 		var allowed bool
 
+		// Extract the main MIME type without parameters (e.g., "image/jpeg" from "image/jpeg;charset=UTF-8")
+		mainContentType := strings.Split(contentType, ";")[0]
+		mainContentType = strings.TrimSpace(mainContentType)
+
 		for _, mimeType := range s.allowedMimeTypes {
-			if strings.EqualFold(mimeType, contentType) {
+			if strings.EqualFold(mimeType, mainContentType) {
 				allowed = true
 				break
 			}
