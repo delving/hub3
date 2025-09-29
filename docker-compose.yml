@@ -5,7 +5,7 @@ services:
     environment:
       - discovery.type=single-node # Ensures single-node operation
       - bootstrap.memory_lock=true # Locks memory to avoid swapping
-      - "ES_JAVA_OPTS=-Xms4g -Xmx4g" # Set JVM heap size (adjust as needed)
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m" # Set JVM heap size (adjust as needed)
       - xpack.security.enabled=false # Disables security (useful for development)
       # - xpack.monitoring.enabled=true # Enables monitoring features
       # - "logger.org.elasticsearch=DEBUG"
