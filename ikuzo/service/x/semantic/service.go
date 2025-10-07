@@ -240,8 +240,72 @@ func (s *Service) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 
 // handleResourceDetail handles detail view requests.
 func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
-	// Placeholder - will be implemented in Phase 7
-	w.WriteHeader(http.StatusNotImplemented)
+	ctx := r.Context()
+	id := chi.URLParam(r, "id")
+
+	if id == "" {
+		s.respondError(w, r, semantic.NewHydraError(
+			"Missing Resource ID",
+			"Resource ID is required",
+			http.StatusBadRequest,
+		))
+		return
+	}
+
+	// Get resource config (use default for now, could be determined from query param)
+	config := s.registry.GetDefault()
+	if config == nil {
+		s.respondError(w, r, semantic.NewHydraError(
+			"Configuration Error",
+			"No resource configuration available",
+			http.StatusInternalServerError,
+		))
+		return
+	}
+
+	// Check for search context token for navigation
+	contextToken := r.URL.Query().Get("context")
+	var navContext *semantic.NavigationContext
+
+	if contextToken != "" {
+		// Try to get search context for navigation
+		searchCtx, err := s.store.GetSearchContext(ctx, contextToken)
+		if err != nil {
+			// Context not found or expired - that's okay, just no navigation
+			s.log.Debug().
+				Str("token", contextToken).
+				Err(err).
+				Msg("search context not found or expired")
+		} else {
+			// Build navigation context from search context
+			navContext = s.buildNavigationContext(r, id, searchCtx)
+		}
+	}
+
+	// Retrieve the document
+	doc, err := s.store.GetByID(ctx, id, config)
+	if err != nil {
+		s.log.Error().Err(err).Str("id", id).Msg("failed to retrieve document")
+		s.respondError(w, r, semantic.NewHydraError(
+			"Resource Not Found",
+			fmt.Sprintf("Resource with ID '%s' not found", id),
+			http.StatusNotFound,
+		))
+		return
+	}
+
+	// Add @context if not present
+	if _, ok := doc["@context"]; !ok {
+		doc["@context"] = semantic.DefaultContext()
+	}
+
+	// Add navigation context if available
+	if navContext != nil {
+		doc["hub3:navigation"] = navContext
+	}
+
+	// Respond with JSON-LD
+	s.respondJSON(w, r, doc, http.StatusOK)
 }
 
 // handleAPIDocumentation handles API documentation requests.

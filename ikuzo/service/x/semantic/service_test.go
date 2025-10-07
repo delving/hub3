@@ -95,7 +95,7 @@ func TestServiceRoutes(t *testing.T) {
 			name:           "Resource detail",
 			method:         "GET",
 			path:           "/api/semantic/v1/resource/123",
-			expectedStatus: http.StatusNotImplemented,
+			expectedStatus: http.StatusOK,
 		},
 	}
 

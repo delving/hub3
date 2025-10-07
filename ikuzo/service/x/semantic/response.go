@@ -3,7 +3,10 @@ package semantic
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"net/url"
+	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 )
@@ -263,4 +266,114 @@ func (s *Service) respondError(w http.ResponseWriter, r *http.Request, err *sema
 	if encodeErr := json.NewEncoder(w).Encode(response); encodeErr != nil {
 		s.log.Error().Err(encodeErr).Msg("failed to encode error response")
 	}
+}
+
+// createSearchContext creates a search context for detail-level navigation.
+func (s *Service) createSearchContext(opts *semantic.QueryOptions, result *semantic.SearchResult) *semantic.SearchContext {
+	return &semantic.SearchContext{
+		ID:           fmt.Sprintf("ctx_%d", time.Now().UnixNano()),
+		Token:        generateToken(),
+		Query:        opts,
+		ResultIDs:    result.ResultIDs,
+		TotalResults: result.Total,
+		ExpiresAt:    time.Now().Add(15 * time.Minute).Format(time.RFC3339),
+	}
+}
+
+// buildNavigationContext builds navigation links from a search context.
+func (s *Service) buildNavigationContext(r *http.Request, currentID string, searchCtx *semantic.SearchContext) *semantic.NavigationContext {
+	// Find current position in result list
+	position := -1
+	for i, id := range searchCtx.ResultIDs {
+		if id == currentID {
+			position = i
+			break
+		}
+	}
+
+	if position == -1 {
+		// Current ID not in search results
+		return nil
+	}
+
+	navCtx := &semantic.NavigationContext{
+		Position:     position + 1, // 1-based for display
+		TotalResults: searchCtx.TotalResults,
+		HasNext:      position < len(searchCtx.ResultIDs)-1,
+		HasPrevious:  position > 0,
+	}
+
+	// Build URLs with context token
+	baseURL := fmt.Sprintf("%s://%s%s", getScheme(r), r.Host, "/api/semantic/v1/resource")
+
+	// First
+	if len(searchCtx.ResultIDs) > 0 {
+		navCtx.First = fmt.Sprintf("%s/%s?context=%s", baseURL, searchCtx.ResultIDs[0], searchCtx.Token)
+	}
+
+	// Previous
+	if navCtx.HasPrevious {
+		navCtx.Previous = fmt.Sprintf("%s/%s?context=%s", baseURL, searchCtx.ResultIDs[position-1], searchCtx.Token)
+	}
+
+	// Next
+	if navCtx.HasNext {
+		navCtx.Next = fmt.Sprintf("%s/%s?context=%s", baseURL, searchCtx.ResultIDs[position+1], searchCtx.Token)
+	}
+
+	// Last
+	if len(searchCtx.ResultIDs) > 0 {
+		navCtx.Last = fmt.Sprintf("%s/%s?context=%s", baseURL, searchCtx.ResultIDs[len(searchCtx.ResultIDs)-1], searchCtx.Token)
+	}
+
+	// Back to search
+	if searchCtx.Query != nil {
+		navCtx.BackToSearch = s.buildSearchURL(r, searchCtx)
+	}
+
+	return navCtx
+}
+
+// buildSearchURL rebuilds the search URL from a search context.
+func (s *Service) buildSearchURL(r *http.Request, searchCtx *semantic.SearchContext) string {
+	baseURL := fmt.Sprintf("%s://%s%s", getScheme(r), r.Host, "/api/semantic/v1/search")
+
+	// Build query string from search context query
+	query := url.Values{}
+
+	if searchCtx.Query.Query != nil {
+		query.Set("query", searchCtx.Query.Query.Value)
+	}
+
+	if searchCtx.Query.Pagination != nil {
+		query.Set("page", fmt.Sprintf("%d", searchCtx.Query.Pagination.Page))
+		query.Set("size", fmt.Sprintf("%d", searchCtx.Query.Pagination.Size))
+	}
+
+	// Add filters
+	for _, filter := range searchCtx.Query.Filters {
+		if pf, ok := filter.(*semantic.PropertyFilter); ok {
+			key := fmt.Sprintf("filter[%s][%s]", pf.FieldName, pf.OperatorType)
+			query.Set(key, fmt.Sprintf("%v", pf.Value))
+		}
+	}
+
+	if len(query) == 0 {
+		return baseURL
+	}
+
+	return baseURL + "?" + query.Encode()
+}
+
+// getScheme returns the URL scheme (http or https).
+func getScheme(r *http.Request) string {
+	if r.TLS != nil {
+		return "https"
+	}
+	return "http"
+}
+
+// generateToken generates a random token for search context.
+func generateToken() string {
+	return fmt.Sprintf("%d_%d", time.Now().UnixNano(), rand.Int63())
 }
