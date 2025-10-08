@@ -308,11 +308,7 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 	s.respondJSON(w, r, doc, http.StatusOK)
 }
 
-// handleAPIDocumentation handles API documentation requests.
-func (s *Service) handleAPIDocumentation(w http.ResponseWriter, r *http.Request) {
-	// Placeholder - will be implemented in Phase 8
-	w.WriteHeader(http.StatusNotImplemented)
-}
+// handleAPIDocumentation is now implemented in documentation.go
 
 // handleTypeSearch handles type-specific search requests (GET).
 func (s *Service) handleTypeSearch(w http.ResponseWriter, r *http.Request) {
@@ -372,8 +368,4 @@ func (s *Service) handleTypeSearchPost(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotImplemented)
 }
 
-// handleTypeDocumentation handles type-specific documentation requests.
-func (s *Service) handleTypeDocumentation(w http.ResponseWriter, r *http.Request) {
-	// Placeholder - will be implemented in Phase 8
-	w.WriteHeader(http.StatusNotImplemented)
-}
+// handleTypeDocumentation is now implemented in documentation.go
