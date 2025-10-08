@@ -1,0 +1,299 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "id": "@id",
+    "type": "@type",
+
+    "edm": "http://www.europeana.eu/schemas/edm/",
+    "ore": "http://www.openarchives.org/ore/terms/",
+    "dc": "http://purl.org/dc/elements/1.1/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "owl": "http://www.w3.org/2002/07/owl#",
+    "cc": "http://creativecommons.org/ns#",
+    "svcs": "http://rdfs.org/sioc/services#",
+    "wgs84": "http://www.w3.org/2003/01/geo/wgs84_pos#",
+    "dc11": "http://purl.org/dc/terms/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "ProvidedCHO": {
+      "@id": "edm:ProvidedCHO",
+      "@type": "@id"
+    },
+    "EuropeanaAggregation": {
+      "@id": "edm:EuropeanaAggregation",
+      "@type": "@id"
+    },
+    "Aggregation": {
+      "@id": "ore:Aggregation",
+      "@type": "@id"
+    },
+    "Proxy": {
+      "@id": "ore:Proxy",
+      "@type": "@id"
+    },
+    "WebResource": {
+      "@id": "edm:WebResource",
+      "@type": "@id"
+    },
+    "Agent": {
+      "@id": "edm:Agent",
+      "@type": "@id"
+    },
+    "Place": {
+      "@id": "edm:Place",
+      "@type": "@id"
+    },
+    "TimeSpan": {
+      "@id": "edm:TimeSpan",
+      "@type": "@id"
+    },
+    "Concept": {
+      "@id": "skos:Concept",
+      "@type": "@id"
+    },
+
+    "aggregatedCHO": {
+      "@id": "ore:aggregates",
+      "@type": "@id"
+    },
+    "proxyFor": {
+      "@id": "ore:proxyFor",
+      "@type": "@id"
+    },
+    "proxyIn": {
+      "@id": "ore:proxyIn",
+      "@type": "@id"
+    },
+    "isShownBy": {
+      "@id": "edm:isShownBy",
+      "@type": "@id"
+    },
+    "isShownAt": {
+      "@id": "edm:isShownAt",
+      "@type": "@id"
+    },
+    "object": {
+      "@id": "edm:object",
+      "@type": "@id"
+    },
+    "hasView": {
+      "@id": "edm:hasView",
+      "@type": "@id"
+    },
+    "preview": {
+      "@id": "edm:preview",
+      "@type": "@id"
+    },
+    "landingPage": {
+      "@id": "edm:landingPage",
+      "@type": "@id"
+    },
+    "dataProvider": {
+      "@id": "edm:dataProvider"
+    },
+    "provider": {
+      "@id": "edm:provider"
+    },
+    "intermediateProvider": {
+      "@id": "edm:intermediateProvider"
+    },
+    "providerProxy": {
+      "@id": "edm:providerProxy",
+      "@type": "@id"
+    },
+    "europeanaProxy": {
+      "@id": "edm:europeanaProxy",
+      "@type": "@id"
+    },
+    "rights": {
+      "@id": "edm:rights",
+      "@type": "@id"
+    },
+    "ugc": {
+      "@id": "edm:ugc",
+      "@type": "@id"
+    },
+    "hasMet": {
+      "@id": "edm:hasMet",
+      "@type": "@id"
+    },
+    "wasPresentAt": {
+      "@id": "edm:wasPresentAt",
+      "@type": "@id"
+    },
+    "isRelatedTo": {
+      "@id": "edm:isRelatedTo",
+      "@type": "@id"
+    },
+    "currentLocation": {
+      "@id": "edm:currentLocation",
+      "@type": "@id"
+    },
+    "sameAs": {
+      "@id": "owl:sameAs",
+      "@type": "@id"
+    },
+
+    "title": {
+      "@id": "dc:title"
+    },
+    "description": {
+      "@id": "dc:description"
+    },
+    "creator": {
+      "@id": "dc:creator",
+      "@type": "@id"
+    },
+    "contributor": {
+      "@id": "dc:contributor",
+      "@type": "@id"
+    },
+    "publisher": {
+      "@id": "dc:publisher",
+      "@type": "@id"
+    },
+    "subject": {
+      "@id": "dc:subject",
+      "@type": "@id"
+    },
+    "typeLabel": {
+      "@id": "dc:type"
+    },
+    "format": {
+      "@id": "dc:format"
+    },
+    "language": {
+      "@id": "dc:language"
+    },
+    "identifier": {
+      "@id": "dc:identifier"
+    },
+    "coverage": {
+      "@id": "dc:coverage"
+    },
+    "relation": {
+      "@id": "dc:relation",
+      "@type": "@id"
+    },
+    "source": {
+      "@id": "dc:source"
+    },
+    "rightsStatement": {
+      "@id": "dc:rights"
+    },
+
+    "created": {
+      "@id": "dcterms:created"
+    },
+    "issued": {
+      "@id": "dcterms:issued"
+    },
+    "temporal": {
+      "@id": "dcterms:temporal"
+    },
+    "spatial": {
+      "@id": "dcterms:spatial",
+      "@type": "@id"
+    },
+    "extent": {
+      "@id": "dcterms:extent"
+    },
+    "provenance": {
+      "@id": "dcterms:provenance"
+    },
+
+    "prefLabel": {
+      "@id": "skos:prefLabel"
+    },
+    "altLabel": {
+      "@id": "skos:altLabel"
+    },
+    "note": {
+      "@id": "skos:note"
+    },
+    "broader": {
+      "@id": "skos:broader",
+      "@type": "@id"
+    },
+    "narrower": {
+      "@id": "skos:narrower",
+      "@type": "@id"
+    },
+    "related": {
+      "@id": "skos:related",
+      "@type": "@id"
+    },
+
+    "label": {
+      "@id": "rdfs:label"
+    },
+    "comment": {
+      "@id": "rdfs:comment"
+    },
+
+    "lat": {
+      "@id": "wgs84:lat",
+      "@type": "xsd:float"
+    },
+    "long": {
+      "@id": "wgs84:long",
+      "@type": "xsd:float"
+    },
+    "alt": {
+      "@id": "wgs84:alt",
+      "@type": "xsd:float"
+    },
+
+    "service": {
+      "@id": "svcs:Service",
+      "@type": "@id"
+    },
+    "hasService": {
+      "@id": "svcs:has_service",
+      "@type": "@id"
+    },
+    "baseHTTP": {
+      "@id": "svcs:base_resource",
+      "@type": "@id"
+    },
+    "conformsTo": {
+      "@id": "dcterms:conformsTo",
+      "@type": "@id"
+    },
+    "license": {
+      "@id": "cc:license",
+      "@type": "@id"
+    },
+    "attributionName": {
+      "@id": "cc:attributionName"
+    },
+    "attributionURL": {
+      "@id": "cc:attributionURL",
+      "@type": "@id"
+    },
+
+    "isDerivativeOf": {
+      "@id": "edm:isDerivativeOf",
+      "@type": "@id"
+    },
+    "isRepresentationOf": {
+      "@id": "edm:isRepresentationOf",
+      "@type": "@id"
+    },
+    "incorporates": {
+      "@id": "edm:incorporates",
+      "@type": "@id"
+    },
+    "hasPart": {
+      "@id": "dcterms:hasPart",
+      "@type": "@id"
+    },
+    "isPartOf": {
+      "@id": "dcterms:isPartOf",
+      "@type": "@id"
+    }
+  }
+}

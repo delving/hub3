@@ -1,0 +1,39 @@
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "dcterms": "http://purl.org/dc/terms/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "hub3": "https://hub3.delving.org/vocab/",
+    "version": "schema:version",
+    "released": "schema:datePublished",
+    "modified": "schema:dateModified",
+    "notes": "schema:releaseNotes",
+    "status": "schema:creativeWorkStatus",
+    "downloadUrl": "schema:downloadUrl",
+    "supersedes": "schema:supersedes",
+    "supersededBy": "schema:supersededBy",
+    "series": "hub3:ContextSeries",
+    "context": "hub3:ContextDefinition"
+  },
+  "@id": "{{CONTEXT_BASE}}/edm/changelog.jsonld",
+  "@type": "series",
+  "schema:name": "EDM Context Changelog",
+  "schema:identifier": "edm",
+  "schema:description": "Version history for EDM JSON-LD contexts served by Hub3.",
+  "schema:url": "{{CONTEXT_BASE}}/edm/changelog.jsonld",
+  "schema:itemListElement": [
+    {
+      "@type": "context",
+      "schema:identifier": "edm-1.0",
+      "version": "1.0.0",
+      "released": "2025-02-20",
+      "modified": "2025-02-20",
+      "status": "http://schema.org/Published",
+      "downloadUrl": "{{CONTEXT_BASE}}/edm/1.0/context.jsonld",
+      "notes": [
+        "Initial EDM context release with core ProvidedCHO, Aggregation, WebResource, Agent, Place, TimeSpan, and Concept vocabulary mappings.",
+        "Includes default Dublin Core, DCTERMS, SKOS, FOAF, WGS84, and Creative Commons prefixes."
+      ]
+    }
+  ]
+}

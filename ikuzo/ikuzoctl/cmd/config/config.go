@@ -59,6 +59,7 @@ type Config struct {
 	Task          `json:"task"`
 	ts            *task.Service
 	PID           `json:"pid"`
+	Semantic      `json:"semantic"`
 }
 
 func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
@@ -82,6 +83,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.Logging,
 			&cfg.OAIPMH,
 			&cfg.PID,
+			&cfg.Semantic,
 		}
 	}
 

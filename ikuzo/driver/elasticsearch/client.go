@@ -150,3 +150,8 @@ func (c *Client) CreateDefaultMappings(orgs []domain.OrganizationConfig, withAli
 
 	return indexNames, nil
 }
+
+// SearchClient returns the underlying olivere elastic.Client for advanced search operations.
+func (c *Client) SearchClient() *elastic.Client {
+	return c.search
+}
