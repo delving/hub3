@@ -57,6 +57,11 @@ var (
 		Short: "Analyze downloaded datasets to detect RDF-XML data",
 		RunE:  runAnalyze,
 	}
+	syncCmd = &cobra.Command{
+		Use:   "sync",
+		Short: "Sync data from external v2 API to local Elasticsearch",
+		RunE:  runSync,
+	}
 )
 
 type processFlags struct {
@@ -103,6 +108,19 @@ type analyzeFlags struct {
 	rdfOnly    bool
 }
 
+type syncFlags struct {
+	sourceURL     string
+	sourceOrgID   string
+	targetOrgID   string
+	esURL         string
+	indexName     string
+	query         string
+	batchSize     int
+	workers       int
+	statsInterval time.Duration
+	dryRun        bool
+}
+
 
 var (
 	pFlags   processFlags
@@ -110,6 +128,7 @@ var (
 	detFlags detectFlags
 	subFlags submitFlags
 	aFlags   analyzeFlags
+	sFlags   syncFlags
 )
 
 func init() {
@@ -161,8 +180,23 @@ func init() {
 	analyzeCmd.Flags().BoolVar(&aFlags.rdfOnly, "rdf-only", false, "when used with --json, only include RDF datasets in the output (useful for false positive inspection)")
 	analyzeCmd.MarkFlagRequired("path")
 
+	// sync command flags
+	syncCmd.Flags().StringVar(&sFlags.sourceURL, "url", "", "Source v2 API URL (e.g., https://data.hub3.org/api/search/v2) (required)")
+	syncCmd.Flags().StringVar(&sFlags.sourceOrgID, "source-org", "", "Source organization ID (required)")
+	syncCmd.Flags().StringVar(&sFlags.targetOrgID, "target-org", "", "Target organization ID (defaults to source-org)")
+	syncCmd.Flags().StringVar(&sFlags.esURL, "es-url", "http://localhost:9200", "Target Elasticsearch URL")
+	syncCmd.Flags().StringVar(&sFlags.indexName, "index", "", "Target index name (required)")
+	syncCmd.Flags().StringVar(&sFlags.query, "query", "*", "V2 query string (e.g., 'meta.spec:dataset-name')")
+	syncCmd.Flags().IntVar(&sFlags.batchSize, "batch-size", 100, "Records per page")
+	syncCmd.Flags().IntVar(&sFlags.workers, "workers", 4, "Bulk indexing workers")
+	syncCmd.Flags().DurationVar(&sFlags.statsInterval, "stats-interval", 1*time.Second, "Statistics update interval")
+	syncCmd.Flags().BoolVar(&sFlags.dryRun, "dry-run", false, "Fetch data but don't index (for testing)")
+	syncCmd.MarkFlagRequired("url")
+	syncCmd.MarkFlagRequired("source-org")
+	syncCmd.MarkFlagRequired("index")
+
 	// Add all commands to root
-	rootCmd.AddCommand(processCmd, downloadCmd, detectCmd, submitCmd, analyzeCmd)
+	rootCmd.AddCommand(processCmd, downloadCmd, detectCmd, submitCmd, analyzeCmd, syncCmd)
 }
 
 func runDetect(cmd *cobra.Command, args []string) error {
