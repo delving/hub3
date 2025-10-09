@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/delving/hub3/hub3/fragments"
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
@@ -16,10 +17,12 @@ import (
 // V2SearchAdapter implements semantic.SearchStore using v2 search infrastructure.
 // It acts as a wrapper around the v2 API, translating semantic queries to v2 format
 // and extracting results from the v2 semantic format output.
+//
+// The adapter extracts the orgID from the request context for each operation,
+// making it suitable for multi-tenant environments.
 type V2SearchAdapter struct {
 	client     *elastic.Client
 	index      string
-	orgID      string
 	translator *QueryTranslator
 	resultTx   *ResultTranslator
 	log        zerolog.Logger
@@ -30,17 +33,16 @@ type V2SearchAdapter struct {
 }
 
 // NewV2SearchAdapter creates a new v2 search adapter.
+// The orgID is extracted from the request context for each operation.
 func NewV2SearchAdapter(
 	client *elastic.Client,
 	index string,
-	orgID string,
 	logger zerolog.Logger,
 ) *V2SearchAdapter {
 	return &V2SearchAdapter{
 		client:       client,
 		index:        index,
-		orgID:        orgID,
-		translator:   NewQueryTranslator(orgID),
+		translator:   NewQueryTranslator(""), // orgID will be set per-request
 		resultTx:     NewResultTranslator(),
 		log:          logger.With().Str("component", "v2_adapter").Logger(),
 		contextCache: make(map[string]*semantic.SearchContext),
@@ -54,14 +56,22 @@ func (a *V2SearchAdapter) Search(
 	opts *semantic.QueryOptions,
 	config *semantic.ResourceConfig,
 ) (*semantic.SearchResult, error) {
+	// Extract orgID from context (set by middleware in multi-tenant system)
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if !ok || org.ID == "" {
+		return nil, fmt.Errorf("organization ID not found in context")
+	}
+	orgID := org.ID.String()
+
 	a.log.Debug().
-		Str("org_id", a.orgID).
+		Str("org_id", orgID).
 		Interface("query", opts.Query).
 		Int("filters", len(opts.Filters)).
 		Int("facets", len(opts.Facets)).
 		Msg("executing search via v2 adapter")
 
-	// 1. Translate semantic query to v2 query params
+	// 1. Translate semantic query to v2 query params (set orgID for this request)
+	a.translator.orgID = orgID
 	queryParams, err := a.translator.TranslateToV2Query(opts)
 	if err != nil {
 		return nil, fmt.Errorf("failed to translate query: %w", err)
@@ -72,7 +82,7 @@ func (a *V2SearchAdapter) Search(
 		Msg("translated to v2 query params")
 
 	// 2. Create v2 SearchRequest
-	searchRequest, err := fragments.NewSearchRequest(a.orgID, queryParams)
+	searchRequest, err := fragments.NewSearchRequest(orgID, queryParams)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create v2 search request: %w", err)
 	}
@@ -179,7 +189,14 @@ func (a *V2SearchAdapter) Aggregate(
 	filters []semantic.Filter,
 	config *semantic.ResourceConfig,
 ) ([]semantic.FacetResult, error) {
+	// Extract orgID from context
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if !ok || org.ID == "" {
+		return nil, fmt.Errorf("organization ID not found in context")
+	}
+
 	a.log.Debug().
+		Str("org_id", org.ID.String()).
 		Int("facets", len(facets)).
 		Int("filters", len(filters)).
 		Msg("executing aggregation via v2 adapter")

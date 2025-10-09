@@ -179,3 +179,10 @@ func SetOrganizationID(r *http.Request, orgID string) *http.Request {
 func SetOrganization(r *http.Request, org *Organization) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), orgIDKey{}, *org))
 }
+
+// SetOrganizationInContext sets an Organization in a context.Context.
+// This is primarily useful for testing where you need to create a context
+// with an organization without an http.Request.
+func SetOrganizationInContext(ctx context.Context, org Organization) context.Context {
+	return context.WithValue(ctx, orgIDKey{}, org)
+}

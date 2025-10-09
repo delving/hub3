@@ -8,11 +8,13 @@ import (
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 	semanticService "github.com/delving/hub3/ikuzo/service/x/semantic"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
+	"github.com/delving/hub3/ikuzo/storage/x/v2adapter"
 )
 
 type Semantic struct {
-	Enabled bool   `json:"enabled"`
-	BaseURL string `json:"baseURL"`
+	Enabled      bool   `json:"enabled"`
+	BaseURL      string `json:"baseURL"`
+	UseV2Adapter bool   `json:"useV2Adapter"`
 }
 
 func (s *Semantic) AddOptions(cfg *Config) error {
@@ -29,8 +31,33 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 	// Get zerolog.Logger from CustomLogger
 	logger := cfg.logger.With().Str("svc", "semantic").Logger()
 
-	// Create semantic store with Elasticsearch backend using the olivere search client
-	store := elasticsearch.NewSemanticStore(esClient.SearchClient(), cfg.ElasticSearch.IndexName, logger)
+	// Create semantic store - choose implementation based on configuration
+	var store semantic.SearchStore
+
+	if s.UseV2Adapter {
+		// Use v2 adapter for gradual migration
+		// OrgID is extracted from request context by the adapter (multi-tenant)
+		logger.Info().
+			Bool("use_v2_adapter", true).
+			Msg("initializing semantic API with v2 adapter (multi-tenant)")
+
+		store = v2adapter.NewV2SearchAdapter(
+			esClient.SearchClient(),
+			cfg.ElasticSearch.IndexName,
+			logger,
+		)
+	} else {
+		// Use direct Elasticsearch implementation
+		logger.Info().
+			Bool("use_v2_adapter", false).
+			Msg("initializing semantic API with direct Elasticsearch store")
+
+		store = elasticsearch.NewSemanticStore(
+			esClient.SearchClient(),
+			cfg.ElasticSearch.IndexName,
+			logger,
+		)
+	}
 
 	// Create registry with default resource types
 	registry := semantic.DefaultRegistry()
