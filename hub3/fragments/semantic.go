@@ -12,8 +12,9 @@ import (
 
 // SemanticView is the root structure for semantic format output.
 // It provides a type-safe JSON-LD compatible representation of RDF data.
+// Context can be either a string URL or a map[string]string for inline context.
 type SemanticView struct {
-	Context map[string]string        `json:"@context"`
+	Context interface{}              `json:"@context,omitempty"`
 	ID      string                   `json:"@id"`
 	Type    []string                 `json:"@type,omitempty"`
 	Graph   []SemanticResource       `json:"@graph,omitempty"`
@@ -66,10 +67,22 @@ type orderedEntry struct {
 func (sv *SemanticView) MarshalJSON() ([]byte, error) {
 	// Create a map to hold all fields
 	m := make(map[string]interface{})
-	
+
 	// Add JSON-LD keywords
-	if sv.Context != nil && len(sv.Context) > 0 {
-		m["@context"] = sv.Context
+	if sv.Context != nil {
+		// Handle both string URLs and map contexts
+		switch ctx := sv.Context.(type) {
+		case string:
+			if ctx != "" {
+				m["@context"] = ctx
+			}
+		case map[string]string:
+			if len(ctx) > 0 {
+				m["@context"] = ctx
+			}
+		default:
+			m["@context"] = sv.Context
+		}
 	}
 	if sv.ID != "" {
 		m["@id"] = sv.ID
@@ -84,12 +97,12 @@ func (sv *SemanticView) MarshalJSON() ([]byte, error) {
 	if len(sv.Graph) > 0 {
 		m["@graph"] = sv.Graph
 	}
-	
+
 	// Spread fields at root level
 	for k, v := range sv.Fields {
 		m[k] = v
 	}
-	
+
 	return json.Marshal(m)
 }
 
@@ -707,10 +720,32 @@ func (fg *FragmentGraph) GetUniqueNamespaces() map[string]string {
 }
 
 // buildSemanticContext builds the @context for the semantic view
-func (fg *FragmentGraph) buildSemanticContext() map[string]string {
-	// Start with namespaces actually used in the graph
+// Returns either a string URL reference or a map of namespace prefixes
+func (fg *FragmentGraph) buildSemanticContext() interface{} {
+	// For EDM-based records, reference the EDM context URL
+	// Check if this is an EDM record by looking at the types
+	isEDM := false
+	if len(fg.Resources) > 0 && len(fg.Resources[0].Types) > 0 {
+		for _, t := range fg.Resources[0].Types {
+			if strings.Contains(t, "europeana.eu/schemas/edm") ||
+			   strings.Contains(t, "ProvidedCHO") ||
+			   strings.Contains(t, "Aggregation") ||
+			   strings.Contains(t, "WebResource") {
+				isEDM = true
+				break
+			}
+		}
+	}
+
+	// If EDM record, return reference to EDM context URL
+	// This will be a relative URL that resolves to the deployed context
+	if isEDM {
+		return "/contexts/edm/latest/context.jsonld"
+	}
+
+	// For non-EDM records, build context from namespaces
 	context := fg.GetUniqueNamespaces()
-	
+
 	// Add common namespaces if not present
 	commonNamespaces := map[string]string{
 		"xsd":     "http://www.w3.org/2001/XMLSchema#",
@@ -718,18 +753,17 @@ func (fg *FragmentGraph) buildSemanticContext() map[string]string {
 		"rdfs":    "http://www.w3.org/2000/01/rdf-schema#",
 		"dc":      "http://purl.org/dc/elements/1.1/",
 		"dcterms": "http://purl.org/dc/terms/",
-		"edm":     "http://www.europeana.eu/schemas/edm/",
 		"skos":    "http://www.w3.org/2004/02/skos/core#",
 		"foaf":    "http://xmlns.com/foaf/0.1/",
 		"nave":    "http://schemas.delving.eu/nave/terms/",
 	}
-	
+
 	for prefix, uri := range commonNamespaces {
 		if _, exists := context[prefix]; !exists {
 			context[prefix] = uri
 		}
 	}
-	
+
 	return context
 }
 
