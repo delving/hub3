@@ -1736,9 +1736,14 @@ func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.Sear
 		}
 	}
 
-	// if sr.GetPage() > int32(0) && sr.GetStart() > int32(0) {
-	s = s.From(int(sr.GetStart()))
-	// }
+	// Only use From() when not using search_after (to avoid 10k limit)
+	// Skip if: tree paging, or search_after is enabled and we have searchAfter data
+	usingSearchAfter := (sr.Tree != nil && sr.Tree.IsPaging && !sr.Tree.IsSearch) ||
+		(c.Config.ElasticSearch.EnableSearchAfter && len(sr.SearchAfter) != 0 && sr.CollapseOn == "")
+
+	if !usingSearchAfter {
+		s = s.From(int(sr.GetStart()))
+	}
 
 	query, err := sr.ElasticQuery()
 	if err != nil {
