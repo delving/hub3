@@ -42,8 +42,14 @@ func ContextRouter(fsys fs.FS, mount string, filenames []string) func(r chi.Rout
 
 	sort.Strings(names)
 
+	basePath := strings.TrimSuffix(mount, "/")
+	if basePath == "" {
+		basePath = "/"
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		name := chi.URLParam(r, "path")
+		name := strings.TrimPrefix(r.URL.Path, basePath)
+		name = strings.TrimPrefix(name, "/")
 		if name == "" {
 			http.NotFound(w, r)
 			return
@@ -226,8 +232,8 @@ func ContextRouter(fsys fs.FS, mount string, filenames []string) func(r chi.Rout
 	return func(r chi.Router) {
 		r.Route(mount, func(cr chi.Router) {
 			cr.Get("/", index)
-			cr.Get("/{path:.+}", handler)
-			cr.Head("/{path:.+}", handler)
+			cr.Get("/*", handler)
+			cr.Head("/*", handler)
 		})
 	}
 }
