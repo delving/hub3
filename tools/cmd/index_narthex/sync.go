@@ -84,8 +84,8 @@ func (c *V2Client) FetchPage(ctx context.Context, scrollID string, params url.Va
 }
 
 // streamToIndexer converts FragmentGraph items to NDJSON bulk format.
-// Format: {"index":{"_id":"..."}} \n {...source...} \n
-func streamToIndexer(items []*fragments.FragmentGraph, writer io.Writer, targetOrgID string) error {
+// Format: {"index":{"_index":"...","_id":"..."}} \n {...source...} \n
+func streamToIndexer(items []*fragments.FragmentGraph, writer io.Writer, indexName string, targetOrgID string) error {
 	for _, item := range items {
 		if item == nil || item.Meta == nil {
 			continue
@@ -99,7 +99,8 @@ func streamToIndexer(items []*fragments.FragmentGraph, writer io.Writer, targetO
 		// Write bulk metadata line
 		meta := map[string]interface{}{
 			"index": map[string]interface{}{
-				"_id": item.Meta.HubID,
+				"_index": indexName,
+				"_id":    item.Meta.HubID,
 			},
 		}
 
@@ -217,7 +218,7 @@ func runSync(cmd *cobra.Command, args []string) error {
 
 		// Stream items to indexer
 		if len(resp.Items) > 0 {
-			if err := streamToIndexer(resp.Items, pipeWriter, targetOrg); err != nil {
+			if err := streamToIndexer(resp.Items, pipeWriter, sFlags.indexName, targetOrg); err != nil {
 				pipeWriter.CloseWithError(err)
 				return fmt.Errorf("failed to stream items: %w", err)
 			}
