@@ -199,11 +199,32 @@ Get all values for a specific facet without search results:
 GET /api/search/v2?facet.expand=dc.creator&facet.limit=100
 ```
 
+#### Facet Sorting
+Control sort order for facet expansion:
+```
+GET /api/search/v2?facet.expand=dc.creator&facet.sort=count&facet.limit=100
+GET /api/search/v2?facet.expand=dc.creator&facet.sort=alpha&facet.limit=100
+```
+
+**Sort Options**:
+- `facet.sort=count` (default): Sort by frequency (most common first), limited to ~10,000 unique values
+- `facet.sort=alpha`: Sort alphabetically, supports deep pagination via `facet.cursor`
+
+**Note**: `facet.cursor` pagination only works with `facet.sort=alpha`
+
 #### Facet Filtering
-Filter facet values:
+Filter facet values (supports wildcards):
 ```
-GET /api/search/v2?facet.expand=dc.creator&facet.filter=rem*
+GET /api/search/v2?facet.expand=dc.creator&facet.filter=rem
+GET /api/search/v2?facet.expand=dc.creator&facet.filter=*van*
+GET /api/search/v2?facet.expand=dc.creator&facet.filter=rem*&facet.sort=count
 ```
+
+**Filter Behavior**:
+- Case-insensitive matching
+- Implicit "contains" search: `rem` matches "Rembrandt"
+- Wildcard support: `*van*` matches "Rembrandt van Rijn"
+- Works with both sort modes
 
 #### Merge Filters
 Merge certain facets into the main query:

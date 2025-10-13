@@ -242,14 +242,16 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 
 	qf := fragments.QueryFacet{Field: facet.Field}
 
-	slog.Info("composite aggregation took", "milliseconds", resp.TookInMillis)
+	slog.Info("facet aggregation took", "milliseconds", resp.TookInMillis)
 	if filtAgg, found := resp.Aggregations.Filter("comp_agg"); found {
 		if agg, found := filtAgg.Nested("nested_agg"); found {
 			if filtered, found := agg.Filter("filtered_labels"); found {
 				if uniqueSearchLabels, found := filtered.Cardinality("unique_searchLabels"); found {
 					facet.Total = int64(*uniqueSearchLabels.Value)
 				}
-				if compositeAgg, found := filtered.Composite("composite_agg"); found {
+
+				// Try composite aggregation first (alpha sort)
+				if compositeAgg, found := filtered.Composite("values_agg"); found {
 					if len(compositeAgg.AfterKey) > 0 {
 						facet.Cursor, err = encodeAfterKey(compositeAgg.AfterKey)
 						if err != nil {
@@ -267,12 +269,27 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 						fragments.SetFacetLink(key, &qf, fl, cfg.fub)
 						facet.Links = append(facet.Links, fl)
 					}
+				} else if termsAgg, found := filtered.Terms("values_agg"); found {
+					// Handle terms aggregation (count sort)
+					for _, b := range termsAgg.Buckets {
+						key := b.Key.(string)
+						fl := &fragments.FacetLink{
+							Value:         key,
+							Count:         b.DocCount,
+							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+						}
+						fragments.SetFacetLink(key, &qf, fl, cfg.fub)
+						facet.Links = append(facet.Links, fl)
+					}
+					// No cursor for terms aggregation (limited to ~10k results)
+					facet.Cursor = ""
 				}
 			}
 		}
 	}
 
-	if len(facet.Links) < int(sr.GetFacetLimit()) {
+	// Only set cursor if using alpha sort and we have more results
+	if len(facet.Links) < int(sr.GetFacetLimit()) || sr.FacetSort != "alpha" {
 		facet.Cursor = ""
 	}
 
@@ -306,8 +323,14 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 	)
 
 	if sr.FacetFilter != "" {
+		pattern := sr.FacetFilter
+		// If no wildcards provided, add implicit wildcards for "contains" behavior
+		if !strings.ContainsAny(pattern, "*?") {
+			pattern = "*" + pattern + "*"
+		}
 		compFilter = compFilter.Must(
-			elastic.NewMatchPhrasePrefixQuery("resources.entries.@value", sr.FacetFilter),
+			elastic.NewWildcardQuery("resources.entries.@value.keyword", pattern).
+				CaseInsensitive(true),
 		)
 	}
 	nestedFilters = append(nestedFilters, compFilter)
@@ -349,23 +372,38 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 		sr.FacetLimit = 20
 	}
 
-	compAgg := elastic.NewCompositeAggregation().
-		Size(int(sr.GetFacetLimit())).
-		Sources(
-			elastic.NewCompositeAggregationTermsValuesSource("count").Field("resources.entries.@value.keyword").Order("asc"),
-		)
+	var valuesAgg elastic.Aggregation
 
-	if sr.FacetCursor != "" {
-		afterKey, err := decodeAfterKey(sr.FacetCursor)
-		if err != nil {
-			return nil, err
+	// Choose aggregation type based on sort parameter
+	if sr.FacetSort == "alpha" {
+		// Composite aggregation for deep pagination (alphabetical)
+		compAgg := elastic.NewCompositeAggregation().
+			Size(int(sr.GetFacetLimit())).
+			Sources(
+				elastic.NewCompositeAggregationTermsValuesSource("count").Field("resources.entries.@value.keyword").Order("asc"),
+			)
+
+		if sr.FacetCursor != "" {
+			afterKey, err := decodeAfterKey(sr.FacetCursor)
+			if err != nil {
+				return nil, err
+			}
+			compAgg = compAgg.AggregateAfter(afterKey)
 		}
-		compAgg = compAgg.AggregateAfter(afterKey)
+		valuesAgg = compAgg
+	} else {
+		// Default: Terms aggregation sorted by count (descending = most common first)
+		termsAgg := elastic.NewTermsAggregation().
+			Field("resources.entries.@value.keyword").
+			Size(int(sr.GetFacetLimit())).
+			OrderByCount(false) // false = descending (most common first)
+
+		valuesAgg = termsAgg
 	}
 
 	filteredLabelsAgg := elastic.NewFilterAggregation().Filter(
 		elastic.NewBoolQuery().Must(nestedFilters...),
-	).SubAggregation("composite_agg", compAgg).
+	).SubAggregation("values_agg", valuesAgg).
 		SubAggregation("unique_searchLabels", elastic.NewCardinalityAggregation().Field("resources.entries.@value.keyword"))
 
 	nestedAgg := elastic.NewNestedAggregation().Path("resources.entries").SubAggregation("filtered_labels", filteredLabelsAgg)

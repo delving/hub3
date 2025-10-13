@@ -313,6 +313,8 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 			sr.FacetFilter = params.Get(p)
 		case "facet.cursor":
 			sr.FacetCursor = params.Get(p)
+		case "facet.sort":
+			sr.FacetSort = params.Get(p)
 		case "lang":
 			langs := v
 			for _, lang := range langs {
