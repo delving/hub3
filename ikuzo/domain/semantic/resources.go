@@ -582,10 +582,141 @@ func PlaceConfig() *ResourceConfig {
 
 	// Geospatial filters
 	config.AddFilter(
+		NewFilterConfig("geo.lat", "geo:lat", "Latitude").
+			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
+			WithDescription("Filter by latitude coordinate").
+			WithValueType("number"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("geo.long", "geo:long", "Longitude").
+			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
+			WithDescription("Filter by longitude coordinate").
+			WithValueType("number"),
+	)
+
+	config.AddFilter(
 		NewFilterConfig("geo", "geo:lat_long", "Geographic Coordinates").
 			WithOperators(OpBBox, OpWithin, OpIntersects).
-			WithDescription("Filter by geographic location").
+			WithDescription("Filter by geographic location (combined lat/long)").
 			WithValueType("geo"),
+	)
+
+	// Address components - schema.org vocabulary (most widely used)
+	config.AddFilter(
+		NewFilterConfig("schema.addressCountry", "schema:addressCountry", "Country").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by country").
+			WithMultiValue(true).
+			WithExamples("Netherlands", "NL", "France", "FR"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("schema.addressRegion", "schema:addressRegion", "Region/State/Province").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by region, state, or province").
+			WithMultiValue(true).
+			WithExamples("North Holland", "Utrecht", "Gelderland"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("schema.addressLocality", "schema:addressLocality", "City/Locality").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by city, town, or locality").
+			WithMultiValue(true).
+			WithExamples("Amsterdam", "Rotterdam", "Utrecht"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("schema.postalCode", "schema:postalCode", "Postal Code").
+			WithOperators(OpEqual, OpStartsWith).
+			WithDescription("Filter by postal code").
+			WithExamples("1012AB", "3511"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("schema.streetAddress", "schema:streetAddress", "Street Address").
+			WithOperators(OpEqual, OpContains).
+			WithDescription("Filter by street name and number").
+			WithExamples("Museumstraat 1", "Herengracht 427"),
+	)
+
+	// GeoNames ontology for administrative divisions
+	config.AddFilter(
+		NewFilterConfig("gn.countryCode", "gn:countryCode", "Country Code").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by ISO country code").
+			WithMultiValue(true).
+			WithExamples("NL", "BE", "DE", "FR"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("gn.parentCountry", "gn:parentCountry", "Parent Country").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by parent country URI").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("gn.parentADM1", "gn:parentADM1", "Admin Division 1").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by first-level administrative division (state/province)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("gn.parentADM2", "gn:parentADM2", "Admin Division 2").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by second-level administrative division (county/district)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("gn.parentADM3", "gn:parentADM3", "Admin Division 3").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by third-level administrative division (municipality)").
+			WithMultiValue(true),
+	)
+
+	// Nave-specific extensions (legacy, Delving-specific)
+	config.AddFilter(
+		NewFilterConfig("nave.city", "nave:city", "City (Nave)").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by city (Delving legacy field)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("nave.country", "nave:country", "Country (Nave)").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by country (Delving legacy field)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("nave.province", "nave:province", "Province (Nave)").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by province (Delving legacy field)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("nave.municipality", "nave:municipality", "Municipality (Nave)").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by municipality (Delving legacy field)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("nave.postalCode", "nave:postalCode", "Postal Code (Nave)").
+			WithOperators(OpEqual, OpStartsWith).
+			WithDescription("Filter by postal code (Delving legacy field)"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("nave.street", "nave:street", "Street (Nave)").
+			WithOperators(OpEqual, OpContains).
+			WithDescription("Filter by street name (Delving legacy field)"),
 	)
 
 	// Facets
@@ -601,8 +732,34 @@ func PlaceConfig() *ResourceConfig {
 			WithSize(30),
 	)
 
+	config.AddFacet(
+		NewFacetConfig("schema.addressCountry", "schema:addressCountry", "Country", "enum").
+			WithDescription("Facet by country").
+			WithSize(50),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("schema.addressRegion", "schema:addressRegion", "Region/Province", "enum").
+			WithDescription("Facet by region or province").
+			WithSize(50),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("schema.addressLocality", "schema:addressLocality", "City", "enum").
+			WithDescription("Facet by city or locality").
+			WithSize(100),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("gn.countryCode", "gn:countryCode", "Country Code", "enum").
+			WithDescription("Facet by ISO country code").
+			WithSize(50),
+	)
+
 	// Sort fields
 	config.AddSortField("skos.prefLabel", "skos:prefLabel", "Name", "asc")
+	config.AddSortField("schema.addressCountry", "schema:addressCountry", "Country", "asc")
+	config.AddSortField("schema.addressLocality", "schema:addressLocality", "City", "asc")
 
 	return config
 }

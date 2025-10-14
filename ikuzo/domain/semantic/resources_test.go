@@ -134,7 +134,11 @@ func TestPlaceConfig(t *testing.T) {
 	// Check that expected filters exist
 	expectedFilters := []string{
 		"skos.prefLabel", "skos.altLabel",
-		"dcterms.isPartOf", "geo",
+		"dcterms.isPartOf", "geo", "geo.lat", "geo.long",
+		"schema.addressCountry", "schema.addressRegion", "schema.addressLocality",
+		"schema.postalCode", "schema.streetAddress",
+		"gn.countryCode", "gn.parentCountry", "gn.parentADM1", "gn.parentADM2", "gn.parentADM3",
+		"nave.city", "nave.country", "nave.province", "nave.municipality",
 	}
 
 	for _, field := range expectedFilters {
@@ -157,9 +161,21 @@ func TestPlaceConfig(t *testing.T) {
 		t.Error("Expected geo filter to allow within operator")
 	}
 
+	// Check that schema.org address fields are present
+	addressCountryFilter, ok := config.GetFilterConfig("schema.addressCountry")
+	if !ok {
+		t.Fatal("Expected to find schema.addressCountry filter")
+	}
+
+	if !addressCountryFilter.IsOperatorAllowed(OpEqual) {
+		t.Error("Expected schema.addressCountry filter to allow equal operator")
+	}
+
 	// Check that expected facets exist
 	expectedFacets := []string{
 		"skos.prefLabel", "dcterms.isPartOf",
+		"schema.addressCountry", "schema.addressRegion", "schema.addressLocality",
+		"gn.countryCode",
 	}
 
 	for _, field := range expectedFacets {
