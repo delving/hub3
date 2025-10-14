@@ -20,7 +20,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 	}
 
 	t.Run("GET search with filters and facets", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/api/semantic/v1/search?query=test&filter[creator][eq]=rembrandt&facet[type]=10&page=1&size=20", nil)
+		req := httptest.NewRequest("GET", "/api/semantic/v1/search?query=test&filter[dc.creator][eq]=rembrandt&facet[dc.type]=10&page=1&size=20", nil)
 		w := httptest.NewRecorder()
 
 		svc.ServeHTTP(w, req)
@@ -62,7 +62,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 			"filters": []map[string]any{
 				{
 					"@type":    "hub3:PropertyFilter",
-					"field":    "creator",
+					"field":    "dc.creator",
 					"operator": "eq",
 					"value":    "Rembrandt van Rijn",
 				},
@@ -187,7 +187,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 
 	t.Run("GET type-specific documentation", func(t *testing.T) {
 		t.Skip("Type-specific routes need URL path debugging")
-		req := httptest.NewRequest("GET", "/api/semantic/v1/type/CreativeWork/docs", nil)
+		req := httptest.NewRequest("GET", "/api/semantic/v1/type/ProvidedCHO/docs", nil)
 		w := httptest.NewRecorder()
 
 		svc.ServeHTTP(w, req)
@@ -206,8 +206,8 @@ func TestSemanticAPIIntegration(t *testing.T) {
 		if result["@type"] != "hydra:ApiDocumentation" {
 			t.Errorf("Expected @type to be hydra:ApiDocumentation, got %v", result["@type"])
 		}
-		if result["hub3:resourceType"] != "CreativeWork" {
-			t.Errorf("Expected hub3:resourceType to be CreativeWork, got %v", result["hub3:resourceType"])
+		if result["hub3:resourceType"] != "ProvidedCHO" {
+			t.Errorf("Expected hub3:resourceType to be ProvidedCHO, got %v", result["hub3:resourceType"])
 		}
 		if result["hub3:filters"] == nil {
 			t.Error("Expected hub3:filters field")
@@ -219,7 +219,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 
 	t.Run("GET type-specific search", func(t *testing.T) {
 		t.Skip("Type-specific routes need URL path debugging")
-		req := httptest.NewRequest("GET", "/api/semantic/v1/type/CreativeWork/search?query=test", nil)
+		req := httptest.NewRequest("GET", "/api/semantic/v1/type/ProvidedCHO/search?query=test", nil)
 		w := httptest.NewRecorder()
 
 		svc.ServeHTTP(w, req)

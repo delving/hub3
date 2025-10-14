@@ -20,7 +20,7 @@ type Collection struct {
 func NewCollection(id string) *Collection {
 	return &Collection{
 		ID:   id,
-		Type: []string{"hydra:Collection", "schema:SearchResultsPage"},
+		Type: []string{"hydra:Collection"},
 	}
 }
 
@@ -65,16 +65,15 @@ func (fv *FacetValue) Type() string {
 }
 
 // BreadcrumbList represents active filters as a breadcrumb trail.
-// Uses schema.org BreadcrumbList vocabulary.
 type BreadcrumbList struct {
 	TypeValue       string               `json:"@type,omitempty"`
-	ItemListElement []BreadcrumbListItem `json:"schema:itemListElement"`
+	ItemListElement []BreadcrumbListItem `json:"itemListElement"`
 }
 
 // Type returns the @type for JSON-LD.
 func (bl *BreadcrumbList) Type() string {
 	if bl.TypeValue == "" {
-		return "schema:BreadcrumbList"
+		return "hub3:BreadcrumbList"
 	}
 	return bl.TypeValue
 }
@@ -82,15 +81,15 @@ func (bl *BreadcrumbList) Type() string {
 // BreadcrumbListItem represents a single breadcrumb item.
 type BreadcrumbListItem struct {
 	TypeValue string `json:"@type,omitempty"`
-	Position  int    `json:"schema:position"`
-	Name      string `json:"schema:name"`
+	Position  int    `json:"position"`
+	Name      string `json:"name"`
 	RemoveURL string `json:"hub3:removeURL,omitempty"`
 }
 
 // Type returns the @type for JSON-LD.
 func (bli *BreadcrumbListItem) Type() string {
 	if bli.TypeValue == "" {
-		return "schema:ListItem"
+		return "hub3:ListItem"
 	}
 	return bli.TypeValue
 }
@@ -135,7 +134,7 @@ type Operation struct {
 	ID          string      `json:"@id,omitempty"`
 	Method      string      `json:"hydra:method"`
 	Title       string      `json:"hydra:title"`
-	Description string      `json:"schema:description,omitempty"`
+	Description string      `json:"description,omitempty"`
 	Expects     string      `json:"hydra:expects,omitempty"`
 	Returns     string      `json:"hydra:returns,omitempty"`
 }

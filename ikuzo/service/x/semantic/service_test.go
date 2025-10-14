@@ -39,7 +39,7 @@ func TestNewService(t *testing.T) {
 func TestServiceOptions(t *testing.T) {
 	store := semantic.NewMockStore()
 	customRegistry := semantic.NewConfigRegistry()
-	customRegistry.Register(semantic.CreativeWorkConfig())
+	customRegistry.Register(semantic.CHOConfig())
 
 	svc, err := NewService(
 		WithStore(store),

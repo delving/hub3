@@ -1,155 +1,204 @@
 package semantic
 
-// This file contains example resource configurations for common schema.org types.
-// These demonstrate how to configure filters and facets for different resource types.
+// This file contains EDM (Europeana Data Model) resource configurations.
+// These demonstrate how to configure filters and facets for EDM-based resources.
 
-// CreativeWorkConfig returns a configuration for schema:CreativeWork resources.
-// This includes books, articles, paintings, photographs, etc.
-func CreativeWorkConfig() *ResourceConfig {
-	config := NewResourceConfig("schema:CreativeWork", "Creative Work").
-		WithDescription("Cultural heritage objects, artworks, and creative content").
+// AggregationConfig returns a configuration for ore:Aggregation resources.
+// This is the main entry point in EDM that aggregates all information about a cultural heritage object.
+func AggregationConfig() *ResourceConfig {
+	config := NewResourceConfig("ore:Aggregation", "Aggregation").
+		WithDescription("EDM Aggregations that bundle cultural heritage objects with their digital representations and metadata").
 		WithDefaultSize(20).
 		WithMaxSize(100).
-		WithDefaultSort("+title")
+		WithDefaultSort("_score")
 
-	// Text filters
+	// Core aggregation relationships
 	config.AddFilter(
-		NewFilterConfig("title", "schema:name", "Title").
-			WithOperators(OpEqual, OpContains, OpStartsWith).
-			WithDescription("Filter by title or name").
-			WithMultiValue(false).
-			WithExamples("The Night Watch", "Rembrandt"),
+		NewFilterConfig("edm.aggregatedCHO", "edm:aggregatedCHO", "Aggregated CHO").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by aggregated cultural heritage object URI").
+			WithMultiValue(true),
 	)
 
+	// Provider information
 	config.AddFilter(
-		NewFilterConfig("description", "schema:description", "Description").
-			WithOperators(OpContains).
-			WithDescription("Filter by description content").
-			WithQueryAccess(false), // Only allow in POST for complex queries
-	)
-
-	config.AddFilter(
-		NewFilterConfig("creator", "schema:creator", "Creator").
+		NewFilterConfig("edm.dataProvider", "edm:dataProvider", "Data Provider").
 			WithOperators(OpEqual, OpIn, OpContains).
-			WithDescription("Filter by creator/artist name").
-			WithMultiValue(true).
-			WithExamples("Rembrandt van Rijn", "Johannes Vermeer"),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("contributor", "schema:contributor", "Contributor").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by contributor").
+			WithDescription("Filter by data provider").
 			WithMultiValue(true),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("publisher", "schema:publisher", "Publisher").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by publisher or institution").
-			WithMultiValue(true),
-	)
-
-	// Date filters
-	config.AddFilter(
-		NewFilterConfig("dateCreated", "schema:dateCreated", "Date Created").
-			WithOperators(OpEqual, OpGreaterThan, OpGreaterEqual, OpLessThan, OpLessEqual).
-			WithDescription("Filter by creation date").
-			WithValueType("date").
-			WithExamples("1642", "1600-1700"),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("dateModified", "schema:dateModified", "Date Modified").
-			WithOperators(OpGreaterThan, OpGreaterEqual).
-			WithDescription("Filter by last modification date").
-			WithValueType("date"),
-	)
-
-	// Type and categorization
-	config.AddFilter(
-		NewFilterConfig("type", "rdf:type", "Type").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by specific type").
-			WithMultiValue(true).
-			WithExamples("schema:Painting", "schema:Photograph"),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("genre", "schema:genre", "Genre").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by genre").
-			WithMultiValue(true),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("keywords", "schema:keywords", "Keywords").
+		NewFilterConfig("edm.provider", "edm:provider", "Provider").
 			WithOperators(OpEqual, OpIn, OpContains).
-			WithDescription("Filter by keywords or tags").
+			WithDescription("Filter by aggregator/provider").
 			WithMultiValue(true),
 	)
 
-	// Geospatial filters
 	config.AddFilter(
-		NewFilterConfig("spatialCoverage", "schema:spatialCoverage", "Location").
-			WithOperators(OpBBox, OpWithin).
-			WithDescription("Filter by geographic coverage").
-			WithValueType("geo"),
-	)
-
-	// Rights and access
-	config.AddFilter(
-		NewFilterConfig("license", "schema:license", "License").
+		NewFilterConfig("edm.intermediateProvider", "edm:intermediateProvider", "Intermediate Provider").
 			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by license type").
+			WithDescription("Filter by intermediate provider").
+			WithMultiValue(true),
+	)
+
+	// Rights
+	config.AddFilter(
+		NewFilterConfig("edm.rights", "edm:rights", "Rights").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by rights statement URI").
 			WithMultiValue(true).
-			WithExamples("CC-BY", "CC0", "Public Domain"),
+			WithExamples("http://creativecommons.org/publicdomain/mark/1.0/"),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("isAccessibleForFree", "schema:isAccessibleForFree", "Free Access").
+		NewFilterConfig("dc.rights", "dc:rights", "DC Rights").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by rights description").
+			WithMultiValue(true),
+	)
+
+	// Digital objects
+	config.AddFilter(
+		NewFilterConfig("edm.isShownAt", "edm:isShownAt", "Shown At").
+			WithOperators(OpEqual, OpExists).
+			WithDescription("Filter by landing page URL").
+			WithValueType("uri"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.isShownBy", "edm:isShownBy", "Shown By").
+			WithOperators(OpEqual, OpExists).
+			WithDescription("Filter by direct access URL").
+			WithValueType("uri"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.object", "edm:object", "Object").
+			WithOperators(OpEqual, OpExists).
+			WithDescription("Filter by thumbnail/preview URL").
+			WithValueType("uri"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.hasView", "edm:hasView", "Has View").
+			WithOperators(OpEqual, OpIn, OpExists).
+			WithDescription("Filter by additional view URLs").
+			WithMultiValue(true).
+			WithValueType("uri"),
+	)
+
+	// Content type and classification
+	config.AddFilter(
+		NewFilterConfig("edm.ugc", "edm:ugc", "User Generated Content").
 			WithOperators(OpEqual).
-			WithDescription("Filter by free access").
+			WithDescription("Filter by user-generated content flag").
 			WithValueType("boolean"),
 	)
 
-	// Facets
-	config.AddFacet(
-		NewFacetConfig("type", "rdf:type", "Type", "enum").
-			WithDescription("Facet by resource type").
-			WithSize(20).
-			WithSort("count", "desc"),
+	// Inherit common DC fields from CHO via aggregatedCHO relationship
+	config.AddFilter(
+		NewFilterConfig("dc.title", "dc:title", "Title").
+			WithOperators(OpEqual, OpContains, OpStartsWith).
+			WithDescription("Filter by title (from aggregated CHO)").
+			WithMultiValue(false),
 	)
 
+	config.AddFilter(
+		NewFilterConfig("dc.creator", "dc:creator", "Creator").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by creator (from aggregated CHO)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.type", "dc:type", "Type").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by type (from aggregated CHO)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.subject", "dc:subject", "Subject").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by subject (from aggregated CHO)").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.date", "dc:date", "Date").
+			WithOperators(OpEqual, OpGreaterThan, OpGreaterEqual, OpLessThan, OpLessEqual).
+			WithDescription("Filter by date (from aggregated CHO)").
+			WithValueType("date"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.datasetName", "edm:datasetName", "Dataset").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by dataset or collection").
+			WithMultiValue(true),
+	)
+
+	// Facets - Provider information
 	config.AddFacet(
-		NewFacetConfig("creator", "schema:creator", "Creator", "enum").
-			WithDescription("Facet by creator/artist").
+		NewFacetConfig("edm.dataProvider", "edm:dataProvider", "Data Provider", "enum").
+			WithDescription("Facet by data provider").
 			WithSize(50).
 			WithSort("count", "desc"),
 	)
 
 	config.AddFacet(
-		NewFacetConfig("publisher", "schema:publisher", "Publisher", "enum").
-			WithDescription("Facet by publisher or institution").
+		NewFacetConfig("edm.provider", "edm:provider", "Provider", "enum").
+			WithDescription("Facet by provider").
 			WithSize(30),
 	)
 
 	config.AddFacet(
-		NewFacetConfig("genre", "schema:genre", "Genre", "enum").
-			WithDescription("Facet by genre").
-			WithSize(20),
+		NewFacetConfig("edm.datasetName", "edm:datasetName", "Dataset", "enum").
+			WithDescription("Facet by dataset or collection").
+			WithSize(30).
+			WithSort("count", "desc"),
+	)
+
+	// Facets - Rights
+	config.AddFacet(
+		NewFacetConfig("edm.rights", "edm:rights", "Rights", "enum").
+			WithDescription("Facet by rights statement").
+			WithSize(15),
 	)
 
 	config.AddFacet(
-		NewFacetConfig("keywords", "schema:keywords", "Keywords", "enum").
-			WithDescription("Facet by keywords").
-			WithSize(50),
+		NewFacetConfig("edm.ugc", "edm:ugc", "User Generated", "enum").
+			WithDescription("Facet by user-generated content").
+			WithSize(2),
+	)
+
+	// Facets - Content from aggregated CHO
+	config.AddFacet(
+		NewFacetConfig("dc.type", "dc:type", "Type", "enum").
+			WithDescription("Facet by object type").
+			WithSize(20).
+			WithSort("count", "desc"),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("dc.creator", "dc:creator", "Creator", "enum").
+			WithDescription("Facet by creator").
+			WithSize(50).
+			WithSort("count", "desc"),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("dc.subject", "dc:subject", "Subject", "enum").
+			WithDescription("Facet by subject").
+			WithSize(50).
+			WithSort("count", "desc"),
 	)
 
 	// Date range facet
 	config.AddFacet(
-		NewFacetConfig("dateCreated", "schema:dateCreated", "Date Created", "range").
-			WithDescription("Facet by creation date ranges").
+		NewFacetConfig("dc.date", "dc:date", "Date", "range").
+			WithDescription("Facet by date ranges").
 			WithRanges(
 				FacetRange{Key: "before-1500", To: 1500, Label: "Before 1500"},
 				FacetRange{Key: "1500-1600", From: 1500, To: 1600, Label: "1500-1600"},
@@ -161,134 +210,326 @@ func CreativeWorkConfig() *ResourceConfig {
 			),
 	)
 
-	config.AddFacet(
-		NewFacetConfig("license", "schema:license", "License", "enum").
-			WithDescription("Facet by license type").
-			WithSize(10),
-	)
-
 	// Sort fields
-	config.AddSortField("title", "schema:name", "Title", "asc")
-	config.AddSortField("dateCreated", "schema:dateCreated", "Date Created", "desc")
-	config.AddSortField("dateModified", "schema:dateModified", "Date Modified", "desc")
-	config.AddSortField("relevance", "hub3:score", "Relevance", "desc")
+	config.AddSortField("dc.title", "dc:title", "Title", "asc")
+	config.AddSortField("dc.date", "dc:date", "Date", "desc")
+	config.AddSortField("edm.dataProvider", "edm:dataProvider", "Data Provider", "asc")
+	config.AddSortField("_score", "hub3:score", "Relevance", "desc")
 
 	return config
 }
 
-// PersonConfig returns a configuration for schema:Person resources.
-func PersonConfig() *ResourceConfig {
-	config := NewResourceConfig("schema:Person", "Person").
-		WithDescription("People, artists, authors, and historical figures").
+// CHOConfig returns a configuration for edm:ProvidedCHO (Cultural Heritage Object) resources.
+// This represents the cultural heritage object being described in the aggregation.
+func CHOConfig() *ResourceConfig {
+	config := NewResourceConfig("edm:ProvidedCHO", "Cultural Heritage Object").
+		WithDescription("Cultural heritage objects following the Europeana Data Model").
 		WithDefaultSize(20).
 		WithMaxSize(100).
-		WithDefaultSort("+name")
+		WithDefaultSort("_score")
 
-	// Name filters
+	// Text filters - Dublin Core elements
 	config.AddFilter(
-		NewFilterConfig("name", "schema:name", "Name").
+		NewFilterConfig("dc.title", "dc:title", "Title").
 			WithOperators(OpEqual, OpContains, OpStartsWith).
-			WithDescription("Filter by person name").
-			WithExamples("Rembrandt van Rijn", "Vincent van Gogh"),
+			WithDescription("Filter by object title").
+			WithMultiValue(false).
+			WithExamples("The Night Watch", "Rembrandt"),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("givenName", "schema:givenName", "Given Name").
-			WithOperators(OpEqual, OpContains).
-			WithDescription("Filter by given name"),
+		NewFilterConfig("dc.description", "dc:description", "Description").
+			WithOperators(OpContains).
+			WithDescription("Filter by description content").
+			WithQueryAccess(false), // Only allow in POST for complex queries
 	)
 
 	config.AddFilter(
-		NewFilterConfig("familyName", "schema:familyName", "Family Name").
-			WithOperators(OpEqual, OpContains, OpStartsWith).
-			WithDescription("Filter by family name"),
+		NewFilterConfig("dc.creator", "dc:creator", "Creator").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by creator/artist name").
+			WithMultiValue(true).
+			WithExamples("Rembrandt van Rijn", "Johannes Vermeer"),
 	)
 
-	// Dates
 	config.AddFilter(
-		NewFilterConfig("birthDate", "schema:birthDate", "Birth Date").
-			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
-			WithDescription("Filter by birth date").
+		NewFilterConfig("dc.contributor", "dc:contributor", "Contributor").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by contributor").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.publisher", "dc:publisher", "Publisher").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by publisher or institution").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.subject", "dc:subject", "Subject").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by subject").
+			WithMultiValue(true),
+	)
+
+	// Date filters
+	config.AddFilter(
+		NewFilterConfig("dc.date", "dc:date", "Date").
+			WithOperators(OpEqual, OpGreaterThan, OpGreaterEqual, OpLessThan, OpLessEqual).
+			WithDescription("Filter by date").
 			WithValueType("date").
-			WithExamples("1606-07-15", "1600"),
+			WithExamples("1642", "1600-1700"),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("deathDate", "schema:deathDate", "Death Date").
-			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
-			WithDescription("Filter by death date").
+		NewFilterConfig("dcterms.created", "dcterms:created", "Date Created").
+			WithOperators(OpEqual, OpGreaterThan, OpGreaterEqual, OpLessThan, OpLessEqual).
+			WithDescription("Filter by creation date").
 			WithValueType("date"),
 	)
 
-	// Location
 	config.AddFilter(
-		NewFilterConfig("birthPlace", "schema:birthPlace", "Birth Place").
+		NewFilterConfig("dcterms.issued", "dcterms:issued", "Date Issued").
+			WithOperators(OpEqual, OpGreaterThan, OpGreaterEqual, OpLessThan, OpLessEqual).
+			WithDescription("Filter by issue date").
+			WithValueType("date"),
+	)
+
+	// Type and categorization
+	config.AddFilter(
+		NewFilterConfig("dc.type", "dc:type", "Type").
 			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by birth place").
+			WithDescription("Filter by object type").
+			WithMultiValue(true).
+			WithExamples("Painting", "Photograph", "Manuscript"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("dc.format", "dc:format", "Format").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by format").
 			WithMultiValue(true),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("deathPlace", "schema:deathPlace", "Death Place").
+		NewFilterConfig("edm.type", "edm:type", "EDM Type").
 			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by death place").
+			WithDescription("Filter by EDM type").
+			WithMultiValue(true).
+			WithExamples("IMAGE", "TEXT", "VIDEO", "SOUND", "3D"),
+	)
+
+	// Language
+	config.AddFilter(
+		NewFilterConfig("dc.language", "dc:language", "Language").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by language").
+			WithMultiValue(true).
+			WithExamples("nl", "en", "de", "fr"),
+	)
+
+	// Geospatial filters
+	config.AddFilter(
+		NewFilterConfig("dcterms.spatial", "dcterms:spatial", "Location").
+			WithOperators(OpEqual, OpIn, OpContains).
+			WithDescription("Filter by geographic location").
 			WithMultiValue(true),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("nationality", "schema:nationality", "Nationality").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by nationality").
-			WithMultiValue(true).
-			WithExamples("Dutch", "Flemish", "Italian"),
+		NewFilterConfig("geo", "geo:lat_long", "Geographic Coordinates").
+			WithOperators(OpBBox, OpWithin).
+			WithDescription("Filter by geographic coordinates").
+			WithValueType("geo"),
 	)
 
-	// Occupation and roles
+	// Rights and access - EDM specific
 	config.AddFilter(
-		NewFilterConfig("hasOccupation", "schema:hasOccupation", "Occupation").
+		NewFilterConfig("dc.rights", "dc:rights", "Rights").
 			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by occupation").
-			WithMultiValue(true).
-			WithExamples("Painter", "Sculptor", "Architect"),
+			WithDescription("Filter by rights statement").
+			WithMultiValue(true),
 	)
 
-	// Gender
 	config.AddFilter(
-		NewFilterConfig("gender", "schema:gender", "Gender").
+		NewFilterConfig("edm.rights", "edm:rights", "EDM Rights").
 			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by gender").
-			WithValueType("string"),
+			WithDescription("Filter by EDM rights").
+			WithMultiValue(true).
+			WithExamples("http://creativecommons.org/publicdomain/mark/1.0/"),
 	)
 
-	// Facets
+	// Collection/Dataset
+	config.AddFilter(
+		NewFilterConfig("edm.datasetName", "edm:datasetName", "Dataset").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by dataset or collection").
+			WithMultiValue(true),
+	)
+
+	// Provider information
+	config.AddFilter(
+		NewFilterConfig("edm.dataProvider", "edm:dataProvider", "Data Provider").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by data provider").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.provider", "edm:provider", "Provider").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by provider").
+			WithMultiValue(true),
+	)
+
+	// Facets - Dublin Core
 	config.AddFacet(
-		NewFacetConfig("hasOccupation", "schema:hasOccupation", "Occupation", "enum").
-			WithDescription("Facet by occupation").
+		NewFacetConfig("dc.type", "dc:type", "Type", "enum").
+			WithDescription("Facet by object type").
+			WithSize(20).
+			WithSort("count", "desc"),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("dc.creator", "dc:creator", "Creator", "enum").
+			WithDescription("Facet by creator/artist").
+			WithSize(50).
+			WithSort("count", "desc"),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("dc.subject", "dc:subject", "Subject", "enum").
+			WithDescription("Facet by subject").
+			WithSize(50).
+			WithSort("count", "desc"),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("dc.publisher", "dc:publisher", "Publisher", "enum").
+			WithDescription("Facet by publisher or institution").
 			WithSize(30),
 	)
 
 	config.AddFacet(
-		NewFacetConfig("nationality", "schema:nationality", "Nationality", "enum").
-			WithDescription("Facet by nationality").
+		NewFacetConfig("dc.language", "dc:language", "Language", "enum").
+			WithDescription("Facet by language").
+			WithSize(20),
+	)
+
+	// Facets - EDM specific
+	config.AddFacet(
+		NewFacetConfig("edm.type", "edm:type", "EDM Type", "enum").
+			WithDescription("Facet by EDM type").
+			WithSize(10),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("edm.dataProvider", "edm:dataProvider", "Data Provider", "enum").
+			WithDescription("Facet by data provider").
+			WithSize(30),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("edm.datasetName", "edm:datasetName", "Dataset", "enum").
+			WithDescription("Facet by dataset or collection").
+			WithSize(20),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("edm.rights", "edm:rights", "Rights", "enum").
+			WithDescription("Facet by rights statement").
+			WithSize(15),
+	)
+
+	// Date range facet
+	config.AddFacet(
+		NewFacetConfig("dc.date", "dc:date", "Date", "range").
+			WithDescription("Facet by date ranges").
+			WithRanges(
+				FacetRange{Key: "before-1500", To: 1500, Label: "Before 1500"},
+				FacetRange{Key: "1500-1600", From: 1500, To: 1600, Label: "1500-1600"},
+				FacetRange{Key: "1600-1700", From: 1600, To: 1700, Label: "1600-1700"},
+				FacetRange{Key: "1700-1800", From: 1700, To: 1800, Label: "1700-1800"},
+				FacetRange{Key: "1800-1900", From: 1800, To: 1900, Label: "1800-1900"},
+				FacetRange{Key: "1900-2000", From: 1900, To: 2000, Label: "1900-2000"},
+				FacetRange{Key: "2000-present", From: 2000, Label: "2000-present"},
+			),
+	)
+
+	// Sort fields
+	config.AddSortField("dc.title", "dc:title", "Title", "asc")
+	config.AddSortField("dc.date", "dc:date", "Date", "desc")
+	config.AddSortField("dcterms.created", "dcterms:created", "Date Created", "desc")
+	config.AddSortField("_score", "hub3:score", "Relevance", "desc")
+
+	return config
+}
+
+// AgentConfig returns a configuration for edm:Agent resources.
+// Agents represent people, organizations, or groups.
+func AgentConfig() *ResourceConfig {
+	config := NewResourceConfig("edm:Agent", "Agent").
+		WithDescription("People, organizations, and groups in the Europeana Data Model").
+		WithDefaultSize(20).
+		WithMaxSize(100).
+		WithDefaultSort("_score")
+
+	// Name filters
+	config.AddFilter(
+		NewFilterConfig("skos.prefLabel", "skos:prefLabel", "Preferred Name").
+			WithOperators(OpEqual, OpContains, OpStartsWith).
+			WithDescription("Filter by preferred name").
+			WithExamples("Rembrandt van Rijn", "Rijksmuseum"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("skos.altLabel", "skos:altLabel", "Alternative Name").
+			WithOperators(OpEqual, OpContains).
+			WithDescription("Filter by alternative name").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("foaf.name", "foaf:name", "Name").
+			WithOperators(OpEqual, OpContains, OpStartsWith).
+			WithDescription("Filter by name"),
+	)
+
+	// Dates
+	config.AddFilter(
+		NewFilterConfig("edm.begin", "edm:begin", "Begin Date").
+			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
+			WithDescription("Filter by begin date (birth, founding)").
+			WithValueType("date"),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("edm.end", "edm:end", "End Date").
+			WithOperators(OpEqual, OpGreaterThan, OpLessThan).
+			WithDescription("Filter by end date (death, dissolution)").
+			WithValueType("date"),
+	)
+
+	// Type
+	config.AddFilter(
+		NewFilterConfig("edm.hasMet", "edm:hasMet", "Associated With").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by associations").
+			WithMultiValue(true),
+	)
+
+	// Facets
+	config.AddFacet(
+		NewFacetConfig("skos.prefLabel", "skos:prefLabel", "Agent Name", "enum").
+			WithDescription("Facet by agent name").
 			WithSize(50),
 	)
 
+	// Birth/begin date range facet
 	config.AddFacet(
-		NewFacetConfig("birthPlace", "schema:birthPlace", "Birth Place", "enum").
-			WithDescription("Facet by birth place").
-			WithSize(50),
-	)
-
-	config.AddFacet(
-		NewFacetConfig("gender", "schema:gender", "Gender", "enum").
-			WithDescription("Facet by gender").
-			WithSize(5),
-	)
-
-	// Birth year range facet
-	config.AddFacet(
-		NewFacetConfig("birthDate", "schema:birthDate", "Birth Period", "range").
-			WithDescription("Facet by birth period").
+		NewFacetConfig("edm.begin", "edm:begin", "Begin Period", "range").
+			WithDescription("Facet by begin period").
 			WithRanges(
 				FacetRange{Key: "before-1400", To: 1400, Label: "Before 1400"},
 				FacetRange{Key: "1400-1500", From: 1400, To: 1500, Label: "1400-1500"},
@@ -301,80 +542,47 @@ func PersonConfig() *ResourceConfig {
 	)
 
 	// Sort fields
-	config.AddSortField("name", "schema:name", "Name", "asc")
-	config.AddSortField("familyName", "schema:familyName", "Family Name", "asc")
-	config.AddSortField("birthDate", "schema:birthDate", "Birth Date", "asc")
-	config.AddSortField("deathDate", "schema:deathDate", "Death Date", "asc")
+	config.AddSortField("skos.prefLabel", "skos:prefLabel", "Name", "asc")
+	config.AddSortField("edm.begin", "edm:begin", "Begin Date", "asc")
+	config.AddSortField("edm.end", "edm:end", "End Date", "asc")
 
 	return config
 }
 
-// PlaceConfig returns a configuration for schema:Place resources.
+// PlaceConfig returns a configuration for edm:Place resources.
 func PlaceConfig() *ResourceConfig {
-	config := NewResourceConfig("schema:Place", "Place").
-		WithDescription("Geographic locations, cities, landmarks, and regions").
+	config := NewResourceConfig("edm:Place", "Place").
+		WithDescription("Geographic locations in the Europeana Data Model").
 		WithDefaultSize(20).
 		WithMaxSize(100).
-		WithDefaultSort("+name")
+		WithDefaultSort("_score")
 
 	// Name filters
 	config.AddFilter(
-		NewFilterConfig("name", "schema:name", "Name").
+		NewFilterConfig("skos.prefLabel", "skos:prefLabel", "Preferred Name").
 			WithOperators(OpEqual, OpContains, OpStartsWith).
 			WithDescription("Filter by place name").
-			WithExamples("Amsterdam", "Paris", "Florence"),
+			WithExamples("Amsterdam", "Paris", "Rome"),
 	)
 
 	config.AddFilter(
-		NewFilterConfig("alternateName", "schema:alternateName", "Alternate Name").
+		NewFilterConfig("skos.altLabel", "skos:altLabel", "Alternative Name").
 			WithOperators(OpEqual, OpContains).
-			WithDescription("Filter by alternate or historical names").
+			WithDescription("Filter by alternative or historical names").
 			WithMultiValue(true),
-	)
-
-	// Type
-	config.AddFilter(
-		NewFilterConfig("type", "rdf:type", "Type").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by place type").
-			WithMultiValue(true).
-			WithExamples("schema:City", "schema:Museum", "schema:LandmarksOrHistoricalBuildings"),
 	)
 
 	// Geographic containment
 	config.AddFilter(
-		NewFilterConfig("containedInPlace", "schema:containedInPlace", "Contained In").
+		NewFilterConfig("dcterms.isPartOf", "dcterms:isPartOf", "Part Of").
 			WithOperators(OpEqual, OpIn).
 			WithDescription("Filter by containing place (e.g., country, region)").
-			WithMultiValue(true).
-			WithExamples("Netherlands", "Italy", "France"),
-	)
-
-	// Address components
-	config.AddFilter(
-		NewFilterConfig("addressCountry", "schema:addressCountry", "Country").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by country").
-			WithMultiValue(true),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("addressRegion", "schema:addressRegion", "Region").
-			WithOperators(OpEqual, OpIn).
-			WithDescription("Filter by region or state").
-			WithMultiValue(true),
-	)
-
-	config.AddFilter(
-		NewFilterConfig("addressLocality", "schema:addressLocality", "Locality").
-			WithOperators(OpEqual, OpIn, OpContains).
-			WithDescription("Filter by city or locality").
 			WithMultiValue(true),
 	)
 
 	// Geospatial filters
 	config.AddFilter(
-		NewFilterConfig("geo", "schema:geo", "Geographic Coordinates").
+		NewFilterConfig("geo", "geo:lat_long", "Geographic Coordinates").
 			WithOperators(OpBBox, OpWithin, OpIntersects).
 			WithDescription("Filter by geographic location").
 			WithValueType("geo"),
@@ -382,43 +590,95 @@ func PlaceConfig() *ResourceConfig {
 
 	// Facets
 	config.AddFacet(
-		NewFacetConfig("type", "rdf:type", "Type", "enum").
-			WithDescription("Facet by place type").
-			WithSize(20),
-	)
-
-	config.AddFacet(
-		NewFacetConfig("addressCountry", "schema:addressCountry", "Country", "enum").
-			WithDescription("Facet by country").
-			WithSize(50).
-			WithSort("term", "asc"),
-	)
-
-	config.AddFacet(
-		NewFacetConfig("addressRegion", "schema:addressRegion", "Region", "enum").
-			WithDescription("Facet by region").
+		NewFacetConfig("skos.prefLabel", "skos:prefLabel", "Place Name", "enum").
+			WithDescription("Facet by place name").
 			WithSize(50),
 	)
 
 	config.AddFacet(
-		NewFacetConfig("containedInPlace", "schema:containedInPlace", "Contained In", "enum").
+		NewFacetConfig("dcterms.isPartOf", "dcterms:isPartOf", "Part Of", "enum").
 			WithDescription("Facet by containing place").
 			WithSize(30),
 	)
 
 	// Sort fields
-	config.AddSortField("name", "schema:name", "Name", "asc")
-	config.AddSortField("addressCountry", "schema:addressCountry", "Country", "asc")
-	config.AddSortField("addressLocality", "schema:addressLocality", "Locality", "asc")
+	config.AddSortField("skos.prefLabel", "skos:prefLabel", "Name", "asc")
 
 	return config
 }
 
-// DefaultRegistry creates a registry with all standard resource configurations.
+// ConceptConfig returns a configuration for skos:Concept resources.
+func ConceptConfig() *ResourceConfig {
+	config := NewResourceConfig("skos:Concept", "Concept").
+		WithDescription("Controlled vocabulary concepts and subject headings").
+		WithDefaultSize(20).
+		WithMaxSize(100).
+		WithDefaultSort("_score")
+
+	// Name filters
+	config.AddFilter(
+		NewFilterConfig("skos.prefLabel", "skos:prefLabel", "Preferred Label").
+			WithOperators(OpEqual, OpContains, OpStartsWith).
+			WithDescription("Filter by preferred label").
+			WithMultiValue(false),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("skos.altLabel", "skos:altLabel", "Alternative Label").
+			WithOperators(OpEqual, OpContains).
+			WithDescription("Filter by alternative labels").
+			WithMultiValue(true),
+	)
+
+	// Hierarchical relationships
+	config.AddFilter(
+		NewFilterConfig("skos.broader", "skos:broader", "Broader Concept").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by broader concepts").
+			WithMultiValue(true),
+	)
+
+	config.AddFilter(
+		NewFilterConfig("skos.narrower", "skos:narrower", "Narrower Concept").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by narrower concepts").
+			WithMultiValue(true),
+	)
+
+	// Scheme
+	config.AddFilter(
+		NewFilterConfig("skos.inScheme", "skos:inScheme", "In Scheme").
+			WithOperators(OpEqual, OpIn).
+			WithDescription("Filter by concept scheme").
+			WithMultiValue(true),
+	)
+
+	// Facets
+	config.AddFacet(
+		NewFacetConfig("skos.prefLabel", "skos:prefLabel", "Concept", "enum").
+			WithDescription("Facet by concept").
+			WithSize(50),
+	)
+
+	config.AddFacet(
+		NewFacetConfig("skos.inScheme", "skos:inScheme", "Scheme", "enum").
+			WithDescription("Facet by concept scheme").
+			WithSize(20),
+	)
+
+	// Sort fields
+	config.AddSortField("skos.prefLabel", "skos:prefLabel", "Label", "asc")
+
+	return config
+}
+
+// DefaultRegistry creates a registry with all EDM resource configurations.
 func DefaultRegistry() *ConfigRegistry {
 	registry := NewConfigRegistry()
-	registry.Register(CreativeWorkConfig())
-	registry.Register(PersonConfig())
+	registry.Register(AggregationConfig()) // Main entry point for EDM
+	registry.Register(CHOConfig())
+	registry.Register(AgentConfig())
 	registry.Register(PlaceConfig())
+	registry.Register(ConceptConfig())
 	return registry
 }

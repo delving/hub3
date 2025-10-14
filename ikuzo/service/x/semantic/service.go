@@ -113,7 +113,7 @@ func (s *Service) handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get resource config (default to CreativeWork for now)
+	// Get resource config (default to first registered config)
 	config := s.registry.GetDefault()
 	if config == nil {
 		s.respondError(w, r, semantic.NewHydraError(

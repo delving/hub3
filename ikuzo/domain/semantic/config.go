@@ -393,9 +393,17 @@ func (cr *ConfigRegistry) Get(resourceType string) (*ResourceConfig, bool) {
 }
 
 // GetDefault retrieves the default resource configuration.
-// This is typically the first registered config or a designated default.
+// Returns ore:Aggregation if available (main EDM entry point), otherwise edm:ProvidedCHO.
 func (cr *ConfigRegistry) GetDefault() *ResourceConfig {
-	// For now, return the first config if any exist
+	// Prefer ore:Aggregation as the main EDM entry point
+	if config, ok := cr.configs["ore:Aggregation"]; ok {
+		return config
+	}
+	// Fall back to edm:ProvidedCHO
+	if config, ok := cr.configs["edm:ProvidedCHO"]; ok {
+		return config
+	}
+	// Fall back to first available config
 	for _, config := range cr.configs {
 		return config
 	}

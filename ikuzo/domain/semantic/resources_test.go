@@ -4,18 +4,20 @@ import (
 	"testing"
 )
 
-func TestCreativeWorkConfig(t *testing.T) {
-	config := CreativeWorkConfig()
+func TestCHOConfig(t *testing.T) {
+	config := CHOConfig()
 
-	if config.ResourceType != "schema:CreativeWork" {
-		t.Errorf("ResourceType = %v, want schema:CreativeWork", config.ResourceType)
+	if config.ResourceType != "edm:ProvidedCHO" {
+		t.Errorf("ResourceType = %v, want edm:ProvidedCHO", config.ResourceType)
 	}
 
 	// Check that expected filters exist
 	expectedFilters := []string{
-		"title", "description", "creator", "contributor", "publisher",
-		"dateCreated", "dateModified", "type", "genre", "keywords",
-		"spatialCoverage", "license", "isAccessibleForFree",
+		"dc.title", "dc.description", "dc.creator", "dc.contributor", "dc.publisher",
+		"dc.subject", "dc.date", "dcterms.created", "dcterms.issued",
+		"dc.type", "dc.format", "edm.type", "dc.language",
+		"dcterms.spatial", "geo", "dc.rights", "edm.rights",
+		"edm.datasetName", "edm.dataProvider", "edm.provider",
 	}
 
 	for _, field := range expectedFilters {
@@ -25,9 +27,9 @@ func TestCreativeWorkConfig(t *testing.T) {
 	}
 
 	// Check that title filter has correct operators
-	titleFilter, ok := config.GetFilterConfig("title")
+	titleFilter, ok := config.GetFilterConfig("dc.title")
 	if !ok {
-		t.Fatal("Expected to find title filter")
+		t.Fatal("Expected to find dc.title filter")
 	}
 
 	expectedOps := []Operator{OpEqual, OpContains, OpStartsWith}
@@ -37,7 +39,8 @@ func TestCreativeWorkConfig(t *testing.T) {
 
 	// Check that expected facets exist
 	expectedFacets := []string{
-		"type", "creator", "publisher", "genre", "keywords", "dateCreated", "license",
+		"dc.type", "dc.creator", "dc.subject", "dc.publisher", "dc.language",
+		"edm.type", "edm.dataProvider", "edm.datasetName", "edm.rights", "dc.date",
 	}
 
 	for _, field := range expectedFacets {
@@ -47,17 +50,17 @@ func TestCreativeWorkConfig(t *testing.T) {
 	}
 
 	// Check that date facet has ranges
-	dateFacet, ok := config.GetFacetConfig("dateCreated")
+	dateFacet, ok := config.GetFacetConfig("dc.date")
 	if !ok {
-		t.Fatal("Expected to find dateCreated facet")
+		t.Fatal("Expected to find dc.date facet")
 	}
 
 	if dateFacet.FacetType != "range" {
-		t.Errorf("dateCreated facet type = %v, want range", dateFacet.FacetType)
+		t.Errorf("dc.date facet type = %v, want range", dateFacet.FacetType)
 	}
 
 	if len(dateFacet.Ranges) == 0 {
-		t.Error("Expected dateCreated facet to have ranges")
+		t.Error("Expected dc.date facet to have ranges")
 	}
 
 	// Check sort fields
@@ -66,19 +69,17 @@ func TestCreativeWorkConfig(t *testing.T) {
 	}
 }
 
-func TestPersonConfig(t *testing.T) {
-	config := PersonConfig()
+func TestAgentConfig(t *testing.T) {
+	config := AgentConfig()
 
-	if config.ResourceType != "schema:Person" {
-		t.Errorf("ResourceType = %v, want schema:Person", config.ResourceType)
+	if config.ResourceType != "edm:Agent" {
+		t.Errorf("ResourceType = %v, want edm:Agent", config.ResourceType)
 	}
 
 	// Check that expected filters exist
 	expectedFilters := []string{
-		"name", "givenName", "familyName",
-		"birthDate", "deathDate",
-		"birthPlace", "deathPlace", "nationality",
-		"hasOccupation", "gender",
+		"skos.prefLabel", "skos.altLabel", "foaf.name",
+		"edm.begin", "edm.end", "edm.hasMet",
 	}
 
 	for _, field := range expectedFilters {
@@ -87,19 +88,19 @@ func TestPersonConfig(t *testing.T) {
 		}
 	}
 
-	// Check that name filter has correct operators
-	nameFilter, ok := config.GetFilterConfig("name")
+	// Check that prefLabel filter has correct operators
+	nameFilter, ok := config.GetFilterConfig("skos.prefLabel")
 	if !ok {
-		t.Fatal("Expected to find name filter")
+		t.Fatal("Expected to find skos.prefLabel filter")
 	}
 
 	if !nameFilter.IsOperatorAllowed(OpContains) {
-		t.Error("Expected name filter to allow contains operator")
+		t.Error("Expected prefLabel filter to allow contains operator")
 	}
 
 	// Check that expected facets exist
 	expectedFacets := []string{
-		"hasOccupation", "nationality", "birthPlace", "gender", "birthDate",
+		"skos.prefLabel", "edm.begin",
 	}
 
 	for _, field := range expectedFacets {
@@ -108,34 +109,32 @@ func TestPersonConfig(t *testing.T) {
 		}
 	}
 
-	// Check that birthDate facet has ranges
-	birthDateFacet, ok := config.GetFacetConfig("birthDate")
+	// Check that begin date facet has ranges
+	beginFacet, ok := config.GetFacetConfig("edm.begin")
 	if !ok {
-		t.Fatal("Expected to find birthDate facet")
+		t.Fatal("Expected to find edm.begin facet")
 	}
 
-	if birthDateFacet.FacetType != "range" {
-		t.Errorf("birthDate facet type = %v, want range", birthDateFacet.FacetType)
+	if beginFacet.FacetType != "range" {
+		t.Errorf("edm.begin facet type = %v, want range", beginFacet.FacetType)
 	}
 
-	if len(birthDateFacet.Ranges) == 0 {
-		t.Error("Expected birthDate facet to have ranges")
+	if len(beginFacet.Ranges) == 0 {
+		t.Error("Expected edm.begin facet to have ranges")
 	}
 }
 
 func TestPlaceConfig(t *testing.T) {
 	config := PlaceConfig()
 
-	if config.ResourceType != "schema:Place" {
-		t.Errorf("ResourceType = %v, want schema:Place", config.ResourceType)
+	if config.ResourceType != "edm:Place" {
+		t.Errorf("ResourceType = %v, want edm:Place", config.ResourceType)
 	}
 
 	// Check that expected filters exist
 	expectedFilters := []string{
-		"name", "alternateName", "type",
-		"containedInPlace",
-		"addressCountry", "addressRegion", "addressLocality",
-		"geo",
+		"skos.prefLabel", "skos.altLabel",
+		"dcterms.isPartOf", "geo",
 	}
 
 	for _, field := range expectedFilters {
@@ -160,7 +159,7 @@ func TestPlaceConfig(t *testing.T) {
 
 	// Check that expected facets exist
 	expectedFacets := []string{
-		"type", "addressCountry", "addressRegion", "containedInPlace",
+		"skos.prefLabel", "dcterms.isPartOf",
 	}
 
 	for _, field := range expectedFacets {
@@ -168,15 +167,70 @@ func TestPlaceConfig(t *testing.T) {
 			t.Errorf("Expected field '%s' to be facetable", field)
 		}
 	}
+}
 
-	// Check that country facet is sorted by term
-	countryFacet, ok := config.GetFacetConfig("addressCountry")
-	if !ok {
-		t.Fatal("Expected to find addressCountry facet")
+func TestConceptConfig(t *testing.T) {
+	config := ConceptConfig()
+
+	if config.ResourceType != "skos:Concept" {
+		t.Errorf("ResourceType = %v, want skos:Concept", config.ResourceType)
 	}
 
-	if countryFacet.SortBy != "term" {
-		t.Errorf("addressCountry facet sort = %v, want term", countryFacet.SortBy)
+	// Check that expected filters exist
+	expectedFilters := []string{
+		"skos.prefLabel", "skos.altLabel",
+		"skos.broader", "skos.narrower", "skos.inScheme",
+	}
+
+	for _, field := range expectedFilters {
+		if !config.IsFieldFilterable(field) {
+			t.Errorf("Expected field '%s' to be filterable", field)
+		}
+	}
+
+	// Check that expected facets exist
+	expectedFacets := []string{
+		"skos.prefLabel", "skos.inScheme",
+	}
+
+	for _, field := range expectedFacets {
+		if !config.IsFieldFacetable(field) {
+			t.Errorf("Expected field '%s' to be facetable", field)
+		}
+	}
+}
+
+func TestAggregationConfig(t *testing.T) {
+	config := AggregationConfig()
+
+	if config.ResourceType != "ore:Aggregation" {
+		t.Errorf("ResourceType = %v, want ore:Aggregation", config.ResourceType)
+	}
+
+	// Check that expected filters exist
+	expectedFilters := []string{
+		"edm.aggregatedCHO", "edm.dataProvider", "edm.provider", "edm.intermediateProvider",
+		"edm.rights", "dc.rights", "edm.isShownAt", "edm.isShownBy", "edm.object",
+		"edm.hasView", "edm.ugc", "dc.title", "dc.creator", "dc.type", "dc.subject",
+		"dc.date", "edm.datasetName",
+	}
+
+	for _, field := range expectedFilters {
+		if !config.IsFieldFilterable(field) {
+			t.Errorf("Expected field '%s' to be filterable", field)
+		}
+	}
+
+	// Check that expected facets exist
+	expectedFacets := []string{
+		"edm.dataProvider", "edm.provider", "edm.datasetName", "edm.rights",
+		"edm.ugc", "dc.type", "dc.creator", "dc.subject", "dc.date",
+	}
+
+	for _, field := range expectedFacets {
+		if !config.IsFieldFacetable(field) {
+			t.Errorf("Expected field '%s' to be facetable", field)
+		}
 	}
 }
 
@@ -185,9 +239,11 @@ func TestDefaultRegistry(t *testing.T) {
 
 	// Check that all expected resource types are registered
 	expectedTypes := []string{
-		"schema:CreativeWork",
-		"schema:Person",
-		"schema:Place",
+		"ore:Aggregation",
+		"edm:ProvidedCHO",
+		"edm:Agent",
+		"edm:Place",
+		"skos:Concept",
 	}
 
 	registeredTypes := registry.ListResourceTypes()
@@ -213,8 +269,8 @@ func TestDefaultRegistry(t *testing.T) {
 }
 
 func TestResourceConfig_Integration(t *testing.T) {
-	// Test a complete workflow with CreativeWork config
-	config := CreativeWorkConfig()
+	// Test a complete workflow with Aggregation config (main EDM entry point)
+	config := AggregationConfig()
 
 	// Create valid query options
 	validOpts := &QueryOptions{
@@ -223,19 +279,19 @@ func TestResourceConfig_Integration(t *testing.T) {
 		},
 		Filters: []Filter{
 			&PropertyFilter{
-				FieldName:    "creator",
+				FieldName:    "dc.creator",
 				OperatorType: OpEqual,
 				Value:        "Rembrandt van Rijn",
 			},
 			&PropertyFilter{
-				FieldName:    "type",
+				FieldName:    "dc.type",
 				OperatorType: OpIn,
-				Value:        []string{"schema:Painting", "schema:Drawing"},
+				Value:        []string{"Painting", "Drawing"},
 			},
 		},
 		Facets: []FacetRequest{
-			{Field: "type", Limit: 20},
-			{Field: "genre", Limit: 10},
+			{Field: "dc.type", Limit: 20},
+			{Field: "dc.subject", Limit: 10},
 		},
 		Pagination: &Pagination{
 			Page: 1,
@@ -268,7 +324,7 @@ func TestResourceConfig_Integration(t *testing.T) {
 	invalidOpOpts := &QueryOptions{
 		Filters: []Filter{
 			&PropertyFilter{
-				FieldName:    "title",
+				FieldName:    "dc.title",
 				OperatorType: OpGreaterThan, // Not allowed for title
 				Value:        "test",
 			},
@@ -282,7 +338,7 @@ func TestResourceConfig_Integration(t *testing.T) {
 }
 
 func TestBuildTemplateFromResourceConfigs(t *testing.T) {
-	config := CreativeWorkConfig()
+	config := AggregationConfig()
 	baseURL := "https://example.org/api/semantic/v1/search"
 
 	template := BuildTemplateFromConfigs(baseURL, config.Filters, config.Facets)
@@ -306,25 +362,25 @@ func TestBuildTemplateFromResourceConfigs(t *testing.T) {
 	// Check that template has filter mappings from config
 	hasCreatorFilter := false
 	for _, m := range template.Mapping {
-		if m.Variable == "filter[creator][eq]" {
+		if m.Variable == "filter[dc.creator][eq]" {
 			hasCreatorFilter = true
 			break
 		}
 	}
 	if !hasCreatorFilter {
-		t.Error("Expected template to have filter[creator][eq] mapping")
+		t.Error("Expected template to have filter[dc.creator][eq] mapping")
 	}
 
 	// Check that template has facet mappings from config
 	hasTypeFacet := false
 	for _, m := range template.Mapping {
-		if m.Variable == "facet[type]" {
+		if m.Variable == "facet[dc.type]" {
 			hasTypeFacet = true
 			break
 		}
 	}
 	if !hasTypeFacet {
-		t.Error("Expected template to have facet[type] mapping")
+		t.Error("Expected template to have facet[dc.type] mapping")
 	}
 
 	// Check that advanced search is configured
