@@ -51,8 +51,11 @@ func (s *SemanticStore) buildEnumFacetAggregation(
 		size = facet.Limit
 	}
 
+	// Translate field name: dc.creator -> dc_creator
+	esField := translateFieldName(facet.Field)
+
 	agg := elastic.NewTermsAggregation().
-		Field(facet.Field + ".keyword").
+		Field(esField + ".keyword").
 		Size(size).
 		MinDocCount(int(config.MinDocCount))
 
@@ -85,7 +88,9 @@ func (s *SemanticStore) buildRangeFacetAggregation(
 	facet semantic.FacetRequest,
 	config *semantic.FacetConfig,
 ) elastic.Aggregation {
-	agg := elastic.NewRangeAggregation().Field(facet.Field)
+	// Translate field name: dc.creator -> dc_creator
+	esField := translateFieldName(facet.Field)
+	agg := elastic.NewRangeAggregation().Field(esField)
 
 	for _, r := range config.Ranges {
 		if r.From > 0 && r.To > 0 {
@@ -110,8 +115,11 @@ func (s *SemanticStore) buildDateFacetAggregation(
 		interval = config.DateIntervals[0].Interval
 	}
 
+	// Translate field name: dc.creator -> dc_creator
+	esField := translateFieldName(facet.Field)
+
 	agg := elastic.NewDateHistogramAggregation().
-		Field(facet.Field).
+		Field(esField).
 		CalendarInterval(interval).
 		MinDocCount(config.MinDocCount)
 
@@ -129,8 +137,10 @@ func (s *SemanticStore) buildBooleanFacetAggregation(
 	facet semantic.FacetRequest,
 	config *semantic.FacetConfig,
 ) elastic.Aggregation {
+	// Translate field name: dc.creator -> dc_creator
+	esField := translateFieldName(facet.Field)
 	return elastic.NewTermsAggregation().
-		Field(facet.Field).
+		Field(esField).
 		Size(2). // Only true/false
 		MinDocCount(int(config.MinDocCount))
 }

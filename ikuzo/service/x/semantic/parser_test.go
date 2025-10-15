@@ -249,3 +249,172 @@ func TestParseGeoFilter(t *testing.T) {
 		})
 	}
 }
+
+func TestFromURLFieldName(t *testing.T) {
+	tests := []struct {
+		name     string
+		urlField string
+		want     string
+	}{
+		{
+			name:     "dc_creator to dc:creator",
+			urlField: "dc_creator",
+			want:     "dc:creator",
+		},
+		{
+			name:     "edm_dataProvider to edm:dataProvider",
+			urlField: "edm_dataProvider",
+			want:     "edm:dataProvider",
+		},
+		{
+			name:     "schema_addressCountry to schema:addressCountry",
+			urlField: "schema_addressCountry",
+			want:     "schema:addressCountry",
+		},
+		{
+			name:     "skos_prefLabel to skos:prefLabel",
+			urlField: "skos_prefLabel",
+			want:     "skos:prefLabel",
+		},
+		{
+			name:     "field without namespace stays same",
+			urlField: "simpleField",
+			want:     "simpleField",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := fromURLFieldName(tt.urlField)
+			if got != tt.want {
+				t.Errorf("fromURLFieldName(%q) = %q, want %q", tt.urlField, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestToURLFieldName(t *testing.T) {
+	tests := []struct {
+		name          string
+		internalField string
+		want          string
+	}{
+		{
+			name:          "dc:creator to dc_creator",
+			internalField: "dc:creator",
+			want:          "dc_creator",
+		},
+		{
+			name:          "edm:dataProvider to edm_dataProvider",
+			internalField: "edm:dataProvider",
+			want:          "edm_dataProvider",
+		},
+		{
+			name:          "schema:addressCountry to schema_addressCountry",
+			internalField: "schema:addressCountry",
+			want:          "schema_addressCountry",
+		},
+		{
+			name:          "field without colon stays same",
+			internalField: "simpleField",
+			want:          "simpleField",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := toURLFieldName(tt.internalField)
+			if got != tt.want {
+				t.Errorf("toURLFieldName(%q) = %q, want %q", tt.internalField, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestFieldNameRoundTrip(t *testing.T) {
+	tests := []string{
+		"dc:creator",
+		"edm:dataProvider",
+		"schema:addressCountry",
+		"skos:prefLabel",
+		"ebucore:hasMimeType",
+	}
+
+	for _, internal := range tests {
+		t.Run(internal, func(t *testing.T) {
+			url := toURLFieldName(internal)
+			back := fromURLFieldName(url)
+			if back != internal {
+				t.Errorf("Round trip failed: %q -> %q -> %q", internal, url, back)
+			}
+		})
+	}
+}
+
+func TestParseFacetsWithNamespaces(t *testing.T) {
+	// Test that facets with underscores in URL are converted to colons
+	req := httptest.NewRequest("GET", "/search?facet[dc_creator]=10&facet[edm_dataProvider]=20", nil)
+	opts, err := parseQueryParams(req)
+
+	if err != nil {
+		t.Fatalf("parseQueryParams() failed: %v", err)
+	}
+
+	if len(opts.Facets) != 2 {
+		t.Fatalf("Expected 2 facets, got %d", len(opts.Facets))
+	}
+
+	// Check that field names were converted from URL format to internal format
+	expectedFields := map[string]bool{
+		"dc:creator":       false,
+		"edm:dataProvider": false,
+	}
+
+	for _, facet := range opts.Facets {
+		if _, ok := expectedFields[facet.Field]; ok {
+			expectedFields[facet.Field] = true
+		} else {
+			t.Errorf("Unexpected facet field: %s", facet.Field)
+		}
+	}
+
+	for field, found := range expectedFields {
+		if !found {
+			t.Errorf("Expected facet field %s not found", field)
+		}
+	}
+}
+
+func TestParseFiltersWithNamespaces(t *testing.T) {
+	// Test that filters with underscores in URL are converted to colons
+	req := httptest.NewRequest("GET", "/search?filter[dc_creator][eq]=Rembrandt&filter[edm_dataProvider][in]=Museum", nil)
+	opts, err := parseQueryParams(req)
+
+	if err != nil {
+		t.Fatalf("parseQueryParams() failed: %v", err)
+	}
+
+	if len(opts.Filters) != 2 {
+		t.Fatalf("Expected 2 filters, got %d", len(opts.Filters))
+	}
+
+	// Check that field names were converted from URL format to internal format
+	expectedFields := map[string]bool{
+		"dc:creator":       false,
+		"edm:dataProvider": false,
+	}
+
+	for _, filter := range opts.Filters {
+		if _, ok := expectedFields[filter.Field()]; ok {
+			expectedFields[filter.Field()] = true
+		} else {
+			t.Errorf("Unexpected filter field: %s", filter.Field())
+		}
+	}
+
+	for field, found := range expectedFields {
+		if !found {
+			t.Errorf("Expected filter field %s not found", field)
+		}
+	}
+}

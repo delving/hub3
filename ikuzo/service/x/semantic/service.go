@@ -64,8 +64,8 @@ func (s *Service) Routes(pattern string, r chi.Router) {
 		// Detail view endpoint
 		router.Get("/resource/{id}", s.handleResourceDetail)
 
-		// API documentation endpoint
-		router.Get("/", s.handleAPIDocumentation)
+		// Entry point and documentation endpoints
+		router.Get("/", s.handleEntryPoint)
 		router.Get("/docs", s.handleAPIDocumentation)
 
 		// Resource type specific endpoints

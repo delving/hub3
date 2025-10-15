@@ -20,7 +20,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 	}
 
 	t.Run("GET search with filters and facets", func(t *testing.T) {
-		req := httptest.NewRequest("GET", "/api/semantic/v1/search?query=test&filter[dc.creator][eq]=rembrandt&facet[dc.type]=10&page=1&size=20", nil)
+		req := httptest.NewRequest("GET", "/api/semantic/v1/search?query=test&filter[dc_creator][eq]=rembrandt&facet[dc_type]=10&page=1&size=20", nil)
 		w := httptest.NewRecorder()
 
 		svc.ServeHTTP(w, req)
@@ -62,7 +62,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 			"filters": []map[string]any{
 				{
 					"@type":    "hub3:PropertyFilter",
-					"field":    "dc.creator",
+					"field":    "dc:creator",
 					"operator": "eq",
 					"value":    "Rembrandt van Rijn",
 				},
@@ -149,7 +149,7 @@ func TestSemanticAPIIntegration(t *testing.T) {
 		}
 	})
 
-	t.Run("GET API documentation", func(t *testing.T) {
+	t.Run("GET API entry point", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/api/semantic/v1/", nil)
 		w := httptest.NewRecorder()
 
@@ -164,7 +164,43 @@ func TestSemanticAPIIntegration(t *testing.T) {
 			t.Fatalf("Failed to decode response: %v", err)
 		}
 
-		// Verify documentation structure
+		// Verify entry point structure (lightweight)
+		if result["@type"] != "hydra:EntryPoint" {
+			t.Errorf("Expected @type to be hydra:EntryPoint, got %v", result["@type"])
+		}
+		if result["hydra:title"] == nil {
+			t.Error("Expected hydra:title field")
+		}
+		if result["hub3:search"] == nil {
+			t.Error("Expected hub3:search field")
+		}
+		if result["hub3:documentation"] == nil {
+			t.Error("Expected hub3:documentation field")
+		}
+		if result["hub3:resourceTypes"] == nil {
+			t.Error("Expected hub3:resourceTypes field")
+		}
+		if result["hub3:quickExamples"] == nil {
+			t.Error("Expected hub3:quickExamples field")
+		}
+	})
+
+	t.Run("GET API documentation", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/semantic/v1/docs", nil)
+		w := httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Status = %d, want %d", w.Code, http.StatusOK)
+		}
+
+		var result map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&result); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+
+		// Verify full documentation structure
 		if result["@type"] != "hydra:ApiDocumentation" {
 			t.Errorf("Expected @type to be hydra:ApiDocumentation, got %v", result["@type"])
 		}
@@ -174,8 +210,8 @@ func TestSemanticAPIIntegration(t *testing.T) {
 		if result["hydra:supportedClass"] == nil {
 			t.Error("Expected hydra:supportedClass field")
 		}
-		if result["hydra:entrypoint"] == nil {
-			t.Error("Expected hydra:entrypoint field")
+		if result["hub3:entrypoint"] == nil {
+			t.Error("Expected hub3:entrypoint link back to root")
 		}
 		if result["hub3:supportedOperations"] == nil {
 			t.Error("Expected hub3:supportedOperations field")

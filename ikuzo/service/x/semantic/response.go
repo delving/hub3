@@ -105,16 +105,29 @@ func (s *Service) buildFacets(
 ) []semantic.Facet {
 	facets := make([]semantic.Facet, len(results))
 
+	// Get default config for facet metadata
+	config := s.registry.GetDefault()
+
 	for i, result := range results {
 		facet := semantic.Facet{
+			TypeValue:   "hub3:Facet",
 			Field:       result.Field,
 			FacetType:   result.FacetType,
 			TotalValues: result.TotalValues,
 			Values:      make([]semantic.FacetValue, len(result.Values)),
 		}
 
+		// Get facet config for label and property URI
+		if config != nil {
+			if facetConfig, ok := config.GetFacetConfig(result.Field); ok {
+				facet.Label = facetConfig.Label
+				facet.PropertyURI = facetConfig.PropertyURI
+			}
+		}
+
 		for j, val := range result.Values {
 			facet.Values[j] = semantic.FacetValue{
+				TypeValue: "hub3:FacetValue",
 				Value:     val.Value,
 				Label:     val.Label,
 				Count:     val.Count,
@@ -164,7 +177,9 @@ func (s *Service) buildFacetApplyURL(
 ) string {
 	// Clone query params and add facet filter
 	query := r.URL.Query()
-	query.Set(fmt.Sprintf("filter[%s][eq]", field), value)
+	// Convert to URL format: dc:creator -> dc_creator
+	urlField := toURLFieldName(field)
+	query.Set(fmt.Sprintf("filter[%s][eq]", urlField), value)
 	return s.buildBaseURL(r) + "?" + query.Encode()
 }
 
@@ -176,7 +191,9 @@ func (s *Service) buildFacetRemoveURL(
 ) string {
 	// Clone query params and remove facet filter
 	query := r.URL.Query()
-	query.Del(fmt.Sprintf("filter[%s][eq]", field))
+	// Convert to URL format: dc:creator -> dc_creator
+	urlField := toURLFieldName(field)
+	query.Del(fmt.Sprintf("filter[%s][eq]", urlField))
 	return s.buildBaseURL(r) + "?" + query.Encode()
 }
 
@@ -188,7 +205,9 @@ func (s *Service) buildFilterRemoveURL(
 ) string {
 	// Clone query params and remove this filter
 	query := r.URL.Query()
-	key := fmt.Sprintf("filter[%s][%s]", filter.Field(), filter.Operator())
+	// Convert to URL format: dc:creator -> dc_creator
+	urlField := toURLFieldName(filter.Field())
+	key := fmt.Sprintf("filter[%s][%s]", urlField, filter.Operator())
 	query.Del(key)
 	return s.buildBaseURL(r) + "?" + query.Encode()
 }

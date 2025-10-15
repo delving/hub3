@@ -6,11 +6,40 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 )
+
+// namespacePattern matches namespace prefixes like dc_, edm_, schema_, etc.
+var namespacePattern = regexp.MustCompile(`^([a-z]+)_`)
+
+// fromURLFieldName converts URL field format to internal format.
+// Example: dc_creator -> dc:creator, edm_dataProvider -> edm:dataProvider
+func fromURLFieldName(urlField string) string {
+	// Convert underscore to colon for namespace prefixes
+	// dc_creator -> dc:creator
+	// edm_dataProvider -> edm:dataProvider
+	// schema_addressCountry -> schema:addressCountry
+	// But keep underscores that are part of the field name
+	if namespacePattern.MatchString(urlField) {
+		// Replace only the first underscore (between namespace and field name)
+		parts := strings.SplitN(urlField, "_", 2)
+		if len(parts) == 2 {
+			return parts[0] + ":" + parts[1]
+		}
+	}
+	return urlField
+}
+
+// toURLFieldName converts internal field format to URL format.
+// Example: dc:creator -> dc_creator, edm:dataProvider -> edm_dataProvider
+func toURLFieldName(internalField string) string {
+	// Convert colon to underscore for URL safety
+	return strings.ReplaceAll(internalField, ":", "_")
+}
 
 // parseQueryParams parses URL query parameters into QueryOptions.
 func parseQueryParams(r *http.Request) (*semantic.QueryOptions, error) {
@@ -81,8 +110,11 @@ func parseFiltersFromQuery(query url.Values, opts *semantic.QueryOptions) error 
 			continue
 		}
 
-		field := strings.TrimPrefix(parts[0], "filter[")
+		urlField := strings.TrimPrefix(parts[0], "filter[")
 		operator := strings.TrimSuffix(parts[1], "]")
+
+		// Convert from URL format (dc_creator) to internal format (dc:creator)
+		field := fromURLFieldName(urlField)
 
 		op := semantic.Operator(operator)
 		if !op.IsValid() {
@@ -176,7 +208,10 @@ func parseFacetsFromQuery(query url.Values, opts *semantic.QueryOptions) error {
 		}
 
 		// Extract field from facet[field]
-		field := strings.TrimSuffix(strings.TrimPrefix(key, "facet["), "]")
+		urlField := strings.TrimSuffix(strings.TrimPrefix(key, "facet["), "]")
+
+		// Convert from URL format (dc_creator) to internal format (dc:creator)
+		field := fromURLFieldName(urlField)
 
 		if len(values) == 0 {
 			continue

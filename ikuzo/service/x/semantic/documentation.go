@@ -8,6 +8,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// handleEntryPoint handles the root API entry point.
+func (s *Service) handleEntryPoint(w http.ResponseWriter, r *http.Request) {
+	entryPoint := s.buildEntryPointResponse(r)
+	s.respondJSON(w, r, entryPoint, http.StatusOK)
+}
+
 // handleAPIDocumentation handles API documentation requests.
 func (s *Service) handleAPIDocumentation(w http.ResponseWriter, r *http.Request) {
 	doc := s.buildAPIDocumentation(r)
@@ -32,34 +38,113 @@ func (s *Service) handleTypeDocumentation(w http.ResponseWriter, r *http.Request
 	s.respondJSON(w, r, doc, http.StatusOK)
 }
 
+// buildEntryPointResponse builds the lightweight API entry point.
+func (s *Service) buildEntryPointResponse(r *http.Request) map[string]any {
+	baseURL := s.buildBaseURL(r)
+	searchURL := baseURL + "/search"
+	docsURL := baseURL + "/docs"
+
+	entryPoint := map[string]any{
+		"@context":          semantic.DefaultContext(),
+		"@id":               baseURL,
+		"@type":             "hydra:EntryPoint",
+		"hydra:title":       "Hub3 Semantic Search API",
+		"hydra:description": "Entry point for the semantic search API. Visit /docs for full documentation.",
+		"hub3:version":      "1.0.0",
+	}
+
+	// Main operations
+	entryPoint["hub3:search"] = map[string]any{
+		"@id":               searchURL,
+		"@type":             "hydra:Link",
+		"hydra:title":       "Search Endpoint",
+		"hydra:description": "Search resources using GET or POST requests",
+		"hub3:methods":      []string{"GET", "POST"},
+	}
+
+	entryPoint["hub3:documentation"] = map[string]any{
+		"@id":               docsURL,
+		"@type":             "hydra:Link",
+		"hydra:title":       "Full API Documentation",
+		"hydra:description": "Complete API documentation with all resource types, filters, and examples",
+	}
+
+	// List available resource types with their endpoints
+	types := s.registry.ListResourceTypes()
+	resourceTypes := make([]map[string]any, 0, len(types))
+
+	for _, resourceType := range types {
+		config, ok := s.registry.Get(resourceType)
+		if !ok {
+			continue
+		}
+
+		resourceTypes = append(resourceTypes, map[string]any{
+			"@id":               resourceType,
+			"@type":             "hydra:Class",
+			"hydra:title":       config.Label,
+			"hydra:description": config.Description,
+			"hub3:searchURL":    fmt.Sprintf("%s/type/%s/search", baseURL, resourceType),
+			"hub3:docsURL":      fmt.Sprintf("%s/type/%s/docs", baseURL, resourceType),
+		})
+	}
+	entryPoint["hub3:resourceTypes"] = resourceTypes
+
+	// Quick examples
+	entryPoint["hub3:quickExamples"] = []map[string]any{
+		{
+			"hydra:title":       "Simple search",
+			"hub3:url":          searchURL + "?query=rembrandt",
+			"hydra:description": "Full-text search across all resources",
+		},
+		{
+			"hydra:title":       "Search specific type",
+			"hub3:url":          baseURL + "/type/ore:Aggregation/search?query=painting",
+			"hydra:description": "Search within a specific resource type",
+		},
+		{
+			"hydra:title":       "View documentation",
+			"hub3:url":          docsURL,
+			"hydra:description": "Complete API documentation with all capabilities",
+		},
+	}
+
+	return entryPoint
+}
+
 // buildAPIDocumentation builds the main API documentation.
 func (s *Service) buildAPIDocumentation(r *http.Request) map[string]any {
 	baseURL := s.buildBaseURL(r)
 
 	doc := map[string]any{
 		"@context": semantic.DefaultContext(),
-		"@id":      baseURL,
+		"@id":      baseURL + "/docs",
 		"@type":    "hydra:ApiDocumentation",
-		"hydra:title": "Hub3 Semantic Search API",
-		"hydra:description": "A self-documenting semantic search API using Hydra vocabulary and JSON-LD. " +
-			"This API provides rich search capabilities with filters, facets, and navigation.",
+		"hydra:title": "Hub3 Semantic Search API - Complete Documentation",
+		"hydra:description": "Complete API documentation including all resource types, supported filters, " +
+			"facets, operators, and detailed examples. For a quick overview, visit the root endpoint.",
 		"hub3:version": "1.0.0",
-		"hub3:baseURL": s.baseURL,
+		"hub3:baseURL": baseURL,
 	}
 
-	// Add supported classes (resource types)
+	// Link back to entry point
+	doc["hub3:entrypoint"] = map[string]any{
+		"@id":               baseURL,
+		"@type":             "hydra:Link",
+		"hydra:title":       "API Entry Point",
+		"hydra:description": "Lightweight API entry point with navigation links",
+	}
+
+	// Add supported classes (resource types) with full details
 	supportedClasses := s.buildSupportedClasses(r)
 	if len(supportedClasses) > 0 {
 		doc["hydra:supportedClass"] = supportedClasses
 	}
 
-	// Add entry point
-	doc["hydra:entrypoint"] = s.buildEntryPoint(r)
-
 	// Add supported operations
 	doc["hub3:supportedOperations"] = s.buildSupportedOperations(r)
 
-	// Add examples
+	// Add detailed examples
 	doc["hub3:examples"] = s.buildExamples(r)
 
 	return doc
@@ -124,65 +209,6 @@ func (s *Service) buildSupportedClasses(r *http.Request) []map[string]any {
 	}
 
 	return classes
-}
-
-// buildEntryPoint builds the API entry point.
-func (s *Service) buildEntryPoint(r *http.Request) map[string]any {
-	baseURL := fmt.Sprintf("%s://%s%s", getScheme(r), r.Host, s.baseURL)
-
-	return map[string]any{
-		"@id":   baseURL,
-		"@type": "hydra:EntryPoint",
-		"hub3:search": map[string]any{
-			"@id":                baseURL + "/search",
-			"@type":              "hydra:Link",
-			"hydra:title":        "Search Endpoint",
-			"hydra:description":  "Main search endpoint supporting both GET and POST requests",
-			"hub3:methods":       []string{"GET", "POST"},
-			"hub3:documentation": s.buildSearchDocumentation(r),
-		},
-		"hub3:documentation": map[string]any{
-			"@id":               baseURL,
-			"@type":             "hydra:Link",
-			"hydra:title":       "API Documentation",
-			"hydra:description": "Self-documenting API documentation",
-		},
-	}
-}
-
-// buildSearchDocumentation builds search endpoint documentation.
-func (s *Service) buildSearchDocumentation(r *http.Request) map[string]any {
-	baseURL := fmt.Sprintf("%s://%s%s/search", getScheme(r), r.Host, s.baseURL)
-
-	// Get default config for template
-	config := s.registry.GetDefault()
-	if config == nil {
-		return map[string]any{
-			"@type": "hydra:ApiDocumentation",
-			"hydra:title": "Search Documentation",
-		}
-	}
-
-	// Build search template
-	template := semantic.BuildTemplateFromConfigs(baseURL, config.Filters, config.Facets)
-
-	return map[string]any{
-		"@type":              "hydra:ApiDocumentation",
-		"hydra:title":        "Search Documentation",
-		"hydra:description":  "Search for resources using filters, facets, and full-text queries",
-		"hydra:method":       "GET",
-		"hydra:expects":      nil,
-		"hydra:returns":      "hydra:Collection",
-		"hydra:iriTemplate":  template,
-		"hub3:postSupport": map[string]any{
-			"@type":              "hydra:Operation",
-			"hydra:method":       "POST",
-			"hydra:expects":      "hub3:SearchQuery",
-			"hydra:returns":      "hydra:Collection",
-			"hydra:title":        "Advanced Search",
-			"hydra:description":  "Complex searches using JSON-LD query structure",
-		},
-	}
 }
 
 // buildSupportedOperations builds the list of supported operations.

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/semantic"
@@ -252,7 +253,7 @@ func (s *SemanticStore) buildFilterQuery(filter semantic.Filter, config *semanti
 		return s.buildRangeFilterQuery(f)
 
 	case *semantic.ExistsFilter:
-		return elastic.NewExistsQuery(f.FieldName)
+		return elastic.NewExistsQuery(translateFieldName(f.FieldName))
 
 	case *semantic.GeoBBoxFilter:
 		return s.buildGeoBBoxQuery(f)
@@ -271,7 +272,8 @@ func (s *SemanticStore) buildFilterQuery(filter semantic.Filter, config *semanti
 
 // buildPropertyFilterQuery builds a query for PropertyFilter.
 func (s *SemanticStore) buildPropertyFilterQuery(filter *semantic.PropertyFilter) elastic.Query {
-	field := filter.FieldName
+	// Translate field name: dc.creator -> dc_creator
+	field := translateFieldName(filter.FieldName)
 
 	switch filter.OperatorType {
 	case semantic.OpEqual:
@@ -317,7 +319,9 @@ func (s *SemanticStore) buildPropertyFilterQuery(filter *semantic.PropertyFilter
 
 // buildRangeFilterQuery builds a query for RangeFilter.
 func (s *SemanticStore) buildRangeFilterQuery(filter *semantic.RangeFilter) elastic.Query {
-	rangeQuery := elastic.NewRangeQuery(filter.FieldName)
+	// Translate field name: dc.creator -> dc_creator
+	field := translateFieldName(filter.FieldName)
+	rangeQuery := elastic.NewRangeQuery(field)
 
 	// RangeFilter uses Min/Max, and operator determines inclusivity
 	switch filter.OperatorType {
@@ -352,14 +356,16 @@ func (s *SemanticStore) buildRangeFilterQuery(filter *semantic.RangeFilter) elas
 
 // buildGeoBBoxQuery builds a query for GeoBBoxFilter.
 func (s *SemanticStore) buildGeoBBoxQuery(filter *semantic.GeoBBoxFilter) elastic.Query {
-	return elastic.NewGeoBoundingBoxQuery(filter.FieldName).
+	field := translateFieldName(filter.FieldName)
+	return elastic.NewGeoBoundingBoxQuery(field).
 		TopLeft(filter.Bounds.North, filter.Bounds.West).
 		BottomRight(filter.Bounds.South, filter.Bounds.East)
 }
 
 // buildGeoDistanceQuery builds a query for GeoDistanceFilter.
 func (s *SemanticStore) buildGeoDistanceQuery(filter *semantic.GeoDistanceFilter) elastic.Query {
-	return elastic.NewGeoDistanceQuery(filter.FieldName).
+	field := translateFieldName(filter.FieldName)
+	return elastic.NewGeoDistanceQuery(field).
 		Lat(filter.Point.Lat).
 		Lon(filter.Point.Lon).
 		Distance(filter.Distance)
@@ -375,7 +381,8 @@ func (s *SemanticStore) buildGeoPolygonQuery(filter *semantic.GeoPolygonFilter) 
 	// Extract the first ring (outer boundary)
 	ring := filter.Polygon.Coordinates[0]
 
-	query := elastic.NewGeoPolygonQuery(filter.FieldName)
+	field := translateFieldName(filter.FieldName)
+	query := elastic.NewGeoPolygonQuery(field)
 
 	for _, coord := range ring {
 		if len(coord) >= 2 {
@@ -408,4 +415,15 @@ func convertToInterfaceSlice(value any) []any {
 	default:
 		return []any{value}
 	}
+}
+
+// translateFieldName translates field names from API format to Elasticsearch format.
+// Example: dc:creator -> dc_creator
+func translateFieldName(field string) string {
+	// Replace colons with underscores for Elasticsearch
+	// This handles fields like:
+	// - dc:creator -> dc_creator
+	// - edm:dataProvider -> edm_dataProvider
+	// - schema:addressCountry -> schema_addressCountry
+	return strings.ReplaceAll(field, ":", "_")
 }
