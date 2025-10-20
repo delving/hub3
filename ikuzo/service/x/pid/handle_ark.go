@@ -41,18 +41,30 @@ func (s *Service) handleArk() http.HandlerFunc {
 
 		resp, err := store.Get(ark, "")
 		if err != nil {
-			switch {
-			case errors.Is(err, ErrTombstone):
-				s.renderError(w, r, err, http.StatusGone)
-				return
-			case errors.Is(err, ErrPIDNotFound):
-				if resp.Empty() {
-					s.renderError(w, r, err, http.StatusNotFound)
+			// If not found, try normalized ARK format (ark:/ ↔ ark:)
+			if errors.Is(err, ErrPIDNotFound) {
+				normalizedArk := normalizeARK(ark)
+				if normalizedArk != ark {
+					// Retry with normalized ARK
+					resp, err = store.Get(normalizedArk, "")
+				}
+			}
+
+			// Handle errors after potential retry
+			if err != nil {
+				switch {
+				case errors.Is(err, ErrTombstone):
+					s.renderError(w, r, err, http.StatusGone)
+					return
+				case errors.Is(err, ErrPIDNotFound):
+					if resp.Empty() {
+						s.renderError(w, r, err, http.StatusNotFound)
+						return
+					}
+				default:
+					s.renderError(w, r, err, http.StatusBadRequest)
 					return
 				}
-			default:
-				s.renderError(w, r, err, http.StatusBadRequest)
-				return
 			}
 		}
 

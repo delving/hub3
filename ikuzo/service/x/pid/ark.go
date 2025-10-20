@@ -38,3 +38,22 @@ func validateARK(ark string) string {
 
 	return strings.Join(parts, "/")
 }
+
+// normalizeARK toggles between ark:/ and ark: formats for retry.
+// This handles the difference between modern ARKs (ark:123/123) and
+// N2T resolver format which adds a slash (ark:/123/123).
+//
+// Examples:
+//   - ark:/123/123 → ark:123/123
+//   - ark:123/123 → ark:/123/123
+func normalizeARK(ark string) string {
+	if strings.HasPrefix(ark, "ark:/") {
+		// Remove slash: ark:/123/123 → ark:123/123
+		return strings.Replace(ark, "ark:/", "ark:", 1)
+	}
+	if strings.HasPrefix(ark, "ark:") && !strings.HasPrefix(ark, "ark:/") {
+		// Add slash: ark:123/123 → ark:/123/123
+		return strings.Replace(ark, "ark:", "ark:/", 1)
+	}
+	return ark
+}
