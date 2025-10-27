@@ -250,46 +250,60 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 					facet.Total = int64(*uniqueSearchLabels.Value)
 				}
 
-				// Try composite aggregation first (alpha sort)
-				if compositeAgg, found := filtered.Composite("values_agg"); found {
-					if len(compositeAgg.AfterKey) > 0 {
-						facet.Cursor, err = encodeAfterKey(compositeAgg.AfterKey)
-						if err != nil {
-							slog.Error("unable to set after key", "sr", sr, "key", compositeAgg.AfterKey, "error", err)
+				// Check which aggregation type was used based on sort parameter
+				// Default to alpha sort if not explicitly set to "count"
+				if sr.FacetSort != "count" {
+					// Composite aggregation for alphabetical sort (default)
+					if compositeAgg, found := filtered.Composite("values_agg"); found {
+						if len(compositeAgg.AfterKey) > 0 {
+							facet.Cursor, err = encodeAfterKey(compositeAgg.AfterKey)
+							if err != nil {
+								slog.Error("unable to set after key", "sr", sr, "key", compositeAgg.AfterKey, "error", err)
+							}
 						}
-					}
 
-					for _, b := range compositeAgg.Buckets {
-						key := fmt.Sprint(b.Key["count"])
-						fl := &fragments.FacetLink{
-							Value:         key,
-							Count:         b.DocCount,
-							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+						for _, b := range compositeAgg.Buckets {
+							key := fmt.Sprint(b.Key["value"])
+							fl := &fragments.FacetLink{
+								Value:         key,
+								Count:         b.DocCount,
+								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+							}
+							fragments.SetFacetLink(key, &qf, fl, cfg.fub)
+							facet.Links = append(facet.Links, fl)
 						}
-						fragments.SetFacetLink(key, &qf, fl, cfg.fub)
-						facet.Links = append(facet.Links, fl)
 					}
-				} else if termsAgg, found := filtered.Terms("values_agg"); found {
-					// Handle terms aggregation (count sort)
-					for _, b := range termsAgg.Buckets {
-						key := b.Key.(string)
-						fl := &fragments.FacetLink{
-							Value:         key,
-							Count:         b.DocCount,
-							DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+				} else {
+					// Terms aggregation for count sort (default)
+					if termsAgg, found := filtered.Terms("values_agg"); found {
+						for _, b := range termsAgg.Buckets {
+							// For terms aggregation, try string type assertion
+							var key string
+							if str, ok := b.Key.(string); ok {
+								key = str
+							} else {
+								// Fall back to fmt.Sprint for other types
+								key = fmt.Sprintf("%v", b.Key)
+							}
+							fl := &fragments.FacetLink{
+								Value:         key,
+								Count:         b.DocCount,
+								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+							}
+							fragments.SetFacetLink(key, &qf, fl, cfg.fub)
+							facet.Links = append(facet.Links, fl)
 						}
-						fragments.SetFacetLink(key, &qf, fl, cfg.fub)
-						facet.Links = append(facet.Links, fl)
+						// No cursor for terms aggregation (limited to ~10k results)
+						facet.Cursor = ""
 					}
-					// No cursor for terms aggregation (limited to ~10k results)
-					facet.Cursor = ""
 				}
 			}
 		}
 	}
 
-	// Only set cursor if using alpha sort and we have more results
-	if len(facet.Links) < int(sr.GetFacetLimit()) || sr.FacetSort != "alpha" {
+	// Only set cursor if using alpha sort (default) and we have more results
+	// Clear cursor for count sort or when we've reached the end
+	if len(facet.Links) < int(sr.GetFacetLimit()) || sr.FacetSort == "count" {
 		facet.Cursor = ""
 	}
 
@@ -375,12 +389,13 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 	var valuesAgg elastic.Aggregation
 
 	// Choose aggregation type based on sort parameter
-	if sr.FacetSort == "alpha" {
-		// Composite aggregation for deep pagination (alphabetical)
+	// Default to alpha sort if not explicitly set to "count"
+	if sr.FacetSort != "count" {
+		// Composite aggregation for deep pagination (alphabetical - default)
 		compAgg := elastic.NewCompositeAggregation().
 			Size(int(sr.GetFacetLimit())).
 			Sources(
-				elastic.NewCompositeAggregationTermsValuesSource("count").Field("resources.entries.@value.keyword").Order("asc"),
+				elastic.NewCompositeAggregationTermsValuesSource("value").Field("resources.entries.@value.keyword").Order("asc"),
 			)
 
 		if sr.FacetCursor != "" {
