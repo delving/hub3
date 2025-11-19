@@ -553,7 +553,7 @@ func TestUnmarshalSemanticValue(t *testing.T) {
 			},
 		},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			val, err := unmarshalSemanticValue([]byte(tt.json))
@@ -561,4 +561,344 @@ func TestUnmarshalSemanticValue(t *testing.T) {
 			tt.expected(t, val)
 		})
 	}
+}
+
+func TestCycleDetection(t *testing.T) {
+	t.Run("simple cycle A→B→A", func(t *testing.T) {
+		// Create resources A and B
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceB := &FragmentResource{
+			ID:    "resource/B",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/A",
+					Order:       1,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				"resource/B": resourceB,
+			},
+		}
+
+		// Convert A to semantic - should not stack overflow
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+		assert.Equal(t, "resource/A", sr.ID)
+
+		// Check that B is nested
+		knowsValue, exists := sr.Fields["knows"]
+		require.True(t, exists)
+		nestedB, ok := knowsValue.(*SemanticResource)
+		require.True(t, ok)
+		assert.Equal(t, "resource/B", nestedB.ID)
+
+		// Check that A inside B is just an ID reference (cycle detected)
+		nestedBKnows, exists := nestedB.Fields["knows"]
+		require.True(t, exists)
+		cycleRefA, ok := nestedBKnows.(*SemanticResource)
+		require.True(t, ok)
+		assert.Equal(t, "resource/A", cycleRefA.ID)
+		// Should be empty - just an ID reference, no nested fields
+		assert.Empty(t, cycleRefA.Fields, "cycle reference should only contain ID, not nested fields")
+	})
+
+	t.Run("longer cycle A→B→C→A", func(t *testing.T) {
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceB := &FragmentResource{
+			ID:    "resource/B",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/C",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceC := &FragmentResource{
+			ID:    "resource/C",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/A",
+					Order:       1,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				"resource/B": resourceB,
+				"resource/C": resourceC,
+			},
+		}
+
+		// Should not stack overflow
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+		assert.Equal(t, "resource/A", sr.ID)
+
+		// Navigate A→B→C
+		b := sr.Fields["knows"].(*SemanticResource)
+		assert.Equal(t, "resource/B", b.ID)
+
+		c := b.Fields["knows"].(*SemanticResource)
+		assert.Equal(t, "resource/C", c.ID)
+
+		// The reference back to A should be just an ID (cycle detected)
+		cycleA := c.Fields["knows"].(*SemanticResource)
+		assert.Equal(t, "resource/A", cycleA.ID)
+		assert.Empty(t, cycleA.Fields, "cycle reference should only contain ID")
+	})
+
+	t.Run("cycle to middle A→B→C→B", func(t *testing.T) {
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceB := &FragmentResource{
+			ID:    "resource/B",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/C",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceC := &FragmentResource{
+			ID:    "resource/C",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B", // Cycle back to B, not A
+					Order:       1,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				"resource/B": resourceB,
+				"resource/C": resourceC,
+			},
+		}
+
+		// Should not stack overflow
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+
+		// Navigate A→B→C→B (cycle)
+		b := sr.Fields["knows"].(*SemanticResource)
+		c := b.Fields["knows"].(*SemanticResource)
+		cycleB := c.Fields["knows"].(*SemanticResource)
+
+		assert.Equal(t, "resource/B", cycleB.ID)
+		assert.Empty(t, cycleB.Fields, "cycle reference should only contain ID")
+	})
+
+	t.Run("no cycle - normal nested resources", func(t *testing.T) {
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceB := &FragmentResource{
+			ID:    "resource/B",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "name",
+					Predicate:   "http://xmlns.com/foaf/0.1/name",
+					EntryType:   literal,
+					Value:       "Person B",
+					Order:       1,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				"resource/B": resourceB,
+			},
+		}
+
+		// Should work normally - full expansion
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+
+		b := sr.Fields["knows"].(*SemanticResource)
+		assert.Equal(t, "resource/B", b.ID)
+		// B should be fully expanded with its name field
+		assert.NotEmpty(t, b.Fields, "non-cycle nested resource should have all fields")
+
+		name := b.Fields["name"].(*SemanticLiteral)
+		assert.Equal(t, "Person B", name.Value)
+	})
+
+	t.Run("shared resource - not a cycle", func(t *testing.T) {
+		// A knows both B and C, and both B and C know D
+		// This is not a cycle, D should be fully expanded in both paths
+		resourceD := &FragmentResource{
+			ID:    "resource/D",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "name",
+					Predicate:   "http://xmlns.com/foaf/0.1/name",
+					EntryType:   literal,
+					Value:       "Person D",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceB := &FragmentResource{
+			ID:    "resource/B",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/D",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceC := &FragmentResource{
+			ID:    "resource/C",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/D",
+					Order:       1,
+				},
+			},
+		}
+
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/B",
+					Order:       1,
+				},
+				{
+					SearchLabel: "knows",
+					Predicate:   "http://xmlns.com/foaf/0.1/knows",
+					EntryType:   resourceType,
+					ID:          "resource/C",
+					Order:       2,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				"resource/B": resourceB,
+				"resource/C": resourceC,
+				"resource/D": resourceD,
+			},
+		}
+
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+
+		// A should have an array of two "knows" values
+		knowsValues := sr.Fields["knows"].(*SemanticArray)
+		require.Len(t, *knowsValues, 2)
+
+		// Both B and C should be fully expanded
+		b := (*knowsValues)[0].(*SemanticResource)
+		c := (*knowsValues)[1].(*SemanticResource)
+
+		// And D should be fully expanded in both paths since it's not a cycle
+		dFromB := b.Fields["knows"].(*SemanticResource)
+		dFromC := c.Fields["knows"].(*SemanticResource)
+
+		// Both should have the name field (fully expanded)
+		assert.NotEmpty(t, dFromB.Fields)
+		assert.NotEmpty(t, dFromC.Fields)
+		assert.Equal(t, "Person D", dFromB.Fields["name"].(*SemanticLiteral).Value)
+		assert.Equal(t, "Person D", dFromC.Fields["name"].(*SemanticLiteral).Value)
+	})
 }

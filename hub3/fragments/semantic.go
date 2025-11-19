@@ -467,11 +467,18 @@ func isLanguageCode(code string) bool {
 
 // NewSemanticValue creates appropriate SemanticValue based on ResourceEntry
 func NewSemanticValue(entry *ResourceEntry, rm *ResourceMap) SemanticValue {
+	// Initialize empty visited map for top-level calls
+	visited := make(map[string]bool)
+	return newSemanticValueWithCycleDetection(entry, rm, visited)
+}
+
+// newSemanticValueWithCycleDetection creates appropriate SemanticValue with cycle detection
+func newSemanticValueWithCycleDetection(entry *ResourceEntry, rm *ResourceMap, visited map[string]bool) SemanticValue {
 	switch entry.EntryType {
 	case literal:
 		return newSemanticLiteralValue(entry)
 	case resourceType, bnode:
-		return newSemanticResourceValue(entry, rm)
+		return newSemanticResourceValue(entry, rm, visited)
 	default:
 		return &SemanticLiteral{Value: entry.Value}
 	}
@@ -500,20 +507,20 @@ func newSemanticLiteralValue(entry *ResourceEntry) SemanticValue {
 	return lit
 }
 
-// newSemanticResourceValue creates nested resource
-func newSemanticResourceValue(entry *ResourceEntry, rm *ResourceMap) SemanticValue {
+// newSemanticResourceValue creates nested resource with cycle detection
+func newSemanticResourceValue(entry *ResourceEntry, rm *ResourceMap, visited map[string]bool) SemanticValue {
 	// Check for inline resource first
 	if entry.Inline != nil {
-		return entry.Inline.ToSemanticResource(rm)
+		return entry.Inline.toSemanticResourceWithCycleDetection(rm, visited)
 	}
-	
+
 	// Then check resource map
 	if rm != nil {
 		if resource, exists := rm.resources[entry.ID]; exists {
-			return resource.ToSemanticResource(rm)
+			return resource.toSemanticResourceWithCycleDetection(rm, visited)
 		}
 	}
-	
+
 	// Fallback for external resources or when resource not found
 	return &SemanticResource{
 		ID: entry.ID,
@@ -619,46 +626,67 @@ func (fg *FragmentGraph) GenerateSemantic() *SemanticView {
 
 // ToSemanticResource converts FragmentResource to SemanticResource
 func (fr *FragmentResource) ToSemanticResource(rm *ResourceMap) *SemanticResource {
+	// Initialize empty visited map for top-level calls
+	visited := make(map[string]bool)
+	return fr.toSemanticResourceWithCycleDetection(rm, visited)
+}
+
+// toSemanticResourceWithCycleDetection converts FragmentResource to SemanticResource with cycle detection
+func (fr *FragmentResource) toSemanticResourceWithCycleDetection(rm *ResourceMap, visited map[string]bool) *SemanticResource {
+	// Check for cycles - if we're already processing this resource, return just the ID
+	if visited[fr.ID] {
+		return &SemanticResource{
+			ID: fr.ID,
+		}
+	}
+
+	// Mark this resource as being processed
+	visited[fr.ID] = true
+	defer func() {
+		// Unmark when done processing this branch
+		delete(visited, fr.ID)
+	}()
+
 	sr := &SemanticResource{
 		ID:     fr.ID,
 		Type:   fr.Types,
 		Fields: make(map[string]SemanticValue),
 	}
-	
+
 	// Group entries by SearchLabel with order preservation
 	predicateMap := make(map[string][]orderedEntry)
-	
+
 	for _, entry := range fr.Entries {
 		// Skip entries without SearchLabel
 		if entry.SearchLabel == "" {
 			continue
 		}
-		
+
 		// Skip rdf:type as it's already in @type
 		if entry.Predicate == RDFType {
 			continue
 		}
-		
-		value := NewSemanticValue(entry, rm)
+
+		value := newSemanticValueWithCycleDetection(entry, rm, visited)
 		predicateMap[entry.SearchLabel] = append(
 			predicateMap[entry.SearchLabel],
 			orderedEntry{order: entry.Order, value: value},
 		)
 	}
-	
+
 	// Convert to fields with order preserved
 	for predicate, orderedValues := range predicateMap {
 		// Sort by order field
 		sort.Slice(orderedValues, func(i, j int) bool {
 			return orderedValues[i].order < orderedValues[j].order
 		})
-		
+
 		// Extract values in order
 		values := make([]SemanticValue, len(orderedValues))
 		for i, ov := range orderedValues {
 			values[i] = ov.value
 		}
-		
+
 		if len(values) == 1 {
 			sr.Fields[predicate] = values[0]
 		} else if len(values) > 1 {
@@ -666,7 +694,7 @@ func (fr *FragmentResource) ToSemanticResource(rm *ResourceMap) *SemanticResourc
 			sr.Fields[predicate] = &arr
 		}
 	}
-	
+
 	return sr
 }
 

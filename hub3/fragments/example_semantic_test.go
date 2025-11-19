@@ -103,12 +103,21 @@ func TestSemanticFormatExample(t *testing.T) {
 	require.Equal(t, "https://museum.org/artwork/123", sv.ID)
 	require.Contains(t, sv.Type, "http://www.europeana.eu/schemas/edm/ProvidedCHO")
 
-	// Check context
+	// Check context - EDM records get a URL reference, non-EDM get inline map
 	require.NotEmpty(t, sv.Context)
-	require.Contains(t, sv.Context, "dc")
-	require.Contains(t, sv.Context, "dcterms")
-	require.Contains(t, sv.Context, "edm")
-	require.Contains(t, sv.Context, "skos")
+	// For EDM records, context is a URL string
+	contextStr, isString := sv.Context.(string)
+	if isString {
+		require.Equal(t, "/contexts/edm/latest/context.jsonld", contextStr)
+	} else {
+		// For non-EDM, it's an inline map
+		contextMap, isMap := sv.Context.(map[string]string)
+		require.True(t, isMap)
+		require.Contains(t, contextMap, "dc")
+		require.Contains(t, contextMap, "dcterms")
+		require.Contains(t, contextMap, "edm")
+		require.Contains(t, contextMap, "skos")
+	}
 
 	// Check title field
 	title, exists := sv.Fields["dc:title"]
