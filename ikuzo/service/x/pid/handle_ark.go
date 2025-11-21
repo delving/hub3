@@ -28,6 +28,7 @@ func (s *Service) handleArk() http.HandlerFunc {
 		}
 
 		ark := validateARK(r.URL.Path)
+		slog.Info("ARK lookup", "original_path", r.URL.Path, "validated_ark", ark)
 		if !strings.HasSuffix(r.URL.Path, ark) {
 			http.Redirect(w, r, "/"+ark, http.StatusFound)
 			return
@@ -40,13 +41,36 @@ func (s *Service) handleArk() http.HandlerFunc {
 		}
 
 		resp, err := store.Get(ark, "")
+
+		// If not found (empty response with no error), try normalized ARK format (ark:/ ↔ ark:)
+		if err == nil && resp.Empty() {
+			normalizedArk := normalizeARK(ark)
+			slog.Info("ARK not found, trying normalized", "original", ark, "normalized", normalizedArk)
+			if normalizedArk != ark {
+				// Retry with normalized ARK
+				resp, err = store.Get(normalizedArk, "")
+				if err == nil && !resp.Empty() {
+					slog.Info("ARK found with normalized format", "normalized", normalizedArk)
+				} else {
+					slog.Warn("ARK still not found with normalized format", "empty", resp.Empty(), "error", err)
+				}
+			}
+		}
+
+		// Handle database errors
 		if err != nil {
-			// If not found, try normalized ARK format (ark:/ ↔ ark:)
+			slog.Info("store get error", "err", err)
 			if errors.Is(err, ErrPIDNotFound) {
 				normalizedArk := normalizeARK(ark)
+				slog.Info("ARK error, trying normalized", "original", ark, "normalized", normalizedArk)
 				if normalizedArk != ark {
 					// Retry with normalized ARK
 					resp, err = store.Get(normalizedArk, "")
+					if err == nil {
+						slog.Info("ARK found with normalized format after error", "normalized", normalizedArk)
+					} else {
+						slog.Warn("ARK still has error with normalized format", "error", err)
+					}
 				}
 			}
 

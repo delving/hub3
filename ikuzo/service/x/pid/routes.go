@@ -9,6 +9,7 @@ import (
 
 func (s *Service) Routes(pattern string, r chi.Router) {
 	r.Get("/ark:*", s.handleArk())
+	r.Get("/ark:/*", s.handleArk()) // Support legacy ark:/ format
 
 	htmlHandler := html.NewRDFHandler(slog.Default())
 	htmlHandler.RegisterRoutes(r)
