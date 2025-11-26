@@ -262,15 +262,41 @@ func (gi *graphIndexer) IndexGraph(g *rdf.Graph) error {
 }
 
 func writeConfig(path string, cfg *sparql.HarvestConfig) (err error) {
-	f, err := os.Create(path)
+	// Write to a temporary file first, then atomically rename to prevent
+	// empty/corrupted config files during bad shutdowns or crashes
+	tmpPath := path + ".tmp"
+
+	f, err := os.Create(tmpPath)
 	if err != nil {
-		return fmt.Errorf("unable to find configuration; %w", err)
+		return fmt.Errorf("unable to create temporary config file; %w", err)
 	}
 
-	defer f.Close()
+	// Ensure cleanup on error
+	var writeErr error
+	defer func() {
+		f.Close()
+		if writeErr != nil {
+			os.Remove(tmpPath) // Clean up temp file on error
+		}
+	}()
 
-	if encodeErr := toml.NewEncoder(f).Encode(cfg); encodeErr != nil {
-		return fmt.Errorf("unable to write configuration to path %q; %w", path, encodeErr)
+	if writeErr = toml.NewEncoder(f).Encode(cfg); writeErr != nil {
+		return fmt.Errorf("unable to write configuration to path %q; %w", path, writeErr)
+	}
+
+	// Sync to ensure data is flushed to disk before rename
+	if writeErr = f.Sync(); writeErr != nil {
+		return fmt.Errorf("unable to sync configuration file; %w", writeErr)
+	}
+
+	// Close before rename (required on some systems)
+	if writeErr = f.Close(); writeErr != nil {
+		return fmt.Errorf("unable to close temporary file; %w", writeErr)
+	}
+
+	// Atomic rename - this is the key to preventing empty files
+	if writeErr = os.Rename(tmpPath, path); writeErr != nil {
+		return fmt.Errorf("unable to rename config file from %q to %q; %w", tmpPath, path, writeErr)
 	}
 
 	return nil

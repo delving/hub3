@@ -29,6 +29,43 @@ type HarvestDataSet struct {
 	LastCheck time.Time
 }
 
+// HarvestError is a custom error type that can be serialized to TOML.
+// It preserves the original error for runtime use while serializing
+// only the message string for persistence.
+type HarvestError struct {
+	Message string
+	Err     error `toml:"-"` // original error, not serialized
+}
+
+func (e *HarvestError) Error() string {
+	return e.Message
+}
+
+// Unwrap returns the original error for use with errors.Is/errors.As
+func (e *HarvestError) Unwrap() error {
+	return e.Err
+}
+
+func (e HarvestError) MarshalText() ([]byte, error) {
+	return []byte(e.Message), nil
+}
+
+func (e *HarvestError) UnmarshalText(text []byte) error {
+	e.Message = string(text)
+	return nil
+}
+
+// NewHarvestError creates a HarvestError from any error
+func NewHarvestError(err error) *HarvestError {
+	if err == nil {
+		return nil
+	}
+	return &HarvestError{
+		Message: err.Error(),
+		Err:     err,
+	}
+}
+
 type HarvestConfig struct {
 	OrgID   string
 	Spec    string
@@ -45,7 +82,7 @@ type HarvestConfig struct {
 	MaxSubjects       int
 	PageSize          int
 	TotalSizeSubjects int
-	HarvestErrors     map[string]error
+	HarvestErrors     map[string]*HarvestError
 	rw                sync.RWMutex
 	client            *http.Client
 	OutputDir         string
@@ -59,9 +96,9 @@ type HarvestConfig struct {
 func (cfg *HarvestConfig) AddError(subject string, err error) {
 	cfg.rw.Lock()
 	if len(cfg.HarvestErrors) == 0 {
-		cfg.HarvestErrors = map[string]error{}
+		cfg.HarvestErrors = map[string]*HarvestError{}
 	}
-	cfg.HarvestErrors[subject] = err
+	cfg.HarvestErrors[subject] = NewHarvestError(err)
 	cfg.rw.Unlock()
 }
 
@@ -175,6 +212,8 @@ func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (
 		whereClause,
 	)
 
+	slog.Info("executing count query", "query", countQuery)
+
 	repo, err := cfg.getRepo()
 	if err != nil {
 		return err
@@ -203,6 +242,8 @@ func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (
 	}
 
 	cfg.TotalSizeSubjects = totalIDs
+	slog.Info("found subjects to harvest", "total", totalIDs)
+
 	var offSet int
 	pageSize := 5000
 	if cfg.PageSize != 0 {
@@ -221,6 +262,8 @@ harvestLoop:
 			pageSize,
 		)
 
+		slog.Info("executing paging query", "offset", offSet, "limit", pageSize, "query", pagingQuery)
+
 		resp, err := repo.Query(pagingQuery)
 		if err != nil {
 			return err
@@ -230,6 +273,8 @@ harvestLoop:
 		if !ok {
 			return fmt.Errorf("invalid SPARQL query: %q", pagingQuery)
 		}
+
+		slog.Debug("received subjects from SPARQL query", "count", len(subjects), "offset", offSet, "pageSize", pageSize)
 
 		for _, subject := range subjects {
 			if subject.String() == "" {
@@ -241,20 +286,30 @@ harvestLoop:
 
 			seen++
 
+			if seen%100 == 0 {
+				slog.Debug("sending subjects to harvest", "sent", seen, "total", totalIDs)
+			}
+
 			select {
 			case <-ctx.Done():
+				slog.Warn("producer context cancelled", "seen", seen, "total", totalIDs, "error", ctx.Err())
 				return ctx.Err()
 			case ids <- subject.String():
 			}
 		}
 
-		if len(subjects) < pageSize {
+		// Only break if we got zero results, meaning we've exhausted the dataset
+		if len(subjects) == 0 {
+			slog.Debug("no more subjects returned from SPARQL", "offset", offSet)
 			break
 		}
 
+		// If we got fewer than pageSize, we might be on the last page, but continue
+		// until we get zero results to ensure we don't miss any data
 		offSet += pageSize
 	}
 
+	slog.Info("finished sending all subjects to harvest", "total", seen)
 	return
 }
 
@@ -280,7 +335,7 @@ func HarvestGraph(ctx context.Context, cfg *HarvestConfig, subject string) (*rdf
 }
 
 func harvestSubject(ctx context.Context, subject string, cfg *HarvestConfig) (*rdf.Graph, error) {
-	body, err := getSubject(cfg.client, subject, cfg.GraphMimeType)
+	body, err := getSubject(ctx, cfg.client, subject, cfg.GraphMimeType)
 	if err != nil {
 		return nil, fmt.Errorf("unable to retrieve rdf: %w", err)
 	}
@@ -300,8 +355,8 @@ func harvestSubject(ctx context.Context, subject string, cfg *HarvestConfig) (*r
 	return g, nil
 }
 
-func getSubject(c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
-	req, err := http.NewRequest("GET", uri, nil)
+func getSubject(ctx context.Context, c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
@@ -326,16 +381,23 @@ func getSubject(c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
 }
 
 func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph) error) (err error) {
-	subjects := make(chan string)
+	subjects := make(chan string, 100) // buffered channel to prevent blocking
 	g, _ := errgroup.WithContext(ctx)
 
 	// Produce
 	g.Go(func() error {
+		slog.Debug("producer starting")
 		if len(cfg.HarvestErrors) == 0 {
-			return HarvestSubjects(ctx, cfg, subjects)
+			err := HarvestSubjects(ctx, cfg, subjects)
+			if err != nil {
+				slog.Error("HarvestSubjects returned error", "error", err)
+			} else {
+				slog.Debug("HarvestSubjects completed successfully")
+			}
+			return err
 		}
 		oldErrors := cfg.HarvestErrors
-		cfg.HarvestErrors = map[string]error{}
+		cfg.HarvestErrors = map[string]*HarvestError{}
 		for subject := range oldErrors {
 			subjects <- subject
 		}
@@ -343,7 +405,7 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 		return nil
 	})
 
-	graphs := make(chan *rdf.Graph)
+	graphs := make(chan *rdf.Graph, 100) // buffered channel to prevent workers from blocking
 
 	retryClient := retryablehttp.NewClient()
 	retryClient.Logger = nil
@@ -361,57 +423,80 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 			defer func() {
 				// Last one out closes shop
 				if atomic.AddInt32(&workers, -1) == 0 {
+					slog.Debug("last worker closing graphs channel")
 					close(graphs)
 				}
 			}()
 
 			var err error
+			var processed int
+			var failed int
+			var succeeded int
+			slog.Debug("worker starting to consume subjects")
 			for subject := range subjects {
+				processed++
+				slog.Debug("worker received subject from channel", "subject", subject, "processed", processed)
+				if processed%10 == 0 {
+					slog.Debug("worker progress", "processed", processed, "succeeded", succeeded, "failed", failed)
+				}
+
 				var g *rdf.Graph
 				switch {
 				case cfg.GraphMimeType != "":
 					g, err = harvestSubject(ctx, subject, cfg)
 					if err != nil {
+						failed++
 						cfg.AddError(subject, err)
-						slog.Error("unable to harvest subject", "uri", subject, "error", err)
+						slog.Debug("failed to harvest subject", "uri", subject, "error", err)
 						continue
 					}
+					succeeded++
 				default:
 					g, err = HarvestGraph(ctx, cfg, subject)
 					if err != nil {
+						failed++
 						cfg.AddError(subject, err)
-						slog.Error("unable to harvest subject", "uri", subject, "error", err)
+						slog.Debug("failed to harvest subject", "uri", subject, "error", err)
 						continue
 					}
+					succeeded++
 				}
 
 				select {
 				case <-ctx.Done():
 					return ctx.Err()
 				case graphs <- g:
+					slog.Debug("sent graph to channel", "subject", subject)
 				}
 			}
 
+			slog.Info("worker finished", "processed", processed, "succeeded", succeeded, "failed", failed)
 			return nil
 		})
 	}
 
 	// Reduce
 	g.Go(func() error {
+		var consumed int
 		for graph := range graphs {
 			if graph != nil {
+				consumed++
+				slog.Debug("consuming graph", "subject", graph.Subject.RawValue(), "consumed", consumed)
 				if err := cb(graph); err != nil {
 					return err
 				}
 			}
 		}
 
+		slog.Debug("reduce finished", "totalConsumed", consumed)
 		return nil
 	})
 
 	if err := g.Wait(); err != nil {
+		slog.Error("errgroup returned error", "error", err)
 		return err
 	}
 
+	slog.Info("HarvestGraphs completed successfully")
 	return nil
 }

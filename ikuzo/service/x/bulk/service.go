@@ -79,6 +79,11 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
+	// Stop the scheduler first to prevent new harvest jobs from starting
+	if s.scheduler != nil {
+		s.scheduler.Stop()
+		slog.Info("stopped bulk scheduler")
+	}
 	return s.index.Shutdown(ctx)
 }
 
