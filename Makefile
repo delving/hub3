@@ -1,4 +1,4 @@
-.PHONY: package
+.PHONY: package deploy deploy-arm build-static-arm
 
 NAME:=hub3
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
@@ -13,6 +13,14 @@ GOVERSION:=$(shell sh -c 'go version | cut -d " " -f3')
 IKUZOMODULE:=github.com/delving/hub3/ikuzo/ikuzoctl
 
 IKUZOLDFLAGS:=-X $(IKUZOMODULE)/cmd.version=`git describe --abbrev=0 --tags` -X $(IKUZOMODULE)/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X $(IKUZOMODULE)/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X $(IKUZOMODULE)/cmd.buildAgent=`git config user.email`
+
+# Deployment variables
+# Support both SSH_HOST and SSH_TARGET for flexibility
+SSH_TARGET ?=
+SSH_HOST ?= $(SSH_TARGET)
+BUILD_PATH := build/ikuzoctl
+TEMP_PATH := /tmp/ikuzoctl
+REMOTE_PATH := /opt/hub3/ikuzoctl
 
 # var print rule
 print-%  : ; @echo $* = $($*)
@@ -75,6 +83,9 @@ build:
 build-static:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
 
+build-static-arm:
+	env CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o build/ikuzoctl -ldflags "$(IKUZOLDFLAGS)" ikuzo/ikuzoctl/main.go
+
 staticcheck:
 	go tool staticcheck -f stylish ./hub3/... ./config/... ./ikuzo/...
 
@@ -100,3 +111,25 @@ run-dev:
 
 run-workers:
 	@go tool air -c .air.workers.toml
+
+define deploy_ikuzo
+	@make build-static
+	@echo "Deploying ikuzoctl to $(SSH_HOST)..."
+	rsync -avP $(BUILD_PATH) $(SSH_HOST):$(TEMP_PATH)
+	ssh $(SSH_HOST) 'sudo systemctl stop ikuzoctl; sudo mv $(TEMP_PATH) $(REMOTE_PATH); sudo systemctl start ikuzoctl'
+	@echo "Deployment complete!"
+endef
+
+define deploy_ikuzo_arm
+	@make build-static-arm
+	@echo "Deploying ikuzoctl (arm64) to $(SSH_HOST)..."
+	rsync -avP $(BUILD_PATH) $(SSH_HOST):$(TEMP_PATH)
+	ssh $(SSH_HOST) 'sudo systemctl stop ikuzoctl; sudo mv $(TEMP_PATH) $(REMOTE_PATH); sudo systemctl start ikuzoctl'
+	@echo "Deployment complete!"
+endef
+
+deploy:
+	$(call deploy_ikuzo)
+
+deploy-arm:
+	$(call deploy_ikuzo_arm)
