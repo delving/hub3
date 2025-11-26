@@ -150,10 +150,14 @@ func harvestXML(ccmd *cobra.Command, args []string) {
 		}
 		seen++
 		if seen%100 == 0 {
+			failed := len(cfg.HarvestErrors)
+			attempted := seen + failed
+			successRate := float64(seen) / float64(attempted) * 100
 			slog.Info(
 				"harvesting progress",
-				"seen", seen, "total", cfg.TotalSizeSubjects,
-				"max", cfg.MaxSubjects, "errors", len(cfg.HarvestErrors),
+				"succeeded", seen, "failed", failed, "attempted", attempted,
+				"successRate", fmt.Sprintf("%.1f%%", successRate),
+				"total", cfg.TotalSizeSubjects,
 				"duration", prettyDuration(time.Since(timeStart)),
 			)
 		}

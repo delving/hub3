@@ -107,16 +107,26 @@ type v1Response struct {
 // getV1APIResponse makes an HTTP GET request to the API and returns the response.
 func getV1APIResponse(uri string, page int) (data *v1Response, err error) {
 	data = &v1Response{}
-	if page != 0 {
-		apiURI, err := url.Parse(uri)
-		if err != nil {
-			return data, fmt.Errorf("failed to parse URL: %w", err)
-		}
-		params := apiURI.Query()
-		params.Set("page", fmt.Sprintf("%d", page))
-		apiURI.RawQuery = params.Encode()
-		uri = apiURI.String()
+
+	// Always parse the URI to ensure format=json is set
+	apiURI, err := url.Parse(uri)
+	if err != nil {
+		return data, fmt.Errorf("failed to parse URL: %w", err)
 	}
+	params := apiURI.Query()
+
+	// Ensure format=json for v1 API
+	if params.Get("format") == "" {
+		params.Set("format", "json")
+	}
+
+	// Set page parameter if provided
+	if page != 0 {
+		params.Set("page", fmt.Sprintf("%d", page))
+	}
+
+	apiURI.RawQuery = params.Encode()
+	uri = apiURI.String()
 
 	slog.Info("retrieving page", "uri", uri)
 

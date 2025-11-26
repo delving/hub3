@@ -254,7 +254,7 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				}
 			}
 
-		case "qf.exist", qfExistList:
+		case qfExist, qfExistList:
 			for _, qf := range v {
 				if qf == "" {
 					continue
