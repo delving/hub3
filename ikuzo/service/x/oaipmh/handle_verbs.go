@@ -52,15 +52,15 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 	case VerbIdentify:
 		s.handleIdentify(resp)
 	case VerbListMetadataFormats:
-		err = s.handleListMetadataFormats(resp)
+		err = s.handleListMetadataFormats(ctx, resp)
 	case VerbGetRecord:
-		err = s.handleGetRecord(resp)
+		err = s.handleGetRecord(ctx, resp)
 	case VerbListSets:
-		err = s.handleListSets(resp)
+		err = s.handleListSets(ctx, resp)
 	case VerbListIdentifiers:
-		err = s.handleListIdentifiers(resp)
+		err = s.handleListIdentifiers(ctx, resp)
 	case VerbListRecords:
-		err = s.handleListRecords(resp)
+		err = s.handleListRecords(ctx, resp)
 	default:
 		resp.Error = append(resp.Error, ErrBadVerb)
 	}
@@ -100,12 +100,12 @@ func (s *Service) handleIdentify(resp *Response) {
 	}
 }
 
-func (s *Service) handleListMetadataFormats(resp *Response) error {
+func (s *Service) handleListMetadataFormats(ctx context.Context, resp *Response) error {
 	// TODO(kiivihal): implement check for identifier
 
 	cfg := resp.Request.RequestConfig()
 
-	formats, err := s.store.ListMetadataFormats(context.TODO(), &cfg)
+	formats, err := s.store.ListMetadataFormats(ctx, &cfg)
 	if err != nil {
 		return err
 	}
@@ -117,9 +117,7 @@ func (s *Service) handleListMetadataFormats(resp *Response) error {
 	return nil
 }
 
-func (s *Service) handleListSets(resp *Response) error {
-	ctx := context.TODO()
-
+func (s *Service) handleListSets(ctx context.Context, resp *Response) error {
 	cfg, err := s.requestConfig(resp.Request)
 	if err != nil {
 		if errors.Is(err, ErrBadResumptionToken) {
@@ -185,9 +183,7 @@ func (s *Service) requestConfig(req *Request) (cfg RequestConfig, err error) {
 	return cfg, nil
 }
 
-func (s *Service) handleListIdentifiers(resp *Response) error {
-	ctx := context.TODO()
-
+func (s *Service) handleListIdentifiers(ctx context.Context, resp *Response) error {
 	cfg, err := s.requestConfig(resp.Request)
 	if err != nil {
 		if errors.Is(err, ErrBadResumptionToken) {
@@ -234,9 +230,7 @@ func (s *Service) handleListIdentifiers(resp *Response) error {
 	return nil
 }
 
-func (s *Service) handleListRecords(resp *Response) error {
-	ctx := context.TODO()
-
+func (s *Service) handleListRecords(ctx context.Context, resp *Response) error {
 	cfg, err := s.requestConfig(resp.Request)
 	if err != nil {
 		if errors.Is(err, ErrBadResumptionToken) {
@@ -283,9 +277,7 @@ func (s *Service) handleListRecords(resp *Response) error {
 	return nil
 }
 
-func (s *Service) handleGetRecord(resp *Response) error {
-	ctx := context.TODO()
-
+func (s *Service) handleGetRecord(ctx context.Context, resp *Response) error {
 	q := resp.Request.RequestConfig()
 
 	record, pmhErrors, err := s.store.GetRecord(ctx, &q)
