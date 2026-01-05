@@ -26,6 +26,60 @@ type PITResponse struct {
 	ID string `json:"id"`
 }
 
+type VersionInfo struct {
+	Version struct {
+		Number string `json:"number"`
+	} `json:"version"`
+}
+
+// GetVersion returns the Elasticsearch version
+func (c *PITClient) GetVersion(ctx context.Context) (string, error) {
+	baseURL := c.getCurrentURL()
+	req, err := http.NewRequestWithContext(ctx, "GET", baseURL, nil)
+	if err != nil {
+		return "", err
+	}
+
+	if c.Username != "" {
+		req.SetBasicAuth(c.Username, c.Password)
+	}
+
+	resp, err := c.executeRequest(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	var versionInfo VersionInfo
+	if err := json.NewDecoder(resp.Body).Decode(&versionInfo); err != nil {
+		return "", err
+	}
+
+	return versionInfo.Version.Number, nil
+}
+
+// SupportsPIT checks if the ES version supports Point in Time (requires 7.10+)
+func (c *PITClient) SupportsPIT(ctx context.Context) (bool, error) {
+	version, err := c.GetVersion(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	// Parse major.minor version
+	parts := strings.Split(version, ".")
+	if len(parts) < 2 {
+		return false, fmt.Errorf("invalid version format: %s", version)
+	}
+
+	major := 0
+	minor := 0
+	fmt.Sscanf(parts[0], "%d", &major)
+	fmt.Sscanf(parts[1], "%d", &minor)
+
+	// PIT API was introduced in ES 7.10
+	return (major > 7) || (major == 7 && minor >= 10), nil
+}
+
 type SearchResponse struct {
 	Hits struct {
 		Total struct {
@@ -117,9 +171,19 @@ func (c *PITClient) CreatePIT(ctx context.Context, indexName string, keepAlive s
 		return "", fmt.Errorf("index name is required for Elasticsearch PIT creation")
 	}
 
-	urlPath := fmt.Sprintf("/%s/_pit?keep_alive=%s", indexName, keepAlive)
+	urlPath := fmt.Sprintf("/%s/_pit", indexName)
 	baseURL := c.getCurrentURL()
-	req, err := http.NewRequestWithContext(ctx, "POST", baseURL+urlPath, nil)
+
+	// ES 7.x/9.x: keep_alive goes in the request body
+	requestBody := map[string]string{
+		"keep_alive": keepAlive,
+	}
+	reqBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "POST", baseURL+urlPath, bytes.NewReader(reqBody))
 	if err != nil {
 		return "", err
 	}
