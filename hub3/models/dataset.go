@@ -151,6 +151,7 @@ type DataSet struct {
 	DaoStats         `json:"daoStats" storm:"inline"`
 	Fingerprint      string `json:"fingerPrint"`
 	InProgress       bool
+	ExpectedRecords  int `json:"expectedRecords"` // Expected records count for current revision (for orphan verification)
 }
 
 // Access determines the which types of access are enabled for this dataset
@@ -412,6 +413,34 @@ func (ds DataSet) indexRecordRevisionsBySpec(ctx context.Context) (int, []DataSe
 	return int(totalHits), revisions, counter, tagCounter, err
 }
 
+// VerifyRevisionCount checks if ES has at least the expected number of records
+// for the current revision. Returns true if verification passes or if no
+// expectation is set. This is used before orphan deletion to ensure all
+// documents have been indexed.
+func (ds DataSet) VerifyRevisionCount(ctx context.Context) (bool, int, error) {
+	if ds.ExpectedRecords == 0 {
+		return true, 0, nil // No expectation set, skip verification
+	}
+
+	_, revisions, _, _, err := ds.indexRecordRevisionsBySpec(ctx)
+	if err != nil {
+		return false, 0, fmt.Errorf("unable to query revision counts: %w", err)
+	}
+
+	for _, rev := range revisions {
+		if rev.Number == ds.Revision {
+			if rev.RecordCount >= ds.ExpectedRecords {
+				return true, rev.RecordCount, nil
+			}
+			// Found revision but count doesn't match
+			return false, rev.RecordCount, nil
+		}
+	}
+
+	// Revision not found in aggregation (no records yet)
+	return false, 0, nil
+}
+
 // createDataSetCounters creates counters from an ElasticSearch aggregation
 func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCounter, error) {
 	counters := []DataSetCounter{}
@@ -646,6 +675,23 @@ func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (in
 			queries[frag] = []string{c.Config.ElasticSearch.FragmentIndexName(ds.OrgID)}
 		case suggestType:
 			queries[suggest] = []string{c.Config.ElasticSearch.GetSuggestIndexName(ds.OrgID)}
+		}
+	}
+
+	// Collect all indices to refresh before deleting orphans
+	var allIndices []string
+	for _, indices := range queries {
+		allIndices = append(allIndices, indices...)
+	}
+
+	// Refresh indices to ensure all recently indexed documents are searchable
+	// This prevents race conditions where newly indexed documents might be
+	// deleted as orphans if they haven't been made visible yet
+	if len(allIndices) > 0 {
+		_, err := index.ESClient().Refresh(allIndices...).Do(ctx)
+		if err != nil {
+			log.Warn().Err(err).Strs("indices", allIndices).Msg("unable to refresh indices before orphan deletion")
+			// Continue anyway - the orphanWait timer should provide some buffer
 		}
 	}
 

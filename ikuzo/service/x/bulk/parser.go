@@ -60,6 +60,8 @@ type Parser struct {
 	debugPath     string
 	recDef        RecDefResolver
 	s             *Service
+	// batch tracks the current indexing batch for persistent state
+	batch *models.IndexingBatch
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -195,6 +197,37 @@ func (p *Parser) setDataSet(req *Request) {
 }
 
 func (p *Parser) dropOrphans(req *Request) error {
+	// Store expected record count for verification before orphan deletion
+	// This allows the index service to verify all documents are indexed
+	// before deleting orphans
+	expectedCount := int(atomic.LoadUint64(&p.stats.RecordsStored))
+	if expectedCount > 0 {
+		p.ds.ExpectedRecords = expectedCount
+		if err := models.ORM().UpdateField(
+			&models.DataSet{Spec: p.ds.Spec},
+			"ExpectedRecords",
+			expectedCount,
+		); err != nil {
+			log.Warn().Err(err).Str("datasetID", req.DatasetID).
+				Msg("unable to store expected record count for verification")
+		}
+	}
+
+	// Update batch with expected count and transition to verifying
+	if p.batch != nil {
+		p.batch.ExpectedCount = expectedCount
+		if err := p.batch.StartVerifying(); err != nil {
+			log.Warn().Err(err).Str("batchID", p.batch.ID).
+				Msg("unable to transition batch to verifying state")
+		} else {
+			log.Debug().
+				Str("batchID", p.batch.ID).
+				Int("expectedCount", expectedCount).
+				Int("submittedCount", p.batch.SubmittedCount).
+				Msg("batch transitioned to verifying")
+		}
+	}
+
 	m := &domainpb.IndexMessage{
 		OrganisationID: req.OrgID,
 		DatasetID:      req.DatasetID,
@@ -293,6 +326,22 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 			return err
 		}
 
+		// Update parser's dataset reference with new revision to ensure
+		// subsequent index actions use the correct revision number
+		p.ds = ds
+
+		// Create batch for tracking this indexing session
+		// ExpectedCount is 0 here since we don't know upfront how many records will be indexed
+		batch, batchErr := models.CreateBatch(req.OrgID, req.DatasetID, ds.Revision, 0)
+		if batchErr != nil {
+			subLogger.Warn().Err(batchErr).Str("datasetID", req.DatasetID).
+				Msg("unable to create indexing batch, continuing without batch tracking")
+		} else {
+			p.batch = batch
+			subLogger.Debug().Str("batchID", batch.ID).Int("revision", ds.Revision).
+				Msg("created indexing batch")
+		}
+
 		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", ds.Revision).Msg("Incremented dataset")
 	case "clear_orphans", "drop_orphans":
 		// clear triples
@@ -354,6 +403,14 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 			Msg("bulk request is not valid")
 
 		return err
+	}
+
+	// Track submitted count in batch (if batch tracking is active)
+	if p.batch != nil {
+		if err := p.batch.IncrementSubmitted(1); err != nil {
+			log.Warn().Err(err).Str("batchID", p.batch.ID).
+				Msg("unable to increment batch submitted count")
+		}
 	}
 
 	fb, err := req.createFragmentBuilder(req.Revision)
