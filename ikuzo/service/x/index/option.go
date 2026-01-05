@@ -85,3 +85,13 @@ func SetLogger(log zerolog.Logger) Option {
 		return nil
 	}
 }
+
+// SetNotifier configures the notification system for indexing events
+func SetNotifier(config NotificationConfig) Option {
+	return func(s *Service) error {
+		if config.Enabled && config.Endpoint != "" {
+			s.notifier = NewNotifier(config)
+		}
+		return nil
+	}
+}

@@ -86,6 +86,16 @@ type ElasticSearch struct {
 	RecDef map[string][]string `json:"recDef"`
 	// DefaultRecDefID is the default recDef for the index
 	DefaultRecDefID string `json:"defaultRecDefID"`
+	// IndexingNotification configures webhook notifications for indexing events
+	IndexingNotification IndexingNotificationConfig `json:"indexingNotification"`
+}
+
+// IndexingNotificationConfig holds configuration for webhook notifications
+type IndexingNotificationConfig struct {
+	Enabled  bool   `json:"enabled"`
+	Endpoint string `json:"endpoint"`
+	Timeout  int    `json:"timeout"`
+	APIKey   string `json:"apiKey"`
 }
 
 func (e *ElasticSearch) AddOptions(cfg *Config) error {
@@ -271,6 +281,20 @@ func (e *ElasticSearch) IndexService(cfg *Config, ncfg *index.NatsConfig) (*inde
 
 	if len(postHooks) != 0 {
 		options = append(options, index.SetPostHookService(postHooks...))
+	}
+
+	// Configure webhook notifications for indexing events
+	if e.IndexingNotification.Enabled && e.IndexingNotification.Endpoint != "" {
+		notifyConfig := index.NotificationConfig{
+			Enabled:  e.IndexingNotification.Enabled,
+			Endpoint: e.IndexingNotification.Endpoint,
+			Timeout:  e.IndexingNotification.Timeout,
+			APIKey:   e.IndexingNotification.APIKey,
+		}
+		options = append(options, index.SetNotifier(notifyConfig))
+		cfg.logger.Info().
+			Str("endpoint", e.IndexingNotification.Endpoint).
+			Msg("indexing notifications enabled")
 	}
 
 	e.is, err = index.NewService(options...)

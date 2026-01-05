@@ -58,6 +58,7 @@ type Service struct {
 	disableMetrics bool
 	log            zerolog.Logger
 	orgs           *organization.Service
+	notifier       *Notifier
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -250,6 +251,14 @@ func (s *Service) dropOrphanGroup(orgID, datasetID string, revision *domainpb.Re
 		}
 	}
 
+	// Refresh indices to ensure all recently indexed documents are searchable
+	// This prevents race conditions where newly indexed documents might be
+	// deleted as orphans if they haven't been made visible yet
+	if _, err := index.ESClient().Refresh(indices...).Do(context.Background()); err != nil {
+		log.Warn().Err(err).Strs("indices", indices).Msg("unable to refresh indices before orphan deletion")
+		// Continue anyway - the orphanWait timer should provide some buffer
+	}
+
 	res, err := index.ESClient().DeleteByQuery().
 		Index(indices...).
 		Query(v2).
@@ -316,10 +325,132 @@ func (s *Service) dropOrphans(orgID, datasetID string, revision *domainpb.Revisi
 			return
 		}
 
+		// Look up the batch for this revision (if batch tracking is active)
+		batch, _ := models.GetBatchByRevision(orgID, datasetID, ds.Revision)
+		if batch != nil {
+			log.Debug().
+				Str("batchID", batch.ID).
+				Str("datasetID", datasetID).
+				Int("revision", ds.Revision).
+				Msg("found batch for orphan verification")
+		}
+
+		// Verify expected record count before deleting orphans
+		// This ensures all documents have been indexed before we delete old ones
+		var actualCount int
+		if ds.ExpectedRecords > 0 {
+			var verified bool
+			var verifyErr error
+			verified, actualCount, verifyErr = ds.VerifyRevisionCount(context.Background())
+			if verifyErr != nil {
+				log.Error().
+					Err(verifyErr).
+					Str("datasetID", datasetID).
+					Int("revision", ds.Revision).
+					Msg("unable to verify record count, aborting orphan deletion")
+
+				// Update batch status to failed
+				if batch != nil {
+					batch.Fail(fmt.Sprintf("verification error: %v", verifyErr))
+				}
+
+				// Send error notification
+				if s.notifier != nil {
+					s.notifier.SendWarning(
+						context.Background(),
+						orgID, datasetID, ds.Revision,
+						fmt.Sprintf("verification error: %v", verifyErr),
+						ds.ExpectedRecords, 0,
+					)
+				}
+				return
+			}
+
+			if !verified {
+				log.Error().
+					Str("orgID", orgID).
+					Str("datasetID", datasetID).
+					Int("revision", ds.Revision).
+					Int("expectedRecords", ds.ExpectedRecords).
+					Int("actualRecords", actualCount).
+					Msg("ABORTING orphan deletion: ES record count doesn't match expected")
+
+				// Update batch status to failed
+				if batch != nil {
+					batch.IndexedCount = actualCount
+					batch.Fail("ES record count doesn't match expected")
+				}
+
+				// Send warning notification
+				if s.notifier != nil {
+					s.notifier.SendWarning(
+						context.Background(),
+						orgID, datasetID, ds.Revision,
+						"ES record count doesn't match expected",
+						ds.ExpectedRecords, actualCount,
+					)
+				}
+				return
+			}
+
+			// Mark batch as verified
+			if batch != nil {
+				batch.IndexedCount = actualCount
+				batch.SetVerified(true)
+			}
+
+			log.Info().
+				Str("datasetID", datasetID).
+				Int("revision", ds.Revision).
+				Int("expectedRecords", ds.ExpectedRecords).
+				Int("actualRecords", actualCount).
+				Msg("verification passed, proceeding with orphan deletion")
+		}
+
 		if _, err := ds.DropOrphans(context.Background(), nil, nil); err != nil {
 			log.Error().
 				Err(err).
 				Msg("unable to drop orphans")
+
+			// Update batch status to failed
+			if batch != nil {
+				batch.Fail(fmt.Sprintf("orphan deletion error: %v", err))
+			}
+
+			// Send error notification
+			if s.notifier != nil {
+				s.notifier.SendWarning(
+					context.Background(),
+					orgID, datasetID, ds.Revision,
+					fmt.Sprintf("orphan deletion error: %v", err),
+					ds.ExpectedRecords, actualCount,
+				)
+			}
+			return
+		}
+
+		// Mark batch as completed
+		if batch != nil {
+			if err := batch.Complete(); err != nil {
+				log.Warn().Err(err).Str("batchID", batch.ID).
+					Msg("unable to mark batch as completed")
+			} else {
+				log.Debug().
+					Str("batchID", batch.ID).
+					Str("datasetID", datasetID).
+					Int("revision", ds.Revision).
+					Int("indexedCount", batch.IndexedCount).
+					Msg("batch completed successfully")
+			}
+		}
+
+		// Send success notification
+		if s.notifier != nil {
+			s.notifier.SendSuccess(
+				context.Background(),
+				orgID, datasetID, ds.Revision,
+				actualCount, ds.ExpectedRecords, 0, // orphan count not currently tracked
+			)
 		}
 
 		s.runPosthooks(orgID, datasetID, revision)

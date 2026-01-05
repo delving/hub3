@@ -103,6 +103,17 @@ type ElasticSearch struct {
 	MaxTreeSize         int      `json:"maxTreeSize"`
 	OrphanWait          int      `json:"orphanWait"`
 	SearchFields        []string `json:"searchFields"`
+	// IndexingNotification configures webhook notifications for indexing events
+	IndexingNotification IndexingNotificationConfig `json:"indexingNotification"`
+}
+
+// IndexingNotificationConfig holds configuration for webhook notifications
+// sent during indexing operations (success, warnings, errors)
+type IndexingNotificationConfig struct {
+	Enabled  bool   `json:"enabled"`
+	Endpoint string `json:"endpoint"`
+	Timeout  int    `json:"timeout"` // timeout in seconds for webhook requests
+	APIKey   string `json:"apiKey"`  // API key for Bearer token authentication
 }
 
 func (es *ElasticSearch) FragmentIndexName(orgID string) string {
@@ -291,9 +302,13 @@ func setDefaults() {
 	viper.SetDefault("ElasticSearch.Replicas", 0)
 	viper.SetDefault("ElasticSearch.RequestTimeout", 15)
 	viper.SetDefault("ElasticSearch.MaxTreeSize", 250)
-	viper.SetDefault("ElasticSearch.OrphanWait", 15)
+	viper.SetDefault("ElasticSearch.OrphanWait", 30)
 	viper.SetDefault("ElasticSearch.TrackTotalHits", true)
 	viper.SetDefault("ElasticSearch.IndexTypes", []string{"v2"})
+	viper.SetDefault("ElasticSearch.IndexingNotification.Enabled", false)
+	viper.SetDefault("ElasticSearch.IndexingNotification.Endpoint", "")
+	viper.SetDefault("ElasticSearch.IndexingNotification.Timeout", 10)
+	viper.SetDefault("ElasticSearch.IndexingNotification.APIKey", "")
 
 	// logging
 	viper.SetDefault("Logging.DevMode", false)
