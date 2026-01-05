@@ -188,8 +188,22 @@ func (cd *ChangeDetector) DetectChanges(inputPath string, opts LoadOptions) erro
 		}
 	}()
 
-	scanner := bufio.NewScanner(reader)
+	// Use configurable max record size (default 10MB)
+	maxRecordSize := opts.MaxRecordSize
+	if maxRecordSize <= 0 {
+		maxRecordSize = 10
+	}
+	maxCapacity := maxRecordSize * 1024 * 1024
+
+	// Wrap reader to track current line size for better error reporting
+	trackingReader := &lineTrackingReader{reader: reader}
+	scanner := bufio.NewScanner(trackingReader)
+	buf := make([]byte, maxCapacity)
+	scanner.Buffer(buf, maxCapacity)
+	lineNumber := 0
+
 	for scanner.Scan() {
+		lineNumber++
 		line := scanner.Bytes()
 
 		// Skip empty lines
@@ -202,13 +216,30 @@ func (cd *ChangeDetector) DetectChanges(inputPath string, opts LoadOptions) erro
 			continue
 		}
 
-		if err := cd.processLine(meta, scanner); err != nil {
-			return fmt.Errorf("process line: %w", err)
+		if err := cd.processLine(meta, scanner, &lineNumber); err != nil {
+			return fmt.Errorf("process line %d: %w", lineNumber, err)
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scanner error: %w", err)
+		recordNumber := (lineNumber / 2) + 1
+		if err.Error() == "bufio.Scanner: token too long" {
+			actualSize := trackingReader.CurrentLineSize()
+			actualSizeMB := float64(actualSize) / (1024 * 1024)
+			suggestedSize := int(actualSizeMB) + 5
+			if suggestedSize < maxRecordSize*2 {
+				suggestedSize = maxRecordSize * 2
+			}
+			slog.Error("record too large for buffer",
+				"line", lineNumber+1,
+				"recordNumber", recordNumber,
+				"actualSizeBytes", actualSize,
+				"actualSizeMB", fmt.Sprintf("%.2f", actualSizeMB),
+				"maxRecordSizeMB", maxRecordSize,
+				"suggestion", fmt.Sprintf("try --max-record-size %d", suggestedSize),
+				"linePreview", trackingReader.LinePreview())
+		}
+		return fmt.Errorf("scanner error at line %d (record ~%d): %w", lineNumber+1, recordNumber, err)
 	}
 
 	// Process deletes for documents that exist in ES but not in source
@@ -238,7 +269,7 @@ func (cd *ChangeDetector) DetectChanges(inputPath string, opts LoadOptions) erro
 	return nil
 }
 
-func (cd *ChangeDetector) processLine(meta map[string]interface{}, scanner *bufio.Scanner) error {
+func (cd *ChangeDetector) processLine(meta map[string]interface{}, scanner *bufio.Scanner, lineNumber *int) error {
 	var operation string
 	var indexAction map[string]interface{}
 
@@ -267,8 +298,12 @@ func (cd *ChangeDetector) processLine(meta map[string]interface{}, scanner *bufi
 	}
 
 	if !scanner.Scan() {
-		return fmt.Errorf("unexpected EOF")
+		if err := scanner.Err(); err != nil {
+			return fmt.Errorf("failed to read source document for id=%s: %w", id, err)
+		}
+		return fmt.Errorf("unexpected EOF: missing source document for id=%s", id)
 	}
+	*lineNumber++
 
 	var sourceDoc map[string]interface{}
 	if err := json.Unmarshal(scanner.Bytes(), &sourceDoc); err != nil {

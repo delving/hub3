@@ -65,12 +65,13 @@ var (
 )
 
 type processFlags struct {
-	path        string
-	targetIndex string
-	all         bool
-	pattern     string
-	tagMapFile  string
-	debug       bool
+	path          string
+	targetIndex   string
+	all           bool
+	pattern       string
+	tagMapFile    string
+	debug         bool
+	maxRecordSize int // max record size in MB (default: 5)
 }
 
 type downloadFlags struct {
@@ -88,6 +89,7 @@ type detectFlags struct {
 	indexName     string
 	queryString   string
 	fnameFilter   string
+	maxRecordSize int // max record size in MB (default: 10)
 	statsInterval time.Duration
 	all           bool
 }
@@ -97,6 +99,7 @@ type submitFlags struct {
 	esURL         string
 	workers       int
 	batchSize     int
+	maxRecordSize int // max record size in MB (default: 10)
 	statsInterval time.Duration
 	all           bool
 }
@@ -139,6 +142,7 @@ func init() {
 	processCmd.Flags().StringVar(&pFlags.pattern, "pattern", "", "custom pattern to search for (overrides default patterns)")
 	processCmd.Flags().StringVar(&pFlags.tagMapFile, "tagmap", "", "path to TOML file containing RDF tag mappings")
 	processCmd.Flags().BoolVar(&pFlags.debug, "debug", false, "enable debug logging")
+	processCmd.Flags().IntVar(&pFlags.maxRecordSize, "max-record-size", 5, "maximum record size in MB (default: 5)")
 	processCmd.MarkFlagRequired("path")
 	processCmd.MarkFlagRequired("index")
 
@@ -158,6 +162,7 @@ func init() {
 	detectCmd.Flags().StringVarP(&detFlags.indexName, "index", "n", "", "Index name (required)")
 	detectCmd.Flags().StringVarP(&detFlags.queryString, "query", "q", "", "Query JSON string")
 	detectCmd.Flags().StringVarP(&detFlags.fnameFilter, "fnameFilter", "", "", "Filter for lastest containing substring in input file path is a directory")
+	detectCmd.Flags().IntVar(&detFlags.maxRecordSize, "max-record-size", 10, "maximum record size in MB (default: 10)")
 	detectCmd.Flags().DurationVar(&detFlags.statsInterval, "stats-interval", 1*time.Second, "Statistics update interval")
 	detectCmd.Flags().BoolVar(&detFlags.all, "all", false, "detect changes for all subdirectories in the specified input path")
 	detectCmd.MarkFlagRequired("input")
@@ -169,6 +174,7 @@ func init() {
 	submitCmd.Flags().StringVarP(&subFlags.esURL, "url", "u", "http://localhost:9200", "Elasticsearch URL")
 	submitCmd.Flags().IntVarP(&subFlags.workers, "workers", "w", 4, "Number of worker goroutines")
 	submitCmd.Flags().IntVar(&subFlags.batchSize, "batch-size", 1000, "Maximum batch size for bulk requests")
+	submitCmd.Flags().IntVar(&subFlags.maxRecordSize, "max-record-size", 10, "maximum record size in MB (default: 10)")
 	submitCmd.Flags().DurationVar(&subFlags.statsInterval, "stats-interval", 1*time.Second, "Statistics update interval")
 	submitCmd.Flags().BoolVar(&subFlags.all, "all", false, "submit all changes files found in subdirectories of the specified path")
 	submitCmd.MarkFlagRequired("changes")
@@ -285,6 +291,7 @@ func detectChangesForPathWithClient(client *elasticsearch.Client, inputPath, out
 		opts.Query = query
 	}
 	opts.FnameFilter = detFlags.fnameFilter
+	opts.MaxRecordSize = detFlags.maxRecordSize
 
 	if err := detector.LoadExistingDocs(client, opts); err != nil {
 		return fmt.Errorf("error loading existing docs: %w", err)
@@ -362,7 +369,7 @@ func runProcessSingle() error {
 		slog.Info("loaded tag map", "file", tagMapFile, "entries", tagMap.Len())
 	}
 	
-	stats, err := processSingleDirectoryWithTagMap(pFlags.path, pFlags.targetIndex, pFlags.pattern, tagMap)
+	stats, err := processSingleDirectoryWithTagMap(pFlags.path, pFlags.targetIndex, pFlags.pattern, tagMap, pFlags.maxRecordSize)
 	if err != nil {
 		return err
 	}
@@ -426,7 +433,7 @@ func runProcessAll() error {
 	for i, dirPath := range directories {
 		slog.Info("processing directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath)
 		
-		stats, err := processSingleDirectoryWithTagMap(dirPath, pFlags.targetIndex, pFlags.pattern, tagMap)
+		stats, err := processSingleDirectoryWithTagMap(dirPath, pFlags.targetIndex, pFlags.pattern, tagMap, pFlags.maxRecordSize)
 		if err != nil {
 			slog.Error("failed to process directory", "dir", dirPath, "error", err)
 			continue
@@ -571,6 +578,7 @@ func submitChangesFileWithClientAndReporter(client *elasticsearch.Client, change
 	processor := essync.NewBulkProcessor(essync.Config{
 		NumWorkers:    subFlags.workers,
 		MaxBatchSize:  subFlags.batchSize,
+		MaxRecordSize: subFlags.maxRecordSize,
 		UpdateTimeout: subFlags.statsInterval,
 		ESClient:      client,
 		Reporter:      reporters,

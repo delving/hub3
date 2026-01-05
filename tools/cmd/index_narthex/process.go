@@ -136,7 +136,7 @@ func findProcessedFileWithPattern(dirPath, customPattern string) (string, error)
 // processSingleDirectory processes a single directory containing RDF files
 // This is kept for backward compatibility
 func processSingleDirectory(dirPath, targetIndex, customPattern string) (*NarthexStats, error) {
-	return processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern, nil)
+	return processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern, nil, 0) // 0 uses default 5MB
 }
 
 // openXMLReader opens either a plain XML file or a zst-compressed XML file
@@ -216,10 +216,11 @@ type recordJob struct {
 }
 
 type Config struct {
-	IndexName  string
-	DatePrefix string
-	OutputPath string
-	TagMap     *index.TagMap
+	IndexName     string
+	DatePrefix    string
+	OutputPath    string
+	TagMap        *index.TagMap
+	MaxRecordSize int // max record size in MB (default: 5)
 }
 
 var (
@@ -240,7 +241,13 @@ func extractID(b []byte) (hubID, hash string, err error) {
 func ParseNarthex(r io.Reader, cfg Config) (*NarthexStats, error) {
 	scanner := bufio.NewScanner(r)
 	buf := make([]byte, 0, 64*1024)
-	scanner.Buffer(buf, 5*1024*1024)
+
+	// Use configurable max record size (default 5MB)
+	maxRecordSize := cfg.MaxRecordSize
+	if maxRecordSize <= 0 {
+		maxRecordSize = 5
+	}
+	scanner.Buffer(buf, maxRecordSize*1024*1024)
 
 	// Create job channel and errgroup
 	jobs := make(chan recordJob, 150)

@@ -7,13 +7,13 @@ import (
 )
 
 // processSingleDirectoryWithTagMap extends processSingleDirectory with TagMap support
-func processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern string, tagMap *index.TagMap) (*NarthexStats, error) {
+func processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern string, tagMap *index.TagMap, maxRecordSize int) (*NarthexStats, error) {
 	rdfXML, err := findProcessedFileWithPattern(dirPath, customPattern)
 	if err != nil {
 		return nil, err
 	}
 
-	slog.Info("processing directory", "dir", dirPath, "rdfFile", rdfXML, "tagMapPresent", tagMap != nil)
+	slog.Info("processing directory", "dir", dirPath, "rdfFile", rdfXML, "tagMapPresent", tagMap != nil, "maxRecordSizeMB", maxRecordSize)
 
 	r, err := openXMLReader(rdfXML)
 	if err != nil {
@@ -22,8 +22,9 @@ func processSingleDirectoryWithTagMap(dirPath, targetIndex, customPattern string
 	defer r.Close()
 
 	cfg := Config{
-		IndexName: targetIndex,
-		TagMap:    tagMap,
+		IndexName:     targetIndex,
+		TagMap:        tagMap,
+		MaxRecordSize: maxRecordSize,
 	}
 	cfg.OutputPath, cfg.DatePrefix = processPath(rdfXML)
 	if cfg.DatePrefix == "" {

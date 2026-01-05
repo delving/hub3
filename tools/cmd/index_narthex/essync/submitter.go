@@ -15,6 +15,56 @@ import (
 	"github.com/delving/hub3/tools/cmd/index_narthex/stats"
 )
 
+// lineTrackingReader wraps a reader and tracks bytes read since last newline
+type lineTrackingReader struct {
+	reader          io.Reader
+	currentLineSize int64
+	linePreview     []byte
+	previewSize     int
+	mu              sync.Mutex
+}
+
+const maxPreviewSize = 1024 // Store first 1KB of each line for identification
+
+func (r *lineTrackingReader) Read(p []byte) (n int, err error) {
+	n, err = r.reader.Read(p)
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for i := 0; i < n; i++ {
+		if p[i] == '\n' {
+			r.currentLineSize = 0
+			r.linePreview = r.linePreview[:0]
+			r.previewSize = 0
+		} else {
+			r.currentLineSize++
+			if r.previewSize < maxPreviewSize {
+				r.linePreview = append(r.linePreview, p[i])
+				r.previewSize++
+			}
+		}
+	}
+	return n, err
+}
+
+func (r *lineTrackingReader) CurrentLineSize() int64 {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.currentLineSize
+}
+
+func (r *lineTrackingReader) LinePreview() string {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if len(r.linePreview) == 0 {
+		return ""
+	}
+	preview := string(r.linePreview)
+	if r.currentLineSize > int64(len(r.linePreview)) {
+		preview += "..."
+	}
+	return preview
+}
+
 type BulkProcessor struct {
 	config  Config
 	stats   *stats.Stats
@@ -32,6 +82,7 @@ type BulkProcessor struct {
 type Config struct {
 	NumWorkers    int
 	MaxBatchSize  int
+	MaxRecordSize int // max record size in MB (default: 10)
 	UpdateTimeout time.Duration
 	ESClient      *elasticsearch.Client
 	Reporter      stats.Reporter
@@ -87,31 +138,41 @@ func (bp *BulkProcessor) Process(ctx context.Context, reader io.Reader) error {
 	// Start stats updater
 	go bp.updateStats(ctx)
 
-	scanner := bufio.NewScanner(reader)
+	// Use configurable max record size (default 10MB)
+	maxRecordSize := bp.config.MaxRecordSize
+	if maxRecordSize <= 0 {
+		maxRecordSize = 10
+	}
+	maxCapacity := maxRecordSize * 1024 * 1024
 
-	// Increase the buffer size
-	const maxCapacity = 1024 * 1024 * 10 // 10MB or adjust as needed
+	// Wrap reader to track current line size for better error reporting
+	trackingReader := &lineTrackingReader{reader: reader}
+	scanner := bufio.NewScanner(trackingReader)
 	buf := make([]byte, maxCapacity)
 	scanner.Buffer(buf, maxCapacity)
 	currentWorker := 0
+	lineNumber := 0
 
 	for scanner.Scan() {
+		lineNumber++
 		meta := make(map[string]interface{})
 		if err := json.Unmarshal(scanner.Bytes(), &meta); err != nil {
-			bp.logger.Error("failed to unmarshal meta", "error", err)
+			bp.logger.Error("failed to unmarshal meta", "error", err, "line", lineNumber)
 			bp.metrics.errors.Value.Add(1)
 			continue
 		}
 
 		if !scanner.Scan() {
-			bp.logger.Error("missing source document")
+			bp.logger.Error("missing source document", "metaLine", lineNumber, "expectedSourceLine", lineNumber+1)
 			bp.metrics.errors.Value.Add(1)
 			break
 		}
+		lineNumber++
+		sourceSize := len(scanner.Bytes())
 
 		source := make(map[string]interface{})
 		if err := json.Unmarshal(scanner.Bytes(), &source); err != nil {
-			bp.logger.Error("failed to unmarshal source", "error", err)
+			bp.logger.Error("failed to unmarshal source", "error", err, "line", lineNumber, "sizeBytes", sourceSize)
 			bp.metrics.errors.Value.Add(1)
 			continue
 		}
@@ -128,7 +189,25 @@ func (bp *BulkProcessor) Process(ctx context.Context, reader io.Reader) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return fmt.Errorf("scanner error: %w", err)
+		recordNumber := (lineNumber / 2) + 1
+		if err.Error() == "bufio.Scanner: token too long" {
+			actualSize := trackingReader.CurrentLineSize()
+			actualSizeMB := float64(actualSize) / (1024 * 1024)
+			suggestedSize := int(actualSizeMB) + 5 // Add 5MB buffer
+			if suggestedSize < maxRecordSize*2 {
+				suggestedSize = maxRecordSize * 2
+			}
+			bp.logger.Error("record too large for buffer",
+				"line", lineNumber+1,
+				"recordNumber", recordNumber,
+				"actualSizeBytes", actualSize,
+				"actualSizeMB", fmt.Sprintf("%.2f", actualSizeMB),
+				"maxRecordSizeMB", maxRecordSize,
+				"maxRecordSizeBytes", maxCapacity,
+				"suggestion", fmt.Sprintf("try --max-record-size %d", suggestedSize),
+				"linePreview", trackingReader.LinePreview())
+		}
+		return fmt.Errorf("scanner error at line %d (record ~%d): %w", lineNumber+1, recordNumber, err)
 	}
 
 	// Signal workers to flush and stop

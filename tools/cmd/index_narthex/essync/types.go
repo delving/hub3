@@ -45,17 +45,19 @@ type ErrorFile struct {
 
 // LoadOptions configures how existing documents are loaded from Elasticsearch.
 type LoadOptions struct {
-	Index       string                 // Index name to load from
-	Query       map[string]interface{} // Query to filter documents
-	BatchSize   int                    // Number of documents per scroll batch
-	FnameFilter string
+	Index         string                 // Index name to load from
+	Query         map[string]interface{} // Query to filter documents
+	BatchSize     int                    // Number of documents per scroll batch
+	FnameFilter   string
+	MaxRecordSize int // Max record size in MB for scanning input files (default: 10)
 }
 
 // DefaultLoadOptions returns LoadOptions with sensible defaults for the given index.
 func DefaultLoadOptions(index string) LoadOptions {
 	return LoadOptions{
-		Index:     index,
-		Query:     map[string]interface{}{"match_all": map[string]interface{}{}},
-		BatchSize: 1000,
+		Index:         index,
+		Query:         map[string]interface{}{"match_all": map[string]interface{}{}},
+		BatchSize:     1000,
+		MaxRecordSize: 10, // 10MB default
 	}
 }
