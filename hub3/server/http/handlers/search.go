@@ -1101,6 +1101,63 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			}
 		}
 	}
+
+	// Add MoreLikeThis results if enabled
+	if searchRequest.GetMoreLikeThis() && len(records) > 0 {
+		mltCount := int(searchRequest.GetMoreLikeThisCount())
+		if mltCount == 0 {
+			mltCount = 4 // default
+		}
+
+		var mltFilterKeys []string
+		if r.URL.Query().Has("mlt.filterkey") {
+			mltFilterKeys = r.URL.Query()["mlt.filterkey"]
+		}
+
+		for _, record := range records {
+			if record.Meta == nil {
+				continue
+			}
+
+			conv, convErr := legacy.DefaultConverter(record.Meta.EntryURI, record.Meta.OrgID)
+			if convErr != nil {
+				slog.Warn("unable to get converter for MLT", "error", convErr, "hubID", record.Meta.HubID)
+				continue
+			}
+			cfg := conv.Configuration()
+
+			recs, mltErr := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
+			if mltErr != nil {
+				slog.Warn("MLT search failed", "error", mltErr, "hubID", record.Meta.HubID)
+				continue
+			}
+
+			for _, rec := range recs {
+				fg, decodeErr := decodeFragmentGraph(rec)
+				if decodeErr != nil {
+					slog.Warn("unable to decode MLT result", "error", decodeErr)
+					continue
+				}
+
+				fg.NewFields(nil)
+
+				item := &fragments.ItemV1{
+					DocID:   fg.Meta.HubID,
+					DocType: "void_edmrecord",
+					Fields:  map[string][]string{},
+				}
+				maps.Copy(item.Fields, fg.Fields)
+
+				mltConv, mltConvErr := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
+				if mltConvErr == nil {
+					item.Fields = mltConv.Convert(item.Fields, true)
+				}
+
+				record.AddMoreLikeThis(item)
+			}
+		}
+	}
+
 	result.Items = records
 
 	if !searchRequest.Paging {
