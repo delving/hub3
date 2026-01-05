@@ -48,6 +48,7 @@ type pmhCfg struct {
 	verbose    bool
 	storeEAD   bool
 	debugOut   string
+	timeout    int // timeout in seconds for HTTP requests (default: 60)
 }
 
 func addPmhCommonFlags(cmd *cobra.Command, cfg *pmhCfg) {
@@ -55,6 +56,14 @@ func addPmhCommonFlags(cmd *cobra.Command, cfg *pmhCfg) {
 	cmd.Flags().StringVarP(&cfg.prefix, "prefix", "p", "", "The metadataPrefix of the dataset to be harvested")
 	cmd.Flags().StringVarP(&cfg.from, "from", "", "", "from date to be harvested")
 	cmd.Flags().StringVarP(&cfg.until, "until", "", "", "until date to be harvested")
+}
+
+// getTimeout returns the configured timeout as a time.Duration
+func (cfg *pmhCfg) getTimeout() time.Duration {
+	if cfg.timeout <= 0 {
+		return 60 * time.Second
+	}
+	return time.Duration(cfg.timeout) * time.Second
 }
 
 func NewOaiPmhCmd() *cobra.Command {
@@ -73,6 +82,7 @@ func NewOaiPmhCmd() *cobra.Command {
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.password, "password", "", "", "BasicAuth password")
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.configPath, "config", "c", "", "config file (default is $HOME/.app.yaml)")
 	oaiPmhCmd.PersistentFlags().StringVarP(&cfg.debugOut, "debugOut", "", "", "directory where the requested pages are stored")
+	oaiPmhCmd.PersistentFlags().IntVarP(&cfg.timeout, "timeout", "t", 60, "HTTP request timeout in seconds (default: 60)")
 
 	oaiPmhCmd.AddCommand(identifyCmd(cfg))
 	oaiPmhCmd.AddCommand(listIdentifiersCmd(cfg))
@@ -92,6 +102,7 @@ func listDatasets(cfg *pmhCfg) {
 		Verb:     "ListSets",
 		UserName: cfg.userName,
 		Password: cfg.password,
+		Timeout:  cfg.getTimeout(),
 	})
 	err := req.Harvest(func(resp *oaipmh.Response) error {
 		for idx, set := range resp.ListSets.Set {
@@ -118,6 +129,7 @@ func listMetadataFormats(cfg *pmhCfg) {
 		Verb:     "ListMetadataFormats",
 		UserName: cfg.userName,
 		Password: cfg.password,
+		Timeout:  cfg.getTimeout(),
 	})
 	err := req.Harvest(func(resp *oaipmh.Response) error {
 		for idx, format := range resp.ListMetadataFormats.MetadataFormat {
@@ -157,6 +169,7 @@ func storeRecord(id string, cfg *pmhCfg) (string, error) {
 		Identifier:     id,
 		UserName:       cfg.userName,
 		Password:       cfg.password,
+		Timeout:        cfg.getTimeout(),
 	})
 	var record string
 	err := req.Harvest(func(r *oaipmh.Response) error {
@@ -242,6 +255,7 @@ func listGetRecords(cfg *pmhCfg) {
 			Until:          cfg.until,
 			UserName:       cfg.userName,
 			Password:       cfg.password,
+			Timeout:        cfg.getTimeout(),
 		})
 
 		progress = newProgress(req)
@@ -295,6 +309,7 @@ func listRecords(cfg *pmhCfg) {
 		UserName:       cfg.userName,
 		Password:       cfg.password,
 		DebugOut:       cfg.debugOut,
+		Timeout:        cfg.getTimeout(),
 	})
 
 	file, err := os.Create(getPath(cfg, fmt.Sprintf("%s_%s_records.xml", cfg.spec, cfg.prefix)))
@@ -367,6 +382,7 @@ func identify(cfg *pmhCfg) {
 		Verb:     "Identify",
 		UserName: cfg.userName,
 		Password: cfg.password,
+		Timeout:  cfg.getTimeout(),
 	})
 	req.Harvest(func(resp *oaipmh.Response) error {
 		fmt.Printf("%#v\n\n", resp.Identify)
@@ -406,6 +422,7 @@ func getIDs(cfg *pmhCfg) []string {
 		Until:          cfg.until,
 		UserName:       cfg.userName,
 		Password:       cfg.password,
+		Timeout:        cfg.getTimeout(),
 	})
 	ids := []string{}
 	fname := getPath(cfg, fmt.Sprintf("%s_%s_ids.txt", cfg.spec, cfg.prefix))

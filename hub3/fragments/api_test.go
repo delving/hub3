@@ -983,3 +983,67 @@ func TestEnsureURLEncoding(t *testing.T) {
 		}
 	}
 }
+
+func TestQfExistParsing(t *testing.T) {
+	c.InitConfig()
+
+	tests := []struct {
+		name           string
+		params         map[string][]string
+		expectedCount  int
+		expectedLabels []string
+	}{
+		{
+			name: "qf.exist[] with multiple values",
+			params: map[string][]string{
+				"q":          {"test"},
+				"qf.exist[]": {"dc.creator", "dc.title"},
+			},
+			expectedCount:  2,
+			expectedLabels: []string{"dc.creator", "dc.title"},
+		},
+		{
+			name: "qf.exist without brackets",
+			params: map[string][]string{
+				"qf.exist": {"dc.description"},
+			},
+			expectedCount:  1,
+			expectedLabels: []string{"dc.description"},
+		},
+		{
+			name: "mixed qf.exist[] and qf.exist",
+			params: map[string][]string{
+				"qf.exist[]": {"dc.creator"},
+				"qf.exist":   {"dc.title"},
+			},
+			expectedCount:  2,
+			expectedLabels: []string{"dc.creator", "dc.title"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sr, err := NewSearchRequest("test-org", tt.params)
+			if err != nil {
+				t.Fatalf("NewSearchRequest() error = %v", err)
+			}
+
+			filters := sr.GetQueryFilter()
+			if len(filters) != tt.expectedCount {
+				t.Errorf("Expected %d filters, got %d", tt.expectedCount, len(filters))
+			}
+
+			for i, filter := range filters {
+				if !filter.GetExists() {
+					t.Errorf("Filter %d: expected Exists=true, got false", i)
+				}
+				if filter.GetType() != QueryFilterType_EXISTS {
+					t.Errorf("Filter %d: expected Type=EXISTS, got %v", i, filter.GetType())
+				}
+				if i < len(tt.expectedLabels) && filter.GetSearchLabel() != tt.expectedLabels[i] {
+					t.Errorf("Filter %d: expected SearchLabel=%s, got %s", i, tt.expectedLabels[i], filter.GetSearchLabel())
+				}
+			}
+		})
+	}
+}
