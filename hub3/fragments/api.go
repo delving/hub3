@@ -137,6 +137,9 @@ func NewFacetField(field string) (*FacetField, error) {
 		ff.Type = FacetType_TREEFACET
 	case strings.HasPrefix(ff.Field, "meta.tag"):
 		ff.Type = FacetType_METATAGS
+	case ff.Field == "meta.spec":
+		// meta.spec is a root-level field, not in the fields object
+		ff.Type = FacetType_METATAGS
 	case strings.HasPrefix(ff.Field, "tag"):
 		ff.Type = FacetType_TAGS
 	case strings.HasPrefix(ff.Field, "histogram."):
@@ -1497,8 +1500,9 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 
 	switch facet.GetType() {
 	case FacetType_METATAGS:
+		// Use the actual facet field (meta.tags, meta.spec, etc.) instead of hardcoded metaTags
 		tagAgg := elastic.NewTermsAggregation().
-			Field(metaTags).
+			Field(facet.GetField()).
 			Size(int(facet.GetSize()))
 
 		facetFilterAgg = facetFilterAgg.SubAggregation("object", tagAgg)
