@@ -103,6 +103,10 @@ type ElasticSearch struct {
 	MaxTreeSize         int      `json:"maxTreeSize"`
 	OrphanWait          int      `json:"orphanWait"`
 	SearchFields        []string `json:"searchFields"`
+	// OrphanTagsFilter enables filtering orphan deletion by meta.tags (mdr, narthex, ead, eadDesc).
+	// Historically this was always enabled, but it causes orphans to persist when records
+	// don't have these tags. Set to false (default) to delete orphans based only on spec+orgID.
+	OrphanTagsFilter bool `json:"orphanTagsFilter"`
 	// IndexingNotification configures webhook notifications for indexing events
 	IndexingNotification IndexingNotificationConfig `json:"indexingNotification"`
 }

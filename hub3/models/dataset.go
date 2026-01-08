@@ -636,15 +636,22 @@ func (ds DataSet) deleteAllGraphs() (bool, error) {
 }
 
 // DeleteIndexOrphans deletes all the Orphaned records from the Search Index linked to this dataset
+// Note: The tags filter (mdr, narthex, ead, eadDesc) is optional and controlled by config.
+// If OrphanTagsFilter is false (default), orphans are deleted based only on spec+orgID,
+// which is safer because records without these tags would otherwise persist indefinitely.
 func (ds DataSet) deleteIndexOrphans(ctx context.Context, wp *wp.WorkerPool) (int, error) {
-	tags := elastic.NewBoolQuery()
-	for _, tag := range []string{"mdr", "narthex", "ead", "eadDesc"} {
-		tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
-	}
-
 	v2 := elastic.NewBoolQuery()
 	v2 = v2.MustNot(elastic.NewMatchQuery(c.Config.ElasticSearch.RevisionKey, ds.Revision))
-	v2 = v2.Must(tags)
+
+	// Optionally filter by tags - historically required but causes orphans when records lack tags
+	if c.Config.ElasticSearch.OrphanTagsFilter {
+		tags := elastic.NewBoolQuery()
+		for _, tag := range []string{"mdr", "narthex", "ead", "eadDesc"} {
+			tags = tags.Should(elastic.NewTermQuery("meta.tags", tag))
+		}
+		v2 = v2.Must(tags)
+	}
+
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec))
 	v2 = v2.Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID))
 
