@@ -27,7 +27,8 @@ type FragmentGraph struct {
 }
 
 type RelatedItems struct {
-	Items []*ItemV1 `json:"item"`
+	Items         []*ItemV1       `json:"item,omitempty"`
+	SemanticItems []*FragmentGraph `json:"items,omitempty"`
 }
 
 // ItemV1 represents a single search result item
@@ -58,6 +59,13 @@ func (fg *FragmentGraph) AddMoreLikeThis(item *ItemV1) {
 		fg.MoreLikeThis = &RelatedItems{}
 	}
 	fg.MoreLikeThis.Items = append(fg.MoreLikeThis.Items, item)
+}
+
+func (fg *FragmentGraph) AddSemanticMoreLikeThis(related *FragmentGraph) {
+	if fg.MoreLikeThis == nil {
+		fg.MoreLikeThis = &RelatedItems{}
+	}
+	fg.MoreLikeThis.SemanticItems = append(fg.MoreLikeThis.SemanticItems, related)
 }
 
 func (fg *FragmentGraph) Graph() (*rdf.Graph, error) {

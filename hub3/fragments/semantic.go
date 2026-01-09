@@ -113,9 +113,9 @@ func (sv *SemanticView) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	
+
 	sv.Fields = make(map[string]SemanticValue)
-	
+
 	// Process each field
 	for k, v := range m {
 		switch k {
@@ -150,7 +150,7 @@ func (sv *SemanticView) UnmarshalJSON(data []byte) error {
 			sv.Fields[k] = val
 		}
 	}
-	
+
 	return nil
 }
 
@@ -563,7 +563,7 @@ func (fg *FragmentGraph) GenerateSemantic() *SemanticView {
 		Context: fg.buildSemanticContext(),
 		Fields:  make(map[string]SemanticValue),
 	}
-	
+
 	// Build resource map for lookups
 	rm := &ResourceMap{
 		resources: make(map[string]*FragmentResource),

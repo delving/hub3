@@ -1455,6 +1455,65 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Handle MoreLikeThis for non-v1 formats
+	// v1 format handles MLT in its own case above
+	if itemFormat != "v1" && record.Meta != nil {
+		mltEnabled := strings.EqualFold(r.URL.Query().Get("mlt"), "true") ||
+			strings.EqualFold(r.URL.Query().Get("moreLikeThis"), "true")
+
+		if mltEnabled {
+			conv, convErr := legacy.DefaultConverter(record.Meta.EntryURI, record.Meta.OrgID)
+			if convErr == nil {
+				cfg := conv.Configuration()
+				mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
+				var mltFilterKeys []string
+				if r.URL.Query().Has("mlt.filterkey") {
+					mltFilterKeys = r.URL.Query()["mlt.filterkey"]
+				}
+
+				recs, mltErr := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
+				if mltErr == nil {
+					for _, rec := range recs {
+						fg, decodeErr := decodeFragmentGraph(rec)
+						if decodeErr != nil {
+							continue
+						}
+
+						// Use semantic format for MLT when itemFormat is semantic
+						// This ensures consistent field names between parent and related items
+						// Related items have same structure as main item: {meta, semantic}
+						if itemFormat == "semantic" {
+							relatedItem := &fragments.FragmentGraph{
+								Meta:     fg.Meta,
+								Semantic: fg.GenerateSemantic(),
+							}
+							record.AddSemanticMoreLikeThis(relatedItem)
+						} else {
+							// Use ItemV1 format for other itemFormats
+							fg.NewFields(nil)
+
+							item := &fragments.ItemV1{
+								DocID:   fg.Meta.HubID,
+								DocType: "void_edmrecord",
+								Fields:  map[string][]string{},
+							}
+							maps.Copy(item.Fields, fg.Fields)
+
+							mltConv, mltConvErr := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
+							if mltConvErr == nil {
+								item.Fields = mltConv.Convert(item.Fields, true)
+							}
+
+							record.AddMoreLikeThis(item)
+						}
+					}
+				} else {
+					slog.Warn("MLT search failed for detail view", "error", mltErr, "hubID", record.Meta.HubID)
+				}
+			}
+		}
+	}
+
 	switch r.URL.Query().Get("format") {
 	case "jsonld":
 		entries := []map[string]interface{}{}

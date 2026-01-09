@@ -528,9 +528,9 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 				return sr, err
 			}
 			sr.SearchAfter = sb
-		case "mlt":
+		case "mlt", "moreLikeThis":
 			sr.MoreLikeThis = strings.EqualFold(params.Get(p), "true")
-		case "mlt.count":
+		case "mlt.count", "moreLikeThis.count":
 			count, err := strconv.ParseInt(params.Get(p), 10, 32)
 			if err != nil {
 				logConvErr(p, v, err)
