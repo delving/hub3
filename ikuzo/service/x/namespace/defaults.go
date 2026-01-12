@@ -2233,6 +2233,7 @@ var defaultNS = []nsEntry{
 	{Prefix: "wiki", BaseURI: "http://en.wikipedia.org/wiki/"},
 	{Prefix: "wikibase", BaseURI: "http://wikiba.se/ontology#"},
 	{Prefix: "wikidata", BaseURI: "http://www.wikidata.org/entity/"},
+	{Prefix: "wikidatawiki", BaseURI: "https://www.wikidata.org/wiki/"},
 	{Prefix: "wikim", BaseURI: "http://spi-fm.uca.es/spdef/models/genericTools/wikim/1.0#"},
 	{Prefix: "wikimedia", BaseURI: "http://upload.wikimedia.org/wikipedia/commons/f/f6/"},
 	{Prefix: "wikipedia", BaseURI: "http://wikipedia.no/rdf/"},

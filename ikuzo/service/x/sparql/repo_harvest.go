@@ -66,6 +66,107 @@ func NewHarvestError(err error) *HarvestError {
 	}
 }
 
+// retryLogger implements retryablehttp.LeveledLogger to log retry events
+type retryLogger struct{}
+
+func (l *retryLogger) Error(msg string, keysAndValues ...interface{}) {
+	slog.Error(msg, keysAndValues...)
+}
+
+func (l *retryLogger) Info(msg string, keysAndValues ...interface{}) {
+	slog.Info(msg, keysAndValues...)
+}
+
+func (l *retryLogger) Debug(msg string, keysAndValues ...interface{}) {
+	slog.Debug(msg, keysAndValues...)
+}
+
+func (l *retryLogger) Warn(msg string, keysAndValues ...interface{}) {
+	slog.Warn(msg, keysAndValues...)
+}
+
+// HarvestMetrics tracks timing and progress statistics during harvest
+type HarvestMetrics struct {
+	StartTime       time.Time
+	TotalFetchTime  time.Duration
+	TotalParseTime  time.Duration
+	RequestCount    int64
+	SuccessCount    int64
+	FailCount       int64
+	TotalTriples    int64
+	mu              sync.Mutex
+}
+
+func (m *HarvestMetrics) Add(fetchTime, parseTime time.Duration, triples int, success bool) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	m.TotalFetchTime += fetchTime
+	m.TotalParseTime += parseTime
+	m.RequestCount++
+	m.TotalTriples += int64(triples)
+	if success {
+		m.SuccessCount++
+	} else {
+		m.FailCount++
+	}
+}
+
+func (m *HarvestMetrics) String() string {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	elapsed := time.Since(m.StartTime)
+	avgFetch := time.Duration(0)
+	avgParse := time.Duration(0)
+	if m.RequestCount > 0 {
+		avgFetch = m.TotalFetchTime / time.Duration(m.RequestCount)
+		avgParse = m.TotalParseTime / time.Duration(m.RequestCount)
+	}
+	return fmt.Sprintf(
+		"elapsed=%v requests=%d success=%d fail=%d triples=%d avgFetch=%v avgParse=%v totalFetch=%v totalParse=%v",
+		elapsed.Round(time.Second), m.RequestCount, m.SuccessCount, m.FailCount, m.TotalTriples,
+		avgFetch.Round(time.Millisecond), avgParse.Round(time.Millisecond),
+		m.TotalFetchTime.Round(time.Second), m.TotalParseTime.Round(time.Second),
+	)
+}
+
+// DereferenceCache provides thread-safe caching for dereferenced graphs
+type DereferenceCache struct {
+	cache map[string]*rdf.Graph
+	mu    sync.RWMutex
+	hits  int64
+	miss  int64
+}
+
+func NewDereferenceCache() *DereferenceCache {
+	return &DereferenceCache{
+		cache: make(map[string]*rdf.Graph),
+	}
+}
+
+func (c *DereferenceCache) Get(uri string) (*rdf.Graph, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	g, ok := c.cache[uri]
+	if ok {
+		atomic.AddInt64(&c.hits, 1)
+	} else {
+		atomic.AddInt64(&c.miss, 1)
+	}
+	return g, ok
+}
+
+func (c *DereferenceCache) Set(uri string, g *rdf.Graph) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.cache[uri] = g
+}
+
+func (c *DereferenceCache) Stats() (size int, hits, misses int64) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return len(c.cache), atomic.LoadInt64(&c.hits), atomic.LoadInt64(&c.miss)
+}
+
 type HarvestConfig struct {
 	OrgID   string
 	Spec    string
@@ -77,20 +178,25 @@ type HarvestConfig struct {
 		IncrementalWhereClause string // using the From timestamp to harvest an incremental set
 		GetGraphQuery          string // sparql query to get full graph. ?subject is injected for each
 	}
-	From              time.Time // the time of the last harvest
-	GraphMimeType     string    // if the subject can be harvested directly which mime-type to use
-	MaxSubjects       int
-	PageSize          int
-	TotalSizeSubjects int
-	HarvestErrors     map[string]*HarvestError
-	rw                sync.RWMutex
-	client            *http.Client
-	OutputDir         string
-	LastCheck         time.Time
-	TargetDatasets    map[string]int
-	Tags              []string
-	repo              *sparql.Repo
-	AboutTypeURI      string
+	From                   time.Time // the time of the last harvest
+	GraphMimeType          string    // if the subject can be harvested directly which mime-type to use
+	MaxSubjects            int
+	PageSize               int
+	TotalSizeSubjects      int
+	HarvestErrors          map[string]*HarvestError
+	DereferencePredicates  []string // List of predicate URIs whose object IRIs should be dereferenced
+	DereferenceMaxDepth    int      // Maximum depth for recursive dereferencing (default 1)
+	rw                     sync.RWMutex
+	client                 *http.Client
+	OutputDir              string
+	LastCheck              time.Time
+	TargetDatasets         map[string]int
+	Tags                   []string
+	repo                   *sparql.Repo
+	AboutTypeURI           string
+	Metrics                *HarvestMetrics
+	dereferencePredicates  map[string]bool   // internal lookup map
+	dereferenceCache       *DereferenceCache // cache for dereferenced graphs
 }
 
 func (cfg *HarvestConfig) AddError(subject string, err error) {
@@ -100,6 +206,27 @@ func (cfg *HarvestConfig) AddError(subject string, err error) {
 	}
 	cfg.HarvestErrors[subject] = NewHarvestError(err)
 	cfg.rw.Unlock()
+}
+
+// initDereferencePredicates initializes the internal lookup map for dereference predicates
+func (cfg *HarvestConfig) initDereferencePredicates() {
+	cfg.dereferencePredicates = make(map[string]bool)
+	for _, p := range cfg.DereferencePredicates {
+		cfg.dereferencePredicates[p] = true
+	}
+	if cfg.DereferenceMaxDepth == 0 {
+		cfg.DereferenceMaxDepth = 1 // default to 1 level of dereferencing
+	}
+	// Initialize dereference cache
+	cfg.dereferenceCache = NewDereferenceCache()
+}
+
+// shouldDereference checks if a predicate URI should have its objects dereferenced
+func (cfg *HarvestConfig) shouldDereference(predicateURI string) bool {
+	if cfg.dereferencePredicates == nil {
+		return false
+	}
+	return cfg.dereferencePredicates[predicateURI]
 }
 
 func (cfg *HarvestConfig) getRepo() (*sparql.Repo, error) {
@@ -335,14 +462,54 @@ func HarvestGraph(ctx context.Context, cfg *HarvestConfig, subject string) (*rdf
 }
 
 func harvestSubject(ctx context.Context, subject string, cfg *HarvestConfig) (*rdf.Graph, error) {
-	body, err := getSubject(ctx, cfg.client, subject, cfg.GraphMimeType)
+	// Track already-fetched URIs to avoid infinite loops
+	fetched := make(map[string]bool)
+	fetched[subject] = true
+
+	return harvestSubjectWithDereference(ctx, subject, cfg, fetched, 0)
+}
+
+func harvestSubjectWithDereference(ctx context.Context, subject string, cfg *HarvestConfig, fetched map[string]bool, depth int) (*rdf.Graph, error) {
+	// Create a per-request context with timeout to prevent hanging
+	reqCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
+
+	fetchStart := time.Now()
+	body, err := getSubject(reqCtx, cfg.client, subject, cfg.GraphMimeType)
+	fetchDuration := time.Since(fetchStart)
 	if err != nil {
+		slog.Debug("HTTP fetch failed", "subject", subject, "duration", fetchDuration, "error", err)
+		if cfg.Metrics != nil {
+			cfg.Metrics.Add(fetchDuration, 0, 0, false)
+		}
 		return nil, fmt.Errorf("unable to retrieve rdf: %w", err)
 	}
+	defer body.Close()
 
+	parseStart := time.Now()
 	g, err := ntriples.Parse(body, nil)
+	parseDuration := time.Since(parseStart)
 	if err != nil {
+		slog.Debug("parsing failed", "subject", subject, "fetchDuration", fetchDuration, "parseDuration", parseDuration, "error", err)
+		if cfg.Metrics != nil {
+			cfg.Metrics.Add(fetchDuration, parseDuration, 0, false)
+		}
 		return nil, fmt.Errorf("unable to parse rdf: %w", err)
+	}
+
+	tripleCount := g.Len()
+	if cfg.Metrics != nil {
+		cfg.Metrics.Add(fetchDuration, parseDuration, tripleCount, true)
+	}
+
+	slog.Debug("harvested subject", "subject", subject, "fetchDuration", fetchDuration, "parseDuration", parseDuration, "triples", tripleCount, "depth", depth)
+
+	// Dereference objects for configured predicates
+	if len(cfg.DereferencePredicates) > 0 && depth < cfg.DereferenceMaxDepth {
+		if err := dereferenceObjects(ctx, g, cfg, fetched, depth); err != nil {
+			slog.Warn("error dereferencing objects", "subject", subject, "error", err)
+			// Continue even if dereferencing fails - we still have the main subject data
+		}
 	}
 
 	s, err := rdf.NewIRI(subject)
@@ -353,6 +520,93 @@ func harvestSubject(ctx context.Context, subject string, cfg *HarvestConfig) (*r
 	g.Subject = rdf.Subject(s)
 
 	return g, nil
+}
+
+// dereferenceObjects fetches and merges triples for object IRIs of configured predicates
+func dereferenceObjects(ctx context.Context, g *rdf.Graph, cfg *HarvestConfig, fetched map[string]bool, depth int) error {
+	// Collect URIs to dereference (avoid modifying graph while iterating)
+	var toFetch []string
+	var fromCache []string
+
+	for _, resource := range g.Resources() {
+		for _, predicate := range resource.SortedPredicates() {
+			predicateURI := predicate.IRI().RawValue()
+			if !cfg.shouldDereference(predicateURI) {
+				continue
+			}
+
+			for _, obj := range predicate.Objects() {
+				if obj.Type() != rdf.TermIRI {
+					continue
+				}
+
+				objURI := obj.RawValue()
+				if fetched[objURI] {
+					continue // Already processed in this record
+				}
+
+				// Mark as processed for this record
+				fetched[objURI] = true
+
+				// Check cache first
+				if cfg.dereferenceCache != nil {
+					if cachedGraph, ok := cfg.dereferenceCache.Get(objURI); ok {
+						// Merge cached triples into the main graph
+						for _, triple := range cachedGraph.Triples() {
+							g.Add(triple)
+						}
+						fromCache = append(fromCache, objURI)
+						continue
+					}
+				}
+
+				toFetch = append(toFetch, objURI)
+			}
+		}
+	}
+
+	if len(toFetch) == 0 && len(fromCache) == 0 {
+		return nil
+	}
+
+	if len(fromCache) > 0 {
+		slog.Debug("dereference cache hits", "count", len(fromCache), "depth", depth+1)
+	}
+
+	if len(toFetch) == 0 {
+		return nil
+	}
+
+	slog.Debug("dereferencing objects", "count", len(toFetch), "fromCache", len(fromCache), "predicates", cfg.DereferencePredicates, "depth", depth+1)
+
+	// Fetch each object URI and merge into the graph
+	for _, uri := range toFetch {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+		}
+
+		objGraph, err := harvestSubjectWithDereference(ctx, uri, cfg, fetched, depth+1)
+		if err != nil {
+			slog.Debug("failed to dereference object", "uri", uri, "error", err)
+			continue // Continue with other objects even if one fails
+		}
+
+		// Store in cache for future use
+		if cfg.dereferenceCache != nil {
+			cfg.dereferenceCache.Set(uri, objGraph)
+		}
+
+		// Merge the fetched triples into the main graph
+		for _, triple := range objGraph.Triples() {
+			g.Add(triple)
+		}
+
+		slog.Debug("dereferenced and merged object", "uri", uri, "triples", objGraph.Len())
+	}
+
+	return nil
 }
 
 func getSubject(ctx context.Context, c *http.Client, uri, mimeType string) (io.ReadCloser, error) {
@@ -381,14 +635,20 @@ func getSubject(ctx context.Context, c *http.Client, uri, mimeType string) (io.R
 }
 
 func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph) error) (err error) {
+	// Initialize metrics
+	cfg.Metrics = &HarvestMetrics{StartTime: time.Now()}
+
+	// Initialize dereference predicates lookup map
+	cfg.initDereferencePredicates()
+
 	subjects := make(chan string, 100) // buffered channel to prevent blocking
-	g, _ := errgroup.WithContext(ctx)
+	g, gCtx := errgroup.WithContext(ctx) // Use errgroup context for proper cancellation propagation
 
 	// Produce
 	g.Go(func() error {
 		slog.Debug("producer starting")
 		if len(cfg.HarvestErrors) == 0 {
-			err := HarvestSubjects(ctx, cfg, subjects)
+			err := HarvestSubjects(gCtx, cfg, subjects)
 			if err != nil {
 				slog.Error("HarvestSubjects returned error", "error", err)
 			} else {
@@ -408,15 +668,15 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 	graphs := make(chan *rdf.Graph, 100) // buffered channel to prevent workers from blocking
 
 	retryClient := retryablehttp.NewClient()
-	retryClient.Logger = nil
+	retryClient.Logger = &retryLogger{} // Custom logger for retry events
 	retryClient.RetryMax = 3
 
-	retryClient.HTTPClient.Timeout = 8 * time.Second
+	retryClient.HTTPClient.Timeout = 30 * time.Second // Increased from 8s to handle slow responses
 
 	cfg.client = retryClient.StandardClient()
 
 	// Map
-	nWorkers := 4
+	nWorkers := 2 // Reduced from 4 to avoid rate limiting on handle.net
 	workers := int32(nWorkers)
 	for i := 0; i < nWorkers; i++ {
 		g.Go(func() error {
@@ -435,15 +695,24 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 			slog.Debug("worker starting to consume subjects")
 			for subject := range subjects {
 				processed++
-				slog.Debug("worker received subject from channel", "subject", subject, "processed", processed)
+				remaining := cfg.TotalSizeSubjects - int(cfg.Metrics.RequestCount)
+				slog.Debug("worker received subject from channel", "subject", subject, "processed", processed, "total", cfg.TotalSizeSubjects, "remaining", remaining)
 				if processed%10 == 0 {
-					slog.Debug("worker progress", "processed", processed, "succeeded", succeeded, "failed", failed)
+					slog.Info("worker progress", "processed", processed, "succeeded", succeeded, "failed", failed, "total", cfg.TotalSizeSubjects, "metrics", cfg.Metrics.String())
+				}
+
+				// Check for context cancellation before processing
+				select {
+				case <-gCtx.Done():
+					slog.Info("context cancelled, worker stopping", "processed", processed, "error", gCtx.Err())
+					return gCtx.Err()
+				default:
 				}
 
 				var g *rdf.Graph
 				switch {
 				case cfg.GraphMimeType != "":
-					g, err = harvestSubject(ctx, subject, cfg)
+					g, err = harvestSubject(gCtx, subject, cfg)
 					if err != nil {
 						failed++
 						cfg.AddError(subject, err)
@@ -452,7 +721,7 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 					}
 					succeeded++
 				default:
-					g, err = HarvestGraph(ctx, cfg, subject)
+					g, err = HarvestGraph(gCtx, cfg, subject)
 					if err != nil {
 						failed++
 						cfg.AddError(subject, err)
@@ -462,9 +731,11 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 					succeeded++
 				}
 
+				slog.Debug("attempting to send graph to channel", "subject", subject, "graphsChannelLen", len(graphs))
 				select {
-				case <-ctx.Done():
-					return ctx.Err()
+				case <-gCtx.Done():
+					slog.Info("context cancelled while sending graph", "subject", subject, "error", gCtx.Err())
+					return gCtx.Err()
 				case graphs <- g:
 					slog.Debug("sent graph to channel", "subject", subject)
 				}
@@ -475,16 +746,50 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 		})
 	}
 
+	// Progress reporter - logs stats every 5 seconds to detect hangs
+	done := make(chan struct{})
+	go func() {
+		ticker := time.NewTicker(5 * time.Second)
+		defer ticker.Stop()
+		var lastCount int64
+		for {
+			select {
+			case <-done:
+				return
+			case <-gCtx.Done():
+				slog.Info("harvest interrupted", "error", gCtx.Err(), "metrics", cfg.Metrics.String())
+				return
+			case <-ticker.C:
+				currentCount := cfg.Metrics.RequestCount
+				rate := float64(currentCount-lastCount) / 5.0
+				remaining := cfg.TotalSizeSubjects - int(currentCount)
+				slog.Info("harvest progress",
+					"processed", currentCount,
+					"remaining", remaining,
+					"total", cfg.TotalSizeSubjects,
+					"rate", fmt.Sprintf("%.1f/s", rate),
+					"metrics", cfg.Metrics.String(),
+				)
+				lastCount = currentCount
+			}
+		}
+	}()
+
 	// Reduce
 	g.Go(func() error {
 		var consumed int
+		slog.Debug("reducer starting")
 		for graph := range graphs {
+			slog.Debug("reducer waiting for graph", "consumed", consumed, "graphsChannelLen", len(graphs))
 			if graph != nil {
 				consumed++
 				slog.Debug("consuming graph", "subject", graph.Subject.RawValue(), "consumed", consumed)
+				cbStart := time.Now()
 				if err := cb(graph); err != nil {
+					slog.Error("callback error in reducer", "error", err, "consumed", consumed)
 					return err
 				}
+				slog.Debug("callback completed", "subject", graph.Subject.RawValue(), "duration", time.Since(cbStart))
 			}
 		}
 
@@ -492,7 +797,25 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 		return nil
 	})
 
-	if err := g.Wait(); err != nil {
+	err = g.Wait()
+	close(done) // Stop the progress reporter
+
+	// Always print final metrics
+	slog.Info("harvest finished", "metrics", cfg.Metrics.String())
+
+	// Log cache stats if dereferencing was used
+	if cfg.dereferenceCache != nil {
+		size, hits, misses := cfg.dereferenceCache.Stats()
+		if size > 0 || hits > 0 || misses > 0 {
+			hitRate := float64(0)
+			if hits+misses > 0 {
+				hitRate = float64(hits) / float64(hits+misses) * 100
+			}
+			slog.Info("dereference cache stats", "cached", size, "hits", hits, "misses", misses, "hitRate", fmt.Sprintf("%.1f%%", hitRate))
+		}
+	}
+
+	if err != nil {
 		slog.Error("errgroup returned error", "error", err)
 		return err
 	}

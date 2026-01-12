@@ -344,5 +344,9 @@ func namespace(g *rdf.Graph, p rdf.Predicate) string {
 		return ""
 	}
 
+	// Sanitize the label: XML element local names cannot contain colons
+	// Replace colons with underscores to produce valid XML
+	label = strings.ReplaceAll(label, ":", "_")
+
 	return fmt.Sprintf("%s:%s", ns.Prefix, label)
 }
