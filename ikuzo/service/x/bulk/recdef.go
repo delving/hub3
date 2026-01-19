@@ -8,6 +8,11 @@ type RecDefResolver struct {
 }
 
 func (rdr *RecDefResolver) Resolve(recDefID string) ([]string, error) {
+	// Use default recDefID when none provided
+	if recDefID == "" && rdr.defaultRecDefID != "" {
+		recDefID = rdr.defaultRecDefID
+	}
+
 	uri, ok := rdr.m[recDefID]
 	if !ok {
 		return []string{}, fmt.Errorf("no rec-def configured for %q", recDefID)
