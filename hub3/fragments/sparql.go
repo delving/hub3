@@ -115,11 +115,17 @@ func UpdateViaSparql(orgID, update string) []error {
 	parameters.Add("update", update)
 	updateQuery := parameters.Encode()
 
-	resp, body, errs := request.Post(postURL).
+	req := request.Post(postURL).
 		Send(updateQuery).
 		Set("Content-Type", "application/x-www-form-urlencoded; charset=utf-8").
-		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError).
-		End()
+		Retry(3, 4*time.Second, http.StatusBadRequest, http.StatusInternalServerError)
+
+	// Add basic auth if configured
+	if config.Config.RDF.HasAuthentication() {
+		req = req.SetBasicAuth(config.Config.RDF.UserName, config.Config.RDF.Password)
+	}
+
+	resp, body, errs := req.End()
 	if errs != nil {
 		log.Printf("errors for query %s: %#v", postURL, errs)
 		return errs

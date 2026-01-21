@@ -34,18 +34,29 @@ func (s *Service) scheduleTasks() error {
 
 func (s *Service) harvestSparqlDatasets() {
 	configPath := strings.TrimSuffix(s.harvestConfigPath, "/")
-	slog.Info("harvesting datasets", "configPath", configPath)
+
+	if configPath == "" {
+		slog.Debug("harvest config path is empty, skipping sparql harvest")
+		return
+	}
 
 	matches, err := filepath.Glob(configPath + "/*.toml")
 	if err != nil {
-		slog.Error("unable to find configuration files", "path", configPath)
+		slog.Error("unable to find configuration files", "path", configPath, "error", err)
+		return
+	}
+
+	slog.Info("harvesting datasets", "configPath", configPath, "configFiles", len(matches))
+
+	if len(matches) == 0 {
+		slog.Warn("no harvest config files found", "path", configPath, "pattern", configPath+"/*.toml")
 		return
 	}
 
 	for _, path := range matches {
 		slog.Info("dataset to harvest", "path", path)
 		if processErr := s.processSparqlDataset(path); processErr != nil {
-			slog.Error("unable to process sparql dataset", "error", processErr)
+			slog.Error("unable to process sparql dataset", "error", processErr, "path", path)
 		}
 		time.Sleep(3 * time.Second)
 	}
@@ -88,7 +99,10 @@ func (s *Service) processSparqlDataset(path string) error {
 		}
 	}()
 
-	if !indexer.hasChanges() {
+	if cfg.ForceHarvest {
+		slog.Info("forcing harvest for sparql dataset", "datasetID", cfg.Spec)
+		cfg.ForceHarvest = false // Reset after use
+	} else if !indexer.hasChanges() {
 		slog.Info("no changes for sparql dataset", "datasetID", cfg.Spec, "TargetDataSets", cfg.TargetDatasets)
 		return nil
 	}

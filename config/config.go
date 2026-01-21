@@ -183,6 +183,13 @@ type RDF struct {
 	Tags              string   `json:"tags" mapstructure:"tags"`
 	DefaultFormat     string   `json:"defaultFormat"`
 	RDFStoreTags      []string `json:"rdfStoreTags"` // the tags that trigger storage in the triple-store
+	UserName          string   `json:"userName"`     // username for SPARQL endpoint authentication
+	Password          string   `json:"password"`     // password for SPARQL endpoint authentication
+}
+
+// HasAuthentication returns if RDF SPARQL endpoint has authentication enabled.
+func (rdf *RDF) HasAuthentication() bool {
+	return len(rdf.UserName) > 0 && len(rdf.Password) > 0
 }
 
 func (rdf *RDF) HasStoreTag(tags []string) bool {

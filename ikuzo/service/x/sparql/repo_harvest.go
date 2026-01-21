@@ -186,6 +186,7 @@ type HarvestConfig struct {
 	HarvestErrors          map[string]*HarvestError
 	DereferencePredicates  []string // List of predicate URIs whose object IRIs should be dereferenced
 	DereferenceMaxDepth    int      // Maximum depth for recursive dereferencing (default 1)
+	ForceHarvest           bool     // Force harvest regardless of revision check
 	rw                     sync.RWMutex
 	client                 *http.Client
 	OutputDir              string
@@ -194,7 +195,7 @@ type HarvestConfig struct {
 	Tags                   []string
 	repo                   *sparql.Repo
 	AboutTypeURI           string
-	Metrics                *HarvestMetrics
+	Metrics                *HarvestMetrics   `toml:"-"` // runtime only, not persisted
 	dereferencePredicates  map[string]bool   // internal lookup map
 	dereferenceCache       *DereferenceCache // cache for dereferenced graphs
 }
@@ -364,7 +365,10 @@ func HarvestSubjects(ctx context.Context, cfg *HarvestConfig, ids chan string) (
 		return fmt.Errorf("error converting string to integer: %w", err)
 	}
 
+	slog.Info("count query result", "totalIDs", totalIDs, "previousTotal", cfg.TotalSizeSubjects)
+
 	if totalIDs == 0 {
+		slog.Warn("no subjects found in SPARQL endpoint", "query", countQuery)
 		return nil
 	}
 
