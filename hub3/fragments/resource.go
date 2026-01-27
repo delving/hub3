@@ -793,8 +793,6 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 				case reflect.Struct:
 					newSlice := reflect.MakeSlice(fieldVal.Type(), 0, len(entries))
 					for _, entry := range entries {
-						child := reflect.New(sliceType)
-
 						if fieldVal.Type() == reflect.TypeOf([]rdf.LiteralOrResource{}) {
 							lor := reflect.New(sliceType).Elem()
 
@@ -807,11 +805,27 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 							continue
 						}
 
-						if err := entry.Inline.UnmarshalRDF(child.Interface()); err != nil {
-							return err
+						// Check if the entry.Inline is a "wrapper" with nested resources
+						// that have the same searchLabel (case-insensitive) as the field tag.
+						// This handles structures like: nk_creator -> wrapper -> nk_Creator -> actual creators
+						nestedEntries := entry.Inline.getNestedResourcesForUnmarshal(searchLabel)
+						if len(nestedEntries) > 0 {
+							// Iterate over nested entries and unmarshal each as a separate struct
+							for _, nestedEntry := range nestedEntries {
+								child := reflect.New(sliceType)
+								if err := nestedEntry.Inline.UnmarshalRDF(child.Interface()); err != nil {
+									return err
+								}
+								newSlice = reflect.Append(newSlice, child.Elem())
+							}
+						} else {
+							// No nested wrapper structure, use the entry directly
+							child := reflect.New(sliceType)
+							if err := entry.Inline.UnmarshalRDF(child.Interface()); err != nil {
+								return err
+							}
+							newSlice = reflect.Append(newSlice, child.Elem())
 						}
-
-						newSlice = reflect.Append(newSlice, child.Elem())
 					}
 
 					fieldVal.Set(newSlice)
@@ -902,6 +916,29 @@ func (fr *FragmentResource) ObjectIDs() []*FragmentReferrerContext {
 // Predicates returns a map of FragmentEntry
 func (fr *FragmentResource) Predicates() map[string][]*FragmentEntry {
 	return fr.predicates
+}
+
+// getNestedResourcesForUnmarshal checks if this resource is a "wrapper" that contains
+// nested resources with a searchLabel that matches the given label (case-insensitive).
+// This is used to handle structures like: nk_creator -> wrapper -> nk_Creator -> actual creators
+// where the Go struct expects []Creator at the nk_creator level but the data has an extra wrapper.
+//
+// Returns the nested entries if they exist and match, otherwise returns nil.
+func (fr *FragmentResource) getNestedResourcesForUnmarshal(searchLabel string) []*ResourceEntry {
+	if fr == nil || len(fr.Entries) == 0 {
+		return nil
+	}
+
+	// Look for entries with searchLabels that match case-insensitively
+	// e.g., nk_creator matches nk_Creator
+	var nestedEntries []*ResourceEntry
+	for _, entry := range fr.Entries {
+		if entry.Inline != nil && strings.EqualFold(entry.SearchLabel, searchLabel) {
+			nestedEntries = append(nestedEntries, entry)
+		}
+	}
+
+	return nestedEntries
 }
 
 func (fr *FragmentResource) GetByResourcesBySearchLabel(searchLabel string) []*ResourceEntry {

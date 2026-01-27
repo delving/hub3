@@ -1,0 +1,115 @@
+{
+    "@id": "https://wo2.collectienederland.nl/id/cho/NK3051",
+    "@value": "Test with multiple creators",
+    "entrytype": "Resource",
+    "predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+    "searchLabel": "nk_cho",
+    "level": 1,
+    "inline": {
+        "id": "https://wo2.collectienederland.nl/id/cho/NK3051",
+        "types": ["https://wo2.collectienederland.nl/nk/terms/CHO"],
+        "graphExternalContext": null,
+        "context": [],
+        "entries": [
+            {
+                "@value": "NK3051",
+                "entrytype": "Literal",
+                "predicate": "https://wo2.collectienederland.nl/nk/terms/objectNumber",
+                "searchLabel": "nk_objectNumber",
+                "level": 2,
+                "order": 1
+            },
+            {
+                "@id": "urn:bnode:wrapper-creator",
+                "entrytype": "Resource",
+                "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+                "searchLabel": "nk_creator",
+                "level": 2,
+                "inline": {
+                    "id": "urn:bnode:wrapper-creator",
+                    "types": ["https://wo2.collectienederland.nl/nk/terms/Creator"],
+                    "graphExternalContext": null,
+                    "context": [],
+                    "entries": [
+                        {
+                            "@id": "urn:bnode:creator-1-rembrandt",
+                            "entrytype": "Resource",
+                            "predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                            "searchLabel": "nk_Creator",
+                            "level": 3,
+                            "inline": {
+                                "id": "urn:bnode:creator-1-rembrandt",
+                                "types": ["https://wo2.collectienederland.nl/nk/terms/Creator"],
+                                "graphExternalContext": null,
+                                "context": [],
+                                "entries": [
+                                    {
+                                        "@value": "Rembrandt van Rijn",
+                                        "@language": "nl",
+                                        "entrytype": "Literal",
+                                        "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+                                        "searchLabel": "nk_creatorName",
+                                        "level": 4,
+                                        "order": 10
+                                    },
+                                    {
+                                        "@value": "voormalige toeschrijving",
+                                        "entrytype": "Literal",
+                                        "predicate": "https://wo2.collectienederland.nl/nk/terms/creationRole",
+                                        "searchLabel": "nk_creationRole",
+                                        "level": 4,
+                                        "order": 11
+                                    },
+                                    {
+                                        "@value": "https://rkd.nl/explore/artists/66219",
+                                        "entrytype": "Literal",
+                                        "predicate": "https://wo2.collectienederland.nl/nk/terms/rkdArtistLink",
+                                        "searchLabel": "nk_rkdArtistLink",
+                                        "level": 4,
+                                        "order": 12
+                                    }
+                                ]
+                            },
+                            "order": 5
+                        },
+                        {
+                            "@id": "urn:bnode:creator-2-onbekend",
+                            "entrytype": "Resource",
+                            "predicate": "https://wo2.collectienederland.nl/nk/terms/Creator",
+                            "searchLabel": "nk_Creator",
+                            "level": 3,
+                            "inline": {
+                                "id": "urn:bnode:creator-2-onbekend",
+                                "types": ["https://wo2.collectienederland.nl/nk/terms/Creator"],
+                                "graphExternalContext": null,
+                                "context": [],
+                                "entries": [
+                                    {
+                                        "@value": "onbekend",
+                                        "@language": "nl",
+                                        "entrytype": "Literal",
+                                        "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+                                        "searchLabel": "nk_creatorName",
+                                        "level": 4,
+                                        "order": 20
+                                    },
+                                    {
+                                        "@value": "Navolger van",
+                                        "entrytype": "Literal",
+                                        "predicate": "https://wo2.collectienederland.nl/nk/terms/creationRole",
+                                        "searchLabel": "nk_creationRole",
+                                        "level": 4,
+                                        "order": 21
+                                    }
+                                ]
+                            },
+                            "order": 6
+                        }
+                    ]
+                },
+                "order": 2
+            }
+        ]
+    },
+    "order": 1
+}

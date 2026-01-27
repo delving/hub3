@@ -162,4 +162,51 @@ func TestResourceUnmarshal(t *testing.T) {
 		is.Equal(firstCreator.CreatorName[0].String(), "Bauer, M.A.J.")
 		is.Equal(firstCreator.RKDArtistLink[0].String(), "https://rkd.nl/explore/artists/5113")
 	})
+
+	// Test case for issue #2658: Multiple creators where only one has an RKD link
+	// Structure: CHO -> nk_creator -> wrapper -> nk_Creator -> [creator1 (with RKD), creator2 (without RKD)]
+	// BUG: Currently all creators get assigned ALL RKD links from siblings due to recursive search
+	t.Run("Multiple creators with mixed RKD links - issue 2658", func(t *testing.T) {
+		is := is.New(t)
+		f, err := os.Open("./testdata/nk_fg_cho_multi_creator.json")
+		is.NoErr(err)
+		defer f.Close()
+
+		b, err := io.ReadAll(f)
+		is.NoErr(err)
+
+		var re fragments.ResourceEntry
+		err = json.Unmarshal(b, &re)
+		is.NoErr(err)
+
+		var cho internal.CHO
+		err = re.Inline.UnmarshalRDF(&cho)
+		is.NoErr(err)
+
+		t.Logf("Number of creators: %d", len(cho.Creator))
+		for i, creator := range cho.Creator {
+			t.Logf("Creator %d: %#v", i, creator)
+		}
+
+		// This test demonstrates the current behavior vs expected behavior:
+		// CURRENT: All creators get the same RKD link due to recursive search
+		// EXPECTED: Each creator should only have its own RKD link
+
+		// We expect 2 creators (Rembrandt and onbekend)
+		is.Equal(len(cho.Creator), 2) // This will likely fail - showing the bug
+
+		if len(cho.Creator) >= 2 {
+			rembrandt := cho.Creator[0]
+			onbekend := cho.Creator[1]
+
+			// Rembrandt should have an RKD link
+			is.True(len(rembrandt.RKDArtistLink) > 0)
+			is.Equal(rembrandt.RKDArtistLink[0].String(), "https://rkd.nl/explore/artists/66219")
+			is.Equal(rembrandt.CreatorName[0].String(), "Rembrandt van Rijn")
+
+			// onbekend should NOT have an RKD link - this is likely where the bug manifests
+			is.Equal(len(onbekend.RKDArtistLink), 0) // BUG: This will fail because onbekend incorrectly gets Rembrandt's RKD link
+			is.Equal(onbekend.CreatorName[0].String(), "onbekend")
+		}
+	})
 }
