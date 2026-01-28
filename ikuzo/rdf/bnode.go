@@ -15,8 +15,13 @@ type BlankNode struct {
 // an error only if the supplied label is blank.
 //
 // Leading and trailing whitespace is trimmed from the id.
+// If the id already has the "_:" prefix, it is not added again.
 func NewBlankNode(id string) (BlankNode, error) {
-	bnode := BlankNode{id: "_:" + strings.TrimSpace(id)}
+	id = strings.TrimSpace(id)
+	if !strings.HasPrefix(id, "_:") {
+		id = "_:" + id
+	}
+	bnode := BlankNode{id: id}
 
 	v := bnode.Validate()
 	if !v.Valid() {
