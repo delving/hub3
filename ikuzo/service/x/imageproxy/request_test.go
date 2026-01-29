@@ -116,6 +116,7 @@ func TestNewRequest(t *testing.T) {
 				SourceURL:        imgURL,
 				TransformOptions: "500,smartcrop",
 				thumbnailOpts:    "500",
+				smartCrop:        true,
 				SubPath:          "_500,smartcrop_tn.jpg",
 				EnableTransform:  true,
 			},

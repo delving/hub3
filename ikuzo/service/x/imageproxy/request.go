@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/OneOfOne/xxhash"
@@ -82,6 +83,7 @@ type Request struct {
 	CacheType        CacheType // CacheType is how the data is returned
 	SubPath          string    // subPath is appended to raw cacheKey to get derivatives
 	thumbnailOpts    string
+	smartCrop        bool
 	EnableTransform  bool
 	s                *Service
 }
@@ -135,6 +137,11 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 
 		if strings.HasSuffix(req.TransformOptions, ",smartcrop") {
 			req.thumbnailOpts = strings.TrimSuffix(req.TransformOptions, ",smartcrop")
+			req.smartCrop = true
+			req.SubPath = "_" + req.TransformOptions + "_tn.jpg"
+		} else if isValidSizeOption(req.TransformOptions) {
+			// Handle plain size option like "500" or "500x300" without smartcrop
+			req.thumbnailOpts = req.TransformOptions
 			req.SubPath = "_" + req.TransformOptions + "_tn.jpg"
 		}
 
@@ -288,4 +295,32 @@ func decodeURL(input string) (string, error) {
 	}
 
 	return sourceURL, nil
+}
+
+// isValidSizeOption checks if the option is a valid thumbnail size like "500" or "500x300"
+func isValidSizeOption(option string) bool {
+	if option == "" {
+		return false
+	}
+
+	// Skip known non-size options
+	switch option {
+	case "raw", "deepzoom", "explain", "metrics", "remove", "recache", "request":
+		return false
+	}
+
+	// Check for WxH format (e.g., "500x300")
+	if strings.Contains(option, "x") {
+		parts := strings.Split(option, "x")
+		if len(parts) != 2 {
+			return false
+		}
+		_, err1 := strconv.Atoi(parts[0])
+		_, err2 := strconv.Atoi(parts[1])
+		return err1 == nil && err2 == nil
+	}
+
+	// Check for single number format (e.g., "500")
+	_, err := strconv.Atoi(option)
+	return err == nil
 }

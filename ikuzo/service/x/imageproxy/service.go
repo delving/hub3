@@ -167,7 +167,7 @@ func (s *Service) deepZoomExternally(from string) error {
 	return err
 }
 
-func (s *Service) resizeExternally(from, to, size string) error {
+func (s *Service) resizeExternally(from, to, size string, smartCrop bool) error {
 	vipsPath := s.getVipsPath()
 	if vipsPath == "" {
 		return fmt.Errorf("vips binary not found")
@@ -176,12 +176,21 @@ func (s *Service) resizeExternally(from, to, size string) error {
 	var cmd *exec.Cmd
 
 	// Check if using vips-cli which has different command structure
+	// vips-cli syntax: vips-cli thumbnail <input> <output> -s WxH [--smartcrop]
 	if strings.Contains(vipsPath, "vips-cli") {
+		// vips-cli expects size in WxH format (e.g., "500x500")
+		sizeArg := size
+		if !strings.Contains(size, "x") {
+			sizeArg = size + "x" + size // Convert "500" to "500x500"
+		}
 		args := []string{
 			"thumbnail",
-			"--size", size,
-			"--output", to,
-			from,
+			from, // input file (positional)
+			to,   // output file (positional)
+			"-s", sizeArg,
+		}
+		if smartCrop {
+			args = append(args, "--smartcrop")
 		}
 		cmd = exec.Command(vipsPath, args...)
 	} else {
@@ -190,8 +199,11 @@ func (s *Service) resizeExternally(from, to, size string) error {
 			args := []string{
 				"--size", size,
 				"--output", to,
-				from,
 			}
+			if smartCrop {
+				args = append(args, "--smartcrop", "attention")
+			}
+			args = append(args, from)
 			cmd = exec.Command(thumbnailPath, args...)
 		} else {
 			// Fallback to vips thumbnail command
@@ -206,10 +218,14 @@ func (s *Service) resizeExternally(from, to, size string) error {
 	}
 
 	s.log.Info().Str("command", cmd.Path).Strs("args", cmd.Args[1:]).Str("from", from).Str("to", to).Str("size", size).Msg("executing resize command")
-	
-	err := cmd.Run()
+
+	output, err := cmd.CombinedOutput()
 	if err != nil {
-		s.log.Error().Err(err).Str("command", cmd.Path).Strs("args", cmd.Args[1:]).Msg("resize command failed")
+		s.log.Error().Err(err).
+			Str("command", cmd.Path).
+			Strs("args", cmd.Args[1:]).
+			Str("output", string(output)).
+			Msg("resize command failed")
 	}
 	return err
 }
@@ -276,7 +292,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					err := s.resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts)
+					err := s.resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts, req.smartCrop)
 					if err == nil {
 						info, ok := existsInCache(req.cacheKeyPath())
 						if ok {
