@@ -18,7 +18,10 @@ func (s *Service) Handle(w http.ResponseWriter, r *http.Request) {
 
 	if err := p.Parse(r.Context(), r.Body); err != nil {
 		log.Error().Err(err).Msg("issue with bulk request")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+
+		// Return structured JSON error response instead of plain text
+		render.Status(r, http.StatusBadRequest)
+		render.JSON(w, r, NewErrorResponse(err, p.stats))
 
 		return
 	}

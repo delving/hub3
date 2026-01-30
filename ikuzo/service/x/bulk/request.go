@@ -105,7 +105,12 @@ func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuil
 	slog.Debug("received mime-type from bulk request", "mime-type", req.GraphMimeType, "graph", req.Graph)
 	err := fb.ParseResolvedGraph(strings.NewReader(req.Graph), req.GraphMimeType)
 	if err != nil {
-		return fb, fmt.Errorf("source RDF is not in format: %s", req.GraphMimeType)
+		return fb, NewBulkError(
+			req,
+			"rdf_parse",
+			fmt.Sprintf("source RDF is not in format: %s", req.GraphMimeType),
+			err,
+		)
 	}
 
 	if fg.Meta.EntryURI == "" {

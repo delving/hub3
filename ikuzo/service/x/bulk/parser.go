@@ -402,7 +402,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 			Str("datasetID", req.DatasetID).
 			Msg("bulk request is not valid")
 
-		return err
+		return NewBulkError(req, "validation", "bulk request is not valid", err)
 	}
 
 	// Track submitted count in batch (if batch tracking is active)
@@ -415,41 +415,45 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 
 	fb, err := req.createFragmentBuilder(req.Revision)
 	if err != nil {
-		log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to build fragment builder")
-		return err
+		log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("unable to build fragment builder")
+		// Error already wrapped as BulkError in createFragmentBuilder for rdf_parse errors
+		if _, ok := err.(*BulkError); ok {
+			return err
+		}
+		return NewBulkError(req, "fragment_builder", "unable to build fragment builder", err)
 	}
 
 	_, err = fb.ResourceMap()
 	if err != nil {
-		log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to build resource map")
-		return err
+		log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("unable to build resource map")
+		return NewBulkError(req, "resource_map", "unable to build resource map", err)
 	}
 
 	_, err = fb.Doc()
 	if err != nil {
-		log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("unable to build fg doc")
-		return err
+		log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("unable to build fg doc")
+		return NewBulkError(req, "document", "unable to build fragment graph document", err)
 	}
 
 	for _, indexType := range p.indexTypes {
 		switch indexType {
 		case "v1":
 			if err := req.processV1(ctx, fb, p.bi); err != nil {
-				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v1 indexing error")
-				return err
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("v1 indexing error")
+				return NewBulkError(req, "indexing_v1", "v1 indexing error", err)
 			}
 		case "v2":
 			if err := req.processV2(ctx, fb, p.bi); err != nil {
-				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v2 indexing error")
-				return err
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("v2 indexing error")
+				return NewBulkError(req, "indexing_v2", "v2 indexing error", err)
 			}
 		case "fragments":
 			if err := req.processFragments(fb, p.bi); err != nil {
-				log.Error().Err(err).Str("datasetID", req.DatasetID).Msg("v2 indexing error")
-				return err
+				log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("fragments indexing error")
+				return NewBulkError(req, "indexing_fragments", "fragments indexing error", err)
 			}
 		default:
-			return fmt.Errorf("unknown indexType: %s", indexType)
+			return NewBulkError(req, "indexing", fmt.Sprintf("unknown indexType: %s", indexType), nil)
 		}
 	}
 
