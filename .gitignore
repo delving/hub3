@@ -89,3 +89,6 @@ test-intermediate.*
 
 # Generated documentation PDFs
 pdf/*.pdf
+
+# Git worktrees
+.worktrees/
