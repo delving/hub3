@@ -85,6 +85,13 @@ func (s *Service) Routes(pattern string, r chi.Router) {
 			ir.Get("/fields/{field}", s.handleIntrospectField)
 			ir.Get("/paths", s.handleIntrospectPaths)
 		})
+
+		// Query context CRUD routes
+		router.Route("/contexts/query", func(cr chi.Router) {
+			cr.Post("/", s.handleCreateQueryContext)
+			cr.Get("/{contextID}", s.handleGetQueryContext)
+			cr.Delete("/{contextID}", s.handleDeleteQueryContext)
+		})
 	})
 }
 
