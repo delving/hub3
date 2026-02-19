@@ -14,6 +14,8 @@ type Collection struct {
 	GeoData       *GeoFeatureCollection  `json:"hub3:geoData,omitempty"`
 	GeoClusters   []GeoCluster           `json:"hub3:geoClusters,omitempty"`
 	SearchContext *SearchContext         `json:"hub3:searchContext,omitempty"`
+	QueryContext  *QueryContextRef      `json:"hub3:queryContext,omitempty"`
+	Timing        *Timing               `json:"hub3:timing,omitempty"`
 }
 
 // NewCollection creates a new Hydra Collection with default types.
@@ -22,6 +24,18 @@ func NewCollection(id string) *Collection {
 		ID:   id,
 		Type: []string{"hydra:Collection"},
 	}
+}
+
+// QueryContextRef is a reference to a query context in responses.
+type QueryContextRef struct {
+	ID      string `json:"@id"`
+	Expires string `json:"expires,omitempty"`
+}
+
+// Timing contains query execution timing.
+type Timing struct {
+	Took int64  `json:"took"`
+	Unit string `json:"unit"`
 }
 
 // Facet represents a facet aggregation result.
@@ -51,6 +65,7 @@ type FacetValue struct {
 	Label      string                 `json:"label,omitempty"`
 	Count      int64                  `json:"count"`
 	Selected   bool                   `json:"selected"`
+	Filter     string                 `json:"filter,omitempty"`    // Ready-to-use filter string
 	ApplyURL   string                 `json:"applyURL,omitempty"`
 	RemoveURL  string                 `json:"removeURL,omitempty"`
 	Geometry   map[string]interface{} `json:"geometry,omitempty"` // GeoJSON for region facets

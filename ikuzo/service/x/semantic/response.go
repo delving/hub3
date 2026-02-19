@@ -55,6 +55,12 @@ func (s *Service) buildCollection(
 		collection.ActiveFilters = s.buildBreadcrumbs(r, opts)
 	}
 
+	// Add timing information
+	collection.Timing = &semantic.Timing{
+		Took: int64(result.Took / time.Millisecond),
+		Unit: "ms",
+	}
+
 	return collection
 }
 
@@ -89,10 +95,8 @@ func (s *Service) buildPartialCollectionView(
 		view.Next = buildURLWithPage(r, page+1)
 	}
 
-	// Last page
-	if totalPages > 0 {
-		view.Last = buildURLWithPage(r, int(totalPages))
-	}
+	// Note: Last link is intentionally omitted per v1 design contract.
+	// Context-based pagination does not include a last link.
 
 	return view
 }
@@ -126,12 +130,14 @@ func (s *Service) buildFacets(
 		}
 
 		for j, val := range result.Values {
+			urlField := toURLFieldName(result.Field)
 			facet.Values[j] = semantic.FacetValue{
 				TypeValue: "hub3:FacetValue",
 				Value:     val.Value,
 				Label:     val.Label,
 				Count:     val.Count,
 				Selected:  val.Selected,
+				Filter:    fmt.Sprintf("filter[%s][eq]=%s", urlField, url.QueryEscape(val.Value)),
 				ApplyURL:  s.buildFacetApplyURL(r, result.Field, val.Value, opts),
 				RemoveURL: s.buildFacetRemoveURL(r, result.Field, val.Value, opts),
 			}
