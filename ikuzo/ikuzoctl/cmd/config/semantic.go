@@ -68,12 +68,25 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 		baseURL = "/api/semantic/v1"
 	}
 
-	// Create semantic service
-	svc, err := semanticService.NewService(
+	// Build service options
+	serviceOpts := []semanticService.Option{
 		semanticService.WithStore(store),
 		semanticService.WithRegistry(registry),
 		semanticService.WithBaseURL(baseURL),
-	)
+	}
+
+	// Add introspection adapter when using v2 adapter
+	if s.UseV2Adapter {
+		introspect := v2adapter.NewV2IntrospectionAdapter(
+			esClient.SearchClient(),
+			cfg.ElasticSearch.IndexName,
+			logger,
+		)
+		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
+	}
+
+	// Create semantic service
+	svc, err := semanticService.NewService(serviceOpts...)
 	if err != nil {
 		return fmt.Errorf("unable to create semantic service: %w", err)
 	}
