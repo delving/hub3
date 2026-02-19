@@ -189,6 +189,56 @@ type CacheStore interface {
 	Invalidate(ctx context.Context, pattern string) error
 }
 
+// IntrospectionStore provides introspection capabilities for indexed data.
+// It can optionally scope results to a query context.
+type IntrospectionStore interface {
+	// IntrospectClasses returns all RDF classes found in the data.
+	// If opts is non-nil, results are scoped to that query's result set.
+	IntrospectClasses(ctx context.Context, opts *QueryOptions) ([]ClassInfo, error)
+
+	// IntrospectProperties returns properties for a given class.
+	IntrospectProperties(ctx context.Context, classURI string, opts *QueryOptions) ([]PropertyInfo, error)
+
+	// IntrospectField returns value distribution for a specific field.
+	IntrospectField(ctx context.Context, field string, opts *QueryOptions) (*PropertyInfo, error)
+
+	// IntrospectPaths returns predicate paths between classes.
+	IntrospectPaths(ctx context.Context, opts *QueryOptions) ([]PathInfo, error)
+}
+
+// MockIntrospectionStore is a test implementation of IntrospectionStore.
+type MockIntrospectionStore struct {
+	Classes    []ClassInfo
+	Properties map[string][]PropertyInfo
+	Paths      []PathInfo
+}
+
+func (m *MockIntrospectionStore) IntrospectClasses(_ context.Context, _ *QueryOptions) ([]ClassInfo, error) {
+	return m.Classes, nil
+}
+
+func (m *MockIntrospectionStore) IntrospectProperties(_ context.Context, classURI string, _ *QueryOptions) ([]PropertyInfo, error) {
+	if m.Properties == nil {
+		return nil, nil
+	}
+	return m.Properties[classURI], nil
+}
+
+func (m *MockIntrospectionStore) IntrospectField(_ context.Context, field string, _ *QueryOptions) (*PropertyInfo, error) {
+	for _, props := range m.Properties {
+		for _, p := range props {
+			if p.Field == field {
+				return &p, nil
+			}
+		}
+	}
+	return nil, nil
+}
+
+func (m *MockIntrospectionStore) IntrospectPaths(_ context.Context, _ *QueryOptions) ([]PathInfo, error) {
+	return m.Paths, nil
+}
+
 // MockStore is a simple in-memory implementation for testing.
 type MockStore struct {
 	results        map[string]*SearchResult

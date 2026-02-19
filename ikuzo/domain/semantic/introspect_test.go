@@ -1,6 +1,9 @@
 package semantic
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 func TestClassInfo_Basic(t *testing.T) {
 	ci := ClassInfo{
@@ -46,5 +49,27 @@ func TestIntrospectionResult_WithScope(t *testing.T) {
 
 	if ir.Scope.Type != "query" {
 		t.Errorf("Scope.Type = %v, want query", ir.Scope.Type)
+	}
+}
+
+func TestMockIntrospectionStore(t *testing.T) {
+	store := &MockIntrospectionStore{
+		Classes: []ClassInfo{
+			{URI: "http://www.europeana.eu/schemas/edm/ProvidedCHO", Label: "edm:ProvidedCHO", Count: 100},
+		},
+	}
+
+	ctx := context.Background()
+	result, err := store.IntrospectClasses(ctx, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(result) != 1 {
+		t.Fatalf("expected 1 class, got %d", len(result))
+	}
+
+	if result[0].Count != 100 {
+		t.Errorf("Count = %d, want 100", result[0].Count)
 	}
 }
