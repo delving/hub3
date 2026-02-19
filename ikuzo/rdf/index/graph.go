@@ -152,6 +152,9 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 	// Set entry levels based on resource context depth
 	g.setEntryLevels()
 
+	// Resolve labels for Resource and Bnode entries from linked resources
+	g.ResolveLabels()
+
 	// Apply tags if provided
 	if tagMap != nil && tagMap.Len() > 0 {
 		g.ApplyTags(tagMap)
