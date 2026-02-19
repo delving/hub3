@@ -52,6 +52,14 @@ type Entry struct {
 	// This allows us to keep the entries sorted across serialization
 	Order int `json:"order,omitempty"`
 
+	// ResolvedFrom is the predicate URI from which the label was resolved.
+	// Only set when EntryType is Resource and a label was found in the linked resource.
+	ResolvedFrom string `json:"resolvedFrom,omitempty"`
+
+	// ResolvedLevel indicates how deep the label resolution went.
+	// 0 = not resolved, 1 = direct label, 2+ = label from nested resource.
+	ResolvedLevel int32 `json:"resolvedLevel,omitempty"`
+
 	// Tags can be queried and can trigger indexing in custom TypeIndexField
 	Tags []string `json:"tags,omitempty"`
 

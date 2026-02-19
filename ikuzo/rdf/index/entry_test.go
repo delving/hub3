@@ -323,3 +323,75 @@ func TestEntry_MarshalJSON(t *testing.T) {
 		})
 	}
 }
+
+func TestEntry_ResolvedFields(t *testing.T) {
+	entry := &Entry{
+		ID:            "http://data.rkd.nl/artists/66219",
+		Predicate:     "http://purl.org/dc/elements/1.1/creator",
+		SearchLabel:   "dc_creator",
+		Value:         "Rembrandt van Rijn",
+		EntryType:     ResourceType,
+		ResolvedFrom:  "http://xmlns.com/foaf/0.1/name",
+		ResolvedLevel: 1,
+	}
+
+	if entry.ResolvedFrom != "http://xmlns.com/foaf/0.1/name" {
+		t.Errorf("ResolvedFrom = %v, want foaf:name URI", entry.ResolvedFrom)
+	}
+
+	if entry.ResolvedLevel != 1 {
+		t.Errorf("ResolvedLevel = %d, want 1", entry.ResolvedLevel)
+	}
+}
+
+func TestEntry_ResolvedFields_JSON(t *testing.T) {
+	entry := &Entry{
+		ID:            "http://example.org/agent/1",
+		Predicate:     "http://purl.org/dc/elements/1.1/creator",
+		SearchLabel:   "dc_creator",
+		Value:         "Test Agent",
+		EntryType:     ResourceType,
+		ResolvedFrom:  "http://www.w3.org/2004/02/skos/core#prefLabel",
+		ResolvedLevel: 1,
+	}
+
+	data, err := json.Marshal(entry)
+	if err != nil {
+		t.Fatalf("failed to marshal entry: %v", err)
+	}
+
+	jsonStr := string(data)
+
+	if !strings.Contains(jsonStr, `"resolvedFrom"`) {
+		t.Error("expected resolvedFrom in JSON output")
+	}
+
+	if !strings.Contains(jsonStr, `"resolvedLevel"`) {
+		t.Error("expected resolvedLevel in JSON output")
+	}
+}
+
+func TestEntry_ResolvedFields_OmitEmpty(t *testing.T) {
+	// When not set (zero values), fields should be omitted from JSON
+	entry := &Entry{
+		Predicate:   "http://purl.org/dc/elements/1.1/title",
+		SearchLabel: "dc_title",
+		Value:       "Test Title",
+		EntryType:   Literal,
+	}
+
+	data, err := json.Marshal(entry)
+	if err != nil {
+		t.Fatalf("failed to marshal entry: %v", err)
+	}
+
+	jsonStr := string(data)
+
+	if strings.Contains(jsonStr, "resolvedFrom") {
+		t.Error("resolvedFrom should be omitted when empty")
+	}
+
+	if strings.Contains(jsonStr, "resolvedLevel") {
+		t.Error("resolvedLevel should be omitted when zero")
+	}
+}

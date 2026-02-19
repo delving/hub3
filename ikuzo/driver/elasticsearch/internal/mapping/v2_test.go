@@ -59,3 +59,15 @@ func TestV2ESMapping(t *testing.T) {
 		})
 	}
 }
+
+func TestV2Mapping_ContainsResolvedFields(t *testing.T) {
+	mapping := V2ESMapping(1, 0)
+
+	if !strings.Contains(mapping, `"resolvedFrom"`) {
+		t.Error("V2 mapping should contain resolvedFrom field")
+	}
+
+	if !strings.Contains(mapping, `"resolvedLevel"`) {
+		t.Error("V2 mapping should contain resolvedLevel field")
+	}
+}

@@ -193,6 +193,8 @@ var v2Mapping = `{
 								"predicate": {"type": "keyword", "ignore_above": 256},
 								"level": {"type": "integer"},
 								"order": {"type": "integer"},
+								"resolvedFrom": {"type": "keyword", "ignore_above": 256},
+								"resolvedLevel": {"type": "integer"},
 								"integer": {"type": "integer"},
 								"tags": {"type": "keyword"},
 								"mType": {"type": "keyword"},
