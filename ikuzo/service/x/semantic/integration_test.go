@@ -3,9 +3,11 @@ package semantic
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 )
@@ -429,5 +431,281 @@ func TestPaginationIntegration(t *testing.T) {
 
 		// Note: In a real integration test, we'd follow pagination links
 		// For now, just verify the response structure is correct
+	})
+}
+
+// TestFullFlowIntegration tests the complete end-to-end flow:
+// create context -> retrieve context -> introspect with context -> detail with context -> delete context.
+func TestFullFlowIntegration(t *testing.T) {
+	store := semantic.NewMockStore()
+	mockIntrospect := &semantic.MockIntrospectionStore{
+		Classes: []semantic.ClassInfo{
+			{URI: "http://www.europeana.eu/schemas/edm/ProvidedCHO", Label: "edm:ProvidedCHO", Count: 100},
+			{URI: "http://www.europeana.eu/schemas/edm/WebResource", Label: "edm:WebResource", Count: 50},
+		},
+	}
+
+	svc, err := NewService(WithStore(store), WithIntrospectionStore(mockIntrospect))
+	if err != nil {
+		t.Fatalf("Failed to create service: %v", err)
+	}
+
+	t.Run("full flow: create context -> introspect -> detail -> delete", func(t *testing.T) {
+		// Step 1: Create query context via POST.
+		createBody, _ := json.Marshal(map[string]any{
+			"query":        map[string]any{"text": "amsterdam"},
+			"totalResults": 500,
+		})
+
+		req := httptest.NewRequest("POST", "/api/semantic/v1/contexts/query", bytes.NewReader(createBody))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusCreated {
+			t.Fatalf("POST /contexts/query: status = %d, want %d. Body: %s", w.Code, http.StatusCreated, w.Body.String())
+		}
+
+		var createResp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&createResp); err != nil {
+			t.Fatalf("Failed to decode create response: %v", err)
+		}
+
+		if createResp["@type"] != "hub3:QueryContext" {
+			t.Errorf("@type = %v, want hub3:QueryContext", createResp["@type"])
+		}
+
+		contextID, ok := createResp["id"].(string)
+		if !ok || contextID == "" {
+			t.Fatalf("Expected non-empty context id, got %v", createResp["id"])
+		}
+
+		totalResults, _ := createResp["totalResults"].(float64)
+		if totalResults != 500 {
+			t.Errorf("totalResults = %v, want 500", createResp["totalResults"])
+		}
+
+		if createResp["expiresAt"] == nil {
+			t.Error("Expected expiresAt field in create response")
+		}
+
+		// Step 2: Retrieve the context via GET.
+		req = httptest.NewRequest("GET", fmt.Sprintf("/api/semantic/v1/contexts/query/%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("GET /contexts/query/%s: status = %d, want %d. Body: %s",
+				contextID, w.Code, http.StatusOK, w.Body.String())
+		}
+
+		var getResp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&getResp); err != nil {
+			t.Fatalf("Failed to decode get response: %v", err)
+		}
+
+		if getResp["id"] != contextID {
+			t.Errorf("GET context id = %v, want %s", getResp["id"], contextID)
+		}
+
+		if getResp["@type"] != "hub3:QueryContext" {
+			t.Errorf("GET context @type = %v, want hub3:QueryContext", getResp["@type"])
+		}
+
+		// Step 3: Introspect classes scoped to this context.
+		req = httptest.NewRequest("GET",
+			fmt.Sprintf("/api/semantic/v1/introspect/classes?context=%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("GET /introspect/classes?context=%s: status = %d, want %d. Body: %s",
+				contextID, w.Code, http.StatusOK, w.Body.String())
+		}
+
+		var introspectResp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&introspectResp); err != nil {
+			t.Fatalf("Failed to decode introspect response: %v", err)
+		}
+
+		if introspectResp["@type"] != "hub3:IntrospectionResult" {
+			t.Errorf("introspect @type = %v, want hub3:IntrospectionResult", introspectResp["@type"])
+		}
+
+		scope, ok := introspectResp["hub3:scope"].(map[string]any)
+		if !ok {
+			t.Fatalf("Expected hub3:scope to be an object, got %T", introspectResp["hub3:scope"])
+		}
+
+		if scope["type"] != "query" {
+			t.Errorf("hub3:scope.type = %v, want query", scope["type"])
+		}
+
+		if scope["context"] != contextID {
+			t.Errorf("hub3:scope.context = %v, want %s", scope["context"], contextID)
+		}
+
+		classes, ok := introspectResp["hub3:classes"].([]any)
+		if !ok {
+			t.Fatalf("Expected hub3:classes to be an array, got %T", introspectResp["hub3:classes"])
+		}
+
+		if len(classes) != 2 {
+			t.Errorf("Expected 2 classes, got %d", len(classes))
+		}
+
+		// Step 4: Get resource detail with context parameter.
+		req = httptest.NewRequest("GET",
+			fmt.Sprintf("/api/semantic/v1/resource/test-123?context=%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("GET /resource/test-123?context=%s: status = %d, want %d. Body: %s",
+				contextID, w.Code, http.StatusOK, w.Body.String())
+		}
+
+		var detailResp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&detailResp); err != nil {
+			t.Fatalf("Failed to decode detail response: %v", err)
+		}
+
+		if detailResp["@id"] == nil {
+			t.Error("Expected @id field in detail response")
+		}
+
+		if detailResp["@context"] == nil {
+			t.Error("Expected @context field in detail response")
+		}
+
+		// Step 5: Delete context.
+		req = httptest.NewRequest("DELETE", fmt.Sprintf("/api/semantic/v1/contexts/query/%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusNoContent {
+			t.Errorf("DELETE /contexts/query/%s: status = %d, want %d",
+				contextID, w.Code, http.StatusNoContent)
+		}
+
+		// Step 6: Verify context is gone.
+		req = httptest.NewRequest("GET", fmt.Sprintf("/api/semantic/v1/contexts/query/%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("GET deleted context: status = %d, want %d. Body: %s",
+				w.Code, http.StatusNotFound, w.Body.String())
+		}
+	})
+
+	t.Run("introspect without context returns index scope", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/api/semantic/v1/introspect/classes", nil)
+		w := httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("GET /introspect/classes: status = %d, want %d. Body: %s",
+				w.Code, http.StatusOK, w.Body.String())
+		}
+
+		var resp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("Failed to decode response: %v", err)
+		}
+
+		if resp["@type"] != "hub3:IntrospectionResult" {
+			t.Errorf("@type = %v, want hub3:IntrospectionResult", resp["@type"])
+		}
+
+		scope, ok := resp["hub3:scope"].(map[string]any)
+		if !ok {
+			t.Fatalf("Expected hub3:scope to be an object, got %T", resp["hub3:scope"])
+		}
+
+		if scope["type"] != "index" {
+			t.Errorf("hub3:scope.type = %v, want index", scope["type"])
+		}
+
+		if scope["context"] != nil {
+			t.Errorf("hub3:scope.context should not be present for index scope, got %v", scope["context"])
+		}
+
+		classes, ok := resp["hub3:classes"].([]any)
+		if !ok {
+			t.Fatalf("Expected hub3:classes to be an array, got %T", resp["hub3:classes"])
+		}
+
+		if len(classes) != 2 {
+			t.Errorf("Expected 2 classes, got %d", len(classes))
+		}
+	})
+
+	t.Run("expired context returns 404", func(t *testing.T) {
+		// Create a context via POST first.
+		createBody, _ := json.Marshal(map[string]any{
+			"query":        map[string]any{"text": "expired-test"},
+			"totalResults": 10,
+		})
+
+		req := httptest.NewRequest("POST", "/api/semantic/v1/contexts/query", bytes.NewReader(createBody))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusCreated {
+			t.Fatalf("POST /contexts/query: status = %d, want %d", w.Code, http.StatusCreated)
+		}
+
+		var createResp map[string]any
+		if err := json.NewDecoder(w.Body).Decode(&createResp); err != nil {
+			t.Fatalf("Failed to decode create response: %v", err)
+		}
+
+		contextID := createResp["id"].(string)
+
+		// Manually expire the context by saving an updated version with past ExpiresAt.
+		expiredCtx := &semantic.SearchContext{
+			ID:           contextID,
+			Token:        contextID,
+			TotalResults: 10,
+			ExpiresAt:    time.Now().Add(-1 * time.Hour).Format(time.RFC3339),
+		}
+
+		if err := store.SaveSearchContext(req.Context(), expiredCtx); err != nil {
+			t.Fatalf("Failed to save expired context: %v", err)
+		}
+
+		// Attempt to retrieve the expired context.
+		req = httptest.NewRequest("GET", fmt.Sprintf("/api/semantic/v1/contexts/query/%s", contextID), nil)
+		w = httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("GET expired context: status = %d, want %d. Body: %s",
+				w.Code, http.StatusNotFound, w.Body.String())
+		}
+	})
+
+	t.Run("introspect with invalid context returns 404", func(t *testing.T) {
+		req := httptest.NewRequest("GET",
+			"/api/semantic/v1/introspect/classes?context=nonexistent_ctx", nil)
+		w := httptest.NewRecorder()
+
+		svc.ServeHTTP(w, req)
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("GET /introspect/classes with invalid context: status = %d, want %d. Body: %s",
+				w.Code, http.StatusNotFound, w.Body.String())
+		}
 	})
 }
