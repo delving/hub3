@@ -315,14 +315,17 @@ func (rc *ResourceConfig) IsFieldFacetable(field string) bool {
 }
 
 // ValidateFilter validates a filter against this resource configuration.
+// If the field is not found, the error message includes suggestions for
+// similar field names based on Levenshtein distance.
 func (rc *ResourceConfig) ValidateFilter(filter Filter) error {
 	config, ok := rc.GetFilterConfig(filter.Field())
 	if !ok {
-		return NewValidationError(
-			filter.Field(),
-			fmt.Sprintf("field '%s' is not filterable for resource type '%s'", filter.Field(), rc.ResourceType),
-			filter.Field(),
-		)
+		msg := fmt.Sprintf("field '%s' is not filterable for resource type '%s'", filter.Field(), rc.ResourceType)
+		if suggestions := SuggestFields(filter.Field(), rc.FilterableFields(), 3); len(suggestions) > 0 {
+			msg += FormatSuggestion(filter.Field(), suggestions)
+		}
+
+		return NewValidationError(filter.Field(), msg, filter.Field())
 	}
 
 	return config.Validate(filter)
@@ -340,11 +343,12 @@ func (rc *ResourceConfig) ValidateQueryOptions(opts *QueryOptions) error {
 	// Validate facets
 	for _, facetReq := range opts.Facets {
 		if !rc.IsFieldFacetable(facetReq.Field) {
-			return NewValidationError(
-				facetReq.Field,
-				fmt.Sprintf("field '%s' is not facetable for resource type '%s'", facetReq.Field, rc.ResourceType),
-				facetReq.Field,
-			)
+			msg := fmt.Sprintf("field '%s' is not facetable for resource type '%s'", facetReq.Field, rc.ResourceType)
+			if suggestions := SuggestFields(facetReq.Field, rc.FacetableFields(), 3); len(suggestions) > 0 {
+				msg += FormatSuggestion(facetReq.Field, suggestions)
+			}
+
+			return NewValidationError(facetReq.Field, msg, facetReq.Field)
 		}
 	}
 
