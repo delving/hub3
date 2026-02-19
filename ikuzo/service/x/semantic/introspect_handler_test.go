@@ -1,6 +1,7 @@
 package semantic
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -240,5 +241,129 @@ func TestIntrospectRootRedirectsToClasses(t *testing.T) {
 
 	if _, ok := result["hub3:classes"]; !ok {
 		t.Error("hub3:classes not found - root should return classes")
+	}
+}
+
+func TestIntrospectClassesWithContext(t *testing.T) {
+	mockStore := domainSemantic.NewMockStore()
+	mockIntrospect := &domainSemantic.MockIntrospectionStore{
+		Classes: []domainSemantic.ClassInfo{
+			{URI: "http://www.europeana.eu/schemas/edm/ProvidedCHO", Label: "edm:ProvidedCHO", Count: 100},
+		},
+	}
+
+	svc, err := NewService(
+		WithStore(mockStore),
+		WithIntrospectionStore(mockIntrospect),
+	)
+	if err != nil {
+		t.Fatalf("failed to create service: %v", err)
+	}
+
+	// First, create a query context by saving one to the store
+	queryCtx := domainSemantic.NewQueryContext(
+		&domainSemantic.QueryOptions{
+			Query: &domainSemantic.TextQuery{Value: "amsterdam"},
+		},
+		500,
+	)
+	if err := mockStore.SaveSearchContext(context.Background(), queryCtx); err != nil {
+		t.Fatalf("failed to save context: %v", err)
+	}
+
+	// Now introspect with context parameter
+	req := httptest.NewRequest(http.MethodGet, "/api/semantic/v1/introspect/classes?context="+queryCtx.ID, nil)
+	w := httptest.NewRecorder()
+
+	svc.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200. Body: %s", w.Code, w.Body.String())
+	}
+
+	var result map[string]any
+	if err := json.NewDecoder(w.Body).Decode(&result); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+
+	// Verify scope indicates query type with context ID
+	scope, ok := result["hub3:scope"].(map[string]any)
+	if !ok {
+		t.Fatal("hub3:scope not found or wrong type")
+	}
+
+	if scope["type"] != "query" {
+		t.Errorf("scope type = %v, want 'query'", scope["type"])
+	}
+
+	if scope["context"] != queryCtx.ID {
+		t.Errorf("scope context = %v, want %s", scope["context"], queryCtx.ID)
+	}
+}
+
+func TestIntrospectWithInvalidContext(t *testing.T) {
+	mockStore := domainSemantic.NewMockStore()
+	mockIntrospect := &domainSemantic.MockIntrospectionStore{
+		Classes: []domainSemantic.ClassInfo{
+			{URI: "http://example.org/Thing", Label: "Thing", Count: 10},
+		},
+	}
+
+	svc, err := NewService(
+		WithStore(mockStore),
+		WithIntrospectionStore(mockIntrospect),
+	)
+	if err != nil {
+		t.Fatalf("failed to create service: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/api/semantic/v1/introspect/classes?context=nonexistent", nil)
+	w := httptest.NewRecorder()
+
+	svc.ServeHTTP(w, req)
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("status = %d, want 404 for invalid context", w.Code)
+	}
+}
+
+func TestIntrospectWithoutContext_IndexScope(t *testing.T) {
+	mockStore := domainSemantic.NewMockStore()
+	mockIntrospect := &domainSemantic.MockIntrospectionStore{
+		Classes: []domainSemantic.ClassInfo{
+			{URI: "http://example.org/Thing", Label: "Thing", Count: 10},
+		},
+	}
+
+	svc, err := NewService(
+		WithStore(mockStore),
+		WithIntrospectionStore(mockIntrospect),
+	)
+	if err != nil {
+		t.Fatalf("failed to create service: %v", err)
+	}
+
+	// No context parameter - should get "index" scope
+	req := httptest.NewRequest(http.MethodGet, "/api/semantic/v1/introspect/classes", nil)
+	w := httptest.NewRecorder()
+
+	svc.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+
+	var result map[string]any
+	if err := json.NewDecoder(w.Body).Decode(&result); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+
+	scope, ok := result["hub3:scope"].(map[string]any)
+	if !ok {
+		t.Fatal("hub3:scope not found or wrong type")
+	}
+
+	if scope["type"] != "index" {
+		t.Errorf("scope type = %v, want 'index'", scope["type"])
 	}
 }
