@@ -15,10 +15,11 @@ var _ domain.Service = (*Service)(nil)
 
 // Service provides the semantic search API.
 type Service struct {
-	store    semantic.SearchStore
-	registry *semantic.ConfigRegistry
-	log      zerolog.Logger
-	baseURL  string
+	store      semantic.SearchStore
+	introspect semantic.IntrospectionStore
+	registry   *semantic.ConfigRegistry
+	log        zerolog.Logger
+	baseURL    string
 }
 
 // NewService creates a new semantic API service.
@@ -73,6 +74,16 @@ func (s *Service) Routes(pattern string, r chi.Router) {
 			typeRouter.Get("/search", s.handleTypeSearch)
 			typeRouter.Post("/search", s.handleTypeSearchPost)
 			typeRouter.Get("/docs", s.handleTypeDocumentation)
+		})
+
+		// Introspection routes
+		router.Route("/introspect", func(ir chi.Router) {
+			ir.Get("/", s.handleIntrospectClasses)
+			ir.Get("/classes", s.handleIntrospectClasses)
+			ir.Get("/classes/{class}", s.handleIntrospectProperties)
+			ir.Get("/classes/{class}/properties", s.handleIntrospectProperties)
+			ir.Get("/fields/{field}", s.handleIntrospectField)
+			ir.Get("/paths", s.handleIntrospectPaths)
 		})
 	})
 }

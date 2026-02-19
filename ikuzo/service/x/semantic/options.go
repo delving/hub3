@@ -31,6 +31,14 @@ func WithBaseURL(baseURL string) Option {
 	}
 }
 
+// WithIntrospectionStore sets the introspection store for the service.
+func WithIntrospectionStore(store semantic.IntrospectionStore) Option {
+	return func(s *Service) error {
+		s.introspect = store
+		return nil
+	}
+}
+
 // WithResourceConfig adds a resource configuration to the registry.
 func WithResourceConfig(config *semantic.ResourceConfig) Option {
 	return func(s *Service) error {
