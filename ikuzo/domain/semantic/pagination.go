@@ -1,6 +1,11 @@
 package semantic
 
-import "fmt"
+import (
+	"crypto/rand"
+	"encoding/hex"
+	"fmt"
+	"time"
+)
 
 // Pagination represents pagination parameters.
 type Pagination struct {
@@ -158,6 +163,20 @@ func BuildPaginationView(baseURL string, pagination *Pagination, totalItems int6
 	return view
 }
 
+const defaultContextTTL = 15 * time.Minute
+
+// NewQueryContext creates a new query context with a short, human-readable ID.
+func NewQueryContext(opts *QueryOptions, totalResults int64) *SearchContext {
+	id := generateShortID()
+	return &SearchContext{
+		ID:           id,
+		Token:        id,
+		Query:        opts,
+		TotalResults: totalResults,
+		ExpiresAt:    time.Now().Add(defaultContextTTL).Format(time.RFC3339),
+	}
+}
+
 // SearchContext represents a search session context for detail-level navigation.
 type SearchContext struct {
 	ID           string        `json:"id"`
@@ -166,6 +185,23 @@ type SearchContext struct {
 	ResultIDs    []string      `json:"-"` // Ordered list of result IDs
 	TotalResults int64         `json:"totalResults"`
 	ExpiresAt    string        `json:"expiresAt,omitempty"`
+}
+
+// IsExpired checks if the context has expired.
+func (sc *SearchContext) IsExpired() bool {
+	if sc.ExpiresAt == "" {
+		return false
+	}
+	expires, err := time.Parse(time.RFC3339, sc.ExpiresAt)
+	if err != nil {
+		return true
+	}
+	return time.Now().After(expires)
+}
+
+// ExtendTTL extends the context's expiration time.
+func (sc *SearchContext) ExtendTTL() {
+	sc.ExpiresAt = time.Now().Add(defaultContextTTL).Format(time.RFC3339)
 }
 
 // NavigationContext represents navigation through search results at item level.
@@ -232,4 +268,10 @@ func BuildNavigationContext(searchCtx *SearchContext, position int, baseURL stri
 	}
 
 	return nav
+}
+
+func generateShortID() string {
+	b := make([]byte, 4)
+	rand.Read(b)
+	return "ctx_" + hex.EncodeToString(b)
 }
