@@ -147,6 +147,17 @@ func (s *Service) buildAPIDocumentation(r *http.Request) map[string]any {
 	// Add detailed examples
 	doc["hub3:examples"] = s.buildExamples(r)
 
+	// Add code-generated capabilities
+	doc["hub3:capabilities"] = buildCapabilities()
+
+	// Add introspection link
+	doc["hub3:introspection"] = map[string]any{
+		"@id":               baseURL + "/introspect",
+		"@type":             "hydra:Link",
+		"hydra:title":       "Data Introspection",
+		"hydra:description": "Discover classes, properties, and paths in the indexed data",
+	}
+
 	return doc
 }
 
@@ -421,4 +432,37 @@ func (s *Service) buildTypeDocumentation(r *http.Request, config *semantic.Resou
 	}
 
 	return doc
+}
+
+// buildCapabilities returns a map of API capabilities generated from code constants.
+// This ensures the documentation always reflects the actual system capabilities.
+func buildCapabilities() map[string]any {
+	return map[string]any{
+		"operators":       supportedOperators(),
+		"facetTypes":      supportedFacetTypes(),
+		"sortOptions":     []string{"asc", "desc"},
+		"maxPageSize":     semantic.DefaultStoreCapabilities().MaxPageSize,
+		"defaultPageSize": semantic.DefaultPagination().Size,
+		"pathSeparator":   "/",
+		"contextTTL":      "15m",
+	}
+}
+
+// supportedOperators returns the list of supported filter operators.
+// This is derived from the domain operator constants to ensure consistency.
+func supportedOperators() []string {
+	allOps := semantic.AllOperators()
+	ops := make([]string, len(allOps))
+
+	for i, op := range allOps {
+		ops[i] = op.String()
+	}
+
+	return ops
+}
+
+// supportedFacetTypes returns the list of supported facet types.
+// Update this list when new facet types are added to the system.
+func supportedFacetTypes() []string {
+	return []string{"enum", "range", "date", "boolean"}
 }
