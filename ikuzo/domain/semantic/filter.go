@@ -30,6 +30,7 @@ type PropertyFilter struct {
 	FieldName    string      `json:"field"`
 	OperatorType Operator    `json:"operator"`
 	Value        interface{} `json:"value"`
+	Hidden       bool        `json:"hidden,omitempty"` // If true, not shown in activeFilters response
 }
 
 // Type returns the @type.

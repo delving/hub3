@@ -38,6 +38,33 @@ type QueryOptions struct {
 
 	// Collapse groups results by a field value (e.g., dedup by data provider).
 	Collapse *CollapseOptions
+
+	// FacetBoolType controls AND/OR logic for facet selections.
+	FacetBoolType FacetBoolType
+
+	// Peek when true returns only facets with zero items (size=0).
+	Peek bool
+
+	// Debug when set returns diagnostic information (e.g., "query" shows ES query).
+	Debug string
+}
+
+// FacetBoolType controls how multiple facet selections combine.
+type FacetBoolType string
+
+const (
+	FacetBoolOr  FacetBoolType = "or"  // Selected values broaden results (default)
+	FacetBoolAnd FacetBoolType = "and" // Selected values narrow results
+)
+
+// IsValid returns true if the facet bool type is valid.
+func (fbt FacetBoolType) IsValid() bool {
+	switch fbt {
+	case FacetBoolOr, FacetBoolAnd, "":
+		return true
+	default:
+		return false
+	}
 }
 
 // CollapseOptions configures result collapsing (grouping/deduplication).
@@ -115,6 +142,7 @@ type FacetRequest struct {
 	Limit     int    `json:"limit,omitempty"`
 	Filter    string `json:"filter,omitempty"` // Filter facet values (e.g., "rem*")
 	Sort      string `json:"sort,omitempty"`   // count, value, index
+	Cursor    string `json:"cursor,omitempty"` // Opaque cursor for paginating facet values
 }
 
 // Type returns the @type for JSON-LD.
