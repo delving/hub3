@@ -352,6 +352,18 @@ func (rc *ResourceConfig) ValidateQueryOptions(opts *QueryOptions) error {
 		}
 	}
 
+	// Validate collapse options
+	if opts.Collapse != nil {
+		if err := opts.Collapse.Validate(); err != nil {
+			return fmt.Errorf("invalid collapse options: %w", err)
+		}
+	}
+
+	// Validate facet bool type
+	if !opts.FacetBoolType.IsValid() {
+		return fmt.Errorf("invalid facetBoolType: %q (must be 'and' or 'or')", opts.FacetBoolType)
+	}
+
 	// Validate pagination
 	if opts.Pagination != nil {
 		if opts.Pagination.Size > rc.MaxSize {

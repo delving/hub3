@@ -419,6 +419,70 @@ func TestResourceConfig_ValidateQueryOptions(t *testing.T) {
 	}
 }
 
+func TestValidateQueryOptions_Collapse(t *testing.T) {
+	rc := NewResourceConfig("schema:CreativeWork", "Creative Work")
+
+	tests := []struct {
+		name    string
+		opts    *QueryOptions
+		wantErr bool
+	}{
+		{
+			name:    "nil collapse is valid",
+			opts:    &QueryOptions{},
+			wantErr: false,
+		},
+		{
+			name: "valid collapse",
+			opts: &QueryOptions{
+				Collapse: &CollapseOptions{Field: "edm:dataProvider"},
+			},
+			wantErr: false,
+		},
+		{
+			name: "empty collapse field is invalid",
+			opts: &QueryOptions{
+				Collapse: &CollapseOptions{Field: ""},
+			},
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := rc.ValidateQueryOptions(tt.opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateQueryOptions() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestValidateQueryOptions_FacetBoolType(t *testing.T) {
+	rc := NewResourceConfig("schema:CreativeWork", "Creative Work")
+
+	tests := []struct {
+		name    string
+		fbt     FacetBoolType
+		wantErr bool
+	}{
+		{"empty is valid", "", false},
+		{"or is valid", FacetBoolOr, false},
+		{"and is valid", FacetBoolAnd, false},
+		{"xor is invalid", FacetBoolType("xor"), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			opts := &QueryOptions{FacetBoolType: tt.fbt}
+			err := rc.ValidateQueryOptions(opts)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateQueryOptions() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func TestConfigRegistry(t *testing.T) {
 	registry := NewConfigRegistry()
 
