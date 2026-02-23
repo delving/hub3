@@ -581,6 +581,165 @@ func TestQueryTranslator_EscapeValue(t *testing.T) {
 	}
 }
 
+func TestTranslateToV2Query_Collapse(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		Collapse: &semantic.CollapseOptions{
+			Field: "edm:dataProvider",
+			Size:  3,
+		},
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("TranslateToV2Query() error = %v", err)
+	}
+
+	if got := params.Get("collapseOn"); got != "edm:dataProvider" {
+		t.Errorf("collapseOn = %q, want %q", got, "edm:dataProvider")
+	}
+	if got := params.Get("collapseSize"); got != "3" {
+		t.Errorf("collapseSize = %q, want %q", got, "3")
+	}
+}
+
+func TestTranslateToV2Query_CollapseWithSort(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		Collapse: &semantic.CollapseOptions{
+			Field: "edm:dataProvider",
+			Sort:  []semantic.SortField{{Field: "dc:date", Direction: semantic.SortDesc}},
+		},
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("collapseSort"); got != "dc:date" {
+		t.Errorf("collapseSort = %q, want %q", got, "dc:date")
+	}
+}
+
+func TestTranslateToV2Query_FacetBoolType(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		FacetBoolType: semantic.FacetBoolAnd,
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("facetBoolType"); got != "and" {
+		t.Errorf("facetBoolType = %q, want %q", got, "and")
+	}
+}
+
+func TestTranslateToV2Query_FacetBoolType_NotSetWhenEmpty(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("facetBoolType"); got != "" {
+		t.Errorf("facetBoolType should be empty, got %q", got)
+	}
+}
+
+func TestTranslateToV2Query_HiddenFilter(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		Filters: []semantic.Filter{
+			&semantic.PropertyFilter{
+				FieldName:    "orgID",
+				OperatorType: semantic.OpEqual,
+				Value:        "museum-x",
+				Hidden:       true,
+			},
+			&semantic.PropertyFilter{
+				FieldName:    "dc:type",
+				OperatorType: semantic.OpEqual,
+				Value:        "painting",
+			},
+		},
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	hqfValues := params["hqf"]
+	if len(hqfValues) != 1 {
+		t.Fatalf("expected 1 hqf, got %d: %v", len(hqfValues), hqfValues)
+	}
+	if hqfValues[0] != "orgID:\"museum-x\"" {
+		t.Errorf("hqf[0] = %q, want %q", hqfValues[0], "orgID:\"museum-x\"")
+	}
+
+	qfValues := params["qf"]
+	if len(qfValues) != 1 {
+		t.Fatalf("expected 1 qf, got %d: %v", len(qfValues), qfValues)
+	}
+}
+
+func TestTranslateToV2Query_Peek(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		Peek: true,
+		Facets: []semantic.FacetRequest{
+			{Field: "dc:creator"},
+			{Field: "dc:type"},
+		},
+		Pagination: &semantic.Pagination{Size: 0},
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("peek"); got != "dc:creator,dc:type" {
+		t.Errorf("peek = %q, want %q", got, "dc:creator,dc:type")
+	}
+}
+
+func TestTranslateToV2Query_Debug(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{
+		Debug: "query",
+	}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("echo"); got != "searchResponse" {
+		t.Errorf("echo = %q, want %q", got, "searchResponse")
+	}
+}
+
+func TestTranslateToV2Query_NoDebugWhenEmpty(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.QueryOptions{}
+
+	params, err := qt.TranslateToV2Query(opts)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+
+	if got := params.Get("echo"); got != "" {
+		t.Errorf("echo should be empty, got %q", got)
+	}
+}
+
 func TestQueryTranslator_ItemFormatAlwaysSet(t *testing.T) {
 	qt := NewQueryTranslator("test-org")
 

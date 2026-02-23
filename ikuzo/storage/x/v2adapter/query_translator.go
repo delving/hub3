@@ -64,6 +64,30 @@ func (qt *QueryTranslator) TranslateToV2Query(opts *semantic.QueryOptions) (url.
 		qt.translateSort(opts.Sort, params)
 	}
 
+	// Add collapse
+	if opts.Collapse != nil {
+		qt.translateCollapse(opts.Collapse, params)
+	}
+
+	// Add facet bool type
+	if opts.FacetBoolType != "" {
+		params.Set("facetBoolType", string(opts.FacetBoolType))
+	}
+
+	// Add peek mode
+	if opts.Peek && len(opts.Facets) > 0 {
+		peekFields := make([]string, len(opts.Facets))
+		for i, f := range opts.Facets {
+			peekFields[i] = f.Field
+		}
+		params.Set("peek", strings.Join(peekFields, ","))
+	}
+
+	// Add debug mode (v2 uses echo=searchResponse for query debugging)
+	if opts.Debug != "" {
+		params.Set("echo", "searchResponse")
+	}
+
 	return params, nil
 }
 
@@ -93,7 +117,20 @@ func (qt *QueryTranslator) translateTextQuery(q *semantic.TextQuery) (string, er
 	return query, nil
 }
 
+// translateCollapse converts collapse options to v2 parameters.
+func (qt *QueryTranslator) translateCollapse(co *semantic.CollapseOptions, params url.Values) {
+	params.Set("collapseOn", co.Field)
+	if co.Size > 0 {
+		params.Set("collapseSize", fmt.Sprintf("%d", co.Size))
+	}
+	if len(co.Sort) > 0 {
+		sort := co.Sort[0]
+		params.Set("collapseSort", sort.Field)
+	}
+}
+
 // translateFilters converts semantic filters to v2 qf (query filter) parameters.
+// Hidden filters use the hqf parameter key instead of qf.
 func (qt *QueryTranslator) translateFilters(filters []semantic.Filter, params url.Values) error {
 	for _, filter := range filters {
 		filterStr, err := qt.translateFilter(filter)
@@ -102,7 +139,12 @@ func (qt *QueryTranslator) translateFilters(filters []semantic.Filter, params ur
 		}
 
 		if filterStr != "" {
-			params.Add("qf", filterStr)
+			// Use hqf for hidden filters, qf for normal
+			paramKey := "qf"
+			if pf, ok := filter.(*semantic.PropertyFilter); ok && pf.Hidden {
+				paramKey = "hqf"
+			}
+			params.Add(paramKey, filterStr)
 		}
 	}
 
