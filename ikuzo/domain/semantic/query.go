@@ -2,6 +2,7 @@ package semantic
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // QueryOptions represents unified query options for both GET and POST requests.
@@ -34,6 +35,30 @@ type QueryOptions struct {
 
 	// Fields specifies which fields to include (field selection)
 	Fields []string
+
+	// Collapse groups results by a field value (e.g., dedup by data provider).
+	Collapse *CollapseOptions
+}
+
+// CollapseOptions configures result collapsing (grouping/deduplication).
+type CollapseOptions struct {
+	// Field is the field to collapse on (required).
+	Field string `json:"field"`
+	// Size is the number of inner hits per group (default: 1).
+	Size int `json:"size,omitempty"`
+	// Sort specifies sort order for inner hits.
+	Sort []SortField `json:"sort,omitempty"`
+}
+
+// Validate checks if the collapse options are valid.
+func (co *CollapseOptions) Validate() error {
+	if co == nil {
+		return nil
+	}
+	if co.Field == "" {
+		return fmt.Errorf("collapse field cannot be empty")
+	}
+	return nil
 }
 
 // TextQuery represents a full-text search query.
