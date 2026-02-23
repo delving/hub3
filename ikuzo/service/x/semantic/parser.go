@@ -78,6 +78,11 @@ func parseQueryParams(r *http.Request) (*semantic.QueryOptions, error) {
 		return nil, fmt.Errorf("failed to parse sort: %w", err)
 	}
 
+	// Parse collapse
+	if err := parseCollapseFromQuery(query, opts); err != nil {
+		return nil, fmt.Errorf("failed to parse collapse: %w", err)
+	}
+
 	// Parse other options
 	if languages := query.Get("languages"); languages != "" {
 		opts.Languages = strings.Split(languages, ",")
@@ -93,14 +98,83 @@ func parseQueryParams(r *http.Request) (*semantic.QueryOptions, error) {
 
 	opts.DetailLevel = query.Get("detailLevel")
 
+	// Parse facet bool type
+	if fbt := query.Get("facetBool"); fbt != "" {
+		opts.FacetBoolType = semantic.FacetBoolType(fbt)
+		if !opts.FacetBoolType.IsValid() {
+			return nil, fmt.Errorf("invalid facetBool value: %q (must be 'and' or 'or')", fbt)
+		}
+	}
+
+	// Parse debug mode
+	opts.Debug = query.Get("debug")
+
+	// Parse peek mode
+	if peekFields := query.Get("peek"); peekFields != "" {
+		opts.Peek = true
+		for _, urlField := range strings.Split(peekFields, ",") {
+			field := fromURLFieldName(strings.TrimSpace(urlField))
+			if field != "" {
+				opts.Facets = append(opts.Facets, semantic.FacetRequest{Field: field})
+			}
+		}
+		if opts.Pagination == nil {
+			opts.Pagination = &semantic.Pagination{}
+		}
+		opts.Pagination.Size = 0
+	}
+
 	return opts, nil
 }
 
-// parseFiltersFromQuery parses filter parameters from URL query.
-// Format: filter[field][operator]=value
+// parseCollapseFromQuery parses collapse parameters from URL query.
+func parseCollapseFromQuery(query url.Values, opts *semantic.QueryOptions) error {
+	collapseField := query.Get("collapse")
+	if collapseField == "" {
+		return nil
+	}
+
+	opts.Collapse = &semantic.CollapseOptions{
+		Field: fromURLFieldName(collapseField),
+	}
+
+	if sizeStr := query.Get("collapse.size"); sizeStr != "" {
+		size, err := strconv.Atoi(sizeStr)
+		if err != nil {
+			return fmt.Errorf("invalid collapse.size: %w", err)
+		}
+		opts.Collapse.Size = size
+	}
+
+	if sortParam := query.Get("collapse.sort"); sortParam != "" {
+		direction := semantic.SortAsc
+		field := sortParam
+		if strings.HasPrefix(sortParam, "-") {
+			field = strings.TrimPrefix(sortParam, "-")
+			direction = semantic.SortDesc
+		}
+		opts.Collapse.Sort = []semantic.SortField{{
+			Field:     fromURLFieldName(field),
+			Direction: direction,
+		}}
+	}
+
+	return nil
+}
+
+// parseFiltersFromQuery parses filter and hfilter parameters from URL query.
+// Format: filter[field][operator]=value or hfilter[field][operator]=value
 func parseFiltersFromQuery(query url.Values, opts *semantic.QueryOptions) error {
 	for key, values := range query {
-		if !strings.HasPrefix(key, "filter[") {
+		var prefix string
+		var hidden bool
+
+		if strings.HasPrefix(key, "filter[") {
+			prefix = "filter["
+		} else if strings.HasPrefix(key, "hfilter[") {
+			prefix = "hfilter["
+			hidden = true
+		} else {
 			continue
 		}
 
@@ -110,7 +184,7 @@ func parseFiltersFromQuery(query url.Values, opts *semantic.QueryOptions) error 
 			continue
 		}
 
-		urlField := strings.TrimPrefix(parts[0], "filter[")
+		urlField := strings.TrimPrefix(parts[0], prefix)
 		operator := strings.TrimSuffix(parts[1], "]")
 
 		// Convert from URL format (dc_creator) to internal format (dc:creator)
@@ -143,6 +217,7 @@ func parseFiltersFromQuery(query url.Values, opts *semantic.QueryOptions) error 
 				FieldName:    field,
 				OperatorType: op,
 				Value:        value,
+				Hidden:       hidden,
 			})
 		}
 	}
@@ -200,33 +275,64 @@ func parseGeoFilter(field string, op semantic.Operator, values []string) (semant
 }
 
 // parseFacetsFromQuery parses facet parameters from URL query.
-// Format: facet[field]=true or facet[field]=limit
+// Format: facet[field]=limit, facet[field].cursor=abc, facet[field].sort=count
 func parseFacetsFromQuery(query url.Values, opts *semantic.QueryOptions) error {
+	facetMap := make(map[string]*semantic.FacetRequest)
+
 	for key, values := range query {
 		if !strings.HasPrefix(key, "facet[") {
 			continue
 		}
 
-		// Extract field from facet[field]
-		urlField := strings.TrimSuffix(strings.TrimPrefix(key, "facet["), "]")
+		fullKey := strings.TrimPrefix(key, "facet[")
 
-		// Convert from URL format (dc_creator) to internal format (dc:creator)
+		// Check for sub-parameters: facet[field].cursor, facet[field].sort
+		if idx := strings.Index(fullKey, "]."); idx >= 0 {
+			urlField := fullKey[:idx]
+			subParam := fullKey[idx+2:]
+			field := fromURLFieldName(urlField)
+
+			fr, ok := facetMap[field]
+			if !ok {
+				fr = &semantic.FacetRequest{Field: field}
+				facetMap[field] = fr
+			}
+
+			switch subParam {
+			case "cursor":
+				if len(values) > 0 {
+					fr.Cursor = values[0]
+				}
+			case "sort":
+				if len(values) > 0 {
+					fr.Sort = values[0]
+				}
+			}
+
+			continue
+		}
+
+		// Main facet parameter: facet[field]=limit
+		urlField := strings.TrimSuffix(fullKey, "]")
 		field := fromURLFieldName(urlField)
 
 		if len(values) == 0 {
 			continue
 		}
 
-		facetReq := semantic.FacetRequest{
-			Field: field,
+		fr, ok := facetMap[field]
+		if !ok {
+			fr = &semantic.FacetRequest{Field: field}
+			facetMap[field] = fr
 		}
 
-		// Try to parse as limit
 		if limit, err := strconv.Atoi(values[0]); err == nil && limit > 0 {
-			facetReq.Limit = limit
+			fr.Limit = limit
 		}
+	}
 
-		opts.Facets = append(opts.Facets, facetReq)
+	for _, fr := range facetMap {
+		opts.Facets = append(opts.Facets, *fr)
 	}
 
 	return nil

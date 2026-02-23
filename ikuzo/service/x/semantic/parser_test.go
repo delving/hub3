@@ -75,8 +75,16 @@ func TestParseQueryParams(t *testing.T) {
 				if len(opts.Facets) != 2 {
 					t.Fatalf("Expected 2 facets, got %d", len(opts.Facets))
 				}
-				if opts.Facets[0].Limit != 10 {
-					t.Errorf("First facet limit = %v, want 10", opts.Facets[0].Limit)
+				// Check both facets exist with correct limits (order may vary with map-based parsing)
+				facetLimits := map[string]int{}
+				for _, f := range opts.Facets {
+					facetLimits[f.Field] = f.Limit
+				}
+				if facetLimits["type"] != 10 {
+					t.Errorf("type facet limit = %v, want 10", facetLimits["type"])
+				}
+				if facetLimits["creator"] != 20 {
+					t.Errorf("creator facet limit = %v, want 20", facetLimits["creator"])
 				}
 			},
 		},
@@ -416,5 +424,147 @@ func TestParseFiltersWithNamespaces(t *testing.T) {
 		if !found {
 			t.Errorf("Expected filter field %s not found", field)
 		}
+	}
+}
+
+func TestParseQueryParams_Collapse(t *testing.T) {
+	tests := []struct {
+		name      string
+		query     string
+		wantField string
+		wantSize  int
+		wantNil   bool
+	}{
+		{"no collapse", "query=test", "", 0, true},
+		{"collapse field only", "collapse=edm_dataProvider", "edm:dataProvider", 0, false},
+		{"collapse with size", "collapse=edm_dataProvider&collapse.size=3", "edm:dataProvider", 3, false},
+		{"collapse with sort", "collapse=edm_dataProvider&collapse.sort=-dc_date", "edm:dataProvider", 0, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := httptest.NewRequest("GET", "/search?"+tt.query, nil)
+			opts, err := parseQueryParams(r)
+			if err != nil {
+				t.Fatalf("parseQueryParams() error = %v", err)
+			}
+			if tt.wantNil {
+				if opts.Collapse != nil {
+					t.Error("expected nil Collapse")
+				}
+				return
+			}
+			if opts.Collapse == nil {
+				t.Fatal("expected non-nil Collapse")
+			}
+			if opts.Collapse.Field != tt.wantField {
+				t.Errorf("Collapse.Field = %q, want %q", opts.Collapse.Field, tt.wantField)
+			}
+			if tt.wantSize > 0 && opts.Collapse.Size != tt.wantSize {
+				t.Errorf("Collapse.Size = %d, want %d", opts.Collapse.Size, tt.wantSize)
+			}
+		})
+	}
+}
+
+func TestParseQueryParams_FacetBool(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?facetBool=and", nil)
+	opts, err := parseQueryParams(r)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if opts.FacetBoolType != semantic.FacetBoolAnd {
+		t.Errorf("FacetBoolType = %q, want %q", opts.FacetBoolType, semantic.FacetBoolAnd)
+	}
+}
+
+func TestParseQueryParams_FacetBool_Invalid(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?facetBool=xor", nil)
+	_, err := parseQueryParams(r)
+	if err == nil {
+		t.Error("expected error for invalid facetBool")
+	}
+}
+
+func TestParseQueryParams_Peek(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?peek=dc_creator,dc_type", nil)
+	opts, err := parseQueryParams(r)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if !opts.Peek {
+		t.Error("Peek should be true")
+	}
+	if len(opts.Facets) != 2 {
+		t.Fatalf("expected 2 facets from peek, got %d", len(opts.Facets))
+	}
+	// Check fields (order may vary due to peek appending)
+	fields := map[string]bool{}
+	for _, f := range opts.Facets {
+		fields[f.Field] = true
+	}
+	if !fields["dc:creator"] || !fields["dc:type"] {
+		t.Errorf("expected dc:creator and dc:type facets, got %v", opts.Facets)
+	}
+	if opts.Pagination == nil || opts.Pagination.Size != 0 {
+		t.Error("Peek should set pagination size to 0")
+	}
+}
+
+func TestParseQueryParams_Debug(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?debug=query", nil)
+	opts, err := parseQueryParams(r)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if opts.Debug != "query" {
+		t.Errorf("Debug = %q, want %q", opts.Debug, "query")
+	}
+}
+
+func TestParseQueryParams_HiddenFilter(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?hfilter[orgID][eq]=museum-x", nil)
+	opts, err := parseQueryParams(r)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if len(opts.Filters) != 1 {
+		t.Fatalf("expected 1 filter, got %d", len(opts.Filters))
+	}
+	pf, ok := opts.Filters[0].(*semantic.PropertyFilter)
+	if !ok {
+		t.Fatal("expected PropertyFilter")
+	}
+	if !pf.Hidden {
+		t.Error("filter should be hidden")
+	}
+	if pf.FieldName != "orgID" {
+		t.Errorf("field = %q, want %q", pf.FieldName, "orgID")
+	}
+}
+
+func TestParseQueryParams_FacetCursor(t *testing.T) {
+	r := httptest.NewRequest("GET", "/search?facet[dc_creator]=50&facet[dc_creator].cursor=abc123", nil)
+	opts, err := parseQueryParams(r)
+	if err != nil {
+		t.Fatalf("error = %v", err)
+	}
+	if len(opts.Facets) == 0 {
+		t.Fatal("expected at least 1 facet")
+	}
+	var found bool
+	for _, f := range opts.Facets {
+		if f.Field == "dc:creator" {
+			found = true
+			if f.Cursor != "abc123" {
+				t.Errorf("Cursor = %q, want %q", f.Cursor, "abc123")
+			}
+			if f.Limit != 50 {
+				t.Errorf("Limit = %d, want %d", f.Limit, 50)
+			}
+		}
+	}
+	if !found {
+		t.Error("dc:creator facet not found")
 	}
 }
