@@ -207,6 +207,35 @@ type IntrospectionStore interface {
 	IntrospectPaths(ctx context.Context, opts *QueryOptions) ([]PathInfo, error)
 }
 
+// SimilarStore provides More-Like-This functionality.
+// This is separate from SearchStore because not all backends support MLT.
+type SimilarStore interface {
+	// FindSimilar returns documents similar to the given document.
+	FindSimilar(ctx context.Context, id string, opts *SimilarOptions, config *ResourceConfig) (*SearchResult, error)
+}
+
+// SimilarOptions configures a More-Like-This query.
+type SimilarOptions struct {
+	// Count is the maximum number of similar items to return (default: 5, max: 20).
+	Count int
+	// Fields are the fields to use for similarity computation.
+	// If empty, defaults are derived from ResourceConfig.
+	Fields []string
+	// MinTermFreq is the minimum term frequency for a term to be considered (default: 2).
+	MinTermFreq int
+	// MinDocFreq is the minimum document frequency for a term to be considered (default: 5).
+	MinDocFreq int
+}
+
+// DefaultSimilarOptions returns sensible defaults for similar item queries.
+func DefaultSimilarOptions() *SimilarOptions {
+	return &SimilarOptions{
+		Count:       5,
+		MinTermFreq: 2,
+		MinDocFreq:  5,
+	}
+}
+
 // MockIntrospectionStore is a test implementation of IntrospectionStore.
 type MockIntrospectionStore struct {
 	Classes    []ClassInfo
