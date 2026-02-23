@@ -353,6 +353,34 @@ func (qt *QueryTranslator) translateSort(sorts []semantic.SortField, params url.
 	}
 }
 
+// TranslateMLTQuery creates v2 URL params for a More-Like-This query.
+func (qt *QueryTranslator) TranslateMLTQuery(id string, opts *semantic.SimilarOptions) url.Values {
+	params := url.Values{}
+	params.Set("itemFormat", "semantic")
+	params.Set("mlt", "true")
+	params.Set("mlt.id", id)
+
+	if opts.Count > 0 {
+		params.Set("mlt.count", fmt.Sprintf("%d", opts.Count))
+	}
+
+	if len(opts.Fields) > 0 {
+		for _, field := range opts.Fields {
+			params.Add("mlt.filterkey", field)
+		}
+	}
+
+	if opts.MinTermFreq > 0 {
+		params.Set("mlt.minTermFreq", fmt.Sprintf("%d", opts.MinTermFreq))
+	}
+
+	if opts.MinDocFreq > 0 {
+		params.Set("mlt.minDocFreq", fmt.Sprintf("%d", opts.MinDocFreq))
+	}
+
+	return params
+}
+
 // escapeValue escapes or quotes query values as needed for v2 API.
 // For values with spaces or special characters, we wrap in quotes.
 // Otherwise return the value as-is.

@@ -285,6 +285,74 @@ func (a *V2SearchAdapter) Health(ctx context.Context) error {
 	return nil
 }
 
+// FindSimilar implements semantic.SimilarStore using v2 MLT parameters.
+func (a *V2SearchAdapter) FindSimilar(
+	ctx context.Context,
+	id string,
+	opts *semantic.SimilarOptions,
+	config *semantic.ResourceConfig,
+) (*semantic.SearchResult, error) {
+	if opts == nil {
+		opts = semantic.DefaultSimilarOptions()
+	}
+
+	// Extract orgID from context
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if !ok || org.ID == "" {
+		return nil, fmt.Errorf("organization ID not found in context")
+	}
+	orgID := org.ID.String()
+
+	a.log.Debug().
+		Str("id", id).
+		Str("org_id", orgID).
+		Int("count", opts.Count).
+		Strs("fields", opts.Fields).
+		Msg("executing FindSimilar via v2 adapter")
+
+	params := a.translator.TranslateMLTQuery(id, opts)
+
+	// Execute via v2 search infrastructure
+	searchRequest, err := fragments.NewSearchRequest(orgID, params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create v2 search request for MLT: %w", err)
+	}
+
+	startTime := time.Now()
+
+	esResult, err := searchRequest.ExecuteWithParallelAggregations(a.client, ctx)
+	if err != nil {
+		return nil, fmt.Errorf("v2 MLT search execution failed: %w", err)
+	}
+
+	a.log.Debug().
+		Int64("total_hits", esResult.TotalHits()).
+		Int("returned", len(esResult.Hits.Hits)).
+		Dur("took_ms", time.Since(startTime)).
+		Msg("v2 MLT search completed")
+
+	scrollResult, err := a.decodeV2Results(esResult, searchRequest)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode v2 MLT results: %w", err)
+	}
+
+	result, err := a.resultTx.TranslateSearchResult(scrollResult, &semantic.QueryOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("failed to translate MLT search results: %w", err)
+	}
+
+	result.Took = time.Since(startTime)
+
+	a.log.Info().
+		Str("id", id).
+		Int64("total", result.Total).
+		Int("results", len(result.Results)).
+		Dur("took", result.Took).
+		Msg("FindSimilar completed via v2 adapter")
+
+	return result, nil
+}
+
 // decodeV2Results converts Elasticsearch search result to v2 ScrollResultV4 format.
 // This mirrors the logic in hub3/server/http/handlers/search.go::ProcessSearchRequest.
 func (a *V2SearchAdapter) decodeV2Results(

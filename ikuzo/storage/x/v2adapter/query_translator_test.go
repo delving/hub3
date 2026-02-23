@@ -740,6 +740,54 @@ func TestTranslateToV2Query_NoDebugWhenEmpty(t *testing.T) {
 	}
 }
 
+func TestTranslateMLTQuery(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := &semantic.SimilarOptions{
+		Count:       10,
+		Fields:      []string{"dc:title", "dc:creator"},
+		MinTermFreq: 3,
+		MinDocFreq:  5,
+	}
+
+	params := qt.TranslateMLTQuery("doc-123", opts)
+
+	if got := params.Get("mlt"); got != "true" {
+		t.Errorf("mlt = %q, want %q", got, "true")
+	}
+	if got := params.Get("mlt.id"); got != "doc-123" {
+		t.Errorf("mlt.id = %q, want %q", got, "doc-123")
+	}
+	if got := params.Get("mlt.count"); got != "10" {
+		t.Errorf("mlt.count = %q, want %q", got, "10")
+	}
+	if got := params.Get("itemFormat"); got != "semantic" {
+		t.Errorf("itemFormat = %q, want %q", got, "semantic")
+	}
+
+	filterkeys := params["mlt.filterkey"]
+	if len(filterkeys) != 2 {
+		t.Fatalf("expected 2 mlt.filterkey values, got %d: %v", len(filterkeys), filterkeys)
+	}
+}
+
+func TestTranslateMLTQuery_Defaults(t *testing.T) {
+	qt := NewQueryTranslator("test-org")
+	opts := semantic.DefaultSimilarOptions()
+
+	params := qt.TranslateMLTQuery("doc-abc", opts)
+
+	if got := params.Get("mlt"); got != "true" {
+		t.Errorf("mlt = %q, want %q", got, "true")
+	}
+	if got := params.Get("mlt.count"); got != "5" {
+		t.Errorf("mlt.count = %q, want %q", got, "5")
+	}
+	// No filterkeys when Fields is empty
+	if filterkeys := params["mlt.filterkey"]; len(filterkeys) > 0 {
+		t.Errorf("expected no mlt.filterkey with empty fields, got %v", filterkeys)
+	}
+}
+
 func TestQueryTranslator_ItemFormatAlwaysSet(t *testing.T) {
 	qt := NewQueryTranslator("test-org")
 
