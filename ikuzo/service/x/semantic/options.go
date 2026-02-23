@@ -1,6 +1,8 @@
 package semantic
 
 import (
+	"fmt"
+
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 )
 
@@ -35,6 +37,17 @@ func WithBaseURL(baseURL string) Option {
 func WithIntrospectionStore(store semantic.IntrospectionStore) Option {
 	return func(s *Service) error {
 		s.introspect = store
+		return nil
+	}
+}
+
+// WithIncludeProvider registers an include provider for the detail endpoint.
+func WithIncludeProvider(provider semantic.IncludeProvider) Option {
+	return func(s *Service) error {
+		if provider == nil {
+			return fmt.Errorf("include provider cannot be nil")
+		}
+		s.includes[provider.Name()] = provider
 		return nil
 	}
 }

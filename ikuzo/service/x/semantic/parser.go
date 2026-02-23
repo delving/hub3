@@ -400,6 +400,39 @@ func parseSortFromQuery(query url.Values, opts *semantic.QueryOptions) error {
 	return nil
 }
 
+// parseIncludeParams extracts include section names and their sub-parameters.
+// Returns a map from include name to its parameters.
+// Example: ?include=relatedItems&relatedItems.count=5 returns
+//
+//	{"relatedItems": {"count": "5"}}
+func parseIncludeParams(query url.Values) map[string]map[string]string {
+	includes := query["include"]
+	if len(includes) == 0 {
+		return nil
+	}
+
+	result := make(map[string]map[string]string)
+	for _, name := range includes {
+		result[name] = make(map[string]string)
+	}
+
+	// Scan for sub-parameters: relatedItems.count=5, relatedItems.fields=...
+	for key, values := range query {
+		if key == "include" || len(values) == 0 {
+			continue
+		}
+		for name := range result {
+			prefix := name + "."
+			if strings.HasPrefix(key, prefix) {
+				subKey := strings.TrimPrefix(key, prefix)
+				result[name][subKey] = values[0]
+			}
+		}
+	}
+
+	return result
+}
+
 // parseJSONBody parses JSON request body into the given value.
 func parseJSONBody(r *http.Request, v any) error {
 	if r.Body == nil {

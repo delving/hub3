@@ -20,6 +20,7 @@ type Service struct {
 	registry   *semantic.ConfigRegistry
 	log        zerolog.Logger
 	baseURL    string
+	includes   map[string]semantic.IncludeProvider
 }
 
 // NewService creates a new semantic API service.
@@ -27,6 +28,7 @@ func NewService(options ...Option) (*Service, error) {
 	s := &Service{
 		registry: semantic.DefaultRegistry(),
 		baseURL:  "/api/semantic/v1",
+		includes: make(map[string]semantic.IncludeProvider),
 	}
 
 	// Apply options
@@ -320,6 +322,36 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 	// Add navigation context if available
 	if navContext != nil {
 		doc["hub3:navigation"] = navContext
+	}
+
+	// Process include sections
+	includeRequests := parseIncludeParams(r.URL.Query())
+	for name, params := range includeRequests {
+		provider, ok := s.includes[name]
+		if !ok {
+			continue // Unknown provider — silently skip
+		}
+
+		req := &semantic.IncludeRequest{
+			DocumentID: id,
+			Document:   doc,
+			Config:     config,
+			Params:     params,
+		}
+
+		section, err := provider.Provide(ctx, req)
+		if err != nil {
+			s.log.Warn().
+				Err(err).
+				Str("provider", name).
+				Str("id", id).
+				Msg("include provider failed")
+			continue // Don't fail the whole request
+		}
+
+		if section != nil {
+			doc["hub3:"+name] = section
+		}
 	}
 
 	// Respond with JSON-LD

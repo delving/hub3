@@ -1,10 +1,14 @@
 package semantic
 
 import (
+	"context"
+	"encoding/json"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/domain/semantic"
+	"github.com/go-chi/chi/v5"
 )
 
 func TestHandleResourceDetail(t *testing.T) {
@@ -265,4 +269,125 @@ func containsMiddle(s, substr string) bool {
 		}
 	}
 	return false
+}
+
+func TestHandleResourceDetail_WithIncludeProvider(t *testing.T) {
+	// Create a mock include provider
+	mockProvider := &mockDetailIncludeProvider{
+		name: "testSection",
+		result: map[string]any{
+			"@type": "hub3:TestSection",
+			"value": "test-data",
+		},
+	}
+
+	store := semantic.NewMockStore()
+	svc, err := NewService(
+		WithStore(store),
+		WithIncludeProvider(mockProvider),
+	)
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+
+	router := chi.NewRouter()
+	svc.Routes("", router)
+
+	req := httptest.NewRequest("GET", "/api/semantic/v1/resource/test-id?include=testSection", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rr.Code, http.StatusOK)
+	}
+
+	var doc map[string]any
+	if err := json.NewDecoder(rr.Body).Decode(&doc); err != nil {
+		t.Fatalf("decode error: %v", err)
+	}
+
+	section, ok := doc["hub3:testSection"]
+	if !ok {
+		t.Fatal("expected hub3:testSection in response")
+	}
+
+	sectionMap, ok := section.(map[string]any)
+	if !ok {
+		t.Fatalf("section is %T, want map[string]any", section)
+	}
+	if sectionMap["@type"] != "hub3:TestSection" {
+		t.Errorf("section @type = %v, want hub3:TestSection", sectionMap["@type"])
+	}
+}
+
+func TestHandleResourceDetail_WithIncludeParams(t *testing.T) {
+	mockProvider := &mockDetailIncludeProvider{
+		name:          "relatedItems",
+		captureParams: true,
+	}
+
+	store := semantic.NewMockStore()
+	svc, err := NewService(
+		WithStore(store),
+		WithIncludeProvider(mockProvider),
+	)
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+
+	router := chi.NewRouter()
+	svc.Routes("", router)
+
+	req := httptest.NewRequest("GET", "/api/semantic/v1/resource/test-id?include=relatedItems&relatedItems.count=10&relatedItems.fields=dc:title", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rr.Code, http.StatusOK)
+	}
+
+	// Verify params were passed
+	if mockProvider.lastParams["count"] != "10" {
+		t.Errorf("count param = %q, want %q", mockProvider.lastParams["count"], "10")
+	}
+	if mockProvider.lastParams["fields"] != "dc:title" {
+		t.Errorf("fields param = %q, want %q", mockProvider.lastParams["fields"], "dc:title")
+	}
+}
+
+func TestHandleResourceDetail_NoInclude(t *testing.T) {
+	store := semantic.NewMockStore()
+	svc, err := NewService(WithStore(store))
+	if err != nil {
+		t.Fatalf("NewService() error = %v", err)
+	}
+
+	router := chi.NewRouter()
+	svc.Routes("", router)
+
+	req := httptest.NewRequest("GET", "/api/semantic/v1/resource/test-id", nil)
+	rr := httptest.NewRecorder()
+	router.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rr.Code, http.StatusOK)
+	}
+}
+
+// mockDetailIncludeProvider is a test double for IncludeProvider
+type mockDetailIncludeProvider struct {
+	name          string
+	result        any
+	err           error
+	captureParams bool
+	lastParams    map[string]string
+}
+
+func (m *mockDetailIncludeProvider) Name() string { return m.name }
+func (m *mockDetailIncludeProvider) Provide(_ context.Context, req *semantic.IncludeRequest) (any, error) {
+	if m.captureParams {
+		m.lastParams = req.Params
+		return map[string]any{"captured": true}, nil
+	}
+	return m.result, m.err
 }
