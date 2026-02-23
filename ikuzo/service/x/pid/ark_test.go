@@ -1,6 +1,8 @@
 package pid
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -93,6 +95,84 @@ func TestNormalizeARK(t *testing.T) {
 			result := normalizeARK(test.input)
 			if result != test.expected {
 				t.Errorf("normalizeARK(%s) = %s; expected %s", test.input, result, test.expected)
+			}
+		})
+	}
+}
+
+func TestIsBareNAAN(t *testing.T) {
+	tests := []struct {
+		name     string
+		path     string
+		expected bool
+	}{
+		{"bare NAAN with UUID", "/54386/02a4d96cdacc2d686f58f0a66daec47d", true},
+		{"bare NAAN with hyphenated UUID", "/54386/02a4d96c-dacc-2d68-6f58-f0a66daec47d", true},
+		{"bare NAAN 5 digits", "/63960/006b90dd-43a9-60bc-0e79-6b38c4d094ea", true},
+		{"with ark: prefix", "/ark:54386/02a4d96cdacc2d686f58f0a66daec47d", false},
+		{"with ark:/ prefix", "/ark:/54386/02a4d96cdacc2d686f58f0a66daec47d", false},
+		{"too few digits in NAAN", "/1234/something", false},
+		{"too many digits in NAAN", "/123456/something", false},
+		{"non-numeric NAAN", "/abcde/something", false},
+		{"no identifier after NAAN", "/54386/", false},
+		{"just NAAN no slash", "/54386", false},
+		{"root path", "/", false},
+		{"empty path", "", false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := isBareNAAN(test.path)
+			if result != test.expected {
+				t.Errorf("isBareNAAN(%q) = %v; expected %v", test.path, result, test.expected)
+			}
+		})
+	}
+}
+
+func TestHandleBareNAANRedirect(t *testing.T) {
+	tests := []struct {
+		name             string
+		path             string
+		expectedLocation string
+		expectedStatus   int
+	}{
+		{
+			name:             "bare NAAN redirects to ark: format",
+			path:             "/54386/02a4d96cdacc2d686f58f0a66daec47d",
+			expectedLocation: "/ark:54386/02a4d96cdacc2d686f58f0a66daec47d",
+			expectedStatus:   http.StatusFound,
+		},
+		{
+			name:             "bare NAAN with hyphens redirects to ark: format",
+			path:             "/54386/02a4d96c-dacc-2d68-6f58-f0a66daec47d",
+			expectedLocation: "/ark:54386/02a4d96c-dacc-2d68-6f58-f0a66daec47d",
+			expectedStatus:   http.StatusFound,
+		},
+		{
+			name:             "different NAAN redirects correctly",
+			path:             "/63960/006b90dd-43a9-60bc-0e79-6b38c4d094ea",
+			expectedLocation: "/ark:63960/006b90dd-43a9-60bc-0e79-6b38c4d094ea",
+			expectedStatus:   http.StatusFound,
+		},
+	}
+
+	handler := handleBareNAAN()
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, test.path, nil)
+			rec := httptest.NewRecorder()
+
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != test.expectedStatus {
+				t.Errorf("status = %d; expected %d", rec.Code, test.expectedStatus)
+			}
+
+			location := rec.Header().Get("Location")
+			if location != test.expectedLocation {
+				t.Errorf("Location = %q; expected %q", location, test.expectedLocation)
 			}
 		})
 	}
