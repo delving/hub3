@@ -16,6 +16,8 @@ type Collection struct {
 	SearchContext *SearchContext         `json:"hub3:searchContext,omitempty"`
 	QueryContext  *QueryContextRef      `json:"hub3:queryContext,omitempty"`
 	Timing        *Timing               `json:"hub3:timing,omitempty"`
+	// Debug contains diagnostic information when debug mode is enabled.
+	Debug map[string]any `json:"hub3:debug,omitempty"`
 }
 
 // NewCollection creates a new Hydra Collection with default types.
@@ -47,7 +49,8 @@ type Facet struct {
 	FacetType   string        `json:"facetType"` // enum, range, date, boolean
 	TotalValues int64         `json:"totalValues,omitempty"`
 	Values      []FacetValue  `json:"values"`
-	Next        string        `json:"next,omitempty"` // URL for more values
+	Next        string        `json:"next,omitempty"`       // URL for more values
+	NextCursor  string        `json:"hub3:nextCursor,omitempty"` // Opaque cursor for next page of facet values
 }
 
 // Type returns the @type for JSON-LD.

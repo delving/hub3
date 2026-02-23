@@ -64,6 +64,7 @@ type FacetResult struct {
 	SumOther    int64  // Count of values not included in top values
 	Missing     int64  // Count of documents without this field
 	Error       string // Error message if facet failed
+	NextCursor  string // Opaque cursor for fetching next page of facet values
 }
 
 // FacetValueResult represents a single facet value.

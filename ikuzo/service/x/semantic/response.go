@@ -61,6 +61,11 @@ func (s *Service) buildCollection(
 		Unit: "ms",
 	}
 
+	// Add debug info if debug mode is enabled
+	if opts.Debug != "" && result.Metadata != nil {
+		collection.Debug = result.Metadata
+	}
+
 	return collection
 }
 
@@ -143,6 +148,10 @@ func (s *Service) buildFacets(
 			}
 		}
 
+		if result.NextCursor != "" {
+			facet.NextCursor = result.NextCursor
+		}
+
 		facets[i] = facet
 	}
 
@@ -154,19 +163,24 @@ func (s *Service) buildBreadcrumbs(
 	r *http.Request,
 	opts *semantic.QueryOptions,
 ) *semantic.BreadcrumbList {
-	breadcrumbs := &semantic.BreadcrumbList{
-		ItemListElement: make([]semantic.BreadcrumbListItem, len(opts.Filters)),
-	}
+	var items []semantic.BreadcrumbListItem
 
-	for i, filter := range opts.Filters {
-		breadcrumbs.ItemListElement[i] = semantic.BreadcrumbListItem{
-			Position:  i + 1,
+	for _, filter := range opts.Filters {
+		// Skip hidden filters — they should not appear in breadcrumbs.
+		if pf, ok := filter.(*semantic.PropertyFilter); ok && pf.Hidden {
+			continue
+		}
+
+		items = append(items, semantic.BreadcrumbListItem{
+			Position:  len(items) + 1,
 			Name:      s.buildFilterLabel(filter),
 			RemoveURL: s.buildFilterRemoveURL(r, filter, opts),
-		}
+		})
 	}
 
-	return breadcrumbs
+	return &semantic.BreadcrumbList{
+		ItemListElement: items,
+	}
 }
 
 // buildFilterLabel creates a human-readable label for a filter.

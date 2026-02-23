@@ -276,6 +276,182 @@ func TestQueryContextRefJSONFields(t *testing.T) {
 	}
 }
 
+func TestBuildBreadcrumbs_HidesHiddenFilters(t *testing.T) {
+	svc := newTestService(t)
+
+	opts := &domainSemantic.QueryOptions{
+		Filters: []domainSemantic.Filter{
+			&domainSemantic.PropertyFilter{
+				FieldName:    "dc:type",
+				OperatorType: domainSemantic.OpEqual,
+				Value:        "painting",
+			},
+			&domainSemantic.PropertyFilter{
+				FieldName:    "orgID",
+				OperatorType: domainSemantic.OpEqual,
+				Value:        "museum-x",
+				Hidden:       true,
+			},
+		},
+	}
+
+	r := httptest.NewRequest(http.MethodGet, "/search?filter[dc_type][eq]=painting&hfilter[orgID][eq]=museum-x", nil)
+	breadcrumbs := svc.buildBreadcrumbs(r, opts)
+
+	if len(breadcrumbs.ItemListElement) != 1 {
+		t.Fatalf("expected 1 breadcrumb, got %d", len(breadcrumbs.ItemListElement))
+	}
+
+	if breadcrumbs.ItemListElement[0].Position != 1 {
+		t.Errorf("Position = %d, want 1", breadcrumbs.ItemListElement[0].Position)
+	}
+}
+
+func TestBuildBreadcrumbs_AllHidden(t *testing.T) {
+	svc := newTestService(t)
+
+	opts := &domainSemantic.QueryOptions{
+		Filters: []domainSemantic.Filter{
+			&domainSemantic.PropertyFilter{
+				FieldName:    "orgID",
+				OperatorType: domainSemantic.OpEqual,
+				Value:        "museum-x",
+				Hidden:       true,
+			},
+		},
+	}
+
+	r := httptest.NewRequest(http.MethodGet, "/search?hfilter[orgID][eq]=museum-x", nil)
+	breadcrumbs := svc.buildBreadcrumbs(r, opts)
+
+	if len(breadcrumbs.ItemListElement) != 0 {
+		t.Fatalf("expected 0 breadcrumbs when all hidden, got %d", len(breadcrumbs.ItemListElement))
+	}
+}
+
+func TestBuildCollection_Debug(t *testing.T) {
+	svc := newTestService(t)
+
+	result := &domainSemantic.SearchResult{
+		Total:   5,
+		Results: []map[string]any{},
+		Metadata: map[string]any{
+			"v2_query": "some ES query string",
+		},
+	}
+
+	opts := &domainSemantic.QueryOptions{
+		Debug:      "query",
+		Pagination: &domainSemantic.Pagination{Page: 1, Size: 20},
+	}
+
+	config := domainSemantic.NewResourceConfig("test:Resource", "Test")
+	r := httptest.NewRequest(http.MethodGet, "/search?debug=query", nil)
+
+	collection := svc.buildCollection(r, result, opts, config)
+
+	if collection.Debug == nil {
+		t.Fatal("expected debug section in collection")
+	}
+
+	if _, ok := collection.Debug["v2_query"]; !ok {
+		t.Error("expected v2_query in debug metadata")
+	}
+}
+
+func TestBuildCollection_NoDebugWithoutFlag(t *testing.T) {
+	svc := newTestService(t)
+
+	result := &domainSemantic.SearchResult{
+		Total:   0,
+		Results: []map[string]any{},
+	}
+
+	opts := &domainSemantic.QueryOptions{
+		Pagination: &domainSemantic.Pagination{Page: 1, Size: 20},
+	}
+
+	config := domainSemantic.NewResourceConfig("test:Resource", "Test")
+	r := httptest.NewRequest(http.MethodGet, "/search", nil)
+
+	collection := svc.buildCollection(r, result, opts, config)
+
+	if collection.Debug != nil {
+		t.Error("debug should be nil when not requested")
+	}
+}
+
+func TestBuildCollection_NoDebugWithoutMetadata(t *testing.T) {
+	svc := newTestService(t)
+
+	result := &domainSemantic.SearchResult{
+		Total:   0,
+		Results: []map[string]any{},
+	}
+
+	opts := &domainSemantic.QueryOptions{
+		Debug:      "query",
+		Pagination: &domainSemantic.Pagination{Page: 1, Size: 20},
+	}
+
+	config := domainSemantic.NewResourceConfig("test:Resource", "Test")
+	r := httptest.NewRequest(http.MethodGet, "/search?debug=query", nil)
+
+	collection := svc.buildCollection(r, result, opts, config)
+
+	if collection.Debug != nil {
+		t.Error("debug should be nil when metadata is nil")
+	}
+}
+
+func TestBuildFacets_IncludesCursor(t *testing.T) {
+	svc := newTestService(t)
+
+	results := []domainSemantic.FacetResult{
+		{
+			Field:       "dc:creator",
+			FacetType:   "enum",
+			TotalValues: 500,
+			NextCursor:  "eyJjcmVhdG9yIjoiUmVtYnJhbmR0In0=",
+			Values: []domainSemantic.FacetValueResult{
+				{Value: "Rembrandt", Count: 42},
+			},
+		},
+	}
+
+	opts := &domainSemantic.QueryOptions{}
+	r := httptest.NewRequest(http.MethodGet, "/search", nil)
+
+	facets := svc.buildFacets(r, results, opts)
+	if len(facets) != 1 {
+		t.Fatalf("expected 1 facet, got %d", len(facets))
+	}
+
+	if facets[0].NextCursor != "eyJjcmVhdG9yIjoiUmVtYnJhbmR0In0=" {
+		t.Errorf("NextCursor = %q, want encoded cursor", facets[0].NextCursor)
+	}
+}
+
+func TestBuildFacets_NoCursorWhenEmpty(t *testing.T) {
+	svc := newTestService(t)
+
+	results := []domainSemantic.FacetResult{
+		{
+			Field:     "dc:type",
+			FacetType: "enum",
+			Values:    []domainSemantic.FacetValueResult{{Value: "painting", Count: 10}},
+		},
+	}
+
+	opts := &domainSemantic.QueryOptions{}
+	r := httptest.NewRequest(http.MethodGet, "/search", nil)
+
+	facets := svc.buildFacets(r, results, opts)
+	if facets[0].NextCursor != "" {
+		t.Error("NextCursor should be empty when not set")
+	}
+}
+
 func TestTimingJSONFields(t *testing.T) {
 	timing := &domainSemantic.Timing{
 		Took: 42,
