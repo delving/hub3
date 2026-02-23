@@ -532,3 +532,231 @@ func assertBaseFilters(t *testing.T, result map[string]interface{}, orgID string
 		t.Errorf("expected meta.orgID=%s, got %v", orgID, term["meta.orgID"])
 	}
 }
+
+func TestQueryBuilder_Collapse(t *testing.T) {
+	const orgID = "test-org"
+
+	t.Run("collapse produces collapse clause with field and inner_hits", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Collapse: &semantic.CollapseOptions{
+				Field: "meta.spec",
+				Size:  3,
+			},
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		collapse, ok := result["collapse"].(map[string]interface{})
+		if !ok {
+			t.Fatal("expected collapse clause")
+		}
+
+		if collapse["field"] != "meta.spec" {
+			t.Errorf("expected field 'meta.spec', got %v", collapse["field"])
+		}
+
+		innerHits, ok := collapse["inner_hits"].(map[string]interface{})
+		if !ok {
+			t.Fatal("expected inner_hits in collapse")
+		}
+
+		if innerHits["name"] != "collapse" {
+			t.Errorf("expected inner_hits name 'collapse', got %v", innerHits["name"])
+		}
+
+		if innerHits["size"] != float64(3) {
+			t.Errorf("expected inner_hits size 3, got %v", innerHits["size"])
+		}
+
+		if collapse["max_concurrent_group_requests"] != float64(4) {
+			t.Errorf("expected max_concurrent_group_requests 4, got %v", collapse["max_concurrent_group_requests"])
+		}
+	})
+
+	t.Run("collapse with sort adds sort to inner_hits", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Collapse: &semantic.CollapseOptions{
+				Field: "meta.spec",
+				Size:  2,
+				Sort: []semantic.SortField{
+					{Field: "dc:date", Direction: semantic.SortDesc},
+				},
+			},
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		collapse := result["collapse"].(map[string]interface{})
+		innerHits := collapse["inner_hits"].(map[string]interface{})
+
+		sortArr, ok := innerHits["sort"].([]interface{})
+		if !ok {
+			t.Fatal("expected sort array in inner_hits")
+		}
+
+		if len(sortArr) != 1 {
+			t.Fatalf("expected 1 sort entry, got %d", len(sortArr))
+		}
+
+		entry := sortArr[0].(map[string]interface{})
+		fieldSort, ok := entry["dc_date"].(map[string]interface{})
+		if !ok {
+			t.Fatal("expected dc_date sort entry")
+		}
+
+		if fieldSort["order"] != "desc" {
+			t.Errorf("expected order 'desc', got %v", fieldSort["order"])
+		}
+	})
+
+	t.Run("collapse size 0 defaults to 1", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Collapse: &semantic.CollapseOptions{
+				Field: "meta.spec",
+				Size:  0,
+			},
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		collapse := result["collapse"].(map[string]interface{})
+		innerHits := collapse["inner_hits"].(map[string]interface{})
+
+		if innerHits["size"] != float64(1) {
+			t.Errorf("expected inner_hits size 1 (default), got %v", innerHits["size"])
+		}
+	})
+}
+
+func TestQueryBuilder_Peek(t *testing.T) {
+	const orgID = "test-org"
+
+	t.Run("peek sets size to 0", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Peek: true,
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		size, ok := result["size"].(float64)
+		if !ok {
+			t.Fatal("expected size field")
+		}
+
+		if size != 0 {
+			t.Errorf("expected size=0, got %v", size)
+		}
+	})
+
+	t.Run("peek overrides pagination size", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Pagination: &semantic.Pagination{Page: 1, Size: 25},
+			Peek:       true,
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		size, ok := result["size"].(float64)
+		if !ok {
+			t.Fatal("expected size field")
+		}
+
+		if size != 0 {
+			t.Errorf("expected size=0 (peek overrides pagination), got %v", size)
+		}
+	})
+}
+
+func TestQueryBuilder_Debug(t *testing.T) {
+	const orgID = "test-org"
+
+	t.Run("debug query adds explain true", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{
+			Debug: "query",
+		}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		explain, ok := result["explain"].(bool)
+		if !ok {
+			t.Fatal("expected explain field")
+		}
+
+		if !explain {
+			t.Error("expected explain=true")
+		}
+	})
+
+	t.Run("no debug produces no explain", func(t *testing.T) {
+		qb := NewQueryBuilder(orgID)
+		opts := &semantic.QueryOptions{}
+
+		data, err := qb.BuildQuery(opts)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		if _, ok := result["explain"]; ok {
+			t.Error("expected no explain field when debug is empty")
+		}
+	})
+}

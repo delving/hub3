@@ -85,6 +85,26 @@ func (qb *QueryBuilder) BuildQuery(opts *semantic.QueryOptions) ([]byte, error) 
 		body["sort"] = qb.buildSort(opts.Sort)
 	}
 
+	// Collapse: group results by a field value with inner_hits.
+	if opts.Collapse != nil {
+		body["collapse"] = qb.buildCollapse(opts.Collapse)
+	}
+
+	// Peek: when true, return zero items (only aggregations/facets matter).
+	if opts.Peek {
+		body["size"] = 0
+	}
+
+	// Debug: when set, enable ES explain mode for scoring diagnostics.
+	if opts.Debug != "" {
+		body["explain"] = true
+	}
+
+	// FacetBoolType: stored for use by the Store layer.
+	// When FacetBoolType == "and", the Store layer will use a post_filter approach
+	// so that facet counts reflect the unfiltered result set while the main results
+	// are narrowed. The actual post_filter construction happens in the Store, not here.
+
 	return json.Marshal(body)
 }
 
@@ -287,6 +307,29 @@ func (qb *QueryBuilder) buildGeoPolygonFilter(gpf *semantic.GeoPolygonFilter) in
 				"points": points,
 			},
 		},
+	}
+}
+
+// buildCollapse constructs the ES collapse clause from CollapseOptions.
+func (qb *QueryBuilder) buildCollapse(co *semantic.CollapseOptions) map[string]interface{} {
+	size := co.Size
+	if size <= 0 {
+		size = 1
+	}
+
+	innerHits := map[string]interface{}{
+		"name": "collapse",
+		"size": size,
+	}
+
+	if len(co.Sort) > 0 {
+		innerHits["sort"] = qb.buildSort(co.Sort)
+	}
+
+	return map[string]interface{}{
+		"field":                          translateField(co.Field),
+		"inner_hits":                     innerHits,
+		"max_concurrent_group_requests":  4,
 	}
 }
 
