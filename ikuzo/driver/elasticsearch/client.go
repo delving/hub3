@@ -151,6 +151,11 @@ func (c *Client) CreateDefaultMappings(orgs []domain.OrganizationConfig, withAli
 	return indexNames, nil
 }
 
+// ES returns the underlying go-elasticsearch/v8 client for direct API access.
+func (c *Client) ES() *elasticsearch.Client {
+	return c.es
+}
+
 // SearchClient returns the underlying olivere elastic.Client for advanced search operations.
 func (c *Client) SearchClient() *elastic.Client {
 	return c.search

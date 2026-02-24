@@ -8,13 +8,15 @@ import (
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 	semanticService "github.com/delving/hub3/ikuzo/service/x/semantic"
 	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
+	elasticsearch8 "github.com/delving/hub3/ikuzo/storage/x/elasticsearch8"
 	"github.com/delving/hub3/ikuzo/storage/x/v2adapter"
 )
 
 type Semantic struct {
-	Enabled      bool   `json:"enabled"`
-	BaseURL      string `json:"baseURL"`
-	UseV2Adapter bool   `json:"useV2Adapter"`
+	Enabled       bool   `json:"enabled"`
+	BaseURL       string `json:"baseURL"`
+	UseV2Adapter  bool   `json:"useV2Adapter"`
+	UseES8Backend bool   `json:"useES8Backend"`
 }
 
 func (s *Semantic) AddOptions(cfg *Config) error {
@@ -34,7 +36,22 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 	// Create semantic store - choose implementation based on configuration
 	var store semantic.SearchStore
 
-	if s.UseV2Adapter {
+	// Build service options (populated below based on backend choice)
+	var serviceOpts []semanticService.Option
+
+	if s.UseES8Backend {
+		// Use native go-elasticsearch/v8 backend
+		logger.Info().
+			Bool("use_es8_backend", true).
+			Msg("initializing semantic API with native ES8 backend")
+
+		es8Client := elasticsearch8.NewClientFromExisting(esClient.ES(), logger)
+		store = elasticsearch8.NewStore(es8Client, logger)
+
+		// Also create introspection store
+		introspect := elasticsearch8.NewIntrospectionStore(es8Client, logger)
+		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
+	} else if s.UseV2Adapter {
 		// Use v2 adapter for gradual migration
 		// OrgID is extracted from request context by the adapter (multi-tenant)
 		logger.Info().
@@ -46,6 +63,14 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 			cfg.ElasticSearch.IndexName,
 			logger,
 		)
+
+		// Add introspection adapter when using v2 adapter
+		introspect := v2adapter.NewV2IntrospectionAdapter(
+			esClient.SearchClient(),
+			cfg.ElasticSearch.IndexName,
+			logger,
+		)
+		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
 	} else {
 		// Use direct Elasticsearch implementation
 		logger.Info().
@@ -68,22 +93,12 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 		baseURL = "/api/semantic/v1"
 	}
 
-	// Build service options
-	serviceOpts := []semanticService.Option{
+	// Add common service options
+	serviceOpts = append(serviceOpts,
 		semanticService.WithStore(store),
 		semanticService.WithRegistry(registry),
 		semanticService.WithBaseURL(baseURL),
-	}
-
-	// Add introspection adapter when using v2 adapter
-	if s.UseV2Adapter {
-		introspect := v2adapter.NewV2IntrospectionAdapter(
-			esClient.SearchClient(),
-			cfg.ElasticSearch.IndexName,
-			logger,
-		)
-		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
-	}
+	)
 
 	// Create semantic service
 	svc, err := semanticService.NewService(serviceOpts...)
