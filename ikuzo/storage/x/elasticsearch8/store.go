@@ -1,0 +1,285 @@
+package elasticsearch8
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"sync"
+
+	"github.com/rs/zerolog"
+
+	"github.com/delving/hub3/ikuzo/domain"
+	"github.com/delving/hub3/ikuzo/domain/semantic"
+)
+
+// Store implements semantic.SearchStore backed by Elasticsearch 8.
+type Store struct {
+	client *Client
+	aggMode AggregationMode
+	log     zerolog.Logger
+
+	contextMu sync.RWMutex
+	contexts  map[string]*semantic.SearchContext
+}
+
+// compile-time interface check
+var _ semantic.SearchStore = (*Store)(nil)
+
+// NewStore creates a new Store wrapping the given Client.
+func NewStore(client *Client, logger zerolog.Logger) *Store {
+	return &Store{
+		client:   client,
+		log:      logger.With().Str("svc", "es8-store").Logger(),
+		contexts: make(map[string]*semantic.SearchContext),
+	}
+}
+
+// SetAggregationMode sets the aggregation mode (AggFlat or AggNested).
+func (s *Store) SetAggregationMode(mode AggregationMode) {
+	s.aggMode = mode
+}
+
+// Search executes a search query against Elasticsearch and returns results.
+func (s *Store) Search(ctx context.Context, opts *semantic.QueryOptions, config *semantic.ResourceConfig) (*semantic.SearchResult, error) {
+	orgID, err := s.orgIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	qb := NewQueryBuilder(orgID)
+
+	body, err := qb.BuildQuery(opts)
+	if err != nil {
+		return nil, fmt.Errorf("building search query: %w", err)
+	}
+
+	// Merge facet aggregations if present.
+	if opts != nil && len(opts.Facets) > 0 {
+		body, err = s.mergeAggregations(body, opts.Facets)
+		if err != nil {
+			return nil, fmt.Errorf("merging aggregations: %w", err)
+		}
+	}
+
+	index := s.client.IndexName(orgID)
+
+	s.log.Debug().
+		Str("index", index).
+		Str("orgID", orgID).
+		Msg("executing search")
+
+	resp, err := s.client.ES().Search(
+		s.client.ES().Search.WithContext(ctx),
+		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithBody(bytes.NewReader(body)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("executing ES search: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("ES search error: %s", resp.String())
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading ES search response: %w", err)
+	}
+
+	parser := &ResultParser{}
+
+	result, err := parser.ParseSearchResponse(data)
+	if err != nil {
+		return nil, fmt.Errorf("parsing search response: %w", err)
+	}
+
+	// Parse facets if requested.
+	if opts != nil && len(opts.Facets) > 0 {
+		var esResp esSearchResponse
+		if err := json.Unmarshal(data, &esResp); err == nil && len(esResp.Aggs) > 0 {
+			result.Facets = parser.ParseFacets(esResp.Aggs, opts.Facets)
+		}
+	}
+
+	return result, nil
+}
+
+// GetByID retrieves a single document by its ID from Elasticsearch.
+func (s *Store) GetByID(ctx context.Context, id string, config *semantic.ResourceConfig) (map[string]any, error) {
+	orgID, err := s.orgIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	index := s.client.IndexName(orgID)
+
+	s.log.Debug().
+		Str("index", index).
+		Str("id", id).
+		Msg("getting document by ID")
+
+	resp, err := s.client.ES().Get(
+		index,
+		id,
+		s.client.ES().Get.WithContext(ctx),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("executing ES get: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		if resp.StatusCode == 404 {
+			return nil, fmt.Errorf("document %q not found", id)
+		}
+
+		return nil, fmt.Errorf("ES get error: %s", resp.String())
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading ES get response: %w", err)
+	}
+
+	parser := &ResultParser{}
+
+	return parser.ParseGetResponse(data)
+}
+
+// Aggregate executes aggregation queries and returns only facet results.
+func (s *Store) Aggregate(ctx context.Context, facets []semantic.FacetRequest, filters []semantic.Filter, config *semantic.ResourceConfig) ([]semantic.FacetResult, error) {
+	orgID, err := s.orgIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Build a query with size=0 (we only want aggregations).
+	opts := &semantic.QueryOptions{
+		Filters: filters,
+		Peek:    true, // sets size=0
+	}
+
+	qb := NewQueryBuilder(orgID)
+
+	body, err := qb.BuildQuery(opts)
+	if err != nil {
+		return nil, fmt.Errorf("building aggregation query: %w", err)
+	}
+
+	body, err = s.mergeAggregations(body, facets)
+	if err != nil {
+		return nil, fmt.Errorf("merging aggregations: %w", err)
+	}
+
+	index := s.client.IndexName(orgID)
+
+	s.log.Debug().
+		Str("index", index).
+		Int("facets", len(facets)).
+		Msg("executing aggregation")
+
+	resp, err := s.client.ES().Search(
+		s.client.ES().Search.WithContext(ctx),
+		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithBody(bytes.NewReader(body)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("executing ES aggregation: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("ES aggregation error: %s", resp.String())
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading ES aggregation response: %w", err)
+	}
+
+	var esResp esSearchResponse
+	if err := json.Unmarshal(data, &esResp); err != nil {
+		return nil, fmt.Errorf("parsing aggregation response: %w", err)
+	}
+
+	parser := &ResultParser{}
+
+	return parser.ParseFacets(esResp.Aggs, facets), nil
+}
+
+// SaveSearchContext saves a search context for detail-level navigation.
+func (s *Store) SaveSearchContext(_ context.Context, searchCtx *semantic.SearchContext) error {
+	s.contextMu.Lock()
+	defer s.contextMu.Unlock()
+
+	s.contexts[searchCtx.Token] = searchCtx
+
+	return nil
+}
+
+// GetSearchContext retrieves a saved search context by token.
+func (s *Store) GetSearchContext(_ context.Context, token string) (*semantic.SearchContext, error) {
+	s.contextMu.RLock()
+	defer s.contextMu.RUnlock()
+
+	ctx, ok := s.contexts[token]
+	if !ok {
+		return nil, semantic.ErrContextNotFound
+	}
+
+	return ctx, nil
+}
+
+// DeleteSearchContext removes a search context by token.
+func (s *Store) DeleteSearchContext(_ context.Context, token string) error {
+	s.contextMu.Lock()
+	defer s.contextMu.Unlock()
+
+	delete(s.contexts, token)
+
+	return nil
+}
+
+// Health checks if the Elasticsearch cluster is reachable and healthy.
+func (s *Store) Health(ctx context.Context) error {
+	resp, err := s.client.ES().Cluster.Health(
+		s.client.ES().Cluster.Health.WithContext(ctx),
+	)
+	if err != nil {
+		return fmt.Errorf("ES cluster health check failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return fmt.Errorf("ES cluster unhealthy: %s", resp.String())
+	}
+
+	return nil
+}
+
+// orgIDFromContext extracts the organization ID from the context.
+func (s *Store) orgIDFromContext(ctx context.Context) (string, error) {
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if !ok {
+		return "", fmt.Errorf("no organization in context")
+	}
+
+	return org.ID.String(), nil
+}
+
+// mergeAggregations adds aggregation clauses to an existing query body.
+func (s *Store) mergeAggregations(body []byte, facets []semantic.FacetRequest) ([]byte, error) {
+	var query map[string]any
+	if err := json.Unmarshal(body, &query); err != nil {
+		return nil, fmt.Errorf("unmarshaling query for aggregation merge: %w", err)
+	}
+
+	ab := &AggregationBuilder{Mode: s.aggMode}
+	aggs := ab.BuildAggregations(facets)
+	query["aggs"] = aggs
+
+	return json.Marshal(query)
+}
