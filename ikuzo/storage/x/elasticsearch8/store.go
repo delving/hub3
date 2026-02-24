@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"sync"
 
 	"github.com/rs/zerolog"
@@ -24,8 +25,11 @@ type Store struct {
 	contexts  map[string]*semantic.SearchContext
 }
 
-// compile-time interface check
-var _ semantic.SearchStore = (*Store)(nil)
+// compile-time interface checks
+var (
+	_ semantic.SearchStore  = (*Store)(nil)
+	_ semantic.SimilarStore = (*Store)(nil)
+)
 
 // NewStore creates a new Store wrapping the given Client.
 func NewStore(client *Client, logger zerolog.Logger) *Store {
@@ -105,6 +109,104 @@ func (s *Store) Search(ctx context.Context, opts *semantic.QueryOptions, config 
 	}
 
 	return result, nil
+}
+
+// FindSimilar returns documents similar to the given document using
+// Elasticsearch's More-Like-This (MLT) query.
+func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.SimilarOptions, config *semantic.ResourceConfig) (*semantic.SearchResult, error) {
+	orgID, err := s.orgIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if opts == nil {
+		opts = semantic.DefaultSimilarOptions()
+	}
+
+	// Cap count at 20.
+	count := opts.Count
+	if count <= 0 {
+		count = 5
+	}
+
+	if count > 20 {
+		count = 20
+	}
+
+	// Translate field names: prefix with "fields." and replace ":" with "_".
+	fields := opts.Fields
+	if len(fields) == 0 {
+		fields = []string{"full_text"}
+	} else {
+		translated := make([]string, len(fields))
+		for i, f := range fields {
+			translated[i] = "fields." + strings.ReplaceAll(f, ":", "_")
+		}
+
+		fields = translated
+	}
+
+	index := s.client.IndexName(orgID)
+
+	minTermFreq := opts.MinTermFreq
+	if minTermFreq <= 0 {
+		minTermFreq = 2
+	}
+
+	minDocFreq := opts.MinDocFreq
+	if minDocFreq <= 0 {
+		minDocFreq = 5
+	}
+
+	query := map[string]any{
+		"query": map[string]any{
+			"more_like_this": map[string]any{
+				"fields": fields,
+				"like": []map[string]any{
+					{"_index": index, "_id": id},
+				},
+				"min_term_freq":  minTermFreq,
+				"min_doc_freq":   minDocFreq,
+				"max_query_terms": 15,
+			},
+		},
+		"size":             count,
+		"track_total_hits": true,
+	}
+
+	body, err := json.Marshal(query)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling MLT query: %w", err)
+	}
+
+	s.log.Debug().
+		Str("index", index).
+		Str("id", id).
+		Int("count", count).
+		Msg("executing MLT search")
+
+	resp, err := s.client.ES().Search(
+		s.client.ES().Search.WithContext(ctx),
+		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithBody(bytes.NewReader(body)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("executing ES MLT search: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("ES MLT search error: %s", resp.String())
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading ES MLT response: %w", err)
+	}
+
+	parser := &ResultParser{}
+
+	return parser.ParseSearchResponse(data)
 }
 
 // GetByID retrieves a single document by its ID from Elasticsearch.

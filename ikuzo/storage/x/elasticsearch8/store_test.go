@@ -2,6 +2,7 @@ package elasticsearch8
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -416,5 +417,194 @@ func TestStore_Aggregate(t *testing.T) {
 
 	if len(results[1].Values) != 2 {
 		t.Errorf("expected 2 values for dc_creator, got %d", len(results[1].Values))
+	}
+}
+
+func TestStore_implementsSimilarStore(t *testing.T) {
+	// Compile-time interface check.
+	var _ semantic.SimilarStore = (*Store)(nil)
+}
+
+func TestStore_FindSimilar(t *testing.T) {
+	cannedResponse := `{
+		"took": 3,
+		"timed_out": false,
+		"hits": {
+			"total": {"value": 3, "relation": "eq"},
+			"hits": [
+				{
+					"_id": "similar-1",
+					"_score": 2.5,
+					"_source": {"@id": "http://example.org/s1", "dc_title": "Similar One"}
+				},
+				{
+					"_id": "similar-2",
+					"_score": 2.1,
+					"_source": {"@id": "http://example.org/s2", "dc_title": "Similar Two"}
+				},
+				{
+					"_id": "similar-3",
+					"_score": 1.8,
+					"_source": {"@id": "http://example.org/s3", "dc_title": "Similar Three"}
+				}
+			]
+		}
+	}`
+
+	client := newMockClient(func(req *http.Request) (*http.Response, error) {
+		return mockResponse(200, cannedResponse), nil
+	})
+
+	store := NewStore(client, zerolog.Nop())
+	ctx := testContext()
+
+	opts := &semantic.SimilarOptions{
+		Count:       5,
+		Fields:      []string{"dc:creator", "dc:title"},
+		MinTermFreq: 2,
+		MinDocFreq:  5,
+	}
+
+	result, err := store.FindSimilar(ctx, "doc-123", opts, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Total != 3 {
+		t.Errorf("expected total 3, got %d", result.Total)
+	}
+
+	if len(result.Results) != 3 {
+		t.Errorf("expected 3 results, got %d", len(result.Results))
+	}
+
+	if len(result.ResultIDs) != 3 {
+		t.Errorf("expected 3 result IDs, got %d", len(result.ResultIDs))
+	}
+
+	if result.ResultIDs[0] != "similar-1" {
+		t.Errorf("expected first result ID %q, got %q", "similar-1", result.ResultIDs[0])
+	}
+
+	if result.ResultIDs[1] != "similar-2" {
+		t.Errorf("expected second result ID %q, got %q", "similar-2", result.ResultIDs[1])
+	}
+
+	if result.ResultIDs[2] != "similar-3" {
+		t.Errorf("expected third result ID %q, got %q", "similar-3", result.ResultIDs[2])
+	}
+}
+
+func TestStore_FindSimilar_Defaults(t *testing.T) {
+	cannedResponse := `{
+		"took": 2,
+		"hits": {
+			"total": {"value": 1, "relation": "eq"},
+			"hits": [
+				{
+					"_id": "default-1",
+					"_score": 1.0,
+					"_source": {"@id": "http://example.org/d1", "dc_title": "Default"}
+				}
+			]
+		}
+	}`
+
+	var capturedBody []byte
+
+	client := newMockClient(func(req *http.Request) (*http.Response, error) {
+		if req.Body != nil {
+			capturedBody, _ = io.ReadAll(req.Body)
+		}
+
+		return mockResponse(200, cannedResponse), nil
+	})
+
+	store := NewStore(client, zerolog.Nop())
+	ctx := testContext()
+
+	// Pass nil opts to exercise defaults.
+	result, err := store.FindSimilar(ctx, "doc-456", nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if result.Total != 1 {
+		t.Errorf("expected total 1, got %d", result.Total)
+	}
+
+	// Verify defaults were applied in the query body.
+	var query map[string]any
+	if err := json.Unmarshal(capturedBody, &query); err != nil {
+		t.Fatalf("failed to unmarshal captured body: %v", err)
+	}
+
+	size, ok := query["size"].(float64)
+	if !ok || int(size) != 5 {
+		t.Errorf("expected default size 5, got %v", query["size"])
+	}
+
+	mlt, ok := query["query"].(map[string]any)["more_like_this"].(map[string]any)
+	if !ok {
+		t.Fatal("expected more_like_this query in body")
+	}
+
+	fields, ok := mlt["fields"].([]any)
+	if !ok || len(fields) != 1 || fields[0] != "full_text" {
+		t.Errorf("expected default fields [full_text], got %v", mlt["fields"])
+	}
+
+	minTermFreq, ok := mlt["min_term_freq"].(float64)
+	if !ok || int(minTermFreq) != 2 {
+		t.Errorf("expected default min_term_freq 2, got %v", mlt["min_term_freq"])
+	}
+
+	minDocFreq, ok := mlt["min_doc_freq"].(float64)
+	if !ok || int(minDocFreq) != 5 {
+		t.Errorf("expected default min_doc_freq 5, got %v", mlt["min_doc_freq"])
+	}
+}
+
+func TestStore_FindSimilar_CapsAt20(t *testing.T) {
+	cannedResponse := `{
+		"took": 1,
+		"hits": {
+			"total": {"value": 0, "relation": "eq"},
+			"hits": []
+		}
+	}`
+
+	var capturedBody []byte
+
+	client := newMockClient(func(req *http.Request) (*http.Response, error) {
+		if req.Body != nil {
+			capturedBody, _ = io.ReadAll(req.Body)
+		}
+
+		return mockResponse(200, cannedResponse), nil
+	})
+
+	store := NewStore(client, zerolog.Nop())
+	ctx := testContext()
+
+	opts := &semantic.SimilarOptions{
+		Count:       100, // way over the max
+		MinTermFreq: 2,
+		MinDocFreq:  5,
+	}
+
+	_, err := store.FindSimilar(ctx, "doc-789", opts, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	var query map[string]any
+	if err := json.Unmarshal(capturedBody, &query); err != nil {
+		t.Fatalf("failed to unmarshal captured body: %v", err)
+	}
+
+	size, ok := query["size"].(float64)
+	if !ok || int(size) != 20 {
+		t.Errorf("expected capped size 20, got %v", query["size"])
 	}
 }
