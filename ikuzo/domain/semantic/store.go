@@ -225,6 +225,8 @@ type SimilarOptions struct {
 	MinTermFreq int
 	// MinDocFreq is the minimum document frequency for a term to be considered (default: 5).
 	MinDocFreq int
+	// ContextIndices specifies additional organization IDs for cross-index MLT search.
+	ContextIndices []string
 }
 
 // DefaultSimilarOptions returns sensible defaults for similar item queries.

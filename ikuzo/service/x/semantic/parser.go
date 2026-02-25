@@ -109,6 +109,16 @@ func parseQueryParams(r *http.Request) (*semantic.QueryOptions, error) {
 	// Parse debug mode
 	opts.Debug = query.Get("debug")
 
+	// Parse context indices for cross-index search
+	if contextIndices := query["contextIndex"]; len(contextIndices) > 0 {
+		for _, idx := range contextIndices {
+			idx = strings.TrimSpace(idx)
+			if idx != "" {
+				opts.ContextIndices = append(opts.ContextIndices, idx)
+			}
+		}
+	}
+
 	// Parse peek mode
 	if peekFields := query.Get("peek"); peekFields != "" {
 		opts.Peek = true

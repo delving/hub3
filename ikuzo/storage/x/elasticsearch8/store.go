@@ -45,6 +45,21 @@ func (s *Store) SetAggregationMode(mode AggregationMode) {
 	s.aggMode = mode
 }
 
+// resolveIndices returns the list of ES index names to search.
+// It always includes the primary org index, plus any context indices.
+func (s *Store) resolveIndices(orgID string, contextIndices []string) []string {
+	indices := []string{s.client.IndexName(orgID)}
+
+	for _, idx := range contextIndices {
+		name := s.client.IndexName(idx)
+		if name != indices[0] { // avoid duplicate
+			indices = append(indices, name)
+		}
+	}
+
+	return indices
+}
+
 // Search executes a search query against Elasticsearch and returns results.
 func (s *Store) Search(ctx context.Context, opts *semantic.QueryOptions, config *semantic.ResourceConfig) (*semantic.SearchResult, error) {
 	orgID, err := s.orgIDFromContext(ctx)
@@ -52,7 +67,12 @@ func (s *Store) Search(ctx context.Context, opts *semantic.QueryOptions, config 
 		return nil, err
 	}
 
-	qb := NewQueryBuilder(orgID)
+	var contextIndices []string
+	if opts != nil {
+		contextIndices = opts.ContextIndices
+	}
+
+	qb := NewQueryBuilder(orgID, contextIndices...)
 
 	body, err := qb.BuildQuery(opts)
 	if err != nil {
@@ -67,16 +87,16 @@ func (s *Store) Search(ctx context.Context, opts *semantic.QueryOptions, config 
 		}
 	}
 
-	index := s.client.IndexName(orgID)
+	indices := s.resolveIndices(orgID, contextIndices)
 
 	s.log.Debug().
-		Str("index", index).
+		Strs("indices", indices).
 		Str("orgID", orgID).
 		Msg("executing search")
 
 	resp, err := s.client.ES().Search(
 		s.client.ES().Search.WithContext(ctx),
-		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithIndex(indices...),
 		s.client.ES().Search.WithBody(bytes.NewReader(body)),
 	)
 	if err != nil {
@@ -146,7 +166,7 @@ func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.Simil
 		fields = translated
 	}
 
-	index := s.client.IndexName(orgID)
+	indices := s.resolveIndices(orgID, opts.ContextIndices)
 
 	minTermFreq := opts.MinTermFreq
 	if minTermFreq <= 0 {
@@ -163,7 +183,7 @@ func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.Simil
 			"more_like_this": map[string]any{
 				"fields": fields,
 				"like": []map[string]any{
-					{"_index": index, "_id": id},
+					{"_index": indices[0], "_id": id},
 				},
 				"min_term_freq":  minTermFreq,
 				"min_doc_freq":   minDocFreq,
@@ -180,14 +200,14 @@ func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.Simil
 	}
 
 	s.log.Debug().
-		Str("index", index).
+		Strs("indices", indices).
 		Str("id", id).
 		Int("count", count).
 		Msg("executing MLT search")
 
 	resp, err := s.client.ES().Search(
 		s.client.ES().Search.WithContext(ctx),
-		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithIndex(indices...),
 		s.client.ES().Search.WithBody(bytes.NewReader(body)),
 	)
 	if err != nil {

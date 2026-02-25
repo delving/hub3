@@ -10,12 +10,14 @@ import (
 
 // QueryBuilder constructs Elasticsearch query JSON from semantic.QueryOptions.
 type QueryBuilder struct {
-	orgID string
+	orgID         string
+	contextOrgIDs []string
 }
 
 // NewQueryBuilder creates a new QueryBuilder for the given organisation.
-func NewQueryBuilder(orgID string) *QueryBuilder {
-	return &QueryBuilder{orgID: orgID}
+// Optional contextOrgIDs specify additional organisations to include in search (cross-index).
+func NewQueryBuilder(orgID string, contextOrgIDs ...string) *QueryBuilder {
+	return &QueryBuilder{orgID: orgID, contextOrgIDs: contextOrgIDs}
 }
 
 // BuildQuery converts semantic.QueryOptions into an Elasticsearch search request body.
@@ -27,10 +29,12 @@ func (qb *QueryBuilder) BuildQuery(opts *semantic.QueryOptions) ([]byte, error) 
 
 	boolQuery := map[string]interface{}{}
 
-	// Always filter on docType and orgID.
+	// Always filter on docType and orgID(s).
+	orgFilter := qb.buildOrgFilter()
+
 	filters := []interface{}{
 		map[string]interface{}{"term": map[string]interface{}{"meta.docType": "fragmentGraph"}},
-		map[string]interface{}{"term": map[string]interface{}{"meta.orgID": qb.orgID}},
+		orgFilter,
 	}
 
 	if opts == nil {
@@ -351,6 +355,22 @@ func (qb *QueryBuilder) buildSort(fields []semantic.SortField) []interface{} {
 	}
 
 	return sort
+}
+
+// buildOrgFilter returns a term or terms filter depending on whether context orgs are set.
+func (qb *QueryBuilder) buildOrgFilter() interface{} {
+	if len(qb.contextOrgIDs) == 0 {
+		return map[string]interface{}{"term": map[string]interface{}{"meta.orgID": qb.orgID}}
+	}
+
+	allOrgs := make([]interface{}, 0, 1+len(qb.contextOrgIDs))
+	allOrgs = append(allOrgs, qb.orgID)
+
+	for _, id := range qb.contextOrgIDs {
+		allOrgs = append(allOrgs, id)
+	}
+
+	return map[string]interface{}{"terms": map[string]interface{}{"meta.orgID": allOrgs}}
 }
 
 // translateField converts semantic field names to Elasticsearch field names.

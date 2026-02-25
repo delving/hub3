@@ -533,6 +533,77 @@ func assertBaseFilters(t *testing.T, result map[string]interface{}, orgID string
 	}
 }
 
+func TestQueryBuilder_ContextOrgIDs(t *testing.T) {
+	t.Run("single org produces term filter", func(t *testing.T) {
+		qb := NewQueryBuilder("primary-org")
+		data, err := qb.BuildQuery(nil)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		boolQ := getBoolQuery(t, result)
+		filters := boolQ["filter"].([]interface{})
+
+		orgFilter := filters[1].(map[string]interface{})
+		term, ok := orgFilter["term"].(map[string]interface{})
+		if !ok {
+			t.Fatal("expected term filter for single org")
+		}
+
+		if term["meta.orgID"] != "primary-org" {
+			t.Errorf("expected meta.orgID=primary-org, got %v", term["meta.orgID"])
+		}
+	})
+
+	t.Run("with context orgs produces terms filter", func(t *testing.T) {
+		qb := NewQueryBuilder("primary-org", "ctx-org-a", "ctx-org-b")
+		data, err := qb.BuildQuery(nil)
+		if err != nil {
+			t.Fatalf("BuildQuery() error = %v", err)
+		}
+
+		var result map[string]interface{}
+		if err := json.Unmarshal(data, &result); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+
+		boolQ := getBoolQuery(t, result)
+		filters := boolQ["filter"].([]interface{})
+
+		orgFilter := filters[1].(map[string]interface{})
+		terms, ok := orgFilter["terms"].(map[string]interface{})
+		if !ok {
+			t.Fatal("expected terms filter for multi org")
+		}
+
+		orgIDs, ok := terms["meta.orgID"].([]interface{})
+		if !ok {
+			t.Fatal("expected array of orgIDs")
+		}
+
+		if len(orgIDs) != 3 {
+			t.Fatalf("expected 3 org IDs, got %d", len(orgIDs))
+		}
+
+		if orgIDs[0] != "primary-org" {
+			t.Errorf("expected first org 'primary-org', got %v", orgIDs[0])
+		}
+
+		if orgIDs[1] != "ctx-org-a" {
+			t.Errorf("expected second org 'ctx-org-a', got %v", orgIDs[1])
+		}
+
+		if orgIDs[2] != "ctx-org-b" {
+			t.Errorf("expected third org 'ctx-org-b', got %v", orgIDs[2])
+		}
+	})
+}
+
 func TestQueryBuilder_Collapse(t *testing.T) {
 	const orgID = "test-org"
 

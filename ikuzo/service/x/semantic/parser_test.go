@@ -543,6 +543,55 @@ func TestParseQueryParams_HiddenFilter(t *testing.T) {
 	}
 }
 
+func TestParseQueryParams_ContextIndex(t *testing.T) {
+	t.Run("single context index", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?contextIndex=other-org", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if len(opts.ContextIndices) != 1 {
+			t.Fatalf("expected 1 context index, got %d", len(opts.ContextIndices))
+		}
+		if opts.ContextIndices[0] != "other-org" {
+			t.Errorf("expected 'other-org', got %q", opts.ContextIndices[0])
+		}
+	})
+
+	t.Run("multiple context indices", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?contextIndex=org-a&contextIndex=org-b", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if len(opts.ContextIndices) != 2 {
+			t.Fatalf("expected 2 context indices, got %d", len(opts.ContextIndices))
+		}
+	})
+
+	t.Run("empty context index is ignored", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?contextIndex=org-a&contextIndex=+&contextIndex=org-b", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if len(opts.ContextIndices) != 2 {
+			t.Fatalf("expected 2 context indices (empty ignored), got %d", len(opts.ContextIndices))
+		}
+	})
+
+	t.Run("no context index", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?query=test", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if len(opts.ContextIndices) != 0 {
+			t.Errorf("expected 0 context indices, got %d", len(opts.ContextIndices))
+		}
+	})
+}
+
 func TestParseQueryParams_FacetCursor(t *testing.T) {
 	r := httptest.NewRequest("GET", "/search?facet[dc_creator]=50&facet[dc_creator].cursor=abc123", nil)
 	opts, err := parseQueryParams(r)

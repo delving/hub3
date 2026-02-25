@@ -565,6 +565,46 @@ func TestStore_FindSimilar_Defaults(t *testing.T) {
 	}
 }
 
+func TestStore_resolveIndices(t *testing.T) {
+	client := newMockClient(func(req *http.Request) (*http.Response, error) {
+		return mockResponse(200, `{}`), nil
+	})
+	store := NewStore(client, zerolog.Nop())
+
+	t.Run("single org returns one index", func(t *testing.T) {
+		indices := store.resolveIndices("testorg", nil)
+		if len(indices) != 1 {
+			t.Fatalf("expected 1 index, got %d", len(indices))
+		}
+		if indices[0] != "testorgv2" {
+			t.Errorf("expected 'testorgv2', got %q", indices[0])
+		}
+	})
+
+	t.Run("with context orgs returns multiple indices", func(t *testing.T) {
+		indices := store.resolveIndices("testorg", []string{"other-org", "third-org"})
+		if len(indices) != 3 {
+			t.Fatalf("expected 3 indices, got %d", len(indices))
+		}
+		if indices[0] != "testorgv2" {
+			t.Errorf("expected 'testorgv2', got %q", indices[0])
+		}
+		if indices[1] != "other-orgv2" {
+			t.Errorf("expected 'other-orgv2', got %q", indices[1])
+		}
+		if indices[2] != "third-orgv2" {
+			t.Errorf("expected 'third-orgv2', got %q", indices[2])
+		}
+	})
+
+	t.Run("duplicate org is deduplicated", func(t *testing.T) {
+		indices := store.resolveIndices("testorg", []string{"testorg"})
+		if len(indices) != 1 {
+			t.Fatalf("expected 1 index (duplicate removed), got %d: %v", len(indices), indices)
+		}
+	})
+}
+
 func TestStore_FindSimilar_CapsAt20(t *testing.T) {
 	cannedResponse := `{
 		"took": 1,

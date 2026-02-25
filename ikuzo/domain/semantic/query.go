@@ -47,6 +47,9 @@ type QueryOptions struct {
 
 	// Debug when set returns diagnostic information (e.g., "query" shows ES query).
 	Debug string
+
+	// ContextIndices specifies additional organization IDs to search across.
+	ContextIndices []string
 }
 
 // FacetBoolType controls how multiple facet selections combine.
