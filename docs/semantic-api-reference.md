@@ -460,16 +460,20 @@ inline properties. Use `skos_prefLabel` for display text.
 Resource references can nest further — a Place may contain a broader Place, an
 Agent may reference an Organization, etc.
 
-#### Cycle Detection (Server-Side)
+#### Reference Types (`hub3:referenceType`)
 
-Cultural heritage data often contains circular references — a collection
-links to its items, and each item links back to the collection. Without
-protection, expanding these links would produce infinitely nested JSON.
+Not every resource reference is fully expanded inline. The API annotates
+ID-only references with `hub3:referenceType` so your application knows
+**why** a resource was not expanded and what to do about it.
 
-The API handles this **automatically on the server side**. When the server
-builds the nested JSON-LD response, it tracks which resources have already
-been expanded in the current traversal path. If a resource would appear a
-second time, the API emits an **ID-only reference** instead:
+| `hub3:referenceType` | Meaning | Action |
+|----------------------|---------|--------|
+| *(absent)* | Fully expanded — all properties are inline | Use the data directly |
+| `"cycle"` | Resource exists in this graph but was already expanded higher in the tree (circular reference) | Navigate up the tree to find the full version, or fetch via detail endpoint |
+| `"external"` | Resource is not part of this graph — it lives elsewhere on the web | Fetch via Linked Open Data (LOD) request to the `@id` URI |
+
+**Cycle example** — a collection references its items, and an item references
+back to the collection:
 
 ```json
 "dcterms_isPartOf": {
@@ -477,25 +481,36 @@ second time, the API emits an **ID-only reference** instead:
   "@type": ["ore:Aggregation"],
   "dc_title": "Dutch Masters Collection",
   "dcterms_hasPart": {
-    "@id": "https://example.org/resource/night-watch"
+    "@id": "https://example.org/resource/night-watch",
+    "hub3:referenceType": "cycle"
   }
 }
 ```
 
-In this example, `dcterms_hasPart` points back to the resource being described.
-Instead of creating infinite nesting, the API emits `{"@id": "..."}` only.
+The inner `dcterms_hasPart` points back to the resource being described.
+Instead of creating infinite nesting, the API marks it as a `cycle` reference.
 
-**As a consumer, you benefit from this automatically** — you will never receive
-infinitely nested responses. However, you should be aware of ID-only references
-so your parser can handle them gracefully.
+**External example** — a resource links to an authority on another server:
 
-**How to recognize a cycle reference:** an object that contains `@id` but has
-**no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated
-back-reference. To retrieve the full resource, fetch it separately:
+```json
+"owl_sameAs": {
+  "@id": "http://www.wikidata.org/entity/Q17593201",
+  "hub3:referenceType": "external"
+}
+```
+
+This resource is not part of the current graph. To retrieve its properties,
+perform a LOD request to the `@id` URI, or use the API detail endpoint if
+the URI belongs to this system:
 
 ```
 GET /api/semantic/v1/resource/{id}
 ```
+
+**As a consumer, you benefit from cycle detection automatically** — you will
+never receive infinitely nested responses. The `hub3:referenceType` field
+tells you exactly why a reference was not expanded so you can decide whether
+to fetch the full resource or simply display its `@id`.
 
 ### 6. Arrays
 
@@ -536,9 +551,11 @@ Follow these rules to robustly parse any resource from the API:
    the content, `@language` for the language, or `@type` for the datatype.
 
 4. **If the value is an object with `@id`**, it is a resource reference. Use
-   `skos_prefLabel` (or `rdfs_label`) for display text. If only `@id` is present
-   with no other properties, this is a **cycle-truncated reference** — fetch the
-   full resource via the detail endpoint if needed.
+   `skos_prefLabel` (or `rdfs_label`) for display text. Check `hub3:referenceType`
+   to understand why a reference was not expanded:
+   - `"cycle"` — already expanded higher in the tree; look up or fetch separately
+   - `"external"` — not in this graph; fetch via LOD request to the `@id` URI
+   - *(absent)* — fully expanded, all properties are inline
 
 5. **If the value is an object with only language-code keys** (`nl`, `en`, `de`, ...),
    it is a language map. Select the language matching your user's preference.
@@ -593,7 +610,13 @@ This example shows the variety of value types in a single resource:
   ],
 
   "dcterms_isPartOf": {
-    "@id": "http://example.org/resource/document/buildings/collection"
+    "@id": "http://example.org/resource/document/buildings/collection",
+    "hub3:referenceType": "cycle"
+  },
+
+  "owl_sameAs": {
+    "@id": "http://www.wikidata.org/entity/Q17593201",
+    "hub3:referenceType": "external"
   }
 }
 ```
@@ -601,12 +624,13 @@ This example shows the variety of value types in a single resource:
 In this response:
 - `dc_title` — plain literal
 - `dcterms_alternative` — array of plain literals
-- `dc_creator` — nested resource with display labels
+- `dc_creator` — nested resource (fully expanded, no `hub3:referenceType`)
 - `dc_description` — language-tagged literal
 - `nave_productionYear` — typed literal (integer)
 - `nave_location` — nested resource with GPS coordinates (strings!)
 - `edm_rights` — mixed array (string + resource reference)
-- `dcterms_isPartOf` — cycle-truncated reference (ID only, fetch separately)
+- `dcterms_isPartOf` — `hub3:referenceType: "cycle"` (exists in graph but already expanded above)
+- `owl_sameAs` — `hub3:referenceType: "external"` (not in this graph, fetch via LOD)
 
 ---
 

@@ -621,6 +621,7 @@ func TestCycleDetection(t *testing.T) {
 		assert.Equal(t, "resource/A", cycleRefA.ID)
 		// Should be empty - just an ID reference, no nested fields
 		assert.Empty(t, cycleRefA.Fields, "cycle reference should only contain ID, not nested fields")
+		assert.Equal(t, ReferenceCycle, cycleRefA.ReferenceType, "cycle reference should have ReferenceType=cycle")
 	})
 
 	t.Run("longer cycle A→B→C→A", func(t *testing.T) {
@@ -690,6 +691,7 @@ func TestCycleDetection(t *testing.T) {
 		cycleA := c.Fields["knows"].(*SemanticResource)
 		assert.Equal(t, "resource/A", cycleA.ID)
 		assert.Empty(t, cycleA.Fields, "cycle reference should only contain ID")
+		assert.Equal(t, ReferenceCycle, cycleA.ReferenceType)
 	})
 
 	t.Run("cycle to middle A→B→C→B", func(t *testing.T) {
@@ -754,6 +756,7 @@ func TestCycleDetection(t *testing.T) {
 
 		assert.Equal(t, "resource/B", cycleB.ID)
 		assert.Empty(t, cycleB.Fields, "cycle reference should only contain ID")
+		assert.Equal(t, ReferenceCycle, cycleB.ReferenceType)
 	})
 
 	t.Run("no cycle - normal nested resources", func(t *testing.T) {
@@ -800,6 +803,7 @@ func TestCycleDetection(t *testing.T) {
 		assert.Equal(t, "resource/B", b.ID)
 		// B should be fully expanded with its name field
 		assert.NotEmpty(t, b.Fields, "non-cycle nested resource should have all fields")
+		assert.Equal(t, ReferenceNone, b.ReferenceType, "fully expanded resource should have no reference type")
 
 		name := b.Fields["name"].(*SemanticLiteral)
 		assert.Equal(t, "Person B", name.Value)
@@ -900,5 +904,77 @@ func TestCycleDetection(t *testing.T) {
 		assert.NotEmpty(t, dFromC.Fields)
 		assert.Equal(t, "Person D", dFromB.Fields["name"].(*SemanticLiteral).Value)
 		assert.Equal(t, "Person D", dFromC.Fields["name"].(*SemanticLiteral).Value)
+	})
+
+	t.Run("external reference - resource not in graph", func(t *testing.T) {
+		resourceA := &FragmentResource{
+			ID:    "resource/A",
+			Types: []string{"Person"},
+			Entries: []*ResourceEntry{
+				{
+					SearchLabel: "sameAs",
+					Predicate:   "http://www.w3.org/2002/07/owl#sameAs",
+					EntryType:   resourceType,
+					ID:          "http://external.example.org/person/123",
+					Order:       1,
+				},
+			},
+		}
+
+		rm := &ResourceMap{
+			resources: map[string]*FragmentResource{
+				"resource/A": resourceA,
+				// Note: external resource is NOT in the map
+			},
+		}
+
+		sr := resourceA.ToSemanticResource(rm)
+		require.NotNil(t, sr)
+
+		extRef := sr.Fields["sameAs"].(*SemanticResource)
+		assert.Equal(t, "http://external.example.org/person/123", extRef.ID)
+		assert.Empty(t, extRef.Fields, "external reference should only contain ID")
+		assert.Equal(t, ReferenceExternal, extRef.ReferenceType, "external reference should have ReferenceType=external")
+	})
+
+	t.Run("reference type appears in JSON output", func(t *testing.T) {
+		// Cycle reference
+		cycleRef := &SemanticResource{
+			ID:            "resource/A",
+			ReferenceType: ReferenceCycle,
+		}
+		data, err := json.Marshal(cycleRef)
+		require.NoError(t, err)
+
+		var m map[string]interface{}
+		require.NoError(t, json.Unmarshal(data, &m))
+		assert.Equal(t, "cycle", m["hub3:referenceType"])
+
+		// External reference
+		extRef := &SemanticResource{
+			ID:            "http://external.example.org/thing",
+			ReferenceType: ReferenceExternal,
+		}
+		data, err = json.Marshal(extRef)
+		require.NoError(t, err)
+
+		require.NoError(t, json.Unmarshal(data, &m))
+		assert.Equal(t, "external", m["hub3:referenceType"])
+
+		// Fully expanded resource (no reference type in output)
+		expanded := &SemanticResource{
+			ID:   "resource/B",
+			Type: []string{"Person"},
+			Fields: map[string]SemanticValue{
+				"name": &SemanticLiteral{Value: "Test"},
+			},
+		}
+		data, err = json.Marshal(expanded)
+		require.NoError(t, err)
+
+		var expandedMap map[string]interface{}
+		require.NoError(t, json.Unmarshal(data, &expandedMap))
+		_, hasRefType := expandedMap["hub3:referenceType"]
+		assert.False(t, hasRefType, "fully expanded resource should not have hub3:referenceType")
 	})
 }

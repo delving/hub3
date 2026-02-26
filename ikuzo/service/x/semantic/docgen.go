@@ -488,37 +488,53 @@ func writePropertyValueTypes(b *strings.Builder) {
 	b.WriteString("Resource references can nest further — a Place may contain a broader Place, an\n")
 	b.WriteString("Agent may reference an Organization, etc.\n\n")
 
-	// Cycle detection
-	b.WriteString("#### Cycle Detection (Server-Side)\n\n")
-	b.WriteString("Cultural heritage data often contains circular references — a collection\n")
-	b.WriteString("links to its items, and each item links back to the collection. Without\n")
-	b.WriteString("protection, expanding these links would produce infinitely nested JSON.\n\n")
-	b.WriteString("The API handles this **automatically on the server side**. When the server\n")
-	b.WriteString("builds the nested JSON-LD response, it tracks which resources have already\n")
-	b.WriteString("been expanded in the current traversal path. If a resource would appear a\n")
-	b.WriteString("second time, the API emits an **ID-only reference** instead:\n\n")
+	// Reference types and cycle detection
+	b.WriteString("#### Reference Types (`hub3:referenceType`)\n\n")
+	b.WriteString("Not every resource reference is fully expanded inline. The API annotates\n")
+	b.WriteString("ID-only references with `hub3:referenceType` so your application knows\n")
+	b.WriteString("**why** a resource was not expanded and what to do about it.\n\n")
+
+	b.WriteString("| `hub3:referenceType` | Meaning | Action |\n")
+	b.WriteString("|----------------------|---------|--------|\n")
+	b.WriteString("| *(absent)* | Fully expanded — all properties are inline | Use the data directly |\n")
+	b.WriteString("| `\"cycle\"` | Resource exists in this graph but was already expanded higher in the tree (circular reference) | Navigate up the tree to find the full version, or fetch via detail endpoint |\n")
+	b.WriteString("| `\"external\"` | Resource is not part of this graph — it lives elsewhere on the web | Fetch via Linked Open Data (LOD) request to the `@id` URI |\n\n")
+
+	b.WriteString("**Cycle example** — a collection references its items, and an item references\n")
+	b.WriteString("back to the collection:\n\n")
 	b.WriteString("```json\n")
 	b.WriteString(`"dcterms_isPartOf": {
   "@id": "https://example.org/collection/paintings",
   "@type": ["ore:Aggregation"],
   "dc_title": "Dutch Masters Collection",
   "dcterms_hasPart": {
-    "@id": "https://example.org/resource/night-watch"
+    "@id": "https://example.org/resource/night-watch",
+    "hub3:referenceType": "cycle"
   }
 }
 `)
 	b.WriteString("```\n\n")
-	b.WriteString("In this example, `dcterms_hasPart` points back to the resource being described.\n")
-	b.WriteString("Instead of creating infinite nesting, the API emits `{\"@id\": \"...\"}` only.\n\n")
-	b.WriteString("**As a consumer, you benefit from this automatically** — you will never receive\n")
-	b.WriteString("infinitely nested responses. However, you should be aware of ID-only references\n")
-	b.WriteString("so your parser can handle them gracefully.\n\n")
-	b.WriteString("**How to recognize a cycle reference:** an object that contains `@id` but has\n")
-	b.WriteString("**no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated\n")
-	b.WriteString("back-reference. To retrieve the full resource, fetch it separately:\n\n")
+	b.WriteString("The inner `dcterms_hasPart` points back to the resource being described.\n")
+	b.WriteString("Instead of creating infinite nesting, the API marks it as a `cycle` reference.\n\n")
+
+	b.WriteString("**External example** — a resource links to an authority on another server:\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"owl_sameAs": {
+  "@id": "http://www.wikidata.org/entity/Q17593201",
+  "hub3:referenceType": "external"
+}
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("This resource is not part of the current graph. To retrieve its properties,\n")
+	b.WriteString("perform a LOD request to the `@id` URI, or use the API detail endpoint if\n")
+	b.WriteString("the URI belongs to this system:\n\n")
 	b.WriteString("```\n")
 	b.WriteString("GET /api/semantic/v1/resource/{id}\n")
 	b.WriteString("```\n\n")
+	b.WriteString("**As a consumer, you benefit from cycle detection automatically** — you will\n")
+	b.WriteString("never receive infinitely nested responses. The `hub3:referenceType` field\n")
+	b.WriteString("tells you exactly why a reference was not expanded so you can decide whether\n")
+	b.WriteString("to fetch the full resource or simply display its `@id`.\n\n")
 
 	b.WriteString("### 6. Arrays\n\n")
 	b.WriteString("Any property can have multiple values. When there is more than one value,\n")
@@ -553,9 +569,11 @@ func writePropertyValueTypes(b *strings.Builder) {
 	b.WriteString("3. **If the value is an object with `@value`**, it is a literal. Read `@value` for\n")
 	b.WriteString("   the content, `@language` for the language, or `@type` for the datatype.\n\n")
 	b.WriteString("4. **If the value is an object with `@id`**, it is a resource reference. Use\n")
-	b.WriteString("   `skos_prefLabel` (or `rdfs_label`) for display text. If only `@id` is present\n")
-	b.WriteString("   with no other properties, this is a **cycle-truncated reference** — fetch the\n")
-	b.WriteString("   full resource via the detail endpoint if needed.\n\n")
+	b.WriteString("   `skos_prefLabel` (or `rdfs_label`) for display text. Check `hub3:referenceType`\n")
+	b.WriteString("   to understand why a reference was not expanded:\n")
+	b.WriteString("   - `\"cycle\"` — already expanded higher in the tree; look up or fetch separately\n")
+	b.WriteString("   - `\"external\"` — not in this graph; fetch via LOD request to the `@id` URI\n")
+	b.WriteString("   - *(absent)* — fully expanded, all properties are inline\n\n")
 	b.WriteString("5. **If the value is an object with only language-code keys** (`nl`, `en`, `de`, ...),\n")
 	b.WriteString("   it is a language map. Select the language matching your user's preference.\n\n")
 	b.WriteString("6. **GPS coordinates are strings**, not numbers. Convert `wgspos_lat` and\n")
@@ -606,7 +624,13 @@ func writePropertyValueTypes(b *strings.Builder) {
   ],
 
   "dcterms_isPartOf": {
-    "@id": "http://example.org/resource/document/buildings/collection"
+    "@id": "http://example.org/resource/document/buildings/collection",
+    "hub3:referenceType": "cycle"
+  },
+
+  "owl_sameAs": {
+    "@id": "http://www.wikidata.org/entity/Q17593201",
+    "hub3:referenceType": "external"
   }
 }
 `)
@@ -614,12 +638,13 @@ func writePropertyValueTypes(b *strings.Builder) {
 	b.WriteString("In this response:\n")
 	b.WriteString("- `dc_title` — plain literal\n")
 	b.WriteString("- `dcterms_alternative` — array of plain literals\n")
-	b.WriteString("- `dc_creator` — nested resource with display labels\n")
+	b.WriteString("- `dc_creator` — nested resource (fully expanded, no `hub3:referenceType`)\n")
 	b.WriteString("- `dc_description` — language-tagged literal\n")
 	b.WriteString("- `nave_productionYear` — typed literal (integer)\n")
 	b.WriteString("- `nave_location` — nested resource with GPS coordinates (strings!)\n")
 	b.WriteString("- `edm_rights` — mixed array (string + resource reference)\n")
-	b.WriteString("- `dcterms_isPartOf` — cycle-truncated reference (ID only, fetch separately)\n\n")
+	b.WriteString("- `dcterms_isPartOf` — `hub3:referenceType: \"cycle\"` (exists in graph but already expanded above)\n")
+	b.WriteString("- `owl_sameAs` — `hub3:referenceType: \"external\"` (not in this graph, fetch via LOD)\n\n")
 
 	b.WriteString("---\n\n")
 }

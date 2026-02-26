@@ -47,11 +47,26 @@ type SemanticTypedLiteral struct {
 // Keys are language codes, values are the literals in that language.
 type SemanticLanguageMap map[string]string
 
+// ReferenceType indicates why a resource appears as an ID-only reference.
+type ReferenceType string
+
+const (
+	// ReferenceNone means the resource is fully expanded inline.
+	ReferenceNone ReferenceType = ""
+	// ReferenceCycle means the resource exists in this graph but was already
+	// expanded higher in the traversal path (circular reference).
+	ReferenceCycle ReferenceType = "cycle"
+	// ReferenceExternal means the resource is not part of this graph.
+	// Fetch it separately via a LOD (Linked Open Data) request.
+	ReferenceExternal ReferenceType = "external"
+)
+
 // SemanticResource represents a nested resource with its own properties.
 type SemanticResource struct {
-	ID     string                   `json:"@id,omitempty"`
-	Type   []string                 `json:"@type,omitempty"`
-	Fields map[string]SemanticValue `json:"-"` // Custom marshaling
+	ID            string                   `json:"@id,omitempty"`
+	Type          []string                 `json:"@type,omitempty"`
+	ReferenceType ReferenceType            `json:"-"` // Serialized as hub3:referenceType
+	Fields        map[string]SemanticValue `json:"-"` // Custom marshaling
 }
 
 // SemanticArray holds multiple values for a single predicate.
@@ -225,7 +240,7 @@ func (slm SemanticLanguageMap) GetValue() interface{} {
 // MarshalJSON for SemanticResource - custom field handling
 func (sr *SemanticResource) MarshalJSON() ([]byte, error) {
 	m := make(map[string]interface{})
-	
+
 	// Add JSON-LD keywords
 	if sr.ID != "" {
 		m["@id"] = sr.ID
@@ -237,12 +252,17 @@ func (sr *SemanticResource) MarshalJSON() ([]byte, error) {
 			m["@type"] = sr.Type
 		}
 	}
-	
+
+	// Emit reference type so consumers know why this is an ID-only reference
+	if sr.ReferenceType != ReferenceNone {
+		m["hub3:referenceType"] = string(sr.ReferenceType)
+	}
+
 	// Add fields
 	for k, v := range sr.Fields {
 		m[k] = v
 	}
-	
+
 	return json.Marshal(m)
 }
 
@@ -273,6 +293,12 @@ func (sr *SemanticResource) UnmarshalJSON(data []byte) error {
 					return err
 				}
 			}
+		case "hub3:referenceType":
+			var rt string
+			if err := json.Unmarshal(v, &rt); err != nil {
+				return err
+			}
+			sr.ReferenceType = ReferenceType(rt)
 		default:
 			// All other fields are semantic values
 			val, err := unmarshalSemanticValue(v)
@@ -521,9 +547,10 @@ func newSemanticResourceValue(entry *ResourceEntry, rm *ResourceMap, visited map
 		}
 	}
 
-	// Fallback for external resources or when resource not found
+	// External resource - not part of this graph, fetch via LOD request
 	return &SemanticResource{
-		ID: entry.ID,
+		ID:            entry.ID,
+		ReferenceType: ReferenceExternal,
 	}
 }
 
@@ -636,7 +663,8 @@ func (fr *FragmentResource) toSemanticResourceWithCycleDetection(rm *ResourceMap
 	// Check for cycles - if we're already processing this resource, return just the ID
 	if visited[fr.ID] {
 		return &SemanticResource{
-			ID: fr.ID,
+			ID:            fr.ID,
+			ReferenceType: ReferenceCycle,
 		}
 	}
 

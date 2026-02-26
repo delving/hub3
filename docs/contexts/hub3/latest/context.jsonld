@@ -76,6 +76,7 @@
     "FacetDefinition": "hub3:FacetDefinition",
     "SortField": "hub3:SortField",
     "Example": "hub3:Example",
-    "ContextDocument": "hub3:ContextDocument"
+    "ContextDocument": "hub3:ContextDocument",
+    "referenceType": "hub3:referenceType"
   }
 }
