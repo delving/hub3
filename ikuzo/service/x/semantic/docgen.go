@@ -489,10 +489,14 @@ func writePropertyValueTypes(b *strings.Builder) {
 	b.WriteString("Agent may reference an Organization, etc.\n\n")
 
 	// Cycle detection
-	b.WriteString("#### Cycle Detection\n\n")
-	b.WriteString("The API automatically detects circular references in the resource graph.\n")
-	b.WriteString("When a resource has already appeared in the current traversal path, the API\n")
-	b.WriteString("returns it as an **ID-only reference** instead of expanding it again:\n\n")
+	b.WriteString("#### Cycle Detection (Server-Side)\n\n")
+	b.WriteString("Cultural heritage data often contains circular references — a collection\n")
+	b.WriteString("links to its items, and each item links back to the collection. Without\n")
+	b.WriteString("protection, expanding these links would produce infinitely nested JSON.\n\n")
+	b.WriteString("The API handles this **automatically on the server side**. When the server\n")
+	b.WriteString("builds the nested JSON-LD response, it tracks which resources have already\n")
+	b.WriteString("been expanded in the current traversal path. If a resource would appear a\n")
+	b.WriteString("second time, the API emits an **ID-only reference** instead:\n\n")
 	b.WriteString("```json\n")
 	b.WriteString(`"dcterms_isPartOf": {
   "@id": "https://example.org/collection/paintings",
@@ -504,13 +508,14 @@ func writePropertyValueTypes(b *strings.Builder) {
 }
 `)
 	b.WriteString("```\n\n")
-	b.WriteString("In this example, the inner `dcterms_hasPart` points back to the resource being\n")
-	b.WriteString("described. Instead of creating infinite nesting, the API emits `{\"@id\": \"...\"}`\n")
-	b.WriteString("only. Your application can use this `@id` to fetch the full resource separately\n")
-	b.WriteString("if needed.\n\n")
+	b.WriteString("In this example, `dcterms_hasPart` points back to the resource being described.\n")
+	b.WriteString("Instead of creating infinite nesting, the API emits `{\"@id\": \"...\"}` only.\n\n")
+	b.WriteString("**As a consumer, you benefit from this automatically** — you will never receive\n")
+	b.WriteString("infinitely nested responses. However, you should be aware of ID-only references\n")
+	b.WriteString("so your parser can handle them gracefully.\n\n")
 	b.WriteString("**How to recognize a cycle reference:** an object that contains `@id` but has\n")
 	b.WriteString("**no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated\n")
-	b.WriteString("back-reference. You can fetch it with:\n\n")
+	b.WriteString("back-reference. To retrieve the full resource, fetch it separately:\n\n")
 	b.WriteString("```\n")
 	b.WriteString("GET /api/semantic/v1/resource/{id}\n")
 	b.WriteString("```\n\n")

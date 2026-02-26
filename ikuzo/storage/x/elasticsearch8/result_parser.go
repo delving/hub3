@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 )
 
@@ -107,19 +108,72 @@ func (rp *ResultParser) ParseSearchResponse(data []byte) (*semantic.SearchResult
 }
 
 // parseHit converts a single ES hit into a map, ensuring @id is set.
+// If the document is a FragmentGraph (has "resources" field), it generates
+// the nested semantic JSON-LD view with cycle detection.
 func (rp *ResultParser) parseHit(hit esHit) (map[string]any, error) {
 	if len(hit.Source) == 0 {
 		return nil, fmt.Errorf("empty _source for hit %s", hit.ID)
 	}
 
-	var doc map[string]any
-	if err := json.Unmarshal(hit.Source, &doc); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal _source for hit %s: %w", hit.ID, err)
+	doc, err := rp.toSemanticDoc(hit.Source)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse _source for hit %s: %w", hit.ID, err)
 	}
 
 	// Set @id from _id if not present in source.
 	if _, ok := doc["@id"]; !ok {
 		doc["@id"] = hit.ID
+	}
+
+	return doc, nil
+}
+
+// toSemanticDoc converts raw ES _source JSON to a semantic document.
+// If the source contains a "resources" field it is a FragmentGraph that needs
+// conversion via GenerateSemantic() (which includes cycle detection).
+// Otherwise the source is returned as-is (already a semantic document).
+func (rp *ResultParser) toSemanticDoc(source json.RawMessage) (map[string]any, error) {
+	// Quick probe: check if this looks like a FragmentGraph (has "resources" key).
+	var probe struct {
+		Resources json.RawMessage `json:"resources"`
+	}
+	if err := json.Unmarshal(source, &probe); err == nil && len(probe.Resources) > 0 {
+		return rp.convertFragmentGraph(source)
+	}
+
+	// Not a FragmentGraph — return as plain map.
+	var doc map[string]any
+	if err := json.Unmarshal(source, &doc); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal _source: %w", err)
+	}
+
+	return doc, nil
+}
+
+// convertFragmentGraph unmarshals a FragmentGraph, generates the semantic
+// view (with cycle detection), and returns it as map[string]any.
+func (rp *ResultParser) convertFragmentGraph(source json.RawMessage) (map[string]any, error) {
+	var fg fragments.FragmentGraph
+	if err := json.Unmarshal(source, &fg); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal FragmentGraph: %w", err)
+	}
+
+	if fg.Semantic == nil {
+		fg.Semantic = fg.GenerateSemantic()
+	}
+
+	if fg.Semantic == nil {
+		return nil, fmt.Errorf("GenerateSemantic returned nil")
+	}
+
+	data, err := json.Marshal(fg.Semantic)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal semantic view: %w", err)
+	}
+
+	var doc map[string]any
+	if err := json.Unmarshal(data, &doc); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal semantic view: %w", err)
 	}
 
 	return doc, nil
@@ -217,9 +271,9 @@ func (rp *ResultParser) ParseGetResponse(data []byte) (map[string]any, error) {
 		return nil, fmt.Errorf("empty _source in GET response for %s", getResp.ID)
 	}
 
-	var doc map[string]any
-	if err := json.Unmarshal(getResp.Source, &doc); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal _source from GET response: %w", err)
+	doc, err := rp.toSemanticDoc(getResp.Source)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse _source from GET response: %w", err)
 	}
 
 	// Set @id from _id if not present in source.

@@ -251,6 +251,155 @@ func TestResultParser_ParseFacets(t *testing.T) {
 	})
 }
 
+func TestResultParser_toSemanticDoc(t *testing.T) {
+	rp := &ResultParser{}
+
+	t.Run("plain document passes through unchanged", func(t *testing.T) {
+		source := json.RawMessage(`{"@id": "doc1", "dc_title": "Test", "@type": ["edm:ProvidedCHO"]}`)
+
+		doc, err := rp.toSemanticDoc(source)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		if doc["@id"] != "doc1" {
+			t.Errorf("expected @id='doc1', got %v", doc["@id"])
+		}
+
+		if doc["dc_title"] != "Test" {
+			t.Errorf("expected dc_title='Test', got %v", doc["dc_title"])
+		}
+	})
+
+	t.Run("FragmentGraph is converted to semantic view", func(t *testing.T) {
+		// Minimal FragmentGraph with resources that will produce a semantic view.
+		source := json.RawMessage(`{
+			"meta": {
+				"orgID": "test-org",
+				"spec": "test-spec",
+				"hubID": "test-org_test-spec_1",
+				"docType": "fragmentGraph",
+				"entryURI": "http://example.org/resource/1",
+				"namedGraphURI": "http://example.org/resource/1/graph",
+				"modified": 1000
+			},
+			"resources": [
+				{
+					"id": "http://example.org/resource/1",
+					"types": ["http://www.europeana.eu/schemas/edm/ProvidedCHO"],
+					"entries": [
+						{
+							"searchLabel": "dc_title",
+							"predicate": "http://purl.org/dc/elements/1.1/title",
+							"value": "Night Watch",
+							"entryType": "literal",
+							"order": 0
+						}
+					]
+				}
+			]
+		}`)
+
+		doc, err := rp.toSemanticDoc(source)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		// The result should be a semantic view, not the raw FragmentGraph.
+		// It should have @id and the dc_title field.
+		if _, hasResources := doc["resources"]; hasResources {
+			t.Error("expected semantic view, but got raw FragmentGraph (has 'resources' key)")
+		}
+
+		if _, hasMeta := doc["meta"]; hasMeta {
+			t.Error("expected semantic view, but got raw FragmentGraph (has 'meta' key)")
+		}
+
+		// Should have @id from the resource.
+		if doc["@id"] == nil {
+			t.Error("expected @id in semantic view")
+		}
+	})
+
+	t.Run("FragmentGraph with cycle detection", func(t *testing.T) {
+		// Two resources that reference each other.
+		source := json.RawMessage(`{
+			"meta": {
+				"orgID": "test-org",
+				"spec": "test-spec",
+				"hubID": "test-org_test-spec_cycle",
+				"docType": "fragmentGraph",
+				"entryURI": "http://example.org/resource/A",
+				"namedGraphURI": "http://example.org/resource/A/graph",
+				"modified": 1000
+			},
+			"resources": [
+				{
+					"id": "http://example.org/resource/A",
+					"types": ["http://www.europeana.eu/schemas/edm/ProvidedCHO"],
+					"entries": [
+						{
+							"searchLabel": "dc_title",
+							"predicate": "http://purl.org/dc/elements/1.1/title",
+							"value": "Resource A",
+							"entryType": "literal",
+							"order": 0
+						},
+						{
+							"searchLabel": "dcterms_isPartOf",
+							"predicate": "http://purl.org/dc/terms/isPartOf",
+							"@id": "http://example.org/resource/B",
+							"entryType": "resourceType",
+							"order": 1
+						}
+					]
+				},
+				{
+					"id": "http://example.org/resource/B",
+					"types": ["ore:Aggregation"],
+					"entries": [
+						{
+							"searchLabel": "dc_title",
+							"predicate": "http://purl.org/dc/elements/1.1/title",
+							"value": "Collection B",
+							"entryType": "literal",
+							"order": 0
+						},
+						{
+							"searchLabel": "dcterms_hasPart",
+							"predicate": "http://purl.org/dc/terms/hasPart",
+							"@id": "http://example.org/resource/A",
+							"entryType": "resourceType",
+							"order": 1
+						}
+					]
+				}
+			]
+		}`)
+
+		doc, err := rp.toSemanticDoc(source)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		// Should not have raw FragmentGraph fields.
+		if _, hasResources := doc["resources"]; hasResources {
+			t.Error("expected semantic view, got raw FragmentGraph")
+		}
+
+		// The response should be finite (cycle detection prevents infinite nesting).
+		// Marshal and check it's valid JSON (no stack overflow from infinite recursion).
+		data, err := json.Marshal(doc)
+		if err != nil {
+			t.Fatalf("failed to marshal result (possible infinite nesting): %v", err)
+		}
+
+		if len(data) == 0 {
+			t.Error("expected non-empty JSON output")
+		}
+	})
+}
+
 func TestResultParser_ParseGetResponse(t *testing.T) {
 	rp := &ResultParser{}
 

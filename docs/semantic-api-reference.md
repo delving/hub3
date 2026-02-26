@@ -460,11 +460,16 @@ inline properties. Use `skos_prefLabel` for display text.
 Resource references can nest further — a Place may contain a broader Place, an
 Agent may reference an Organization, etc.
 
-#### Cycle Detection
+#### Cycle Detection (Server-Side)
 
-The API automatically detects circular references in the resource graph.
-When a resource has already appeared in the current traversal path, the API
-returns it as an **ID-only reference** instead of expanding it again:
+Cultural heritage data often contains circular references — a collection
+links to its items, and each item links back to the collection. Without
+protection, expanding these links would produce infinitely nested JSON.
+
+The API handles this **automatically on the server side**. When the server
+builds the nested JSON-LD response, it tracks which resources have already
+been expanded in the current traversal path. If a resource would appear a
+second time, the API emits an **ID-only reference** instead:
 
 ```json
 "dcterms_isPartOf": {
@@ -477,14 +482,16 @@ returns it as an **ID-only reference** instead of expanding it again:
 }
 ```
 
-In this example, the inner `dcterms_hasPart` points back to the resource being
-described. Instead of creating infinite nesting, the API emits `{"@id": "..."}`
-only. Your application can use this `@id` to fetch the full resource separately
-if needed.
+In this example, `dcterms_hasPart` points back to the resource being described.
+Instead of creating infinite nesting, the API emits `{"@id": "..."}` only.
+
+**As a consumer, you benefit from this automatically** — you will never receive
+infinitely nested responses. However, you should be aware of ID-only references
+so your parser can handle them gracefully.
 
 **How to recognize a cycle reference:** an object that contains `@id` but has
 **no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated
-back-reference. You can fetch it with:
+back-reference. To retrieve the full resource, fetch it separately:
 
 ```
 GET /api/semantic/v1/resource/{id}
