@@ -1,0 +1,410 @@
+# Hub3 Semantic Search API Reference
+
+> This document is generated from code. Do not edit manually.
+> Regenerate with: `go run ./tools/cmd/gendocs`
+
+## Overview
+
+The Hub3 Semantic Search API provides a Hydra-compatible JSON-LD interface
+for searching, filtering, and navigating cultural heritage metadata.
+
+- **Base URL:** `/api/semantic/v1`
+- **Content-Type:** `application/ld+json`
+- **Version:** 1.0.0
+
+---
+
+## Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/semantic/v1/` | API entry point with navigation links |
+| `GET` | `/api/semantic/v1/docs` | Machine-readable API documentation (Hydra ApiDocumentation) |
+| `GET` | `/api/semantic/v1/search` | Search resources with URL query parameters |
+| `POST` | `/api/semantic/v1/search` | Search resources with JSON-LD query body |
+| `GET` | `/api/semantic/v1/resource/{id}` | Get a single resource by ID |
+| `GET` | `/api/semantic/v1/resource/{id}?include=relatedItems` | Get resource with related items (MLT) |
+| `GET` | `/api/semantic/v1/type/{type}/search` | Search within a specific resource type |
+| `POST` | `/api/semantic/v1/type/{type}/search` | Type-scoped search with JSON-LD query body |
+| `GET` | `/api/semantic/v1/type/{type}/docs` | Documentation for a specific resource type |
+| `GET` | `/api/semantic/v1/introspect/classes` | List all classes in the index |
+| `GET` | `/api/semantic/v1/introspect/classes/{class}/properties` | List properties for a class |
+| `GET` | `/api/semantic/v1/introspect/fields/{field}` | Get details for a specific field |
+| `GET` | `/api/semantic/v1/introspect/paths` | List all field paths in the index |
+| `POST` | `/api/semantic/v1/contexts/query/` | Create a search context for detail navigation |
+| `GET` | `/api/semantic/v1/contexts/query/{id}` | Get a saved search context |
+| `DELETE` | `/api/semantic/v1/contexts/query/{id}` | Delete a search context |
+
+---
+
+## Query Parameters
+
+All search parameters are passed as URL query parameters on `GET` requests.
+
+| Parameter | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `query` | string | Full-text search query | `query=rembrandt` |
+| `filter[field][op]` | string | Property filter (see Operators) | `filter[dc_creator][eq]=Rembrandt` |
+| `hfilter[field][op]` | string | Hidden filter (not reflected in facet counts) | `hfilter[dc_type][eq]=painting` |
+| `facet[field]` | int | Request facet aggregation with limit | `facet[dc_type]=20` |
+| `facet[field].sort` | string | Facet sort order: `count` or `index` | `facet[dc_type].sort=index` |
+| `facet[field].cursor` | string | Cursor for paginating facet values | `facet[dc_type].cursor=abc` |
+| `facetBool` | string | Facet logic: `and` or `or` (default: `or`) | `facetBool=and` |
+| `page` | int | Page number (default: 1) | `page=2` |
+| `size` | int | Results per page (default: 20) | `size=50` |
+| `cursor` | string | Opaque cursor for deep pagination | `cursor=eyJhZnRl...` |
+| `sort` | string | Sort field; prefix `-` for descending | `sort=-dc_date` |
+| `collapse` | string | Group results by field | `collapse=edm_dataProvider` |
+| `collapse.size` | int | Inner hits per group (default: 1) | `collapse.size=3` |
+| `collapse.sort` | string | Sort inner hits; prefix `-` for desc | `collapse.sort=-dc_date` |
+| `peek` | string | Comma-separated fields for facet-only response (size=0) | `peek=dc_type,dc_creator` |
+| `languages` | string | Comma-separated language preferences | `languages=en,nl` |
+| `fields` | string | Comma-separated field selection | `fields=dc_title,dc_creator` |
+| `expand` | string | Relations to expand inline | `expand=relatedItems` |
+| `detailLevel` | string | Response detail: `minimal`, `standard`, `full` | `detailLevel=full` |
+| `debug` | string | Diagnostic mode (e.g., `query` shows ES query) | `debug=query` |
+| `contextIndex` | string | Additional org IDs for cross-index search (repeatable) | `contextIndex=org-b` |
+| `include` | string | Sections to include on detail endpoint | `include=relatedItems` |
+
+---
+
+## Filter Operators
+
+Used in `filter[field][operator]=value` syntax.
+
+| Operator | Description | Example |
+|----------|-------------|---------|
+| `eq` | Exact match | `filter[dc_creator][eq]=Rembrandt` |
+| `neq` | Not equal to | `filter[dc_type][neq]=painting` |
+| `in` | Matches any value in list | `filter[dc_type][in]=painting&filter[dc_type][in]=drawing` |
+| `nin` | Does not match any value in list | `filter[dc_type][nin]=sketch` |
+| `gt` | Greater than | `filter[dc_date][gt]=1600` |
+| `gte` | Greater than or equal to | `filter[dc_date][gte]=1600` |
+| `lt` | Less than | `filter[dc_date][lt]=1700` |
+| `lte` | Less than or equal to | `filter[dc_date][lte]=1700` |
+| `contains` | Contains substring | `filter[dc_title][contains]=night` |
+| `startswith` | Starts with prefix | `filter[dc_title][startsWith]=Night` |
+| `exists` | Field has any value | `filter[nave_thumbnail][exists]=true` |
+| `bbox` | Within bounding box | `filter[spatialCoverage][bbox]=4.8,52.3,4.9,52.4` |
+| `within` | Within distance of point |  |
+| `polygon` | Within polygon |  |
+| `intersects` | Intersects with geometry |  |
+
+---
+
+## Filter Syntax
+
+Filters use bracket notation: `filter[field][operator]=value`
+
+Field names use underscores in URLs (`dc_creator`) which map to colons internally (`dc:creator`).
+
+### Regular filters
+
+```
+/api/semantic/v1/search?filter[dc_creator][eq]=Rembrandt
+```
+
+### Hidden filters
+
+Hidden filters narrow results without affecting facet counts:
+
+```
+/api/semantic/v1/search?hfilter[dc_type][eq]=painting&facet[dc_type]=10
+```
+
+### Range filters
+
+Combine `gte` and `lte` operators for range queries:
+
+```
+/api/semantic/v1/search?filter[dc_date][gte]=1600&filter[dc_date][lte]=1700
+```
+
+### Geospatial filters
+
+Bounding box filter with west,south,east,north coordinates:
+
+```
+/api/semantic/v1/search?filter[spatialCoverage][bbox]=4.8,52.3,4.9,52.4
+```
+
+---
+
+## Facet Syntax
+
+Request facet aggregations with `facet[field]=limit`.
+
+```
+# Request dc_type facet with top 20 values
+/api/semantic/v1/search?facet[dc_type]=20
+
+# Multiple facets
+/api/semantic/v1/search?facet[dc_type]=10&facet[dc_creator]=20
+
+# Facet with cursor pagination
+/api/semantic/v1/search?facet[dc_creator]=50&facet[dc_creator].cursor=abc123
+
+# Sort facet alphabetically instead of by count
+/api/semantic/v1/search?facet[dc_type]=10&facet[dc_type].sort=index
+```
+
+### Facet Bool Type
+
+Controls how multiple facet selections combine:
+
+| Value | Behavior |
+|-------|----------|
+| `or` (default) | Selected values broaden results |
+| `and` | Selected values narrow results |
+
+```
+/api/semantic/v1/search?facetBool=and&filter[dc_type][eq]=painting
+```
+
+### Supported Facet Types
+
+- `enum`
+- `range`
+- `date`
+- `boolean`
+
+---
+
+## Sort Syntax
+
+Use the `sort` parameter with an optional `-` prefix for descending order.
+
+```
+# Sort ascending (default)
+/api/semantic/v1/search?sort=dc_date
+
+# Sort descending
+/api/semantic/v1/search?sort=-dc_date
+```
+
+---
+
+## Pagination
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `page` | 1 | Page number (1-based) |
+| `size` | 20 | Results per page (max: 1000) |
+| `cursor` | - | Opaque cursor for deep pagination |
+
+The response includes a `hydra:PartialCollectionView` with navigation links:
+
+```json
+{
+  "view": {
+    "@type": "PartialCollectionView",
+    "first": "/api/semantic/v1/search?query=...&page=1",
+    "next": "/api/semantic/v1/search?query=...&page=3",
+    "previous": "/api/semantic/v1/search?query=...&page=1"
+  }
+}
+```
+
+---
+
+## Result Collapsing
+
+Group results by a field value (e.g., deduplicate by data provider).
+
+| Parameter | Description |
+|-----------|-------------|
+| `collapse=field` | Field to group by |
+| `collapse.size=N` | Inner hits per group (default: 1) |
+| `collapse.sort=field` | Sort order for inner hits (prefix `-` for desc) |
+
+---
+
+## Cross-Index Search
+
+Search across multiple organization indices in a single query using `contextIndex`.
+
+```
+# Search primary org plus org-b
+/api/semantic/v1/search?query=rembrandt&contextIndex=org-b
+
+# Search across three organizations
+/api/semantic/v1/search?query=*&contextIndex=org-a&contextIndex=org-b
+```
+
+The parameter is repeatable. The primary organization (resolved from the request domain) is always included.
+
+---
+
+## Response Formats
+
+All responses use `application/ld+json` content type.
+
+### Search Response (`hydra:Collection`)
+
+```json
+{
+  "@context": { "...": "..." },
+  "@type": ["Collection"],
+  "totalItems": 1234,
+  "member": [
+    {
+      "@id": "http://example.org/resource/1",
+      "dc_title": "The Night Watch",
+      "dc_creator": "Rembrandt van Rijn"
+    }
+  ],
+  "view": {
+    "@type": "PartialCollectionView",
+    "first": "...?page=1",
+    "next": "...?page=2"
+  },
+  "search": {
+    "@type": "IriTemplate",
+    "template": "/api/semantic/v1/search{?query,filter*,facet*,page,size,sort}",
+    "mapping": [ "..." ]
+  },
+  "hub3:facets": [
+    {
+      "field": "dc_type",
+      "values": [
+        { "value": "painting", "count": 500 },
+        { "value": "drawing", "count": 200 }
+      ],
+      "sumOther": 50
+    }
+  ]
+}
+```
+
+### Resource Detail Response
+
+```json
+{
+  "@context": { "...": "..." },
+  "@id": "http://example.org/resource/1",
+  "@type": ["edm:ProvidedCHO"],
+  "dc_title": "The Night Watch",
+  "dc_creator": "Rembrandt van Rijn",
+  "dc_date": "1642"
+}
+```
+
+### Error Response (`hydra:Error`)
+
+```json
+{
+  "@type": "Error",
+  "hydra:title": "Bad Request",
+  "hydra:description": "invalid operator 'invalid' for field 'creator'",
+  "hub3:statusCode": 400
+}
+```
+
+---
+
+## Hydra Vocabulary
+
+The API uses the [Hydra Core Vocabulary](http://www.w3.org/ns/hydra/core) for hypermedia controls.
+
+### Standard Hydra Types
+
+| Type | Usage |
+|------|-------|
+| `hydra:EntryPoint` | Root endpoint (`/`) |
+| `hydra:ApiDocumentation` | API docs (`/docs`) |
+| `hydra:Collection` | Search result sets |
+| `hydra:PartialCollectionView` | Pagination links |
+| `hydra:IriTemplate` | URL template for search |
+| `hydra:Operation` | Supported HTTP operations |
+| `hydra:Class` | Resource type definitions |
+| `hydra:SupportedProperty` | Filterable properties |
+| `hydra:Error` | Error responses |
+
+### Hub3 Custom Types
+
+| Type | Description |
+|------|-------------|
+| `hub3:SearchQuery` | Structured search query (POST body) |
+| `hub3:TextQuery` | Full-text search query component |
+| `hub3:PropertyFilter` | Property equality/comparison filter |
+| `hub3:RangeFilter` | Numeric/date range filter |
+| `hub3:ExistsFilter` | Field existence filter |
+| `hub3:GeoBBoxFilter` | Geographic bounding box filter |
+| `hub3:GeoDistanceFilter` | Geographic distance filter |
+| `hub3:GeoPolygonFilter` | Geographic polygon filter |
+| `hub3:FacetRequest` | Facet aggregation request |
+| `hub3:Facet` | Facet result in response |
+| `hub3:FacetValue` | Individual facet value with count |
+| `hub3:GeoCluster` | Geographic cluster aggregation result |
+| `hub3:SearchResultNavigation` | Detail-level navigation context |
+| `hub3:NavigateOperation` | Navigation operation (next/previous) |
+| `hub3:FilterDefinition` | Filter definition in type documentation |
+| `hub3:FacetDefinition` | Facet definition in type documentation |
+| `hub3:SortField` | Sort field definition in type documentation |
+| `hub3:Example` | API usage example |
+
+---
+
+## JSON-LD Context
+
+The API provides JSON-LD contexts for semantic interoperability.
+
+### Available Contexts
+
+| Context | URL |
+|---------|-----|
+| Hub3 Search Vocabulary | `/contexts/hub3/1.0/context.jsonld` |
+| Hub3 Search (latest) | `/contexts/hub3/latest/context.jsonld` |
+| EDM (Europeana Data Model) | `/contexts/edm/1.0/context.jsonld` |
+| EDM (latest) | `/contexts/edm/latest/context.jsonld` |
+
+### Namespace Prefixes
+
+| Prefix | Namespace URI |
+|--------|---------------|
+| `cc` | `https://creativecommons.org/ns#` |
+| `dc` | `http://purl.org/dc/elements/1.1/` |
+| `dcterms` | `http://purl.org/dc/terms/` |
+| `ebucore` | `http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#` |
+| `edm` | `http://www.europeana.eu/schemas/edm/` |
+| `foaf` | `http://xmlns.com/foaf/0.1/` |
+| `geo` | `http://www.w3.org/2003/01/geo/wgs84_pos#` |
+| `geojson` | `https://purl.org/geojson/vocab#` |
+| `gn` | `http://www.geonames.org/ontology#` |
+| `hub3` | `https://hub3.delving.org/vocab/` |
+| `hydra` | `http://www.w3.org/ns/hydra/core#` |
+| `nave` | `http://schemas.delving.eu/nave/terms/` |
+| `ore` | `http://www.openarchives.org/ore/terms/` |
+| `owl` | `http://www.w3.org/2002/07/owl#` |
+| `rdaGr2` | `http://rdvocab.info/ElementsGr2/` |
+| `rdf` | `http://www.w3.org/1999/02/22-rdf-syntax-ns#` |
+| `rdfs` | `http://www.w3.org/2000/01/rdf-schema#` |
+| `schema` | `https://schema.org/` |
+| `skos` | `http://www.w3.org/2004/02/skos/core#` |
+| `vcard` | `http://www.w3.org/2006/vcard/ns#` |
+
+---
+
+## API Capabilities
+
+These values are derived from code and always reflect the running system.
+
+- **Default page size:** 20
+- **Maximum page size:** 1000
+- **Sort options:** [asc desc]
+- **Search context TTL:** 15m
+- **Path separator:** `/`
+
+---
+
+## Error Handling
+
+All errors return a `hydra:Error` response with appropriate HTTP status codes.
+
+| Status | Description |
+|--------|-------------|
+| 400 | Bad Request — invalid parameters, operators, or malformed query |
+| 404 | Not Found — unknown resource, type, or search context |
+| 500 | Internal Server Error — unexpected backend failure |
+
+Error responses include `hydra:title` (short label) and `hydra:description` (detailed message).

@@ -1,4 +1,4 @@
-.PHONY: package deploy deploy-arm build-static-arm
+.PHONY: package deploy deploy-arm build-static-arm gendocs
 
 NAME:=hub3
 MAINTAINER:="Sjoerd Siebinga <sjoerd@delving.eu>"
@@ -105,6 +105,9 @@ test:
 test-no-cache:
 	go tool richgo test -cover -count=1 ./ikuzo/...
 	@make staticcheck
+
+gendocs:
+	go run ./tools/cmd/gendocs
 
 run-dev:
 	@go tool air
