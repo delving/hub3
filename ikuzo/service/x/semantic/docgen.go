@@ -28,6 +28,7 @@ func GenerateAPIReference(baseURL string) string {
 	writePagination(&b)
 	writeCollapse(&b)
 	writeCrossIndex(&b, baseURL)
+	writeSearchContext(&b, baseURL)
 	writeResponseFormats(&b)
 	writeHydraVocabulary(&b)
 	writeJSONLDContext(&b)
@@ -278,6 +279,141 @@ func writeCrossIndex(b *strings.Builder, baseURL string) {
 	fmt.Fprintf(b, "%s/search?query=*&contextIndex=org-a&contextIndex=org-b\n", baseURL)
 	b.WriteString("```\n\n")
 	b.WriteString("The parameter is repeatable. The primary organization (resolved from the request domain) is always included.\n\n")
+	b.WriteString("---\n\n")
+}
+
+func writeSearchContext(b *strings.Builder, baseURL string) {
+	b.WriteString("## Search Context & Detail Navigation\n\n")
+	b.WriteString("The Search Context is a core concept that enables **stateful navigation through\n")
+	b.WriteString("search results at the item level**. It bridges the gap between a search result list\n")
+	b.WriteString("and individual resource detail views, allowing users to step through results with\n")
+	b.WriteString("next/previous links without losing their place.\n\n")
+
+	b.WriteString("### How It Works\n\n")
+	b.WriteString("```\n")
+	b.WriteString("1. User performs a search\n")
+	b.WriteString("   GET /api/semantic/v1/search?query=rembrandt\n")
+	b.WriteString("   \u2192 Response includes hub3:searchContext with a token\n\n")
+	b.WriteString("2. User clicks a result to view details\n")
+	b.WriteString("   GET /api/semantic/v1/resource/{id}?context={token}\n")
+	b.WriteString("   \u2192 Response includes hub3:navigation with next/previous/first/last links\n\n")
+	b.WriteString("3. User navigates to next result\n")
+	b.WriteString("   GET /api/semantic/v1/resource/{next-id}?context={token}\n")
+	b.WriteString("   \u2192 Navigation updates to reflect new position\n")
+	b.WriteString("```\n\n")
+
+	b.WriteString("### Lifecycle\n\n")
+	b.WriteString("| Phase | What Happens |\n")
+	b.WriteString("|-------|-------------|\n")
+	fmt.Fprintf(b, "| **Creation** | Automatically created when a search returns results. "+
+		"The context captures the ordered list of result IDs and the original query. |\n")
+	fmt.Fprintf(b, "| **Usage** | Pass the context token via `?context={token}` on resource detail requests "+
+		"to activate navigation. |\n")
+	fmt.Fprintf(b, "| **Expiration** | Contexts expire after %s of inactivity. "+
+		"Accessing the context extends its TTL. |\n", "15 minutes")
+	b.WriteString("| **Deletion** | Contexts can be explicitly deleted or are cleaned up after expiry. |\n\n")
+
+	b.WriteString("### Search Response with Context\n\n")
+	b.WriteString("When a search returns results, the response includes a context reference:\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`{
+  "@type": ["Collection"],
+  "totalItems": 150,
+  "member": [ "..." ],
+  "hub3:searchContext": {
+    "id": "ctx_a1b2c3",
+    "token": "a1b2c3d4",
+    "totalResults": 150,
+    "expiresAt": "2026-02-26T15:30:00Z"
+  }
+}
+`)
+	b.WriteString("```\n\n")
+
+	b.WriteString("### Resource Detail with Navigation\n\n")
+	b.WriteString("When you fetch a resource with a context token, the response includes navigation:\n\n")
+	b.WriteString("```\n")
+	fmt.Fprintf(b, "GET %s/resource/{id}?context=a1b2c3d4\n", baseURL)
+	b.WriteString("```\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`{
+  "@id": "http://example.org/resource/42",
+  "@type": ["edm:ProvidedCHO"],
+  "dc_title": "The Night Watch",
+  "hub3:navigation": {
+    "@type": "hub3:SearchResultNavigation",
+    "position": 5,
+    "totalResults": 150,
+    "hasNext": true,
+    "hasPrevious": true,
+    "hydra:first": "/api/semantic/v1/resource/doc-001?context=a1b2c3d4",
+    "hydra:previous": "/api/semantic/v1/resource/doc-041?context=a1b2c3d4",
+    "hydra:next": "/api/semantic/v1/resource/doc-043?context=a1b2c3d4",
+    "hydra:last": "/api/semantic/v1/resource/doc-150?context=a1b2c3d4",
+    "hub3:backToSearch": "/api/semantic/v1/search?query=rembrandt&page=1"
+  }
+}
+`)
+	b.WriteString("```\n\n")
+
+	b.WriteString("### Navigation Fields\n\n")
+	b.WriteString("| Field | Type | Description |\n")
+	b.WriteString("|-------|------|-------------|\n")
+	b.WriteString("| `position` | int | Current 1-based position in the result set |\n")
+	b.WriteString("| `totalResults` | int | Total number of results in the search |\n")
+	b.WriteString("| `hasNext` | bool | Whether there is a next result |\n")
+	b.WriteString("| `hasPrevious` | bool | Whether there is a previous result |\n")
+	b.WriteString("| `hydra:first` | URL | Link to the first result in the set |\n")
+	b.WriteString("| `hydra:previous` | URL | Link to the previous result |\n")
+	b.WriteString("| `hydra:next` | URL | Link to the next result |\n")
+	b.WriteString("| `hydra:last` | URL | Link to the last result in the set |\n")
+	b.WriteString("| `hub3:backToSearch` | URL | Link back to the original search results page |\n\n")
+
+	b.WriteString("### Context Management API\n\n")
+	b.WriteString("Contexts are usually created automatically during search, but can also be managed explicitly.\n\n")
+
+	b.WriteString("#### Create a Context\n\n")
+	b.WriteString("```\n")
+	fmt.Fprintf(b, "POST %s/contexts/query/\n", baseURL)
+	b.WriteString("Content-Type: application/json\n\n")
+	b.WriteString(`{
+  "query": { "text": "rembrandt" },
+  "totalResults": 150
+}
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("Response (`201 Created`):\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`{
+  "@type": "hub3:QueryContext",
+  "id": "a1b2c3d4",
+  "totalResults": 150,
+  "expiresAt": "2026-02-26T15:30:00Z"
+}
+`)
+	b.WriteString("```\n\n")
+
+	b.WriteString("#### Retrieve a Context\n\n")
+	b.WriteString("```\n")
+	fmt.Fprintf(b, "GET %s/contexts/query/{contextID}\n", baseURL)
+	b.WriteString("```\n\n")
+	b.WriteString("Returns the context metadata, or `404` if expired/not found.\n\n")
+
+	b.WriteString("#### Delete a Context\n\n")
+	b.WriteString("```\n")
+	fmt.Fprintf(b, "DELETE %s/contexts/query/{contextID}\n", baseURL)
+	b.WriteString("```\n\n")
+	b.WriteString("Returns `204 No Content`.\n\n")
+
+	b.WriteString("### Frontend Integration Pattern\n\n")
+	b.WriteString("A typical frontend integration follows this pattern:\n\n")
+	b.WriteString("1. **Search page:** Execute search, store the `hub3:searchContext.token` from the response\n")
+	b.WriteString("2. **Detail page:** When navigating to a result, append `?context={token}` to the resource URL\n")
+	b.WriteString("3. **Navigation UI:** Use `hub3:navigation` fields to render next/previous buttons\n")
+	b.WriteString("4. **Back button:** Use `hub3:backToSearch` to return to the search results\n")
+	b.WriteString("5. **Expiration:** If the context is not found (expired), gracefully degrade to a detail\n")
+	b.WriteString("   view without navigation\n\n")
+
 	b.WriteString("---\n\n")
 }
 

@@ -235,6 +235,154 @@ The parameter is repeatable. The primary organization (resolved from the request
 
 ---
 
+## Search Context & Detail Navigation
+
+The Search Context is a core concept that enables **stateful navigation through
+search results at the item level**. It bridges the gap between a search result list
+and individual resource detail views, allowing users to step through results with
+next/previous links without losing their place.
+
+### How It Works
+
+```
+1. User performs a search
+   GET /api/semantic/v1/search?query=rembrandt
+   → Response includes hub3:searchContext with a token
+
+2. User clicks a result to view details
+   GET /api/semantic/v1/resource/{id}?context={token}
+   → Response includes hub3:navigation with next/previous/first/last links
+
+3. User navigates to next result
+   GET /api/semantic/v1/resource/{next-id}?context={token}
+   → Navigation updates to reflect new position
+```
+
+### Lifecycle
+
+| Phase | What Happens |
+|-------|-------------|
+| **Creation** | Automatically created when a search returns results. The context captures the ordered list of result IDs and the original query. |
+| **Usage** | Pass the context token via `?context={token}` on resource detail requests to activate navigation. |
+| **Expiration** | Contexts expire after 15 minutes of inactivity. Accessing the context extends its TTL. |
+| **Deletion** | Contexts can be explicitly deleted or are cleaned up after expiry. |
+
+### Search Response with Context
+
+When a search returns results, the response includes a context reference:
+
+```json
+{
+  "@type": ["Collection"],
+  "totalItems": 150,
+  "member": [ "..." ],
+  "hub3:searchContext": {
+    "id": "ctx_a1b2c3",
+    "token": "a1b2c3d4",
+    "totalResults": 150,
+    "expiresAt": "2026-02-26T15:30:00Z"
+  }
+}
+```
+
+### Resource Detail with Navigation
+
+When you fetch a resource with a context token, the response includes navigation:
+
+```
+GET /api/semantic/v1/resource/{id}?context=a1b2c3d4
+```
+
+```json
+{
+  "@id": "http://example.org/resource/42",
+  "@type": ["edm:ProvidedCHO"],
+  "dc_title": "The Night Watch",
+  "hub3:navigation": {
+    "@type": "hub3:SearchResultNavigation",
+    "position": 5,
+    "totalResults": 150,
+    "hasNext": true,
+    "hasPrevious": true,
+    "hydra:first": "/api/semantic/v1/resource/doc-001?context=a1b2c3d4",
+    "hydra:previous": "/api/semantic/v1/resource/doc-041?context=a1b2c3d4",
+    "hydra:next": "/api/semantic/v1/resource/doc-043?context=a1b2c3d4",
+    "hydra:last": "/api/semantic/v1/resource/doc-150?context=a1b2c3d4",
+    "hub3:backToSearch": "/api/semantic/v1/search?query=rembrandt&page=1"
+  }
+}
+```
+
+### Navigation Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `position` | int | Current 1-based position in the result set |
+| `totalResults` | int | Total number of results in the search |
+| `hasNext` | bool | Whether there is a next result |
+| `hasPrevious` | bool | Whether there is a previous result |
+| `hydra:first` | URL | Link to the first result in the set |
+| `hydra:previous` | URL | Link to the previous result |
+| `hydra:next` | URL | Link to the next result |
+| `hydra:last` | URL | Link to the last result in the set |
+| `hub3:backToSearch` | URL | Link back to the original search results page |
+
+### Context Management API
+
+Contexts are usually created automatically during search, but can also be managed explicitly.
+
+#### Create a Context
+
+```
+POST /api/semantic/v1/contexts/query/
+Content-Type: application/json
+
+{
+  "query": { "text": "rembrandt" },
+  "totalResults": 150
+}
+```
+
+Response (`201 Created`):
+
+```json
+{
+  "@type": "hub3:QueryContext",
+  "id": "a1b2c3d4",
+  "totalResults": 150,
+  "expiresAt": "2026-02-26T15:30:00Z"
+}
+```
+
+#### Retrieve a Context
+
+```
+GET /api/semantic/v1/contexts/query/{contextID}
+```
+
+Returns the context metadata, or `404` if expired/not found.
+
+#### Delete a Context
+
+```
+DELETE /api/semantic/v1/contexts/query/{contextID}
+```
+
+Returns `204 No Content`.
+
+### Frontend Integration Pattern
+
+A typical frontend integration follows this pattern:
+
+1. **Search page:** Execute search, store the `hub3:searchContext.token` from the response
+2. **Detail page:** When navigating to a result, append `?context={token}` to the resource URL
+3. **Navigation UI:** Use `hub3:navigation` fields to render next/previous buttons
+4. **Back button:** Use `hub3:backToSearch` to return to the search results
+5. **Expiration:** If the context is not found (expired), gracefully degrade to a detail
+   view without navigation
+
+---
+
 ## Response Formats
 
 All responses use `application/ld+json` content type.
