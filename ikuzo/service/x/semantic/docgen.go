@@ -29,6 +29,7 @@ func GenerateAPIReference(baseURL string) string {
 	writeCollapse(&b)
 	writeCrossIndex(&b, baseURL)
 	writeSearchContext(&b, baseURL)
+	writePropertyValueTypes(&b)
 	writeResponseFormats(&b)
 	writeHydraVocabulary(&b)
 	writeJSONLDContext(&b)
@@ -413,6 +414,207 @@ func writeSearchContext(b *strings.Builder, baseURL string) {
 	b.WriteString("4. **Back button:** Use `hub3:backToSearch` to return to the search results\n")
 	b.WriteString("5. **Expiration:** If the context is not found (expired), gracefully degrade to a detail\n")
 	b.WriteString("   view without navigation\n\n")
+
+	b.WriteString("---\n\n")
+}
+
+func writePropertyValueTypes(b *strings.Builder) {
+	b.WriteString("## Property Value Types\n\n")
+	b.WriteString("Resource properties in the API follow JSON-LD conventions. Every property value\n")
+	b.WriteString("can appear in one of six shapes. Your parser **must** handle all of them.\n\n")
+
+	// Overview table
+	b.WriteString("### Value Type Summary\n\n")
+	b.WriteString("| Type | JSON Shape | When |\n")
+	b.WriteString("|------|-----------|------|\n")
+	b.WriteString("| Plain literal | `\"text\"` | No language tag, no datatype |\n")
+	b.WriteString("| Typed literal | `{\"@value\": 42, \"@type\": \"xsd:integer\"}` | Has XSD datatype |\n")
+	b.WriteString("| Language-tagged literal | `{\"@value\": \"naam\", \"@language\": \"nl\"}` | Has language tag |\n")
+	b.WriteString("| Language map | `{\"nl\": \"naam\", \"en\": \"name\"}` | Multiple language variants |\n")
+	b.WriteString("| Resource reference | `{\"@id\": \"uri\", \"@type\": [...], ...}` | IRI / linked resource |\n")
+	b.WriteString("| Array | `[value, value, ...]` | Multiple values for one property |\n\n")
+
+	// Examples for each type
+	b.WriteString("### 1. Plain Literal\n\n")
+	b.WriteString("A simple string with no additional metadata.\n\n")
+	b.WriteString("```json\n")
+	b.WriteString("\"dc_title\": \"The Night Watch\"\n")
+	b.WriteString("```\n\n")
+
+	b.WriteString("### 2. Typed Literal\n\n")
+	b.WriteString("A value with an explicit XSD datatype. The `@value` is converted to the\n")
+	b.WriteString("appropriate JSON type (number, boolean).\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"nave_productionYear": { "@value": 1642, "@type": "xsd:integer" }
+"geo_lat":             { "@value": 52.3676, "@type": "xsd:double" }
+"nave_hasDigitalObject": { "@value": true, "@type": "xsd:boolean" }
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("Supported XSD types: `xsd:integer`, `xsd:long`, `xsd:float`, `xsd:double`,\n")
+	b.WriteString("`xsd:boolean`, `xsd:dateTime`, `xsd:date`, `xsd:gYear`.\n\n")
+
+	b.WriteString("### 3. Language-Tagged Literal\n\n")
+	b.WriteString("A string with an ISO 639 language tag.\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"dc_description": { "@value": "Een schilderij van de nachtwacht", "@language": "nl" }
+`)
+	b.WriteString("```\n\n")
+
+	b.WriteString("### 4. Language Map\n\n")
+	b.WriteString("When a property has values in multiple languages, they may appear as a map keyed\n")
+	b.WriteString("by language code. Use the `languages` query parameter to indicate your preference.\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"dc_title": {
+  "nl": "De Nachtwacht",
+  "en": "The Night Watch",
+  "fr": "La Ronde de nuit"
+}
+`)
+	b.WriteString("```\n\n")
+
+	b.WriteString("### 5. Resource Reference (Nested Object)\n\n")
+	b.WriteString("A linked resource contains `@id` (its URI), optionally `@type`, and may include\n")
+	b.WriteString("inline properties. Use `skos_prefLabel` for display text.\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"dc_creator": {
+  "@id": "https://example.org/agents/rembrandt",
+  "@type": ["edm:Agent"],
+  "skos_prefLabel": "Rembrandt van Rijn",
+  "skos_altLabel": ["Rembrandt Harmensz. van Rijn"],
+  "foaf_name": "Rembrandt"
+}
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("Resource references can nest further — a Place may contain a broader Place, an\n")
+	b.WriteString("Agent may reference an Organization, etc.\n\n")
+
+	// Cycle detection
+	b.WriteString("#### Cycle Detection\n\n")
+	b.WriteString("The API automatically detects circular references in the resource graph.\n")
+	b.WriteString("When a resource has already appeared in the current traversal path, the API\n")
+	b.WriteString("returns it as an **ID-only reference** instead of expanding it again:\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"dcterms_isPartOf": {
+  "@id": "https://example.org/collection/paintings",
+  "@type": ["ore:Aggregation"],
+  "dc_title": "Dutch Masters Collection",
+  "dcterms_hasPart": {
+    "@id": "https://example.org/resource/night-watch"
+  }
+}
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("In this example, the inner `dcterms_hasPart` points back to the resource being\n")
+	b.WriteString("described. Instead of creating infinite nesting, the API emits `{\"@id\": \"...\"}`\n")
+	b.WriteString("only. Your application can use this `@id` to fetch the full resource separately\n")
+	b.WriteString("if needed.\n\n")
+	b.WriteString("**How to recognize a cycle reference:** an object that contains `@id` but has\n")
+	b.WriteString("**no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated\n")
+	b.WriteString("back-reference. You can fetch it with:\n\n")
+	b.WriteString("```\n")
+	b.WriteString("GET /api/semantic/v1/resource/{id}\n")
+	b.WriteString("```\n\n")
+
+	b.WriteString("### 6. Arrays\n\n")
+	b.WriteString("Any property can have multiple values. When there is more than one value,\n")
+	b.WriteString("the property is an array. When there is exactly one value, it is **unwrapped**\n")
+	b.WriteString("(not an array).\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"dcterms_alternative": [
+  "H. Annakerk",
+  "St. Annakerk",
+  "Heilige Annakerk"
+]
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("Array elements can be any of the above types — plain literals, typed literals,\n")
+	b.WriteString("language-tagged literals, or resource references. A single array can contain\n")
+	b.WriteString("a **mix** of types:\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`"edm_rights": [
+  "Creative Commons Attribution-Share Alike 3.0",
+  { "@id": "https://creativecommons.org/licenses/by-sa/3.0" }
+]
+`)
+	b.WriteString("```\n\n")
+
+	// Consumer parsing rules
+	b.WriteString("### Parsing Rules for Consumers\n\n")
+	b.WriteString("Follow these rules to robustly parse any resource from the API:\n\n")
+	b.WriteString("1. **Every property can be a single value or an array.** Always normalize to an\n")
+	b.WriteString("   array before iterating. If the value is not an array, wrap it in one.\n\n")
+	b.WriteString("2. **Every value can be a string, a number, a boolean, or an object.** Check the\n")
+	b.WriteString("   type before accessing nested fields.\n\n")
+	b.WriteString("3. **If the value is an object with `@value`**, it is a literal. Read `@value` for\n")
+	b.WriteString("   the content, `@language` for the language, or `@type` for the datatype.\n\n")
+	b.WriteString("4. **If the value is an object with `@id`**, it is a resource reference. Use\n")
+	b.WriteString("   `skos_prefLabel` (or `rdfs_label`) for display text. If only `@id` is present\n")
+	b.WriteString("   with no other properties, this is a **cycle-truncated reference** — fetch the\n")
+	b.WriteString("   full resource via the detail endpoint if needed.\n\n")
+	b.WriteString("5. **If the value is an object with only language-code keys** (`nl`, `en`, `de`, ...),\n")
+	b.WriteString("   it is a language map. Select the language matching your user's preference.\n\n")
+	b.WriteString("6. **GPS coordinates are strings**, not numbers. Convert `wgspos_lat` and\n")
+	b.WriteString("   `wgspos_long` to floating-point values in your code.\n\n")
+	b.WriteString("7. **Dates may appear as ISO 8601 strings** (`2024-01-01T00:00:00Z`) or typed\n")
+	b.WriteString("   literals with `xsd:dateTime` / `xsd:date`. A companion `*Label` field\n")
+	b.WriteString("   (e.g., `nave_dateCreationLabel`) often provides a human-readable version.\n\n")
+
+	// Realistic resource detail example
+	b.WriteString("### Realistic Resource Detail Example\n\n")
+	b.WriteString("This example shows the variety of value types in a single resource:\n\n")
+	b.WriteString("```json\n")
+	b.WriteString(`{
+  "@context": { "...": "..." },
+  "@id": "http://example.org/resource/document/buildings/Q2450",
+  "@type": ["edm:ProvidedCHO"],
+
+  "dc_title": "Sint-Annakerk",
+
+  "dcterms_alternative": [
+    "H. Annakerk",
+    "St. Annakerk",
+    "Heilige Annakerk"
+  ],
+
+  "dc_creator": {
+    "@id": "https://example.org/agents/van-langelaar",
+    "@type": ["edm:Agent"],
+    "skos_prefLabel": "Jan Jurien van Langelaar",
+    "skos_altLabel": ["J.J. van Langelaar"]
+  },
+
+  "dc_description": { "@value": "Een neogotische kruisbasiliek", "@language": "nl" },
+
+  "nave_productionYear": { "@value": 1887, "@type": "xsd:integer" },
+
+  "nave_location": {
+    "@id": "https://example.org/places/molenschot",
+    "@type": ["edm:Place"],
+    "skos_prefLabel": "Kapelstraat 1, Molenschot",
+    "wgspos_lat": "51.573",
+    "wgspos_long": "4.8821"
+  },
+
+  "edm_rights": [
+    "Creative Commons Attribution-Share Alike 3.0",
+    { "@id": "https://creativecommons.org/licenses/by-sa/3.0" }
+  ],
+
+  "dcterms_isPartOf": {
+    "@id": "http://example.org/resource/document/buildings/collection"
+  }
+}
+`)
+	b.WriteString("```\n\n")
+	b.WriteString("In this response:\n")
+	b.WriteString("- `dc_title` — plain literal\n")
+	b.WriteString("- `dcterms_alternative` — array of plain literals\n")
+	b.WriteString("- `dc_creator` — nested resource with display labels\n")
+	b.WriteString("- `dc_description` — language-tagged literal\n")
+	b.WriteString("- `nave_productionYear` — typed literal (integer)\n")
+	b.WriteString("- `nave_location` — nested resource with GPS coordinates (strings!)\n")
+	b.WriteString("- `edm_rights` — mixed array (string + resource reference)\n")
+	b.WriteString("- `dcterms_isPartOf` — cycle-truncated reference (ID only, fetch separately)\n\n")
 
 	b.WriteString("---\n\n")
 }

@@ -383,6 +383,226 @@ A typical frontend integration follows this pattern:
 
 ---
 
+## Property Value Types
+
+Resource properties in the API follow JSON-LD conventions. Every property value
+can appear in one of six shapes. Your parser **must** handle all of them.
+
+### Value Type Summary
+
+| Type | JSON Shape | When |
+|------|-----------|------|
+| Plain literal | `"text"` | No language tag, no datatype |
+| Typed literal | `{"@value": 42, "@type": "xsd:integer"}` | Has XSD datatype |
+| Language-tagged literal | `{"@value": "naam", "@language": "nl"}` | Has language tag |
+| Language map | `{"nl": "naam", "en": "name"}` | Multiple language variants |
+| Resource reference | `{"@id": "uri", "@type": [...], ...}` | IRI / linked resource |
+| Array | `[value, value, ...]` | Multiple values for one property |
+
+### 1. Plain Literal
+
+A simple string with no additional metadata.
+
+```json
+"dc_title": "The Night Watch"
+```
+
+### 2. Typed Literal
+
+A value with an explicit XSD datatype. The `@value` is converted to the
+appropriate JSON type (number, boolean).
+
+```json
+"nave_productionYear": { "@value": 1642, "@type": "xsd:integer" }
+"geo_lat":             { "@value": 52.3676, "@type": "xsd:double" }
+"nave_hasDigitalObject": { "@value": true, "@type": "xsd:boolean" }
+```
+
+Supported XSD types: `xsd:integer`, `xsd:long`, `xsd:float`, `xsd:double`,
+`xsd:boolean`, `xsd:dateTime`, `xsd:date`, `xsd:gYear`.
+
+### 3. Language-Tagged Literal
+
+A string with an ISO 639 language tag.
+
+```json
+"dc_description": { "@value": "Een schilderij van de nachtwacht", "@language": "nl" }
+```
+
+### 4. Language Map
+
+When a property has values in multiple languages, they may appear as a map keyed
+by language code. Use the `languages` query parameter to indicate your preference.
+
+```json
+"dc_title": {
+  "nl": "De Nachtwacht",
+  "en": "The Night Watch",
+  "fr": "La Ronde de nuit"
+}
+```
+
+### 5. Resource Reference (Nested Object)
+
+A linked resource contains `@id` (its URI), optionally `@type`, and may include
+inline properties. Use `skos_prefLabel` for display text.
+
+```json
+"dc_creator": {
+  "@id": "https://example.org/agents/rembrandt",
+  "@type": ["edm:Agent"],
+  "skos_prefLabel": "Rembrandt van Rijn",
+  "skos_altLabel": ["Rembrandt Harmensz. van Rijn"],
+  "foaf_name": "Rembrandt"
+}
+```
+
+Resource references can nest further — a Place may contain a broader Place, an
+Agent may reference an Organization, etc.
+
+#### Cycle Detection
+
+The API automatically detects circular references in the resource graph.
+When a resource has already appeared in the current traversal path, the API
+returns it as an **ID-only reference** instead of expanding it again:
+
+```json
+"dcterms_isPartOf": {
+  "@id": "https://example.org/collection/paintings",
+  "@type": ["ore:Aggregation"],
+  "dc_title": "Dutch Masters Collection",
+  "dcterms_hasPart": {
+    "@id": "https://example.org/resource/night-watch"
+  }
+}
+```
+
+In this example, the inner `dcterms_hasPart` points back to the resource being
+described. Instead of creating infinite nesting, the API emits `{"@id": "..."}`
+only. Your application can use this `@id` to fetch the full resource separately
+if needed.
+
+**How to recognize a cycle reference:** an object that contains `@id` but has
+**no other properties** (no `@type`, no `skos_prefLabel`, etc.) is a cycle-truncated
+back-reference. You can fetch it with:
+
+```
+GET /api/semantic/v1/resource/{id}
+```
+
+### 6. Arrays
+
+Any property can have multiple values. When there is more than one value,
+the property is an array. When there is exactly one value, it is **unwrapped**
+(not an array).
+
+```json
+"dcterms_alternative": [
+  "H. Annakerk",
+  "St. Annakerk",
+  "Heilige Annakerk"
+]
+```
+
+Array elements can be any of the above types — plain literals, typed literals,
+language-tagged literals, or resource references. A single array can contain
+a **mix** of types:
+
+```json
+"edm_rights": [
+  "Creative Commons Attribution-Share Alike 3.0",
+  { "@id": "https://creativecommons.org/licenses/by-sa/3.0" }
+]
+```
+
+### Parsing Rules for Consumers
+
+Follow these rules to robustly parse any resource from the API:
+
+1. **Every property can be a single value or an array.** Always normalize to an
+   array before iterating. If the value is not an array, wrap it in one.
+
+2. **Every value can be a string, a number, a boolean, or an object.** Check the
+   type before accessing nested fields.
+
+3. **If the value is an object with `@value`**, it is a literal. Read `@value` for
+   the content, `@language` for the language, or `@type` for the datatype.
+
+4. **If the value is an object with `@id`**, it is a resource reference. Use
+   `skos_prefLabel` (or `rdfs_label`) for display text. If only `@id` is present
+   with no other properties, this is a **cycle-truncated reference** — fetch the
+   full resource via the detail endpoint if needed.
+
+5. **If the value is an object with only language-code keys** (`nl`, `en`, `de`, ...),
+   it is a language map. Select the language matching your user's preference.
+
+6. **GPS coordinates are strings**, not numbers. Convert `wgspos_lat` and
+   `wgspos_long` to floating-point values in your code.
+
+7. **Dates may appear as ISO 8601 strings** (`2024-01-01T00:00:00Z`) or typed
+   literals with `xsd:dateTime` / `xsd:date`. A companion `*Label` field
+   (e.g., `nave_dateCreationLabel`) often provides a human-readable version.
+
+### Realistic Resource Detail Example
+
+This example shows the variety of value types in a single resource:
+
+```json
+{
+  "@context": { "...": "..." },
+  "@id": "http://example.org/resource/document/buildings/Q2450",
+  "@type": ["edm:ProvidedCHO"],
+
+  "dc_title": "Sint-Annakerk",
+
+  "dcterms_alternative": [
+    "H. Annakerk",
+    "St. Annakerk",
+    "Heilige Annakerk"
+  ],
+
+  "dc_creator": {
+    "@id": "https://example.org/agents/van-langelaar",
+    "@type": ["edm:Agent"],
+    "skos_prefLabel": "Jan Jurien van Langelaar",
+    "skos_altLabel": ["J.J. van Langelaar"]
+  },
+
+  "dc_description": { "@value": "Een neogotische kruisbasiliek", "@language": "nl" },
+
+  "nave_productionYear": { "@value": 1887, "@type": "xsd:integer" },
+
+  "nave_location": {
+    "@id": "https://example.org/places/molenschot",
+    "@type": ["edm:Place"],
+    "skos_prefLabel": "Kapelstraat 1, Molenschot",
+    "wgspos_lat": "51.573",
+    "wgspos_long": "4.8821"
+  },
+
+  "edm_rights": [
+    "Creative Commons Attribution-Share Alike 3.0",
+    { "@id": "https://creativecommons.org/licenses/by-sa/3.0" }
+  ],
+
+  "dcterms_isPartOf": {
+    "@id": "http://example.org/resource/document/buildings/collection"
+  }
+}
+```
+
+In this response:
+- `dc_title` — plain literal
+- `dcterms_alternative` — array of plain literals
+- `dc_creator` — nested resource with display labels
+- `dc_description` — language-tagged literal
+- `nave_productionYear` — typed literal (integer)
+- `nave_location` — nested resource with GPS coordinates (strings!)
+- `edm_rights` — mixed array (string + resource reference)
+- `dcterms_isPartOf` — cycle-truncated reference (ID only, fetch separately)
+
+---
+
 ## Response Formats
 
 All responses use `application/ld+json` content type.
