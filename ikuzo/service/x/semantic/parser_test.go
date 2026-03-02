@@ -592,6 +592,49 @@ func TestParseQueryParams_ContextIndex(t *testing.T) {
 	})
 }
 
+func TestParseQueryParams_Backend(t *testing.T) {
+	t.Run("backend=v2", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?backend=v2", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if opts.Backend != "v2" {
+			t.Errorf("Backend = %q, want %q", opts.Backend, "v2")
+		}
+	})
+
+	t.Run("backend=es8", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?backend=es8", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if opts.Backend != "es8" {
+			t.Errorf("Backend = %q, want %q", opts.Backend, "es8")
+		}
+	})
+
+	t.Run("no backend defaults to empty", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?query=test", nil)
+		opts, err := parseQueryParams(r)
+		if err != nil {
+			t.Fatalf("error = %v", err)
+		}
+		if opts.Backend != "" {
+			t.Errorf("Backend = %q, want empty", opts.Backend)
+		}
+	})
+
+	t.Run("invalid backend returns error", func(t *testing.T) {
+		r := httptest.NewRequest("GET", "/search?backend=invalid", nil)
+		_, err := parseQueryParams(r)
+		if err == nil {
+			t.Error("expected error for invalid backend")
+		}
+	})
+}
+
 func TestParseQueryParams_FacetCursor(t *testing.T) {
 	r := httptest.NewRequest("GET", "/search?facet[dc_creator]=50&facet[dc_creator].cursor=abc123", nil)
 	opts, err := parseQueryParams(r)

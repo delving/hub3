@@ -174,6 +174,7 @@ func NewQueryContext(opts *QueryOptions, totalResults int64) *SearchContext {
 		Query:        opts,
 		TotalResults: totalResults,
 		ExpiresAt:    time.Now().Add(defaultContextTTL).Format(time.RFC3339),
+		Backend:      opts.Backend,
 	}
 }
 
@@ -185,6 +186,9 @@ type SearchContext struct {
 	ResultIDs    []string      `json:"-"` // Ordered list of result IDs
 	TotalResults int64         `json:"totalResults"`
 	ExpiresAt    string        `json:"expiresAt,omitempty"`
+	// Backend records which backend was used for the original search,
+	// so that detail navigation stays on the same backend.
+	Backend string `json:"backend,omitempty"`
 }
 
 // IsExpired checks if the context has expired.

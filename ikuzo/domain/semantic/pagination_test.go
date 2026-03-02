@@ -90,6 +90,31 @@ func TestSearchContext_IsExpired(t *testing.T) {
 	})
 }
 
+func TestNewQueryContext_PreservesBackend(t *testing.T) {
+	t.Run("backend is captured from opts", func(t *testing.T) {
+		opts := &QueryOptions{
+			Query:   &TextQuery{Value: "test"},
+			Backend: "es8",
+		}
+
+		ctx := NewQueryContext(opts, 100)
+		if ctx.Backend != "es8" {
+			t.Errorf("Backend = %q, want %q", ctx.Backend, "es8")
+		}
+	})
+
+	t.Run("empty backend when not set", func(t *testing.T) {
+		opts := &QueryOptions{
+			Query: &TextQuery{Value: "test"},
+		}
+
+		ctx := NewQueryContext(opts, 100)
+		if ctx.Backend != "" {
+			t.Errorf("Backend = %q, want empty", ctx.Backend)
+		}
+	})
+}
+
 func TestSearchContext_ExtendTTL(t *testing.T) {
 	ctx := &SearchContext{
 		ExpiresAt: time.Now().Add(-5 * time.Minute).Format(time.RFC3339),

@@ -15,12 +15,15 @@ var _ domain.Service = (*Service)(nil)
 
 // Service provides the semantic search API.
 type Service struct {
-	store      semantic.SearchStore
-	introspect semantic.IntrospectionStore
-	registry   *semantic.ConfigRegistry
-	log        zerolog.Logger
-	baseURL    string
-	includes   map[string]semantic.IncludeProvider
+	store        semantic.SearchStore
+	altStore     semantic.SearchStore // optional alternate backend for runtime switching
+	storeName    string              // name of the primary store ("v2" or "es8")
+	altStoreName string              // name of the alternate store
+	introspect   semantic.IntrospectionStore
+	registry     *semantic.ConfigRegistry
+	log          zerolog.Logger
+	baseURL      string
+	includes     map[string]semantic.IncludeProvider
 }
 
 // NewService creates a new semantic API service.
@@ -118,6 +121,22 @@ func (s *Service) GetStore() semantic.SearchStore {
 	return s.store
 }
 
+// resolveStore returns the store to use for a request, based on the backend
+// field in QueryOptions. If no alternate store is configured, the primary
+// store is always returned.
+func (s *Service) resolveStore(opts *semantic.QueryOptions) semantic.SearchStore {
+	if opts.Backend != "" && s.altStore != nil && opts.Backend == s.altStoreName {
+		return s.altStore
+	}
+
+	return s.store
+}
+
+// HasAlternateStore returns true if an alternate backend is available.
+func (s *Service) HasAlternateStore() bool {
+	return s.altStore != nil
+}
+
 // handleSearch handles GET requests to the search endpoint.
 func (s *Service) handleSearch(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
@@ -154,8 +173,11 @@ func (s *Service) handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Select store based on backend parameter
+	store := s.resolveStore(opts)
+
 	// Execute search
-	result, err := s.store.Search(ctx, opts, config)
+	result, err := store.Search(ctx, opts, config)
 	if err != nil {
 		s.log.Error().Err(err).Msg("search failed")
 		s.respondError(w, r, semantic.NewHydraError(
@@ -239,8 +261,11 @@ func (s *Service) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Select store based on backend parameter
+	store := s.resolveStore(opts)
+
 	// Execute search
-	result, err := s.store.Search(ctx, opts, config)
+	result, err := store.Search(ctx, opts, config)
 	if err != nil {
 		s.log.Error().Err(err).Msg("search failed")
 		s.respondError(w, r, semantic.NewHydraError(
@@ -283,6 +308,9 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Determine backend from query param or search context
+	backendParam := r.URL.Query().Get("backend")
+
 	// Check for search context token for navigation
 	contextToken := r.URL.Query().Get("context")
 	var navContext *semantic.NavigationContext
@@ -290,6 +318,11 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 	if contextToken != "" {
 		// Try to get search context for navigation
 		searchCtx, err := s.store.GetSearchContext(ctx, contextToken)
+		if err != nil && s.altStore != nil {
+			// Try alternate store
+			searchCtx, err = s.altStore.GetSearchContext(ctx, contextToken)
+		}
+
 		if err != nil {
 			// Context not found or expired - that's okay, just no navigation
 			s.log.Debug().
@@ -297,13 +330,21 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 				Err(err).
 				Msg("search context not found or expired")
 		} else {
+			// Restore backend from search context if not overridden
+			if backendParam == "" && searchCtx.Backend != "" {
+				backendParam = searchCtx.Backend
+			}
 			// Build navigation context from search context
 			navContext = s.buildNavigationContext(r, id, searchCtx)
 		}
 	}
 
+	// Build minimal opts to resolve the store
+	detailOpts := &semantic.QueryOptions{Backend: backendParam}
+	store := s.resolveStore(detailOpts)
+
 	// Retrieve the document
-	doc, err := s.store.GetByID(ctx, id, config)
+	doc, err := store.GetByID(ctx, id, config)
 	if err != nil {
 		s.log.Error().Err(err).Str("id", id).Msg("failed to retrieve document")
 		s.respondError(w, r, semantic.NewHydraError(
@@ -397,7 +438,9 @@ func (s *Service) handleTypeSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := s.store.Search(ctx, opts, config)
+	store := s.resolveStore(opts)
+
+	result, err := store.Search(ctx, opts, config)
 	if err != nil {
 		s.log.Error().Err(err).Msg("search failed")
 		s.respondError(w, r, semantic.NewHydraError(

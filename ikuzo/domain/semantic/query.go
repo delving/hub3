@@ -50,6 +50,10 @@ type QueryOptions struct {
 
 	// ContextIndices specifies additional organization IDs to search across.
 	ContextIndices []string
+
+	// Backend selects the search backend for this request.
+	// Valid values: "" (default), "v2" (v2 adapter), "es8" (native ES8).
+	Backend string
 }
 
 // FacetBoolType controls how multiple facet selections combine.

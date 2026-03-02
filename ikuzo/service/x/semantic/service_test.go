@@ -156,3 +156,81 @@ func TestGetStore(t *testing.T) {
 		t.Error("Expected GetStore to return the configured store")
 	}
 }
+
+func TestResolveStore(t *testing.T) {
+	primary := semantic.NewMockStore()
+	alternate := semantic.NewMockStore()
+
+	svc, err := NewService(
+		WithStore(primary),
+		WithStoreName("v2"),
+		WithAlternateStore("es8", alternate),
+	)
+	if err != nil {
+		t.Fatalf("Failed to create service: %v", err)
+	}
+
+	t.Run("empty backend returns primary", func(t *testing.T) {
+		opts := &semantic.QueryOptions{}
+		if svc.resolveStore(opts) != primary {
+			t.Error("expected primary store for empty backend")
+		}
+	})
+
+	t.Run("primary name returns primary", func(t *testing.T) {
+		opts := &semantic.QueryOptions{Backend: "v2"}
+		if svc.resolveStore(opts) != primary {
+			t.Error("expected primary store for 'v2' backend")
+		}
+	})
+
+	t.Run("alternate name returns alternate", func(t *testing.T) {
+		opts := &semantic.QueryOptions{Backend: "es8"}
+		if svc.resolveStore(opts) != alternate {
+			t.Error("expected alternate store for 'es8' backend")
+		}
+	})
+
+	t.Run("unknown name returns primary", func(t *testing.T) {
+		opts := &semantic.QueryOptions{Backend: "unknown"}
+		if svc.resolveStore(opts) != primary {
+			t.Error("expected primary store for unknown backend")
+		}
+	})
+}
+
+func TestResolveStore_NoAlternate(t *testing.T) {
+	primary := semantic.NewMockStore()
+
+	svc, err := NewService(WithStore(primary))
+	if err != nil {
+		t.Fatalf("Failed to create service: %v", err)
+	}
+
+	// When no alternate is configured, always return primary
+	opts := &semantic.QueryOptions{Backend: "es8"}
+	if svc.resolveStore(opts) != primary {
+		t.Error("expected primary store when no alternate configured")
+	}
+
+	if svc.HasAlternateStore() {
+		t.Error("expected HasAlternateStore to return false")
+	}
+}
+
+func TestHasAlternateStore(t *testing.T) {
+	primary := semantic.NewMockStore()
+	alternate := semantic.NewMockStore()
+
+	svc, err := NewService(
+		WithStore(primary),
+		WithAlternateStore("es8", alternate),
+	)
+	if err != nil {
+		t.Fatalf("Failed to create service: %v", err)
+	}
+
+	if !svc.HasAlternateStore() {
+		t.Error("expected HasAlternateStore to return true")
+	}
+}

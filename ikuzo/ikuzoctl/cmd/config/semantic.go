@@ -7,7 +7,6 @@ import (
 	"github.com/delving/hub3/ikuzo"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 	semanticService "github.com/delving/hub3/ikuzo/service/x/semantic"
-	"github.com/delving/hub3/ikuzo/storage/x/elasticsearch"
 	elasticsearch8 "github.com/delving/hub3/ikuzo/storage/x/elasticsearch8"
 	"github.com/delving/hub3/ikuzo/storage/x/v2adapter"
 )
@@ -52,56 +51,65 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 	// Get zerolog.Logger from CustomLogger
 	logger := cfg.logger.With().Str("svc", "semantic").Logger()
 
-	// Create semantic store - choose implementation based on configuration
-	var store semantic.SearchStore
-
-	// Build service options (populated below based on backend choice)
+	// Build service options
 	var serviceOpts []semanticService.Option
 
+	// Create both backends — one as primary, the other as alternate.
+	// This enables runtime switching via ?backend= query parameter.
+
+	// V2 adapter backend
+	v2Store := v2adapter.NewV2SearchAdapter(
+		esClient.SearchClient(),
+		cfg.ElasticSearch.IndexName,
+		logger,
+	)
+	v2Introspect := v2adapter.NewV2IntrospectionAdapter(
+		esClient.SearchClient(),
+		cfg.ElasticSearch.IndexName,
+		logger,
+	)
+
+	// Native ES8 backend
+	es8Client := elasticsearch8.NewClientFromExisting(esClient.ES(), logger)
+	es8Store := elasticsearch8.NewStore(es8Client, logger)
+	es8Introspect := elasticsearch8.NewIntrospectionStore(es8Client, logger)
+
+	// Wire primary and alternate based on config
+	var primaryStore semantic.SearchStore
+	var primaryName string
+	var primaryIntrospect semantic.IntrospectionStore
+
 	if s.UseES8Backend {
-		// Use native go-elasticsearch/v8 backend
 		logger.Info().
-			Bool("use_es8_backend", true).
-			Msg("initializing semantic API with native ES8 backend")
+			Bool("primary", true).
+			Str("backend", "es8").
+			Msg("initializing semantic API with native ES8 primary backend")
 
-		es8Client := elasticsearch8.NewClientFromExisting(esClient.ES(), logger)
-		store = elasticsearch8.NewStore(es8Client, logger)
+		primaryStore = es8Store
+		primaryName = "es8"
+		primaryIntrospect = es8Introspect
 
-		// Also create introspection store
-		introspect := elasticsearch8.NewIntrospectionStore(es8Client, logger)
-		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
-	} else if s.UseV2Adapter {
-		// Use v2 adapter for gradual migration
-		// OrgID is extracted from request context by the adapter (multi-tenant)
-		logger.Info().
-			Bool("use_v2_adapter", true).
-			Msg("initializing semantic API with v2 adapter (multi-tenant)")
-
-		store = v2adapter.NewV2SearchAdapter(
-			esClient.SearchClient(),
-			cfg.ElasticSearch.IndexName,
-			logger,
+		// Register v2 adapter as alternate
+		serviceOpts = append(serviceOpts,
+			semanticService.WithAlternateStore("v2", v2Store),
 		)
-
-		// Add introspection adapter when using v2 adapter
-		introspect := v2adapter.NewV2IntrospectionAdapter(
-			esClient.SearchClient(),
-			cfg.ElasticSearch.IndexName,
-			logger,
-		)
-		serviceOpts = append(serviceOpts, semanticService.WithIntrospectionStore(introspect))
 	} else {
-		// Use direct Elasticsearch implementation
 		logger.Info().
-			Bool("use_v2_adapter", false).
-			Msg("initializing semantic API with direct Elasticsearch store")
+			Bool("primary", true).
+			Str("backend", "v2").
+			Msg("initializing semantic API with v2 adapter primary backend")
 
-		store = elasticsearch.NewSemanticStore(
-			esClient.SearchClient(),
-			cfg.ElasticSearch.IndexName,
-			logger,
+		primaryStore = v2Store
+		primaryName = "v2"
+		primaryIntrospect = v2Introspect
+
+		// Register ES8 as alternate
+		serviceOpts = append(serviceOpts,
+			semanticService.WithAlternateStore("es8", es8Store),
 		)
 	}
+
+	_ = es8Introspect // both introspection stores are created for future use
 
 	// Create registry with default resource types
 	registry := semantic.DefaultRegistry()
@@ -114,9 +122,11 @@ func (s *Semantic) AddOptions(cfg *Config) error {
 
 	// Add common service options
 	serviceOpts = append(serviceOpts,
-		semanticService.WithStore(store),
+		semanticService.WithStore(primaryStore),
+		semanticService.WithStoreName(primaryName),
 		semanticService.WithRegistry(registry),
 		semanticService.WithBaseURL(baseURL),
+		semanticService.WithIntrospectionStore(primaryIntrospect),
 	)
 
 	// Create semantic service

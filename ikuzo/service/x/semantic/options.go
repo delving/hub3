@@ -9,10 +9,30 @@ import (
 // Option is a functional option for configuring the Service.
 type Option func(*Service) error
 
-// WithStore sets the search store implementation.
+// WithStore sets the primary search store implementation.
+// The storeName identifies this backend (e.g., "v2" or "es8").
 func WithStore(store semantic.SearchStore) Option {
 	return func(s *Service) error {
 		s.store = store
+		return nil
+	}
+}
+
+// WithStoreName sets the name for the primary store (e.g., "v2" or "es8").
+func WithStoreName(name string) Option {
+	return func(s *Service) error {
+		s.storeName = name
+		return nil
+	}
+}
+
+// WithAlternateStore registers an alternate backend that can be selected
+// at runtime via the ?backend= query parameter. The name identifies the
+// backend (e.g., "es8" if the primary is "v2", or vice versa).
+func WithAlternateStore(name string, store semantic.SearchStore) Option {
+	return func(s *Service) error {
+		s.altStore = store
+		s.altStoreName = name
 		return nil
 	}
 }

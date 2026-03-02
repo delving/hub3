@@ -119,6 +119,16 @@ func parseQueryParams(r *http.Request) (*semantic.QueryOptions, error) {
 		}
 	}
 
+	// Parse backend selection
+	if backend := query.Get("backend"); backend != "" {
+		switch backend {
+		case "v2", "es8":
+			opts.Backend = backend
+		default:
+			return nil, fmt.Errorf("invalid backend %q (must be 'v2' or 'es8')", backend)
+		}
+	}
+
 	// Parse peek mode
 	if peekFields := query.Get("peek"); peekFields != "" {
 		opts.Peek = true
