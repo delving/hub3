@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
@@ -97,9 +98,19 @@ func classInfoFromBucket(uri string, count int64) semantic.ClassInfo {
 	}
 }
 
+// v2IndexName returns the v2 index name for the current request context.
+func (a *V2IntrospectionAdapter) v2IndexName(ctx context.Context) string {
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if ok && org.ID != "" {
+		return strings.ToLower(org.ID.String()) + "v2"
+	}
+
+	return a.index
+}
+
 // IntrospectClasses discovers all RDF class types in the index using a nested terms aggregation.
 func (a *V2IntrospectionAdapter) IntrospectClasses(ctx context.Context, opts *semantic.QueryOptions) ([]semantic.ClassInfo, error) {
-	search := a.client.Search(a.index).Size(0)
+	search := a.client.Search(a.v2IndexName(ctx)).Size(0)
 
 	if opts != nil && opts.Query != nil && opts.Query.Value != "" {
 		search = search.Query(elastic.NewQueryStringQuery(opts.Query.Value))
@@ -137,7 +148,7 @@ func (a *V2IntrospectionAdapter) IntrospectClasses(ctx context.Context, opts *se
 
 // IntrospectProperties discovers properties for a given class using nested aggregations on entries.
 func (a *V2IntrospectionAdapter) IntrospectProperties(ctx context.Context, classURI string, opts *semantic.QueryOptions) ([]semantic.PropertyInfo, error) {
-	search := a.client.Search(a.index).Size(0)
+	search := a.client.Search(a.v2IndexName(ctx)).Size(0)
 	search = search.Aggregation("properties", buildPropertyAggregation(classURI))
 
 	result, err := search.Do(ctx)
