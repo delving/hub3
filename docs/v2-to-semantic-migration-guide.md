@@ -290,12 +290,72 @@ To search across multiple organizations (e.g., aggregated portals):
 ```
 
 This searches the primary organization's index plus the specified context indices.
+The context indices are additional Elasticsearch indices that will be included in the search.
 
 ---
 
-## 10. Full Parameter Mapping
+## 10. Backend Switching
 
-See [docs/v2-feature-freeze.md](v2-feature-freeze.md) for the comprehensive parameter mapping table.
+During the migration period, both the V2 adapter and native ES8 backends are available.
+You can select the backend per-request:
+
+```
+# Use native ES8 backend
+/api/semantic/v1/search?query=rembrandt&backend=es8
+
+# Use V2 adapter backend
+/api/semantic/v1/search?query=rembrandt&backend=v2
+
+# Use default (server-configured)
+/api/semantic/v1/search?query=rembrandt
+```
+
+The backend choice is preserved in search contexts. When navigating from search results
+to detail views via `?context=token`, the same backend is used automatically.
+
+When `debug=query` is set, the response includes `hub3:backend` in the debug metadata
+to confirm which backend handled the request.
+
+---
+
+## 11. Resource Detail View
+
+### By Hub ID (Elasticsearch `_id`)
+
+```
+GET /api/semantic/v1/resource/abc123-def456
+```
+
+### By Full URI (URL-encoded)
+
+```
+GET /api/semantic/v1/resource/http%3A%2F%2Fexample.org%2Fobject%2F123
+```
+
+The detail endpoint supports both lookup methods. Full URIs must be URL-encoded
+and are resolved via the `meta.entryURI` field. This is natural for JSON-LD consumers
+that use the `@id` value from search results.
+
+### With Navigation Context
+
+```
+GET /api/semantic/v1/resource/abc123?context=ctx_abc12345
+```
+
+When a search context token is provided, the response includes `hub3:navigation`
+with previous/next links for browsing through search results.
+
+### With Related Items (MLT)
+
+```
+GET /api/semantic/v1/resource/abc123?include=relatedItems&relatedItems.count=5
+```
+
+---
+
+## 12. Full Parameter Mapping
+
+See [v2-feature-freeze.md](v2-feature-freeze.md) for the comprehensive parameter mapping table.
 
 ### Dropped Parameters
 
@@ -305,13 +365,15 @@ These V2 parameters have no Semantic V1 equivalent:
 |---|---|
 | `rq` (query refinement) | Use additional `filter[...]` parameters |
 | `facet.mergeFilter` | Not implemented (rarely used) |
+| `facet.expand` | Use `facet[field].cursor=token` for paging through facet values |
+| `facetOrBetween` | Not implemented (rarely used) |
 | `itemFormat` / `format` | Semantic V1 returns JSON-LD only |
 | `v1.mode` | Internal parameter, removed |
 | Tree/EAD params | Out of scope for semantic search |
 
 ---
 
-## 11. Field Name Convention
+## 13. Field Name Convention
 
 Field names use underscores in URLs and colons internally:
 
@@ -332,6 +394,7 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 - [ ] Zero V2 API traffic for 2+ weeks (verify via access logs)
 - [ ] ES8 backend stable in production for 2+ weeks
 - [ ] Cross-index search (`contextIndex`) working on Semantic V1
+- [ ] Backend switching (`?backend=`) no longer needed (all traffic on ES8)
 
 ### Packages to Remove
 
@@ -345,7 +408,7 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 
 | File | Change |
 |---|---|
-| `ikuzo/ikuzoctl/cmd/config/semantic.go` | Remove `UseV2Adapter` branch and olivere store creation |
+| `ikuzo/ikuzoctl/cmd/config/semantic.go` | Remove V2 adapter creation, `olivere` client setup, and `UseV2Adapter` flag. Keep only ES8 backend. Remove `WithAlternateStore` call. |
 
 ### Routes to Remove
 
@@ -353,19 +416,30 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 |---|---|
 | `hub3/server/http/handlers/search.go` | `/api/search/v2`, `/v2/search`, `/api/v3/search` |
 
+### Code to Clean Up
+
+| File | Change |
+|---|---|
+| `ikuzo/service/x/semantic/service.go` | Remove `altStore`, `altStoreName`, `resolveStore()`, `HasAlternateStore()` |
+| `ikuzo/service/x/semantic/options.go` | Remove `WithAlternateStore()`, `WithStoreName()` |
+| `ikuzo/service/x/semantic/parser.go` | Remove `backend` parameter parsing |
+| `ikuzo/domain/semantic/query.go` | Remove `Backend` field from `QueryOptions` |
+| `ikuzo/domain/semantic/pagination.go` | Remove `Backend` field from `SearchContext` |
+
 ### Dependencies
 
 | Dependency | Impact |
 |---|---|
-| `olivere/elastic/v7` | 32+ files import it; full removal requires broader legacy cleanup beyond the V2 adapter |
+| `olivere/elastic/v7` | 32+ files import it; full removal requires broader legacy cleanup beyond the V2 adapter. The V2 adapter removal eliminates the semantic API dependency, but the bulk indexing and other legacy paths still use olivere. |
 
 ### Removal Procedure
 
 1. Verify all pre-removal conditions are met
 2. Remove V2 adapter package (`ikuzo/storage/x/v2adapter/`)
 3. Remove old ES store files
-4. Update `semantic.go` config to remove V2 adapter branch
-5. Remove V2 search routes
-6. Run `go build ./...` and `go test ./...` to verify
-7. Deploy to staging and verify no regressions
-8. Deploy to production
+4. Update `semantic.go` config to remove V2 adapter branch and alternate store
+5. Clean up backend switching code from semantic service (optional — can keep for future use)
+6. Remove V2 search routes from `hub3/server/http/handlers/search.go`
+7. Run `go build ./...` and `go test ./...` to verify
+8. Deploy to staging and verify no regressions
+9. Deploy to production

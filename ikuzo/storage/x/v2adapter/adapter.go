@@ -126,6 +126,18 @@ func (a *V2SearchAdapter) Search(
 	return result, nil
 }
 
+// v2IndexName returns the v2 index name for the current request context.
+// The v2 index is always {orgID}v2 (e.g., "brabantcloudv2").
+func (a *V2SearchAdapter) v2IndexName(ctx context.Context) string {
+	org, ok := domain.GetOrganizationFromCtx(ctx)
+	if ok && org.ID != "" {
+		return strings.ToLower(org.ID.String()) + "v2"
+	}
+
+	// Fallback: use the base index name (should not happen in production)
+	return a.index
+}
+
 // GetByID implements semantic.SearchStore.GetByID by querying for a specific document ID.
 // Supports both hubID (ES _id) and full URI (meta.entryURI) lookups.
 func (a *V2SearchAdapter) GetByID(
@@ -133,15 +145,18 @@ func (a *V2SearchAdapter) GetByID(
 	id string,
 	config *semantic.ResourceConfig,
 ) (map[string]any, error) {
+	index := a.v2IndexName(ctx)
+
 	a.log.Debug().
 		Str("id", id).
+		Str("index", index).
 		Msg("fetching document by ID via v2 adapter")
 
 	var source json.RawMessage
 
 	if isURI(id) {
 		// URI-based lookup: search by meta.entryURI
-		raw, err := a.getByEntryURI(ctx, id)
+		raw, err := a.getByEntryURI(ctx, index, id)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +165,7 @@ func (a *V2SearchAdapter) GetByID(
 	} else {
 		// Direct _id lookup (hubID)
 		getResult, err := a.client.Get().
-			Index(a.index).
+			Index(index).
 			Id(id).
 			Do(ctx)
 
@@ -198,11 +213,11 @@ func (a *V2SearchAdapter) GetByID(
 }
 
 // getByEntryURI searches for a document by its meta.entryURI field.
-func (a *V2SearchAdapter) getByEntryURI(ctx context.Context, uri string) (json.RawMessage, error) {
+func (a *V2SearchAdapter) getByEntryURI(ctx context.Context, index, uri string) (json.RawMessage, error) {
 	query := elastic.NewTermQuery("meta.entryURI", uri)
 
 	result, err := a.client.Search().
-		Index(a.index).
+		Index(index).
 		Query(query).
 		Size(1).
 		Do(ctx)
