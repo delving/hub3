@@ -13,15 +13,34 @@ import (
 )
 
 type Semantic struct {
-	Enabled       bool   `json:"enabled"`
-	BaseURL       string `json:"baseURL"`
-	UseV2Adapter  bool   `json:"useV2Adapter"`
-	UseES8Backend bool   `json:"useES8Backend"`
+	// Enabled controls whether the semantic v1 API is registered.
+	// Defaults to true — set to false to explicitly disable.
+	Enabled *bool  `json:"enabled"`
+	BaseURL string `json:"baseURL"`
+	// UseV2Adapter uses the v2 adapter backend which converts
+	// FragmentGraph documents to semantic JSON-LD at query time
+	// with cycle detection. This is the default backend.
+	UseV2Adapter  bool `json:"useV2Adapter"`
+	UseES8Backend bool `json:"useES8Backend"`
+}
+
+// isEnabled returns true unless explicitly set to false.
+func (s *Semantic) isEnabled() bool {
+	if s.Enabled == nil {
+		return true // default: on
+	}
+
+	return *s.Enabled
 }
 
 func (s *Semantic) AddOptions(cfg *Config) error {
-	if !s.Enabled {
+	if !s.isEnabled() {
 		return nil
+	}
+
+	// Default to v2 adapter when no backend is explicitly chosen.
+	if !s.UseV2Adapter && !s.UseES8Backend {
+		s.UseV2Adapter = true
 	}
 
 	// Get Elasticsearch client
