@@ -7,7 +7,7 @@
 #
 # Exit codes: 0 = all passed, 1 = failures
 
-set -euo pipefail
+set -o pipefail
 
 BASE="${1:-http://localhost:3002}"
 API="${BASE}/api/semantic/v1"
@@ -326,7 +326,7 @@ else
     fail "Missing resource returns 404" "got HTTP $ERR_STATUS"
 fi
 
-BAD_FILTER_STATUS=$(http_status "${API}/search?filter[dc_type][invalidop]=test")
+BAD_FILTER_STATUS=$(http_status "${API}/search?filter%5Bdc_type%5D%5Binvalidop%5D=test")
 if [ "$BAD_FILTER_STATUS" = "400" ]; then
     pass "Invalid operator returns 400"
 else
