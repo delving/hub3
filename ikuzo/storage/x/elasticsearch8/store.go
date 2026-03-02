@@ -230,6 +230,7 @@ func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.Simil
 }
 
 // GetByID retrieves a single document by its ID from Elasticsearch.
+// Supports both hubID (ES _id) and full URI (meta.entryURI) lookups.
 func (s *Store) GetByID(ctx context.Context, id string, config *semantic.ResourceConfig) (map[string]any, error) {
 	orgID, err := s.orgIDFromContext(ctx)
 	if err != nil {
@@ -242,6 +243,10 @@ func (s *Store) GetByID(ctx context.Context, id string, config *semantic.Resourc
 		Str("index", index).
 		Str("id", id).
 		Msg("getting document by ID")
+
+	if isURI(id) {
+		return s.getByEntryURI(ctx, index, id)
+	}
 
 	resp, err := s.client.ES().Get(
 		index,
@@ -269,6 +274,48 @@ func (s *Store) GetByID(ctx context.Context, id string, config *semantic.Resourc
 	parser := &ResultParser{}
 
 	return parser.ParseGetResponse(data)
+}
+
+// getByEntryURI searches for a document by its meta.entryURI field.
+func (s *Store) getByEntryURI(ctx context.Context, index, uri string) (map[string]any, error) {
+	query := fmt.Sprintf(`{"query":{"term":{"meta.entryURI":{"value":%q}}},"size":1}`, uri)
+
+	resp, err := s.client.ES().Search(
+		s.client.ES().Search.WithContext(ctx),
+		s.client.ES().Search.WithIndex(index),
+		s.client.ES().Search.WithBody(strings.NewReader(query)),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("searching by entryURI: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("ES search by entryURI error: %s", resp.String())
+	}
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("reading ES search response: %w", err)
+	}
+
+	parser := &ResultParser{}
+
+	result, err := parser.ParseSearchResponse(data)
+	if err != nil {
+		return nil, fmt.Errorf("parsing entryURI search response: %w", err)
+	}
+
+	if len(result.Results) == 0 {
+		return nil, fmt.Errorf("document with URI %q not found", uri)
+	}
+
+	return result.Results[0], nil
+}
+
+// isURI returns true if the id looks like a URI (starts with http:// or https://).
+func isURI(id string) bool {
+	return strings.HasPrefix(id, "http://") || strings.HasPrefix(id, "https://")
 }
 
 // Aggregate executes aggregation queries and returns only facet results.

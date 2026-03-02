@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
@@ -287,6 +288,11 @@ func (s *Service) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := chi.URLParam(r, "id")
+
+	// URL-decode the ID to support full URIs (e.g., http%3A%2F%2F... → http://...)
+	if decoded, err := url.PathUnescape(id); err == nil {
+		id = decoded
+	}
 
 	if id == "" {
 		s.respondError(w, r, semantic.NewHydraError(

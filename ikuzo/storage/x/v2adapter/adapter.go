@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -126,6 +127,7 @@ func (a *V2SearchAdapter) Search(
 }
 
 // GetByID implements semantic.SearchStore.GetByID by querying for a specific document ID.
+// Supports both hubID (ES _id) and full URI (meta.entryURI) lookups.
 func (a *V2SearchAdapter) GetByID(
 	ctx context.Context,
 	id string,
@@ -135,27 +137,40 @@ func (a *V2SearchAdapter) GetByID(
 		Str("id", id).
 		Msg("fetching document by ID via v2 adapter")
 
-	// Use Elasticsearch Get API directly for single document retrieval
-	// This is more efficient than going through v2 search
-	getResult, err := a.client.Get().
-		Index(a.index).
-		Id(id).
-		Do(ctx)
+	var source json.RawMessage
 
-	if err != nil {
-		if elastic.IsNotFound(err) {
+	if isURI(id) {
+		// URI-based lookup: search by meta.entryURI
+		raw, err := a.getByEntryURI(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+
+		source = raw
+	} else {
+		// Direct _id lookup (hubID)
+		getResult, err := a.client.Get().
+			Index(a.index).
+			Id(id).
+			Do(ctx)
+
+		if err != nil {
+			if elastic.IsNotFound(err) {
+				return nil, fmt.Errorf("resource not found: %s", id)
+			}
+			return nil, fmt.Errorf("elasticsearch get failed: %w", err)
+		}
+
+		if !getResult.Found {
 			return nil, fmt.Errorf("resource not found: %s", id)
 		}
-		return nil, fmt.Errorf("elasticsearch get failed: %w", err)
-	}
 
-	if !getResult.Found {
-		return nil, fmt.Errorf("resource not found: %s", id)
+		source = getResult.Source
 	}
 
 	// Decode the source document
 	var doc fragments.FragmentGraph
-	if err := json.Unmarshal(getResult.Source, &doc); err != nil {
+	if err := json.Unmarshal(source, &doc); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal document: %w", err)
 	}
 
@@ -180,6 +195,31 @@ func (a *V2SearchAdapter) GetByID(
 		Msg("document retrieved via v2 adapter")
 
 	return item, nil
+}
+
+// getByEntryURI searches for a document by its meta.entryURI field.
+func (a *V2SearchAdapter) getByEntryURI(ctx context.Context, uri string) (json.RawMessage, error) {
+	query := elastic.NewTermQuery("meta.entryURI", uri)
+
+	result, err := a.client.Search().
+		Index(a.index).
+		Query(query).
+		Size(1).
+		Do(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("elasticsearch search by entryURI failed: %w", err)
+	}
+
+	if result.TotalHits() == 0 {
+		return nil, fmt.Errorf("resource not found: %s", uri)
+	}
+
+	return result.Hits.Hits[0].Source, nil
+}
+
+// isURI returns true if the id looks like a URI (starts with http:// or https://).
+func isURI(id string) bool {
+	return strings.HasPrefix(id, "http://") || strings.HasPrefix(id, "https://")
 }
 
 // Aggregate implements semantic.SearchStore.Aggregate by executing facet-only queries.

@@ -22,9 +22,9 @@ YELLOW='\033[0;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
-pass() { ((PASS++)); echo -e "  ${GREEN}PASS${NC} $1"; }
-fail() { ((FAIL++)); echo -e "  ${RED}FAIL${NC} $1: $2"; }
-skip() { ((SKIP++)); echo -e "  ${YELLOW}SKIP${NC} $1: $2"; }
+pass() { ((PASS++)) || true; echo -e "  ${GREEN}PASS${NC} $1"; }
+fail() { ((FAIL++)) || true; echo -e "  ${RED}FAIL${NC} $1: $2"; }
+skip() { ((SKIP++)) || true; echo -e "  ${YELLOW}SKIP${NC} $1: $2"; }
 
 # Helper: curl with JSON output, fail on HTTP errors
 api() {
