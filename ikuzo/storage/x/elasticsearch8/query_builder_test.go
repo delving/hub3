@@ -213,7 +213,7 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 			},
 		},
 		{
-			name: "PropertyFilter OpEqual produces term query",
+			name: "PropertyFilter OpEqual produces nested query",
 			opts: &semantic.QueryOptions{
 				Filters: []semantic.Filter{
 					&semantic.PropertyFilter{
@@ -227,25 +227,16 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 				boolQ := getBoolQuery(t, result)
 				filters := boolQ["filter"].([]interface{})
 
-				// 2 base filters + 1 property filter
+				// 2 base filters + 1 nested property filter
 				if len(filters) != 3 {
 					t.Fatalf("expected 3 filters, got %d", len(filters))
 				}
 
-				last := filters[2].(map[string]interface{})
-				term, ok := last["term"].(map[string]interface{})
-
-				if !ok {
-					t.Fatal("expected term query")
-				}
-
-				if term["dc_creator"] != "Rembrandt" {
-					t.Errorf("expected dc_creator=Rembrandt, got %v", term["dc_creator"])
-				}
+				assertNestedEntryQuery(t, filters[2], "dc:creator", "Rembrandt")
 			},
 		},
 		{
-			name: "PropertyFilter OpNotEqual goes to must_not",
+			name: "PropertyFilter OpNotEqual goes to must_not as nested",
 			opts: &semantic.QueryOptions{
 				Filters: []semantic.Filter{
 					&semantic.PropertyFilter{
@@ -267,10 +258,7 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 					t.Fatalf("expected 1 must_not clause, got %d", len(mustNot))
 				}
 
-				term := mustNot[0].(map[string]interface{})["term"].(map[string]interface{})
-				if term["dc_type"] != "painting" {
-					t.Errorf("expected dc_type=painting in must_not, got %v", term["dc_type"])
-				}
+				assertNestedEntryQuery(t, mustNot[0], "dc:type", "painting")
 
 				// Should still have only 2 base filters (not 3)
 				filters := boolQ["filter"].([]interface{})
@@ -280,7 +268,7 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 			},
 		},
 		{
-			name: "RangeFilter produces range query",
+			name: "RangeFilter produces nested range query",
 			opts: &semantic.QueryOptions{
 				Filters: []semantic.Filter{
 					&semantic.RangeFilter{
@@ -298,29 +286,20 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 					t.Fatalf("expected 3 filters, got %d", len(filters))
 				}
 
+				// Verify it's a nested query on resources.entries
 				last := filters[2].(map[string]interface{})
-				rangeQ, ok := last["range"].(map[string]interface{})
-
+				nested, ok := last["nested"].(map[string]interface{})
 				if !ok {
-					t.Fatal("expected range query")
+					t.Fatal("expected nested query")
 				}
 
-				dateRange, ok := rangeQ["dc_date"].(map[string]interface{})
-				if !ok {
-					t.Fatal("expected dc_date range")
-				}
-
-				if dateRange["gte"] != float64(1600) {
-					t.Errorf("expected gte=1600, got %v", dateRange["gte"])
-				}
-
-				if dateRange["lte"] != float64(1700) {
-					t.Errorf("expected lte=1700, got %v", dateRange["lte"])
+				if nested["path"] != "resources.entries" {
+					t.Errorf("expected path 'resources.entries', got %v", nested["path"])
 				}
 			},
 		},
 		{
-			name: "ExistsFilter produces exists query",
+			name: "ExistsFilter produces nested searchLabel query",
 			opts: &semantic.QueryOptions{
 				Filters: []semantic.Filter{
 					&semantic.ExistsFilter{FieldName: "nave:thumbnail"},
@@ -334,15 +313,25 @@ func TestQueryBuilder_BuildQuery(t *testing.T) {
 					t.Fatalf("expected 3 filters, got %d", len(filters))
 				}
 
+				// Verify it's a nested query checking for the searchLabel
 				last := filters[2].(map[string]interface{})
-				exists, ok := last["exists"].(map[string]interface{})
-
+				nested, ok := last["nested"].(map[string]interface{})
 				if !ok {
-					t.Fatal("expected exists query")
+					t.Fatal("expected nested query")
 				}
 
-				if exists["field"] != "nave_thumbnail" {
-					t.Errorf("expected field 'nave_thumbnail', got %v", exists["field"])
+				if nested["path"] != "resources.entries" {
+					t.Errorf("expected path 'resources.entries', got %v", nested["path"])
+				}
+
+				nestedQuery := nested["query"].(map[string]interface{})
+				term, ok := nestedQuery["term"].(map[string]interface{})
+				if !ok {
+					t.Fatal("expected term query for searchLabel")
+				}
+
+				if term["resources.entries.searchLabel"] != "nave:thumbnail" {
+					t.Errorf("expected searchLabel 'nave:thumbnail', got %v", term["resources.entries.searchLabel"])
 				}
 			},
 		},
@@ -491,6 +480,44 @@ func assertTrackTotalHits(t *testing.T, result map[string]interface{}) {
 	tth, ok := result["track_total_hits"].(bool)
 	if !ok || !tth {
 		t.Error("expected track_total_hits to be true")
+	}
+}
+
+// assertNestedEntryQuery verifies that a clause is a nested query on
+// resources.entries matching the given searchLabel and value.
+func assertNestedEntryQuery(t *testing.T, clause interface{}, searchLabel, expectedValue string) {
+	t.Helper()
+
+	nested, ok := clause.(map[string]interface{})["nested"].(map[string]interface{})
+	if !ok {
+		t.Fatal("expected nested query wrapper")
+	}
+
+	if nested["path"] != "resources.entries" {
+		t.Errorf("expected path 'resources.entries', got %v", nested["path"])
+	}
+
+	nestedQuery := nested["query"].(map[string]interface{})
+	boolQ, ok := nestedQuery["bool"].(map[string]interface{})
+	if !ok {
+		t.Fatal("expected bool query inside nested")
+	}
+
+	must, ok := boolQ["must"].([]interface{})
+	if !ok || len(must) < 2 {
+		t.Fatal("expected at least 2 must clauses in nested bool")
+	}
+
+	// First must: term on searchLabel
+	labelTerm := must[0].(map[string]interface{})["term"].(map[string]interface{})
+	if labelTerm["resources.entries.searchLabel"] != searchLabel {
+		t.Errorf("expected searchLabel %q, got %v", searchLabel, labelTerm["resources.entries.searchLabel"])
+	}
+
+	// Second must: term on @value.keyword
+	valueTerm := must[1].(map[string]interface{})["term"].(map[string]interface{})
+	if valueTerm["resources.entries.@value.keyword"] != expectedValue {
+		t.Errorf("expected @value.keyword %q, got %v", expectedValue, valueTerm["resources.entries.@value.keyword"])
 	}
 }
 

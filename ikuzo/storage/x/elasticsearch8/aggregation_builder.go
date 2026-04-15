@@ -27,6 +27,7 @@ type AggregationBuilder struct {
 
 // BuildAggregations returns the "aggs" portion of an ES query for the given
 // facet requests. Each facet produces one top-level aggregation key.
+// The key uses the raw field name (e.g., "dc:type") to match ParseFacets lookup.
 func (ab *AggregationBuilder) BuildAggregations(facets []semantic.FacetRequest) map[string]any {
 	aggs := make(map[string]any, len(facets))
 
@@ -36,13 +37,15 @@ func (ab *AggregationBuilder) BuildAggregations(facets []semantic.FacetRequest) 
 			size = defaultFacetSize
 		}
 
-		key := translateFieldName(f.Field)
+		// Use the raw field name as the agg key so that ParseFacets can find
+		// results by facet.Field (which also uses the raw name).
+		key := f.Field
 
 		switch ab.Mode {
 		case AggNested:
 			aggs[key] = ab.buildNested(f.Field, size, f.Sort)
 		default:
-			aggs[key] = ab.buildFlat(key, size, f.Sort)
+			aggs[key] = ab.buildFlat(translateFieldName(f.Field), size, f.Sort)
 		}
 	}
 

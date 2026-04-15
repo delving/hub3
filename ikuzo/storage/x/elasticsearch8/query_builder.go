@@ -192,49 +192,57 @@ func (qb *QueryBuilder) buildFilter(f semantic.Filter) (interface{}, bool, error
 	}
 }
 
-// buildPropertyFilter translates a PropertyFilter into an ES clause.
+// buildPropertyFilter translates a PropertyFilter into a nested ES query against
+// the resources.entries structure. The searchLabel field identifies the predicate
+// (e.g., "dc:type") and @value.keyword holds the filterable value.
 func (qb *QueryBuilder) buildPropertyFilter(pf *semantic.PropertyFilter) (interface{}, bool, error) {
-	field := translateField(pf.FieldName)
+	label := pf.FieldName // e.g., "dc:type"
+
+	var valueClause map[string]interface{}
 
 	switch pf.OperatorType {
 	case semantic.OpEqual:
-		return map[string]interface{}{"term": map[string]interface{}{field: pf.Value}}, false, nil
+		valueClause = map[string]interface{}{"term": map[string]interface{}{"resources.entries.@value.keyword": pf.Value}}
 
 	case semantic.OpNotEqual:
-		return map[string]interface{}{"term": map[string]interface{}{field: pf.Value}}, true, nil
+		valueClause = map[string]interface{}{"term": map[string]interface{}{"resources.entries.@value.keyword": pf.Value}}
+		return nestedEntriesQuery(label, valueClause), true, nil
 
 	case semantic.OpIn:
-		return map[string]interface{}{"terms": map[string]interface{}{field: pf.Value}}, false, nil
+		valueClause = map[string]interface{}{"terms": map[string]interface{}{"resources.entries.@value.keyword": pf.Value}}
 
 	case semantic.OpNotIn:
-		return map[string]interface{}{"terms": map[string]interface{}{field: pf.Value}}, true, nil
+		valueClause = map[string]interface{}{"terms": map[string]interface{}{"resources.entries.@value.keyword": pf.Value}}
+		return nestedEntriesQuery(label, valueClause), true, nil
 
 	case semantic.OpContains:
-		return map[string]interface{}{"match": map[string]interface{}{field: pf.Value}}, false, nil
+		valueClause = map[string]interface{}{"match": map[string]interface{}{"resources.entries.@value": pf.Value}}
 
 	case semantic.OpStartsWith:
-		return map[string]interface{}{"prefix": map[string]interface{}{field: pf.Value}}, false, nil
+		valueClause = map[string]interface{}{"prefix": map[string]interface{}{"resources.entries.@value.keyword": pf.Value}}
 
 	case semantic.OpGreaterThan:
-		return map[string]interface{}{"range": map[string]interface{}{field: map[string]interface{}{"gt": pf.Value}}}, false, nil
+		valueClause = map[string]interface{}{"range": map[string]interface{}{"resources.entries.@value.keyword": map[string]interface{}{"gt": pf.Value}}}
 
 	case semantic.OpGreaterEqual:
-		return map[string]interface{}{"range": map[string]interface{}{field: map[string]interface{}{"gte": pf.Value}}}, false, nil
+		valueClause = map[string]interface{}{"range": map[string]interface{}{"resources.entries.@value.keyword": map[string]interface{}{"gte": pf.Value}}}
 
 	case semantic.OpLessThan:
-		return map[string]interface{}{"range": map[string]interface{}{field: map[string]interface{}{"lt": pf.Value}}}, false, nil
+		valueClause = map[string]interface{}{"range": map[string]interface{}{"resources.entries.@value.keyword": map[string]interface{}{"lt": pf.Value}}}
 
 	case semantic.OpLessEqual:
-		return map[string]interface{}{"range": map[string]interface{}{field: map[string]interface{}{"lte": pf.Value}}}, false, nil
+		valueClause = map[string]interface{}{"range": map[string]interface{}{"resources.entries.@value.keyword": map[string]interface{}{"lte": pf.Value}}}
 
 	default:
 		return nil, false, fmt.Errorf("unsupported property filter operator: %s", pf.OperatorType)
 	}
+
+	return nestedEntriesQuery(label, valueClause), false, nil
 }
 
-// buildRangeFilter translates a RangeFilter into an ES range clause.
+// buildRangeFilter translates a RangeFilter into a nested ES range query
+// against resources.entries.@value.keyword.
 func (qb *QueryBuilder) buildRangeFilter(rf *semantic.RangeFilter) interface{} {
-	field := translateField(rf.FieldName)
 	rangeCond := map[string]interface{}{}
 
 	if rf.Min != nil {
@@ -245,12 +253,27 @@ func (qb *QueryBuilder) buildRangeFilter(rf *semantic.RangeFilter) interface{} {
 		rangeCond["lte"] = rf.Max
 	}
 
-	return map[string]interface{}{"range": map[string]interface{}{field: rangeCond}}
+	valueClause := map[string]interface{}{
+		"range": map[string]interface{}{"resources.entries.@value.keyword": rangeCond},
+	}
+
+	return nestedEntriesQuery(rf.FieldName, valueClause)
 }
 
-// buildExistsFilter translates an ExistsFilter into an ES exists clause.
+// buildExistsFilter translates an ExistsFilter into a nested query that checks
+// whether any entry exists with the given searchLabel.
 func (qb *QueryBuilder) buildExistsFilter(ef *semantic.ExistsFilter) interface{} {
-	return map[string]interface{}{"exists": map[string]interface{}{"field": translateField(ef.FieldName)}}
+	// An entry exists for this field if any nested entry has the matching searchLabel.
+	labelClause := map[string]interface{}{
+		"term": map[string]interface{}{"resources.entries.searchLabel": ef.FieldName},
+	}
+
+	return map[string]interface{}{
+		"nested": map[string]interface{}{
+			"path": "resources.entries",
+			"query": labelClause,
+		},
+	}
 }
 
 // buildGeoBBoxFilter translates a GeoBBoxFilter into an ES geo_bounding_box clause.
@@ -371,6 +394,24 @@ func (qb *QueryBuilder) buildOrgFilter() interface{} {
 	}
 
 	return map[string]interface{}{"terms": map[string]interface{}{"meta.orgID": allOrgs}}
+}
+
+// nestedEntriesQuery builds a nested query on resources.entries that matches both
+// the searchLabel (predicate name like "dc:type") and a value condition.
+func nestedEntriesQuery(searchLabel string, valueClause map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
+		"nested": map[string]interface{}{
+			"path": "resources.entries",
+			"query": map[string]interface{}{
+				"bool": map[string]interface{}{
+					"must": []interface{}{
+						map[string]interface{}{"term": map[string]interface{}{"resources.entries.searchLabel": searchLabel}},
+						valueClause,
+					},
+				},
+			},
+		},
+	}
 }
 
 // translateField converts semantic field names to Elasticsearch field names.

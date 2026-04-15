@@ -147,13 +147,13 @@ func TestAggregationBuilder_BuildAggregations(t *testing.T) {
 			},
 		},
 		{
-			name: "field name colon translation in flat mode",
+			name: "field name colon preserved as key in flat mode",
 			mode: AggFlat,
 			facets: []semantic.FacetRequest{
 				{Field: "dc:creator"},
 			},
 			want: map[string]any{
-				"dc_creator": map[string]any{
+				"dc:creator": map[string]any{
 					"terms": map[string]any{
 						"field": "fields.dc_creator.keyword",
 						"size":  20,

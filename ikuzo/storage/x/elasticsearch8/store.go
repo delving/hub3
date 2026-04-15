@@ -32,9 +32,12 @@ var (
 )
 
 // NewStore creates a new Store wrapping the given Client.
+// Defaults to AggNested mode for facets, matching the v2 index's nested
+// resources.entries structure.
 func NewStore(client *Client, logger zerolog.Logger) *Store {
 	return &Store{
 		client:   client,
+		aggMode:  AggNested,
 		log:      logger.With().Str("svc", "es8-store").Logger(),
 		contexts: make(map[string]*semantic.SearchContext),
 	}
