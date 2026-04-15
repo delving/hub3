@@ -373,7 +373,7 @@ func (rc *ResourceConfig) ValidateQueryOptions(opts *QueryOptions) error {
 				opts.Pagination.Size,
 			)
 		}
-		if opts.Pagination.Size < 1 {
+		if opts.Pagination.Size < 1 && !opts.Peek {
 			return NewValidationError(
 				"size",
 				"page size must be at least 1",

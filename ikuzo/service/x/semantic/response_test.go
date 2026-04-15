@@ -466,3 +466,83 @@ func TestTimingJSONFields(t *testing.T) {
 		t.Errorf("Unit = %s, want ms", timing.Unit)
 	}
 }
+
+func TestAttachSearchContext(t *testing.T) {
+	t.Parallel()
+
+	t.Run("populates search context on collection", func(t *testing.T) {
+		t.Parallel()
+
+		mockStore := domainSemantic.NewMockStore()
+		svc, _ := NewService(WithStore(mockStore))
+
+		result := &domainSemantic.SearchResult{
+			Total:     3,
+			Results:   []map[string]any{{"@id": "a"}, {"@id": "b"}, {"@id": "c"}},
+			ResultIDs: []string{"a", "b", "c"},
+		}
+
+		opts := &domainSemantic.QueryOptions{
+			Pagination: &domainSemantic.Pagination{Page: 1, Size: 20},
+		}
+
+		r := httptest.NewRequest(http.MethodGet, "/search", nil)
+		collection := svc.buildCollection(r, result, opts, domainSemantic.NewResourceConfig("t", "T"))
+
+		svc.attachSearchContext(r.Context(), mockStore, collection, result, opts)
+
+		if collection.SearchContext == nil {
+			t.Fatal("SearchContext should not be nil")
+		}
+
+		if collection.SearchContext.Token == "" {
+			t.Error("SearchContext.Token should not be empty")
+		}
+
+		if collection.SearchContext.TotalResults != 3 {
+			t.Errorf("TotalResults = %d, want 3", collection.SearchContext.TotalResults)
+		}
+	})
+
+	t.Run("no-op for peek queries", func(t *testing.T) {
+		t.Parallel()
+
+		mockStore := domainSemantic.NewMockStore()
+		svc, _ := NewService(WithStore(mockStore))
+
+		result := &domainSemantic.SearchResult{
+			Total:     10,
+			ResultIDs: []string{"a"},
+		}
+
+		opts := &domainSemantic.QueryOptions{Peek: true}
+
+		collection := &domainSemantic.Collection{}
+		svc.attachSearchContext(nil, mockStore, collection, result, opts)
+
+		if collection.SearchContext != nil {
+			t.Error("SearchContext should be nil for peek queries")
+		}
+	})
+
+	t.Run("no-op when no result IDs", func(t *testing.T) {
+		t.Parallel()
+
+		mockStore := domainSemantic.NewMockStore()
+		svc, _ := NewService(WithStore(mockStore))
+
+		result := &domainSemantic.SearchResult{
+			Total:     0,
+			ResultIDs: []string{},
+		}
+
+		opts := &domainSemantic.QueryOptions{}
+
+		collection := &domainSemantic.Collection{}
+		svc.attachSearchContext(nil, mockStore, collection, result, opts)
+
+		if collection.SearchContext != nil {
+			t.Error("SearchContext should be nil when no result IDs")
+		}
+	})
+}

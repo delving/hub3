@@ -1,6 +1,7 @@
 package semantic
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -76,6 +77,30 @@ func (s *Service) buildCollection(
 	}
 
 	return collection
+}
+
+// attachSearchContext creates and saves a search context for detail-level
+// navigation, then sets it on the collection so the token appears in the
+// JSON-LD response. It is a no-op for peek (facet-only) queries or when
+// no result IDs are available.
+func (s *Service) attachSearchContext(
+	ctx context.Context,
+	store semantic.SearchStore,
+	collection *semantic.Collection,
+	result *semantic.SearchResult,
+	opts *semantic.QueryOptions,
+) {
+	if opts.Peek || len(result.ResultIDs) == 0 {
+		return
+	}
+
+	searchCtx := s.createSearchContext(opts, result)
+	if err := store.SaveSearchContext(ctx, searchCtx); err != nil {
+		s.log.Warn().Err(err).Msg("failed to save search context")
+		return
+	}
+
+	collection.SearchContext = searchCtx
 }
 
 // buildPartialCollectionView builds pagination links.

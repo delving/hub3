@@ -377,6 +377,10 @@ func parsePaginationFromQuery(query url.Values, opts *semantic.QueryOptions) err
 		if err != nil {
 			return fmt.Errorf("invalid page size: %w", err)
 		}
+		// size=0 is valid for facet-only (peek) queries.
+		if s == 0 {
+			opts.Peek = true
+		}
 		pagination.Size = s
 	} else {
 		pagination.Size = 20 // Default size

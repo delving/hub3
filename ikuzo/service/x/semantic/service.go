@@ -192,6 +192,9 @@ func (s *Service) handleSearch(w http.ResponseWriter, r *http.Request) {
 	// Build response
 	collection := s.buildCollection(r, result, opts, config)
 
+	// Create search context for detail-level navigation
+	s.attachSearchContext(ctx, store, collection, result, opts)
+
 	// Respond with JSON-LD
 	s.respondJSON(w, r, collection, http.StatusOK)
 }
@@ -279,6 +282,9 @@ func (s *Service) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 
 	// Build response
 	collection := s.buildCollection(r, result, opts, config)
+
+	// Create search context for detail-level navigation
+	s.attachSearchContext(ctx, store, collection, result, opts)
 
 	// Respond with JSON-LD
 	s.respondJSON(w, r, collection, http.StatusOK)
@@ -458,6 +464,7 @@ func (s *Service) handleTypeSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	collection := s.buildCollection(r, result, opts, config)
+	s.attachSearchContext(ctx, store, collection, result, opts)
 	s.respondJSON(w, r, collection, http.StatusOK)
 }
 
