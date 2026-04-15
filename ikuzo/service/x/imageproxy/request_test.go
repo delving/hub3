@@ -158,6 +158,41 @@ func TestNewRequest(t *testing.T) {
 			},
 			false,
 		},
+		{
+			"size option disabled when EnableTransform is false",
+			args{
+				key: imgURL,
+				options: []RequestOption{
+					SetTransform("500"),
+					SetEnableTransform(false),
+				},
+			},
+			&Request{
+				CacheKey:         testCacheKey,
+				SourceURL:        imgURL,
+				TransformOptions: "raw",
+			},
+			false,
+		},
+		{
+			"size option enabled when EnableTransform is true",
+			args{
+				key: imgURL,
+				options: []RequestOption{
+					SetTransform("500"),
+					SetEnableTransform(true),
+				},
+			},
+			&Request{
+				CacheKey:         testCacheKey + "_500_tn.jpg",
+				SourceURL:        imgURL,
+				TransformOptions: "500",
+				thumbnailOpts:    "500",
+				SubPath:          "_500_tn.jpg",
+				EnableTransform:  true,
+			},
+			false,
+		},
 	}
 
 	for _, tt := range tests {

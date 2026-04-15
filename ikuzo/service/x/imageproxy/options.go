@@ -119,3 +119,10 @@ func SetVipsCliPath(path string) Option {
 		return nil
 	}
 }
+
+func SetForceIPv4(enabled bool) Option {
+	return func(s *Service) error {
+		s.forceIPv4 = enabled
+		return nil
+	}
+}

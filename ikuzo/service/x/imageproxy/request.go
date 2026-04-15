@@ -106,6 +106,8 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 			req.TransformOptions = "raw"
 		case strings.HasSuffix(req.TransformOptions, ",smartcrop"):
 			req.TransformOptions = "raw"
+		case isValidSizeOption(req.TransformOptions):
+			req.TransformOptions = "raw"
 		}
 	}
 

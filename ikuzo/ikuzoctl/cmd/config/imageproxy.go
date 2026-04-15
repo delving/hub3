@@ -37,6 +37,7 @@ type ImageProxy struct {
 	DefaultImagePath string
 	VipsPath         string
 	VipsCliPath      string
+	ForceIPv4        bool
 }
 
 func (ip *ImageProxy) AddOptions(cfg *Config) error {
@@ -60,6 +61,7 @@ func (ip *ImageProxy) AddOptions(cfg *Config) error {
 		imageproxy.SetDefaultImagePath(ip.DefaultImagePath),
 		imageproxy.SetVipsPath(ip.VipsPath),
 		imageproxy.SetVipsCliPath(ip.VipsCliPath),
+		imageproxy.SetForceIPv4(ip.ForceIPv4),
 	)
 	if err != nil {
 		return err

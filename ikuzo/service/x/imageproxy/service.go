@@ -21,11 +21,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -63,6 +65,7 @@ type Service struct {
 	defaultImagePath string // The path to the defaultimage
 	vipsPath         string // Custom path to vips binary (empty for system PATH)
 	vipsCliPath      string // Custom path to vips-cli binary (empty to disable)
+	forceIPv4        bool   // Force IPv4 for outgoing requests (some hosts block IPv6)
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -90,6 +93,29 @@ func NewService(options ...Option) (*Service, error) {
 	}
 
 	s.client = http.Client{Timeout: time.Duration(s.timeOut) * time.Second}
+
+	if s.forceIPv4 {
+		dialer := &net.Dialer{
+			Timeout:   10 * time.Second,
+			KeepAlive: 30 * time.Second,
+			Control: func(network, address string, c syscall.RawConn) error {
+				// Only allow IPv4 connections
+				if network == "tcp6" {
+					return fmt.Errorf("IPv6 disabled by forceIPv4 config")
+				}
+				return nil
+			},
+		}
+		s.client.Transport = &http.Transport{
+			DialContext:           dialer.DialContext,
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		}
+		s.log.Info().Msg("imageproxy configured to force IPv4 for outgoing requests")
+	}
 
 	if err := os.MkdirAll(s.cacheDir, os.ModePerm); err != nil {
 		return s, err
@@ -357,30 +383,35 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		return err
 	}
 
-	if !errors.Is(err, ErrCacheKeyNotFound) {
-		defer r.Close()
+	if errors.Is(err, ErrCacheKeyNotFound) {
+		s.log.Error().Str("url", req.SourceURL).Str("cachePath", cachePath).Msg("cache key not found after download attempt")
+		s.m.IncError()
 
-		var buf bytes.Buffer
-		tee := io.TeeReader(r, &buf)
-
-		written, err := io.Copy(w, tee)
-		if err != nil {
-			s.log.Error().Err(err).Str("url", req.SourceURL).Msg("error copying data from cache")
-			s.m.IncError()
-
-			return err
-		}
-
-		s.m.IncBytesServed(written)
-
-		if req.CacheType == "" {
-			req.CacheType = Cache
-		}
-
-		s.lruCache.Add(req.CacheKey, buf.Bytes())
-
-		s.m.IncCache()
+		return fmt.Errorf("unable to serve resource %s: %w", req.SourceURL, ErrCacheKeyNotFound)
 	}
+
+	defer r.Close()
+
+	var buf bytes.Buffer
+	tee := io.TeeReader(r, &buf)
+
+	written, err := io.Copy(w, tee)
+	if err != nil {
+		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("error copying data from cache")
+		s.m.IncError()
+
+		return err
+	}
+
+	s.m.IncBytesServed(written)
+
+	if req.CacheType == "" {
+		req.CacheType = Cache
+	}
+
+	s.lruCache.Add(req.CacheKey, buf.Bytes())
+
+	s.m.IncCache()
 
 	return nil
 }
@@ -433,10 +464,15 @@ func (s *Service) storeSource(req *Request) error {
 
 	defer resp.Body.Close()
 
-	var buf bytes.Buffer
-	tee := io.TeeReader(resp.Body, &buf)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		s.log.Error().Err(err).Str("url", req.SourceURL).Msg("unable to read response body")
+		s.m.IncRemoteRequestError()
 
-	if strings.HasPrefix(contentType, "text/xml") && bytes.Contains(buf.Bytes(), []byte("adlibXML")) {
+		return fmt.Errorf("unable to read response body: %w", err)
+	}
+
+	if strings.HasPrefix(contentType, "text/xml") && bytes.Contains(body, []byte("adlibXML")) {
 		// don't cache adlib error messages
 		s.log.Warn().Str("url", req.SourceURL).Msg("adlib error retrieving image")
 		s.m.IncRemoteRequestError()
@@ -444,13 +480,12 @@ func (s *Service) storeSource(req *Request) error {
 		return fmt.Errorf("unable to retrieve adlib result")
 	}
 
-	// check for adlib error when content type is xml
-	size, err := req.Write(req.downloadedSourcePath(), tee)
+	size, err := req.Write(req.downloadedSourcePath(), bytes.NewReader(body))
 	if err != nil {
-		// do not return error here or cache write error
 		s.log.Error().Err(err).Msgf("unable to write remote file to cache; %s", err)
-
 		s.m.IncRemoteRequestError()
+
+		return fmt.Errorf("unable to write source to cache: %w", err)
 	}
 
 	s.cm.addSourceFile(size)

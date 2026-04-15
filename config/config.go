@@ -256,6 +256,7 @@ type ImageProxy struct {
 	DefaultImagePath string   `json:"defaultImagePath"` // Default image in case the image cannot be found.
 	VipsPath         string   `json:"vipsPath"`         // Custom path to vips binary (empty for system PATH)
 	VipsCliPath      string   `json:"vipsCliPath"`      // Custom path to vips-cli binary (empty to disable)
+	ForceIPv4        bool     `json:"forceIPv4"`        // Force IPv4 for outgoing requests (some hosts block IPv6)
 }
 
 // LOD holds all the configuration for the Linked Open Data (LOD) functionality

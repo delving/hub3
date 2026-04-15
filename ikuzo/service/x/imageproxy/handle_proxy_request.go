@@ -36,8 +36,25 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 
 	if !allowed {
 		s.m.IncRejectDomain()
-		s.log.Error().Err(err).Str("url", targetURL).Msg("domain not allowed")
+		s.log.Error().Str("url", targetURL).Msg("domain not allowed")
 		http.Error(w, "domain is not allowed", http.StatusForbidden)
+
+		return
+	}
+
+	allowed, err = s.portsAllowed(targetURL)
+	if err != nil {
+		s.m.IncError()
+		s.log.Error().Err(err).Str("url", targetURL).Msg("unable to check allowed ports")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return
+	}
+
+	if !allowed {
+		s.m.IncRejectDomain()
+		s.log.Error().Str("url", targetURL).Msg("port not allowed")
+		http.Error(w, "port is not allowed", http.StatusForbidden)
 
 		return
 	}
