@@ -82,3 +82,104 @@ func TestGraph(t *testing.T) {
 		is.Equal(len(namespaces), 10)
 	})
 }
+
+func TestGetAboutURI(t *testing.T) {
+	const (
+		aggregation = "http://www.openarchives.org/ore/terms/Aggregation"
+		museum      = "http://example.org/ace/Museum"
+		archive     = "http://example.org/ace/Archive"
+		library     = "http://example.org/ace/Library"
+	)
+
+	mustIRI := func(t *testing.T, s string) rdf.IRI {
+		t.Helper()
+		iri, err := rdf.NewIRI(s)
+		if err != nil {
+			t.Fatalf("NewIRI(%q): %v", s, err)
+		}
+		return iri
+	}
+
+	addType := func(t *testing.T, g *rdf.Graph, subject, typeURI string) {
+		t.Helper()
+		g.AddTriple(mustIRI(t, subject), rdf.IsA, mustIRI(t, typeURI))
+	}
+
+	addLink := func(t *testing.T, g *rdf.Graph, subject, predicate, object string) {
+		t.Helper()
+		g.AddTriple(mustIRI(t, subject), rdf.Predicate(mustIRI(t, predicate)), mustIRI(t, object))
+	}
+
+	t.Run("returns first matching configured type", func(t *testing.T) {
+		g := rdf.NewGraph()
+		addType(t, g, "http://example.org/record/1", aggregation)
+
+		got, err := g.GetAboutURI([]string{aggregation})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got != "http://example.org/record/1" {
+			t.Errorf("got %q, want record/1", got)
+		}
+	})
+
+	t.Run("ace recDef picks first declared type when several match", func(t *testing.T) {
+		// Simulate an 'ace' record where the same graph happens to contain
+		// both an Archive and a Museum subject. Declaration order in the
+		// configured slice should win.
+		g := rdf.NewGraph()
+		addType(t, g, "http://example.org/ace/m1", museum)
+		addType(t, g, "http://example.org/ace/a1", archive)
+
+		got, err := g.GetAboutURI([]string{archive, museum, library})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got != "http://example.org/ace/a1" {
+			t.Errorf("got %q, want ace/a1 (archive declared first)", got)
+		}
+	})
+
+	t.Run("structural fallback when no configured type matches", func(t *testing.T) {
+		// Root has an outgoing link to the child; child has no outgoing
+		// link back. Root therefore has in-degree 0 and should win even
+		// though no rdf:type matches the configured aboutType.
+		g := rdf.NewGraph()
+		addLink(t, g, "http://example.org/ace/root", "http://example.org/ace/hasPart", "http://example.org/ace/child")
+		addType(t, g, "http://example.org/ace/root", "http://example.org/ace/Unknown")
+		addType(t, g, "http://example.org/ace/child", "http://example.org/ace/Unknown")
+
+		got, err := g.GetAboutURI([]string{aggregation})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got != "http://example.org/ace/root" {
+			t.Errorf("got %q, want ace/root via structural fallback", got)
+		}
+	})
+
+	t.Run("structural fallback prefers higher out-degree on tie", func(t *testing.T) {
+		// Two zero-in-degree subjects. The one with more outgoing triples
+		// is the more likely top-level resource.
+		g := rdf.NewGraph()
+		addType(t, g, "http://example.org/sparse", "http://example.org/T")
+		addType(t, g, "http://example.org/rich", "http://example.org/T")
+		addLink(t, g, "http://example.org/rich", "http://example.org/p1", "http://example.org/x")
+		addLink(t, g, "http://example.org/rich", "http://example.org/p2", "http://example.org/y")
+
+		got, err := g.GetAboutURI([]string{aggregation})
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got != "http://example.org/rich" {
+			t.Errorf("got %q, want rich (highest out-degree)", got)
+		}
+	})
+
+	t.Run("returns error on empty graph", func(t *testing.T) {
+		g := rdf.NewGraph()
+		if _, err := g.GetAboutURI([]string{aggregation}); err == nil {
+			t.Fatalf("expected error for empty graph, got nil")
+		}
+	})
+}

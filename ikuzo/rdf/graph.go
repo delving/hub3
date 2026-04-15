@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"log"
+	"log/slog"
 	"slices"
 	"sort"
 	"sync"
@@ -435,9 +436,13 @@ func (g *Graph) AsLegacyGraph() (*rdf2go.Graph, error) {
 	return legacyGraph, nil
 }
 
-// GetAboutURI returns the first matching rdf.type object from the graph.
-// It returns an error when the aboutRDFType is invalid or the aboutRDFType cannot be found
-// in the rdf.Graph.
+// GetAboutURI returns the root subject IRI of the graph.
+//
+// It first tries to match each configured aboutRDFType in declared order and
+// returns the first IRI subject typed as one of them. When no configured type
+// matches, it falls back to a structural heuristic (see findStructuralRoot)
+// so that records using novel or missing rdf:type values can still be indexed.
+// An error is returned only when neither strategy yields a usable subject.
 func (g *Graph) GetAboutURI(aboutRDFTypes []string) (string, error) {
 	for _, aboutRDFType := range aboutRDFTypes {
 		aboutType, err := NewIRI(aboutRDFType)
@@ -458,7 +463,65 @@ func (g *Graph) GetAboutURI(aboutRDFTypes []string) (string, error) {
 		}
 	}
 
+	if root, ok := g.findStructuralRoot(); ok {
+		slog.Warn("rdf: configured aboutTypes not found; falling back to structural root",
+			"aboutTypes", aboutRDFTypes,
+			"root", root,
+		)
+		return root, nil
+	}
+
 	return "", fmt.Errorf("unable to retrieve aboutType %q from graph", aboutRDFTypes)
+}
+
+// findStructuralRoot picks the most likely root subject of the graph without
+// relying on a configured rdf:type. The candidate set is the IRI subjects that
+// never appear as the object of any triple (zero in-degree). When several
+// candidates remain, the one with the highest out-degree wins; ties are
+// broken by lexicographic order so the result is deterministic. A boolean is
+// returned to signal whether a root could be determined at all.
+func (g *Graph) findStructuralRoot() (string, bool) {
+	triples := g.Triples()
+	if len(triples) == 0 {
+		return "", false
+	}
+
+	inDegree := make(map[string]int)
+	outDegree := make(map[string]int)
+	subjects := make(map[string]struct{})
+
+	for _, t := range triples {
+		if t.Subject.Type() != TermIRI {
+			continue
+		}
+		s := t.Subject.RawValue()
+		subjects[s] = struct{}{}
+		outDegree[s]++
+
+		if t.Object.Type() == TermIRI {
+			inDegree[t.Object.RawValue()]++
+		}
+	}
+
+	var candidates []string
+	for s := range subjects {
+		if inDegree[s] == 0 {
+			candidates = append(candidates, s)
+		}
+	}
+
+	if len(candidates) == 0 {
+		return "", false
+	}
+
+	slices.SortFunc(candidates, func(a, b string) int {
+		if d := outDegree[b] - outDegree[a]; d != 0 {
+			return d
+		}
+		return cmp.Compare(a, b)
+	})
+
+	return candidates[0], true
 }
 
 // Internal null subject implementation
