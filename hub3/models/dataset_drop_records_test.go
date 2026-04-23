@@ -99,6 +99,7 @@ func TestDeleteIndexRecordsByHubIDsBuildsTermsQuery(t *testing.T) {
 
 	var capturedIndices []string
 	var capturedHubIDs [][]interface{}
+	var hasSpecTerm, hasOrgIDTerm bool
 
 	prev := esDeleteByQuerySender
 	esDeleteByQuerySender = func(
@@ -125,6 +126,14 @@ func TestDeleteIndexRecordsByHubIDsBuildsTermsQuery(t *testing.T) {
 					capturedHubIDs = append(capturedHubIDs, ids)
 				}
 			}
+			if term, ok := clause["term"].(map[string]interface{}); ok {
+				if _, ok := term[c.Config.ElasticSearch.SpecKey]; ok {
+					hasSpecTerm = true
+				}
+				if _, ok := term[c.Config.ElasticSearch.OrgIDKey]; ok {
+					hasOrgIDTerm = true
+				}
+			}
 		}
 		return 2, nil
 	}
@@ -148,4 +157,6 @@ func TestDeleteIndexRecordsByHubIDsBuildsTermsQuery(t *testing.T) {
 	is.Equal(len(capturedHubIDs[0]), 2)
 	is.Equal(capturedHubIDs[0][0].(string), "org1_ds1_a")
 	is.Equal(capturedHubIDs[0][1].(string), "org1_ds1_b")
+	is.True(hasSpecTerm)  // spec key term clause present for defence in depth
+	is.True(hasOrgIDTerm) // orgID key term clause present for defence in depth
 }
