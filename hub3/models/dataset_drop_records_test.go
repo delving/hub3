@@ -10,6 +10,8 @@ package models
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"testing"
 
 	c "github.com/delving/hub3/config"
@@ -56,4 +58,36 @@ func TestDropRecordsByHubIDsNoOpWhenBothStoragesOff(t *testing.T) {
 	)
 	is.NoErr(err)
 	is.Equal(count, 0) // nothing deleted because nothing enabled
+}
+
+func TestDropGraphsByHubIDsBuildsDropSilentQuery(t *testing.T) {
+	is := is.New(t)
+	var captured string
+	prev := sparqlUpdateSender
+	sparqlUpdateSender = func(orgID, update string) []error {
+		captured = update
+		return nil
+	}
+	defer func() { sparqlUpdateSender = prev }()
+
+	ds := DataSet{OrgID: "org1", Spec: "ds1"}
+	err := ds.dropGraphsByHubIDs([]string{"org1_ds1_a", "org1_ds1_b"})
+	is.NoErr(err)
+
+	is.True(strings.Contains(captured, "DROP SILENT GRAPH <urn:org1_ds1_a/graph>"))
+	is.True(strings.Contains(captured, "DROP SILENT GRAPH <urn:org1_ds1_b/graph>"))
+}
+
+func TestDropGraphsByHubIDsPropagatesError(t *testing.T) {
+	is := is.New(t)
+	prev := sparqlUpdateSender
+	sparqlUpdateSender = func(orgID, update string) []error {
+		return []error{fmt.Errorf("boom")}
+	}
+	defer func() { sparqlUpdateSender = prev }()
+
+	ds := DataSet{OrgID: "org1", Spec: "ds1"}
+	err := ds.dropGraphsByHubIDs([]string{"org1_ds1_a"})
+	is.True(err != nil)
+	is.True(strings.Contains(err.Error(), "boom"))
 }

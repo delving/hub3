@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/asdine/storm/q"
@@ -44,6 +45,12 @@ var (
 	unexpectedResponseMsg = "expected response != nil; got: %v"
 	ErrUnexpectedResponse = errors.New("expected response != nil")
 )
+
+// sparqlUpdateSender is an indirection used by helpers that issue
+// SPARQL Update requests so tests can intercept the payload without
+// needing a real triple store. Production callers should not replace
+// this.
+var sparqlUpdateSender = fragments.UpdateViaSparql
 
 // DataSetRevisions holds the type-frequency data for each revision
 type DataSetRevisions struct {
@@ -901,9 +908,22 @@ func (ds DataSet) DropRecordsByHubIDs(
 	return total, nil
 }
 
-// dropGraphsByHubIDs is a placeholder; real implementation lands in Task 5.
+// dropGraphsByHubIDs issues a single SPARQL Update request containing
+// one DROP SILENT GRAPH statement per hubID. SILENT means the operation
+// succeeds even when a graph is already absent, giving the caller
+// idempotency for free.
 func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
-	panic("dropGraphsByHubIDs not implemented — Task 5")
+	var sb strings.Builder
+	for _, hid := range hubIDs {
+		sb.WriteString("DROP SILENT GRAPH <urn:")
+		sb.WriteString(hid)
+		sb.WriteString("/graph>;\n")
+	}
+	errs := sparqlUpdateSender(ds.OrgID, sb.String())
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	return nil
 }
 
 // deleteIndexRecordsByHubIDs is a placeholder; real implementation lands in Task 6.
