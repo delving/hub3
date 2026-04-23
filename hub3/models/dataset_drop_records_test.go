@@ -160,3 +160,48 @@ func TestDeleteIndexRecordsByHubIDsBuildsTermsQuery(t *testing.T) {
 	is.True(hasSpecTerm)  // spec key term clause present for defence in depth
 	is.True(hasOrgIDTerm) // orgID key term clause present for defence in depth
 }
+
+func TestDropRecordsByHubIDsChunksAt10k(t *testing.T) {
+	is := is.New(t)
+	c.InitConfig()
+	prevRDF := c.Config.RDF.RDFStoreEnabled
+	prevES := c.Config.ElasticSearch.Enabled
+	prevTypes := c.Config.ElasticSearch.IndexTypes
+	c.Config.RDF.RDFStoreEnabled = true
+	c.Config.ElasticSearch.Enabled = true
+	c.Config.ElasticSearch.IndexTypes = []string{"v2"}
+	defer func() {
+		c.Config.RDF.RDFStoreEnabled = prevRDF
+		c.Config.ElasticSearch.Enabled = prevES
+		c.Config.ElasticSearch.IndexTypes = prevTypes
+	}()
+
+	sparqlCalls := 0
+	prevSparql := sparqlUpdateSender
+	sparqlUpdateSender = func(orgID, update string) []error {
+		sparqlCalls++
+		return nil
+	}
+	defer func() { sparqlUpdateSender = prevSparql }()
+
+	esCalls := 0
+	prevES2 := esDeleteByQuerySender
+	esDeleteByQuerySender = func(ctx context.Context, index string, q elastic.Query) (int, error) {
+		esCalls++
+		return 0, nil
+	}
+	defer func() { esDeleteByQuerySender = prevES2 }()
+
+	// 25k hubIds → 3 chunks (10k, 10k, 5k)
+	hubIDs := make([]string, 25_000)
+	for i := range hubIDs {
+		hubIDs[i] = fmt.Sprintf("org1_ds1_%d", i)
+	}
+
+	ds := DataSet{OrgID: "org1", Spec: "ds1"}
+	_, err := ds.DropRecordsByHubIDs(context.Background(), hubIDs)
+	is.NoErr(err)
+
+	is.Equal(sparqlCalls, 3)
+	is.Equal(esCalls, 3) // 1 index type × 3 chunks
+}
