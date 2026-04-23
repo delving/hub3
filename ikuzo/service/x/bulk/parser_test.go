@@ -123,10 +123,8 @@ func TestProcessRoutesDropRecords(t *testing.T) {
 			defaultRecDefID: "",
 		},
 	}
-	// Mark the once as already called so setDataSet doesn't run
-	var called bool
-	p.once.Do(func() { called = true })
-	is.True(called)
+	// Preflight p.once so process skips setDataSet and uses the ds we injected.
+	p.once.Do(func() {})
 
 	req := &Request{
 		Action:    "drop_records",
@@ -136,5 +134,7 @@ func TestProcessRoutesDropRecords(t *testing.T) {
 	}
 	err := p.process(context.Background(), req)
 	is.True(err != nil)
+	// This assertion is tied to the Task-2 stub in DataSet.DropRecordsByHubIDs.
+	// Update to is.NoErr(err) after Task 4 replaces the stub.
 	is.True(strings.Contains(err.Error(), "not implemented"))
 }
