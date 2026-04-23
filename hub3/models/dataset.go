@@ -861,11 +861,55 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 	return ok, nil
 }
 
-// DropRecordsByHubIDs is a placeholder so the bulk parser can compile;
-// real implementation lands in Task 4.
+// DropRecordsByHubIDs deletes specific records from this dataset by
+// hubID. Removes the matching graph from the triple store (if enabled)
+// and matching documents from every configured ES index (if enabled).
+// Idempotent at both layers: missing hubIDs are silently accepted.
+// Internally chunked at 10_000 so a single oversized call from a
+// client never produces a single oversized ES or SPARQL request.
+// Returns the cumulative number of ES documents deleted; first error
+// aborts remaining chunks (fail-fast).
 func (ds DataSet) DropRecordsByHubIDs(
 	ctx context.Context,
 	hubIDs []string,
 ) (int, error) {
-	return 0, fmt.Errorf("DropRecordsByHubIDs not implemented")
+	if len(hubIDs) == 0 {
+		return 0, nil
+	}
+	const chunkSize = 10000
+	total := 0
+	for i := 0; i < len(hubIDs); i += chunkSize {
+		end := i + chunkSize
+		if end > len(hubIDs) {
+			end = len(hubIDs)
+		}
+		batch := hubIDs[i:end]
+
+		if c.Config.RDF.RDFStoreEnabled {
+			if err := ds.dropGraphsByHubIDs(batch); err != nil {
+				return total, fmt.Errorf("triple store drop: %w", err)
+			}
+		}
+		if c.Config.ElasticSearch.Enabled {
+			deleted, err := ds.deleteIndexRecordsByHubIDs(ctx, batch)
+			if err != nil {
+				return total, fmt.Errorf("index drop: %w", err)
+			}
+			total += deleted
+		}
+	}
+	return total, nil
+}
+
+// dropGraphsByHubIDs is a placeholder; real implementation lands in Task 5.
+func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
+	return fmt.Errorf("dropGraphsByHubIDs not implemented")
+}
+
+// deleteIndexRecordsByHubIDs is a placeholder; real implementation lands in Task 6.
+func (ds DataSet) deleteIndexRecordsByHubIDs(
+	ctx context.Context,
+	hubIDs []string,
+) (int, error) {
+	return 0, fmt.Errorf("deleteIndexRecordsByHubIDs not implemented")
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/models"
 	"github.com/kiivihal/rdf2go"
 	"github.com/matryer/is"
@@ -132,9 +133,17 @@ func TestProcessRoutesDropRecords(t *testing.T) {
 		DatasetID: "ds1",
 		HubIDs:    []string{"org1_ds1_a"},
 	}
+	c.InitConfig()
+	prevRDF := c.Config.RDF.RDFStoreEnabled
+	prevES := c.Config.ElasticSearch.Enabled
+	c.Config.RDF.RDFStoreEnabled = false
+	c.Config.ElasticSearch.Enabled = false
+	defer func() {
+		c.Config.RDF.RDFStoreEnabled = prevRDF
+		c.Config.ElasticSearch.Enabled = prevES
+	}()
+
 	err := p.process(context.Background(), req)
-	is.True(err != nil)
-	// This assertion is tied to the Task-2 stub in DataSet.DropRecordsByHubIDs.
-	// Update to is.NoErr(err) after Task 4 replaces the stub.
-	is.True(strings.Contains(err.Error(), "not implemented"))
+	// Validation + real method with storages off → no error.
+	is.NoErr(err)
 }
