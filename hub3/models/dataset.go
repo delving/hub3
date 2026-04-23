@@ -903,7 +903,7 @@ func (ds DataSet) DropRecordsByHubIDs(
 
 // dropGraphsByHubIDs is a placeholder; real implementation lands in Task 5.
 func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
-	return fmt.Errorf("dropGraphsByHubIDs not implemented")
+	panic("dropGraphsByHubIDs not implemented — Task 5")
 }
 
 // deleteIndexRecordsByHubIDs is a placeholder; real implementation lands in Task 6.
@@ -911,5 +911,5 @@ func (ds DataSet) deleteIndexRecordsByHubIDs(
 	ctx context.Context,
 	hubIDs []string,
 ) (int, error) {
-	return 0, fmt.Errorf("deleteIndexRecordsByHubIDs not implemented")
+	panic("deleteIndexRecordsByHubIDs not implemented — Task 6")
 }
