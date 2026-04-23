@@ -10,12 +10,14 @@ package models
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
 
 	c "github.com/delving/hub3/config"
 	"github.com/matryer/is"
+	elastic "github.com/olivere/elastic/v7"
 )
 
 func withStoragesDisabled(t *testing.T) func() {
@@ -90,4 +92,60 @@ func TestDropGraphsByHubIDsPropagatesError(t *testing.T) {
 	err := ds.dropGraphsByHubIDs([]string{"org1_ds1_a"})
 	is.True(err != nil)
 	is.True(strings.Contains(err.Error(), "boom"))
+}
+
+func TestDeleteIndexRecordsByHubIDsBuildsTermsQuery(t *testing.T) {
+	is := is.New(t)
+
+	var capturedIndices []string
+	var capturedHubIDs [][]interface{}
+
+	prev := esDeleteByQuerySender
+	esDeleteByQuerySender = func(
+		ctx context.Context,
+		index string,
+		q elastic.Query,
+	) (int, error) {
+		capturedIndices = append(capturedIndices, index)
+		// Extract the terms clause so we can assert hubIDs shipped through
+		src, err := q.Source()
+		if err != nil {
+			return 0, err
+		}
+		b, _ := json.Marshal(src)
+		var shaped struct {
+			Bool struct {
+				Must []map[string]interface{} `json:"must"`
+			} `json:"bool"`
+		}
+		_ = json.Unmarshal(b, &shaped)
+		for _, clause := range shaped.Bool.Must {
+			if terms, ok := clause["terms"].(map[string]interface{}); ok {
+				if ids, ok := terms["meta.hubID"].([]interface{}); ok {
+					capturedHubIDs = append(capturedHubIDs, ids)
+				}
+			}
+		}
+		return 2, nil
+	}
+	defer func() { esDeleteByQuerySender = prev }()
+
+	c.InitConfig()
+	prevTypes := c.Config.ElasticSearch.IndexTypes
+	c.Config.ElasticSearch.IndexTypes = []string{"v2"}
+	defer func() { c.Config.ElasticSearch.IndexTypes = prevTypes }()
+
+	ds := DataSet{OrgID: "org1", Spec: "ds1"}
+	count, err := ds.deleteIndexRecordsByHubIDs(
+		context.Background(),
+		[]string{"org1_ds1_a", "org1_ds1_b"},
+	)
+	is.NoErr(err)
+	is.Equal(count, 2)
+	is.Equal(len(capturedIndices), 1) // v2 only
+
+	is.Equal(len(capturedHubIDs), 1)
+	is.Equal(len(capturedHubIDs[0]), 2)
+	is.Equal(capturedHubIDs[0][0].(string), "org1_ds1_a")
+	is.Equal(capturedHubIDs[0][1].(string), "org1_ds1_b")
 }

@@ -55,6 +55,31 @@ var (
 // without wrapping the swap in a synchronization primitive.
 var sparqlUpdateSender = fragments.UpdateViaSparql
 
+// esDeleteByQuerySender is an indirection used by helpers that issue
+// ES DeleteByQuery requests so tests can assert on the final query
+// without needing a real ES cluster.
+//
+// Not parallel-safe: tests that swap this must not call t.Parallel()
+// without wrapping the swap in a synchronization primitive.
+var esDeleteByQuerySender = func(
+	ctx context.Context,
+	indexName string,
+	q elastic.Query,
+) (int, error) {
+	res, err := index.ESClient().DeleteByQuery().
+		Index(indexName).
+		Query(q).
+		Conflicts("proceed").
+		Do(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if res == nil {
+		return 0, fmt.Errorf(unexpectedResponseMsg, res)
+	}
+	return int(res.Deleted), nil
+}
+
 // DataSetRevisions holds the type-frequency data for each revision
 type DataSetRevisions struct {
 	Number      int `json:"revisionNumber"`
@@ -932,10 +957,56 @@ func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
 	return nil
 }
 
-// deleteIndexRecordsByHubIDs is a placeholder; real implementation lands in Task 6.
+// deleteIndexRecordsByHubIDs issues one DeleteByQuery per configured
+// index type, constrained to this dataset and the given hubIDs. Defence
+// in depth: even though the parser already validates the hubId prefix,
+// the spec+orgID filters here prevent a misrouted request from deleting
+// outside its dataset. Self-contained: returns early on empty input.
 func (ds DataSet) deleteIndexRecordsByHubIDs(
 	ctx context.Context,
 	hubIDs []string,
 ) (int, error) {
-	panic("deleteIndexRecordsByHubIDs not implemented — Task 6")
+	if len(hubIDs) == 0 {
+		return 0, nil
+	}
+	asIface := make([]interface{}, len(hubIDs))
+	for i, h := range hubIDs {
+		asIface[i] = h
+	}
+	q := elastic.NewBoolQuery().
+		Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)).
+		Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID)).
+		Must(elastic.NewTermsQuery("meta.hubID", asIface...))
+
+	indices := ds.resolveIndicesForHubIDDelete()
+	total := 0
+	for _, idx := range indices {
+		deleted, err := esDeleteByQuerySender(ctx, idx, q)
+		if err != nil {
+			return total, err
+		}
+		total += deleted
+	}
+	return total, nil
+}
+
+// resolveIndicesForHubIDDelete mirrors the index-type resolution logic
+// used by deleteAllIndexRecords/deleteIndexOrphans, scoped to the
+// indices that actually hold per-hubID documents. The suggest index
+// is intentionally skipped — it is a derived index that the normal
+// indexing pipeline rebuilds, and its documents are not keyed by
+// meta.hubID in the same shape.
+func (ds DataSet) resolveIndicesForHubIDDelete() []string {
+	var indices []string
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case v1Type:
+			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName(ds.OrgID))
+		case v2Type:
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName(ds.OrgID))
+		case fragmentType:
+			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
+		}
+	}
+	return indices
 }
