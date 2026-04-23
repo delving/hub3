@@ -2,10 +2,12 @@ package bulk
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"strings"
 	"testing"
 
+	"github.com/delving/hub3/hub3/models"
 	"github.com/kiivihal/rdf2go"
 	"github.com/matryer/is"
 )
@@ -78,4 +80,35 @@ func TestAddLogger(t *testing.T) {
 
 	//	default
 	testAddLogger(is, "somestring", "")
+}
+
+func TestDropRecordsValidatesHubIDPrefix(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
+	}
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    []string{"org1_ds1_a", "org2_ds1_b"}, // second id cross-org
+	}
+	err := p.dropRecords(context.Background(), req)
+	is.True(err != nil)
+	is.True(strings.Contains(err.Error(), "does not belong to dataset"))
+}
+
+func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
+	}
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    nil,
+	}
+	err := p.dropRecords(context.Background(), req)
+	is.NoErr(err)
 }

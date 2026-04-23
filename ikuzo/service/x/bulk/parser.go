@@ -242,6 +242,26 @@ func (p *Parser) dropOrphans(req *Request) error {
 	return nil
 }
 
+// dropRecords validates the hubIds belong to this dataset, then asks
+// the DataSet to delete them. Idempotent at the storage layer; see
+// DataSet.DropRecordsByHubIDs.
+func (p *Parser) dropRecords(ctx context.Context, req *Request) error {
+	if len(req.HubIDs) == 0 {
+		return nil
+	}
+	prefix := req.OrgID + "_" + req.DatasetID + "_"
+	for _, hid := range req.HubIDs {
+		if !strings.HasPrefix(hid, prefix) {
+			return fmt.Errorf(
+				"hubId %q does not belong to dataset %s/%s",
+				hid, req.OrgID, req.DatasetID,
+			)
+		}
+	}
+	_, err := p.ds.DropRecordsByHubIDs(ctx, req.HubIDs)
+	return err
+}
+
 func addLogger(datasetID string) zerolog.Logger {
 	switch {
 	case strings.HasSuffix(datasetID, "ntfoto"):

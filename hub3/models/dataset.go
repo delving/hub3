@@ -860,3 +860,12 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 
 	return ok, nil
 }
+
+// DropRecordsByHubIDs is a placeholder so the bulk parser can compile;
+// real implementation lands in Task 4.
+func (ds DataSet) DropRecordsByHubIDs(
+	ctx context.Context,
+	hubIDs []string,
+) (int, error) {
+	return 0, fmt.Errorf("DropRecordsByHubIDs not implemented")
+}
