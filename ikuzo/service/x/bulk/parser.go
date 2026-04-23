@@ -391,6 +391,18 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
 		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
+	case "drop_records":
+		if err := p.dropRecords(ctx, req); err != nil {
+			subLogger.Error().
+				Err(err).
+				Str("datasetID", req.DatasetID).
+				Msg("Unable to drop records")
+			return err
+		}
+		subLogger.Info().
+			Str("datasetID", req.DatasetID).
+			Int("count", len(req.HubIDs)).
+			Msg("dropped records")
 	default:
 		return fmt.Errorf("unknown bulk action: %s", req.Action)
 	}

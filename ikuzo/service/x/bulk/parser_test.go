@@ -112,3 +112,29 @@ func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
 	err := p.dropRecords(context.Background(), req)
 	is.NoErr(err)
 }
+
+func TestProcessRoutesDropRecords(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds:    &models.DataSet{OrgID: "org1", Spec: "ds1", Revision: 1},
+		stats: &Stats{},
+		recDef: RecDefResolver{
+			m:               map[string][]string{"": {}},
+			defaultRecDefID: "",
+		},
+	}
+	// Mark the once as already called so setDataSet doesn't run
+	var called bool
+	p.once.Do(func() { called = true })
+	is.True(called)
+
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    []string{"org1_ds1_a"},
+	}
+	err := p.process(context.Background(), req)
+	is.True(err != nil)
+	is.True(strings.Contains(err.Error(), "not implemented"))
+}
