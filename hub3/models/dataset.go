@@ -973,6 +973,11 @@ func (ds DataSet) deleteIndexRecordsByHubIDs(
 	for i, h := range hubIDs {
 		asIface[i] = h
 	}
+	// Must rather than Should on spec/orgID: hubIds are validated with a
+	// strict prefix at the parser layer (see Parser.dropRecords), so any
+	// mismatch here would indicate a bug. This differs from
+	// deleteAllIndexRecords which uses Should to tolerate legacy spec.raw
+	// key variants — drop_records has no legacy surface to cover.
 	q := elastic.NewBoolQuery().
 		Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)).
 		Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID)).
@@ -1007,6 +1012,9 @@ func (ds DataSet) resolveIndicesForHubIDDelete() []string {
 		case fragmentType:
 			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
 		}
+		// DigitalObject index is intentionally omitted: phase-1 scope for
+		// drop_records. Add a case here once per-record DigitalObject
+		// cleanup is explicitly requested.
 	}
 	return indices
 }

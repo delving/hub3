@@ -1,6 +1,6 @@
 # Bulk API: `drop_records` Action — Design
 
-Status: proposed
+Status: implemented
 Date: 2026-04-23
 Owner: hub3 (coordinated with Narthex `feat/record-registry`)
 
