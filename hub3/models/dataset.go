@@ -50,6 +50,9 @@ var (
 // SPARQL Update requests so tests can intercept the payload without
 // needing a real triple store. Production callers should not replace
 // this.
+//
+// Not parallel-safe: tests that swap this must not call t.Parallel()
+// without wrapping the swap in a synchronization primitive.
 var sparqlUpdateSender = fragments.UpdateViaSparql
 
 // DataSetRevisions holds the type-frequency data for each revision
@@ -913,6 +916,9 @@ func (ds DataSet) DropRecordsByHubIDs(
 // succeeds even when a graph is already absent, giving the caller
 // idempotency for free.
 func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
+	if len(hubIDs) == 0 {
+		return nil
+	}
 	var sb strings.Builder
 	for _, hid := range hubIDs {
 		sb.WriteString("DROP SILENT GRAPH <urn:")
