@@ -135,6 +135,7 @@ func (bc *BaseConverter) GetQueryReplacers(reverse bool) map[string]string {
 		replacers["icn_"] = "nave_"
 		replacers["abm_"] = "nave_"
 		replacers["delving_"] = "nave_"
+		replacers["rda_"] = "rdag2_"
 	} else {
 		// Use custom replacers from config
 		for k, v := range bc.QueryReplacers {
