@@ -281,7 +281,17 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		}
 	}
 
-	_, isCached := existsInCache(req.cacheKeyPath())
+	cacheInfo, isCached := existsInCache(req.cacheKeyPath())
+
+	// A previous run can leave an empty cache file behind (crashed resize,
+	// failed write). Treat it as not cached and remove it so it gets
+	// regenerated instead of being served as an empty HTTP 200 forever.
+	if isCached && cacheInfo != nil && cacheInfo.Size() == 0 {
+		isCached = false
+		if rmErr := os.Remove(req.cacheKeyPath()); rmErr != nil {
+			s.log.Warn().Err(rmErr).Str("path", req.cacheKeyPath()).Msg("unable to remove empty cache file")
+		}
+	}
 
 	if !isCached {
 		_, hasSource := existsInCache(req.downloadedSourcePath())
@@ -318,16 +328,26 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			_, err, _ := s.singleSetCache.Do(
 				req.CacheKey,
 				func() (interface{}, error) {
-					err := s.resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts, req.smartCrop)
-					if err == nil {
-						info, ok := existsInCache(req.cacheKeyPath())
-						if ok {
-							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
-								return nil, cacheErr
-							}
-						}
+					if err := s.resizeExternally(req.downloadedSourcePath(), req.cacheKeyPath(), req.thumbnailOpts, req.smartCrop); err != nil {
+						return nil, err
 					}
-					return nil, err
+
+					// vips can exit 0 yet leave no output (or an empty file)
+					// for sources it cannot decode. Treat that as a failure
+					// so we fall back to the raw source below.
+					info, ok := existsInCache(req.cacheKeyPath())
+					if !ok || info == nil || info.Size() == 0 {
+						if rmErr := os.Remove(req.cacheKeyPath()); rmErr != nil && !errors.Is(rmErr, os.ErrNotExist) {
+							s.log.Warn().Err(rmErr).Str("path", req.cacheKeyPath()).Msg("unable to remove empty thumbnail")
+						}
+						return nil, fmt.Errorf("resize produced no usable output file")
+					}
+
+					if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
+						return nil, cacheErr
+					}
+
+					return nil, nil
 				},
 			)
 			if err != nil {
@@ -401,6 +421,19 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		s.m.IncError()
 
 		return err
+	}
+
+	if written == 0 {
+		// A zero-byte cache entry slipped through; remove it and report a
+		// failure so the next request regenerates it instead of serving an
+		// empty HTTP 200.
+		s.log.Error().Str("url", req.SourceURL).Str("cachePath", cachePath).Msg("cached resource is empty; removing")
+		s.m.IncError()
+		if rmErr := os.Remove(cachePath); rmErr != nil && !errors.Is(rmErr, os.ErrNotExist) {
+			s.log.Warn().Err(rmErr).Str("path", cachePath).Msg("unable to remove empty cache file")
+		}
+
+		return fmt.Errorf("cached resource is empty for %s: %w", req.SourceURL, ErrCacheKeyNotFound)
 	}
 
 	s.m.IncBytesServed(written)
