@@ -505,6 +505,21 @@ func (s *Service) storeSource(req *Request) error {
 		return fmt.Errorf("unable to read response body: %w", err)
 	}
 
+	// Reject truncated downloads. A connection closed cleanly before all
+	// bytes arrive yields io.ReadAll(body, nil) with no error, which would
+	// otherwise cache a partial file and break every later resize.
+	if resp.ContentLength > 0 && int64(len(body)) != resp.ContentLength {
+		s.log.Error().
+			Str("url", req.SourceURL).
+			Int64("expected", resp.ContentLength).
+			Int("received", len(body)).
+			Msg("truncated download; body shorter than Content-Length")
+		s.m.IncRemoteRequestError()
+
+		return fmt.Errorf("truncated download for %s: got %d bytes, expected %d: %w",
+			req.SourceURL, len(body), resp.ContentLength, ErrRemoteResourceNotFound)
+	}
+
 	if strings.HasPrefix(contentType, "text/xml") && bytes.Contains(body, []byte("adlibXML")) {
 		// don't cache adlib error messages
 		s.log.Warn().Str("url", req.SourceURL).Msg("adlib error retrieving image")
