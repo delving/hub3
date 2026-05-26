@@ -34,6 +34,7 @@ import (
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/index"
 	"github.com/delving/hub3/ikuzo/rdf"
+	"github.com/delving/hub3/ikuzo/rdf/formats/jsonld"
 	"github.com/delving/hub3/ikuzo/search"
 	"github.com/delving/hub3/ikuzo/storage/x/memory"
 )
@@ -1915,8 +1916,19 @@ func (fg *FragmentGraph) NewTree() *Tree {
 	return fg.Tree
 }
 
-// NewJSONLD creates a JSON-LD version of the FragmentGraph
+// NewJSONLD creates a JSON-LD version of the FragmentGraph.
+//
+// The default representation is a framed JSON-LD document anchored on
+// fg.Meta.EntryURI. When the FragmentGraph cannot be reconstructed into an RDF
+// graph (no resources, missing entry URI, or framing failure) the flat
+// per-resource representation is emitted instead so older consumers keep
+// receiving a usable payload.
 func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
+	if framed, ok := fg.newFramedJSONLD(); ok {
+		fg.JSONLD = []map[string]interface{}{framed}
+		return fg.JSONLD
+	}
+
 	fg.JSONLD = []map[string]interface{}{}
 	ids := map[string]bool{}
 	for _, rsc := range fg.Resources {
@@ -1927,6 +1939,29 @@ func (fg *FragmentGraph) NewJSONLD() []map[string]interface{} {
 		ids[rsc.ID] = true
 	}
 	return fg.JSONLD
+}
+
+func (fg *FragmentGraph) newFramedJSONLD() (map[string]any, bool) {
+	if len(fg.Resources) == 0 || fg.Meta == nil || fg.Meta.EntryURI == "" {
+		return nil, false
+	}
+
+	g, err := fg.Graph()
+	if err != nil {
+		return nil, false
+	}
+
+	subject := ""
+	if g.Subject != nil && g.Subject.Type() == rdf.TermIRI {
+		subject = g.Subject.RawValue()
+	}
+
+	framed, err := jsonld.Frame(g, subject, nil, nil)
+	if err != nil {
+		return nil, false
+	}
+
+	return framed, true
 }
 
 // NewGrouped returns an inlined version of the FragmentResources in the FragmentGraph
