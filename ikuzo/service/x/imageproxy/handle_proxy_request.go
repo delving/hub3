@@ -110,6 +110,9 @@ func (s *Service) handleProxyRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// recache: re-fetch the source as raw, bypassing upstream HTTP caches
+		// so a stale CDN/edge object is revalidated against origin.
+		req.ForceRefresh = true
 		req.TransformOptions = "raw"
 	case "request":
 		render.JSON(w, r, req)

@@ -6,6 +6,45 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
+func TestRequestGET_ForceRefreshHeaders(t *testing.T) {
+	tests := []struct {
+		name         string
+		forceRefresh bool
+		wantNoCache  bool
+	}{
+		{"default fetch has no cache-busting headers", false, false},
+		{"force refresh sends no-cache headers", true, true},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			req := &Request{SourceURL: imgURL, ForceRefresh: tt.forceRefresh}
+
+			r, err := req.GET()
+			if err != nil {
+				t.Fatalf("GET() error = %v", err)
+			}
+
+			gotCC := r.Header.Get("Cache-Control")
+			gotPragma := r.Header.Get("Pragma")
+
+			if tt.wantNoCache {
+				if gotCC != "no-cache" {
+					t.Errorf("Cache-Control = %q, want %q", gotCC, "no-cache")
+				}
+				if gotPragma != "no-cache" {
+					t.Errorf("Pragma = %q, want %q", gotPragma, "no-cache")
+				}
+			} else {
+				if gotCC != "" || gotPragma != "" {
+					t.Errorf("unexpected cache headers: Cache-Control=%q Pragma=%q", gotCC, gotPragma)
+				}
+			}
+		})
+	}
+}
+
 const (
 	imgURL       = "http://example.com/123.jpg"
 	testCacheKey = "aHR0cDovL2V4YW1wbGUuY29tLzEyMy5qcGc="

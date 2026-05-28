@@ -85,7 +85,11 @@ type Request struct {
 	thumbnailOpts    string
 	smartCrop        bool
 	EnableTransform  bool
-	s                *Service
+	// ForceRefresh asks the upstream fetch to bypass intermediary HTTP caches
+	// (CDN/edge) by sending no-cache request headers. Set on a "recache"
+	// action so a stale edge object can be revalidated against origin.
+	ForceRefresh bool
+	s            *Service
 }
 
 func NewRequest(input string, options ...RequestOption) (*Request, error) {
@@ -168,9 +172,23 @@ func NewRequest(input string, options ...RequestOption) (*Request, error) {
 	return req, nil
 }
 
-// GET returns a *http.Request for the sourceURL
+// GET returns a *http.Request for the sourceURL.
+//
+// When ForceRefresh is set, no-cache request headers are added so that
+// intermediary HTTP caches (CDN/edge) revalidate against origin instead of
+// returning a possibly stale object.
 func (req *Request) GET() (*http.Request, error) {
-	return http.NewRequest("GET", req.SourceURL, http.NoBody)
+	r, err := http.NewRequest("GET", req.SourceURL, http.NoBody)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.ForceRefresh {
+		r.Header.Set("Cache-Control", "no-cache")
+		r.Header.Set("Pragma", "no-cache")
+	}
+
+	return r, nil
 }
 
 func (req *Request) Remove() error {

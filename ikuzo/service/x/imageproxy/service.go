@@ -264,7 +264,10 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 		Str("sourceURL", req.SourceURL).
 		Msg("processing cache key")
 
-	if s.lruCache != nil {
+	// ForceRefresh (recache) must bypass the in-memory LRU, otherwise a hot
+	// entry would be served and the disk purge done by Remove() would never
+	// trigger a fresh upstream fetch.
+	if s.lruCache != nil && !req.ForceRefresh {
 		if s.lruCache.Contains(req.CacheKey) {
 			data, ok := s.lruCache.Get(req.CacheKey)
 			if ok {
