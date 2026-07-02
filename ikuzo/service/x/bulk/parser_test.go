@@ -99,6 +99,31 @@ func TestDropRecordsValidatesHubIDPrefix(t *testing.T) {
 	is.True(strings.Contains(err.Error(), "does not belong to dataset"))
 }
 
+// hubIds are interpolated into SPARQL Update statements downstream, so
+// anything outside the [A-Za-z0-9_.-] allowlist must be rejected.
+func TestDropRecordsRejectsInjectionCharacters(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
+	}
+	for _, hid := range []string{
+		"org1_ds1_x/graph>; DROP ALL; #",
+		"org1_ds1_a b",
+		"org1_ds1_a>",
+		"org1_ds1_a\n",
+	} {
+		req := &Request{
+			Action:    "drop_records",
+			OrgID:     "org1",
+			DatasetID: "ds1",
+			HubIDs:    []string{hid},
+		}
+		err := p.dropRecords(context.Background(), req)
+		is.True(err != nil)
+		is.True(strings.Contains(err.Error(), "invalid hubId"))
+	}
+}
+
 func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
 	is := is.New(t)
 	p := &Parser{

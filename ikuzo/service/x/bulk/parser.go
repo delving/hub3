@@ -25,6 +25,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -242,9 +243,15 @@ func (p *Parser) dropOrphans(req *Request) error {
 	return nil
 }
 
-// dropRecords validates the hubIds belong to this dataset, then asks
-// the DataSet to delete them. Idempotent at the storage layer; see
-// DataSet.DropRecordsByHubIDs.
+// hubIDPattern is the full allowed hubId shape. HubIds are interpolated
+// into SPARQL Update statements downstream (DataSet.dropGraphsByHubIDs),
+// so anything outside this allowlist — whitespace, '>', ';', control
+// characters — must be rejected here to prevent SPARQL injection.
+var hubIDPattern = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
+
+// dropRecords validates the hubIds belong to this dataset and contain
+// only allowlisted characters, then asks the DataSet to delete them.
+// Idempotent at the storage layer; see DataSet.DropRecordsByHubIDs.
 func (p *Parser) dropRecords(ctx context.Context, req *Request) error {
 	if len(req.HubIDs) == 0 {
 		return nil
@@ -256,6 +263,9 @@ func (p *Parser) dropRecords(ctx context.Context, req *Request) error {
 				"hubId %q does not belong to dataset %s/%s",
 				hid, req.OrgID, req.DatasetID,
 			)
+		}
+		if !hubIDPattern.MatchString(hid) {
+			return fmt.Errorf("invalid hubId %q: only [A-Za-z0-9_.-] allowed", hid)
 		}
 	}
 	_, err := p.ds.DropRecordsByHubIDs(ctx, req.HubIDs)
