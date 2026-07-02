@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/asdine/storm/q"
@@ -44,6 +45,40 @@ var (
 	unexpectedResponseMsg = "expected response != nil; got: %v"
 	ErrUnexpectedResponse = errors.New("expected response != nil")
 )
+
+// sparqlUpdateSender is an indirection used by helpers that issue
+// SPARQL Update requests so tests can intercept the payload without
+// needing a real triple store. Production callers should not replace
+// this.
+//
+// Not parallel-safe: tests that swap this must not call t.Parallel()
+// without wrapping the swap in a synchronization primitive.
+var sparqlUpdateSender = fragments.UpdateViaSparql
+
+// esDeleteByQuerySender is an indirection used by helpers that issue
+// ES DeleteByQuery requests so tests can assert on the final query
+// without needing a real ES cluster.
+//
+// Not parallel-safe: tests that swap this must not call t.Parallel()
+// without wrapping the swap in a synchronization primitive.
+var esDeleteByQuerySender = func(
+	ctx context.Context,
+	indexName string,
+	q elastic.Query,
+) (int, error) {
+	res, err := index.ESClient().DeleteByQuery().
+		Index(indexName).
+		Query(q).
+		Conflicts("proceed").
+		Do(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if res == nil {
+		return 0, fmt.Errorf(unexpectedResponseMsg, res)
+	}
+	return int(res.Deleted), nil
+}
 
 // DataSetRevisions holds the type-frequency data for each revision
 type DataSetRevisions struct {
@@ -859,4 +894,127 @@ func (ds DataSet) DropAll(ctx context.Context, wp *wp.WorkerPool) (bool, error) 
 	}
 
 	return ok, nil
+}
+
+// DropRecordsByHubIDs deletes specific records from this dataset by
+// hubID. Removes the matching graph from the triple store (if enabled)
+// and matching documents from every configured ES index (if enabled).
+// Idempotent at both layers: missing hubIDs are silently accepted.
+// Internally chunked at 10_000 so a single oversized call from a
+// client never produces a single oversized ES or SPARQL request.
+// Returns the cumulative number of ES documents deleted; first error
+// aborts remaining chunks (fail-fast).
+func (ds DataSet) DropRecordsByHubIDs(
+	ctx context.Context,
+	hubIDs []string,
+) (int, error) {
+	if len(hubIDs) == 0 {
+		return 0, nil
+	}
+	const chunkSize = 10000
+	total := 0
+	for i := 0; i < len(hubIDs); i += chunkSize {
+		end := i + chunkSize
+		if end > len(hubIDs) {
+			end = len(hubIDs)
+		}
+		batch := hubIDs[i:end]
+
+		if c.Config.RDF.RDFStoreEnabled {
+			if err := ds.dropGraphsByHubIDs(batch); err != nil {
+				return total, fmt.Errorf("triple store drop: %w", err)
+			}
+		}
+		if c.Config.ElasticSearch.Enabled {
+			deleted, err := ds.deleteIndexRecordsByHubIDs(ctx, batch)
+			if err != nil {
+				return total, fmt.Errorf("index drop: %w", err)
+			}
+			total += deleted
+		}
+	}
+	return total, nil
+}
+
+// dropGraphsByHubIDs issues a single SPARQL Update request containing
+// one DROP SILENT GRAPH statement per hubID. SILENT means the operation
+// succeeds even when a graph is already absent, giving the caller
+// idempotency for free.
+func (ds DataSet) dropGraphsByHubIDs(hubIDs []string) error {
+	if len(hubIDs) == 0 {
+		return nil
+	}
+	var sb strings.Builder
+	for _, hid := range hubIDs {
+		sb.WriteString("DROP SILENT GRAPH <urn:")
+		sb.WriteString(hid)
+		sb.WriteString("/graph>;\n")
+	}
+	errs := sparqlUpdateSender(ds.OrgID, sb.String())
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	return nil
+}
+
+// deleteIndexRecordsByHubIDs issues one DeleteByQuery per configured
+// index type, constrained to this dataset and the given hubIDs. Defence
+// in depth: even though the parser already validates the hubId prefix,
+// the spec+orgID filters here prevent a misrouted request from deleting
+// outside its dataset. Self-contained: returns early on empty input.
+func (ds DataSet) deleteIndexRecordsByHubIDs(
+	ctx context.Context,
+	hubIDs []string,
+) (int, error) {
+	if len(hubIDs) == 0 {
+		return 0, nil
+	}
+	asIface := make([]interface{}, len(hubIDs))
+	for i, h := range hubIDs {
+		asIface[i] = h
+	}
+	// Must rather than Should on spec/orgID: hubIds are validated with a
+	// strict prefix at the parser layer (see Parser.dropRecords), so any
+	// mismatch here would indicate a bug. This differs from
+	// deleteAllIndexRecords which uses Should to tolerate legacy spec.raw
+	// key variants — drop_records has no legacy surface to cover.
+	q := elastic.NewBoolQuery().
+		Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)).
+		Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID)).
+		Must(elastic.NewTermsQuery("meta.hubID", asIface...))
+
+	indices := ds.resolveIndicesForHubIDDelete()
+	total := 0
+	for _, idx := range indices {
+		deleted, err := esDeleteByQuerySender(ctx, idx, q)
+		if err != nil {
+			return total, err
+		}
+		total += deleted
+	}
+	return total, nil
+}
+
+// resolveIndicesForHubIDDelete mirrors the index-type resolution logic
+// used by deleteAllIndexRecords/deleteIndexOrphans, scoped to the
+// indices that actually hold per-hubID documents. The suggest index
+// is intentionally skipped — it is a derived index that the normal
+// indexing pipeline rebuilds, and its documents are not keyed by
+// meta.hubID in the same shape.
+func (ds DataSet) resolveIndicesForHubIDDelete() []string {
+	var indices []string
+	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
+		switch indexType {
+		case v1Type:
+			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName(ds.OrgID))
+		case v2Type:
+			indices = append(indices, c.Config.ElasticSearch.GetIndexName(ds.OrgID))
+		case fragmentType:
+			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
+		}
+		// DigitalObject index is intentionally omitted: phase-1 scope for
+		// drop_records. Add a case here once per-record DigitalObject
+		// cleanup is explicitly requested.
+	}
+	return indices
 }

@@ -2,10 +2,13 @@ package bulk
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"strings"
 	"testing"
 
+	c "github.com/delving/hub3/config"
+	"github.com/delving/hub3/hub3/models"
 	"github.com/kiivihal/rdf2go"
 	"github.com/matryer/is"
 )
@@ -78,4 +81,69 @@ func TestAddLogger(t *testing.T) {
 
 	//	default
 	testAddLogger(is, "somestring", "")
+}
+
+func TestDropRecordsValidatesHubIDPrefix(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
+	}
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    []string{"org1_ds1_a", "org2_ds1_b"}, // second id cross-org
+	}
+	err := p.dropRecords(context.Background(), req)
+	is.True(err != nil)
+	is.True(strings.Contains(err.Error(), "does not belong to dataset"))
+}
+
+func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
+	}
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    nil,
+	}
+	err := p.dropRecords(context.Background(), req)
+	is.NoErr(err)
+}
+
+func TestProcessRoutesDropRecords(t *testing.T) {
+	is := is.New(t)
+	p := &Parser{
+		ds:    &models.DataSet{OrgID: "org1", Spec: "ds1", Revision: 1},
+		stats: &Stats{},
+		recDef: RecDefResolver{
+			m:               map[string][]string{"": {}},
+			defaultRecDefID: "",
+		},
+	}
+	// Preflight p.once so process skips setDataSet and uses the ds we injected.
+	p.once.Do(func() {})
+
+	req := &Request{
+		Action:    "drop_records",
+		OrgID:     "org1",
+		DatasetID: "ds1",
+		HubIDs:    []string{"org1_ds1_a"},
+	}
+	c.InitConfig()
+	prevRDF := c.Config.RDF.RDFStoreEnabled
+	prevES := c.Config.ElasticSearch.Enabled
+	c.Config.RDF.RDFStoreEnabled = false
+	c.Config.ElasticSearch.Enabled = false
+	defer func() {
+		c.Config.RDF.RDFStoreEnabled = prevRDF
+		c.Config.ElasticSearch.Enabled = prevES
+	}()
+
+	err := p.process(context.Background(), req)
+	// Validation + real method with storages off → no error.
+	is.NoErr(err)
 }

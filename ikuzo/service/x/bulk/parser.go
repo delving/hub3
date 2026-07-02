@@ -242,6 +242,26 @@ func (p *Parser) dropOrphans(req *Request) error {
 	return nil
 }
 
+// dropRecords validates the hubIds belong to this dataset, then asks
+// the DataSet to delete them. Idempotent at the storage layer; see
+// DataSet.DropRecordsByHubIDs.
+func (p *Parser) dropRecords(ctx context.Context, req *Request) error {
+	if len(req.HubIDs) == 0 {
+		return nil
+	}
+	prefix := req.OrgID + "_" + req.DatasetID + "_"
+	for _, hid := range req.HubIDs {
+		if !strings.HasPrefix(hid, prefix) {
+			return fmt.Errorf(
+				"hubId %q does not belong to dataset %s/%s",
+				hid, req.OrgID, req.DatasetID,
+			)
+		}
+	}
+	_, err := p.ds.DropRecordsByHubIDs(ctx, req.HubIDs)
+	return err
+}
+
 func addLogger(datasetID string) zerolog.Logger {
 	switch {
 	case strings.HasSuffix(datasetID, "ntfoto"):
@@ -371,6 +391,12 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
 		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
+	case "drop_records":
+		if err := p.dropRecords(ctx, req); err != nil {
+			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop records")
+			return err
+		}
+		subLogger.Info().Str("datasetID", req.DatasetID).Int("count", len(req.HubIDs)).Msg("dropped records")
 	default:
 		return fmt.Errorf("unknown bulk action: %s", req.Action)
 	}

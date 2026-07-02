@@ -30,20 +30,21 @@ import (
 )
 
 type Request struct {
-	HubID         string `json:"hubId"`
-	OrgID         string `json:"orgID"`
-	DatasetID     string `json:"dataset"`
-	LocalID       string `json:"localId"`
-	NamedGraphURI string `json:"graphUri"`
-	RecordType    string `json:"type"`
-	Action        string `json:"action"`
-	ContentHash   string `json:"contentHash"`
-	Graph         string `json:"graph"`
-	GraphMimeType string `json:"graphMimeType"`
-	SubjectType   string `json:"subjectType"`
-	Revision      int    `json:"revision"`
-	Tags          string `json:"tags,omitempty"`
-	RecDefID      string `json:"recDefId,omitempty"`
+	HubID         string   `json:"hubId"`
+	OrgID         string   `json:"orgID"`
+	DatasetID     string   `json:"dataset"`
+	LocalID       string   `json:"localId"`
+	NamedGraphURI string   `json:"graphUri"`
+	RecordType    string   `json:"type"`
+	Action        string   `json:"action"`
+	ContentHash   string   `json:"contentHash"`
+	Graph         string   `json:"graph"`
+	GraphMimeType string   `json:"graphMimeType"`
+	SubjectType   string   `json:"subjectType"`
+	Revision      int      `json:"revision"`
+	Tags          string   `json:"tags,omitempty"`
+	RecDefID      string   `json:"recDefId,omitempty"`
+	HubIDs        []string `json:"hubIds,omitempty"`
 	aboutTypeURI  []string
 	resolvedTags  []string
 	indexTypes    []string
