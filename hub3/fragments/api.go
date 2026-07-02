@@ -949,6 +949,12 @@ func (sr *SearchRequest) NewUserQuery() (*Query, *BreadCrumbBuilder, error) {
 // ElasticQuery creates an ElasticSearch query from the Search Request
 // This query can be passed into an elastic Search Object.
 func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
+	// An empty OrgIDKey (config never initialized) would produce a term
+	// query with an empty field name, which ES rejects with an opaque 400.
+	if sr.OrgIDKey == "" {
+		return nil, fmt.Errorf("SearchRequest.OrgIDKey is empty; was config.InitConfig() called?")
+	}
+
 	query := elastic.NewBoolQuery()
 	query = query.Must(elastic.NewTermQuery("meta.docType", FragmentGraphDocType))
 	orgQuery := elastic.NewBoolQuery().Should(elastic.NewTermQuery(sr.OrgIDKey, sr.OrgID))
