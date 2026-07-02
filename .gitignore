@@ -92,3 +92,6 @@ pdf/*.pdf
 
 # Git worktrees
 .worktrees/
+
+# local environment overrides (e.g. HUB3_CONFIG for .air.toml)
+.env

@@ -1,7 +1,9 @@
 root = "."
 tmp_dir = "tmp"
 [build]
-bin = "./tmp/main serve"
+# Set HUB3_CONFIG in .env (git-ignored) to point at a personal config;
+# without it the server falls back to its default config discovery.
+bin = "sh -c 'test -f .env && . ./.env; ./tmp/main serve ${HUB3_CONFIG:+--config=$HUB3_CONFIG}'"
 cmd = "IKUZOMODULE=`go list -m`; IKUZOLDFLAGS=\"-X ${IKUZOMODULE}/cmd.version=`git describe --abbrev=0 --tags` -X ${IKUZOMODULE}/cmd.buildStamp=`date '+%Y-%m-%d_%I:%M:%S%p'` -X ${IKUZOMODULE}/cmd.gitHash=`git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty` -X ${IKUZOMODULE}/cmd.buildAgent=`git config user.email`\"; go build -tags=dev -race -ldflags \"${IKUZOLDFLAGS}\" -o ./tmp/main ./ikuzo/ikuzoctl"
 delay = 1000
 exclude_dir = ["assets", "tmp", "vendor"]
