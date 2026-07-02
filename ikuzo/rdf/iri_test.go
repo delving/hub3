@@ -15,6 +15,8 @@ func TestNewIRI(t *testing.T) {
 		iri string
 	}
 
+	// NewIRI constructs lazily and never errors; validation is deferred
+	// to IRI.Valid() (see 26ab7cc6). wantErr/err apply to Valid().
 	tests := []struct {
 		name    string
 		args    args
@@ -32,21 +34,21 @@ func TestNewIRI(t *testing.T) {
 		{
 			name:    "disallowed character: \n",
 			args:    args{iri: "http://dott\ncom"},
-			want:    IRI{str: ""},
+			want:    IRI{str: "http://dott\ncom"},
 			wantErr: true,
 			err:     ErrDisallowedCharacterInIRI,
 		},
 		{
 			name:    "disallowed character: <",
 			args:    args{iri: "<a>"},
-			want:    IRI{str: ""},
+			want:    IRI{str: "<a>"},
 			wantErr: true,
 			err:     ErrDisallowedCharacterInIRI,
 		},
 		{
 			name:    "disallowed character: ' '",
 			args:    args{iri: "here are spaces"},
-			want:    IRI{str: ""},
+			want:    IRI{str: "here are spaces"},
 			wantErr: true,
 			err:     ErrDisallowedCharacterInIRI,
 		},
@@ -70,13 +72,19 @@ func TestNewIRI(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewIRI(tt.args.iri)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("NewIRI() error = %v, wantErr %v", err, tt.wantErr)
+			if err != nil {
+				t.Errorf("NewIRI() unexpected error = %v", err)
 				return
 			}
 
-			if err != nil && !errors.Is(err, tt.err) {
-				t.Errorf("NewIRI() error = %v, wantErr %v", err, tt.err)
+			validErr := got.Valid()
+			if (validErr != nil) != tt.wantErr {
+				t.Errorf("Valid() error = %v, wantErr %v", validErr, tt.wantErr)
+				return
+			}
+
+			if validErr != nil && !errors.Is(validErr, tt.err) {
+				t.Errorf("Valid() error = %v, want %v", validErr, tt.err)
 				return
 			}
 

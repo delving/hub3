@@ -47,6 +47,12 @@ func (b *IRIBuilder) IRI(label string) (IRI, error) {
 		return iri, err
 	}
 
+	// NewIRI no longer validates eagerly, but this builder documents a
+	// guarantee of correctness for the returned IRI, so enforce it here.
+	if err := iri.Valid(); err != nil {
+		return IRI{}, err
+	}
+
 	return iri, nil
 }
 
