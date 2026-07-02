@@ -41,7 +41,7 @@ func TestContentNegotiation(t *testing.T) {
 
 // TestAddFormatLinks tests the function that adds format links to response headers
 func TestAddFormatLinks(t *testing.T) {
-	req := httptest.NewRequest("GET", "http://example.com/resource", nil)
+	req := httptest.NewRequest("GET", "http://example.com/resource?uri=urn:test:123", nil)
 	w := httptest.NewRecorder()
 
 	supportedFormats := []string{
@@ -77,9 +77,10 @@ func TestAddFormatLinks(t *testing.T) {
 		}
 	}
 
-	// Verify the URI is correct
+	// Links carry the resource in ?uri= and the target format in &format=,
+	// which is what contentNegotiation consumes.
 	for _, link := range links {
-		if !strings.Contains(link, "<https://example.com/resource>") {
+		if !strings.Contains(link, "<https://example.com/resource?uri=urn:test:123&format=") {
 			t.Errorf("Link header contains incorrect URI: %s", link)
 		}
 	}

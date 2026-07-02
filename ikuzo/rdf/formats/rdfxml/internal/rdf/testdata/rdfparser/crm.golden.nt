@@ -10,12 +10,12 @@ _:ba5ec7514be466ac8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://ww
 _:ba5ec7514be466ac8 <http://www.cidoc-crm.org/cidoc-crm/P72_has_language> <https://data.antwerp.be/id/term/brocade-catalog/lg/dut> .
 _:ba5ec7514be466ac8 <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "Keur van proza- en dichtstukken" .
 _:ba5ec7514be466ac8 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h> .
-<https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> _:ba5cb42cabda6ecd0 .
-_:ba5cb42cabda6ecd0 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
-_:ba5cb42cabda6ecd0 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/dr> .
-<https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> _:bb3e321bbf0e29485 .
-_:bb3e321bbf0e29485 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
-_:bb3e321bbf0e29485 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-authorities/ty/pt> .
+<https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/dr/paper> .
+<https://data.antwerp.be/id/term/brocade-catalog/dr/paper> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<https://data.antwerp.be/id/term/brocade-catalog/dr/paper> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/dr> .
+<https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-authorities/a::pt.42:1> .
+<https://data.antwerp.be/id/term/brocade-authorities/a::pt.42:1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<https://data.antwerp.be/id/term/brocade-authorities/a::pt.42:1> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-authorities/ty/pt> .
 <https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P129_is_about> <https://data.antwerp.be/id/term/brocade-authorities/a::839.3:1> .
 <https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by> _:bd6053594ff4e3e99 .
 _:bd6053594ff4e3e99 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object> .
@@ -42,8 +42,8 @@ _:b96541492cccd11dd <http://www.cidoc-crm.org/cidoc-crm/P72_has_language> <https
 <https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in> _:bc3e5329e71e13910 .
 _:bc3e5329e71e13910 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E31_Document> .
 _:bc3e5329e71e13910 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog> .
-_:bc3e5329e71e13910 <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:bf4fc606ad2f0ff13 .
-_:bf4fc606ad2f0ff13 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E42_Identifier> .
+_:bc3e5329e71e13910 <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> <https://anet.be/record/lvdopac/c:lvd:538499> .
+<https://anet.be/record/lvdopac/c:lvd:538499> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E42_Identifier> .
 <https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:538499> <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:b9892d5d02b57cc4a .
 _:b9892d5d02b57cc4a <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E42_Identifier> .
 _:b9892d5d02b57cc4a <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "c:lvd:538499" .
@@ -64,17 +64,17 @@ _:b5a55ff921d2238e6 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://da
 _:b8662dca212a06607 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation> .
 _:b8662dca212a06607 <http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of> _:bf4b85405dc24dbd4 .
 _:bf4b85405dc24dbd4 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by> .
-_:bf4b85405dc24dbd4 <http://www.cidoc-crm.org/cidoc-crm/P02_has_range> _:b830805d8777eecc1 .
-_:b830805d8777eecc1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E39_Actor> .
-_:b830805d8777eecc1 <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:bced8c6afa9c723b6 .
+_:bf4b85405dc24dbd4 <http://www.cidoc-crm.org/cidoc-crm/P02_has_range> <https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1> .
+<https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E39_Actor> .
+<https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1> <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:bced8c6afa9c723b6 .
 _:bced8c6afa9c723b6 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E41_Appellation> .
 _:bced8c6afa9c723b6 <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "sr." .
 _:bced8c6afa9c723b6 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/nm-ex> .
-_:b830805d8777eecc1 <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:b90eeee04216ad91 .
+<https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1> <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:b90eeee04216ad91 .
 _:b90eeee04216ad91 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E41_Appellation> .
 _:b90eeee04216ad91 <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "Jan" .
 _:b90eeee04216ad91 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/nm-vn> .
-_:b830805d8777eecc1 <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:b13889a05ed7e538 .
+<https://data.antwerp.be/id/term/brocade-authorities/a::920.723:1> <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> _:b13889a05ed7e538 .
 _:b13889a05ed7e538 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E41_Appellation> .
 _:b13889a05ed7e538 <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "Beers, van" .
 _:b13889a05ed7e538 <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <https://data.antwerp.be/id/term/brocade-catalog/nm-fn> .

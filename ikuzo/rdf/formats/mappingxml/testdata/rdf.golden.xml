@@ -1,34 +1,34 @@
-<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sdo="https://schema.org/" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
-    <sdo:CreativeWork rdf:about="https://klek.si/pqx31b/01339n">
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:schema="https://schema.org/" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <schema:CreativeWork rdf:about="https://klek.si/pqx31b/01339n">
         <dc:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
         <skos:prefLabel xml:lang="nl">Glazen buisje</skos:prefLabel>
-        <sdo:dateCreated xml:lang="nl">XXc - XXd</sdo:dateCreated>
-        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1950-01-01</sdo:dateCreated>
-        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1990-01-01</sdo:dateCreated>
-        <sdo:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-02-03T14:47:27.151Z</sdo:dateCreated>
-        <sdo:dateModified rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2024-02-01T12:22:04.218Z</sdo:dateModified>
-        <sdo:description xml:lang="nl">Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken&lt;br/&gt;</sdo:description>
-        <sdo:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
-        <sdo:image>
-            <sdo:ImageObject rdf:about="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original">
-                <sdo:contentSize>8257</sdo:contentSize>
-                <sdo:contentUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"/>
-                <sdo:encodingFormat>image/jpeg</sdo:encodingFormat>
-                <sdo:thumbnailUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/thumbnail"/>
-                <sdo:uploadDate rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-04-12T21:42:47.621Z</sdo:uploadDate>
-            </sdo:ImageObject>
-        </sdo:image>
-        <sdo:itemCondition xml:lang="nl">slecht aan twee zijden afgebroken</sdo:itemCondition>
-        <sdo:keywords xml:lang="nl">interieur</sdo:keywords>
-        <sdo:keywords xml:lang="nl">laboratorium</sdo:keywords>
-        <sdo:keywords xml:lang="nl">natuurkunde</sdo:keywords>
-        <sdo:keywords xml:lang="nl">natuurwetenschap</sdo:keywords>
-        <sdo:keywords xml:lang="nl">onderwijs</sdo:keywords>
-        <sdo:keywords xml:lang="nl">scheikunde</sdo:keywords>
-        <sdo:material xml:lang="nl">glas</sdo:material>
-        <sdo:name xml:lang="nl">Glazen buisje</sdo:name>
-        <sdo:size xml:lang="nl">diameter 0.5cm</sdo:size>
-        <sdo:size xml:lang="nl">hoogte 21cm resthoogte</sdo:size>
-    </sdo:CreativeWork>
+        <schema:dateCreated xml:lang="nl">XXc - XXd</schema:dateCreated>
+        <schema:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1950-01-01</schema:dateCreated>
+        <schema:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#date">1990-01-01</schema:dateCreated>
+        <schema:dateCreated rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-02-03T14:47:27.151Z</schema:dateCreated>
+        <schema:dateModified rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2024-02-01T12:22:04.218Z</schema:dateModified>
+        <schema:description xml:lang="nl">Glazen buisje - 2e helft van 20e eeuw, glas, afmetingen: restlengte 21 cm, diameter 0,5 cm, laboratoriumglas, aan twee zijden afgebroken&lt;br/&gt;</schema:description>
+        <schema:identifier rdf:resource="https://klek.si/pqx31b/01339n"/>
+        <schema:image>
+            <schema:ImageObject rdf:about="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original">
+                <schema:contentSize>8257</schema:contentSize>
+                <schema:contentUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/original"/>
+                <schema:encodingFormat>image/jpeg</schema:encodingFormat>
+                <schema:thumbnailUrl rdf:resource="https://eu.cdn.kleksi.com/pqx31b/crRVxdqX6NGjA1GjsTZ2cCfAn90SK3AoLfkyN5qgU6_ZaBU43yRZ76uQCl775Mw_/thumbnail"/>
+                <schema:uploadDate rdf:dataType="http://www.w3.org/2001/XMLSchema#dateTime">2023-04-12T21:42:47.621Z</schema:uploadDate>
+            </schema:ImageObject>
+        </schema:image>
+        <schema:itemCondition xml:lang="nl">slecht aan twee zijden afgebroken</schema:itemCondition>
+        <schema:keywords xml:lang="nl">interieur</schema:keywords>
+        <schema:keywords xml:lang="nl">laboratorium</schema:keywords>
+        <schema:keywords xml:lang="nl">natuurkunde</schema:keywords>
+        <schema:keywords xml:lang="nl">natuurwetenschap</schema:keywords>
+        <schema:keywords xml:lang="nl">onderwijs</schema:keywords>
+        <schema:keywords xml:lang="nl">scheikunde</schema:keywords>
+        <schema:material xml:lang="nl">glas</schema:material>
+        <schema:name xml:lang="nl">Glazen buisje</schema:name>
+        <schema:size xml:lang="nl">diameter 0.5cm</schema:size>
+        <schema:size xml:lang="nl">hoogte 21cm resthoogte</schema:size>
+    </schema:CreativeWork>
 </rdf:RDF>
 
