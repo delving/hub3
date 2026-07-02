@@ -5,18 +5,94 @@ import (
 	"encoding/json"
 	"testing"
 
+	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/fragments"
 	"github.com/delving/hub3/ikuzo/domain"
 	"github.com/delving/hub3/ikuzo/domain/semantic"
+	es "github.com/delving/hub3/ikuzo/driver/elasticsearch"
 	elastic "github.com/olivere/elastic/v7"
 	"github.com/rs/zerolog"
 )
 
+// TestMain initializes the global config the fragments query builder
+// depends on (e.g. ElasticSearch.OrgIDKey); without it ElasticQuery()
+// emits a term query with an empty field name and ES returns 400.
+func TestMain(m *testing.M) {
+	c.InitConfig()
+	m.Run()
+}
+
+// seedTestIndex recreates the index the adapter derives from the org in
+// context ({orgID}v2 = "testorgv2") with the real v2 mapping, then indexes
+// one document. The v2 mapping is required: the fragments query builder
+// issues nested queries against resources.entries, which fail with
+// "all shards failed" on a dynamically-mapped index.
+func seedTestIndex(ctx context.Context, t *testing.T, client *elastic.Client) {
+	t.Helper()
+
+	const indexName = "testorgv2"
+
+	// Drop stale test indices (wildcard also removes the timestamped
+	// indices CreateDefaultMappings creates behind the alias).
+	_, _ = client.DeleteIndex(indexName + "*").Do(ctx)
+
+	logger := zerolog.Nop()
+	driver, err := es.NewClient(&es.Config{
+		Urls:   []string{"http://localhost:9200"},
+		Logger: &logger,
+		// expvar.Publish panics on duplicate registration when multiple
+		// tests create a driver client in one process.
+		DisableMetrics: true,
+	})
+	if err != nil {
+		t.Skipf("Failed to create es driver client: %v", err)
+	}
+
+	orgCfg := domain.OrganizationConfig{}
+	orgCfg.SetOrgID("testorg")
+	orgCfg.ElasticSearch.IndexTypes = []string{"v2"}
+
+	// withAlias=true: Indices.Create always creates a timestamped index;
+	// the "testorgv2" name the adapter queries only exists as its alias.
+	if _, err := driver.CreateDefaultMappings([]domain.OrganizationConfig{orgCfg}, true, false); err != nil {
+		t.Skipf("Failed to create v2 mapping: %v", err)
+	}
+
+	const entryURI = "https://example.org/resource/test-doc-123"
+
+	testDoc := fragments.FragmentGraph{
+		Meta: &fragments.Header{
+			HubID:    "test-doc-123",
+			OrgID:    "testorg",
+			DocType:  "graph",
+			EntryURI: entryURI,
+		},
+		Resources: []*fragments.FragmentResource{
+			{
+				ID:    entryURI,
+				Types: []string{"http://www.europeana.eu/schemas/edm/ProvidedCHO"},
+			},
+		},
+	}
+	testDoc.Semantic = testDoc.GenerateSemantic()
+
+	docJSON, _ := json.Marshal(&testDoc)
+	_, err = client.Index().
+		Index(indexName).
+		Id("test-doc-123").
+		BodyJson(string(docJSON)).
+		Refresh("true").
+		Do(ctx)
+	if err != nil {
+		t.Skipf("Failed to index test document: %v", err)
+	}
+}
+
 // TestV2SearchAdapter_Search_Integration tests the full search flow
 // from semantic query → v2 execution → semantic results.
 //
-// This is an integration test that requires a running Elasticsearch instance.
-// Run with: go test -tags=integration
+// This is an integration test that requires a running Elasticsearch instance
+// on localhost:9200. It is skipped with -short or when ES is unreachable.
 func TestV2SearchAdapter_Search_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test in short mode")
@@ -40,6 +116,8 @@ func TestV2SearchAdapter_Search_Integration(t *testing.T) {
 		ID: "testorg",
 	}
 	ctx := domain.SetOrganizationInContext(context.Background(), org)
+
+	seedTestIndex(ctx, t, client)
 
 	t.Run("simple text search", func(t *testing.T) {
 		opts := &semantic.QueryOptions{
@@ -165,26 +243,8 @@ func TestV2SearchAdapter_GetByID_Integration(t *testing.T) {
 	ctx := domain.SetOrganizationInContext(context.Background(), org)
 
 	t.Run("get existing document", func(t *testing.T) {
-		// First, index a test document
-		testDoc := fragments.FragmentGraph{
-			Meta: &fragments.Header{
-				HubID: "test-doc-123",
-				OrgID: "testorg",
-			},
-		}
-		testDoc.Semantic = testDoc.GenerateSemantic()
-
-		docJSON, _ := json.Marshal(&testDoc)
-		_, err := client.Index().
-			Index("hub3-test").
-			Id("test-doc-123").
-			BodyJson(string(docJSON)).
-			Refresh("true").
-			Do(ctx)
-
-		if err != nil {
-			t.Skipf("Failed to index test document: %v", err)
-		}
+		// Index into the index the adapter reads: {orgID}v2
+		seedTestIndex(ctx, t, client)
 
 		// Now retrieve it
 		item, err := adapter.GetByID(ctx, "test-doc-123", nil)
@@ -235,6 +295,8 @@ func TestV2SearchAdapter_Aggregate_Integration(t *testing.T) {
 		ID: "testorg",
 	}
 	ctx := domain.SetOrganizationInContext(context.Background(), org)
+
+	seedTestIndex(ctx, t, client)
 
 	t.Run("aggregate with facets", func(t *testing.T) {
 		facets := []semantic.FacetRequest{
