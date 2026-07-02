@@ -21,7 +21,7 @@ import (
 	"github.com/matryer/is"
 )
 
-const defaultListSize = 2207
+const defaultListSize = 2208
 
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{
@@ -246,17 +246,19 @@ func TestDefaults(t *testing.T) {
 	is.Equal(len(nsList), 1)
 	t.Logf("ns list schema: %#v", nsList)
 
+	// Since 8416367a the preferred schema prefix maps to https://schema.org/
+	// (Weight 100); http://schema.org/ keeps the demoted sdo/sorg prefixes
+	// with auto-assigned weights.
 	nsList, err = svc.List(&ListOptions{URI: "http://schema.org/"})
 	is.NoErr(err)
 	is.Equal(len(nsList), 2)
 	t.Logf("ns list schema from base: %#v", nsList)
-	is.Equal(nsList[len(nsList)-1].Weight, 3)
-	is.Equal(nsList[0].Weight, 100)
 
-	ns, err := svc.GetWithBase("http://schema.org/")
+	ns, err := svc.GetWithBase("https://schema.org/")
 	is.NoErr(err)
 	t.Logf("ns: %#v", ns)
 	is.Equal(ns.Prefix, "schema")
+	is.Equal(ns.Weight, 100)
 
 	ns, err = svc.GetWithPrefix("sdo")
 	is.NoErr(err)

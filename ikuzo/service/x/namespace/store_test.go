@@ -174,5 +174,7 @@ func TestDuplicateURIS(t *testing.T) {
 
 	// TODO(kiivihal): finish this in default
 	t.Logf("suspect uris (%d): %#v", len(suspect), suspect)
-	is.Equal(len(suspect), 109)
+	// 110 since 8416367a demoted http://schema.org/ to the unweighted
+	// sdo/sorg prefixes, making it a suspect duplicate.
+	is.Equal(len(suspect), 110)
 }

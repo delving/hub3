@@ -167,11 +167,11 @@ func TestAddContextLevels(t *testing.T) {
 	is.NoErr(err)
 	is.True(len(jsonBytes) > 0)
 
-	is.True(len(g.Resources[0].Context) > 0)
-
-	// This verifies the basic functionality of addContextLevels
-	// The actual context references might not be set in the test environment
-	// but the flag is correctly updated
+	// Context refs are appended to the target (nested) resources; the
+	// root resource has no inbound context by definition.
+	is.Equal(len(g.Resources[0].Context), 0)
+	is.True(len(g.Resources[1].Context) > 0)
+	is.True(len(g.Resources[2].Context) > 0)
 }
 
 // TestGraph_ContextLevelsInResources tests that context levels are properly set in Resources
@@ -238,16 +238,14 @@ func TestGraph_ContextLevelsInResources(t *testing.T) {
 	// Verify contextIsSet is now true
 	is.Equal(g.contextIsSet, true)
 
-	// Based on our debugging, we now understand that this implementation stores
-	// context references in the GraphExternalContext field of the resource that
-	// "owns" the relation, rather than in the Context field of the target resource
-
-	// Verify that the root resource has a GraphExternalContext entry for level1
-	is.True(len(rootResource.GraphExternalContext) > 0)
+	// Context references are stored in the Context field of the target
+	// resource; GraphExternalContext is reserved for references to
+	// resources outside the graph.
+	is.Equal(len(rootResource.GraphExternalContext), 0)
 
 	// Find and validate the context reference for level1
 	foundLevel1Context := false
-	for _, ctx := range rootResource.GraphExternalContext {
+	for _, ctx := range level1Resource.Context {
 		if ctx.ObjectID == "urn:test:level1" && ctx.Predicate == "http://example.org/ontology/hasLevel1" {
 			foundLevel1Context = true
 			is.Equal(ctx.Subject, "urn:test:root")
@@ -257,6 +255,17 @@ func TestGraph_ContextLevelsInResources(t *testing.T) {
 		}
 	}
 	is.True(foundLevel1Context)
+
+	// The nested level2 resource gets a level-2 context ref from level1
+	foundLevel2Context := false
+	for _, ctx := range level2Resource.Context {
+		if ctx.ObjectID == "urn:test:level2" && ctx.Predicate == "http://example.org/ontology/hasLevel2" {
+			foundLevel2Context = true
+			is.Equal(ctx.Subject, "urn:test:level1")
+			is.Equal(ctx.Level, int32(2))
+		}
+	}
+	is.True(foundLevel2Context)
 
 	// Test that the context flag is set correctly
 	// This confirms that the addContextLevels function was called and completed successfully
@@ -324,20 +333,21 @@ func TestGraph_IndexMessageWithFields(t *testing.T) {
 	fields, ok := graphData["fields"].(map[string]interface{})
 	is.True(ok) // Fields should be in the JSON
 
-	// Check that the fields contain both predicates with correct values
-	titleValues, ok := fields["http://purl.org/dc/elements/1.1/title"].([]interface{})
+	// Fields are keyed by SearchLabel, not predicate URI: the ES dynamic
+	// template maps fields.* and the semantic API selects fields by label.
+	titleValues, ok := fields["dc_title"].([]interface{})
 	is.True(ok)
 	is.Equal(len(titleValues), 2) // Should have both title values
 
 	// Check that dc:date has one value
-	dateValues, ok := fields["http://purl.org/dc/elements/1.1/date"].([]interface{})
+	dateValues, ok := fields["dc_date"].([]interface{})
 	is.True(ok)
 	is.Equal(len(dateValues), 1)
 	is.Equal(dateValues[0], "2020-01-01")
 
 	// Verify that g.Fields was populated
 	is.True(g.Fields != nil)
-	is.Equal(len(g.Fields), 2) // Should have dc:title and dc:date
-	is.Equal(len(g.Fields["http://purl.org/dc/elements/1.1/title"]), 2)
-	is.Equal(len(g.Fields["http://purl.org/dc/elements/1.1/date"]), 1)
+	is.Equal(len(g.Fields), 2) // Should have dc_title and dc_date
+	is.Equal(len(g.Fields["dc_title"]), 2)
+	is.Equal(len(g.Fields["dc_date"]), 1)
 }
