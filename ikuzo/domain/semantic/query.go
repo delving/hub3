@@ -51,8 +51,8 @@ type QueryOptions struct {
 	// ContextIndices specifies additional organization IDs to search across.
 	ContextIndices []string
 
-	// Backend selects the search backend for this request.
-	// Valid values: "" (default), "v2" (v2 adapter), "es8" (native ES8).
+	// Backend is reserved for internal experiments. It is not part of the
+	// public Semantic V1 request contract.
 	Backend string
 }
 
@@ -99,10 +99,10 @@ func (co *CollapseOptions) Validate() error {
 type TextQuery struct {
 	TypeValue string   `json:"@type,omitempty"`
 	Value     string   `json:"value"`
-	Fields    []string `json:"fields,omitempty"`    // Fields to search in
-	Operator  string   `json:"operator,omitempty"`  // AND, OR
-	Fuzzy     bool     `json:"fuzzy,omitempty"`     // Enable fuzzy matching
-	Boost     float64  `json:"boost,omitempty"`     // Boost factor
+	Fields    []string `json:"fields,omitempty"`   // Fields to search in
+	Operator  string   `json:"operator,omitempty"` // AND, OR
+	Fuzzy     bool     `json:"fuzzy,omitempty"`    // Enable fuzzy matching
+	Boost     float64  `json:"boost,omitempty"`    // Boost factor
 }
 
 // Type returns the @type for JSON-LD.
@@ -187,14 +187,14 @@ func (gcfr *GeoClusterFacetRequest) Type() string {
 // SearchQuery represents a complete search query in JSON-LD format.
 // This is the structure for POST /search requests.
 type SearchQuery struct {
-	Context        interface{}              `json:"@context,omitempty"`
-	TypeValue      string                   `json:"@type"`
-	Query          *TextQuery               `json:"query,omitempty"`
-	Filters        []json.RawMessage        `json:"filters,omitempty"`
-	Facets         []json.RawMessage        `json:"facets,omitempty"`
-	Sort           []SortField              `json:"sort,omitempty"`
-	Pagination     *Pagination              `json:"pagination,omitempty"`
-	ResponseOptions *ResponseOptions        `json:"responseOptions,omitempty"`
+	Context         interface{}       `json:"@context,omitempty"`
+	TypeValue       string            `json:"@type"`
+	Query           *TextQuery        `json:"query,omitempty"`
+	Filters         []json.RawMessage `json:"filters,omitempty"`
+	Facets          []json.RawMessage `json:"facets,omitempty"`
+	Sort            []SortField       `json:"sort,omitempty"`
+	Pagination      *Pagination       `json:"pagination,omitempty"`
+	ResponseOptions *ResponseOptions  `json:"responseOptions,omitempty"`
 }
 
 // Type returns the @type for JSON-LD.

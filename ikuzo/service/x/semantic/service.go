@@ -17,9 +17,9 @@ var _ domain.Service = (*Service)(nil)
 // Service provides the semantic search API.
 type Service struct {
 	store        semantic.SearchStore
-	altStore     semantic.SearchStore // optional alternate backend for runtime switching
-	storeName    string              // name of the primary store ("v2" or "es8")
-	altStoreName string              // name of the alternate store
+	altStore     semantic.SearchStore // optional alternate backend for internal experiments
+	storeName    string               // name of the primary store
+	altStoreName string               // name of the alternate store
 	introspect   semantic.IntrospectionStore
 	registry     *semantic.ConfigRegistry
 	log          zerolog.Logger
@@ -174,7 +174,7 @@ func (s *Service) handleSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Select store based on backend parameter
+	// Select the configured store.
 	store := s.resolveStore(opts)
 
 	// Execute search
@@ -265,7 +265,7 @@ func (s *Service) handleSearchPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Select store based on backend parameter
+	// Select the configured store.
 	store := s.resolveStore(opts)
 
 	// Execute search
@@ -320,9 +320,6 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Determine backend from query param or search context
-	backendParam := r.URL.Query().Get("backend")
-
 	// Check for search context token for navigation
 	contextToken := r.URL.Query().Get("context")
 	var navContext *semantic.NavigationContext
@@ -342,18 +339,12 @@ func (s *Service) handleResourceDetail(w http.ResponseWriter, r *http.Request) {
 				Err(err).
 				Msg("search context not found or expired")
 		} else {
-			// Restore backend from search context if not overridden
-			if backendParam == "" && searchCtx.Backend != "" {
-				backendParam = searchCtx.Backend
-			}
 			// Build navigation context from search context
 			navContext = s.buildNavigationContext(r, id, searchCtx)
 		}
 	}
 
-	// Build minimal opts to resolve the store
-	detailOpts := &semantic.QueryOptions{Backend: backendParam}
-	store := s.resolveStore(detailOpts)
+	store := s.resolveStore(&semantic.QueryOptions{})
 
 	// Retrieve the document
 	doc, err := store.GetByID(ctx, id, config)

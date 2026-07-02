@@ -26,9 +26,8 @@ func WithStoreName(name string) Option {
 	}
 }
 
-// WithAlternateStore registers an alternate backend that can be selected
-// at runtime via the ?backend= query parameter. The name identifies the
-// backend (e.g., "es8" if the primary is "v2", or vice versa).
+// WithAlternateStore registers an alternate backend for internal experiments.
+// Runtime backend selection is not part of the public Semantic V1 contract.
 func WithAlternateStore(name string, store semantic.SearchStore) Option {
 	return func(s *Service) error {
 		s.altStore = store

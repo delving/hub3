@@ -67,15 +67,6 @@ func (s *Service) buildCollection(
 		collection.Debug = result.Metadata
 	}
 
-	// Add backend info to metadata when a non-default backend was selected
-	if opts.Backend != "" {
-		if collection.Debug == nil {
-			collection.Debug = make(map[string]any)
-		}
-
-		collection.Debug["hub3:backend"] = opts.Backend
-	}
-
 	return collection
 }
 
@@ -430,11 +421,6 @@ func (s *Service) buildSearchURL(r *http.Request, searchCtx *semantic.SearchCont
 			key := fmt.Sprintf("filter[%s][%s]", pf.FieldName, pf.OperatorType)
 			query.Set(key, fmt.Sprintf("%v", pf.Value))
 		}
-	}
-
-	// Preserve backend selection
-	if searchCtx.Backend != "" {
-		query.Set("backend", searchCtx.Backend)
 	}
 
 	if len(query) == 0 {

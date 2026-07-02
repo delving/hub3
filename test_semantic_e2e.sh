@@ -420,51 +420,31 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────────
-echo -e "\n${BOLD}14. Backend Switching${NC}"
+echo -e "\n${BOLD}14. Backend Scope${NC}"
 # ─────────────────────────────────────────────────────────────
 
-# Default backend (no param)
 DEFAULT_SEARCH=$(api "${API}/search?query=*&size=1" || echo "error")
 if [ "$DEFAULT_SEARCH" != "error" ]; then
-    pass "Default backend search works"
+    pass "Semantic V1 search works through configured backend"
 else
-    fail "Default backend search" "request failed"
+    fail "Semantic V1 search" "request failed"
 fi
 
-# ES8 backend
-ES8_SEARCH=$(api "${API}/search?query=*&size=1&backend=es8" || echo "error")
-if [ "$ES8_SEARCH" != "error" ]; then
-    pass "ES8 backend search works (?backend=es8)"
-    # Check if debug info contains backend
-    HAS_BACKEND=$(echo "$ES8_SEARCH" | python3 -c "
+BACKEND_PARAM_SEARCH=$(api "${API}/search?query=*&size=1&backend=es8&debug=query" || echo "error")
+if [ "$BACKEND_PARAM_SEARCH" != "error" ]; then
+    HAS_BACKEND=$(echo "$BACKEND_PARAM_SEARCH" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 debug = data.get('hub3:debug', {})
 print(debug.get('hub3:backend', 'none'))
 " 2>/dev/null)
-    if [ "$HAS_BACKEND" = "es8" ]; then
-        pass "ES8 response includes backend in debug metadata"
+    if [ "$HAS_BACKEND" = "none" ]; then
+        pass "Backend request parameter is not exposed in Semantic V1 response"
     else
-        skip "Backend debug metadata" "may not be present: $HAS_BACKEND"
+        fail "Backend request parameter not exposed" "debug metadata contained $HAS_BACKEND"
     fi
 else
-    skip "ES8 backend search" "alternate backend may not be configured"
-fi
-
-# V2 backend
-V2_SEARCH=$(api "${API}/search?query=*&size=1&backend=v2" || echo "error")
-if [ "$V2_SEARCH" != "error" ]; then
-    pass "V2 backend search works (?backend=v2)"
-else
-    skip "V2 backend search" "v2 backend may not be configured as alternate"
-fi
-
-# Invalid backend should return 400
-BAD_BACKEND_STATUS=$(http_status "${API}/search?query=*&backend=invalid")
-if [ "$BAD_BACKEND_STATUS" = "400" ]; then
-    pass "Invalid backend returns 400"
-else
-    fail "Invalid backend returns 400" "got HTTP $BAD_BACKEND_STATUS"
+    fail "Backend parameter compatibility request" "request failed"
 fi
 
 # ─────────────────────────────────────────────────────────────

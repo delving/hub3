@@ -294,27 +294,18 @@ The context indices are additional Elasticsearch indices that will be included i
 
 ---
 
-## 10. Backend Switching
+## 10. Backend Scope
 
-During the migration period, both the V2 adapter and native ES8 backends are available.
-You can select the backend per-request:
+Semantic V1 currently wraps the existing V2 search implementation and returns
+JSON-LD/Hydra responses. Clients do not select a backend per request.
 
 ```
-# Use native ES8 backend
-/api/semantic/v1/search?query=rembrandt&backend=es8
-
-# Use V2 adapter backend
-/api/semantic/v1/search?query=rembrandt&backend=v2
-
-# Use default (server-configured)
 /api/semantic/v1/search?query=rembrandt
 ```
 
-The backend choice is preserved in search contexts. When navigating from search results
-to detail views via `?context=token`, the same backend is used automatically.
-
-When `debug=query` is set, the response includes `hub3:backend` in the debug metadata
-to confirm which backend handled the request.
+Native Elasticsearch backend work is future development. It must preserve the
+same Semantic V1 request and response contract before it can replace the V2
+adapter.
 
 ---
 
@@ -384,17 +375,19 @@ The API handles this conversion automatically. Use the underscore form in query 
 
 ---
 
-## Appendix: D4 Removal Preparation Checklist
+## Appendix: Future Native Backend Notes
 
-When all frontend applications have been migrated to the Semantic V1 API, the following V2 components can be removed.
+When all frontend applications have been migrated to the Semantic V1 API, a later
+native-backend project can decide whether to remove the V2 adapter. That work is
+outside the current wrapper delivery scope.
 
-### Pre-Removal Conditions
+### Future Preconditions
 
 - [ ] All frontend apps confirmed migrated to Semantic V1
 - [ ] Zero V2 API traffic for 2+ weeks (verify via access logs)
-- [ ] ES8 backend stable in production for 2+ weeks
+- [ ] Native backend implements the accepted Semantic V1 contract
+- [ ] Native backend stable in production for 2+ weeks
 - [ ] Cross-index search (`contextIndex`) working on Semantic V1
-- [ ] Backend switching (`?backend=`) no longer needed (all traffic on ES8)
 
 ### Packages to Remove
 
@@ -408,7 +401,7 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 
 | File | Change |
 |---|---|
-| `ikuzo/ikuzoctl/cmd/config/semantic.go` | Remove V2 adapter creation, `olivere` client setup, and `UseV2Adapter` flag. Keep only ES8 backend. Remove `WithAlternateStore` call. |
+| `ikuzo/ikuzoctl/cmd/config/semantic.go` | Remove V2 adapter creation, `olivere` client setup, and `UseV2Adapter` flag once a native backend has replaced it. |
 
 ### Routes to Remove
 
@@ -420,9 +413,8 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 
 | File | Change |
 |---|---|
-| `ikuzo/service/x/semantic/service.go` | Remove `altStore`, `altStoreName`, `resolveStore()`, `HasAlternateStore()` |
-| `ikuzo/service/x/semantic/options.go` | Remove `WithAlternateStore()`, `WithStoreName()` |
-| `ikuzo/service/x/semantic/parser.go` | Remove `backend` parameter parsing |
+| `ikuzo/service/x/semantic/service.go` | Remove internal alternate-store hooks if future native-backend experiments no longer need them |
+| `ikuzo/service/x/semantic/options.go` | Remove `WithAlternateStore()` if unused |
 | `ikuzo/domain/semantic/query.go` | Remove `Backend` field from `QueryOptions` |
 | `ikuzo/domain/semantic/pagination.go` | Remove `Backend` field from `SearchContext` |
 
@@ -437,8 +429,8 @@ When all frontend applications have been migrated to the Semantic V1 API, the fo
 1. Verify all pre-removal conditions are met
 2. Remove V2 adapter package (`ikuzo/storage/x/v2adapter/`)
 3. Remove old ES store files
-4. Update `semantic.go` config to remove V2 adapter branch and alternate store
-5. Clean up backend switching code from semantic service (optional — can keep for future use)
+4. Update `semantic.go` config to use the replacement backend
+5. Clean up any internal backend experiment hooks that are no longer needed
 6. Remove V2 search routes from `hub3/server/http/handlers/search.go`
 7. Run `go build ./...` and `go test ./...` to verify
 8. Deploy to staging and verify no regressions

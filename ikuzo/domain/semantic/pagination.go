@@ -94,13 +94,13 @@ func (pcv *PartialCollectionView) Type() string {
 
 // PaginationInfo contains metadata about pagination state.
 type PaginationInfo struct {
-	CurrentPage  int    `json:"currentPage"`
-	PageSize     int    `json:"pageSize"`
-	TotalPages   int    `json:"totalPages"`
-	TotalItems   int64  `json:"totalItems"`
-	HasNext      bool   `json:"hasNext"`
-	HasPrevious  bool   `json:"hasPrevious"`
-	NextCursor   string `json:"nextCursor,omitempty"`
+	CurrentPage int    `json:"currentPage"`
+	PageSize    int    `json:"pageSize"`
+	TotalPages  int    `json:"totalPages"`
+	TotalItems  int64  `json:"totalItems"`
+	HasNext     bool   `json:"hasNext"`
+	HasPrevious bool   `json:"hasPrevious"`
+	NextCursor  string `json:"nextCursor,omitempty"`
 }
 
 // CalculatePaginationInfo calculates pagination metadata.
@@ -118,12 +118,12 @@ func CalculatePaginationInfo(pagination *Pagination, totalItems int64) *Paginati
 	}
 
 	return &PaginationInfo{
-		CurrentPage:  currentPage,
-		PageSize:     pageSize,
-		TotalPages:   totalPages,
-		TotalItems:   totalItems,
-		HasNext:      currentPage < totalPages,
-		HasPrevious:  currentPage > 1,
+		CurrentPage: currentPage,
+		PageSize:    pageSize,
+		TotalPages:  totalPages,
+		TotalItems:  totalItems,
+		HasNext:     currentPage < totalPages,
+		HasPrevious: currentPage > 1,
 	}
 }
 
@@ -186,8 +186,8 @@ type SearchContext struct {
 	ResultIDs    []string      `json:"-"` // Ordered list of result IDs
 	TotalResults int64         `json:"totalResults"`
 	ExpiresAt    string        `json:"expiresAt,omitempty"`
-	// Backend records which backend was used for the original search,
-	// so that detail navigation stays on the same backend.
+	// Backend is retained for internal experiments and legacy contexts. It is
+	// not exposed by the current Semantic V1 request contract.
 	Backend string `json:"backend,omitempty"`
 }
 
@@ -210,16 +210,16 @@ func (sc *SearchContext) ExtendTTL() {
 
 // NavigationContext represents navigation through search results at item level.
 type NavigationContext struct {
-	TypeValue      string `json:"@type,omitempty"`
-	Position       int    `json:"position"`
-	TotalResults   int64  `json:"totalResults"`
-	HasNext        bool   `json:"hasNext"`
-	HasPrevious    bool   `json:"hasPrevious"`
-	First          string `json:"hydra:first,omitempty"`
-	Previous       string `json:"hydra:previous,omitempty"`
-	Next           string `json:"hydra:next,omitempty"`
-	Last           string `json:"hydra:last,omitempty"`
-	BackToSearch   string `json:"hub3:backToSearch,omitempty"`
+	TypeValue    string `json:"@type,omitempty"`
+	Position     int    `json:"position"`
+	TotalResults int64  `json:"totalResults"`
+	HasNext      bool   `json:"hasNext"`
+	HasPrevious  bool   `json:"hasPrevious"`
+	First        string `json:"hydra:first,omitempty"`
+	Previous     string `json:"hydra:previous,omitempty"`
+	Next         string `json:"hydra:next,omitempty"`
+	Last         string `json:"hydra:last,omitempty"`
+	BackToSearch string `json:"hub3:backToSearch,omitempty"`
 }
 
 // Type returns the @type for JSON-LD.

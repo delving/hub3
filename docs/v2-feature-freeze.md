@@ -12,12 +12,14 @@ This document catalogs every V2 parameter, its semantic V1 equivalent, and curre
 Frontend teams should use this as a reference when migrating to the semantic API.
 See [v2-to-semantic-migration-guide.md](v2-to-semantic-migration-guide.md) for step-by-step migration instructions.
 
-## Runtime Backend Switching
+## Current Semantic V1 Backend Scope
 
-During the migration period, both backends coexist. Use `?backend=v2` or `?backend=es8`
-on any semantic V1 endpoint to select the backend per-request. The default backend is
-determined by server configuration. The backend choice is preserved in search contexts
-for consistent navigation.
+Semantic V1 is delivered as a JSON-LD/Hydra wrapper around the existing V2 search
+implementation. Native Elasticsearch backend work is future development and is not
+part of the current public API contract.
+
+Clients should call `/api/semantic/v1` without selecting an implementation backend.
+The server uses the V2 adapter internally.
 
 ## Parameter Mapping
 
@@ -124,13 +126,12 @@ for consistent navigation.
 |---|---|---|
 | `contextIndex=idx` | `contextIndex=idx` | **Mapped** — identical parameter name |
 
-### Backend Selection (New in Semantic V1)
+### New Semantic V1 Capabilities
 
 These parameters are new in the Semantic V1 API and have no V2 equivalent:
 
 | Semantic V1 Parameter | Description |
 |---|---|
-| `backend=v2\|es8` | Select search backend per-request |
 | `include=relatedItems` | Include related items in detail view |
 | `detailLevel=full\|summary` | Control detail level in responses |
 
