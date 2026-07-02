@@ -213,7 +213,7 @@ func TestBuildQuery(t *testing.T) {
 		log: zerolog.Nop(),
 	}
 
-	config := semantic.CreativeWorkConfig()
+	config := semantic.CHOConfig()
 
 	tests := []struct {
 		name string
@@ -270,7 +270,7 @@ func TestBuildFacetAggregation(t *testing.T) {
 		log: zerolog.Nop(),
 	}
 
-	config := semantic.CreativeWorkConfig()
+	config := semantic.CHOConfig()
 
 	tests := []struct {
 		name    string
@@ -280,7 +280,7 @@ func TestBuildFacetAggregation(t *testing.T) {
 		{
 			name: "enum facet",
 			facet: semantic.FacetRequest{
-				Field: "type",
+				Field: "dc:type",
 				Limit: 20,
 			},
 			wantNil: false,
@@ -288,7 +288,7 @@ func TestBuildFacetAggregation(t *testing.T) {
 		{
 			name: "range facet",
 			facet: semantic.FacetRequest{
-				Field: "dateCreated",
+				Field: "dc:date",
 				Limit: 10,
 			},
 			wantNil: false,
