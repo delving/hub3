@@ -135,12 +135,20 @@ func (bc *BaseConverter) GetQueryReplacers(reverse bool) map[string]string {
 		replacers["icn_"] = "nave_"
 		replacers["abm_"] = "nave_"
 		replacers["delving_"] = "nave_"
-		replacers["rda_"] = "rdag2_"
 	} else {
 		// Use custom replacers from config
 		for k, v := range bc.QueryReplacers {
 			replacers[k] = v
 		}
+	}
+
+	// rda_ -> rdag2_ is an indexing invariant, not a converter-specific prefix
+	// preference: the Go-indexer always stores the rdvocab.info/ElementsGr2
+	// namespace under rdag2_. Force it for every converter so a config that
+	// overrides query_replacers can't silently drop it (a config may still
+	// override it explicitly by setting "rda_").
+	if _, ok := replacers["rda_"]; !ok {
+		replacers["rda_"] = "rdag2_"
 	}
 
 	// If reverse requested, swap keys and values

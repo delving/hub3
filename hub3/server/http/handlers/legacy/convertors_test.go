@@ -586,6 +586,60 @@ record_type = "mdr"
 	is.Equal("prod_env=staging", customConverter.ReplaceQueryString("test_env=staging", false))
 }
 
+// Regression test for EB-Service #2828: the rda_ -> rdag2_ mapping must be
+// applied for every converter, including ones whose config overrides
+// query_replacers. Previously a config-supplied replacer set replaced the
+// defaults wholesale, silently dropping rda_ -> rdag2_ and making rda_*_facet
+// queries return 0 results.
+func TestRdaQueryReplacerAlwaysApplied(t *testing.T) {
+	is := is.New(t)
+
+	tempDir := t.TempDir()
+	configPath := filepath.Join(tempDir, "rda-config.toml")
+
+	config := `
+[base]
+mappings = []
+
+[delving]
+mappings = []
+
+[converters.custom]
+key = "custom"
+namespace = "http://example.org/"
+mappings = []
+query_replacers = { "foo_" = "bar_" }
+
+[defaults]
+record_type = "mdr"
+`
+	err := os.WriteFile(configPath, []byte(config), 0o644)
+	is.NoErr(err)
+
+	cm, err := NewConfigManager(configPath)
+	is.NoErr(err)
+
+	conv, err := NewConverterWithConfig(
+		cm,
+		"custom",
+		"http://example.org/resource/test/123",
+		"test-org",
+	)
+	is.NoErr(err)
+
+	// rda_ -> rdag2_ is forced even though the config only declares foo_
+	is.Equal("rdag2_gender_facet=Man", conv.ReplaceQueryString("rda_gender_facet=Man", false))
+
+	// the converter's own custom replacer still works
+	is.Equal("bar_field=value", conv.ReplaceQueryString("foo_field=value", false))
+
+	// unrelated defaults are NOT injected: tib_ has no replacer here
+	is.Equal("tib_material=Canvas", conv.ReplaceQueryString("tib_material=Canvas", false))
+
+	// reverse maps rdag2_ back to rda_
+	is.Equal("rda_gender_facet=Man", conv.ReplaceQueryString("rdag2_gender_facet=Man", true))
+}
+
 // Test the ParseConverterType and RegisterWithTypeString functions
 func TestConverterTypeFromString(t *testing.T) {
 	is := is.New(t)
