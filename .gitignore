@@ -95,3 +95,15 @@ pdf/*.pdf
 
 # local environment overrides (e.g. HUB3_CONFIG for .air.toml)
 .env
+
+# local artifacts and machine-specific data (kept out of git)
+.codegraph/
+configs/
+output/
+_authxml_records.xml.gz
+docs/archive/
+
+# compiled binaries
+ikuzo/ikuzoctl/ikuzoctl
+tools/cmd/index_narthex/index_narthex
+*.test
