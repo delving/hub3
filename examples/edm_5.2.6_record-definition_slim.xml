@@ -1,0 +1,1060 @@
+<?xml version="1.0"?>
+<record-definition prefix="edm" version="5.2.6" flat="false">
+  <namespaces>
+    <namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/"/>
+    <namespace prefix="dcterms" uri="http://purl.org/dc/terms/"/>
+    <namespace prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <namespace prefix="owl" uri="http://www.w3.org/2002/07/owl#"/>
+    <namespace prefix="ebucore" uri="http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#"/>
+    <namespace prefix="edm" uri="http://www.europeana.eu/schemas/edm/"/>
+    <namespace prefix="ore" uri="http://www.openarchives.org/ore/terms/"/>
+    <namespace prefix="skos" uri="http://www.w3.org/2004/02/skos/core#"/>
+    <namespace prefix="foaf" uri="http://xmlns.com/foaf/0.1/"/>
+    <namespace prefix="rdaGr2" uri="http://rdvocab.info/ElementsGr2/"/>
+    <namespace prefix="wgs84_pos" uri="http://www.w3.org/2003/01/geo/wgs84_pos#"/>
+    <namespace prefix="cc" uri="https://creativecommons.org/ns#"/>
+    <namespace prefix="nave" uri="http://schemas.delving.eu/nave/terms/"/>
+    <namespace prefix="schema" uri="https://schema.org/"/>
+  </namespaces>
+  <!--<namespaces>-->
+  <!--<namespace prefix="dc" uri="http://purl.org/dc/elements/1.1/"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/DC.xsd"/>-->
+  <!--<namespace prefix="dcterms" uri="http://purl.org/dc/terms/"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/DCTERMS.xsd"/>-->
+  <!--<namespace prefix="rdf" uri="http://www.w3.org/1999/02/22-rdf-syntax-ns#"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/OWL.xsd"/>-->
+  <!--<namespace prefix="owl" uri="http://www.w3.org/2002/07/owl#"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/OWL.xsd"/>-->
+  <!--<namespace prefix="ebucore" uri="urn:ebu:metadata-schema:ebuCore_2014"-->
+  <!--schema="http://www.ebu.ch/metadata/schemas/EBUCore/20140318/EBU_CORE_20140318.xsd"/>-->
+  <!--<namespace prefix="edm" uri="http://www.europeana.eu/schemas/edm/"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/EDM-COMMON-MAIN.xsd"/>-->
+  <!--<namespace prefix="ore" uri="http://www.openarchives.org/ore/terms/"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/ORE.xsd"/>-->
+  <!--<namespace prefix="skos" uri="http://www.w3.org/2004/02/skos/core#"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/SKOS.xsd"/>-->
+  <!--<namespace prefix="foaf" uri="http://xmlns.com/foaf/0.1/"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/FOAF.xsd"/>-->
+  <!--<namespace prefix="rdaGr2" uri="http://rdvocab.info/ElementsGr2/"/>-->
+  <!--<namespace prefix="wgs84_pos" uri="http://www.w3.org/2003/01/geo/wgs84_pos#"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/WGS84.xsd"/>-->
+  <!--<namespace prefix="cc" uri="https://creativecommons.org/ns#"-->
+  <!--schema="http://www.europeana.eu/schemas/edm/CC.xsd"/>-->
+  <!--<namespace prefix="nave" uri="http://schemas.delving.eu/nave/terms/" schema="nave-1.0.xsd"/>-->
+  <!--</namespaces>-->
+  <functions>
+    <mapping-function name="convertToUTM">
+      <groovy-code>
+        <string>def utmOut = true</string>
+        <string>String string = it.toString()</string>
+        <string>def sridMatcher = (~/\s*SRID=(\d+);POINT\((\d+)[, ](\d+)\)/).matcher(string)</string>
+        <string>def utm33Matcher = (~/(\d+) V (\d+\.\d+|\d+) *(\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>def commaMatcher = (~/(\d+\.\d+|\d+), *(\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>def spaceMatcher = (~/(\d+\.\d+|\d+) (\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>if (sridMatcher.matches()) {</string>
+        <string>def id = sridMatcher[0][1].toInteger()</string>
+        <string>def zone = id % 100</string>
+        <string>def east = sridMatcher[0][2].toDouble()</string>
+        <string>def north = sridMatcher[0][3].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"${it}"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, zone).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (utm33Matcher.matches()) {</string>
+        <string>def zone = utm33Matcher[0][1].toInteger()</string>
+        <string>def east = utm33Matcher[0][2].toDouble()</string>
+        <string>def north = utm33Matcher[0][3].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"SRID=326${zone};POINT(${east},${north})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, zone).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (spaceMatcher.matches()) {</string>
+        <string>def east = spaceMatcher[0][1].toDouble()</string>
+        <string>def north = spaceMatcher[0][2].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"SRID=32633;POINT(${east},${north})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, 33).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (commaMatcher.matches()) {</string>
+        <string>def latitude = commaMatcher[0][1].toDouble()</string>
+        <string>def longitude = commaMatcher[0][2].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>uk.me.jstott.jcoord.UTMRef utmValue = new uk.me.jstott.jcoord.LatLng(latitude,longitude).toUTMRef()</string>
+        <string>"SRID=326${utmValue.lngZone};POINT(${utmValue.easting},${utmValue.northing})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>"${latitude},${longitude}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>''</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="convertToLATLONG">
+      <groovy-code>
+        <string>def utmOut = false</string>
+        <string>String string = it.toString()</string>
+        <string>def sridMatcher = (~/\s*SRID=(\d+);POINT\((\d+)[, ](\d+)\)/).matcher(string)</string>
+        <string>def utm33Matcher = (~/(\d+) V (\d+\.\d+|\d+) *(\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>def commaMatcher = (~/(\d+\.\d+|\d+), *(\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>def spaceMatcher = (~/(\d+\.\d+|\d+) (\d+\.\d+|\d+)/).matcher(string)</string>
+        <string>if (sridMatcher.matches()) {</string>
+        <string>def id = sridMatcher[0][1].toInteger()</string>
+        <string>def zone = id % 100</string>
+        <string>def east = sridMatcher[0][2].toDouble()</string>
+        <string>def north = sridMatcher[0][3].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"${it}"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, zone).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (utm33Matcher.matches()) {</string>
+        <string>def zone = utm33Matcher[0][1].toInteger()</string>
+        <string>def east = utm33Matcher[0][2].toDouble()</string>
+        <string>def north = utm33Matcher[0][3].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"SRID=326${zone};POINT(${east},${north})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, zone).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (spaceMatcher.matches()) {</string>
+        <string>def east = spaceMatcher[0][1].toDouble()</string>
+        <string>def north = spaceMatcher[0][2].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>"SRID=32633;POINT(${east},${north})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>uk.me.jstott.jcoord.LatLng latlng = new uk.me.jstott.jcoord.UTMRef(east, north, 'V' as char, 33).toLatLng()</string>
+        <string>"${latlng.lat},${latlng.lng}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else if (commaMatcher.matches()) {</string>
+        <string>def latitude = commaMatcher[0][1].toDouble()</string>
+        <string>def longitude = commaMatcher[0][2].toDouble()</string>
+        <string>if (utmOut) {</string>
+        <string>uk.me.jstott.jcoord.UTMRef utmValue = new uk.me.jstott.jcoord.LatLng(latitude,longitude).toUTMRef()</string>
+        <string>"SRID=326${utmValue.lngZone};POINT(${utmValue.easting},${utmValue.northing})"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>"${latitude},${longitude}"</string>
+        <string>}</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>''</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="cleanAdlibImageReference">
+      <sample-input>
+        <string>..\..\..\Images PH\OKS 1989-001 [01].JPG</string>
+        <string>../../../Images PH/OKS 1989-001 [01].JPG</string>
+      </sample-input>
+      <groovy-code>
+        <string>it.replaceAll('; ', '_').replaceAll('JPG', 'jpg').replaceAll(".*?[\\\\|//]", "").replaceAll(" ", "%20").replaceAll("\\[", "%5B").replaceAll("]", "%5D")</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="createOreAggregationUri">
+      <sample-input>
+        <string>00001</string>
+      </sample-input>
+      <groovy-code>
+        <string>"${baseUrl}/resource/aggregation/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="createEDMAgentUri">
+      <sample-input>
+        <string>Heidi Rafto</string>
+      </sample-input>
+      <groovy-code>
+        <string>StringBuilder out = new StringBuilder()</string>
+        <string>for (char c : it.toString().chars) {</string>
+        <string>switch (c) {</string>
+        <string>case ' ':</string>
+        <string>out.append('%20')</string>
+        <string>break;</string>
+        <string>case '[':</string>
+        <string>out.append('%5B')</string>
+        <string>break;</string>
+        <string>case ']':</string>
+        <string>out.append('%5D')</string>
+        <string>break;</string>
+        <string>case '\\':</string>
+        <string>out.append('%5C')</string>
+        <string>break;</string>
+        <string>default:</string>
+        <string>out.append(c);</string>
+        <string>}</string>
+        <string>}</string>
+        <string>identifier = out.toString()</string>
+        <string>"${baseUrl}/resource/agent/${spec}/${identifier}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="createEDMPlaceUri">
+      <groovy-code>
+        <string>StringBuilder out = new StringBuilder()</string>
+        <string>for (char c : it.toString().chars) {</string>
+        <string>switch (c) {</string>
+        <string>case ' ':</string>
+        <string>out.append('%20')</string>
+        <string>break;</string>
+        <string>case '[':</string>
+        <string>out.append('%5B')</string>
+        <string>break;</string>
+        <string>case ']':</string>
+        <string>out.append('%5D')</string>
+        <string>break;</string>
+        <string>case '\\':</string>
+        <string>out.append('%5C')</string>
+        <string>break;</string>
+        <string>default:</string>
+        <string>out.append(c);</string>
+        <string>}</string>
+        <string>}</string>
+        <string>identifier = out.toString()</string>
+        <string>"${baseUrl}/resource/place/${spec}/${identifier}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="deepZoomUrl">
+      <sample-input>
+        <string>D:/Documents/Schilderij/010.jpg</string>
+      </sample-input>
+      <groovy-code>
+        <string>image = it.toString().replaceAll('^.*[\\/|\\\\]','').replaceAll('(?i)\\.jpg|\\.jpeg|\\.tif|\\.tiff|\\.png|\\.gif','.tif.dzi')</string>
+        <string>"http://media.delving.org/iip/deepzoom/mnt/tib/tiles/${orgId}/${spec}/${image}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="isShownAt">
+      <sample-input>
+        <string>123</string>
+      </sample-input>
+      <groovy-code>
+        <string>"http://www.thuisinbrabant.nl/${spec}/${it}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="largeThumbnail">
+      <sample-input>
+        <string>D:/Documents/Schilderij/010.jpg</string>
+      </sample-input>
+      <groovy-code>
+        <string>"http://media.delving.org/thumbnail/brabantcloud/${spec}/${it.replaceAll('^.*[\\/|\\\\]','').replaceAll('(?i)\\.jpg|\\.jpeg|\\.tif|\\.tiff|\\.png|\\.gif', '')}/500"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="lowercase">
+      <sample-input>
+        <string>Bla bla</string>
+        <string>BLA bla bla</string>
+      </sample-input>
+      <groovy-code>
+        <string>"${it.toString().toLowerCase()}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="reverseNames">
+      <sample-input>
+        <string>Sjoerd Siebinga</string>
+        <string>Siebinga, Sjoerd</string>
+        <string>Siebinga, Sjoerd Michiel</string>
+      </sample-input>
+      <groovy-code>
+        <string>parts = it.toString().split(",")</string>
+        <string>if (parts.length &gt; 1) {</string>
+        <string>"${parts[1].trim()} ${parts[0]}"</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>"${it}"</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="smallThumbnail">
+      <groovy-code>
+        <string>"http://media.delving.org/thumbnail/${orgId}/${spec}/${it.replaceAll('^.*[\\/|\\\\]','').replaceAll('(?i)\\.jpg|\\.jpeg|\\.tif|\\.tiff|\\.png|\\.gif', '')}/180"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="toLocalId">
+      <sample-input>
+        <string>1231231</string>
+        <string>232455</string>
+        <string>12345</string>
+      </sample-input>
+      <groovy-code>
+        <string>"${spec}/${it}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="createImageRedirect">
+      <sample-input>
+        <string>http://afrikamuseum.cithosting.nl/imageproxy.asp?server=62.221.199.184&amp;port=12842&amp;filename=afrika/screen/100-1.jpg</string>
+      </sample-input>
+      <groovy-code>
+        <string>resource = java.net.URLEncoder.encode(it)</string>
+        <string>"${baseUrl}/resolve/${resource}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="reverseNamesCorrected">
+      <sample-input>
+        <string>Siebinga, Sjoerd</string>
+        <string>Wichard, Frits (toegeschreven)</string>
+      </sample-input>
+      <groovy-code>
+        <string>parts = it.toString().split(',')</string>
+        <string>if (parts.length &gt; 1) {</string>
+        <string>"${parts1.trim()} ${parts0}".replaceAll("(.*)(\\(.*?\\))(.*)", "\$1 \$3 \$2").replaceAll("[\\s]{2,5}", " ")</string>
+        <string>}</string>
+        <string>else {</string>
+        <string>"${it}"</string>
+        <string>}</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="create_geoname_uri">
+      <sample-input>
+        <string>123</string>
+      </sample-input>
+      <groovy-code>
+        <string>"http://sws.geonames.org/${it}"</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="remove_whitespace">
+      <sample-input>
+        <string>sjoerd cris</string>
+        <string>1980 -</string>
+        <string>sjoerd</string>
+      </sample-input>
+      <groovy-code>
+        <string>"${it}".replaceAll("[ ]{2,15}", " ").replaceAll(" \$", "")</string>
+      </groovy-code>
+    </mapping-function>
+    <mapping-function name="switch_dates">
+      <sample-input>
+        <string>1970-10-01</string>
+        <string>1970</string>
+        <string>1970-10</string>
+        <string>1970-00</string>
+      </sample-input>
+      <groovy-code>
+        <string>def items = it.split("-")</string>
+        <string>if (items.size() &gt; 2) {"${items[2]}-${items[1]}-${items[0]}".replace("00-", "")}</string>
+        <string>else if (items.size() &gt; 1) {"${items[1]}-${items[0]}".replace("00-", "")}</string>
+        <string>else if (items.size() == 1) {"${items[0]}".replace("00-", "")}</string>
+      </groovy-code>
+    </mapping-function>
+  </functions>
+  <attrs>
+    <attr tag="rdf:about" uriCheck="true"/>
+    <attr tag="rdf:resource"/>
+    <attr tag="rdf:datatype"/>
+    <attr tag="rdf:type"/>
+    <attr tag="xml:lang"/>
+  </attrs>
+  <root tag="RDF">
+    <!--edm:ProvidedCHO-->
+    <node-mapping inputPath="/input"/>
+    <elem tag="ore:Aggregation">
+      <attr tag="rdf:about" uriCheck="true">
+        <node-mapping inputPath="/input">
+          <groovy-code>
+            <string>"${baseUrl}/resource/aggregation/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+          </groovy-code>
+        </node-mapping>
+      </attr>
+      <elem tag="edm:aggregatedCHO">
+        <attr tag="rdf:resource" uriCheck="true">
+          <!-- ref only -->
+          <node-mapping inputPath="/input">
+            <groovy-code>
+              <string>"${baseUrl}/resource/document/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+            </groovy-code>
+          </node-mapping>
+        </attr>
+      </elem>
+      <elem tag="edm:dataProvider" attrs="rdf:resource"/>
+      <elem tag="edm:hasView" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isShownAt" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isShownBy" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:object" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:provider" attrs="rdf:resource"/>
+      <elem tag="dc:rights" attrs="rdf:resource"/>
+      <elem tag="ore:aggregates" attrs="rdf:resource"/>
+      <elem tag="edm:rights" unmappable="true">
+        <!-- ref only -->
+        <attr tag="rdf:resource" uriCheck="true"/>
+      </elem>
+      <elem tag="edm:ugc"/>
+      <elem tag="nave:pid" attrs="rdf:resource"/>
+    </elem>
+    <!--edm:ProvidedCHO-->
+    <elem tag="edm:ProvidedCHO">
+      <attr tag="rdf:about" uriCheck="true">
+        <node-mapping inputPath="/input">
+          <groovy-code>
+            <string>"${baseUrl}/resource/document/${spec}/${_uniqueIdentifier.sanitizeURI()}"</string>
+          </groovy-code>
+        </node-mapping>
+      </attr>
+      <elem tag="dc:contributor" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:coverage" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:creator" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:date" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:description" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:format" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:identifier"/>
+      <elem tag="dc:language"/>
+      <elem tag="dc:publisher" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:relation" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:rights" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:source" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:subject" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:title" attrs="xml:lang"/>
+      <elem tag="dc:type" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:alternative" attrs="xml:lang"/>
+      <elem tag="dcterms:conformsTo" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:created" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:extent" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:hasFormat" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:hasPart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:hasVersion" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isFormatOf" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isPartOf" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isReferencedBy" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isReplacedBy" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isRequiredBy" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:issued" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:isVersionOf" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:medium" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:provenance" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:references" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:replaces" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:requires" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:spatial" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:tableOfContents" attrs="xml:lang"/>
+      <elem tag="dcterms:temporal" attrs="rdf:resource,xml:lang"/>
+      <elem tag="edm:type"/>
+      <elem tag="edm:currentLocation" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:hasMet" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:hasType" attrs="rdf:resource"/>
+      <elem tag="edm:incorporates" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isDerivativeOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isNextInSequence" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isRelatedTo" attrs="rdf:resource"/>
+      <elem tag="edm:isRepresentationOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isSimilarTo" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isSuccessorOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:realizes" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="owl:sameAs" attrs="rdf:resource"/>
+    </elem>
+    <!--  edm:WebResource -->
+    <elem tag="edm:WebResource" attrs="rdf:about">
+      <elem tag="dc:creator" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:description" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dc:format" attrs="rdf:resource"/>
+      <elem tag="dc:rights" attrs="rdf:resource"/>
+      <elem tag="dc:source" attrs="rdf:resource"/>
+      <elem tag="dcterms:conformsTo" attrs="rdf:resource"/>
+      <elem tag="dcterms:created" attrs="rdf:resource"/>
+      <elem tag="dcterms:extent" attrs="rdf:resource"/>
+      <elem tag="dcterms:hasPart" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="dcterms:isFormatOf" attrs="rdf:resource"/>
+      <elem tag="dcterms:isPartOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="dcterms:issued"/>
+      <elem tag="edm:isNextInSequence" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:rights" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="owl:sameAs" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <!--extension?-->
+      <elem tag="rdf:type" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:codecName"/>
+      <elem tag="ebucore:hasMimeType"/>
+      <elem tag="ebucore:fileByteSize"/>
+      <elem tag="ebucore:duration"/>
+      <elem tag="ebucore:width"/>
+      <elem tag="ebucore:height"/>
+      <elem tag="edm:spatialResolution"/>
+      <elem tag="ebucore:SampleSize"/>
+      <elem tag="ebucore:SampleRate"/>
+      <elem tag="ebucore:bitRate"/>
+      <elem tag="ebucore:frameRate"/>
+      <elem tag="edm:hasColorSpace"/>
+      <elem tag="edm:componentColor"/>
+      <elem tag="ebucore:orientation"/>
+      <elem tag="ebucore:audiochannelNumber"/>
+      <!-- delving specific elements -->
+      <elem tag="nave:deepZoomUrl"/>
+      <elem tag="nave:fullTextObjectUrl" uriCheck="true"/>
+      <elem tag="nave:fullText"/>
+      <elem tag="nave:resourceSortOrder"/>
+      <elem tag="nave:thumbSmall"/>
+      <elem tag="nave:thumbMedium"/>
+      <elem tag="nave:thumbLarge"/>
+      <elem tag="nave:sourceDownload"/>
+      <elem tag="nave:allowDeepZoom">
+        <!-- boolean -->
+      </elem>
+      <elem tag="nave:allowSourceDownload">
+        <!-- boolean -->
+      </elem>
+      <elem tag="nave:allowPublicWebView">
+        <!-- boolean -->
+      </elem>
+    </elem>
+    <!--  edm:Agent -->
+    <elem tag="edm:Agent" attrs="rdf:about">
+      <elem tag="skos:prefLabel" attrs="xml:lang"/>
+      <elem tag="skos:altLabel" attrs="xml:lang"/>
+      <elem tag="skos:note" attrs="xml:lang"/>
+      <elem tag="dc:date" attrs="rdf:resource"/>
+      <elem tag="dc:identifier"/>
+      <elem tag="dc:type" attrs="rdf:resource,xml:lang"/>
+      <elem tag="dcterms:hasPart" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="dcterms:isPartOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:begin"/>
+      <elem tag="edm:end"/>
+      <elem tag="edm:hasMet" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isRelatedTo" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="foaf:name" attrs="xml:lang"/>
+      <elem tag="rdaGr2:biographicalInformation" attrs="xml:lang"/>
+      <elem tag="nave:bibliographicalInformation" attrs="xml:lang"/>
+      <elem tag="nave:age" attrs="xml:lang"/>
+      <elem tag="nave:ageRange" attrs="xml:lang"/>
+      <elem tag="rdaGr2:dateOfBirth"/>
+      <elem tag="rdaGr2:dateOfDeath"/>
+      <elem tag="rdaGr2:dateOfEstablishment"/>
+      <elem tag="rdaGr2:dateOfTermination"/>
+      <elem tag="rdaGr2:gender" attrs="xml:lang"/>
+      <elem tag="rdaGr2:placeOfBirth" attrs="rdf:resource"/>
+      <elem tag="rdaGr2:placeOfDeath" attrs="rdf:resource"/>
+      <elem tag="rdaGr2:professionOrOccupation" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:religion" attrs="rdf:resource,xml:lang"/>
+      <elem tag="owl:sameAs" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <!-- delving specific -->
+      <elem tag="nave:agentType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:cemetary" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:deceasedNote" attrs="xml:lang"/>
+      <elem tag="nave:firstName" attrs="xml:lang"/>
+      <elem tag="nave:surname" attrs="xml:lang"/>
+      <elem tag="nave:surnamePrefix" attrs="xml:lang"/>
+      <elem tag="nave:dateOfBurial"/>
+      <elem tag="nave:periodOfLife" attrs="xml:lang"/>
+      <elem tag="nave:placeOfBurial" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:placeOfPublication" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:relationNote" attrs="xml:lang"/>
+      <elem tag="nave:relationType" attrs="xml:lang"/>
+      <elem tag="nave:relationFirstName" attrs="xml:lang"/>
+      <elem tag="nave:relationSurname" attrs="xml:lang"/>
+      <elem tag="nave:relationSurnamePrefix" attrs="xml:lang"/>
+      <elem tag="nave:creatorLabel" attrs="xml:lang"/>
+      <elem tag="nave:corporativeAuthorLabel" attrs="xml:lang"/>
+      <elem tag="nave:publisherLabel" attrs="xml:lang"/>
+      <elem tag="nave:depictedSubjectLabel" attrs="xml:lang"/>
+      <elem tag="nave:organisationLabel" attrs="xml:lang"/>
+      <elem tag="nave:subjectDepictedLabel" attrs="xml:lang"/>
+      <elem tag="nave:deceasedLabel" attrs="xml:lang"/>
+      <elem tag="nave:relatedToDeceasedLabel" attrs="xml:lang"/>
+    </elem>
+    <!--<elem tag="edm:Organisation" attrs="rdf:about">-->
+    <!--<elem tag="dc:identifier" attrs="rdf:resource"/>-->
+    <!--<elem tag="skos:prefLabel" attrs="xml:lang"/>-->
+    <!--<elem tag="skos:altLabel" attrs="xml:lang"/>-->
+    <!--<elem tag="edm:acronym" attrs="xml:lang"/>-->
+    <!--<elem tag="edm:organisationScope" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="edm:organisationDomain" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="edm:organisationSector" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="edm:geograhpicLevel" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="edm:country" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="edm:europeanaRole" attrs="rdf:resource,xml:lang"/>-->
+    <!--<elem tag="foaf:homepage" attrs="rdf:resource,xml:lang"/>-->
+    <!--</elem>-->
+    <!--  edm:Place -->
+    <elem tag="edm:Place" attrs="rdf:about">
+      <elem tag="wgs84_pos:lat"/>
+      <elem tag="wgs84_pos:long"/>
+      <elem tag="wgs84_pos:alt"/>
+      <elem tag="wgs84_pos:lat_long"/>
+      <!--todo: ? add polygon-->
+      <elem tag="skos:prefLabel" attrs="xml:lang"/>
+      <elem tag="skos:altLabel" attrs="xml:lang"/>
+      <elem tag="skos:note" attrs="xml:lang"/>
+      <elem tag="dcterms:hasPart" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="dcterms:isPartOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:isNextInSequence" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="owl:sameAs" attrs="rdf:resource"/>
+      <!-- delving specific -->
+      <elem tag="nave:address" attrs="xml:lang"/>
+      <elem tag="nave:city" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:district" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:continent" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:county" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:country" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:municipality" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:postalCode" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:placeOfPublication" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:province" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:specificationPlace" attrs="xml:lang"/>
+      <elem tag="nave:street" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:streetNr" attrs="rdf:resource,xml:lang"/>
+    </elem>
+    <!--  edm:TimeSpan -->
+    <elem tag="edm:TimeSpan" attrs="rdf:about">
+      <elem tag="skos:prefLabel" attrs="xml:lang"/>
+      <elem tag="skos:altLabel" attrs="xml:lang"/>
+      <elem tag="skos:note" attrs="xml:lang"/>
+      <elem tag="dcterms:hasPart" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="dcterms:isPartOf" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="edm:begin"/>
+      <elem tag="edm:end"/>
+      <elem tag="edm:isNextInSequence" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="crm:P79F.beginning_is_qualified_by"/>
+      <elem tag="crm:P80F.end_is_qualified_by"/>
+      <elem tag="owl:sameAs" attrs="rdf:resource"/>
+      <!-- ref only -->
+    </elem>
+    <!--  edm:Concept -->
+    <elem tag="skos:Concept" attrs="rdf:about">
+      <elem tag="skos:prefLabel" attrs="xml:lang"/>
+      <elem tag="skos:altLabel" attrs="xml:lang"/>
+      <elem tag="skos:broader" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:narrower" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:related" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:broadMatch" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:narrowMatch" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:relatedMatch" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:exactMatch" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:closeMatch" attrs="rdf:resource"/>
+      <!-- ref only -->
+      <elem tag="skos:note" attrs="xml:lang"/>
+      <elem tag="skos:notation" attribute="rdf:datatype"/>
+      <!--string (+ rdf:datatype attribute)-->
+      <elem tag="skos:inScheme" attrs="rdf:resource"/>
+      <!-- URI ref only -->
+      <!-- delving specific definitions -->
+      <elem tag="nave:resourceSortOrder"/>
+    </elem>
+    <!--<elem tag="cc:Licence" attrs="rdf:about">-->
+    <!--<elem tag="odrl:inheritFrom" attrs="rdf:resource"/>-->
+    <!--<elem tag="cc:deprecatedOn" attrs="xml:lang"/>-->
+    <!--</elem>-->
+    <elem tag="nave:BuildingResourcev2" attrs="rdf:about,xml:lang">
+      <attr tag="rdf:about" uriCheck="true"/>
+      <elem tag="dc:title"/>
+      <elem tag="dcterms:alternative"/>
+      <!-- edm:Place -->
+      <elem tag="nave:location" attrs="rdf:resource"/>
+      <!-- skos:Concept -->
+      <elem tag="nave:kloosterOrde" attrs="rdf:resource"/>
+      <elem tag="nave:religieuzeStroming" attrs="rdf:resource"/>
+      <elem tag="nave:gewijdAan" attrs="rdf:resource"/>
+      <elem tag="nave:gebouwType"/>
+      <elem tag="nave:monumentStatus" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:architectLabel"/>
+      <elem tag="nave:architect" attrs="rdf:resource"/>
+      <elem tag="nave:mipLink"/>
+      <elem tag="nave:regioWikiLink"/>
+      <elem tag="nave:WikidataLink"/>
+      <elem tag="nave:ReliwikiLink"/>
+      <elem tag="nave:DbpediaLink"/>
+      <!-- links to webresource -->
+      <elem tag="edm:hasViews" attrs="rdf:resource"/>
+      <elem tag="nave:geoHash"/>
+      <elem tag="nave:dateCreation"/>
+      <elem tag="nave:dateCreationLabel"/>
+      <elem tag="nave:dateDestruction"/>
+      <elem tag="nave:dateDestructionLabel"/>
+      <elem tag="nave:dateInUse"/>
+      <elem tag="nave:dateInUseLabel"/>
+      <elem tag="nave:existenceStatus"/>
+      <elem tag="nave:existencePeriod"/>
+      <elem tag="nave:inUseStatus"/>
+      <elem tag="nave:inUsePeriod"/>
+      <elem tag="nave:dateOutOfUse"/>
+      <elem tag="nave:dateOutOfUseLabel"/>
+      <elem tag="nave:isPartOf" attrs="rdf:resource"/>
+      <elem tag="nave:hasParts" attrs="rdf:resource"/>
+      <elem tag="nave:replaces" attrs="rdf:resource"/>
+      <elem tag="nave:replacedBy" attrs="rdf:resource"/>
+      <elem tag="nave:thumbLarge" uriCheck="true"/>
+      <elem tag="nave:thumbSmall" uriCheck="true"/>
+    </elem>
+    <elem tag="nave:BuildingResource" attrs="rdf:about,xml:lang">
+      <attr tag="rdf:about" uriCheck="true"/>
+      <elem tag="dc:title"/>
+      <elem tag="dcterms:alternative"/>
+      <elem tag="nave:location" attrs="rdf:resource"/>
+      <elem tag="nave:kloosterOrde" attrs="rdf:resource"/>
+      <elem tag="nave:religieuzeStroming" attrs="rdf:resource"/>
+      <elem tag="nave:gewijdAan" attrs="rdf:resource"/>
+      <elem tag="nave:gebouwType"/>
+      <elem tag="nave:monumentStatus" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:architectLabel"/>
+      <elem tag="nave:architect" attrs="rdf:resource"/>
+      <elem tag="nave:mipLink"/>
+      <elem tag="nave:regioWikiLink"/>
+      <elem tag="nave:WikidataLink"/>
+      <elem tag="nave:ReliwikiLink"/>
+      <elem tag="nave:DbpediaLink"/>
+      <!-- links to webresource -->
+      <elem tag="edm:hasViews" attrs="rdf:resource"/>
+      <elem tag="nave:geoHash"/>
+      <elem tag="nave:dateCreation"/>
+      <elem tag="nave:dateCreationLabel"/>
+      <elem tag="nave:dateDestruction"/>
+      <elem tag="nave:dateDestructionLabel"/>
+      <elem tag="nave:dateInUse"/>
+      <elem tag="nave:dateInUseLabel"/>
+      <elem tag="nave:existenceStatus"/>
+      <elem tag="nave:existencePeriod"/>
+      <elem tag="nave:inUseStatus"/>
+      <elem tag="nave:inUsePeriod"/>
+      <elem tag="nave:dateOutOfUse"/>
+      <elem tag="nave:dateOutOfUseLabel"/>
+      <elem tag="nave:isPartOf" attrs="rdf:resource"/>
+      <elem tag="nave:hasParts" attrs="rdf:resource"/>
+      <elem tag="nave:replaces" attrs="rdf:resource"/>
+      <elem tag="nave:replacedBy" attrs="rdf:resource"/>
+      <elem tag="nave:thumbLarge" uriCheck="true"/>
+      <elem tag="nave:thumbSmall" uriCheck="true"/>
+    </elem>
+    <elem tag="nave:BrabantCloudResource" attrs="rdf:about,xml:lang">
+      <!-- tib -->
+      <elem tag="nave:archiveNr"/>
+      <elem tag="nave:buildingDepicted" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collection" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionPart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:color"/>
+      <elem tag="nave:colorHex"/>
+      <elem tag="nave:condition"/>
+      <elem tag="nave:conditionNote"/>
+      <elem tag="nave:copyright"/>
+      <elem tag="nave:copyrightNote"/>
+      <elem tag="nave:creatorBirthYear" attrs="xml:lang"/>
+      <elem tag="nave:creatorDeathYear" attrs="xml:lang"/>
+      <elem tag="nave:creatorRole"/>
+      <elem tag="nave:date"/>
+      <elem tag="nave:dateNote"/>
+      <elem tag="nave:design" function="lowercase"/>
+      <elem tag="nave:dimension"/>
+      <elem tag="nave:dimensionNote"/>
+      <elem tag="nave:documentation"/>
+      <elem tag="nave:event" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibition" attrs="rdf:resource"/>
+      <elem tag="nave:exhibitionDateEnd"/>
+      <elem tag="nave:exhibitionDateStart"/>
+      <elem tag="nave:exhibitionNotes" attrs="xml:lang"/>
+      <elem tag="nave:exhibitionOrganiser" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionVenue" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:permanentLocation" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:formatted"/>
+      <elem tag="nave:geojson"/>
+      <elem tag="nave:iconography" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:inscription"/>
+      <elem tag="nave:inscriptionMethod"/>
+      <elem tag="nave:inscriptionPosition"/>
+      <elem tag="nave:inscriptionType"/>
+      <elem tag="nave:inventoryNr"/>
+      <elem tag="nave:issn"/>
+      <elem tag="nave:isbn"/>
+      <elem tag="nave:issueNr"/>
+      <elem tag="nave:location" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:material"/>
+      <elem tag="nave:notes1" attrs="xml:lang"/>
+      <elem tag="nave:notes2" attrs="xml:lang"/>
+      <elem tag="nave:notes"/>
+      <elem tag="nave:objectCategory" attrs="xml:lang"/>
+      <elem tag="nave:objectNumber"/>
+      <elem tag="nave:objectSoort"/>
+      <elem tag="nave:pageEnd"/>
+      <elem tag="nave:pageStart"/>
+      <elem tag="nave:numberOfPages"/>
+      <elem tag="nave:pages"/>
+      <elem tag="nave:person" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:place" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:productionEnd"/>
+      <elem tag="nave:productionPeriod"/>
+      <elem tag="nave:productionPlace" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:productionStart"/>
+      <elem tag="nave:physicalDetails"/>
+      <elem tag="nave:region" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:schoolStyle" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:rightsNote" attrs="xml:lang"/>
+      <elem tag="nave:condition" attrs="xml:lang"/>
+      <elem tag="nave:conditionNote" attrs="xml:lang"/>
+      <elem tag="nave:objectnameAatLink" attrs="rdf:resource"/>
+      <elem tag="nave:objectnameAatLabel" attrs="xml:lang"/>
+      <elem tag="nave:materialAatLink" attrs="rdf:resource"/>
+      <elem tag="nave:materialAatLabel" attrs="xml:lang"/>
+      <elem tag="nave:subjectAatLink" attrs="rdf:resource"/>
+      <elem tag="nave:subjectAatLabel" attrs="xml:lang"/>
+      <elem tag="nave:subjectDepicted" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:technique" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:theme"/>
+      <elem tag="nave:thumbLarge" function="largeThumbnail" uriCheck="true"/>
+      <elem tag="nave:thumbSmall" function="smallThumbnail" uriCheck="true"/>
+      <elem tag="nave:vindplaats" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:volume"/>
+      <elem tag="nave:year"/>
+      <elem tag="nave:subcollectionPart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:productionDateNotes" attrs="xml:lang"/>
+      <elem tag="nave:schoolStyle" attrs="xml:lang"/>
+      <elem tag="nave:creditLine" attrs="xml:lang"/>
+      <elem tag="nave:leadWord" attrs="xml:lang"/>
+      <elem tag="nave:shelfMark" attrs="xml:lang"/>
+      <elem tag="nave:issue"/>
+      <elem tag="nave:edition" attrs="xml:lang"/>
+      <elem tag="nave:illustrations" attrs="xml:lang"/>
+      <elem tag="nave:day" attrs="xml:lang"/>
+      <elem tag="nave:month" attrs="xml:lang"/>
+      <elem tag="nave:seriesNumber"/>
+      <elem tag="nave:seriesTitle" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:sourceTitle" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:sourceTitleArticleLeadword" attrs="xml:lang"/>
+      <elem tag="nave:relatedNote" attrs="xml:lang"/>
+    </elem>
+    <elem tag="nave:PID" attrs="rdf:about">
+      <elem tag="dc:identifier"/>
+      <elem tag="nave:pidType"/>
+    </elem>
+    <elem tag="nave:DcnResource" attrs="rdf:about,xml:lang">
+      <elem tag="nave:creatorYearOfBirth" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:creatorYearOfDeath" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:creatorRole" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:technique" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:material" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:location" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:province" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionPart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:musipCollectionUri" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:musipCollectionDisplayName" hidden="true"/>
+      <elem tag="nave:musipMuseumUri" attrs="rdf:resource,xml:lang" uriCheck="true"/>
+      <elem tag="nave:musipMuseumDisplayName" attrs="xml:lang" hidden="true"/>
+    </elem>
+    <elem tag="nave:Museometrie">
+      <elem tag="nave:currentLocation" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:acquisitionYear" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:acquiredWithHelpFrom" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:physicalState" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:purchasePrice"/>
+      <elem tag="nave:acquisitionMeans" attrs="rdf:resource,xml:lang"/>
+    </elem>
+    <elem tag="nave:RijksCollection"><elem tag="nave:acceptedStateCharges" attrs="rdf:resource,xml:lang"/><elem tag="nave:acceptedStateChargesReason" attrs="rdf:resource,xml:lang"/><!-- subproperty of skos:prefLabel--><elem tag="nave:rijksCollection" attrs="rdf:resource,xml:lang"/><elem tag="nave:expulsionMeans" attrs="rdf:resource,xml:lang"/>&#x2028; 
+            <elem tag="nave:expulsionYear" attrs="rdf:resource,xml:lang"/>&#x2028; 
+            <elem tag="nave:legalStatus" attrs="rdf:resource,xml:lang"/>&#x2028;
+            <elem tag="nave:reasonListed" attrs="rdf:resource,xml:lang"/>&#x2028;
+            <elem tag="nave:yearListed" attrs="rdf:resource,xml:lang"/>&#x2028;
+        </elem>
+    <elem tag="nave:NorvegianaResource">
+      <elem tag="nave:municipality" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:municipalityNr" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:aboutPerson" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:county" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:countyNr" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:country" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:namedPlace" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:estateName" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:estateNr" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:propertyName" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:propertyNr" attrs="rdf:resource,xml:lang"/>
+      <!--required="true"-->
+      <elem tag="nave:contentProvider" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:address" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:digitised" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:introduction" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:classification" attrs="rdf:resource,xml:lang"/>
+      <!-- This is the full utm33 string 32 V 258644.154187 6648939.72091
+          SRID=32633;POINT(148013,6964590)
+          -->
+      <elem tag="nave:utm" function="convertToUTM" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:polygon_utm" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:polygon_latLong" attrs="rdf:resource,xml:lang"/>
+      <!-- 59.907116,10.682953 -->
+      <elem tag="nave:latLong" function="convertToLATLONG" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:type" attrs="rdf:resource,xml:lang"/>
+      <!-- knet, knreise, all -->
+      <!--required="true"-->
+      <elem tag="nave:collectionType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:category" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:creatorUri" uriCheck="true" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:videoUri" uriCheck="true" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:soundUri" uriCheck="true" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:imageUri" uriCheck="true" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:textUri" uriCheck="true" attrs="rdf:resource,xml:lang"/>
+    </elem>
+    <elem tag="nave:Exhibition" attrs="rdf:about,xml:lang">
+      <elem tag="nave:exhibitionTitle" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionOrganiser" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionDateStart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionDateEnd" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionLocation" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionPlace" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionNote" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionUUID" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:exhibitionImage" attrs="rdf:resource,xml:lang"/>
+    </elem>
+    <elem tag="nave:Documentation" attrs="rdf:about,xml:lang">
+      <elem tag="nave:documentationAuthor" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationPageReference" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationTitle" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationLeadword" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationPlaceOfPublication" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationYearOfPublication" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:documentationObjectNumber" attrs="rdf:resource,xml:lang"/>
+    </elem>
+    <elem tag="schema:LandmarksOrHistoricalBuilding" attrs="rdf:about">
+      <elem tag="schema:name" attrs="xml:lang"/>
+      <elem tag="schema:alternateName" attrs="xml:lang"/>
+      <elem tag="schema:description" attrs="xml:lang"/>
+      <elem tag="skos:hiddenLabel" attrs="xml:lang"/>
+      <elem tag="skos:scopeNote" attrs="xml:lang"/>
+      <elem tag="schema:additionalType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="schema:address" attrs="rdf:resource">
+        <elem tag="schema:PostalAddress" attrs="rdf:about">
+          <elem tag="schema:streetAddress" attrs="xml:lang"/>
+          <elem tag="schema:streetLocality" attrs="xml:lang"/>
+          <elem tag="schema:streetRegion" attrs="xml:lang"/>
+        </elem>
+      </elem>
+    </elem>
+    <elem tag="nave:DelvingResource" attrs="rdf:resource,xml:lang">
+      <elem tag="nave:excludedFromEuropeana"/>
+      <elem tag="nave:year"/>
+      <elem tag="nave:thumbnail" function="smallThumbnail" uriCheck="true"/>
+      <elem tag="nave:deepZoomUrl" function="deepZoomUrl" uriCheck="true"/>
+      <elem tag="nave:fullTextObjectUrl" uriCheck="true"/>
+      <elem tag="nave:fullText"/>
+      <elem tag="nave:geoHash"/>
+      <elem tag="nave:objectNumber"/>
+      <elem tag="nave:objectType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collection" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionPart" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:collectionType" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:dimension"/>
+      <elem tag="nave:technique" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:material" attrs="rdf:resource,xml:lang"/>
+      <elem tag="nave:featured">
+        <!-- boolean -->
+        <node-mapping inputPath="/constant">
+          <groovy-code>
+            <string>false</string>
+          </groovy-code>
+        </node-mapping>
+      </elem>
+      <elem tag="nave:allowDeepZoom">
+        <!-- boolean -->
+        <node-mapping inputPath="/constant">
+          <groovy-code>
+            <string>true</string>
+          </groovy-code>
+        </node-mapping>
+      </elem>
+      <elem tag="nave:allowLinkedOpenData">
+        <!-- boolean -->
+        <node-mapping inputPath="/constant">
+          <groovy-code>
+            <string>true</string>
+          </groovy-code>
+        </node-mapping>
+      </elem>
+      <elem tag="nave:allowSourceDownload">
+        <!-- boolean -->
+        <node-mapping inputPath="/constant">
+          <groovy-code>
+            <string>false</string>
+          </groovy-code>
+        </node-mapping>
+      </elem>
+      <elem tag="nave:public">
+        <!-- boolean -->
+        <node-mapping inputPath="/constant">
+          <groovy-code>
+            <string>true</string>
+          </groovy-code>
+        </node-mapping>
+      </elem>
+    </elem>
+  </root>
+  <field-markers/>
+  <opts>
+    <opt-list dictionary="LEGAL" path="/RDF/nave:RijksCollection/nave:legalStatus" displayName="Legal Status">
+      <opt value="Eigenaar: Rijks"/>
+      <opt value="Eigenaar: Anders dan Rijk"/>
+      <opt value="Aan de zorg van het Rijk toevertrouwd"/>
+      <opt value="Bruikleen van X"/>
+      <opt value="Onbekend"/>
+    </opt-list>
+    <opt-list dictionary="CHARGES" path="/RDF/nave:RijksCollection/nave:acceptedStateCharges" displayName="Accepted State Charges">
+      <opt value="No"/>
+      <opt value="Yes"/>
+    </opt-list>
+    <opt-list dictionary="EXPULSION" path="/RDF/nave:RijksCollection/nave:expulsionMeans" displayName="Expulsion means">
+      <opt value="Sale"/>
+      <opt value="Destruction"/>
+      <opt value="Gift"/>
+      <opt value="Trade"/>
+    </opt-list>
+    <opt-list dictionary="HHCat" path="/RDF/nave:NorvegianaResource/nave:category" displayName="Norvegiana Category">
+      <opt value="Arkeologi"/>
+      <opt value="Kulturminner"/>
+      <opt value="Historie og samfunn"/>
+      <opt value="Arkitektur"/>
+      <opt value="Dyr"/>
+      <opt value="Planter"/>
+      <opt value="Verneomr&#xE5;der"/>
+      <opt value="Kunst"/>
+      <opt value="Stedsnavn"/>
+      <opt value="Fugler"/>
+    </opt-list>
+  </opts>
+  <docs>
+  </docs>
+</record-definition>

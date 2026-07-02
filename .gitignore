@@ -107,3 +107,6 @@ docs/archive/
 ikuzo/ikuzoctl/ikuzoctl
 tools/cmd/index_narthex/index_narthex
 *.test
+
+# server ops script kept local
+security.sh
