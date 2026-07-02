@@ -20,6 +20,7 @@ import (
 	"os"
 	"reflect"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -1033,6 +1034,11 @@ func TestQfExistParsing(t *testing.T) {
 				t.Errorf("Expected %d filters, got %d", tt.expectedCount, len(filters))
 			}
 
+			// Filter order across distinct query keys (qf.exist vs
+			// qf.exist[]) is undefined: NewSearchRequest ranges over the
+			// url.Values map. Compare labels order-insensitively.
+			labels := make([]string, 0, len(filters))
+
 			for i, filter := range filters {
 				if !filter.GetExists() {
 					t.Errorf("Filter %d: expected Exists=true, got false", i)
@@ -1040,9 +1046,17 @@ func TestQfExistParsing(t *testing.T) {
 				if filter.GetType() != QueryFilterType_EXISTS {
 					t.Errorf("Filter %d: expected Type=EXISTS, got %v", i, filter.GetType())
 				}
-				if i < len(tt.expectedLabels) && filter.GetSearchLabel() != tt.expectedLabels[i] {
-					t.Errorf("Filter %d: expected SearchLabel=%s, got %s", i, tt.expectedLabels[i], filter.GetSearchLabel())
-				}
+
+				labels = append(labels, filter.GetSearchLabel())
+			}
+
+			sort.Strings(labels)
+
+			expected := append([]string{}, tt.expectedLabels...)
+			sort.Strings(expected)
+
+			if !reflect.DeepEqual(labels, expected) {
+				t.Errorf("SearchLabels = %v, want %v", labels, expected)
 			}
 		})
 	}
