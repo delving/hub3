@@ -4,7 +4,7 @@
 
 **Goal:** Replace the 14k-line accreted semantic API surface with a ~1.2k-line greenfield package implementing a frozen, honest v1 contract that wraps v2 search.
 
-**Architecture:** One new package `ikuzo/service/x/semanticv1` owns the contract: types, GET/POST parsing (bijective with a canonical query-string encoding), validation, Hydra/JSON-LD envelope, handlers. One new file set in `ikuzo/storage/x/v2adapter` implements the `semanticv1.SearchStore` interface against the production v2 search path. Item content passes through as-is (the `semantic` view produced by `hub3/fragments`); the API only wraps it in an envelope. Old packages are deleted at cutover, not before.
+**Architecture:** One new package `ikuzo/service/x/semanticv1` owns the contract: types, GET/POST parsing (bijective with a canonical query-string encoding), validation, Hydra/JSON-LD envelope, handlers. The v2 compatibility layer lives in `ikuzo/service/x/semanticv1/internal/v2bridge` — Go's `internal/` rule makes it unimportable outside semanticv1, so retiring it later (when a native backend lands) is a deletion, not a migration. The bridge is two pure mappings around v2's own machinery: `QueryOptions → url.Values` (consumed by v2's public param parser `fragments.NewSearchRequest`) on the way in, and v2's decoded `ScrollResultV4` response `→ semanticv1.SearchResult` on the way out — all query parsing and ES response decoding stays v2's battle-tested code. Item content passes through as-is (the `semantic` view produced by `hub3/fragments`); the API only wraps it in an envelope. Old packages are deleted at cutover, not before.
 
 **Tech Stack:** Go stdlib + chi router + olivere/elastic (via existing v2 infra) + matryer/is for tests. No new dependencies.
 
@@ -127,6 +127,7 @@ Errors: `{"@context": ctxURL, "@type": "hydra:Error", "hydra:title": "...", "hyd
 - **D7 — cut search-context navigation** (`?context=` token, `/contexts/query/` CRUD) — in-memory, predictable tokens, breaks behind LB; navigation returns with a real cursor design.
 - **D8 — no schema gating.** Field names validated by regex only; the compiled-in EDM/nave registry leaves the request path entirely.
 - **D9 — the contract tests are the contract.** `contract_test.go` (Task 8) is the acceptance suite any future backend must pass.
+- **D10 — the v2 compatibility layer is internal and retirable.** It lives in `semanticv1/internal/v2bridge`, enters v2 through its public param contract (`url.Values` → `fragments.NewSearchRequest`) and leaves through v2's decoded response (`ScrollResultV4` → `SearchResult`). No other package can import it (compiler-enforced); retirement = delete `internal/v2bridge` + the one re-export file when the native backend passes the contract suite.
 
 ---
 
@@ -1130,15 +1131,15 @@ git add ikuzo/service/x/semanticv1/store.go
 git commit -m "feat(semanticv1): SearchStore interface and result types"
 ```
 
-### Task 5: v2 store — query translation
+### Task 5: v2 bridge — query translation (internal package)
 
 **Files:**
-- Create: `ikuzo/storage/x/v2adapter/semanticv1_store.go`
-- Test: `ikuzo/storage/x/v2adapter/semanticv1_store_test.go`
+- Create: `ikuzo/service/x/semanticv1/internal/v2bridge/translate.go`
+- Test: `ikuzo/service/x/semanticv1/internal/v2bridge/translate_test.go`
 
 **Interfaces:**
-- Consumes: `semanticv1.QueryOptions`, `Filter`, operators, `TextQuery` (Task 2); existing `fragments.NewSearchRequest` / `ExecuteWithParallelAggregations` (this package already uses them).
-- Produces: `func NewSemanticV1Store(client *elastic.Client, log zerolog.Logger) *SemanticV1Store` implementing `semanticv1.SearchStore`, and internal `func translateToV2(opts *semanticv1.QueryOptions) (url.Values, error)`.
+- Consumes: `semanticv1.QueryOptions`, `Filter`, operators, `TextQuery` (Task 2). Note: `internal/v2bridge` importing its parent `semanticv1` is legal and creates no cycle — `semanticv1` itself never imports the bridge directly except via the single re-export file added in Task 6.
+- Produces: `func translateToV2(opts *semanticv1.QueryOptions) (url.Values, error)` in package `v2bridge` — emits only params that `fragments.NewSearchRequest` (v2's public param contract) parses.
 
 **The complete mapping (this table IS the translator spec):**
 
@@ -1168,7 +1169,7 @@ git commit -m "feat(semanticv1): SearchStore interface and result types"
 - [ ] **Step 1: Write the failing tests**
 
 ```go
-package v2adapter
+package v2bridge
 
 import (
 	"testing"
@@ -1242,13 +1243,19 @@ func TestTranslateToV2(t *testing.T) {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `go test ./ikuzo/storage/x/v2adapter/ -run TestTranslateToV2 -v`
+Run: `go test ./ikuzo/service/x/semanticv1/internal/v2bridge/ -run TestTranslateToV2 -v`
 Expected: FAIL (undefined: translateToV2)
 
-- [ ] **Step 3: Implement translator half of `semanticv1_store.go`**
+- [ ] **Step 3: Implement the translator (`translate.go`)**
 
 ```go
-package v2adapter
+// Package v2bridge is the RETIRABLE compatibility layer between the
+// semanticv1 contract and v2 search. It enters v2 through its public
+// param contract (url.Values -> fragments.NewSearchRequest) and leaves
+// through v2's decoded ScrollResultV4 response. Nothing outside
+// semanticv1 can import it. Delete this package (plus semanticv1/v2.go)
+// when a native backend passes the contract suite.
+package v2bridge
 
 import (
 	"fmt"
@@ -1371,68 +1378,169 @@ func encodeQF(f semanticv1.Filter) ([]string, error) {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `go test ./ikuzo/storage/x/v2adapter/ -run TestTranslateToV2 -v`
+Run: `go test ./ikuzo/service/x/semanticv1/internal/v2bridge/ -run TestTranslateToV2 -v`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ikuzo/storage/x/v2adapter/semanticv1_store.go ikuzo/storage/x/v2adapter/semanticv1_store_test.go
-git commit -m "feat(v2adapter): semanticv1 query translation, underscore fields verbatim"
+git add ikuzo/service/x/semanticv1/internal/v2bridge/
+git commit -m "feat(semanticv1): internal v2bridge query translation, underscore fields verbatim"
 ```
 
-### Task 6: v2 store — execution + result translation
+### Task 6: v2 bridge — execution, ScrollResultV4 mapping, re-export
 
 **Files:**
-- Modify: `ikuzo/storage/x/v2adapter/semanticv1_store.go` (add store struct, Search, GetByID, result decoding)
-- Test: `ikuzo/storage/x/v2adapter/semanticv1_store_test.go` (add decode tests), integration additions gated on live ES as in `adapter_integration_test.go`
+- Create: `ikuzo/service/x/semanticv1/internal/v2bridge/store.go` (store struct, Search, GetByID)
+- Create: `ikuzo/service/x/semanticv1/internal/v2bridge/response.go` (`fromScrollResult`)
+- Create: `ikuzo/service/x/semanticv1/v2.go` (the ONE re-export — wiring entry point and the bridge's only doorway)
+- Test: `ikuzo/service/x/semanticv1/internal/v2bridge/response_test.go` (+ integration test gated on live ES, pattern of `v2adapter/adapter_integration_test.go`)
 
 **Interfaces:**
-- Consumes: `translateToV2` (Task 5); port execution/decoding from the existing old-store code in this package — `adapter.go:86-120` (Search via `fragments.NewSearchRequest` + `ExecuteWithParallelAggregations`), `adapter.go:143-238` (GetByID: `_id` get for hubIDs, `meta.entryURI` term query for URIs), `result_translator.go` (hit → semantic item extraction, aggregation → facet decoding). Keep the exact same v2 calls; only the output types change to `semanticv1.SearchResult`/`semanticv1.Facet`.
-- Produces: `NewSemanticV1Store(client *elastic.Client, log zerolog.Logger) *SemanticV1Store` with `Search` and `GetByID` satisfying `semanticv1.SearchStore`; `GetByID` returns `semanticv1.ErrNotFound` (wrapped) on miss.
+- Consumes: `translateToV2` (Task 5); v2's own machinery: `fragments.NewSearchRequest` + `ExecuteWithParallelAggregations` for execution, and v2's response decode producing `*fragments.ScrollResultV4` — port `decodeV2Results` from the old `ikuzo/storage/x/v2adapter/adapter.go` verbatim (it calls v2's own hit/facet decoding); port `GetByID` from `adapter.go:143-238` (`_id` get for hubIDs, `meta.entryURI` term query for URIs, index `{orgID}v2`).
+- Produces:
+  - `v2bridge.NewStore(client *elastic.Client, log zerolog.Logger) *Store` implementing `semanticv1.SearchStore`
+  - `fromScrollResult(sr *fragments.ScrollResultV4, opts *semanticv1.QueryOptions) (*semanticv1.SearchResult, error)` — the pure response-side mapping
+  - `semanticv1.NewV2SearchStore(client *elastic.Client, log zerolog.Logger) SearchStore` (in `v2.go`) — the only symbol the wiring layer sees
 
-- [ ] **Step 1: Write the failing decode test** — pure function over a canned `elastic.SearchResult` JSON fixture (create `testdata/semanticv1_es_response.json` by copying a real response captured via `test_semantic_e2e.sh` output or the existing package fixtures):
+- [ ] **Step 1: Write the failing mapping test** — pure function over a canned `ScrollResultV4` JSON fixture. Create `testdata/scroll_result_v4.json` by capturing a real v2 response (`/api/search/v2?query=*&rows=2&itemFormat=semantic&facet.field=dc_creator` against the dev stack, or serialize one in a bootstrap test using the old adapter):
 
 ```go
-func TestDecodeSemanticV1Result(t *testing.T) {
+package v2bridge
+
+import (
+	"encoding/json"
+	"os"
+	"testing"
+
+	"github.com/matryer/is"
+
+	"github.com/delving/hub3/hub3/fragments"
+	semanticv1 "github.com/delving/hub3/ikuzo/service/x/semanticv1"
+)
+
+func TestFromScrollResult(t *testing.T) {
 	is := is.New(t)
 
-	raw, err := os.ReadFile("testdata/semanticv1_es_response.json")
+	raw, err := os.ReadFile("testdata/scroll_result_v4.json")
 	is.NoErr(err)
 
-	var esRes elastic.SearchResult
-	is.NoErr(json.Unmarshal(raw, &esRes))
+	var sr fragments.ScrollResultV4
+	is.NoErr(json.Unmarshal(raw, &sr))
 
-	res, err := decodeSemanticV1Result(&esRes, &semanticv1.QueryOptions{Page: 1, Size: 20})
+	opts := &semanticv1.QueryOptions{Page: 1, Size: 20,
+		Filters: []semanticv1.Filter{{Field: "dc_creator", Operator: semanticv1.OpEq, Values: []string{"Rembrandt"}}}}
+
+	res, err := fromScrollResult(&sr, opts)
 	is.NoErr(err)
 	is.True(res.Total > 0)
 	is.True(len(res.Items) > 0)
 
+	// member items are the semantic view verbatim
 	var first map[string]any
 	is.NoErr(json.Unmarshal(res.Items[0], &first))
 	_, hasID := first["@id"]
-	is.True(hasID) // member items are the semantic view verbatim
+	is.True(hasID)
+
+	// facets carry selected-ness derived from opts.Filters
+	for _, f := range res.Facets {
+		if f.Field != "dc_creator" {
+			continue
+		}
+		for _, v := range f.Values {
+			if v.Value == "Rembrandt" {
+				is.True(v.Selected)
+			}
+		}
+	}
 }
 ```
 
 - [ ] **Step 2: Run to verify it fails**
 
-Run: `go test ./ikuzo/storage/x/v2adapter/ -run TestDecodeSemanticV1Result -v`
-Expected: FAIL (undefined: decodeSemanticV1Result / missing fixture — create the fixture in this step)
+Run: `go test ./ikuzo/service/x/semanticv1/internal/v2bridge/ -run TestFromScrollResult -v`
+Expected: FAIL (undefined: fromScrollResult / missing fixture — create the fixture in this step)
 
-- [ ] **Step 3: Implement store + decode.** Structure (bodies ported from `adapter.go`/`result_translator.go`, same v2 calls):
+- [ ] **Step 3: Implement `response.go`, `store.go`, and the re-export.**
+
+`response.go` — the pure mapping. `ScrollResultV4` items are `*fragments.FragmentGraph`; with `itemFormat=semantic` the item's `Semantic` field holds the member document. Facets come as `[]*fragments.QueryFacet` with `Links []*fragments.FacetLink` carrying value/count/selected:
 
 ```go
-type SemanticV1Store struct {
+package v2bridge
+
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/delving/hub3/hub3/fragments"
+	semanticv1 "github.com/delving/hub3/ikuzo/service/x/semanticv1"
+)
+
+// fromScrollResult maps v2's decoded response onto the semanticv1 result.
+// It is intentionally dumb: v2 has already done all hit and facet decoding;
+// this only reshapes. Verify exact field names against
+// fragments.ScrollResultV4 / QueryFacet / FacetLink at implementation time.
+func fromScrollResult(sr *fragments.ScrollResultV4, opts *semanticv1.QueryOptions) (*semanticv1.SearchResult, error) {
+	res := &semanticv1.SearchResult{}
+	if p := sr.GetPager(); p != nil {
+		res.Total = int64(p.GetNrOfResults())
+	}
+
+	for _, item := range sr.GetItems() {
+		if item.GetSemantic() == nil {
+			continue
+		}
+		raw, err := json.Marshal(item.GetSemantic())
+		if err != nil {
+			return nil, fmt.Errorf("marshal semantic item: %w", err)
+		}
+		res.Items = append(res.Items, raw)
+	}
+
+	for _, qf := range sr.GetFacets() {
+		facet := semanticv1.Facet{Field: qf.GetField(), Total: int(qf.GetTotal())}
+		for _, link := range qf.GetLinks() {
+			facet.Values = append(facet.Values, semanticv1.FacetValue{
+				Value:    link.GetValue(),
+				Count:    int(link.GetCount()),
+				Selected: link.GetIsSelected(),
+			})
+		}
+		res.Facets = append(res.Facets, facet)
+	}
+
+	return res, nil
+}
+```
+
+`store.go`:
+
+```go
+package v2bridge
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"time"
+
+	elastic "github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
+
+	"github.com/delving/hub3/hub3/fragments"
+	semanticv1 "github.com/delving/hub3/ikuzo/service/x/semanticv1"
+)
+
+type Store struct {
 	client *elastic.Client
 	log    zerolog.Logger
 }
 
-func NewSemanticV1Store(client *elastic.Client, log zerolog.Logger) *SemanticV1Store {
-	return &SemanticV1Store{client: client, log: log.With().Str("component", "semanticv1_v2store").Logger()}
+func NewStore(client *elastic.Client, log zerolog.Logger) *Store {
+	return &Store{client: client, log: log.With().Str("component", "semanticv1_v2bridge").Logger()}
 }
 
-func (s *SemanticV1Store) Search(ctx context.Context, orgID string, opts *semanticv1.QueryOptions) (*semanticv1.SearchResult, error) {
+func (s *Store) Search(ctx context.Context, orgID string, opts *semanticv1.QueryOptions) (*semanticv1.SearchResult, error) {
 	params, err := translateToV2(opts)
 	if err != nil {
 		return nil, err
@@ -1449,7 +1557,15 @@ func (s *SemanticV1Store) Search(ctx context.Context, orgID string, opts *semant
 		return nil, fmt.Errorf("v2 search execution: %w", err)
 	}
 
-	res, err := decodeSemanticV1Result(esRes, opts)
+	// decodeV2Results: verbatim port from the old
+	// ikuzo/storage/x/v2adapter/adapter.go — produces *fragments.ScrollResultV4
+	// using v2's own hit and facet decoding.
+	scroll, err := decodeV2Results(esRes, sr)
+	if err != nil {
+		return nil, fmt.Errorf("v2 response decode: %w", err)
+	}
+
+	res, err := fromScrollResult(scroll, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -1461,51 +1577,44 @@ func (s *SemanticV1Store) Search(ctx context.Context, orgID string, opts *semant
 	return res, nil
 }
 
-// decodeSemanticV1Result extracts each hit's "semantic" object verbatim as
-// a member item and decodes aggregations into semanticv1.Facet values.
-// Port the extraction from result_translator.go (TranslateSearchResult) —
-// hit.Source is the FragmentGraph JSON; the member item is its "semantic"
-// key; facet decoding ports translateFacets from the same file, mapping
-// selected-ness against opts.Filters by field+value.
-func decodeSemanticV1Result(esRes *elastic.SearchResult, opts *semanticv1.QueryOptions) (*semanticv1.SearchResult, error) {
-	res := &semanticv1.SearchResult{Total: esRes.TotalHits()}
-
-	if esRes.Hits != nil {
-		for _, hit := range esRes.Hits.Hits {
-			var src struct {
-				Semantic json.RawMessage `json:"semantic"`
-			}
-			if err := json.Unmarshal(hit.Source, &src); err != nil {
-				return nil, fmt.Errorf("decode hit %s: %w", hit.Id, err)
-			}
-			if len(src.Semantic) == 0 {
-				continue // document without a semantic view is not a member
-			}
-			res.Items = append(res.Items, src.Semantic)
-		}
-	}
-
-	res.Facets = decodeV1Facets(esRes, opts) // port of translateFacets, new types
-	return res, nil
+func (s *Store) GetByID(ctx context.Context, orgID, id string) (json.RawMessage, error) {
+	// verbatim port of the old adapter.go GetByID (adapter.go:143-238):
+	// _id get for hubIDs, meta.entryURI term query for http(s) URIs, index
+	// name {orgID}v2; extract the "semantic" key verbatim;
+	// elastic.IsNotFound -> fmt.Errorf("%w: %s", semanticv1.ErrNotFound, id)
 }
+```
 
-func (s *SemanticV1Store) GetByID(ctx context.Context, orgID, id string) (json.RawMessage, error) {
-	// port of adapter.go GetByID: _id get for hubIDs, meta.entryURI term
-	// query for http(s) URIs, index name {orgID}v2; extract "semantic" key
-	// verbatim; elastic.IsNotFound -> fmt.Errorf("%w: %s", semanticv1.ErrNotFound, id)
+`ikuzo/service/x/semanticv1/v2.go` — the one doorway:
+
+```go
+package semanticv1
+
+import (
+	elastic "github.com/olivere/elastic/v7"
+	"github.com/rs/zerolog"
+
+	"github.com/delving/hub3/ikuzo/service/x/semanticv1/internal/v2bridge"
+)
+
+// NewV2SearchStore returns the SearchStore backed by v2 search via the
+// internal, retirable compatibility bridge. Delete this file together
+// with internal/v2bridge when a native backend passes the contract suite.
+func NewV2SearchStore(client *elastic.Client, log zerolog.Logger) SearchStore {
+	return v2bridge.NewStore(client, log)
 }
 ```
 
 - [ ] **Step 4: Run package tests**
 
-Run: `go test ./ikuzo/storage/x/v2adapter/ -v 2>&1 | grep -E "^(--- |ok|FAIL)"`
+Run: `go test ./ikuzo/service/x/semanticv1/... -v 2>&1 | grep -E "^(--- |ok|FAIL)"`
 Expected: PASS (integration tests skip without ES; run with local ES for the full check)
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add ikuzo/storage/x/v2adapter/
-git commit -m "feat(v2adapter): semanticv1 store execution and result decoding"
+git add ikuzo/service/x/semanticv1/
+git commit -m "feat(semanticv1): v2bridge execution via ScrollResultV4, single re-export doorway"
 ```
 
 ### Task 7: Hydra envelope builder
@@ -2190,7 +2299,7 @@ git commit -m "feat(semanticv1): entrypoint and self-consistent API documentatio
 ### Task 10: Wiring + e2e verification
 
 **Files:**
-- Modify: `ikuzo/ikuzoctl/cmd/config/semantic.go` — replace the old service construction with `semanticv1.NewService(semanticv1.WithSearchStore(v2adapter.NewSemanticV1Store(esClient.SearchClient(), logger)))`. Keep the config struct fields; `UseES8Backend` keeps its warn-and-ignore behavior.
+- Modify: `ikuzo/ikuzoctl/cmd/config/semantic.go` — replace the old service construction with `semanticv1.NewService(semanticv1.WithSearchStore(semanticv1.NewV2SearchStore(esClient.SearchClient(), logger)))`. The wiring layer never sees the bridge — only the re-export. Keep the config struct fields; `UseES8Backend` keeps its warn-and-ignore behavior.
 - Create: `test_semanticv1_e2e.sh` — port `test_semantic_e2e.sh` sections 1–13 to the new surface (drop backend/context-navigation/introspect sections; add checks that each dead param returns 400 with `hydra:Error`; add a namespaced-field filter check `filter[dc_creator][eq]=...` asserting non-empty results against seeded data — the check the old suite skipped).
 
 - [ ] **Step 1: Wire the service**, `go build ./...` → success
@@ -2210,7 +2319,7 @@ git commit -m "feat(semanticv1): wire greenfield service; e2e suite for the froz
 **Files:**
 - Delete: `ikuzo/service/x/semantic/` (entire package)
 - Delete: `ikuzo/domain/semantic/` (entire package)
-- Delete: `ikuzo/storage/x/v2adapter/adapter.go`, `introspect.go`, `query_translator.go`, `result_translator.go` + their tests (keep `semanticv1_store*.go`)
+- Delete: `ikuzo/storage/x/v2adapter/` (entire package — the new bridge lives in `semanticv1/internal/v2bridge`, so nothing remains here)
 - Delete: `ikuzo/storage/x/elasticsearch8/` (deferred native backend — restored from git when that phase starts)
 - Delete: `ikuzo/storage/x/elasticsearch/semantic_store.go`, `semantic_store_test.go`, `facets.go` (verify `facets.go` has no other importers first: `grep -rn "facets\." ikuzo/storage/x/elasticsearch/`)
 - Modify: `tools/cmd/gendocs/main.go` — regenerate `docs/semantic-api-reference.md` from the new `/docs` output or delete the tool if superseded
@@ -2238,5 +2347,6 @@ navigation are removed pending phase 2."
 ## Self-review notes
 
 - Spec coverage: every Part 1 contract row maps to Task 2/3 (parsing), Task 5 (v2 mapping), Task 7/8 (envelope + endpoints), Task 9 (docs), Task 10 (e2e). D1–D9 all encoded in tasks; D9 = Task 8's contract suite.
-- Known intentional gaps: `hub3.delving.org/ns/hub3#` vocabulary IRI in the context file is a placeholder namespace choice the user should confirm (it only needs to be stable, not resolvable, for v1). Task 6 ports execution code by explicit reference to `adapter.go`/`result_translator.go` line ranges — the implementer must verify exact helper names against those files at execution time.
+- Known intentional gaps: `hub3.delving.org/ns/hub3#` vocabulary IRI in the context file is a placeholder namespace choice the user should confirm (it only needs to be stable, not resolvable, for v1). Task 6 ports `decodeV2Results`/`GetByID` by explicit reference to the old `v2adapter/adapter.go` — the implementer must verify exact helper and protobuf getter names (`ScrollResultV4`, `QueryFacet`, `FacetLink`) against the real types at execution time; the old package remains present until Task 11 precisely so it can be ported from.
+- Bridge retirement path (D10): when a native backend passes `contract_test.go`, delete `ikuzo/service/x/semanticv1/internal/v2bridge/` and `ikuzo/service/x/semanticv1/v2.go`, swap the constructor in the wiring — nothing else can reference the bridge, by compiler rule.
 - Type consistency verified: `QueryOptions`/`Filter`/`SearchResult` field names match across Tasks 2–8; `ContextURL`/`ContextURLPath` (Task 1) used in Tasks 7–9.

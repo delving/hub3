@@ -63,6 +63,10 @@ parameters (`detailLevel`, `fields=` and friends are deliberately absent).
 - **New backends slot in behind one interface** (`SearchStore`: `Search`, `GetByID`) and must
   pass the contract test suite — the tests *are* the API contract, and they are the acceptance
   gate that lets a triple store replace Elasticsearch without any client migration.
+- **The v2 compatibility layer is built to be thrown away.** It lives in an `internal/` package
+  the compiler forbids anyone else to import, and bridges purely at v2's public seams: query
+  object → v2 query params in, v2's decoded response → API result out. Retiring it when a
+  native backend lands is a deletion, not a migration.
 
 ## Deliberately not in v1 (phase 2 candidates)
 
