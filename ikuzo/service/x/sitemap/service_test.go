@@ -1,9 +1,27 @@
 package sitemap
 
 import (
+	"context"
 	"reflect"
 	"testing"
+
+	"github.com/delving/hub3/ikuzo/domain"
 )
+
+// fakeStore is a minimal Store implementation used to exercise sitemapRoot
+// without a live Elasticsearch backend.
+type fakeStore struct{}
+
+// Datasets returns a single fixed dataset so sitemapRoot has something to
+// build a sub-sitemap location for.
+func (f *fakeStore) Datasets(ctx context.Context, cfg domain.SitemapConfig) ([]Location, error) {
+	return []Location{{ID: "spec-a", RecordCount: 1}}, nil
+}
+
+// Locations is unused by TestSitemapRootIndexBase but required to satisfy Store.
+func (f *fakeStore) Locations(ctx context.Context, spec string, cfg domain.SitemapConfig, cb func(loc Location) error) error {
+	return nil
+}
 
 func Test_getMaxPages(t *testing.T) {
 	type args struct {
@@ -36,5 +54,31 @@ func Test_getMaxPages(t *testing.T) {
 				t.Errorf("getMaxPages() = %v, want %v", gotPages, tt.wantPages)
 			}
 		})
+	}
+}
+
+// TestSitemapRootIndexBase asserts sub-sitemap locations use IndexBaseURL
+// when set, so a customer-site BaseURL never leaks into sitemap-index Locs.
+func TestSitemapRootIndexBase(t *testing.T) {
+	svc, err := NewService(SetStore(&fakeStore{}))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cfg := domain.SitemapConfig{
+		ID:           "vvu",
+		BaseURL:      "https://verhaalvanutrecht.nl/collecties/",
+		IndexBaseURL: "https://prod.utralt.hubs.delving.org",
+	}
+
+	smi, err := svc.sitemapRoot(context.Background(), cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	loc := smi.URLs[0].Loc
+	want := "https://prod.utralt.hubs.delving.org/api/sitemap/vvu/spec-a/1"
+	if loc != want {
+		t.Errorf("sitemapRoot Loc = %q, want %q", loc, want)
 	}
 }

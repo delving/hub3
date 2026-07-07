@@ -65,7 +65,7 @@ func (s *Service) sitemapRoot(ctx context.Context, cfg domain.SitemapConfig) (*s
 			smi.Add(&sitemap.URL{
 				Loc: fmt.Sprintf(
 					"%s/api/sitemap/%s/%s/%d",
-					cfg.BaseURL,
+					cfg.IndexBase(),
 					cfg.ID,
 					d.ID,
 					page,

@@ -131,8 +131,12 @@ func (s *SitemapStore) Locations(ctx context.Context, spec string, cfg domain.Si
 
 		for _, h := range headers {
 			lastMod := h.LastModified()
+			id := h.EntryURI
+			if cfg.UseHubID {
+				id = h.GetHubID()
+			}
 			loc := sitemap.Location{
-				ID:      h.EntryURI,
+				ID:      id,
 				LastMod: &lastMod,
 			}
 			if cbErr := cb(loc); cbErr != nil {

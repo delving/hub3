@@ -54,6 +54,14 @@ type SitemapConfig struct {
 	DataPath      string   `json:"dataPath,omitempty"`
 	RelPathFmt    string   `json:"relPathFmt,omitempty"`
 	ContextIndex  string   `json:"contextIndex,omitempty"`
+	// UseHubID formats the record's full hubID into RelPathFmt
+	// (query-escaped) instead of the last path segment of its EntryURI.
+	// Used for DIW deep links of the form ?id=<hubID>.
+	UseHubID bool `json:"useHubID,omitempty"`
+	// IndexBaseURL overrides the host used for sub-sitemap locations in
+	// the sitemap index. Set it when BaseURL points at the customer site
+	// while the sitemap files themselves are served from this hub3 host.
+	IndexBaseURL string `json:"indexBaseURL,omitempty"`
 }
 
 func (cfg *SitemapConfig) IsExcludedSpec(spec string) bool {
@@ -70,13 +78,31 @@ func (cfg *SitemapConfig) Path(spec string, page int) string {
 	return filepath.Join(cfg.DataPath, cfg.OrgID, spec, fmt.Sprint(page)+".xml")
 }
 
+// URL renders the public location for a record id according to RelPathFmt.
+// In UseHubID mode the full id is query-escaped into the format verb; in
+// legacy mode only the last path segment of the id is used.
 func (cfg *SitemapConfig) URL(id string) string {
 	if cfg.RelPathFmt == "" {
 		return id
 	}
+
+	if cfg.UseHubID {
+		return fmt.Sprintf("%s%s", cfg.BaseURL, fmt.Sprintf(cfg.RelPathFmt, url.QueryEscape(id)))
+	}
+
 	parts := strings.Split(id, "/")
 	path := fmt.Sprintf(cfg.RelPathFmt, parts[len(parts)-1])
 	return fmt.Sprintf("%s%s", cfg.BaseURL, path)
+}
+
+// IndexBase returns the base URL for sub-sitemap locations in the sitemap
+// index: IndexBaseURL when set, otherwise BaseURL.
+func (cfg *SitemapConfig) IndexBase() string {
+	if cfg.IndexBaseURL != "" {
+		return cfg.IndexBaseURL
+	}
+
+	return cfg.BaseURL
 }
 
 type OAIPMHConfig struct {
