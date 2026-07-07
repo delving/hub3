@@ -131,6 +131,17 @@ Errors: `{"@context": ctxURL, "@type": "hydra:Error", "hydra:title": "...", "hyd
 
 ---
 
+# Ratification record (2026-07-07)
+
+All decisions D1–D10 ratified by the user (review via the design artifact + question rounds), with these **amendments** that executors must apply on top of the task code below:
+
+- **D2 amendment — configurable facet defaults.** `facetLimit`/`facetSort` stay global params, but their *defaults* come from server config (TOML `[semantic]` section, e.g. `facetLimit = 5`, `facetSort = "count"`), not hardcoded constants. Effective values are echoed in the envelope (see envelope amendment). Per-facet options (`facet[f].limit`) are v1.1 additive; the bridge can construct richer v2 params then.
+- **D3 amendment — sort syntax + configurable default.** The `sort` param uses comma-list *syntax* from day one (`sort=-dc_date`); v1 accepts exactly ONE entry — a second entry → 400 ("only one sort field supported in v1") — so multi-sort later needs no new syntax. Server config gains a default sort (`sort = "-dc_date"`) applied when the param is absent; translated to v2 `sortBy`/`sortAsc`. Effective sort echoed in the envelope.
+- **Defaults plumbing.** `ParseQuery`/`ParseSearchBody` take a `Defaults` struct (`Size`, `FacetLimit`, `FacetSort`, `Sort`) supplied via a `WithDefaults` service option and wired from config in Task 10; `defaultOptions()` derives from it. `EncodeQuery` omits values equal to the *configured* defaults.
+- **Envelope amendment — effective-settings echo.** `BuildCollection` adds `"hub3:facetLimit"`, `"hub3:facetSort"` (when facets requested) and `"hub3:sort"` (when sorting applied) at the top level; the three terms are added to the context file (Task 1 term list + test).
+- **Vocabulary IRI ratified:** `"hub3": "http://schemas.delving.eu/hub3/"` (slash namespace, matching the existing `http://schemas.delving.eu/nave/terms/` precedent). Replace the `https://hub3.delving.org/ns/hub3#` placeholder in Task 1's context file.
+- Envelope shape otherwise ratified as designed.
+
 # Part 2 — Implementation Tasks
 
 ### Task 1: Versioned JSON-LD context artifact
