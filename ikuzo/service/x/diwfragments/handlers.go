@@ -1,7 +1,10 @@
 package diwfragments
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -69,7 +72,48 @@ func (s *Service) serveFragment(w http.ResponseWriter, r *http.Request, kind Kin
 	_ = json.NewEncoder(w).Encode(Envelope{HeadTags: fragment.HeadTags, HTML: fragment.HTML, Meta: fragment.Meta})
 }
 
-// handleBulkPut is implemented in the bulk-write task.
+// handleBulkPut ingests NDJSON fragments from the render worker. The
+// whole batch is validated before anything is stored so a partial write
+// cannot leave a collection half-refreshed; orgID and collection always
+// come from the request, never from the payload.
 func (s *Service) handleBulkPut(w http.ResponseWriter, r *http.Request) {
-	writeJSONError(w, http.StatusNotImplemented, "not implemented")
+	org, ok := domain.GetOrganization(r)
+	if !ok {
+		writeJSONError(w, http.StatusNotFound, "unknown organization")
+		return
+	}
+	collection := chi.URLParam(r, "collection")
+	var fragments []Fragment
+	scanner := bufio.NewScanner(r.Body)
+	scanner.Buffer(make([]byte, 0, 1024*1024), 8*1024*1024)
+	line := 0
+	for scanner.Scan() {
+		line++
+		raw := bytes.TrimSpace(scanner.Bytes())
+		if len(raw) == 0 {
+			continue
+		}
+		var f Fragment
+		if err := json.Unmarshal(raw, &f); err != nil {
+			writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("line %d: %s", line, err))
+			return
+		}
+		f.OrgID = org.RawID()
+		f.Collection = collection
+		if err := f.Validate(); err != nil {
+			writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("line %d: %s", line, err))
+			return
+		}
+		fragments = append(fragments, f)
+	}
+	if err := scanner.Err(); err != nil {
+		writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("read body: %s", err))
+		return
+	}
+	if err := s.store.Put(r.Context(), fragments); err != nil {
+		writeJSONError(w, http.StatusInternalServerError, "fragment store unavailable")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, `{"stored": %d}`, len(fragments))
 }

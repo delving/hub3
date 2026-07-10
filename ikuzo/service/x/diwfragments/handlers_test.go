@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/domain"
@@ -141,5 +142,56 @@ func TestGetMissingFragmentIs404(t *testing.T) {
 	}
 	if body["error"] == "" {
 		t.Fatalf("error body must carry an error message, got %q", w.Body.String())
+	}
+}
+
+// TestBulkPutStoresFragments asserts the happy path of the NDJSON ingest
+// route: every line becomes a stored fragment, and orgID/collection are
+// always stamped from the request (URL + org context), never trusted from
+// the payload, even when the payload's own kind/lang differ per line.
+func TestBulkPutStoresFragments(t *testing.T) {
+	store := &fakeStore{byID: map[string]*Fragment{}}
+	svc, err := NewService(SetStore(store))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := `{"kind":"item","recordID":"demo_spec_158","lang":"nl","html":"<div>a</div>","headTags":"<link>","meta":{"renderedAt":"2026-07-10T12:00:00Z","diwVersion":"1.0.0","configVersion":"abc"}}
+{"kind":"listing","lang":"nl","html":"<div>l</div>","meta":{"renderedAt":"2026-07-10T12:00:00Z","diwVersion":"1.0.0","configVersion":"abc"}}`
+	req := httptest.NewRequest(http.MethodPost, "/api/ui/v1/coll1/fragments", strings.NewReader(body))
+	org, _ := domain.NewOrganizationID("demo")
+	req = req.WithContext(domain.SetOrganizationInContext(req.Context(), domain.Organization{ID: org}))
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("want 200, got %d: %s", w.Code, w.Body.String())
+	}
+	if len(store.byID) != 2 {
+		t.Fatalf("want 2 stored fragments, got %d", len(store.byID))
+	}
+	for _, f := range store.byID {
+		if f.OrgID != "demo" || f.Collection != "coll1" {
+			t.Fatalf("server must stamp org+collection, got %+v", f)
+		}
+	}
+}
+
+// TestBulkPutRejectsInvalidLine asserts the all-or-nothing guarantee: one
+// invalid line (here, an unknown fragment kind) fails the whole batch with
+// 400 and nothing is stored, so a render worker retry can never leave a
+// collection half-refreshed.
+func TestBulkPutRejectsInvalidLine(t *testing.T) {
+	store := &fakeStore{byID: map[string]*Fragment{}}
+	svc, _ := NewService(SetStore(store))
+	body := `{"kind":"bogus","lang":"nl","html":"<div>a</div>"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/ui/v1/coll1/fragments", strings.NewReader(body))
+	org, _ := domain.NewOrganizationID("demo")
+	req = req.WithContext(domain.SetOrganizationInContext(req.Context(), domain.Organization{ID: org}))
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("want 400, got %d", w.Code)
+	}
+	if len(store.byID) != 0 {
+		t.Fatal("invalid batch must store nothing")
 	}
 }
