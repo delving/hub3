@@ -168,6 +168,50 @@ func (s *DiwFragmentStore) Put(ctx context.Context, fragments []diwfragments.Fra
 		return fmt.Errorf("bulk fragment write: %s", res.String())
 	}
 
+	// A bulk request can succeed at the transport level (HTTP 200, so
+	// res.IsError() is false) while individual items were rejected —
+	// mapping conflicts, shard failures, and the like are reported only
+	// per item, under a body-level "errors": true flag. Decode the body
+	// and fail loudly on any item error, because the render worker's
+	// "stored N" accounting — and therefore the serving cache's
+	// completeness — must only be trusted when every fragment landed.
+	var bulkResp struct {
+		Errors bool `json:"errors"`
+		Items  []map[string]struct {
+			ID    string          `json:"_id"`
+			Error json.RawMessage `json:"error"`
+		} `json:"items"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&bulkResp); err != nil {
+		return fmt.Errorf("decode bulk fragment response: %w", err)
+	}
+
+	if bulkResp.Errors {
+		var failed []string
+
+		for _, item := range bulkResp.Items {
+			for _, op := range item {
+				if len(op.Error) > 0 && string(op.Error) != "null" {
+					failed = append(failed, op.ID)
+				}
+			}
+		}
+
+		// Name the first few failed DocIDs so the log line alone is
+		// actionable without replaying the bulk request.
+		const maxNamed = 3
+
+		named := failed
+		if len(named) > maxNamed {
+			named = named[:maxNamed]
+		}
+
+		return fmt.Errorf(
+			"bulk fragment write: %d of %d fragments failed (e.g. %s)",
+			len(failed), len(fragments), strings.Join(named, ", "),
+		)
+	}
+
 	return nil
 }
 
