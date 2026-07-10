@@ -55,6 +55,7 @@ type Config struct {
 	NDERegister   NDE               `json:"-" toml:"-"`
 	RDF           `json:"rdf"`
 	Sitemap       `json:"sitemap"`
+	DiwFragments  `json:"diwfragments"`
 	ns            *namespace.Service
 	Task          `json:"task"`
 	ts            *task.Service
@@ -80,6 +81,7 @@ func (cfg *Config) Options(cfgOptions ...Option) ([]ikuzo.Option, error) {
 			&cfg.Namespace,
 			&cfg.NDERegister,
 			&cfg.Sitemap,
+			&cfg.DiwFragments,
 			&cfg.Logging,
 			&cfg.OAIPMH,
 			&cfg.PID,

@@ -22,6 +22,10 @@ dataPath = "./data"
 fallbackTripleStores = ["https://data.brabantcloud.nl/k3/query/"]
 fallbackNaan = { "15052" = "https://data.brabantcloud.nl/k3/query/" }
 
+# DiwFragments serves pre-rendered /api/ui/v1 fragments for DIW previews.
+[diwfragments]
+enabled = true
+
 [orgs]
 ids = [
   # "brabantcloud",
