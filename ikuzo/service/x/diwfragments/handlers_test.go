@@ -88,12 +88,29 @@ func TestGetItemServesEnvelopeWithETag(t *testing.T) {
 	}
 }
 
+// TestGetItemHonorsIfNoneMatch asserts the ETag round-trip: whatever the
+// server emits in the ETag header (the RFC 7232 quoted form) is what it
+// honors in If-None-Match — the tag is read from a first response rather
+// than hardcoded from Fragment.ETag(), which stays a bare hex string.
 func TestGetItemHonorsIfNoneMatch(t *testing.T) {
-	f := seededItem()
-	svc := newTestService(t, f)
-	w := doRequest(svc, http.MethodGet, "/api/ui/v1/coll1/item/demo_spec_158", f.ETag())
+	svc := newTestService(t, seededItem())
+	first := doRequest(svc, http.MethodGet, "/api/ui/v1/coll1/item/demo_spec_158", "")
+	if first.Code != http.StatusOK {
+		t.Fatalf("want 200 on first request, got %d: %s", first.Code, first.Body.String())
+	}
+	etag := first.Header().Get("ETag")
+	if len(etag) < 2 || etag[0] != '"' || etag[len(etag)-1] != '"' {
+		t.Fatalf("ETag must be a quoted string per RFC 7232, got %q", etag)
+	}
+	w := doRequest(svc, http.MethodGet, "/api/ui/v1/coll1/item/demo_spec_158", etag)
 	if w.Code != http.StatusNotModified {
 		t.Fatalf("want 304, got %d", w.Code)
+	}
+	if got := w.Header().Get("ETag"); got != etag {
+		t.Fatalf("304 must resend ETag %q, got %q", etag, got)
+	}
+	if cc := w.Header().Get("Cache-Control"); cc != "public, max-age=300" {
+		t.Fatalf("304 must resend Cache-Control, got %q", cc)
 	}
 }
 
@@ -114,5 +131,15 @@ func TestGetMissingFragmentIs404(t *testing.T) {
 	w := doRequest(svc, http.MethodGet, "/api/ui/v1/coll1/item/nope", "")
 	if w.Code != http.StatusNotFound {
 		t.Fatalf("want 404, got %d", w.Code)
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("error responses must be JSON, got Content-Type %q", ct)
+	}
+	var body map[string]string
+	if err := json.Unmarshal(w.Body.Bytes(), &body); err != nil {
+		t.Fatalf("error body must be valid JSON: %v", err)
+	}
+	if body["error"] == "" {
+		t.Fatalf("error body must carry an error message, got %q", w.Body.String())
 	}
 }

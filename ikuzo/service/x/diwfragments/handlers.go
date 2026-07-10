@@ -3,11 +3,21 @@ package diwfragments
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 
 	"github.com/delving/hub3/ikuzo/domain"
 )
+
+// writeJSONError writes an error response as a JSON body. http.Error would
+// force Content-Type: text/plain, breaking API consumers that parse every
+// /api/ui/v1 response as JSON — so all error paths go through here instead.
+func writeJSONError(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
+}
 
 // handleItem serves one record-detail fragment.
 func (s *Service) handleItem(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +35,7 @@ func (s *Service) handleListing(w http.ResponseWriter, r *http.Request) {
 func (s *Service) serveFragment(w http.ResponseWriter, r *http.Request, kind Kind, recordID string) {
 	org, ok := domain.GetOrganization(r)
 	if !ok {
-		http.Error(w, `{"error":"unknown organization"}`, http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "unknown organization")
 		return
 	}
 	lang := r.URL.Query().Get("lang")
@@ -34,15 +44,22 @@ func (s *Service) serveFragment(w http.ResponseWriter, r *http.Request, kind Kin
 	}
 	fragment, err := s.store.Get(r.Context(), org.RawID(), chi.URLParam(r, "collection"), kind, recordID, lang)
 	if err != nil {
-		http.Error(w, `{"error":"fragment store unavailable"}`, http.StatusInternalServerError)
+		writeJSONError(w, http.StatusInternalServerError, "fragment store unavailable")
 		return
 	}
 	if fragment == nil {
-		http.Error(w, `{"error":"fragment not found"}`, http.StatusNotFound)
+		writeJSONError(w, http.StatusNotFound, "fragment not found")
 		return
 	}
-	etag := fragment.ETag()
+	// RFC 7232 requires entity-tags to be quoted strings on the wire;
+	// Fragment.ETag() stays a bare hex string because quoting is an
+	// HTTP-layer concern, applied here.
+	etag := strconv.Quote(fragment.ETag())
 	if r.Header.Get("If-None-Match") == etag {
+		// RFC 7232 section 4.1: a 304 must resend the headers a cache
+		// would need to update its stored response.
+		w.Header().Set("ETag", etag)
+		w.Header().Set("Cache-Control", "public, max-age=300")
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
@@ -54,5 +71,5 @@ func (s *Service) serveFragment(w http.ResponseWriter, r *http.Request, kind Kin
 
 // handleBulkPut is implemented in the bulk-write task.
 func (s *Service) handleBulkPut(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, `{"error":"not implemented"}`, http.StatusNotImplemented)
+	writeJSONError(w, http.StatusNotImplemented, "not implemented")
 }
