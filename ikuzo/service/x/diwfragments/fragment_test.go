@@ -60,4 +60,14 @@ func TestValidate(t *testing.T) {
 	if err := h.Validate(); err != nil {
 		t.Fatalf("listing fragment needs no recordID, got %v", err)
 	}
+	tilde := validFragment()
+	tilde.RecordID = "a~en"
+	if err := tilde.Validate(); err == nil {
+		t.Fatal("recordID containing '~' must fail validation (DocID separator collision)")
+	}
+	tildeLang := validFragment()
+	tildeLang.Lang = "nl~fr"
+	if err := tildeLang.Validate(); err == nil {
+		t.Fatal("lang containing '~' must fail validation (DocID separator collision)")
+	}
 }

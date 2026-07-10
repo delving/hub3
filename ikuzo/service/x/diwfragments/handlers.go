@@ -13,6 +13,15 @@ import (
 	"github.com/delving/hub3/ikuzo/domain"
 )
 
+// maxBulkBodyBytes caps the size of a bulk-ingest request body.
+// handleBulkPut sits behind no authentication (per the platform's current
+// posture for this route) and buffers every scanned line into an in-memory
+// fragments slice before validating or storing any of it — with no cap, an
+// unauthenticated caller could stream an arbitrarily large body and exhaust
+// server memory. 64 MiB is generous for a legitimate fragment batch from the
+// render worker but bounds the damage a hostile or misbehaving client can do.
+const maxBulkBodyBytes = 64 << 20
+
 // writeJSONError writes an error response as a JSON body. http.Error would
 // force Content-Type: text/plain, breaking API consumers that parse every
 // /api/ui/v1 response as JSON — so all error paths go through here instead.
@@ -83,6 +92,7 @@ func (s *Service) handleBulkPut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	collection := chi.URLParam(r, "collection")
+	r.Body = http.MaxBytesReader(w, r.Body, maxBulkBodyBytes)
 	var fragments []Fragment
 	scanner := bufio.NewScanner(r.Body)
 	scanner.Buffer(make([]byte, 0, 1024*1024), 8*1024*1024)

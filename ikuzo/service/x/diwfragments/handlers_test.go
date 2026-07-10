@@ -195,3 +195,42 @@ func TestBulkPutRejectsInvalidLine(t *testing.T) {
 		t.Fatal("invalid batch must store nothing")
 	}
 }
+
+// TestBulkPutRejectsOversizedBody asserts the DoS guard on the
+// unauthenticated ingest route: a body larger than maxBulkBodyBytes must be
+// rejected with a clean JSON 4xx response, not accepted or panic.
+//
+// The body is built from many repeats of one small valid NDJSON line
+// (rather than a single giant line) so the failure is driven by
+// http.MaxBytesReader's total-body cap, not by bufio.Scanner's separate
+// per-token buffer limit — the two are different guards and this test
+// targets the one handleBulkPut adds.
+func TestBulkPutRejectsOversizedBody(t *testing.T) {
+	store := &fakeStore{byID: map[string]*Fragment{}}
+	svc, _ := NewService(SetStore(store))
+	validLine := `{"kind":"listing","lang":"nl","html":"<div>l</div>","meta":{"renderedAt":"2026-07-10T12:00:00Z","diwVersion":"1.0.0","configVersion":"abc"}}` + "\n"
+	repeats := maxBulkBodyBytes/len(validLine) + 2
+	body := strings.Repeat(validLine, repeats)
+	req := httptest.NewRequest(http.MethodPost, "/api/ui/v1/coll1/fragments", strings.NewReader(body))
+	org, _ := domain.NewOrganizationID("demo")
+	req = req.WithContext(domain.SetOrganizationInContext(req.Context(), domain.Organization{ID: org}))
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, req)
+	if w.Code < 400 || w.Code >= 500 {
+		t.Fatalf("want a 4xx error, got %d: %s", w.Code, w.Body.String())
+	}
+	if ct := w.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("error responses must be JSON, got Content-Type %q", ct)
+	}
+	var respBody map[string]string
+	if err := json.Unmarshal(w.Body.Bytes(), &respBody); err != nil {
+		t.Fatalf("error body must be valid JSON: %v", err)
+	}
+	if respBody["error"] == "" {
+		t.Fatalf("error body must carry an error message, got %q", w.Body.String())
+	}
+	t.Logf("observed status=%d body=%s", w.Code, w.Body.String())
+	if len(store.byID) != 0 {
+		t.Fatal("oversized batch must store nothing")
+	}
+}

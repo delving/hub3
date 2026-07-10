@@ -75,7 +75,16 @@ func (f *Fragment) ETag() string {
 }
 
 // Validate rejects fragments that could not be served back: unknown
-// kinds, missing identifiers, or an item fragment without its record id.
+// kinds, missing identifiers, an item fragment without its record id, or
+// a payload-controlled field that would corrupt DocID's separator.
+//
+// DocID joins OrgID, Collection, Kind, RecordID and Lang with '~'. OrgID
+// and Collection are always stamped by the server from the request, but
+// RecordID and Lang arrive from the caller's payload — an unchecked '~'
+// in either lets one record alias another's DocID (e.g. RecordID "a~en"
+// with Lang "nl" collides with RecordID "a" and Lang "en~nl"), silently
+// overwriting a different fragment on Put. Rejecting '~' here keeps the
+// join unambiguous.
 func (f *Fragment) Validate() error {
 	if f.Kind != KindItem && f.Kind != KindListing {
 		return fmt.Errorf("unknown fragment kind %q", f.Kind)
@@ -85,6 +94,12 @@ func (f *Fragment) Validate() error {
 	}
 	if f.Kind == KindItem && f.RecordID == "" {
 		return fmt.Errorf("item fragment requires recordID")
+	}
+	if strings.Contains(f.RecordID, "~") {
+		return fmt.Errorf("recordID must not contain %q (DocID separator)", "~")
+	}
+	if strings.Contains(f.Lang, "~") {
+		return fmt.Errorf("lang must not contain %q (DocID separator)", "~")
 	}
 	if f.HTML == "" {
 		return fmt.Errorf("fragment requires html")
