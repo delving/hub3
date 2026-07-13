@@ -1,6 +1,7 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -38,18 +39,9 @@ const diwFragmentMapping = `{
 // organization, keyed by Fragment.DocID so repeated renders of the same
 // item/listing upsert in place instead of accumulating duplicates.
 //
-// VERIFY note (resolved): the task brief that shaped this file assumed the
-// typed go-elasticsearch client lived at Client.search. In this package
-// Client.search is actually the olivere/elastic v7 client (see sitemap.go,
-// oaipmh_store.go) used for query/Get calls, while Client.es is the typed
-// github.com/elastic/go-elasticsearch/v8 client (see indices.go,
-// Client.Bulk in client.go) used for index administration and bulk writes.
-// DiwFragmentStore follows that existing split rather than the brief's
-// single-field guess: ensureIndex and Put use client.es (index
-// create/exists and bulk, matching indices.go's Indices.Create/Exists and
-// client.go's Bulk idiom), and Get uses client.search (matching
-// oaipmh_store.go's GetRecord and semantic_store.go's GetByID, including
-// the elastic.IsNotFound(err) check for a missing document).
+// It follows this package's two-client split (see sitemap.go): writes go
+// through the typed client (Client.es), reads through the olivere query
+// client (Client.search).
 type DiwFragmentStore struct {
 	client *Client
 }
@@ -75,26 +67,14 @@ func diwFragmentIndexName(orgID string) string {
 }
 
 // ensureIndex creates the fragment index for orgID the first time it is
-// needed. It tolerates two forms of races that are normal for a lazily
-// created index under concurrent writers: an Exists check that errors out
-// (fall through and try to create; Create is itself idempotent) and a
-// Create that loses the race because the index already exists
-// (resource_already_exists_exception), which is treated as success. Any
+// needed. Create is issued unconditionally — no Exists pre-check — because
+// already-exists is the cheap common case: a create that loses the race to
+// another writer (or finds the index from an earlier run) returns
+// resource_already_exists_exception, which is treated as success. Any
 // other Create error — including other 400s such as a rejected mapping —
 // fails the write.
 func (s *DiwFragmentStore) ensureIndex(ctx context.Context, orgID string) error {
 	name := diwFragmentIndexName(orgID)
-
-	existsRes, err := s.client.es.Indices.Exists(
-		[]string{name},
-		s.client.es.Indices.Exists.WithContext(ctx),
-	)
-	if err == nil && existsRes != nil {
-		defer existsRes.Body.Close()
-		if existsRes.StatusCode == 200 {
-			return nil
-		}
-	}
 
 	createRes, err := s.client.es.Indices.Create(
 		name,
@@ -150,7 +130,7 @@ func (s *DiwFragmentStore) Put(ctx context.Context, fragments []diwfragments.Fra
 		return err
 	}
 
-	var buf strings.Builder
+	var buf bytes.Buffer
 
 	for i := range fragments {
 		f := fragments[i]
@@ -177,7 +157,7 @@ func (s *DiwFragmentStore) Put(ctx context.Context, fragments []diwfragments.Fra
 	}
 
 	res, err := s.client.es.Bulk(
-		strings.NewReader(buf.String()),
+		&buf,
 		s.client.es.Bulk.WithContext(ctx),
 		s.client.es.Bulk.WithRefresh("true"),
 	)
@@ -221,12 +201,7 @@ func (s *DiwFragmentStore) Put(ctx context.Context, fragments []diwfragments.Fra
 
 		// Name the first few failed DocIDs so the log line alone is
 		// actionable without replaying the bulk request.
-		const maxNamed = 3
-
-		named := failed
-		if len(named) > maxNamed {
-			named = named[:maxNamed]
-		}
+		named := failed[:min(3, len(failed))]
 
 		return fmt.Errorf(
 			"bulk fragment write: %d of %d fragments failed (e.g. %s)",

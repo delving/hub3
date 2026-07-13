@@ -36,6 +36,9 @@ func setJSONHeaders(w http.ResponseWriter) {
 // writeJSONError writes an error response as a JSON body. http.Error would
 // force Content-Type: text/plain, breaking API consumers that parse every
 // /api/ui/v1 response as JSON — so all error paths go through here instead.
+// Not render.Error: the frozen v1 contract pins the {"error": message} body
+// shape (ecosystem plan 2026-07-10-api-ui-v1-birth), not render's
+// status/code/message/description envelope.
 func writeJSONError(w http.ResponseWriter, code int, message string) {
 	setJSONHeaders(w)
 	w.WriteHeader(code)
