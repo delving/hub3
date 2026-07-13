@@ -77,6 +77,9 @@ func TestGetItemServesEnvelopeWithETag(t *testing.T) {
 	if w.Header().Get("ETag") == "" {
 		t.Fatal("ETag header must be set")
 	}
+	if got := w.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+		t.Fatalf("fragment responses must set X-Content-Type-Options: nosniff, got %q", got)
+	}
 	if cc := w.Header().Get("Cache-Control"); cc != "public, max-age=300" {
 		t.Fatalf("unexpected Cache-Control %q", cc)
 	}

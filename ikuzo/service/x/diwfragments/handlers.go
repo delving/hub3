@@ -22,11 +22,22 @@ import (
 // render worker but bounds the damage a hostile or misbehaving client can do.
 const maxBulkBodyBytes = 64 << 20
 
+// setJSONHeaders marks a response body as JSON and disables MIME
+// sniffing. Every /api/ui/v1 body — the fragment envelope above all —
+// carries ingest-supplied HTML inside JSON strings; X-Content-Type-Options:
+// nosniff stops a browser handed such a URL directly from second-guessing
+// the declared type and rendering that HTML as a page. All response paths
+// in this package go through here so no body ships without the header.
+func setJSONHeaders(w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+}
+
 // writeJSONError writes an error response as a JSON body. http.Error would
 // force Content-Type: text/plain, breaking API consumers that parse every
 // /api/ui/v1 response as JSON — so all error paths go through here instead.
 func writeJSONError(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "application/json")
+	setJSONHeaders(w)
 	w.WriteHeader(code)
 	_ = json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
@@ -75,7 +86,7 @@ func (s *Service) serveFragment(w http.ResponseWriter, r *http.Request, kind Kin
 		w.WriteHeader(http.StatusNotModified)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	setJSONHeaders(w)
 	w.Header().Set("ETag", etag)
 	w.Header().Set("Cache-Control", "public, max-age=300")
 	_ = json.NewEncoder(w).Encode(Envelope{HeadTags: fragment.HeadTags, HTML: fragment.HTML, Meta: fragment.Meta})
@@ -105,7 +116,10 @@ func (s *Service) handleBulkPut(w http.ResponseWriter, r *http.Request) {
 		}
 		var f Fragment
 		if err := json.Unmarshal(raw, &f); err != nil {
-			writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("line %d: %s", line, err))
+			// The raw unmarshal error names internal Go types and struct
+			// fields; this route is unauthenticated, so only the line
+			// number goes back to the caller.
+			writeJSONError(w, http.StatusBadRequest, fmt.Sprintf("invalid JSON on line %d", line))
 			return
 		}
 		f.OrgID = org.RawID()
@@ -124,6 +138,6 @@ func (s *Service) handleBulkPut(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, http.StatusInternalServerError, "fragment store unavailable")
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	setJSONHeaders(w)
 	fmt.Fprintf(w, `{"stored": %d}`, len(fragments))
 }

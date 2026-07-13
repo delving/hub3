@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/olivere/elastic/v7"
@@ -77,8 +78,10 @@ func diwFragmentIndexName(orgID string) string {
 // needed. It tolerates two forms of races that are normal for a lazily
 // created index under concurrent writers: an Exists check that errors out
 // (fall through and try to create; Create is itself idempotent) and a
-// Create that reports the index already exists (400
-// resource_already_exists_exception), which is treated as success.
+// Create that loses the race because the index already exists
+// (resource_already_exists_exception), which is treated as success. Any
+// other Create error — including other 400s such as a rejected mapping —
+// fails the write.
 func (s *DiwFragmentStore) ensureIndex(ctx context.Context, orgID string) error {
 	name := diwFragmentIndexName(orgID)
 
@@ -103,8 +106,27 @@ func (s *DiwFragmentStore) ensureIndex(ctx context.Context, orgID string) error 
 	}
 	defer createRes.Body.Close()
 
-	if createRes.IsError() && createRes.StatusCode != 400 {
-		return fmt.Errorf("create index %s: %s", name, createRes.String())
+	if createRes.IsError() {
+		body, readErr := io.ReadAll(createRes.Body)
+		if readErr != nil {
+			return fmt.Errorf("create index %s: status %s (error response unreadable: %v)", name, createRes.Status(), readErr)
+		}
+
+		// Only the lost-creation race is success. Elasticsearch reports it
+		// as {"error": {"type": "resource_already_exists_exception", …}};
+		// matching on the parsed error type (rather than the bare 400
+		// status) keeps genuine 400s — a rejected mapping, a malformed
+		// index name — failing loudly instead of being swallowed.
+		var esErr struct {
+			Error struct {
+				Type string `json:"type"`
+			} `json:"error"`
+		}
+		if json.Unmarshal(body, &esErr) == nil && esErr.Error.Type == "resource_already_exists_exception" {
+			return nil
+		}
+
+		return fmt.Errorf("create index %s: status %s: %s", name, createRes.Status(), body)
 	}
 
 	return nil
