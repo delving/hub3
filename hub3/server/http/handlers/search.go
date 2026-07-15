@@ -1463,7 +1463,10 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 		if mltEnabled {
 			conv, convErr := legacy.DefaultConverter(record.Meta.EntryURI, record.Meta.OrgID)
-			if convErr == nil {
+			// Configuration() is nil for orgs without a registered legacy V1
+			// config (DefaultConverter still returns a fallback converter for
+			// them); skip MLT instead of dereferencing a nil config.
+			if convErr == nil && conv.Configuration() != nil {
 				cfg := conv.Configuration()
 				mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
 				var mltFilterKeys []string
