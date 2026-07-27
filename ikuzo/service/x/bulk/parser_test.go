@@ -124,7 +124,11 @@ func TestDropRecordsRejectsInjectionCharacters(t *testing.T) {
 	}
 }
 
-func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
+// A drop_records action without hubIds is a malformed client payload (e.g.
+// ids under a different field name). It must FAIL loudly — silently
+// returning nil let clients confirm drops that never happened (found
+// live: Narthex sent `ids`, got 201, marked 170 orphans as dropped).
+func TestDropRecordsEmptyListIsAnError(t *testing.T) {
 	is := is.New(t)
 	p := &Parser{
 		ds: &models.DataSet{OrgID: "org1", Spec: "ds1"},
@@ -136,7 +140,8 @@ func TestDropRecordsEmptyListIsNoOp(t *testing.T) {
 		HubIDs:    nil,
 	}
 	err := p.dropRecords(context.Background(), req)
-	is.NoErr(err)
+	is.True(err != nil)
+	is.True(strings.Contains(err.Error(), "no hubIds"))
 }
 
 func TestProcessRoutesDropRecords(t *testing.T) {

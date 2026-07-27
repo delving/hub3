@@ -254,7 +254,10 @@ var hubIDPattern = regexp.MustCompile(`^[A-Za-z0-9_.-]+$`)
 // Idempotent at the storage layer; see DataSet.DropRecordsByHubIDs.
 func (p *Parser) dropRecords(ctx context.Context, req *Request) error {
 	if len(req.HubIDs) == 0 {
-		return nil
+		// A drop_records action without hubIds is a malformed client payload
+		// (e.g. ids sent under a different field name). Silently returning
+		// nil made the caller see 201 and confirm drops that never happened.
+		return fmt.Errorf("drop_records for %s/%s carried no hubIds", req.OrgID, req.DatasetID)
 	}
 	prefix := req.OrgID + "_" + req.DatasetID + "_"
 	for _, hid := range req.HubIDs {
