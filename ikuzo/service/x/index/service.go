@@ -47,6 +47,12 @@ type BulkIndex interface {
 
 type Service struct {
 	bi             esutil.BulkIndexer
+
+	// per-dataset indexing failures collected from BulkIndexer OnFailure,
+	// drained into the next verification notification (key: org|dataset)
+	indexErrMu  sync.Mutex
+	indexErrors map[string][]IndexingError
+
 	stan           *NatsConfig
 	direct         bool
 	MsgHandler     func(ctx context.Context, m *domainpb.IndexMessage) error
@@ -574,8 +580,10 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		OnFailure: func(ctx context.Context, item esutil.BulkIndexerItem, res esutil.BulkIndexerResponseItem, err error) {
 			atomic.AddUint64(&s.m.Index.Failed, 1)
 			if err != nil {
+				s.recordIndexFailure(m.GetOrganisationID(), m.GetDatasetID(), item.DocumentID, "bulk_error", err.Error())
 				log.Error().Err(err).Msg("bulk index msg error")
 			} else if res.Status != http.StatusNotFound {
+				s.recordIndexFailure(m.GetOrganisationID(), m.GetDatasetID(), res.DocumentID, res.Error.Type, res.Error.Reason)
 				body, _ := io.ReadAll(item.Body)
 				log.Error().
 					Str("reason", res.Error.Reason).
@@ -606,6 +614,92 @@ func (s *Service) submitBulkMsg(ctx context.Context, m *domainpb.IndexMessage) e
 		ctx,
 		bulkMsg,
 	)
+}
+
+// recordIndexFailure collects a per-record indexing failure for the dataset;
+// drained into the next verification notification. Capped per dataset so a
+// wholesale failure cannot grow without bound.
+func (s *Service) recordIndexFailure(orgID, datasetID, documentID, errType, reason string) {
+	s.indexErrMu.Lock()
+	defer s.indexErrMu.Unlock()
+
+	if s.indexErrors == nil {
+		s.indexErrors = map[string][]IndexingError{}
+	}
+
+	key := orgID + "|" + datasetID
+	if len(s.indexErrors[key]) >= 1000 {
+		return
+	}
+
+	s.indexErrors[key] = append(s.indexErrors[key], IndexingError{
+		DocumentID: documentID,
+		ErrorType:  errType,
+		Reason:     reason,
+	})
+}
+
+func (s *Service) drainIndexErrors(orgID, datasetID string) []IndexingError {
+	s.indexErrMu.Lock()
+	defer s.indexErrMu.Unlock()
+
+	key := orgID + "|" + datasetID
+	errs := s.indexErrors[key]
+	delete(s.indexErrors, key)
+
+	return errs
+}
+
+// VerifyAndNotify checks the total indexed count for the spec against the
+// client-supplied expectation and reports the outcome (with any collected
+// per-record failures) through the notifier. Registry-owned saves have no
+// revision boundary, so this is the completion signal in that mode —
+// decoupled from orphan control.
+func (s *Service) VerifyAndNotify(orgID, datasetID string, expected int) {
+	go func() {
+		// same settle wait as orphan control: let ES flush and refresh
+		timer := time.NewTimer(time.Second * time.Duration(s.orphanWait))
+		<-timer.C
+
+		if s.notifier == nil {
+			return
+		}
+
+		ds, err := models.GetDataSet(orgID, datasetID)
+		if err != nil {
+			log.Error().Err(err).Str("datasetID", datasetID).Msg("verify: unable to retrieve dataset")
+			return
+		}
+
+		errsList := s.drainIndexErrors(orgID, datasetID)
+
+		actual, err := ds.SpecRecordCount(context.Background())
+		if err != nil {
+			s.notifier.SendWarning(context.Background(), orgID, datasetID, ds.Revision,
+				fmt.Sprintf("index verification error: %v", err), expected, 0)
+			return
+		}
+
+		if actual == expected && len(errsList) == 0 {
+			s.notifier.SendSuccess(context.Background(), orgID, datasetID, ds.Revision, actual, expected, 0)
+			return
+		}
+
+		notification := &IndexingNotification{
+			Type:            "warning",
+			OrgID:           orgID,
+			DatasetID:       datasetID,
+			Revision:        ds.Revision,
+			Timestamp:       time.Now(),
+			RecordsIndexed:  actual,
+			RecordsExpected: expected,
+			Errors:          errsList,
+			Message:         fmt.Sprintf("index verification: %d indexed of %d expected (%d record error(s))", actual, expected, len(errsList)),
+		}
+		if err := s.notifier.Send(context.Background(), notification); err != nil {
+			log.Error().Err(err).Str("datasetID", datasetID).Msg("verify: unable to send notification")
+		}
+	}()
 }
 
 func (s *Service) BulkIndexStats() esutil.BulkIndexerStats {

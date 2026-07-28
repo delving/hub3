@@ -404,6 +404,22 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 		p.dropPosthook(req.OrgID, req.DatasetID, -1)
 
 		subLogger.Info().Str("datasetID", req.DatasetID).Int("revision", p.ds.Revision).Msg("dropped dataset")
+	case "index_verify":
+		// Registry-owned completion signal: verify total spec count against
+		// the client's expectation and notify (per-record failures included).
+		// Decoupled from clear_orphans — with the revision sweep off, this is
+		// the only way indexing outcomes get reported back.
+		if v, ok := p.bi.(interface {
+			VerifyAndNotify(orgID, datasetID string, expected int)
+		}); ok {
+			v.VerifyAndNotify(req.OrgID, req.DatasetID, req.ExpectedRecords)
+			subLogger.Info().Str("datasetID", req.DatasetID).
+				Int("expected", req.ExpectedRecords).
+				Msg("index verification scheduled")
+		} else {
+			subLogger.Warn().Str("datasetID", req.DatasetID).
+				Msg("index_verify requested but indexer does not support verification")
+		}
 	case "drop_records":
 		if err := p.dropRecords(ctx, req); err != nil {
 			subLogger.Error().Err(err).Str("datasetID", req.DatasetID).Msg("Unable to drop records")

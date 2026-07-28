@@ -476,6 +476,23 @@ func (ds DataSet) VerifyRevisionCount(ctx context.Context) (bool, int, error) {
 	return false, 0, nil
 }
 
+// SpecRecordCount returns the total number of indexed records for this spec
+// across ALL revisions. Registry-owned saves (Narthex keepRevisionSweep=false)
+// do not bump revisions, so revision-scoped verification cannot apply.
+func (ds DataSet) SpecRecordCount(ctx context.Context) (int, error) {
+	_, revisions, _, _, err := ds.indexRecordRevisionsBySpec(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("unable to query revision counts: %w", err)
+	}
+
+	total := 0
+	for _, rev := range revisions {
+		total += rev.RecordCount
+	}
+
+	return total, nil
+}
+
 // createDataSetCounters creates counters from an ElasticSearch aggregation
 func createDataSetCounters(aggs elastic.Aggregations, name string) ([]DataSetCounter, error) {
 	counters := []DataSetCounter{}

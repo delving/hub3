@@ -45,6 +45,9 @@ type Request struct {
 	Tags          string   `json:"tags,omitempty"`
 	RecDefID      string   `json:"recDefId,omitempty"`
 	HubIDs        []string `json:"hubIds,omitempty"`
+	// ExpectedRecords carries the client's expected index size for the
+	// index_verify action (registry-owned completion signal).
+	ExpectedRecords int `json:"expectedRecords,omitempty"`
 	aboutTypeURI  []string
 	resolvedTags  []string
 	indexTypes    []string
