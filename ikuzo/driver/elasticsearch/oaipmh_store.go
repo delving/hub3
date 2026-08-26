@@ -340,16 +340,20 @@ func (o *OAIPMHStore) getOAIPMHRecord(wrapper recordWrapper, format string, only
 		return record, fmt.Errorf("unable to decode oai-pmh record %q; %w", wrapper.HubID, err)
 	}
 
-	var buf bytes.Buffer
-
-	if err := o.serialize(format, fg, &buf); err != nil {
-		return record, err
-	}
-
 	record.Header.Identifier = fg.Meta.HubID
 	record.Header.DateStamp = fg.Meta.LastModified().UTC().Format(oaipmh.TimeFormat)
 	record.Header.SetSpec = []string{fg.Meta.Spec}
+
+	// Header-only requests (ListIdentifiers) fetch just the meta fields from
+	// the index, so the graph has no resources — serializing would fail with
+	// "unable to create *rdf.Graph because resources is empty" (and the
+	// serialized body was discarded for headers anyway).
 	if !onlyHeader {
+		var buf bytes.Buffer
+		if err := o.serialize(format, fg, &buf); err != nil {
+			return record, err
+		}
+
 		record.Metadata = oaipmh.Metadata{Body: buf.Bytes()}
 	}
 
