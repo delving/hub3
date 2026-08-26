@@ -171,19 +171,14 @@ func (c *PITClient) CreatePIT(ctx context.Context, indexName string, keepAlive s
 		return "", fmt.Errorf("index name is required for Elasticsearch PIT creation")
 	}
 
-	urlPath := fmt.Sprintf("/%s/_pit", indexName)
+	// The PIT *open* endpoint only reads keep_alive from the query string
+	// (ES 7.10 through 9.x); a keep_alive in the JSON body is ignored and
+	// ES fails with "[keep_alive] parameter must be non null". Only the
+	// subsequent _search call takes keep_alive inside its body's pit object.
+	urlPath := fmt.Sprintf("/%s/_pit?keep_alive=%s", indexName, keepAlive)
 	baseURL := c.getCurrentURL()
 
-	// ES 7.x/9.x: keep_alive goes in the request body
-	requestBody := map[string]string{
-		"keep_alive": keepAlive,
-	}
-	reqBody, err := json.Marshal(requestBody)
-	if err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequestWithContext(ctx, "POST", baseURL+urlPath, bytes.NewReader(reqBody))
+	req, err := http.NewRequestWithContext(ctx, "POST", baseURL+urlPath, nil)
 	if err != nil {
 		return "", err
 	}
