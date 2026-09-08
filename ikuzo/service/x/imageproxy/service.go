@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -365,18 +366,31 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 			s.m.IncResize()
 		}
 
-		if !isCached && req.SubPath == deepZoomSuffix {
+		needsDeepZoom := req.SubPath == deepZoomSuffix
+
+		if !needsDeepZoom && !isCached && strings.HasPrefix(req.SubPath, "_files/") {
+			// A tile can be missing because the pyramid was evicted or a
+			// dzsave run crashed halfway; the .dzi marker tells that apart
+			// from a genuinely out-of-range tile request. No marker means
+			// the pyramid needs to be (re)generated.
+			base := strings.TrimSuffix(req.cacheKeyPath(), filepath.FromSlash(req.SubPath))
+			_, hasDzi := existsInCache(base + deepZoomSuffix)
+			needsDeepZoom = !hasDzi
+		}
+
+		if !isCached && needsDeepZoom {
+			pyramidBase := strings.TrimSuffix(req.cacheKeyPath(), filepath.FromSlash(req.SubPath))
 			_, err, _ := s.singleSetCache.Do(
-				req.CacheKey,
+				pyramidBase+deepZoomSuffix,
 				func() (interface{}, error) {
 					err := s.deepZoomExternally(req.downloadedSourcePath())
 					if err == nil {
-						info, ok := existsInCache(req.cacheKeyPath())
+						info, ok := existsInCache(pyramidBase + deepZoomSuffix)
 						if ok {
 							if cacheErr := s.updateCacheMetrics("", info, false); cacheErr != nil {
 								return nil, cacheErr
 							}
-							tiles, size := s.countTiles(strings.ReplaceAll(req.cacheKeyPath(), ".dzi", "_files"))
+							tiles, size := s.countTiles(pyramidBase + "_files")
 							s.cm.addDeepZoomTiles(tiles, size)
 						}
 					}
