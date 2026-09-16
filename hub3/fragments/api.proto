@@ -526,6 +526,10 @@ message FragmentEntryDoc {
   string Predicate = 8;
   string SearchLabel = 9;
   repeated string tags = 10;
+  // SortValue mirrors ikuzo.domain.domainpb.Entry.sortValue — carries
+  // an alternate key (e.g. surname-first form) so facet aggregations
+  // can order buckets on it while Value stays the visible key.
+  string sortValue = 11;
   // Content Index
   /*string latLong = 22;*/
   /*string date = 23;*/

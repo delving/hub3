@@ -87,6 +87,13 @@ message Entry {
   int32 order = 16;
   // Inline is only used for presentation after the graph is resolved
   Resource Inline = 17;
+  // SortValue is an alternate key for facet ordering. When set, facet
+  // aggregations may order buckets by min(sortValue) while keeping
+  // Value as the visible bucket key — e.g. an agent whose Value renders
+  // as "Willem Elsschot" (first-name first) can carry SortValue
+  // "Elsschot, Willem" so the exploded facet lists by surname without
+  // changing what the user sees.
+  string sortValue = 18;
 }
 
 message IndexRange {

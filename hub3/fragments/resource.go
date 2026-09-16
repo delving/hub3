@@ -1006,6 +1006,7 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		Level:       level,
 		SearchLabel: label,
 		Order:       fe.Order,
+		SortValue:   fe.SortValue,
 	}
 
 	if re.ID != "" {
@@ -1305,6 +1306,10 @@ type FragmentEntry struct {
 	Triple    string `json:"triple"`
 	Resolved  bool   `json:"resolved"`
 	Order     int    `json:"order"`
+	// SortValue mirrors domainpb.Entry.sortValue and is carried through
+	// to ResourceEntry so facet aggregations can order on a surname-
+	// first key while the visible bucket key stays the Value.
+	SortValue string `json:"sortValue,omitempty"`
 }
 
 // ResourceEntry contains all the indexed entries for FragmentResources
@@ -1326,6 +1331,11 @@ type ResourceEntry struct {
 	LatLong     string            `json:"latLong,omitempty"`
 	Inline      *FragmentResource `json:"inline,omitempty"`
 	Order       int               `json:"order"`
+	// SortValue is the ES-indexed subfield used to order facet buckets
+	// on an alternate key (surname-first, sortSanitize'd, …) while
+	// keeping Value as the visible bucket label. Empty when the upstream
+	// resolver has no sort variant for this entry.
+	SortValue string `json:"sortValue,omitempty"`
 }
 
 // IndexRange is used for indexing ranges.
