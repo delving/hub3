@@ -205,3 +205,53 @@ func TestDropRecordsByHubIDsChunksAt10k(t *testing.T) {
 	is.Equal(sparqlCalls, 3)
 	is.Equal(esCalls, 3) // 1 index type × 3 chunks
 }
+
+// The v1 legacy mapping has no meta.* fields; a v2-shaped query silently
+// matches nothing there, which let deleted records live on in the v1
+// index (planio #3564/#3565). This pins the per-index query shapes.
+func TestDeleteIndexRecordsByHubIDsUsesLegacyFieldsForV1(t *testing.T) {
+	is := is.New(t)
+
+	captured := map[string]string{} // index -> marshaled query
+	prev := esDeleteByQuerySender
+	esDeleteByQuerySender = func(
+		ctx context.Context,
+		index string,
+		q elastic.Query,
+	) (int, error) {
+		src, err := q.Source()
+		if err != nil {
+			return 0, err
+		}
+		b, _ := json.Marshal(src)
+		captured[index] = string(b)
+		return 1, nil
+	}
+	defer func() { esDeleteByQuerySender = prev }()
+
+	c.InitConfig()
+	prevTypes := c.Config.ElasticSearch.IndexTypes
+	c.Config.ElasticSearch.IndexTypes = []string{"v1", "v2"}
+	defer func() { c.Config.ElasticSearch.IndexTypes = prevTypes }()
+
+	ds := DataSet{OrgID: "org1", Spec: "ds1"}
+	count, err := ds.deleteIndexRecordsByHubIDs(
+		context.Background(),
+		[]string{"org1_ds1_a"},
+	)
+	is.NoErr(err)
+	is.Equal(count, 2)            // one per index
+	is.Equal(len(captured), 2)    // both v1 and v2 indices hit
+
+	v1Index := c.Config.ElasticSearch.GetV1IndexName("org1")
+	v2Index := c.Config.ElasticSearch.GetIndexName("org1")
+
+	// v1 query targets the legacy field names, and none of the meta.* ones.
+	is.True(strings.Contains(captured[v1Index], "system.slug.raw"))
+	is.True(strings.Contains(captured[v1Index], "system.spec.raw"))
+	is.True(!strings.Contains(captured[v1Index], "meta.hubID"))
+
+	// v2 query keeps the meta.* shape.
+	is.True(strings.Contains(captured[v2Index], "meta.hubID"))
+	is.True(strings.Contains(captured[v2Index], c.Config.ElasticSearch.SpecKey))
+}

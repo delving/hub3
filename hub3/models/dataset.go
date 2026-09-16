@@ -994,16 +994,27 @@ func (ds DataSet) deleteIndexRecordsByHubIDs(
 	// strict prefix at the parser layer (see Parser.dropRecords), so any
 	// mismatch here would indicate a bug. This differs from
 	// deleteAllIndexRecords which uses Should to tolerate legacy spec.raw
-	// key variants — drop_records has no legacy surface to cover.
-	q := elastic.NewBoolQuery().
+	// key variants.
+	v2Query := elastic.NewBoolQuery().
 		Must(elastic.NewTermQuery(c.Config.ElasticSearch.SpecKey, ds.Spec)).
 		Must(elastic.NewTermQuery(c.Config.ElasticSearch.OrgIDKey, ds.OrgID)).
 		Must(elastic.NewTermsQuery("meta.hubID", asIface...))
 
-	indices := ds.resolveIndicesForHubIDDelete()
+	// The v1 legacy mapping has none of the meta.* fields, so the v2-shaped
+	// query silently matches nothing there: with indexTypes ["v1","v2"] the
+	// v1 DeleteByQuery returned 0 without error and deleted records lived on
+	// in the v1 index (planio #3564/#3565). In v1 documents the hubID is
+	// `system.slug` and the spec is `system.spec`, both with a `.raw`
+	// keyword subfield (see internal/mapping/v1.go). No orgID clause: v1
+	// carries it only as analyzed `legacy.delving_orgId`, and the parser's
+	// hubId prefix validation plus the spec term already pin the dataset.
+	v1Query := elastic.NewBoolQuery().
+		Must(elastic.NewTermQuery("system.spec.raw", ds.Spec)).
+		Must(elastic.NewTermsQuery("system.slug.raw", asIface...))
+
 	total := 0
-	for _, idx := range indices {
-		deleted, err := esDeleteByQuerySender(ctx, idx, q)
+	for _, target := range ds.resolveIndicesForHubIDDelete(v1Query, v2Query) {
+		deleted, err := esDeleteByQuerySender(ctx, target.index, target.query)
 		if err != nil {
 			return total, err
 		}
@@ -1012,26 +1023,44 @@ func (ds DataSet) deleteIndexRecordsByHubIDs(
 	return total, nil
 }
 
+// hubIDDeleteTarget pairs an index with the query shaped for that
+// index's mapping generation.
+type hubIDDeleteTarget struct {
+	index string
+	query elastic.Query
+}
+
 // resolveIndicesForHubIDDelete mirrors the index-type resolution logic
 // used by deleteAllIndexRecords/deleteIndexOrphans, scoped to the
-// indices that actually hold per-hubID documents. The suggest index
+// indices that actually hold per-hubID documents, each paired with the
+// query for its mapping (v1 legacy vs v2/meta.*). The suggest index
 // is intentionally skipped — it is a derived index that the normal
 // indexing pipeline rebuilds, and its documents are not keyed by
 // meta.hubID in the same shape.
-func (ds DataSet) resolveIndicesForHubIDDelete() []string {
-	var indices []string
+func (ds DataSet) resolveIndicesForHubIDDelete(v1Query, v2Query elastic.Query) []hubIDDeleteTarget {
+	var targets []hubIDDeleteTarget
 	for _, indexType := range c.Config.ElasticSearch.IndexTypes {
 		switch indexType {
 		case v1Type:
-			indices = append(indices, c.Config.ElasticSearch.GetV1IndexName(ds.OrgID))
+			targets = append(targets, hubIDDeleteTarget{
+				index: c.Config.ElasticSearch.GetV1IndexName(ds.OrgID),
+				query: v1Query,
+			})
 		case v2Type:
-			indices = append(indices, c.Config.ElasticSearch.GetIndexName(ds.OrgID))
+			targets = append(targets, hubIDDeleteTarget{
+				index: c.Config.ElasticSearch.GetIndexName(ds.OrgID),
+				query: v2Query,
+			})
 		case fragmentType:
-			indices = append(indices, c.Config.ElasticSearch.FragmentIndexName(ds.OrgID))
+			// Fragment documents carry the v2-style meta block.
+			targets = append(targets, hubIDDeleteTarget{
+				index: c.Config.ElasticSearch.FragmentIndexName(ds.OrgID),
+				query: v2Query,
+			})
 		}
 		// DigitalObject index is intentionally omitted: phase-1 scope for
 		// drop_records. Add a case here once per-record DigitalObject
 		// cleanup is explicitly requested.
 	}
-	return indices
+	return targets
 }
