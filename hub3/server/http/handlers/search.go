@@ -391,11 +391,28 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 	// Choose aggregation type based on sort parameter
 	// Default to alpha sort if not explicitly set to "count"
 	if sr.FacetSort != "count" {
-		// Composite aggregation for deep pagination (alphabetical - default)
+		// Composite aggregation for deep pagination (alphabetical - default).
+		//
+		// Two ordered sources: `sortkey` (from the sortValue subfield
+		// introduced for #2560) drives the ordering; `value` remains
+		// the visible bucket key and acts as a stable tie-break.
+		// MissingBucket(true) on the sortkey source keeps entries that
+		// have no sortValue (plain-text fields, ArchivesSpace records
+		// with no sortName variant) in the response — they collapse
+		// into the null bucket and, in asc order, land before the
+		// alphabetically-sorted set. Records that DO carry a sortValue
+		// then appear in surname-first order without any change to
+		// how consumers read the bucket key (still b.Key["value"]).
 		compAgg := elastic.NewCompositeAggregation().
 			Size(int(sr.GetFacetLimit())).
 			Sources(
-				elastic.NewCompositeAggregationTermsValuesSource("value").Field("resources.entries.@value.keyword").Order("asc"),
+				elastic.NewCompositeAggregationTermsValuesSource("sortkey").
+					Field("resources.entries.sortValue.keyword").
+					MissingBucket(true).
+					Order("asc"),
+				elastic.NewCompositeAggregationTermsValuesSource("value").
+					Field("resources.entries.@value.keyword").
+					Order("asc"),
 			)
 
 		if sr.FacetCursor != "" {
