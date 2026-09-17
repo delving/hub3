@@ -122,9 +122,20 @@ func (c *Client) mappingUpdate(indexName, esMapping string) error {
 	if err != nil {
 		return fmt.Errorf("unable to update mapping; %w", err)
 	}
+	defer resp.Body.Close()
 
 	if resp.HasWarnings() {
 		c.log.Warn().Msgf("mapping update warnings: %#v", resp.Warnings())
+	}
+
+	// #2560: without this check, ES returns 400 with an error body and
+	// this function returned nil — new mapping fields silently never
+	// took effect (v2MappingUpdate briefly shipped a "settings" block
+	// that _mapping rejects). Surface the response body so real
+	// mapping errors reach the log and callers.
+	if resp.IsError() {
+		body := read(resp.Body)
+		return fmt.Errorf("mapping update rejected by elasticsearch: %s: %s", resp.Status(), body)
 	}
 
 	return nil

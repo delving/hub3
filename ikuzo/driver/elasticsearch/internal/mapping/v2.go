@@ -226,12 +226,12 @@ func V2MappingUpdate() string {
 // v2MappingUpdate contains updates to the original model that are incremental,
 // but will lead to index errors when these fields are not present due to the
 // 'strict' on dynamic creating of new fields in the index.
+// v2MappingUpdate is sent to the _mapping endpoint. It MUST NOT
+// contain a "settings" block — Elasticsearch rejects the whole
+// request with 400 mapper_parsing_exception when it does, and the
+// client's log-only error handling would swallow it silently.
+// Index-level settings that need updating go via _settings instead.
 var v2MappingUpdate = `{
-  "settings": {
-    "index": {
-      "query.default_field": "full_text"
-    }
-  },
   "dynamic_templates": [
     {
       "fields_as_multi_field": {
