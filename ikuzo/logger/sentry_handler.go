@@ -85,7 +85,12 @@ func (h *SentryHandler) Handle(ctx context.Context, r slog.Record) error {
 		event.Level = h.slogLevelToSentry(r.Level)
 		event.Message = r.Message
 		event.Timestamp = r.Time
-		event.Extra = extra
+		// sentry-go 0.46 dropped the flat Extra map — carry the same
+		// payload under Contexts["extra"] which is the current
+		// documented replacement.
+		if len(extra) > 0 {
+			event.Contexts["extra"] = sentry.Context(extra)
+		}
 		event.Tags = tags
 
 		// Add source location if available
@@ -108,7 +113,9 @@ func (h *SentryHandler) Handle(ctx context.Context, r slog.Record) error {
 		event.Level = sentry.LevelWarning
 		event.Message = r.Message
 		event.Timestamp = r.Time
-		event.Extra = extra
+		if len(extra) > 0 {
+			event.Contexts["extra"] = sentry.Context(extra)
+		}
 		event.Tags = tags
 
 		hub.CaptureEvent(event)
