@@ -295,7 +295,13 @@ var v2MappingUpdate = `{
 					"level": {"type": "integer"},
 					"mType": {"type": "keyword"},
 					"mRole": {"type": "keyword"},
-					"mFilterID": {"type": "keyword"}
+					"mFilterID": {"type": "keyword"},
+					"sortValue": {
+						"type": "text",
+						"fields": {
+							"keyword": {"type": "keyword", "ignore_above": 256}
+						}
+					}
 				}
 			}
 		}
