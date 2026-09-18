@@ -63,6 +63,16 @@ type Entry struct {
 	// Tags can be queried and can trigger indexing in custom TypeIndexField
 	Tags []string `json:"tags,omitempty"`
 
+	// SortValue is the alphabetical sort key for facet ordering. It is
+	// populated by the dlod indexer (refs #2560) for entries whose
+	// searchLabel opted-in via RDFOpts.SortFunc in the view config, and
+	// mirrors the resolver's Variant lookup (e.g. "sortName" gives
+	// surname-first). Kept next to Value so it is preserved when web3
+	// RDF.Bind copies resolved parent entries into a child record's
+	// graph — that is what lets an archival object inherit its parent
+	// resource's sortValue without any AO-specific plumbing.
+	SortValue string `json:"sortValue,omitempty"`
+
 	// TypeIndexField are fields that trigger custom functionality in the index
 	TypeIndexField
 
