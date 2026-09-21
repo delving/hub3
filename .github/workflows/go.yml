@@ -50,6 +50,10 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
+      env:
+        # Belt and braces, carried over from 3b9972b9 on the NA lineage: the
+        # token input alone turned out not to be enough back then.
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   vulncheck:
     name: Vulnerability scan
