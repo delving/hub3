@@ -110,3 +110,7 @@ tools/cmd/index_narthex/index_narthex
 
 # server ops script kept local
 security.sh
+
+# nix build output
+result
+result-*
