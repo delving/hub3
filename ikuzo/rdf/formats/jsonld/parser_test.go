@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -59,7 +60,15 @@ func TestParseWithContext(t *testing.T) {
 		r, err := getReader("with_context")
 		is.NoErr(err)
 
+		// testdata/with_context.jsonld points at @context documents hosted by
+		// a third party (apidg.gent.be). When that host is unreachable the
+		// parse cannot succeed for reasons that have nothing to do with this
+		// code, so skip instead of turning every CI run red during someone
+		// else's outage. The assertions below still run whenever it is up.
 		returnedGraph, err := ParseWithContext(r, nil)
+		if err != nil && strings.Contains(err.Error(), "loading remote context failed") {
+			t.Skipf("remote @context unreachable, skipping: %v", err)
+		}
 		is.NoErr(err)
 
 		is.Equal(returnedGraph.Len(), 85)

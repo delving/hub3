@@ -19,7 +19,7 @@ require (
 	github.com/gammazero/workerpool v1.1.3
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-chi/chi/v5 v5.1.0
+	github.com/go-chi/chi/v5 v5.3.2
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/docgen v1.2.0
 	github.com/go-chi/render v1.0.3
@@ -38,7 +38,7 @@ require (
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
 	github.com/kiivihal/gon3 v0.0.0-20241213084604-f70aaf04367d
 	github.com/kiivihal/rdf2go v0.1.5
-	github.com/klauspost/compress v1.17.11
+	github.com/klauspost/compress v1.20.0
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/knakk/sparql v0.0.0-20240119140508-255b851aa040
 	github.com/lib/pq v1.10.9
@@ -207,13 +207,13 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/goleak v1.3.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/mod v0.41.0 // indirect
 	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
 	golang.org/x/tools v0.49.0 // indirect
 	golang.org/x/tools/go/expect v0.1.1-deprecated // indirect
