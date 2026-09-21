@@ -61,7 +61,18 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	return g, nil
 }
 
+// ParseWithContext resolves @context references over the network, caching
+// each document for the duration of the call.
 func ParseWithContext(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
+	return ParseWithContextLoader(r, g, nil)
+}
+
+// ParseWithContextLoader is ParseWithContext with a caller-supplied document
+// loader. Passing one lets a caller resolve @context references from disk
+// instead of the network -- which is what the tests do, so they neither
+// depend on a third-party host being up nor hammer it on every run. A nil
+// loader keeps the default network-backed caching loader.
+func ParseWithContextLoader(r io.Reader, g *rdf.Graph, loader ld.DocumentLoader) (*rdf.Graph, error) {
 	if g == nil {
 		g = rdf.NewGraph()
 	}
@@ -74,17 +85,11 @@ func ParseWithContext(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	proc := ld.NewJsonLdProcessor()
 	options := ld.NewJsonLdOptions("")
 
-	client := &http.Client{}
-	nl := ld.NewDefaultDocumentLoader(client)
+	if loader == nil {
+		loader = ld.NewCachingDocumentLoader(ld.NewDefaultDocumentLoader(&http.Client{}))
+	}
 
-	// testing caching
-	cdl := ld.NewCachingDocumentLoader(nl)
-	// cdl.PreloadWithMapping(map[string]string{
-	// "http://schema.org":   "/home/fils/Project418/gleaner/docs/jsonldcontext.json",
-	// })
-
-	options.DocumentLoader = cdl
-	// options.Format = "application/nquads"
+	options.DocumentLoader = loader
 
 	rdf, err := proc.ToRDF(doc, options)
 	if err != nil {

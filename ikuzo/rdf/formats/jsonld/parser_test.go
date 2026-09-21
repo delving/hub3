@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"io"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
 	"github.com/matryer/is"
+	"github.com/piprate/json-gold/ld"
 )
 
 func getReader(testname string) (r io.Reader, err error) {
@@ -53,6 +53,38 @@ func TestParse(t *testing.T) {
 	})
 }
 
+// testdata/with_context.jsonld references @context documents published by a
+// third party (apidg.gent.be). Resolving those over the network made this
+// test fail whenever that host had a hiccup -- it returned 502 for a stretch
+// on 2026-09-21 and took CI down with it. The documents are vendored under
+// testdata/context/ and mapped here, so the test exercises the same parsing
+// path without depending on anyone's uptime.
+func vendoredContextLoader() ld.DocumentLoader {
+	const base = "https://apidg.gent.be/opendata/adlib2eventstream/v1/context/"
+
+	names := []string{
+		"cultureel-erfgoed-object-ap",
+		"persoon-basis",
+		"cultureel-erfgoed-event-ap",
+		"organisatie-basis",
+		"generiek-basis",
+		"dossier",
+	}
+
+	mapping := make(map[string]string, len(names))
+	for _, n := range names {
+		mapping[base+n+".jsonld"] = "./testdata/context/" + n + ".jsonld"
+	}
+
+	// The fallback loader is deliberately nil-clienting nothing: every URL the
+	// fixture uses is in the mapping, so a network call means the fixture and
+	// this list drifted apart, and the test should say so.
+	loader := ld.NewCachingDocumentLoader(ld.NewDefaultDocumentLoader(nil))
+	loader.PreloadWithMapping(mapping)
+
+	return loader
+}
+
 func TestParseWithContext(t *testing.T) {
 	t.Run("parse with external context", func(t *testing.T) {
 		is := is.New(t)
@@ -60,15 +92,7 @@ func TestParseWithContext(t *testing.T) {
 		r, err := getReader("with_context")
 		is.NoErr(err)
 
-		// testdata/with_context.jsonld points at @context documents hosted by
-		// a third party (apidg.gent.be). When that host is unreachable the
-		// parse cannot succeed for reasons that have nothing to do with this
-		// code, so skip instead of turning every CI run red during someone
-		// else's outage. The assertions below still run whenever it is up.
-		returnedGraph, err := ParseWithContext(r, nil)
-		if err != nil && strings.Contains(err.Error(), "loading remote context failed") {
-			t.Skipf("remote @context unreachable, skipping: %v", err)
-		}
+		returnedGraph, err := ParseWithContextLoader(r, nil, vendoredContextLoader())
 		is.NoErr(err)
 
 		is.Equal(returnedGraph.Len(), 85)

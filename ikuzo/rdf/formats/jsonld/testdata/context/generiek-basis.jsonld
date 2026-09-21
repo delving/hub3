@@ -1,0 +1,394 @@
+{
+  "@context": {
+    "Activiteit": "http://www.w3.org/ns/prov#Activity",
+    "Activiteit.geplandeStart": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#geplandeStart",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "AdministratieveEenheid": "https://data.vlaanderen.be/ns/generiek#AdministratieveEenheid",
+    "Adresvoorstelling": "http://www.w3.org/ns/locn#Address",
+    "Agent": "http://purl.org/dc/terms/Agent",
+    "Bewerkingstype": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Contactinfo": "http://schema.org/ContactPoint",
+    "Contactinfo.aanschrijfvorm": {
+      "@id": "http://www.w3.org/2006/vcard/ns#honorific-prefix",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Contactinfo.adres": {
+      "@id": "http://www.w3.org/ns/locn#address",
+      "@type": "@id"
+    },
+    "Contactinfo.beschikbaarheid": {
+      "@id": "http://schema.org/hoursAvailable",
+      "@type": "@id"
+    },
+    "Contactinfo.contactnaam": {
+      "@id": "http://xmlns.com/foaf/0.1/name",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.email": {
+      "@id": "http://schema.org/email",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.fax": {
+      "@id": "http://schema.org/faxNumber",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.openingsuren": {
+      "@id": "http://schema.org/openingHours",
+      "@type": "http://www.w3.org/2000/01/rdf-schema#Literal"
+    },
+    "Contactinfo.telefoon": {
+      "@id": "http://schema.org/telephone",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Contactinfo.website": {
+      "@id": "http://xmlns.com/foaf/0.1/page",
+      "@type": "http://www.w3.org/2001/XMLSchema#anyURI"
+    },
+    "Creatie": "http://www.w3.org/ns/prov#Generation",
+    "Creatie.activiteit": {
+      "@id": "http://www.w3.org/ns/prov#activity",
+      "@type": "@id"
+    },
+    "Creatie.tijdstip": {
+      "@id": "http://www.w3.org/ns/prov#atTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Document": "http://xmlns.com/foaf/0.1/Document",
+    "Documentonderdeel": "https://data.vlaanderen.be/ns/generiek#DocumentOnderdeel",
+    "Documentonderdeel.isDeelVan": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/isPartOf",
+      "@type": "@id"
+    },
+    "Documentonderdeel.isOnderdeelVan": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/isPartOf",
+      "@type": "@id"
+    },
+    "Documentonderdeel.nummer": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#nummer",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "Documentonderdeel.type": {
+      "@id": "http://purl.org/dc/terms/type",
+      "@type": "@id"
+    },
+    "ELI_status": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Eurovoc": "http://www.w3.org/2004/02/skos/core#Concept",
+    "FormeelKader": "http://purl.org/vocab/cpsv#FormalFramework",
+    "FormeelKader.beschrijving": {
+      "@id": "http://purl.org/dc/terms/description",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "FormeelKader.isGerelateerdAan": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/relation",
+      "@type": "@id"
+    },
+    "FormeelKader.naam": {
+      "@id": "http://purl.org/dc/terms/title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "FormeelKader.onderwerp": {
+      "@container": "@set",
+      "@id": "http://data.europa.eu/m8g/subject",
+      "@type": "@id"
+    },
+    "FormeelKader.status": {
+      "@id": "http://www.w3.org/ns/adms#status",
+      "@type": "@id"
+    },
+    "FormeelKader.taal": {
+      "@container": "@set",
+      "@id": "http://data.europa.eu/eli/ontology#language",
+      "@type": "@id"
+    },
+    "FormeelKader.toepassingsgebied": {
+      "@container": "@set",
+      "@id": "http://data.europa.eu/m8g/territorialApplication",
+      "@type": "@id"
+    },
+    "FormeelKader.type": {
+      "@container": "@set",
+      "@id": "http://purl.org/dc/terms/type",
+      "@type": "@id"
+    },
+    "Gebeurtenis": "https://schema.org/Event",
+    "Gebeurtenis.begindatum": {
+      "@id": "https://schema.org/startDate",
+      "@type": "http://www.w3.org/2001/XMLSchema#date"
+    },
+    "Gebeurtenis.begintijd": {
+      "@id": "https://schema.org/startTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#time"
+    },
+    "Gebeurtenis.beschrijving": {
+      "@id": "http://purl.org/dc/terms/description",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Gebeurtenis.duur": {
+      "@id": "https://schema.org/duration",
+      "@type": "http://www.w3.org/2001/XMLSchema#duration"
+    },
+    "Gebeurtenis.einddatum": {
+      "@id": "https://schema.org/endDate",
+      "@type": "http://www.w3.org/2001/XMLSchema#date"
+    },
+    "Gebeurtenis.eindtijd": {
+      "@id": "https://schema.org/endTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#time"
+    },
+    "Gebeurtenis.naam": {
+      "@id": "http://purl.org/dc/terms/title",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Gebeurtenis.tijdschema": {
+      "@container": "@set",
+      "@id": "https://schema.org/eventSchedule",
+      "@type": "@id"
+    },
+    "Gebeurtenisdatum": "https://data.vlaanderen.be/ns/generiek#Gebeurtenisdatum",
+    "Gebeurtenisdatum.begin": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#begin",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Gebeurtenisdatum.einde": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#einde",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Gebeurtenisdatum.tussentijdstip": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#tussentijdstip",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Gemeente": "https://data.vlaanderen.be/ns/generiek#Gemeente",
+    "GeografischeNaam": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+    "GeografischePositie": "https://data.vlaanderen.be/ns/generiek#GeografischePositie",
+    "GeografischePositie.default": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#default",
+      "@type": "http://www.w3.org/2001/XMLSchema#boolean"
+    },
+    "GeografischePositie.geometrie": {
+      "@id": "http://www.w3.org/ns/locn#geometry",
+      "@type": "@id"
+    },
+    "GeografischePositie.methode": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#methode",
+      "@type": "@id"
+    },
+    "GeografischePositie.specificatie": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#specificatie",
+      "@type": "@id"
+    },
+    "Geometrie": "http://www.w3.org/ns/locn#Geometry",
+    "Geometrie.gml": {
+      "@id": "http://www.opengis.net/ont/geosparql#asGML",
+      "@type": "http://www.w3.org/2000/01/rdf-schema#Literal"
+    },
+    "Geometrie.wkt": {
+      "@id": "http://www.opengis.net/ont/geosparql#asWKT",
+      "@type": "http://www.w3.org/2000/01/rdf-schema#Literal"
+    },
+    "GeometrieMethodeWaarde": "http://www.w3.org/2004/02/skos/core#Concept",
+    "GeometrieSpecificatieWaarde": "http://www.w3.org/2004/02/skos/core#Concept",
+    "GestructureerdeIdentificator": "https://data.vlaanderen.be/ns/generiek#GestructureerdeIdentificator",
+    "GestructureerdeIdentificator.lokaleIdentificator": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#lokaleIdentificator",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "GestructureerdeIdentificator.naamruimte": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#naamruimte",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "GestructureerdeIdentificator.versieIdentificator": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#versieIdentificator",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Getal": "https://schema.org/Number",
+    "GetypeerdeString": "http://www.w3.org/2000/01/rdf-schema#Literal",
+    "Herkomstactiviteit": "http://www.w3.org/ns/prov#Activity",
+    "Herkomstactiviteit.applicatie": {
+      "@id": "http://www.w3.org/ns/prov#used",
+      "@type": "@id"
+    },
+    "Herkomstactiviteit.bewerking": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#bewerking",
+      "@type": "@id"
+    },
+    "Herkomstactiviteit.operator": {
+      "@id": "http://www.w3.org/ns/prov#wasAssociatedWith",
+      "@type": "@id"
+    },
+    "Herkomstagent": "http://www.w3.org/ns/prov#Agent",
+    "Herkomstagent.handeldeInOpdrachtVan": {
+      "@container": "@set",
+      "@id": "https://data.vlaanderen.be/ns/generiek#handeldeInOpdrachtVan",
+      "@type": "@id"
+    },
+    "Herkomstagent.naam": {
+      "@id": "http://www.w3.org/2000/01/rdf-schema#label",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Herkomstentiteit": "http://www.w3.org/ns/prov#Entity",
+    "Herkomstentiteit.label": {
+      "@id": "http://www.w3.org/2000/01/rdf-schema#label",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Hoedanigheid": "https://data.vlaanderen.be/ns/organisatie#Hoedanigheid",
+    "Identificator": "http://www.w3.org/ns/adms#Identifier",
+    "Identificator.gestructureerdeIdentificator": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#gestructureerdeIdentificator",
+      "@type": "@id"
+    },
+    "Identificator.identificator": {
+      "@id": "http://www.w3.org/2004/02/skos/core#notation",
+      "@type": "http://www.w3.org/2000/01/rdf-schema#Literal"
+    },
+    "Identificator.toegekendDoor": {
+      "@id": "http://purl.org/dc/terms/creator",
+      "@type": "@id"
+    },
+    "Identificator.toegekendDoor (string)": {
+      "@id": "http://www.w3.org/ns/adms#schemaAgency",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Identificator.toegekendOp": {
+      "@id": "http://purl.org/dc/terms/issued",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Jurisdictie": "http://purl.org/dc/terms/Jurisdiction",
+    "Jurisdictie.plaats": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#plaats",
+      "@type": "@id"
+    },
+    "KwantitatieveWaarde": "https://schema.org/QuantitativeValue",
+    "KwantitatieveWaarde.eenheid": {
+      "@id": "https://schema.org/unitText",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "KwantitatieveWaarde.standaardEenheid": {
+      "@id": "https://schema.org/unitCode",
+      "@type": "@id"
+    },
+    "KwantitatieveWaarde.waarde": {
+      "@id": "https://schema.org/value",
+      "@type": "@id"
+    },
+    "Lijnstring": "http://www.opengis.net/ont/sf#LineString",
+    "Locatie": "http://www.w3.org/ns/prov#Location",
+    "NAL_currency": "http://www.w3.org/2004/02/skos/core#Concept",
+    "NAL_type": "http://www.w3.org/2004/02/skos/core#Concept",
+    "NUTS": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Object": "http://www.w3.org/ns/prov#Entity",
+    "Object.identificator": {
+      "@container": "@set",
+      "@id": "http://www.w3.org/ns/adms#identifier",
+      "@type": "@id"
+    },
+    "Opheffing": "http://www.w3.org/ns/prov#Invalidation",
+    "Opheffing.activiteit": {
+      "@id": "http://www.w3.org/ns/prov#activity",
+      "@type": "@id"
+    },
+    "Opheffing.tijdstip": {
+      "@id": "http://www.w3.org/ns/prov#atTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Organisatie": "http://www.w3.org/ns/org#Organization",
+    "Periode": "http://data.europa.eu/m8g/PeriodOfTime",
+    "Periode.begin": {
+      "@id": "http://data.europa.eu/m8g/startTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Periode.einde": {
+      "@id": "http://data.europa.eu/m8g/endTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#dateTime"
+    },
+    "Persoon": "http://www.w3.org/ns/person#Person",
+    "Plaats": "http://purl.org/dc/terms/Location",
+    "Plaats.geometrie": {
+      "@id": "http://www.w3.org/ns/locn#geometry",
+      "@type": "@id"
+    },
+    "Plaats.plaatsnaam": {
+      "@container": "@set",
+      "@id": "http://www.w3.org/2000/01/rdf-schema#label",
+      "@type": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"
+    },
+    "Plaatscode": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Polygoon": "http://www.opengis.net/ont/sf#Polygon",
+    "Punt": "http://www.opengis.net/ont/sf#Point",
+    "StandaardEenheid": "https://data.vlaanderen.be/ns/generiek#StandaardEenheid",
+    "Taalcode": "http://www.w3.org/2004/02/skos/core#Concept",
+    "Taalstring": "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString",
+    "Tijdschema": "https://schema.org/Schedule",
+    "Tijdschema.aantal": {
+      "@id": "https://schema.org/repeatCount",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "Tijdschema.duur": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#duur",
+      "@type": "http://www.w3.org/2001/XMLSchema#duration"
+    },
+    "Tijdschema.einddatum": {
+      "@id": "https://schema.org/endDate",
+      "@type": "http://www.w3.org/2001/XMLSchema#date"
+    },
+    "Tijdschema.eindtijd": {
+      "@id": "https://schema.org/endTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#time"
+    },
+    "Tijdschema.frequentie": {
+      "@id": "https://schema.org/repeatFrequency",
+      "@type": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "Tijdschema.perDag": {
+      "@container": "@set",
+      "@id": "https://schema.org/byDay",
+      "@type": "http://www.w3.org/2001/XMLSchema#anyURI"
+    },
+    "Tijdschema.perDagVanDeMaand": {
+      "@container": "@set",
+      "@id": "https://schema.org/byMonthDay",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "Tijdschema.perMaand": {
+      "@container": "@set",
+      "@id": "https://schema.org/byMonth",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "Tijdschema.perSetpositie": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#perSetpositie",
+      "@type": "http://www.w3.org/2001/XMLSchema#integer"
+    },
+    "Tijdschema.startdatum": {
+      "@id": "https://schema.org/startDate",
+      "@type": "http://www.w3.org/2001/XMLSchema#date"
+    },
+    "Tijdschema.starttijd": {
+      "@id": "https://schema.org/startTime",
+      "@type": "http://www.w3.org/2001/XMLSchema#time"
+    },
+    "Tijdschema.uitzonderingsdatum": {
+      "@container": "@set",
+      "@id": "https://schema.org/exceptDate",
+      "@type": "http://www.w3.org/2001/XMLSchema#date"
+    },
+    "Versie": "https://data.vlaanderen.be/ns/generiek#Versie",
+    "Versie.creatie": {
+      "@id": "http://www.w3.org/ns/prov#qualifiedGeneration",
+      "@type": "@id"
+    },
+    "Versie.isTijdspecialisatieVan": {
+      "@id": "https://data.vlaanderen.be/ns/generiek#isTijdspecialisatieVan",
+      "@type": "@id"
+    },
+    "Versie.opheffing": {
+      "@id": "http://www.w3.org/ns/prov#qualifiedInvalidation",
+      "@type": "@id"
+    },
+    "VersieVolgensGeldigeTijd": "https://data.vlaanderen.be/ns/generiek#VersieVolgensGeldigeTijd",
+    "VersieVolgensTransactietijd": "https://data.vlaanderen.be/ns/generiek#VersieVolgensTransactietijd"
+  }
+}
