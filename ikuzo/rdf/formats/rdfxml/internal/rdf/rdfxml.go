@@ -1192,23 +1192,24 @@ func (d *rdfXMLDecoder) getPrefix(ns string) string {
 	panic(fmt.Errorf("no prefix found for name space: %q", ns))
 }
 
-// getNS returns the in-scope name space for the prefix.
-func (d *rdfXMLDecoder) getNS(prefix string) string {
+// lookupNS returns the in-scope name space for the prefix, or false when
+// the prefix has no declaration.
+func (d *rdfXMLDecoder) lookupNS(prefix string) (string, bool) {
 	// First check for context local declarations
 	for i := 0; i < len(d.ctx.NS); i += 2 {
 		if d.ctx.NS[i+1] == prefix {
-			return d.ctx.NS[i]
+			return d.ctx.NS[i], true
 		}
 	}
 
 	// Check in top-level declarations
 	for i := 0; i < len(d.ns); i += 2 {
 		if d.ns[i+1] == prefix {
-			return d.ns[i]
+			return d.ns[i], true
 		}
 	}
 
-	panic(fmt.Errorf("no name space found for prefix: %q", prefix))
+	return "", false
 }
 
 // storePrefixNS stores any name space prefixes declared to the element context.
@@ -1288,8 +1289,17 @@ func (d *rdfXMLDecoder) resolve(base string, path string) string {
 				return path
 			}
 			if i < len(path) {
-				// URI is composed of prefix:suffix
-				return d.getNS(path[:i-1]) + path[i:]
+				// prefix:suffix — expand against a declared namespace when
+				// one exists. When none is declared this is NOT an error:
+				// rdf:about/rdf:resource/rdf:datatype values are URI
+				// references (never QNames per the RDF/XML spec), and
+				// absolute URIs with non-hierarchical schemes (urn:,
+				// mailto:, tel:) also match prefix:suffix. Panicking here
+				// rejected every record with an urn: subject (#3548).
+				if ns, ok := d.lookupNS(path[:i-1]); ok {
+					return ns + path[i:]
+				}
+				return path
 			}
 			break
 		}

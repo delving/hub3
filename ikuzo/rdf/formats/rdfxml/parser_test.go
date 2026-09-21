@@ -2,6 +2,7 @@ package rdfxml
 
 import (
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
@@ -21,6 +22,56 @@ func TestParseXMLRDF(t *testing.T) {
 
 	is.Equal(g.Len(), 48)
 	is.Equal(g.Triples()[0].Subject.RawValue(), "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3")
+}
+
+// Regression for #3548: rdf:about/rdf:resource values are URI references,
+// never QNames. Absolute URIs with a non-hierarchical scheme (urn:, mailto:)
+// match the prefix:suffix shape and used to panic the decoder with
+// `no name space found for prefix: "urn"`, rejecting every record with an
+// urn: subject (museum-helmond-objecten, museum-klok-en-peel).
+func TestParseURNAbout(t *testing.T) {
+	is := is.New(t)
+
+	record := `<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	         xmlns:edm="http://www.europeana.eu/schemas/edm/"
+	         xmlns:dc="http://purl.org/dc/elements/1.1/">
+	  <edm:WebResource rdf:about="urn:museum-helmond-objecten/93-026__">
+	    <dc:title>Zonder titel</dc:title>
+	  </edm:WebResource>
+	  <edm:ProvidedCHO rdf:about="http://example.org/cho/93-026">
+	    <dc:creator>Eerste</dc:creator>
+	    <dc:creator>Tweede</dc:creator>
+	    <edm:isShownBy rdf:resource="urn:museum-helmond-objecten/93-026__"/>
+	    <dc:relation rdf:resource="mailto:info@example.org"/>
+	  </edm:ProvidedCHO>
+	</rdf:RDF>`
+
+	g, err := Parse(strings.NewReader(record), nil, "test_seed")
+	is.NoErr(err)
+
+	var sawURNSubject, sawURNObject, sawMailto bool
+	var creators []string
+	for _, t := range g.Triples() {
+		if t.Subject.RawValue() == "urn:museum-helmond-objecten/93-026__" {
+			sawURNSubject = true
+		}
+		if t.Object.RawValue() == "urn:museum-helmond-objecten/93-026__" {
+			sawURNObject = true
+		}
+		if t.Object.RawValue() == "mailto:info@example.org" {
+			sawMailto = true
+		}
+		if t.Predicate.RawValue() == "http://purl.org/dc/elements/1.1/creator" &&
+			t.Subject.RawValue() == "http://example.org/cho/93-026" {
+			creators = append(creators, t.Object.RawValue())
+		}
+	}
+	is.True(sawURNSubject) // urn: rdf:about must survive as-is
+	is.True(sawURNObject)  // urn: rdf:resource must survive as-is
+	is.True(sawMailto)     // mailto: rdf:resource must survive as-is
+	// declared prefixes in values keep expanding is NOT claimed here; but
+	// insertion order of repeated properties must hold (the #3548 point).
+	is.Equal(creators, []string{"Eerste", "Tweede"})
 }
 
 func TestParseNestedXMLRDF(t *testing.T) {
