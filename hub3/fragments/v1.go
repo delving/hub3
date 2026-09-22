@@ -32,7 +32,6 @@ import (
 	"encoding/json"
 	"errors"
 	fmt "fmt"
-	"html"
 	"io"
 	"log"
 	"sort"
@@ -44,7 +43,6 @@ import (
 
 	"github.com/cnf/structhash"
 	r "github.com/kiivihal/rdf2go"
-	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
 
 	c "github.com/delving/hub3/config"
@@ -57,12 +55,10 @@ import (
 
 var (
 	request        *gorequest.SuperAgent
-	sanitizer      *bluemonday.Policy
 	ErrUrnNotFound = errors.New("remote urn not found")
 )
 
 func init() {
-	sanitizer = bluemonday.UGCPolicy()
 	request = gorequest.New()
 }
 
@@ -754,6 +750,11 @@ func GetFieldKey(t *r.Triple) (string, error) {
 	return rdf.DefaultNamespaceManager.GetSearchLabel(t.Predicate.RawValue())
 }
 
+// literalEscaper neutralises markup delimiters in literal values. The v2 path
+// stores literals unescaped and relies on consumers escaping at render time;
+// v1 feeds older consumers, so the guarantee is kept here at index time.
+var literalEscaper = strings.NewReplacer("<", "&lt;", ">", "&gt;")
+
 // truncateUTF8 shortens s to at most n bytes without splitting a multi-byte
 // character, so the result is always valid UTF-8. A plain s[:n] could cut
 // through a rune and leave a broken final character in the index.
@@ -789,8 +790,13 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 		ie.Type = "Literal"
 		value := t.Object.RawValue()
 
-		// protect against XSS attacks in literals
-		value = html.UnescapeString(fb.sanitizer.Sanitize(value))
+		// Escape the two characters that let a browser see markup, instead of
+		// running an HTML sanitizer over what is plain text. bluemonday read a
+		// stray '<' in OCR output ("co<irdinator") as the start of a tag and
+		// dropped everything after it — 40% of fulltext documents reached the
+		// index shorter than their source (#3590). Escaping keeps the text
+		// whole and still leaves nothing a consumer can render as markup.
+		value = literalEscaper.Replace(value)
 
 		// Value lands in a `.value` field, which the index template always
 		// maps as analyzed `text` (copy_to full_text). Analyzed fields are

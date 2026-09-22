@@ -26,7 +26,6 @@ import (
 	"strings"
 
 	r "github.com/kiivihal/rdf2go"
-	"github.com/microcosm-cc/bluemonday"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
@@ -46,7 +45,6 @@ type FragmentBuilder struct {
 	Graph          *r.Graph
 	ResourceLabels map[string]string
 	resources      *ResourceMap
-	sanitizer      *bluemonday.Policy
 }
 
 // ByPredicate returns a list of triples that have the same predicate
@@ -100,7 +98,6 @@ func NewFragmentBuilder(fg *FragmentGraph) *FragmentBuilder {
 		fg:             fg,
 		Graph:          r.NewGraph(""),
 		ResourceLabels: map[string]string{},
-		sanitizer:      bluemonday.UGCPolicy(),
 	}
 }
 

@@ -243,6 +243,55 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Regression for #3590, second cause: a stray '<' in OCR output made the
+	// HTML sanitizer discard everything after it, so text late in a document
+	// never reached the index. Literals are plain text; markup delimiters are
+	// escaped rather than stripped.
+	Context("when a literal contains a stray angle bracket", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		tail := "mevrouw numerieke onderzoekscentra"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("aangewezen als co<irdinator voor het vakgebied. "+tail),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the text that follows the bracket", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring(tail))
+		})
+
+		It("should leave no renderable markup behind", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).ToNot(ContainSubstring("<"))
+			Expect(ie.Value).To(ContainSubstring("co&lt;irdinator"))
+		})
+	})
+
+	Context("when a literal contains an actual html tag", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcSubject),
+			r.NewLiteral(`voor <script>alert("xss")</script> na`),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should neutralise it without losing the surrounding text", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).ToNot(ContainSubstring("<script>"))
+			Expect(ie.Value).To(ContainSubstring("voor "))
+			Expect(ie.Value).To(ContainSubstring(" na"))
+		})
+	})
+
 	// Regression for #3590: extracted PDF text beyond 32000 bytes was dropped
 	// from the v1 index, so words near the end of long documents were
 	// unsearchable on the Instant Websites while the same record was findable
