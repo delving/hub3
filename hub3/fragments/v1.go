@@ -40,6 +40,7 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/cnf/structhash"
 	r "github.com/kiivihal/rdf2go"
@@ -753,6 +754,21 @@ func GetFieldKey(t *r.Triple) (string, error) {
 	return rdf.DefaultNamespaceManager.GetSearchLabel(t.Predicate.RawValue())
 }
 
+// truncateUTF8 shortens s to at most n bytes without splitting a multi-byte
+// character, so the result is always valid UTF-8. A plain s[:n] could cut
+// through a rune and leave a broken final character in the index.
+func truncateUTF8(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+
+	return s[:n]
+}
+
 // CreateV1IndexEntry creates an IndexEntry from a r.Triple
 func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
 	ie := &IndexEntry{}
@@ -772,18 +788,20 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 	case *r.Literal:
 		ie.Type = "Literal"
 		value := t.Object.RawValue()
-		if len(value) > 32765 {
-			value = value[:32000]
-		}
 
 		// protect against XSS attacks in literals
 		value = html.UnescapeString(fb.sanitizer.Sanitize(value))
 
+		// Value lands in a `.value` field, which the index template always
+		// maps as analyzed `text` (copy_to full_text). Analyzed fields are
+		// tokenised, so Lucene's 32766-byte MAX_TERM_LENGTH applies per word
+		// and never to the field as a whole — truncating here only made
+		// extracted PDF text beyond 32000 bytes unsearchable (#3590, ~10% of
+		// documents carrying fulltext). The term limit is a *keyword*
+		// concern, and Raw below is the keyword side.
 		ie.Value = value
-		ie.Raw = value
-		if len(ie.Raw) > 256 {
-			ie.Raw = value[:256]
-		}
+
+		ie.Raw = truncateUTF8(value, 256)
 		// replace double quotes a single quote
 		ie.Raw = strings.ReplaceAll(ie.Raw, "\"", "'")
 		l := t.Object.(*r.Literal)

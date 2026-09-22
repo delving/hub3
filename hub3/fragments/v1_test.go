@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	c "github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
@@ -242,6 +243,58 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Regression for #3590: extracted PDF text beyond 32000 bytes was dropped
+	// from the v1 index, so words near the end of long documents were
+	// unsearchable on the Instant Websites while the same record was findable
+	// through the v2 API. Value feeds an analyzed text field, which is
+	// tokenised, so Lucene's per-term limit never applies to it.
+	Context("when creating an IndexEntry from a very long literal", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		marker := "zeldzaamwoordxyz"
+		long := strings.Repeat("woordje ", 12000) + marker
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral(long),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the whole literal in Value", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(len(ie.Value)).To(Equal(len(long)))
+			Expect(ie.Value).To(HaveSuffix(marker))
+		})
+
+		It("should still cap Raw, which feeds a keyword field", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(len(ie.Raw)).To(BeNumerically("<=", 256))
+		})
+	})
+
+	Context("when a literal is cut for the Raw keyword field", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		// Multi-byte runes straddling the 256-byte boundary: a plain slice
+		// would leave a broken final character in the index.
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcSubject),
+			r.NewLiteral(strings.Repeat("é", 400)),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should never split a multi-byte character", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(utf8.ValidString(ie.Raw)).To(BeTrue())
+			Expect(len(ie.Raw)).To(BeNumerically("<=", 256))
+		})
+	})
+
 	Context("when creating an IndexEntry from a blank node", func() {
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 		t := r.NewTriple(
@@ -371,7 +424,11 @@ var _ = Describe("V1", func() {
 			//
 		})
 
-		It("should limit value to 32000 characters", func() {
+		// This used to assert that Value was cut to 32000 bytes. That cut was
+		// the cause of #3590: Value feeds an analyzed `text` field, which is
+		// tokenised, so Lucene's 32766-byte per-term limit never applies to
+		// it — only to Raw, which feeds a keyword field.
+		It("should keep long values whole, capping only raw", func() {
 			rString := RandSeq(40000)
 			Expect(rString).To(HaveLen(40000))
 			t := r.NewTriple(
@@ -382,7 +439,7 @@ var _ = Describe("V1", func() {
 			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie.Raw).To(HaveLen(256))
-			Expect(ie.Value).To(HaveLen(32000))
+			Expect(ie.Value).To(HaveLen(40000))
 		})
 
 		It("should add lang when present", func() {
