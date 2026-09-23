@@ -1596,9 +1596,32 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 			)
 		}
 
+		// #2560: for byName (alphabetical) sort, use a composite aggregation
+		// with two ordered sources — `sortkey` (from resources.entries.sortValue.keyword,
+		// populated for fields whose TOML declared sortFunc) as primary, and
+		// `value` (@value.keyword) as secondary tie-break and the visible
+		// bucket key. MissingBucket on sortkey keeps entries without a
+		// sortValue (plain-text fields, records with no sort variant) in the
+		// null bucket so they still show up, sorted by display value.
+		// Count sort keeps the existing terms aggregation.
+		var valueAgg elastic.Aggregation = labelAgg
+		if facet.GetByName() {
+			valueAgg = elastic.NewCompositeAggregation().
+				Size(int(facet.GetSize())).
+				Sources(
+					elastic.NewCompositeAggregationTermsValuesSource("sortkey").
+						Field(fmt.Sprintf("%s.sortValue.keyword", path)).
+						MissingBucket(true).
+						Order("asc"),
+					elastic.NewCompositeAggregationTermsValuesSource("value").
+						Field(termAggPath).
+						Order("asc"),
+				)
+		}
+
 		filterAgg := elastic.NewFilterAggregation().
 			Filter(pathFilter).
-			SubAggregation("value", labelAgg)
+			SubAggregation("value", valueAgg)
 		testAgg := elastic.NewNestedAggregation().Path(path)
 		testAgg = testAgg.SubAggregation("inner", filterAgg)
 		facetFilterAgg = facetFilterAgg.SubAggregation("filter", testAgg)
@@ -2476,6 +2499,23 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := KeyAsString(b)
+							fl := &FacetLink{
+								Value:         key,
+								Count:         b.DocCount,
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+							}
+							SetFacetLink(key, qf, fl, fb)
+							qf.Links = append(qf.Links, fl)
+						}
+					}
+					// #2560: composite variant of the "value" sub-agg used
+					// when the facet is byName-sorted (see CreateAggregationBySearchLabel).
+					// Bucket key is a map {sortkey, value}; the visible label
+					// is bucket.Key["value"].
+					if composite, ok := inner.Composite("value"); ok {
+						valid = true
+						for _, b := range composite.Buckets {
+							key := fmt.Sprint(b.Key["value"])
 							fl := &FacetLink{
 								Value:         key,
 								Count:         b.DocCount,
