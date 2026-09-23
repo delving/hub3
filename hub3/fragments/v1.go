@@ -32,8 +32,10 @@ import (
 	"encoding/json"
 	"errors"
 	fmt "fmt"
+	"html"
 	"io"
 	"log"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -43,6 +45,7 @@ import (
 
 	"github.com/cnf/structhash"
 	r "github.com/kiivihal/rdf2go"
+	"github.com/microcosm-cc/bluemonday"
 	"golang.org/x/sync/errgroup"
 
 	c "github.com/delving/hub3/config"
@@ -750,10 +753,72 @@ func GetFieldKey(t *r.Triple) (string, error) {
 	return rdf.DefaultNamespaceManager.GetSearchLabel(t.Predicate.RawValue())
 }
 
-// literalEscaper neutralises markup delimiters in literal values. The v2 path
-// stores literals unescaped and relies on consumers escaping at render time;
-// v1 feeds older consumers, so the guarantee is kept here at index time.
-var literalEscaper = strings.NewReplacer("<", "&lt;", ">", "&gt;")
+// A v1 literal can carry three different things that involve angle brackets,
+// and they need opposite treatment:
+//
+//   - real markup. 16% of documents carry rich text from Memorix — <p>, <br>,
+//     <b>, the occasional <a href>. Consumers render the v1 value as HTML, so
+//     these have to survive, and unsafe ones still have to be removed.
+//   - domain notation. Thesaurus paths use '>' as a separator ("ARBEID >
+//     eggen") and AAT labels wrap terms in angle brackets ("<melk en
+//     melkproducten>"). Not markup, and not an error either.
+//   - damage. A stray '<' from OCR ("co<irdinator"), or the XML preamble of an
+//     empty fulltext extraction.
+//
+// Running a sanitizer over all three is what caused #3590: bluemonday read the
+// first '<' of the second and third kinds as the start of a tag and dropped
+// everything to the end of the field. Escaping all three instead — the first
+// attempt at a fix — kept the text but turned real markup into visible tags on
+// every Instant Website (#3595).
+//
+// So the delimiters that are not part of a tag are hidden behind sentinels for
+// the duration of the sanitizer pass, and come back escaped. bluemonday still
+// makes every decision about actual markup, so the security posture is the one
+// it has always been.
+var htmlTag = regexp.MustCompile(
+	`(?i)</?(?:a|b|blockquote|br|code|del|div|em|h[1-6]|hr|i|img|ins|li|ol|p` +
+		`|pre|q|s|span|strike|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul)` +
+		`(?:\s[^<>]*)?/?>`)
+
+// Interlinear annotation controls: valid UTF-8, no meaning to bluemonday, and
+// not something a heritage record contains.
+const (
+	strayLT = "￹"
+	strayGT = "￺"
+)
+
+var (
+	strayHider   = strings.NewReplacer("<", strayLT, ">", strayGT)
+	strayRestore = strings.NewReplacer(strayLT, "&lt;", strayGT, "&gt;")
+
+	// A policy is immutable once built and safe for concurrent use, so one
+	// instance serves every builder.
+	sanitizer = bluemonday.UGCPolicy()
+)
+
+// hideStrayDelimiters replaces every '<' and '>' outside a well-formed tag
+// with a sentinel. Because a tag's attributes may not themselves contain '<',
+// a match can never reach past the next delimiter — which is exactly the
+// overreach that let one stray bracket swallow the rest of a field.
+func hideStrayDelimiters(s string) string {
+	if !strings.ContainsAny(s, "<>") {
+		return s
+	}
+
+	var b strings.Builder
+
+	last := 0
+
+	for _, m := range htmlTag.FindAllStringIndex(s, -1) {
+		b.WriteString(strayHider.Replace(s[last:m[0]]))
+		b.WriteString(s[m[0]:m[1]])
+		last = m[1]
+	}
+
+	b.WriteString(strayHider.Replace(s[last:]))
+
+	return b.String()
+}
 
 // truncateUTF8 shortens s to at most n bytes without splitting a multi-byte
 // character, so the result is always valid UTF-8. A plain s[:n] could cut
@@ -790,13 +855,12 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 		ie.Type = "Literal"
 		value := t.Object.RawValue()
 
-		// Escape the two characters that let a browser see markup, instead of
-		// running an HTML sanitizer over what is plain text. bluemonday read a
-		// stray '<' in OCR output ("co<irdinator") as the start of a tag and
-		// dropped everything after it — 40% of fulltext documents reached the
-		// index shorter than their source (#3590). Escaping keeps the text
-		// whole and still leaves nothing a consumer can render as markup.
-		value = literalEscaper.Replace(value)
+		// Real markup goes through the sanitizer as it always did; everything
+		// else that merely looks like markup is hidden first and comes back
+		// escaped, so it is neither swallowed (#3590) nor rendered (#3595).
+		value = strayRestore.Replace(
+			html.UnescapeString(sanitizer.Sanitize(hideStrayDelimiters(value))),
+		)
 
 		// Value lands in a `.value` field, which the index template always
 		// maps as analyzed `text` (copy_to full_text). Analyzed fields are

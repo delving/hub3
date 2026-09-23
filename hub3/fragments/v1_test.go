@@ -273,6 +273,81 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Regression for #3595: 16% of the index carries rich text from Memorix,
+	// and escaping every delimiter turned that markup into literal tags on the
+	// Instant Websites. Real markup has to reach the consumer as markup.
+	Context("when a literal contains rich text from the source system", func() {
+		dcDescription := "http://purl.org/dc/elements/1.1/description"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcDescription),
+			r.NewLiteral("<p>Rechthoek met vier stroken.</p><p>Locatie 5.1</p>"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the markup renderable", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("<p>Rechthoek met vier stroken.</p>"))
+			Expect(ie.Value).ToNot(ContainSubstring("&lt;p&gt;"))
+		})
+	})
+
+	// Thesaurus paths use '>' as a separator and AAT labels wrap the term in
+	// angle brackets. Neither is markup, and the sanitizer used to delete the
+	// AAT term outright because it read it as an unknown tag.
+	Context("when a literal uses angle brackets as domain notation", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		fb, err := testDataGraph(false)
+
+		It("should keep a thesaurus path intact", func() {
+			Expect(err).ToNot(HaveOccurred())
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource(dcSubject),
+				r.NewLiteral("003.6 ARBEID > BODEM – GRONDBEWERKING > eggen"),
+			)
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("ARBEID &gt; BODEM"))
+			Expect(ie.Value).To(ContainSubstring("eggen"))
+		})
+
+		It("should keep an AAT label rather than swallow it", func() {
+			Expect(err).ToNot(HaveOccurred())
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource(dcSubject),
+				r.NewLiteral("<melk en melkproducten>"),
+			)
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("melk en melkproducten"))
+		})
+	})
+
+	// An empty fulltext extraction arrives as an XML document. It is not rich
+	// text, so it must not be rendered, and it must not take the rest of the
+	// field with it either.
+	Context("when a literal is an xml preamble", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<fullTextFromUrl/> rest"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should neutralise it and keep what follows", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("rest"))
+			Expect(ie.Value).ToNot(ContainSubstring("<?xml"))
+		})
+	})
+
 	Context("when a literal contains an actual html tag", func() {
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 		t := r.NewTriple(
