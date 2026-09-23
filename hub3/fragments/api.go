@@ -1436,8 +1436,12 @@ func createFieldedSubQuery(field, userQuery string, boost float64) elastic.Query
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
 func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *FacetField, fub *FacetURIBuilder) (elastic.Aggregation, error) {
-	// For fields type, use the fields-based aggregation
-	if facet.GetType() == FacetType_FIELDS {
+	// For fields type, use the fields-based aggregation — but only when a
+	// count sort is requested. With byName (alphabetical) sort we route
+	// through the nested path so the composite sortValue-aware
+	// aggregation kicks in (#2560). The flat `fields.*` path has no
+	// sortValue sub-field, so it can only order on the display value.
+	if facet.GetType() == FacetType_FIELDS && !facet.GetByName() {
 		return CreateAggregationByFields(facet, sr.FacetAndBoolType, fub)
 	}
 
