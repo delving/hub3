@@ -47,10 +47,12 @@ type FragmentBuilder struct {
 	resources      *ResourceMap
 }
 
-// ByPredicate returns a list of triples that have the same predicate
+// ByPredicate returns a list of triples that have the same predicate, in
+// document order — a caller asking for every value of one predicate is
+// almost always asking for them in the order the record states them.
 func (fb *FragmentBuilder) ByPredicate(predicate r.Term) []*r.Triple {
 	matches := []*r.Triple{}
-	for t := range fb.Graph.IterTriples() {
+	for t := range fb.Graph.IterTriplesOrdered() {
 		if t.Predicate.Equal(predicate) {
 			matches = append(matches, t)
 		}

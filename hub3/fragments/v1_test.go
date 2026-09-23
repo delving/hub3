@@ -273,6 +273,58 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Regression for #3548/#952: repeated values reached the v1 index in an
+	// order that changed on every run of the same record, because the graph
+	// was rebuilt while walking a sync.Map. Twelve values make a chance pass
+	// vanishingly unlikely.
+	Context("when a record repeats one predicate", func() {
+		values := []string{
+			"hoogte beeld: 59.5 cm", "breedte beeld: 43.7 cm",
+			"hoogte lijst: 83 cm", "breedte lijst: 66.5 cm",
+			"diepte lijst: 4 cm", "gewicht: 2.3 kg",
+			"hoogte passe-partout: 70 cm", "breedte passe-partout: 50 cm",
+			"diameter: 12 cm", "dikte: 3 mm",
+			"omtrek: 140 cm", "oppervlakte: 0.26 m2",
+		}
+
+		var doc strings.Builder
+		doc.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` +
+			`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"` +
+			` xmlns:dcterms="http://purl.org/dc/terms/">` +
+			`<rdf:Description rdf:about="http://data.brabantcloud.nl/resource/document/test-spec/1">`)
+
+		for _, v := range values {
+			doc.WriteString("<dcterms:extent>" + v + "</dcterms:extent>")
+		}
+
+		doc.WriteString(`</rdf:Description></rdf:RDF>`)
+
+		It("should index the values in document order", func() {
+			fg := testFragmentGraph("test-spec", int32(1), "http://data.brabantcloud.nl/resource/document/test-spec/1/graph")
+			fg.Meta.AboutTypeURI = []string{"http://www.openarchives.org/ore/terms/Aggregation"}
+			fb := NewFragmentBuilder(fg)
+
+			err := fb.ParseResolvedGraph(strings.NewReader(doc.String()), "application/rdf+xml")
+			Expect(err).ToNot(HaveOccurred())
+
+			// The rebuild that used to scramble the order happens in here.
+			_ = fb.GetSortedWebResources(context.Background())
+
+			indexDoc, err := CreateV1IndexDoc(fb)
+			Expect(err).ToNot(HaveOccurred())
+
+			entries, ok := indexDoc["dcterms_extent"].([]*IndexEntry)
+			Expect(ok).To(BeTrue(), "dcterms_extent should be present")
+
+			got := []string{}
+			for _, e := range entries {
+				got = append(got, e.Value)
+			}
+
+			Expect(got).To(Equal(values))
+		})
+	})
+
 	// Regression for #3595: 16% of the index carries rich text from Memorix,
 	// and escaping every delimiter turned that markup into literal tags on the
 	// Instant Websites. Real markup has to reach the consumer as markup.

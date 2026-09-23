@@ -407,7 +407,14 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (
 	aggregates = []r.Term{}
 
 	seen := 0
-	for triple := range fb.Graph.IterTriples() {
+	// Ordered, not IterTriples: every triple below is re-added to cleanGraph,
+	// which stamps it with a fresh insertion number, and that number is what
+	// CreateV1IndexDoc later sorts on. IterTriples walks a sync.Map, whose
+	// order is undefined, so reading it here randomised the order of every
+	// repeated field in the v1 index — different on each run of the same
+	// record (#3548/#952). The graph keeps document order; this loop has to
+	// preserve it rather than reshuffle it.
+	for triple := range fb.Graph.IterTriplesOrdered() {
 		seen++
 		s := triple.Subject.String()
 		p := triple.Predicate.String()
@@ -649,7 +656,11 @@ func (fb *FragmentBuilder) SetResourceLabels() error {
 		r.NewResource("http://xmlns.com/foaf/0.1/name"),
 	}
 
-	for t := range fb.Graph.IterTriples() {
+	// Ordered, because this keeps the FIRST label it meets per subject. Over a
+	// sync.Map "first" is whichever the runtime happened to yield, so a
+	// resource carrying two prefLabels got a different one on each indexing
+	// run. Document order makes that choice reproducible.
+	for t := range fb.Graph.IterTriplesOrdered() {
 		for _, label := range labels {
 			if !label.Equal(t.Predicate) {
 				continue
