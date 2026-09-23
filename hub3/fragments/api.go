@@ -1445,6 +1445,17 @@ func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *Face
 		return CreateAggregationByFields(facet, sr.FacetAndBoolType, fub)
 	}
 
+	// Promote FIELDS → TERMS for the byName path: the FIELDS case inside
+	// CreateAggregationBySearchLabel lists searchLabels (a meta-facet
+	// explorer), which is not what a user-facing byName facet wants.
+	// TERMS falls through to the default case, which builds the
+	// composite value listing we need for sortValue ordering.
+	if facet.GetType() == FacetType_FIELDS && facet.GetByName() {
+		facetCopy := *facet
+		facetCopy.Type = FacetType_TERMS
+		facet = &facetCopy
+	}
+
 	return CreateAggregationBySearchLabel(path, facet, sr.FacetAndBoolType, fub)
 }
 
