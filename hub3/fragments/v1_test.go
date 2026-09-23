@@ -327,6 +327,30 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Taken from OCR output in the index: a '<' followed by a letter and a
+	// newline. If the attribute part of the tag pattern were allowed to span
+	// lines, this would pair with the next '>' far below and the sanitizer
+	// would drop everything in between.
+	Context("when ocr output starts something that looks like a tag", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		tail := "DE EFTELING HET LEUKSTE"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("04167-881ll.\n\n-<i\n\n___ te\n\ne\n\n"+tail+" 5 > 3 slot"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should not let it reach the next bracket", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring(tail))
+			Expect(ie.Value).To(ContainSubstring("slot"))
+			Expect(ie.Value).ToNot(ContainSubstring("<i"))
+		})
+	})
+
 	// An empty fulltext extraction arrives as an XML document. It is not rich
 	// text, so it must not be rendered, and it must not take the rest of the
 	// field with it either.

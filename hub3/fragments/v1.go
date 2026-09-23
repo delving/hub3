@@ -775,10 +775,16 @@ func GetFieldKey(t *r.Triple) (string, error) {
 // the duration of the sanitizer pass, and come back escaped. bluemonday still
 // makes every decision about actual markup, so the security posture is the one
 // it has always been.
+// The attribute part excludes newlines and is length-capped on purpose. OCR
+// output contains fragments like "-<i\n\n___ te\n\n*\n\nDE EFTELING", and an
+// unbounded attribute match would pair that '<i' with the next '>' hundreds of
+// characters later, hand the whole span to the sanitizer as a tag, and lose
+// it — the #3590 failure in miniature. Real attributes in this data are short
+// and on one line.
 var htmlTag = regexp.MustCompile(
 	`(?i)</?(?:a|b|blockquote|br|code|del|div|em|h[1-6]|hr|i|img|ins|li|ol|p` +
 		`|pre|q|s|span|strike|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul)` +
-		`(?:\s[^<>]*)?/?>`)
+		`(?:[ \t][^<>\r\n]{0,300})?/?>`)
 
 // Interlinear annotation controls: valid UTF-8, no meaning to bluemonday, and
 // not something a heritage record contains.
