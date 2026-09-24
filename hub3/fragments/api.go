@@ -1619,9 +1619,15 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 		// sortValue (plain-text fields, records with no sort variant) in the
 		// null bucket so they still show up, sorted by display value.
 		// Count sort keeps the existing terms aggregation.
-		var valueAgg elastic.Aggregation = labelAgg
+		//
+		// The composite sub-agg is registered under a distinct name
+		// (sortedValues) rather than "value" — Aggregations.Terms("value")
+		// would happily unmarshal composite JSON, but KeyAsString has no
+		// case for the map[string]interface{} composite key and returns
+		// "", turning every bucket label into an empty string.
+		filterAgg := elastic.NewFilterAggregation().Filter(pathFilter)
 		if facet.GetByName() {
-			valueAgg = elastic.NewCompositeAggregation().
+			compAgg := elastic.NewCompositeAggregation().
 				Size(int(facet.GetSize())).
 				Sources(
 					elastic.NewCompositeAggregationTermsValuesSource("sortkey").
@@ -1632,11 +1638,10 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 						Field(termAggPath).
 						Order("asc"),
 				)
+			filterAgg = filterAgg.SubAggregation("sortedValues", compAgg)
+		} else {
+			filterAgg = filterAgg.SubAggregation("value", labelAgg)
 		}
-
-		filterAgg := elastic.NewFilterAggregation().
-			Filter(pathFilter).
-			SubAggregation("value", valueAgg)
 		testAgg := elastic.NewNestedAggregation().Path(path)
 		testAgg = testAgg.SubAggregation("inner", filterAgg)
 		facetFilterAgg = facetFilterAgg.SubAggregation("filter", testAgg)
@@ -2523,11 +2528,15 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 							qf.Links = append(qf.Links, fl)
 						}
 					}
-					// #2560: composite variant of the "value" sub-agg used
-					// when the facet is byName-sorted (see CreateAggregationBySearchLabel).
-					// Bucket key is a map {sortkey, value}; the visible label
-					// is bucket.Key["value"].
-					if composite, ok := inner.Composite("value"); ok {
+					// #2560: composite variant used when the facet is
+					// byName-sorted (see CreateAggregationBySearchLabel).
+					// Registered under "sortedValues" so it does not clash
+					// with the terms sub-agg named "value" — Aggregations.
+					// Terms happily unmarshals composite JSON but produces
+					// empty labels because the composite key is a map.
+					// Bucket key is {sortkey, value}; visible label is
+					// bucket.Key["value"].
+					if composite, ok := inner.Composite("sortedValues"); ok {
 						valid = true
 						for _, b := range composite.Buckets {
 							key := fmt.Sprint(b.Key["value"])
