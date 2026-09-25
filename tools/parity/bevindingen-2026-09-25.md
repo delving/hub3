@@ -213,3 +213,48 @@ against the same production index, read-only, and already answers
 `/api/search/v1/` with the same numFound. Adding a debug parameter there
 would let both queries be compared directly instead of inferred from their
 answers, which is how the rest of this list would be settled fastest.
+
+---
+
+# Reading both queries (2026-09-25)
+
+Nave now answers `echo=es` and `echo=searchService` the way the Go side
+already did, on `data2.brabantcloud.nl` only — the switch is off in
+production, so the endpoint does not exist there. That turns the facet
+question from inference into reading.
+
+Same request, `qf[]=tib_collection_facet:Stadsarchief Breda`, both sides:
+
+```
+django   query       {"match_all": {}}
+         post_filter query_string on  nave_collection.raw
+         agg         terms on         nave_collection.raw            size 50
+
+go       query       bool: meta.docType=graph AND meta.orgID=brabantcloud
+         post_filter nested on resources.entries
+                       (searchLabel=nave_collection AND term=...)
+         agg         terms on         fields.nave_collection.keyword  size 50
+```
+
+Three things fall out.
+
+**The truncation is not in the query.** Both ask Elasticsearch for 50 terms.
+Django nonetheless returns 109 values for the collection facet, so its extra
+values come from somewhere after the aggregation — worth finding before
+"raise Go's size to match" is treated as the fix.
+
+**Both compute facets over the unfiltered set.** Each puts the user's filter
+in `post_filter` and leaves the aggregation's own filter empty. So the
+approach is the same and the earlier suspicion — that one side counts before
+filtering and the other after — is wrong.
+
+**They read two different index shapes.** Django reads flat `*.raw` fields;
+Go reads `fields.*.keyword` and filters through a nested `resources.entries`
+structure. The same index carries both, because hub3 writes both. Where the
+counts agree, both shapes are populated consistently. Where they do not, the
+question is no longer "which implementation is right" but "is one of the two
+shapes incomplete for this field" — and that is a data question, answerable
+against the index directly.
+
+That reframes the remaining facet work. Before changing either
+implementation, compare the two shapes for a field whose counts disagree.
