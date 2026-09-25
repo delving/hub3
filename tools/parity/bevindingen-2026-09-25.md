@@ -130,3 +130,86 @@ python3 replay.py --corpus corpus/corpus.tsv \
 Twelve minutes, read-only, rate-limited so the live site is undisturbed. Run
 both sides close together: the index moves, and a slow run reports that
 movement as a difference.
+
+---
+
+# Facets, taken apart (2026-09-25)
+
+The largest gap by traffic, 93%. Good news first: **the counts are right.**
+Asked for the same facet, both sides return the same numbers — 393,024 /
+169,967 / 157,269 for the top three collections. The aggregation underneath is
+sound. What differs is the envelope around it, in five ways.
+
+`echo=searchService` on the Go side returns the actual Elasticsearch request,
+which is how most of this was settled rather than inferred:
+
+```
+"dc_creator": {"aggregations": {"object": {"terms": {
+    "field": "fields.dc_creator.keyword",
+    "order": [{"_count": "desc"}], "size": 50}}},
+  "filter": {"bool": {}}}
+```
+
+Note the aggregation is named `dc_creator` there, not `dc_creator_facet` —
+so the naming fault below happens while building the response, not the query.
+
+### 1. The `_facet` suffix is appended twice
+
+Requesting `facet.field=dc_creator_facet` returns a facet named
+`dc_creator_facet_facet`. Django appends `_facet` only when it is not already
+there (`dc_type` becomes `dc_type_facet`, `dc_creator_facet` stays as it is).
+Any consumer that looks a facet up by the name it asked for finds nothing.
+
+### 2. The list is truncated where Django returns it whole
+
+Go caps every facet at 50 values. Django reads a size per facet, and the
+collection facet is configured above that: 109 values, all returned.
+
+| | Django | Go |
+|---|---|---|
+| default | 109 | 50 |
+| `facet.limit=5` | 109 | 5 |
+| `facet.limit=200` | 109 | 109 |
+
+So a filter list built from Go shows 50 of 109 collections, with no sign that
+the rest exist. This is visible to end users on every faceted page, and is the
+single most consequential item here.
+
+It also shows `facet.limit` working in Go and ignored by Django — the one row
+in this section where Go is the one behaving sensibly.
+
+### 3. `total` counts different things
+
+Django's `total` is the number of distinct values in the facet (109, matching
+its 109 links). Go's `total` is the number of documents (2,048,172). Same
+field name, different meaning, both plausible in isolation.
+
+### 4. `missingDocs` and `otherDocs` disagree
+
+For the collection-part facet Django reports `otherDocs: 198,402` — the tail
+beyond the returned values — and `missingDocs: 0`. Go reports `otherDocs: 0`
+and `missingDocs: 130,674`. Neither side is obviously wrong; they are
+answering different questions.
+
+### 5. A requested facet that is also a default appears twice
+
+Both sides do this, so it is not strictly a parity gap, but Go hits it more
+often because its names differ (`dc_type_facet_facet` alongside the default
+`dc_type_facet`).
+
+## What to fix first
+
+Item 2 is the one users see. Item 1 is a one-line condition and breaks lookup
+by name. Items 3 and 4 need a decision about which meaning we keep, and that
+decision belongs with whoever owns the consumer contract, not with whoever
+edits the code.
+
+## Reading Django's query too
+
+Nave has no equivalent of `echo`: `NaveESQuery.__repr__` returns the query
+dict, but nothing exposes it over HTTP. Production is not the place to add
+one. The staging host `data2.brabantcloud.nl` is — it runs the same Nave
+against the same production index, read-only, and already answers
+`/api/search/v1/` with the same numFound. Adding a debug parameter there
+would let both queries be compared directly instead of inferred from their
+answers, which is how the rest of this list would be settled fastest.
