@@ -20,6 +20,7 @@ import argparse
 import json
 import sys
 import time
+import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
@@ -28,13 +29,47 @@ PAD = "/api/search/v1/"
 
 def haal(basis, query, timeout):
     url = basis.rstrip("/") + PAD + ("?" + query if query else "")
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8", "replace"))
+    # No fixed Accept header: a large share of real traffic asks for
+    # format=jsonp, and sending "Accept: application/json" alongside it makes
+    # Django answer 406 Not Acceptable. The format parameter decides; let it.
+    req = urllib.request.Request(url, headers={"Accept": "*/*"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            status, soort, body = r.status, r.headers.get_content_type(), r.read()
+    except urllib.error.HTTPError as e:
+        # A 4xx/5xx is a result, not a failure to measure: if one side rejects
+        # a query and the other answers it, that is exactly what we are here
+        # to find.
+        status, soort, body = e.code, (e.headers.get_content_type() if e.headers else ""), e.read()
+    tekst = body.decode("utf-8", "replace")
+    # Without a format parameter the v1 API answers with Django REST
+    # Framework's browsable HTML -- three million requests in five years do
+    # exactly that -- so a non-JSON body is normal traffic, not an error.
+    # Comparing those pages byte for byte says nothing; status and content
+    # type are what carry meaning.
+    try:
+        doc = ontpak(tekst)
+    except ValueError:
+        doc = None
+    return {"status": status, "soort": soort, "doc": doc, "lengte": len(body)}
 
 
-def uitpakken(doc):
+def ontpak(body):
+    """jsonp is not JSON -- it arrives as callback({...}). Unwrap it, so the
+    Instant Website's own traffic can be compared like everything else."""
+    s = body.strip()
+    if s.startswith("{") or s.startswith("["):
+        return json.loads(s)
+    haak = s.find("(")
+    if haak > 0 and s.endswith((")", ");")):
+        binnen = s[haak + 1 : s.rindex(")")]
+        return json.loads(binnen)
+    return json.loads(s)
+
+
+def uitpakken(antwoord):
     """The few things worth comparing, pulled out of the v1 envelope."""
+    doc = antwoord["doc"]
     res = (doc or {}).get("result", {})
     pag = res.get("pagination", {}) or {}
     items = res.get("items", []) or []
@@ -42,6 +77,9 @@ def uitpakken(doc):
     eerste = (items[0].get("item") or {}).get("fields", {}) if items else {}
     facetten = [(f.get("name"), f.get("total")) for f in (res.get("facets") or [])]
     return {
+        "status": antwoord["status"],
+        "soort": antwoord["soort"],
+        "json": doc is not None,
         "numFound": pag.get("numFound"),
         "ids": ids,
         "velden": sorted(eerste.keys()),
@@ -52,18 +90,25 @@ def uitpakken(doc):
     }
 
 
+def beide_json(f):
+    """Layers below only mean something when both sides returned JSON."""
+    return lambda a, b: None if not (a["json"] and b["json"]) else f(a, b)
+
+
 LAGEN = [
     # (naam, hoe te vergelijken) -- volgorde van grof naar fijn, want een
     # verschil in numFound verklaart alle lagen eronder en hoeft niet
     # nog eens als "andere resultaten" geteld te worden.
-    ("numFound", lambda a, b: a["numFound"] == b["numFound"]),
-    ("volgorde", lambda a, b: a["ids"] == b["ids"]),
-    ("zelfde_set", lambda a, b: sorted(x or "" for x in a["ids"]) == sorted(x or "" for x in b["ids"])),
-    ("facetnamen", lambda a, b: a["facetnamen"] == b["facetnamen"]),
-    ("facettellingen", lambda a, b: a["facettellingen"] == b["facettellingen"]),
-    ("veldset", lambda a, b: a["velden"] == b["velden"]),
-    ("veldwaarden", lambda a, b: a["eerste_waarden"] == b["eerste_waarden"]),
-    ("paginering", lambda a, b: a["paginering"] == b["paginering"]),
+    ("status", lambda a, b: a["status"] == b["status"]),
+    ("content_type", lambda a, b: a["soort"] == b["soort"]),
+    ("numFound", beide_json(lambda a, b: a["numFound"] == b["numFound"])),
+    ("volgorde", beide_json(lambda a, b: a["ids"] == b["ids"])),
+    ("zelfde_set", beide_json(lambda a, b: sorted(x or "" for x in a["ids"]) == sorted(x or "" for x in b["ids"]))),
+    ("facetnamen", beide_json(lambda a, b: a["facetnamen"] == b["facetnamen"])),
+    ("facettellingen", beide_json(lambda a, b: a["facettellingen"] == b["facettellingen"])),
+    ("veldset", beide_json(lambda a, b: a["velden"] == b["velden"])),
+    ("veldwaarden", beide_json(lambda a, b: a["eerste_waarden"] == b["eerste_waarden"])),
+    ("paginering", beide_json(lambda a, b: a["paginering"] == b["paginering"])),
 ]
 
 
@@ -80,7 +125,8 @@ def vergelijk(query, args):
     uit = {}
     for naam, gelijk in LAGEN:
         try:
-            uit[naam] = "gelijk" if gelijk(a, b) else "verschilt"
+            oordeel = gelijk(a, b)
+            uit[naam] = "n.v.t." if oordeel is None else ("gelijk" if oordeel else "verschilt")
         except Exception:  # noqa: BLE001
             uit[naam] = "onvergelijkbaar"
     uit["numFound_a"] = a["numFound"]
@@ -155,7 +201,9 @@ def main():
     print(f"{'laag':<18} {'verschilt':>10} {'van':>8}", file=sys.stderr)
     for n in lagen:
         anders = sum(1 for _, r in resultaten if r.get(n) == "verschilt")
-        vergeleken = sum(1 for _, r in resultaten if n in r)
+        # Only cases the layer actually applied to: counting the HTML answers
+        # among them would claim coverage the run does not have.
+        vergeleken = sum(1 for _, r in resultaten if r.get(n) in ("gelijk", "verschilt"))
         print(f"{n:<18} {anders:>10} {vergeleken:>8}", file=sys.stderr)
     if fouten:
         print(f"\n{fouten} zaken gaven een fout aan één kant", file=sys.stderr)
