@@ -69,21 +69,34 @@ def ontpak(body):
 
 def uitpakken(antwoord):
     """The few things worth comparing, pulled out of the v1 envelope."""
-    doc = antwoord["doc"]
-    res = (doc or {}).get("result", {})
+    doc = antwoord["doc"] or {}
+    # An id= lookup answers with a detail envelope rather than a result list,
+    # and the two implementations disagree about its shape: Django wraps it in
+    # "result" and adds "layout", Go returns item/relatedItems at the top
+    # level. So record the shape as its own thing instead of quietly reading
+    # past it -- six million requests a year use this path.
+    vorm = sorted(doc.keys())
+    if "result" in doc:
+        vorm = ["result:" + k for k in sorted((doc["result"] or {}).keys())]
+    res = doc.get("result", doc) or {}
     pag = res.get("pagination", {}) or {}
     items = res.get("items", []) or []
+    if not items and "item" in res:
+        items = [{"item": res["item"]}]
     ids = [(i.get("item") or {}).get("doc_id") for i in items]
-    eerste = (items[0].get("item") or {}).get("fields", {}) if items else {}
+    # Fields per record, not per position: the two sides often return the same
+    # records in a different order, and comparing the first item of each would
+    # restate that ordering difference as a field difference.
+    velden = {(i.get("item") or {}).get("doc_id"): (i.get("item") or {}).get("fields") or {} for i in items}
     facetten = [(f.get("name"), f.get("total")) for f in (res.get("facets") or [])]
     return {
         "status": antwoord["status"],
         "soort": antwoord["soort"],
-        "json": doc is not None,
+        "json": antwoord["doc"] is not None,
+        "vorm": vorm,
         "numFound": pag.get("numFound"),
         "ids": ids,
-        "velden": sorted(eerste.keys()),
-        "eerste_waarden": {k: eerste[k] for k in sorted(eerste)},
+        "velden_per_id": velden,
         "facetnamen": [n for n, _ in facetten],
         "facettellingen": facetten,
         "paginering": {k: pag.get(k) for k in ("start", "rows", "hasNext", "lastPage")},
@@ -95,19 +108,40 @@ def beide_json(f):
     return lambda a, b: None if not (a["json"] and b["json"]) else f(a, b)
 
 
+def gedeeld(a, b):
+    """The records both sides returned -- the only ones whose contents can be
+    compared without the ordering difference getting in the way."""
+    return [i for i in a["velden_per_id"] if i in b["velden_per_id"]]
+
+
+def veldset_gelijk(a, b):
+    ids = gedeeld(a, b)
+    if not ids:
+        return None
+    return all(sorted(a["velden_per_id"][i]) == sorted(b["velden_per_id"][i]) for i in ids)
+
+
+def veldwaarden_gelijk(a, b):
+    ids = gedeeld(a, b)
+    if not ids:
+        return None
+    return all(a["velden_per_id"][i] == b["velden_per_id"][i] for i in ids)
+
+
 LAGEN = [
     # (naam, hoe te vergelijken) -- volgorde van grof naar fijn, want een
     # verschil in numFound verklaart alle lagen eronder en hoeft niet
     # nog eens als "andere resultaten" geteld te worden.
     ("status", lambda a, b: a["status"] == b["status"]),
     ("content_type", lambda a, b: a["soort"] == b["soort"]),
+    ("omhulsel", beide_json(lambda a, b: a["vorm"] == b["vorm"])),
     ("numFound", beide_json(lambda a, b: a["numFound"] == b["numFound"])),
     ("volgorde", beide_json(lambda a, b: a["ids"] == b["ids"])),
     ("zelfde_set", beide_json(lambda a, b: sorted(x or "" for x in a["ids"]) == sorted(x or "" for x in b["ids"]))),
     ("facetnamen", beide_json(lambda a, b: a["facetnamen"] == b["facetnamen"])),
     ("facettellingen", beide_json(lambda a, b: a["facettellingen"] == b["facettellingen"])),
-    ("veldset", beide_json(lambda a, b: a["velden"] == b["velden"])),
-    ("veldwaarden", beide_json(lambda a, b: a["eerste_waarden"] == b["eerste_waarden"])),
+    ("veldset", beide_json(veldset_gelijk)),
+    ("veldwaarden", beide_json(veldwaarden_gelijk)),
     ("paginering", beide_json(lambda a, b: a["paginering"] == b["paginering"])),
 ]
 
@@ -145,9 +179,19 @@ def corpus_lezen(pad, limiet):
                 continue
             veld = regel.split("\t")[-1]
             query = veld.split("?", 1)[1] if "?" in veld else veld
-            # De cache-buster en de jsonp-callback zeggen niets over het
-            # antwoord en zouden het corpus alleen opblazen.
-            delen = [p for p in query.split("&") if not p.startswith(("_=", "callback="))]
+            # The cache-buster says nothing about the answer, so it goes. The
+            # callback must NOT: format=jsonp without one is a request no real
+            # client sends, and the two implementations answer it differently
+            # -- dropping it manufactured a content-type difference in 59 of
+            # 72 cases in the first run. Only its value is normalised, so the
+            # same query does not appear a hundred times over.
+            delen = []
+            for p in query.split("&"):
+                if p.startswith("_="):
+                    continue
+                if p.startswith("callback="):
+                    p = "callback=cb"
+                delen.append(p)
             query = "&".join(delen)
             if query in gezien:
                 continue
