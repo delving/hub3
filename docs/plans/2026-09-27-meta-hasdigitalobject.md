@@ -1,7 +1,7 @@
 # A media flag in the meta block
 
 **Date:** 2026-09-27
-**Status:** Steps 1–3 built (2026-09-27); 4–6 open, and step 5 is the long one
+**Status:** Steps 1–4 built and verified (2026-09-27); 5 and 6 open, and 5 is the long one
 **Tickets:** [#3052](https://delving.plan.io/issues/3052) (the request),
 [#3598](https://delving.plan.io/issues/3598) (`meta.sourceModified`, the same
 pattern in the same message)
@@ -69,9 +69,11 @@ pattern that already works.
 
 ## Steps
 
-Steps 1 to 3 are done — `Header` field 16, the flag set in `IndexMessage`
-after `GenerateFields`, and the line in **both** v2 mappings with both hashes
-bumped. What remains is 4 to 6, and 5 is the one with a calendar attached.
+Steps 1 to 4 are done — `Header` field 16 as an `optional bool`, the flag set
+in `IndexMessage` after `GenerateFields`, the line in **both** v2 mappings with
+both hashes bumped, and the filter verified against a real Elasticsearch. What
+remains is the reindex and the facet, and the reindex is the one with a calendar
+attached.
 
 1. **Protobuf.** Add `hasDigitalObject` as a bool on the `Header` message. That
    message runs to field 15, so 16 and 17 are free; #3598 wants one too, so
@@ -102,9 +104,18 @@ bumped. What remains is 4 to 6, and 5 is the one with a calendar attached.
    Both hashes in `internal/mapping/update.go` have to be bumped; the guard
    there refuses the edit otherwise, and it is the reason this was caught.
 
-4. **Filtering needs nothing.** `qf=meta.hasDigitalObject:true` should work as
-   soon as documents carry it, because `meta.*` is already queried flat. Verify
-   rather than assume — that is one request with `echo=searchService`.
+4. **Filtering needs nothing — verified.** The filter builder already has a
+   `meta.` branch (`api.go:2159`) that produces a flat term query instead of the
+   nested search that returned zero for the v1 field. Covered three ways: the
+   query shape in a unit test, the whole chain against a real Elasticsearch in
+   `elasticsearchtests`, and a guard on the marshalled document.
+
+   The end-to-end run earned its keep immediately. `true` matched and `false`
+   matched nothing, because a plain proto3 bool carries `omitempty` and the
+   graph is marshalled with `encoding/json`: false left the document entirely.
+   "Zonder media" is half of what the ticket asks for, and it would have shipped
+   broken and silent. The field is `optional bool` now, which keeps explicit
+   presence.
 
 5. **Reindex.** The flag appears only on records indexed after the change, so
    the whole of Brabant Cloud has to be rebuilt before the filter is

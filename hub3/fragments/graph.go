@@ -125,7 +125,7 @@ func (fg *FragmentGraph) setDerivedMeta() {
 	// a 400-record sample across 8 collections the three moved together, and
 	// changing the condition has to change both sides at once.
 	_, hasObject := fg.Fields["edm_isShownBy"]
-	fg.Meta.HasDigitalObject = hasObject
+	fg.Meta.HasDigitalObject = &hasObject
 }
 
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {

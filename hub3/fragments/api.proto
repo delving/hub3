@@ -592,7 +592,13 @@ message Header {
   // among the record's own fields. The v1 API exposes the same thing as
   // delving_hasDigitalObject in its legacy block; that one stays until the Go
   // v1 serves traffic. See #3052.
-  bool hasDigitalObject = 16;
+  //
+  // optional, not a plain bool: the graph is marshalled with encoding/json and
+  // the generated tag carries omitempty, so a plain bool would drop out of the
+  // document whenever it is false -- and "zonder media" is half of what #3052
+  // asks for. Explicit presence keeps the false in the document, where a filter
+  // can find it.
+  optional bool hasDigitalObject = 16;
   // 17 is reserved for sourceModified -- the datestamp the source gave a
   // record, as against when we last processed it (#3598). Named here so the
   // two do not race for the same number.

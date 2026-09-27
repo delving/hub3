@@ -3414,7 +3414,13 @@ type Header struct {
 	// among the record's own fields. The v1 API exposes the same thing as
 	// delving_hasDigitalObject in its legacy block; that one stays until the Go
 	// v1 serves traffic. See #3052.
-	HasDigitalObject bool `protobuf:"varint,16,opt,name=hasDigitalObject,proto3" json:"hasDigitalObject,omitempty"`
+	//
+	// optional, not a plain bool: the graph is marshalled with encoding/json and
+	// the generated tag carries omitempty, so a plain bool would drop out of the
+	// document whenever it is false -- and "zonder media" is half of what #3052
+	// asks for. Explicit presence keeps the false in the document, where a filter
+	// can find it.
+	HasDigitalObject *bool `protobuf:"varint,16,opt,name=hasDigitalObject,proto3,oneof" json:"hasDigitalObject,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -3555,8 +3561,8 @@ func (x *Header) GetItemType() string {
 }
 
 func (x *Header) GetHasDigitalObject() bool {
-	if x != nil {
-		return x.HasDigitalObject
+	if x != nil && x.HasDigitalObject != nil {
+		return *x.HasDigitalObject
 	}
 	return false
 }
@@ -4044,7 +4050,7 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\n" +
 	"objectType\x18\r \x01(\tR\n" +
 	"objectType\x12\x18\n" +
-	"\acreator\x18\x0e \x01(\tR\acreator\"\xce\x03\n" +
+	"\acreator\x18\x0e \x01(\tR\acreator\"\xe8\x03\n" +
 	"\x06Header\x12\x14\n" +
 	"\x05orgID\x18\x01 \x01(\tR\x05orgID\x12\x12\n" +
 	"\x04spec\x18\x02 \x01(\tR\x04spec\x12\x1a\n" +
@@ -4063,8 +4069,9 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\agroupID\x18\f \x01(\tR\agroupID\x12\x1a\n" +
 	"\brecDefID\x18\r \x01(\tR\brecDefID\x12\"\n" +
 	"\faboutTypeURI\x18\x0e \x03(\tR\faboutTypeURI\x12\x1a\n" +
-	"\bitemType\x18\x0f \x01(\tR\bitemType\x12*\n" +
-	"\x10hasDigitalObject\x18\x10 \x01(\bR\x10hasDigitalObject\"\xaf\x03\n" +
+	"\bitemType\x18\x0f \x01(\tR\bitemType\x12/\n" +
+	"\x10hasDigitalObject\x18\x10 \x01(\bH\x00R\x10hasDigitalObject\x88\x01\x01B\x13\n" +
+	"\x11_hasDigitalObject\"\xaf\x03\n" +
 	"\bFragment\x12%\n" +
 	"\x04meta\x18\x01 \x01(\v2\x11.fragments.HeaderR\x04meta\x12\x18\n" +
 	"\asubject\x18\a \x01(\tR\asubject\x12\x1c\n" +
@@ -4271,6 +4278,7 @@ func file_hub3_fragments_api_proto_init() {
 	if File_hub3_fragments_api_proto != nil {
 		return
 	}
+	file_hub3_fragments_api_proto_msgTypes[28].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
