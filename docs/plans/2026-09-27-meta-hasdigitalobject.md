@@ -78,12 +78,14 @@ pattern that already works.
    is filled. Same presence check as v1, so the two agree during the period
    both are served — but as a real boolean, not a `FormatBool` string.
 
-   Take the assumption out of the copy while moving it: v1 checks
-   `edm_isShownBy` alone, so a record exposing its object only through
-   `edm_object` or `edm_hasView` counts as having no media. In a 400-record
-   sample across 8 collections those three moved together (all at 77%), so it
-   is probably harmless — but write the condition to say what it means rather
-   than inheriting a line whose reasoning is lost.
+   Keep the condition itself identical — see the decision below — but write it
+   so it says what it means. v1 checks `edm_isShownBy` alone, so a record
+   exposing its object only through `edm_object` or `edm_hasView` counts as
+   having no media. In a 400-record sample across 8 collections those three
+   moved together (all at 77%), so it is probably harmless; the point is that
+   the next reader should not have to rediscover which of the three the flag
+   actually depends on. Changing the condition is a separate decision, and one
+   that has to change both sides at once.
 
 3. **v2 mapping.** One line under `meta`: `"hasDigitalObject": {"type":
    "boolean"}`. Adding a field to an existing mapping needs no reindex by
@@ -103,18 +105,18 @@ pattern that already works.
    facet in the list with no values at all, on both sides. Check that the
    Instant Website can render a two-value facet before promising the UI.
 
-## Decisions that are not ours to make alone
+## Decided (2026-09-27)
 
-- **Do the three siblings come along?** `hasDeepZoom`, `hasLandingPage` and
-  `hasGeoHash` are the same shape and the same one-line cost. `hasLandingPage`
-  is true on effectively every record, so as a filter it is useless and as a
-  trap it is live: it looks like the media flag and is not. Either bring them
-  over deliberately or leave them in v1 and say why.
+- **Only `hasDigitalObject` moves to meta.** `hasDeepZoom`, `hasLandingPage`
+  and `hasGeoHash` stay in v1. They are the same shape and the same one-line
+  cost, but nobody asked for them, and `hasLandingPage` is true on effectively
+  every record -- useless as a filter and a live trap, because it reads like
+  the media flag and is not. If one is ever wanted, it is one line then.
 
-- **Does `delving_hasDigitalObject` stay too?** Keeping both means two sources
-  of the same truth. The v1 legacy field cannot go while consumers read it, so
-  the honest answer is probably "both, and the v1 one is deprecated on the day
-  the Go v1 serves traffic".
+- **`delving_hasDigitalObject` stays**, and is deprecated on the day the Go v1
+  serves traffic. It cannot go while consumers filter on it. The cost is two
+  sources of one truth, so step 2 keeps the condition identical rather than
+  improving it on one side only.
 
 ## Verifying it
 

@@ -301,3 +301,49 @@ page. Anyone reaching for a media filter will find these first.
 `mimeType` exists on the protobuf `Header` but is populated for no EDM record
 in the sample, which is why filtering per media type — the "pdf, audio, video"
 in the ticket — is not available and was not promised.
+
+---
+
+# Decisions taken (2026-09-27)
+
+**The detail path gets Django's envelope; `layout` does not survive.** The v1
+route will wrap an `id=` answer in `result` so existing consumers keep
+reading, and `layout` is dropped because nothing uses it for field labels.
+
+Worth knowing where that change goes: `v1.mode` already exists and already
+does backwards-compatibility work — v1 pagination, breadcrumb rewriting,
+`itemFormat=v1` — and the v1 route sets it itself (`search.go:63`). It does
+**not** reach the detail path. Measured:
+
+```
+/api/search/v1/?id=...                 {item, relatedItems}
+/api/search/v1/?id=...&v1.mode=true    {item, relatedItems}
+/api/search/v1/?id=...&itemFormat=v1   {item, relatedItems}
+```
+
+Because `id=` is served by `ikuzo/service/x/semantic/`, a newer service that
+never consults the flag. So this is not a switch to turn on but a flag to
+honour in one more place.
+
+**`q` is not two languages.** Both sides push it to Elasticsearch as a
+`query_string`; the difference was which field names each rewrites.
+
+```
+django  default_field "_all"     delving_spec -> system.spec.raw   dc_title -> dc_title.value
+go      default_operator "and"   delving_spec -> meta.spec         dc_title -> dc_title
+```
+
+Go's `transformQuery` handled `*_text:` and `delving_spec:` and nothing else,
+so every other field went through unqualified and matched nothing. Confirmed
+against the live index before changing anything:
+
+```
+dc_title:"Albert Neuhuys"          0
+fields.dc_title:"Albert Neuhuys"   3
+dc_title_text:"Albert Neuhuys"     3
+```
+
+Fixed in `cff2690d`, with the quoted-value and URI traps covered by tests. The
+`_facet` doubling is fixed in `80db11e3`. Both were response- or
+query-building faults, not index or data problems — which is the pattern in
+this whole exercise so far.
