@@ -2718,16 +2718,81 @@ func facetFieldBySearchLabel(facetFields []*FacetField, searchLabel string) (*Fa
 	return nil, false
 }
 
-// transformQuery transforms a query string by:
-// - Replacing patterns like "dc_creator_text:" with "fields.dc_creator:"
-// - Replacing "delving_spec" with "meta.spec"
+var (
+	qTextField   = regexp.MustCompile(`(\w+)_text:`)
+	qDelvingSpec = regexp.MustCompile(`\bdelving_spec:`)
+	// A field reference: a name followed by a colon, at the start of the string
+	// or after a character that cannot be part of a name. Being preceded by a
+	// dot excludes it, which is what keeps fields.dc_title: and meta.spec:
+	// alone.
+	qBareField = regexp.MustCompile(`(^|[\s(+\-!])([A-Za-z][A-Za-z0-9_]*):`)
+)
+
+// Names that are already qualified, plus the URI schemes that look exactly
+// like a field reference and are not one.
+var qNotAField = map[string]bool{
+	"fields": true, "meta": true, "resources": true, "tree": true,
+	"legacy": true, "system": true, "summary": true,
+	"http": true, "https": true, "urn": true, "ftp": true, "mailto": true, "doi": true,
+}
+
+// transformQuery rewrites the field names in a raw q so they address the
+// document as it is actually stored.
+//
+// A consumer writes the names the v1 API exposes -- dc_title:, delving_spec:
+// -- while the documents keep their fields under fields.* and our own
+// conclusions under meta.*. Only *_text: and delving_spec: were being
+// rewritten, so every other field went through unqualified and matched
+// nothing: dc_title:"Albert Neuhuys" returned 0 where Django returned 3.
+// Measured against the parity corpus, 495 cases are this one gap, and q
+// carries 2.7 million requests, so it is the common path rather than an edge.
+//
+// Quoted spans are left alone: a value may legitimately contain a colon, and
+// rewriting inside it would change what the user asked for rather than where
+// we look for it.
 func transformQuery(query string) string {
-	// Replace *_text: patterns with fields.*:
-	textPattern := regexp.MustCompile(`(\w+)_text:`)
-	result := textPattern.ReplaceAllString(query, "fields.$1:")
+	result := qTextField.ReplaceAllString(query, "fields.$1:")
+	result = qDelvingSpec.ReplaceAllString(result, "meta.spec:")
+	return qualifyFields(result)
+}
 
-	// Replace delving_spec with meta.spec only when followed by :
-	result = regexp.MustCompile(`\bdelving_spec:`).ReplaceAllString(result, "meta.spec:")
+// qualifyFields prefixes unqualified field names with "fields.", outside
+// quoted spans.
+func qualifyFields(query string) string {
+	var b strings.Builder
+	rest := query
 
-	return result
+	for {
+		open := strings.IndexByte(rest, '"')
+		if open == -1 {
+			b.WriteString(qualifyUnquoted(rest))
+			break
+		}
+
+		b.WriteString(qualifyUnquoted(rest[:open]))
+
+		close := strings.IndexByte(rest[open+1:], '"')
+		if close == -1 {
+			// Unbalanced quote: the remainder is one open value, so leave it.
+			b.WriteString(rest[open:])
+			break
+		}
+
+		end := open + 1 + close + 1
+		b.WriteString(rest[open:end])
+		rest = rest[end:]
+	}
+
+	return b.String()
+}
+
+func qualifyUnquoted(s string) string {
+	return qBareField.ReplaceAllStringFunc(s, func(m string) string {
+		parts := qBareField.FindStringSubmatch(m)
+		lead, name := parts[1], parts[2]
+		if qNotAField[name] {
+			return m
+		}
+		return lead + "fields." + name + ":"
+	})
 }
