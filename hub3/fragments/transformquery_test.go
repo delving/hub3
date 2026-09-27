@@ -1,6 +1,9 @@
 package fragments
 
-import "testing"
+import (
+	"net/url"
+	"testing"
+)
 
 // The cases come from the parity corpus -- real queries out of five years of
 // access log -- plus the shapes that make a naive rewrite dangerous: a colon
@@ -80,6 +83,42 @@ func TestTransformQuery(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := transformQuery(tt.in); got != tt.want {
 				t.Errorf("transformQuery(%q)\n  got  %q\n  want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
+
+// Sort direction. Nothing in five years of access log asks for a direction, so
+// what a bare sortBy does is what every real request gets.
+func TestSortDirection(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		params  url.Values
+		wantAsc bool
+	}{
+		{"a named field sorts ascending, like Django",
+			url.Values{"sortBy": {"tib_notes"}}, true},
+		{"sortOrder=desc still gets descending",
+			url.Values{"sortBy": {"tib_notes"}, "sortOrder": {"desc"}}, false},
+		{"sortOrder=asc is the default said out loud",
+			url.Values{"sortBy": {"tib_notes"}, "sortOrder": {"asc"}}, true},
+		{"the caret keeps working",
+			url.Values{"sortBy": {"^tib_notes"}}, true},
+		{"_score stays descending: the best match comes first",
+			url.Values{"sortBy": {"_score"}}, false},
+		{"random stays descending",
+			url.Values{"sortBy": {"random_180"}}, false},
+		{"no sortBy leaves the flag alone",
+			url.Values{}, false},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			sr, err := NewSearchRequest("brabantcloud", tt.params)
+			if err != nil {
+				t.Fatalf("NewSearchRequest: %v", err)
+			}
+			if sr.SortAsc != tt.wantAsc {
+				t.Errorf("sortBy=%q sortOrder=%q: SortAsc = %v, want %v",
+					tt.params.Get("sortBy"), tt.params.Get("sortOrder"), sr.SortAsc, tt.wantAsc)
 			}
 		})
 	}

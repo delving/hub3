@@ -576,6 +576,22 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		sr.SearchFields = "full_text"
 	}
 
+	// Sort direction for a named field.
+	//
+	// Django, which every consumer of this API actually talks to, sorts a named
+	// field ascending unless sortOrder says otherwise -- and in five years of
+	// access log nothing ever says otherwise: sortOrder never appears, sortAsc
+	// never appears, and not one request carries the caret. This side defaulted
+	// to descending, so the same sortBy put a different page one in front of
+	// every consumer. 560 of the 2,827 parity cases sort on tib_notes alone.
+	//
+	// _score and random keep descending, because there the high value is the
+	// best answer rather than the first letter of the alphabet.
+	if sortKey := sr.GetSortBy(); sortKey != "" &&
+		sortKey != "_score" && !strings.HasPrefix(sortKey, "random") {
+		sr.SortAsc = !strings.EqualFold(params.Get("sortOrder"), "desc")
+	}
+
 	return sr, nil
 }
 
