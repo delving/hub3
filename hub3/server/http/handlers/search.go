@@ -1247,7 +1247,18 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 		for _, facet := range result.Facets {
 			facet.Field = conv.ReplaceQueryString(facet.Field, true)
-			facet.Name = conv.ReplaceQueryString(facet.Name, true) + "_facet"
+			// Only append the suffix when it is not already there. A facet
+			// requested as facet.field=dc_creator_facet keeps that name through
+			// ReplaceQueryString -- which applies prefix substitutions and does
+			// not strip suffixes, unlike GetTranslatedField -- so appending
+			// unconditionally answered with dc_creator_facet_facet, and a
+			// consumer looking the facet up under the name it asked for found
+			// nothing.
+			name := conv.ReplaceQueryString(facet.Name, true)
+			if !strings.HasSuffix(name, "_facet") {
+				name += "_facet"
+			}
+			facet.Name = name
 			facet.I18n = conv.ReplaceQueryString(facet.Name, true)
 
 			for _, link := range facet.Links {
