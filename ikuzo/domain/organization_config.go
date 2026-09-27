@@ -53,7 +53,13 @@ type SitemapConfig struct {
 	ExcludedSpecs []string `json:"excludedSpecs,omitempty"`
 	DataPath      string   `json:"dataPath,omitempty"`
 	RelPathFmt    string   `json:"relPathFmt,omitempty"`
-	ContextIndex  string   `json:"contextIndex,omitempty"`
+	// RelPathFmtBySpec overrides RelPathFmt per sitemap spec so different
+	// record types can mint URLs with the correct NAAN. Key is the spec
+	// name (e.g. `archivesspace-agent`, `arches-archesConsolidated`, or an
+	// isad-prefix). First lookup that hits by strict-equal or prefix wins;
+	// when no key matches, the default RelPathFmt is used.
+	RelPathFmtBySpec map[string]string `json:"relPathFmtBySpec,omitempty"`
+	ContextIndex     string            `json:"contextIndex,omitempty"`
 	// UseHubID formats the record's full hubID into RelPathFmt
 	// (query-escaped) instead of the last path segment of its EntryURI.
 	// Used for DIW deep links of the form ?id=<hubID>.
@@ -80,19 +86,45 @@ func (cfg *SitemapConfig) Path(spec string, page int) string {
 
 // URL renders the public location for a record id according to RelPathFmt.
 // In UseHubID mode the full id is query-escaped into the format verb; in
-// legacy mode only the last path segment of the id is used.
+// legacy mode only the last path segment of the id is used. When spec is
+// non-empty and matches an entry in RelPathFmtBySpec (strict or prefix),
+// that override wins over the default RelPathFmt — used to mint the
+// correct NAAN per record type (agents → digipolis NAAN 83110, per-org
+// records → the org's own NAAN).
 func (cfg *SitemapConfig) URL(id string) string {
-	if cfg.RelPathFmt == "" {
+	return cfg.URLForSpec("", id)
+}
+
+// URLForSpec is URL with an explicit spec name so the caller can pick a
+// per-spec relPathFmt override. Callers that don't know the spec pass "".
+func (cfg *SitemapConfig) URLForSpec(spec, id string) string {
+	relFmt := cfg.relPathFmtFor(spec)
+	if relFmt == "" {
 		return id
 	}
 
 	if cfg.UseHubID {
-		return fmt.Sprintf("%s%s", cfg.BaseURL, fmt.Sprintf(cfg.RelPathFmt, url.QueryEscape(id)))
+		return fmt.Sprintf("%s%s", cfg.BaseURL, fmt.Sprintf(relFmt, url.QueryEscape(id)))
 	}
 
 	parts := strings.Split(id, "/")
-	path := fmt.Sprintf(cfg.RelPathFmt, parts[len(parts)-1])
+	path := fmt.Sprintf(relFmt, parts[len(parts)-1])
 	return fmt.Sprintf("%s%s", cfg.BaseURL, path)
+}
+
+func (cfg *SitemapConfig) relPathFmtFor(spec string) string {
+	if spec != "" && len(cfg.RelPathFmtBySpec) > 0 {
+		if v, ok := cfg.RelPathFmtBySpec[spec]; ok {
+			return v
+		}
+		// Prefix fallback: an "isad:" key matches every isad:<org>:<n> spec.
+		for k, v := range cfg.RelPathFmtBySpec {
+			if strings.HasSuffix(k, ":") && strings.HasPrefix(spec, k) {
+				return v
+			}
+		}
+	}
+	return cfg.RelPathFmt
 }
 
 // IndexBase returns the base URL for sub-sitemap locations in the sitemap

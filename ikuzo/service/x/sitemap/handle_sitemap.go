@@ -129,7 +129,7 @@ func (s *Service) generateSitemaps(cfg domain.SitemapConfig, spec string) (int, 
 		}
 
 		sm.Add(&sitemap.URL{
-			Loc:     cfg.URL(loc.ID),
+			Loc:     cfg.URLForSpec(spec, loc.ID),
 			LastMod: loc.LastMod,
 		})
 		return nil
