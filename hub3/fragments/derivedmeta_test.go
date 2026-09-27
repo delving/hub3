@@ -153,3 +153,30 @@ func TestHasDigitalObjectSurvivesMarshalling(t *testing.T) {
 		})
 	}
 }
+
+// A meta field has to aggregate directly. The dispatch used to name them one at
+// a time, so a new one silently got the nested treatment and came back as a
+// facet with no values.
+func TestMetaFacetsAggregateDirectly(t *testing.T) {
+	for _, tt := range []struct {
+		field string
+		want  FacetType
+	}{
+		{"meta.hasDigitalObject", FacetType_METATAGS},
+		{"meta.spec", FacetType_METATAGS},
+		{"meta.tags", FacetType_METATAGS},
+		{"meta.sourceModified", FacetType_METATAGS}, // #3598, not built yet
+		{"dc_title", FacetType_FIELDS},
+		{"tree.depth", FacetType_TREEFACET},
+	} {
+		t.Run(tt.field, func(t *testing.T) {
+			ff, err := NewFacetField(tt.field)
+			if err != nil {
+				t.Fatalf("NewFacetField(%q): %v", tt.field, err)
+			}
+			if ff.GetType() != tt.want {
+				t.Errorf("%s: type = %v, want %v", tt.field, ff.GetType(), tt.want)
+			}
+		})
+	}
+}

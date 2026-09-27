@@ -1,7 +1,7 @@
 # A media flag in the meta block
 
 **Date:** 2026-09-27
-**Status:** Steps 1–4 built and verified (2026-09-27); 5 and 6 open, and 5 is the long one
+**Status:** Built and deployed (2026-09-27). The facet waits on index coverage, not on code.
 **Tickets:** [#3052](https://delving.plan.io/issues/3052) (the request),
 [#3598](https://delving.plan.io/issues/3598) (`meta.sourceModified`, the same
 pattern in the same message)
@@ -117,15 +117,35 @@ attached.
    broken and silent. The field is `optional bool` now, which keeps explicit
    presence.
 
-5. **Reindex.** The flag appears only on records indexed after the change, so
-   the whole of Brabant Cloud has to be rebuilt before the filter is
-   trustworthy. This, not the code, is the timeline for the Deelnemersdag at
-   the end of November.
+5. **No reindex — the index heals.** Decided against forcing one: the whole
+   index was rewritten between 23 and 27 September anyway (1.6M records on the
+   23rd alone), so records pick the flag up as they are written. Measured
+   healing while writing this: 56 records at first check, 133 twenty minutes
+   later.
 
-6. **Facet.** A terms aggregation over a boolean works, unlike the current
-   situation: asking v1 for `facet.field=delving_hasDigitalObject` returns the
-   facet in the list with no values at all, on both sides. Check that the
-   Instant Website can render a two-value facet before promising the UI.
+   What that costs is coverage in the meantime, and it costs it unevenly. A
+   record without the field falls into **neither** facet bucket, so "met media"
+   is merely incomplete while "zonder media" is actively wrong — it looks nearly
+   empty while hundreds of thousands of records belong in it. That is the half
+   the customer asked for.
+
+6. **Facet — built, gated on coverage.** `facet.field=meta.hasDigitalObject`
+   now answers with two buckets. Two things had to change:
+
+   The facet type dispatch named root-level fields one at a time (`meta.tag*`,
+   `meta.spec`), so any meta field added later got the nested treatment and came
+   back as a facet with no values — present in the list, silent about why. It
+   now covers the whole `meta.` prefix, which also settles #3598's
+   `sourceModified` in advance.
+
+   And the `_facet` suffix is no longer appended to a root-level field: a
+   request for `meta.hasDigitalObject` was answered with
+   `meta.hasDigitalObject_facet`, a name the consumer did not ask for and cannot
+   look up.
+
+   `tools/parity/heal-coverage.sh` is the gate rather than a progress bar: it
+   exits non-zero below 95% coverage and says how many records "zonder media"
+   would miss. Switch the facet on in the Instant Website when it passes.
 
 ## Decided (2026-09-27)
 

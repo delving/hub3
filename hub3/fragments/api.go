@@ -135,10 +135,14 @@ func NewFacetField(field string) (*FacetField, error) {
 	switch {
 	case strings.HasPrefix(ff.Field, "tree."):
 		ff.Type = FacetType_TREEFACET
-	case strings.HasPrefix(ff.Field, "meta.tag"):
-		ff.Type = FacetType_METATAGS
-	case ff.Field == "meta.spec":
-		// meta.spec is a root-level field, not in the fields object
+	case strings.HasPrefix(ff.Field, "meta."):
+		// Every meta field is root-level rather than inside the fields object,
+		// so it aggregates directly instead of through the nested entries.
+		//
+		// This used to name them one at a time -- meta.tag* and meta.spec --
+		// which meant any meta field added later got the nested treatment and
+		// answered with an empty facet, present in the list with no values and
+		// nothing to say why. meta.hasDigitalObject (#3052) was the next one.
 		ff.Type = FacetType_METATAGS
 	case strings.HasPrefix(ff.Field, "tag"):
 		ff.Type = FacetType_TAGS

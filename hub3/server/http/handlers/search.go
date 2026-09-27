@@ -1255,7 +1255,13 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 			// consumer looking the facet up under the name it asked for found
 			// nothing.
 			name := conv.ReplaceQueryString(facet.Name, true)
-			if !strings.HasSuffix(name, "_facet") {
+			// The suffix is a v1 convention for the fields inside the record.
+			// A meta. or tree. field is ours and root-level, and answering
+			// meta.hasDigitalObject_facet to a request for
+			// meta.hasDigitalObject hands back a name the consumer did not ask
+			// for and cannot look up.
+			rootLevel := strings.HasPrefix(name, "meta.") || strings.HasPrefix(name, "tree.")
+			if !rootLevel && !strings.HasSuffix(name, "_facet") {
 				name += "_facet"
 			}
 			facet.Name = name
