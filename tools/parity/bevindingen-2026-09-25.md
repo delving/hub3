@@ -258,3 +258,46 @@ against the index directly.
 
 That reframes the remaining facet work. Before changing either
 implementation, compare the two shapes for a field whose counts disagree.
+
+---
+
+# A media filter that only works on one side (2026-09-25, #3052)
+
+Erfgoed Brabant wants a "met media" facet back. The flag exists and is sound:
+`delving_hasDigitalObject` is present on every record and true exactly when a
+thumbnail is — 309 true with, 91 false without, no exceptions in a 400-record
+sample across 8 collections. Index-wide: 1,709,224 with against 338,967
+without.
+
+Filtering on it works in Django and nowhere else:
+
+```
+qf[]=delving_hasDigitalObject:true    django 1,709,224    go v1 0    go v2 0
+```
+
+The queries say why:
+
+```
+django  query_string on  legacy.delving_hasDigitalObject
+go      nested on resources.entries
+          (searchLabel=delving_hasDigitalObject AND @value.keyword="true")
+```
+
+Go looks among the nested RDF triples. A field we derive is never there — it
+lives in `legacy.*` and `fields.*` only. So this is not a facet that needs
+building; it is an existing feature that the Go implementation cannot serve,
+and the Instant Website has it today purely because it goes through Django.
+
+The way out is the meta block, where our own conclusions already live and
+which Go queries flat. Plan:
+[2026-09-27-meta-hasdigitalobject.md](../../docs/plans/2026-09-27-meta-hasdigitalobject.md).
+
+Two things worth carrying forward from the measuring:
+
+`delving_hasLandingPage` and `europeana_isShownAt` are also present on 100% of
+records and read like the same flag. They are not — they say a record has a web
+page. Anyone reaching for a media filter will find these first.
+
+`mimeType` exists on the protobuf `Header` but is populated for no EDM record
+in the sample, which is why filtering per media type — the "pdf, audio, video"
+in the ticket — is not available and was not promised.
