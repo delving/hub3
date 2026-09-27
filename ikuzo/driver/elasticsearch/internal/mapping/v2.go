@@ -87,6 +87,7 @@ var v2Mapping = `{
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
 						"modified": {"type": "date"},
+						"hasDigitalObject": {"type": "boolean"},
 						"sourceID": {"type": "keyword"},
 						"sourcePath": {"type": "keyword"},
 						"groupID": {"type": "keyword"},

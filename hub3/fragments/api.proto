@@ -586,6 +586,16 @@ message Header {
   string recDefID = 13;
   repeated string aboutTypeURI = 14;
   string itemType = 15;
+  // true when the record has a digital object -- in practice an image. This is
+  // our conclusion about the record rather than something the institution
+  // supplied, which is why it belongs here beside docType and spec and not
+  // among the record's own fields. The v1 API exposes the same thing as
+  // delving_hasDigitalObject in its legacy block; that one stays until the Go
+  // v1 serves traffic. See #3052.
+  bool hasDigitalObject = 16;
+  // 17 is reserved for sourceModified -- the datestamp the source gave a
+  // record, as against when we last processed it (#3598). Named here so the
+  // two do not race for the same number.
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments

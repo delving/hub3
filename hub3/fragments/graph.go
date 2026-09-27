@@ -103,8 +103,35 @@ func (fg *FragmentGraph) Reader() (io.Reader, error) {
 	return bytes.NewReader(b), nil
 }
 
+// setDerivedMeta fills the parts of the meta block that are our conclusion
+// about a record rather than something the source supplied. It runs after
+// GenerateFields, because it reads the flattened fields rather than walking the
+// resources again.
+func (fg *FragmentGraph) setDerivedMeta() {
+	if fg.Meta == nil {
+		return
+	}
+
+	// A record has a digital object when it says where that object is shown.
+	//
+	// This is the same condition the v1 legacy block uses for
+	// delving_hasDigitalObject (see NewLegacy), and deliberately so: both are
+	// served for as long as the Django v1 has consumers, and a flag that means
+	// two different things depending on which API you ask is worse than a flag
+	// that is imperfect in one known way.
+	//
+	// The known imperfection: edm_object and edm_hasView are not consulted, so
+	// a record exposing its object only through those counts as having none. In
+	// a 400-record sample across 8 collections the three moved together, and
+	// changing the condition has to change both sides at once.
+	_, hasObject := fg.Fields["edm_isShownBy"]
+	fg.Meta.HasDigitalObject = hasObject
+}
+
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	fg.GenerateFields()
+	fg.setDerivedMeta()
+
 	b, err := fg.Marshal()
 	if err != nil {
 		return nil, err

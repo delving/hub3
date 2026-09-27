@@ -3404,12 +3404,19 @@ type Header struct {
 	// commit path to source
 	SourcePath string `protobuf:"bytes,11,opt,name=sourcePath,proto3" json:"sourcePath,omitempty"`
 	// id to group sub-set of records for spec that can be used for orphancontrol
-	GroupID       string   `protobuf:"bytes,12,opt,name=groupID,proto3" json:"groupID,omitempty"`
-	RecDefID      string   `protobuf:"bytes,13,opt,name=recDefID,proto3" json:"recDefID,omitempty"`
-	AboutTypeURI  []string `protobuf:"bytes,14,rep,name=aboutTypeURI,proto3" json:"aboutTypeURI,omitempty"`
-	ItemType      string   `protobuf:"bytes,15,opt,name=itemType,proto3" json:"itemType,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	GroupID      string   `protobuf:"bytes,12,opt,name=groupID,proto3" json:"groupID,omitempty"`
+	RecDefID     string   `protobuf:"bytes,13,opt,name=recDefID,proto3" json:"recDefID,omitempty"`
+	AboutTypeURI []string `protobuf:"bytes,14,rep,name=aboutTypeURI,proto3" json:"aboutTypeURI,omitempty"`
+	ItemType     string   `protobuf:"bytes,15,opt,name=itemType,proto3" json:"itemType,omitempty"`
+	// true when the record has a digital object -- in practice an image. This is
+	// our conclusion about the record rather than something the institution
+	// supplied, which is why it belongs here beside docType and spec and not
+	// among the record's own fields. The v1 API exposes the same thing as
+	// delving_hasDigitalObject in its legacy block; that one stays until the Go
+	// v1 serves traffic. See #3052.
+	HasDigitalObject bool `protobuf:"varint,16,opt,name=hasDigitalObject,proto3" json:"hasDigitalObject,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *Header) Reset() {
@@ -3545,6 +3552,13 @@ func (x *Header) GetItemType() string {
 		return x.ItemType
 	}
 	return ""
+}
+
+func (x *Header) GetHasDigitalObject() bool {
+	if x != nil {
+		return x.HasDigitalObject
+	}
+	return false
 }
 
 // Fragment are used and stored in ElasticSearch for the Linked Data Fragments
@@ -4030,7 +4044,7 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\n" +
 	"objectType\x18\r \x01(\tR\n" +
 	"objectType\x12\x18\n" +
-	"\acreator\x18\x0e \x01(\tR\acreator\"\xa2\x03\n" +
+	"\acreator\x18\x0e \x01(\tR\acreator\"\xce\x03\n" +
 	"\x06Header\x12\x14\n" +
 	"\x05orgID\x18\x01 \x01(\tR\x05orgID\x12\x12\n" +
 	"\x04spec\x18\x02 \x01(\tR\x04spec\x12\x1a\n" +
@@ -4049,7 +4063,8 @@ const file_hub3_fragments_api_proto_rawDesc = "" +
 	"\agroupID\x18\f \x01(\tR\agroupID\x12\x1a\n" +
 	"\brecDefID\x18\r \x01(\tR\brecDefID\x12\"\n" +
 	"\faboutTypeURI\x18\x0e \x03(\tR\faboutTypeURI\x12\x1a\n" +
-	"\bitemType\x18\x0f \x01(\tR\bitemType\"\xaf\x03\n" +
+	"\bitemType\x18\x0f \x01(\tR\bitemType\x12*\n" +
+	"\x10hasDigitalObject\x18\x10 \x01(\bR\x10hasDigitalObject\"\xaf\x03\n" +
 	"\bFragment\x12%\n" +
 	"\x04meta\x18\x01 \x01(\v2\x11.fragments.HeaderR\x04meta\x12\x18\n" +
 	"\asubject\x18\a \x01(\tR\asubject\x12\x1c\n" +
