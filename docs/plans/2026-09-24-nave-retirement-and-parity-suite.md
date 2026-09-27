@@ -165,8 +165,54 @@ Results shift as records are re-indexed. Both implementations must be queried
 close together, or the diff will report changes that are simply the index
 moving underneath.
 
+## What api.brabantcloud.nl actually carries (measured 2026-09-27)
+
+Worth stating before the steps, because it changes their order. Read from the
+vhost's own log on the front host (`/var/log/hub3-brabantcloud/nginx.log` on
+49.13.164.137 — the default `access.log` there is a different, mostly
+scanner-fed, file), last 200,000 lines:
+
+```
+198,302  /brabantcloudv1/_search
+    670  /api/search/v2
+      0  /api/search/v1
+```
+
+Two facts follow.
+
+**Nothing consumes the Go v1.** Not one request in the window. So the Go v1 is
+not a service being migrated onto; it is an empty room that can be furnished
+without breaking anyone. Behaviour was changed there on 27 September — sort
+direction, `q` field qualification, facet naming — with no consumer affected.
+That was luck rather than knowledge: the check came after the deploy, not
+before.
+
+**api.brabantcloud.nl is mostly an Elasticsearch gateway.** 198,302 of those
+200,000 lines are `/brabantcloudv1/_search`, from one IPv6 address and from
+116.203.113.214 — the old Nave host. Django reaches Elasticsearch *through* this
+public hostname, exactly as the staging Nave on data2 was configured to. So the
+real production API depends on this name for its own index access, not for its
+API.
+
+Consequences for this plan:
+
+- The vulnerable component is the gateway, not the API. Anyone touching this
+  hostname, its nginx, or its upstream is under Django's bonnet, and the
+  200,000-request-a-day path is the one that breaks first.
+- Step 4 below is cheaper than it reads: putting the Go v1 in front of traffic
+  starts from zero traffic, so a consumer can be moved one at a time with
+  nothing to roll back.
+- An Elasticsearch `_search` endpoint is reachable on a public hostname. It is
+  the v1 index and the write path is refused elsewhere, but that is a different
+  thing from an API with a contract in front of it. Worth a decision rather
+  than an inheritance.
+
 ## Steps
 
+0. Decide what the Elasticsearch gateway is. The step above makes it the load
+   bearing part of the current setup and it is nowhere in the plan. Whatever the
+   answer, it is a prerequisite: Django cannot be retired while its index access
+   runs through a name we also want to repurpose.
 1. Route inventory: every URL Django exposes, against what the log shows being
    requested. Turns "what can go" from an estimate into a list. Half a day, and
    the foundation for both tracks.
