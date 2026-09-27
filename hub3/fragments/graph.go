@@ -104,9 +104,7 @@ func (fg *FragmentGraph) Reader() (io.Reader, error) {
 }
 
 // setDerivedMeta fills the parts of the meta block that are our conclusion
-// about a record rather than something the source supplied. It runs after
-// GenerateFields, because it reads the flattened fields rather than walking the
-// resources again.
+// about a record rather than something the source supplied.
 func (fg *FragmentGraph) setDerivedMeta() {
 	if fg.Meta == nil {
 		return
@@ -114,18 +112,42 @@ func (fg *FragmentGraph) setDerivedMeta() {
 
 	// A record has a digital object when it says where that object is shown.
 	//
-	// This is the same condition the v1 legacy block uses for
-	// delving_hasDigitalObject (see NewLegacy), and deliberately so: both are
-	// served for as long as the Django v1 has consumers, and a flag that means
-	// two different things depending on which API you ask is worse than a flag
-	// that is imperfect in one known way.
+	// Read from the resources, not from fg.Fields. GenerateFields keeps only
+	// literal entries, and edm_isShownBy is a URI -- so it is never in that map
+	// however many images the record has. Reading it there marked all 56 records
+	// of a beeldmateriaal dataset as having no media while both v1 APIs said
+	// they had, which is how this was found: on real data after a resend, not by
+	// reading the code.
 	//
-	// The known imperfection: edm_object and edm_hasView are not consulted, so
-	// a record exposing its object only through those counts as having none. In
-	// a 400-record sample across 8 collections the three moved together, and
-	// changing the condition has to change both sides at once.
-	_, hasObject := fg.Fields["edm_isShownBy"]
+	// The condition itself is the one the v1 legacy block uses for
+	// delving_hasDigitalObject (see NewLegacy), deliberately: both are served
+	// for as long as the Django v1 has consumers, and a flag that means two
+	// different things depending on which API you ask is worse than one that is
+	// imperfect in a known way.
+	//
+	// The known imperfection: edm_object, edm_hasView and the thumbnails on the
+	// WebResource are not consulted, so a record exposing its object only
+	// through those counts as having none. Broadening that is a decision for
+	// both sides at once, not something to slip in here.
+	hasObject := fg.hasSearchLabel("edm_isShownBy")
 	fg.Meta.HasDigitalObject = &hasObject
+}
+
+// hasSearchLabel reports whether any resource carries an entry with this search
+// label, whatever its entry type.
+//
+// The search labels come from the same namespace manager that v1's indexer
+// consults through GetFieldKey when it walks the triples, so this asks the same
+// question of the same table -- only of the parsed resources rather than by
+// walking the graph again.
+func (fg *FragmentGraph) hasSearchLabel(label string) bool {
+	for _, rsc := range fg.Resources {
+		if len(rsc.FilterEntries(label)) > 0 {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {

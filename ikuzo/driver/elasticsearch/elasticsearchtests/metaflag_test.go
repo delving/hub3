@@ -69,18 +69,21 @@ func TestMetaHasDigitalObject(t *testing.T) {
 		t.Fatalf("applying the update mapping: %d %s", code, body)
 	}
 
+	// On the resources, not on Fields: edm_isShownBy is a URI and the flattened
+	// Fields map holds literals only, which is what made the first version of
+	// this call every record media-less.
 	for _, rec := range []struct {
 		hubID  string
-		fields map[string][]string
+		labels []string
 	}{
-		{"test_spec_with", map[string][]string{
-			"dc_title":      {"Sint-Barbarakerk"},
-			"edm_isShownBy": {"http://example.org/barbara.jpg"},
-		}},
-		{"test_spec_without", map[string][]string{
-			"dc_title": {"Notulen"},
-		}},
+		{"test_spec_with", []string{"dc_title", "edm_isShownBy"}},
+		{"test_spec_without", []string{"dc_title"}},
 	} {
+		entries := make([]*fragments.ResourceEntry, 0, len(rec.labels))
+		for _, l := range rec.labels {
+			entries = append(entries, &fragments.ResourceEntry{SearchLabel: l, Value: "v"})
+		}
+
 		fg := &fragments.FragmentGraph{
 			Meta: &fragments.Header{
 				OrgID:   "test",
@@ -88,7 +91,7 @@ func TestMetaHasDigitalObject(t *testing.T) {
 				HubID:   rec.hubID,
 				DocType: fragments.FragmentGraphDocType,
 			},
-			Fields: rec.fields,
+			Resources: []*fragments.FragmentResource{{Entries: entries}},
 		}
 
 		msg, err := fg.IndexMessage()

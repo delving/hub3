@@ -12,22 +12,33 @@ import (
 func TestSetDerivedMetaHasDigitalObject(t *testing.T) {
 	for _, tt := range []struct {
 		name   string
-		fields map[string][]string
+		labels []string
 		want   bool
 	}{
-		{"isShownBy present", map[string][]string{"edm_isShownBy": {"http://x/1.jpg"}}, true},
-		{"no media fields at all", map[string][]string{"dc_title": {"Kerk"}}, false},
-		{"empty graph", map[string][]string{}, false},
+		// edm_isShownBy is a URI, so it never appears in the flattened Fields
+		// map -- GenerateFields keeps literals only. Reading it there marked a
+		// whole beeldmateriaal dataset as having no media while both v1 APIs
+		// said it had; these cases are on the resources, which is where it is.
+		{"isShownBy present", []string{"edm_isShownBy"}, true},
+		{"no media labels at all", []string{"dc_title"}, false},
+		{"empty graph", nil, false},
 		{
 			// Documents the known imperfection rather than asserting it is
 			// right: v1 does the same, and changing it has to change both.
 			"object without isShownBy still counts as none",
-			map[string][]string{"edm_object": {"http://x/1.jpg"}},
+			[]string{"edm_object", "nave_thumbSmall"},
 			false,
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			fg := &FragmentGraph{Meta: &Header{}, Fields: tt.fields}
+			entries := make([]*ResourceEntry, 0, len(tt.labels))
+			for _, l := range tt.labels {
+				entries = append(entries, &ResourceEntry{SearchLabel: l, ID: "http://x/1.jpg"})
+			}
+			fg := &FragmentGraph{
+				Meta:      &Header{},
+				Resources: []*FragmentResource{{Entries: entries}},
+			}
 			fg.setDerivedMeta()
 			if got := fg.Meta.GetHasDigitalObject(); got != tt.want {
 				t.Errorf("HasDigitalObject = %v, want %v", got, tt.want)
@@ -37,7 +48,7 @@ func TestSetDerivedMetaHasDigitalObject(t *testing.T) {
 }
 
 func TestSetDerivedMetaWithoutMeta(t *testing.T) {
-	fg := &FragmentGraph{Fields: map[string][]string{"edm_isShownBy": {"x"}}}
+	fg := &FragmentGraph{Resources: []*FragmentResource{{Entries: []*ResourceEntry{{SearchLabel: "edm_isShownBy"}}}}}
 	fg.setDerivedMeta() // must not panic on a graph without a header
 }
 
@@ -115,14 +126,21 @@ func TestMetaFilterIsFlat(t *testing.T) {
 func TestHasDigitalObjectSurvivesMarshalling(t *testing.T) {
 	for _, tt := range []struct {
 		name   string
-		fields map[string][]string
+		labels []string
 		want   string
 	}{
-		{"true is written", map[string][]string{"edm_isShownBy": {"x"}}, `"hasDigitalObject":true`},
-		{"false is written too", map[string][]string{"dc_title": {"y"}}, `"hasDigitalObject":false`},
+		{"true is written", []string{"edm_isShownBy"}, `"hasDigitalObject":true`},
+		{"false is written too", []string{"dc_title"}, `"hasDigitalObject":false`},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
-			fg := &FragmentGraph{Meta: &Header{HubID: "h"}, Fields: tt.fields}
+			entries := make([]*ResourceEntry, 0, len(tt.labels))
+			for _, l := range tt.labels {
+				entries = append(entries, &ResourceEntry{SearchLabel: l, Value: "v"})
+			}
+			fg := &FragmentGraph{
+				Meta:      &Header{HubID: "h"},
+				Resources: []*FragmentResource{{Entries: entries}},
+			}
 
 			msg, err := fg.IndexMessage()
 			if err != nil {
