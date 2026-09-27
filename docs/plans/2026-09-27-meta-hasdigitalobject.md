@@ -1,7 +1,7 @@
 # A media flag in the meta block
 
 **Date:** 2026-09-27
-**Status:** Plan — nothing built yet
+**Status:** Steps 1–3 built (2026-09-27); 4–6 open, and step 5 is the long one
 **Tickets:** [#3052](https://delving.plan.io/issues/3052) (the request),
 [#3598](https://delving.plan.io/issues/3598) (`meta.sourceModified`, the same
 pattern in the same message)
@@ -68,6 +68,11 @@ changes. That is the whole argument: not tidiness, but that it lands in a
 pattern that already works.
 
 ## Steps
+
+Steps 1 to 3 are done — `Header` field 16, the flag set in `IndexMessage`
+after `GenerateFields`, and the mapping line, with the mapping hash bumped
+because the guard in `internal/mapping/update.go` refused the edit otherwise.
+What remains is 4 to 6, and 5 is the one with a calendar attached.
 
 1. **Protobuf.** Add `hasDigitalObject` as a bool on the `Header` message. That
    message runs to field 15, so 16 and 17 are free; #3598 wants one too, so
