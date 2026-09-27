@@ -25,11 +25,12 @@ import (
 // this should prevent changes to the mapping that are not reflected in the update.
 // this is needed for all mappings that have strict fields.
 const (
-	// v2MappingSha was bumped for meta.hasDigitalObject (#3052). The guard
-	// below is what made that necessary, and it earned its keep: the mapping
-	// cannot be edited without the change being acknowledged here.
+	// Both bumped for meta.hasDigitalObject (#3052). The guard below is what
+	// made that necessary, and it earned its keep twice: a mapping cannot be
+	// edited without the change being acknowledged here, and the second hash
+	// caught that adding the field to v2Mapping alone was not enough.
 	v2MappingSha       = "80c61ef2340ce7dd"
-	v2UpdateMappingSha = "cf14f352144a90ef"
+	v2UpdateMappingSha = "c8d5ca3980f3cfa8"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 

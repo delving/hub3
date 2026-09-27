@@ -259,7 +259,8 @@ var v2MappingUpdate = `{
 			"sourcePath": {"type": "keyword"},
 			"groupID": {"type": "keyword"},
 			"recDefID": {"type": "keyword"},
-			"aboutTypeURI": {"type": "keyword"}
+			"aboutTypeURI": {"type": "keyword"},
+			"hasDigitalObject": {"type": "boolean"}
 		}
 	},
     "fields": {

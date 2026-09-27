@@ -70,9 +70,8 @@ pattern that already works.
 ## Steps
 
 Steps 1 to 3 are done — `Header` field 16, the flag set in `IndexMessage`
-after `GenerateFields`, and the mapping line, with the mapping hash bumped
-because the guard in `internal/mapping/update.go` refused the edit otherwise.
-What remains is 4 to 6, and 5 is the one with a calendar attached.
+after `GenerateFields`, and the line in **both** v2 mappings with both hashes
+bumped. What remains is 4 to 6, and 5 is the one with a calendar attached.
 
 1. **Protobuf.** Add `hasDigitalObject` as a bool on the `Header` message. That
    message runs to field 15, so 16 and 17 are free; #3598 wants one too, so
@@ -92,9 +91,16 @@ What remains is 4 to 6, and 5 is the one with a calendar attached.
    actually depends on. Changing the condition is a separate decision, and one
    that has to change both sides at once.
 
-3. **v2 mapping.** One line under `meta`: `"hasDigitalObject": {"type":
-   "boolean"}`. Adding a field to an existing mapping needs no reindex by
-   itself; step 5 does.
+3. **Both v2 mappings.** One line under `meta` in `v2Mapping`, and the same
+   line in `v2MappingUpdate` — the incremental mapping that is sent to
+   `_mapping` for indices that already exist. That second one is not optional
+   housekeeping: the index is `strict` on dynamic field creation, so writing a
+   document carrying `meta.hasDigitalObject` to an index that has not been told
+   about it fails with a mapper error. Adding it to the main mapping alone
+   would have broken indexing on every existing index while looking complete.
+
+   Both hashes in `internal/mapping/update.go` have to be bumped; the guard
+   there refuses the edit otherwise, and it is the reason this was caught.
 
 4. **Filtering needs nothing.** `qf=meta.hasDigitalObject:true` should work as
    soon as documents carry it, because `meta.*` is already queried flat. Verify
