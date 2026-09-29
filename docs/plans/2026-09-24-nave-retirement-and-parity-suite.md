@@ -165,47 +165,36 @@ Results shift as records are re-indexed. Both implementations must be queried
 close together, or the diff will report changes that are simply the index
 moving underneath.
 
-## What api.brabantcloud.nl actually carries (measured 2026-09-27)
+## What api.brabantcloud.nl actually carries
 
-Worth stating before the steps, because it changes their order. Read from the
-vhost's own log on the front host (`/var/log/hub3-brabantcloud/nginx.log` on
-49.13.164.137 — the default `access.log` there is a different, mostly
-scanner-fed, file), last 200,000 lines:
+Measured properly a week earlier, in
+[ES 9 migration and Nave retirement](2026-09-22-elasticsearch-9-and-nave-retirement.md):
+1,574,573 requests a week to the Elasticsearch proxy against 42,641 for the v2
+API and 7 for `/api/search/v1`, all of those last monitoring. Read that table
+rather than this one — it has latencies and index sizes with it.
 
-```
-198,302  /brabantcloudv1/_search
-    670  /api/search/v2
-      0  /api/search/v1
-```
+Re-checked on 2026-09-27 and unchanged: of the last 200,000 requests, 198,302
+were `/brabantcloudv1/_search`, 670 `/api/search/v2`, and none at all
+`/api/search/v1`.
 
-Two facts follow.
+One practical trap while re-checking, since it cost an hour: on the front host
+the vhost logs to `/var/log/hub3-brabantcloud/nginx.log`. The `access.log` in
+`/var/log/nginx/` on that machine belongs to a different server block and is
+almost entirely scanner noise, so reading it suggests the hostname carries no
+traffic at all.
 
-**Nothing consumes the Go v1.** Not one request in the window. So the Go v1 is
-not a service being migrated onto; it is an empty room that can be furnished
-without breaking anyone. Behaviour was changed there on 27 September — sort
-direction, `q` field qualification, facet naming — with no consumer affected.
-That was luck rather than knowledge: the check came after the deploy, not
-before.
+Two consequences this plan had not drawn:
 
-**api.brabantcloud.nl is mostly an Elasticsearch gateway.** 198,302 of those
-200,000 lines are `/brabantcloudv1/_search`, from one IPv6 address and from
-116.203.113.214 — the old Nave host. Django reaches Elasticsearch *through* this
-public hostname, exactly as the staging Nave on data2 was configured to. So the
-real production API depends on this name for its own index access, not for its
-API.
-
-Consequences for this plan:
-
-- The vulnerable component is the gateway, not the API. Anyone touching this
-  hostname, its nginx, or its upstream is under Django's bonnet, and the
-  200,000-request-a-day path is the one that breaks first.
-- Step 4 below is cheaper than it reads: putting the Go v1 in front of traffic
-  starts from zero traffic, so a consumer can be moved one at a time with
-  nothing to roll back.
-- An Elasticsearch `_search` endpoint is reachable on a public hostname. It is
-  the v1 index and the write path is refused elsewhere, but that is a different
-  thing from an API with a contract in front of it. Worth a decision rather
-  than an inheritance.
+- **The load-bearing part is the gateway, not the API.** Django reaches its
+  index through this public hostname (`ES_URLS = ['https://api.brabantcloud.nl']`),
+  so anyone touching this name, its nginx or its upstream is under the bonnet of
+  the API that is actually in production. That is step 0 below.
+- **Step 4 is cheaper than it reads.** Nothing consumes the Go v1, so putting it
+  in front of traffic starts from zero and consumers can move one at a time with
+  nothing to roll back. Behaviour was changed there on 27 September -- sort
+  direction, `q` field qualification, facet naming -- and reached no consumer.
+  That was luck rather than knowledge: the check came after the deploy, and the
+  document above had said so five days earlier.
 
 ## Steps
 
