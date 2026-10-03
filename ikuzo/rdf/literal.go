@@ -84,7 +84,7 @@ func (l Literal) String() string {
 	str = strings.ReplaceAll(str, "\r", "\\r")
 	str = strings.ReplaceAll(str, "\t", "\\t")
 
-	str = fmt.Sprintf("%q", str)
+	str = `"` + str + `"`
 
 	str += atLang(l.lang)
 
