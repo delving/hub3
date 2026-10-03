@@ -332,6 +332,8 @@ func TestLiteral_String(t *testing.T) {
 	}{
 		{"simple", fields{str: "hello"}, "\"hello\""},
 		{"with datatype", fields{str: "true", DataType: IRI{str: "http://www.w3.org/2001/XMLSchema#boolean"}}, "\"true\"^^<http://www.w3.org/2001/XMLSchema#boolean>"},
+		{"escapes once", fields{str: "a\nb\\c\"d\te\rf"}, `"a\nb\\c\"d\te\rf"`},
+		{"non-ascii kept", fields{str: "café"}, `"café"`},
 	}
 
 	for _, tt := range tests {
