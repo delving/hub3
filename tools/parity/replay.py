@@ -145,6 +145,31 @@ LAGEN = [
     ("paginering", beide_json(lambda a, b: a["paginering"] == b["paginering"])),
 ]
 
+# More-like-this is held to a lower bar on purpose, and the reason is physics
+# rather than laziness: MLT ranks on term statistics over the whole index, so
+# which terms count as distinctive depends on what else is indexed. Two
+# independently built indexes therefore give legitimately different
+# recommendations from identical code and identical documents. Demanding equal
+# output there produces failures that are not defects, and real findings drown
+# in them.
+#
+# What MLT does have to do is work. Every MLT request in the log is a detail
+# view carrying an id, so the answer must come back, must be the right record,
+# and must carry some recommendations. Nothing about which ones.
+MLT_LAGEN = [
+    ("status", lambda a, b: a["status"] == b["status"]),
+    ("content_type", lambda a, b: a["soort"] == b["soort"]),
+    ("omhulsel", beide_json(lambda a, b: a["vorm"] == b["vorm"])),
+    # Not "the same ids" but "ids at all", on both sides.
+    ("mlt_gevuld", beide_json(lambda a, b: bool(a["ids"]) == bool(b["ids"]))),
+]
+
+
+def is_mlt(query):
+    """An MLT case is one the log shows as a detail view: it carries mlt."""
+    return any(p.split("=")[0] in ("mlt", "mlt.count", "mlt.filterkey")
+               for p in query.split("&"))
+
 
 def vergelijk(query, args):
     try:
@@ -157,7 +182,9 @@ def vergelijk(query, args):
         return query, {"fout": f"B: {type(e).__name__}: {e}"}
 
     uit = {}
-    for naam, gelijk in LAGEN:
+    lagen = MLT_LAGEN if is_mlt(query) else LAGEN
+    uit["soort"] = "mlt" if is_mlt(query) else "zoek"
+    for naam, gelijk in lagen:
         try:
             oordeel = gelijk(a, b)
             uit[naam] = "n.v.t." if oordeel is None else ("gelijk" if oordeel else "verschilt")
@@ -231,24 +258,38 @@ def main():
             if i % 50 == 0:
                 print(f"  {i}/{len(zaken)}", file=sys.stderr)
 
+    # Every layer either set gets a column, so the two kinds of case stay
+    # readable side by side in one report.
     lagen = [n for n, _ in LAGEN]
+    for n, _ in MLT_LAGEN:
+        if n not in lagen:
+            lagen.append(n)
     with open(args.out, "w", encoding="utf-8") as f:
-        f.write("\t".join(["query", "numFound_a", "numFound_b", *lagen, "fout"]) + "\n")
+        f.write("\t".join(["query", "soort", "numFound_a", "numFound_b", *lagen, "fout"]) + "\n")
         for q, r in resultaten:
-            rij = [q, str(r.get("numFound_a", "")), str(r.get("numFound_b", ""))]
+            rij = [q, r.get("soort", ""), str(r.get("numFound_a", "")), str(r.get("numFound_b", ""))]
             rij += [r.get(n, "") for n in lagen]
             rij.append(r.get("fout", ""))
             f.write("\t".join(rij) + "\n")
 
     print(f"\nrapport: {args.out}\n", file=sys.stderr)
     fouten = sum(1 for _, r in resultaten if "fout" in r)
-    print(f"{'laag':<18} {'verschilt':>10} {'van':>8}", file=sys.stderr)
-    for n in lagen:
-        anders = sum(1 for _, r in resultaten if r.get(n) == "verschilt")
-        # Only cases the layer actually applied to: counting the HTML answers
-        # among them would claim coverage the run does not have.
-        vergeleken = sum(1 for _, r in resultaten if r.get(n) in ("gelijk", "verschilt"))
-        print(f"{n:<18} {anders:>10} {vergeleken:>8}", file=sys.stderr)
+    # Split by kind: a search regression is the thing this run exists to catch,
+    # and an MLT difference is expected. One combined table would let the first
+    # hide inside the second.
+    for soort in ("zoek", "mlt"):
+        deel = [(q, r) for q, r in resultaten if r.get("soort") == soort]
+        if not deel:
+            continue
+        print(f"\n== {soort} ({len(deel)} zaken)", file=sys.stderr)
+        print(f"{'laag':<18} {'verschilt':>10} {'van':>8}", file=sys.stderr)
+        for n in lagen:
+            anders = sum(1 for _, r in deel if r.get(n) == "verschilt")
+            # Only cases the layer actually applied to: counting the HTML
+            # answers among them would claim coverage the run does not have.
+            vergeleken = sum(1 for _, r in deel if r.get(n) in ("gelijk", "verschilt"))
+            if vergeleken:
+                print(f"{n:<18} {anders:>10} {vergeleken:>8}", file=sys.stderr)
     if fouten:
         print(f"\n{fouten} zaken gaven een fout aan één kant", file=sys.stderr)
 
