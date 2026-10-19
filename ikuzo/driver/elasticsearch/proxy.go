@@ -116,6 +116,8 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	// Clients that check the product on every response, not only on GET /.
+	w.Header().Set("X-Elastic-Product", "Elasticsearch")
 
 	_, err = w.Write(data)
 	if err != nil {
