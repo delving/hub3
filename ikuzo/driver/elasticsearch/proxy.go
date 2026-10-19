@@ -17,6 +17,7 @@ package elasticsearch
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,6 +36,17 @@ import (
 )
 
 type esCtxKey int
+
+// esError is an error answer from Elasticsearch, passed on to the client as
+// is. Returned from the groupcache getter, so it is never cached.
+type esError struct {
+	status int
+	body   []byte
+}
+
+func (e *esError) Error() string {
+	return fmt.Sprintf("elasticsearch answered %d: %s", e.status, e.body)
+}
 
 var esKey esCtxKey
 
@@ -100,7 +112,17 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	err := p.group.Get(ctx, key, groupcache.AllocatingByteSliceSink(&data))
 	if err != nil {
-		if ctx.Done() != nil {
+		var esErr *esError
+		if errors.As(err, &esErr) {
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("X-Elastic-Product", "Elasticsearch")
+			w.WriteHeader(esErr.status)
+			_, _ = w.Write(esErr.body)
+
+			return
+		}
+
+		if ctx.Err() != nil {
 			p.log.Debug().Err(err).Msg("request was canceled")
 			http.Error(w, err.Error(), http.StatusAccepted)
 
@@ -164,6 +186,8 @@ func (p *Proxy) retrieveFromElasticSearch(gctx groupcache.Context, id string, de
 	if res.IsError() {
 		msg, _ := io.ReadAll(res.Body)
 		p.log.Warn().RawJSON("error", msg).Msg("elasticsearch error message")
+
+		return &esError{status: res.StatusCode, body: msg}
 	}
 
 	size, err := io.Copy(&buf, res.Body)
