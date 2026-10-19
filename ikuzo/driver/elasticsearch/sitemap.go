@@ -96,18 +96,16 @@ func (s *SitemapStore) Datasets(ctx context.Context, cfg domain.SitemapConfig) (
 func (s *SitemapStore) Locations(ctx context.Context, spec string, cfg domain.SitemapConfig, cb func(loc sitemap.Location) error) error {
 	var err error
 
-	// Create a Point In Time
-	openResp, err := s.client.search.OpenPointInTime(sitemapIndices(cfg)...).
-		KeepAlive("1m").
-		Pretty(true).
-		Do(context.Background())
+	// Create a Point In Time. Through the PIT client, which knows where
+	// Elasticsearch and OpenSearch each keep the API.
+	pitID, err := s.client.pit.CreatePIT(ctx, strings.Join(sitemapIndices(cfg), ","), "1m")
 	if err != nil {
 		slog.Error("error in elasticsearch scrolling point in time", "error", err)
 		return err
 	}
 
 	defer func() {
-		_, closeErr := s.client.search.ClosePointInTime(openResp.Id).Pretty(true).Do(context.Background())
+		closeErr := s.client.pit.ClosePIT(context.Background(), pitID)
 		if closeErr != nil {
 			slog.Error("unable to close point in time", "error", closeErr)
 		}
@@ -118,8 +116,6 @@ func (s *SitemapStore) Locations(ctx context.Context, spec string, cfg domain.Si
 		searchAfter []interface{}
 		esPage      int
 	)
-
-	pitID := openResp.Id
 
 	for {
 		esPage++
