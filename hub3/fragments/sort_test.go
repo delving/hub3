@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	c "github.com/delving/hub3/config"
@@ -61,6 +62,39 @@ func TestSortTiebreakIsHubIDDescending(t *testing.T) {
 		}
 		if err := json.Unmarshal(body.Sort[1]["meta.hubID"], &tie); err != nil || tie.Order != "desc" {
 			t.Errorf("sortBy %q: tiebreak %s, want meta.hubID desc", sortBy, body.Sort[1])
+		}
+	}
+}
+
+// nave's v1 API matches free text with OR and minimum_should_match "2<50%",
+// not hub3's AND: "Het Koninklijk Fries Genootschap" needs two of the four.
+func TestV1FreeTextMatchesLikeNave(t *testing.T) {
+	c.Config.ElasticSearch.OrgIDKey = "meta.orgID"
+
+	for _, tc := range []struct {
+		v1   string
+		want string
+	}{
+		{"true", `"minimum_should_match":"2<50%"`},
+		{"false", `"default_operator":"and"`},
+	} {
+		sr, err := NewSearchRequest("test", url.Values{"query": {"Het Koninklijk Fries Genootschap"}, "v1.mode": {tc.v1}})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		q, err := sr.ElasticQuery()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		src, _ := q.Source()
+		var b strings.Builder
+		enc := json.NewEncoder(&b)
+		enc.SetEscapeHTML(false)
+		_ = enc.Encode(src)
+		if !strings.Contains(b.String(), tc.want) {
+			t.Errorf("v1.mode=%s: want %s in %s", tc.v1, tc.want, b.String())
 		}
 	}
 }

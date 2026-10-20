@@ -997,6 +997,13 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			q.DefaultOperator("and")
 			query = query.Must(q)
 
+		} else if rawQuery != "" && sr.V1Mode {
+			// nave's v1 API: any term may match, but at least half of them
+			// once there are more than two (nave's _create_query_string).
+			q := elastic.NewQueryStringQuery(escapeRawQuery(rawQuery)).
+				Field("full_text").
+				MinimumShouldMatch("2<50%")
+			query = query.Must(q)
 		} else if rawQuery != "" {
 			fields := strings.Split(sr.SearchFields, ",")
 			if len(fields) == 0 {
