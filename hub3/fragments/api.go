@@ -1729,7 +1729,9 @@ func (sr *SearchRequest) DecodeSearchAfter() ([]interface{}, error) {
 
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.SearchService, *FacetURIBuilder, error) {
-	idSort := elastic.NewFieldSort("meta.hubID")
+	// Tiebreak descending, as nave does (legacy.delving_hubId desc): records
+	// with an equal sort value, or one missing, come back in nave's order.
+	idSort := elastic.NewFieldSort("meta.hubID").Desc()
 	var fieldSort *elastic.FieldSort
 
 	switch {
