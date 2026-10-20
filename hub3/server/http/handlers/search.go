@@ -793,7 +793,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	case fragments.ItemFormatType_V1:
 		for _, rec := range records {
-			rec.NewFields(nil)
+			rec.NewV1Fields()
 			rec.Resources = nil
 			rec.Item = &fragments.ItemV1{
 				DocID:   rec.Meta.HubID,
@@ -1144,6 +1144,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				continue
 			}
 			cfg := conv.Configuration()
+			if cfg == nil {
+				// no legacy V1 config for this org: no MLT fields to match on
+				continue
+			}
 
 			recs, mltErr := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
 			if mltErr != nil {
@@ -1158,7 +1162,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					continue
 				}
 
-				fg.NewFields(nil)
+				fg.NewV1Fields()
 
 				item := &fragments.ItemV1{
 					DocID:   fg.Meta.HubID,
@@ -1401,7 +1405,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.NewFields(nil)
 		record.Resources = nil
 	case "v1":
-		record.NewFields(nil)
+		record.NewV1Fields()
 		record.Resources = nil
 		record.Item = &fragments.ItemV1{
 			DocID:   record.Meta.HubID,
@@ -1457,7 +1461,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				fg.NewFields(nil)
+				fg.NewV1Fields()
 
 				item := &fragments.ItemV1{
 					DocID:   fg.Meta.HubID,
@@ -1533,7 +1537,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 							record.AddSemanticMoreLikeThis(relatedItem)
 						} else {
 							// Use ItemV1 format for other itemFormats
-							fg.NewFields(nil)
+							fg.NewV1Fields()
 
 							item := &fragments.ItemV1{
 								DocID:   fg.Meta.HubID,

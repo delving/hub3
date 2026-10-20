@@ -1781,6 +1781,40 @@ func (fg *FragmentGraph) NewResultSummary(langs ...string) *ResultSummary {
 	return fg.Summary
 }
 
+// NewV1Fields is NewFields as nave's v1 API shows it. A linked resource
+// appears by its label only when it has a skos:prefLabel or foaf:name, the
+// labels the v1 index uses (SetResourceLabels); otherwise by its URI. So
+// edm:aggregatedCHO gives the CHO's URI, not its dc:title.
+func (fg *FragmentGraph) NewV1Fields() map[string][]string {
+	labelled := map[string]bool{}
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			switch entry.Predicate {
+			case "http://www.w3.org/2004/02/skos/core#prefLabel", "http://xmlns.com/foaf/0.1/name":
+				labelled[rsc.ID] = true
+			}
+		}
+	}
+
+	fields := fg.NewFields(nil)
+
+	for _, rsc := range fg.Resources {
+		for _, entry := range rsc.Entries {
+			if entry.EntryType != "Resource" || entry.ID == "" || entry.Value == "" || labelled[entry.ID] {
+				continue
+			}
+
+			for i, v := range fields[entry.SearchLabel] {
+				if v == entry.Value {
+					fields[entry.SearchLabel][i] = entry.ID
+				}
+			}
+		}
+	}
+
+	return fields
+}
+
 // NewFields returns a map of the triples sorted by their searchLabel
 func (fg *FragmentGraph) NewFields(tq *memory.TextQuery, fields ...string) map[string][]string {
 	if tq != nil {

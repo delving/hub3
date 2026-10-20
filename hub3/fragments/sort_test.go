@@ -117,3 +117,33 @@ func TestItemV1FlagsAreJSONBooleans(t *testing.T) {
 		t.Errorf("got  %s\nwant %s", b, want)
 	}
 }
+
+// v1 shows a linked resource by its label only when it has skos:prefLabel or
+// foaf:name, as the v1 index does; otherwise by URI. edm:aggregatedCHO points
+// at the CHO, whose title is not a label: nave returns the CHO's URI.
+func TestNewV1FieldsResourceLabels(t *testing.T) {
+	fg := &FragmentGraph{Resources: []*FragmentResource{
+		{ID: "agg", Entries: []*ResourceEntry{
+			{EntryType: "Resource", SearchLabel: "edm_aggregatedCHO", ID: "cho", Value: "Portret"},
+		}},
+		{ID: "cho", Entries: []*ResourceEntry{
+			{EntryType: "Literal", SearchLabel: "dc_title", Predicate: "http://purl.org/dc/elements/1.1/title", Value: "Portret"},
+			{EntryType: "Resource", SearchLabel: "dc_subject", ID: "concept", Value: "boerderij"},
+		}},
+		{ID: "concept", Entries: []*ResourceEntry{
+			{EntryType: "Literal", SearchLabel: "skos_prefLabel", Predicate: "http://www.w3.org/2004/02/skos/core#prefLabel", Value: "boerderij"},
+		}},
+	}}
+
+	f := fg.NewV1Fields()
+
+	if got := strings.Join(f["edm_aggregatedCHO"], ","); got != "cho" {
+		t.Errorf("edm_aggregatedCHO = %q, want the URI", got)
+	}
+	if got := strings.Join(f["dc_subject"], ","); got != "boerderij" {
+		t.Errorf("dc_subject = %q, want the prefLabel", got)
+	}
+	if got := strings.Join(f["dc_title"], ","); got != "Portret" {
+		t.Errorf("dc_title = %q", got)
+	}
+}
