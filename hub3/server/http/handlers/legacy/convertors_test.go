@@ -798,3 +798,24 @@ func TestShippedICNConverterCopyrightNotesObjectType(t *testing.T) {
 	is.Equal(out["icn_notes"], []string{"note"})
 	is.Equal(out["icn_objectType"], []string{"schilderij"})
 }
+
+// nave's v1 items carry delving_collection (the spec), and for a record with
+// a digital object europeana_hasView (the object) and resourceSortOrder 1.
+func TestAddDefaultsCollectionAndView(t *testing.T) {
+	is := is.New(t)
+
+	bc := &BaseConverter{AboutURI: "http://example.org/resource/document/friesmuseum/PP1", OrgID: "tresoar"}
+
+	withObject := map[string][]string{"delving_resourceUri": {"http://img/1.jpg"}}
+	bc.addDefaults(withObject, nil)
+	is.Equal(withObject["delving_collection"], []string{"friesmuseum"})
+	is.Equal(withObject["europeana_hasView"], []string{"http://img/1.jpg"})
+	is.Equal(withObject["delving_resourceSortOrder"], []string{"1"})
+
+	without := map[string][]string{}
+	bc.addDefaults(without, nil)
+	is.Equal(without["delving_collection"], []string{"friesmuseum"})
+	_, hasView := without["europeana_hasView"]
+	_, hasOrder := without["delving_resourceSortOrder"]
+	is.True(!hasView && !hasOrder)
+}
