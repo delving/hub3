@@ -1600,6 +1600,12 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
+		// nave's v1 API wraps the record in "result", as jsonp above does.
+		if itemFormat == "v1" {
+			render.JSON(w, r, resultDetailWrapper{Result: record})
+			return
+		}
+
 		render.JSON(w, r, record)
 	}
 }
