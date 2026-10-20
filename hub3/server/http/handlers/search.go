@@ -1405,7 +1405,11 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.NewFields(nil)
 		record.Resources = nil
 	case "v1":
-		record.NewV1Fields()
+		// nave builds a detail record from its RDF graph, not from the index
+		// as for lists and related items: linked resources keep their labels
+		// (edm:aggregatedCHO is the CHO's title) and there is no
+		// delving_collection.
+		record.NewFields(nil)
 		record.Resources = nil
 		record.Item = &fragments.ItemV1{
 			DocID:   record.Meta.HubID,
@@ -1419,6 +1423,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		record.Item.Fields = conv.Convert(record.Item.Fields, true)
+		delete(record.Item.Fields, "delving_collection")
 		cfg := conv.Configuration()
 		// Configuration() is nil for orgs without a registered legacy V1
 		// config; return the record without related items, as the other
