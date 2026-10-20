@@ -2,6 +2,8 @@ package oaipmh
 
 import (
 	"context"
+	"encoding/xml"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -35,5 +37,39 @@ func TestService_Do_missingMetadataPrefix(t *testing.T) {
 				t.Errorf("Do() request must be reduced to base URL (-want +got):\n%s", diff)
 			}
 		})
+	}
+}
+
+func TestResponse_marshalEnvelope(t *testing.T) {
+	resp, err := (&Service{}).Do(context.Background(), &Request{
+		Verb:     string(VerbListRecords),
+		BaseURL:  "http://localhost/api/oai-pmh",
+		DebugOut: "/tmp/debug",
+	})
+	if err != nil {
+		t.Fatalf("Do() error = %v", err)
+	}
+
+	out, err := xml.Marshal(resp)
+	if err != nil {
+		t.Fatalf("xml.Marshal() error = %v", err)
+	}
+
+	got := string(out)
+
+	for _, want := range []string{
+		`xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"`,
+		`xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd"`,
+		`<request>http://localhost/api/oai-pmh</request>`,
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("marshaled response missing %s\ngot: %s", want, got)
+		}
+	}
+
+	for _, notWant := range []string{"DebugOut", "_XMLSchema-instance"} {
+		if strings.Contains(got, notWant) {
+			t.Errorf("marshaled response contains %s\ngot: %s", notWant, got)
+		}
 	}
 }

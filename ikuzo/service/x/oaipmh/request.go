@@ -36,7 +36,7 @@ type Request struct {
 	Password    string        `xml:"-"` // basicauth password
 	Timeout     time.Duration `xml:"-"` // TimeOut for the *http.Client
 	client      *http.Client  `xml:"-"`
-	DebugOut    string
+	DebugOut    string        `xml:"-"`
 	pagesSeen   int
 	recordsSeen int
 }
