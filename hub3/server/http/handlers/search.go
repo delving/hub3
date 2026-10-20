@@ -70,8 +70,9 @@ func manipulateV1Request(req *http.Request) error {
 		return err
 	}
 
+	// Default facets only when the request names none, as nave does.
 	cfg := conv.Configuration()
-	if cfg != nil {
+	if cfg != nil && !query.Has("facet.field") && !query.Has("facet.field[]") {
 		for _, facet := range cfg.DefaultFacets {
 			query.Add("facet.field", facet.Field)
 		}
