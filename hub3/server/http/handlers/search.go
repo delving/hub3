@@ -83,6 +83,7 @@ func manipulateV1Request(req *http.Request) error {
 	queryStr = strings.ReplaceAll(queryStr, "_facet", "")
 	queryStr = strings.ReplaceAll(queryStr, ".raw", "")
 	queryStr = strings.ReplaceAll(queryStr, "delving_spec", "meta.spec")
+	queryStr = strings.ReplaceAll(queryStr, "delving_hasDigitalObject", "meta.hasDigitalObject")
 	req.URL.RawQuery = queryStr
 	return nil
 }

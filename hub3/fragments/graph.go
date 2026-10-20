@@ -38,6 +38,34 @@ type ItemV1 struct {
 	Fields  map[string][]string `json:"fields"`
 }
 
+// v1Flags are the fields nave's v1 API returns as JSON booleans.
+var v1Flags = []string{"delving_hasDigitalObject", "delving_hasGeoHash", "delving_hasLandingPage"}
+
+// MarshalJSON writes the v1Flags as booleans, as nave does: the websites test
+// them for truth, and the string "false" is truthy in JavaScript.
+func (item *ItemV1) MarshalJSON() ([]byte, error) {
+	fields := make(map[string]any, len(item.Fields))
+	for k, v := range item.Fields {
+		fields[k] = v
+	}
+
+	for _, k := range v1Flags {
+		if v, ok := item.Fields[k]; ok {
+			flags := make([]bool, len(v))
+			for i, s := range v {
+				flags[i] = strings.EqualFold(s, "true")
+			}
+			fields[k] = flags
+		}
+	}
+
+	type plain ItemV1
+	return json.Marshal(struct {
+		plain
+		Fields map[string]any `json:"fields"`
+	}{plain(*item), fields})
+}
+
 func (fg *FragmentGraph) ItemType(path string) string {
 	// only the first one is returned
 	for _, rsc := range fg.Resources {

@@ -776,3 +776,25 @@ has_geo_hash_field = "delving_hasGeoHash"
 has_landing_page_field = "delving_hasLandingPage"
 file_path_prefix = "file:///opt"
 `
+
+// The shipped convertors.toml maps the icn fields nave's ICNConverter adds
+// (nave 7b9d83f): copyright, notes and objectType.
+func TestShippedICNConverterCopyrightNotesObjectType(t *testing.T) {
+	is := is.New(t)
+
+	cm, err := NewConfigManager("../../../../../convertors.toml")
+	is.NoErr(err)
+
+	conv, err := NewConverterWithConfig(cm, ICN, "", "test")
+	is.NoErr(err)
+
+	out := conv.Convert(map[string][]string{
+		"nave_copyright":  {"Fries Museum"},
+		"nave_notes":      {"note"},
+		"nave_objectType": {"schilderij"},
+	}, false)
+
+	is.Equal(out["icn_copyright"], []string{"Fries Museum"})
+	is.Equal(out["icn_notes"], []string{"note"})
+	is.Equal(out["icn_objectType"], []string{"schilderij"})
+}

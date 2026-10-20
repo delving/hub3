@@ -98,3 +98,22 @@ func TestV1FreeTextMatchesLikeNave(t *testing.T) {
 		}
 	}
 }
+
+// nave's v1 items carry the three delving_has* flags as JSON booleans; the
+// websites test them for truth, and the string "false" is truthy in JS.
+func TestItemV1FlagsAreJSONBooleans(t *testing.T) {
+	b, err := json.Marshal(&ItemV1{DocID: "x", Fields: map[string][]string{
+		"delving_hasDigitalObject": {"true"},
+		"delving_hasGeoHash":       {"false"},
+		"delving_hasLandingPage":   {"false"},
+		"dc_title":                 {"true"},
+	}})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := `{"doc_id":"x","doc_type":"","fields":{"dc_title":["true"],"delving_hasDigitalObject":[true],"delving_hasGeoHash":[false],"delving_hasLandingPage":[false]}}`
+	if string(b) != want {
+		t.Errorf("got  %s\nwant %s", b, want)
+	}
+}
