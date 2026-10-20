@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"unicode/utf8"
 
 	c "github.com/delving/hub3/config"
 	. "github.com/delving/hub3/hub3/fragments"
@@ -242,6 +243,258 @@ var _ = Describe("V1", func() {
 		})
 	})
 
+	// Regression for #3590, second cause: a stray '<' in OCR output made the
+	// HTML sanitizer discard everything after it, so text late in a document
+	// never reached the index. Literals are plain text; markup delimiters are
+	// escaped rather than stripped.
+	Context("when a literal contains a stray angle bracket", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		tail := "mevrouw numerieke onderzoekscentra"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("aangewezen als co<irdinator voor het vakgebied. "+tail),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the text that follows the bracket", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring(tail))
+		})
+
+		It("should leave no renderable markup behind", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).ToNot(ContainSubstring("<"))
+			Expect(ie.Value).To(ContainSubstring("co&lt;irdinator"))
+		})
+	})
+
+	// Regression for #3548/#952: repeated values reached the v1 index in an
+	// order that changed on every run of the same record, because the graph
+	// was rebuilt while walking a sync.Map. Twelve values make a chance pass
+	// vanishingly unlikely.
+	Context("when a record repeats one predicate", func() {
+		values := []string{
+			"hoogte beeld: 59.5 cm", "breedte beeld: 43.7 cm",
+			"hoogte lijst: 83 cm", "breedte lijst: 66.5 cm",
+			"diepte lijst: 4 cm", "gewicht: 2.3 kg",
+			"hoogte passe-partout: 70 cm", "breedte passe-partout: 50 cm",
+			"diameter: 12 cm", "dikte: 3 mm",
+			"omtrek: 140 cm", "oppervlakte: 0.26 m2",
+		}
+
+		var doc strings.Builder
+		doc.WriteString(`<?xml version="1.0" encoding="UTF-8"?>` +
+			`<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"` +
+			` xmlns:dcterms="http://purl.org/dc/terms/">` +
+			`<rdf:Description rdf:about="http://data.brabantcloud.nl/resource/document/test-spec/1">`)
+
+		for _, v := range values {
+			doc.WriteString("<dcterms:extent>" + v + "</dcterms:extent>")
+		}
+
+		doc.WriteString(`</rdf:Description></rdf:RDF>`)
+
+		It("should index the values in document order", func() {
+			fg := testFragmentGraph("test-spec", int32(1), "http://data.brabantcloud.nl/resource/document/test-spec/1/graph")
+			fg.Meta.AboutTypeURI = []string{"http://www.openarchives.org/ore/terms/Aggregation"}
+			fb := NewFragmentBuilder(fg)
+
+			err := fb.ParseResolvedGraph(strings.NewReader(doc.String()), "application/rdf+xml")
+			Expect(err).ToNot(HaveOccurred())
+
+			// The rebuild that used to scramble the order happens in here.
+			_ = fb.GetSortedWebResources(context.Background())
+
+			indexDoc, err := CreateV1IndexDoc(fb)
+			Expect(err).ToNot(HaveOccurred())
+
+			entries, ok := indexDoc["dcterms_extent"].([]*IndexEntry)
+			Expect(ok).To(BeTrue(), "dcterms_extent should be present")
+
+			got := []string{}
+			for _, e := range entries {
+				got = append(got, e.Value)
+			}
+
+			Expect(got).To(Equal(values))
+		})
+	})
+
+	// Regression for #3595: 16% of the index carries rich text from Memorix,
+	// and escaping every delimiter turned that markup into literal tags on the
+	// Instant Websites. Real markup has to reach the consumer as markup.
+	Context("when a literal contains rich text from the source system", func() {
+		dcDescription := "http://purl.org/dc/elements/1.1/description"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcDescription),
+			r.NewLiteral("<p>Rechthoek met vier stroken.</p><p>Locatie 5.1</p>"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the markup renderable", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("<p>Rechthoek met vier stroken.</p>"))
+			Expect(ie.Value).ToNot(ContainSubstring("&lt;p&gt;"))
+		})
+	})
+
+	// Thesaurus paths use '>' as a separator and AAT labels wrap the term in
+	// angle brackets. Neither is markup, and the sanitizer used to delete the
+	// AAT term outright because it read it as an unknown tag.
+	Context("when a literal uses angle brackets as domain notation", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		fb, err := testDataGraph(false)
+
+		It("should keep a thesaurus path intact", func() {
+			Expect(err).ToNot(HaveOccurred())
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource(dcSubject),
+				r.NewLiteral("003.6 ARBEID > BODEM – GRONDBEWERKING > eggen"),
+			)
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("ARBEID &gt; BODEM"))
+			Expect(ie.Value).To(ContainSubstring("eggen"))
+		})
+
+		It("should keep an AAT label rather than swallow it", func() {
+			Expect(err).ToNot(HaveOccurred())
+			t := r.NewTriple(
+				r.NewResource("urn:1"),
+				r.NewResource(dcSubject),
+				r.NewLiteral("<melk en melkproducten>"),
+			)
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("melk en melkproducten"))
+		})
+	})
+
+	// Taken from OCR output in the index: a '<' followed by a letter and a
+	// newline. If the attribute part of the tag pattern were allowed to span
+	// lines, this would pair with the next '>' far below and the sanitizer
+	// would drop everything in between.
+	Context("when ocr output starts something that looks like a tag", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		tail := "DE EFTELING HET LEUKSTE"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("04167-881ll.\n\n-<i\n\n___ te\n\ne\n\n"+tail+" 5 > 3 slot"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should not let it reach the next bracket", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring(tail))
+			Expect(ie.Value).To(ContainSubstring("slot"))
+			Expect(ie.Value).ToNot(ContainSubstring("<i"))
+		})
+	})
+
+	// An empty fulltext extraction arrives as an XML document. It is not rich
+	// text, so it must not be rendered, and it must not take the rest of the
+	// field with it either.
+	Context("when a literal is an xml preamble", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<fullTextFromUrl/> rest"),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should neutralise it and keep what follows", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).To(ContainSubstring("rest"))
+			Expect(ie.Value).ToNot(ContainSubstring("<?xml"))
+		})
+	})
+
+	Context("when a literal contains an actual html tag", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcSubject),
+			r.NewLiteral(`voor <script>alert("xss")</script> na`),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should neutralise it without losing the surrounding text", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(ie.Value).ToNot(ContainSubstring("<script>"))
+			Expect(ie.Value).To(ContainSubstring("voor "))
+			Expect(ie.Value).To(ContainSubstring(" na"))
+		})
+	})
+
+	// Regression for #3590: extracted PDF text beyond 32000 bytes was dropped
+	// from the v1 index, so words near the end of long documents were
+	// unsearchable on the Instant Websites while the same record was findable
+	// through the v2 API. Value feeds an analyzed text field, which is
+	// tokenised, so Lucene's per-term limit never applies to it.
+	Context("when creating an IndexEntry from a very long literal", func() {
+		fullText := "http://schemas.delving.eu/nave/terms/fullText"
+		marker := "zeldzaamwoordxyz"
+		long := strings.Repeat("woordje ", 12000) + marker
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(fullText),
+			r.NewLiteral(long),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should keep the whole literal in Value", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(len(ie.Value)).To(Equal(len(long)))
+			Expect(ie.Value).To(HaveSuffix(marker))
+		})
+
+		It("should still cap Raw, which feeds a keyword field", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(len(ie.Raw)).To(BeNumerically("<=", 256))
+		})
+	})
+
+	Context("when a literal is cut for the Raw keyword field", func() {
+		dcSubject := "http://purl.org/dc/elements/1.1/subject"
+		// Multi-byte runes straddling the 256-byte boundary: a plain slice
+		// would leave a broken final character in the index.
+		t := r.NewTriple(
+			r.NewResource("urn:1"),
+			r.NewResource(dcSubject),
+			r.NewLiteral(strings.Repeat("é", 400)),
+		)
+		fb, err := testDataGraph(false)
+
+		It("should never split a multi-byte character", func() {
+			Expect(err).ToNot(HaveOccurred())
+			ie, ierr := fb.CreateV1IndexEntry(t)
+			Expect(ierr).ToNot(HaveOccurred())
+			Expect(utf8.ValidString(ie.Raw)).To(BeTrue())
+			Expect(len(ie.Raw)).To(BeNumerically("<=", 256))
+		})
+	})
+
 	Context("when creating an IndexEntry from a blank node", func() {
 		dcSubject := "http://purl.org/dc/elements/1.1/subject"
 		t := r.NewTriple(
@@ -371,7 +624,11 @@ var _ = Describe("V1", func() {
 			//
 		})
 
-		It("should limit value to 32000 characters", func() {
+		// This used to assert that Value was cut to 32000 bytes. That cut was
+		// the cause of #3590: Value feeds an analyzed `text` field, which is
+		// tokenised, so Lucene's 32766-byte per-term limit never applies to
+		// it — only to Raw, which feeds a keyword field.
+		It("should keep long values whole, capping only raw", func() {
 			rString := RandSeq(40000)
 			Expect(rString).To(HaveLen(40000))
 			t := r.NewTriple(
@@ -382,7 +639,7 @@ var _ = Describe("V1", func() {
 			ie, err := fb.CreateV1IndexEntry(t)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(ie.Raw).To(HaveLen(256))
-			Expect(ie.Value).To(HaveLen(32000))
+			Expect(ie.Value).To(HaveLen(40000))
 		})
 
 		It("should add lang when present", func() {

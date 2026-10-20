@@ -99,7 +99,7 @@ type Response struct {
 	XMLName            xml.Name `xml:"OAI-PMH,omitempty"`
 	AttrXmlns          string   `xml:"xmlns,attr"`
 	AttrXmlnsxsi       string   `xml:"xmlns:xsi,attr"`
-	AttrSchemaLocation string   `xml:"http://www.w3.org/2001/XMLSchema-instance schemaLocation,attr"`
+	AttrSchemaLocation string   `xml:"xsi:schemaLocation,attr"`
 
 	ResponseDate string   `xml:"responseDate"`
 	Request      *Request `xml:"request"`

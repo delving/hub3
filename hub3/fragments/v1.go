@@ -35,11 +35,13 @@ import (
 	"html"
 	"io"
 	"log"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
+	"unicode/utf8"
 
 	"github.com/cnf/structhash"
 	r "github.com/kiivihal/rdf2go"
@@ -56,12 +58,10 @@ import (
 
 var (
 	request        *gorequest.SuperAgent
-	sanitizer      *bluemonday.Policy
 	ErrUrnNotFound = errors.New("remote urn not found")
 )
 
 func init() {
-	sanitizer = bluemonday.UGCPolicy()
 	request = gorequest.New()
 }
 
@@ -407,7 +407,14 @@ func (fb *FragmentBuilder) CleanWebResourceGraph(hasUrns bool) (
 	aggregates = []r.Term{}
 
 	seen := 0
-	for triple := range fb.Graph.IterTriples() {
+	// Ordered, not IterTriples: every triple below is re-added to cleanGraph,
+	// which stamps it with a fresh insertion number, and that number is what
+	// CreateV1IndexDoc later sorts on. IterTriples walks a sync.Map, whose
+	// order is undefined, so reading it here randomised the order of every
+	// repeated field in the v1 index — different on each run of the same
+	// record (#3548/#952). The graph keeps document order; this loop has to
+	// preserve it rather than reshuffle it.
+	for triple := range fb.Graph.IterTriplesOrdered() {
 		seen++
 		s := triple.Subject.String()
 		p := triple.Predicate.String()
@@ -649,7 +656,11 @@ func (fb *FragmentBuilder) SetResourceLabels() error {
 		r.NewResource("http://xmlns.com/foaf/0.1/name"),
 	}
 
-	for t := range fb.Graph.IterTriples() {
+	// Ordered, because this keeps the FIRST label it meets per subject. Over a
+	// sync.Map "first" is whichever the runtime happened to yield, so a
+	// resource carrying two prefLabels got a different one on each indexing
+	// run. Document order makes that choice reproducible.
+	for t := range fb.Graph.IterTriplesOrdered() {
 		for _, label := range labels {
 			if !label.Equal(t.Predicate) {
 				continue
@@ -753,6 +764,94 @@ func GetFieldKey(t *r.Triple) (string, error) {
 	return rdf.DefaultNamespaceManager.GetSearchLabel(t.Predicate.RawValue())
 }
 
+// A v1 literal can carry three different things that involve angle brackets,
+// and they need opposite treatment:
+//
+//   - real markup. 16% of documents carry rich text from Memorix — <p>, <br>,
+//     <b>, the occasional <a href>. Consumers render the v1 value as HTML, so
+//     these have to survive, and unsafe ones still have to be removed.
+//   - domain notation. Thesaurus paths use '>' as a separator ("ARBEID >
+//     eggen") and AAT labels wrap terms in angle brackets ("<melk en
+//     melkproducten>"). Not markup, and not an error either.
+//   - damage. A stray '<' from OCR ("co<irdinator"), or the XML preamble of an
+//     empty fulltext extraction.
+//
+// Running a sanitizer over all three is what caused #3590: bluemonday read the
+// first '<' of the second and third kinds as the start of a tag and dropped
+// everything to the end of the field. Escaping all three instead — the first
+// attempt at a fix — kept the text but turned real markup into visible tags on
+// every Instant Website (#3595).
+//
+// So the delimiters that are not part of a tag are hidden behind sentinels for
+// the duration of the sanitizer pass, and come back escaped. bluemonday still
+// makes every decision about actual markup, so the security posture is the one
+// it has always been.
+// The attribute part excludes newlines and is length-capped on purpose. OCR
+// output contains fragments like "-<i\n\n___ te\n\n*\n\nDE EFTELING", and an
+// unbounded attribute match would pair that '<i' with the next '>' hundreds of
+// characters later, hand the whole span to the sanitizer as a tag, and lose
+// it — the #3590 failure in miniature. Real attributes in this data are short
+// and on one line.
+var htmlTag = regexp.MustCompile(
+	`(?i)</?(?:a|b|blockquote|br|code|del|div|em|h[1-6]|hr|i|img|ins|li|ol|p` +
+		`|pre|q|s|span|strike|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul)` +
+		`(?:[ \t][^<>\r\n]{0,300})?/?>`)
+
+// Interlinear annotation controls: valid UTF-8, no meaning to bluemonday, and
+// not something a heritage record contains.
+const (
+	strayLT = "￹"
+	strayGT = "￺"
+)
+
+var (
+	strayHider   = strings.NewReplacer("<", strayLT, ">", strayGT)
+	strayRestore = strings.NewReplacer(strayLT, "&lt;", strayGT, "&gt;")
+
+	// A policy is immutable once built and safe for concurrent use, so one
+	// instance serves every builder.
+	sanitizer = bluemonday.UGCPolicy()
+)
+
+// hideStrayDelimiters replaces every '<' and '>' outside a well-formed tag
+// with a sentinel. Because a tag's attributes may not themselves contain '<',
+// a match can never reach past the next delimiter — which is exactly the
+// overreach that let one stray bracket swallow the rest of a field.
+func hideStrayDelimiters(s string) string {
+	if !strings.ContainsAny(s, "<>") {
+		return s
+	}
+
+	var b strings.Builder
+
+	last := 0
+
+	for _, m := range htmlTag.FindAllStringIndex(s, -1) {
+		b.WriteString(strayHider.Replace(s[last:m[0]]))
+		b.WriteString(s[m[0]:m[1]])
+		last = m[1]
+	}
+
+	b.WriteString(strayHider.Replace(s[last:]))
+
+	return b.String()
+}
+
+// truncateUTF8 shortens s to at most n bytes without splitting a multi-byte
+// character, so the result is always valid UTF-8. A plain s[:n] could cut
+// through a rune and leave a broken final character in the index.
+func truncateUTF8(s string, n int) string {
+	if len(s) <= n {
+		return s
+	}
+
+	for n > 0 && !utf8.RuneStart(s[n]) {
+		n--
+	}
+
+	return s[:n]
+}
+
 // CreateV1IndexEntry creates an IndexEntry from a r.Triple
 func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) {
 	ie := &IndexEntry{}
@@ -772,18 +871,24 @@ func (fb *FragmentBuilder) CreateV1IndexEntry(t *r.Triple) (*IndexEntry, error) 
 	case *r.Literal:
 		ie.Type = "Literal"
 		value := t.Object.RawValue()
-		if len(value) > 32765 {
-			value = value[:32000]
-		}
 
-		// protect against XSS attacks in literals
-		value = html.UnescapeString(fb.sanitizer.Sanitize(value))
+		// Real markup goes through the sanitizer as it always did; everything
+		// else that merely looks like markup is hidden first and comes back
+		// escaped, so it is neither swallowed (#3590) nor rendered (#3595).
+		value = strayRestore.Replace(
+			html.UnescapeString(sanitizer.Sanitize(hideStrayDelimiters(value))),
+		)
 
+		// Value lands in a `.value` field, which the index template always
+		// maps as analyzed `text` (copy_to full_text). Analyzed fields are
+		// tokenised, so Lucene's 32766-byte MAX_TERM_LENGTH applies per word
+		// and never to the field as a whole — truncating here only made
+		// extracted PDF text beyond 32000 bytes unsearchable (#3590, ~10% of
+		// documents carrying fulltext). The term limit is a *keyword*
+		// concern, and Raw below is the keyword side.
 		ie.Value = value
-		ie.Raw = value
-		if len(ie.Raw) > 256 {
-			ie.Raw = value[:256]
-		}
+
+		ie.Raw = truncateUTF8(value, 256)
 		// replace double quotes a single quote
 		ie.Raw = strings.ReplaceAll(ie.Raw, "\"", "'")
 		l := t.Object.(*r.Literal)
