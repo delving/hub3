@@ -1414,54 +1414,58 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		}
 		record.Item.Fields = conv.Convert(record.Item.Fields, true)
 		cfg := conv.Configuration()
-
-		var sb strings.Builder
-		for _, field := range cfg.MLT.Fields {
-			vals, ok := record.Item.Fields[field]
-			if !ok {
-				continue
+		// Configuration() is nil for orgs without a registered legacy V1
+		// config; return the record without related items, as the other
+		// formats do below, instead of dereferencing a nil config.
+		if cfg != nil {
+			var sb strings.Builder
+			for _, field := range cfg.MLT.Fields {
+				vals, ok := record.Item.Fields[field]
+				if !ok {
+					continue
+				}
+				for _, v := range vals {
+					sb.WriteString(v + " ")
+				}
+				sb.WriteString(" ")
 			}
-			for _, v := range vals {
-				sb.WriteString(v + " ")
+
+			mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
+			var mltFilterKeys []string
+			if r.URL.Query().Has("mlt.filterkey") {
+				mltFilterKeys = r.URL.Query()["mlt.filterkey"]
 			}
-			sb.WriteString(" ")
-		}
 
-		mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
-		var mltFilterKeys []string
-		if r.URL.Query().Has("mlt.filterkey") {
-			mltFilterKeys = r.URL.Query()["mlt.filterkey"]
-		}
-
-		recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
-		if err != nil {
-			render.Error(w, r, err, &render.DefaultConfig)
-			return
-		}
-
-		for _, rec := range recs {
-			fg, err := decodeFragmentGraph(rec)
+			recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
 			if err != nil {
 				render.Error(w, r, err, &render.DefaultConfig)
 				return
 			}
 
-			mltConv, err := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
-			if err != nil {
-				render.Error(w, r, err, &render.DefaultConfig)
-				return
-			}
+			for _, rec := range recs {
+				fg, err := decodeFragmentGraph(rec)
+				if err != nil {
+					render.Error(w, r, err, &render.DefaultConfig)
+					return
+				}
 
-			fg.NewFields(nil)
+				mltConv, err := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
+				if err != nil {
+					render.Error(w, r, err, &render.DefaultConfig)
+					return
+				}
 
-			item := &fragments.ItemV1{
-				DocID:   fg.Meta.HubID,
-				DocType: "void_edmrecord",
-				Fields:  map[string][]string{},
+				fg.NewFields(nil)
+
+				item := &fragments.ItemV1{
+					DocID:   fg.Meta.HubID,
+					DocType: "void_edmrecord",
+					Fields:  map[string][]string{},
+				}
+				maps.Copy(item.Fields, fg.Fields)
+				item.Fields = mltConv.Convert(item.Fields, true)
+				record.AddMoreLikeThis(item)
 			}
-			maps.Copy(item.Fields, fg.Fields)
-			item.Fields = mltConv.Convert(item.Fields, true)
-			record.AddMoreLikeThis(item)
 		}
 
 		record.Meta = nil
