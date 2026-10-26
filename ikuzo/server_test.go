@@ -430,3 +430,30 @@ func TestServer_tlsMode(t *testing.T) {
 	svr.ServeHTTP(w, req)
 	is.Equal(w.Code, http.StatusOK)
 }
+
+func Test_server_corsAllowedHeaders(t *testing.T) {
+	is := is.New(t)
+
+	preflight := func(svr Server, header string) string {
+		req, err := http.NewRequest("OPTIONS", "/ping", nil)
+		is.NoErr(err)
+		req.Header.Set("Origin", "https://example.org")
+		req.Header.Set("Access-Control-Request-Method", "GET")
+		req.Header.Set("Access-Control-Request-Headers", header)
+
+		w := httptest.NewRecorder()
+		svr.ServeHTTP(w, req)
+
+		return w.Header().Get("Access-Control-Allow-Origin")
+	}
+
+	svr, err := newServer()
+	is.NoErr(err)
+	is.Equal(preflight(svr, "If-None-Match"), "") // not allowed by default
+	is.Equal(preflight(svr, "Content-Type"), "*") // default stays
+
+	svr, err = newServer(SetCORSAllowedHeaders("If-None-Match", "Accept-Language"))
+	is.NoErr(err)
+	is.Equal(preflight(svr, "If-None-Match"), "*")
+	is.Equal(preflight(svr, "Content-Type"), "*")
+}
