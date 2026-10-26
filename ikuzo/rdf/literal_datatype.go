@@ -29,10 +29,10 @@ var (
 
 	// Recurring and partial dates:
 
-	// xsdYear              = IRI{str: "http://www.w3.org/2001/XMLSchema#gYear"}
+	xsdYear = IRI{str: "http://www.w3.org/2001/XMLSchema#gYear"}
 	// xsdMonth             = IRI{str: "http://www.w3.org/2001/XMLSchema#gMonth"}
 	// xsdDay               = IRI{str: "http://www.w3.org/2001/XMLSchema#gDay"}
-	// xsdYearMonth         = IRI{str: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
+	xsdYearMonth = IRI{str: "http://www.w3.org/2001/XMLSchema#gYearMonth"}
 	// xsdDuration          = IRI{str: "http://www.w3.org/2001/XMLSchema#Duration"}
 	// xsdYearMonthDuration = IRI{str: "http://www.w3.org/2001/XMLSchema#yearMonthDuration"}
 	// xsdDayTimeDuration   = IRI{str: "http://www.w3.org/2001/XMLSchema#dayTimeDuration"}
@@ -46,7 +46,7 @@ var (
 
 	// Various
 
-	xsdAnyURI      = IRI{str: "http://www.w3.org/2001/XMLSchema#anyURI"}                // string (URI)
+	xsdAnyURI      = IRI{str: "http://www.w3.org/2001/XMLSchema#anyURI"}               // string (URI)
 	rdfLangString  = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#langString"} // string
 	xmlLiteral     = IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral"} // string
 	admsIdentifier = IRI{str: "http://www.w3.org/ns/adms#Identifier"}
@@ -63,6 +63,8 @@ var (
 		// Time and date:
 		xsdDateTime,
 		xsdDate,
+		// partial dates, common in schema.org heritage data (SCHEMA-AP-NDE)
+		xsdYear, xsdYearMonth,
 		// Limited-range integer numbers
 		xsdByte, xsdInt,
 		// Various
