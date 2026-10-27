@@ -1518,6 +1518,19 @@ func CreateAggregationByFields(facet *FacetField, facetAndBoolType bool, fub *Fa
 }
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
+// recordsAgg is the reverse_nested sub-aggregation that counts the records
+// in a bucket of nested entries.
+const recordsAgg = "records"
+
+// recordCount is the number of records in a bucket: its recordsAgg count, or
+// docCount for a bucket without one.
+func recordCount(aggs elastic.Aggregations, docCount int64) int64 {
+	if r, ok := aggs.ReverseNested(recordsAgg); ok {
+		return r.DocCount
+	}
+	return docCount
+}
+
 func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBoolType bool, fub *FacetURIBuilder) (elastic.Aggregation, error) {
 	nestedPath := fmt.Sprintf("%s.searchLabel", path)
 	fieldTermQuery := elastic.NewTermQuery(nestedPath, facet.GetField())
@@ -1529,12 +1542,15 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 
 	termAggPath := fmt.Sprintf("%s.%s", path, entryKey)
 
-	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(int(facet.GetSize()))
+	// A record can hold several entries with one value, so a bucket counts
+	// its records (recordsAgg), not its nested entries.
+	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(int(facet.GetSize())).
+		SubAggregation(recordsAgg, elastic.NewReverseNestedAggregation())
 
 	if facet.GetByName() {
 		labelAgg = labelAgg.OrderByKey(facet.GetAsc())
 	} else {
-		labelAgg = labelAgg.OrderByCount(facet.GetAsc())
+		labelAgg = labelAgg.OrderByAggregation(recordsAgg, facet.GetAsc())
 	}
 
 	// Add Filters as nested path
@@ -1664,7 +1680,8 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 					elastic.NewCompositeAggregationTermsValuesSource("value").
 						Field(termAggPath).
 						Order("asc"),
-				)
+				).
+				SubAggregation(recordsAgg, elastic.NewReverseNestedAggregation())
 			filterAgg = filterAgg.SubAggregation("sortedValues", compAgg)
 		} else {
 			filterAgg = filterAgg.SubAggregation("value", labelAgg)
@@ -2548,10 +2565,11 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := KeyAsString(b)
+							count := recordCount(b.Aggregations, b.DocCount)
 							fl := &FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								Count:         count,
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, count),
 							}
 							SetFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
@@ -2569,10 +2587,11 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						valid = true
 						for _, b := range composite.Buckets {
 							key := fmt.Sprint(b.Key["value"])
+							count := recordCount(b.Aggregations, b.DocCount)
 							fl := &FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								Count:         count,
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, count),
 							}
 							SetFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
