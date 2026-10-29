@@ -1,6 +1,6 @@
 module github.com/delving/hub3
 
-go 1.27.0
+go 1.27.3
 
 require (
 	github.com/BurntSushi/toml v1.5.0
@@ -211,7 +211,7 @@ require (
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250506013437-ce4c2cf36ca6 // indirect
 	golang.org/x/mod v0.41.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
 	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/term v0.46.0 // indirect
 	golang.org/x/time v0.6.0 // indirect
