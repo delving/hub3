@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+
+	"github.com/delving/hub3/hub3/models"
 )
 
 func TestHydraView_setPager(t *testing.T) {
@@ -149,5 +151,19 @@ func TestHydraView_setPager(t *testing.T) {
 				t.Errorf("HydraView.setPager() %s; mismatch (-want +got):\n%s", tt.name, diff)
 			}
 		})
+	}
+}
+
+func TestService_createDataSet(t *testing.T) {
+	cfg := &RegisterConfig{RDFBaseURL: "https://example.org", URLPrefix: "datasets"}
+	s := &Service{defaultCfg: cfg, recordTypeLookup: map[string]*RegisterConfig{"narthex": cfg}}
+
+	d, err := s.createDataSet(&models.DataSet{Spec: "spec-1", Label: "Label 1"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if d.Identifier != "spec-1" || d.Name != "spec-1" || d.Description != "Label 1" {
+		t.Errorf("identifier, name, description = %q, %q, %q", d.Identifier, d.Name, d.Description)
 	}
 }
