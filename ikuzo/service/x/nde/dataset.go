@@ -41,6 +41,7 @@ type Dataset struct {
 	ID                    string         `json:"@id,omitempty"`
 	Name                  string         `json:"name,omitempty"`
 	Description           string         `json:"description,omitempty"`
+	Identifier            string         `json:"identifier,omitempty"`
 	License               string         `json:"license,omitempty"`
 	DateCreated           string         `json:"dateCreated,omitempty"`
 	DateModified          string         `json:"dateModified,omitempty"`
@@ -85,7 +86,7 @@ func (c *Catalog) addHydraView(currentPage string, totalSize int) error {
 	return nil
 }
 
-const hydraObjectPerPage = 1000
+const hydraObjectPerPage = 500
 
 type HydraView struct {
 	ID          string            `json:"@id,omitempty"`
@@ -147,6 +148,7 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 		Keywords:              []string{},
 		License:               r.DefaultLicense,
 		Name:                  spec,
+		Identifier:            spec,
 		Publisher:             r.GetAgent(),
 	}
 
@@ -164,6 +166,7 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 			d.DatePublished = meta.Updated.Format(layoutISO)
 			d.Description = meta.Label
 			d.Distribution = r.GetDistributions(spec, "ead")
+			d.Name = meta.Label
 
 			return d, nil
 		}
