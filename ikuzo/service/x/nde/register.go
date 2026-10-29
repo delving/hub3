@@ -85,7 +85,7 @@ func (r *RegisterConfig) newCatalog() *Catalog {
 			map[string]string{"hydra": "http://www.w3.org/ns/hydra/core#"},
 		},
 		Type:        []string{"DataCatalog", "hydra:Collection"},
-		ID:          fmt.Sprintf("%s/id/datacatalog", r.RDFBaseURL),
+		ID:          fmt.Sprintf("%s/id/datacatalog/%s", r.RDFBaseURL, r.URLPrefix),
 		Dataset:     []*Dataset{},
 		Description: r.Description,
 		Name:        r.Name,
