@@ -58,18 +58,18 @@ func TestTagMap_ApplyTagsToEntry(t *testing.T) {
 	// Check if processTags works for isoDate and dateRange
 	err := dateEntry.processTags()
 	is.NoErr(err)
-	
+
 	// Since this entry has both isoDate and dateRange tags, we expect 3 entries in the Date array:
 	// 1. From isoDate: the original value "2020-01-01"
 	// 2. From dateRange: Greater value "2020-01-01"
 	// 3. From dateRange: Less value "2020-01-01" (for single date value, Greater and Less are same)
 	is.Equal(len(dateEntry.Date), 3)
-	
+
 	// Verify that DateRange is set
 	is.True(dateEntry.DateRange != nil)
 	is.Equal(dateEntry.DateRange.Greater, "2020-01-01")
 	is.Equal(dateEntry.DateRange.Less, "2020-01-01")
-	
+
 	// Test date range entry
 	dateRangeEntry := &Entry{
 		Predicate: "http://purl.org/dc/elements/1.1/date",
@@ -77,7 +77,7 @@ func TestTagMap_ApplyTagsToEntry(t *testing.T) {
 		EntryType: Literal,
 		Tags:      []string{"dateRange"},
 	}
-	
+
 	// Process tags for date range
 	err = dateRangeEntry.processTags()
 	is.NoErr(err)
@@ -158,16 +158,16 @@ func TestGraph_ApplyTags(t *testing.T) {
 	is.Equal(resource1.Entries[1].Tags[0], "latLong")
 
 	is.Equal(len(resource1.Entries[2].Tags), 0) // title entry, no tags
-	
+
 	// Check that processTags was called and TypeIndexFields were set
 	// Since the entry has both isoDate and dateRange tags, it should have 3 entries in the Date array
-	is.Equal(len(resource1.Entries[0].Date), 3) 
-	
+	is.Equal(len(resource1.Entries[0].Date), 3)
+
 	// Also verify that DateRange is set correctly
 	is.True(resource1.Entries[0].DateRange != nil)
 	is.Equal(resource1.Entries[0].DateRange.Greater, "2020-01-01")
 	is.Equal(resource1.Entries[0].DateRange.Less, "2020-01-01")
-	
+
 	is.Equal(resource1.Entries[1].LatLong, "52.3676, 4.9041") // latLong field set
 }
 
@@ -231,11 +231,11 @@ func TestGraph_SetContextAndTags(t *testing.T) {
 	is.Equal(len(childResource.Entries[0].Tags), 2)
 	is.Equal(childResource.Entries[0].Tags[0], "dateRange")
 	is.Equal(childResource.Entries[0].Tags[1], "isoDate")
-	
+
 	// Verify TypeIndexField is set for date entry
 	// Since the entry has both isoDate and dateRange tags, it should have 3 entries in the Date array
 	is.Equal(len(childResource.Entries[0].Date), 3)
-	
+
 	// Also verify that DateRange is set correctly
 	is.True(childResource.Entries[0].DateRange != nil)
 	is.Equal(childResource.Entries[0].DateRange.Greater, "2020-01-01")
@@ -243,7 +243,7 @@ func TestGraph_SetContextAndTags(t *testing.T) {
 
 	// Verify context is set flag
 	is.Equal(g.contextIsSet, true)
-	
+
 	// Note: Actual context values depend on how the test environment handles them
 	// In some cases, the actual context references might not be populated,
 	// but we've already verified that the contextIsSet flag is true
@@ -254,7 +254,7 @@ func TestNewTagMapFromMap(t *testing.T) {
 
 	// Create a map of predicate URIs to tags
 	m := map[string][]string{
-		"http://purl.org/dc/elements/1.1/date":            {"dateRange", "isoDate"},
+		"http://purl.org/dc/elements/1.1/date":             {"dateRange", "isoDate"},
 		"http://www.w3.org/2003/01/geo/wgs84_pos#lat_long": {"latLong"},
 	}
 

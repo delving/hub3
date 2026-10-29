@@ -1,38 +1,39 @@
 // Package rdf provides functionality for working with RDF resources, including
 // parsing and serialization of the various RDF formats.
 //
-// Data model
+// # Data model
 //
 // The package adhers to the RDF data model as described in http://www.w3.org/TR/rdf11-concepts/.
 //
-// Data structures
+// # Data structures
 //
 // TODO.
 //
-// Encoding and decoding
+// # Encoding and decoding
 //
 // The package aims to support all the RDF serialization formats standardized by W3C. Currently the following are implemented:
-//  Format     | Decode | Encode
-//  -----------|--------|--------
-//  RDF/XML    | x      | -
-//  N-Triples  | x      | x
-//  N-Quads    | x      | x
-//  Turtle     | x      | x
-//  TriG       | -      | -
-//  JSON-LD    | -      | -
+//
+//	Format     | Decode | Encode
+//	-----------|--------|--------
+//	RDF/XML    | x      | -
+//	N-Triples  | x      | x
+//	N-Quads    | x      | x
+//	Turtle     | x      | x
+//	TriG       | -      | -
+//	JSON-LD    | -      | -
 //
 // The parsers are implemented as streaming decoders, consuming an io.Reader
 // and emitting triples/quads as soon as they are available. Simply call
 // Decode() until the reader is exhausted and emits io.EOF:
 //
-//    f, err := os.Open("mytriples.ttl")
-//    if err != nil {
-//        // handle error
-//    }
-//    dec := rdf.NewTripleDecoder(f, rdf.Turtle)
-//    for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
-//        // do something with triple ..
-//    }
+//	f, err := os.Open("mytriples.ttl")
+//	if err != nil {
+//	    // handle error
+//	}
+//	dec := rdf.NewTripleDecoder(f, rdf.Turtle)
+//	for triple, err := dec.Decode(); err != io.EOF; triple, err = dec.Decode() {
+//	    // do something with triple ..
+//	}
 //
 // The encoders work similarily.
 // For a complete working example, see the rdf2rdf application, which converts between different serialization formats using the decoders and encoders of the rdf package: https://github.com/knakk/rdf2rdf.

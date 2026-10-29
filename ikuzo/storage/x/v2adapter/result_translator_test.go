@@ -246,9 +246,9 @@ func TestResultTranslator_TranslateItems(t *testing.T) {
 					},
 				},
 			},
-			wantItems: 1,
-			wantIDs:   []string{"doc456"},
-			wantErr:   false,
+			wantItems:   1,
+			wantIDs:     []string{"doc456"},
+			wantErr:     false,
 			description: "Should handle inline context map",
 		},
 		{

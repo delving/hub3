@@ -67,43 +67,43 @@ func TestSuggestFields(t *testing.T) {
 		{
 			name:        "close typo",
 			unknown:     "dc_tilte",
-			maxDistance:  3,
+			maxDistance: 3,
 			want:        []string{"dc_title", "dc_date", "dc_type"},
 		},
 		{
 			name:        "no close matches",
 			unknown:     "zzzzzzzzz",
-			maxDistance:  3,
+			maxDistance: 3,
 			want:        nil,
 		},
 		{
 			name:        "multiple close matches",
 			unknown:     "dc_tite",
-			maxDistance:  3,
+			maxDistance: 3,
 			want:        []string{"dc_title", "dc_date", "dc_type"},
 		},
 		{
 			name:        "exact match excluded",
 			unknown:     "dc_title",
-			maxDistance:  3,
+			maxDistance: 3,
 			want:        []string{"dc_date", "dc_type"},
 		},
 		{
 			name:        "case sensitive",
 			unknown:     "DC_Title",
-			maxDistance:  3,
+			maxDistance: 3,
 			want:        []string{"dc_title"},
 		},
 		{
 			name:        "max distance 1",
 			unknown:     "dc_titl",
-			maxDistance:  1,
+			maxDistance: 1,
 			want:        []string{"dc_title"},
 		},
 		{
 			name:        "max distance 0 returns nil",
 			unknown:     "dc_title",
-			maxDistance:  0,
+			maxDistance: 0,
 			want:        nil,
 		},
 	}
@@ -272,11 +272,11 @@ func TestValidateFilter_WithSuggestions(t *testing.T) {
 	rc.AddFilter(NewFilterConfig("dc_subject", "dc:subject", "Subject").WithOperators(OpEqual))
 
 	tests := []struct {
-		name          string
-		fieldName     string
-		wantErr       bool
-		wantSuggest   string // substring expected in error message
-		noSuggest     bool   // true if no suggestion expected
+		name        string
+		fieldName   string
+		wantErr     bool
+		wantSuggest string // substring expected in error message
+		noSuggest   bool   // true if no suggestion expected
 	}{
 		{
 			name:        "typo suggests correct field",

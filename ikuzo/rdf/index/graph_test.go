@@ -304,7 +304,7 @@ func TestGraph_MarshalWithFields(t *testing.T) {
 	// Convert to map for inspection
 	fieldsMap, ok := fields.(map[string]interface{})
 	is.True(ok)
-	
+
 	// Check that both searchLabels are included as keys (not predicates)
 	titleValues, ok := fieldsMap["dc_title"].([]interface{})
 	is.True(ok)

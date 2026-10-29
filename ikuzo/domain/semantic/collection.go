@@ -14,8 +14,8 @@ type Collection struct {
 	GeoData       *GeoFeatureCollection  `json:"hub3:geoData,omitempty"`
 	GeoClusters   []GeoCluster           `json:"hub3:geoClusters,omitempty"`
 	SearchContext *SearchContext         `json:"hub3:searchContext,omitempty"`
-	QueryContext  *QueryContextRef      `json:"hub3:queryContext,omitempty"`
-	Timing        *Timing               `json:"hub3:timing,omitempty"`
+	QueryContext  *QueryContextRef       `json:"hub3:queryContext,omitempty"`
+	Timing        *Timing                `json:"hub3:timing,omitempty"`
 	// Debug contains diagnostic information when debug mode is enabled.
 	Debug map[string]any `json:"hub3:debug,omitempty"`
 }
@@ -42,15 +42,15 @@ type Timing struct {
 
 // Facet represents a facet aggregation result.
 type Facet struct {
-	TypeValue   string        `json:"@type,omitempty"`
-	Field       string        `json:"field"`
-	Label       string        `json:"label"`
-	PropertyURI string        `json:"propertyURI,omitempty"`
-	FacetType   string        `json:"facetType"` // enum, range, date, boolean
-	TotalValues int64         `json:"totalValues,omitempty"`
-	Values      []FacetValue  `json:"values"`
-	Next        string        `json:"next,omitempty"`       // URL for more values
-	NextCursor  string        `json:"hub3:nextCursor,omitempty"` // Opaque cursor for next page of facet values
+	TypeValue   string       `json:"@type,omitempty"`
+	Field       string       `json:"field"`
+	Label       string       `json:"label"`
+	PropertyURI string       `json:"propertyURI,omitempty"`
+	FacetType   string       `json:"facetType"` // enum, range, date, boolean
+	TotalValues int64        `json:"totalValues,omitempty"`
+	Values      []FacetValue `json:"values"`
+	Next        string       `json:"next,omitempty"`            // URL for more values
+	NextCursor  string       `json:"hub3:nextCursor,omitempty"` // Opaque cursor for next page of facet values
 }
 
 // Type returns the @type for JSON-LD.
@@ -63,15 +63,15 @@ func (f *Facet) Type() string {
 
 // FacetValue represents a single value in a facet.
 type FacetValue struct {
-	TypeValue  string                 `json:"@type,omitempty"`
-	Value      string                 `json:"value"`
-	Label      string                 `json:"label,omitempty"`
-	Count      int64                  `json:"count"`
-	Selected   bool                   `json:"selected"`
-	Filter     string                 `json:"filter,omitempty"`    // Ready-to-use filter string
-	ApplyURL   string                 `json:"applyURL,omitempty"`
-	RemoveURL  string                 `json:"removeURL,omitempty"`
-	Geometry   map[string]interface{} `json:"geometry,omitempty"` // GeoJSON for region facets
+	TypeValue string                 `json:"@type,omitempty"`
+	Value     string                 `json:"value"`
+	Label     string                 `json:"label,omitempty"`
+	Count     int64                  `json:"count"`
+	Selected  bool                   `json:"selected"`
+	Filter    string                 `json:"filter,omitempty"` // Ready-to-use filter string
+	ApplyURL  string                 `json:"applyURL,omitempty"`
+	RemoveURL string                 `json:"removeURL,omitempty"`
+	Geometry  map[string]interface{} `json:"geometry,omitempty"` // GeoJSON for region facets
 }
 
 // Type returns the @type for JSON-LD.
@@ -114,10 +114,10 @@ func (bli *BreadcrumbListItem) Type() string {
 
 // GeoFeatureCollection represents a GeoJSON FeatureCollection for map display.
 type GeoFeatureCollection struct {
-	TypeValue string                 `json:"@type,omitempty"`
-	Type      string                 `json:"type"` // "FeatureCollection"
-	Features  []GeoFeature           `json:"features"`
-	BBox      []float64              `json:"bbox,omitempty"` // [west, south, east, north]
+	TypeValue string       `json:"@type,omitempty"`
+	Type      string       `json:"type"` // "FeatureCollection"
+	Features  []GeoFeature `json:"features"`
+	BBox      []float64    `json:"bbox,omitempty"` // [west, south, east, north]
 }
 
 // GeoFeature represents a single GeoJSON feature.

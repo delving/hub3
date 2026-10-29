@@ -48,9 +48,9 @@ type Request struct {
 	// ExpectedRecords carries the client's expected index size for the
 	// index_verify action (registry-owned completion signal).
 	ExpectedRecords int `json:"expectedRecords,omitempty"`
-	aboutTypeURI  []string
-	resolvedTags  []string
-	indexTypes    []string
+	aboutTypeURI    []string
+	resolvedTags    []string
+	indexTypes      []string
 }
 
 func (req *Request) valid() error {

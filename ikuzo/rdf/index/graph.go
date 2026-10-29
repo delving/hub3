@@ -47,10 +47,10 @@ type Graph struct {
 
 	// roots are the ids of the root resources of the Graph
 	roots []*Resource
-	
+
 	// entryOrder tracks the global order counter for entries to ensure consistent ordering
 	entryOrder int
-	
+
 	// mu protects the entryOrder counter for concurrent access
 	mu sync.Mutex
 }
@@ -148,7 +148,7 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 			return nil, err
 		}
 	}
-	
+
 	// Set entry levels based on resource context depth
 	g.setEntryLevels()
 

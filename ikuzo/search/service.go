@@ -36,9 +36,9 @@ type OptionFunc func(*Service) error
 //
 // Example:
 //
-//   service, err := search.NewService(
-//     search.ResponseSize(20),
-//	 )
+//	  service, err := search.NewService(
+//	    search.ResponseSize(20),
+//		 )
 //
 // An error is also returned when some configuration option is invalid.
 func NewService(options ...OptionFunc) (*Service, error) {

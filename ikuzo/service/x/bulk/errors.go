@@ -24,9 +24,9 @@ type BulkError struct {
 	OrgID     string `json:"orgId,omitempty"`
 	DatasetID string `json:"datasetId,omitempty"`
 	LocalID   string `json:"localId,omitempty"`
-	Stage     string `json:"stage"`             // Processing stage: "validation", "rdf_parse", "indexing", etc.
-	Message   string `json:"message"`           // Human-readable error message
-	Detail    string `json:"detail,omitempty"`  // Original error detail (e.g., "invalid language tag: unexpected character: ' '")
+	Stage     string `json:"stage"`            // Processing stage: "validation", "rdf_parse", "indexing", etc.
+	Message   string `json:"message"`          // Human-readable error message
+	Detail    string `json:"detail,omitempty"` // Original error detail (e.g., "invalid language tag: unexpected character: ' '")
 	cause     error  // Underlying error (not serialized)
 }
 

@@ -117,9 +117,9 @@ func (s *Service) buildAPIDocumentation(r *http.Request) map[string]any {
 	baseURL := s.buildBaseURL(r)
 
 	doc := map[string]any{
-		"@context": semantic.DefaultContext(),
-		"@id":      baseURL + "/docs",
-		"@type":    "hydra:ApiDocumentation",
+		"@context":    semantic.DefaultContext(),
+		"@id":         baseURL + "/docs",
+		"@type":       "hydra:ApiDocumentation",
 		"hydra:title": "Hub3 Semantic Search API - Complete Documentation",
 		"hydra:description": "Complete API documentation including all resource types, supported filters, " +
 			"facets, operators, and detailed examples. For a quick overview, visit the root endpoint.",
@@ -173,10 +173,10 @@ func (s *Service) buildSupportedClasses(r *http.Request) []map[string]any {
 		}
 
 		class := map[string]any{
-			"@id":                resourceType,
-			"@type":              "hydra:Class",
-			"hydra:title":        config.Label,
-			"hydra:description":  config.Description,
+			"@id":                 resourceType,
+			"@type":               "hydra:Class",
+			"hydra:title":         config.Label,
+			"hydra:description":   config.Description,
 			"hub3:searchEndpoint": fmt.Sprintf("%s%s/type/%s/search", getScheme(r), r.Host, resourceType),
 			"hub3:docsEndpoint":   fmt.Sprintf("%s%s/type/%s/docs", getScheme(r), r.Host, resourceType),
 		}
@@ -412,11 +412,11 @@ func (s *Service) buildTypeDocumentation(r *http.Request, config *semantic.Resou
 	sortFields := make([]map[string]any, 0, len(config.SortFields))
 	for _, sort := range config.SortFields {
 		sortFields = append(sortFields, map[string]any{
-			"@type":            "hub3:SortField",
-			"hub3:field":       sort.Field,
-			"hydra:property":   sort.PropertyURI,
-			"hydra:title":      sort.Label,
-			"hub3:defaultDir":  sort.DefaultDir,
+			"@type":           "hub3:SortField",
+			"hub3:field":      sort.Field,
+			"hydra:property":  sort.PropertyURI,
+			"hydra:title":     sort.Label,
+			"hub3:defaultDir": sort.DefaultDir,
 		})
 	}
 	if len(sortFields) > 0 {

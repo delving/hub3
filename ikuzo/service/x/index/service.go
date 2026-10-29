@@ -46,7 +46,7 @@ type BulkIndex interface {
 }
 
 type Service struct {
-	bi             esutil.BulkIndexer
+	bi esutil.BulkIndexer
 
 	// per-dataset indexing failures collected from BulkIndexer OnFailure,
 	// drained into the next verification notification (key: org|dataset)

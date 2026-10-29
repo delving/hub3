@@ -124,7 +124,6 @@ type syncFlags struct {
 	dryRun        bool
 }
 
-
 var (
 	pFlags   processFlags
 	dFlags   downloadFlags
@@ -237,14 +236,14 @@ func runDetectAll() error {
 	for i, dirPath := range directories {
 		dirName := filepath.Base(dirPath)
 		outputFile := generateOutputFileName(detFlags.outputFile, dirName)
-		
+
 		slog.Info("detecting changes for directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath, "output", outputFile)
-		
+
 		if err := detectChangesForPathWithClient(client, dirPath, outputFile); err != nil {
 			slog.Error("failed to detect changes for directory", "dir", dirPath, "error", err)
 			continue
 		}
-		
+
 		successCount++
 		slog.Info("completed change detection", "dir", dirPath, "output", outputFile)
 	}
@@ -306,10 +305,10 @@ func detectChangesForPathWithClient(client *elasticsearch.Client, inputPath, out
 
 func generateOutputFileName(baseName, dirName string) string {
 	ext := filepath.Ext(baseName)
-	
+
 	// Generate timestamp in format YYYY-MM-DDTHHMISS
 	timestamp := time.Now().Format("2006-01-02T150405")
-	
+
 	// Use consistent naming: timestamp__index.jsonl.zst
 	if strings.HasSuffix(baseName, ".zst") {
 		return fmt.Sprintf("%s__%s__index.jsonl.zst", timestamp, dirName)
@@ -343,7 +342,7 @@ func runProcessSingle() error {
 	// Load tag map if provided
 	var tagMap *index.TagMap
 	var err error
-	
+
 	tagMapFile := pFlags.tagMapFile
 	if tagMapFile == "" {
 		// Try default locations
@@ -351,7 +350,7 @@ func runProcessSingle() error {
 			"hub3.toml",
 			"./config/hub3.toml",
 		}
-		
+
 		for _, loc := range defaultLocations {
 			if _, err := os.Stat(loc); err == nil {
 				tagMapFile = loc
@@ -360,7 +359,7 @@ func runProcessSingle() error {
 			}
 		}
 	}
-	
+
 	if tagMapFile != "" {
 		tagMap, err = LoadRDFTagMapFromTOML(tagMapFile)
 		if err != nil {
@@ -368,7 +367,7 @@ func runProcessSingle() error {
 		}
 		slog.Info("loaded tag map", "file", tagMapFile, "entries", tagMap.Len())
 	}
-	
+
 	stats, err := processSingleDirectoryWithTagMap(pFlags.path, pFlags.targetIndex, pFlags.pattern, tagMap, pFlags.maxRecordSize)
 	if err != nil {
 		return err
@@ -401,7 +400,7 @@ func runProcessAll() error {
 
 	// Load tag map if provided
 	var tagMap *index.TagMap
-	
+
 	tagMapFile := pFlags.tagMapFile
 	if tagMapFile == "" {
 		// Try default locations
@@ -409,7 +408,7 @@ func runProcessAll() error {
 			"hub3.toml",
 			"./config/hub3.toml",
 		}
-		
+
 		for _, loc := range defaultLocations {
 			if _, err := os.Stat(loc); err == nil {
 				tagMapFile = loc
@@ -418,7 +417,7 @@ func runProcessAll() error {
 			}
 		}
 	}
-	
+
 	if tagMapFile != "" {
 		tagMap, err = LoadRDFTagMapFromTOML(tagMapFile)
 		if err != nil {
@@ -432,7 +431,7 @@ func runProcessAll() error {
 
 	for i, dirPath := range directories {
 		slog.Info("processing directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath)
-		
+
 		stats, err := processSingleDirectoryWithTagMap(dirPath, pFlags.targetIndex, pFlags.pattern, tagMap, pFlags.maxRecordSize)
 		if err != nil {
 			slog.Error("failed to process directory", "dir", dirPath, "error", err)
@@ -446,7 +445,7 @@ func runProcessAll() error {
 		totalStats.Errors = append(totalStats.Errors, stats.Errors...)
 		processedCount++
 
-		slog.Info("completed directory", 
+		slog.Info("completed directory",
 			"dir", dirPath,
 			"records", stats.Records,
 			"lines", stats.Lines,
@@ -508,16 +507,16 @@ func runSubmitAll() error {
 	for i, changesFile := range changesFiles {
 		// Print progress on a single line
 		fmt.Printf("\rSubmitting changes files: %d/%d | Current: %s", i+1, len(changesFiles), filepath.Base(changesFile))
-		
+
 		if err := submitChangesFileWithClientAndReporter(client, changesFile, false); err != nil {
 			fmt.Printf("\n") // Move to new line for error
 			slog.Error("failed to submit changes file", "file", changesFile, "error", err)
 			continue
 		}
-		
+
 		successCount++
 	}
-	
+
 	// Move to new line and print final result
 	fmt.Printf("\n")
 
@@ -620,7 +619,7 @@ func findLatestIndexFile(dirPath string) string {
 		if entry.IsDir() {
 			continue
 		}
-		
+
 		fileName := entry.Name()
 		if !isIndexOrChangesFile(fileName) {
 			continue
@@ -691,15 +690,15 @@ type DatasetAnalysis struct {
 
 // AnalysisResults holds all dataset analysis results
 type AnalysisResults struct {
-	TotalDatasets       int                       `json:"total_datasets"`
-	RDFDatasets         int                       `json:"rdf_datasets"`
-	NonRDFDatasets      int                      `json:"non_rdf_datasets"`
-	RDFSpecs            []string                 `json:"rdf_specs"`
-	Aggregators         map[string]int           `json:"aggregators"`
-	RDFAggregators      map[string]int           `json:"rdf_aggregators"`
-	AggregatorDatasets  map[string][]string      `json:"aggregator_datasets"`
-	RDFAggregatorDatasets map[string][]string    `json:"rdf_aggregator_datasets"`
-	DatasetAnalyses     []DatasetAnalysis        `json:"dataset_analyses"`
+	TotalDatasets         int                 `json:"total_datasets"`
+	RDFDatasets           int                 `json:"rdf_datasets"`
+	NonRDFDatasets        int                 `json:"non_rdf_datasets"`
+	RDFSpecs              []string            `json:"rdf_specs"`
+	Aggregators           map[string]int      `json:"aggregators"`
+	RDFAggregators        map[string]int      `json:"rdf_aggregators"`
+	AggregatorDatasets    map[string][]string `json:"aggregator_datasets"`
+	RDFAggregatorDatasets map[string][]string `json:"rdf_aggregator_datasets"`
+	DatasetAnalyses       []DatasetAnalysis   `json:"dataset_analyses"`
 }
 
 // findDatasetDirectories discovers all subdirectories that could contain dataset files
@@ -773,11 +772,11 @@ func findSourceXMLFile(dirPath string) (string, error) {
 func detectAggregator(lines []string) string {
 	// Aggregator patterns to look for in identifier elements
 	aggregatorPatterns := map[string]*regexp.Regexp{
-		"dcn":         regexp.MustCompile(`<identifier>dcn_`),
-		"za":          regexp.MustCompile(`<identifier>za_`),
+		"dcn":          regexp.MustCompile(`<identifier>dcn_`),
+		"za":           regexp.MustCompile(`<identifier>za_`),
 		"brabantcloud": regexp.MustCompile(`<identifier>brabantcloud_`),
 	}
-	
+
 	for _, line := range lines {
 		for aggregator, pattern := range aggregatorPatterns {
 			if pattern.MatchString(line) {
@@ -785,7 +784,7 @@ func detectAggregator(lines []string) string {
 			}
 		}
 	}
-	
+
 	return "unknown"
 }
 
@@ -813,22 +812,22 @@ func detectRDFXML(filePath string) (bool, string, []string, error) {
 	// RDF-XML detection patterns - now requires stricter criteria
 	// Basic RDF indicators (namespace declarations)
 	namespacePatterns := []*regexp.Regexp{
-		regexp.MustCompile(`(?i)xmlns:rdf\s*=`),                  // xmlns:rdf=
+		regexp.MustCompile(`(?i)xmlns:rdf\s*=`),                                 // xmlns:rdf=
 		regexp.MustCompile(`(?i)http://www\.w3\.org/1999/02/22-rdf-syntax-ns#`), // RDF namespace URI
 	}
-	
+
 	// Strict RDF patterns (actual RDF usage - required for qualification)
 	strictRDFPatterns := []*regexp.Regexp{
-		regexp.MustCompile(`(?i)<\s*rdf:RDF`),                    // <rdf:RDF root element
-		regexp.MustCompile(`(?i)rdf:about\s*=`),                  // rdf:about attribute
-		regexp.MustCompile(`(?i)rdf:resource\s*=`),               // rdf:resource attribute
+		regexp.MustCompile(`(?i)<\s*rdf:RDF`),      // <rdf:RDF root element
+		regexp.MustCompile(`(?i)rdf:about\s*=`),    // rdf:about attribute
+		regexp.MustCompile(`(?i)rdf:resource\s*=`), // rdf:resource attribute
 	}
-	
+
 	// Additional semantic patterns (also qualify as RDF)
 	semanticPatterns := []*regexp.Regexp{
-		regexp.MustCompile(`(?i)xmlns:rdfs\s*=`),                 // xmlns:rdfs=
-		regexp.MustCompile(`(?i)xmlns:owl\s*=`),                  // xmlns:owl=
-		regexp.MustCompile(`(?i)<\s*rdf:Description`),            // <rdf:Description (moved here)
+		regexp.MustCompile(`(?i)xmlns:rdfs\s*=`),      // xmlns:rdfs=
+		regexp.MustCompile(`(?i)xmlns:owl\s*=`),       // xmlns:owl=
+		regexp.MustCompile(`(?i)<\s*rdf:Description`), // <rdf:Description (moved here)
 	}
 
 	var hasNamespace bool
@@ -862,7 +861,7 @@ func detectRDFXML(filePath string) (bool, string, []string, error) {
 			}
 		}
 
-		// Check semantic patterns 
+		// Check semantic patterns
 		if !hasSemantic {
 			for _, pattern := range semanticPatterns {
 				if pattern.MatchString(line) {
@@ -889,13 +888,13 @@ func detectRDFXML(filePath string) (bool, string, []string, error) {
 	// Detect aggregator from the lines we've read
 	aggregator := detectAggregator(lines)
 
-	slog.Debug("RDF detection completed", 
-		"file", filePath, 
-		"linesChecked", lineCount, 
+	slog.Debug("RDF detection completed",
+		"file", filePath,
+		"linesChecked", lineCount,
 		"isRDF", isRDF,
 		"aggregator", aggregator,
 		"hasNamespace", hasNamespace,
-		"hasStrictRDF", hasStrictRDF, 
+		"hasStrictRDF", hasStrictRDF,
 		"hasSemantic", hasSemantic)
 	return isRDF, aggregator, lines, nil
 }
@@ -926,12 +925,12 @@ func runAnalyzeAll() error {
 
 	for i, dirPath := range directories {
 		dirName := filepath.Base(dirPath)
-		
+
 		slog.Info("analyzing dataset directory", "progress", fmt.Sprintf("%d/%d", i+1, len(directories)), "dir", dirPath, "spec", dirName)
-		
+
 		analysis := analyzeDatasetDirectory(dirPath)
 		results.DatasetAnalyses = append(results.DatasetAnalyses, analysis)
-		
+
 		if analysis.Error == "" {
 			results.TotalDatasets++
 			if analysis.IsRDF {
@@ -976,12 +975,12 @@ func runAnalyzeAll() error {
 	fmt.Printf("Total datasets: %d\n", results.TotalDatasets)
 	fmt.Printf("RDF-XML datasets: %d\n", results.RDFDatasets)
 	fmt.Printf("Non-RDF datasets: %d\n", results.NonRDFDatasets)
-	
+
 	fmt.Printf("\nData aggregators (all datasets):\n")
 	for aggregator, count := range results.Aggregators {
 		fmt.Printf("- %s: %d datasets\n", aggregator, count)
 	}
-	
+
 	fmt.Printf("\nRDF aggregators (RDF datasets only):\n")
 	for aggregator, count := range results.RDFAggregators {
 		fmt.Printf("- %s: %d RDF datasets\n", aggregator, count)
@@ -991,7 +990,7 @@ func runAnalyzeAll() error {
 			}
 		}
 	}
-	
+
 	fmt.Printf("\nRDF-XML dataset specs:\n")
 	for _, spec := range results.RDFSpecs {
 		fmt.Printf("- %s\n", spec)
@@ -1012,11 +1011,11 @@ func runAnalyzeAll() error {
 
 func runAnalyzeSingle() error {
 	dirName := filepath.Base(aFlags.path)
-	
+
 	slog.Info("analyzing single dataset directory", "dir", aFlags.path, "spec", dirName)
-	
+
 	analysis := analyzeDatasetDirectory(aFlags.path)
-	
+
 	if analysis.Error != "" {
 		return fmt.Errorf("analysis failed: %s", analysis.Error)
 	}
@@ -1047,7 +1046,7 @@ func runAnalyzeSingle() error {
 			results.Aggregators[analysis.Aggregator] = 1
 			results.AggregatorDatasets[analysis.Aggregator] = []string{dirName}
 		}
-		
+
 		if err := writeJSONOutput(aFlags.jsonOutput, results, aFlags.rdfOnly); err != nil {
 			slog.Error("failed to write JSON output", "file", aFlags.jsonOutput, "error", err)
 		} else {
@@ -1080,7 +1079,7 @@ func runAnalyzeSingle() error {
 // If rdfOnly is true, only includes RDF datasets in the output
 func writeJSONOutput(filename string, results AnalysisResults, rdfOnly bool) error {
 	outputResults := results
-	
+
 	if rdfOnly {
 		// Filter to only include RDF datasets
 		var rdfAnalyses []DatasetAnalysis
@@ -1089,20 +1088,20 @@ func writeJSONOutput(filename string, results AnalysisResults, rdfOnly bool) err
 				rdfAnalyses = append(rdfAnalyses, analysis)
 			}
 		}
-		
+
 		outputResults = AnalysisResults{
 			TotalDatasets:         results.TotalDatasets,         // Keep original total for context
 			RDFDatasets:           results.RDFDatasets,           // Keep RDF count
-			NonRDFDatasets:        results.NonRDFDatasets,       // Keep non-RDF count for context
+			NonRDFDatasets:        results.NonRDFDatasets,        // Keep non-RDF count for context
 			RDFSpecs:              results.RDFSpecs,              // Keep RDF specs list
 			Aggregators:           results.Aggregators,           // Keep all aggregator data for context
 			RDFAggregators:        results.RDFAggregators,        // Keep RDF aggregator data
 			AggregatorDatasets:    results.AggregatorDatasets,    // Keep dataset lists per aggregator
 			RDFAggregatorDatasets: results.RDFAggregatorDatasets, // Keep RDF dataset lists per aggregator
-			DatasetAnalyses:       rdfAnalyses,                  // Only RDF analyses
+			DatasetAnalyses:       rdfAnalyses,                   // Only RDF analyses
 		}
-		
-		slog.Info("filtered JSON output to RDF datasets only", 
+
+		slog.Info("filtered JSON output to RDF datasets only",
 			"totalAnalyses", len(results.DatasetAnalyses),
 			"rdfAnalyses", len(rdfAnalyses))
 	}
@@ -1112,7 +1111,7 @@ func writeJSONOutput(filename string, results AnalysisResults, rdfOnly bool) err
 	encoder := json.NewEncoder(&buf)
 	encoder.SetEscapeHTML(false)
 	encoder.SetIndent("", "  ")
-	
+
 	if err := encoder.Encode(outputResults); err != nil {
 		return fmt.Errorf("failed to marshal JSON: %w", err)
 	}

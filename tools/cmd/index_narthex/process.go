@@ -751,4 +751,3 @@ func examineContextField(resource map[string]interface{}, fieldName string) {
 		slog.Debug(fmt.Sprintf("Resource %s field not found", fieldName))
 	}
 }
-

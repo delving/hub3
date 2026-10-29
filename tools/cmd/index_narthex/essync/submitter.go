@@ -338,7 +338,7 @@ func (w *worker) flush() {
 			successCount++
 		} else {
 			w.processor.metrics.errors.Value.Add(1)
-			
+
 			// Handle error that can be either a string or an object
 			var errorMsg string
 			switch err := item.Index.Error.(type) {
@@ -350,7 +350,7 @@ func (w *worker) flush() {
 					errorMsg = reason
 				} else {
 					// Fall back to JSON representation
-					errorBytes, _ := json.Marshal(err) 
+					errorBytes, _ := json.Marshal(err)
 					errorMsg = string(errorBytes)
 					// Print the full error object for debugging
 					w.processor.logger.Debug("full error object", "error_details", err)
@@ -359,7 +359,7 @@ func (w *worker) flush() {
 				// Fall back to %v format for other cases
 				errorMsg = fmt.Sprintf("%v", err)
 			}
-			
+
 			w.processor.logger.Error("document indexing failed",
 				"status", item.Index.Status,
 				"error", errorMsg)

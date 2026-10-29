@@ -273,9 +273,9 @@ func (m *MockIntrospectionStore) IntrospectPaths(_ context.Context, _ *QueryOpti
 
 // MockStore is a simple in-memory implementation for testing.
 type MockStore struct {
-	results        map[string]*SearchResult
-	contexts       map[string]*SearchContext
-	capabilities   StoreCapabilities
+	results      map[string]*SearchResult
+	contexts     map[string]*SearchContext
+	capabilities StoreCapabilities
 }
 
 // NewMockStore creates a new mock store.
