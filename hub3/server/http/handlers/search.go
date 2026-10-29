@@ -70,8 +70,9 @@ func manipulateV1Request(req *http.Request) error {
 		return err
 	}
 
+	// Default facets only when the request names none, as nave does.
 	cfg := conv.Configuration()
-	if cfg != nil {
+	if cfg != nil && !query.Has("facet.field") && !query.Has("facet.field[]") {
 		for _, facet := range cfg.DefaultFacets {
 			query.Add("facet.field", facet.Field)
 		}
@@ -83,6 +84,7 @@ func manipulateV1Request(req *http.Request) error {
 	queryStr = strings.ReplaceAll(queryStr, "_facet", "")
 	queryStr = strings.ReplaceAll(queryStr, ".raw", "")
 	queryStr = strings.ReplaceAll(queryStr, "delving_spec", "meta.spec")
+	queryStr = strings.ReplaceAll(queryStr, "delving_hasDigitalObject", "meta.hasDigitalObject")
 	req.URL.RawQuery = queryStr
 	return nil
 }
@@ -791,7 +793,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 	case fragments.ItemFormatType_V1:
 		for _, rec := range records {
-			rec.NewFields(nil)
+			rec.NewV1Fields()
 			rec.Resources = nil
 			rec.Item = &fragments.ItemV1{
 				DocID:   rec.Meta.HubID,
@@ -1142,6 +1144,10 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 				continue
 			}
 			cfg := conv.Configuration()
+			if cfg == nil {
+				// no legacy V1 config for this org: no MLT fields to match on
+				continue
+			}
 
 			recs, mltErr := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
 			if mltErr != nil {
@@ -1156,7 +1162,7 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 					continue
 				}
 
-				fg.NewFields(nil)
+				fg.NewV1Fields()
 
 				item := &fragments.ItemV1{
 					DocID:   fg.Meta.HubID,
@@ -1247,7 +1253,24 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 
 		for _, facet := range result.Facets {
 			facet.Field = conv.ReplaceQueryString(facet.Field, true)
-			facet.Name = conv.ReplaceQueryString(facet.Name, true) + "_facet"
+			// Only append the suffix when it is not already there. A facet
+			// requested as facet.field=dc_creator_facet keeps that name through
+			// ReplaceQueryString -- which applies prefix substitutions and does
+			// not strip suffixes, unlike GetTranslatedField -- so appending
+			// unconditionally answered with dc_creator_facet_facet, and a
+			// consumer looking the facet up under the name it asked for found
+			// nothing.
+			name := conv.ReplaceQueryString(facet.Name, true)
+			// The suffix is a v1 convention for the fields inside the record.
+			// A meta. or tree. field is ours and root-level, and answering
+			// meta.hasDigitalObject_facet to a request for
+			// meta.hasDigitalObject hands back a name the consumer did not ask
+			// for and cannot look up.
+			rootLevel := strings.HasPrefix(name, "meta.") || strings.HasPrefix(name, "tree.")
+			if !rootLevel && !strings.HasSuffix(name, "_facet") {
+				name += "_facet"
+			}
+			facet.Name = name
 			facet.I18n = conv.ReplaceQueryString(facet.Name, true)
 
 			for _, link := range facet.Links {
@@ -1382,6 +1405,10 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.NewFields(nil)
 		record.Resources = nil
 	case "v1":
+		// nave builds a detail record from its RDF graph, not from the index
+		// as for lists and related items: linked resources keep their labels
+		// (edm:aggregatedCHO is the CHO's title) and there is no
+		// delving_collection.
 		record.NewFields(nil)
 		record.Resources = nil
 		record.Item = &fragments.ItemV1{
@@ -1396,55 +1423,60 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		record.Item.Fields = conv.Convert(record.Item.Fields, true)
+		delete(record.Item.Fields, "delving_collection")
 		cfg := conv.Configuration()
-
-		var sb strings.Builder
-		for _, field := range cfg.MLT.Fields {
-			vals, ok := record.Item.Fields[field]
-			if !ok {
-				continue
+		// Configuration() is nil for orgs without a registered legacy V1
+		// config; return the record without related items, as the other
+		// formats do below, instead of dereferencing a nil config.
+		if cfg != nil {
+			var sb strings.Builder
+			for _, field := range cfg.MLT.Fields {
+				vals, ok := record.Item.Fields[field]
+				if !ok {
+					continue
+				}
+				for _, v := range vals {
+					sb.WriteString(v + " ")
+				}
+				sb.WriteString(" ")
 			}
-			for _, v := range vals {
-				sb.WriteString(v + " ")
+
+			mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
+			var mltFilterKeys []string
+			if r.URL.Query().Has("mlt.filterkey") {
+				mltFilterKeys = r.URL.Query()["mlt.filterkey"]
 			}
-			sb.WriteString(" ")
-		}
 
-		mltCount := parseMltCount(r.URL.Query(), cfg.MLT.DefaultCount)
-		var mltFilterKeys []string
-		if r.URL.Query().Has("mlt.filterkey") {
-			mltFilterKeys = r.URL.Query()["mlt.filterkey"]
-		}
-
-		recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
-		if err != nil {
-			render.Error(w, r, err, &render.DefaultConfig)
-			return
-		}
-
-		for _, rec := range recs {
-			fg, err := decodeFragmentGraph(rec)
+			recs, err := MoreLikeThisSearch(record.Meta.OrgID, record.Meta.HubID, cfg.MLT.Fields, mltFilterKeys, mltCount)
 			if err != nil {
 				render.Error(w, r, err, &render.DefaultConfig)
 				return
 			}
 
-			mltConv, err := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
-			if err != nil {
-				render.Error(w, r, err, &render.DefaultConfig)
-				return
-			}
+			for _, rec := range recs {
+				fg, err := decodeFragmentGraph(rec)
+				if err != nil {
+					render.Error(w, r, err, &render.DefaultConfig)
+					return
+				}
 
-			fg.NewFields(nil)
+				mltConv, err := legacy.DefaultConverter(fg.Meta.EntryURI, fg.Meta.OrgID)
+				if err != nil {
+					render.Error(w, r, err, &render.DefaultConfig)
+					return
+				}
 
-			item := &fragments.ItemV1{
-				DocID:   fg.Meta.HubID,
-				DocType: "void_edmrecord",
-				Fields:  map[string][]string{},
+				fg.NewV1Fields()
+
+				item := &fragments.ItemV1{
+					DocID:   fg.Meta.HubID,
+					DocType: "void_edmrecord",
+					Fields:  map[string][]string{},
+				}
+				maps.Copy(item.Fields, fg.Fields)
+				item.Fields = mltConv.Convert(item.Fields, true)
+				record.AddMoreLikeThis(item)
 			}
-			maps.Copy(item.Fields, fg.Fields)
-			item.Fields = mltConv.Convert(item.Fields, true)
-			record.AddMoreLikeThis(item)
 		}
 
 		record.Meta = nil
@@ -1510,7 +1542,7 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 							record.AddSemanticMoreLikeThis(relatedItem)
 						} else {
 							// Use ItemV1 format for other itemFormats
-							fg.NewFields(nil)
+							fg.NewV1Fields()
 
 							item := &fragments.ItemV1{
 								DocID:   fg.Meta.HubID,
@@ -1573,6 +1605,12 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		return
 
 	default:
+		// nave's v1 API wraps the record in "result", as jsonp above does.
+		if itemFormat == "v1" {
+			render.JSON(w, r, resultDetailWrapper{Result: record})
+			return
+		}
+
 		render.JSON(w, r, record)
 	}
 }

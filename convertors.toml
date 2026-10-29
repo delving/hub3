@@ -187,6 +187,9 @@ mappings = [
   { source = "icn_productionEnd", target = "nave_productionEnd" },
   { source = "icn_objectNumber", target = "nave_objectNumber" },
   { source = "icn_objectSoort", target = "nave_objectSoort" },
+  { source = "icn_copyright", target = "nave_copyright" },
+  { source = "icn_notes", target = "nave_notes" },
+  { source = "icn_objectType", target = "nave_objectType" },
 ]
 
 [converters.abm]

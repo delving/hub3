@@ -20,24 +20,52 @@ type PITClient struct {
 	HTTPClient      *http.Client
 	currentURLIndex int
 	mu              sync.RWMutex
+
+	// info is the server's GET / answer, fetched once: Elasticsearch and
+	// OpenSearch put the PIT API at different paths.
+	info *VersionInfo
 }
 
 type PITResponse struct {
-	ID string `json:"id"`
+	ID    string `json:"id"`     // Elasticsearch
+	PITID string `json:"pit_id"` // OpenSearch
 }
 
 type VersionInfo struct {
 	Version struct {
-		Number string `json:"number"`
+		Number       string `json:"number"`
+		Distribution string `json:"distribution"`
 	} `json:"version"`
 }
 
-// GetVersion returns the Elasticsearch version
+func (v *VersionInfo) isOpenSearch() bool {
+	return v.Version.Distribution == "opensearch"
+}
+
+// GetVersion returns the server's version number
 func (c *PITClient) GetVersion(ctx context.Context) (string, error) {
+	info, err := c.serverInfo(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	return info.Version.Number, nil
+}
+
+// serverInfo returns the server's GET / answer, cached after the first call.
+func (c *PITClient) serverInfo(ctx context.Context) (*VersionInfo, error) {
+	c.mu.RLock()
+	info := c.info
+	c.mu.RUnlock()
+
+	if info != nil {
+		return info, nil
+	}
+
 	baseURL := c.getCurrentURL()
 	req, err := http.NewRequestWithContext(ctx, "GET", baseURL, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if c.Username != "" {
@@ -46,24 +74,31 @@ func (c *PITClient) GetVersion(ctx context.Context) (string, error) {
 
 	resp, err := c.executeRequest(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var versionInfo VersionInfo
-	if err := json.NewDecoder(resp.Body).Decode(&versionInfo); err != nil {
-		return "", err
+	info = &VersionInfo{}
+	if err := json.NewDecoder(resp.Body).Decode(info); err != nil {
+		return nil, err
 	}
 
-	return versionInfo.Version.Number, nil
+	c.mu.Lock()
+	c.info = info
+	c.mu.Unlock()
+
+	return info, nil
 }
 
-// SupportsPIT checks if the ES version supports Point in Time (requires 7.10+)
+// SupportsPIT checks if the server supports Point in Time: Elasticsearch 7.10+
+// or OpenSearch 2.4+.
 func (c *PITClient) SupportsPIT(ctx context.Context) (bool, error) {
-	version, err := c.GetVersion(ctx)
+	info, err := c.serverInfo(ctx)
 	if err != nil {
 		return false, err
 	}
+
+	version := info.Version.Number
 
 	// Parse major.minor version
 	parts := strings.Split(version, ".")
@@ -75,6 +110,10 @@ func (c *PITClient) SupportsPIT(ctx context.Context) (bool, error) {
 	minor := 0
 	fmt.Sscanf(parts[0], "%d", &major)
 	fmt.Sscanf(parts[1], "%d", &minor)
+
+	if info.isOpenSearch() {
+		return (major > 2) || (major == 2 && minor >= 4), nil
+	}
 
 	// PIT API was introduced in ES 7.10
 	return (major > 7) || (major == 7 && minor >= 10), nil
@@ -175,7 +214,16 @@ func (c *PITClient) CreatePIT(ctx context.Context, indexName string, keepAlive s
 	// (ES 7.10 through 9.x); a keep_alive in the JSON body is ignored and
 	// ES fails with "[keep_alive] parameter must be non null". Only the
 	// subsequent _search call takes keep_alive inside its body's pit object.
+	// OpenSearch has the same API under /_search/point_in_time.
+	info, err := c.serverInfo(ctx)
+	if err != nil {
+		return "", err
+	}
+
 	urlPath := fmt.Sprintf("/%s/_pit?keep_alive=%s", indexName, keepAlive)
+	if info.isOpenSearch() {
+		urlPath = fmt.Sprintf("/%s/_search/point_in_time?keep_alive=%s", indexName, keepAlive)
+	}
 	baseURL := c.getCurrentURL()
 
 	req, err := http.NewRequestWithContext(ctx, "POST", baseURL+urlPath, nil)
@@ -203,6 +251,11 @@ func (c *PITClient) CreatePIT(ctx context.Context, indexName string, keepAlive s
 	if err := json.NewDecoder(resp.Body).Decode(&pitResp); err != nil {
 		return "", err
 	}
+
+	if pitResp.PITID != "" {
+		return pitResp.PITID, nil
+	}
+
 	return pitResp.ID, nil
 }
 
@@ -267,9 +320,19 @@ func (c *PITClient) SearchWithPIT(
 }
 
 func (c *PITClient) ClosePIT(ctx context.Context, pitID string) error {
+	info, err := c.serverInfo(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Elasticsearch: DELETE /_pit {"id": ...}.
+	// OpenSearch: DELETE /_search/point_in_time {"pit_id": [...]}.
 	urlPath := "/_pit"
-	requestBody := map[string]string{
-		"pit_id": pitID,
+	var requestBody any = map[string]string{"id": pitID}
+
+	if info.isOpenSearch() {
+		urlPath = "/_search/point_in_time"
+		requestBody = map[string][]string{"pit_id": {pitID}}
 	}
 
 	reqBody, err := json.Marshal(requestBody)

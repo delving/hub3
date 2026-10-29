@@ -116,6 +116,9 @@ type server struct {
 	ts *task.Service
 	// externalWorkers is set when no background workers should be setup in this process
 	externalWorkers bool
+	// corsAllowedHeaders are request headers allowed cross-origin on top of
+	// the defaults
+	corsAllowedHeaders []string
 }
 
 // NewServer returns the default server.
@@ -183,7 +186,7 @@ func newServer(options ...Option) (*server, error) {
 			AllowedOrigins: []string{"*"},
 			// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			AllowedHeaders:   append([]string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"}, s.corsAllowedHeaders...),
 			ExposedHeaders:   []string{"Link"},
 			AllowCredentials: false,
 			MaxAge:           300, // Maximum value not ignored by any of major browsers

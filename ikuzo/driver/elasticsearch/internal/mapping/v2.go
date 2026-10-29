@@ -87,6 +87,7 @@ var v2Mapping = `{
 						"namedGraphURI": {"type": "keyword"},
 						"entryURI": {"type": "keyword"},
 						"modified": {"type": "date"},
+						"hasDigitalObject": {"type": "boolean"},
 						"sourceID": {"type": "keyword"},
 						"sourcePath": {"type": "keyword"},
 						"groupID": {"type": "keyword"},
@@ -258,7 +259,8 @@ var v2MappingUpdate = `{
 			"sourcePath": {"type": "keyword"},
 			"groupID": {"type": "keyword"},
 			"recDefID": {"type": "keyword"},
-			"aboutTypeURI": {"type": "keyword"}
+			"aboutTypeURI": {"type": "keyword"},
+			"hasDigitalObject": {"type": "boolean"}
 		}
 	},
     "fields": {

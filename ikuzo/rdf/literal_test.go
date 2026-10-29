@@ -242,6 +242,8 @@ func TestLiteral(t *testing.T) {
 		}{
 			{IRI{}, "cannot be nil"},
 			{xsdBoolean, ""},
+			{xsdYear, ""},
+			{xsdYearMonth, ""},
 			{IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Unknown"}, "unsupported Literal.DataType IRI"},
 		}
 

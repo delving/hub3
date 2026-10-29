@@ -135,10 +135,14 @@ func NewFacetField(field string) (*FacetField, error) {
 	switch {
 	case strings.HasPrefix(ff.Field, "tree."):
 		ff.Type = FacetType_TREEFACET
-	case strings.HasPrefix(ff.Field, "meta.tag"):
-		ff.Type = FacetType_METATAGS
-	case ff.Field == "meta.spec":
-		// meta.spec is a root-level field, not in the fields object
+	case strings.HasPrefix(ff.Field, "meta."):
+		// Every meta field is root-level rather than inside the fields object,
+		// so it aggregates directly instead of through the nested entries.
+		//
+		// This used to name them one at a time -- meta.tag* and meta.spec --
+		// which meant any meta field added later got the nested treatment and
+		// answered with an empty facet, present in the list with no values and
+		// nothing to say why. meta.hasDigitalObject (#3052) was the next one.
 		ff.Type = FacetType_METATAGS
 	case strings.HasPrefix(ff.Field, "tag"):
 		ff.Type = FacetType_TAGS
@@ -576,6 +580,22 @@ func NewSearchRequest(orgID string, params url.Values) (*SearchRequest, error) {
 		sr.SearchFields = "full_text"
 	}
 
+	// Sort direction for a named field.
+	//
+	// Django, which every consumer of this API actually talks to, sorts a named
+	// field ascending unless sortOrder says otherwise -- and in five years of
+	// access log nothing ever says otherwise: sortOrder never appears, sortAsc
+	// never appears, and not one request carries the caret. This side defaulted
+	// to descending, so the same sortBy put a different page one in front of
+	// every consumer. 560 of the 2,827 parity cases sort on tib_notes alone.
+	//
+	// _score and random keep descending, because there the high value is the
+	// best answer rather than the first letter of the alphabet.
+	if sortKey := sr.GetSortBy(); sortKey != "" &&
+		sortKey != "_score" && !strings.HasPrefix(sortKey, "random") {
+		sr.SortAsc = !strings.EqualFold(params.Get("sortOrder"), "desc")
+	}
+
 	return sr, nil
 }
 
@@ -977,6 +997,13 @@ func (sr *SearchRequest) ElasticQuery() (elastic.Query, error) {
 			q.DefaultOperator("and")
 			query = query.Must(q)
 
+		} else if rawQuery != "" && sr.V1Mode {
+			// nave's v1 API: any term may match, but at least half of them
+			// once there are more than two (nave's _create_query_string).
+			q := elastic.NewQueryStringQuery(escapeRawQuery(rawQuery)).
+				Field("full_text").
+				MinimumShouldMatch("2<50%")
+			query = query.Must(q)
 		} else if rawQuery != "" {
 			fields := strings.Split(sr.SearchFields, ",")
 			if len(fields) == 0 {
@@ -1436,9 +1463,24 @@ func createFieldedSubQuery(field, userQuery string, boost float64) elastic.Query
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
 func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *FacetField, fub *FacetURIBuilder) (elastic.Aggregation, error) {
-	// For fields type, use the fields-based aggregation
-	if facet.GetType() == FacetType_FIELDS {
+	// For fields type, use the fields-based aggregation — but only when a
+	// count sort is requested. With byName (alphabetical) sort we route
+	// through the nested path so the composite sortValue-aware
+	// aggregation kicks in (#2560). The flat `fields.*` path has no
+	// sortValue sub-field, so it can only order on the display value.
+	if facet.GetType() == FacetType_FIELDS && !facet.GetByName() {
 		return CreateAggregationByFields(facet, sr.FacetAndBoolType, fub)
+	}
+
+	// Promote FIELDS → TERMS for the byName path: the FIELDS case inside
+	// CreateAggregationBySearchLabel lists searchLabels (a meta-facet
+	// explorer), which is not what a user-facing byName facet wants.
+	// TERMS falls through to the default case, which builds the
+	// composite value listing we need for sortValue ordering.
+	if facet.GetType() == FacetType_FIELDS && facet.GetByName() {
+		facetCopy := *facet
+		facetCopy.Type = FacetType_TERMS
+		facet = &facetCopy
 	}
 
 	return CreateAggregationBySearchLabel(path, facet, sr.FacetAndBoolType, fub)
@@ -1476,6 +1518,19 @@ func CreateAggregationByFields(facet *FacetField, facetAndBoolType bool, fub *Fa
 }
 
 // CreateAggregationBySearchLabel creates Elastic aggregations for the nested fragment resources
+// recordsAgg is the reverse_nested sub-aggregation that counts the records
+// in a bucket of nested entries.
+const recordsAgg = "records"
+
+// recordCount is the number of records in a bucket: its recordsAgg count, or
+// docCount for a bucket without one.
+func recordCount(aggs elastic.Aggregations, docCount int64) int64 {
+	if r, ok := aggs.ReverseNested(recordsAgg); ok {
+		return r.DocCount
+	}
+	return docCount
+}
+
 func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBoolType bool, fub *FacetURIBuilder) (elastic.Aggregation, error) {
 	nestedPath := fmt.Sprintf("%s.searchLabel", path)
 	fieldTermQuery := elastic.NewTermQuery(nestedPath, facet.GetField())
@@ -1487,12 +1542,15 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 
 	termAggPath := fmt.Sprintf("%s.%s", path, entryKey)
 
-	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(int(facet.GetSize()))
+	// A record can hold several entries with one value, so a bucket counts
+	// its records (recordsAgg), not its nested entries.
+	labelAgg := elastic.NewTermsAggregation().Field(termAggPath).Size(int(facet.GetSize())).
+		SubAggregation(recordsAgg, elastic.NewReverseNestedAggregation())
 
 	if facet.GetByName() {
 		labelAgg = labelAgg.OrderByKey(facet.GetAsc())
 	} else {
-		labelAgg = labelAgg.OrderByCount(facet.GetAsc())
+		labelAgg = labelAgg.OrderByAggregation(recordsAgg, facet.GetAsc())
 	}
 
 	// Add Filters as nested path
@@ -1604,9 +1662,15 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 		// sortValue (plain-text fields, records with no sort variant) in the
 		// null bucket so they still show up, sorted by display value.
 		// Count sort keeps the existing terms aggregation.
-		var valueAgg elastic.Aggregation = labelAgg
+		//
+		// The composite sub-agg is registered under a distinct name
+		// (sortedValues) rather than "value" — Aggregations.Terms("value")
+		// would happily unmarshal composite JSON, but KeyAsString has no
+		// case for the map[string]interface{} composite key and returns
+		// "", turning every bucket label into an empty string.
+		filterAgg := elastic.NewFilterAggregation().Filter(pathFilter)
 		if facet.GetByName() {
-			valueAgg = elastic.NewCompositeAggregation().
+			compAgg := elastic.NewCompositeAggregation().
 				Size(int(facet.GetSize())).
 				Sources(
 					elastic.NewCompositeAggregationTermsValuesSource("sortkey").
@@ -1616,12 +1680,12 @@ func CreateAggregationBySearchLabel(path string, facet *FacetField, facetAndBool
 					elastic.NewCompositeAggregationTermsValuesSource("value").
 						Field(termAggPath).
 						Order("asc"),
-				)
+				).
+				SubAggregation(recordsAgg, elastic.NewReverseNestedAggregation())
+			filterAgg = filterAgg.SubAggregation("sortedValues", compAgg)
+		} else {
+			filterAgg = filterAgg.SubAggregation("value", labelAgg)
 		}
-
-		filterAgg := elastic.NewFilterAggregation().
-			Filter(pathFilter).
-			SubAggregation("value", valueAgg)
 		testAgg := elastic.NewNestedAggregation().Path(path)
 		testAgg = testAgg.SubAggregation("inner", filterAgg)
 		facetFilterAgg = facetFilterAgg.SubAggregation("filter", testAgg)
@@ -1689,7 +1753,9 @@ func (sr *SearchRequest) DecodeSearchAfter() ([]interface{}, error) {
 
 // ElasticSearchService creates the elastic SearchService for execution
 func (sr *SearchRequest) ElasticSearchService(ec *elastic.Client) (*elastic.SearchService, *FacetURIBuilder, error) {
-	idSort := elastic.NewFieldSort("meta.hubID")
+	// Tiebreak descending, as nave does (legacy.delving_hubId desc): records
+	// with an equal sort value, or one missing, come back in nave's order.
+	idSort := elastic.NewFieldSort("meta.hubID").Desc()
 	var fieldSort *elastic.FieldSort
 
 	switch {
@@ -2499,27 +2565,33 @@ func DecodeFacets(res *elastic.SearchResult, fb *FacetURIBuilder) ([]*QueryFacet
 						qf.OtherDocs = value.SumOfOtherDocCount
 						for _, b := range value.Buckets {
 							key := KeyAsString(b)
+							count := recordCount(b.Aggregations, b.DocCount)
 							fl := &FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								Count:         count,
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, count),
 							}
 							SetFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
 						}
 					}
-					// #2560: composite variant of the "value" sub-agg used
-					// when the facet is byName-sorted (see CreateAggregationBySearchLabel).
-					// Bucket key is a map {sortkey, value}; the visible label
-					// is bucket.Key["value"].
-					if composite, ok := inner.Composite("value"); ok {
+					// #2560: composite variant used when the facet is
+					// byName-sorted (see CreateAggregationBySearchLabel).
+					// Registered under "sortedValues" so it does not clash
+					// with the terms sub-agg named "value" — Aggregations.
+					// Terms happily unmarshals composite JSON but produces
+					// empty labels because the composite key is a map.
+					// Bucket key is {sortkey, value}; visible label is
+					// bucket.Key["value"].
+					if composite, ok := inner.Composite("sortedValues"); ok {
 						valid = true
 						for _, b := range composite.Buckets {
 							key := fmt.Sprint(b.Key["value"])
+							count := recordCount(b.Aggregations, b.DocCount)
 							fl := &FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf(facetDisplayLabel, key, b.DocCount),
+								Count:         count,
+								DisplayString: fmt.Sprintf(facetDisplayLabel, key, count),
 							}
 							SetFacetLink(key, qf, fl, fb)
 							qf.Links = append(qf.Links, fl)
@@ -2694,16 +2766,81 @@ func facetFieldBySearchLabel(facetFields []*FacetField, searchLabel string) (*Fa
 	return nil, false
 }
 
-// transformQuery transforms a query string by:
-// - Replacing patterns like "dc_creator_text:" with "fields.dc_creator:"
-// - Replacing "delving_spec" with "meta.spec"
+var (
+	qTextField   = regexp.MustCompile(`(\w+)_text:`)
+	qDelvingSpec = regexp.MustCompile(`\bdelving_spec:`)
+	// A field reference: a name followed by a colon, at the start of the string
+	// or after a character that cannot be part of a name. Being preceded by a
+	// dot excludes it, which is what keeps fields.dc_title: and meta.spec:
+	// alone.
+	qBareField = regexp.MustCompile(`(^|[\s(+\-!])([A-Za-z][A-Za-z0-9_]*):`)
+)
+
+// Names that are already qualified, plus the URI schemes that look exactly
+// like a field reference and are not one.
+var qNotAField = map[string]bool{
+	"fields": true, "meta": true, "resources": true, "tree": true,
+	"legacy": true, "system": true, "summary": true,
+	"http": true, "https": true, "urn": true, "ftp": true, "mailto": true, "doi": true,
+}
+
+// transformQuery rewrites the field names in a raw q so they address the
+// document as it is actually stored.
+//
+// A consumer writes the names the v1 API exposes -- dc_title:, delving_spec:
+// -- while the documents keep their fields under fields.* and our own
+// conclusions under meta.*. Only *_text: and delving_spec: were being
+// rewritten, so every other field went through unqualified and matched
+// nothing: dc_title:"Albert Neuhuys" returned 0 where Django returned 3.
+// Measured against the parity corpus, 495 cases are this one gap, and q
+// carries 2.7 million requests, so it is the common path rather than an edge.
+//
+// Quoted spans are left alone: a value may legitimately contain a colon, and
+// rewriting inside it would change what the user asked for rather than where
+// we look for it.
 func transformQuery(query string) string {
-	// Replace *_text: patterns with fields.*:
-	textPattern := regexp.MustCompile(`(\w+)_text:`)
-	result := textPattern.ReplaceAllString(query, "fields.$1:")
+	result := qTextField.ReplaceAllString(query, "fields.$1:")
+	result = qDelvingSpec.ReplaceAllString(result, "meta.spec:")
+	return qualifyFields(result)
+}
 
-	// Replace delving_spec with meta.spec only when followed by :
-	result = regexp.MustCompile(`\bdelving_spec:`).ReplaceAllString(result, "meta.spec:")
+// qualifyFields prefixes unqualified field names with "fields.", outside
+// quoted spans.
+func qualifyFields(query string) string {
+	var b strings.Builder
+	rest := query
 
-	return result
+	for {
+		open := strings.IndexByte(rest, '"')
+		if open == -1 {
+			b.WriteString(qualifyUnquoted(rest))
+			break
+		}
+
+		b.WriteString(qualifyUnquoted(rest[:open]))
+
+		close := strings.IndexByte(rest[open+1:], '"')
+		if close == -1 {
+			// Unbalanced quote: the remainder is one open value, so leave it.
+			b.WriteString(rest[open:])
+			break
+		}
+
+		end := open + 1 + close + 1
+		b.WriteString(rest[open:end])
+		rest = rest[end:]
+	}
+
+	return b.String()
+}
+
+func qualifyUnquoted(s string) string {
+	return qBareField.ReplaceAllStringFunc(s, func(m string) string {
+		parts := qBareField.FindStringSubmatch(m)
+		lead, name := parts[1], parts[2]
+		if qNotAField[name] {
+			return m
+		}
+		return lead + "fields." + name + ":"
+	})
 }

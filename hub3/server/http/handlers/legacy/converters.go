@@ -263,6 +263,13 @@ func (bc *BaseConverter) addDefaults(outputDoc map[string][]string, inputDoc map
 
 	// Add collection name
 	outputDoc["europeana_collectionName"] = []string{spec}
+	outputDoc["delving_collection"] = []string{spec}
+
+	// nave's webresource view: the object, first in sort order.
+	if object, ok := outputDoc["europeana_object"]; ok {
+		outputDoc["europeana_hasView"] = object
+		outputDoc["delving_resourceSortOrder"] = []string{"1"}
+	}
 
 	// Set organization ID
 	outputDoc["delving_orgId"] = []string{bc.OrgID}

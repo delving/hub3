@@ -20,6 +20,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/go-chi/chi/v5"
 	mw "github.com/go-chi/chi/v5/middleware"
 )
 
@@ -39,7 +40,11 @@ func DefaultMiddleware() []func(http.Handler) http.Handler {
 // All handlers should have lazy initialization, so when they are not called
 // no connections should be initialized.
 func (s *server) routes() {
-	s.router.Get("/", s.handleIndex())
+	// A service may own / (the ES proxy answers Elasticsearch clients there);
+	// routes are registered after the services, so only fill the gap.
+	if !s.router.Match(chi.NewRouteContext(), http.MethodGet, "/") {
+		s.router.Get("/", s.handleIndex())
+	}
 }
 
 // fileServer conveniently sets up a http.FileServer handler to serve

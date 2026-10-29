@@ -48,6 +48,13 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 
 	var err error
 
+	if missingRequiredArgument(req) {
+		resp.Error = append(resp.Error, ErrBadArgument)
+		resp.Request = &Request{BaseURL: req.BaseURL}
+
+		return resp, nil
+	}
+
 	switch Verb(req.Verb) {
 	case VerbIdentify:
 		s.handleIdentify(resp)
@@ -75,6 +82,20 @@ func (s *Service) Do(ctx context.Context, req *Request) (*Response, error) {
 	}
 
 	return resp, nil
+}
+
+// missingRequiredArgument reports whether a verb lacks an argument the
+// OAI-PMH 2.0 spec requires. A resumptionToken replaces metadataPrefix
+// on the list verbs.
+func missingRequiredArgument(req *Request) bool {
+	switch Verb(req.Verb) {
+	case VerbListRecords, VerbListIdentifiers:
+		return req.ResumptionToken == "" && req.MetadataPrefix == ""
+	case VerbGetRecord:
+		return req.Identifier == "" || req.MetadataPrefix == ""
+	}
+
+	return false
 }
 
 func (s *Service) handleIdentify(resp *Response) {

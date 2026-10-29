@@ -38,6 +38,34 @@ type ItemV1 struct {
 	Fields  map[string][]string `json:"fields"`
 }
 
+// v1Flags are the fields nave's v1 API returns as JSON booleans.
+var v1Flags = []string{"delving_hasDigitalObject", "delving_hasGeoHash", "delving_hasLandingPage"}
+
+// MarshalJSON writes the v1Flags as booleans, as nave does: the websites test
+// them for truth, and the string "false" is truthy in JavaScript.
+func (item *ItemV1) MarshalJSON() ([]byte, error) {
+	fields := make(map[string]any, len(item.Fields))
+	for k, v := range item.Fields {
+		fields[k] = v
+	}
+
+	for _, k := range v1Flags {
+		if v, ok := item.Fields[k]; ok {
+			flags := make([]bool, len(v))
+			for i, s := range v {
+				flags[i] = strings.EqualFold(s, "true")
+			}
+			fields[k] = flags
+		}
+	}
+
+	type plain ItemV1
+	return json.Marshal(struct {
+		plain
+		Fields map[string]any `json:"fields"`
+	}{plain(*item), fields})
+}
+
 func (fg *FragmentGraph) ItemType(path string) string {
 	// only the first one is returned
 	for _, rsc := range fg.Resources {
@@ -103,8 +131,57 @@ func (fg *FragmentGraph) Reader() (io.Reader, error) {
 	return bytes.NewReader(b), nil
 }
 
+// setDerivedMeta fills the parts of the meta block that are our conclusion
+// about a record rather than something the source supplied.
+func (fg *FragmentGraph) setDerivedMeta() {
+	if fg.Meta == nil {
+		return
+	}
+
+	// A record has a digital object when it says where that object is shown.
+	//
+	// Read from the resources, not from fg.Fields. GenerateFields keeps only
+	// literal entries, and edm_isShownBy is a URI -- so it is never in that map
+	// however many images the record has. Reading it there marked all 56 records
+	// of a beeldmateriaal dataset as having no media while both v1 APIs said
+	// they had, which is how this was found: on real data after a resend, not by
+	// reading the code.
+	//
+	// The condition itself is the one the v1 legacy block uses for
+	// delving_hasDigitalObject (see NewLegacy), deliberately: both are served
+	// for as long as the Django v1 has consumers, and a flag that means two
+	// different things depending on which API you ask is worse than one that is
+	// imperfect in a known way.
+	//
+	// The known imperfection: edm_object, edm_hasView and the thumbnails on the
+	// WebResource are not consulted, so a record exposing its object only
+	// through those counts as having none. Broadening that is a decision for
+	// both sides at once, not something to slip in here.
+	hasObject := fg.hasSearchLabel("edm_isShownBy")
+	fg.Meta.HasDigitalObject = &hasObject
+}
+
+// hasSearchLabel reports whether any resource carries an entry with this search
+// label, whatever its entry type.
+//
+// The search labels come from the same namespace manager that v1's indexer
+// consults through GetFieldKey when it walks the triples, so this asks the same
+// question of the same table -- only of the parsed resources rather than by
+// walking the graph again.
+func (fg *FragmentGraph) hasSearchLabel(label string) bool {
+	for _, rsc := range fg.Resources {
+		if len(rsc.FilterEntries(label)) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (fg *FragmentGraph) IndexMessage() (*domainpb.IndexMessage, error) {
 	fg.GenerateFields()
+	fg.setDerivedMeta()
+
 	b, err := fg.Marshal()
 	if err != nil {
 		return nil, err
