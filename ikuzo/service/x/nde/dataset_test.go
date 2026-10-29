@@ -44,7 +44,7 @@ func TestHydraView_setPager(t *testing.T) {
 			fields{
 				Type:        "hydra:PartialCollectionView",
 				baseID:      baseID,
-				total:       7012,
+				total:       3506,
 				currentPage: 0,
 			},
 			&HydraView{
@@ -54,7 +54,7 @@ func TestHydraView_setPager(t *testing.T) {
 				Next:        map[string]string{"@id": "/catalog?page=2"},
 				Last:        map[string]string{"@id": "/catalog?page=8"},
 				baseID:      baseID,
-				TotalItems:  7012,
+				TotalItems:  3506,
 				currentPage: 1,
 			},
 		},
@@ -63,7 +63,7 @@ func TestHydraView_setPager(t *testing.T) {
 			fields{
 				Type:        hydraType,
 				baseID:      baseID,
-				total:       7012,
+				total:       3506,
 				currentPage: 4,
 			},
 			&HydraView{
@@ -73,7 +73,7 @@ func TestHydraView_setPager(t *testing.T) {
 				Next:        map[string]string{"@id": "/catalog?page=5"},
 				Last:        map[string]string{"@id": "/catalog?page=8"},
 				baseID:      baseID,
-				TotalItems:  7012,
+				TotalItems:  3506,
 				currentPage: 4,
 			},
 		},
@@ -82,7 +82,7 @@ func TestHydraView_setPager(t *testing.T) {
 			fields{
 				Type:        hydraType,
 				baseID:      baseID,
-				total:       7012,
+				total:       3506,
 				currentPage: 7,
 			},
 			&HydraView{
@@ -92,7 +92,7 @@ func TestHydraView_setPager(t *testing.T) {
 				Next:        map[string]string{"@id": "/catalog?page=8"},
 				Last:        map[string]string{"@id": "/catalog?page=8"},
 				baseID:      baseID,
-				TotalItems:  7012,
+				TotalItems:  3506,
 				currentPage: 7,
 			},
 		},
@@ -101,7 +101,7 @@ func TestHydraView_setPager(t *testing.T) {
 			fields{
 				Type:        hydraType,
 				baseID:      baseID,
-				total:       7012,
+				total:       3506,
 				currentPage: 8,
 			},
 			&HydraView{
@@ -110,7 +110,7 @@ func TestHydraView_setPager(t *testing.T) {
 				First:       firstPage,
 				Last:        map[string]string{"@id": "/catalog?page=8"},
 				baseID:      baseID,
-				TotalItems:  7012,
+				TotalItems:  3506,
 				currentPage: 8,
 			},
 		},
@@ -119,7 +119,7 @@ func TestHydraView_setPager(t *testing.T) {
 			fields{
 				Type:        hydraType,
 				baseID:      baseID,
-				total:       7000,
+				total:       3500,
 				currentPage: 1,
 			},
 			&HydraView{
@@ -129,7 +129,7 @@ func TestHydraView_setPager(t *testing.T) {
 				Next:        map[string]string{"@id": "/catalog?page=2"},
 				Last:        map[string]string{"@id": "/catalog?page=7"},
 				baseID:      baseID,
-				TotalItems:  7000,
+				TotalItems:  3500,
 				currentPage: 1,
 			},
 		},
