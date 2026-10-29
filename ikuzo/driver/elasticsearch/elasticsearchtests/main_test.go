@@ -7,7 +7,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ory/dockertest"
+	"github.com/ory/dockertest/v3"
 )
 
 var hostAndPort string
