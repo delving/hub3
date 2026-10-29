@@ -39,6 +39,7 @@ la:prop_has_took_place_at
 .
 
 la:validate_place_refs
-    a sh:Nodeshape;
+    a sh:NodeShape;
     sh:targetObjectsOf crm:P7_took_place_at;
-    sh:property sh:prop_place_ref;
+    sh:property la:prop_place_ref;
+.
