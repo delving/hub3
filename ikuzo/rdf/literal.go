@@ -77,14 +77,7 @@ func atLang(lang string) string {
 
 // String returns the NTriples representation of this literal string.
 func (l Literal) String() string {
-	str := l.str
-	str = strings.ReplaceAll(str, "\\", "\\\\")
-	str = strings.ReplaceAll(str, "\"", "\\\"")
-	str = strings.ReplaceAll(str, "\n", "\\n")
-	str = strings.ReplaceAll(str, "\r", "\\r")
-	str = strings.ReplaceAll(str, "\t", "\\t")
-
-	str = `"` + str + `"`
+	str := `"` + escapeString(l.str) + `"`
 
 	str += atLang(l.lang)
 
@@ -94,6 +87,37 @@ func (l Literal) String() string {
 	}
 
 	return str
+}
+
+// escapeString escapes a lexical form as canonical N-Triples does: ECHAR for
+// the characters that have one, UCHAR for the remaining control characters.
+func escapeString(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		switch r {
+		case '\\':
+			b.WriteString(`\\`)
+		case '"':
+			b.WriteString(`\"`)
+		case '\n':
+			b.WriteString(`\n`)
+		case '\r':
+			b.WriteString(`\r`)
+		case '\t':
+			b.WriteString(`\t`)
+		case '\b':
+			b.WriteString(`\b`)
+		case '\f':
+			b.WriteString(`\f`)
+		default:
+			if r < 0x20 || r == 0x7f {
+				fmt.Fprintf(&b, `\u%04X`, r)
+				continue
+			}
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
 }
 
 func (l Literal) HasImpliedDataType() bool {
