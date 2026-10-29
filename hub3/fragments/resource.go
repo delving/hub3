@@ -388,7 +388,13 @@ func (fr *FragmentResource) GenerateTriples() []*r.Triple {
 }
 
 func (fr *FragmentResource) AddTo(g *rdf.Graph) error {
-	subject, err := rdf.NewIRI(fr.ID)
+	var subject rdf.Subject
+	var err error
+	if strings.HasPrefix(fr.ID, "_:") {
+		subject, err = rdf.NewBlankNode(fr.ID)
+	} else {
+		subject, err = rdf.NewIRI(fr.ID)
+	}
 	if err != nil {
 		return err
 	}
