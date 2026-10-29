@@ -107,6 +107,13 @@ SELECT *
 WHERE {
   ?s ?p ?o .
 } LIMIT {{.Limit}} OFFSET {{.Offset}}
+
+# tag: harvestNDEInfo
+SELECT ?spec ?description
+WHERE {
+  ?subject <http://schemas.delving.eu/narthex/terms/datasetSpec> ?spec ;
+           <http://schemas.delving.eu/narthex/terms/datasetDescription> ?description .
+} ORDER BY ?spec LIMIT {{.Limit}} OFFSET {{.Offset}}
 `
 
 var queryBank sparql.Bank
@@ -302,4 +309,42 @@ func AskSPARQL(orgID, query string) (bool, error) {
 
 func logUnableToQueryEndpoint(errs []error) {
 	log.Printf("Unable query endpoint: %s", errs)
+}
+
+const ndeInfoPageSize = 1000
+
+// NDEInfo is the dataset description that Narthex stores in the triple store.
+type NDEInfo struct {
+	Spec        string
+	Description string
+}
+
+// GetNDEInfo returns the dataset descriptions from the Narthex triple store.
+func GetNDEInfo(orgID string) ([]NDEInfo, error) {
+	return getNDEInfo(SparqlRepo(orgID))
+}
+
+func getNDEInfo(repo *sparql.Repo) ([]NDEInfo, error) {
+	var infos []NDEInfo
+
+	for offset := 0; ; offset += ndeInfoPageSize {
+		query, err := queryBank.Prepare("harvestNDEInfo", struct{ Limit, Offset int }{ndeInfoPageSize, offset})
+		if err != nil {
+			return nil, err
+		}
+
+		res, err := repo.Query(query)
+		if err != nil {
+			return nil, err
+		}
+
+		solutions := res.Solutions()
+		for _, v := range solutions {
+			infos = append(infos, NDEInfo{Spec: v["spec"].String(), Description: v["description"].String()})
+		}
+
+		if len(solutions) < ndeInfoPageSize {
+			return infos, nil
+		}
+	}
 }

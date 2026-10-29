@@ -17,6 +17,7 @@ func (s *Service) Routes(router chi.Router) {
 	router.Get("/doc/dataset/{spec}", s.defaultRedirect)
 	router.Get("/doc/datacatalog/{cfgName}", s.HandleCatalog)
 	router.Get("/doc/dataset/{cfgName}/{spec}", s.HandleDataset)
+	router.Get("/_cat/nde/sync", s.HandleNarthexSync)
 }
 
 func (s *Service) lodRedirect(w http.ResponseWriter, r *http.Request) {

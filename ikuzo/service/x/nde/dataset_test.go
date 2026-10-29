@@ -167,3 +167,18 @@ func TestService_createDataSet(t *testing.T) {
 		t.Errorf("identifier, name, description = %q, %q, %q", d.Identifier, d.Name, d.Description)
 	}
 }
+
+func TestService_createDataSet_nameFromNarthex(t *testing.T) {
+	cfg := &RegisterConfig{RDFBaseURL: "https://example.org", URLPrefix: "datasets"}
+	s := &Service{defaultCfg: cfg, recordTypeLookup: map[string]*RegisterConfig{"narthex": cfg}}
+
+	// syncNarthex stores the narthex dataset description as the dataset description
+	d, err := s.createDataSet(&models.DataSet{Spec: "spec-1", Description: "Synced title"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if d.Name != "Synced title" || d.Identifier != "spec-1" {
+		t.Errorf("name, identifier = %q, %q", d.Name, d.Identifier)
+	}
+}

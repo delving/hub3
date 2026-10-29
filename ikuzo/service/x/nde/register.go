@@ -12,6 +12,7 @@ type DistributionCfg struct {
 }
 
 type RegisterConfig struct {
+	OrgID            string // when set, dataset descriptions for this organization are synced from narthex
 	Default          bool
 	URLPrefix        string `json:"urlPrefix"`
 	RDFBaseURL       string
