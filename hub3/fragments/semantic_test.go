@@ -12,74 +12,74 @@ import (
 func TestSemanticValueTypes(t *testing.T) {
 	t.Run("SemanticLiteral", func(t *testing.T) {
 		lit := &SemanticLiteral{Value: "test value"}
-		
+
 		assert.False(t, lit.IsResource())
 		assert.Equal(t, "test value", lit.GetValue())
-		
+
 		// Test JSON marshaling
 		data, err := json.Marshal(lit)
 		require.NoError(t, err)
 		assert.Equal(t, `"test value"`, string(data))
-		
+
 		// Test JSON unmarshaling
 		var unmarshaled SemanticLiteral
 		err = json.Unmarshal(data, &unmarshaled)
 		require.NoError(t, err)
 		assert.Equal(t, "test value", unmarshaled.Value)
 	})
-	
+
 	t.Run("SemanticTypedLiteral", func(t *testing.T) {
 		// Test with language
 		langLit := &SemanticTypedLiteral{
 			Value:    "Nederlandse tekst",
 			Language: "nl",
 		}
-		
+
 		assert.False(t, langLit.IsResource())
 		assert.Equal(t, "Nederlandse tekst", langLit.GetValue())
-		
+
 		data, err := json.Marshal(langLit)
 		require.NoError(t, err)
-		
+
 		var result map[string]interface{}
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 		assert.Equal(t, "Nederlandse tekst", result["@value"])
 		assert.Equal(t, "nl", result["@language"])
-		
+
 		// Test with datatype
 		typedLit := &SemanticTypedLiteral{
 			Value: "2024-01-15",
 			Type:  "xsd:date",
 		}
-		
+
 		data, err = json.Marshal(typedLit)
 		require.NoError(t, err)
-		
+
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 		assert.Equal(t, "2024-01-15", result["@value"])
 		assert.Equal(t, "xsd:date", result["@type"])
 	})
-	
+
 	t.Run("SemanticLanguageMap", func(t *testing.T) {
 		langMap := SemanticLanguageMap{
 			"nl": "Nederlandse naam",
 			"en": "English name",
 		}
-		
+
 		assert.False(t, langMap.IsResource())
-		
+
 		data, err := json.Marshal(langMap)
 		require.NoError(t, err)
-		
+
 		var result map[string]string
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
 		assert.Equal(t, "Nederlandse naam", result["nl"])
 		assert.Equal(t, "English name", result["en"])
 	})
-	
+
 	t.Run("SemanticResource", func(t *testing.T) {
 		resource := &SemanticResource{
 			ID:   "resource/person/123",
@@ -88,13 +88,13 @@ func TestSemanticValueTypes(t *testing.T) {
 				"skos:prefLabel": &SemanticLiteral{Value: "John Doe"},
 			},
 		}
-		
+
 		assert.True(t, resource.IsResource())
 		assert.Equal(t, resource, resource.GetValue())
-		
+
 		data, err := json.Marshal(resource)
 		require.NoError(t, err)
-		
+
 		var result map[string]interface{}
 		err = json.Unmarshal(data, &result)
 		require.NoError(t, err)
@@ -102,14 +102,14 @@ func TestSemanticValueTypes(t *testing.T) {
 		assert.Equal(t, "edm:Agent", result["@type"])
 		assert.Equal(t, "John Doe", result["skos:prefLabel"])
 	})
-	
+
 	t.Run("SemanticArray", func(t *testing.T) {
 		// Test single value - should unwrap
 		single := SemanticArray{&SemanticLiteral{Value: "single"}}
 		data, err := json.Marshal(single)
 		require.NoError(t, err)
 		assert.Equal(t, `"single"`, string(data))
-		
+
 		// Test multiple values - should keep as array
 		multiple := SemanticArray{
 			&SemanticLiteral{Value: "first"},
@@ -137,7 +137,7 @@ func TestLanguageCodeValidation(t *testing.T) {
 		{"123", false},
 		{"EN", false}, // Must be lowercase
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.code, func(t *testing.T) {
 			assert.Equal(t, tt.valid, isLanguageCode(tt.code))
@@ -161,7 +161,7 @@ func TestConvertTypedValue(t *testing.T) {
 		{"unknown type", "value", "custom:type", "value"},
 		{"invalid integer", "not-a-number", "xsd:integer", "not-a-number"},
 	}
-	
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result := convertTypedValue(tt.value, tt.datatype)
@@ -176,53 +176,53 @@ func TestNewSemanticValue(t *testing.T) {
 			EntryType: literal,
 			Value:     "test value",
 		}
-		
+
 		value := NewSemanticValue(entry, nil)
 		lit, ok := value.(*SemanticLiteral)
 		require.True(t, ok)
 		assert.Equal(t, "test value", lit.Value)
 	})
-	
+
 	t.Run("creates typed literal with language", func(t *testing.T) {
 		entry := &ResourceEntry{
 			EntryType: literal,
 			Value:     "Nederlandse tekst",
 			Language:  "nl",
 		}
-		
+
 		value := NewSemanticValue(entry, nil)
 		typedLit, ok := value.(*SemanticTypedLiteral)
 		require.True(t, ok)
 		assert.Equal(t, "Nederlandse tekst", typedLit.Value)
 		assert.Equal(t, "nl", typedLit.Language)
 	})
-	
+
 	t.Run("creates typed literal with datatype", func(t *testing.T) {
 		entry := &ResourceEntry{
 			EntryType: literal,
 			Value:     "42",
 			DataType:  "xsd:integer",
 		}
-		
+
 		value := NewSemanticValue(entry, nil)
 		typedLit, ok := value.(*SemanticTypedLiteral)
 		require.True(t, ok)
 		assert.Equal(t, 42, typedLit.Value) // Should be converted to int
 		assert.Equal(t, "xsd:integer", typedLit.Type)
 	})
-	
+
 	t.Run("creates resource for resource entry", func(t *testing.T) {
 		entry := &ResourceEntry{
 			EntryType: resourceType,
 			ID:        "resource/123",
 		}
-		
+
 		value := NewSemanticValue(entry, nil)
 		resource, ok := value.(*SemanticResource)
 		require.True(t, ok)
 		assert.Equal(t, "resource/123", resource.ID)
 	})
-	
+
 	t.Run("creates resource from inline", func(t *testing.T) {
 		inline := &FragmentResource{
 			ID:    "inline/resource",
@@ -237,23 +237,23 @@ func TestNewSemanticValue(t *testing.T) {
 				},
 			},
 		}
-		
+
 		entry := &ResourceEntry{
 			EntryType: resourceType,
 			ID:        "resource/123",
 			Inline:    inline,
 		}
-		
+
 		rm := &ResourceMap{
 			resources: make(map[string]*FragmentResource),
 		}
-		
+
 		value := NewSemanticValue(entry, rm)
 		resource, ok := value.(*SemanticResource)
 		require.True(t, ok)
 		assert.Equal(t, "inline/resource", resource.ID)
 		assert.Equal(t, []string{"edm:Agent"}, resource.Type)
-		
+
 		// Check that the inline resource has fields
 		prefLabel, exists := resource.Fields["skos:prefLabel"]
 		require.True(t, exists)
@@ -292,37 +292,37 @@ func TestSemanticViewMarshaling(t *testing.T) {
 			},
 		},
 	}
-	
+
 	data, err := json.Marshal(sv)
 	require.NoError(t, err)
-	
+
 	var result map[string]interface{}
 	err = json.Unmarshal(data, &result)
 	require.NoError(t, err)
-	
+
 	// Check @context
 	context, ok := result["@context"].(map[string]interface{})
 	require.True(t, ok)
 	assert.Equal(t, "http://purl.org/dc/elements/1.1/", context["dc"])
-	
+
 	// Check @id and @type
 	assert.Equal(t, "resource/item/123", result["@id"])
 	assert.Equal(t, "edm:ProvidedCHO", result["@type"])
-	
+
 	// Check fields are at root level
 	title, ok := result["dc:title"].(map[string]interface{})
 	require.True(t, ok)
 	assert.Equal(t, "Test Title", title["@value"])
 	assert.Equal(t, "en", title["@language"])
-	
+
 	assert.Equal(t, "ID123", result["dc:identifier"])
-	
+
 	// Check nested resource
 	person, ok := result["edm:isRepresentationOf"].(map[string]interface{})
 	require.True(t, ok)
 	assert.Equal(t, "resource/person/456", person["@id"])
 	assert.Equal(t, "edm:Agent", person["@type"])
-	
+
 	prefLabel, ok := person["skos:prefLabel"].(map[string]interface{})
 	require.True(t, ok)
 	assert.Equal(t, "Nederlandse naam", prefLabel["nl"])
@@ -333,46 +333,46 @@ func TestFragmentGraphGenerateSemantic(t *testing.T) {
 	// Load test data from file
 	data, err := os.ReadFile("testdata/nk_fg_grouped.json")
 	require.NoError(t, err)
-	
+
 	var fg FragmentGraph
 	err = json.Unmarshal(data, &fg)
 	require.NoError(t, err)
-	
+
 	// Generate semantic view
 	sv := fg.GenerateSemantic()
 	require.NotNil(t, sv)
-	
+
 	// Check basic structure
 	assert.Equal(t, "https://wo2.collectienederland.nl/id/nk/NK1145", sv.ID)
 	assert.Contains(t, sv.Type, "https://wo2.collectienederland.nl/nk/terms/NKRecord")
-	
+
 	// Check context has namespaces
 	assert.NotEmpty(t, sv.Context)
-	
+
 	// Check that fields are present
 	assert.NotEmpty(t, sv.Fields)
-	
+
 	// Check specific field (thumbnail)
 	thumbnail, exists := sv.Fields["nk_thumbnail"]
 	require.True(t, exists)
 	lit, ok := thumbnail.(*SemanticLiteral)
 	require.True(t, ok)
 	assert.Contains(t, lit.Value, "https://media.delving.org")
-	
+
 	// Check that order is preserved by checking if timeline resource exists
 	timeline, exists := sv.Fields["nk_timeline"]
 	require.True(t, exists, "nk_timeline field should exist")
-	
+
 	// The timeline field should be an array since there are multiple timeline entries
 	arr, ok := timeline.(*SemanticArray)
 	require.True(t, ok, "timeline should be a *SemanticArray since there are multiple entries")
 	require.NotEmpty(t, *arr, "timeline array should not be empty")
-	
+
 	// Check the first timeline resource
 	firstTimeline, ok := (*arr)[0].(*SemanticResource)
 	require.True(t, ok, "first timeline entry should be a *SemanticResource")
 	assert.Equal(t, "https://wo2.collectienederland.nl/id/timeline/NK1145/1960-01-01", firstTimeline.ID)
-	
+
 	// Verify we have all 7 timeline entries
 	assert.Len(t, *arr, 7, "should have 7 timeline entries")
 }
@@ -405,16 +405,16 @@ func TestOrderPreservation(t *testing.T) {
 			},
 		},
 	}
-	
+
 	sr := fr.ToSemanticResource(nil)
-	
+
 	// Check that all fields are present
 	assert.Len(t, sr.Fields, 3)
-	
+
 	// Marshal to JSON to check order
 	_, err := json.Marshal(sr)
 	require.NoError(t, err)
-	
+
 	// The order in the map doesn't matter for JSON, but when we have multiple
 	// values for the same field, they should be ordered
 	fr2 := &FragmentResource{
@@ -444,15 +444,15 @@ func TestOrderPreservation(t *testing.T) {
 			},
 		},
 	}
-	
+
 	sr2 := fr2.ToSemanticResource(nil)
 	multiField := sr2.Fields["field:multi"]
 	require.NotNil(t, multiField)
-	
+
 	arr, ok := multiField.(*SemanticArray)
 	require.True(t, ok)
 	require.Len(t, *arr, 3)
-	
+
 	// Check order
 	assert.Equal(t, "first", (*arr)[0].(*SemanticLiteral).Value)
 	assert.Equal(t, "second", (*arr)[1].(*SemanticLiteral).Value)
@@ -477,11 +477,11 @@ func TestGetUniqueNamespaces(t *testing.T) {
 			},
 		},
 	}
-	
+
 	// Note: This test will only work if the namespace manager is properly initialized
 	// In a real test environment, you would need to set up the namespace manager first
 	namespaces := fg.GetUniqueNamespaces()
-	
+
 	// The function should extract unique namespace URIs
 	// Since we don't have the namespace manager set up in tests,
 	// we just check that the function doesn't panic

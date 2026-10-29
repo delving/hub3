@@ -155,8 +155,8 @@ func updateFileInfo(files map[string]*eadpb.File, fg []*CfileGrp, fa *eadpb.Find
 	return nil
 }
 
-func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
-	fa := eadpb.FindingAid{
+func (mets *Cmets) newFindingAid(cfg *DaoConfig) (*eadpb.FindingAid, error) {
+	fa := &eadpb.FindingAid{
 		ArchiveID:      cfg.ArchiveID,
 		InventoryID:    cfg.InventoryID,
 		InventoryPath:  cfg.InventoryPath,
@@ -178,7 +178,7 @@ func (mets *Cmets) newFindingAid(cfg *DaoConfig) (eadpb.FindingAid, error) {
 		return fa, err
 	}
 
-	err = updateFileInfo(files, mets.CfileSec.CfileGrp, &fa)
+	err = updateFileInfo(files, mets.CfileSec.CfileGrp, fa)
 	if err != nil {
 		return fa, err
 	}

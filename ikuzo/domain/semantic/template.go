@@ -10,9 +10,9 @@ import (
 // It provides self-documenting search capabilities by exposing available
 // search parameters and their constraints.
 type SearchTemplate struct {
-	TypeValue string             `json:"@type"`
-	Template  string             `json:"hydra:template"`
-	Mapping   []TemplateMapping  `json:"hydra:mapping"`
+	TypeValue string              `json:"@type"`
+	Template  string              `json:"hydra:template"`
+	Mapping   []TemplateMapping   `json:"hydra:mapping"`
 	Advanced  *AdvancedSearchInfo `json:"hub3:advancedSearch,omitempty"`
 }
 

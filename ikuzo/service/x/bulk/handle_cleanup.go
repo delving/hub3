@@ -32,14 +32,14 @@ type DatasetCleanupResult struct {
 
 // GlobalCleanupResponse contains the result of a global orphan cleanup operation
 type GlobalCleanupResponse struct {
-	Status         string                 `json:"status"`
-	OrgID          string                 `json:"orgID"`
-	TotalDatasets  int                    `json:"totalDatasets"`
-	WithOrphans    int                    `json:"withOrphans"`
-	CleanedUp      int                    `json:"cleanedUp"`
-	Errors         int                    `json:"errors"`
-	Skipped        int                    `json:"skipped"`
-	Results        []DatasetCleanupResult `json:"results"`
+	Status        string                 `json:"status"`
+	OrgID         string                 `json:"orgID"`
+	TotalDatasets int                    `json:"totalDatasets"`
+	WithOrphans   int                    `json:"withOrphans"`
+	CleanedUp     int                    `json:"cleanedUp"`
+	Errors        int                    `json:"errors"`
+	Skipped       int                    `json:"skipped"`
+	Results       []DatasetCleanupResult `json:"results"`
 }
 
 // handleCleanupOrphans handles POST /api/admin/cleanup-orphans/{orgID}/{datasetID}

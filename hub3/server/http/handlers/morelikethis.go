@@ -49,9 +49,9 @@ func MoreLikeThisSearch(
 		marshalStringSlice(searchLabelFields),
 		c.Config.ElasticSearch.GetIndexName(orgID),
 		hubID)
-	
+
 	var queryJSON string
-	
+
 	// Process filters if we have any
 	if len(filters) > 0 {
 		// Process filters and add "fields." prefix if needed
@@ -67,7 +67,7 @@ func MoreLikeThisSearch(
 				processedFilters[i] = filter
 			}
 		}
-		
+
 		// Create filter terms JSON
 		var filterTerms []string
 		for _, filter := range processedFilters {
@@ -76,19 +76,19 @@ func MoreLikeThisSearch(
 			if len(parts) == 2 {
 				field := parts[0]
 				value := parts[1]
-				
+
 				// Escape any quotes in the value
 				value = escapeJSON(value)
-				
+
 				// Create the term filter JSON
 				filterTerm := fmt.Sprintf(`{"term":{"%s":"%s"}}`, field, value)
 				filterTerms = append(filterTerms, filterTerm)
 			}
 		}
-		
+
 		// Join filter terms with commas
 		filtersJSON := strings.Join(filterTerms, ",")
-		
+
 		// Build the combined bool query with must (more_like_this) and should (OR) for filters
 		queryJSON = fmt.Sprintf(`{
     "query": {
@@ -111,7 +111,7 @@ func MoreLikeThisSearch(
     "size": %d
 }`, mltQuery, size)
 	}
-	
+
 	rawQuery := queryJSON
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

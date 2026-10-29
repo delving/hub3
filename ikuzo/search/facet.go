@@ -53,23 +53,27 @@ type FacetField struct {
 // The following modifiers are supported:
 //
 // ^ prefix reverse the sort-order of the facet. The default sort-order is
-//   descending.
-//   Example: ^dc_title.
+//
+//	descending.
+//	Example: ^dc_title.
 //
 // @ suffix sorts the facets on the key. The default is to sort on the count,
-//   i.e. the number of records in which the facet value is found.
-//   Example: dc_title@
+//
+//	i.e. the number of records in which the facet value is found.
+//	Example: dc_title@
 //
 // ~ sets the number of facets that are returned. If not set the default value
-//   from the search.Service is used.
-//   Example: dc_title~10
+//
+//	from the search.Service is used.
+//	Example: dc_title~10
 //
 // In the fields, the '.' is used as a field-separator to define section and
 // subfield. The following sections are supported:
 //
 // meta: is the header section that included with every search record
 // tree: is the section to support search in hierarchical structures such as
-//       EAD and SKOS.
+//
+//	EAD and SKOS.
 //
 // The default section is 'resources.entries', which does not need to be explicitly
 // added. When a '.' separated prefix is absent 'resources.entries' is added.

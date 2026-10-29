@@ -66,12 +66,12 @@ func TestFindingAidMimeTypes(t *testing.T) {
 		t.Errorf("not all mimetypes counted, got %d: want %d", count, 140)
 	}
 
-	if len(getMimeTypes(&findingAid)) != 1 {
-		t.Errorf("wrong count for mime-types, got %d: want %d", len(getMimeTypes(&findingAid)), 1)
+	if len(getMimeTypes(findingAid)) != 1 {
+		t.Errorf("wrong count for mime-types, got %d: want %d", len(getMimeTypes(findingAid)), 1)
 	}
 
-	if getMimeTypes(&findingAid)[0] != "image/jpeg" {
-		t.Errorf("not the right mime-type array, got %#v", getMimeTypes(&findingAid))
+	if getMimeTypes(findingAid)[0] != "image/jpeg" {
+		t.Errorf("not the right mime-type array, got %#v", getMimeTypes(findingAid))
 	}
 }
 

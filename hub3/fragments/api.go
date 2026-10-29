@@ -1346,13 +1346,13 @@ func (sr *SearchRequest) executeBatchAggregations(ec *elastic.Client, fub *Facet
 	batchFieldNames := make([]string, 0, len(facetBatch))
 	for _, facetField := range facetBatch {
 		// Create a size-limited copy of the facet field
-		facetCopy := *facetField
+		facetCopy := proto.Clone(facetField).(*FacetField)
 		if sr.FacetLimit != 0 {
 			facetCopy.Size = sr.FacetLimit
 		}
 
 		// Create aggregation for this specific field
-		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, &facetCopy, fub)
+		agg, err := sr.CreateAggregationBySearchLabel(resourcesEntries, facetCopy, fub)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create aggregation for %s: %w", facetField.GetField(), err)
 		}
@@ -1478,9 +1478,9 @@ func (sr *SearchRequest) CreateAggregationBySearchLabel(path string, facet *Face
 	// TERMS falls through to the default case, which builds the
 	// composite value listing we need for sortValue ordering.
 	if facet.GetType() == FacetType_FIELDS && facet.GetByName() {
-		facetCopy := *facet
+		facetCopy := proto.Clone(facet).(*FacetField)
 		facetCopy.Type = FacetType_TERMS
-		facet = &facetCopy
+		facet = facetCopy
 	}
 
 	return CreateAggregationBySearchLabel(path, facet, sr.FacetAndBoolType, fub)

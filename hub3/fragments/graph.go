@@ -27,7 +27,7 @@ type FragmentGraph struct {
 }
 
 type RelatedItems struct {
-	Items         []*ItemV1       `json:"item,omitempty"`
+	Items         []*ItemV1        `json:"item,omitempty"`
 	SemanticItems []*FragmentGraph `json:"items,omitempty"`
 }
 

@@ -143,31 +143,31 @@ func (s *Service) getVipsPath() string {
 		}
 		s.log.Warn().Str("path", s.vipsPath).Msg("custom vips path not found")
 	}
-	
+
 	if s.vipsCliPath != "" {
 		if _, err := os.Stat(s.vipsCliPath); err == nil {
 			return s.vipsCliPath
 		}
 		s.log.Warn().Str("path", s.vipsCliPath).Msg("custom vips-cli path not found")
 	}
-	
+
 	if path, err := exec.LookPath("vips"); err == nil {
 		return path
 	}
-	
+
 	return ""
 }
 
 func (s *Service) deepZoomExternally(from string) error {
 	cleanFrom := strings.TrimSuffix(from, ".dzi")
-	
+
 	vipsPath := s.getVipsPath()
 	if vipsPath == "" {
 		return fmt.Errorf("vips binary not found")
 	}
 
 	var args []string
-	
+
 	// Check if using vips-cli which has different command structure
 	if strings.Contains(vipsPath, "vips-cli") {
 		args = []string{
@@ -186,7 +186,7 @@ func (s *Service) deepZoomExternally(from string) error {
 
 	cmd := exec.Command(vipsPath, args...)
 	s.log.Info().Str("command", vipsPath).Strs("args", args).Str("from", cleanFrom).Msg("executing dzsave command")
-	
+
 	err := cmd.Run()
 	if err != nil {
 		s.log.Error().Err(err).Str("command", vipsPath).Strs("args", args).Msg("dzsave command failed")
@@ -411,7 +411,7 @@ func (s *Service) Do(ctx context.Context, req *Request, w io.Writer) error {
 	// check cache
 	cachePath := req.cacheKeyPath()
 	s.log.Debug().Str("cachePath", cachePath).Str("sourceURL", req.SourceURL).Str("subPath", req.SubPath).Msg("attempting to read from cache")
-	
+
 	r, err := req.Read(cachePath)
 	if err != nil && !errors.Is(err, ErrCacheKeyNotFound) {
 		s.log.Error().Err(err).Str("url", req.SourceURL).Str("cachePath", cachePath).Msg("unexpected error reading from cache")

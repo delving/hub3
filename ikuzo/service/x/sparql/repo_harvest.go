@@ -87,14 +87,14 @@ func (l *retryLogger) Warn(msg string, keysAndValues ...interface{}) {
 
 // HarvestMetrics tracks timing and progress statistics during harvest
 type HarvestMetrics struct {
-	StartTime       time.Time
-	TotalFetchTime  time.Duration
-	TotalParseTime  time.Duration
-	RequestCount    int64
-	SuccessCount    int64
-	FailCount       int64
-	TotalTriples    int64
-	mu              sync.Mutex
+	StartTime      time.Time
+	TotalFetchTime time.Duration
+	TotalParseTime time.Duration
+	RequestCount   int64
+	SuccessCount   int64
+	FailCount      int64
+	TotalTriples   int64
+	mu             sync.Mutex
 }
 
 func (m *HarvestMetrics) Add(fetchTime, parseTime time.Duration, triples int, success bool) {
@@ -178,26 +178,26 @@ type HarvestConfig struct {
 		IncrementalWhereClause string // using the From timestamp to harvest an incremental set
 		GetGraphQuery          string // sparql query to get full graph. ?subject is injected for each
 	}
-	From                   time.Time // the time of the last harvest
-	GraphMimeType          string    // if the subject can be harvested directly which mime-type to use
-	MaxSubjects            int
-	PageSize               int
-	TotalSizeSubjects      int
-	HarvestErrors          map[string]*HarvestError
-	DereferencePredicates  []string // List of predicate URIs whose object IRIs should be dereferenced
-	DereferenceMaxDepth    int      // Maximum depth for recursive dereferencing (default 1)
-	ForceHarvest           bool     // Force harvest regardless of revision check
-	rw                     sync.RWMutex
-	client                 *http.Client
-	OutputDir              string
-	LastCheck              time.Time
-	TargetDatasets         map[string]int
-	Tags                   []string
-	repo                   *sparql.Repo
-	AboutTypeURI           string
-	Metrics                *HarvestMetrics   `toml:"-"` // runtime only, not persisted
-	dereferencePredicates  map[string]bool   // internal lookup map
-	dereferenceCache       *DereferenceCache // cache for dereferenced graphs
+	From                  time.Time // the time of the last harvest
+	GraphMimeType         string    // if the subject can be harvested directly which mime-type to use
+	MaxSubjects           int
+	PageSize              int
+	TotalSizeSubjects     int
+	HarvestErrors         map[string]*HarvestError
+	DereferencePredicates []string // List of predicate URIs whose object IRIs should be dereferenced
+	DereferenceMaxDepth   int      // Maximum depth for recursive dereferencing (default 1)
+	ForceHarvest          bool     // Force harvest regardless of revision check
+	rw                    sync.RWMutex
+	client                *http.Client
+	OutputDir             string
+	LastCheck             time.Time
+	TargetDatasets        map[string]int
+	Tags                  []string
+	repo                  *sparql.Repo
+	AboutTypeURI          string
+	Metrics               *HarvestMetrics   `toml:"-"` // runtime only, not persisted
+	dereferencePredicates map[string]bool   // internal lookup map
+	dereferenceCache      *DereferenceCache // cache for dereferenced graphs
 }
 
 func (cfg *HarvestConfig) AddError(subject string, err error) {
@@ -645,7 +645,7 @@ func HarvestGraphs(ctx context.Context, cfg *HarvestConfig, cb func(g *rdf.Graph
 	// Initialize dereference predicates lookup map
 	cfg.initDereferencePredicates()
 
-	subjects := make(chan string, 100) // buffered channel to prevent blocking
+	subjects := make(chan string, 100)   // buffered channel to prevent blocking
 	g, gCtx := errgroup.WithContext(ctx) // Use errgroup context for proper cancellation propagation
 
 	// Produce

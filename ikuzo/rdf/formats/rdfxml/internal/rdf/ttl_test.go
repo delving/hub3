@@ -1758,7 +1758,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{str: "http://a.example/s"},
 			Pred: IRI{str: "http://a.example/p"},
-			Obj: Literal{str: `	`, DataType: xsdString},
+			Obj:  Literal{str: `	`, DataType: xsdString},
 		},
 	}},
 
@@ -1774,7 +1774,7 @@ p:a·̀ͯ‿.⁀ <http://a.example/p> <http://a.example/o> .`, "", []Triple{
 		Triple{
 			Subj: IRI{str: "http://a.example/s"},
 			Pred: IRI{str: "http://a.example/p"},
-			Obj: Literal{str: "", DataType: xsdString},
+			Obj:  Literal{str: "", DataType: xsdString},
 		},
 	}},
 

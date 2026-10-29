@@ -150,13 +150,13 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig, excludeMetsFiles ...bool) 
 	}
 
 	if !excludeFiles {
-		err = c.PublishFiles(cfg, &fa)
+		err = c.PublishFiles(cfg, fa)
 		if err != nil {
 			return err
 		}
 	}
 
-	fg, err := cfg.findingAidFragmentGraph(&fa)
+	fg, err := cfg.findingAidFragmentGraph(fa)
 	if err != nil {
 		return err
 	}
@@ -176,7 +176,7 @@ func (c *DaoClient) PublishFindingAid(cfg *DaoConfig, excludeMetsFiles ...bool) 
 
 	if !excludeFiles {
 		cfg.ObjectCount = int(fa.GetFileCount())
-		cfg.MimeTypes = getMimeTypes(&fa)
+		cfg.MimeTypes = getMimeTypes(fa)
 		return c.dropOrphans(cfg)
 	}
 
@@ -497,16 +497,16 @@ func (cfg *DaoConfig) Mets() (*Cmets, error) {
 	return readMETS(cfg.GetMetsFilePath())
 }
 
-func (cfg *DaoConfig) FindingAid(c *DaoClient) (eadpb.FindingAid, error) {
+func (cfg *DaoConfig) FindingAid(c *DaoClient) (*eadpb.FindingAid, error) {
 	if c.HttpFallback && !cfg.MetsFileExists() {
 		if err := c.StoreMets(cfg); err != nil {
-			return eadpb.FindingAid{}, err
+			return nil, err
 		}
 	}
 
 	mets, err := cfg.Mets()
 	if err != nil {
-		return eadpb.FindingAid{}, err
+		return nil, err
 	}
 
 	return mets.newFindingAid(cfg)

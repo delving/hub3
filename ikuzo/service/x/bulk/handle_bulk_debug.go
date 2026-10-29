@@ -67,7 +67,6 @@ func (s *Service) handleBulkDebug(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-
 		if format == "resourceMap" {
 			render.JSON(w, r, rm.Resources())
 			return

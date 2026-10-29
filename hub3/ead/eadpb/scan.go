@@ -25,8 +25,8 @@ import (
 )
 
 // NewPager creates a new Pager with all navigation settings.
-func NewPager(total int64, request *ViewRequest) (Pager, error) {
-	pager := Pager{
+func NewPager(total int64, request *ViewRequest) (*Pager, error) {
+	pager := &Pager{
 		HasNext:        false,
 		HasPrevious:    false,
 		TotalCount:     int32(total),

@@ -48,7 +48,7 @@ func LoadRDFTagMapFromTOML(filePath string) (*index.TagMap, error) {
 
 	// Create a predicate to tags map
 	predicateToTags := make(map[string][]string)
-	
+
 	// Process each tag type and add to the map
 	for _, uri := range config.RDFTag.Title {
 		addTag(predicateToTags, uri, "title")
@@ -108,8 +108,8 @@ func LoadRDFTagMapFromTOML(filePath string) (*index.TagMap, error) {
 	// Create the TagMap from the loaded configuration
 	tagMap := index.NewTagMapFromMap(predicateToTags)
 
-	slog.Info("loaded RDF tag map", 
-		"filePath", filePath, 
+	slog.Info("loaded RDF tag map",
+		"filePath", filePath,
 		"predicates", tagMap.Len())
 
 	return tagMap, nil
@@ -121,7 +121,7 @@ func addTag(predicateToTags map[string][]string, uri string, tag string) {
 	if uri == "" {
 		return
 	}
-	
+
 	if tags, exists := predicateToTags[uri]; exists {
 		predicateToTags[uri] = append(tags, tag)
 	} else {

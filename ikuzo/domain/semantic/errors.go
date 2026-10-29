@@ -52,12 +52,12 @@ func NewValidationError(field, message string, value interface{}) *ValidationErr
 
 // HydraError represents a Hydra-compliant error response.
 type HydraError struct {
-	TypeValue   string                 `json:"@type"`
-	Title       string                 `json:"hydra:title"`
-	Description string                 `json:"hydra:description"`
-	StatusCode  int                    `json:"hub3:statusCode,omitempty"`
-	Details     map[string]interface{} `json:"hub3:details,omitempty"`
-	Documentation string               `json:"hub3:documentation,omitempty"`
+	TypeValue     string                 `json:"@type"`
+	Title         string                 `json:"hydra:title"`
+	Description   string                 `json:"hydra:description"`
+	StatusCode    int                    `json:"hub3:statusCode,omitempty"`
+	Details       map[string]interface{} `json:"hub3:details,omitempty"`
+	Documentation string                 `json:"hub3:documentation,omitempty"`
 }
 
 // Type returns the @type for JSON-LD.

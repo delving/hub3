@@ -6,22 +6,22 @@ import (
 
 func TestGraph_ResolveLabels(t *testing.T) {
 	const (
-		dcTitle      = "http://purl.org/dc/elements/1.1/title"
-		skosPref     = "http://www.w3.org/2004/02/skos/core#prefLabel"
-		rdfsLabel    = "http://www.w3.org/2000/01/rdf-schema#label"
-		foafName     = "http://xmlns.com/foaf/0.1/name"
-		foafKnows    = "http://xmlns.com/foaf/0.1/knows"
-		dcCreator    = "http://purl.org/dc/elements/1.1/creator"
-		dcSubject    = "http://purl.org/dc/elements/1.1/subject"
-		dcRelation   = "http://purl.org/dc/elements/1.1/relation"
+		dcTitle       = "http://purl.org/dc/elements/1.1/title"
+		skosPref      = "http://www.w3.org/2004/02/skos/core#prefLabel"
+		rdfsLabel     = "http://www.w3.org/2000/01/rdf-schema#label"
+		foafName      = "http://xmlns.com/foaf/0.1/name"
+		foafKnows     = "http://xmlns.com/foaf/0.1/knows"
+		dcCreator     = "http://purl.org/dc/elements/1.1/creator"
+		dcSubject     = "http://purl.org/dc/elements/1.1/subject"
+		dcRelation    = "http://purl.org/dc/elements/1.1/relation"
 		dcDescription = "http://purl.org/dc/elements/1.1/description"
 	)
 
 	tests := []struct {
 		name           string
 		resources      []*Resource
-		targetRscIdx   int    // index of resource to check
-		targetEntryIdx int    // index of entry to check within that resource
+		targetRscIdx   int // index of resource to check
+		targetEntryIdx int // index of entry to check within that resource
 		wantValue      string
 		wantLang       string
 		wantResolved   string // expected ResolvedFrom
