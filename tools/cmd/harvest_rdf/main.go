@@ -23,8 +23,9 @@ const privatePrefix = "<urn:private"
 
 // main is the entry point of the application.
 func main() {
-	var apiURL, outputDir, fileLabel, format string
+	var apiURL, vcPath, outputDir, fileLabel, format string
 	flag.StringVar(&apiURL, "url", "", "v2 search API URL to fetch data from, e.g. https://api.example.org/api/search/v2?qf=meta.spec:x")
+	flag.StringVar(&vcPath, "vc", "", "TOML file with a nave virtual collection; its filters are added to -url")
 	flag.StringVar(&outputDir, "output", "output", "Output directory to save files")
 	flag.StringVar(&fileLabel, "label", "", "Descriptive label to be used in the filename")
 	flag.StringVar(&format, "format", "nq", "Output format: nq (N-Quads, one named graph per record) or nt (N-Triples)")
@@ -41,14 +42,38 @@ func main() {
 		os.Exit(2)
 	}
 
-	if err := harvestV2Data(apiURL, outputDir, fileLabel, format); err != nil {
+	urls := []string{apiURL}
+	if vcPath != "" {
+		var err error
+		urls, err = vcURLs(apiURL, vcPath)
+		if err != nil {
+			slog.Error("could not convert virtual collection", "error", err)
+			os.Exit(1)
+		}
+	}
+
+	if err := harvestV2Data(urls, outputDir, fileLabel, format); err != nil {
 		slog.Error("could not harvest data", "error", err)
 		os.Exit(1)
 	}
 }
 
-// harvestV2Data scrolls through the v2 API and writes every record graph to the output directory.
-func harvestV2Data(apiURL, outputDir, fileLabel, format string) error {
+func vcURLs(apiURL, vcPath string) ([]string, error) {
+	vc, err := loadVC(vcPath)
+	if err != nil {
+		return nil, err
+	}
+
+	groups, err := vc.filterGroups()
+	if err != nil {
+		return nil, err
+	}
+
+	return groupURLs(apiURL, groups)
+}
+
+// harvestV2Data scrolls through each v2 API URL and writes every record graph once to the output directory.
+func harvestV2Data(urls []string, outputDir, fileLabel, format string) error {
 	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
@@ -61,9 +86,29 @@ func harvestV2Data(apiURL, outputDir, fileLabel, format string) error {
 
 	output := bufio.NewWriter(f)
 
+	// records matched by more than one URL are written once
+	written := map[string]bool{}
+	for _, apiURL := range urls {
+		if err := harvestURL(apiURL, output, format, written); err != nil {
+			return err
+		}
+	}
+
+	if err := output.Flush(); err != nil {
+		return fmt.Errorf("failed to flush output: %w", err)
+	}
+
+	slog.Info("harvest done", "records", len(written), "file", f.Name())
+
+	return f.Close()
+}
+
+// harvestURL scrolls through one v2 API URL and writes the records not yet in written.
+func harvestURL(apiURL string, output io.Writer, format string, written map[string]bool) error {
 	var seen, pages int
 	var total int64
 	var scrollID string
+	start := time.Now()
 	for {
 		resp, err := getV2APIResponse(apiURL, scrollID)
 		if err != nil {
@@ -73,6 +118,12 @@ func harvestV2Data(apiURL, outputDir, fileLabel, format string) error {
 
 		for _, fg := range resp.Items {
 			seen++
+			hubID := fg.Meta.GetHubID()
+			if written[hubID] {
+				continue
+			}
+			written[hubID] = true
+
 			graph, err := fg.Graph()
 			if err != nil {
 				return fmt.Errorf("failed to get graph: %w", err)
@@ -85,7 +136,7 @@ func harvestV2Data(apiURL, outputDir, fileLabel, format string) error {
 				graphName = "<" + fg.Meta.GetEntryURI() + "/graph>"
 			}
 
-			if err := writeRecord(output, graph, fg.Meta.GetHubID(), graphName); err != nil {
+			if err := writeRecord(output, graph, hubID, graphName); err != nil {
 				return fmt.Errorf("failed to serialize graph: %w", err)
 			}
 		}
@@ -96,22 +147,20 @@ func harvestV2Data(apiURL, outputDir, fileLabel, format string) error {
 			scrollID = resp.Pager.NextScrollID
 		}
 
-		slog.Info("progress update", "seen", seen, "pages", pages, "total", total)
+		elapsed := time.Since(start)
+		slog.Info("progress update", "seen", seen, "pages", pages, "total", total,
+			"elapsed", elapsed.Round(time.Second), "recPerSec", int(float64(seen)/elapsed.Seconds()))
 
 		if scrollID == "" {
 			break
 		}
 	}
 
-	if err := output.Flush(); err != nil {
-		return fmt.Errorf("failed to flush output: %w", err)
-	}
-
 	if int64(seen) != total {
-		return fmt.Errorf("harvested %d records, but API reported %d", seen, total)
+		return fmt.Errorf("harvested %d records from %s, but API reported %d", seen, apiURL, total)
 	}
 
-	return f.Close()
+	return nil
 }
 
 // writeRecord writes one record graph as N-Triples, or as N-Quads when graphName is set.
