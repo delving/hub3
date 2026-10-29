@@ -1,64 +1,49 @@
 package elasticsearchtests
 
 import (
-	"fmt"
+	"context"
 	"log"
-	"net/http"
 	"os"
 	"testing"
 
-	"github.com/ory/dockertest/v3"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 var hostAndPort string
 
 func TestMain(m *testing.M) {
-	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
-	pool, err := dockertest.NewPool("")
+	ctx := context.Background()
+
+	// pulls an image, creates a container based on it and waits until elasticsearch answers
+	es, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			Image:        "docker.elastic.co/elasticsearch/elasticsearch:7.14.1",
+			ExposedPorts: []string{"9200/tcp"},
+			WaitingFor:   wait.ForHTTP("/").WithPort("9200/tcp"),
+			Env: map[string]string{
+				"discovery.type":         "single-node",
+				"cluster.name":           "hub3_cluster",
+				"xpack.security.enabled": "false",
+				"ES_JAVA_OPTS":           "-Xms1024m -Xmx1024m",
+			},
+		},
+		Started: true,
+	})
 	if err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		log.Fatalf("Could not start elasticsearch: %s", err)
 	}
 
-	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.Run(
-		"docker.elastic.co/elasticsearch/elasticsearch",
-		"7.14.1",
-		[]string{
-			"discovery.type=single-node",
-			"cluster.name=hub3_cluster",
-			"xpack.security.enabled=false",
-			"ES_JAVA_OPTS=-Xms1024m -Xmx1024m",
-		})
+	hostAndPort, err = es.PortEndpoint(ctx, "9200/tcp", "")
 	if err != nil {
-		log.Fatalf("Could not start resource: %s", err)
-	}
-
-	hostAndPort = resource.GetHostPort("9200/tcp")
-
-	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
-	if err := pool.Retry(func() error {
-		var err error
-
-		resp, err := http.Get("http://" + hostAndPort)
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode != http.StatusOK {
-			return fmt.Errorf("host not available: %s", hostAndPort)
-		}
-
-		return err
-	}); err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		log.Fatalf("Could not get elasticsearch endpoint: %s", err)
 	}
 
 	code := m.Run()
 
 	// You can't defer this because os.Exit doesn't care for defer
-	if err := pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+	if err := es.Terminate(ctx); err != nil {
+		log.Fatalf("Could not terminate elasticsearch: %s", err)
 	}
 
 	os.Exit(code)
