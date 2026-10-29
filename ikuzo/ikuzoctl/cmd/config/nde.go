@@ -11,7 +11,6 @@ import (
 type NDE struct{}
 
 type NDECfg struct {
-	OrgID            string `json:"orgID"`
 	Default          bool
 	URLPrefix        string   `json:"urlPrefix"`
 	Enabled          bool     `json:"enabled"`
@@ -42,7 +41,6 @@ func (n *NDE) createConfig(cfg *Config) ([]*nde.RegisterConfig, error) {
 		}
 
 		config := &nde.RegisterConfig{
-			OrgID:            ndeCfg.OrgID,
 			Default:          ndeCfg.Default,
 			URLPrefix:        ndeCfg.URLPrefix,
 			DataPath:         cfg.EAD.CacheDir,
@@ -96,7 +94,6 @@ func (n *NDE) AddOptions(cfg *Config) error {
 	cfg.options = append(
 		cfg.options,
 		ikuzo.SetRouters(svc.Routes),
-		ikuzo.SetShutdownHook("nde", svc),
 	)
 
 	return nil

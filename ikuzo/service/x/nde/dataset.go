@@ -152,10 +152,6 @@ func (s *Service) createDataSet(ds *models.DataSet) (*Dataset, error) {
 		Publisher:             r.GetAgent(),
 	}
 
-	if ds.Description != "" {
-		d.Name = ds.Description
-	}
-
 	if r.DatasetFmt != "" {
 		d.MainEntityOfPage = fmt.Sprintf(r.DatasetFmt, r.publisherURL(), spec)
 	}

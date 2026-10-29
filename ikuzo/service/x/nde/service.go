@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
-	"sync"
 
 	"github.com/go-chi/chi/v5"
 
@@ -23,9 +21,6 @@ type Service struct {
 	cfgs             []*RegisterConfig
 	lookUp           map[string]*RegisterConfig
 	recordTypeLookup map[string]*RegisterConfig
-	orgIDs           []string // organizations whose dataset descriptions are synced from narthex
-	syncMu           sync.Mutex
-	cancel           context.CancelFunc
 }
 
 func NewService(options ...Option) (*Service, error) {
@@ -48,17 +43,6 @@ func NewService(options ...Option) (*Service, error) {
 
 		s.lookUp[cfg.URLPrefix] = cfg
 		s.recordTypeLookup[cfg.RecordTypeFilter] = cfg
-
-		if cfg.OrgID != "" && !slices.Contains(s.orgIDs, cfg.OrgID) {
-			s.orgIDs = append(s.orgIDs, cfg.OrgID)
-		}
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	s.cancel = cancel
-
-	if len(s.orgIDs) > 0 {
-		go s.syncNarthexLoop(ctx)
 	}
 
 	return s, nil
@@ -140,7 +124,6 @@ func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) Shutdown(ctx context.Context) error {
-	s.cancel()
 	return nil
 }
 
