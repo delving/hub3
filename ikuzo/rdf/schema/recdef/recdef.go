@@ -46,7 +46,7 @@ type Docs struct {
 }
 
 type Elem struct {
-	XMLName        xml.Name     `yml:"elem,omitempty" json:"elem,omitempty"`
+	XMLName        xml.Name     `yml:"elem,omitempty" json:"-"`
 	Attrattribute  string       `xml:"attribute,attr,omitempty"  json:",omitempty"`
 	Attrtag        string       `xml:"tag,attr,omitempty"  json:",omitempty"`
 	Attrattrs      string       `xml:"attrs,attr,omitempty"  json:",omitempty"`

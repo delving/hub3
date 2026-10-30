@@ -475,7 +475,7 @@ type CamdSec struct {
 
 // nolint:govet
 type Cdiv struct {
-	XMLName        xml.Name `xml:"div,omitempty" json:"div,omitempty"`
+	XMLName        xml.Name `xml:"div,omitempty" json:"-"`
 	AttrID         string   `xml:"ID,attr"  json:",omitempty"`
 	AttrLABEL      string   `xml:"LABEL,attr"  json:",omitempty"`
 	AttrORDER      string   `xml:"ORDER,attr"  json:",omitempty"`
