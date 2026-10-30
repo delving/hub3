@@ -177,3 +177,15 @@ func TestProcessRoutesDropRecords(t *testing.T) {
 	// Validation + real method with storages off → no error.
 	is.NoErr(err)
 }
+
+func TestParseLongLine(t *testing.T) {
+	is := is.New(t)
+
+	p := &Parser{stats: &Stats{}}
+	// invalid json longer than the old 5MB scanner limit: skipped, not fatal
+	line := "{" + strings.Repeat("x", 6*1024*1024) + "\n"
+
+	err := p.Parse(context.Background(), strings.NewReader(line))
+	is.NoErr(err)
+	is.Equal(p.stats.JSONErrors, uint64(1))
+}
