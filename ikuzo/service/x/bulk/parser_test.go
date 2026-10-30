@@ -187,5 +187,5 @@ func TestParseLongLine(t *testing.T) {
 
 	err := p.Parse(context.Background(), strings.NewReader(line))
 	is.NoErr(err)
-	is.True(p.stats.JSONErrors > 0)
+	is.Equal(p.stats.JSONErrors, uint64(1))
 }

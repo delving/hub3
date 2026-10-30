@@ -95,7 +95,6 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 					atomic.AddUint64(&p.stats.JSONErrors, 1)
 					log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
 					log.Debug().Str("svc", "bulk").Str("raw", string(b)).Err(err).Msg("wrong json input")
-					atomic.AddUint64(&p.stats.JSONErrors, 1)
 				} else {
 					select {
 					case actions <- req:
