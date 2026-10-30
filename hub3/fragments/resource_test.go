@@ -305,6 +305,18 @@ var _ = Describe("Resource", func() {
 				Expect(sum.Title).To(Equal("test1"))
 				Expect(sum.Thumbnail).To(BeEmpty())
 			})
+
+			It("should set latLong from a latLong tagged entry", func() {
+				entry := &ResourceEntry{
+					Value:   "52.54081312693048,5.058354400324099",
+					LatLong: "52.54081312693048,5.058354400324099",
+					Tags:    []string{"latLong"},
+				}
+				sum := &ResultSummary{}
+				Expect(sum.LatLong).To(BeEmpty())
+				sum.AddEntry(entry)
+				Expect(sum.LatLong).To(Equal("52.54081312693048,5.058354400324099"))
+			})
 		})
 	})
 

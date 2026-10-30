@@ -814,11 +814,17 @@ func ProcessSearchRequest(w http.ResponseWriter, r *http.Request, searchRequest 
 	case fragments.ItemFormatType_SEMANTIC:
 		for _, rec := range records {
 			rec.Semantic = rec.GenerateSemantic()
-			// Clear other formats to reduce payload
+			// Summary is not stored in the index, so it has to be generated here —
+			// and before Resources is cleared, since it is built by walking them.
+			// It carries latLong, which the semantic tree cannot: nave:DelvingResource
+			// is a blank node no triple points at, so a walk from the entry URI never
+			// reaches it.
+			rec.NewResultSummary(searchRequest.Language...)
+			// Clear the other formats to reduce payload. Summary is the exception:
+			// it is small, and carries the geo values the tree cannot reach.
 			rec.Resources = nil
 			rec.Fields = nil
 			rec.JSONLD = nil
-			rec.Summary = nil
 			rec.ProtoBuf = nil
 			rec.Item = nil
 		}
@@ -1486,11 +1492,17 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 		record.Resources = nil
 	case "semantic":
 		record.Semantic = record.GenerateSemantic()
-		// Clear other formats to reduce payload
+		// Summary is not stored in the index, so it has to be generated here —
+		// and before Resources is cleared, since it is built by walking them.
+		// It carries latLong, which the semantic tree cannot: nave:DelvingResource
+		// is a blank node no triple points at, so a walk from the entry URI never
+		// reaches it.
+		record.NewResultSummary(lang)
+		// Clear the other formats to reduce payload. Summary is the exception:
+		// it is small, and carries the geo values the tree cannot reach.
 		record.Resources = nil
 		record.Fields = nil
 		record.JSONLD = nil
-		record.Summary = nil
 		record.ProtoBuf = nil
 		record.Item = nil
 	case "summary":
