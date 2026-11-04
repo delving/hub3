@@ -268,7 +268,20 @@ func (tq *TreeQuery) GetPreviousScrollIDs(cLevel string, sr *SearchRequest, page
 		SortBy(fieldSort, idSort).
 		Size(100).
 		FetchSource(false).
-		Query(query)
+		Query(query).
+		KeepAlive("1m")
+
+	// Clear on every return path, otherwise the scroll context lingers
+	// until its keepalive expires and counts against
+	// search.max_open_scroll_context.
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		if clearErr := scroll.Clear(ctx); clearErr != nil {
+			log.Printf("unable to clear tree navigation scroll: %v", clearErr)
+		}
+	}()
 
 	cursor := 0
 
