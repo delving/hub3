@@ -143,4 +143,3 @@ func RenderRDF(w http.ResponseWriter, r *http.Request, g *rdf.Graph) error {
 
 	return err
 }
-

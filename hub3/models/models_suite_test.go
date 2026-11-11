@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/delving/hub3/config"
-	"github.com/docker/go-connections/nat"
+	"github.com/moby/moby/api/types/network"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/testcontainers/testcontainers-go"
@@ -38,7 +38,7 @@ var (
 	ctx            = context.Background()
 	elasticSearchC testcontainers.Container
 	ip             string
-	port           nat.Port
+	port           network.Port
 )
 
 var _ = BeforeSuite(func() {

@@ -77,12 +77,14 @@ type rdfXMLDecoder struct {
 	nextState parseXMLFn // which state function enter on the next call to Decode()
 	ns        []string   // prefix and namespaces (only from the top-level element, usually rdf:RDF)
 	base      string     // top level xml:base
+	topLang   string     // top level xml:lang
 	bnodeN    int        // anonymous blank node counter
 	tok       xml.Token  // current XML token
 	topElem   string     // top level element (namespace+localname)
 	reifyID   string     // if not "", id to be resolved against the current in-scope Base IRI
 	dt        *IRI       // datatype of the Literal to be parsed
-	lang      string     // xml element in-scope xml:lang
+	lang      string     // xml:lang of the current property element
+	langSet   bool       // the current property element has xml:lang, possibly ""
 	current   Triple     // the current triple beeing parsed
 	ctx       evalCtx    // current node evaluation context
 	ctxStack  []evalCtx  // stack of parent evaluation contexts
@@ -252,6 +254,12 @@ func parseXMLTopElem(d *rdfXMLDecoder) parseXMLFn {
 			d.base = as[0].Value
 		}
 
+		// Store top-level xml:lang; a top-level node element reads its own below
+		if as := attrXML(elem, elLang); as != nil {
+			d.topLang = as[0].Value
+			d.ctx.Lang = d.topLang
+		}
+
 		// Store top-level prefix and namespaces
 		if as := attrXMLNS(elem); as != nil {
 			for _, a := range as {
@@ -328,7 +336,7 @@ func parseXMLPropElemEnd(d *rdfXMLDecoder) parseXMLFn {
 	switch elem := d.tok.(type) {
 	case xml.EndElement:
 		d.reifyCheck()
-		d.lang = "" // clear the in-scope xml:lang
+		d.lang, d.langSet = "", false // clear the property element's xml:lang
 
 		return nil
 	case xml.CharData, xml.Comment, xml.ProcInst:
@@ -488,6 +496,12 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 			d.current.Pred = IRI{str: elem.Name.Space + elem.Name.Local}
 		}
 
+		// Read xml:lang before any branch that descends into a node (pushContext);
+		// a typed literal has no language.
+		if l := attrXML(elem, elLang); l != nil && attrRDF(elem, elDataType) == nil {
+			d.lang, d.langSet = l[0].Value, true
+		}
+
 		if a := attrRDF(elem, elID); a != nil {
 			d.reifyID = "#" + a[0].Value
 		}
@@ -581,10 +595,6 @@ func parseXMLPropElem(d *rdfXMLDecoder) parseXMLFn {
 
 		if a := attrRDF(elem, elDataType); a != nil {
 			d.dt = &IRI{str: d.resolve(d.ctx.Base, a[0].Value)}
-		} else {
-			if l := attrXML(elem, elLang); l != nil {
-				d.lang = l[0].Value
-			}
 		}
 
 		if as := attrRest(elem); as != nil {
@@ -635,6 +645,10 @@ first:
 
 		d.pushContext()
 		d.pushContext()
+
+		if l := attrXML(elem, elLang); l != nil {
+			d.ctx.Lang = l[0].Value
+		}
 
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
@@ -814,6 +828,10 @@ second:
 
 		d.pushContext()
 		d.pushContext()
+
+		if l := attrXML(elem, elLang); l != nil {
+			d.ctx.Lang = l[0].Value
+		}
 
 		if elem.Name.Space == rdfNS {
 			switch elem.Name.Local {
@@ -1062,8 +1080,13 @@ func (d *rdfXMLDecoder) parseObjLiteral(data string) {
 	if d.dt != nil {
 		d.current.Obj = Literal{str: data, DataType: *d.dt, lang: d.lang}
 		d.dt = nil
-	} else if d.lang != "" {
-		d.current.Obj = Literal{str: data, DataType: rdfLangString, lang: d.lang}
+	} else if d.langSet {
+		if d.lang != "" {
+			d.current.Obj = Literal{str: data, DataType: rdfLangString, lang: d.lang}
+		} else {
+			// xml:lang="" removes the inherited language
+			d.current.Obj = Literal{str: data, DataType: xsdString}
+		}
 	} else if d.ctx.Lang != "" {
 		d.current.Obj = Literal{str: data, DataType: rdfLangString, lang: d.ctx.Lang}
 	} else {
@@ -1235,6 +1258,13 @@ func (d *rdfXMLDecoder) pushContext() {
 	// Reset li-counter and subject of current context
 	// Base and Lang are inherited and doesn't have to be cleared TODO hm?
 	d.ctx.LiN = 0
+
+	// The xml:lang of the property element we are descending from is in scope
+	// for the node inside it, and only there: popContext restores the parent's.
+	if d.langSet {
+		d.ctx.Lang = d.lang
+		d.lang, d.langSet = "", false
+	}
 }
 
 // popContext restores the next context on the stack as the current context.
@@ -1246,6 +1276,7 @@ func (d *rdfXMLDecoder) popContext() {
 		d.ctx = evalCtx{}
 		d.current.Subj = nil
 		d.ctx.Base = d.base
+		d.ctx.Lang = d.topLang
 	case 1:
 		d.ctx = d.ctxStack[0]
 		d.current.Subj = d.ctxStack[0].Subj

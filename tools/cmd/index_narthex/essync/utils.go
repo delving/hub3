@@ -81,22 +81,22 @@ func FindLatestPath(path string, searchStr string) (string, error) {
 		dateStr := parts[0]
 		var date time.Time
 		var err error
-		
+
 		// Try different timestamp formats
 		formats := []string{
-			"2006-01-02T15:04:05",  // Original format with colons
-			"2006-01-02T150405",    // Format without colons (like yours)
-			"2006-01-02T15:04",     // Format without seconds
-			"2006-01-02",           // Date only
+			"2006-01-02T15:04:05", // Original format with colons
+			"2006-01-02T150405",   // Format without colons (like yours)
+			"2006-01-02T15:04",    // Format without seconds
+			"2006-01-02",          // Date only
 		}
-		
+
 		for _, format := range formats {
 			date, err = time.Parse(format, dateStr)
 			if err == nil {
 				break
 			}
 		}
-		
+
 		if err != nil {
 			continue
 		}

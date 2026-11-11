@@ -18,8 +18,6 @@ package search
 //
 // It supports both first level objects such as 'Meta' and 'Tree' and nested
 // items from resource.entries via a NestedFilter.
-//
-//
 type Filter struct {
 	// SearchLabel is a short namespaced version of a URI.
 	Field string `json:"searchLabel,omitempty"`

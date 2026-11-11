@@ -273,9 +273,9 @@ func (sr *SemanticResource) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	
+
 	sr.Fields = make(map[string]SemanticValue)
-	
+
 	// Process each field
 	for k, v := range m {
 		switch k {
@@ -308,7 +308,7 @@ func (sr *SemanticResource) UnmarshalJSON(data []byte) error {
 			sr.Fields[k] = val
 		}
 	}
-	
+
 	return nil
 }
 
@@ -350,7 +350,7 @@ func (sa *SemanticArray) UnmarshalJSON(data []byte) error {
 		}
 		return nil
 	}
-	
+
 	// Not an array, treat as single value
 	val, err := unmarshalSemanticValue(data)
 	if err != nil {
@@ -393,7 +393,7 @@ func unmarshalSemanticValue(data []byte) (SemanticValue, error) {
 			}
 			return &tl, nil
 		}
-		
+
 		// Check for @id or @type (resource)
 		if _, hasID := m["@id"]; hasID {
 			var r SemanticResource
@@ -409,7 +409,7 @@ func unmarshalSemanticValue(data []byte) (SemanticValue, error) {
 			}
 			return &r, nil
 		}
-		
+
 		// Check if it's a language map (all keys are language codes)
 		isLangMap := true
 		for k := range m {
@@ -425,7 +425,7 @@ func unmarshalSemanticValue(data []byte) (SemanticValue, error) {
 			}
 			return &lm, nil
 		}
-		
+
 		// It's a resource without @id or @type
 		var r SemanticResource
 		if err := json.Unmarshal(data, &r); err != nil {
@@ -433,7 +433,7 @@ func unmarshalSemanticValue(data []byte) (SemanticValue, error) {
 		}
 		return &r, nil
 	}
-	
+
 	// Try array
 	var arr []json.RawMessage
 	if err := json.Unmarshal(data, &arr); err == nil {
@@ -443,7 +443,7 @@ func unmarshalSemanticValue(data []byte) (SemanticValue, error) {
 		}
 		return &sa, nil
 	}
-	
+
 	// Must be a simple literal
 	var sl SemanticLiteral
 	if err := json.Unmarshal(data, &sl.Value); err != nil {
@@ -458,12 +458,12 @@ func isLanguageCode(code string) bool {
 	if len(code) < 2 || len(code) > 7 {
 		return false
 	}
-	
+
 	parts := strings.Split(code, "-")
 	if len(parts) > 2 {
 		return false
 	}
-	
+
 	// Check first part (language)
 	lang := parts[0]
 	if len(lang) < 2 || len(lang) > 3 {
@@ -474,7 +474,7 @@ func isLanguageCode(code string) bool {
 			return false
 		}
 	}
-	
+
 	// Check second part if exists (region)
 	if len(parts) == 2 {
 		region := parts[1]
@@ -487,7 +487,7 @@ func isLanguageCode(code string) bool {
 			}
 		}
 	}
-	
+
 	return true
 }
 
@@ -516,20 +516,20 @@ func newSemanticLiteralValue(entry *ResourceEntry) SemanticValue {
 	if entry.Language == "" && entry.DataType == "" {
 		return &SemanticLiteral{Value: entry.Value}
 	}
-	
+
 	// Typed or language literal
 	lit := &SemanticTypedLiteral{Value: entry.Value}
-	
+
 	if entry.Language != "" {
 		lit.Language = entry.Language
 	}
-	
+
 	if entry.DataType != "" {
 		lit.Type = entry.DataType
 		// Convert value based on datatype
 		lit.Value = convertTypedValue(entry.Value, entry.DataType)
 	}
-	
+
 	return lit
 }
 
@@ -598,47 +598,47 @@ func (fg *FragmentGraph) GenerateSemantic() *SemanticView {
 	for _, r := range fg.Resources {
 		rm.resources[r.ID] = r
 	}
-	
+
 	// Find main resource (usually the first one or the one matching EntryURI)
 	mainResource := fg.findMainResource()
 	if mainResource != nil {
 		sv.ID = mainResource.ID
 		sv.Type = mainResource.Types
-		
+
 		// Group entries by SearchLabel (predicate) with order preservation
 		predicateMap := make(map[string][]orderedEntry)
-		
+
 		for _, entry := range mainResource.Entries {
 			// Skip entries without SearchLabel
 			if entry.SearchLabel == "" {
 				continue
 			}
-			
+
 			// Skip rdf:type as it's already in @type
 			if entry.Predicate == RDFType {
 				continue
 			}
-			
+
 			value := NewSemanticValue(entry, rm)
 			predicateMap[entry.SearchLabel] = append(
 				predicateMap[entry.SearchLabel],
 				orderedEntry{order: entry.Order, value: value},
 			)
 		}
-		
+
 		// Convert to fields with proper typing and order
 		for predicate, orderedValues := range predicateMap {
 			// Sort by order field
 			sort.Slice(orderedValues, func(i, j int) bool {
 				return orderedValues[i].order < orderedValues[j].order
 			})
-			
+
 			// Extract values in order
 			values := make([]SemanticValue, len(orderedValues))
 			for i, ov := range orderedValues {
 				values[i] = ov.value
 			}
-			
+
 			if len(values) == 1 {
 				sv.Fields[predicate] = values[0]
 			} else if len(values) > 1 {
@@ -647,7 +647,7 @@ func (fg *FragmentGraph) GenerateSemantic() *SemanticView {
 			}
 		}
 	}
-	
+
 	return sv
 }
 
@@ -732,7 +732,7 @@ func (fr *FragmentResource) toSemanticResourceWithCycleDetection(rm *ResourceMap
 func (fg *FragmentGraph) GetUniqueNamespaces() map[string]string {
 	// Use a map to track unique namespace URIs
 	namespaceURIs := make(map[string]bool)
-	
+
 	// Collect all predicates and types
 	for _, resource := range fg.Resources {
 		// Add types (RDF classes)
@@ -742,14 +742,14 @@ func (fg *FragmentGraph) GetUniqueNamespaces() map[string]string {
 				namespaceURIs[base] = true
 			}
 		}
-		
+
 		// Add predicates from entries
 		for _, entry := range resource.Entries {
 			base, _ := domain.SplitURI(entry.Predicate)
 			if base != "" {
 				namespaceURIs[base] = true
 			}
-			
+
 			// Also check DataType for typed literals
 			if entry.DataType != "" {
 				base, _ := domain.SplitURI(entry.DataType)
@@ -759,10 +759,10 @@ func (fg *FragmentGraph) GetUniqueNamespaces() map[string]string {
 			}
 		}
 	}
-	
+
 	// Now resolve the URIs to prefixes using the namespace manager
 	namespaces := make(map[string]string)
-	
+
 	if rdf.DefaultNamespaceManager != nil {
 		for uri := range namespaceURIs {
 			// Try to get the namespace with this base URI
@@ -771,7 +771,7 @@ func (fg *FragmentGraph) GetUniqueNamespaces() map[string]string {
 			}
 		}
 	}
-	
+
 	return namespaces
 }
 
@@ -784,9 +784,9 @@ func (fg *FragmentGraph) buildSemanticContext() interface{} {
 	if len(fg.Resources) > 0 && len(fg.Resources[0].Types) > 0 {
 		for _, t := range fg.Resources[0].Types {
 			if strings.Contains(t, "europeana.eu/schemas/edm") ||
-			   strings.Contains(t, "ProvidedCHO") ||
-			   strings.Contains(t, "Aggregation") ||
-			   strings.Contains(t, "WebResource") {
+				strings.Contains(t, "ProvidedCHO") ||
+				strings.Contains(t, "Aggregation") ||
+				strings.Contains(t, "WebResource") {
 				isEDM = true
 				break
 			}
@@ -828,7 +828,7 @@ func (fg *FragmentGraph) findMainResource() *FragmentResource {
 	if len(fg.Resources) == 0 {
 		return nil
 	}
-	
+
 	// Try to find resource matching EntryURI
 	if fg.Meta != nil && fg.Meta.EntryURI != "" {
 		for _, r := range fg.Resources {
@@ -837,7 +837,7 @@ func (fg *FragmentGraph) findMainResource() *FragmentResource {
 			}
 		}
 	}
-	
+
 	// Fallback to first resource
 	return fg.Resources[0]
 }

@@ -226,9 +226,8 @@ func (fr *FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]
 
 	seen := map[string]bool{}
 
-	var frtyp Fragment
-	for idx, item := range res.Each(reflect.TypeOf(frtyp)) {
-		frag := item.(Fragment)
+	for idx, item := range res.Each(reflect.TypeOf(&Fragment{})) {
+		frag := item.(*Fragment)
 
 		// if subject is the prefix of the named graph then return the whole graph
 		if idx == 0 && len(fr.Subject) != 0 {
@@ -243,7 +242,7 @@ func (fr *FragmentRequest) Find(ctx context.Context, client *elastic.Client) ([]
 
 		_, ok := seen[frag.Triple]
 		if !ok {
-			fragments = append(fragments, &frag)
+			fragments = append(fragments, frag)
 			seen[frag.Triple] = true
 		}
 	}
@@ -271,7 +270,7 @@ func (f *Fragment) ID() string {
 
 // CreateBulkIndexRequest converts the fragment into a request that can be
 // submitted to the ElasticSearch BulkIndexService
-func (f Fragment) IndexMessage() (*domainpb.IndexMessage, error) {
+func (f *Fragment) IndexMessage() (*domainpb.IndexMessage, error) {
 	b, err := json.Marshal(f)
 	if err != nil {
 		return nil, err
@@ -288,7 +287,7 @@ func (f Fragment) IndexMessage() (*domainpb.IndexMessage, error) {
 }
 
 // AddTo adds the BulkableRequest to the Storage interface where it is flushed periodically.
-func (f Fragment) AddTo(bi BulkIndex) error {
+func (f *Fragment) AddTo(bi BulkIndex) error {
 	m, err := f.IndexMessage()
 	if err != nil {
 		return err

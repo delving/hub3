@@ -26,7 +26,7 @@ type Cabstract struct {
 }
 
 type Caccessrestrict struct {
-	XMLName         xml.Name           `xml:"accessrestrict,omitempty" json:"accessrestrict,omitempty"`
+	XMLName         xml.Name           `xml:"accessrestrict,omitempty" json:"-"`
 	Raw             []byte             `xml:",innerxml" json:",omitempty"`
 	Attrid          string             `xml:"id,attr"  json:",omitempty"`
 	Attrtype        string             `xml:"type,attr"  json:",omitempty"`
@@ -47,7 +47,7 @@ type Caccruals struct {
 }
 
 type Cacqinfo struct {
-	XMLName       xml.Name    `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
+	XMLName       xml.Name    `xml:"acqinfo,omitempty" json:"-"`
 	Raw           []byte      `xml:",innerxml" json:",omitempty"`
 	Attraltrender string      `xml:"altrender,attr"  json:",omitempty"`
 	Cacqinfo      []*Cacqinfo `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
@@ -67,7 +67,7 @@ type Caltformavail struct {
 }
 
 type Cappraisal struct {
-	XMLName      xml.Name      `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
+	XMLName      xml.Name      `xml:"appraisal,omitempty" json:"-"`
 	Raw          []byte        `xml:",innerxml" json:",omitempty"`
 	Attraudience string        `xml:"audience,attr"  json:",omitempty"`
 	Cappraisal   []*Cappraisal `xml:"appraisal,omitempty" json:"appraisal,omitempty"`
@@ -106,7 +106,7 @@ type Carchref struct {
 }
 
 type Carrangement struct {
-	XMLName      xml.Name        `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
+	XMLName      xml.Name        `xml:"arrangement,omitempty" json:"-"`
 	Raw          []byte          `xml:",innerxml" json:",omitempty"`
 	Carrangement []*Carrangement `xml:"arrangement,omitempty" json:"arrangement,omitempty"`
 	Chead        []*Chead        `xml:"head,omitempty" json:"head,omitempty"`
@@ -123,7 +123,7 @@ type Cauthor struct {
 }
 
 type Cbibliography struct {
-	XMLName       xml.Name         `xml:"bibliography,omitempty" json:"bibliography,omitempty"`
+	XMLName       xml.Name         `xml:"bibliography,omitempty" json:"-"`
 	Raw           []byte           `xml:",innerxml" json:",omitempty"`
 	Cbibliography []*Cbibliography `xml:"bibliography,omitempty" json:"bibliography,omitempty"`
 	Chead         []*Chead         `xml:"head,omitempty" json:"head,omitempty"`
@@ -149,7 +149,7 @@ type Cbibref struct {
 }
 
 type Cbioghist struct {
-	XMLName    xml.Name      `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
+	XMLName    xml.Name      `xml:"bioghist,omitempty" json:"-"`
 	Raw        []byte        `xml:",innerxml" json:",omitempty"`
 	Cbioghist  []*Cbioghist  `xml:"bioghist,omitempty" json:"bioghist,omitempty"`
 	Cchronlist []*Cchronlist `xml:"chronlist,omitempty" json:"chronlist,omitempty"`
@@ -266,7 +266,7 @@ type Ccreation struct {
 }
 
 type Ccustodhist struct {
-	XMLName     xml.Name       `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
+	XMLName     xml.Name       `xml:"custodhist,omitempty" json:"-"`
 	Raw         []byte         `xml:",innerxml" json:",omitempty"`
 	Cacqinfo    []*Cacqinfo    `xml:"acqinfo,omitempty" json:"acqinfo,omitempty"`
 	Ccustodhist []*Ccustodhist `xml:"custodhist,omitempty" json:"custodhist,omitempty"`
@@ -377,7 +377,7 @@ type Cdsc struct {
 	Raw      []byte   `xml:",innerxml" json:",omitempty"`
 	Attrtype string   `xml:"type,attr"  json:",omitempty"`
 	Cc       []*Cc    `xml:"c,omitempty" json:"c,omitempty"`
-	Numbered []*Cc01  `xml:"c01,omitempty" json:"c,omitempty"`
+	Numbered []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"`
 	Chead    []*Chead `xml:"head,omitempty" json:"head,omitempty"`
 	Cp       []*Cp    `xml:"p,omitempty" json:"p,omitempty"`
 	// Nested   []*Cc01  `xml:"c01,omitempty" json:"c01,omitempty"` // todo: support numbered??
@@ -534,7 +534,7 @@ type Cfiledesc struct {
 }
 
 type Cfileplan struct {
-	XMLName   xml.Name   `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
+	XMLName   xml.Name   `xml:"fileplan,omitempty" json:"-"`
 	Raw       []byte     `xml:",innerxml" json:",omitempty"`
 	Cfileplan *Cfileplan `xml:"fileplan,omitempty" json:"fileplan,omitempty"`
 	Chead     []*Chead   `xml:"head,omitempty" json:"head,omitempty"`
@@ -616,7 +616,7 @@ type Cindexentry struct {
 }
 
 type Citem struct {
-	XMLName    xml.Name      `xml:"item,omitempty" json:"item,omitempty"`
+	XMLName    xml.Name      `xml:"item,omitempty" json:"-"`
 	Raw        []byte        `xml:",innerxml" json:",omitempty"`
 	Carchref   []*Carchref   `xml:"archref,omitempty" json:"archref,omitempty"`
 	Cbibref    []*Cbibref    `xml:"bibref,omitempty" json:"bibref,omitempty"`
@@ -745,7 +745,7 @@ type Cnum struct {
 }
 
 type Codd struct {
-	XMLName    xml.Name      `xml:"odd,omitempty" json:"odd,omitempty"`
+	XMLName    xml.Name      `xml:"odd,omitempty" json:"-"`
 	Raw        []byte        `xml:",innerxml" json:",omitempty"`
 	Attrtype   string        `xml:"type,attr"  json:",omitempty"`
 	Cchronlist []*Cchronlist `xml:"chronlist,omitempty" json:"chronlist,omitempty"`
@@ -866,7 +866,7 @@ type Cprefercite struct {
 }
 
 type Cprocessinfo struct {
-	XMLName      xml.Name        `xml:"processinfo,omitempty" json:"processinfo,omitempty"`
+	XMLName      xml.Name        `xml:"processinfo,omitempty" json:"-"`
 	Raw          []byte          `xml:",innerxml" json:",omitempty"`
 	Chead        []*Chead        `xml:"head,omitempty" json:"head,omitempty"`
 	Clist        []*Clist        `xml:"list,omitempty" json:"list,omitempty"`
@@ -917,7 +917,7 @@ type Cref struct {
 }
 
 type Crelatedmaterial struct {
-	XMLName          xml.Name            `xml:"relatedmaterial,omitempty" json:"relatedmaterial,omitempty"`
+	XMLName          xml.Name            `xml:"relatedmaterial,omitempty" json:"-"`
 	Raw              []byte              `xml:",innerxml" json:",omitempty"`
 	Chead            []*Chead            `xml:"head,omitempty" json:"head,omitempty"`
 	Clist            []*Clist            `xml:"list,omitempty" json:"list,omitempty"`
@@ -948,7 +948,7 @@ type Crow struct {
 }
 
 type Cscopecontent struct {
-	XMLName       xml.Name         `xml:"scopecontent,omitempty" json:"scopecontent,omitempty"`
+	XMLName       xml.Name         `xml:"scopecontent,omitempty" json:"-"`
 	Raw           []byte           `xml:",innerxml" json:",omitempty"`
 	Attraltrender string           `xml:"altrender,attr"  json:",omitempty"`
 	Cchronlist    []*Cchronlist    `xml:"chronlist,omitempty" json:"chronlist,omitempty"`
@@ -960,7 +960,7 @@ type Cscopecontent struct {
 }
 
 type Cseparatedmaterial struct {
-	XMLName            xml.Name              `xml:"separatedmaterial,omitempty" json:"separatedmaterial,omitempty"`
+	XMLName            xml.Name              `xml:"separatedmaterial,omitempty" json:"-"`
 	Raw                []byte                `xml:",innerxml" json:",omitempty"`
 	Attrtype           string                `xml:"type,attr"  json:",omitempty"`
 	Chead              []*Chead              `xml:"head,omitempty" json:"head,omitempty"`
@@ -1036,7 +1036,7 @@ type Ctitlestmt struct {
 }
 
 type Cunitdate struct {
-	XMLName       xml.Name     `xml:"unitdate,omitempty" json:"unitdate,omitempty"`
+	XMLName       xml.Name     `xml:"unitdate,omitempty" json:"-"`
 	Raw           []byte       `xml:",innerxml" json:",omitempty"`
 	Attrcalendar  string       `xml:"calendar,attr"  json:",omitempty"`
 	Attrcertainty string       `xml:"certainty,attr"  json:",omitempty"`
@@ -1088,7 +1088,7 @@ type Cunittitle struct {
 }
 
 type Cuserestrict struct {
-	XMLName      xml.Name        `xml:"userestrict,omitempty" json:"userestrict,omitempty"`
+	XMLName      xml.Name        `xml:"userestrict,omitempty" json:"-"`
 	Raw          []byte          `xml:",innerxml" json:",omitempty"`
 	Attrtype     string          `xml:"type,attr"  json:",omitempty"`
 	Chead        []*Chead        `xml:"head,omitempty" json:"head,omitempty"`

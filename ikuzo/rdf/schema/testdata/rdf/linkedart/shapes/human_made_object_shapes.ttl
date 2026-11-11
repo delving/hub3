@@ -275,7 +275,7 @@ la:validate_object_standard
     ####################################################
     sh:property [
         sh:path crm:P108i_was_produced_by;
-        sh:property la:prop_production_ref;
+        sh:property la:prop_production;
     ];
 
 .

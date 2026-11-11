@@ -79,35 +79,36 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 	g.Go(func() error {
 		defer close(actions)
 
-		scanner := bufio.NewScanner(r)
-		buf := make([]byte, 0, 64*1024)
-		scanner.Buffer(buf, 5*1024*1024)
+		// bufio.Reader instead of bufio.Scanner: no maximum line length
+		reader := bufio.NewReader(r)
 
-		for scanner.Scan() {
-			var req Request
-			b := scanner.Bytes()
-
-			if err := json.Unmarshal(b, &req); err != nil {
-				atomic.AddUint64(&p.stats.JSONErrors, 1)
-				log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
-				log.Debug().Str("svc", "bulk").Str("raw", scanner.Text()).Err(err).Msg("wrong json input")
-				atomic.AddUint64(&p.stats.JSONErrors, 1)
-				continue
+		for {
+			b, readErr := reader.ReadBytes('\n')
+			if readErr != nil && readErr != io.EOF {
+				return readErr
 			}
 
-			select {
-			case actions <- req:
-			case <-gctx.Done():
-				return gctx.Err()
+			if len(b) > 0 {
+				var req Request
+
+				if err := json.Unmarshal(b, &req); err != nil {
+					atomic.AddUint64(&p.stats.JSONErrors, 1)
+					log.Error().Str("svc", "bulk").Err(err).Msg("json parse error")
+					log.Debug().Str("svc", "bulk").Str("raw", string(b)).Err(err).Msg("wrong json input")
+				} else {
+					select {
+					case actions <- req:
+					case <-gctx.Done():
+						return gctx.Err()
+					}
+					atomic.AddUint64(&p.stats.TotalReceived, 1)
+				}
 			}
-			atomic.AddUint64(&p.stats.TotalReceived, 1)
-		}
 
-		if scanner.Err() != nil {
-			return scanner.Err()
+			if readErr == io.EOF {
+				return nil
+			}
 		}
-
-		return nil
 	})
 
 	for i := 0; i < workers; i++ {

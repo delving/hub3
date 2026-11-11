@@ -226,7 +226,7 @@ func (req *Request) Read(path string) (io.ReadCloser, error) {
 				} else if strings.HasSuffix(path, ".jpeg") {
 					alternatePath = strings.TrimSuffix(path, ".jpeg") + ".jpg"
 				}
-				
+
 				if alternatePath != "" {
 					if f, altErr := os.Open(alternatePath); altErr == nil {
 						return f, nil

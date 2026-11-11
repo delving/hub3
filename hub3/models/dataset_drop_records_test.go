@@ -240,8 +240,8 @@ func TestDeleteIndexRecordsByHubIDsUsesLegacyFieldsForV1(t *testing.T) {
 		[]string{"org1_ds1_a"},
 	)
 	is.NoErr(err)
-	is.Equal(count, 2)            // one per index
-	is.Equal(len(captured), 2)    // both v1 and v2 indices hit
+	is.Equal(count, 2)         // one per index
+	is.Equal(len(captured), 2) // both v1 and v2 indices hit
 
 	v1Index := c.Config.ElasticSearch.GetV1IndexName("org1")
 	v2Index := c.Config.ElasticSearch.GetIndexName("org1")

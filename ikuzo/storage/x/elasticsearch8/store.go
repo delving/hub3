@@ -17,7 +17,7 @@ import (
 
 // Store implements semantic.SearchStore backed by Elasticsearch 8.
 type Store struct {
-	client *Client
+	client  *Client
 	aggMode AggregationMode
 	log     zerolog.Logger
 
@@ -188,8 +188,8 @@ func (s *Store) FindSimilar(ctx context.Context, id string, opts *semantic.Simil
 				"like": []map[string]any{
 					{"_index": indices[0], "_id": id},
 				},
-				"min_term_freq":  minTermFreq,
-				"min_doc_freq":   minDocFreq,
+				"min_term_freq":   minTermFreq,
+				"min_doc_freq":    minDocFreq,
 				"max_query_terms": 15,
 			},
 		},

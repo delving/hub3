@@ -21,6 +21,9 @@ type HTTP struct {
 	MetricsPort int    `json:"metricsPort"`
 	CertFile    string `json:"certFile"`
 	KeyFile     string `json:"keyFile"`
+	// CORSAllowedHeaders are request headers browsers may send cross-origin,
+	// on top of Accept, Authorization, Content-Type and X-CSRF-Token.
+	CORSAllowedHeaders []string `json:"corsAllowedHeaders"`
 }
 
 func (http *HTTP) AddOptions(cfg *Config) error {
@@ -28,6 +31,7 @@ func (http *HTTP) AddOptions(cfg *Config) error {
 		cfg.options,
 		ikuzo.SetPort(http.Port),
 		ikuzo.SetTLS(http.CertFile, http.KeyFile),
+		ikuzo.SetCORSAllowedHeaders(http.CORSAllowedHeaders...),
 	)
 
 	if http.MetricsPort != 0 {

@@ -149,4 +149,3 @@ func verifyQueryResults(t *testing.T, result *QueryResult, expectedResourceID st
 		is.True(found) // Expected entry value should be found
 	}
 }
-

@@ -35,13 +35,13 @@ func TestNewPager(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    Pager
+		want    *Pager
 		wantErr bool
 	}{
 		{
 			"no results",
 			args{total: 0, request: &ViewRequest{PageSize: int32(10), Page: int32(1)}},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    false,
 				TotalCount:     0,
@@ -59,7 +59,7 @@ func TestNewPager(t *testing.T) {
 		{
 			"1 page results",
 			args{total: 3, request: &ViewRequest{PageSize: int32(10), Page: int32(1)}},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    false,
 				TotalCount:     3,
@@ -77,7 +77,7 @@ func TestNewPager(t *testing.T) {
 		{
 			"first page; 2 page results; 11 hits",
 			args{total: 11, request: &ViewRequest{PageSize: int32(10), Page: int32(1)}},
-			Pager{
+			&Pager{
 				HasNext:        true,
 				HasPrevious:    false,
 				TotalCount:     11,
@@ -95,7 +95,7 @@ func TestNewPager(t *testing.T) {
 		{
 			"second page; 2 page results; 11 hits",
 			args{total: 11, request: &ViewRequest{PageSize: int32(10), Page: int32(2)}},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    true,
 				TotalCount:     11,
@@ -117,7 +117,7 @@ func TestNewPager(t *testing.T) {
 				Page:     int32(1),
 				SortKey:  4,
 			}},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    false,
 				TotalCount:     10,
@@ -139,7 +139,7 @@ func TestNewPager(t *testing.T) {
 				Page:     int32(1),
 				Filename: "123.jpg",
 			}},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    false,
 				TotalCount:     10,
@@ -161,7 +161,7 @@ func TestNewPager(t *testing.T) {
 				Page:     int32(5),
 				Paging:   true,
 			}},
-			Pager{
+			&Pager{
 				HasNext:        true,
 				HasPrevious:    true,
 				TotalCount:     105,
@@ -182,7 +182,7 @@ func TestNewPager(t *testing.T) {
 				PageSize: int32(1),
 				Page:     int32(5),
 			}},
-			Pager{
+			&Pager{
 				HasNext:        true,
 				HasPrevious:    true,
 				TotalCount:     15,
@@ -224,7 +224,7 @@ func TestSetPage(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    Pager
+		want    *Pager
 		wantErr bool
 	}{
 		{
@@ -234,7 +234,7 @@ func TestSetPage(t *testing.T) {
 				request: &ViewRequest{PageSize: int32(10), Page: int32(1)},
 				sortKey: int32(5),
 			},
-			Pager{
+			&Pager{
 				HasNext:        true,
 				HasPrevious:    false,
 				TotalCount:     17,
@@ -256,7 +256,7 @@ func TestSetPage(t *testing.T) {
 				request: &ViewRequest{PageSize: int32(10), Page: int32(1)},
 				sortKey: int32(15),
 			},
-			Pager{
+			&Pager{
 				HasNext:        false,
 				HasPrevious:    true,
 				TotalCount:     17,

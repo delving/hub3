@@ -270,7 +270,7 @@ func (qb *QueryBuilder) buildExistsFilter(ef *semantic.ExistsFilter) interface{}
 
 	return map[string]interface{}{
 		"nested": map[string]interface{}{
-			"path": "resources.entries",
+			"path":  "resources.entries",
 			"query": labelClause,
 		},
 	}
@@ -354,9 +354,9 @@ func (qb *QueryBuilder) buildCollapse(co *semantic.CollapseOptions) map[string]i
 	}
 
 	return map[string]interface{}{
-		"field":                          translateField(co.Field),
-		"inner_hits":                     innerHits,
-		"max_concurrent_group_requests":  4,
+		"field":                         translateField(co.Field),
+		"inner_hits":                    innerHits,
+		"max_concurrent_group_requests": 4,
 	}
 }
 

@@ -79,7 +79,7 @@ la:prop_object_activity
     ###################################################################################################################
     # optional for production to have 'technique'
     ###################################################################################################################
-    sh:property la:prop_has_technique;
+    sh:property la:util_has_technique;
 
     ###################################################################################################################
     # optional for production to have 'diminished' so long as it refers to a human made object

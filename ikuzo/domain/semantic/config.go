@@ -13,10 +13,10 @@ type FilterConfig struct {
 	Label            string     `json:"label"`
 	Description      string     `json:"description"`
 	AllowedOperators []Operator `json:"allowedOperators"`
-	AllowedInQuery   bool       `json:"allowedInQuery"`   // Can be used in GET requests
-	AllowedInPost    bool       `json:"allowedInPost"`    // Can be used in POST requests
-	ValueType        string     `json:"valueType"`        // string, integer, float, boolean, date, uri
-	MultiValue       bool       `json:"multiValue"`       // Whether multiple values are allowed
+	AllowedInQuery   bool       `json:"allowedInQuery"` // Can be used in GET requests
+	AllowedInPost    bool       `json:"allowedInPost"`  // Can be used in POST requests
+	ValueType        string     `json:"valueType"`      // string, integer, float, boolean, date, uri
+	MultiValue       bool       `json:"multiValue"`     // Whether multiple values are allowed
 	ValidationRegex  string     `json:"validationRegex,omitempty"`
 	Examples         []string   `json:"examples,omitempty"`
 }
@@ -100,20 +100,20 @@ func (fc *FilterConfig) Validate(filter Filter) error {
 
 // FacetConfig defines the configuration for a facet field.
 type FacetConfig struct {
-	Field         string            `json:"field"`
-	PropertyURI   string            `json:"propertyURI"`
-	Label         string            `json:"label"`
-	Description   string            `json:"description"`
-	FacetType     string            `json:"facetType"` // enum, range, date, boolean
-	Size          int               `json:"size"`      // Number of values to return
-	MinDocCount   int64             `json:"minDocCount"`
-	SortBy        string            `json:"sortBy"`        // count, term, index
-	SortOrder     string            `json:"sortOrder"`     // asc, desc
-	Missing       bool              `json:"missing"`       // Include missing values
-	Ranges        []FacetRange      `json:"ranges,omitempty"`
-	DateIntervals []DateInterval    `json:"dateIntervals,omitempty"`
-	URLTemplate   string            `json:"urlTemplate,omitempty"` // Template for facet URLs
-	Metadata      map[string]any    `json:"metadata,omitempty"`    // Additional metadata
+	Field         string         `json:"field"`
+	PropertyURI   string         `json:"propertyURI"`
+	Label         string         `json:"label"`
+	Description   string         `json:"description"`
+	FacetType     string         `json:"facetType"` // enum, range, date, boolean
+	Size          int            `json:"size"`      // Number of values to return
+	MinDocCount   int64          `json:"minDocCount"`
+	SortBy        string         `json:"sortBy"`    // count, term, index
+	SortOrder     string         `json:"sortOrder"` // asc, desc
+	Missing       bool           `json:"missing"`   // Include missing values
+	Ranges        []FacetRange   `json:"ranges,omitempty"`
+	DateIntervals []DateInterval `json:"dateIntervals,omitempty"`
+	URLTemplate   string         `json:"urlTemplate,omitempty"` // Template for facet URLs
+	Metadata      map[string]any `json:"metadata,omitempty"`    // Additional metadata
 }
 
 // FacetRange defines a range for range facets.
@@ -200,17 +200,17 @@ func (fc *FacetConfig) WithMetadata(key string, value any) *FacetConfig {
 // ResourceConfig defines the complete search configuration for a resource type.
 // This includes all filterable fields, facets, and resource-specific settings.
 type ResourceConfig struct {
-	ResourceType   string          `json:"resourceType"`   // e.g., "schema:CreativeWork"
-	Label          string          `json:"label"`
-	Description    string          `json:"description"`
-	Filters        []FilterConfig  `json:"filters"`
-	Facets         []FacetConfig   `json:"facets"`
-	SortFields     []SortConfig    `json:"sortFields"`
-	DefaultSort    string          `json:"defaultSort"`
-	DefaultSize    int             `json:"defaultSize"`
-	MaxSize        int             `json:"maxSize"`
-	AllowFullText  bool            `json:"allowFullText"`
-	Metadata       map[string]any  `json:"metadata,omitempty"`
+	ResourceType  string         `json:"resourceType"` // e.g., "schema:CreativeWork"
+	Label         string         `json:"label"`
+	Description   string         `json:"description"`
+	Filters       []FilterConfig `json:"filters"`
+	Facets        []FacetConfig  `json:"facets"`
+	SortFields    []SortConfig   `json:"sortFields"`
+	DefaultSort   string         `json:"defaultSort"`
+	DefaultSize   int            `json:"defaultSize"`
+	MaxSize       int            `json:"maxSize"`
+	AllowFullText bool           `json:"allowFullText"`
+	Metadata      map[string]any `json:"metadata,omitempty"`
 }
 
 // SortConfig defines a sortable field.

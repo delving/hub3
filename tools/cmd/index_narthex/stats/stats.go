@@ -169,7 +169,7 @@ func (pr *ProgressReporter) Update(values []MetricValue) {
 			}
 		}
 	}
-	
+
 	// Write to same line using carriage return
 	fmt.Printf("\r%s", strings.Join(parts, " | "))
 }

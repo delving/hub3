@@ -194,8 +194,8 @@ func TestAggregationBuilder_BuildAggregations(t *testing.T) {
 			},
 		},
 		{
-			name: "empty facets returns empty map",
-			mode: AggFlat,
+			name:   "empty facets returns empty map",
+			mode:   AggFlat,
 			facets: []semantic.FacetRequest{},
 			want:   map[string]any{},
 		},

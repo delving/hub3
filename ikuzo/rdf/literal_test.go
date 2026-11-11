@@ -242,6 +242,8 @@ func TestLiteral(t *testing.T) {
 		}{
 			{IRI{}, "cannot be nil"},
 			{xsdBoolean, ""},
+			{xsdYear, ""},
+			{xsdYearMonth, ""},
 			{IRI{str: "http://www.w3.org/1999/02/22-rdf-syntax-ns#Unknown"}, "unsupported Literal.DataType IRI"},
 		}
 
@@ -332,6 +334,9 @@ func TestLiteral_String(t *testing.T) {
 	}{
 		{"simple", fields{str: "hello"}, "\"hello\""},
 		{"with datatype", fields{str: "true", DataType: IRI{str: "http://www.w3.org/2001/XMLSchema#boolean"}}, "\"true\"^^<http://www.w3.org/2001/XMLSchema#boolean>"},
+		{"escapes once", fields{str: "a\nb\\c\"d\te\rf"}, `"a\nb\\c\"d\te\rf"`},
+		{"non-ascii kept", fields{str: "café"}, `"café"`},
+		{"control characters", fields{str: "a\x00b\x1fc\x7fd\be\ff"}, `"a\u0000b\u001Fc\u007Fd\be\ff"`},
 	}
 
 	for _, tt := range tests {

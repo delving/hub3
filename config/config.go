@@ -231,10 +231,10 @@ type OAIPMH struct {
 
 // WebResource holds all the configuration options for the WebResource endpoint
 type WebResource struct {
-	Enabled                   bool   `json:"enabled"`          // Make the webresource endpoint available
-	WebResourceDir            string `json:"sourceDir"`        // Target directory for the webresources
-	CacheResourceDir          string `json:"cacheDir"`         // cache directory for the webresources
-	enableSearch              bool   `json:"enableSearch"`     // enable searching for images in ElasticSearch
+	Enabled                   bool   `json:"enabled"`   // Make the webresource endpoint available
+	WebResourceDir            string `json:"sourceDir"` // Target directory for the webresources
+	CacheResourceDir          string `json:"cacheDir"`  // cache directory for the webresources
+	enableSearch              bool   // enable searching for images in ElasticSearch
 	MediaManagerHost          string `json:"mediaManagerHost"` // the domain to build the derivatives
 	SmallDefault              string `json:"smallDefault"`
 	MediumDefault             string `json:"mediumDefault"`
@@ -405,7 +405,7 @@ func setDefaults() {
 	// sitemap
 	viper.SetDefault("SiteMap.Enabled", false)
 
-	// pid 
+	// pid
 	viper.SetDefault("PID.enabled", false)
 
 	// ead

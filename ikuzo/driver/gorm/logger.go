@@ -106,4 +106,3 @@ func (l *SlogLogger) Trace(ctx context.Context, begin time.Time, fc func() (stri
 		l.Logger.InfoContext(ctx, "GORM query", attrs...)
 	}
 }
-

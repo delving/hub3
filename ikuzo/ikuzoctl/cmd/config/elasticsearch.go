@@ -48,11 +48,11 @@ type ElasticSearch struct {
 	// gather elasticsearch metrics
 	Metrics bool `json:"metrics,omitempty"`
 	// elasticsearch client
-	client *es.Client `json:"client,omitempty"`
+	client *es.Client
 	// BulkIndexer
-	bi *esutil.BulkIndexer `json:"bi,omitempty"`
+	bi *esutil.BulkIndexer
 	// IndexService
-	is *index.Service `json:"is,omitempty"`
+	is *index.Service
 	// base of the index aliases
 	IndexName string `json:"indexName,omitempty"`
 	// if non-empty digital objects will be indexed in a dedicated v2 index
@@ -62,7 +62,7 @@ type ElasticSearch struct {
 	// number of replicas. default 0
 	Replicas int `json:"replicas,omitempty"`
 	// logger
-	logger *logger.CustomLogger `json:"logger,omitempty"`
+	logger *logger.CustomLogger
 	// UseRemoteIndexer is true when a separate process reads of the queue
 	UseRemoteIndexer bool `json:"useRemoteIndexer,omitempty"`
 	// IndexTypes options are v1, v2, fragment
@@ -70,7 +70,7 @@ type ElasticSearch struct {
 	// OrphanWait is the duration in seconds that the orphanDelete will wait for the cluster to be in sync
 	OrphanWait int `json:"orphanWait,omitempty"`
 	// once makes sure that createmapping is only run once
-	once sync.Once `json:"once,omitempty"`
+	once sync.Once
 	// UserName is the BasicAuth username
 	UserName string `json:"userName,omitempty"`
 	// Password is the BasicAuth password
@@ -224,7 +224,7 @@ func (e *ElasticSearch) NewCustomClient(l *logger.CustomLogger) (*es.Client, err
 	cfg.Password = e.Password
 	cfg.MaxRetries = e.MaxRetries
 	cfg.Timeout = e.ClientTimeOut
-	
+
 	if l != nil {
 		logConv := l.With().Logger()
 		cfg.Logger = &logConv

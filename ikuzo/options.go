@@ -54,6 +54,16 @@ func RegisterService(svc domain.Service) Option {
 	}
 }
 
+// SetCORSAllowedHeaders allows these request headers cross-origin, on top of
+// the default Accept, Authorization, Content-Type and X-CSRF-Token: a CORS
+// preflight asking for any other header is refused.
+func SetCORSAllowedHeaders(headers ...string) Option {
+	return func(s *server) error {
+		s.corsAllowedHeaders = append(s.corsAllowedHeaders, headers...)
+		return nil
+	}
+}
+
 // SetMetricsPort sets the TCP port for the metrics server.
 //
 // No default. When set to 0 the metrics server is not started

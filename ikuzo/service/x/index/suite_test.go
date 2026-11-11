@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/matryer/is"
+	"github.com/moby/moby/api/types/network"
 	"github.com/stretchr/testify/suite"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -15,7 +15,7 @@ type indexSuite struct {
 	suite.Suite
 	stanC testcontainers.Container
 	ip    string
-	port  nat.Port
+	port  network.Port
 	ctx   context.Context
 }
 

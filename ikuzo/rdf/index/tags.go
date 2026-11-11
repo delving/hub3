@@ -21,15 +21,15 @@ func NewTagMap() *TagMap {
 // FromMap creates a TagMap from a map of predicate URIs to tag slices
 func NewTagMapFromMap(m map[string][]string) *TagMap {
 	tm := NewTagMap()
-	
+
 	if m == nil {
 		return tm
 	}
-	
+
 	for uri, tags := range m {
 		tm.AddTags(uri, tags...)
 	}
-	
+
 	return tm
 }
 
@@ -37,13 +37,13 @@ func NewTagMapFromMap(m map[string][]string) *TagMap {
 func (tm *TagMap) AddTags(predicateURI string, tags ...string) {
 	tm.Lock()
 	defer tm.Unlock()
-	
+
 	current, exists := tm.predicateToTags[predicateURI]
 	if !exists {
 		tm.predicateToTags[predicateURI] = tags
 		return
 	}
-	
+
 	// Add only unique tags
 	for _, tag := range tags {
 		if !containsTag(current, tag) {
@@ -57,12 +57,12 @@ func (tm *TagMap) AddTags(predicateURI string, tags ...string) {
 func (tm *TagMap) GetTags(predicateURI string) []string {
 	tm.RLock()
 	defer tm.RUnlock()
-	
+
 	tags, exists := tm.predicateToTags[predicateURI]
 	if !exists {
 		return nil
 	}
-	
+
 	return tags
 }
 
@@ -70,7 +70,7 @@ func (tm *TagMap) GetTags(predicateURI string) []string {
 func (tm *TagMap) Len() int {
 	tm.RLock()
 	defer tm.RUnlock()
-	
+
 	return len(tm.predicateToTags)
 }
 
@@ -79,12 +79,12 @@ func (tm *TagMap) ApplyTagsToEntry(entry *Entry) {
 	if entry == nil {
 		return
 	}
-	
+
 	tags := tm.GetTags(entry.Predicate)
 	if len(tags) == 0 {
 		return
 	}
-	
+
 	entry.AddTags(tags...)
 }
 
@@ -103,7 +103,7 @@ func (g *Graph) ApplyTags(tagMap *TagMap) {
 	if tagMap == nil || tagMap.Len() == 0 {
 		return
 	}
-	
+
 	count := 0
 	processedCount := 0
 	for _, resource := range g.Resources {
@@ -120,10 +120,10 @@ func (g *Graph) ApplyTags(tagMap *TagMap) {
 			}
 		}
 	}
-	
-	slog.Debug("Applied tags to entries", 
-		"count", count, 
-		"processed", processedCount, 
+
+	slog.Debug("Applied tags to entries",
+		"count", count,
+		"processed", processedCount,
 		"total_resources", len(g.Resources))
 }
 
@@ -135,9 +135,9 @@ func (g *Graph) SetContextAndTags(tagMap *TagMap) error {
 			return err
 		}
 	}
-	
+
 	// Then apply tags
 	g.ApplyTags(tagMap)
-	
+
 	return nil
 }

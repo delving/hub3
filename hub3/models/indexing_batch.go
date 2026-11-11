@@ -321,11 +321,12 @@ func CleanupOldBatches(maxAge time.Duration) (int, error) {
 	}
 
 	deleted := 0
-	for _, batch := range batches {
+	for i := range batches {
+		batch := &batches[i]
 		// Only delete completed/failed batches older than cutoff
 		if (batch.Status == BatchStatusCompleted || batch.Status == BatchStatusFailed) &&
 			batch.CompletedAt.Before(cutoff) {
-			if err := ORM().DeleteStruct(&batch); err != nil {
+			if err := ORM().DeleteStruct(batch); err != nil {
 				log.Warn().Err(err).Str("batchID", batch.ID).Msg("failed to delete old batch")
 				continue
 			}

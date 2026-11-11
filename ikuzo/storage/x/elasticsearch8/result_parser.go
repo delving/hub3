@@ -30,10 +30,10 @@ type esTotal struct {
 
 // esHit represents a single hit in the search results.
 type esHit struct {
-	ID        string                         `json:"_id"`
-	Score     *float64                       `json:"_score"`
-	Source    json.RawMessage                `json:"_source"`
-	InnerHits map[string]esInnerHitsWrapper  `json:"inner_hits"`
+	ID        string                        `json:"_id"`
+	Score     *float64                      `json:"_score"`
+	Source    json.RawMessage               `json:"_source"`
+	InnerHits map[string]esInnerHitsWrapper `json:"inner_hits"`
 }
 
 // esInnerHitsWrapper wraps inner hits for nested queries.
