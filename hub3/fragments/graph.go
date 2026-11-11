@@ -89,6 +89,17 @@ func (fg *FragmentGraph) AddMoreLikeThis(item *ItemV1) {
 	fg.MoreLikeThis.Items = append(fg.MoreLikeThis.Items, item)
 }
 
+// SemanticRelatedItem is fg as a related item in the semantic item format:
+// the same {meta, semantic, summary} as the main item, so related items carry
+// latLong too.
+func (fg *FragmentGraph) SemanticRelatedItem(langs ...string) *FragmentGraph {
+	return &FragmentGraph{
+		Meta:     fg.Meta,
+		Semantic: fg.GenerateSemantic(),
+		Summary:  fg.NewResultSummary(langs...),
+	}
+}
+
 func (fg *FragmentGraph) AddSemanticMoreLikeThis(related *FragmentGraph) {
 	if fg.MoreLikeThis == nil {
 		fg.MoreLikeThis = &RelatedItems{}

@@ -1545,13 +1545,9 @@ func getSearchRecord(w http.ResponseWriter, r *http.Request) {
 
 						// Use semantic format for MLT when itemFormat is semantic
 						// This ensures consistent field names between parent and related items
-						// Related items have same structure as main item: {meta, semantic}
+						// Related items have same structure as main item: {meta, semantic, summary}
 						if itemFormat == "semantic" {
-							relatedItem := &fragments.FragmentGraph{
-								Meta:     fg.Meta,
-								Semantic: fg.GenerateSemantic(),
-							}
-							record.AddSemanticMoreLikeThis(relatedItem)
+							record.AddSemanticMoreLikeThis(fg.SemanticRelatedItem(lang))
 						} else {
 							// Use ItemV1 format for other itemFormats
 							fg.NewV1Fields()
