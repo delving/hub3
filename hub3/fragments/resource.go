@@ -2151,6 +2151,10 @@ func (sum *ResultSummary) AddEntry(entry *ResourceEntry, langs ...string) {
 			if sum.Date == "" {
 				sum.Date = entry.Value
 			}
+		case "latLong":
+			if sum.LatLong == "" {
+				sum.LatLong = entry.LatLong
+			}
 		}
 	}
 }

@@ -978,3 +978,27 @@ func TestCycleDetection(t *testing.T) {
 		assert.False(t, hasRefType, "fully expanded resource should not have hub3:referenceType")
 	})
 }
+
+func TestSemanticRelatedItem(t *testing.T) {
+	// The coordinates sit on a blank node no triple points at, as
+	// nave:DelvingResource does in Narthex-mapped records.
+	fg := &FragmentGraph{
+		Meta: &Header{EntryURI: "http://example.org/record/1"},
+		Resources: []*FragmentResource{
+			{ID: "http://example.org/record/1", Entries: []*ResourceEntry{
+				{Predicate: "http://purl.org/dc/elements/1.1/title", Value: "Kaart", Tags: []string{"title"}},
+			}},
+			{ID: "_:b0", Entries: []*ResourceEntry{
+				{Value: "52.54,5.05", LatLong: "52.54,5.05", Tags: []string{"latLong"}},
+			}},
+		},
+	}
+
+	rel := fg.SemanticRelatedItem("nl")
+
+	require.NotNil(t, rel.Summary)
+	assert.Equal(t, "52.54,5.05", rel.Summary.LatLong)
+	assert.Same(t, fg.Meta, rel.Meta)
+	assert.NotNil(t, rel.Semantic)
+	assert.Nil(t, rel.Resources)
+}
