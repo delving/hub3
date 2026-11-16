@@ -33,6 +33,15 @@ type PathEntry struct {
 	IsLeaf    bool // IsLeaf indicates that this is the last entry in the path
 }
 
+// Classes are the alternatives of Class, separated by | (any of them
+// matches); none for [], any class.
+func (pe *PathEntry) Classes() []string {
+	if pe.Class == "" {
+		return nil
+	}
+	return strings.Split(pe.Class, "|")
+}
+
 func (pe *PathEntry) String() string {
 	return fmt.Sprintf("[%s]%s", pe.Class, pe.Predicate)
 }
@@ -47,10 +56,17 @@ func (pe *PathEntry) ExpandNamespace() error {
 		}
 	}
 	if pe.Class != "" {
-		pe.Class, err = mgr.Expand(pe.Class)
-		if err != nil {
-			return fmt.Errorf("unable to expand class %s: %w", pe.Class, err)
+		classes := pe.Classes()
+		for i, class := range classes {
+			if class == "" {
+				return fmt.Errorf("empty alternative in class %s", pe.Class)
+			}
+			classes[i], err = mgr.Expand(class)
+			if err != nil {
+				return fmt.Errorf("unable to expand class %s: %w", class, err)
+			}
 		}
+		pe.Class = strings.Join(classes, "|")
 	}
 
 	return nil
