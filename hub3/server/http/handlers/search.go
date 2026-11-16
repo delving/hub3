@@ -195,25 +195,44 @@ type CompFacet struct {
 	Links  []*fragments.FacetLink `json:"links,omitempty"`
 }
 
-func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.SearchRequest) {
+// ExpandFacet lists the values of the facet sr.FacetExpand within sr's
+// search, narrowed by extra when it is not nil (an integration layer's own
+// filter): filtered by sr.FacetFilter, a page of sr.FacetLimit values from
+// sr.FacetCursor, each with the number of records that have it.
+func ExpandFacet(ctx context.Context, sr *fragments.SearchRequest, extra elastic.Query) (*CompFacet, error) {
+	cfg, err := newNestedQueryAgg(sr, extra)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := expandSearch(sr, cfg).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return decodeExpandedFacet(resp, sr, cfg), nil
+}
+
+func expandSearch(sr *fragments.SearchRequest, cfg *compConfig) *elastic.SearchService {
 	indices := []string{c.Config.GetIndexName(sr.OrgID)}
 	if len(sr.ContextIndex) != 0 {
 		indices = append(indices, sr.ContextIndex...)
 	}
-
-	cfg, err := newNestedQueryAgg(sr)
-	if err != nil {
-		render.Error(w, r, fmt.Errorf("unable to build query result: %w", err), nil)
-		return
-	}
-
-	s := index.ESClient().Search().
+	return index.ESClient().Search().
 		Index(indices...).
 		TrackTotalHits(false).
 		Preference(sr.GetSessionID()).
 		Size(0).
 		Query(cfg.q).
 		Aggregation("comp_agg", cfg.aggs)
+}
+
+func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.SearchRequest) {
+	cfg, err := newNestedQueryAgg(sr, nil)
+	if err != nil {
+		render.Error(w, r, fmt.Errorf("unable to build query result: %w", err), nil)
+		return
+	}
+
+	s := expandSearch(sr, cfg)
 
 	if strings.EqualFold(r.URL.Query().Get("echo"), "searchService") {
 		b, debugErr := elasticsearch.Debug{}.SearchService(s)
@@ -236,7 +255,38 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 		return
 	}
 
-	facet := CompFacet{
+	slog.Info("facet aggregation took", "milliseconds", resp.TookInMillis)
+	facet := decodeExpandedFacet(resp, sr, cfg)
+
+	if facet.Cursor != "" {
+		params := r.URL.Query()
+		params.Set("facet.cursor", facet.Cursor)
+		next := r.Clone(context.Background())
+		next.URL.RawQuery = params.Encode()
+		facet.Next = next.URL.String()
+	}
+
+	render.JSON(w, r, facet)
+}
+
+// expandRecords counts the records under an expanded facet's value bucket:
+// a record can hold the value in several entries.
+const expandRecords = "records"
+
+// recordCount is a bucket's expandRecords count, or its entry count when
+// the response has none.
+func recordCount(aggs elastic.Aggregations, docCount int64) int64 {
+	if rn, ok := aggs.ReverseNested(expandRecords); ok {
+		return rn.DocCount
+	}
+	return docCount
+}
+
+// decodeExpandedFacet reads the values, record counts, total and cursor of
+// an expanded facet from resp.
+func decodeExpandedFacet(resp *elastic.SearchResult, sr *fragments.SearchRequest, cfg *compConfig) *CompFacet {
+	var err error
+	facet := &CompFacet{
 		Query: sr.FacetFilter,
 		Field: sr.FacetExpand,
 		Links: []*fragments.FacetLink{},
@@ -244,7 +294,6 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 
 	qf := fragments.QueryFacet{Field: facet.Field}
 
-	slog.Info("facet aggregation took", "milliseconds", resp.TookInMillis)
 	if filtAgg, found := resp.Aggregations.Filter("comp_agg"); found {
 		if agg, found := filtAgg.Nested("nested_agg"); found {
 			if filtered, found := agg.Filter("filtered_labels"); found {
@@ -266,10 +315,11 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 
 						for _, b := range compositeAgg.Buckets {
 							key := fmt.Sprint(b.Key["value"])
+							n := recordCount(b.Aggregations, b.DocCount)
 							fl := &fragments.FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+								Count:         n,
+								DisplayString: fmt.Sprintf("%s (%d)", key, n),
 							}
 							fragments.SetFacetLink(key, &qf, fl, cfg.fub)
 							facet.Links = append(facet.Links, fl)
@@ -287,10 +337,11 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 								// Fall back to fmt.Sprint for other types
 								key = fmt.Sprintf("%v", b.Key)
 							}
+							n := recordCount(b.Aggregations, b.DocCount)
 							fl := &fragments.FacetLink{
 								Value:         key,
-								Count:         b.DocCount,
-								DisplayString: fmt.Sprintf("%s (%d)", key, b.DocCount),
+								Count:         n,
+								DisplayString: fmt.Sprintf("%s (%d)", key, n),
 							}
 							fragments.SetFacetLink(key, &qf, fl, cfg.fub)
 							facet.Links = append(facet.Links, fl)
@@ -309,15 +360,7 @@ func ProcessExpandedFacet(w http.ResponseWriter, r *http.Request, sr *fragments.
 		facet.Cursor = ""
 	}
 
-	if facet.Cursor != "" {
-		params := r.URL.Query()
-		params.Set("facet.cursor", facet.Cursor)
-		next := r.Clone(context.Background())
-		next.URL.RawQuery = params.Encode()
-		facet.Next = next.URL.String()
-	}
-
-	render.JSON(w, r, facet)
+	return facet
 }
 
 type compConfig struct {
@@ -326,7 +369,7 @@ type compConfig struct {
 	fub  *fragments.FacetURIBuilder
 }
 
-func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
+func newNestedQueryAgg(sr *fragments.SearchRequest, extra elastic.Query) (*compConfig, error) {
 	baseQuery, err := sr.ElasticQuery()
 	if err != nil {
 		return nil, err
@@ -362,6 +405,10 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 	facetFilter, err := fub.CreateFacetFilterQuery(sr.FacetExpand, sr.FacetAndBoolType)
 	if err != nil {
 		return nil, err
+	}
+
+	if extra != nil {
+		facetFilter = elastic.NewBoolQuery().Must(facetFilter, extra)
 	}
 
 	mainFilter := elastic.NewBoolQuery().Must(
@@ -424,13 +471,14 @@ func newNestedQueryAgg(sr *fragments.SearchRequest) (*compConfig, error) {
 			}
 			compAgg = compAgg.AggregateAfter(afterKey)
 		}
-		valuesAgg = compAgg
+		valuesAgg = compAgg.SubAggregation(expandRecords, elastic.NewReverseNestedAggregation())
 	} else {
 		// Default: Terms aggregation sorted by count (descending = most common first)
 		termsAgg := elastic.NewTermsAggregation().
 			Field("resources.entries.@value.keyword").
 			Size(int(sr.GetFacetLimit())).
-			OrderByCount(false) // false = descending (most common first)
+			SubAggregation(expandRecords, elastic.NewReverseNestedAggregation()).
+			OrderByAggregation(expandRecords, false) // most records first
 
 		valuesAgg = termsAgg
 	}
