@@ -44,6 +44,12 @@ Empty class brackets (`[]`) represent a wildcard for node traversal. For example
 ```
 This indicates traversal via the `crm:P102_has_title` relationship to any node, regardless of its class.
 
+Several classes, separated by `|` without spaces, mean any of them:
+```
+[]schema:creator->[schema:Person|schema:Organization]schema:name
+```
+This is the name of a creator that is a person or an organisation.
+
 ### Traversal Arrows
 
 The `->` symbol indicates traversal between nodes:
@@ -121,3 +127,21 @@ Example:
 4. Only one value path can be specified.
 5. The value path must come after any filter expressions.
 6. Empty path strings are valid and will result in a nil PathQuery.
+
+## In the search index
+
+`fragments.ParseResourcePath` reads a resource path in this syntax and turns it into an
+Elasticsearch query on the v2 index (`fragments.ResourcePath`). There every linked resource
+is a nested `resources` element whose `context` records its route from the record's root:
+one element per hop, with its `Level`, the predicate's `SearchLabel` and the `SubjectClass`
+of the resource the hop starts from, which is what `[class]predicate` names. So any number
+of hops can be queried, and several conditions can hold for the same linked resource:
+
+```
+[]schema:creator->[schema:Role]schema:creator->[schema:Person]schema:name   = "Sphinx"
+[]schema:creator->[schema:Role]                                            with name "fabrikanten" and creator "Sphinx"
+```
+
+A path that ends with a predicate ends at a literal of the last resource; one that ends with
+`[class]` ends at that resource, to test its class or its URI. Filters and value paths
+(` | `) are not used there: the caller supplies the values.

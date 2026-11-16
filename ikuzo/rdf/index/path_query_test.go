@@ -535,3 +535,25 @@ func TestParseCsvPathMap(t *testing.T) {
 		t.Errorf("golden file %s mismatch (-want +got):\n%s", "publisher", diff)
 	}
 }
+
+// A class in a path may be several, separated by |: the resource has one of
+// them.
+func TestPathAlternativeClasses(t *testing.T) {
+	is := is.New(t)
+
+	entries, err := ParsePath("[]schema:creator->[schema:Person|schema:Organization]schema:name", true)
+	is.NoErr(err)
+	is.Equal(len(entries), 2)
+	is.Equal(entries[1].Class, "https://schema.org/Person|https://schema.org/Organization")
+	is.Equal(entries[1].Classes(), []string{"https://schema.org/Person", "https://schema.org/Organization"})
+	is.Equal(entries[0].Classes(), []string(nil)) // [] is any class
+
+	org := &Resource{Types: []string{"https://schema.org/Organization"}}
+	place := &Resource{Types: []string{"https://schema.org/Place"}}
+	is.True(matchesClass(org, entries[1].Class))
+	is.True(!matchesClass(place, entries[1].Class))
+	is.True(matchesClass(place, entries[0].Class))
+
+	_, err = ParsePath("[schema:Person||schema:Organization]schema:name", true)
+	is.True(err != nil) // an empty alternative
+}

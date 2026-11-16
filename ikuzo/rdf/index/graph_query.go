@@ -331,9 +331,12 @@ func matchesClass(resource *Resource, class string) bool {
 		return true // Empty class matches any resource
 	}
 
-	for _, t := range resource.Types {
-		if t == class {
-			return true
+	// A class may be alternatives separated by |; any of them matches.
+	for _, c := range strings.Split(class, "|") {
+		for _, t := range resource.Types {
+			if t == c {
+				return true
+			}
 		}
 	}
 
