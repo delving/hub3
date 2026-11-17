@@ -58,15 +58,6 @@ var knownFormatDiffs = map[string]string{
 	"0203": "F24: context Label follows triple order",
 }
 
-// knownUnstable lists cases whose document hub3 does not produce the same way
-// twice, with the finding that explains it. Such a case still has to match its
-// golden apart from order, blank-node labels and array order.
-var knownUnstable = map[string]string{
-	"0902": "F15: resources without entries sort in map order",
-	"0907": "F15: resources without entries sort in map order",
-	"0908": "F15: resources without entries sort in map order",
-}
-
 type caseResult struct {
 	doc  []byte // indented v2 document, when indexed
 	kind string // BulkError stage or "untyped", when refused
@@ -244,9 +235,6 @@ func checkGolden(t *testing.T, num string, got caseResult) {
 			t.Fatalf("want a document, got refusal %q", got.kind)
 		}
 		if diff := cmp.Diff(string(want), string(got.doc)); diff != "" {
-			if f, ok := knownUnstable[num]; ok && normaliseForFormats(t, want) == normaliseForFormats(t, got.doc) {
-				t.Skipf("known instability %s; byte diff:\n%s", f, diff)
-			}
 			t.Errorf("%s.json mismatch (-want +got):\n%s", num, diff)
 		}
 		return

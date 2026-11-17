@@ -745,6 +745,7 @@ type FragmentResource struct {
 	Tags                 []string                   `json:"tags,omitempty"`
 	predicates           map[string][]*FragmentEntry
 	objectIDs            []*FragmentReferrerContext
+	firstOrder           int // order of the first triple with this subject
 }
 
 func (fr *FragmentResource) FilterEntries(searchLabel string) (entries []*ResourceEntry) {
@@ -886,24 +887,29 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 	return nil
 }
 
-// BySortOrder implements sort.Interface for []*FragmentResource based on
-// the Order field in the first FragmentEntry.
+// BySortOrder implements sort.Interface for []*FragmentResource: resources
+// without entries first, by first appearance in the source, then by the Order
+// of the first entry; ties by ID.
 type BySortOrder []*FragmentResource
 
 func (a BySortOrder) Len() int      { return len(a) }
 func (a BySortOrder) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a BySortOrder) Less(i, j int) bool {
-	one := a[i]
-	two := a[j]
-	if len(one.Entries) == 0 {
-		return true
+	one, two := a[i], a[j]
+	// resources without entries (identifiers, type nodes) first, by where they
+	// appear in the source; the old rule (true whenever one had no entries) was
+	// not an ordering, so they came out in map order.
+	if (len(one.Entries) == 0) != (len(two.Entries) == 0) {
+		return len(one.Entries) == 0
 	}
-
-	if len(two.Entries) == 0 {
-		return false
+	k1, k2 := one.firstOrder, two.firstOrder
+	if len(one.Entries) != 0 {
+		k1, k2 = one.Entries[0].Order, two.Entries[0].Order
 	}
-
-	return one.Entries[0].Order < two.Entries[0].Order
+	if k1 != k2 {
+		return k1 < k2
+	}
+	return one.ID < two.ID
 }
 
 // ContextPath returns a string that can be used to reconstruct the path hierarchy
@@ -1820,6 +1826,7 @@ func (rm *ResourceMap) AppendOrderedTriple(t *r.Triple, resolved bool, order int
 	if !ok {
 		fr = &FragmentResource{}
 		fr.ID = id
+		fr.firstOrder = order
 		rm.resources[id] = fr
 		fr.predicates = make(map[string][]*FragmentEntry)
 	}

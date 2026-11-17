@@ -15,7 +15,9 @@
 package fragments
 
 import (
+	"math/rand/v2"
 	"slices"
+	"sort"
 	"testing"
 
 	c "github.com/delving/hub3/config"
@@ -297,6 +299,34 @@ func TestNewResourceEntryConfiguredDatesValidated(t *testing.T) {
 		}
 		if tc.wantDates == nil && re.DateRange != nil {
 			t.Errorf("%q: dateRange %+v, want none", tc.value, re.DateRange)
+		}
+	}
+}
+
+// BySortOrder is a valid ordering: resources without entries first, by where
+// they first appear in the source, then by first entry order (F15).
+func TestBySortOrderIsDeterministic(t *testing.T) {
+	mk := func(id string, first int, entryOrder ...int) *FragmentResource {
+		fr := &FragmentResource{ID: id, firstOrder: first}
+		for _, o := range entryOrder {
+			fr.Entries = append(fr.Entries, &ResourceEntry{Order: o})
+		}
+		return fr
+	}
+	want := []string{"typeB", "typeA", "typeD", "typeC", "d", "c"}
+	rnd := rand.New(rand.NewPCG(1, 2))
+	for i := range 200 {
+		rs := []*FragmentResource{
+			mk("typeA", 5), mk("c", 3, 3), mk("typeB", 2), mk("d", 1, 1), mk("typeC", 9), mk("typeD", 7),
+		}
+		rnd.Shuffle(len(rs), func(a, b int) { rs[a], rs[b] = rs[b], rs[a] })
+		sort.Sort(BySortOrder(rs))
+		got := []string{}
+		for _, r := range rs {
+			got = append(got, r.ID)
+		}
+		if !slices.Equal(got, want) {
+			t.Fatalf("round %d: got %v, want %v", i, got, want)
 		}
 	}
 }

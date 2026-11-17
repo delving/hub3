@@ -20,15 +20,6 @@
   },
   "resources": [
     {
-      "id": "brocade",
-      "types": [
-        "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
-      ],
-      "graphExternalContext": null,
-      "context": null,
-      "entries": []
-    },
-    {
       "id": "https://anet.be/record/lvdopac/c:lvd:538499",
       "types": [
         "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
@@ -56,6 +47,15 @@
           "ObjectID": "https://anet.be/record/lvdopac/c:lvd:538499"
         }
       ],
+      "entries": []
+    },
+    {
+      "id": "brocade",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+      ],
+      "graphExternalContext": null,
+      "context": null,
       "entries": []
     },
     {
