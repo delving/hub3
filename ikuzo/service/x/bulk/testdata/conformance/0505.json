@@ -60,6 +60,13 @@
           "predicate": "https://schema.org/dateCreated",
           "searchLabel": "schema_dateCreated",
           "level": 1,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-12-31"
+          },
           "order": 5
         },
         {
@@ -134,6 +141,13 @@
           "predicate": "https://schema.org/birthDate",
           "searchLabel": "schema_birthDate",
           "level": 2,
+          "isoDate": [
+            "1622-01-01"
+          ],
+          "dateRange": {
+            "gte": "1622-01-01",
+            "lte": "1622-12-31"
+          },
           "order": 11
         },
         {
@@ -152,6 +166,13 @@
           "predicate": "https://schema.org/deathDate",
           "searchLabel": "schema_deathDate",
           "level": 2,
+          "isoDate": [
+            "1680-01-01"
+          ],
+          "dateRange": {
+            "gte": "1680-01-01",
+            "lte": "1680-12-31"
+          },
           "order": 13
         },
         {
@@ -637,6 +658,13 @@
           "predicate": "https://schema.org/birthDate",
           "searchLabel": "schema_birthDate",
           "level": 3,
+          "isoDate": [
+            "1595-01-01"
+          ],
+          "dateRange": {
+            "gte": "1595-01-01",
+            "lte": "1595-12-31"
+          },
           "order": 38
         },
         {
@@ -655,6 +683,13 @@
           "predicate": "https://schema.org/deathDate",
           "searchLabel": "schema_deathDate",
           "level": 3,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-12-31"
+          },
           "order": 40
         }
       ]

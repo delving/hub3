@@ -34,6 +34,13 @@
           "predicate": "https://schema.org/dateCreated",
           "searchLabel": "schema_dateCreated",
           "level": 1,
+          "isoDate": [
+            "1660-05-01"
+          ],
+          "dateRange": {
+            "gte": "1660-05-01",
+            "lte": "1660-05-01"
+          },
           "order": 2
         },
         {
@@ -43,6 +50,13 @@
           "predicate": "https://schema.org/datePublished",
           "searchLabel": "schema_datePublished",
           "level": 1,
+          "isoDate": [
+            "1661-01-01"
+          ],
+          "dateRange": {
+            "gte": "1661-01-01",
+            "lte": "1661-12-31"
+          },
           "order": 3
         },
         {
@@ -52,6 +66,13 @@
           "predicate": "https://schema.org/dateModified",
           "searchLabel": "schema_dateModified",
           "level": 1,
+          "isoDate": [
+            "2024-07-16"
+          ],
+          "dateRange": {
+            "gte": "2024-07-16",
+            "lte": "2024-07-16"
+          },
           "order": 4
         }
       ]

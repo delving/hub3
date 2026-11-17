@@ -59,6 +59,13 @@
           "predicate": "https://schema.org/dateCreated",
           "searchLabel": "schema_dateCreated",
           "level": 1,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-12-31"
+          },
           "order": 5
         },
         {

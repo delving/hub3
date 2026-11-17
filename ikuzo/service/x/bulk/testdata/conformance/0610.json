@@ -172,6 +172,13 @@
           "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
           "searchLabel": "crm_P82a_begin_of_the_begin",
           "level": 3,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-01-01"
+          },
           "order": 13
         },
         {
@@ -181,6 +188,13 @@
           "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
           "searchLabel": "crm_P82b_end_of_the_end",
           "level": 3,
+          "isoDate": [
+            "1660-12-31"
+          ],
+          "dateRange": {
+            "gte": "1660-12-31",
+            "lte": "1660-12-31"
+          },
           "order": 14
         }
       ]

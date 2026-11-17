@@ -14,7 +14,12 @@
 
 package fragments
 
-import "testing"
+import (
+	"slices"
+	"testing"
+
+	c "github.com/delving/hub3/config"
+)
 
 func Test_padYears(t *testing.T) {
 	type args struct {
@@ -208,7 +213,7 @@ func TestNewResourceEntryDecimalAndDouble(t *testing.T) {
 		{"-0.125", "decimal", -0.125},
 		{"1.5E2", "double", 150},
 		{"1,5", "decimal", 0}, // invalid: kept without a number (F7)
-		{"NaN", "double", 0}, // valid xsd:double, but JSON has no NaN/INF
+		{"NaN", "double", 0},  // valid xsd:double, but JSON has no NaN/INF
 		{"INF", "double", 0},
 	} {
 		fe := &FragmentEntry{Value: tc.value, DataType: xsd + tc.datatype, EntryType: "Literal"}
@@ -218,6 +223,80 @@ func TestNewResourceEntryDecimalAndDouble(t *testing.T) {
 		}
 		if re.Float != tc.want || re.Value != tc.value {
 			t.Errorf("%s^^%s: float %v value %q, want %v", tc.value, tc.datatype, re.Float, re.Value, tc.want)
+		}
+	}
+}
+
+// Typed date literals get isoDate and dateRange whatever their predicate; values
+// the mapping cannot take are left out instead of failing the record (F19).
+func TestNewResourceEntryDatesFromDatatype(t *testing.T) {
+	prev := c.Config.RDFTagMap
+	c.Config.RDFTagMap = nil
+	t.Cleanup(func() { c.Config.RDFTagMap = prev })
+
+	const xsd = "http://www.w3.org/2001/XMLSchema#"
+	for _, tc := range []struct {
+		value, datatype string
+		iso, from, to   string // "" = no date fields
+	}{
+		{"1660-01-01", "date", "1660-01-01", "1660-01-01", "1660-01-01"},
+		{"1660-01-01+01:00", "date", "1660-01-01", "1660-01-01", "1660-01-01"},
+		{"1660-01-01T00:00:00", "dateTime", "1660-01-01", "1660-01-01", "1660-01-01"},
+		{"1660-01-01T12:30:00Z", "dateTime", "1660-01-01", "1660-01-01", "1660-01-01"},
+		{"1660", "gYear", "1660-01-01", "1660-01-01", "1660-12-31"},
+		{"1660-02", "gYearMonth", "1660-02-01", "1660-02-01", "1660-02-28"},
+		{"ca. 1660", "gYear", "", "", ""},
+		{"-0500", "gYear", "", "", ""},
+		{"1660-13", "gYearMonth", "", "", ""},
+		{"1660-02-30", "date", "", "", ""},
+	} {
+		fe := &FragmentEntry{Value: tc.value, DataType: xsd + tc.datatype, EntryType: "Literal"}
+		re, err := fe.NewResourceEntry("http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin", 1, &ResourceMap{})
+		if err != nil {
+			t.Fatalf("%s^^%s: %v", tc.value, tc.datatype, err)
+		}
+		var gotFrom, gotTo string
+		if re.DateRange != nil {
+			gotFrom, gotTo = re.DateRange.Greater, re.DateRange.Less
+		}
+		wantDate := []string{}
+		if tc.iso != "" {
+			wantDate = []string{tc.iso}
+		}
+		if !slices.Equal(append([]string{}, re.Date...), wantDate) || gotFrom != tc.from || gotTo != tc.to {
+			t.Errorf("%s^^%s: isoDate %v range %q..%q, want %v %q..%q", tc.value, tc.datatype, re.Date, gotFrom, gotTo, wantDate, tc.from, tc.to)
+		}
+	}
+}
+
+// A predicate configured as isoDate/dateRange whose value is not a date the
+// mapping accepts gets no date fields; OpenSearch refused the whole record (F19).
+func TestNewResourceEntryConfiguredDatesValidated(t *testing.T) {
+	prev := c.Config.RDFTagMap
+	c.Config.RDFTagMap = c.NewRDFTagMap(&c.RawConfig{RDFTag: c.RDFTag{
+		IsoDate:   []string{"https://schema.org/dateCreated"},
+		DateRange: []string{"https://schema.org/dateCreated"},
+	}})
+	t.Cleanup(func() { c.Config.RDFTagMap = prev })
+
+	for _, tc := range []struct {
+		value     string
+		wantDates []string
+	}{
+		{"1660-05-01", []string{"1660-05-01", "1660-05-01", "1660-05-01"}},
+		{"zomer 1660", []string{"1660-01-01", "1660-12-31"}}, // raw text out, the range's year stays
+		{"1650-1700", nil}, // padYears reads it as year-month: no valid date
+	} {
+		fe := &FragmentEntry{Value: tc.value, EntryType: "Literal"}
+		re, err := fe.NewResourceEntry("https://schema.org/dateCreated", 1, &ResourceMap{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !slices.Equal(re.Date, tc.wantDates) {
+			t.Errorf("%q: isoDate %v, want %v", tc.value, re.Date, tc.wantDates)
+		}
+		if tc.wantDates == nil && re.DateRange != nil {
+			t.Errorf("%q: dateRange %+v, want none", tc.value, re.DateRange)
 		}
 	}
 }

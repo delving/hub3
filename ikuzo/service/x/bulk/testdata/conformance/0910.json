@@ -34,6 +34,13 @@
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
           "level": 1,
+          "isoDate": [
+            "2021-07-08"
+          ],
+          "dateRange": {
+            "gte": "2021-07-08",
+            "lte": "2021-07-08"
+          },
           "order": 1
         },
         {
@@ -197,6 +204,13 @@
           "predicate": "https://schema.org/sdDatePublished",
           "searchLabel": "schema_sdDatePublished",
           "level": 1,
+          "isoDate": [
+            "2026-10-02"
+          ],
+          "dateRange": {
+            "gte": "2026-10-02",
+            "lte": "2026-10-02"
+          },
           "order": 82
         },
         {
@@ -206,6 +220,13 @@
           "predicate": "https://schema.org/startDate",
           "searchLabel": "schema_startDate",
           "level": 1,
+          "isoDate": [
+            "2017-09-28"
+          ],
+          "dateRange": {
+            "gte": "2017-09-28",
+            "lte": "2017-09-28"
+          },
           "order": 83
         },
         {
@@ -472,6 +493,13 @@
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
           "level": 7,
+          "isoDate": [
+            "2022-04-11"
+          ],
+          "dateRange": {
+            "gte": "2022-04-11",
+            "lte": "2022-04-11"
+          },
           "order": 17
         },
         {
@@ -674,6 +702,13 @@
           "predicate": "https://schema.org/sdDatePublished",
           "searchLabel": "schema_sdDatePublished",
           "level": 7,
+          "isoDate": [
+            "2022-04-11"
+          ],
+          "dateRange": {
+            "gte": "2022-04-11",
+            "lte": "2022-04-11"
+          },
           "order": 64
         },
         {
@@ -754,6 +789,13 @@
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
           "level": 7,
+          "isoDate": [
+            "2022-11-20"
+          ],
+          "dateRange": {
+            "gte": "2022-11-20",
+            "lte": "2022-11-20"
+          },
           "order": 22
         },
         {
@@ -868,6 +910,13 @@
           "predicate": "https://schema.org/sdDatePublished",
           "searchLabel": "schema_sdDatePublished",
           "level": 7,
+          "isoDate": [
+            "2022-11-20"
+          ],
+          "dateRange": {
+            "gte": "2022-11-20",
+            "lte": "2022-11-20"
+          },
           "order": 38
         }
       ]

@@ -1070,6 +1070,13 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		}
 	}
 
+	fromDatatype := false
+	if iso, ir, ok := dateFromDatatype(re.Value, re.DataType); ok {
+		re.Date = []string{iso}
+		re.DateRange = &ir
+		fromDatatype = true
+	}
+
 	if c.Config.RDFTagMap == nil {
 		return re, nil
 	}
@@ -1078,16 +1085,25 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 	if ok {
 		re.AddTags(labels...)
 		if re.Value != "" {
-			// TODO add validation for the values here
+			// Only dates the isoDate/dateRange mapping accepts: OpenSearch refuses
+			// the whole record over one it cannot parse.
 			for _, label := range labels {
 				switch label {
 				case "isoDate":
-					if re.Value != "" && re.Value != "--01" {
-						re.Date = append(re.Date, re.Value)
+					if fromDatatype {
+						continue
 					}
+					if !isIndexableDate(re.Value) {
+						log.Printf("not indexing %q (%s) as isoDate", re.Value, predicate)
+						continue
+					}
+					re.Date = append(re.Date, re.Value)
 				case "dateRange":
+					if fromDatatype {
+						continue
+					}
 					indexRange, err := CreateDateRange(re.Value)
-					if err != nil {
+					if err != nil || !indexRange.isDates() {
 						log.Printf("Unable to create dateRange for: %#v", re.Value)
 						continue
 					}
@@ -1114,6 +1130,78 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 	}
 
 	return re, nil
+}
+
+const xsdNS = "http://www.w3.org/2001/XMLSchema#"
+
+// dateFromDatatype gives the isoDate and dateRange of an xsd:date, dateTime,
+// gYear or gYearMonth literal, in forms the mapping accepts (a dateTime
+// without a timezone matches none of its formats, so it becomes its date).
+// The timezone is dropped; ok is false for anything that is not a valid date
+// with a four-digit year.
+func dateFromDatatype(value, datatype string) (iso string, ir IndexRange, ok bool) {
+	var n int // length of the date part
+	switch datatype {
+	case xsdNS + "date", xsdNS + "dateTime":
+		n = len("2006-01-02")
+	case xsdNS + "gYearMonth":
+		n = len("2006-01")
+	case xsdNS + "gYear":
+		n = len("2006")
+	default:
+		return "", ir, false
+	}
+	v := strings.TrimSpace(value)
+	if len(v) < n {
+		return "", ir, false
+	}
+	date, rest := v[:n], v[n:]
+	if datatype == xsdNS+"dateTime" {
+		if !strings.HasPrefix(rest, "T") {
+			return "", ir, false
+		}
+	} else if !isTimezone(rest) {
+		return "", ir, false
+	}
+	ir, err := CreateDateRange(date)
+	if err != nil || !ir.isDates() {
+		log.Printf("not indexing %q (%s) as a date", value, datatype)
+		return "", ir, false
+	}
+	return ir.Greater, ir, true
+}
+
+// isTimezone reports whether s is empty or an xsd timezone: Z or ±hh:mm.
+func isTimezone(s string) bool {
+	if s == "" || s == "Z" {
+		return true
+	}
+	_, err := time.Parse("-07:00", s)
+	return len(s) == len("+01:00") && (s[0] == '+' || s[0] == '-') && err == nil
+}
+
+// indexDateLayouts are the formats of the isoDate/dateRange mapping
+// (ikuzo/driver/elasticsearch/internal/mapping/v2.go), epoch_millis left out.
+var indexDateLayouts = []string{
+	time.RFC3339, "2006-01-02T15:04:05.000Z07:00", "2006-01-02 15:04:05",
+	"2006-01-02", "02-01-2006", "2006",
+}
+
+// isIndexableDate reports whether the mapping can parse v as a date.
+func isIndexableDate(v string) bool {
+	for _, layout := range indexDateLayouts {
+		if _, err := time.Parse(layout, v); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// isDates reports whether both ends are valid yyyy-MM-dd dates.
+func (ir IndexRange) isDates() bool {
+	_, errG := time.Parse("2006-01-02", ir.Greater)
+	_, errL := time.Parse("2006-01-02", ir.Less)
+	return errG == nil && errL == nil
 }
 
 // CreateDateRange creates a date indexRange
