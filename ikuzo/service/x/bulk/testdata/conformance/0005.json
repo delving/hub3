@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0005",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0005",
+    "namedGraphURI": "http://example.org/conformance/0005/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0005",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Het \"Puttertje\"",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@value": "regel 1\nregel 2",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/description",
+          "searchLabel": "schema_description",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@value": "café",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@value": "🎨",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/keywords",
+          "searchLabel": "schema_keywords",
+          "level": 1,
+          "order": 5
+        },
+        {
+          "@value": "é",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/keywords",
+          "searchLabel": "schema_keywords",
+          "level": 1,
+          "order": 6
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_alternateName": [
+      "café"
+    ],
+    "schema_description": [
+      "regel 1\nregel 2"
+    ],
+    "schema_keywords": [
+      "🎨",
+      "é"
+    ],
+    "schema_name": [
+      "Het \"Puttertje\""
+    ]
+  }
+}

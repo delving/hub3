@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0004">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:width rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">45</schema:width>
+    <schema:height rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">38.5</schema:height>
+  </rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,24 @@
+[
+  {
+    "@id": "http://example.org/c/0002",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/description": [
+      {
+        "@language": "nl",
+        "@value": "Een stadsgezicht"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Gezicht op Delft"
+      },
+      {
+        "@language": "en",
+        "@value": "View of Delft"
+      }
+    ]
+  }
+]

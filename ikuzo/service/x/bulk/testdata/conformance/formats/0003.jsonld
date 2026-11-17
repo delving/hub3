@@ -1,0 +1,26 @@
+[
+  {
+    "@id": "http://example.org/c/0003",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/dateCreated": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#date",
+        "@value": "1660-05-01"
+      }
+    ],
+    "https://schema.org/dateModified": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "2024-07-16T18:01:37+00:00"
+      }
+    ],
+    "https://schema.org/datePublished": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1661"
+      }
+    ]
+  }
+]

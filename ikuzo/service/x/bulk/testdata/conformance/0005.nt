@@ -1,0 +1,6 @@
+<http://example.org/c/0005> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0005> <https://schema.org/name> "Het \"Puttertje\"" .
+<http://example.org/c/0005> <https://schema.org/description> "regel 1\nregel 2" .
+<http://example.org/c/0005> <https://schema.org/alternateName> "café" .
+<http://example.org/c/0005> <https://schema.org/keywords> "\U0001F3A8" .
+<http://example.org/c/0005> <https://schema.org/keywords> "é" .

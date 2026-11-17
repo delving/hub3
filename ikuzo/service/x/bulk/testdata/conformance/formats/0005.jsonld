@@ -1,0 +1,31 @@
+[
+  {
+    "@id": "http://example.org/c/0005",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@value": "café"
+      }
+    ],
+    "https://schema.org/description": [
+      {
+        "@value": "regel 1\nregel 2"
+      }
+    ],
+    "https://schema.org/keywords": [
+      {
+        "@value": "🎨"
+      },
+      {
+        "@value": "é"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Het \"Puttertje\""
+      }
+    ]
+  }
+]

@@ -1,0 +1,10 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0005> a schema:CreativeWork ;
+    schema:alternateName "café" ;
+    schema:description """regel 1
+regel 2""" ;
+    schema:keywords "é",
+        "🎨" ;
+    schema:name "Het \"Puttertje\"" .
+

@@ -1,0 +1,26 @@
+[
+  {
+    "@id": "http://example.org/c/0006/maker",
+    "https://schema.org/name": [
+      {
+        "@value": "Molen"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0006",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/c/0006/maker"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Molen"
+      }
+    ]
+  }
+]

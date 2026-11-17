@@ -1,0 +1,20 @@
+[
+  {
+    "@id": "http://example.org/c/0004",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/height": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#decimal",
+        "@value": "38.5"
+      }
+    ],
+    "https://schema.org/width": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#integer",
+        "@value": 45
+      }
+    ]
+  }
+]

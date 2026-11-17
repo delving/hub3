@@ -37,6 +37,12 @@ every golden change is a behaviour change.
 | # | Title | What it tests |
 |---|---|---|
 | 0001 | plain literal | `@value`, `entrytype`, `fields` projection |
+| 0002 | language-tagged literals | `@language`, two languages on one predicate |
+| 0003 | xsd:dateTime / date / gYear | `@type`, `isoDate`, `dateRange` |
+| 0004 | xsd:integer / decimal | `integer`, `float` (invalid lexical form: see FINDINGS F7) |
+| 0005 | escapes and unicode | `\"`, `\n`, `é`, emoji, combining character |
+| 0006 | duplicate values | repeated triple; dedup in `fields` across resources |
+| 0007 | long literal | over 256 characters; whitespace kept |
 
 ## Other formats
 

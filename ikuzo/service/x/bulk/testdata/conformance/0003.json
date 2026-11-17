@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0003",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0003",
+    "namedGraphURI": "http://example.org/conformance/0003/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0003",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "1660-05-01",
+          "@type": "http://www.w3.org/2001/XMLSchema#date",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/dateCreated",
+          "searchLabel": "schema_dateCreated",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@value": "1661",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/datePublished",
+          "searchLabel": "schema_datePublished",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@value": "2024-07-16T18:01:37+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/dateModified",
+          "searchLabel": "schema_dateModified",
+          "level": 1,
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_dateCreated": [
+      "1660-05-01"
+    ],
+    "schema_dateModified": [
+      "2024-07-16T18:01:37+00:00"
+    ],
+    "schema_datePublished": [
+      "1661"
+    ]
+  }
+}
