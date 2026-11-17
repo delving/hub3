@@ -1,0 +1,5 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0001> a schema:CreativeWork ;
+    schema:name "Gezicht op Delft" .
+

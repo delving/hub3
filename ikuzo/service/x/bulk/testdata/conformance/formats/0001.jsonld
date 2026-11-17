@@ -1,0 +1,13 @@
+[
+  {
+    "@id": "http://example.org/c/0001",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Gezicht op Delft"
+      }
+    ]
+  }
+]

@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -72,7 +74,27 @@ func TestConformance(t *testing.T) {
 		}
 		num, input := m[1], filepath.Join(confDir, e.Name())
 		t.Run(num, func(t *testing.T) {
-			checkGolden(t, num, runConformanceCase(t, num, input))
+			got := runConformanceCase(t, num, input)
+			checkGolden(t, num, got)
+			if got.kind != "" || *testutil.Update {
+				return
+			}
+			want := normaliseForFormats(t, got.doc)
+			for _, ext := range []string{"nt", "ttl", "rdf", "jsonld"} {
+				f := filepath.Join(confDir, "formats", num+"."+ext)
+				if _, err := os.Stat(f); err != nil {
+					continue
+				}
+				t.Run("formats/"+ext, func(t *testing.T) {
+					alt := runConformanceCase(t, num, f)
+					if alt.kind != "" {
+						t.Fatalf("refused as %q", alt.kind)
+					}
+					if diff := cmp.Diff(want, normaliseForFormats(t, alt.doc)); diff != "" {
+						t.Errorf("formats/%s.%s differs from %s.json (order, bnode labels and array order ignored):\n%s", num, ext, num, diff)
+					}
+				})
+			}
 		})
 	}
 }
@@ -192,4 +214,74 @@ func checkGolden(t *testing.T, num string, got caseResult) {
 	if got.kind != we.Kind {
 		t.Errorf("want refusal %q, got kind=%q doc:\n%s", we.Kind, got.kind, got.doc)
 	}
+}
+
+func TestNormaliseForFormats(t *testing.T) {
+	a := []byte(`{"resources":[{"id":"_:b7","entries":[{"order":2,"@value":"y"},{"order":1,"@value":"x"}]}]}`)
+	b := []byte(`{"resources":[{"id":"_:n1","entries":[{"order":1,"@value":"x"},{"order":5,"@value":"y"}]}]}`)
+	if normaliseForFormats(t, a) != normaliseForFormats(t, b) {
+		t.Fatalf("order, bnode label and array order should not matter:\n%s\n%s",
+			normaliseForFormats(t, a), normaliseForFormats(t, b))
+	}
+	cDoc := []byte(`{"resources":[{"id":"_:b7","entries":[{"order":1,"@value":"z"}]}]}`)
+	if normaliseForFormats(t, a) == normaliseForFormats(t, cDoc) {
+		t.Fatal("a changed value must still differ")
+	}
+}
+
+// bnodePrefix is how a blank node appears in a v2 document.
+const bnodePrefix = "_:"
+
+// normaliseForFormats makes two documents from different serialisations of one
+// graph comparable: drops every "order", gives every blank node one label and
+// sorts arrays. Lost or changed values still differ.
+func normaliseForFormats(t *testing.T, doc []byte) string {
+	t.Helper()
+	var v any
+	if err := json.Unmarshal(doc, &v); err != nil {
+		t.Fatal(err)
+	}
+	b, err := json.Marshal(normaliseValue(v)) // map keys come out sorted
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}
+
+func normaliseValue(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		delete(x, "order")
+		for k, val := range x {
+			x[k] = normaliseValue(val)
+		}
+		return x
+	case []any:
+		keys := make([]string, len(x))
+		for i := range x {
+			x[i] = normaliseValue(x[i])
+			b, _ := json.Marshal(x[i])
+			keys[i] = string(b)
+		}
+		sort.Sort(byKey{x, keys})
+		return x
+	case string:
+		if strings.HasPrefix(x, bnodePrefix) {
+			return bnodePrefix + "b"
+		}
+		return x
+	}
+	return v
+}
+
+type byKey struct {
+	v    []any
+	keys []string
+}
+
+func (s byKey) Len() int           { return len(s.v) }
+func (s byKey) Less(i, j int) bool { return s.keys[i] < s.keys[j] }
+func (s byKey) Swap(i, j int) {
+	s.v[i], s.v[j] = s.v[j], s.v[i]
+	s.keys[i], s.keys[j] = s.keys[j], s.keys[i]
 }

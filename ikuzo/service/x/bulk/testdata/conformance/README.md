@@ -37,3 +37,10 @@ every golden change is a behaviour change.
 | # | Title | What it tests |
 |---|---|---|
 | 0001 | plain literal | `@value`, `entrytype`, `fields` projection |
+
+## Other formats
+
+    PY="nix shell --impure --expr 'with import (builtins.getFlake \"nixpkgs\") {}; python3.withPackages (p: [p.rdflib])' -c python3 -I"
+    eval $PY ikuzo/service/x/bulk/testdata/conformance/formats.py ikuzo/service/x/bulk/testdata/conformance [NNNN ...]
+
+Regenerate after changing an `.nt` in 00xx–02xx or 05xx–06xx and commit the result.
