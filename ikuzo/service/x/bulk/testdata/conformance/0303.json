@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0303",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0303/agg",
+    "namedGraphURI": "http://example.org/conformance/0303/graph",
+    "modified": 0,
+    "recDefID": "edm",
+    "aboutTypeURI": [
+      "http://www.openarchives.org/ore/terms/Aggregation"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0303/agg",
+      "types": [
+        "http://www.openarchives.org/ore/terms/Aggregation"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://example.org/c/0303/cho",
+          "@value": "Aggregatie",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/0303/cho",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0303/agg",
+          "SubjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "SearchLabel": "edm_aggregatedCHO",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/0303/cho"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Aggregatie",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "dc_title": [
+      "Aggregatie"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "@id": "http://example.org/c/0204",
+    "@type": [
+      "http://schema.org/CreativeWork"
+    ],
+    "http://schema.org/name": [
+      {
+        "@value": "Oud schema"
+      }
+    ]
+  }
+]

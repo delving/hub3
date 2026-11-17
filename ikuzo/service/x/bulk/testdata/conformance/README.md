@@ -51,6 +51,14 @@ every golden change is a behaviour change.
 | 0106 | `rdf:List` | `rdf:first`/`rdf:rest` kept or flattened (no `formats/0106.rdf`: FINDINGS F8) |
 | 0107 | cycle A → B → A | terminates; `level` |
 | 0108 | interleaved predicates | `order` follows the source |
+| 0201 | root typed `schema:CreativeWork` only | `entryURI`, `aboutTypeURI` |
+| 0202 | root with several types | `types[]` order |
+| 0203 | two CreativeWork subjects | which becomes `entryURI` |
+| 0204 | `http://schema.org/` | rewritten, or not matched |
+| 0205 | `edm:isShownBy` / image | `hasDigitalObject`; IRI absent from `fields` |
+| 0301 | tags and type | `meta.tags`: `narthex`, `mdr` plus extras |
+| 0302 | revision 7 | `meta.revision` |
+| 0303 | recDefId `edm` | `aboutTypeURI`, root ore:Aggregation |
 
 ## Other formats
 

@@ -1,0 +1,29 @@
+[
+  {
+    "@id": "http://example.org/c/0203/b",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Tweede"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0203/a",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/hasPart": [
+      {
+        "@id": "http://example.org/c/0203/b"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Eerste"
+      }
+    ]
+  }
+]

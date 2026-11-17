@@ -1,0 +1,23 @@
+[
+  {
+    "@id": "http://example.org/c/0205",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "http://www.europeana.eu/schemas/edm/isShownBy": [
+      {
+        "@id": "https://example.org/img/0205.jpg"
+      }
+    ],
+    "https://schema.org/image": [
+      {
+        "@id": "https://example.org/img/0205.jpg"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Met afbeelding"
+      }
+    ]
+  }
+]

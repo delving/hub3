@@ -1,0 +1,4 @@
+<http://example.org/c/0303/agg> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.openarchives.org/ore/terms/Aggregation> .
+<http://example.org/c/0303/agg> <http://www.europeana.eu/schemas/edm/aggregatedCHO> <http://example.org/c/0303/cho> .
+<http://example.org/c/0303/cho> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.europeana.eu/schemas/edm/ProvidedCHO> .
+<http://example.org/c/0303/cho> <http://purl.org/dc/elements/1.1/title> "Aggregatie" .

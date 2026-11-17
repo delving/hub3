@@ -1,0 +1,8 @@
+@prefix ns1: <http://www.europeana.eu/schemas/edm/> .
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0205> a schema:CreativeWork ;
+    ns1:isShownBy <https://example.org/img/0205.jpg> ;
+    schema:image <https://example.org/img/0205.jpg> ;
+    schema:name "Met afbeelding" .
+

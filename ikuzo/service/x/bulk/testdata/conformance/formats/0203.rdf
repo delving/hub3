@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0203/a">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:name>Eerste</schema:name>
+    <schema:hasPart rdf:resource="http://example.org/c/0203/b"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0203/b">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:name>Tweede</schema:name>
+  </rdf:Description>
+</rdf:RDF>

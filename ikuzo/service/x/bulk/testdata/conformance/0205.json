@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0205",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0205",
+    "namedGraphURI": "http://example.org/conformance/0205/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": true
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0205",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Met afbeelding",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "https://example.org/img/0205.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@id": "https://example.org/img/0205.jpg",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/image",
+          "searchLabel": "schema_image",
+          "level": 1,
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "Met afbeelding"
+    ]
+  }
+}

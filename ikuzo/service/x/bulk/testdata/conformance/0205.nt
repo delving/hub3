@@ -1,0 +1,4 @@
+<http://example.org/c/0205> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0205> <https://schema.org/name> "Met afbeelding" .
+<http://example.org/c/0205> <http://www.europeana.eu/schemas/edm/isShownBy> <https://example.org/img/0205.jpg> .
+<http://example.org/c/0205> <https://schema.org/image> <https://example.org/img/0205.jpg> .

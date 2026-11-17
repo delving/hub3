@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0203",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0203/a",
+    "namedGraphURI": "http://example.org/conformance/0203/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0203/a",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Eerste",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "http://example.org/c/0203/b",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/hasPart",
+          "searchLabel": "schema_hasPart",
+          "level": 1,
+          "order": 3
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/0203/b",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0203/a",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/hasPart",
+          "SearchLabel": "schema_hasPart",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/0203/b"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Tweede",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "order": 5
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "Eerste",
+      "Tweede"
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+<http://example.org/c/0203/a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0203/a> <https://schema.org/name> "Eerste" .
+<http://example.org/c/0203/a> <https://schema.org/hasPart> <http://example.org/c/0203/b> .
+<http://example.org/c/0203/b> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0203/b> <https://schema.org/name> "Tweede" .
