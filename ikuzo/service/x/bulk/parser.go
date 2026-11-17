@@ -63,6 +63,8 @@ type Parser struct {
 	s             *Service
 	// batch tracks the current indexing batch for persistent state
 	batch *models.IndexingBatch
+	// maxNestedDocs refuses records with more nested documents; <= 0 disables.
+	maxNestedDocs int
 }
 
 func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
@@ -485,10 +487,15 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 		return NewBulkError(req, "resource_map", "unable to build resource map", err)
 	}
 
-	_, err = fb.Doc()
+	fg, err := fb.Doc()
 	if err != nil {
 		log.Error().Err(err).Str("datasetID", req.DatasetID).Str("hubID", req.HubID).Msg("unable to build fg doc")
 		return NewBulkError(req, "document", "unable to build fragment graph document", err)
+	}
+
+	if n := fg.NestedDocCount(); p.maxNestedDocs > 0 && n > p.maxNestedDocs {
+		return NewBulkError(req, "record_too_large",
+			fmt.Sprintf("record has %d nested documents, the limit is %d", n, p.maxNestedDocs), nil)
 	}
 
 	for _, indexType := range p.indexTypes {

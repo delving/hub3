@@ -63,7 +63,7 @@ every golden change is a behaviour change.
 | 0802 | broken RDF/XML | refusal kind |
 | 0803 | no subject of the aboutType | indexed through the structural-root fallback (FINDINGS F10) |
 | 0804 | empty graph | refusal kind |
-| 0805 | 1,001 keywords (1,002 nested documents) | indexed today; `record_too_large` after the limit |
+| 0805 | 1,001 keywords (1,002 nested documents) | refused as `record_too_large` (limit 1,000, `elasticsearch.maxNestedDocs`) |
 | 0901 | real: `hub3/fragments/testdata/1.rdf` (recDef `edm`) | RDF/XML record |
 | 0902 | real: `hub3/fragments/testdata/crm.nt` (recDef `crm`) | CIDOC-CRM record; resource order unstable (FINDINGS F15) |
 | 0903 | real: `hub3/fragments/testdata/rdf-ntriples-dcn.nt` (recDef `edm`) | N-Triples record |

@@ -44,3 +44,13 @@ func SetPostHookService(hooks ...domain.PostHookService) Option {
 		return nil
 	}
 }
+
+// SetMaxNestedDocs sets the record_too_large limit; n <= 0 keeps the default.
+func SetMaxNestedDocs(n int) Option {
+	return func(s *Service) error {
+		if n > 0 {
+			s.maxNestedDocs = n
+		}
+		return nil
+	}
+}

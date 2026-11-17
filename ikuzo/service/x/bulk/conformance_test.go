@@ -135,12 +135,13 @@ func runConformanceCase(t *testing.T, num, inputPath string) caseResult {
 
 	ci := &captureIndex{}
 	p := &Parser{
-		ds:         &models.DataSet{OrgID: req.OrgID, Spec: req.DatasetID, Revision: req.Revision},
-		stats:      &Stats{},
-		bi:         ci,
-		indexTypes: []string{"v2"},
-		recDef:     RecDefResolver{m: conformanceRecDefs, defaultRecDefID: "schema"},
-		s:          &Service{}, // no task service: PID tasks are logged and skipped
+		ds:            &models.DataSet{OrgID: req.OrgID, Spec: req.DatasetID, Revision: req.Revision},
+		stats:         &Stats{},
+		bi:            ci,
+		indexTypes:    []string{"v2"},
+		recDef:        RecDefResolver{m: conformanceRecDefs, defaultRecDefID: "schema"},
+		s:             &Service{}, // no task service: PID tasks are logged and skipped
+		maxNestedDocs: defaultMaxNestedDocs,
 	}
 
 	// What Parser.setDataSet does for a parser's first request, and the
