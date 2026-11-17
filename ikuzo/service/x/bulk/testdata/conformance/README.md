@@ -58,7 +58,7 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 | 0201 | root typed `schema:CreativeWork` only | `entryURI`, `aboutTypeURI` |
 | 0202 | root with several types | `types[]` order |
 | 0203 | two CreativeWork subjects | which becomes `entryURI` |
-| 0204 | `http://schema.org/` | rewritten, or not matched |
+| 0204 | `http://schema.org/` | rewritten to `https://schema.org/` at parse |
 | 0205 | `edm:isShownBy` / image | `hasDigitalObject`; IRI absent from `fields` |
 | 0301 | tags and type | `meta.tags`: `narthex`, `mdr` plus extras |
 | 0302 | revision 7 | `meta.revision` |

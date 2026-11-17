@@ -18,7 +18,9 @@ func Parse(r io.Reader, g *rdf.Graph, seed string) (*rdf.Graph, error) {
 		return nil, err
 	}
 
-	g.Add(triples...)
+	for _, t := range triples {
+		g.Add(rdf.NormaliseSchemaOrg(t))
+	}
 
 	// as the ntriples and jsonld parsers do: rdf:List becomes repeated values
 	if err := g.Inline(); err != nil {

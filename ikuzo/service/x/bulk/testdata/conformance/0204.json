@@ -14,7 +14,7 @@
     "modified": 0,
     "recDefID": "schema",
     "aboutTypeURI": [
-      "http://schema.org/CreativeWork"
+      "https://schema.org/CreativeWork"
     ],
     "hasDigitalObject": false
   },
@@ -22,7 +22,7 @@
     {
       "id": "http://example.org/c/0204",
       "types": [
-        "http://schema.org/CreativeWork"
+        "https://schema.org/CreativeWork"
       ],
       "graphExternalContext": null,
       "context": null,
@@ -30,16 +30,20 @@
         {
           "@value": "Oud schema",
           "entrytype": "Literal",
-          "predicate": "http://schema.org/name",
-          "searchLabel": "sorg_name",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 2
         }
       ]
     }
   ],
   "fields": {
-    "sorg_name": [
+    "schema_name": [
       "Oud schema"
     ]
   }

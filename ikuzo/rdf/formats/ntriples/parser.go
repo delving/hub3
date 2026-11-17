@@ -30,7 +30,7 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 			return g, err
 		}
 
-		g.Add(t)
+		g.Add(rdf.NormaliseSchemaOrg(t))
 	}
 
 	if err := g.Inline(); err != nil {

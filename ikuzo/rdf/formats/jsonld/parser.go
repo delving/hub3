@@ -51,7 +51,7 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 			return g, err
 		}
 
-		g.Add(t)
+		g.Add(rdf.NormaliseSchemaOrg(t))
 	}
 
 	if err := g.Inline(); err != nil {
@@ -91,12 +91,12 @@ func ParseWithContextLoader(r io.Reader, g *rdf.Graph, loader ld.DocumentLoader)
 
 	options.DocumentLoader = loader
 
-	rdf, err := proc.ToRDF(doc, options)
+	out, err := proc.ToRDF(doc, options)
 	if err != nil {
 		return g, err
 	}
 
-	dataset, ok := rdf.(*ld.RDFDataset)
+	dataset, ok := out.(*ld.RDFDataset)
 	if !ok {
 		return g, fmt.Errorf("*ld.RDFDataset should have been returned")
 	}
@@ -112,7 +112,7 @@ func ParseWithContextLoader(r io.Reader, g *rdf.Graph, loader ld.DocumentLoader)
 				return g, err
 			}
 
-			g.Add(t)
+			g.Add(rdf.NormaliseSchemaOrg(t))
 		}
 	}
 
