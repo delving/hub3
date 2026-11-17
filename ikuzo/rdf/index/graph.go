@@ -174,11 +174,11 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 		return nil, err
 	}
 
+	// the checksum leaves out what changes on every index run
 	checkSumData := b
-
 	deletePaths := []string{"_checksum", "meta.modified", "meta.revision"}
 	for _, p := range deletePaths {
-		b, err = sjson.DeleteBytes(checkSumData, p)
+		checkSumData, err = sjson.DeleteBytes(checkSumData, p)
 		if err != nil {
 			return nil, fmt.Errorf("unable to remove path %q; %w", p, err)
 		}

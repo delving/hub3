@@ -351,3 +351,41 @@ func TestGraph_IndexMessageWithFields(t *testing.T) {
 	is.Equal(len(g.Fields["dc_title"]), 2)
 	is.Equal(len(g.Fields["dc_date"]), 1)
 }
+
+// The checksum ignores meta.modified and meta.revision, and the indexed
+// document keeps both (F27).
+func TestGraph_IndexMessageChecksum(t *testing.T) {
+	build := func(modified int64, revision int32) map[string]any {
+		t.Helper()
+		g, err := NewGraph(Header{OrgID: "o", Spec: "s", HubID: "o_s_1", EntryURI: "urn:test:subject", Modified: modified, Revision: revision})
+		if err != nil {
+			t.Fatal(err)
+		}
+		rg := rdf.NewGraph()
+		s, _ := rdf.NewIRI("urn:test:subject")
+		p, _ := rdf.NewIRI("http://example.org/ontology/title")
+		o, _ := rdf.NewLiteral("Titel")
+		rg.AddTriple(s, p, o)
+		if err := g.AddGraph(rg); err != nil {
+			t.Fatal(err)
+		}
+		m, err := g.IndexMessage(nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var doc map[string]any
+		if err := json.Unmarshal(m.Source, &doc); err != nil {
+			t.Fatal(err)
+		}
+		return doc
+	}
+
+	a, b := build(1000, 1), build(2000, 2)
+	if a["_checksum"] == nil || a["_checksum"] != b["_checksum"] {
+		t.Errorf("checksums %v and %v, want equal and set", a["_checksum"], b["_checksum"])
+	}
+	meta := b["meta"].(map[string]any)
+	if meta["revision"] != float64(2) || meta["modified"] != float64(2000) {
+		t.Errorf("meta revision %v modified %v, want 2 and 2000", meta["revision"], meta["modified"])
+	}
+}
