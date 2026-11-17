@@ -187,17 +187,6 @@ func (p *Parser) setDataSet(req *Request) {
 	p.stats.OrgID = req.OrgID
 	req.Revision = ds.Revision
 	p.ds = ds
-
-	req.setTags()
-
-	for _, tag := range req.resolvedTags {
-		switch tag {
-		case "fragmentsOnly":
-			p.indexTypes = []string{"fragments"}
-		case "rdfOnly":
-			p.indexTypes = []string{}
-		}
-	}
 }
 
 func (p *Parser) dropOrphans(req *Request) error {
@@ -324,6 +313,7 @@ func (p *Parser) process(ctx context.Context, req *Request) error {
 	}
 
 	p.once.Do(func() { p.setDataSet(req) })
+	req.setTags()
 
 	subLogger := addLogger(req.DatasetID)
 
@@ -498,7 +488,7 @@ func (p *Parser) Publish(ctx context.Context, req *Request) error {
 			fmt.Sprintf("record has %d nested documents, the limit is %d", n, p.maxNestedDocs), nil)
 	}
 
-	for _, indexType := range p.indexTypes {
+	for _, indexType := range req.indexTypesOr(p.indexTypes) {
 		switch indexType {
 		case "v1":
 			if err := req.processV1(ctx, fb, p.bi); err != nil {

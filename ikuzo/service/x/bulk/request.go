@@ -92,6 +92,19 @@ func (req *Request) setTags() {
 	}
 }
 
+// indexTypesOr is defaults unless this request's tags say fragmentsOnly or rdfOnly.
+func (req *Request) indexTypesOr(defaults []string) []string {
+	for _, tag := range req.resolvedTags {
+		switch tag {
+		case "fragmentsOnly":
+			return []string{"fragments"}
+		case "rdfOnly":
+			return []string{}
+		}
+	}
+	return defaults
+}
+
 func (req *Request) createFragmentBuilder(revision int) (*fragments.FragmentBuilder, error) {
 	fg := fragments.NewFragmentGraph()
 	fg.Meta.OrgID = req.OrgID

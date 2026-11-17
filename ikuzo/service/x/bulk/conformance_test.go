@@ -173,16 +173,10 @@ func runConformanceCase(t *testing.T, num, inputPath string) caseResult {
 		maxNestedDocs: defaultMaxNestedDocs,
 	}
 
-	// What Parser.setDataSet does for a parser's first request, and the
-	// aboutTypeURI resolution in Parser.process; setDataSet needs the dataset store.
-	req.setTags()
-	aboutURI, err := p.recDef.Resolve(req.RecDefID)
-	if err != nil {
-		return caseResult{kind: "recdef"}
-	}
-	req.aboutTypeURI = aboutURI
+	// setDataSet needs the dataset store: skip it, the dataset is preset above.
+	p.once.Do(func() {})
 
-	if err := p.Publish(context.Background(), req); err != nil {
+	if err := p.process(context.Background(), req); err != nil {
 		var be *BulkError
 		if errors.As(err, &be) {
 			return caseResult{kind: be.Stage}
