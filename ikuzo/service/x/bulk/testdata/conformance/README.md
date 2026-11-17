@@ -65,7 +65,7 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 | 0303 | recDefId `edm` | `aboutTypeURI`, root ore:Aggregation |
 | 0801 | broken N-Triples | refusal kind |
 | 0802 | broken RDF/XML | refusal kind |
-| 0803 | no subject of the aboutType | indexed through the structural-root fallback (FINDINGS F10) |
+| 0803 | no subject of the aboutType | indexed through the structural-root fallback, `aboutTypeURI` = the root's own type |
 | 0804 | empty graph | refusal kind |
 | 0805 | 1,001 keywords (1,002 nested documents) | refused as `record_too_large` (limit 1,000, `elasticsearch.maxNestedDocs`) |
 | 0806 | 0004 plus an invalid `"abc"^^xsd:integer` | the invalid entry kept without `integer`, the others intact (F7) |

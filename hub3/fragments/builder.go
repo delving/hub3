@@ -22,6 +22,7 @@ import (
 	"log"
 	"log/slog"
 	"net/url"
+	"slices"
 	"sort"
 	"strings"
 
@@ -223,6 +224,7 @@ func (fb *FragmentBuilder) ParseResolvedGraph(rdfData io.Reader, mimeType string
 		if err != nil {
 			return fmt.Errorf("unable to retrieve aboutType %q from graph; %w", fb.fg.Meta.AboutTypeURI, err)
 		}
+		fb.fg.Meta.AboutTypeURI = rootAboutTypes(g, fb.fg.Meta.EntryURI, fb.fg.Meta.AboutTypeURI)
 	}
 
 	rm := NewEmptyResourceMap(fb.fg.Meta.GetOrgID())
@@ -284,4 +286,29 @@ func (fb *FragmentBuilder) ParseGraph(rdf io.Reader, mimeType string) error {
 		return err
 	}
 	return nil
+}
+
+// rootAboutTypes is what aboutTypeURI should say about root: the configured
+// types it has, or, when GetAboutURI fell back to a structural root, the types
+// it really has (possibly none) rather than configured types it lacks.
+func rootAboutTypes(g *rdf.Graph, root string, configured []string) []string {
+	var types []string
+	for _, t := range g.Triples() {
+		if t.Subject.RawValue() == root && t.Predicate.RawValue() == rdf.RDFType && !slices.Contains(types, t.Object.RawValue()) {
+			types = append(types, t.Object.RawValue())
+		}
+	}
+	var matched []string
+	for _, ct := range configured {
+		if slices.Contains(types, ct) {
+			matched = append(matched, ct)
+		}
+	}
+	if len(matched) > 0 {
+		return matched
+	}
+	if types == nil {
+		return []string{}
+	}
+	return types
 }

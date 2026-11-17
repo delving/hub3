@@ -14,7 +14,7 @@
     "modified": 0,
     "recDefID": "schema",
     "aboutTypeURI": [
-      "https://schema.org/CreativeWork"
+      "https://schema.org/Person"
     ],
     "hasDigitalObject": false
   },
