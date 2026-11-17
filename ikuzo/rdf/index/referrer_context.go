@@ -10,14 +10,14 @@ import (
 // current Resource. This is used to inline or create grouped view of
 // a []Resource
 type ContextRef struct {
-	Subject      string   `json:"Subject,omitempty"`
-	SubjectClass []string `json:"SubjectClass,omitempty"`
-	Predicate    string   `json:"Predicate,omitempty"`
-	SearchLabel  string   `json:"SearchLabel,omitempty"`
-	Level        int32    `json:"Level,omitempty"`
-	ObjectID     string   `json:"ObjectID,omitempty"`
-	SortKey      int32    `json:"SortKey,omitempty"`
-	Label        string   `json:"Label,omitempty"`
+	Subject      string   `json:"subject,omitempty"`
+	SubjectClass []string `json:"subjectClass,omitempty"`
+	Predicate    string   `json:"predicate,omitempty"`
+	SearchLabel  string   `json:"searchLabel,omitempty"`
+	Level        int32    `json:"level,omitempty"`
+	ObjectID     string   `json:"objectID,omitempty"`
+	SortKey      int32    `json:"sortKey,omitempty"`
+	Label        string   `json:"label,omitempty"`
 }
 
 // containsContext determines if a ContextRef is already part of list.

@@ -1,7 +1,9 @@
 package index
 
 import (
+	"encoding/json"
 	"os"
+	"testing"
 
 	"github.com/delving/hub3/ikuzo/rdf"
 	"github.com/delving/hub3/ikuzo/rdf/formats/ntriples"
@@ -63,4 +65,17 @@ func getGraphByFile(path, format string) (string, *Graph, error) {
 	}
 
 	return data, graph, nil
+}
+
+// ContextRef serialises with the same camelCase names as the fragments model,
+// which the v2 mapping and the resources.context.* queries use (F22).
+func TestContextRefJSONNames(t *testing.T) {
+	b, err := json.Marshal(ContextRef{Subject: "s", SubjectClass: []string{"c"}, Predicate: "p", SearchLabel: "l", Level: 1, ObjectID: "o", SortKey: 2, Label: "x"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := `{"subject":"s","subjectClass":["c"],"predicate":"p","searchLabel":"l","level":1,"objectID":"o","sortKey":2,"label":"x"}`
+	if string(b) != want {
+		t.Errorf("got %s, want %s", b, want)
+	}
 }
