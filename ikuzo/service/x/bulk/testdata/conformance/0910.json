@@ -1,0 +1,1386 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0910",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "https://n2t.net/ark:/60537/b0001z",
+    "namedGraphURI": "http://example.org/conformance/0910/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "https://n2t.net/ark:/60537/b0001z",
+      "types": [
+        "https://schema.org/CreativeWork",
+        "https://www.goudatijdmachine.nl/def#Straat"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "2021-07-08T12:42:00+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#created",
+          "level": 1,
+          "order": 1
+        },
+        {
+          "@value": "137",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 1,
+          "integer": 137,
+          "order": 2
+        },
+        {
+          "@value": "true",
+          "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/biWGGg",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#item_set",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "level": 1,
+          "order": 5
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "level": 1,
+          "order": 7
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "level": 1,
+          "order": 9
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#site",
+          "level": 1,
+          "order": 11
+        },
+        {
+          "@value": "Burgemeester Martenssingel",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#title",
+          "level": 1,
+          "order": 13
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/bEYpwJ",
+          "entrytype": "Resource",
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "order": 14
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/beA1xj",
+          "entrytype": "Resource",
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "order": 15
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "entrytype": "Resource",
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "order": 16
+        },
+        {
+          "@id": "_:geo-2bbcd99b27a885060789ea48e596a4a7",
+          "entrytype": "Bnode",
+          "predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "searchLabel": "gsp_hasGeometry",
+          "level": 1,
+          "order": 71
+        },
+        {
+          "@id": "http://bag.basisregistraties.overheid.nl/bag/id/openbare-ruimte/0513300000001023",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 1,
+          "order": 75
+        },
+        {
+          "@id": "http://www.wikidata.org/entity/Q18979103",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 1,
+          "order": 76
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/items/137",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2002/07/owl#sameAs",
+          "searchLabel": "owl_sameAs",
+          "level": 1,
+          "order": 77
+        },
+        {
+          "@value": "https://www.goudatijdmachine.nl/id/straat/burgemeester-martenssingel",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/identifier",
+          "searchLabel": "schema_identifier",
+          "level": 1,
+          "order": 78
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/bD64Hu",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/isPartOf",
+          "searchLabel": "schema_isPartOf",
+          "level": 1,
+          "order": 79
+        },
+        {
+          "@value": "BAGSV, nummer BAGSV1639 (28-09-2017)",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/mentions",
+          "searchLabel": "schema_mentions",
+          "level": 1,
+          "order": 80
+        },
+        {
+          "@value": "Burgemeester Martenssingel",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "order": 81
+        },
+        {
+          "@value": "2026-10-02T16:00:39+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/sdDatePublished",
+          "searchLabel": "schema_sdDatePublished",
+          "level": 1,
+          "order": 82
+        },
+        {
+          "@value": "2017-09-28",
+          "@type": "http://www.w3.org/2001/XMLSchema#date",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/startDate",
+          "searchLabel": "schema_startDate",
+          "level": 1,
+          "order": 83
+        },
+        {
+          "@id": "https://stratenvangouda.nl/straat/burgemeester-martenssingel",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 1,
+          "order": 84
+        },
+        {
+          "@value": "Genoemd naar Rudolf Lodewijk Martens (1863 - 1917), burgemeester van Gouda van 1895 tot zijn overlijden. In 1892 werd Martens, zonder bestuurlijke ervaring, benoemd tot burgemeester van Bodegraven. Dit was de opstap naar een lange en succesvolle burgemeesterscarrière in Gouda. Tijdens zijn ambtsperiode werd een pensioenfonds voor de Goudse ambtenaren gesticht en werd het Van Itersonziekenhuis gebouwd. Voorts werd aan de gasfabriek een elektrische centrale gekoppeld en werd in verband met de uitbreidingsplannen van Gouda buiten de singels het gemeentelijk grondbedrijf opgericht.",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://www.goudatijdmachine.nl/def#genoemdNaar",
+          "level": 1,
+          "order": 86
+        },
+        {
+          "@value": "van de Karnemelksloot naar de Burgemeester Martensstraat",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://www.goudatijdmachine.nl/def#ligging",
+          "level": 1,
+          "order": 87
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#owner",
+          "Level": 1,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/users/2"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "2",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 2,
+          "order": 6
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "Level": 1,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "909",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 2,
+          "integer": 909,
+          "order": 8
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "Level": 1,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "2",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 2,
+          "integer": 2,
+          "order": 10
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#site",
+          "Level": 1,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "2",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 2,
+          "order": 12
+        }
+      ]
+    },
+    {
+      "id": "https://n2t.net/ark:/60537/buzpEa",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "2022-04-11T09:27:59+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#created",
+          "level": 7,
+          "order": 17
+        },
+        {
+          "@value": "37823",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 37823,
+          "order": 18
+        },
+        {
+          "@value": "true",
+          "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "level": 7,
+          "order": 19
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/bmEOvk",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#item_set",
+          "level": 7,
+          "order": 20
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#media",
+          "level": 7,
+          "order": 21
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "level": 7,
+          "order": 39
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "level": 7,
+          "order": 40
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "level": 7,
+          "order": 41
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "level": 7,
+          "order": 43
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#site",
+          "level": 7,
+          "order": 45
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#thumbnail",
+          "level": 7,
+          "order": 46
+        },
+        {
+          "@value": "Gouda",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#title",
+          "level": 7,
+          "order": 48
+        },
+        {
+          "@id": "_:geo-21d38d03f4370afba42413f29570c0f0",
+          "entrytype": "Bnode",
+          "predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "searchLabel": "gsp_hasGeometry",
+          "level": 7,
+          "order": 49
+        },
+        {
+          "@id": "http://bag.basisregistraties.overheid.nl/bag/id/woonplaats/1005",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 52
+        },
+        {
+          "@id": "http://data.bibliotheken.nl/id/thes/p075586134",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 53
+        },
+        {
+          "@id": "http://www.wikidata.org/entity/Q84125",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 54
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 55
+        },
+        {
+          "@id": "https://rkd.nl/thesaurus/1785",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 56
+        },
+        {
+          "@id": "https://standaarden.overheid.nl/owms/terms/Gouda_(gemeente)",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 57
+        },
+        {
+          "@id": "https://sws.geonames.org/2755419/",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 58
+        },
+        {
+          "@id": "https://vocab.getty.edu/tgn/7006805",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 59
+        },
+        {
+          "@id": "https://www.vondel.humanities.uva.nl/ecartico/places/177",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
+          "searchLabel": "rdfs_seeAlso",
+          "level": 7,
+          "order": 60
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/items/37823",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2002/07/owl#sameAs",
+          "searchLabel": "owl_sameAs",
+          "level": 7,
+          "order": 61
+        },
+        {
+          "@value": "https://www.goudatijdmachine.nl/id/plaats/gouda",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/identifier",
+          "searchLabel": "schema_identifier",
+          "level": 7,
+          "order": 62
+        },
+        {
+          "@value": "Gouda",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 7,
+          "order": 63
+        },
+        {
+          "@value": "2022-04-11T09:27:59+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/sdDatePublished",
+          "searchLabel": "schema_sdDatePublished",
+          "level": 7,
+          "order": 64
+        },
+        {
+          "@id": "http://viaf.org/viaf/292994024",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 7,
+          "order": 65
+        },
+        {
+          "@id": "https://nl.wikipedia.org/wiki/Gouda",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 7,
+          "order": 67
+        },
+        {
+          "@id": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 7,
+          "order": 69
+        }
+      ]
+    },
+    {
+      "id": "https://n2t.net/ark:/60537/buzpEa/93653",
+      "types": [
+        "http://omeka.org/s/vocabs/o#Media"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "2022-11-20T12:39:55+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#created",
+          "level": 7,
+          "order": 22
+        },
+        {
+          "@value": "2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#filename",
+          "level": 7,
+          "order": 23
+        },
+        {
+          "@value": "93653",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 93653,
+          "order": 24
+        },
+        {
+          "@value": "url",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#ingester",
+          "level": 7,
+          "order": 25
+        },
+        {
+          "@value": "true",
+          "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "level": 7,
+          "order": 26
+        },
+        {
+          "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#item",
+          "level": 7,
+          "order": 27
+        },
+        {
+          "@value": "image/png",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#media_type",
+          "level": 7,
+          "order": 28
+        },
+        {
+          "@value": "https://www.goudatijdmachine.nl/omeka/files/original/2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#original_url",
+          "level": 7,
+          "order": 29
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+          "entrytype": "Resource",
+          "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "level": 7,
+          "order": 30
+        },
+        {
+          "@value": "file",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#renderer",
+          "level": 7,
+          "order": 31
+        },
+        {
+          "@value": "8c795d2993dcb150d406069b85d0e554f6fd3c511cb4332e9b0f469dac1baae0",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#sha256",
+          "level": 7,
+          "order": 32
+        },
+        {
+          "@value": "160780",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#size",
+          "level": 7,
+          "integer": 160780,
+          "order": 33
+        },
+        {
+          "@value": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wapen_van_Gouda.svg/640px-Wapen_van_Gouda.svg.png",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#source",
+          "level": 7,
+          "order": 34
+        },
+        {
+          "@id": "_:genid1-93653",
+          "entrytype": "Bnode",
+          "predicate": "http://omeka.org/s/vocabs/o#thumbnail_urls",
+          "level": 7,
+          "order": 35
+        },
+        {
+          "@id": "https://www.goudatijdmachine.nl/omeka/api/media/93653",
+          "entrytype": "Resource",
+          "predicate": "http://www.w3.org/2002/07/owl#sameAs",
+          "searchLabel": "owl_sameAs",
+          "level": 7,
+          "order": 37
+        },
+        {
+          "@value": "2022-11-20T12:39:55+00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/sdDatePublished",
+          "searchLabel": "schema_sdDatePublished",
+          "level": 7,
+          "order": 38
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "Level": 2,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "952",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 952,
+          "order": 42
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "Level": 2,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "26",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 26,
+          "order": 44
+        }
+      ]
+    },
+    {
+      "id": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#thumbnail",
+          "Level": 2,
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "36",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#id",
+          "level": 7,
+          "integer": 36,
+          "order": 47
+        }
+      ]
+    },
+    {
+      "id": "_:geo-21d38d03f4370afba42413f29570c0f0",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "SearchLabel": "gsp_hasGeometry",
+          "Level": 2,
+          "ObjectID": "_:geo-21d38d03f4370afba42413f29570c0f0"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "POINT(4.708329999999933 52.01667)",
+          "@type": "http://www.opengis.net/ont/geosparql#wktLiteral",
+          "entrytype": "Literal",
+          "predicate": "http://www.opengis.net/ont/geosparql#asWKT",
+          "searchLabel": "gsp_asWKT",
+          "level": 7,
+          "order": 50
+        }
+      ]
+    },
+    {
+      "id": "http://viaf.org/viaf/292994024",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/subjectOf",
+          "SearchLabel": "schema_subjectOf",
+          "Level": 2,
+          "ObjectID": "http://viaf.org/viaf/292994024"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Gouda (in VIAF)",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#label",
+          "level": 7,
+          "order": 66
+        }
+      ]
+    },
+    {
+      "id": "https://nl.wikipedia.org/wiki/Gouda",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/subjectOf",
+          "SearchLabel": "schema_subjectOf",
+          "Level": 2,
+          "ObjectID": "https://nl.wikipedia.org/wiki/Gouda"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Gouda (op Wikipedia)",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#label",
+          "level": 7,
+          "order": 68
+        }
+      ]
+    },
+    {
+      "id": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://rdf.histograph.io/liesIn",
+          "Level": 1,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "SubjectClass": [
+            "http://omeka.org/s/vocabs/o#Media"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#item",
+          "Level": 5,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/subjectOf",
+          "SearchLabel": "schema_subjectOf",
+          "Level": 2,
+          "ObjectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001"
+        },
+        {
+          "Subject": "https://n2t.net/ark:/60537/buzpEa",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "Level": 6,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Gouda (op DBNL)",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#label",
+          "level": 7,
+          "order": 70
+        }
+      ]
+    },
+    {
+      "id": "_:geo-2bbcd99b27a885060789ea48e596a4a7",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "SearchLabel": "gsp_hasGeometry",
+          "Level": 1,
+          "ObjectID": "_:geo-2bbcd99b27a885060789ea48e596a4a7"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "MULTILINESTRING((4.7175099 52.0096531,4.7174463 52.0099008,4.7183383 52.009994,4.7193704 52.0101123,4.7195255 52.0101468,4.7196866 52.0101851,4.7198954 52.0102424,4.7200915 52.0103105,4.7202798 52.0103911,4.7204753 52.010492,4.720694 52.0106276,4.7208565 52.0107439,4.7209888 52.0108538,4.7211131 52.0109839,4.7212298 52.0111264,4.7213146 52.0112597,4.7214128 52.0114489,4.7214519 52.011564,4.7214716 52.011632,4.7215094 52.0118115,4.7215156 52.0119035,4.7215098 52.012016,4.7210749 52.0135737,4.721102 52.0136176,4.721222 52.0137024,4.7213224 52.0137482,4.7213041 52.0138401,4.7212815 52.0139538,4.7212279 52.0143307),(4.7213224 52.0137482,4.7213953 52.013714,4.7214391 52.0136597,4.7218262 52.0122386,4.7218561 52.0120938,4.7218737 52.0119287,4.7218668 52.0117761,4.721829 52.0115966,4.7218081 52.0115139,4.7217783 52.0114358,4.7216742 52.0111938,4.7215382 52.0109919,4.7214091 52.0108369,4.7212608 52.0106979,4.7211607 52.0106128,4.7209882 52.0104934,4.720813 52.0103832,4.7206049 52.0102745,4.7204218 52.0101861,4.7202224 52.0101088,4.720083 52.0100619,4.7199585 52.01002,4.7195657 52.0099273,4.719425 52.0099038,4.7193238 52.009887,4.7185182 52.0097912,4.7183997 52.0097812,4.7183591 52.0097507,4.7175099 52.0096531))",
+          "@type": "http://www.opengis.net/ont/geosparql#wktLiteral",
+          "entrytype": "Literal",
+          "predicate": "http://www.opengis.net/ont/geosparql#asWKT",
+          "searchLabel": "gsp_asWKT",
+          "level": 2,
+          "order": 72
+        }
+      ]
+    },
+    {
+      "id": "https://stratenvangouda.nl/straat/burgemeester-martenssingel",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://n2t.net/ark:/60537/b0001z",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://www.goudatijdmachine.nl/def#Straat"
+          ],
+          "Predicate": "https://schema.org/subjectOf",
+          "SearchLabel": "schema_subjectOf",
+          "Level": 1,
+          "ObjectID": "https://stratenvangouda.nl/straat/burgemeester-martenssingel"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Burgemeester Martenssingel (Straten van Gouda)",
+          "entrytype": "Literal",
+          "predicate": "http://omeka.org/s/vocabs/o#label",
+          "level": 2,
+          "order": 85
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "gsp_asWKT": [
+      "POINT(4.708329999999933 52.01667)",
+      "MULTILINESTRING((4.7175099 52.0096531,4.7174463 52.0099008,4.7183383 52.009994,4.7193704 52.0101123,4.7195255 52.0101468,4.7196866 52.0101851,4.7198954 52.0102424,4.7200915 52.0103105,4.7202798 52.0103911,4.7204753 52.010492,4.720694 52.0106276,4.7208565 52.0107439,4.7209888 52.0108538,4.7211131 52.0109839,4.7212298 52.0111264,4.7213146 52.0112597,4.7214128 52.0114489,4.7214519 52.011564,4.7214716 52.011632,4.7215094 52.0118115,4.7215156 52.0119035,4.7215098 52.012016,4.7210749 52.0135737,4.721102 52.0136176,4.721222 52.0137024,4.7213224 52.0137482,4.7213041 52.0138401,4.7212815 52.0139538,4.7212279 52.0143307),(4.7213224 52.0137482,4.7213953 52.013714,4.7214391 52.0136597,4.7218262 52.0122386,4.7218561 52.0120938,4.7218737 52.0119287,4.7218668 52.0117761,4.721829 52.0115966,4.7218081 52.0115139,4.7217783 52.0114358,4.7216742 52.0111938,4.7215382 52.0109919,4.7214091 52.0108369,4.7212608 52.0106979,4.7211607 52.0106128,4.7209882 52.0104934,4.720813 52.0103832,4.7206049 52.0102745,4.7204218 52.0101861,4.7202224 52.0101088,4.720083 52.0100619,4.7199585 52.01002,4.7195657 52.0099273,4.719425 52.0099038,4.7193238 52.009887,4.7185182 52.0097912,4.7183997 52.0097812,4.7183591 52.0097507,4.7175099 52.0096531))"
+    ],
+    "schema_identifier": [
+      "https://www.goudatijdmachine.nl/id/straat/burgemeester-martenssingel",
+      "https://www.goudatijdmachine.nl/id/plaats/gouda"
+    ],
+    "schema_mentions": [
+      "BAGSV, nummer BAGSV1639 (28-09-2017)"
+    ],
+    "schema_name": [
+      "Burgemeester Martenssingel",
+      "Gouda"
+    ],
+    "schema_sdDatePublished": [
+      "2026-10-02T16:00:39+00:00",
+      "2022-04-11T09:27:59+00:00",
+      "2022-11-20T12:39:55+00:00"
+    ],
+    "schema_startDate": [
+      "2017-09-28"
+    ]
+  }
+}

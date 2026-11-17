@@ -1,0 +1,1017 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0909",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+    "namedGraphURI": "http://example.org/conformance/0909/graph",
+    "modified": 0,
+    "recDefID": "nkc",
+    "aboutTypeURI": [
+      "https://wo2.collectienederland.nl/nk/terms/CHO"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "_:b0",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/Production"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "SubjectClass": [
+            "https://wo2.collectienederland.nl/nk/terms/CHO"
+          ],
+          "Predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+          "SearchLabel": "nk_productionDate",
+          "Level": 1,
+          "ObjectID": "_:b0",
+          "Label": "Romeinse ruïnes"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1808",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dateEnd",
+          "searchLabel": "nk_dateEnd",
+          "level": 2,
+          "order": 2
+        },
+        {
+          "@value": "1753 - 1808",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/datePeriod",
+          "searchLabel": "nk_datePeriod",
+          "level": 2,
+          "order": 3
+        },
+        {
+          "@value": "1753",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dateStart",
+          "searchLabel": "nk_dateStart",
+          "level": 2,
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": "_:b1",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/Dimension"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "SubjectClass": [
+            "https://wo2.collectienederland.nl/nk/terms/CHO"
+          ],
+          "Predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
+          "SearchLabel": "nk_dimension",
+          "Level": 1,
+          "ObjectID": "_:b1",
+          "Label": "Romeinse ruïnes"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "31.5 cm",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/heightLength",
+          "searchLabel": "nk_heightLength",
+          "level": 2,
+          "order": 6
+        },
+        {
+          "@value": "45.5 cm",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/width",
+          "searchLabel": "nk_width",
+          "level": 2,
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "_:b2",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/Creator"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "SubjectClass": [
+            "https://wo2.collectienederland.nl/nk/terms/CHO"
+          ],
+          "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "SearchLabel": "nk_creator",
+          "Level": 1,
+          "ObjectID": "_:b2",
+          "Label": "Romeinse ruïnes"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Onbekend",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+          "searchLabel": "nk_creatorName",
+          "level": 2,
+          "order": 9
+        }
+      ]
+    },
+    {
+      "id": "_:b3",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/Creator"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "SubjectClass": [
+            "https://wo2.collectienederland.nl/nk/terms/CHO"
+          ],
+          "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "SearchLabel": "nk_creator",
+          "Level": 1,
+          "ObjectID": "_:b3",
+          "Label": "Romeinse ruïnes"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "toegeschreven aan",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creationRole",
+          "searchLabel": "nk_creationRole",
+          "level": 2,
+          "order": 11
+        },
+        {
+          "@value": "Robert, H.",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creatorName",
+          "searchLabel": "nk_creatorName",
+          "level": 2,
+          "order": 12
+        },
+        {
+          "@value": "1733-05-22",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfBirth",
+          "searchLabel": "nk_dateOfBirth",
+          "level": 2,
+          "order": 13
+        },
+        {
+          "@value": "1808-04-15",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dateOfDeath",
+          "searchLabel": "nk_dateOfDeath",
+          "level": 2,
+          "order": 14
+        },
+        {
+          "@value": "https://rkd.nl/artists/67281",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/rkdArtistLink",
+          "searchLabel": "nk_rkdArtistLink",
+          "level": 2,
+          "order": 15
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/CHO"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Ruïnes met figuren, op de achtergrond een landschap met een stad",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/description",
+          "searchLabel": "dc_description",
+          "level": 1,
+          "order": 17
+        },
+        {
+          "@value": "Romeinse ruïnes",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 1,
+          "tags": [
+            "label"
+          ],
+          "order": 18
+        },
+        {
+          "@value": "waterverf",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/material",
+          "searchLabel": "nave_material",
+          "level": 1,
+          "order": 19
+        },
+        {
+          "@value": "gouache",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/material",
+          "searchLabel": "nave_material",
+          "level": 1,
+          "order": 20
+        },
+        {
+          "@value": "werk op papier",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectCategory",
+          "searchLabel": "nave_objectCategory",
+          "level": 1,
+          "order": 21
+        },
+        {
+          "@value": "landschap",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectCategory",
+          "searchLabel": "nave_objectCategory",
+          "level": 1,
+          "order": 22
+        },
+        {
+          "@value": "gouache",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectName",
+          "searchLabel": "nave_objectName",
+          "level": 1,
+          "order": 23
+        },
+        {
+          "@id": "_:b2",
+          "entrytype": "Bnode",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "searchLabel": "nk_creator",
+          "level": 1,
+          "order": 24
+        },
+        {
+          "@id": "_:b3",
+          "entrytype": "Bnode",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "searchLabel": "nk_creator",
+          "level": 1,
+          "order": 25
+        },
+        {
+          "@id": "_:b1",
+          "entrytype": "Bnode",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
+          "searchLabel": "nk_dimension",
+          "level": 1,
+          "order": 26
+        },
+        {
+          "@id": "_:b0",
+          "entrytype": "Bnode",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+          "searchLabel": "nk_productionDate",
+          "level": 1,
+          "order": 27
+        },
+        {
+          "@value": "Italië",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/productionPlace",
+          "searchLabel": "nk_productionPlace",
+          "level": 1,
+          "order": 28
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-declaration/29541/Archief-SNK-nr.443/10664",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKDeclaration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "1946-05-09",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkDate",
+          "searchLabel": "nk_snkDate",
+          "level": 1,
+          "order": 30
+        },
+        {
+          "@value": "Stichting Nederlandsch Kunstbezit",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkName",
+          "searchLabel": "nk_snkName",
+          "level": 1,
+          "order": 31
+        },
+        {
+          "@value": "10664",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkNumber",
+          "searchLabel": "nk_snkNumber",
+          "level": 1,
+          "order": 32
+        },
+        {
+          "@value": "Amsterdam",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkPlace",
+          "searchLabel": "nk_snkPlace",
+          "level": 1,
+          "order": 33
+        },
+        {
+          "@value": "Archief SNK nr.443",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkSource",
+          "searchLabel": "nk_snkSource",
+          "level": 1,
+          "order": 34
+        },
+        {
+          "@value": "gedwongen verkoop",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkStatus",
+          "searchLabel": "nk_snkStatus",
+          "level": 1,
+          "order": 35
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-registration/29541/1214",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "1214",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+          "searchLabel": "nk_snkRegistrationNumber",
+          "level": 1,
+          "order": 37
+        },
+        {
+          "@value": "SNK (Stichting Nederlands Kunstbezit)",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm",
+          "searchLabel": "nk_snkRegistrationTerm",
+          "level": 1,
+          "order": 38
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-registration/29541/14",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "14",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+          "searchLabel": "nk_snkRegistrationNumber",
+          "level": 1,
+          "order": 40
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-registration/29541/3646",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "3646",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+          "searchLabel": "nk_snkRegistrationNumber",
+          "level": 1,
+          "order": 42
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-registration/29541/36546",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "36546",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+          "searchLabel": "nk_snkRegistrationNumber",
+          "level": 1,
+          "order": 44
+        },
+        {
+          "@value": "München (Collecting point)",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationTerm",
+          "searchLabel": "nk_snkRegistrationTerm",
+          "level": 1,
+          "order": 45
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk-registration/29541/486",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/SNKRegistration"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "486",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistrationNumber",
+          "searchLabel": "nk_snkRegistrationNumber",
+          "level": 1,
+          "order": 47
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/snk/29541",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/NKRecord"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "29541",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 1,
+          "order": 49
+        },
+        {
+          "@value": "Romeinse ruïnes",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 1,
+          "tags": [
+            "label"
+          ],
+          "order": 50
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "@value": "Romeinse ruïnes",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
+          "searchLabel": "nk_cho",
+          "level": 1,
+          "order": 51
+        },
+        {
+          "@value": "29541",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/cleanID",
+          "searchLabel": "nk_cleanID",
+          "level": 1,
+          "order": 52
+        },
+        {
+          "@value": "SNK – teruggegeven werken",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/collectionType",
+          "searchLabel": "nk_collectionType",
+          "level": 1,
+          "order": 53
+        },
+        {
+          "@value": "Robert, H.",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator_filter",
+          "searchLabel": "nk_creator_filter",
+          "level": 1,
+          "order": 54
+        },
+        {
+          "@value": "Onbekend",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator_filter",
+          "searchLabel": "nk_creator_filter",
+          "level": 1,
+          "order": 55
+        },
+        {
+          "@value": "Gerestitueerd",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/currentRestitutionState",
+          "searchLabel": "nk_currentRestitutionState",
+          "level": 1,
+          "order": 56
+        },
+        {
+          "@value": "München",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+          "searchLabel": "nk_location_filter",
+          "level": 1,
+          "order": 57
+        },
+        {
+          "@value": "Heemstede",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/location_filter",
+          "searchLabel": "nk_location_filter",
+          "level": 1,
+          "order": 58
+        },
+        {
+          "@value": "gouache",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/material_filter",
+          "searchLabel": "nk_material_filter",
+          "level": 1,
+          "order": 59
+        },
+        {
+          "@value": "waterverf",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/material_filter",
+          "searchLabel": "nk_material_filter",
+          "level": 1,
+          "order": 60
+        },
+        {
+          "@value": "gouache",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/object_name_filter",
+          "searchLabel": "nk_object_name_filter",
+          "level": 1,
+          "order": 61
+        },
+        {
+          "@value": "Gutmann, F.B.E.",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+          "searchLabel": "nk_owner_filter",
+          "level": 1,
+          "order": 62
+        },
+        {
+          "@value": "Boehler \u0026 Haberstock",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/owner_filter",
+          "searchLabel": "nk_owner_filter",
+          "level": 1,
+          "order": 63
+        },
+        {
+          "@value": "Romeinse ruïnes",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/recordTitle",
+          "searchLabel": "nk_recordTitle",
+          "level": 1,
+          "order": 64
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-declaration/29541/Archief-SNK-nr.443/10664",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkDeclaration",
+          "searchLabel": "nk_snkDeclaration",
+          "level": 1,
+          "order": 65
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-registration/29541/486",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+          "searchLabel": "nk_snkRegistration",
+          "level": 1,
+          "order": 66
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-registration/29541/14",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+          "searchLabel": "nk_snkRegistration",
+          "level": 1,
+          "order": 67
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-registration/29541/3646",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+          "searchLabel": "nk_snkRegistration",
+          "level": 1,
+          "order": 68
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-registration/29541/1214",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+          "searchLabel": "nk_snkRegistration",
+          "level": 1,
+          "order": 69
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/snk-registration/29541/36546",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/snkRegistration",
+          "searchLabel": "nk_snkRegistration",
+          "level": 1,
+          "order": 70
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/timeline/29541/1",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+          "searchLabel": "nk_timeline",
+          "level": 1,
+          "order": 71
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/timeline/snk/29541/finalStatus",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+          "searchLabel": "nk_timeline",
+          "level": 1,
+          "order": 72
+        },
+        {
+          "@id": "https://wo2.collectienederland.nl/id/timeline/29541/2",
+          "entrytype": "Resource",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline",
+          "searchLabel": "nk_timeline",
+          "level": 1,
+          "order": 73
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/timeline/29541/1",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Heemstede",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+          "searchLabel": "nk_timeline_location",
+          "level": 1,
+          "order": 75
+        },
+        {
+          "@value": "Gutmann, F.B.E.",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+          "searchLabel": "nk_timeline_owner",
+          "level": 1,
+          "order": 76
+        },
+        {
+          "@value": "collection",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+          "searchLabel": "nk_timeline_role",
+          "level": 1,
+          "order": 77
+        },
+        {
+          "@value": "collectie",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_role",
+          "searchLabel": "nk_timeline_role",
+          "level": 1,
+          "order": 78
+        },
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+          "searchLabel": "nk_timeline_sort_order",
+          "level": 1,
+          "order": 79
+        },
+        {
+          "@value": "Archief SNK nr.443; Bundesarchiv Koblenz B323 nr.683",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+          "searchLabel": "nk_timeline_source",
+          "level": 1,
+          "order": 80
+        },
+        {
+          "@value": "herkomstreconstructie",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+          "searchLabel": "nk_timeline_type",
+          "level": 1,
+          "order": 81
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/timeline/29541/2",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "München",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_location",
+          "searchLabel": "nk_timeline_location",
+          "level": 1,
+          "order": 83
+        },
+        {
+          "@value": "Boehler \u0026 Haberstock",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_owner",
+          "searchLabel": "nk_timeline_owner",
+          "level": 1,
+          "order": 84
+        },
+        {
+          "@value": "2",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+          "searchLabel": "nk_timeline_sort_order",
+          "level": 1,
+          "order": 85
+        },
+        {
+          "@value": "Archief SNK nr.443; Bundesarchiv Koblenz B323 nr.683",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_source",
+          "searchLabel": "nk_timeline_source",
+          "level": 1,
+          "order": 86
+        },
+        {
+          "@value": "herkomstreconstructie",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+          "searchLabel": "nk_timeline_type",
+          "level": 1,
+          "order": 87
+        }
+      ]
+    },
+    {
+      "id": "https://wo2.collectienederland.nl/id/timeline/snk/29541/finalStatus",
+      "types": [
+        "https://wo2.collectienederland.nl/nk/terms/TimelineEntry"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Huidige restitutie status",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_header",
+          "searchLabel": "nk_timeline_header",
+          "level": 1,
+          "order": 89
+        },
+        {
+          "@value": "999",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_sort_order",
+          "searchLabel": "nk_timeline_sort_order",
+          "level": 1,
+          "order": 90
+        },
+        {
+          "@value": "restitutionStatus",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_type",
+          "searchLabel": "nk_timeline_type",
+          "level": 1,
+          "order": 91
+        },
+        {
+          "@value": "Gerestitueerd",
+          "entrytype": "Literal",
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/timeline_value",
+          "searchLabel": "nk_timeline_value",
+          "level": 1,
+          "order": 92
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "dc_description": [
+      "Ruïnes met figuren, op de achtergrond een landschap met een stad"
+    ],
+    "dc_identifier": [
+      "29541"
+    ],
+    "dc_title": [
+      "Romeinse ruïnes"
+    ],
+    "nave_material": [
+      "waterverf",
+      "gouache"
+    ],
+    "nave_objectCategory": [
+      "werk op papier",
+      "landschap"
+    ],
+    "nave_objectName": [
+      "gouache"
+    ],
+    "nk_cleanID": [
+      "29541"
+    ],
+    "nk_collectionType": [
+      "SNK – teruggegeven werken"
+    ],
+    "nk_creationRole": [
+      "toegeschreven aan"
+    ],
+    "nk_creatorName": [
+      "Onbekend",
+      "Robert, H."
+    ],
+    "nk_creator_filter": [
+      "Robert, H.",
+      "Onbekend"
+    ],
+    "nk_currentRestitutionState": [
+      "Gerestitueerd"
+    ],
+    "nk_dateEnd": [
+      "1808"
+    ],
+    "nk_dateOfBirth": [
+      "1733-05-22"
+    ],
+    "nk_dateOfDeath": [
+      "1808-04-15"
+    ],
+    "nk_datePeriod": [
+      "1753 - 1808"
+    ],
+    "nk_dateStart": [
+      "1753"
+    ],
+    "nk_heightLength": [
+      "31.5 cm"
+    ],
+    "nk_location_filter": [
+      "München",
+      "Heemstede"
+    ],
+    "nk_material_filter": [
+      "gouache",
+      "waterverf"
+    ],
+    "nk_object_name_filter": [
+      "gouache"
+    ],
+    "nk_owner_filter": [
+      "Gutmann, F.B.E.",
+      "Boehler \u0026 Haberstock"
+    ],
+    "nk_productionPlace": [
+      "Italië"
+    ],
+    "nk_recordTitle": [
+      "Romeinse ruïnes"
+    ],
+    "nk_rkdArtistLink": [
+      "https://rkd.nl/artists/67281"
+    ],
+    "nk_snkDate": [
+      "1946-05-09"
+    ],
+    "nk_snkName": [
+      "Stichting Nederlandsch Kunstbezit"
+    ],
+    "nk_snkNumber": [
+      "10664"
+    ],
+    "nk_snkPlace": [
+      "Amsterdam"
+    ],
+    "nk_snkRegistrationNumber": [
+      "1214",
+      "14",
+      "3646",
+      "36546",
+      "486"
+    ],
+    "nk_snkRegistrationTerm": [
+      "SNK (Stichting Nederlands Kunstbezit)",
+      "München (Collecting point)"
+    ],
+    "nk_snkSource": [
+      "Archief SNK nr.443"
+    ],
+    "nk_snkStatus": [
+      "gedwongen verkoop"
+    ],
+    "nk_timeline_header": [
+      "Huidige restitutie status"
+    ],
+    "nk_timeline_location": [
+      "Heemstede",
+      "München"
+    ],
+    "nk_timeline_owner": [
+      "Gutmann, F.B.E.",
+      "Boehler \u0026 Haberstock"
+    ],
+    "nk_timeline_role": [
+      "collection",
+      "collectie"
+    ],
+    "nk_timeline_sort_order": [
+      "1",
+      "2",
+      "999"
+    ],
+    "nk_timeline_source": [
+      "Archief SNK nr.443; Bundesarchiv Koblenz B323 nr.683"
+    ],
+    "nk_timeline_type": [
+      "herkomstreconstructie",
+      "restitutionStatus"
+    ],
+    "nk_timeline_value": [
+      "Gerestitueerd"
+    ],
+    "nk_width": [
+      "45.5 cm"
+    ]
+  }
+}

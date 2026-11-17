@@ -1,0 +1,87 @@
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#created> "2021-07-08T12:42:00+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#id> "137"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#is_public> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#item_set> <https://n2t.net/ark:/60537/biWGGg> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#owner> <https://www.goudatijdmachine.nl/omeka/api/users/2> .
+<https://www.goudatijdmachine.nl/omeka/api/users/2> <http://omeka.org/s/vocabs/o#id> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#resource_class> <https://www.goudatijdmachine.nl/omeka/api/resource_classes/909> .
+<https://www.goudatijdmachine.nl/omeka/api/resource_classes/909> <http://omeka.org/s/vocabs/o#id> "909"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#resource_template> <https://www.goudatijdmachine.nl/omeka/api/resource_templates/2> .
+<https://www.goudatijdmachine.nl/omeka/api/resource_templates/2> <http://omeka.org/s/vocabs/o#id> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#site> <https://www.goudatijdmachine.nl/omeka/api/sites/2> .
+<https://www.goudatijdmachine.nl/omeka/api/sites/2> <http://omeka.org/s/vocabs/o#id> "2"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/b0001z> <http://omeka.org/s/vocabs/o#title> "Burgemeester Martenssingel"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/b0001z> <http://rdf.histograph.io/liesIn> <https://n2t.net/ark:/60537/bEYpwJ> .
+<https://n2t.net/ark:/60537/b0001z> <http://rdf.histograph.io/liesIn> <https://n2t.net/ark:/60537/beA1xj> .
+<https://n2t.net/ark:/60537/b0001z> <http://rdf.histograph.io/liesIn> <https://n2t.net/ark:/60537/buzpEa> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#created> "2022-04-11T09:27:59+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#id> "37823"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#is_public> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#item_set> <https://n2t.net/ark:/60537/bmEOvk> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#media> <https://n2t.net/ark:/60537/buzpEa/93653> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#created> "2022-11-20T12:39:55+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#filename> "2ea03f3f8b936d73e137f7d90229d3b7236147da.png"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#id> "93653"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#ingester> "url"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#is_public> "true"^^<http://www.w3.org/2001/XMLSchema#boolean> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#item> <https://n2t.net/ark:/60537/buzpEa> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#media_type> "image/png"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#original_url> "https://www.goudatijdmachine.nl/omeka/files/original/2ea03f3f8b936d73e137f7d90229d3b7236147da.png"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#owner> <https://www.goudatijdmachine.nl/omeka/api/users/2> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#renderer> "file"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#sha256> "8c795d2993dcb150d406069b85d0e554f6fd3c511cb4332e9b0f469dac1baae0"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#size> "160780"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#source> "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wapen_van_Gouda.svg/640px-Wapen_van_Gouda.svg.png"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://omeka.org/s/vocabs/o#thumbnail_urls> _:genid1-93653 .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://omeka.org/s/vocabs/o#Media> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <http://www.w3.org/2002/07/owl#sameAs> <https://www.goudatijdmachine.nl/omeka/api/media/93653> .
+<https://n2t.net/ark:/60537/buzpEa/93653> <https://schema.org/sdDatePublished> "2022-11-20T12:39:55+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#owner> <https://www.goudatijdmachine.nl/omeka/api/users/2> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#primary_media> <https://n2t.net/ark:/60537/buzpEa/93653> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#resource_class> <https://www.goudatijdmachine.nl/omeka/api/resource_classes/952> .
+<https://www.goudatijdmachine.nl/omeka/api/resource_classes/952> <http://omeka.org/s/vocabs/o#id> "952"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#resource_template> <https://www.goudatijdmachine.nl/omeka/api/resource_templates/26> .
+<https://www.goudatijdmachine.nl/omeka/api/resource_templates/26> <http://omeka.org/s/vocabs/o#id> "26"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#site> <https://www.goudatijdmachine.nl/omeka/api/sites/2> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#thumbnail> <https://www.goudatijdmachine.nl/omeka/api/assets/36> .
+<https://www.goudatijdmachine.nl/omeka/api/assets/36> <http://omeka.org/s/vocabs/o#id> "36"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<https://n2t.net/ark:/60537/buzpEa> <http://omeka.org/s/vocabs/o#title> "Gouda"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.opengis.net/ont/geosparql#hasGeometry> _:geo-21d38d03f4370afba42413f29570c0f0 .
+_:geo-21d38d03f4370afba42413f29570c0f0 <http://www.opengis.net/ont/geosparql#asWKT> "POINT(4.708329999999933 52.01667)"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://bag.basisregistraties.overheid.nl/bag/id/woonplaats/1005> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://data.bibliotheken.nl/id/thes/p075586134> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://www.wikidata.org/entity/Q84125> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://n2t.net/ark:/60537/buzpEa> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://rkd.nl/thesaurus/1785> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://standaarden.overheid.nl/owms/terms/Gouda_(gemeente)> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://sws.geonames.org/2755419/> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://vocab.getty.edu/tgn/7006805> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <https://www.vondel.humanities.uva.nl/ecartico/places/177> .
+<https://n2t.net/ark:/60537/buzpEa> <http://www.w3.org/2002/07/owl#sameAs> <https://www.goudatijdmachine.nl/omeka/api/items/37823> .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/identifier> "https://www.goudatijdmachine.nl/id/plaats/gouda"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/name> "Gouda"@nl .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/sdDatePublished> "2022-04-11T09:27:59+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/subjectOf> <http://viaf.org/viaf/292994024> .
+<http://viaf.org/viaf/292994024> <http://omeka.org/s/vocabs/o#label> "Gouda (in VIAF)"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/subjectOf> <https://nl.wikipedia.org/wiki/Gouda> .
+<https://nl.wikipedia.org/wiki/Gouda> <http://omeka.org/s/vocabs/o#label> "Gouda (op Wikipedia)"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/buzpEa> <https://schema.org/subjectOf> <https://www.dbnl.org/atlas/plaats.php?id=gouda001> .
+<https://www.dbnl.org/atlas/plaats.php?id=gouda001> <http://omeka.org/s/vocabs/o#label> "Gouda (op DBNL)"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.opengis.net/ont/geosparql#hasGeometry> _:geo-2bbcd99b27a885060789ea48e596a4a7 .
+_:geo-2bbcd99b27a885060789ea48e596a4a7 <http://www.opengis.net/ont/geosparql#asWKT> "MULTILINESTRING((4.7175099 52.0096531,4.7174463 52.0099008,4.7183383 52.009994,4.7193704 52.0101123,4.7195255 52.0101468,4.7196866 52.0101851,4.7198954 52.0102424,4.7200915 52.0103105,4.7202798 52.0103911,4.7204753 52.010492,4.720694 52.0106276,4.7208565 52.0107439,4.7209888 52.0108538,4.7211131 52.0109839,4.7212298 52.0111264,4.7213146 52.0112597,4.7214128 52.0114489,4.7214519 52.011564,4.7214716 52.011632,4.7215094 52.0118115,4.7215156 52.0119035,4.7215098 52.012016,4.7210749 52.0135737,4.721102 52.0136176,4.721222 52.0137024,4.7213224 52.0137482,4.7213041 52.0138401,4.7212815 52.0139538,4.7212279 52.0143307),(4.7213224 52.0137482,4.7213953 52.013714,4.7214391 52.0136597,4.7218262 52.0122386,4.7218561 52.0120938,4.7218737 52.0119287,4.7218668 52.0117761,4.721829 52.0115966,4.7218081 52.0115139,4.7217783 52.0114358,4.7216742 52.0111938,4.7215382 52.0109919,4.7214091 52.0108369,4.7212608 52.0106979,4.7211607 52.0106128,4.7209882 52.0104934,4.720813 52.0103832,4.7206049 52.0102745,4.7204218 52.0101861,4.7202224 52.0101088,4.720083 52.0100619,4.7199585 52.01002,4.7195657 52.0099273,4.719425 52.0099038,4.7193238 52.009887,4.7185182 52.0097912,4.7183997 52.0097812,4.7183591 52.0097507,4.7175099 52.0096531))"^^<http://www.opengis.net/ont/geosparql#wktLiteral> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://www.goudatijdmachine.nl/def#Straat> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://bag.basisregistraties.overheid.nl/bag/id/openbare-ruimte/0513300000001023> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.w3.org/2000/01/rdf-schema#seeAlso> <http://www.wikidata.org/entity/Q18979103> .
+<https://n2t.net/ark:/60537/b0001z> <http://www.w3.org/2002/07/owl#sameAs> <https://www.goudatijdmachine.nl/omeka/api/items/137> .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/identifier> "https://www.goudatijdmachine.nl/id/straat/burgemeester-martenssingel"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/isPartOf> <https://n2t.net/ark:/60537/bD64Hu> .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/mentions> "BAGSV, nummer BAGSV1639 (28-09-2017)"@nl .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/name> "Burgemeester Martenssingel"@nl .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/sdDatePublished> "2026-10-02T16:00:39+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/startDate> "2017-09-28"^^<http://www.w3.org/2001/XMLSchema#date> .
+<https://n2t.net/ark:/60537/b0001z> <https://schema.org/subjectOf> <https://stratenvangouda.nl/straat/burgemeester-martenssingel> .
+<https://stratenvangouda.nl/straat/burgemeester-martenssingel> <http://omeka.org/s/vocabs/o#label> "Burgemeester Martenssingel (Straten van Gouda)"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://n2t.net/ark:/60537/b0001z> <https://www.goudatijdmachine.nl/def#genoemdNaar> "Genoemd naar Rudolf Lodewijk Martens (1863 - 1917), burgemeester van Gouda van 1895 tot zijn overlijden. In 1892 werd Martens, zonder bestuurlijke ervaring, benoemd tot burgemeester van Bodegraven. Dit was de opstap naar een lange en succesvolle burgemeesterscarrière in Gouda. Tijdens zijn ambtsperiode werd een pensioenfonds voor de Goudse ambtenaren gesticht en werd het Van Itersonziekenhuis gebouwd. Voorts werd aan de gasfabriek een elektrische centrale gekoppeld en werd in verband met de uitbreidingsplannen van Gouda buiten de singels het gemeentelijk grondbedrijf opgericht."@nl .
+<https://n2t.net/ark:/60537/b0001z> <https://www.goudatijdmachine.nl/def#ligging> "van de Karnemelksloot naar de Burgemeester Martensstraat"@nl .

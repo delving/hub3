@@ -64,6 +64,16 @@ every golden change is a behaviour change.
 | 0803 | no subject of the aboutType | indexed through the structural-root fallback (FINDINGS F10) |
 | 0804 | empty graph | refusal kind |
 | 0805 | 1,001 keywords (1,002 nested documents) | indexed today; `record_too_large` after the limit |
+| 0901 | real: `hub3/fragments/testdata/1.rdf` (recDef `edm`) | RDF/XML record |
+| 0902 | real: `hub3/fragments/testdata/crm.nt` (recDef `crm`) | CIDOC-CRM record; resource order unstable (FINDINGS F15) |
+| 0903 | real: `hub3/fragments/testdata/rdf-ntriples-dcn.nt` (recDef `edm`) | N-Triples record |
+| 0904 | real: `hub3/fragments/testdata/test_nave_normalised.jsonld` (recDef `edm`) | normalised Nave JSON-LD |
+| 0905 | real: `hub3/fragments/testdata/enb_test_2.jsonld` (recDef `edm`) | JSON-LD record |
+| 0906 | real: `hub3/fragments/testdata/rdf-jsonld-dcn.json` (recDef `edm`) | JSON-LD record |
+| 0907 | real: `ikuzo/rdf/index/testdata/rdf_brocade.rdf.xml` (recDef `lrm`) | Brocade RDF/XML; resource order unstable (F15) |
+| 0908 | real: `ikuzo/rdf/index/testdata/rdf.xml` (recDef `lrm`) | RDF/XML record; resource order unstable (F15) |
+| 0909 | real: `ikuzo/service/x/bulk/testdata/snk_teruggegeven_werken.jsonld` (recDef `nkc`) | SNK JSON-LD |
+| 0910 | real: Gouda Tijdmachine (2026-11-16 dump) | NDE record in dump order |
 
 ## Other formats
 

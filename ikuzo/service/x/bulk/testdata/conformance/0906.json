@@ -1,0 +1,603 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0906",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+    "namedGraphURI": "http://example.org/conformance/0906/graph",
+    "modified": 0,
+    "recDefID": "edm",
+    "aboutTypeURI": [
+      "http://www.openarchives.org/ore/terms/Aggregation"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "_:b0",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/DcnResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "test extra",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/extra",
+          "searchLabel": "nave_extra",
+          "level": 1,
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "_:b1",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/DelvingResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowDeepZoom",
+          "searchLabel": "nave_allowDeepZoom",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowLinkedOpenData",
+          "searchLabel": "nave_allowLinkedOpenData",
+          "level": 1,
+          "order": 5
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowSourceDownload",
+          "searchLabel": "nave_allowSourceDownload",
+          "level": 1,
+          "order": 6
+        },
+        {
+          "@value": "toBeRemoved",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 1,
+          "order": 7
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/public",
+          "searchLabel": "nave_public",
+          "level": 1,
+          "order": 8
+        },
+        {
+          "@value": "toBeRemoved",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 1,
+          "order": 9
+        },
+        {
+          "@value": "toBeRemoved",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbMedium",
+          "searchLabel": "nave_thumbMedium",
+          "level": 1,
+          "order": 10
+        },
+        {
+          "@value": "toBeRemoved",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 1,
+          "order": 11
+        }
+      ]
+    },
+    {
+      "id": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+      "types": [
+        "http://www.openarchives.org/ore/terms/Aggregation"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+          "@value": "10-delig sluitgewicht van messing",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "order": 13
+        },
+        {
+          "@value": "Museum Sloten",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/dataProvider",
+          "searchLabel": "edm_dataProvider",
+          "level": 1,
+          "order": 14
+        },
+        {
+          "@value": "Rijksdienst voor het Cultureel Erfgoed",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/provider",
+          "searchLabel": "edm_provider",
+          "level": 1,
+          "order": 15
+        },
+        {
+          "@id": "http://rightsstatements.org/vocab/InC/1.0/",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/rights",
+          "searchLabel": "edm_rights",
+          "level": 1,
+          "order": 16
+        }
+      ]
+    },
+    {
+      "id": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+          "SubjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "SearchLabel": "edm_aggregatedCHO",
+          "Level": 1,
+          "ObjectID": "http://data.collectienederland.nl/resource/document/museum-sloten/D036"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Vervaardiger onbekend",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/creator",
+          "searchLabel": "dc_creator",
+          "level": 2,
+          "order": 18
+        },
+        {
+          "@value": "18e eeuw",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/date",
+          "searchLabel": "dc_date",
+          "level": 2,
+          "order": 19
+        },
+        {
+          "@value": "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/description",
+          "searchLabel": "dc_description",
+          "level": 2,
+          "order": 20
+        },
+        {
+          "@value": "D036",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 2,
+          "order": 21
+        },
+        {
+          "@value": "10-delig sluitgewicht van messing",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 2,
+          "tags": [
+            "label"
+          ],
+          "order": 22
+        },
+        {
+          "@value": "gebruiksvoorwerpen",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/type",
+          "searchLabel": "dc_type",
+          "level": 2,
+          "order": 23
+        },
+        {
+          "@value": "diameter: 4.4 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 24
+        },
+        {
+          "@value": "hoogte: 7.3 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 25
+        },
+        {
+          "@value": "gewicht: 56.70 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 26
+        },
+        {
+          "@value": "diameter: 10.5 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 27
+        },
+        {
+          "@value": "gewicht: 226.80 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 28
+        },
+        {
+          "@value": "gewicht: 4000 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 29
+        },
+        {
+          "@value": "hoogte: 0.8 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 30
+        },
+        {
+          "@value": "diameter: 3.6 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 31
+        },
+        {
+          "@value": "diameter: 8.3 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 32
+        },
+        {
+          "@value": "hoogte: 0.6 ",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 33
+        },
+        {
+          "@value": "diameter: 1,5 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 34
+        },
+        {
+          "@value": "gewicht: 2000 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 35
+        },
+        {
+          "@value": "gewicht: 450 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 36
+        },
+        {
+          "@value": "hoogte: 3.4 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 37
+        },
+        {
+          "@value": "hoogte: 2.1 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 38
+        },
+        {
+          "@value": "diameter: 2.4 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 39
+        },
+        {
+          "@value": "breedte: 16 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 40
+        },
+        {
+          "@value": "gewicht: 10 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 41
+        },
+        {
+          "@value": "gewicht: 6000 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 42
+        },
+        {
+          "@value": "diameter: 5.4 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 43
+        },
+        {
+          "@value": "diameter: 2.8 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 44
+        },
+        {
+          "@value": "diameter: 6.6 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 45
+        },
+        {
+          "@value": "hoogte: 4.2 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 46
+        },
+        {
+          "@value": "gewicht: 160 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 47
+        },
+        {
+          "@value": "gewicht: 40 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 48
+        },
+        {
+          "@value": "hoogte: 1.5 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 49
+        },
+        {
+          "@value": "hoogte: 20 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 50
+        },
+        {
+          "@value": "hoogte: 6 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 51
+        },
+        {
+          "@value": "hoogte: 2.5 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 52
+        },
+        {
+          "@value": "gewicht: 20 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 53
+        },
+        {
+          "@value": "hoogte: 1.0 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 54
+        },
+        {
+          "@value": "gewicht: 1000 gr",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 55
+        },
+        {
+          "@value": "diameter: 1.9 cm",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/extent",
+          "searchLabel": "dcterms_extent",
+          "level": 2,
+          "order": 56
+        }
+      ]
+    },
+    {
+      "id": "urn:museum-sloten/D036a",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+          "searchLabel": "nave_resourceSortOrder",
+          "level": 1,
+          "order": 58
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "dc_creator": [
+      "Vervaardiger onbekend"
+    ],
+    "dc_date": [
+      "18e eeuw"
+    ],
+    "dc_description": [
+      "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]"
+    ],
+    "dc_identifier": [
+      "D036"
+    ],
+    "dc_title": [
+      "10-delig sluitgewicht van messing"
+    ],
+    "dc_type": [
+      "gebruiksvoorwerpen"
+    ],
+    "dcterms_extent": [
+      "diameter: 4.4 cm",
+      "hoogte: 7.3 cm",
+      "gewicht: 56.70 gr",
+      "diameter: 10.5 cm",
+      "gewicht: 226.80 gr",
+      "gewicht: 4000 gr",
+      "hoogte: 0.8 cm",
+      "diameter: 3.6 cm",
+      "diameter: 8.3 cm",
+      "hoogte: 0.6 ",
+      "diameter: 1,5 cm",
+      "gewicht: 2000 gr",
+      "gewicht: 450 gr",
+      "hoogte: 3.4 cm",
+      "hoogte: 2.1 cm",
+      "diameter: 2.4 cm",
+      "breedte: 16 cm",
+      "gewicht: 10 gr",
+      "gewicht: 6000 gr",
+      "diameter: 5.4 cm",
+      "diameter: 2.8 cm",
+      "diameter: 6.6 cm",
+      "hoogte: 4.2 cm",
+      "gewicht: 160 gr",
+      "gewicht: 40 gr",
+      "hoogte: 1.5 cm",
+      "hoogte: 20 cm",
+      "hoogte: 6 cm",
+      "hoogte: 2.5 cm",
+      "gewicht: 20 gr",
+      "hoogte: 1.0 cm",
+      "gewicht: 1000 gr",
+      "diameter: 1.9 cm"
+    ],
+    "edm_dataProvider": [
+      "Museum Sloten"
+    ],
+    "edm_provider": [
+      "Rijksdienst voor het Cultureel Erfgoed"
+    ],
+    "nave_allowDeepZoom": [
+      "true"
+    ],
+    "nave_allowLinkedOpenData": [
+      "true"
+    ],
+    "nave_allowSourceDownload": [
+      "false"
+    ],
+    "nave_deepZoomUrl": [
+      "toBeRemoved"
+    ],
+    "nave_extra": [
+      "test extra"
+    ],
+    "nave_public": [
+      "true"
+    ],
+    "nave_resourceSortOrder": [
+      "1"
+    ],
+    "nave_thumbLarge": [
+      "toBeRemoved"
+    ],
+    "nave_thumbMedium": [
+      "toBeRemoved"
+    ],
+    "nave_thumbSmall": [
+      "toBeRemoved"
+    ]
+  }
+}

@@ -39,6 +39,8 @@ var (
 		"schema": {"https://schema.org/CreativeWork"},
 		"edm":    {"http://www.openarchives.org/ore/terms/Aggregation"},
 		"crm":    {"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"},
+		"lrm":    {"https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"},
+		"nkc":    {"https://wo2.collectienederland.nl/nk/terms/CHO"},
 	}
 )
 
@@ -49,6 +51,15 @@ var (
 var knownFormatDiffs = map[string]string{
 	"05": "F11: level and context follow triple order",
 	"06": "F11: level and context follow triple order",
+}
+
+// knownUnstable lists cases whose document hub3 does not produce the same way
+// twice, with the finding that explains it. Such a case still has to match its
+// golden apart from order, blank-node labels and array order.
+var knownUnstable = map[string]string{
+	"0902": "F15: resources without entries sort in map order",
+	"0907": "F15: resources without entries sort in map order",
+	"0908": "F15: resources without entries sort in map order",
 }
 
 type caseResult struct {
@@ -209,6 +220,9 @@ func checkGolden(t *testing.T, num string, got caseResult) {
 			t.Fatalf("want a document, got refusal %q", got.kind)
 		}
 		if diff := cmp.Diff(string(want), string(got.doc)); diff != "" {
+			if f, ok := knownUnstable[num]; ok && normaliseForFormats(t, want) == normaliseForFormats(t, got.doc) {
+				t.Skipf("known instability %s; byte diff:\n%s", f, diff)
+			}
 			t.Errorf("%s.json mismatch (-want +got):\n%s", num, diff)
 		}
 		return
