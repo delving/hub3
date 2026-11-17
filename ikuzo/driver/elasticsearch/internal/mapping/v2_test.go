@@ -109,3 +109,15 @@ func TestV2MappingInlineOnlyOnCreate(t *testing.T) {
 		t.Error("update mapping should not touch entries.inline")
 	}
 }
+
+// mFilterID/mType/mRole were for facets across predicates at index time; that
+// need is met at query time by facet.mergeField, and nothing wrote them (F3).
+func TestV2MappingWithoutMetaFacetFields(t *testing.T) {
+	for name, m := range map[string]string{"create": V2ESMapping(1, 0), "update": V2MappingUpdate()} {
+		for _, f := range []string{`"mFilterID"`, `"mType"`, `"mRole"`} {
+			if strings.Contains(m, f) {
+				t.Errorf("%s mapping still declares %s", name, f)
+			}
+		}
+	}
+}
