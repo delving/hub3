@@ -52,7 +52,7 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 | 0103 | blank node, one level | bnode id, `entrytype` |
 | 0104 | blank nodes, three levels | `level`, `context` path |
 | 0105 | resource reached by two paths | `containsContext` dedup |
-| 0106 | `rdf:List` | `rdf:first`/`rdf:rest` kept or flattened (no `formats/0106.rdf`: FINDINGS F8) |
+| 0106 | `rdf:List` | flattened to repeated values, in every format |
 | 0107 | cycle A → B → A | terminates; `level` |
 | 0108 | interleaved predicates | `order` follows the source |
 | 0201 | root typed `schema:CreativeWork` only | `entryURI`, `aboutTypeURI` |
