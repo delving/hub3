@@ -217,6 +217,9 @@ func TestNewResourceEntryDecimalAndDouble(t *testing.T) {
 		{"1,5", "decimal", 0}, // invalid: kept without a number (F7)
 		{"NaN", "double", 0},  // valid xsd:double, but JSON has no NaN/INF
 		{"INF", "double", 0},
+		{"1e300", "double", 0}, // beyond the mapping's 32-bit float: OpenSearch refused the record
+		{"-1e39", "decimal", 0},
+		{"3.4e38", "double", 3.4e38}, // still a float32
 	} {
 		fe := &FragmentEntry{Value: tc.value, DataType: xsd + tc.datatype, EntryType: "Literal"}
 		re, err := fe.NewResourceEntry("https://schema.org/height", 1, &ResourceMap{})
@@ -327,6 +330,51 @@ func TestBySortOrderIsDeterministic(t *testing.T) {
 		}
 		if !slices.Equal(got, want) {
 			t.Fatalf("round %d: got %v, want %v", i, got, want)
+		}
+	}
+}
+
+// An xsd:integer outside the mapping's 32-bit integer keeps its entry without
+// the number; OpenSearch refused the whole record.
+func TestNewResourceEntryIntegerRange(t *testing.T) {
+	for _, tc := range []struct {
+		value string
+		want  int
+	}{
+		{"2147483647", 2147483647},
+		{"-2147483648", -2147483648},
+		{"2147483648", 0},
+		{"12345678901", 0},
+	} {
+		fe := &FragmentEntry{Value: tc.value, DataType: "http://www.w3.org/2001/XMLSchema#integer", EntryType: "Literal"}
+		re, err := fe.NewResourceEntry("https://schema.org/identifier", 1, &ResourceMap{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if re.Integer != tc.want || re.Value != tc.value {
+			t.Errorf("%s: integer %d value %q, want %d", tc.value, re.Integer, re.Value, tc.want)
+		}
+	}
+}
+
+// isIndexableDate accepts only what the mapping's formats parse: seconds with
+// no fraction or exactly three digits.
+func TestIsIndexableDate(t *testing.T) {
+	for v, want := range map[string]bool{
+		"2024-01-01":                  true,
+		"2024":                        true,
+		"01-02-2024":                  true,
+		"2024-01-01 10:00:00":         true,
+		"2024-01-01T10:00:00Z":        true,
+		"2024-01-01T10:00:00+01:00":   true,
+		"2024-01-01T10:00:00.123Z":    true,
+		"2024-01-01T10:00:00.5Z":      false,
+		"2024-01-01T10:00:00.123456Z": false,
+		"2024-01-01T10:00:00":         false,
+		"zomer 1660":                  false,
+	} {
+		if got := isIndexableDate(v); got != want {
+			t.Errorf("isIndexableDate(%q) = %v, want %v", v, got, want)
 		}
 	}
 }

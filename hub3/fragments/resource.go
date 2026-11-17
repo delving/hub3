@@ -1051,11 +1051,12 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 	// the error made SetEntries stop and drop the resource's other entries.
 	switch re.DataType {
 	case "http://www.w3.org/2001/XMLSchema#integer":
-		i, err := strconv.Atoi(re.Value)
+		// the mapping's integer is 32-bit: a larger value fails the whole record
+		i, err := strconv.ParseInt(re.Value, 10, 32)
 		if err != nil {
-			log.Printf("unable to convert %q (%s) to int: %v", re.Value, predicate, err)
+			log.Printf("unable to convert %q (%s) to a 32-bit int: %v", re.Value, predicate, err)
 		} else {
-			re.Integer = i
+			re.Integer = int(i)
 		}
 	case "http://www.w3.org/2001/XMLSchema#float",
 		"http://www.w3.org/2001/XMLSchema#decimal",
@@ -1068,8 +1069,9 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		switch {
 		case err != nil:
 			log.Printf("unable to convert %q (%s) to float: %v", re.Value, predicate, err)
-		case math.IsNaN(i) || math.IsInf(i, 0):
-			// valid xsd, but JSON cannot carry it: the document would not marshal
+		case math.IsNaN(i) || math.IsInf(i, 0) || math.Abs(i) > math.MaxFloat32:
+			// valid xsd, but JSON cannot carry NaN/INF, and the mapping's float is
+			// 32-bit: OpenSearch refuses the whole record over a larger value
 			log.Printf("not indexing %q (%s) as float", re.Value, predicate)
 		default:
 			re.Float = i
@@ -1195,6 +1197,13 @@ var indexDateLayouts = []string{
 
 // isIndexableDate reports whether the mapping can parse v as a date.
 func isIndexableDate(v string) bool {
+	// time.Parse takes any fraction of a second; the mapping takes none or .SSS
+	if _, frac, ok := strings.Cut(v, "."); ok {
+		digits := len(frac) - len(strings.TrimLeft(frac, "0123456789"))
+		if digits != 3 {
+			return false
+		}
+	}
 	for _, layout := range indexDateLayouts {
 		if _, err := time.Parse(layout, v); err == nil {
 			return true
