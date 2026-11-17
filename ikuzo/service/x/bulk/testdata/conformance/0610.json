@@ -69,14 +69,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
-          "SearchLabel": "crm_P102_has_title",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/title/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "searchLabel": "crm_P102_has_title",
+          "level": 1,
+          "objectID": "http://example.org/c/title/0610"
         }
       ],
       "entries": [
@@ -99,14 +99,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
-          "SearchLabel": "crm_P108i_was_produced_by",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/production/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0610"
         }
       ],
       "entries": [
@@ -144,24 +144,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
-          "SearchLabel": "crm_P108i_was_produced_by",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/production/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0610"
         },
         {
-          "Subject": "http://example.org/c/production/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/production/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
-          "SearchLabel": "crm_P4_has_time-span",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/timespan/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 2,
+          "objectID": "http://example.org/c/timespan/0610"
         }
       ],
       "entries": [
@@ -207,24 +207,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
-          "SearchLabel": "crm_P108i_was_produced_by",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/production/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0610"
         },
         {
-          "Subject": "http://example.org/c/production/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/production/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
-          "SearchLabel": "crm_P32_used_general_technique",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/type/paneelschildering"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "objectID": "http://example.org/c/type/paneelschildering"
         }
       ],
       "entries": [
@@ -255,34 +255,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
-          "SearchLabel": "crm_P108i_was_produced_by",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/production/0610"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0610"
         },
         {
-          "Subject": "http://example.org/c/production/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/production/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
-          "SearchLabel": "crm_P32_used_general_technique",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/type/paneelschildering"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "objectID": "http://example.org/c/type/paneelschildering"
         },
         {
-          "Subject": "http://example.org/c/type/paneelschildering",
-          "SubjectClass": [
+          "subject": "http://example.org/c/type/paneelschildering",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
-          "SearchLabel": "crm_P2_has_type",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/type/techniek"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "objectID": "http://example.org/c/type/techniek"
         }
       ],
       "entries": [
@@ -305,14 +305,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
-          "SearchLabel": "crm_P45_consists_of",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel"
         }
       ],
       "entries": [
@@ -352,24 +352,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
-          "SearchLabel": "crm_P45_consists_of",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel"
         },
         {
-          "Subject": "http://example.org/c/material/eikenpaneel",
-          "SubjectClass": [
+          "subject": "http://example.org/c/material/eikenpaneel",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
-          "SearchLabel": "crm_P2_has_type",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/type/materiaal"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 2,
+          "objectID": "http://example.org/c/type/materiaal"
         }
       ],
       "entries": [
@@ -392,14 +392,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
-          "SearchLabel": "crm_P62_depicts",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
         }
       ],
       "entries": [
@@ -421,24 +421,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
-          "SearchLabel": "crm_P62_depicts",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
         },
         {
-          "Subject": "http://example.org/c/person/maria",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/maria",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/appellation/person-maria-0"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "http://example.org/c/appellation/person-maria-0"
         }
       ],
       "entries": [
@@ -468,34 +468,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0610",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0610",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
-          "SearchLabel": "crm_P62_depicts",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
         },
         {
-          "Subject": "http://example.org/c/person/maria",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/maria",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/appellation/person-maria-0"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "http://example.org/c/appellation/person-maria-0"
         },
         {
-          "Subject": "http://example.org/c/appellation/person-maria-0",
-          "SubjectClass": [
+          "subject": "http://example.org/c/appellation/person-maria-0",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
-          "SearchLabel": "crm_P2_has_type",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/type/voorkeursnaam"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "objectID": "http://example.org/c/type/voorkeursnaam"
         }
       ],
       "entries": [

@@ -43,14 +43,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0103",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0103",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/size",
-          "SearchLabel": "schema_size",
-          "Level": 1,
-          "ObjectID": "_:size"
+          "predicate": "https://schema.org/size",
+          "searchLabel": "schema_size",
+          "level": 1,
+          "objectID": "_:size"
         }
       ],
       "entries": [

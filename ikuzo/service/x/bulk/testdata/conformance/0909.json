@@ -27,14 +27,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
-          "SubjectClass": [
+          "subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "subjectClass": [
             "https://wo2.collectienederland.nl/nk/terms/CHO"
           ],
-          "Predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
-          "SearchLabel": "nk_productionDate",
-          "Level": 1,
-          "ObjectID": "_:b0"
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
+          "searchLabel": "nk_productionDate",
+          "level": 1,
+          "objectID": "_:b0"
         }
       ],
       "entries": [
@@ -72,14 +72,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
-          "SubjectClass": [
+          "subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "subjectClass": [
             "https://wo2.collectienederland.nl/nk/terms/CHO"
           ],
-          "Predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
-          "SearchLabel": "nk_dimension",
-          "Level": 1,
-          "ObjectID": "_:b1"
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
+          "searchLabel": "nk_dimension",
+          "level": 1,
+          "objectID": "_:b1"
         }
       ],
       "entries": [
@@ -109,14 +109,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
-          "SubjectClass": [
+          "subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "subjectClass": [
             "https://wo2.collectienederland.nl/nk/terms/CHO"
           ],
-          "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
-          "SearchLabel": "nk_creator",
-          "Level": 1,
-          "ObjectID": "_:b2"
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "searchLabel": "nk_creator",
+          "level": 1,
+          "objectID": "_:b2"
         }
       ],
       "entries": [
@@ -139,14 +139,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
-          "SubjectClass": [
+          "subject": "https://wo2.collectienederland.nl/id/cho/snk-29541",
+          "subjectClass": [
             "https://wo2.collectienederland.nl/nk/terms/CHO"
           ],
-          "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
-          "SearchLabel": "nk_creator",
-          "Level": 1,
-          "ObjectID": "_:b3"
+          "predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
+          "searchLabel": "nk_creator",
+          "level": 1,
+          "objectID": "_:b3"
         }
       ],
       "entries": [

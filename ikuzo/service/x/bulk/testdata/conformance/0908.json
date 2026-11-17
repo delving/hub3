@@ -27,24 +27,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
-          "SearchLabel": "crm_P70i_is_documented_in",
-          "Level": 1,
-          "ObjectID": "_:b553760ecfbb170e5"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+          "searchLabel": "crm_P70i_is_documented_in",
+          "level": 1,
+          "objectID": "_:b553760ecfbb170e5"
         },
         {
-          "Subject": "_:b553760ecfbb170e5",
-          "SubjectClass": [
+          "subject": "_:b553760ecfbb170e5",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "https://anet.be/record/lvdopac/c:lvd:10"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "https://anet.be/record/lvdopac/c:lvd:10"
         }
       ],
       "entries": []
@@ -57,24 +57,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
-          "SearchLabel": "crm_P70i_is_documented_in",
-          "Level": 1,
-          "ObjectID": "_:b3d57626d0f3099b0"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+          "searchLabel": "crm_P70i_is_documented_in",
+          "level": 1,
+          "objectID": "_:b3d57626d0f3099b0"
         },
         {
-          "Subject": "_:b3d57626d0f3099b0",
-          "SubjectClass": [
+          "subject": "_:b3d57626d0f3099b0",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "https://artlibraries.on.worldcat.org/v2/oclc/901048860"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "https://artlibraries.on.worldcat.org/v2/oclc/901048860"
         }
       ],
       "entries": []
@@ -210,14 +210,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
-          "SearchLabel": "crm_P43_has_dimension",
-          "Level": 1,
-          "ObjectID": "_:b1a14be9782a04fde"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
+          "searchLabel": "crm_P43_has_dimension",
+          "level": 1,
+          "objectID": "_:b1a14be9782a04fde"
         }
       ],
       "entries": [
@@ -247,24 +247,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
-          "SearchLabel": "crm_P43_has_dimension",
-          "Level": 1,
-          "ObjectID": "_:b1a14be9782a04fde"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension",
+          "searchLabel": "crm_P43_has_dimension",
+          "level": 1,
+          "objectID": "_:b1a14be9782a04fde"
         },
         {
-          "Subject": "_:b1a14be9782a04fde",
-          "SubjectClass": [
+          "subject": "_:b1a14be9782a04fde",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E54_Dimension"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P129i_is_subject_of",
-          "SearchLabel": "crm_P129i_is_subject_of",
-          "Level": 2,
-          "ObjectID": "_:b5ae2611fa7f12eee"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P129i_is_subject_of",
+          "searchLabel": "crm_P129i_is_subject_of",
+          "level": 2,
+          "objectID": "_:b5ae2611fa7f12eee"
         }
       ],
       "entries": [
@@ -294,14 +294,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
-          "SearchLabel": "crm_P102_has_title",
-          "Level": 1,
-          "ObjectID": "_:b6379b5b0bc8844dd"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "searchLabel": "crm_P102_has_title",
+          "level": 1,
+          "objectID": "_:b6379b5b0bc8844dd"
         }
       ],
       "entries": [
@@ -339,14 +339,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
-          "SearchLabel": "crm_P2_has_type",
-          "Level": 1,
-          "ObjectID": "https://data.antwerp.be/id/term/brocade-catalog/dr/paper"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 1,
+          "objectID": "https://data.antwerp.be/id/term/brocade-catalog/dr/paper"
         }
       ],
       "entries": [
@@ -368,14 +368,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         }
       ],
       "entries": [
@@ -413,24 +413,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
-          "SearchLabel": "crm_P55_has_current_location",
-          "Level": 2,
-          "ObjectID": "_:bc681dbc50c9c4a7f"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
+          "searchLabel": "crm_P55_has_current_location",
+          "level": 2,
+          "objectID": "_:bc681dbc50c9c4a7f"
         }
       ],
       "entries": [
@@ -460,34 +460,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
-          "SearchLabel": "crm_P55_has_current_location",
-          "Level": 2,
-          "ObjectID": "_:bc681dbc50c9c4a7f"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
+          "searchLabel": "crm_P55_has_current_location",
+          "level": 2,
+          "objectID": "_:bc681dbc50c9c4a7f"
         },
         {
-          "Subject": "_:bc681dbc50c9c4a7f",
-          "SubjectClass": [
+          "subject": "_:bc681dbc50c9c4a7f",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 3,
-          "ObjectID": "_:b18e90693853be178"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "_:b18e90693853be178"
         }
       ],
       "entries": [
@@ -509,34 +509,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
-          "SearchLabel": "crm_P55_has_current_location",
-          "Level": 2,
-          "ObjectID": "_:bc681dbc50c9c4a7f"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location",
+          "searchLabel": "crm_P55_has_current_location",
+          "level": 2,
+          "objectID": "_:bc681dbc50c9c4a7f"
         },
         {
-          "Subject": "_:bc681dbc50c9c4a7f",
-          "SubjectClass": [
+          "subject": "_:bc681dbc50c9c4a7f",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 3,
-          "ObjectID": "_:bb0e48b0c81405225"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "_:bb0e48b0c81405225"
         }
       ],
       "entries": [
@@ -558,24 +558,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "_:ba2ca59f567927f77"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "_:ba2ca59f567927f77"
         }
       ],
       "entries": [
@@ -597,14 +597,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P106_is_composed_of",
-          "SearchLabel": "crm_P106_is_composed_of",
-          "Level": 1,
-          "ObjectID": "_:b6cd20a04d71347cf"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P106_is_composed_of",
+          "searchLabel": "crm_P106_is_composed_of",
+          "level": 1,
+          "objectID": "_:b6cd20a04d71347cf"
         }
       ],
       "entries": [
@@ -626,14 +626,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
-          "SearchLabel": "crm_P70i_is_documented_in",
-          "Level": 1,
-          "ObjectID": "_:b553760ecfbb170e5"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+          "searchLabel": "crm_P70i_is_documented_in",
+          "level": 1,
+          "objectID": "_:b553760ecfbb170e5"
         }
       ],
       "entries": [
@@ -663,14 +663,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
-          "SearchLabel": "crm_P70i_is_documented_in",
-          "Level": 1,
-          "ObjectID": "_:b3d57626d0f3099b0"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+          "searchLabel": "crm_P70i_is_documented_in",
+          "level": 1,
+          "objectID": "_:b3d57626d0f3099b0"
         }
       ],
       "entries": [
@@ -692,14 +692,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 1,
-          "ObjectID": "_:b18f2ac8e3949f124"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 1,
+          "objectID": "_:b18f2ac8e3949f124"
         }
       ],
       "entries": [
@@ -729,14 +729,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:b3dce536d0f9ad982"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:b3dce536d0f9ad982"
         }
       ],
       "entries": [
@@ -758,24 +758,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:b3dce536d0f9ad982"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:b3dce536d0f9ad982"
         },
         {
-          "Subject": "_:b3dce536d0f9ad982",
-          "SubjectClass": [
+          "subject": "_:b3dce536d0f9ad982",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bf52147b0be730091"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bf52147b0be730091"
         }
       ],
       "entries": [
@@ -805,34 +805,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:b3dce536d0f9ad982"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:b3dce536d0f9ad982"
         },
         {
-          "Subject": "_:b3dce536d0f9ad982",
-          "SubjectClass": [
+          "subject": "_:b3dce536d0f9ad982",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bf52147b0be730091"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bf52147b0be730091"
         },
         {
-          "Subject": "_:bf52147b0be730091",
-          "SubjectClass": [
+          "subject": "_:bf52147b0be730091",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:be161e7584ef3f693"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:be161e7584ef3f693"
         }
       ],
       "entries": [
@@ -862,44 +862,44 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:b3dce536d0f9ad982"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:b3dce536d0f9ad982"
         },
         {
-          "Subject": "_:b3dce536d0f9ad982",
-          "SubjectClass": [
+          "subject": "_:b3dce536d0f9ad982",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bf52147b0be730091"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bf52147b0be730091"
         },
         {
-          "Subject": "_:bf52147b0be730091",
-          "SubjectClass": [
+          "subject": "_:bf52147b0be730091",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:be161e7584ef3f693"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:be161e7584ef3f693"
         },
         {
-          "Subject": "_:be161e7584ef3f693",
-          "SubjectClass": [
+          "subject": "_:be161e7584ef3f693",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 4,
-          "ObjectID": "_:b54d5caa1d1748fa8"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 4,
+          "objectID": "_:b54d5caa1d1748fa8"
         }
       ],
       "entries": [
@@ -929,44 +929,44 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:b3dce536d0f9ad982"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:b3dce536d0f9ad982"
         },
         {
-          "Subject": "_:b3dce536d0f9ad982",
-          "SubjectClass": [
+          "subject": "_:b3dce536d0f9ad982",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bf52147b0be730091"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bf52147b0be730091"
         },
         {
-          "Subject": "_:bf52147b0be730091",
-          "SubjectClass": [
+          "subject": "_:bf52147b0be730091",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:be161e7584ef3f693"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:be161e7584ef3f693"
         },
         {
-          "Subject": "_:be161e7584ef3f693",
-          "SubjectClass": [
+          "subject": "_:be161e7584ef3f693",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 4,
-          "ObjectID": "_:bbaf24109618ce6c0"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 4,
+          "objectID": "_:bbaf24109618ce6c0"
         }
       ],
       "entries": [
@@ -996,14 +996,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:bd08b96ab49663b0a"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:bd08b96ab49663b0a"
         }
       ],
       "entries": [
@@ -1025,24 +1025,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:bd08b96ab49663b0a"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:bd08b96ab49663b0a"
         },
         {
-          "Subject": "_:bd08b96ab49663b0a",
-          "SubjectClass": [
+          "subject": "_:bd08b96ab49663b0a",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:b4e7822194fe43eff"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:b4e7822194fe43eff"
         }
       ],
       "entries": [
@@ -1072,34 +1072,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:bd08b96ab49663b0a"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:bd08b96ab49663b0a"
         },
         {
-          "Subject": "_:bd08b96ab49663b0a",
-          "SubjectClass": [
+          "subject": "_:bd08b96ab49663b0a",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:b4e7822194fe43eff"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:b4e7822194fe43eff"
         },
         {
-          "Subject": "_:b4e7822194fe43eff",
-          "SubjectClass": [
+          "subject": "_:b4e7822194fe43eff",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:b36599b7d7d00eb7b"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:b36599b7d7d00eb7b"
         }
       ],
       "entries": [
@@ -1129,44 +1129,44 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:bd08b96ab49663b0a"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:bd08b96ab49663b0a"
         },
         {
-          "Subject": "_:bd08b96ab49663b0a",
-          "SubjectClass": [
+          "subject": "_:bd08b96ab49663b0a",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:b4e7822194fe43eff"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:b4e7822194fe43eff"
         },
         {
-          "Subject": "_:b4e7822194fe43eff",
-          "SubjectClass": [
+          "subject": "_:b4e7822194fe43eff",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:b36599b7d7d00eb7b"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:b36599b7d7d00eb7b"
         },
         {
-          "Subject": "_:b36599b7d7d00eb7b",
-          "SubjectClass": [
+          "subject": "_:b36599b7d7d00eb7b",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 4,
-          "ObjectID": "_:b470f12c4a2a20a82"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 4,
+          "objectID": "_:b470f12c4a2a20a82"
         }
       ],
       "entries": [
@@ -1196,44 +1196,44 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
-          "SearchLabel": "crm_P94i_was_created_by",
-          "Level": 1,
-          "ObjectID": "_:bd08b96ab49663b0a"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by",
+          "searchLabel": "crm_P94i_was_created_by",
+          "level": 1,
+          "objectID": "_:bd08b96ab49663b0a"
         },
         {
-          "Subject": "_:bd08b96ab49663b0a",
-          "SubjectClass": [
+          "subject": "_:bd08b96ab49663b0a",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:b4e7822194fe43eff"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:b4e7822194fe43eff"
         },
         {
-          "Subject": "_:b4e7822194fe43eff",
-          "SubjectClass": [
+          "subject": "_:b4e7822194fe43eff",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:b36599b7d7d00eb7b"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:b36599b7d7d00eb7b"
         },
         {
-          "Subject": "_:b36599b7d7d00eb7b",
-          "SubjectClass": [
+          "subject": "_:b36599b7d7d00eb7b",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 4,
-          "ObjectID": "_:b4935da5d60794182"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 4,
+          "objectID": "_:b4935da5d60794182"
         }
       ],
       "entries": [
@@ -1263,14 +1263,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         }
       ],
       "entries": [
@@ -1316,24 +1316,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
-          "SearchLabel": "crm_P14_carried_out_by",
-          "Level": 2,
-          "ObjectID": "_:bd379089a7cb2dd19"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "_:bd379089a7cb2dd19"
         }
       ],
       "entries": [
@@ -1355,34 +1355,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
-          "SearchLabel": "crm_P14_carried_out_by",
-          "Level": 2,
-          "ObjectID": "_:bd379089a7cb2dd19"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "_:bd379089a7cb2dd19"
         },
         {
-          "Subject": "_:bd379089a7cb2dd19",
-          "SubjectClass": [
+          "subject": "_:bd379089a7cb2dd19",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 3,
-          "ObjectID": "_:bdb88fd5d07080950"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "_:bdb88fd5d07080950"
         }
       ],
       "entries": [
@@ -1404,24 +1404,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
-          "SearchLabel": "crm_P4_has_time-span",
-          "Level": 2,
-          "ObjectID": "_:b2b2d4071a1a77ae3"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 2,
+          "objectID": "_:b2b2d4071a1a77ae3"
         }
       ],
       "entries": [
@@ -1443,24 +1443,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bb440eefa89b776fc"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bb440eefa89b776fc"
         }
       ],
       "entries": [
@@ -1482,34 +1482,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bb440eefa89b776fc"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bb440eefa89b776fc"
         },
         {
-          "Subject": "_:bb440eefa89b776fc",
-          "SubjectClass": [
+          "subject": "_:bb440eefa89b776fc",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:b5253dbb35806e2f6"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:b5253dbb35806e2f6"
         }
       ],
       "entries": [
@@ -1531,44 +1531,44 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
-          "SearchLabel": "crm_P01i_is_domain_of",
-          "Level": 2,
-          "ObjectID": "_:bb440eefa89b776fc"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 2,
+          "objectID": "_:bb440eefa89b776fc"
         },
         {
-          "Subject": "_:bb440eefa89b776fc",
-          "SubjectClass": [
+          "subject": "_:bb440eefa89b776fc",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
-          "SearchLabel": "crm_P02_has_range",
-          "Level": 3,
-          "ObjectID": "_:b5253dbb35806e2f6"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 3,
+          "objectID": "_:b5253dbb35806e2f6"
         },
         {
-          "Subject": "_:b5253dbb35806e2f6",
-          "SubjectClass": [
+          "subject": "_:b5253dbb35806e2f6",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 4,
-          "ObjectID": "_:b9389ba75a50eaf6"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 4,
+          "objectID": "_:b9389ba75a50eaf6"
         }
       ],
       "entries": [
@@ -1590,24 +1590,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
-          "SearchLabel": "crm_P7_took_place_at",
-          "Level": 2,
-          "ObjectID": "_:b8bb6cdb2672d44bc"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 2,
+          "objectID": "_:b8bb6cdb2672d44bc"
         }
       ],
       "entries": [
@@ -1629,34 +1629,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
-          "SearchLabel": "lrm_R24i_was_created_through",
-          "Level": 1,
-          "ObjectID": "_:b60124b8b5fd26de5"
+          "predicate": "https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through",
+          "searchLabel": "lrm_R24i_was_created_through",
+          "level": 1,
+          "objectID": "_:b60124b8b5fd26de5"
         },
         {
-          "Subject": "_:b60124b8b5fd26de5",
-          "SubjectClass": [
+          "subject": "_:b60124b8b5fd26de5",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
-          "SearchLabel": "crm_P7_took_place_at",
-          "Level": 2,
-          "ObjectID": "_:b8bb6cdb2672d44bc"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 2,
+          "objectID": "_:b8bb6cdb2672d44bc"
         },
         {
-          "Subject": "_:b8bb6cdb2672d44bc",
-          "SubjectClass": [
+          "subject": "_:b8bb6cdb2672d44bc",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 3,
-          "ObjectID": "_:b4b13f6279033a88c"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "_:b4b13f6279033a88c"
         }
       ],
       "entries": [
@@ -1678,24 +1678,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
-          "SearchLabel": "crm_P46_is_composed_of",
-          "Level": 2,
-          "ObjectID": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
+          "searchLabel": "crm_P46_is_composed_of",
+          "level": 2,
+          "objectID": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11"
         }
       ],
       "entries": [
@@ -1717,34 +1717,34 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "subjectClass": [
             "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
-          "SearchLabel": "crm_P128i_is_carried_by",
-          "Level": 1,
-          "ObjectID": "_:b2d95e6ef7c15c2e7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by",
+          "searchLabel": "crm_P128i_is_carried_by",
+          "level": 1,
+          "objectID": "_:b2d95e6ef7c15c2e7"
         },
         {
-          "Subject": "_:b2d95e6ef7c15c2e7",
-          "SubjectClass": [
+          "subject": "_:b2d95e6ef7c15c2e7",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
-          "SearchLabel": "crm_P46_is_composed_of",
-          "Level": 2,
-          "ObjectID": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of",
+          "searchLabel": "crm_P46_is_composed_of",
+          "level": 2,
+          "objectID": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11"
         },
         {
-          "Subject": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11",
-          "SubjectClass": [
+          "subject": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11",
+          "subjectClass": [
             "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
           ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 3,
-          "ObjectID": "_:b3ece2d9bc65304a7"
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "_:b3ece2d9bc65304a7"
         }
       ],
       "entries": [

@@ -45,14 +45,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0303/agg",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0303/agg",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0303/cho"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://example.org/c/0303/cho"
         }
       ],
       "entries": [

@@ -117,14 +117,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
-          "SubjectClass": [
+          "subject": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.collectienederland.nl/resource/document/museum-sloten/D036"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.collectienederland.nl/resource/document/museum-sloten/D036"
         }
       ],
       "entries": [

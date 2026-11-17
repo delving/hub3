@@ -93,9 +93,9 @@ func TestResourcePathQueries(t *testing.T) {
 		t.Fatal(err)
 	}
 	hops := []any{
-		nested("resources.context", term("resources.context.Level", 1), term("resources.context.SearchLabel", "schema_creator")),
-		nested("resources.context", term("resources.context.Level", 2), term("resources.context.SearchLabel", "schema_creator"),
-			terms("resources.context.SubjectClass", role)),
+		nested("resources.context", term("resources.context.level", 1), term("resources.context.searchLabel", "schema_creator")),
+		nested("resources.context", term("resources.context.level", 2), term("resources.context.searchLabel", "schema_creator"),
+			terms("resources.context.subjectClass", role)),
 		terms("resources.types", person, org),
 	}
 	entry := func(values ...any) any {
@@ -120,7 +120,7 @@ func TestResourcePathQueries(t *testing.T) {
 	}
 
 	res := mustParse(t, "[]schema:creator->[schema:Person]")
-	hop := nested("resources.context", term("resources.context.Level", 1), term("resources.context.SearchLabel", "schema_creator"))
+	hop := nested("resources.context", term("resources.context.level", 1), term("resources.context.searchLabel", "schema_creator"))
 	for name, tc := range map[string]struct {
 		q    elastic.Query
 		want any
@@ -130,8 +130,8 @@ func TestResourcePathQueries(t *testing.T) {
 		"same resource":     {res.ResourceQuery(EntryQuery("schema_name", 2, "Sphinx")), nested("resources", hop, terms("resources.types", person), nested("resources.entries", term("resources.entries.searchLabel", "schema_name"), term("resources.entries.level", 2), terms("resources.entries.@value.keyword", "Sphinx")))},
 		"the object itself": {mustParse(t, "schema:name").ValueQuery("Molen"), nested("resources", nested("resources.entries", term("resources.entries.searchLabel", "schema_name"), term("resources.entries.level", 1), terms("resources.entries.@value.keyword", "Molen")))},
 		"root class": {mustParse(t, "[schema:VisualArtwork]schema:creator->[]schema:name").ValueQuery("Sphinx"), nested("resources",
-			nested("resources.context", term("resources.context.Level", 1), term("resources.context.SearchLabel", "schema_creator"),
-				terms("resources.context.SubjectClass", "https://schema.org/VisualArtwork")),
+			nested("resources.context", term("resources.context.level", 1), term("resources.context.searchLabel", "schema_creator"),
+				terms("resources.context.subjectClass", "https://schema.org/VisualArtwork")),
 			nested("resources.entries", term("resources.entries.searchLabel", "schema_name"), term("resources.entries.level", 2), terms("resources.entries.@value.keyword", "Sphinx")))},
 	} {
 		if got, want := sourceJSON(t, tc.q), asJSON(t, tc.want); got != want {

@@ -27,14 +27,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
-          "SearchLabel": "ore_aggregates",
-          "Level": 1,
-          "ObjectID": "_:b0"
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "objectID": "_:b0"
         }
       ],
       "entries": [
@@ -88,14 +88,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.openarchives.org/ore/terms/aggregates",
-          "SearchLabel": "ore_aggregates",
-          "Level": 1,
-          "ObjectID": "_:b1"
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "objectID": "_:b1"
         }
       ],
       "entries": [
@@ -165,24 +165,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         },
         {
-          "Subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://purl.org/dc/elements/1.1/creator",
-          "SearchLabel": "dc_creator",
-          "Level": 2,
-          "ObjectID": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter"
+          "predicate": "http://purl.org/dc/elements/1.1/creator",
+          "searchLabel": "dc_creator",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter"
         }
       ],
       "entries": [
@@ -281,14 +281,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         }
       ],
       "entries": [
@@ -403,24 +403,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         },
         {
-          "Subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://purl.org/dc/elements/1.1/subject",
-          "SearchLabel": "dc_subject",
-          "Level": 2,
-          "ObjectID": "http://data.jck.nl/resource/skos/thesau/90000072"
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90000072"
         }
       ],
       "entries": [
@@ -446,24 +446,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         },
         {
-          "Subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://purl.org/dc/elements/1.1/subject",
-          "SearchLabel": "dc_subject",
-          "Level": 2,
-          "ObjectID": "http://data.jck.nl/resource/skos/thesau/90002542"
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90002542"
         }
       ],
       "entries": [
@@ -488,24 +488,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         },
         {
-          "Subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://purl.org/dc/elements/1.1/subject",
-          "SearchLabel": "dc_subject",
-          "Level": 2,
-          "ObjectID": "http://data.jck.nl/resource/skos/thesau/90073896"
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90073896"
         }
       ],
       "entries": [
@@ -530,24 +530,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
         },
         {
-          "Subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
-          "SubjectClass": [
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/hasMet",
-          "SearchLabel": "edm_hasMet",
-          "Level": 2,
-          "ObjectID": "http://data.jck.nl/resource/skos/thespersoon/34715"
+          "predicate": "http://www.europeana.eu/schemas/edm/hasMet",
+          "searchLabel": "edm_hasMet",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thespersoon/34715"
         }
       ],
       "entries": [

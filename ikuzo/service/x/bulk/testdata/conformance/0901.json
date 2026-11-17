@@ -101,14 +101,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
         }
       ],
       "entries": [
@@ -210,24 +210,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
-          "SearchLabel": "edm_hasView",
-          "Level": 1,
-          "ObjectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
         },
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
-          "SearchLabel": "edm_isShownBy",
-          "Level": 1,
-          "ObjectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
         }
       ],
       "entries": [
@@ -281,24 +281,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
         },
         {
-          "Subject": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
             "http://www.europeana.eu/schemas/edm/ProvidedCHO"
           ],
-          "Predicate": "http://purl.org/dc/terms/spatial",
-          "SearchLabel": "dcterms_spatial",
-          "Level": 2,
-          "ObjectID": "http://sws.geonames.org/2759059"
+          "predicate": "http://purl.org/dc/terms/spatial",
+          "searchLabel": "dcterms_spatial",
+          "level": 2,
+          "objectID": "http://sws.geonames.org/2759059"
         }
       ],
       "entries": [

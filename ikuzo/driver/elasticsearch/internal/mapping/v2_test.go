@@ -15,6 +15,7 @@
 package mapping
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -69,5 +70,31 @@ func TestV2Mapping_ContainsResolvedFields(t *testing.T) {
 
 	if !strings.Contains(mapping, `"resolvedLevel"`) {
 		t.Error("V2 mapping should contain resolvedLevel field")
+	}
+}
+
+// Both mappings are valid JSON, and the context fields use the names the v2
+// document writes (camelCase since F22).
+func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
+	for name, m := range map[string]string{"create": V2ESMapping(1, 0), "update": V2MappingUpdate()} {
+		var doc map[string]any
+		if err := json.Unmarshal([]byte(m), &doc); err != nil {
+			t.Fatalf("%s mapping is not valid JSON: %v", name, err)
+		}
+		props := doc["mappings"]
+		if props == nil {
+			props = doc
+		}
+		b, _ := json.Marshal(props)
+		for _, f := range []string{`"subjectClass"`, `"searchLabel"`, `"objectID"`, `"inline"`, `"sortValue"`} {
+			if !strings.Contains(string(b), f) {
+				t.Errorf("%s mapping lacks %s", name, f)
+			}
+		}
+		for _, f := range []string{`"SubjectClass"`, `"SearchLabel"`, `"ObjectID"`} {
+			if strings.Contains(string(b), f) {
+				t.Errorf("%s mapping still has %s", name, f)
+			}
+		}
 	}
 }

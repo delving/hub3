@@ -261,15 +261,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#owner",
-          "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/users/2",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "level": 1,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -290,15 +290,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
-          "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "level": 1,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -319,15 +319,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
-          "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "level": 1,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -348,15 +348,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#site",
-          "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://omeka.org/s/vocabs/o#site",
+          "level": 1,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -379,15 +379,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -649,35 +649,35 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 2,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "Label": "Gouda"
+          "predicate": "http://omeka.org/s/vocabs/o#media",
+          "level": 2,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "label": "Gouda"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 2,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "Label": "Gouda"
+          "predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "level": 2,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -825,25 +825,25 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
-          "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
-          "Label": "Gouda"
+          "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "level": 2,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -864,25 +864,25 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
-          "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
-          "Label": "Gouda"
+          "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "level": 2,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -903,25 +903,25 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://omeka.org/s/vocabs/o#thumbnail",
-          "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
-          "Label": "Gouda"
+          "predicate": "http://omeka.org/s/vocabs/o#thumbnail",
+          "level": 2,
+          "objectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -942,26 +942,26 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
-          "SearchLabel": "gsp_hasGeometry",
-          "Level": 2,
-          "ObjectID": "_:geo-21d38d03f4370afba42413f29570c0f0",
-          "Label": "Gouda"
+          "predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "searchLabel": "gsp_hasGeometry",
+          "level": 2,
+          "objectID": "_:geo-21d38d03f4370afba42413f29570c0f0",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -982,26 +982,26 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/subjectOf",
-          "SearchLabel": "schema_subjectOf",
-          "Level": 2,
-          "ObjectID": "http://viaf.org/viaf/292994024",
-          "Label": "Gouda"
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 2,
+          "objectID": "http://viaf.org/viaf/292994024",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -1020,26 +1020,26 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/subjectOf",
-          "SearchLabel": "schema_subjectOf",
-          "Level": 2,
-          "ObjectID": "https://nl.wikipedia.org/wiki/Gouda",
-          "Label": "Gouda"
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 2,
+          "objectID": "https://nl.wikipedia.org/wiki/Gouda",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -1058,26 +1058,26 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://rdf.histograph.io/liesIn",
+          "level": 1,
+          "objectID": "https://n2t.net/ark:/60537/buzpEa",
+          "label": "Burgemeester Martenssingel"
         },
         {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/buzpEa",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/subjectOf",
-          "SearchLabel": "schema_subjectOf",
-          "Level": 2,
-          "ObjectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
-          "Label": "Gouda"
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 2,
+          "objectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
+          "label": "Gouda"
         }
       ],
       "entries": [
@@ -1096,16 +1096,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
-          "SearchLabel": "gsp_hasGeometry",
-          "Level": 1,
-          "ObjectID": "_:geo-2bbcd99b27a885060789ea48e596a4a7",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
+          "searchLabel": "gsp_hasGeometry",
+          "level": 1,
+          "objectID": "_:geo-2bbcd99b27a885060789ea48e596a4a7",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -1126,16 +1126,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
+          "subject": "https://n2t.net/ark:/60537/b0001z",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
-          "Predicate": "https://schema.org/subjectOf",
-          "SearchLabel": "schema_subjectOf",
-          "Level": 1,
-          "ObjectID": "https://stratenvangouda.nl/straat/burgemeester-martenssingel",
-          "Label": "Burgemeester Martenssingel"
+          "predicate": "https://schema.org/subjectOf",
+          "searchLabel": "schema_subjectOf",
+          "level": 1,
+          "objectID": "https://stratenvangouda.nl/straat/burgemeester-martenssingel",
+          "label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [

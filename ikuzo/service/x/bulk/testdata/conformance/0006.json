@@ -59,15 +59,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0006",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0006",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0006/maker",
-          "Label": "Molen"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/0006/maker",
+          "label": "Molen"
         }
       ],
       "entries": [

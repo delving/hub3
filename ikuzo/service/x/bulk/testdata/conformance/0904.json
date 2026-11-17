@@ -325,15 +325,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation",
             "http://schemas.delving.eu/narthex/terms/Record"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
-          "SearchLabel": "edm_aggregatedCHO",
-          "Level": 1,
-          "ObjectID": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae"
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae"
         }
       ],
       "entries": [
@@ -427,15 +427,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
-          "SubjectClass": [
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "subjectClass": [
             "http://www.openarchives.org/ore/terms/Aggregation",
             "http://schemas.delving.eu/narthex/terms/Record"
           ],
-          "Predicate": "http://www.europeana.eu/schemas/edm/hasView",
-          "SearchLabel": "edm_hasView",
-          "Level": 1,
-          "ObjectID": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
         }
       ],
       "entries": [

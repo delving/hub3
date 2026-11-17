@@ -58,15 +58,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0203/a",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0203/a",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/hasPart",
-          "SearchLabel": "schema_hasPart",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0203/b",
-          "Label": "Eerste"
+          "predicate": "https://schema.org/hasPart",
+          "searchLabel": "schema_hasPart",
+          "level": 1,
+          "objectID": "http://example.org/c/0203/b",
+          "label": "Eerste"
         }
       ],
       "entries": [

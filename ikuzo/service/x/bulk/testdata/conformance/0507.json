@@ -100,16 +100,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Portret door de meester"
         }
       ],
       "entries": [
@@ -185,27 +185,27 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Portret door de meester"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/haarlem",
+          "label": "Jacob de Meester"
         }
       ],
       "entries": [
@@ -259,60 +259,60 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Portret door de meester"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/haarlem",
+          "label": "Jacob de Meester"
         },
         {
-          "Subject": "http://example.org/c/place/haarlem",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Haarlem"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Haarlem"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Jacob de Meester"
         },
         {
-          "Subject": "http://example.org/c/place/leiden",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Leiden"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
         }
       ],
       "entries": [
@@ -366,71 +366,71 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Portret door de meester"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/haarlem",
+          "label": "Jacob de Meester"
         },
         {
-          "Subject": "http://example.org/c/place/haarlem",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Haarlem"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Haarlem"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Jacob de Meester"
         },
         {
-          "Subject": "http://example.org/c/place/leiden",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Leiden"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
         },
         {
-          "Subject": "http://example.org/c/place/holland",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 4,
-          "ObjectID": "http://example.org/c/place/republiek",
-          "Label": "Holland"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 4,
+          "objectID": "http://example.org/c/place/republiek",
+          "label": "Holland"
         }
       ],
       "entries": [
@@ -475,27 +475,27 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Portret door de meester"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Jacob de Meester"
         }
       ],
       "entries": [
@@ -558,16 +558,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/material",
-          "SearchLabel": "schema_material",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel",
+          "label": "Portret door de meester"
         }
       ],
       "entries": [
@@ -607,16 +607,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0507",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0507",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/about",
-          "SearchLabel": "schema_about",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria",
-          "Label": "Portret door de meester"
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria",
+          "label": "Portret door de meester"
         }
       ],
       "entries": [

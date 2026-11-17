@@ -56,24 +56,24 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0105",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0105",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0105/p"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/0105/p"
         },
         {
-          "Subject": "http://example.org/c/0105",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0105",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/contributor",
-          "SearchLabel": "schema_contributor",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0105/p"
+          "predicate": "https://schema.org/contributor",
+          "searchLabel": "schema_contributor",
+          "level": 1,
+          "objectID": "http://example.org/c/0105/p"
         }
       ],
       "entries": [

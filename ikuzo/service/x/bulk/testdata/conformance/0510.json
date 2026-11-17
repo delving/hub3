@@ -99,16 +99,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0510",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0510",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/material",
-          "SearchLabel": "schema_material",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel",
-          "Label": "Portret van Maria, externe maker"
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel",
+          "label": "Portret van Maria, externe maker"
         }
       ],
       "entries": [
@@ -148,16 +148,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0510",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0510",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/about",
-          "SearchLabel": "schema_about",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria",
-          "Label": "Portret van Maria, externe maker"
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria",
+          "label": "Portret van Maria, externe maker"
         }
       ],
       "entries": [

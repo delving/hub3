@@ -47,14 +47,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0107",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0107",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0107/a"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/0107/a"
         }
       ],
       "entries": [
@@ -87,22 +87,22 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0107",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0107",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0107/a"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/0107/a"
         },
         {
-          "Subject": "http://example.org/c/0107/a",
-          "Predicate": "https://schema.org/knows",
-          "SearchLabel": "schema_knows",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/0107/b",
-          "Label": "A"
+          "subject": "http://example.org/c/0107/a",
+          "predicate": "https://schema.org/knows",
+          "searchLabel": "schema_knows",
+          "level": 2,
+          "objectID": "http://example.org/c/0107/b",
+          "label": "A"
         }
       ],
       "entries": [

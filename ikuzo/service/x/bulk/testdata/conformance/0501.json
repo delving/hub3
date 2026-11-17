@@ -100,16 +100,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         }
       ],
       "entries": [
@@ -193,27 +193,27 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
         }
       ],
       "entries": [
@@ -276,60 +276,60 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
         },
         {
-          "Subject": "http://example.org/c/place/leiden",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Leiden"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
         },
         {
-          "Subject": "http://example.org/c/place/amsterdam",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/amsterdam",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Amsterdam"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Amsterdam"
         }
       ],
       "entries": [
@@ -383,71 +383,71 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
         },
         {
-          "Subject": "http://example.org/c/place/leiden",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Leiden"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
         },
         {
-          "Subject": "http://example.org/c/place/amsterdam",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/amsterdam",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland",
-          "Label": "Amsterdam"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Amsterdam"
         },
         {
-          "Subject": "http://example.org/c/place/holland",
-          "SubjectClass": [
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
             "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 4,
-          "ObjectID": "http://example.org/c/place/republiek",
-          "Label": "Holland"
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 4,
+          "objectID": "http://example.org/c/place/republiek",
+          "label": "Holland"
         }
       ],
       "entries": [
@@ -492,27 +492,27 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Pieter de Schilder"
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
         }
       ],
       "entries": [
@@ -566,26 +566,26 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Pieter de Schilder"
+          "predicate": "http://example.org/def/pupilOf",
+          "level": 2,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Pieter de Schilder"
         }
       ],
       "entries": [
@@ -661,37 +661,37 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/pieter",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
         },
         {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Pieter de Schilder"
+          "predicate": "http://example.org/def/pupilOf",
+          "level": 2,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Pieter de Schilder"
         },
         {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
             "https://schema.org/Person"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/haarlem",
+          "label": "Jacob de Meester"
         }
       ],
       "entries": [
@@ -745,16 +745,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/material",
-          "SearchLabel": "schema_material",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel",
+          "label": "Portret van Maria"
         }
       ],
       "entries": [
@@ -794,16 +794,16 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0501",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
             "https://schema.org/CreativeWork",
             "https://schema.org/Painting"
           ],
-          "Predicate": "https://schema.org/about",
-          "SearchLabel": "schema_about",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria",
-          "Label": "Portret van Maria"
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria",
+          "label": "Portret van Maria"
         }
       ],
       "entries": [

@@ -23,7 +23,7 @@ import (
 type Graph struct {
 	// Checksum is a hash of the Graph without the header.Modified
 	// and header.Revision. This is used to determine if the Graph has changed.
-	Checksum string `json:"_ checksum,omitempty"`
+	Checksum string `json:"_checksum,omitempty"`
 
 	// Header is the header of the Graph with queryable meta information
 	Header Header `json:"meta"`

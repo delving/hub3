@@ -43,14 +43,14 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0104",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0104",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/contentLocation",
-          "SearchLabel": "schema_contentLocation",
-          "Level": 1,
-          "ObjectID": "_:place"
+          "predicate": "https://schema.org/contentLocation",
+          "searchLabel": "schema_contentLocation",
+          "level": 1,
+          "objectID": "_:place"
         }
       ],
       "entries": [
@@ -70,21 +70,21 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0104",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0104",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/contentLocation",
-          "SearchLabel": "schema_contentLocation",
-          "Level": 1,
-          "ObjectID": "_:place"
+          "predicate": "https://schema.org/contentLocation",
+          "searchLabel": "schema_contentLocation",
+          "level": 1,
+          "objectID": "_:place"
         },
         {
-          "Subject": "_:place",
-          "Predicate": "https://schema.org/address",
-          "SearchLabel": "schema_address",
-          "Level": 2,
-          "ObjectID": "_:addr"
+          "subject": "_:place",
+          "predicate": "https://schema.org/address",
+          "searchLabel": "schema_address",
+          "level": 2,
+          "objectID": "_:addr"
         }
       ],
       "entries": [
@@ -112,28 +112,28 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0104",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0104",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/contentLocation",
-          "SearchLabel": "schema_contentLocation",
-          "Level": 1,
-          "ObjectID": "_:place"
+          "predicate": "https://schema.org/contentLocation",
+          "searchLabel": "schema_contentLocation",
+          "level": 1,
+          "objectID": "_:place"
         },
         {
-          "Subject": "_:place",
-          "Predicate": "https://schema.org/address",
-          "SearchLabel": "schema_address",
-          "Level": 2,
-          "ObjectID": "_:addr"
+          "subject": "_:place",
+          "predicate": "https://schema.org/address",
+          "searchLabel": "schema_address",
+          "level": 2,
+          "objectID": "_:addr"
         },
         {
-          "Subject": "_:addr",
-          "Predicate": "https://schema.org/geo",
-          "SearchLabel": "schema_geo",
-          "Level": 3,
-          "ObjectID": "_:geo"
+          "subject": "_:addr",
+          "predicate": "https://schema.org/geo",
+          "searchLabel": "schema_geo",
+          "level": 3,
+          "objectID": "_:geo"
         }
       ],
       "entries": [

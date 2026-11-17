@@ -61,15 +61,15 @@
       "graphExternalContext": null,
       "context": [
         {
-          "Subject": "http://example.org/c/0101",
-          "SubjectClass": [
+          "subject": "http://example.org/c/0101",
+          "subjectClass": [
             "https://schema.org/CreativeWork"
           ],
-          "Predicate": "https://schema.org/creator",
-          "SearchLabel": "schema_creator",
-          "Level": 1,
-          "ObjectID": "http://example.org/c/0101/painter",
-          "Label": "De vrolijke huishouding"
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/0101/painter",
+          "label": "De vrolijke huishouding"
         }
       ],
       "entries": [

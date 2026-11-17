@@ -477,14 +477,14 @@ message FragmentGraphDoc {
 
 // FragmentReferrerContext holds the referrer in formation for creating new fragments
 message FragmentReferrerContext {
-  string Subject = 1;
-  repeated string SubjectClass = 2;
-  string Predicate = 3;
-  string SearchLabel = 4;
-  int32 Level = 5;
-  string ObjectID = 6;
-  int32 SortKey = 7;
-  string Label = 8;
+  string subject = 1;
+  repeated string subjectClass = 2;
+  string predicate = 3;
+  string searchLabel = 4;
+  int32 level = 5;
+  string objectID = 6;
+  int32 sortKey = 7;
+  string label = 8;
 }
 
 /*message FragmentResource {*/
