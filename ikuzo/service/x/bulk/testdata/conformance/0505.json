@@ -321,25 +321,15 @@
           "Label": "Adriaen de Schilder"
         },
         {
-          "Subject": "http://example.org/c/person/adriaen",
+          "Subject": "http://example.org/c/place/amsterdam",
           "SubjectClass": [
-            "https://schema.org/Person"
+            "https://schema.org/Place"
           ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes",
-          "Label": "Adriaen de Schilder"
-        },
-        {
-          "Subject": "http://example.org/c/person/claes",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Claes de Leermeester"
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Amsterdam"
         }
       ],
       "entries": [
@@ -427,17 +417,6 @@
           "Label": "Leiden"
         },
         {
-          "Subject": "http://example.org/c/place/holland",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 5,
-          "ObjectID": "http://example.org/c/place/republiek",
-          "Label": "Holland"
-        },
-        {
           "Subject": "http://example.org/c/person/adriaen",
           "SubjectClass": [
             "https://schema.org/Person"
@@ -449,25 +428,26 @@
           "Label": "Adriaen de Schilder"
         },
         {
-          "Subject": "http://example.org/c/person/adriaen",
+          "Subject": "http://example.org/c/place/amsterdam",
           "SubjectClass": [
-            "https://schema.org/Person"
+            "https://schema.org/Place"
           ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes",
-          "Label": "Adriaen de Schilder"
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
+          "Level": 3,
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Amsterdam"
         },
         {
-          "Subject": "http://example.org/c/person/claes",
+          "Subject": "http://example.org/c/place/holland",
           "SubjectClass": [
-            "https://schema.org/Person"
+            "https://schema.org/Place"
           ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Claes de Leermeester"
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
+          "Level": 4,
+          "ObjectID": "http://example.org/c/place/republiek",
+          "Label": "Holland"
         }
       ],
       "entries": [
@@ -477,7 +457,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 6,
+          "level": 5,
           "tags": [
             "label",
             "title"
@@ -490,7 +470,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 6,
+          "level": 5,
           "order": 28
         },
         {
@@ -499,7 +479,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 6,
+          "level": 5,
           "order": 29
         }
       ]
@@ -533,27 +513,6 @@
           "Level": 2,
           "ObjectID": "http://example.org/c/place/amsterdam",
           "Label": "Adriaen de Schilder"
-        },
-        {
-          "Subject": "http://example.org/c/person/adriaen",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes",
-          "Label": "Adriaen de Schilder"
-        },
-        {
-          "Subject": "http://example.org/c/person/claes",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam",
-          "Label": "Claes de Leermeester"
         }
       ],
       "entries": [
@@ -563,7 +522,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 4,
+          "level": 3,
           "tags": [
             "label",
             "title"
@@ -576,7 +535,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 4,
+          "level": 3,
           "order": 32
         },
         {
@@ -585,7 +544,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 4,
+          "level": 3,
           "order": 33
         },
         {
@@ -594,7 +553,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/containedInPlace",
           "searchLabel": "schema_containedInPlace",
-          "level": 4,
+          "level": 3,
           "order": 34
         }
       ]

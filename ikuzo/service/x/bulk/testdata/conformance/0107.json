@@ -55,22 +55,6 @@
           "SearchLabel": "schema_creator",
           "Level": 1,
           "ObjectID": "http://example.org/c/0107/a"
-        },
-        {
-          "Subject": "http://example.org/c/0107/a",
-          "Predicate": "https://schema.org/knows",
-          "SearchLabel": "schema_knows",
-          "Level": 6,
-          "ObjectID": "http://example.org/c/0107/b",
-          "Label": "A"
-        },
-        {
-          "Subject": "http://example.org/c/0107/b",
-          "Predicate": "https://schema.org/knows",
-          "SearchLabel": "schema_knows",
-          "Level": 5,
-          "ObjectID": "http://example.org/c/0107/a",
-          "Label": "B"
         }
       ],
       "entries": [
@@ -79,7 +63,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 7,
+          "level": 2,
           "tags": [
             "label",
             "title"
@@ -92,7 +76,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/knows",
           "searchLabel": "schema_knows",
-          "level": 7,
+          "level": 2,
           "order": 4
         }
       ]
@@ -116,17 +100,9 @@
           "Subject": "http://example.org/c/0107/a",
           "Predicate": "https://schema.org/knows",
           "SearchLabel": "schema_knows",
-          "Level": 6,
+          "Level": 2,
           "ObjectID": "http://example.org/c/0107/b",
           "Label": "A"
-        },
-        {
-          "Subject": "http://example.org/c/0107/b",
-          "Predicate": "https://schema.org/knows",
-          "SearchLabel": "schema_knows",
-          "Level": 5,
-          "ObjectID": "http://example.org/c/0107/a",
-          "Label": "B"
         }
       ],
       "entries": [
@@ -135,7 +111,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 7,
+          "level": 3,
           "tags": [
             "label",
             "title"
@@ -148,7 +124,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/knows",
           "searchLabel": "schema_knows",
-          "level": 7,
+          "level": 3,
           "order": 6
         }
       ]

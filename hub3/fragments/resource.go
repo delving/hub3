@@ -1309,7 +1309,13 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 	return "", ""
 }
 
-// SetContextLevels sets FragmentReferrerContext to each level from the root
+// SetContextLevels walks the graph breadth first from the root and gives every
+// resource it reaches its context: each link that lies on a shortest route from
+// the root, with Level = the level of the link's subject (the root is level 1).
+// A resource's level (GetLevel) is so its shortest distance from the root.
+// Longer routes, links back up and cycles are not followed; there is no depth
+// limit. Label and SubjectClass are set here, from the fully read subject.
+// It returns the resources reached, keyed by ID.
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
 	if len(rm.resources) == 0 {
 		return nil, fmt.Errorf("resourceMap cannot be empty for subjectURI: %s", subjectURI)
@@ -1320,96 +1326,42 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 		return nil, fmt.Errorf("subject %q is not part of the graph", subjectURI)
 	}
 
-	linkedObjects := map[string]*FragmentResource{}
-	linkedObjects[subjectURI] = subject
-	for _, level1 := range subject.objectIDs {
-		level2Resource, ok := rm.GetResource(level1.ObjectID)
-		if !ok {
-			log.Debug().Msgf(unknownTargetUriMessageFormat, level1.ObjectID)
-			continue
-		}
-		linkedObjects[level1.ObjectID] = level2Resource
-		level1.Level = 1
-		if len(level1.GetSubjectClass()) == 0 {
-			level1.SubjectClass = subject.Types
-		}
-		// validate context
-		level2Resource.AppendContext(level1)
+	levels := map[string]int32{subjectURI: 1}
+	reached := map[string]*FragmentResource{subjectURI: subject}
+	queue := []*FragmentResource{subject}
 
-		// loop into the next level, i.e. level 3
-		for _, level2 := range level2Resource.objectIDs {
-			level2.Level = 2
-			level3Resource, ok := rm.GetResource(level2.ObjectID)
+	for len(queue) > 0 {
+		fr := queue[0]
+		queue = queue[1:]
+		next := levels[fr.ID] + 1
+		label, _ := fr.GetLabel()
+
+		for _, link := range fr.objectIDs {
+			target, ok := rm.GetResource(link.ObjectID)
 			if !ok {
-				log.Debug().Msgf(unknownTargetUriMessageFormat, level2.ObjectID)
+				log.Debug().Msgf(unknownTargetUriMessageFormat, link.ObjectID)
 				continue
 			}
 
-			linkedObjects[level2.ObjectID] = level3Resource
-			if len(level2.GetSubjectClass()) == 0 {
-				level2.SubjectClass = level2Resource.Types
+			if l, seen := levels[link.ObjectID]; !seen {
+				levels[link.ObjectID] = next
+				reached[link.ObjectID] = target
+				queue = append(queue, target)
+			} else if l != next {
+				continue // a longer route, a link back up, or a cycle
 			}
-			level3Resource.AppendContext(level1, level2)
 
-			for _, level3 := range level3Resource.objectIDs {
-				level3.Level = 3
-				level4Resource, ok := rm.GetResource(level3.ObjectID)
-				if !ok {
-					log.Debug().Msgf(unknownTargetUriMessageFormat, level3.ObjectID)
-					continue
-				}
-				linkedObjects[level3.ObjectID] = level3Resource
-				if len(level3.GetSubjectClass()) == 0 {
-					level3.SubjectClass = level3Resource.Types
-				}
-				level4Resource.AppendContext(level1, level2, level3)
-
-				for _, level4 := range level4Resource.objectIDs {
-					level4.Level = 4
-					level5Resource, ok := rm.GetResource(level4.ObjectID)
-					if !ok {
-						log.Debug().Msgf(unknownTargetUriMessageFormat, level4.ObjectID)
-						continue
-					}
-					linkedObjects[level4.ObjectID] = level4Resource
-					if len(level4.GetSubjectClass()) == 0 {
-						level4.SubjectClass = level4Resource.Types
-					}
-					level5Resource.AppendContext(level1, level2, level3, level4)
-
-					for _, level5 := range level5Resource.objectIDs {
-						level5.Level = 5
-						level6Resource, ok := rm.GetResource(level5.ObjectID)
-						if !ok {
-							log.Debug().Msgf(unknownTargetUriMessageFormat, level5.ObjectID)
-							continue
-						}
-						linkedObjects[level5.ObjectID] = level5Resource
-						if len(level5.GetSubjectClass()) == 0 {
-							level5.SubjectClass = level5Resource.Types
-						}
-						level6Resource.AppendContext(level1, level2, level3, level4, level5)
-
-						for _, level6 := range level6Resource.objectIDs {
-							level6.Level = 6
-							level7Resource, ok := rm.GetResource(level6.ObjectID)
-							if !ok {
-								log.Debug().Msgf(unknownTargetUriMessageFormat, level6.ObjectID)
-								continue
-							}
-							linkedObjects[level6.ObjectID] = level6Resource
-							if len(level6.GetSubjectClass()) == 0 {
-								level6.SubjectClass = level6Resource.Types
-							}
-							level7Resource.AppendContext(level1, level2, level3, level4, level5, level6)
-						}
-					}
-				}
-			}
+			link.Level = levels[fr.ID]
+			link.Label = label
+			link.SubjectClass = fr.Types
+			// fr's context is complete: all its routes come from the level above,
+			// which the queue has finished
+			target.AppendContext(fr.Context...)
+			target.AppendContext(link)
 		}
 	}
 
-	return linkedObjects, nil
+	return reached, nil
 }
 
 // AppendContext adds the referrerContext to the FragmentResource
@@ -1739,7 +1691,7 @@ func contains(s []string, e string) bool {
 // this deduplication is important to not provide false counts for context levels
 func containsContext(s []*FragmentReferrerContext, e *FragmentReferrerContext) bool {
 	for _, a := range s {
-		if a.ObjectID == e.ObjectID && a.Predicate == e.Predicate {
+		if a.Subject == e.Subject && a.ObjectID == e.ObjectID && a.Predicate == e.Predicate {
 			return true
 		}
 	}

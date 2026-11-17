@@ -50,12 +50,7 @@ var (
 // gives a different document. A formats subtest in that range is skipped only
 // when it differs; remove the entry once the finding is fixed.
 var knownFormatDiffs = map[string]string{
-	"05":   "F11: level and context follow triple order",
-	"06":   "F11: level and context follow triple order",
-	"0006": "F24: context Label follows triple order",
-	"0101": "F24: context Label follows triple order",
-	"0107": "F24: context Label follows triple order",
-	"0203": "F24: context Label follows triple order",
+	"05": "F26: a link label is the first name in the source, so its language follows triple order",
 }
 
 type caseResult struct {

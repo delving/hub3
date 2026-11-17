@@ -268,44 +268,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#owner",
           "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/users/2"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
-            "https://schema.org/CreativeWork",
-            "https://www.goudatijdmachine.nl/def#Straat"
-          ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/users/2",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -314,7 +278,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 2,
           "integer": 2,
           "order": 6
         }
@@ -333,7 +297,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
           "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -361,7 +326,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
           "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -389,44 +355,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#site",
           "Level": 1,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/b0001z",
-          "SubjectClass": [
-            "https://schema.org/CreativeWork",
-            "https://www.goudatijdmachine.nl/def#Straat"
-          ],
-          "Predicate": "http://rdf.histograph.io/liesIn",
-          "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -435,7 +365,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 2,
           "integer": 2,
           "order": 12
         }
@@ -456,34 +386,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [
@@ -492,7 +396,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
-          "level": 7,
+          "level": 2,
           "isoDate": [
             "2022-04-11"
           ],
@@ -507,7 +411,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 2,
           "integer": 37823,
           "order": 18
         },
@@ -516,70 +420,70 @@
           "@type": "http://www.w3.org/2001/XMLSchema#boolean",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#is_public",
-          "level": 7,
+          "level": 2,
           "order": 19
         },
         {
           "@id": "https://n2t.net/ark:/60537/bmEOvk",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item_set",
-          "level": 7,
+          "level": 2,
           "order": 20
         },
         {
           "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#media",
-          "level": 7,
+          "level": 2,
           "order": 21
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#owner",
-          "level": 7,
+          "level": 2,
           "order": 39
         },
         {
           "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "level": 7,
+          "level": 2,
           "order": 40
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_class",
-          "level": 7,
+          "level": 2,
           "order": 41
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_template",
-          "level": 7,
+          "level": 2,
           "order": 43
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#site",
-          "level": 7,
+          "level": 2,
           "order": 45
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#thumbnail",
-          "level": 7,
+          "level": 2,
           "order": 46
         },
         {
           "@value": "Gouda",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#title",
-          "level": 7,
+          "level": 2,
           "order": 48
         },
         {
@@ -587,7 +491,7 @@
           "entrytype": "Bnode",
           "predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
           "searchLabel": "gsp_hasGeometry",
-          "level": 7,
+          "level": 2,
           "order": 49
         },
         {
@@ -595,7 +499,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 52
         },
         {
@@ -603,7 +507,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 53
         },
         {
@@ -611,7 +515,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 54
         },
         {
@@ -620,7 +524,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 55
         },
         {
@@ -628,7 +532,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 56
         },
         {
@@ -636,7 +540,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 57
         },
         {
@@ -644,7 +548,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 58
         },
         {
@@ -652,7 +556,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 59
         },
         {
@@ -660,7 +564,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
-          "level": 7,
+          "level": 2,
           "order": 60
         },
         {
@@ -668,7 +572,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2002/07/owl#sameAs",
           "searchLabel": "owl_sameAs",
-          "level": 7,
+          "level": 2,
           "order": 61
         },
         {
@@ -676,7 +580,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/identifier",
           "searchLabel": "schema_identifier",
-          "level": 7,
+          "level": 2,
           "tags": [
             "objectID"
           ],
@@ -688,7 +592,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 7,
+          "level": 2,
           "tags": [
             "label",
             "title"
@@ -701,7 +605,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/sdDatePublished",
           "searchLabel": "schema_sdDatePublished",
-          "level": 7,
+          "level": 2,
           "isoDate": [
             "2022-04-11"
           ],
@@ -716,7 +620,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/subjectOf",
           "searchLabel": "schema_subjectOf",
-          "level": 7,
+          "level": 2,
           "order": 65
         },
         {
@@ -724,7 +628,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/subjectOf",
           "searchLabel": "schema_subjectOf",
-          "level": 7,
+          "level": 2,
           "order": 67
         },
         {
@@ -732,7 +636,7 @@
           "entrytype": "Resource",
           "predicate": "https://schema.org/subjectOf",
           "searchLabel": "schema_subjectOf",
-          "level": 7,
+          "level": 2,
           "order": 69
         }
       ]
@@ -752,7 +656,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -760,17 +665,9 @@
             "https://schema.org/Place"
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "Level": 2,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "Label": "Gouda"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -778,8 +675,9 @@
             "https://schema.org/Place"
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "Level": 2,
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653",
+          "Label": "Gouda"
         }
       ],
       "entries": [
@@ -788,7 +686,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
-          "level": 7,
+          "level": 3,
           "isoDate": [
             "2022-11-20"
           ],
@@ -802,7 +700,7 @@
           "@value": "2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#filename",
-          "level": 7,
+          "level": 3,
           "order": 23
         },
         {
@@ -810,7 +708,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 3,
           "integer": 93653,
           "order": 24
         },
@@ -818,7 +716,7 @@
           "@value": "url",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#ingester",
-          "level": 7,
+          "level": 3,
           "order": 25
         },
         {
@@ -826,7 +724,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#boolean",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#is_public",
-          "level": 7,
+          "level": 3,
           "order": 26
         },
         {
@@ -834,42 +732,42 @@
           "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item",
-          "level": 7,
+          "level": 3,
           "order": 27
         },
         {
           "@value": "image/png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#media_type",
-          "level": 7,
+          "level": 3,
           "order": 28
         },
         {
           "@value": "https://www.goudatijdmachine.nl/omeka/files/original/2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#original_url",
-          "level": 7,
+          "level": 3,
           "order": 29
         },
         {
           "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#owner",
-          "level": 7,
+          "level": 3,
           "order": 30
         },
         {
           "@value": "file",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#renderer",
-          "level": 7,
+          "level": 3,
           "order": 31
         },
         {
           "@value": "8c795d2993dcb150d406069b85d0e554f6fd3c511cb4332e9b0f469dac1baae0",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#sha256",
-          "level": 7,
+          "level": 3,
           "order": 32
         },
         {
@@ -877,7 +775,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#size",
-          "level": 7,
+          "level": 3,
           "integer": 160780,
           "order": 33
         },
@@ -885,14 +783,14 @@
           "@value": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wapen_van_Gouda.svg/640px-Wapen_van_Gouda.svg.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#source",
-          "level": 7,
+          "level": 3,
           "order": 34
         },
         {
           "@id": "_:genid1-93653",
           "entrytype": "Bnode",
           "predicate": "http://omeka.org/s/vocabs/o#thumbnail_urls",
-          "level": 7,
+          "level": 3,
           "order": 35
         },
         {
@@ -900,7 +798,7 @@
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2002/07/owl#sameAs",
           "searchLabel": "owl_sameAs",
-          "level": 7,
+          "level": 3,
           "order": 37
         },
         {
@@ -909,7 +807,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/sdDatePublished",
           "searchLabel": "schema_sdDatePublished",
-          "level": 7,
+          "level": 3,
           "isoDate": [
             "2022-11-20"
           ],
@@ -934,25 +832,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -961,16 +842,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#resource_class",
           "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
+          "Label": "Gouda"
         }
       ],
       "entries": [
@@ -979,7 +852,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 3,
           "integer": 952,
           "order": 42
         }
@@ -998,25 +871,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1025,16 +881,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#resource_template",
           "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
+          "Label": "Gouda"
         }
       ],
       "entries": [
@@ -1043,7 +891,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 3,
           "integer": 26,
           "order": 44
         }
@@ -1062,25 +910,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1089,16 +920,8 @@
           ],
           "Predicate": "http://omeka.org/s/vocabs/o#thumbnail",
           "Level": 2,
-          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
+          "Label": "Gouda"
         }
       ],
       "entries": [
@@ -1107,7 +930,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
-          "level": 7,
+          "level": 3,
           "integer": 36,
           "order": 47
         }
@@ -1126,25 +949,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1154,16 +960,8 @@
           "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
           "SearchLabel": "gsp_hasGeometry",
           "Level": 2,
-          "ObjectID": "_:geo-21d38d03f4370afba42413f29570c0f0"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
+          "ObjectID": "_:geo-21d38d03f4370afba42413f29570c0f0",
+          "Label": "Gouda"
         }
       ],
       "entries": [
@@ -1173,7 +971,7 @@
           "entrytype": "Literal",
           "predicate": "http://www.opengis.net/ont/geosparql#asWKT",
           "searchLabel": "gsp_asWKT",
-          "level": 7,
+          "level": 3,
           "order": 50
         }
       ]
@@ -1191,25 +989,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1221,15 +1002,6 @@
           "Level": 2,
           "ObjectID": "http://viaf.org/viaf/292994024",
           "Label": "Gouda"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
         }
       ],
       "entries": [
@@ -1237,7 +1009,7 @@
           "@value": "Gouda (in VIAF)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
-          "level": 7,
+          "level": 3,
           "order": 66
         }
       ]
@@ -1255,25 +1027,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1285,15 +1040,6 @@
           "Level": 2,
           "ObjectID": "https://nl.wikipedia.org/wiki/Gouda",
           "Label": "Gouda"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
         }
       ],
       "entries": [
@@ -1301,7 +1047,7 @@
           "@value": "Gouda (op Wikipedia)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
-          "level": 7,
+          "level": 3,
           "order": 68
         }
       ]
@@ -1319,25 +1065,8 @@
           ],
           "Predicate": "http://rdf.histograph.io/liesIn",
           "Level": 1,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa/93653",
-          "SubjectClass": [
-            "http://omeka.org/s/vocabs/o#Media"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#item",
-          "Level": 5,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa"
+          "ObjectID": "https://n2t.net/ark:/60537/buzpEa",
+          "Label": "Burgemeester Martenssingel"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1349,15 +1078,6 @@
           "Level": 2,
           "ObjectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
           "Label": "Gouda"
-        },
-        {
-          "Subject": "https://n2t.net/ark:/60537/buzpEa",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "http://omeka.org/s/vocabs/o#primary_media",
-          "Level": 6,
-          "ObjectID": "https://n2t.net/ark:/60537/buzpEa/93653"
         }
       ],
       "entries": [
@@ -1365,7 +1085,7 @@
           "@value": "Gouda (op DBNL)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
-          "level": 7,
+          "level": 3,
           "order": 70
         }
       ]
@@ -1384,7 +1104,8 @@
           "Predicate": "http://www.opengis.net/ont/geosparql#hasGeometry",
           "SearchLabel": "gsp_hasGeometry",
           "Level": 1,
-          "ObjectID": "_:geo-2bbcd99b27a885060789ea48e596a4a7"
+          "ObjectID": "_:geo-2bbcd99b27a885060789ea48e596a4a7",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [

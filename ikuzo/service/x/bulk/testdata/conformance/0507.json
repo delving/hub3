@@ -302,6 +302,17 @@
           "Level": 2,
           "ObjectID": "http://example.org/c/place/leiden",
           "Label": "Jacob de Meester"
+        },
+        {
+          "Subject": "http://example.org/c/place/leiden",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
+          "Level": 3,
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Leiden"
         }
       ],
       "entries": [
@@ -389,17 +400,6 @@
           "Label": "Haarlem"
         },
         {
-          "Subject": "http://example.org/c/place/holland",
-          "SubjectClass": [
-            "https://schema.org/Place"
-          ],
-          "Predicate": "https://schema.org/containedInPlace",
-          "SearchLabel": "schema_containedInPlace",
-          "Level": 4,
-          "ObjectID": "http://example.org/c/place/republiek",
-          "Label": "Holland"
-        },
-        {
           "Subject": "http://example.org/c/person/jacob",
           "SubjectClass": [
             "https://schema.org/Person"
@@ -409,6 +409,28 @@
           "Level": 2,
           "ObjectID": "http://example.org/c/place/leiden",
           "Label": "Jacob de Meester"
+        },
+        {
+          "Subject": "http://example.org/c/place/leiden",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
+          "Level": 3,
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Leiden"
+        },
+        {
+          "Subject": "http://example.org/c/place/holland",
+          "SubjectClass": [
+            "https://schema.org/Place"
+          ],
+          "Predicate": "https://schema.org/containedInPlace",
+          "SearchLabel": "schema_containedInPlace",
+          "Level": 4,
+          "ObjectID": "http://example.org/c/place/republiek",
+          "Label": "Holland"
         }
       ],
       "entries": [

@@ -298,38 +298,6 @@
           "Level": 3,
           "ObjectID": "http://example.org/c/place/holland",
           "Label": "Amsterdam"
-        },
-        {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Pieter de Schilder"
-        },
-        {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
-        },
-        {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Jacob de Meester"
         }
       ],
       "entries": [
@@ -423,41 +391,9 @@
           ],
           "Predicate": "https://schema.org/containedInPlace",
           "SearchLabel": "schema_containedInPlace",
-          "Level": 5,
+          "Level": 4,
           "ObjectID": "http://example.org/c/place/republiek",
           "Label": "Holland"
-        },
-        {
-          "Subject": "http://example.org/c/person/pieter",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "http://example.org/def/pupilOf",
-          "Level": 2,
-          "ObjectID": "http://example.org/c/person/jacob",
-          "Label": "Pieter de Schilder"
-        },
-        {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/birthPlace",
-          "SearchLabel": "schema_birthPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/haarlem",
-          "Label": "Jacob de Meester"
-        },
-        {
-          "Subject": "http://example.org/c/person/jacob",
-          "SubjectClass": [
-            "https://schema.org/Person"
-          ],
-          "Predicate": "https://schema.org/deathPlace",
-          "SearchLabel": "schema_deathPlace",
-          "Level": 3,
-          "ObjectID": "http://example.org/c/place/leiden",
-          "Label": "Jacob de Meester"
         }
       ],
       "entries": [
@@ -467,7 +403,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
-          "level": 6,
+          "level": 5,
           "tags": [
             "label",
             "title"
@@ -480,7 +416,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 6,
+          "level": 5,
           "order": 27
         },
         {
@@ -489,7 +425,7 @@
           "entrytype": "Literal",
           "predicate": "https://schema.org/alternateName",
           "searchLabel": "schema_alternateName",
-          "level": 6,
+          "level": 5,
           "order": 28
         }
       ]
