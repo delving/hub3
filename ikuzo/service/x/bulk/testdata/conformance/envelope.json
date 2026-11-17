@@ -1,0 +1,10 @@
+{
+  "orgID": "test",
+  "dataset": "conformance",
+  "hubId": "test_conformance_NNNN",
+  "localId": "NNNN",
+  "graphUri": "http://example.org/conformance/NNNN/graph",
+  "action": "index",
+  "revision": 1,
+  "recDefId": "schema"
+}
