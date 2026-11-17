@@ -171,3 +171,28 @@ func Test_hyphenateDate(t *testing.T) {
 		})
 	}
 }
+
+// An unparseable typed number keeps its entry (without the number) and never
+// drops the resource's other entries (F7).
+func TestSetEntriesKeepsInvalidNumbers(t *testing.T) {
+	const xsd = "http://www.w3.org/2001/XMLSchema#"
+	fr := &FragmentResource{ID: "urn:x", predicates: map[string][]*FragmentEntry{
+		"https://schema.org/width":  {{Value: "abc", DataType: xsd + "integer", EntryType: "Literal", Order: 1}},
+		"https://schema.org/height": {{Value: "45", DataType: xsd + "integer", EntryType: "Literal", Order: 2}},
+		"https://schema.org/depth":  {{Value: "x.y", DataType: xsd + "float", EntryType: "Literal", Order: 3}},
+		"https://schema.org/name":   {{Value: "Molen", EntryType: "Literal", Order: 4}},
+	}}
+
+	for range 20 { // predicates is a map: try several iteration orders
+		if err := fr.SetEntries(&ResourceMap{}); err != nil {
+			t.Fatalf("SetEntries: %v", err)
+		}
+		if len(fr.Entries) != 4 {
+			t.Fatalf("got %d entries, want 4", len(fr.Entries))
+		}
+		width, height, depth := fr.Entries[0], fr.Entries[1], fr.Entries[2]
+		if width.Value != "abc" || width.Integer != 0 || height.Integer != 45 || depth.Value != "x.y" || depth.Float != 0 {
+			t.Fatalf("entries %+v %+v %+v", width, height, depth)
+		}
+	}
+}

@@ -1040,21 +1040,23 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		re.AddTags("resolved")
 	}
 
+	// An invalid typed number keeps its entry, without the number: returning
+	// the error made SetEntries stop and drop the resource's other entries.
 	switch re.DataType {
 	case "http://www.w3.org/2001/XMLSchema#integer":
 		i, err := strconv.Atoi(re.Value)
 		if err != nil {
-			log.Printf("unable to convert to int: %#v", err)
-			return re, err
+			log.Printf("unable to convert %q (%s) to int: %v", re.Value, predicate, err)
+		} else {
+			re.Integer = i
 		}
-		re.Integer = i
 	case "http://www.w3.org/2001/XMLSchema#float":
 		i, err := strconv.ParseFloat(re.Value, 32)
 		if err != nil {
-			log.Printf("unable to convert to float: %#v", err)
-			return re, err
+			log.Printf("unable to convert %q (%s) to float: %v", re.Value, predicate, err)
+		} else {
+			re.Float = i
 		}
-		re.Float = i
 	}
 
 	if c.Config.RDFTagMap == nil {

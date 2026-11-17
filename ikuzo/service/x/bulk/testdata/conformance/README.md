@@ -43,7 +43,7 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 | 0001 | plain literal | `@value`, `entrytype`, `fields` projection |
 | 0002 | language-tagged literals | `@language`, two languages on one predicate |
 | 0003 | xsd:dateTime / date / gYear | `@type`, `isoDate`, `dateRange` |
-| 0004 | xsd:integer / decimal | `integer`, `float` (invalid lexical form: see FINDINGS F7) |
+| 0004 | xsd:integer / decimal | `integer`, `float` (invalid lexical form: 0806) |
 | 0005 | escapes and unicode | `\"`, `\n`, `é`, emoji, combining character |
 | 0006 | duplicate values | repeated triple; dedup in `fields` across resources |
 | 0007 | long literal | over 256 characters; whitespace kept |
@@ -68,6 +68,7 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 | 0803 | no subject of the aboutType | indexed through the structural-root fallback (FINDINGS F10) |
 | 0804 | empty graph | refusal kind |
 | 0805 | 1,001 keywords (1,002 nested documents) | refused as `record_too_large` (limit 1,000, `elasticsearch.maxNestedDocs`) |
+| 0806 | 0004 plus an invalid `"abc"^^xsd:integer` | the invalid entry kept without `integer`, the others intact (F7) |
 | 0901 | real: `hub3/fragments/testdata/1.rdf` (recDef `edm`) | RDF/XML record |
 | 0902 | real: `hub3/fragments/testdata/crm.nt` (recDef `crm`) | CIDOC-CRM record; resource order unstable (FINDINGS F15) |
 | 0903 | real: `hub3/fragments/testdata/rdf-ntriples-dcn.nt` (recDef `edm`) | N-Triples record |
