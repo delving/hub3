@@ -1,0 +1,2 @@
+<http://example.org/c/0803> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/0803> <https://schema.org/name> "Geen werk" .

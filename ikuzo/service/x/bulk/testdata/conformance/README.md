@@ -59,6 +59,11 @@ every golden change is a behaviour change.
 | 0301 | tags and type | `meta.tags`: `narthex`, `mdr` plus extras |
 | 0302 | revision 7 | `meta.revision` |
 | 0303 | recDefId `edm` | `aboutTypeURI`, root ore:Aggregation |
+| 0801 | broken N-Triples | refusal kind |
+| 0802 | broken RDF/XML | refusal kind |
+| 0803 | no subject of the aboutType | indexed through the structural-root fallback (FINDINGS F10) |
+| 0804 | empty graph | refusal kind |
+| 0805 | 1,001 keywords (1,002 nested documents) | indexed today; `record_too_large` after the limit |
 
 ## Other formats
 
