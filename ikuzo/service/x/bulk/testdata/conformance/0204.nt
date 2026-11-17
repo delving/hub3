@@ -1,0 +1,2 @@
+<http://example.org/c/0204> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schema.org/CreativeWork> .
+<http://example.org/c/0204> <http://schema.org/name> "Oud schema" .

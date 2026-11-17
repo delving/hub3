@@ -1,0 +1,864 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0501",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0501",
+    "namedGraphURI": "http://example.org/conformance/0501/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0501",
+      "types": [
+        "https://schema.org/CreativeWork",
+        "https://schema.org/Painting"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Portret van Maria",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 3
+        },
+        {
+          "@id": "http://example.org/c/person/pieter",
+          "@value": "Pieter de Schilder",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "tags": [
+            "creator"
+          ],
+          "order": 4
+        },
+        {
+          "@value": "1660",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/dateCreated",
+          "searchLabel": "schema_dateCreated",
+          "level": 1,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-12-31"
+          },
+          "order": 5
+        },
+        {
+          "@id": "http://example.org/c/material/eikenpaneel",
+          "@value": "eikenhouten paneel",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "order": 6
+        },
+        {
+          "@id": "http://example.org/c/person/maria",
+          "@value": "Maria van Dorp",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "tags": [
+            "subject"
+          ],
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/pieter",
+      "types": [
+        "https://schema.org/Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Pieter de Schilder",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 9
+        },
+        {
+          "@id": "http://example.org/c/place/leiden",
+          "@value": "Leiden",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "order": 10
+        },
+        {
+          "@value": "1620",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/birthDate",
+          "searchLabel": "schema_birthDate",
+          "level": 2,
+          "isoDate": [
+            "1620-01-01"
+          ],
+          "dateRange": {
+            "gte": "1620-01-01",
+            "lte": "1620-12-31"
+          },
+          "order": 11
+        },
+        {
+          "@id": "http://example.org/c/place/amsterdam",
+          "@value": "Amsterdam",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "order": 12
+        },
+        {
+          "@value": "1675",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/deathDate",
+          "searchLabel": "schema_deathDate",
+          "level": 2,
+          "isoDate": [
+            "1675-01-01"
+          ],
+          "dateRange": {
+            "gte": "1675-01-01",
+            "lte": "1675-12-31"
+          },
+          "order": 13
+        },
+        {
+          "@id": "http://example.org/c/person/jacob",
+          "@value": "Jacob de Meester",
+          "entrytype": "Resource",
+          "predicate": "http://example.org/def/pupilOf",
+          "level": 2,
+          "order": 14
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/leiden",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Leiden",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 3,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 16
+        },
+        {
+          "@value": "Leyden",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 3,
+          "order": 17
+        },
+        {
+          "@value": "Leyde",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 3,
+          "order": 18
+        },
+        {
+          "@value": "Lugdunum Batavorum",
+          "@language": "la",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 3,
+          "order": 19
+        },
+        {
+          "@id": "http://example.org/c/place/holland",
+          "@value": "Holland",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "order": 20
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/holland",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "https://schema.org/Place"
+          ],
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
+        },
+        {
+          "subject": "http://example.org/c/place/amsterdam",
+          "subjectClass": [
+            "https://schema.org/Place"
+          ],
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Amsterdam"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Holland",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 4,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 22
+        },
+        {
+          "@value": "Holland",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 4,
+          "order": 23
+        },
+        {
+          "@value": "Hollande",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 4,
+          "order": 24
+        },
+        {
+          "@id": "http://example.org/c/place/republiek",
+          "@value": "Republiek der Zeven Verenigde Nederlanden",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 4,
+          "order": 25
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/republiek",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/leiden",
+          "label": "Pieter de Schilder"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "https://schema.org/Place"
+          ],
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Leiden"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
+        },
+        {
+          "subject": "http://example.org/c/place/amsterdam",
+          "subjectClass": [
+            "https://schema.org/Place"
+          ],
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/holland",
+          "label": "Amsterdam"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "https://schema.org/Place"
+          ],
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 4,
+          "objectID": "http://example.org/c/place/republiek",
+          "label": "Holland"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Republiek der Zeven Verenigde Nederlanden",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 5,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 27
+        },
+        {
+          "@value": "Dutch Republic",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 5,
+          "order": 28
+        },
+        {
+          "@value": "Provinces-Unies",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 5,
+          "order": 29
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/amsterdam",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 2,
+          "objectID": "http://example.org/c/place/amsterdam",
+          "label": "Pieter de Schilder"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Amsterdam",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 3,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 31
+        },
+        {
+          "@value": "Amsterdam",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 3,
+          "order": 32
+        },
+        {
+          "@value": "Amstelodamum",
+          "@language": "la",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 3,
+          "order": 33
+        },
+        {
+          "@id": "http://example.org/c/place/holland",
+          "@value": "Holland",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 3,
+          "order": 34
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/jacob",
+      "types": [
+        "https://schema.org/Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "http://example.org/def/pupilOf",
+          "level": 2,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Pieter de Schilder"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Jacob de Meester",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 3,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 36
+        },
+        {
+          "@id": "http://example.org/c/place/haarlem",
+          "@value": "Haarlem",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 3,
+          "order": 37
+        },
+        {
+          "@value": "1590",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/birthDate",
+          "searchLabel": "schema_birthDate",
+          "level": 3,
+          "isoDate": [
+            "1590-01-01"
+          ],
+          "dateRange": {
+            "gte": "1590-01-01",
+            "lte": "1590-12-31"
+          },
+          "order": 38
+        },
+        {
+          "@id": "http://example.org/c/place/leiden",
+          "@value": "Leiden",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/deathPlace",
+          "searchLabel": "schema_deathPlace",
+          "level": 3,
+          "order": 39
+        },
+        {
+          "@value": "1655",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/deathDate",
+          "searchLabel": "schema_deathDate",
+          "level": 3,
+          "isoDate": [
+            "1655-01-01"
+          ],
+          "dateRange": {
+            "gte": "1655-01-01",
+            "lte": "1655-12-31"
+          },
+          "order": 40
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/haarlem",
+      "types": [
+        "https://schema.org/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "objectID": "http://example.org/c/person/pieter",
+          "label": "Portret van Maria"
+        },
+        {
+          "subject": "http://example.org/c/person/pieter",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "http://example.org/def/pupilOf",
+          "level": 2,
+          "objectID": "http://example.org/c/person/jacob",
+          "label": "Pieter de Schilder"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "https://schema.org/Person"
+          ],
+          "predicate": "https://schema.org/birthPlace",
+          "searchLabel": "schema_birthPlace",
+          "level": 3,
+          "objectID": "http://example.org/c/place/haarlem",
+          "label": "Jacob de Meester"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Haarlem",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 4,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 42
+        },
+        {
+          "@value": "Harlem",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 4,
+          "order": 43
+        },
+        {
+          "@value": "Harlemum",
+          "@language": "la",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/alternateName",
+          "searchLabel": "schema_alternateName",
+          "level": 4,
+          "order": 44
+        },
+        {
+          "@id": "http://example.org/c/place/holland",
+          "@value": "Holland",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/containedInPlace",
+          "searchLabel": "schema_containedInPlace",
+          "level": 4,
+          "order": 45
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "types": [
+        "https://schema.org/DefinedTerm"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel",
+          "label": "Portret van Maria"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "eikenhouten paneel",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 47
+        },
+        {
+          "@value": "oak panel",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 48
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/maria",
+      "types": [
+        "https://schema.org/Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0501",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria",
+          "label": "Portret van Maria"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Maria van Dorp",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 50
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_alternateName": [
+      "Leyden",
+      "Leyde",
+      "Lugdunum Batavorum",
+      "Holland",
+      "Hollande",
+      "Dutch Republic",
+      "Provinces-Unies",
+      "Amsterdam",
+      "Amstelodamum",
+      "Harlem",
+      "Harlemum"
+    ],
+    "schema_birthDate": [
+      "1620",
+      "1590"
+    ],
+    "schema_dateCreated": [
+      "1660"
+    ],
+    "schema_deathDate": [
+      "1675",
+      "1655"
+    ],
+    "schema_name": [
+      "Portret van Maria",
+      "Pieter de Schilder",
+      "Leiden",
+      "Holland",
+      "Republiek der Zeven Verenigde Nederlanden",
+      "Amsterdam",
+      "Jacob de Meester",
+      "Haarlem",
+      "eikenhouten paneel",
+      "oak panel",
+      "Maria van Dorp"
+    ]
+  }
+}

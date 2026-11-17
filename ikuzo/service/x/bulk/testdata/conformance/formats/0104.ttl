@@ -1,0 +1,7 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0104> a schema:CreativeWork ;
+    schema:contentLocation [ schema:address [ schema:addressLocality "Delft" ;
+                    schema:geo [ schema:latitude "52.0116" ;
+                            schema:longitude "4.3571" ] ] ] .
+

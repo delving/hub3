@@ -188,6 +188,8 @@ shards = 1
 replicas = 0
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v2"]
+# refuse a record with more nested documents (resources + entries); default 1000
+# maxNestedDocs = 1000
 # maxTreeSize is the maximum size of the number of nodes in the tree navigation API
 maxTreeSize = 251
 # orphanWait is the time in seconds that the goroutine waits for the cluster to be in sync before sending delete query
@@ -402,6 +404,9 @@ searchFields = [
 
 
 [rdftag]
+# languages a link label is picked from, in order, when the target has its
+# label in several; "" is a value without a language tag. default ["en", ""]
+# labelLanguages = ["en", ""]
 # used for title of a resource
 title = [
   "http://purl.org/dc/elements/1.1/title",

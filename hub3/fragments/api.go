@@ -2264,10 +2264,10 @@ func (qf *QueryFilter) ElasticFilter() (elastic.Query, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "Unable to convert TypeClass from shorthand to URI")
 			}
-			classQuery := elastic.NewTermQuery("resources.context.SubjectClass", tc)
+			classQuery := elastic.NewTermQuery("resources.context.subjectClass", tc)
 			levelq = levelq.Must(classQuery)
 		}
-		labelQ := elastic.NewTermQuery("resources.context.SearchLabel", level2.SearchLabel)
+		labelQ := elastic.NewTermQuery("resources.context.searchLabel", level2.SearchLabel)
 		lq := elastic.NewNestedQuery("resources.context", levelq.Must(labelQ))
 		nestedBoolQuery = nestedBoolQuery.Must(lq)
 	}

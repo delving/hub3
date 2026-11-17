@@ -1,0 +1,7 @@
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0004> a schema:CreativeWork ;
+    schema:height 38.5 ;
+    schema:width 45 .
+

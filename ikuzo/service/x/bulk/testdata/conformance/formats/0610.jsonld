@@ -1,0 +1,180 @@
+[
+  {
+    "@id": "http://example.org/c/type/paneelschildering",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/techniek"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "paneelschildering"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/person-maria-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@value": "Maria van Dorp"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/production/0610",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by": [
+      {
+        "@id": "http://example.org/ext/person/pieter"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique": [
+      {
+        "@id": "http://example.org/c/type/paneelschildering"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/0610"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/maria",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/person-maria-0"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/material/eikenpaneel",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/materiaal"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "eikenhouten paneel"
+      },
+      {
+        "@language": "en",
+        "@value": "oak panel"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/techniek",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "techniek"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/0610",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1660-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1660-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/materiaal",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "materiaal"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/voorkeursnaam",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/title/0610",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Portret van Maria, externe maker"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0610",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P102_has_title": [
+      {
+        "@id": "http://example.org/c/title/0610"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by": [
+      {
+        "@id": "http://example.org/c/production/0610"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of": [
+      {
+        "@id": "http://example.org/c/material/eikenpaneel"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P62_depicts": [
+      {
+        "@id": "http://example.org/c/person/maria"
+      }
+    ]
+  }
+]

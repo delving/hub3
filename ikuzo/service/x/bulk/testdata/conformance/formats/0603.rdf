@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:ns1="http://www.cidoc-crm.org/cidoc-crm/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://example.org/c/birth/paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E67_Birth"/>
+    <ns1:P7_took_place_at rdf:resource="http://example.org/c/place/leiden"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/birth-paulus"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-holland-1">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="en">Holland</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-holland-2">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="fr">Hollande</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/person-maria-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content>Maria van Dorp</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-leiden-3">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="la">Lugdunum Batavorum</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/holland">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E53_Place"/>
+    <ns1:P89_falls_within rdf:resource="http://example.org/c/place/republiek"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-holland-0"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-holland-1"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-holland-2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/paneelschildering">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">paneelschildering</rdfs:label>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/techniek"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/jacob">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E21_Person"/>
+    <ns1:P98i_was_born rdf:resource="http://example.org/c/birth/jacob"/>
+    <ns1:P100i_died_in rdf:resource="http://example.org/c/death/jacob"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/person-jacob-0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/timespan/birth-paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1620-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1620-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/material/eikenpaneel">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E57_Material"/>
+    <rdfs:label xml:lang="nl">eikenhouten paneel</rdfs:label>
+    <rdfs:label xml:lang="en">oak panel</rdfs:label>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/materiaal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/pc14/paulus-leermeester">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"/>
+    <ns1:P02_has_range rdf:resource="http://example.org/c/person/jacob"/>
+    <ns1:P14.1_in_the_role_of rdf:resource="http://example.org/c/type/leermeester"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/death/jacob">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E69_Death"/>
+    <ns1:P7_took_place_at rdf:resource="http://example.org/c/place/leiden"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/death-jacob"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-republiek-2">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="fr">Provinces-Unies</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-republiek-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Republiek der Zeven Verenigde Nederlanden</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/training/paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E7_Activity"/>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/opleiding"/>
+    <ns1:P01i_is_domain_of rdf:resource="http://example.org/c/pc14/paulus-leerling"/>
+    <ns1:P01i_is_domain_of rdf:resource="http://example.org/c/pc14/paulus-leermeester"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-leiden-2">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="fr">Leyde</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-leiden-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Leiden</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/opleiding">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">opleiding</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/leerling">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">leerling</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/republiek">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E53_Place"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-republiek-0"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-republiek-1"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-republiek-2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/title/0603">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E35_Title"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Portret van Maria, Haarlem</ns1:P190_has_symbolic_content>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/materiaal">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">materiaal</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/alternatieve-naam">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">alternatieve naam</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E21_Person"/>
+    <ns1:P98i_was_born rdf:resource="http://example.org/c/birth/paulus"/>
+    <ns1:P100i_died_in rdf:resource="http://example.org/c/death/paulus"/>
+    <ns1:P14i_performed rdf:resource="http://example.org/c/training/paulus"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/person-paulus-0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-leiden-1">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="en">Leyden</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/leermeester">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">leermeester</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/death/paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E69_Death"/>
+    <ns1:P7_took_place_at rdf:resource="http://example.org/c/place/haarlem"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/death-paulus"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/timespan/birth-jacob">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1590-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1590-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/techniek">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">techniek</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/birth/jacob">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E67_Birth"/>
+    <ns1:P7_took_place_at rdf:resource="http://example.org/c/place/haarlem"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/birth-jacob"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-republiek-1">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="en">Dutch Republic</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/timespan/death-jacob">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1655-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1655-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-haarlem-1">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="en">Harlem</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-haarlem-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Haarlem</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/haarlem">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E53_Place"/>
+    <ns1:P89_falls_within rdf:resource="http://example.org/c/place/holland"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-haarlem-0"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-haarlem-1"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-haarlem-2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/maria">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E21_Person"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/person-maria-0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0603">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"/>
+    <ns1:P102_has_title rdf:resource="http://example.org/c/title/0603"/>
+    <ns1:P108i_was_produced_by rdf:resource="http://example.org/c/production/0603"/>
+    <ns1:P45_consists_of rdf:resource="http://example.org/c/material/eikenpaneel"/>
+    <ns1:P62_depicts rdf:resource="http://example.org/c/person/maria"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/voorkeursnaam">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">voorkeursnaam</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/production/0603">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E12_Production"/>
+    <ns1:P14_carried_out_by rdf:resource="http://example.org/c/person/paulus"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/0603"/>
+    <ns1:P32_used_general_technique rdf:resource="http://example.org/c/type/paneelschildering"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-holland-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Holland</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/timespan/death-paulus">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1675-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1675-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/leiden">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E53_Place"/>
+    <ns1:P89_falls_within rdf:resource="http://example.org/c/place/holland"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-leiden-0"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-leiden-1"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-leiden-2"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/place-leiden-3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/timespan/0603">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1660-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1660-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/place-haarlem-2">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content xml:lang="la">Harlemum</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/alternatieve-naam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/person-jacob-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content>Jacob de Meester</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/person-paulus-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content>Paulus de Schilder</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/pc14/paulus-leerling">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"/>
+    <ns1:P02_has_range rdf:resource="http://example.org/c/person/paulus"/>
+    <ns1:P14.1_in_the_role_of rdf:resource="http://example.org/c/type/leerling"/>
+  </rdf:Description>
+</rdf:RDF>

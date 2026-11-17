@@ -1,0 +1,2 @@
+<http://example.org/c/0201> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0201> <https://schema.org/name> "Alleen een werk" .

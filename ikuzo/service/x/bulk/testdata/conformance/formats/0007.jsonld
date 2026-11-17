@@ -1,0 +1,18 @@
+[
+  {
+    "@id": "http://example.org/c/0007",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/description": [
+      {
+        "@value": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "  dubbele  spatie  "
+      }
+    ]
+  }
+]

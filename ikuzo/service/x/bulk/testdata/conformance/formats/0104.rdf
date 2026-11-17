@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:nodeID="N54639fab1fcc4a8990ea0cbb7524c85d">
+    <schema:addressLocality>Delft</schema:addressLocality>
+    <schema:geo rdf:nodeID="Na3871e45634b4549885759c8faa9e3fb"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Na3871e45634b4549885759c8faa9e3fb">
+    <schema:latitude>52.0116</schema:latitude>
+    <schema:longitude>4.3571</schema:longitude>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0104">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:contentLocation rdf:nodeID="N7163e68fa1d7433f837ea61f4e3af2a0"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N7163e68fa1d7433f837ea61f4e3af2a0">
+    <schema:address rdf:nodeID="N54639fab1fcc4a8990ea0cbb7524c85d"/>
+  </rdf:Description>
+</rdf:RDF>

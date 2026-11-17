@@ -1,0 +1,3 @@
+<http://example.org/c/0004> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0004> <https://schema.org/width> "45"^^<http://www.w3.org/2001/XMLSchema#integer> .
+<http://example.org/c/0004> <https://schema.org/height> "38.5"^^<http://www.w3.org/2001/XMLSchema#decimal> .

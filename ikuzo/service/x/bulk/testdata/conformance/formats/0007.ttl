@@ -1,0 +1,6 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0007> a schema:CreativeWork ;
+    schema:description "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij" ;
+    schema:name "  dubbele  spatie  " .
+

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0107/b">
+    <schema:name>B</schema:name>
+    <schema:knows rdf:resource="http://example.org/c/0107/a"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0107/a">
+    <schema:name>A</schema:name>
+    <schema:knows rdf:resource="http://example.org/c/0107/b"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0107">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:creator rdf:resource="http://example.org/c/0107/a"/>
+  </rdf:Description>
+</rdf:RDF>

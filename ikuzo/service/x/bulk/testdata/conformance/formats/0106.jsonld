@@ -1,0 +1,20 @@
+[
+  {
+    "@id": "http://example.org/c/0106",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/keywords": [
+      {
+        "@list": [
+          {
+            "@value": "molen"
+          },
+          {
+            "@value": "rivier"
+          }
+        ]
+      }
+    ]
+  }
+]

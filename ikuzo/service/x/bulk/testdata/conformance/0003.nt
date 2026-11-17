@@ -1,0 +1,4 @@
+<http://example.org/c/0003> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0003> <https://schema.org/dateCreated> "1660-05-01"^^<http://www.w3.org/2001/XMLSchema#date> .
+<http://example.org/c/0003> <https://schema.org/datePublished> "1661"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/0003> <https://schema.org/dateModified> "2024-07-16T18:01:37+00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .

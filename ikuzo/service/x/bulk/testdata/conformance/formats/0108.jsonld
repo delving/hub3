@@ -1,0 +1,29 @@
+[
+  {
+    "@id": "http://example.org/c/0108",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/description": [
+      {
+        "@value": "B"
+      },
+      {
+        "@value": "E"
+      }
+    ],
+    "https://schema.org/keywords": [
+      {
+        "@value": "D"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "A"
+      },
+      {
+        "@value": "C"
+      }
+    ]
+  }
+]

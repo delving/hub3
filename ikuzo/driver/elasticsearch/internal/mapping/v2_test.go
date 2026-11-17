@@ -15,6 +15,7 @@
 package mapping
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"testing"
@@ -69,5 +70,54 @@ func TestV2Mapping_ContainsResolvedFields(t *testing.T) {
 
 	if !strings.Contains(mapping, `"resolvedLevel"`) {
 		t.Error("V2 mapping should contain resolvedLevel field")
+	}
+}
+
+// Both mappings are valid JSON, and the context fields use the names the v2
+// document writes (camelCase since F22).
+func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
+	for name, m := range map[string]string{"create": V2ESMapping(1, 0), "update": V2MappingUpdate()} {
+		var doc map[string]any
+		if err := json.Unmarshal([]byte(m), &doc); err != nil {
+			t.Fatalf("%s mapping is not valid JSON: %v", name, err)
+		}
+		props := doc["mappings"]
+		if props == nil {
+			props = doc
+		}
+		b, _ := json.Marshal(props)
+		for _, f := range []string{`"subjectClass"`, `"searchLabel"`, `"objectID"`, `"sortValue"`} {
+			if !strings.Contains(string(b), f) {
+				t.Errorf("%s mapping lacks %s", name, f)
+			}
+		}
+		for _, f := range []string{`"SubjectClass"`, `"SearchLabel"`, `"ObjectID"`} {
+			if strings.Contains(string(b), f) {
+				t.Errorf("%s mapping still has %s", name, f)
+			}
+		}
+	}
+}
+
+// entries.inline is declared only for new indexes: on an existing index it may
+// already be mapped dynamically, and changing it there would fail the update.
+func TestV2MappingInlineOnlyOnCreate(t *testing.T) {
+	if !strings.Contains(V2ESMapping(1, 0), `"inline": {"type": "object", "enabled": false}`) {
+		t.Error("create mapping should declare entries.inline")
+	}
+	if strings.Contains(V2MappingUpdate(), `"inline"`) {
+		t.Error("update mapping should not touch entries.inline")
+	}
+}
+
+// mFilterID/mType/mRole were for facets across predicates at index time; that
+// need is met at query time by facet.mergeField, and nothing wrote them (F3).
+func TestV2MappingWithoutMetaFacetFields(t *testing.T) {
+	for name, m := range map[string]string{"create": V2ESMapping(1, 0), "update": V2MappingUpdate()} {
+		for _, f := range []string{`"mFilterID"`, `"mType"`, `"mRole"`} {
+			if strings.Contains(m, f) {
+				t.Errorf("%s mapping still declares %s", name, f)
+			}
+		}
 	}
 }

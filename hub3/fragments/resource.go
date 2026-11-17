@@ -18,6 +18,7 @@ import (
 	"context"
 	fmt "fmt"
 	"io"
+	"math"
 	"net/url"
 	reflect "reflect"
 	"sort"
@@ -744,6 +745,7 @@ type FragmentResource struct {
 	Tags                 []string                   `json:"tags,omitempty"`
 	predicates           map[string][]*FragmentEntry
 	objectIDs            []*FragmentReferrerContext
+	firstOrder           int // order of the first triple with this subject
 }
 
 func (fr *FragmentResource) FilterEntries(searchLabel string) (entries []*ResourceEntry) {
@@ -885,24 +887,29 @@ func (fr *FragmentResource) UnmarshalRDF(v any) error {
 	return nil
 }
 
-// BySortOrder implements sort.Interface for []*FragmentResource based on
-// the Order field in the first FragmentEntry.
+// BySortOrder implements sort.Interface for []*FragmentResource: resources
+// without entries first, by first appearance in the source, then by the Order
+// of the first entry; ties by ID.
 type BySortOrder []*FragmentResource
 
 func (a BySortOrder) Len() int      { return len(a) }
 func (a BySortOrder) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a BySortOrder) Less(i, j int) bool {
-	one := a[i]
-	two := a[j]
-	if len(one.Entries) == 0 {
-		return true
+	one, two := a[i], a[j]
+	// resources without entries (identifiers, type nodes) first, by where they
+	// appear in the source; the old rule (true whenever one had no entries) was
+	// not an ordering, so they came out in map order.
+	if (len(one.Entries) == 0) != (len(two.Entries) == 0) {
+		return len(one.Entries) == 0
 	}
-
-	if len(two.Entries) == 0 {
-		return false
+	k1, k2 := one.firstOrder, two.firstOrder
+	if len(one.Entries) != 0 {
+		k1, k2 = one.Entries[0].Order, two.Entries[0].Order
 	}
-
-	return one.Entries[0].Order < two.Entries[0].Order
+	if k1 != k2 {
+		return k1 < k2
+	}
+	return one.ID < two.ID
 }
 
 // ContextPath returns a string that can be used to reconstruct the path hierarchy
@@ -1040,21 +1047,42 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 		re.AddTags("resolved")
 	}
 
+	// An invalid typed number keeps its entry, without the number: returning
+	// the error made SetEntries stop and drop the resource's other entries.
 	switch re.DataType {
 	case "http://www.w3.org/2001/XMLSchema#integer":
-		i, err := strconv.Atoi(re.Value)
+		// the mapping's integer is 32-bit: a larger value fails the whole record
+		i, err := strconv.ParseInt(re.Value, 10, 32)
 		if err != nil {
-			log.Printf("unable to convert to int: %#v", err)
-			return re, err
+			log.Printf("unable to convert %q (%s) to a 32-bit int: %v", re.Value, predicate, err)
+		} else {
+			re.Integer = int(i)
 		}
-		re.Integer = i
-	case "http://www.w3.org/2001/XMLSchema#float":
-		i, err := strconv.ParseFloat(re.Value, 32)
-		if err != nil {
-			log.Printf("unable to convert to float: %#v", err)
-			return re, err
+	case "http://www.w3.org/2001/XMLSchema#float",
+		"http://www.w3.org/2001/XMLSchema#decimal",
+		"http://www.w3.org/2001/XMLSchema#double":
+		bits := 64
+		if strings.HasSuffix(re.DataType, "#float") {
+			bits = 32
 		}
-		re.Float = i
+		i, err := strconv.ParseFloat(re.Value, bits)
+		switch {
+		case err != nil:
+			log.Printf("unable to convert %q (%s) to float: %v", re.Value, predicate, err)
+		case math.IsNaN(i) || math.IsInf(i, 0) || math.Abs(i) > math.MaxFloat32:
+			// valid xsd, but JSON cannot carry NaN/INF, and the mapping's float is
+			// 32-bit: OpenSearch refuses the whole record over a larger value
+			log.Printf("not indexing %q (%s) as float", re.Value, predicate)
+		default:
+			re.Float = i
+		}
+	}
+
+	fromDatatype := false
+	if iso, ir, ok := dateFromDatatype(re.Value, re.DataType); ok {
+		re.Date = []string{iso}
+		re.DateRange = &ir
+		fromDatatype = true
 	}
 
 	if c.Config.RDFTagMap == nil {
@@ -1065,16 +1093,25 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 	if ok {
 		re.AddTags(labels...)
 		if re.Value != "" {
-			// TODO add validation for the values here
+			// Only dates the isoDate/dateRange mapping accepts: OpenSearch refuses
+			// the whole record over one it cannot parse.
 			for _, label := range labels {
 				switch label {
 				case "isoDate":
-					if re.Value != "" && re.Value != "--01" {
-						re.Date = append(re.Date, re.Value)
+					if fromDatatype {
+						continue
 					}
+					if !isIndexableDate(re.Value) {
+						log.Printf("not indexing %q (%s) as isoDate", re.Value, predicate)
+						continue
+					}
+					re.Date = append(re.Date, re.Value)
 				case "dateRange":
+					if fromDatatype {
+						continue
+					}
 					indexRange, err := CreateDateRange(re.Value)
-					if err != nil {
+					if err != nil || !indexRange.isDates() {
 						log.Printf("Unable to create dateRange for: %#v", re.Value)
 						continue
 					}
@@ -1101,6 +1138,85 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 	}
 
 	return re, nil
+}
+
+const xsdNS = "http://www.w3.org/2001/XMLSchema#"
+
+// dateFromDatatype gives the isoDate and dateRange of an xsd:date, dateTime,
+// gYear or gYearMonth literal, in forms the mapping accepts (a dateTime
+// without a timezone matches none of its formats, so it becomes its date).
+// The timezone is dropped; ok is false for anything that is not a valid date
+// with a four-digit year.
+func dateFromDatatype(value, datatype string) (iso string, ir IndexRange, ok bool) {
+	var n int // length of the date part
+	switch datatype {
+	case xsdNS + "date", xsdNS + "dateTime":
+		n = len("2006-01-02")
+	case xsdNS + "gYearMonth":
+		n = len("2006-01")
+	case xsdNS + "gYear":
+		n = len("2006")
+	default:
+		return "", ir, false
+	}
+	v := strings.TrimSpace(value)
+	if len(v) < n {
+		return "", ir, false
+	}
+	date, rest := v[:n], v[n:]
+	if datatype == xsdNS+"dateTime" {
+		if !strings.HasPrefix(rest, "T") {
+			return "", ir, false
+		}
+	} else if !isTimezone(rest) {
+		return "", ir, false
+	}
+	ir, err := CreateDateRange(date)
+	if err != nil || !ir.isDates() {
+		log.Printf("not indexing %q (%s) as a date", value, datatype)
+		return "", ir, false
+	}
+	return ir.Greater, ir, true
+}
+
+// isTimezone reports whether s is empty or an xsd timezone: Z or ±hh:mm.
+func isTimezone(s string) bool {
+	if s == "" || s == "Z" {
+		return true
+	}
+	_, err := time.Parse("-07:00", s)
+	return len(s) == len("+01:00") && (s[0] == '+' || s[0] == '-') && err == nil
+}
+
+// indexDateLayouts are the formats of the isoDate/dateRange mapping
+// (ikuzo/driver/elasticsearch/internal/mapping/v2.go), epoch_millis left out.
+var indexDateLayouts = []string{
+	time.RFC3339, "2006-01-02T15:04:05.000Z07:00", "2006-01-02 15:04:05",
+	"2006-01-02", "02-01-2006", "2006",
+}
+
+// isIndexableDate reports whether the mapping can parse v as a date.
+func isIndexableDate(v string) bool {
+	// time.Parse takes any fraction of a second; the mapping takes none or .SSS
+	if _, frac, ok := strings.Cut(v, "."); ok {
+		digits := len(frac) - len(strings.TrimLeft(frac, "0123456789"))
+		if digits != 3 {
+			return false
+		}
+	}
+	for _, layout := range indexDateLayouts {
+		if _, err := time.Parse(layout, v); err == nil {
+			return true
+		}
+	}
+	return false
+}
+
+// isDates reports whether both ends are valid yyyy-MM-dd dates.
+func (ir IndexRange) isDates() bool {
+	_, errG := time.Parse("2006-01-02", ir.Greater)
+	_, errL := time.Parse("2006-01-02", ir.Less)
+	return errG == nil && errL == nil
 }
 
 // CreateDateRange creates a date indexRange
@@ -1196,13 +1312,52 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 	for _, labelPredicate := range c.Config.RDFTag.Label {
 		o, ok := fr.predicates[labelPredicate]
 		if ok && len(o) != 0 {
-			return o[0].Value, o[0].Language
+			best := o[0]
+			for _, e := range o[1:] {
+				if betterLabel(e, best) {
+					best = e
+				}
+			}
+			return best.Value, best.Language
 		}
 	}
 	return "", ""
 }
 
-// SetContextLevels sets FragmentReferrerContext to each level from the root
+// defaultLabelLanguages is the label preference when RDFTag.LabelLanguages is empty.
+var defaultLabelLanguages = []string{"en", ""}
+
+// betterLabel reports whether a is preferred over b as a label: by the rank of
+// its language in RDFTag.LabelLanguages (by primary subtag), then by the
+// smaller value, so the choice never depends on triple order.
+func betterLabel(a, b *FragmentEntry) bool {
+	if ra, rb := labelRank(a.Language), labelRank(b.Language); ra != rb {
+		return ra < rb
+	}
+	return a.Value < b.Value
+}
+
+func labelRank(lang string) int {
+	prefs := c.Config.RDFTag.LabelLanguages
+	if len(prefs) == 0 {
+		prefs = defaultLabelLanguages
+	}
+	primary, _, _ := strings.Cut(strings.ToLower(lang), "-")
+	for i, p := range prefs {
+		if strings.ToLower(p) == primary {
+			return i
+		}
+	}
+	return len(prefs)
+}
+
+// SetContextLevels walks the graph breadth first from the root and gives every
+// resource it reaches its context: each link that lies on a shortest route from
+// the root, with Level = the level of the link's subject (the root is level 1).
+// A resource's level (GetLevel) is so its shortest distance from the root.
+// Longer routes, links back up and cycles are not followed; there is no depth
+// limit. Label and SubjectClass are set here, from the fully read subject.
+// It returns the resources reached, keyed by ID.
 func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*FragmentResource, error) {
 	if len(rm.resources) == 0 {
 		return nil, fmt.Errorf("resourceMap cannot be empty for subjectURI: %s", subjectURI)
@@ -1213,96 +1368,42 @@ func (rm *ResourceMap) SetContextLevels(subjectURI string) (map[string]*Fragment
 		return nil, fmt.Errorf("subject %q is not part of the graph", subjectURI)
 	}
 
-	linkedObjects := map[string]*FragmentResource{}
-	linkedObjects[subjectURI] = subject
-	for _, level1 := range subject.objectIDs {
-		level2Resource, ok := rm.GetResource(level1.ObjectID)
-		if !ok {
-			log.Debug().Msgf(unknownTargetUriMessageFormat, level1.ObjectID)
-			continue
-		}
-		linkedObjects[level1.ObjectID] = level2Resource
-		level1.Level = 1
-		if len(level1.GetSubjectClass()) == 0 {
-			level1.SubjectClass = subject.Types
-		}
-		// validate context
-		level2Resource.AppendContext(level1)
+	levels := map[string]int32{subjectURI: 1}
+	reached := map[string]*FragmentResource{subjectURI: subject}
+	queue := []*FragmentResource{subject}
 
-		// loop into the next level, i.e. level 3
-		for _, level2 := range level2Resource.objectIDs {
-			level2.Level = 2
-			level3Resource, ok := rm.GetResource(level2.ObjectID)
+	for len(queue) > 0 {
+		fr := queue[0]
+		queue = queue[1:]
+		next := levels[fr.ID] + 1
+		label, _ := fr.GetLabel()
+
+		for _, link := range fr.objectIDs {
+			target, ok := rm.GetResource(link.ObjectID)
 			if !ok {
-				log.Debug().Msgf(unknownTargetUriMessageFormat, level2.ObjectID)
+				log.Debug().Msgf(unknownTargetUriMessageFormat, link.ObjectID)
 				continue
 			}
 
-			linkedObjects[level2.ObjectID] = level3Resource
-			if len(level2.GetSubjectClass()) == 0 {
-				level2.SubjectClass = level2Resource.Types
+			if l, seen := levels[link.ObjectID]; !seen {
+				levels[link.ObjectID] = next
+				reached[link.ObjectID] = target
+				queue = append(queue, target)
+			} else if l != next {
+				continue // a longer route, a link back up, or a cycle
 			}
-			level3Resource.AppendContext(level1, level2)
 
-			for _, level3 := range level3Resource.objectIDs {
-				level3.Level = 3
-				level4Resource, ok := rm.GetResource(level3.ObjectID)
-				if !ok {
-					log.Debug().Msgf(unknownTargetUriMessageFormat, level3.ObjectID)
-					continue
-				}
-				linkedObjects[level3.ObjectID] = level3Resource
-				if len(level3.GetSubjectClass()) == 0 {
-					level3.SubjectClass = level3Resource.Types
-				}
-				level4Resource.AppendContext(level1, level2, level3)
-
-				for _, level4 := range level4Resource.objectIDs {
-					level4.Level = 4
-					level5Resource, ok := rm.GetResource(level4.ObjectID)
-					if !ok {
-						log.Debug().Msgf(unknownTargetUriMessageFormat, level4.ObjectID)
-						continue
-					}
-					linkedObjects[level4.ObjectID] = level4Resource
-					if len(level4.GetSubjectClass()) == 0 {
-						level4.SubjectClass = level4Resource.Types
-					}
-					level5Resource.AppendContext(level1, level2, level3, level4)
-
-					for _, level5 := range level5Resource.objectIDs {
-						level5.Level = 5
-						level6Resource, ok := rm.GetResource(level5.ObjectID)
-						if !ok {
-							log.Debug().Msgf(unknownTargetUriMessageFormat, level5.ObjectID)
-							continue
-						}
-						linkedObjects[level5.ObjectID] = level5Resource
-						if len(level5.GetSubjectClass()) == 0 {
-							level5.SubjectClass = level5Resource.Types
-						}
-						level6Resource.AppendContext(level1, level2, level3, level4, level5)
-
-						for _, level6 := range level6Resource.objectIDs {
-							level6.Level = 6
-							level7Resource, ok := rm.GetResource(level6.ObjectID)
-							if !ok {
-								log.Debug().Msgf(unknownTargetUriMessageFormat, level6.ObjectID)
-								continue
-							}
-							linkedObjects[level6.ObjectID] = level6Resource
-							if len(level6.GetSubjectClass()) == 0 {
-								level6.SubjectClass = level6Resource.Types
-							}
-							level7Resource.AppendContext(level1, level2, level3, level4, level5, level6)
-						}
-					}
-				}
-			}
+			link.Level = levels[fr.ID]
+			link.Label = label
+			link.SubjectClass = fr.Types
+			// fr's context is complete: all its routes come from the level above,
+			// which the queue has finished
+			target.AppendContext(fr.Context...)
+			target.AppendContext(link)
 		}
 	}
 
-	return linkedObjects, nil
+	return reached, nil
 }
 
 // AppendContext adds the referrerContext to the FragmentResource
@@ -1632,7 +1733,7 @@ func contains(s []string, e string) bool {
 // this deduplication is important to not provide false counts for context levels
 func containsContext(s []*FragmentReferrerContext, e *FragmentReferrerContext) bool {
 	for _, a := range s {
-		if a.ObjectID == e.ObjectID && a.Predicate == e.Predicate {
+		if a.Subject == e.Subject && a.ObjectID == e.ObjectID && a.Predicate == e.Predicate {
 			return true
 		}
 	}
@@ -1719,6 +1820,7 @@ func (rm *ResourceMap) AppendOrderedTriple(t *r.Triple, resolved bool, order int
 	if !ok {
 		fr = &FragmentResource{}
 		fr.ID = id
+		fr.firstOrder = order
 		rm.resources[id] = fr
 		fr.predicates = make(map[string][]*FragmentEntry)
 	}

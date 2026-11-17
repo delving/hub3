@@ -1,0 +1,73 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0806",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0806",
+    "namedGraphURI": "http://example.org/conformance/0806/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0806",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "45",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/width",
+          "searchLabel": "schema_width",
+          "level": 1,
+          "integer": 45,
+          "order": 2
+        },
+        {
+          "@value": "38.5",
+          "@type": "http://www.w3.org/2001/XMLSchema#decimal",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/height",
+          "searchLabel": "schema_height",
+          "level": 1,
+          "float": 38.5,
+          "order": 3
+        },
+        {
+          "@value": "abc",
+          "@type": "http://www.w3.org/2001/XMLSchema#integer",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/depth",
+          "searchLabel": "schema_depth",
+          "level": 1,
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_depth": [
+      "abc"
+    ],
+    "schema_height": [
+      "38.5"
+    ],
+    "schema_width": [
+      "45"
+    ]
+  }
+}

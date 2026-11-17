@@ -1,0 +1,80 @@
+# Conformance findings
+
+From reviewing the baseline goldens. Status: open, fixed, deferred, wontfix.
+A fix is one commit changing code and the affected goldens; it sets the row
+to fixed and names the commit.
+
+The harness runs on hub3's defaults, except `[rdftag]`, which it loads from
+`rdftag.toml`: the NDE config. That config has no
+date tags; `isoDate`/`dateRange` come from the literal's datatype (F19). Findings that depend on
+configuration say so.
+
+| ID | Cases | Observed | Proposal | Status |
+|---|---|---|---|---|
+| F1 | — | `index.Graph` declares `json:"_ checksum,omitempty"` (space, `ikuzo/rdf/index/graph.go:26`); mapping declares `_checksum` | fix the tag | fixed: tag `_checksum`; see F27 for the checksum code itself |
+| F2 | 0101, 05xx | `sortValue` and `inline` are entry fields (`hub3/fragments/resource.go:1351,1357`) not in the mapping (dynamic) | declare or drop | fixed: `sortValue` declared as text + `.keyword` (facet ordering queries `sortValue.keyword`), `inline` as a stored, unindexed object (never written by the bulk path) |
+| F3 | — | `resolvedFrom`, `resolvedLevel`, `mType`, `mRole`, `mFilterID` in mapping but not in `fragments.ResourceEntry` | decide which model writes them | fixed: `mFilterID`/`mType`/`mRole` dropped from the mapping and `index.Entry` (added 82381a83 for facets across predicates at index time; never filled; facet.mergeField, 07ccbcca, does it at query time). `resolvedFrom`/`resolvedLevel` kept: written by `ikuzo/rdf/index` |
+| F4 | 0205 | `tree.hasDigitalObject` vs `meta.hasDigitalObject` share a name, differ in subject | document; no code change | wontfix: `tree` is being deprecated; hub3 keeps writing it for the EAD path |
+| F5 | 0301 | Confirmed by reading: `Parser.Parse` makes a fresh `Request` per NDJSON line (`parser.go:92`); `req.setTags()` is only called from `setDataSet`, which runs under `p.once` (`parser.go:324`, `:189`). Only the first record processed gets `resolvedTags`; every later record in the upload has `meta.tags: null`, and `fragmentsOnly`/`rdfOnly` on a later line are ignored. With several workers, "first" is whichever worker wins. | call `req.setTags()` per request in `process`; keep only the dataset lookup in `once` | fixed: `process` resolves tags per request; `fragmentsOnly`/`rdfOnly` choose that request's index types (`TestProcessResolvesTagsPerRequest`); the harness now runs through `process` |
+| F6 | 0805 | no limit on nested documents; 0805 (1 resource + 1,001 entries) is indexed, 261 KB; OpenSearch refuses > 50,000 after the round trip | `record_too_large` above 1,000 | fixed: resources + entries + context objects (all three are nested in the mapping; the v2 index sets `nested_objects.limit` 50,000). Gouda Tijdmachine, 328,743 records: p50 60, p99 184, max 7,523; 306 over 1,000 (0.09%), 0 over 10,000. Applies to every index type of the request |
+| F7 | 0004 (input trimmed) | One invalid typed literal (`"abc"^^xsd:integer`) makes `NewResourceEntry` return an error (`resource.go:1045`); `SetEntries` (`resource.go:983`) iterates `fr.predicates`, a map, and stops at that error; `ResourcesList` logs and swallows it (`builder.go:72`). The resource keeps a **random subset** of its entries: the same `.nt` gave `"entries": []` on one run and width + height on another. | keep the entry without `integer`/`float` (log), never abort the resource; add case 0806 with the invalid literal once fixed | fixed: logged and kept without the number (`TestSetEntriesKeepsInvalidNumbers`, case 0806) |
+| F8 | 0106 | `rdf:List` is flattened to repeated values (`schema_keywords: ["molen","rivier"]`) from N-Triples, Turtle and JSON-LD, but not from RDF/XML: `formats/0106.rdf` gives `"@id":"_:b","entrytype":"Bnode"` plus `rdf:first`/`rdf:rest` entries. The ntriples and jsonld parsers call `g.Inline()` (`ntriples/parser.go:36`, `jsonld/parser.go:57`); the rdfxml parser does not. `formats/0106.rdf` is not committed. | call `g.Inline()` in the rdfxml parser; regenerate `formats/0106.rdf` | fixed: the rdfxml parser calls `g.Inline()`; `formats/0106.rdf` committed |
+| F9 | 0107 | A cycle A → B → A terminates, but both get `"level": 7` and contexts `[root L1, a L6, b L5]`: the walk runs every path to the depth cap. | follows from F11/F14: a breadth-first walk with a visited set gives A level 2, B level 3 | fixed: breadth-first walk with a visited set; 0107 A level 2, B level 3 |
+| F10 | 0204, 0803 | When no subject has the recDef's type, `GetAboutURI` falls back to a structural root (`ikuzo/rdf/graph.go:466`, warns). 0803 (only a `schema:Person`) and 0204 (`http://schema.org/CreativeWork`) are indexed with `meta.aboutTypeURI: ["https://schema.org/CreativeWork"]`, which the root does not have. `http://schema.org/` is not normalised: 0204 gets search label `sorg_name`. | (a) set `aboutTypeURI` to what matched, or refuse; (b) rewrite `http://schema.org/` to `https://` at parse | (a) fixed: `aboutTypeURI` is the configured types the root has, else the root's own types (0803: `schema:Person`); (b) fixed: every parser rewrites `http://schema.org/` IRIs to `https://` (`rdf.NormaliseSchemaOrg`); 0204 gets `schema_name` and its CreativeWork root |
+| F11 | 05xx/06xx `formats/` | `level` and `context` depend on triple order, not on the graph. `SetContextLevels` (`resource.go:1206`) sets `levelN.Level = N` on context objects shared between resources, so the path walked first wins: in 0501 Turtle `place/republiek` is level 5, in N-Triples level 6. All 42 differing `formats/` subtests of 05xx/06xx differ only in `level`/`context` (checked by comparing everything else); they are skipped by name (`knownFormatDiffs`). | rewrite `SetContextLevels` as a breadth-first walk with a visited set: level = shortest distance from the root; contexts per path built fresh | fixed: the walk sets each link's level once, from its subject's shortest distance to the root; the 05xx/06xx `formats/` checks pass apart from F26 |
+| F12 | 0601–0612, 0910 | `SetContextLevels` is six hand-unrolled loops: a resource deeper than level 7 gets **no context and level 1**, as if it were a property of the root. In 0601 `place/haarlem`, its three appellations and the time-spans of Jacob's birth and death are all `"level": 1`. 0910 (Gouda) already reaches level 7. | fixed by the F11 rewrite (no depth cap, or a configurable one that drops instead of promoting) | fixed: no depth limit; 0601 `place/haarlem` level 8 with its full path; no non-root resource at level 1 in this corpus. A resource the root does not reach (it only links to the root, or is not connected) still gets no context and level 1 |
+| F13 | — | In the same function, from level 3 on `linkedObjects[levelN.ObjectID]` is set to the *parent* resource (`level3Resource` for `level3.ObjectID`, etc.), so the returned map holds wrong values. | fixed by the F11 rewrite | fixed: `SetContextLevels` returns the resources it reached |
+| F14 | 0601, 0910 | No visited set: every path is walked to depth 6, so cost grows with the number of paths, not resources (shared types such as `voorkeursnaam` get 12 contexts in 0601). Likely part of the indexing cost on dense records. | fixed by the F11 rewrite; measure 0601/0910 before and after | fixed: each resource is visited once; 0601 and 0910 build 12% and 18% faster end to end (parse to document) |
+| F15 | 0902, 0907, 0908 (and 0906 vs 0903) | `BySortOrder.Less` (`resource.go:894`) returns `true` whenever the first resource has no entries, whatever the second: an inconsistent comparator, so entry-less resources (identifiers, types) come out in map order. 0902/0907/0908 differ between runs; they are compared order-insensitively by name (`knownUnstable`). | order entry-less resources by first appearance in the source (or by id) | fixed: a valid ordering (no entries first, by first appearance in the source; then first entry order; then id) (`TestBySortOrderIsDeterministic`); `knownUnstable` removed, 0902/0907/0908 compared byte for byte again |
+| F16 | 0302 | Withdrawn: wrong. `process` sets `req.Revision = p.ds.Revision` for every request (`parser.go:348`), not only the first. | — | wontfix (not a bug) |
+| F17 | 0002 | `@language` is kept per entry, but `fields` flattens languages: `schema_name: ["Gezicht op Delft","View of Delft"]`. | decide whether `fields` needs language (e.g. `schema_name_nl`) or stays a plain projection; document | wontfix: `fields` stays a language-free summary; language lives in the entries. Direction: drop `fields` altogether, a v1-faceting leftover, once its readers are checked |
+| F18 | 0101, 0102, 05xx | Link entries carry the target's label as `@value` only when the target has a `RDFTag.Label` predicate: 0303 (`dc:title`) has `"@value": "Aggregatie"` on `edm_aggregatedCHO`; 0101 (`schema:name`) has no label on `schema_creator`. With the default config schema.org records get no link labels at all. External IRIs (0102) get none either way. | run the harness with the NDE `hub3.toml` (label = `schema:name`, `skos:prefLabel`, `rdfs:label`, …) or document that goldens are default-config | fixed: the harness loads `rdftag.toml`, the NDE `[rdftag]` section |
+| F19 | 0003, 0104 | With the default config no entry gets `isoDate`, `dateRange` or `latLong`: these come only from `RDFTagMap`, not from `xsd:date`/`gYear`/`dateTime`. 0003 has `@type` only. | either derive `isoDate`/`dateRange` from the datatype, or load an rdftag config in the harness (with F18) | fixed: `xsd:date`/`dateTime`/`gYear`/`gYearMonth` give `isoDate` + `dateRange` on any predicate; configured `isoDate`/`dateRange` values are checked against the mapping's formats and left out (logged) when they do not parse, instead of OpenSearch refusing the record (`TestNewResourceEntryDatesFromDatatype`, `TestNewResourceEntryConfiguredDatesValidated`) |
+| F20 | 0004 | `xsd:integer` gives `"integer": 45`; `xsd:decimal` (`38.5`) gives nothing — only `xsd:float` fills `float` (`resource.go:1051`). | also map `xsd:decimal`/`xsd:double` to `float` | fixed: `xsd:decimal`/`xsd:double` fill `float`; NaN/INF are logged and left out (JSON cannot carry them) (`TestNewResourceEntryDecimalAndDouble`) |
+| F21 | 0102 | `fields` is `null`, not `{}`, when a record has no literal values. | harmless; document or emit `{}` | wontfix: moot under the F17 direction (`fields` goes) |
+| F22 | 01xx, 05xx | `context` objects serialise with Go field names (`Subject`, `SubjectClass`, `Predicate`, `SearchLabel`, `Level`, `ObjectID`): no json tags, unlike every other field. | add camelCase json tags (mapping change) or document | fixed: proto fields renamed (`api.proto`, regenerated): `subject`, `subjectClass`, `predicate`, `searchLabel`, `level`, `objectID`, `sortKey`, `label`; mapping and the `resources.context.*` queries follow. Needs a reindex, and clients that query these fields built against this hub3 |
+| F24 | 0006, 0101, 0107, 0203 `formats/` | A context's `Label` and `SubjectClass` are copied from the subject while the triples are read (`NewContext`, called from `resource.go:1747`), so they hold only what was read so far: when `schema:name` or `rdf:type` comes after the link triple, as in the Turtle and JSON-LD of these cases, the context has no `Label`. Visible since the harness loads the NDE `rdftag` config (F18). Skipped by name (`knownFormatDiffs`). | fill `Label`/`SubjectClass` after the graph is read, in the F11 rewrite | fixed: `Label` and `SubjectClass` are set during the walk, from the fully read subject |
+| F25 | 0507, 06xx | `containsContext` compared predicate and object but not subject, so "Jan —birthPlace→ Haarlem" and "Jacob —birthPlace→ Haarlem" counted as one link and the second was dropped from Haarlem's context. | compare subject too | fixed with the F11 rewrite |
+| F26 | 05xx `formats/ttl` | A link's label (`@value`, context `Label`) is the first `schema:name` in the source (`GetLabel`), so with names in several languages the choice follows triple order: Turtle gives "oak panel", N-Triples "eikenhouten paneel". | pick by a fixed language preference | fixed: `[rdftag] labelLanguages` orders the languages (by primary subtag; `""` = no tag; default `en`, `""`, then the rest); ties by the smaller value. The harness sets `labelLanguages = ["nl", "", "en"]` (NDE serves Dutch first), so 05xx labels are Dutch; NDE production needs the same line in its config, or it gets the English default. One label per link cannot suit every reader; storing labels per language is a follow-up |
+| F27 | — (`ikuzo/rdf/index`, used by `index_narthex`) | `Graph.IndexMessage` deleted `_checksum`, `meta.modified` and `meta.revision` from the checksum input but kept only the last result, in the output: the checksum covered `meta.modified` (so it changed on every run and the `essync` change detection could never match), and the indexed document lost `meta.revision`. Not the bulk path. | delete into the checksum input only | fixed (`TestGraph_IndexMessageChecksum`) |
+| F23 | 0906 vs 0903 | Same museum-sloten record: JSON-LD relative IRIs (`"isShownBy": "toBeRemoved"`) are dropped silently, so 0906 loses 6 aggregation entries and `hasDigitalObject` is false; 0903 has them (true). Fixture artefact, but nothing warns. | warn on dropped relative IRIs; no golden change | fixed: one warning per record with the count and an example (0906: `count=6`); output unchanged (`TestParseWarnsOnRelativeIRIs`). A sentinel `@base` was tried first and rejected: resolving rewrites and rejects IRIs (0005 refused) |
+
+Not findings (behaviour checked and fine):
+0005 escapes, emoji and combining characters intact; 0006 a repeated triple gives
+one entry, `fields` dedups across resources; 0007 a 300-character value and
+double spaces kept; 0108 `order` follows the source; 0105 a resource reached by
+two paths gets two contexts; 0203 the first CreativeWork is the root, the second
+is nested at level 2; 0202 `types` in source order; 0301/0302 tags and revision
+from the envelope; 0801/0802 `rdf_parse`,
+0804 `validation`; no `untyped` refusals.
+
+## Query assumptions, as far as the goldens answer them
+
+| A | Answer from the goldens |
+|---|---|
+| A1 | Broken for CRM: in 0601 the `crm_P32_used_general_technique` entry has only `@id` (no label, F18), and "techniek" sits two hops further (`type/paneelschildering` → `P2_has_type` → `type/techniek` `rdfs_label`, level 4). |
+| A2 | Broken for CRM: `crm_P82a_begin_of_the_begin` "1660-01-01T00:00:00" is at level 3 in 0601; birth/death dates of the painter at level 7, Jacob's at level 1 (F12). |
+| A3 | Broken for both models with the default config (F18); for CRM the name is on `E41` appellations one hop further. |
+| A4 | Not testable from documents alone; 0601 shows `PC14` nodes at level 7 with `P14.1_in_the_role_of` as an `@id` entry. |
+| A5 | Holds for schema.org: 0501 `fields.schema_alternateName` contains "Leyden", "Leyde", "Lugdunum Batavorum". CRM: only via `crm_P190_has_symbolic_content`, not tied to the place. |
+| A6 | Not answerable from the goldens; needs the query follow-up. |
+
+## Rollout
+
+What deploying this branch needs, in order:
+
+1. The NDE config's `[rdftag]` gains
+   `labelLanguages = ["nl", "", "en"]`; without it link labels become English.
+2. Deploy hub3. Index setup applies the v2 update mapping: it adds the
+   camelCase `resources.context.*` fields and declares `entries.sortValue`.
+   Old documents keep the capitalised context fields.
+3. Reindex every organisation's v2 index (and re-run `index_narthex` where it
+   is used). Until then the `resources.context.*` path queries and the
+   level-2 query filter silently miss old documents.
+4. Release clients that query `resources.context.*`, built against this hub3,
+   at the same time as step 3.
+
+Expect, after the reindex: link labels in the configured language, dates on
+typed literals, records over 1,000 nested documents refused as
+`record_too_large`, and every later record of a bulk upload carrying its tags.
+

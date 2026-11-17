@@ -1,0 +1,823 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0905",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+    "namedGraphURI": "http://example.org/conformance/0905/graph",
+    "modified": 0,
+    "recDefID": "edm",
+    "aboutTypeURI": [
+      "http://www.openarchives.org/ore/terms/Aggregation"
+    ],
+    "hasDigitalObject": true
+  },
+  "resources": [
+    {
+      "id": "_:b0",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/DelvingResource"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "objectID": "_:b0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowDeepZoom",
+          "searchLabel": "nave_allowDeepZoom",
+          "level": 2,
+          "order": 2
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowLinkedOpenData",
+          "searchLabel": "nave_allowLinkedOpenData",
+          "level": 2,
+          "order": 3
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowSourceDownload",
+          "searchLabel": "nave_allowSourceDownload",
+          "level": 2,
+          "order": 4
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/featured",
+          "searchLabel": "nave_featured",
+          "level": 2,
+          "order": 5
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/public",
+          "searchLabel": "nave_public",
+          "level": 2,
+          "order": 6
+        }
+      ]
+    },
+    {
+      "id": "_:b1",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "objectID": "_:b1"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Fotocollectie",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collection",
+          "searchLabel": "nave_collection",
+          "level": 2,
+          "order": 8
+        },
+        {
+          "@value": "Foto's",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collectionPart",
+          "searchLabel": "nave_collectionPart",
+          "level": 2,
+          "order": 9
+        },
+        {
+          "@value": "digitaal",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/material",
+          "searchLabel": "nave_material",
+          "level": 2,
+          "order": 10
+        },
+        {
+          "@value": "F900893",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectNumber",
+          "searchLabel": "nave_objectNumber",
+          "level": 2,
+          "order": 11
+        },
+        {
+          "@value": "foto",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectSoort",
+          "searchLabel": "nave_objectSoort",
+          "level": 2,
+          "order": 12
+        },
+        {
+          "@value": "Muiderberg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/place",
+          "searchLabel": "nave_place",
+          "level": 2,
+          "order": 13
+        },
+        {
+          "@value": "fotografie",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/technique",
+          "searchLabel": "nave_technique",
+          "level": 2,
+          "order": 14
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/Agent"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        },
+        {
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://purl.org/dc/elements/1.1/creator",
+          "searchLabel": "dc_creator",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Lange, Peter",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 16
+        },
+        {
+          "@value": "Lange, Peter",
+          "entrytype": "Literal",
+          "predicate": "http://xmlns.com/foaf/0.1/name",
+          "searchLabel": "foaf_name",
+          "level": 3,
+          "order": 17
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+      "types": [
+        "http://www.openarchives.org/ore/terms/Aggregation"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "order": 19
+        },
+        {
+          "@id": "urn:joods-historisch/d375/375N021.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "order": 20
+        },
+        {
+          "@id": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownAt",
+          "searchLabel": "edm_isShownAt",
+          "level": 1,
+          "order": 21
+        },
+        {
+          "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/2000",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "order": 22
+        },
+        {
+          "@id": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021/500",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/object",
+          "searchLabel": "edm_object",
+          "level": 1,
+          "order": 23
+        },
+        {
+          "@id": "_:b0",
+          "entrytype": "Bnode",
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "order": 24
+        },
+        {
+          "@id": "_:b1",
+          "entrytype": "Bnode",
+          "predicate": "http://www.openarchives.org/ore/terms/aggregates",
+          "searchLabel": "ore_aggregates",
+          "level": 1,
+          "order": 25
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://data.jck.nl/resource/agent/jhm-foto/Lange,%20Peter",
+          "@value": "Lange, Peter",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/elements/1.1/creator",
+          "searchLabel": "dc_creator",
+          "level": 2,
+          "order": 27
+        },
+        {
+          "@value": "2006-06-09",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/date",
+          "searchLabel": "dc_date",
+          "level": 2,
+          "order": 28
+        },
+        {
+          "@value": "Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/description",
+          "searchLabel": "dc_description",
+          "level": 2,
+          "order": 29
+        },
+        {
+          "@value": "F900893",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 2,
+          "order": 30
+        },
+        {
+          "@value": "Joods Historisch Museum Amsterdam",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/rights",
+          "searchLabel": "dc_rights",
+          "level": 2,
+          "order": 31
+        },
+        {
+          "@id": "http://data.jck.nl/resource/skos/thesau/90000072",
+          "@value": "grafsteen",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 32
+        },
+        {
+          "@id": "http://data.jck.nl/resource/skos/thesau/90002542",
+          "@value": "Muiderberg",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 33
+        },
+        {
+          "@id": "http://data.jck.nl/resource/skos/thesau/90073896",
+          "@value": "begraafplaats",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 34
+        },
+        {
+          "@value": "F900893: Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/alternative",
+          "searchLabel": "dcterms_alternative",
+          "level": 2,
+          "order": 35
+        },
+        {
+          "@value": "2006-06-09",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/created",
+          "searchLabel": "dcterms_created",
+          "level": 2,
+          "order": 36
+        },
+        {
+          "@value": "Joods Historisch Museum",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/isPartOf",
+          "searchLabel": "dcterms_isPartOf",
+          "level": 2,
+          "order": 37
+        },
+        {
+          "@id": "http://data.jck.nl/resource/skos/thespersoon/34715",
+          "@value": "Mulder, Israel van Samuel (-1877)",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/hasMet",
+          "searchLabel": "edm_hasMet",
+          "level": 2,
+          "order": 38
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/skos/thesau/90000072",
+      "types": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        },
+        {
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90000072"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "grafsteen",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 40
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/skos/thesau/90002542",
+      "types": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        },
+        {
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90002542"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Muiderberg",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 42
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/skos/thesau/90073896",
+      "types": [
+        "http://www.w3.org/2004/02/skos/core#Concept"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        },
+        {
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thesau/90073896"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "begraafplaats",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 44
+        }
+      ]
+    },
+    {
+      "id": "http://data.jck.nl/resource/skos/thespersoon/34715",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/Agent"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.jck.nl/resource/aggregation/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.jck.nl/resource/document/jhm-foto/F900893"
+        },
+        {
+          "subject": "http://data.jck.nl/resource/document/jhm-foto/F900893",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/hasMet",
+          "searchLabel": "edm_hasMet",
+          "level": 2,
+          "objectID": "http://data.jck.nl/resource/skos/thespersoon/34715"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Mr. I. van S. Mulder (overleden in 1877) was een zoon van Samuel Israel Mulder (Amsterdam, 1792-1862) en was vanaf 1860 tot aan zijn dood lid van het bestuur van het N.I.A.",
+          "entrytype": "Literal",
+          "predicate": "http://rdvocab.info/ElementsGr2/biographicalInformation",
+          "searchLabel": "rdag2_biographicalInformation",
+          "level": 3,
+          "order": 46
+        },
+        {
+          "@value": "Mulder, Israel van Samuel (-1877)",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2004/02/skos/core#prefLabel",
+          "searchLabel": "skos_prefLabel",
+          "level": 3,
+          "tags": [
+            "label"
+          ],
+          "order": 47
+        },
+        {
+          "@value": "Mulder, Israel van Samuel (-1877)",
+          "entrytype": "Literal",
+          "predicate": "http://xmlns.com/foaf/0.1/name",
+          "searchLabel": "foaf_name",
+          "level": 3,
+          "order": 48
+        }
+      ]
+    },
+    {
+      "id": "urn:joods-historisch/d375/375N021_01.jpg",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 1,
+          "order": 50
+        },
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+          "searchLabel": "nave_resourceSortOrder",
+          "level": 1,
+          "order": 51
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/sourceDownload",
+          "searchLabel": "nave_sourceDownload",
+          "level": 1,
+          "order": 52
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 1,
+          "order": 53
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 1,
+          "order": 54
+        }
+      ]
+    },
+    {
+      "id": "urn:joods-historisch/d376/375N021_02.jpg",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_02.tif.dzi",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 1,
+          "order": 56
+        },
+        {
+          "@value": "2",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+          "searchLabel": "nave_resourceSortOrder",
+          "level": 1,
+          "order": 57
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/sourceDownload",
+          "searchLabel": "nave_sourceDownload",
+          "level": 1,
+          "order": 58
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 1,
+          "order": 59
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/500",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 1,
+          "order": 60
+        }
+      ]
+    },
+    {
+      "id": "urn:joods-historisch/d376/375N021_3.jpg",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 1,
+          "order": 62
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/sourceDownload",
+          "searchLabel": "nave_sourceDownload",
+          "level": 1,
+          "order": 63
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 1,
+          "order": 64
+        },
+        {
+          "@value": "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 1,
+          "order": 65
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "dc_date": [
+      "2006-06-09"
+    ],
+    "dc_description": [
+      "Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"
+    ],
+    "dc_identifier": [
+      "F900893"
+    ],
+    "dc_rights": [
+      "Joods Historisch Museum Amsterdam"
+    ],
+    "dcterms_alternative": [
+      "F900893: Foto's (2) van het graf van I.S. Mulder op de begraafplaats Muiderberg, 2006"
+    ],
+    "dcterms_created": [
+      "2006-06-09"
+    ],
+    "dcterms_isPartOf": [
+      "Joods Historisch Museum"
+    ],
+    "foaf_name": [
+      "Lange, Peter",
+      "Mulder, Israel van Samuel (-1877)"
+    ],
+    "nave_allowDeepZoom": [
+      "true"
+    ],
+    "nave_allowLinkedOpenData": [
+      "true"
+    ],
+    "nave_allowSourceDownload": [
+      "false"
+    ],
+    "nave_collection": [
+      "Fotocollectie"
+    ],
+    "nave_collectionPart": [
+      "Foto's"
+    ],
+    "nave_deepZoomUrl": [
+      "https://data.jck.nl/deepzoom/jck/joods-historisch/d375/375N021_01.tif.dzi",
+      "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_02.tif.dzi",
+      "https://data.jck.nl/deepzoom/jck/joods-historisch/d376/375N021_3.tif.dzi"
+    ],
+    "nave_featured": [
+      "false"
+    ],
+    "nave_material": [
+      "digitaal"
+    ],
+    "nave_objectNumber": [
+      "F900893"
+    ],
+    "nave_objectSoort": [
+      "foto"
+    ],
+    "nave_place": [
+      "Muiderberg"
+    ],
+    "nave_public": [
+      "true"
+    ],
+    "nave_resourceSortOrder": [
+      "1",
+      "2"
+    ],
+    "nave_sourceDownload": [
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"
+    ],
+    "nave_technique": [
+      "fotografie"
+    ],
+    "nave_thumbLarge": [
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/2000",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/2000",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/2000"
+    ],
+    "nave_thumbSmall": [
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d375/375N021_01/500",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_02/500",
+      "http://data.jck.nl/thumbnail/jck/joods-historisch/d376/375N021_3/500"
+    ],
+    "rdag2_biographicalInformation": [
+      "Mr. I. van S. Mulder (overleden in 1877) was een zoon van Samuel Israel Mulder (Amsterdam, 1792-1862) en was vanaf 1860 tot aan zijn dood lid van het bestuur van het N.I.A."
+    ],
+    "skos_prefLabel": [
+      "Lange, Peter",
+      "grafsteen",
+      "Muiderberg",
+      "begraafplaats",
+      "Mulder, Israel van Samuel (-1877)"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0202> a schema:CreativeWork,
+        schema:Painting,
+        schema:VisualArtwork ;
+    schema:name "Drie typen" .
+

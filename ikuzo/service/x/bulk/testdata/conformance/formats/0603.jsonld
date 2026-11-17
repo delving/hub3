@@ -1,0 +1,801 @@
+[
+  {
+    "@id": "http://example.org/c/birth/paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/birth-paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at": [
+      {
+        "@id": "http://example.org/c/place/leiden"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-leiden-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Leiden"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/leermeester",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "leermeester"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/death-paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1675-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1675-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/techniek",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "techniek"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/pc14/paulus-leerling",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P02_has_range": [
+      {
+        "@id": "http://example.org/c/person/paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of": [
+      {
+        "@id": "http://example.org/c/type/leerling"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-republiek-2",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "fr",
+        "@value": "Provinces-Unies"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-holland-1",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "en",
+        "@value": "Holland"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/birth-paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1620-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1620-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-holland-2",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "fr",
+        "@value": "Hollande"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in": [
+      {
+        "@id": "http://example.org/c/death/paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P14i_performed": [
+      {
+        "@id": "http://example.org/c/training/paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/person-paulus-0"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born": [
+      {
+        "@id": "http://example.org/c/birth/paulus"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-haarlem-1",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "en",
+        "@value": "Harlem"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-republiek-1",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "en",
+        "@value": "Dutch Republic"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/pc14/paulus-leermeester",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P02_has_range": [
+      {
+        "@id": "http://example.org/c/person/jacob"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of": [
+      {
+        "@id": "http://example.org/c/type/leermeester"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/holland",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/place-holland-0"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-holland-1"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-holland-2"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within": [
+      {
+        "@id": "http://example.org/c/place/republiek"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/materiaal",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "materiaal"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/training/paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of": [
+      {
+        "@id": "http://example.org/c/pc14/paulus-leerling"
+      },
+      {
+        "@id": "http://example.org/c/pc14/paulus-leermeester"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/opleiding"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/leiden",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/place-leiden-0"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-leiden-1"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-leiden-2"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-leiden-3"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within": [
+      {
+        "@id": "http://example.org/c/place/holland"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/title/0603",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Portret van Maria, Haarlem"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/alternatieve-naam",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "alternatieve naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/production/0603",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by": [
+      {
+        "@id": "http://example.org/c/person/paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique": [
+      {
+        "@id": "http://example.org/c/type/paneelschildering"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/0603"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-haarlem-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Haarlem"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-holland-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Holland"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/haarlem",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/place-haarlem-0"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-haarlem-1"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-haarlem-2"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within": [
+      {
+        "@id": "http://example.org/c/place/holland"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/person-paulus-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@value": "Paulus de Schilder"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-republiek-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "nl",
+        "@value": "Republiek der Zeven Verenigde Nederlanden"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/opleiding",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "opleiding"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/material/eikenpaneel",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/materiaal"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "eikenhouten paneel"
+      },
+      {
+        "@language": "en",
+        "@value": "oak panel"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/birth/jacob",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/birth-jacob"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at": [
+      {
+        "@id": "http://example.org/c/place/haarlem"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-leiden-3",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "la",
+        "@value": "Lugdunum Batavorum"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/0603",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1660-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1660-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/voorkeursnaam",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/republiek",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/place-republiek-0"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-republiek-1"
+      },
+      {
+        "@id": "http://example.org/c/appellation/place-republiek-2"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/birth-jacob",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1590-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1590-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/jacob",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in": [
+      {
+        "@id": "http://example.org/c/death/jacob"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/person-jacob-0"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born": [
+      {
+        "@id": "http://example.org/c/birth/jacob"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/paneelschildering",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/techniek"
+      }
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "paneelschildering"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/timespan/death-jacob",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1655-01-01T00:00:00"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+        "@value": "1655-12-31T23:59:59"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/person-maria-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@value": "Maria van Dorp"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/death/paulus",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/death-paulus"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at": [
+      {
+        "@id": "http://example.org/c/place/haarlem"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/maria",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by": [
+      {
+        "@id": "http://example.org/c/appellation/person-maria-0"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/death/jacob",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span": [
+      {
+        "@id": "http://example.org/c/timespan/death-jacob"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at": [
+      {
+        "@id": "http://example.org/c/place/leiden"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-haarlem-2",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "la",
+        "@value": "Harlemum"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/type/leerling",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    ],
+    "http://www.w3.org/2000/01/rdf-schema#label": [
+      {
+        "@language": "nl",
+        "@value": "leerling"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-leiden-2",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "fr",
+        "@value": "Leyde"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/person-jacob-0",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@value": "Jacob de Meester"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/voorkeursnaam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/appellation/place-leiden-1",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content": [
+      {
+        "@language": "en",
+        "@value": "Leyden"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P2_has_type": [
+      {
+        "@id": "http://example.org/c/type/alternatieve-naam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0603",
+    "@type": [
+      "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P102_has_title": [
+      {
+        "@id": "http://example.org/c/title/0603"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by": [
+      {
+        "@id": "http://example.org/c/production/0603"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of": [
+      {
+        "@id": "http://example.org/c/material/eikenpaneel"
+      }
+    ],
+    "http://www.cidoc-crm.org/cidoc-crm/P62_depicts": [
+      {
+        "@id": "http://example.org/c/person/maria"
+      }
+    ]
+  }
+]

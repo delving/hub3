@@ -1,0 +1,3817 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0603",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0603",
+    "namedGraphURI": "http://example.org/conformance/0603/graph",
+    "modified": 0,
+    "recDefID": "crm",
+    "aboutTypeURI": [
+      "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0603",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://example.org/c/title/0603",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "searchLabel": "crm_P102_has_title",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "http://example.org/c/production/0603",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@id": "http://example.org/c/material/eikenpaneel",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@id": "http://example.org/c/person/maria",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/title/0603",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "searchLabel": "crm_P102_has_title",
+          "level": 1,
+          "objectID": "http://example.org/c/title/0603"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Portret van Maria, Haarlem",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 2,
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/production/0603",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/person/paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "order": 9
+        },
+        {
+          "@id": "http://example.org/c/timespan/0603",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 2,
+          "order": 10
+        },
+        {
+          "@id": "http://example.org/c/type/paneelschildering",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "order": 11
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/0603",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 2,
+          "objectID": "http://example.org/c/timespan/0603"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1660-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 3,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-01-01"
+          },
+          "order": 13
+        },
+        {
+          "@value": "1660-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 3,
+          "isoDate": [
+            "1660-12-31"
+          ],
+          "dateRange": {
+            "gte": "1660-12-31",
+            "lte": "1660-12-31"
+          },
+          "order": 14
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/paneelschildering",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "objectID": "http://example.org/c/type/paneelschildering"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "paneelschildering",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "order": 16
+        },
+        {
+          "@id": "http://example.org/c/type/techniek",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "order": 17
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/techniek",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "objectID": "http://example.org/c/type/paneelschildering"
+        },
+        {
+          "subject": "http://example.org/c/type/paneelschildering",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "objectID": "http://example.org/c/type/techniek"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "techniek",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 4,
+          "order": 19
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/birth/paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "order": 21
+        },
+        {
+          "@id": "http://example.org/c/death/paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "order": 22
+        },
+        {
+          "@id": "http://example.org/c/training/paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "order": 23
+        },
+        {
+          "@id": "http://example.org/c/appellation/person-paulus-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "order": 24
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/person-paulus-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 3,
+          "objectID": "http://example.org/c/appellation/person-paulus-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Paulus de Schilder",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 4,
+          "order": 26
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 4,
+          "order": 27
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
+        },
+        {
+          "subject": "http://example.org/c/person/maria",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "http://example.org/c/appellation/person-maria-0"
+        },
+        {
+          "subject": "http://example.org/c/appellation/person-maria-0",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "objectID": "http://example.org/c/type/voorkeursnaam"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "voorkeursnaam",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 4,
+          "order": 29
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/birth/paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/leiden",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "order": 31
+        },
+        {
+          "@id": "http://example.org/c/timespan/birth-paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 4,
+          "order": 32
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/birth-paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 4,
+          "objectID": "http://example.org/c/timespan/birth-paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1620-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 5,
+          "isoDate": [
+            "1620-01-01"
+          ],
+          "dateRange": {
+            "gte": "1620-01-01",
+            "lte": "1620-01-01"
+          },
+          "order": 34
+        },
+        {
+          "@value": "1620-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 5,
+          "isoDate": [
+            "1620-12-31"
+          ],
+          "dateRange": {
+            "gte": "1620-12-31",
+            "lte": "1620-12-31"
+          },
+          "order": 35
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/leiden",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/holland",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "order": 37
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-leiden-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 38
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-leiden-1",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 39
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-leiden-2",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 40
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-leiden-3",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 41
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Leiden",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 43
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 44
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-1",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-1"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Leyden",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 46
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 47
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-2",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-2"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Leyde",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 49
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 50
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-3",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-3"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Lugdunum Batavorum",
+          "@language": "la",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 52
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 53
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-1"
+        },
+        {
+          "subject": "http://example.org/c/appellation/place-leiden-1",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "objectID": "http://example.org/c/type/alternatieve-naam"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-2"
+        },
+        {
+          "subject": "http://example.org/c/appellation/place-leiden-2",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "objectID": "http://example.org/c/type/alternatieve-naam"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-leiden-3"
+        },
+        {
+          "subject": "http://example.org/c/appellation/place-leiden-3",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "objectID": "http://example.org/c/type/alternatieve-naam"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-haarlem-1"
+        },
+        {
+          "subject": "http://example.org/c/appellation/place-haarlem-1",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "objectID": "http://example.org/c/type/alternatieve-naam"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-haarlem-2"
+        },
+        {
+          "subject": "http://example.org/c/appellation/place-haarlem-2",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "objectID": "http://example.org/c/type/alternatieve-naam"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "alternatieve naam",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 7,
+          "order": 55
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/holland",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/republiek",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 6,
+          "order": 57
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-holland-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "order": 58
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-holland-1",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "order": 59
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-holland-2",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "order": 60
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "objectID": "http://example.org/c/appellation/place-holland-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Holland",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 7,
+          "order": 62
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 7,
+          "order": 63
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-1",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "objectID": "http://example.org/c/appellation/place-holland-1"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Holland",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 7,
+          "order": 65
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 7,
+          "order": 66
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-2",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "objectID": "http://example.org/c/appellation/place-holland-2"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Hollande",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 7,
+          "order": 68
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 7,
+          "order": 69
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/republiek",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 6,
+          "objectID": "http://example.org/c/place/republiek"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/appellation/place-republiek-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "order": 71
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-republiek-1",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "order": 72
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-republiek-2",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "order": 73
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 6,
+          "objectID": "http://example.org/c/place/republiek"
+        },
+        {
+          "subject": "http://example.org/c/place/republiek",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "objectID": "http://example.org/c/appellation/place-republiek-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Republiek der Zeven Verenigde Nederlanden",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 8,
+          "order": 75
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 8,
+          "order": 76
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-1",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 6,
+          "objectID": "http://example.org/c/place/republiek"
+        },
+        {
+          "subject": "http://example.org/c/place/republiek",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "objectID": "http://example.org/c/appellation/place-republiek-1"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Dutch Republic",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 8,
+          "order": 78
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 8,
+          "order": 79
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-2",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 3,
+          "objectID": "http://example.org/c/birth/paulus"
+        },
+        {
+          "subject": "http://example.org/c/birth/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/leiden"
+        },
+        {
+          "subject": "http://example.org/c/place/leiden",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "objectID": "http://example.org/c/place/holland"
+        },
+        {
+          "subject": "http://example.org/c/place/holland",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 6,
+          "objectID": "http://example.org/c/place/republiek"
+        },
+        {
+          "subject": "http://example.org/c/place/republiek",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 7,
+          "objectID": "http://example.org/c/appellation/place-republiek-2"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Provinces-Unies",
+          "@language": "fr",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 8,
+          "order": 81
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 8,
+          "order": 82
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/death/paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/haarlem",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "order": 84
+        },
+        {
+          "@id": "http://example.org/c/timespan/death-paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 4,
+          "order": 85
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/death-paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 4,
+          "objectID": "http://example.org/c/timespan/death-paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1675-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 5,
+          "isoDate": [
+            "1675-01-01"
+          ],
+          "dateRange": {
+            "gte": "1675-01-01",
+            "lte": "1675-01-01"
+          },
+          "order": 87
+        },
+        {
+          "@value": "1675-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 5,
+          "isoDate": [
+            "1675-12-31"
+          ],
+          "dateRange": {
+            "gte": "1675-12-31",
+            "lte": "1675-12-31"
+          },
+          "order": 88
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/place/haarlem",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/holland",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P89_falls_within",
+          "searchLabel": "crm_P89_falls_within",
+          "level": 5,
+          "order": 90
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-haarlem-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 91
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-haarlem-1",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 92
+        },
+        {
+          "@id": "http://example.org/c/appellation/place-haarlem-2",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "order": 93
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-haarlem-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Haarlem",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 95
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 96
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-1",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-haarlem-1"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Harlem",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 98
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 99
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-2",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 3,
+          "objectID": "http://example.org/c/death/paulus"
+        },
+        {
+          "subject": "http://example.org/c/death/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 4,
+          "objectID": "http://example.org/c/place/haarlem"
+        },
+        {
+          "subject": "http://example.org/c/place/haarlem",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 5,
+          "objectID": "http://example.org/c/appellation/place-haarlem-2"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Harlemum",
+          "@language": "la",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 6,
+          "order": 101
+        },
+        {
+          "@id": "http://example.org/c/type/alternatieve-naam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 6,
+          "order": 102
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/training/paulus",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/type/opleiding",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 4,
+          "order": 104
+        },
+        {
+          "@id": "http://example.org/c/pc14/paulus-leerling",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "order": 105
+        },
+        {
+          "@id": "http://example.org/c/pc14/paulus-leermeester",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "order": 106
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/pc14/paulus-leerling",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leerling"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/person/paulus",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "order": 108
+        },
+        {
+          "@id": "http://example.org/c/type/leerling",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of",
+          "searchLabel": "crm_P14.1_in_the_role_of",
+          "level": 5,
+          "order": 109
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/leerling",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leerling"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leerling",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of",
+          "searchLabel": "crm_P14.1_in_the_role_of",
+          "level": 5,
+          "objectID": "http://example.org/c/type/leerling"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "leerling",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 6,
+          "order": 111
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/pc14/paulus-leermeester",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/person/jacob",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "order": 113
+        },
+        {
+          "@id": "http://example.org/c/type/leermeester",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of",
+          "searchLabel": "crm_P14.1_in_the_role_of",
+          "level": 5,
+          "order": 114
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/leermeester",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of",
+          "searchLabel": "crm_P14.1_in_the_role_of",
+          "level": 5,
+          "objectID": "http://example.org/c/type/leermeester"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "leermeester",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 6,
+          "order": 116
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/opleiding",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 4,
+          "objectID": "http://example.org/c/type/opleiding"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "opleiding",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 5,
+          "order": 118
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/jacob",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/birth/jacob",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 6,
+          "order": 120
+        },
+        {
+          "@id": "http://example.org/c/death/jacob",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 6,
+          "order": 121
+        },
+        {
+          "@id": "http://example.org/c/appellation/person-jacob-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "order": 122
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/person-jacob-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 6,
+          "objectID": "http://example.org/c/appellation/person-jacob-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Jacob de Meester",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 7,
+          "order": 124
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 7,
+          "order": 125
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/birth/jacob",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 6,
+          "objectID": "http://example.org/c/birth/jacob"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/haarlem",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 7,
+          "order": 127
+        },
+        {
+          "@id": "http://example.org/c/timespan/birth-jacob",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 7,
+          "order": 128
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/birth-jacob",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P98i_was_born",
+          "searchLabel": "crm_P98i_was_born",
+          "level": 6,
+          "objectID": "http://example.org/c/birth/jacob"
+        },
+        {
+          "subject": "http://example.org/c/birth/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 7,
+          "objectID": "http://example.org/c/timespan/birth-jacob"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1590-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 8,
+          "isoDate": [
+            "1590-01-01"
+          ],
+          "dateRange": {
+            "gte": "1590-01-01",
+            "lte": "1590-01-01"
+          },
+          "order": 130
+        },
+        {
+          "@value": "1590-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 8,
+          "isoDate": [
+            "1590-12-31"
+          ],
+          "dateRange": {
+            "gte": "1590-12-31",
+            "lte": "1590-12-31"
+          },
+          "order": 131
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/death/jacob",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 6,
+          "objectID": "http://example.org/c/death/jacob"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/place/leiden",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at",
+          "searchLabel": "crm_P7_took_place_at",
+          "level": 7,
+          "order": 133
+        },
+        {
+          "@id": "http://example.org/c/timespan/death-jacob",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 7,
+          "order": 134
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/death-jacob",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "objectID": "http://example.org/c/production/0603"
+        },
+        {
+          "subject": "http://example.org/c/production/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "objectID": "http://example.org/c/person/paulus"
+        },
+        {
+          "subject": "http://example.org/c/person/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14i_performed",
+          "searchLabel": "crm_P14i_performed",
+          "level": 3,
+          "objectID": "http://example.org/c/training/paulus"
+        },
+        {
+          "subject": "http://example.org/c/training/paulus",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of",
+          "searchLabel": "crm_P01i_is_domain_of",
+          "level": 4,
+          "objectID": "http://example.org/c/pc14/paulus-leermeester"
+        },
+        {
+          "subject": "http://example.org/c/pc14/paulus-leermeester",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P02_has_range",
+          "searchLabel": "crm_P02_has_range",
+          "level": 5,
+          "objectID": "http://example.org/c/person/jacob"
+        },
+        {
+          "subject": "http://example.org/c/person/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P100i_died_in",
+          "searchLabel": "crm_P100i_died_in",
+          "level": 6,
+          "objectID": "http://example.org/c/death/jacob"
+        },
+        {
+          "subject": "http://example.org/c/death/jacob",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 7,
+          "objectID": "http://example.org/c/timespan/death-jacob"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1655-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 8,
+          "isoDate": [
+            "1655-01-01"
+          ],
+          "dateRange": {
+            "gte": "1655-01-01",
+            "lte": "1655-01-01"
+          },
+          "order": 136
+        },
+        {
+          "@value": "1655-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 8,
+          "isoDate": [
+            "1655-12-31"
+          ],
+          "dateRange": {
+            "gte": "1655-12-31",
+            "lte": "1655-12-31"
+          },
+          "order": 137
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "eikenhouten paneel",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "order": 139
+        },
+        {
+          "@value": "oak panel",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "order": 140
+        },
+        {
+          "@id": "http://example.org/c/type/materiaal",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 2,
+          "order": 141
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/materiaal",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel"
+        },
+        {
+          "subject": "http://example.org/c/material/eikenpaneel",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 2,
+          "objectID": "http://example.org/c/type/materiaal"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "materiaal",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "order": 143
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/maria",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/appellation/person-maria-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "order": 145
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/person-maria-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0603",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria"
+        },
+        {
+          "subject": "http://example.org/c/person/maria",
+          "subjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "objectID": "http://example.org/c/appellation/person-maria-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Maria van Dorp",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 3,
+          "order": 147
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "order": 148
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "crm_P190_has_symbolic_content": [
+      "Portret van Maria, Haarlem",
+      "Paulus de Schilder",
+      "Leiden",
+      "Leyden",
+      "Leyde",
+      "Lugdunum Batavorum",
+      "Holland",
+      "Hollande",
+      "Republiek der Zeven Verenigde Nederlanden",
+      "Dutch Republic",
+      "Provinces-Unies",
+      "Haarlem",
+      "Harlem",
+      "Harlemum",
+      "Jacob de Meester",
+      "Maria van Dorp"
+    ],
+    "crm_P82a_begin_of_the_begin": [
+      "1660-01-01T00:00:00",
+      "1620-01-01T00:00:00",
+      "1675-01-01T00:00:00",
+      "1590-01-01T00:00:00",
+      "1655-01-01T00:00:00"
+    ],
+    "crm_P82b_end_of_the_end": [
+      "1660-12-31T23:59:59",
+      "1620-12-31T23:59:59",
+      "1675-12-31T23:59:59",
+      "1590-12-31T23:59:59",
+      "1655-12-31T23:59:59"
+    ],
+    "rdfs_label": [
+      "paneelschildering",
+      "techniek",
+      "voorkeursnaam",
+      "alternatieve naam",
+      "leerling",
+      "leermeester",
+      "opleiding",
+      "eikenhouten paneel",
+      "oak panel",
+      "materiaal"
+    ]
+  }
+}

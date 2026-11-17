@@ -29,8 +29,12 @@ const (
 	// made that necessary, and it earned its keep twice: a mapping cannot be
 	// edited without the change being acknowledged here, and the second hash
 	// caught that adding the field to v2Mapping alone was not enough.
-	v2MappingSha       = "80c61ef2340ce7dd"
-	v2UpdateMappingSha = "c8d5ca3980f3cfa8"
+	// Both bumped again for camelCase context fields and the declared entry
+	// fields sortValue and inline (conformance findings F22, F2); inline only
+	// on create, an existing index may have it mapped dynamically. Bumped again
+	// for dropping mFilterID/mType/mRole (F3: superseded by facet.mergeField).
+	v2MappingSha       = "ff2620d457566641"
+	v2UpdateMappingSha = "2ae62c0b3a950fe9"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 

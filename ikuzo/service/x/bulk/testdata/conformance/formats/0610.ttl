@@ -1,0 +1,47 @@
+@prefix ns1: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0610> a ns1:E22_Human-Made_Object ;
+    ns1:P102_has_title <http://example.org/c/title/0610> ;
+    ns1:P108i_was_produced_by <http://example.org/c/production/0610> ;
+    ns1:P45_consists_of <http://example.org/c/material/eikenpaneel> ;
+    ns1:P62_depicts <http://example.org/c/person/maria> .
+
+<http://example.org/c/appellation/person-maria-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Maria van Dorp" ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/material/eikenpaneel> a ns1:E57_Material ;
+    rdfs:label "oak panel"@en,
+        "eikenhouten paneel"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/materiaal> .
+
+<http://example.org/c/person/maria> a ns1:E21_Person ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/person-maria-0> .
+
+<http://example.org/c/production/0610> a ns1:E12_Production ;
+    ns1:P14_carried_out_by <http://example.org/ext/person/pieter> ;
+    ns1:P32_used_general_technique <http://example.org/c/type/paneelschildering> ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/0610> .
+
+<http://example.org/c/timespan/0610> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1660-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1660-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/title/0610> a ns1:E35_Title ;
+    ns1:P190_has_symbolic_content "Portret van Maria, externe maker"@nl .
+
+<http://example.org/c/type/materiaal> a ns1:E55_Type ;
+    rdfs:label "materiaal"@nl .
+
+<http://example.org/c/type/paneelschildering> a ns1:E55_Type ;
+    rdfs:label "paneelschildering"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/techniek> .
+
+<http://example.org/c/type/techniek> a ns1:E55_Type ;
+    rdfs:label "techniek"@nl .
+
+<http://example.org/c/type/voorkeursnaam> a ns1:E55_Type ;
+    rdfs:label "voorkeursnaam"@nl .
+

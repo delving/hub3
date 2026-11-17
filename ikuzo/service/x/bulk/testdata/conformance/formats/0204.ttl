@@ -1,0 +1,5 @@
+@prefix ns1: <http://schema.org/> .
+
+<http://example.org/c/0204> a ns1:CreativeWork ;
+    ns1:name "Oud schema" .
+

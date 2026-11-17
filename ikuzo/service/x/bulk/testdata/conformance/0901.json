@@ -1,0 +1,573 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0901",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+    "namedGraphURI": "http://example.org/conformance/0901/graph",
+    "modified": 0,
+    "recDefID": "edm",
+    "aboutTypeURI": [
+      "http://www.openarchives.org/ore/terms/Aggregation"
+    ],
+    "hasDigitalObject": true
+  },
+  "resources": [
+    {
+      "id": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+      "types": [
+        "http://www.openarchives.org/ore/terms/Aggregation"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@value": "Heemkundekring 'De Plaets'",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/dataProvider",
+          "searchLabel": "edm_dataProvider",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@id": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@id": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownAt",
+          "searchLabel": "edm_isShownAt",
+          "level": 1,
+          "order": 5
+        },
+        {
+          "@id": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "order": 6
+        },
+        {
+          "@id": "http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/object",
+          "searchLabel": "edm_object",
+          "level": 1,
+          "order": 7
+        },
+        {
+          "@value": "Erfgoed Brabant",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/provider",
+          "searchLabel": "edm_provider",
+          "level": 1,
+          "order": 8
+        },
+        {
+          "@id": "http://www.europeana.eu/rights/rr-f/",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/rights",
+          "searchLabel": "edm_rights",
+          "level": 1,
+          "order": 9
+        }
+      ]
+    },
+    {
+      "id": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Mr. Johan Marcelus van der Meer en zijn vrouw Anna Marie Bertels. Hij was burgemeester van de gemeente Berlicum van 1947 tot 1958. Hier is hij zojuist geridderd voor zijn aandeel in de wederopbouw na de oorlog van 1940-1945.",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/description",
+          "searchLabel": "dc_description",
+          "level": 2,
+          "order": 11
+        },
+        {
+          "@value": "foto",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/format",
+          "searchLabel": "dc_format",
+          "level": 2,
+          "order": 12
+        },
+        {
+          "@value": "1470",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 2,
+          "order": 13
+        },
+        {
+          "@value": "Burgemeester",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 14
+        },
+        {
+          "@value": "Ridderorde",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 15
+        },
+        {
+          "@value": "van der Meer",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 16
+        },
+        {
+          "@value": "Bertels",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/subject",
+          "searchLabel": "dc_subject",
+          "level": 2,
+          "order": 17
+        },
+        {
+          "@value": "personen",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 2,
+          "order": 18
+        },
+        {
+          "@value": "1947-1958",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/created",
+          "searchLabel": "dcterms_created",
+          "level": 2,
+          "order": 19
+        },
+        {
+          "@id": "http://sws.geonames.org/2759059",
+          "entrytype": "Resource",
+          "predicate": "http://purl.org/dc/terms/spatial",
+          "searchLabel": "dcterms_spatial",
+          "level": 2,
+          "order": 20
+        },
+        {
+          "@value": "IMAGE",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/type",
+          "searchLabel": "edm_type",
+          "level": 2,
+          "order": 21
+        }
+      ]
+    },
+    {
+      "id": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+        },
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "image/jpeg",
+          "entrytype": "Literal",
+          "predicate": "urn:ebu:metadata-schema:ebuCore_2014/hasMimeType",
+          "searchLabel": "ebucore_hasMimeType",
+          "level": 2,
+          "order": 23
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_10/deepzoom/77c2b3c4-5297-0605-7f59-b5f752b8ae29.dzi",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 2,
+          "order": 24
+        },
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+          "searchLabel": "nave_resourceSortOrder",
+          "level": 2,
+          "order": 25
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 2,
+          "order": 26
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 2,
+          "order": 27
+        }
+      ]
+    },
+    {
+      "id": "http://sws.geonames.org/2759059",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/Place"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3"
+        },
+        {
+          "subject": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
+          "subjectClass": [
+            "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+          ],
+          "predicate": "http://purl.org/dc/terms/spatial",
+          "searchLabel": "dcterms_spatial",
+          "level": 2,
+          "objectID": "http://sws.geonames.org/2759059"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Nederland",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/country",
+          "searchLabel": "nave_country",
+          "level": 3,
+          "order": 29
+        },
+        {
+          "@value": "Gemeente Sint-Michielsgestel",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/province",
+          "searchLabel": "nave_province",
+          "level": 3,
+          "order": 30
+        },
+        {
+          "@value": "Gemeente Sint-Michielsgestel",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/municipality",
+          "searchLabel": "nave_municipality",
+          "level": 3,
+          "order": 31
+        },
+        {
+          "@value": "Berlicum",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/city",
+          "searchLabel": "nave_city",
+          "level": 3,
+          "order": 32
+        }
+      ]
+    },
+    {
+      "id": "_:bcfb7ff243d8e081c",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Heemkundekring 'De Plaets'",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collection",
+          "searchLabel": "nave_collection",
+          "level": 1,
+          "order": 34
+        },
+        {
+          "@value": "Beeldmateriaal",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collectionType",
+          "searchLabel": "nave_collectionType",
+          "level": 1,
+          "order": 35
+        },
+        {
+          "@value": "personen",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collectionPart",
+          "searchLabel": "nave_collectionPart",
+          "level": 1,
+          "order": 36
+        },
+        {
+          "@value": "1947-1958",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/date",
+          "searchLabel": "nave_date",
+          "level": 1,
+          "order": 37
+        },
+        {
+          "@value": "5044-14",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/dimensionNote",
+          "searchLabel": "nave_dimensionNote",
+          "level": 1,
+          "order": 38
+        },
+        {
+          "@value": "Berlicum",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/place",
+          "searchLabel": "nave_place",
+          "level": 1,
+          "order": 39
+        },
+        {
+          "@value": "1958",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/productionEnd",
+          "searchLabel": "nave_productionEnd",
+          "level": 1,
+          "order": 40
+        },
+        {
+          "@value": "1947-1958",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/productionPeriod",
+          "searchLabel": "nave_productionPeriod",
+          "level": 1,
+          "order": 41
+        },
+        {
+          "@value": "1947",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/productionStart",
+          "searchLabel": "nave_productionStart",
+          "level": 1,
+          "order": 42
+        }
+      ]
+    },
+    {
+      "id": "_:b993e6351c9fe96b0",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/DelvingResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/featured",
+          "searchLabel": "nave_featured",
+          "level": 1,
+          "order": 44
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowDeepZoom",
+          "searchLabel": "nave_allowDeepZoom",
+          "level": 1,
+          "order": 45
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowLinkedOpenData",
+          "searchLabel": "nave_allowLinkedOpenData",
+          "level": 1,
+          "order": 46
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowSourceDownload",
+          "searchLabel": "nave_allowSourceDownload",
+          "level": 1,
+          "order": 47
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/public",
+          "searchLabel": "nave_public",
+          "level": 1,
+          "order": 48
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "dc_description": [
+      "Mr. Johan Marcelus van der Meer en zijn vrouw Anna Marie Bertels. Hij was burgemeester van de gemeente Berlicum van 1947 tot 1958. Hier is hij zojuist geridderd voor zijn aandeel in de wederopbouw na de oorlog van 1940-1945."
+    ],
+    "dc_format": [
+      "foto"
+    ],
+    "dc_identifier": [
+      "1470"
+    ],
+    "dc_subject": [
+      "Burgemeester",
+      "Ridderorde",
+      "van der Meer",
+      "Bertels"
+    ],
+    "dc_title": [
+      "personen"
+    ],
+    "dcterms_created": [
+      "1947-1958"
+    ],
+    "ebucore_hasMimeType": [
+      "image/jpeg"
+    ],
+    "edm_dataProvider": [
+      "Heemkundekring 'De Plaets'"
+    ],
+    "edm_provider": [
+      "Erfgoed Brabant"
+    ],
+    "edm_type": [
+      "IMAGE"
+    ],
+    "nave_allowDeepZoom": [
+      "true"
+    ],
+    "nave_allowLinkedOpenData": [
+      "true"
+    ],
+    "nave_allowSourceDownload": [
+      "false"
+    ],
+    "nave_city": [
+      "Berlicum"
+    ],
+    "nave_collection": [
+      "Heemkundekring 'De Plaets'"
+    ],
+    "nave_collectionPart": [
+      "personen"
+    ],
+    "nave_collectionType": [
+      "Beeldmateriaal"
+    ],
+    "nave_country": [
+      "Nederland"
+    ],
+    "nave_date": [
+      "1947-1958"
+    ],
+    "nave_deepZoomUrl": [
+      "http://images.memorix.nl/enb_10/deepzoom/77c2b3c4-5297-0605-7f59-b5f752b8ae29.dzi"
+    ],
+    "nave_dimensionNote": [
+      "5044-14"
+    ],
+    "nave_featured": [
+      "false"
+    ],
+    "nave_municipality": [
+      "Gemeente Sint-Michielsgestel"
+    ],
+    "nave_place": [
+      "Berlicum"
+    ],
+    "nave_productionEnd": [
+      "1958"
+    ],
+    "nave_productionPeriod": [
+      "1947-1958"
+    ],
+    "nave_productionStart": [
+      "1947"
+    ],
+    "nave_province": [
+      "Gemeente Sint-Michielsgestel"
+    ],
+    "nave_public": [
+      "true"
+    ],
+    "nave_resourceSortOrder": [
+      "1"
+    ],
+    "nave_thumbLarge": [
+      "http://images.memorix.nl/enb_10/thumb/500x500/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+    ],
+    "nave_thumbSmall": [
+      "http://images.memorix.nl/enb_10/thumb/220x220/77c2b3c4-5297-0605-7f59-b5f752b8ae29.jpg"
+    ]
+  }
+}

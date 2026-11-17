@@ -76,9 +76,6 @@ type Entry struct {
 	// TypeIndexField are fields that trigger custom functionality in the index
 	TypeIndexField
 
-	// CustomFilterField are fields that can be used to create facets across different SearchLabels
-	CustomFilterField
-
 	// Inline is used to Inline resources for a grouped view. These are never indexed
 	Inline *Resource `json:"inline,omitempty"`
 
@@ -197,14 +194,6 @@ type TypeIndexField struct {
 	Float     float64     `json:"float,omitempty"`
 	IntRange  *IndexRange `json:"intRange,omitempty"`
 	LatLong   string      `json:"latLong,omitempty"`
-}
-
-// CustomFilterField groups fields that can be used to create meta aggregations
-// for facetting.
-type CustomFilterField struct {
-	FilterIDs []string `json:"mFilterID,omitempty"`
-	Type      string   `json:"mType,omitempty"`
-	Role      string   `json:"mRole,omitempty"`
 }
 
 // IndexRange is used for indexing ranges.

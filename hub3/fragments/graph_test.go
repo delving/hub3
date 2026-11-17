@@ -210,3 +210,13 @@ func TestResourceUnmarshal(t *testing.T) {
 		}
 	})
 }
+
+func TestNestedDocCount(t *testing.T) {
+	fg := &fragments.FragmentGraph{Resources: []*fragments.FragmentResource{
+		{Entries: []*fragments.ResourceEntry{{}, {}}},
+		{Entries: []*fragments.ResourceEntry{{}}, Context: []*fragments.FragmentReferrerContext{{}, {}}},
+	}}
+	if got := fg.NestedDocCount(); got != 7 {
+		t.Fatalf("NestedDocCount() = %d, want 7 (2 resources + 3 entries + 2 contexts)", got)
+	}
+}

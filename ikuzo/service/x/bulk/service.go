@@ -42,12 +42,18 @@ type Service struct {
 	harvestConfigPath string
 	recdef            RecDefResolver
 	ts                domain.TaskService
+	maxNestedDocs     int
 }
+
+// defaultMaxNestedDocs is the most nested documents (resources + entries) one
+// record may produce; a record over it is refused as record_too_large.
+const defaultMaxNestedDocs = 1000
 
 func NewService(options ...Option) (*Service, error) {
 	s := &Service{
-		indexTypes: []string{"v2"},
-		postHooks:  map[string][]domain.PostHookService{},
+		indexTypes:    []string{"v2"},
+		postHooks:     map[string][]domain.PostHookService{},
+		maxNestedDocs: defaultMaxNestedDocs,
 	}
 
 	// apply options

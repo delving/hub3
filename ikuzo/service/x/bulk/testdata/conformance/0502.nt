@@ -1,0 +1,50 @@
+<http://example.org/c/0502> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0502> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Painting> .
+<http://example.org/c/0502> <https://schema.org/name> "Portret van Maria, later"@nl .
+<http://example.org/c/0502> <https://schema.org/creator> <http://example.org/c/person/pieter> .
+<http://example.org/c/0502> <https://schema.org/dateCreated> "1685"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/0502> <https://schema.org/material> <http://example.org/c/material/eikenpaneel> .
+<http://example.org/c/0502> <https://schema.org/about> <http://example.org/c/person/maria> .
+<http://example.org/c/person/pieter> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/person/pieter> <https://schema.org/name> "Pieter de Schilder" .
+<http://example.org/c/person/pieter> <https://schema.org/birthPlace> <http://example.org/c/place/leiden> .
+<http://example.org/c/person/pieter> <https://schema.org/birthDate> "1620"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/person/pieter> <https://schema.org/deathPlace> <http://example.org/c/place/amsterdam> .
+<http://example.org/c/person/pieter> <https://schema.org/deathDate> "1675"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/person/pieter> <http://example.org/def/pupilOf> <http://example.org/c/person/jacob> .
+<http://example.org/c/place/leiden> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<http://example.org/c/place/leiden> <https://schema.org/name> "Leiden"@nl .
+<http://example.org/c/place/leiden> <https://schema.org/alternateName> "Leyden"@en .
+<http://example.org/c/place/leiden> <https://schema.org/alternateName> "Leyde"@fr .
+<http://example.org/c/place/leiden> <https://schema.org/alternateName> "Lugdunum Batavorum"@la .
+<http://example.org/c/place/leiden> <https://schema.org/containedInPlace> <http://example.org/c/place/holland> .
+<http://example.org/c/place/holland> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<http://example.org/c/place/holland> <https://schema.org/name> "Holland"@nl .
+<http://example.org/c/place/holland> <https://schema.org/alternateName> "Holland"@en .
+<http://example.org/c/place/holland> <https://schema.org/alternateName> "Hollande"@fr .
+<http://example.org/c/place/holland> <https://schema.org/containedInPlace> <http://example.org/c/place/republiek> .
+<http://example.org/c/place/republiek> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<http://example.org/c/place/republiek> <https://schema.org/name> "Republiek der Zeven Verenigde Nederlanden"@nl .
+<http://example.org/c/place/republiek> <https://schema.org/alternateName> "Dutch Republic"@en .
+<http://example.org/c/place/republiek> <https://schema.org/alternateName> "Provinces-Unies"@fr .
+<http://example.org/c/place/amsterdam> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<http://example.org/c/place/amsterdam> <https://schema.org/name> "Amsterdam"@nl .
+<http://example.org/c/place/amsterdam> <https://schema.org/alternateName> "Amsterdam"@en .
+<http://example.org/c/place/amsterdam> <https://schema.org/alternateName> "Amstelodamum"@la .
+<http://example.org/c/place/amsterdam> <https://schema.org/containedInPlace> <http://example.org/c/place/holland> .
+<http://example.org/c/person/jacob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/person/jacob> <https://schema.org/name> "Jacob de Meester" .
+<http://example.org/c/person/jacob> <https://schema.org/birthPlace> <http://example.org/c/place/haarlem> .
+<http://example.org/c/person/jacob> <https://schema.org/birthDate> "1590"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/person/jacob> <https://schema.org/deathPlace> <http://example.org/c/place/leiden> .
+<http://example.org/c/person/jacob> <https://schema.org/deathDate> "1655"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/place/haarlem> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Place> .
+<http://example.org/c/place/haarlem> <https://schema.org/name> "Haarlem"@nl .
+<http://example.org/c/place/haarlem> <https://schema.org/alternateName> "Harlem"@en .
+<http://example.org/c/place/haarlem> <https://schema.org/alternateName> "Harlemum"@la .
+<http://example.org/c/place/haarlem> <https://schema.org/containedInPlace> <http://example.org/c/place/holland> .
+<http://example.org/c/material/eikenpaneel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/DefinedTerm> .
+<http://example.org/c/material/eikenpaneel> <https://schema.org/name> "eikenhouten paneel"@nl .
+<http://example.org/c/material/eikenpaneel> <https://schema.org/name> "oak panel"@en .
+<http://example.org/c/person/maria> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/person/maria> <https://schema.org/name> "Maria van Dorp" .

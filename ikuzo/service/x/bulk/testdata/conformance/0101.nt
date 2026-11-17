@@ -1,0 +1,5 @@
+<http://example.org/c/0101> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0101> <https://schema.org/name> "De vrolijke huishouding" .
+<http://example.org/c/0101> <https://schema.org/creator> <http://example.org/c/0101/painter> .
+<http://example.org/c/0101/painter> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/0101/painter> <https://schema.org/name> "Jan Steen" .

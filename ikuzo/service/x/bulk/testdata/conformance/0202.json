@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0202",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0202",
+    "namedGraphURI": "http://example.org/conformance/0202/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0202",
+      "types": [
+        "https://schema.org/Painting",
+        "https://schema.org/CreativeWork",
+        "https://schema.org/VisualArtwork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Drie typen",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "Drie typen"
+    ]
+  }
+}

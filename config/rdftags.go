@@ -38,6 +38,10 @@ type RDFTag struct {
 	DateRange        []string `json:"dateRange"`
 	Integer          []string `json:"integer"`
 	IntegerRange     []string `json:"integerRange"`
+	// LabelLanguages orders the languages a link label is picked from when the
+	// target has its label in several; "" is a value without a language tag.
+	// Languages not listed come after; empty means en, "", then the rest.
+	LabelLanguages []string `json:"labelLanguages"`
 }
 
 // RDFTagMap contains all the URIs that trigger indexing labels

@@ -1,0 +1,190 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0510",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0510",
+    "namedGraphURI": "http://example.org/conformance/0510/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0510",
+      "types": [
+        "https://schema.org/CreativeWork",
+        "https://schema.org/Painting"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Portret van Maria, externe maker",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 3
+        },
+        {
+          "@id": "http://example.org/ext/person/pieter",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "tags": [
+            "creator"
+          ],
+          "order": 4
+        },
+        {
+          "@value": "1660",
+          "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/dateCreated",
+          "searchLabel": "schema_dateCreated",
+          "level": 1,
+          "isoDate": [
+            "1660-01-01"
+          ],
+          "dateRange": {
+            "gte": "1660-01-01",
+            "lte": "1660-12-31"
+          },
+          "order": 5
+        },
+        {
+          "@id": "http://example.org/c/material/eikenpaneel",
+          "@value": "eikenhouten paneel",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "order": 6
+        },
+        {
+          "@id": "http://example.org/c/person/maria",
+          "@value": "Maria van Dorp",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "tags": [
+            "subject"
+          ],
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "types": [
+        "https://schema.org/DefinedTerm"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0510",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/material",
+          "searchLabel": "schema_material",
+          "level": 1,
+          "objectID": "http://example.org/c/material/eikenpaneel",
+          "label": "Portret van Maria, externe maker"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "eikenhouten paneel",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 9
+        },
+        {
+          "@value": "oak panel",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 10
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/maria",
+      "types": [
+        "https://schema.org/Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://example.org/c/0510",
+          "subjectClass": [
+            "https://schema.org/CreativeWork",
+            "https://schema.org/Painting"
+          ],
+          "predicate": "https://schema.org/about",
+          "searchLabel": "schema_about",
+          "level": 1,
+          "objectID": "http://example.org/c/person/maria",
+          "label": "Portret van Maria, externe maker"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Maria van Dorp",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 12
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_dateCreated": [
+      "1660"
+    ],
+    "schema_name": [
+      "Portret van Maria, externe maker",
+      "eikenhouten paneel",
+      "oak panel",
+      "Maria van Dorp"
+    ]
+  }
+}

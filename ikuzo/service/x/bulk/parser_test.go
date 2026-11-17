@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
 	c "github.com/delving/hub3/config"
 	"github.com/delving/hub3/hub3/models"
+	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/kiivihal/rdf2go"
 	"github.com/matryer/is"
 )
@@ -188,4 +190,61 @@ func TestParseLongLine(t *testing.T) {
 	err := p.Parse(context.Background(), strings.NewReader(line))
 	is.NoErr(err)
 	is.Equal(p.stats.JSONErrors, uint64(1))
+}
+
+// Every request in one upload resolves its own tags; fragmentsOnly on a later
+// line applies to that line only (F5).
+func TestProcessResolvesTagsPerRequest(t *testing.T) {
+	c.InitConfig()
+	prevRDF, prevES := c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled
+	c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled = false, false
+	t.Cleanup(func() { c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled = prevRDF, prevES })
+
+	ci := &captureIndex{}
+	p := &Parser{
+		ds:         &models.DataSet{OrgID: "org1", Spec: "ds1", Revision: 3},
+		stats:      &Stats{},
+		bi:         ci,
+		indexTypes: []string{"v2"},
+		recDef:     RecDefResolver{m: map[string][]string{"schema": {"https://schema.org/CreativeWork"}}, defaultRecDefID: "schema"},
+		s:          &Service{},
+	}
+	p.once.Do(func() {}) // as if an earlier request had set up the dataset
+
+	req := func(id, tags string) *Request {
+		return &Request{
+			Action: "index", OrgID: "org1", DatasetID: "ds1", HubID: "org1_ds1_" + id, LocalID: id,
+			NamedGraphURI: "http://example.org/" + id + "/graph", Tags: tags, GraphMimeType: "application/n-triples",
+			Graph: "<http://example.org/" + id + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .\n",
+		}
+	}
+
+	if err := p.process(context.Background(), req("a", "extra")); err != nil {
+		t.Fatal(err)
+	}
+	if err := p.process(context.Background(), req("b", "fragmentsOnly")); err != nil {
+		t.Fatal(err)
+	}
+
+	var v2 []*domainpb.IndexMessage
+	for _, m := range ci.msgs {
+		if m.GetIndexType() == domainpb.IndexType_V2 {
+			v2 = append(v2, m)
+		}
+	}
+	if len(v2) != 1 {
+		t.Fatalf("want 1 v2 index message (b is fragmentsOnly), got %d", len(v2))
+	}
+	var doc struct {
+		Meta struct {
+			Tags     []string `json:"tags"`
+			Revision int      `json:"revision"`
+		} `json:"meta"`
+	}
+	if err := json.Unmarshal(v2[0].Source, &doc); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Contains(doc.Meta.Tags, "extra") || doc.Meta.Revision != 3 {
+		t.Fatalf("meta tags %v revision %d, want tags with \"extra\" and revision 3", doc.Meta.Tags, doc.Meta.Revision)
+	}
 }

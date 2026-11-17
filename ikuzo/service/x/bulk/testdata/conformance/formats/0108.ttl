@@ -1,0 +1,9 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0108> a schema:CreativeWork ;
+    schema:description "B",
+        "E" ;
+    schema:keywords "D" ;
+    schema:name "A",
+        "C" .
+

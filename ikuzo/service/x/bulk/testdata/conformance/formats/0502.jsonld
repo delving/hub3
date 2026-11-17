@@ -1,0 +1,268 @@
+[
+  {
+    "@id": "http://example.org/c/person/jacob",
+    "@type": [
+      "https://schema.org/Person"
+    ],
+    "https://schema.org/birthDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1590"
+      }
+    ],
+    "https://schema.org/birthPlace": [
+      {
+        "@id": "http://example.org/c/place/haarlem"
+      }
+    ],
+    "https://schema.org/deathDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1655"
+      }
+    ],
+    "https://schema.org/deathPlace": [
+      {
+        "@id": "http://example.org/c/place/leiden"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Jacob de Meester"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/pieter",
+    "@type": [
+      "https://schema.org/Person"
+    ],
+    "http://example.org/def/pupilOf": [
+      {
+        "@id": "http://example.org/c/person/jacob"
+      }
+    ],
+    "https://schema.org/birthDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1620"
+      }
+    ],
+    "https://schema.org/birthPlace": [
+      {
+        "@id": "http://example.org/c/place/leiden"
+      }
+    ],
+    "https://schema.org/deathDate": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1675"
+      }
+    ],
+    "https://schema.org/deathPlace": [
+      {
+        "@id": "http://example.org/c/place/amsterdam"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Pieter de Schilder"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/haarlem",
+    "@type": [
+      "https://schema.org/Place"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@language": "en",
+        "@value": "Harlem"
+      },
+      {
+        "@language": "la",
+        "@value": "Harlemum"
+      }
+    ],
+    "https://schema.org/containedInPlace": [
+      {
+        "@id": "http://example.org/c/place/holland"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Haarlem"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/person/maria",
+    "@type": [
+      "https://schema.org/Person"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Maria van Dorp"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/material/eikenpaneel",
+    "@type": [
+      "https://schema.org/DefinedTerm"
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "eikenhouten paneel"
+      },
+      {
+        "@language": "en",
+        "@value": "oak panel"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/amsterdam",
+    "@type": [
+      "https://schema.org/Place"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@language": "en",
+        "@value": "Amsterdam"
+      },
+      {
+        "@language": "la",
+        "@value": "Amstelodamum"
+      }
+    ],
+    "https://schema.org/containedInPlace": [
+      {
+        "@id": "http://example.org/c/place/holland"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Amsterdam"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0502",
+    "@type": [
+      "https://schema.org/CreativeWork",
+      "https://schema.org/Painting"
+    ],
+    "https://schema.org/about": [
+      {
+        "@id": "http://example.org/c/person/maria"
+      }
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/c/person/pieter"
+      }
+    ],
+    "https://schema.org/dateCreated": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1685"
+      }
+    ],
+    "https://schema.org/material": [
+      {
+        "@id": "http://example.org/c/material/eikenpaneel"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Portret van Maria, later"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/holland",
+    "@type": [
+      "https://schema.org/Place"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@language": "en",
+        "@value": "Holland"
+      },
+      {
+        "@language": "fr",
+        "@value": "Hollande"
+      }
+    ],
+    "https://schema.org/containedInPlace": [
+      {
+        "@id": "http://example.org/c/place/republiek"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Holland"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/leiden",
+    "@type": [
+      "https://schema.org/Place"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@language": "en",
+        "@value": "Leyden"
+      },
+      {
+        "@language": "fr",
+        "@value": "Leyde"
+      },
+      {
+        "@language": "la",
+        "@value": "Lugdunum Batavorum"
+      }
+    ],
+    "https://schema.org/containedInPlace": [
+      {
+        "@id": "http://example.org/c/place/holland"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Leiden"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/place/republiek",
+    "@type": [
+      "https://schema.org/Place"
+    ],
+    "https://schema.org/alternateName": [
+      {
+        "@language": "en",
+        "@value": "Dutch Republic"
+      },
+      {
+        "@language": "fr",
+        "@value": "Provinces-Unies"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Republiek der Zeven Verenigde Nederlanden"
+      }
+    ]
+  }
+]

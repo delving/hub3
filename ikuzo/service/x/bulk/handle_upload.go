@@ -63,6 +63,7 @@ func (s *Service) NewParser() *Parser {
 		debugPath:     os.Getenv("HUB3_BULK_DEBUG_PATH"),
 		recDef:        s.recdef,
 		s:             s,
+		maxNestedDocs: s.maxNestedDocs,
 	}
 
 	if len(s.postHooks) != 0 {

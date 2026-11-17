@@ -61,6 +61,9 @@ type ElasticSearch struct {
 	Shards int `json:"shards,omitempty"`
 	// number of replicas. default 0
 	Replicas int `json:"replicas,omitempty"`
+	// maxNestedDocs refuses a record with more nested documents (resources + entries)
+	// as record_too_large. default 1000
+	MaxNestedDocs int `json:"maxNestedDocs,omitempty"`
 	// logger
 	logger *logger.CustomLogger
 	// UseRemoteIndexer is true when a separate process reads of the queue
@@ -141,6 +144,7 @@ func (e *ElasticSearch) AddOptions(cfg *Config) error {
 	bulkSvc, bulkErr := bulk.NewService(
 		bulk.SetIndexService(is),
 		bulk.SetIndexTypes(e.IndexTypes...),
+		bulk.SetMaxNestedDocs(e.MaxNestedDocs),
 		bulk.SetPostHookService(postHooks...),
 		bulk.SetHarvestPath(e.HarvestConfigPath),
 		bulk.SetRecDefResolver(e.RecDef, e.DefaultRecDefID),

@@ -1,0 +1,8 @@
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0003> a schema:CreativeWork ;
+    schema:dateCreated "1660-05-01"^^xsd:date ;
+    schema:dateModified "2024-07-16T18:01:37+00:00"^^xsd:dateTime ;
+    schema:datePublished "1661"^^xsd:gYear .
+

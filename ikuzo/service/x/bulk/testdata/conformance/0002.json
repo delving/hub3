@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0002",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0002",
+    "namedGraphURI": "http://example.org/conformance/0002/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0002",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Gezicht op Delft",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 2
+        },
+        {
+          "@value": "View of Delft",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 3
+        },
+        {
+          "@value": "Een stadsgezicht",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/description",
+          "searchLabel": "schema_description",
+          "level": 1,
+          "tags": [
+            "description"
+          ],
+          "order": 4
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_description": [
+      "Een stadsgezicht"
+    ],
+    "schema_name": [
+      "Gezicht op Delft",
+      "View of Delft"
+    ]
+  }
+}

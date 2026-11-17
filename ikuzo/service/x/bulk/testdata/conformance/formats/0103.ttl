@@ -1,0 +1,6 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0103> a schema:CreativeWork ;
+    schema:size [ schema:height "38" ;
+            schema:width "45" ] .
+

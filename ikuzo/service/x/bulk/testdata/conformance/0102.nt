@@ -1,0 +1,3 @@
+<http://example.org/c/0102> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0102> <https://schema.org/creator> <http://example.org/ext/person/1> .
+<http://example.org/c/0102> <https://schema.org/sameAs> <https://www.wikidata.org/wiki/Q205863> .

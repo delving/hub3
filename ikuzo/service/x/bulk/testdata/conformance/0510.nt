@@ -1,0 +1,12 @@
+<http://example.org/c/0510> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0510> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Painting> .
+<http://example.org/c/0510> <https://schema.org/name> "Portret van Maria, externe maker"@nl .
+<http://example.org/c/0510> <https://schema.org/creator> <http://example.org/ext/person/pieter> .
+<http://example.org/c/0510> <https://schema.org/dateCreated> "1660"^^<http://www.w3.org/2001/XMLSchema#gYear> .
+<http://example.org/c/0510> <https://schema.org/material> <http://example.org/c/material/eikenpaneel> .
+<http://example.org/c/0510> <https://schema.org/about> <http://example.org/c/person/maria> .
+<http://example.org/c/material/eikenpaneel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/DefinedTerm> .
+<http://example.org/c/material/eikenpaneel> <https://schema.org/name> "eikenhouten paneel"@nl .
+<http://example.org/c/material/eikenpaneel> <https://schema.org/name> "oak panel"@en .
+<http://example.org/c/person/maria> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/Person> .
+<http://example.org/c/person/maria> <https://schema.org/name> "Maria van Dorp" .

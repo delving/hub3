@@ -166,14 +166,14 @@ var v2Mapping = `{
 						"context": {
 							"type": "nested",
 							"properties": {
-								"Subject": {"type": "keyword", "ignore_above": 256},
-								"SubjectClass": {"type": "keyword", "ignore_above": 256},
-								"Predicate": {"type": "keyword", "ignore_above": 256},
-								"SearchLabel": {"type": "keyword", "ignore_above": 256},
-								"Level": {"type": "integer"},
-								"ObjectID": {"type": "keyword", "ignore_above": 256},
-								"SortKey": {"type": "integer"},
-								"Label": {"type": "keyword"}
+								"subject": {"type": "keyword", "ignore_above": 256},
+								"subjectClass": {"type": "keyword", "ignore_above": 256},
+								"predicate": {"type": "keyword", "ignore_above": 256},
+								"searchLabel": {"type": "keyword", "ignore_above": 256},
+								"level": {"type": "integer"},
+								"objectID": {"type": "keyword", "ignore_above": 256},
+								"sortKey": {"type": "integer"},
+								"label": {"type": "keyword"}
 							}
 						},
 						"entries": {
@@ -198,9 +198,6 @@ var v2Mapping = `{
 								"resolvedLevel": {"type": "integer"},
 								"integer": {"type": "integer"},
 								"tags": {"type": "keyword"},
-								"mType": {"type": "keyword"},
-								"mRole": {"type": "keyword"},
-								"mFilterID": {"type": "keyword"},
 								"isoDate": {
 									"type": "date",
 									"format": "yyyy-MM-dd'T'HH:mm:ssXXX||yyyy-MM-dd'T'HH:mm:ss.SSSXXX||yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||dd-MM-yyy||yyyy||epoch_millis"
@@ -211,7 +208,14 @@ var v2Mapping = `{
 								},
 								"intRange": {"type": "integer_range"},
 								"float": {"type": "float"},
-								"latLong": {"type": "geo_point"}
+								"latLong": {"type": "geo_point"},
+								"sortValue": {
+									"type": "text",
+									"fields": {
+										"keyword": {"type": "keyword", "ignore_above": 256}
+									}
+								},
+								"inline": {"type": "object", "enabled": false}
 							}
 						}
 					}
@@ -289,15 +293,25 @@ var v2MappingUpdate = `{
 	"resources": {
 		"type": "nested",
 		"properties": {
+			"context": {
+				"type": "nested",
+				"properties": {
+					"subject": {"type": "keyword", "ignore_above": 256},
+					"subjectClass": {"type": "keyword", "ignore_above": 256},
+					"predicate": {"type": "keyword", "ignore_above": 256},
+					"searchLabel": {"type": "keyword", "ignore_above": 256},
+					"level": {"type": "integer"},
+					"objectID": {"type": "keyword", "ignore_above": 256},
+					"sortKey": {"type": "integer"},
+					"label": {"type": "keyword"}
+				}
+			},
 			"entries": {
 				"type": "nested",
 				"properties": {
 					"intRange": {"type": "integer_range"},
 					"float": {"type": "float"},
 					"level": {"type": "integer"},
-					"mType": {"type": "keyword"},
-					"mRole": {"type": "keyword"},
-					"mFilterID": {"type": "keyword"},
 					"sortValue": {
 						"type": "text",
 						"fields": {

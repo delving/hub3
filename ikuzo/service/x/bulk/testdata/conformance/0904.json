@@ -1,0 +1,649 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0904",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+    "namedGraphURI": "http://example.org/conformance/0904/graph",
+    "modified": 0,
+    "recDefID": "edm",
+    "aboutTypeURI": [
+      "http://www.openarchives.org/ore/terms/Aggregation"
+    ],
+    "hasDigitalObject": true
+  },
+  "resources": [
+    {
+      "id": "_:b0",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/BrabantCloudResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Heemkundekring \"De Kommanderij Gemert\"",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collection",
+          "searchLabel": "nave_collection",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@value": "Bidprentjes",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collectionPart",
+          "searchLabel": "nave_collectionPart",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@value": "Bidprentjes",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/collectionType",
+          "searchLabel": "nave_collectionType",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@value": "1784-09-10T00:00:01",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorBirthYear",
+          "searchLabel": "nave_creatorBirthYear",
+          "level": 1,
+          "order": 5
+        },
+        {
+          "@value": "1784-09-10T23:59:59",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorBirthYearEnd",
+          "searchLabel": "nave_creatorBirthYearEnd",
+          "level": 1,
+          "order": 6
+        },
+        {
+          "@value": "09-10-1784",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorBirthYearRaw",
+          "searchLabel": "nave_creatorBirthYearRaw",
+          "level": 1,
+          "order": 7
+        },
+        {
+          "@value": "1868-02-26T00:00:01",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorDeathYear",
+          "searchLabel": "nave_creatorDeathYear",
+          "level": 1,
+          "order": 8
+        },
+        {
+          "@value": "1868-02-26T23:59:59",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorDeathYearEnd",
+          "searchLabel": "nave_creatorDeathYearEnd",
+          "level": 1,
+          "order": 9
+        },
+        {
+          "@value": "26-02-1868",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/creatorDeathYearRaw",
+          "searchLabel": "nave_creatorDeathYearRaw",
+          "level": 1,
+          "order": 10
+        },
+        {
+          "@value": "Gemert",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/material",
+          "searchLabel": "nave_material",
+          "level": 1,
+          "order": 11
+        },
+        {
+          "@value": "00712",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectNumber",
+          "searchLabel": "nave_objectNumber",
+          "level": 1,
+          "order": 12
+        },
+        {
+          "@value": "Bidprentje",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/objectSoort",
+          "searchLabel": "nave_objectSoort",
+          "level": 1,
+          "order": 13
+        },
+        {
+          "@value": "Verhofstadt",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/person",
+          "searchLabel": "nave_person",
+          "level": 1,
+          "order": 14
+        },
+        {
+          "@value": "Gemert",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/place",
+          "searchLabel": "nave_place",
+          "level": 1,
+          "order": 15
+        }
+      ]
+    },
+    {
+      "id": "_:b1",
+      "types": [
+        "http://schemas.delving.eu/nave/terms/DelvingResource"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowDeepZoom",
+          "searchLabel": "nave_allowDeepZoom",
+          "level": 1,
+          "order": 17
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowLinkedOpenData",
+          "searchLabel": "nave_allowLinkedOpenData",
+          "level": 1,
+          "order": 18
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowSourceDownload",
+          "searchLabel": "nave_allowSourceDownload",
+          "level": 1,
+          "order": 19
+        },
+        {
+          "@value": "false",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/featured",
+          "searchLabel": "nave_featured",
+          "level": 1,
+          "order": 20
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/public",
+          "searchLabel": "nave_public",
+          "level": 1,
+          "order": 21
+        }
+      ]
+    },
+    {
+      "id": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+      "types": [
+        "http://www.openarchives.org/ore/terms/Aggregation",
+        "http://schemas.delving.eu/narthex/terms/Record"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "order": 24
+        },
+        {
+          "@value": "Heemkundekring \"De Kommanderij Gemert\"",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/dataProvider",
+          "searchLabel": "edm_dataProvider",
+          "level": 1,
+          "order": 25
+        },
+        {
+          "@id": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "order": 26
+        },
+        {
+          "@id": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownAt",
+          "searchLabel": "edm_isShownAt",
+          "level": 1,
+          "order": 27
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/isShownBy",
+          "searchLabel": "edm_isShownBy",
+          "level": 1,
+          "order": 28
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/object",
+          "searchLabel": "edm_object",
+          "level": 1,
+          "order": 29
+        },
+        {
+          "@id": "http://www.europeana.eu/rights/rr-f/",
+          "entrytype": "Resource",
+          "predicate": "http://www.europeana.eu/schemas/edm/rights",
+          "searchLabel": "edm_rights",
+          "level": 1,
+          "order": 30
+        }
+      ]
+    },
+    {
+      "id": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae/about",
+      "types": [
+        "http://xmlns.com/foaf/0.1/Document"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "enb-201-bidprentje",
+          "entrytype": "Literal",
+          "predicate": "http://creativecommons.org/ns#attributionName",
+          "searchLabel": "cc_attributionName",
+          "level": 1,
+          "order": 32
+        },
+        {
+          "@id": "http://data.brabantcloud.nl/resource/dataset/enb-201-bidprentje",
+          "entrytype": "Resource",
+          "predicate": "http://schemas.delving.eu/narthex/terms/belongsTo",
+          "searchLabel": "narthex_belongsTo",
+          "level": 1,
+          "order": 33
+        },
+        {
+          "@value": "fbb2558202f0281ea994363804c6f17bcbb3d449",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/narthex/terms/contentHash",
+          "searchLabel": "narthex_contentHash",
+          "level": 1,
+          "order": 34
+        },
+        {
+          "@value": "2018-04-04T06:14:42Z",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/narthex/terms/saveTime",
+          "searchLabel": "narthex_saveTime",
+          "level": 1,
+          "order": 35
+        },
+        {
+          "@value": "false",
+          "@type": "http://www.w3.org/2001/XMLSchema#boolean",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/narthex/terms/synced",
+          "searchLabel": "narthex_synced",
+          "level": 1,
+          "order": 36
+        },
+        {
+          "@id": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "entrytype": "Resource",
+          "predicate": "http://xmlns.com/foaf/0.1/primaryTopic",
+          "searchLabel": "foaf_primaryTopic",
+          "level": 1,
+          "order": 37
+        }
+      ]
+    },
+    {
+      "id": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation",
+            "http://schemas.delving.eu/narthex/terms/Record"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
+          "searchLabel": "edm_aggregatedCHO",
+          "level": 1,
+          "objectID": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Gemert",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/coverage",
+          "searchLabel": "dc_coverage",
+          "level": 2,
+          "order": 39
+        },
+        {
+          "@value": "Joanna",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/creator",
+          "searchLabel": "dc_creator",
+          "level": 2,
+          "order": 40
+        },
+        {
+          "@value": "09-10-1784",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/date",
+          "searchLabel": "dc_date",
+          "level": 2,
+          "order": 41
+        },
+        {
+          "@value": "vrouw",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/format",
+          "searchLabel": "dc_format",
+          "level": 2,
+          "order": 42
+        },
+        {
+          "@value": "00712",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/identifier",
+          "searchLabel": "dc_identifier",
+          "level": 2,
+          "order": 43
+        },
+        {
+          "@value": "Laurentius van Valkenburg (partner)",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/relation",
+          "searchLabel": "dc_relation",
+          "level": 2,
+          "order": 44
+        },
+        {
+          "@value": "Joanna Verhofstadt ssjoerd2",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/title",
+          "searchLabel": "dc_title",
+          "level": 2,
+          "order": 45
+        },
+        {
+          "@value": "Bidprentje",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/elements/1.1/type",
+          "searchLabel": "dc_type",
+          "level": 2,
+          "order": 46
+        },
+        {
+          "@value": "Joanna",
+          "entrytype": "Literal",
+          "predicate": "http://purl.org/dc/terms/alternative",
+          "searchLabel": "dcterms_alternative",
+          "level": 2,
+          "order": 47
+        },
+        {
+          "@value": "IMAGE",
+          "entrytype": "Literal",
+          "predicate": "http://www.europeana.eu/schemas/edm/type",
+          "searchLabel": "edm_type",
+          "level": 2,
+          "order": 48
+        }
+      ]
+    },
+    {
+      "id": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+      "types": [
+        "http://www.europeana.eu/schemas/edm/WebResource"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "subject": "http://data.brabantcloud.nl/resource/aggregation/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
+          "subjectClass": [
+            "http://www.openarchives.org/ore/terms/Aggregation",
+            "http://schemas.delving.eu/narthex/terms/Record"
+          ],
+          "predicate": "http://www.europeana.eu/schemas/edm/hasView",
+          "searchLabel": "edm_hasView",
+          "level": 1,
+          "objectID": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowDeepZoom",
+          "searchLabel": "nave_allowDeepZoom",
+          "level": 2,
+          "order": 50
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowPublicWebView",
+          "searchLabel": "nave_allowPublicWebView",
+          "level": 2,
+          "order": 51
+        },
+        {
+          "@value": "true",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/allowSourceDownload",
+          "searchLabel": "nave_allowSourceDownload",
+          "level": 2,
+          "order": 52
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/deepzoom/d5db1829-8169-570e-204f-fa4973c9be97.dzi",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/deepZoomUrl",
+          "searchLabel": "nave_deepZoomUrl",
+          "level": 2,
+          "order": 53
+        },
+        {
+          "@value": "1",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/resourceSortOrder",
+          "searchLabel": "nave_resourceSortOrder",
+          "level": 2,
+          "order": 54
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/sourceDownload",
+          "searchLabel": "nave_sourceDownload",
+          "level": 2,
+          "order": 55
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbLarge",
+          "searchLabel": "nave_thumbLarge",
+          "level": 2,
+          "order": 56
+        },
+        {
+          "@value": "http://images.memorix.nl/enb_201/thumb/220x220/d5db1829-8169-570e-204f-fa4973c9be97.jpg",
+          "entrytype": "Literal",
+          "predicate": "http://schemas.delving.eu/nave/terms/thumbSmall",
+          "searchLabel": "nave_thumbSmall",
+          "level": 2,
+          "order": 57
+        },
+        {
+          "@value": "image/jpeg",
+          "entrytype": "Literal",
+          "predicate": "urn:ebu:metadata-schema:ebuCore_2014hasMimeType",
+          "searchLabel": "ebucore_hasMimeType",
+          "level": 2,
+          "order": 58
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "cc_attributionName": [
+      "enb-201-bidprentje"
+    ],
+    "dc_coverage": [
+      "Gemert"
+    ],
+    "dc_creator": [
+      "Joanna"
+    ],
+    "dc_date": [
+      "09-10-1784"
+    ],
+    "dc_format": [
+      "vrouw"
+    ],
+    "dc_identifier": [
+      "00712"
+    ],
+    "dc_relation": [
+      "Laurentius van Valkenburg (partner)"
+    ],
+    "dc_title": [
+      "Joanna Verhofstadt ssjoerd2"
+    ],
+    "dc_type": [
+      "Bidprentje"
+    ],
+    "dcterms_alternative": [
+      "Joanna"
+    ],
+    "ebucore_hasMimeType": [
+      "image/jpeg"
+    ],
+    "edm_dataProvider": [
+      "Heemkundekring \"De Kommanderij Gemert\""
+    ],
+    "edm_isShownBy": [
+      "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+    ],
+    "edm_object": [
+      "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+    ],
+    "edm_type": [
+      "IMAGE"
+    ],
+    "narthex_contentHash": [
+      "fbb2558202f0281ea994363804c6f17bcbb3d449"
+    ],
+    "narthex_saveTime": [
+      "2018-04-04T06:14:42Z"
+    ],
+    "narthex_synced": [
+      "false"
+    ],
+    "nave_allowDeepZoom": [
+      "true"
+    ],
+    "nave_allowLinkedOpenData": [
+      "true"
+    ],
+    "nave_allowPublicWebView": [
+      "true"
+    ],
+    "nave_allowSourceDownload": [
+      "false",
+      "true"
+    ],
+    "nave_collection": [
+      "Heemkundekring \"De Kommanderij Gemert\""
+    ],
+    "nave_collectionPart": [
+      "Bidprentjes"
+    ],
+    "nave_collectionType": [
+      "Bidprentjes"
+    ],
+    "nave_creatorBirthYear": [
+      "1784-09-10T00:00:01"
+    ],
+    "nave_creatorBirthYearEnd": [
+      "1784-09-10T23:59:59"
+    ],
+    "nave_creatorBirthYearRaw": [
+      "09-10-1784"
+    ],
+    "nave_creatorDeathYear": [
+      "1868-02-26T00:00:01"
+    ],
+    "nave_creatorDeathYearEnd": [
+      "1868-02-26T23:59:59"
+    ],
+    "nave_creatorDeathYearRaw": [
+      "26-02-1868"
+    ],
+    "nave_deepZoomUrl": [
+      "http://images.memorix.nl/enb_201/deepzoom/d5db1829-8169-570e-204f-fa4973c9be97.dzi"
+    ],
+    "nave_featured": [
+      "false"
+    ],
+    "nave_material": [
+      "Gemert"
+    ],
+    "nave_objectNumber": [
+      "00712"
+    ],
+    "nave_objectSoort": [
+      "Bidprentje"
+    ],
+    "nave_person": [
+      "Verhofstadt"
+    ],
+    "nave_place": [
+      "Gemert"
+    ],
+    "nave_public": [
+      "true"
+    ],
+    "nave_resourceSortOrder": [
+      "1"
+    ],
+    "nave_sourceDownload": [
+      "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+    ],
+    "nave_thumbLarge": [
+      "http://images.memorix.nl/enb_201/thumb/500x500/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+    ],
+    "nave_thumbSmall": [
+      "http://images.memorix.nl/enb_201/thumb/220x220/d5db1829-8169-570e-204f-fa4973c9be97.jpg"
+    ]
+  }
+}

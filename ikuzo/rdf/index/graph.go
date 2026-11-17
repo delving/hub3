@@ -23,7 +23,7 @@ import (
 type Graph struct {
 	// Checksum is a hash of the Graph without the header.Modified
 	// and header.Revision. This is used to determine if the Graph has changed.
-	Checksum string `json:"_ checksum,omitempty"`
+	Checksum string `json:"_checksum,omitempty"`
 
 	// Header is the header of the Graph with queryable meta information
 	Header Header `json:"meta"`
@@ -174,11 +174,11 @@ func (g *Graph) IndexMessage(tagMap *TagMap) (*domainpb.IndexMessage, error) {
 		return nil, err
 	}
 
+	// the checksum leaves out what changes on every index run
 	checkSumData := b
-
 	deletePaths := []string{"_checksum", "meta.modified", "meta.revision"}
 	for _, p := range deletePaths {
-		b, err = sjson.DeleteBytes(checkSumData, p)
+		checkSumData, err = sjson.DeleteBytes(checkSumData, p)
 		if err != nil {
 			return nil, fmt.Errorf("unable to remove path %q; %w", p, err)
 		}

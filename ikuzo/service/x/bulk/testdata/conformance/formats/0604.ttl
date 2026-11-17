@@ -1,0 +1,217 @@
+@prefix ns1: <http://www.cidoc-crm.org/cidoc-crm/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0604> a ns1:E22_Human-Made_Object ;
+    ns1:P102_has_title <http://example.org/c/title/0604> ;
+    ns1:P108i_was_produced_by <http://example.org/c/production/0604> ;
+    ns1:P45_consists_of <http://example.org/c/material/doek> ;
+    ns1:P62_depicts <http://example.org/c/person/maria> .
+
+<http://example.org/c/appellation/person-jacob-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Jacob de Meester" ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/person-maria-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Maria van Dorp" ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/person-pieter-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Pieter de Schilder" ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-amsterdam-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Amsterdam"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-amsterdam-1> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Amsterdam"@en ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-amsterdam-2> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Amstelodamum"@la ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-haarlem-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Haarlem"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-haarlem-1> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Harlem"@en ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-haarlem-2> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Harlemum"@la ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-holland-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Holland"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-holland-1> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Holland"@en ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-holland-2> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Hollande"@fr ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-leiden-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Leiden"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-leiden-1> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Leyden"@en ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-leiden-2> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Leyde"@fr ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-leiden-3> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Lugdunum Batavorum"@la ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-republiek-0> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Republiek der Zeven Verenigde Nederlanden"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/voorkeursnaam> .
+
+<http://example.org/c/appellation/place-republiek-1> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Dutch Republic"@en ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/appellation/place-republiek-2> a ns1:E41_Appellation ;
+    ns1:P190_has_symbolic_content "Provinces-Unies"@fr ;
+    ns1:P2_has_type <http://example.org/c/type/alternatieve-naam> .
+
+<http://example.org/c/birth/jacob> a ns1:E67_Birth ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/birth-jacob> ;
+    ns1:P7_took_place_at <http://example.org/c/place/haarlem> .
+
+<http://example.org/c/birth/pieter> a ns1:E67_Birth ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/birth-pieter> ;
+    ns1:P7_took_place_at <http://example.org/c/place/leiden> .
+
+<http://example.org/c/death/jacob> a ns1:E69_Death ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/death-jacob> ;
+    ns1:P7_took_place_at <http://example.org/c/place/leiden> .
+
+<http://example.org/c/death/pieter> a ns1:E69_Death ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/death-pieter> ;
+    ns1:P7_took_place_at <http://example.org/c/place/amsterdam> .
+
+<http://example.org/c/material/doek> a ns1:E57_Material ;
+    rdfs:label "canvas"@en,
+        "doek"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/materiaal> .
+
+<http://example.org/c/pc14/pieter-leerling> a ns1:PC14_carried_out_by ;
+    ns1:P02_has_range <http://example.org/c/person/pieter> ;
+    ns1:P14.1_in_the_role_of <http://example.org/c/type/leerling> .
+
+<http://example.org/c/pc14/pieter-leermeester> a ns1:PC14_carried_out_by ;
+    ns1:P02_has_range <http://example.org/c/person/jacob> ;
+    ns1:P14.1_in_the_role_of <http://example.org/c/type/leermeester> .
+
+<http://example.org/c/person/jacob> a ns1:E21_Person ;
+    ns1:P100i_died_in <http://example.org/c/death/jacob> ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/person-jacob-0> ;
+    ns1:P98i_was_born <http://example.org/c/birth/jacob> .
+
+<http://example.org/c/person/maria> a ns1:E21_Person ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/person-maria-0> .
+
+<http://example.org/c/place/amsterdam> a ns1:E53_Place ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/place-amsterdam-0>,
+        <http://example.org/c/appellation/place-amsterdam-1>,
+        <http://example.org/c/appellation/place-amsterdam-2> ;
+    ns1:P89_falls_within <http://example.org/c/place/holland> .
+
+<http://example.org/c/place/haarlem> a ns1:E53_Place ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/place-haarlem-0>,
+        <http://example.org/c/appellation/place-haarlem-1>,
+        <http://example.org/c/appellation/place-haarlem-2> ;
+    ns1:P89_falls_within <http://example.org/c/place/holland> .
+
+<http://example.org/c/place/republiek> a ns1:E53_Place ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/place-republiek-0>,
+        <http://example.org/c/appellation/place-republiek-1>,
+        <http://example.org/c/appellation/place-republiek-2> .
+
+<http://example.org/c/production/0604> a ns1:E12_Production ;
+    ns1:P14_carried_out_by <http://example.org/c/person/pieter> ;
+    ns1:P32_used_general_technique <http://example.org/c/type/doekschildering> ;
+    ns1:P4_has_time-span <http://example.org/c/timespan/0604> .
+
+<http://example.org/c/timespan/0604> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1660-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1660-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/timespan/birth-jacob> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1590-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1590-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/timespan/birth-pieter> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1620-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1620-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/timespan/death-jacob> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1655-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1655-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/timespan/death-pieter> a ns1:E52_Time-Span ;
+    ns1:P82a_begin_of_the_begin "1675-01-01T00:00:00"^^xsd:dateTime ;
+    ns1:P82b_end_of_the_end "1675-12-31T23:59:59"^^xsd:dateTime .
+
+<http://example.org/c/title/0604> a ns1:E35_Title ;
+    ns1:P190_has_symbolic_content "Portret van Maria op doek"@nl .
+
+<http://example.org/c/training/pieter> a ns1:E7_Activity ;
+    ns1:P01i_is_domain_of <http://example.org/c/pc14/pieter-leerling>,
+        <http://example.org/c/pc14/pieter-leermeester> ;
+    ns1:P2_has_type <http://example.org/c/type/opleiding> .
+
+<http://example.org/c/type/doekschildering> a ns1:E55_Type ;
+    rdfs:label "doekschildering"@nl ;
+    ns1:P2_has_type <http://example.org/c/type/techniek> .
+
+<http://example.org/c/type/leerling> a ns1:E55_Type ;
+    rdfs:label "leerling"@nl .
+
+<http://example.org/c/type/leermeester> a ns1:E55_Type ;
+    rdfs:label "leermeester"@nl .
+
+<http://example.org/c/type/materiaal> a ns1:E55_Type ;
+    rdfs:label "materiaal"@nl .
+
+<http://example.org/c/type/opleiding> a ns1:E55_Type ;
+    rdfs:label "opleiding"@nl .
+
+<http://example.org/c/type/techniek> a ns1:E55_Type ;
+    rdfs:label "techniek"@nl .
+
+<http://example.org/c/person/pieter> a ns1:E21_Person ;
+    ns1:P100i_died_in <http://example.org/c/death/pieter> ;
+    ns1:P14i_performed <http://example.org/c/training/pieter> ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/person-pieter-0> ;
+    ns1:P98i_was_born <http://example.org/c/birth/pieter> .
+
+<http://example.org/c/place/leiden> a ns1:E53_Place ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/place-leiden-0>,
+        <http://example.org/c/appellation/place-leiden-1>,
+        <http://example.org/c/appellation/place-leiden-2>,
+        <http://example.org/c/appellation/place-leiden-3> ;
+    ns1:P89_falls_within <http://example.org/c/place/holland> .
+
+<http://example.org/c/place/holland> a ns1:E53_Place ;
+    ns1:P1_is_identified_by <http://example.org/c/appellation/place-holland-0>,
+        <http://example.org/c/appellation/place-holland-1>,
+        <http://example.org/c/appellation/place-holland-2> ;
+    ns1:P89_falls_within <http://example.org/c/place/republiek> .
+
+<http://example.org/c/type/voorkeursnaam> a ns1:E55_Type ;
+    rdfs:label "voorkeursnaam"@nl .
+
+<http://example.org/c/type/alternatieve-naam> a ns1:E55_Type ;
+    rdfs:label "alternatieve naam"@nl .
+

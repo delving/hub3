@@ -165,20 +165,19 @@ func Test_hyphenateDate(t *testing.T) {
 
 func TestEntry_Fingerprint(t *testing.T) {
 	type fields struct {
-		ID                string
-		Predicate         string
-		SearchLabel       string
-		Value             string
-		Language          string
-		DataType          string
-		EntryType         EntryType
-		Level             int32
-		Order             int
-		Tags              []string
-		TypeIndexField    TypeIndexField
-		CustomFilterField CustomFilterField
-		Inline            *Resource
-		fingerprint       string
+		ID             string
+		Predicate      string
+		SearchLabel    string
+		Value          string
+		Language       string
+		DataType       string
+		EntryType      EntryType
+		Level          int32
+		Order          int
+		Tags           []string
+		TypeIndexField TypeIndexField
+		Inline         *Resource
+		fingerprint    string
 	}
 	tests := []struct {
 		name   string
@@ -212,20 +211,19 @@ func TestEntry_Fingerprint(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			e := &Entry{
-				ID:                tt.fields.ID,
-				Predicate:         tt.fields.Predicate,
-				SearchLabel:       tt.fields.SearchLabel,
-				Value:             tt.fields.Value,
-				Language:          tt.fields.Language,
-				DataType:          tt.fields.DataType,
-				EntryType:         tt.fields.EntryType,
-				Level:             tt.fields.Level,
-				Order:             tt.fields.Order,
-				Tags:              tt.fields.Tags,
-				TypeIndexField:    tt.fields.TypeIndexField,
-				CustomFilterField: tt.fields.CustomFilterField,
-				Inline:            tt.fields.Inline,
-				fingerprint:       tt.fields.fingerprint,
+				ID:             tt.fields.ID,
+				Predicate:      tt.fields.Predicate,
+				SearchLabel:    tt.fields.SearchLabel,
+				Value:          tt.fields.Value,
+				Language:       tt.fields.Language,
+				DataType:       tt.fields.DataType,
+				EntryType:      tt.fields.EntryType,
+				Level:          tt.fields.Level,
+				Order:          tt.fields.Order,
+				Tags:           tt.fields.Tags,
+				TypeIndexField: tt.fields.TypeIndexField,
+				Inline:         tt.fields.Inline,
+				fingerprint:    tt.fields.fingerprint,
 			}
 			if got := e.Fingerprint(); got != tt.want {
 				t.Errorf("Entry.Fingerprint() = %v, want %v", got, tt.want)

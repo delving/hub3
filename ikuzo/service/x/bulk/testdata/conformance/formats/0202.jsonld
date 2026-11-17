@@ -1,0 +1,15 @@
+[
+  {
+    "@id": "http://example.org/c/0202",
+    "@type": [
+      "https://schema.org/Painting",
+      "https://schema.org/CreativeWork",
+      "https://schema.org/VisualArtwork"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Drie typen"
+      }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0301",
+    "tags": [
+      "narthex",
+      "mdr",
+      "nde",
+      "pilot",
+      "painting"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0301",
+    "namedGraphURI": "http://example.org/conformance/0301/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0301",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "Alleen een werk",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
+          "order": 2
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "Alleen een werk"
+    ]
+  }
+}

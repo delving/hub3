@@ -1,0 +1,13 @@
+[
+  {
+    "@id": "http://example.org/c/0201",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Alleen een werk"
+      }
+    ]
+  }
+]

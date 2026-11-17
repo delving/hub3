@@ -1,0 +1,9 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0203/a> a schema:CreativeWork ;
+    schema:hasPart <http://example.org/c/0203/b> ;
+    schema:name "Eerste" .
+
+<http://example.org/c/0203/b> a schema:CreativeWork ;
+    schema:name "Tweede" .
+

@@ -257,3 +257,14 @@ func (fg *FragmentGraph) GenerateFields() {
 		}
 	}
 }
+
+// NestedDocCount is the number of nested documents the v2 document adds to
+// Elasticsearch: one per resource, per entry and per context object (all
+// three are nested in the mapping).
+func (fg *FragmentGraph) NestedDocCount() int {
+	n := len(fg.Resources)
+	for _, r := range fg.Resources {
+		n += len(r.Entries) + len(r.Context)
+	}
+	return n
+}

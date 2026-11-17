@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0005">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:name>Het "Puttertje"</schema:name>
+    <schema:description>regel 1
+regel 2</schema:description>
+    <schema:alternateName>café</schema:alternateName>
+    <schema:keywords>🎨</schema:keywords>
+    <schema:keywords>é</schema:keywords>
+  </rdf:Description>
+</rdf:RDF>

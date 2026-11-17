@@ -78,11 +78,11 @@ func (p *ResourcePath) ResourceQuery(inner ...elastic.Query) elastic.Query {
 	var must []elastic.Query
 	for i, h := range p.Hops {
 		hop := []elastic.Query{
-			elastic.NewTermQuery("resources.context.Level", i+1),
-			elastic.NewTermQuery("resources.context.SearchLabel", h.SearchLabel),
+			elastic.NewTermQuery("resources.context.level", i+1),
+			elastic.NewTermQuery("resources.context.searchLabel", h.SearchLabel),
 		}
 		if len(h.SubjectClasses) > 0 {
-			hop = append(hop, termsQuery("resources.context.SubjectClass", h.SubjectClasses))
+			hop = append(hop, termsQuery("resources.context.subjectClass", h.SubjectClasses))
 		}
 		must = append(must, elastic.NewNestedQuery("resources.context", elastic.NewBoolQuery().Must(hop...)))
 	}

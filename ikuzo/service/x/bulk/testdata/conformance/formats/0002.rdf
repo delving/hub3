@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0002">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <schema:name xml:lang="nl">Gezicht op Delft</schema:name>
+    <schema:name xml:lang="en">View of Delft</schema:name>
+    <schema:description xml:lang="nl">Een stadsgezicht</schema:description>
+  </rdf:Description>
+</rdf:RDF>

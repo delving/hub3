@@ -1,0 +1,26 @@
+[
+  {
+    "@id": "http://example.org/c/0103",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/size": [
+      {
+        "@id": "_:N16d33350ed3b4493ab9da221774a74fb"
+      }
+    ]
+  },
+  {
+    "@id": "_:N16d33350ed3b4493ab9da221774a74fb",
+    "https://schema.org/height": [
+      {
+        "@value": "38"
+      }
+    ],
+    "https://schema.org/width": [
+      {
+        "@value": "45"
+      }
+    ]
+  }
+]

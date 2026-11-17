@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:ns1="http://www.cidoc-crm.org/cidoc-crm/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+>
+  <rdf:Description rdf:about="http://example.org/c/timespan/0610">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"/>
+    <ns1:P82a_begin_of_the_begin rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1660-01-01T00:00:00</ns1:P82a_begin_of_the_begin>
+    <ns1:P82b_end_of_the_end rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">1660-12-31T23:59:59</ns1:P82b_end_of_the_end>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/production/0610">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E12_Production"/>
+    <ns1:P14_carried_out_by rdf:resource="http://example.org/ext/person/pieter"/>
+    <ns1:P4_has_time-span rdf:resource="http://example.org/c/timespan/0610"/>
+    <ns1:P32_used_general_technique rdf:resource="http://example.org/c/type/paneelschildering"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/0610">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"/>
+    <ns1:P102_has_title rdf:resource="http://example.org/c/title/0610"/>
+    <ns1:P108i_was_produced_by rdf:resource="http://example.org/c/production/0610"/>
+    <ns1:P45_consists_of rdf:resource="http://example.org/c/material/eikenpaneel"/>
+    <ns1:P62_depicts rdf:resource="http://example.org/c/person/maria"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/appellation/person-maria-0">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"/>
+    <ns1:P190_has_symbolic_content>Maria van Dorp</ns1:P190_has_symbolic_content>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/voorkeursnaam"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/techniek">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">techniek</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/title/0610">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E35_Title"/>
+    <ns1:P190_has_symbolic_content xml:lang="nl">Portret van Maria, externe maker</ns1:P190_has_symbolic_content>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/paneelschildering">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">paneelschildering</rdfs:label>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/techniek"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/maria">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E21_Person"/>
+    <ns1:P1_is_identified_by rdf:resource="http://example.org/c/appellation/person-maria-0"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/material/eikenpaneel">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E57_Material"/>
+    <rdfs:label xml:lang="nl">eikenhouten paneel</rdfs:label>
+    <rdfs:label xml:lang="en">oak panel</rdfs:label>
+    <ns1:P2_has_type rdf:resource="http://example.org/c/type/materiaal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/voorkeursnaam">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">voorkeursnaam</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/type/materiaal">
+    <rdf:type rdf:resource="http://www.cidoc-crm.org/cidoc-crm/E55_Type"/>
+    <rdfs:label xml:lang="nl">materiaal</rdfs:label>
+  </rdf:Description>
+</rdf:RDF>
