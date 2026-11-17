@@ -63,7 +63,7 @@
         },
         {
           "@id": "http://example.org/c/material/eikenpaneel",
-          "@value": "eikenhouten paneel",
+          "@value": "oak panel",
           "entrytype": "Resource",
           "predicate": "https://schema.org/material",
           "searchLabel": "schema_material",

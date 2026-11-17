@@ -404,6 +404,9 @@ searchFields = [
 
 
 [rdftag]
+# languages a link label is picked from, in order, when the target has its
+# label in several; "" is a value without a language tag. default ["en", ""]
+# labelLanguages = ["en", ""]
 # used for title of a resource
 title = [
   "http://purl.org/dc/elements/1.1/title",

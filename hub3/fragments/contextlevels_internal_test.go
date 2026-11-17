@@ -147,3 +147,48 @@ func TestContextLevelsOrderIndependent(t *testing.T) {
 		}
 	}
 }
+
+// GetLabel picks by RDFTag.LabelLanguages, not by triple order (F26).
+func TestGetLabelLanguagePreference(t *testing.T) {
+	prevLabel, prevLangs := c.Config.RDFTag.Label, c.Config.RDFTag.LabelLanguages
+	t.Cleanup(func() { c.Config.RDFTag.Label, c.Config.RDFTag.LabelLanguages = prevLabel, prevLangs })
+	c.Config.RDFTag.Label = []string{sName, "http://www.w3.org/2004/02/skos/core#prefLabel"}
+
+	names := func(vals ...[2]string) *FragmentResource {
+		fr := &FragmentResource{ID: ex + "x", predicates: map[string][]*FragmentEntry{}}
+		for _, v := range vals {
+			fr.predicates[sName] = append(fr.predicates[sName], &FragmentEntry{Value: v[0], Language: v[1]})
+		}
+		return fr
+	}
+	en, nl, nlNL, none, de := [2]string{"oak panel", "en"}, [2]string{"eikenhouten paneel", "nl"},
+		[2]string{"paneel", "nl-NL"}, [2]string{"panel", ""}, [2]string{"Eichentafel", "de"}
+
+	for _, tc := range []struct {
+		langs []string
+		vals  [][2]string
+		want  string
+	}{
+		{nil, [][2]string{en, nl}, "oak panel"}, // default: en, untagged, then the rest
+		{nil, [][2]string{nl, en}, "oak panel"},
+		{nil, [][2]string{none, nl}, "panel"},
+		{nil, [][2]string{de, en}, "oak panel"},
+		{nil, [][2]string{de}, "Eichentafel"},
+		{nil, [][2]string{nlNL, nl}, "eikenhouten paneel"}, // both unranked: smallest value
+		{[]string{"nl"}, [][2]string{nlNL, en}, "paneel"},  // primary subtag
+		{[]string{"nl", "", "en"}, [][2]string{en, nl}, "eikenhouten paneel"},
+	} {
+		c.Config.RDFTag.LabelLanguages = tc.langs
+		if got, _ := names(tc.vals...).GetLabel(); got != tc.want {
+			t.Errorf("langs %v values %v: got %q, want %q", tc.langs, tc.vals, got, tc.want)
+		}
+	}
+
+	// predicate order still comes first: a schema:name in any language beats a skos:prefLabel@nl
+	c.Config.RDFTag.LabelLanguages = nil
+	fr := names(en)
+	fr.predicates["http://www.w3.org/2004/02/skos/core#prefLabel"] = []*FragmentEntry{{Value: "voorkeur", Language: "nl"}}
+	if got, _ := fr.GetLabel(); got != "oak panel" {
+		t.Errorf("got %q, want the schema:name", got)
+	}
+}

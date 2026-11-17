@@ -1303,10 +1303,43 @@ func (fr *FragmentResource) GetLabel() (label, language string) {
 	for _, labelPredicate := range c.Config.RDFTag.Label {
 		o, ok := fr.predicates[labelPredicate]
 		if ok && len(o) != 0 {
-			return o[0].Value, o[0].Language
+			best := o[0]
+			for _, e := range o[1:] {
+				if betterLabel(e, best) {
+					best = e
+				}
+			}
+			return best.Value, best.Language
 		}
 	}
 	return "", ""
+}
+
+// defaultLabelLanguages is the label preference when RDFTag.LabelLanguages is empty.
+var defaultLabelLanguages = []string{"en", ""}
+
+// betterLabel reports whether a is preferred over b as a label: by the rank of
+// its language in RDFTag.LabelLanguages (by primary subtag), then by the
+// smaller value, so the choice never depends on triple order.
+func betterLabel(a, b *FragmentEntry) bool {
+	if ra, rb := labelRank(a.Language), labelRank(b.Language); ra != rb {
+		return ra < rb
+	}
+	return a.Value < b.Value
+}
+
+func labelRank(lang string) int {
+	prefs := c.Config.RDFTag.LabelLanguages
+	if len(prefs) == 0 {
+		prefs = defaultLabelLanguages
+	}
+	primary, _, _ := strings.Cut(strings.ToLower(lang), "-")
+	for i, p := range prefs {
+		if strings.ToLower(p) == primary {
+			return i
+		}
+	}
+	return len(prefs)
 }
 
 // SetContextLevels walks the graph breadth first from the root and gives every
