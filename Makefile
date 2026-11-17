@@ -22,6 +22,18 @@ BUILD_PATH := build/ikuzoctl
 TEMP_PATH := /tmp/ikuzoctl
 REMOTE_PATH := /opt/hub3/ikuzoctl
 
+# Tests that use testcontainers (e.g. the hub3/fragments Ginkgo suite starts
+# OpenSearch) need a Docker API. An explicit DOCKER_HOST always wins; otherwise
+# a running Podman socket (rootless, then rootful) is used, with Ryuk off since
+# rootless Podman cannot run it; otherwise Docker's default socket.
+ifeq ($(origin DOCKER_HOST),undefined)
+PODMAN_SOCK := $(firstword $(wildcard $(XDG_RUNTIME_DIR)/podman/podman.sock /run/podman/podman.sock))
+ifneq ($(PODMAN_SOCK),)
+export DOCKER_HOST := unix://$(PODMAN_SOCK)
+export TESTCONTAINERS_RYUK_DISABLED ?= true
+endif
+endif
+
 # var print rule
 print-%  : ; @echo $* = $($*)
 
@@ -101,6 +113,9 @@ pre-commit:
 test:
 	go tool richgo test -cover ./ikuzo/...
 	@make staticcheck
+
+test-fragments:
+	$(GO) test -count=1 ./hub3/fragments/
 
 test-no-cache:
 	go tool richgo test -cover -count=1 ./ikuzo/...
