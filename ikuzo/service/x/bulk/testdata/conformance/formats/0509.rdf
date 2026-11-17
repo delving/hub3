@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:ns1="http://example.org/def/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:schema="https://schema.org/"
+>
+  <rdf:Description rdf:about="http://example.org/c/0509">
+    <rdf:type rdf:resource="https://schema.org/CreativeWork"/>
+    <rdf:type rdf:resource="https://schema.org/Painting"/>
+    <schema:name xml:lang="nl">Portret van Maria, plaats als tekst</schema:name>
+    <schema:creator rdf:resource="http://example.org/c/person/pieter"/>
+    <schema:dateCreated rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1660</schema:dateCreated>
+    <schema:material rdf:resource="http://example.org/c/material/eikenpaneel"/>
+    <schema:about rdf:resource="http://example.org/c/person/maria"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/material/eikenpaneel">
+    <rdf:type rdf:resource="https://schema.org/DefinedTerm"/>
+    <schema:name xml:lang="nl">eikenhouten paneel</schema:name>
+    <schema:name xml:lang="en">oak panel</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/maria">
+    <rdf:type rdf:resource="https://schema.org/Person"/>
+    <schema:name>Maria van Dorp</schema:name>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/holland">
+    <rdf:type rdf:resource="https://schema.org/Place"/>
+    <schema:name xml:lang="nl">Holland</schema:name>
+    <schema:alternateName xml:lang="en">Holland</schema:alternateName>
+    <schema:alternateName xml:lang="fr">Hollande</schema:alternateName>
+    <schema:containedInPlace rdf:resource="http://example.org/c/place/republiek"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/pieter">
+    <rdf:type rdf:resource="https://schema.org/Person"/>
+    <schema:name>Pieter de Schilder</schema:name>
+    <schema:birthPlace>Leyden</schema:birthPlace>
+    <schema:birthDate rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1620</schema:birthDate>
+    <schema:deathPlace rdf:resource="http://example.org/c/place/amsterdam"/>
+    <schema:deathDate rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1675</schema:deathDate>
+    <ns1:pupilOf rdf:resource="http://example.org/c/person/jacob"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/person/jacob">
+    <rdf:type rdf:resource="https://schema.org/Person"/>
+    <schema:name>Jacob de Meester</schema:name>
+    <schema:birthPlace rdf:resource="http://example.org/c/place/haarlem"/>
+    <schema:birthDate rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1590</schema:birthDate>
+    <schema:deathPlace rdf:resource="http://example.org/c/place/leiden"/>
+    <schema:deathDate rdf:datatype="http://www.w3.org/2001/XMLSchema#gYear">1655</schema:deathDate>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/haarlem">
+    <rdf:type rdf:resource="https://schema.org/Place"/>
+    <schema:name xml:lang="nl">Haarlem</schema:name>
+    <schema:alternateName xml:lang="en">Harlem</schema:alternateName>
+    <schema:alternateName xml:lang="la">Harlemum</schema:alternateName>
+    <schema:containedInPlace rdf:resource="http://example.org/c/place/holland"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/leiden">
+    <rdf:type rdf:resource="https://schema.org/Place"/>
+    <schema:name xml:lang="nl">Leiden</schema:name>
+    <schema:alternateName xml:lang="en">Leyden</schema:alternateName>
+    <schema:alternateName xml:lang="fr">Leyde</schema:alternateName>
+    <schema:alternateName xml:lang="la">Lugdunum Batavorum</schema:alternateName>
+    <schema:containedInPlace rdf:resource="http://example.org/c/place/holland"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/republiek">
+    <rdf:type rdf:resource="https://schema.org/Place"/>
+    <schema:name xml:lang="nl">Republiek der Zeven Verenigde Nederlanden</schema:name>
+    <schema:alternateName xml:lang="en">Dutch Republic</schema:alternateName>
+    <schema:alternateName xml:lang="fr">Provinces-Unies</schema:alternateName>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://example.org/c/place/amsterdam">
+    <rdf:type rdf:resource="https://schema.org/Place"/>
+    <schema:name xml:lang="nl">Amsterdam</schema:name>
+    <schema:alternateName xml:lang="en">Amsterdam</schema:alternateName>
+    <schema:alternateName xml:lang="la">Amstelodamum</schema:alternateName>
+    <schema:containedInPlace rdf:resource="http://example.org/c/place/holland"/>
+  </rdf:Description>
+</rdf:RDF>

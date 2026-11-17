@@ -1,0 +1,520 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0610",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0610",
+    "namedGraphURI": "http://example.org/conformance/0610/graph",
+    "modified": 0,
+    "recDefID": "crm",
+    "aboutTypeURI": [
+      "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0610",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://example.org/c/title/0610",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "searchLabel": "crm_P102_has_title",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "http://example.org/c/production/0610",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "searchLabel": "crm_P108i_was_produced_by",
+          "level": 1,
+          "order": 3
+        },
+        {
+          "@id": "http://example.org/c/material/eikenpaneel",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "searchLabel": "crm_P45_consists_of",
+          "level": 1,
+          "order": 4
+        },
+        {
+          "@id": "http://example.org/c/person/maria",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "searchLabel": "crm_P62_depicts",
+          "level": 1,
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/title/0610",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P102_has_title",
+          "SearchLabel": "crm_P102_has_title",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/title/0610"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Portret van Maria, externe maker",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 2,
+          "order": 7
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/production/0610",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "SearchLabel": "crm_P108i_was_produced_by",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/production/0610"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/ext/person/pieter",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by",
+          "searchLabel": "crm_P14_carried_out_by",
+          "level": 2,
+          "order": 9
+        },
+        {
+          "@id": "http://example.org/c/timespan/0610",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "searchLabel": "crm_P4_has_time-span",
+          "level": 2,
+          "order": 10
+        },
+        {
+          "@id": "http://example.org/c/type/paneelschildering",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "searchLabel": "crm_P32_used_general_technique",
+          "level": 2,
+          "order": 11
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/timespan/0610",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "SearchLabel": "crm_P108i_was_produced_by",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/production/0610"
+        },
+        {
+          "Subject": "http://example.org/c/production/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span",
+          "SearchLabel": "crm_P4_has_time-span",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/timespan/0610"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "1660-01-01T00:00:00",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin",
+          "searchLabel": "crm_P82a_begin_of_the_begin",
+          "level": 3,
+          "order": 13
+        },
+        {
+          "@value": "1660-12-31T23:59:59",
+          "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end",
+          "searchLabel": "crm_P82b_end_of_the_end",
+          "level": 3,
+          "order": 14
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/paneelschildering",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "SearchLabel": "crm_P108i_was_produced_by",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/production/0610"
+        },
+        {
+          "Subject": "http://example.org/c/production/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "SearchLabel": "crm_P32_used_general_technique",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/type/paneelschildering"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "paneelschildering",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "order": 16
+        },
+        {
+          "@id": "http://example.org/c/type/techniek",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "order": 17
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/techniek",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by",
+          "SearchLabel": "crm_P108i_was_produced_by",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/production/0610"
+        },
+        {
+          "Subject": "http://example.org/c/production/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique",
+          "SearchLabel": "crm_P32_used_general_technique",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/type/paneelschildering"
+        },
+        {
+          "Subject": "http://example.org/c/type/paneelschildering",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "SearchLabel": "crm_P2_has_type",
+          "Level": 3,
+          "ObjectID": "http://example.org/c/type/techniek"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "techniek",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 4,
+          "order": 19
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "SearchLabel": "crm_P45_consists_of",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/material/eikenpaneel"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "eikenhouten paneel",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "order": 21
+        },
+        {
+          "@value": "oak panel",
+          "@language": "en",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 2,
+          "order": 22
+        },
+        {
+          "@id": "http://example.org/c/type/materiaal",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 2,
+          "order": 23
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/materiaal",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P45_consists_of",
+          "SearchLabel": "crm_P45_consists_of",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/material/eikenpaneel"
+        },
+        {
+          "Subject": "http://example.org/c/material/eikenpaneel",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "SearchLabel": "crm_P2_has_type",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/type/materiaal"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "materiaal",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 3,
+          "order": 25
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/person/maria",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "SearchLabel": "crm_P62_depicts",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/person/maria"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "http://example.org/c/appellation/person-maria-0",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "searchLabel": "crm_P1_is_identified_by",
+          "level": 2,
+          "order": 27
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/appellation/person-maria-0",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "SearchLabel": "crm_P62_depicts",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/person/maria"
+        },
+        {
+          "Subject": "http://example.org/c/person/maria",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "SearchLabel": "crm_P1_is_identified_by",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/appellation/person-maria-0"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Maria van Dorp",
+          "entrytype": "Literal",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content",
+          "searchLabel": "crm_P190_has_symbolic_content",
+          "level": 3,
+          "order": 29
+        },
+        {
+          "@id": "http://example.org/c/type/voorkeursnaam",
+          "entrytype": "Resource",
+          "predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "searchLabel": "crm_P2_has_type",
+          "level": 3,
+          "order": 30
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0610",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P62_depicts",
+          "SearchLabel": "crm_P62_depicts",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/person/maria"
+        },
+        {
+          "Subject": "http://example.org/c/person/maria",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "SearchLabel": "crm_P1_is_identified_by",
+          "Level": 2,
+          "ObjectID": "http://example.org/c/appellation/person-maria-0"
+        },
+        {
+          "Subject": "http://example.org/c/appellation/person-maria-0",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P2_has_type",
+          "SearchLabel": "crm_P2_has_type",
+          "Level": 3,
+          "ObjectID": "http://example.org/c/type/voorkeursnaam"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "voorkeursnaam",
+          "@language": "nl",
+          "entrytype": "Literal",
+          "predicate": "http://www.w3.org/2000/01/rdf-schema#label",
+          "searchLabel": "rdfs_label",
+          "level": 4,
+          "order": 32
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "crm_P190_has_symbolic_content": [
+      "Portret van Maria, externe maker",
+      "Maria van Dorp"
+    ],
+    "crm_P82a_begin_of_the_begin": [
+      "1660-01-01T00:00:00"
+    ],
+    "crm_P82b_end_of_the_end": [
+      "1660-12-31T23:59:59"
+    ],
+    "rdfs_label": [
+      "paneelschildering",
+      "techniek",
+      "eikenhouten paneel",
+      "oak panel",
+      "materiaal",
+      "voorkeursnaam"
+    ]
+  }
+}

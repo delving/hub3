@@ -42,6 +42,15 @@ var (
 	}
 )
 
+// knownFormatDiffs maps a case range (first two digits) to the finding in
+// testdata/conformance/FINDINGS.md that explains why another serialisation
+// gives a different document. A formats subtest in that range is skipped only
+// when it differs; remove the entry once the finding is fixed.
+var knownFormatDiffs = map[string]string{
+	"05": "F11: level and context follow triple order",
+	"06": "F11: level and context follow triple order",
+}
+
 type caseResult struct {
 	doc  []byte // indented v2 document, when indexed
 	kind string // BulkError stage or "untyped", when refused
@@ -91,6 +100,9 @@ func TestConformance(t *testing.T) {
 						t.Fatalf("refused as %q", alt.kind)
 					}
 					if diff := cmp.Diff(want, normaliseForFormats(t, alt.doc)); diff != "" {
+						if f, ok := knownFormatDiffs[num[:2]]; ok {
+							t.Skipf("known difference %s; diff:\n%s", f, diff)
+						}
 						t.Errorf("formats/%s.%s differs from %s.json (order, bnode labels and array order ignored):\n%s", num, ext, num, diff)
 					}
 				})

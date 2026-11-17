@@ -1,0 +1,18 @@
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0510> a schema:CreativeWork,
+        schema:Painting ;
+    schema:about <http://example.org/c/person/maria> ;
+    schema:creator <http://example.org/ext/person/pieter> ;
+    schema:dateCreated "1660"^^xsd:gYear ;
+    schema:material <http://example.org/c/material/eikenpaneel> ;
+    schema:name "Portret van Maria, externe maker"@nl .
+
+<http://example.org/c/material/eikenpaneel> a schema:DefinedTerm ;
+    schema:name "oak panel"@en,
+        "eikenhouten paneel"@nl .
+
+<http://example.org/c/person/maria> a schema:Person ;
+    schema:name "Maria van Dorp" .
+

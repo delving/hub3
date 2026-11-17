@@ -1,0 +1,64 @@
+@prefix ns1: <http://example.org/def/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/c/0504> a schema:CreativeWork,
+        schema:Painting ;
+    schema:about <http://example.org/c/person/maria> ;
+    schema:creator <http://example.org/c/person/pieter> ;
+    schema:dateCreated "1660"^^xsd:gYear ;
+    schema:material <http://example.org/c/material/doek> ;
+    schema:name "Portret van Maria op doek"@nl .
+
+<http://example.org/c/material/doek> a schema:DefinedTerm ;
+    schema:name "canvas"@en,
+        "doek"@nl .
+
+<http://example.org/c/person/jacob> a schema:Person ;
+    schema:birthDate "1590"^^xsd:gYear ;
+    schema:birthPlace <http://example.org/c/place/haarlem> ;
+    schema:deathDate "1655"^^xsd:gYear ;
+    schema:deathPlace <http://example.org/c/place/leiden> ;
+    schema:name "Jacob de Meester" .
+
+<http://example.org/c/person/maria> a schema:Person ;
+    schema:name "Maria van Dorp" .
+
+<http://example.org/c/person/pieter> a schema:Person ;
+    ns1:pupilOf <http://example.org/c/person/jacob> ;
+    schema:birthDate "1620"^^xsd:gYear ;
+    schema:birthPlace <http://example.org/c/place/leiden> ;
+    schema:deathDate "1675"^^xsd:gYear ;
+    schema:deathPlace <http://example.org/c/place/amsterdam> ;
+    schema:name "Pieter de Schilder" .
+
+<http://example.org/c/place/amsterdam> a schema:Place ;
+    schema:alternateName "Amsterdam"@en,
+        "Amstelodamum"@la ;
+    schema:containedInPlace <http://example.org/c/place/holland> ;
+    schema:name "Amsterdam"@nl .
+
+<http://example.org/c/place/haarlem> a schema:Place ;
+    schema:alternateName "Harlem"@en,
+        "Harlemum"@la ;
+    schema:containedInPlace <http://example.org/c/place/holland> ;
+    schema:name "Haarlem"@nl .
+
+<http://example.org/c/place/republiek> a schema:Place ;
+    schema:alternateName "Dutch Republic"@en,
+        "Provinces-Unies"@fr ;
+    schema:name "Republiek der Zeven Verenigde Nederlanden"@nl .
+
+<http://example.org/c/place/leiden> a schema:Place ;
+    schema:alternateName "Leyden"@en,
+        "Leyde"@fr,
+        "Lugdunum Batavorum"@la ;
+    schema:containedInPlace <http://example.org/c/place/holland> ;
+    schema:name "Leiden"@nl .
+
+<http://example.org/c/place/holland> a schema:Place ;
+    schema:alternateName "Holland"@en,
+        "Hollande"@fr ;
+    schema:containedInPlace <http://example.org/c/place/republiek> ;
+    schema:name "Holland"@nl .
+

@@ -1,0 +1,63 @@
+[
+  {
+    "@id": "http://example.org/c/person/maria",
+    "@type": [
+      "https://schema.org/Person"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Maria van Dorp"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/material/eikenpaneel",
+    "@type": [
+      "https://schema.org/DefinedTerm"
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "eikenhouten paneel"
+      },
+      {
+        "@language": "en",
+        "@value": "oak panel"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0510",
+    "@type": [
+      "https://schema.org/CreativeWork",
+      "https://schema.org/Painting"
+    ],
+    "https://schema.org/about": [
+      {
+        "@id": "http://example.org/c/person/maria"
+      }
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/ext/person/pieter"
+      }
+    ],
+    "https://schema.org/dateCreated": [
+      {
+        "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+        "@value": "1660"
+      }
+    ],
+    "https://schema.org/material": [
+      {
+        "@id": "http://example.org/c/material/eikenpaneel"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@language": "nl",
+        "@value": "Portret van Maria, externe maker"
+      }
+    ]
+  }
+]

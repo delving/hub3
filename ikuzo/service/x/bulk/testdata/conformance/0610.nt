@@ -1,0 +1,32 @@
+<http://example.org/c/0610> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object> .
+<http://example.org/c/0610> <http://www.cidoc-crm.org/cidoc-crm/P102_has_title> <http://example.org/c/title/0610> .
+<http://example.org/c/0610> <http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by> <http://example.org/c/production/0610> .
+<http://example.org/c/0610> <http://www.cidoc-crm.org/cidoc-crm/P45_consists_of> <http://example.org/c/material/eikenpaneel> .
+<http://example.org/c/0610> <http://www.cidoc-crm.org/cidoc-crm/P62_depicts> <http://example.org/c/person/maria> .
+<http://example.org/c/title/0610> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E35_Title> .
+<http://example.org/c/title/0610> <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "Portret van Maria, externe maker"@nl .
+<http://example.org/c/production/0610> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E12_Production> .
+<http://example.org/c/production/0610> <http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by> <http://example.org/ext/person/pieter> .
+<http://example.org/c/production/0610> <http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span> <http://example.org/c/timespan/0610> .
+<http://example.org/c/production/0610> <http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique> <http://example.org/c/type/paneelschildering> .
+<http://example.org/c/timespan/0610> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span> .
+<http://example.org/c/timespan/0610> <http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin> "1660-01-01T00:00:00"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://example.org/c/timespan/0610> <http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end> "1660-12-31T23:59:59"^^<http://www.w3.org/2001/XMLSchema#dateTime> .
+<http://example.org/c/type/paneelschildering> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<http://example.org/c/type/paneelschildering> <http://www.w3.org/2000/01/rdf-schema#label> "paneelschildering"@nl .
+<http://example.org/c/type/paneelschildering> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <http://example.org/c/type/techniek> .
+<http://example.org/c/type/techniek> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<http://example.org/c/type/techniek> <http://www.w3.org/2000/01/rdf-schema#label> "techniek"@nl .
+<http://example.org/c/material/eikenpaneel> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E57_Material> .
+<http://example.org/c/material/eikenpaneel> <http://www.w3.org/2000/01/rdf-schema#label> "eikenhouten paneel"@nl .
+<http://example.org/c/material/eikenpaneel> <http://www.w3.org/2000/01/rdf-schema#label> "oak panel"@en .
+<http://example.org/c/material/eikenpaneel> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <http://example.org/c/type/materiaal> .
+<http://example.org/c/type/materiaal> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<http://example.org/c/type/materiaal> <http://www.w3.org/2000/01/rdf-schema#label> "materiaal"@nl .
+<http://example.org/c/person/maria> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E21_Person> .
+<http://example.org/c/person/maria> <http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by> <http://example.org/c/appellation/person-maria-0> .
+<http://example.org/c/appellation/person-maria-0> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E41_Appellation> .
+<http://example.org/c/appellation/person-maria-0> <http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content> "Maria van Dorp" .
+<http://example.org/c/appellation/person-maria-0> <http://www.cidoc-crm.org/cidoc-crm/P2_has_type> <http://example.org/c/type/voorkeursnaam> .
+<http://example.org/c/type/voorkeursnaam> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.cidoc-crm.org/cidoc-crm/E55_Type> .
+<http://example.org/c/type/voorkeursnaam> <http://www.w3.org/2000/01/rdf-schema#label> "voorkeursnaam"@nl .
