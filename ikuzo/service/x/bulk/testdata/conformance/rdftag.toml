@@ -1,8 +1,10 @@
-# The [rdftag] section of the NDE hub3 config, verbatim.
+# The [rdftag] section of the NDE hub3 config, plus labelLanguages (below).
 # Keep it in step with NDE's configuration.
+# labelLanguages: NDE serves Dutch first.
 [rdftag]
 title = ["https://schema.org/name"]
 label = ["https://schema.org/name", "http://www.w3.org/2004/02/skos/core#prefLabel"]
+labelLanguages = ["nl", "", "en"]
 description = ["https://schema.org/description"]
 thumbnail = ["https://schema.org/thumbnailUrl"]
 creator = ["https://schema.org/creator"]
