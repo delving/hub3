@@ -86,7 +86,7 @@ func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
 			props = doc
 		}
 		b, _ := json.Marshal(props)
-		for _, f := range []string{`"subjectClass"`, `"searchLabel"`, `"objectID"`, `"inline"`, `"sortValue"`} {
+		for _, f := range []string{`"subjectClass"`, `"searchLabel"`, `"objectID"`, `"sortValue"`} {
 			if !strings.Contains(string(b), f) {
 				t.Errorf("%s mapping lacks %s", name, f)
 			}
@@ -96,5 +96,16 @@ func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
 				t.Errorf("%s mapping still has %s", name, f)
 			}
 		}
+	}
+}
+
+// entries.inline is declared only for new indexes: on an existing index it may
+// already be mapped dynamically, and changing it there would fail the update.
+func TestV2MappingInlineOnlyOnCreate(t *testing.T) {
+	if !strings.Contains(V2ESMapping(1, 0), `"inline": {"type": "object", "enabled": false}`) {
+		t.Error("create mapping should declare entries.inline")
+	}
+	if strings.Contains(V2MappingUpdate(), `"inline"`) {
+		t.Error("update mapping should not touch entries.inline")
 	}
 }

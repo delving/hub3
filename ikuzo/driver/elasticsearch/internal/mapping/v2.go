@@ -323,8 +323,7 @@ var v2MappingUpdate = `{
 						"fields": {
 							"keyword": {"type": "keyword", "ignore_above": 256}
 						}
-					},
-					"inline": {"type": "object", "enabled": false}
+					}
 				}
 			}
 		}

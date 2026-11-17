@@ -30,9 +30,10 @@ const (
 	// edited without the change being acknowledged here, and the second hash
 	// caught that adding the field to v2Mapping alone was not enough.
 	// Both bumped again for camelCase context fields and the declared entry
-	// fields sortValue and inline (conformance findings F22, F2).
+	// fields sortValue and inline (conformance findings F22, F2); inline only
+	// on create, an existing index may have it mapped dynamically.
 	v2MappingSha       = "cbaef17b845a6e80"
-	v2UpdateMappingSha = "6afef6ceb38eadf2"
+	v2UpdateMappingSha = "59da9c58c1daaf6a"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 
