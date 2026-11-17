@@ -196,3 +196,28 @@ func TestSetEntriesKeepsInvalidNumbers(t *testing.T) {
 		}
 	}
 }
+
+// xsd:decimal and xsd:double fill Float like xsd:float (F20).
+func TestNewResourceEntryDecimalAndDouble(t *testing.T) {
+	const xsd = "http://www.w3.org/2001/XMLSchema#"
+	for _, tc := range []struct {
+		value, datatype string
+		want            float64
+	}{
+		{"38.5", "decimal", 38.5},
+		{"-0.125", "decimal", -0.125},
+		{"1.5E2", "double", 150},
+		{"1,5", "decimal", 0}, // invalid: kept without a number (F7)
+		{"NaN", "double", 0}, // valid xsd:double, but JSON has no NaN/INF
+		{"INF", "double", 0},
+	} {
+		fe := &FragmentEntry{Value: tc.value, DataType: xsd + tc.datatype, EntryType: "Literal"}
+		re, err := fe.NewResourceEntry("https://schema.org/height", 1, &ResourceMap{})
+		if err != nil {
+			t.Fatalf("%s^^%s: %v", tc.value, tc.datatype, err)
+		}
+		if re.Float != tc.want || re.Value != tc.value {
+			t.Errorf("%s^^%s: float %v value %q, want %v", tc.value, tc.datatype, re.Float, re.Value, tc.want)
+		}
+	}
+}

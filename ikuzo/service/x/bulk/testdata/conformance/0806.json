@@ -44,6 +44,7 @@
           "predicate": "https://schema.org/height",
           "searchLabel": "schema_height",
           "level": 1,
+          "float": 38.5,
           "order": 3
         },
         {
