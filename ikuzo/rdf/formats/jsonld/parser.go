@@ -8,7 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"strings"
 
 	jsonld "github.com/kiivihal/gojsonld"
 	"github.com/piprate/json-gold/ld"
@@ -42,6 +44,17 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 		return g, err
 	}
 
+	// ToRDF leaves out triples whose IRI is relative (the document has no
+	// @base); count them in a second expansion so they are not lost silently.
+	// ponytail: the second Expand costs 5-15% of a JSON-LD parse; counting
+	// where gojsonld's toRDF skips them (serializationApi.go) would make it free.
+	if expanded, expErr := jsonld.Expand(jsonData, &jsonld.Options{}); expErr == nil {
+		if n, example := countRelativeIDs(expanded); n > 0 {
+			slog.Warn("jsonld: values with a relative IRI left out; the document has no @base",
+				"count", n, "example", example)
+		}
+	}
+
 	for triple := range dataSet.IterTriples() {
 		t, err := jtriple2triple(triple)
 		if err != nil {
@@ -59,6 +72,37 @@ func Parse(r io.Reader, g *rdf.Graph) (*rdf.Graph, error) {
 	}
 
 	return g, nil
+}
+
+// countRelativeIDs counts the @id values in an expanded document that are not
+// absolute IRIs or blank nodes, as gojsonld's ToRDF judges them (no ":").
+func countRelativeIDs(v any) (n int, example string) {
+	switch v := v.(type) {
+	case []any:
+		for _, item := range v {
+			c, e := countRelativeIDs(item)
+			if n == 0 {
+				example = e
+			}
+			n += c
+		}
+	case map[string]any:
+		for k, item := range v {
+			if id, ok := item.(string); k == "@id" && ok && !strings.Contains(id, ":") {
+				if n == 0 {
+					example = id
+				}
+				n++
+				continue
+			}
+			c, e := countRelativeIDs(item)
+			if n == 0 {
+				example = e
+			}
+			n += c
+		}
+	}
+	return n, example
 }
 
 // ParseWithContext resolves @context references over the network, caching
