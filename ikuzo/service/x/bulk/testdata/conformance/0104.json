@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0104",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0104",
+    "namedGraphURI": "http://example.org/conformance/0104/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0104",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "_:place",
+          "entrytype": "Bnode",
+          "predicate": "https://schema.org/contentLocation",
+          "searchLabel": "schema_contentLocation",
+          "level": 1,
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "_:place",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0104",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/contentLocation",
+          "SearchLabel": "schema_contentLocation",
+          "Level": 1,
+          "ObjectID": "_:place"
+        }
+      ],
+      "entries": [
+        {
+          "@id": "_:addr",
+          "entrytype": "Bnode",
+          "predicate": "https://schema.org/address",
+          "searchLabel": "schema_address",
+          "level": 2,
+          "order": 3
+        }
+      ]
+    },
+    {
+      "id": "_:addr",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0104",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/contentLocation",
+          "SearchLabel": "schema_contentLocation",
+          "Level": 1,
+          "ObjectID": "_:place"
+        },
+        {
+          "Subject": "_:place",
+          "Predicate": "https://schema.org/address",
+          "SearchLabel": "schema_address",
+          "Level": 2,
+          "ObjectID": "_:addr"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Delft",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/addressLocality",
+          "searchLabel": "schema_addressLocality",
+          "level": 3,
+          "order": 4
+        },
+        {
+          "@id": "_:geo",
+          "entrytype": "Bnode",
+          "predicate": "https://schema.org/geo",
+          "searchLabel": "schema_geo",
+          "level": 3,
+          "order": 5
+        }
+      ]
+    },
+    {
+      "id": "_:geo",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0104",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/contentLocation",
+          "SearchLabel": "schema_contentLocation",
+          "Level": 1,
+          "ObjectID": "_:place"
+        },
+        {
+          "Subject": "_:place",
+          "Predicate": "https://schema.org/address",
+          "SearchLabel": "schema_address",
+          "Level": 2,
+          "ObjectID": "_:addr"
+        },
+        {
+          "Subject": "_:addr",
+          "Predicate": "https://schema.org/geo",
+          "SearchLabel": "schema_geo",
+          "Level": 3,
+          "ObjectID": "_:geo"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "52.0116",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/latitude",
+          "searchLabel": "schema_latitude",
+          "level": 4,
+          "order": 6
+        },
+        {
+          "@value": "4.3571",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/longitude",
+          "searchLabel": "schema_longitude",
+          "level": 4,
+          "order": 7
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_addressLocality": [
+      "Delft"
+    ],
+    "schema_latitude": [
+      "52.0116"
+    ],
+    "schema_longitude": [
+      "4.3571"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "@id": "http://example.org/c/0102",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/ext/person/1"
+      }
+    ],
+    "https://schema.org/sameAs": [
+      {
+        "@id": "https://www.wikidata.org/wiki/Q205863"
+      }
+    ]
+  }
+]

@@ -1,0 +1,39 @@
+[
+  {
+    "@id": "http://example.org/c/0107/a",
+    "https://schema.org/knows": [
+      {
+        "@id": "http://example.org/c/0107/b"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "A"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0107",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/c/0107/a"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0107/b",
+    "https://schema.org/knows": [
+      {
+        "@id": "http://example.org/c/0107/a"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "B"
+      }
+    ]
+  }
+]

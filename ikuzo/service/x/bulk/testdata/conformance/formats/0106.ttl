@@ -1,0 +1,6 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0106> a schema:CreativeWork ;
+    schema:keywords ( "molen" "rivier" ) .
+

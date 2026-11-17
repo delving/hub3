@@ -43,6 +43,14 @@ every golden change is a behaviour change.
 | 0005 | escapes and unicode | `\"`, `\n`, `é`, emoji, combining character |
 | 0006 | duplicate values | repeated triple; dedup in `fields` across resources |
 | 0007 | long literal | over 256 characters; whitespace kept |
+| 0101 | link to an IRI resource in the graph | `@id`, `level` 2, `context` |
+| 0102 | link to an external IRI | entry without a resource; label resolution |
+| 0103 | blank node, one level | bnode id, `entrytype` |
+| 0104 | blank nodes, three levels | `level`, `context` path |
+| 0105 | resource reached by two paths | `containsContext` dedup |
+| 0106 | `rdf:List` | `rdf:first`/`rdf:rest` kept or flattened (no `formats/0106.rdf`: FINDINGS F8) |
+| 0107 | cycle A → B → A | terminates; `level` |
+| 0108 | interleaved predicates | `order` follows the source |
 
 ## Other formats
 

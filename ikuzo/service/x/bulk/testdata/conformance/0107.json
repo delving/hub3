@@ -1,0 +1,145 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0107",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0107",
+    "namedGraphURI": "http://example.org/conformance/0107/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0107",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://example.org/c/0107/a",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "order": 2
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/0107/a",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0107",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/creator",
+          "SearchLabel": "schema_creator",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/0107/a"
+        },
+        {
+          "Subject": "http://example.org/c/0107/a",
+          "Predicate": "https://schema.org/knows",
+          "SearchLabel": "schema_knows",
+          "Level": 6,
+          "ObjectID": "http://example.org/c/0107/b"
+        },
+        {
+          "Subject": "http://example.org/c/0107/b",
+          "Predicate": "https://schema.org/knows",
+          "SearchLabel": "schema_knows",
+          "Level": 5,
+          "ObjectID": "http://example.org/c/0107/a"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "A",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 7,
+          "order": 3
+        },
+        {
+          "@id": "http://example.org/c/0107/b",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/knows",
+          "searchLabel": "schema_knows",
+          "level": 7,
+          "order": 4
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/0107/b",
+      "types": null,
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0107",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/creator",
+          "SearchLabel": "schema_creator",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/0107/a"
+        },
+        {
+          "Subject": "http://example.org/c/0107/a",
+          "Predicate": "https://schema.org/knows",
+          "SearchLabel": "schema_knows",
+          "Level": 6,
+          "ObjectID": "http://example.org/c/0107/b"
+        },
+        {
+          "Subject": "http://example.org/c/0107/b",
+          "Predicate": "https://schema.org/knows",
+          "SearchLabel": "schema_knows",
+          "Level": 5,
+          "ObjectID": "http://example.org/c/0107/a"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "B",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 7,
+          "order": 5
+        },
+        {
+          "@id": "http://example.org/c/0107/a",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/knows",
+          "searchLabel": "schema_knows",
+          "level": 7,
+          "order": 6
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "A",
+      "B"
+    ]
+  }
+}

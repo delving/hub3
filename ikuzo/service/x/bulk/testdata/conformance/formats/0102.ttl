@@ -1,0 +1,6 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0102> a schema:CreativeWork ;
+    schema:creator <http://example.org/ext/person/1> ;
+    schema:sameAs <https://www.wikidata.org/wiki/Q205863> .
+

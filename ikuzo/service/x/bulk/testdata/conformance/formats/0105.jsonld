@@ -1,0 +1,26 @@
+[
+  {
+    "@id": "http://example.org/c/0105",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/contributor": [
+      {
+        "@id": "http://example.org/c/0105/p"
+      }
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/c/0105/p"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0105/p",
+    "https://schema.org/name": [
+      {
+        "@value": "Jan Steen"
+      }
+    ]
+  }
+]

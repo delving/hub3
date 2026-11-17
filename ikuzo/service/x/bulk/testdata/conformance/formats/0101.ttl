@@ -1,0 +1,9 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0101> a schema:CreativeWork ;
+    schema:creator <http://example.org/c/0101/painter> ;
+    schema:name "De vrolijke huishouding" .
+
+<http://example.org/c/0101/painter> a schema:Person ;
+    schema:name "Jan Steen" .
+

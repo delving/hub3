@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0102",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0102",
+    "namedGraphURI": "http://example.org/conformance/0102/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0102",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@id": "http://example.org/ext/person/1",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "https://www.wikidata.org/wiki/Q205863",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/sameAs",
+          "searchLabel": "schema_sameAs",
+          "level": 1,
+          "order": 3
+        }
+      ]
+    }
+  ]
+}

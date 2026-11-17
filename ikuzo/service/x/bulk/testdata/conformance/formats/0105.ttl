@@ -1,0 +1,8 @@
+@prefix schema: <https://schema.org/> .
+
+<http://example.org/c/0105> a schema:CreativeWork ;
+    schema:contributor <http://example.org/c/0105/p> ;
+    schema:creator <http://example.org/c/0105/p> .
+
+<http://example.org/c/0105/p> schema:name "Jan Steen" .
+

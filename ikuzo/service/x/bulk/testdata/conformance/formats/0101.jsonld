@@ -1,0 +1,29 @@
+[
+  {
+    "@id": "http://example.org/c/0101/painter",
+    "@type": [
+      "https://schema.org/Person"
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "Jan Steen"
+      }
+    ]
+  },
+  {
+    "@id": "http://example.org/c/0101",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/creator": [
+      {
+        "@id": "http://example.org/c/0101/painter"
+      }
+    ],
+    "https://schema.org/name": [
+      {
+        "@value": "De vrolijke huishouding"
+      }
+    ]
+  }
+]

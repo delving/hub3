@@ -1,0 +1,47 @@
+[
+  {
+    "@id": "http://example.org/c/0104",
+    "@type": [
+      "https://schema.org/CreativeWork"
+    ],
+    "https://schema.org/contentLocation": [
+      {
+        "@id": "_:N7163e68fa1d7433f837ea61f4e3af2a0"
+      }
+    ]
+  },
+  {
+    "@id": "_:N7163e68fa1d7433f837ea61f4e3af2a0",
+    "https://schema.org/address": [
+      {
+        "@id": "_:N54639fab1fcc4a8990ea0cbb7524c85d"
+      }
+    ]
+  },
+  {
+    "@id": "_:N54639fab1fcc4a8990ea0cbb7524c85d",
+    "https://schema.org/addressLocality": [
+      {
+        "@value": "Delft"
+      }
+    ],
+    "https://schema.org/geo": [
+      {
+        "@id": "_:Na3871e45634b4549885759c8faa9e3fb"
+      }
+    ]
+  },
+  {
+    "@id": "_:Na3871e45634b4549885759c8faa9e3fb",
+    "https://schema.org/latitude": [
+      {
+        "@value": "52.0116"
+      }
+    ],
+    "https://schema.org/longitude": [
+      {
+        "@value": "4.3571"
+      }
+    ]
+  }
+]

@@ -1,0 +1,6 @@
+<http://example.org/c/0106> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0106> <https://schema.org/keywords> _:l1 .
+_:l1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "molen" .
+_:l1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:l2 .
+_:l2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#first> "rivier" .
+_:l2 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .

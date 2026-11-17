@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "orgID": "test",
+    "spec": "conformance",
+    "revision": 1,
+    "hubID": "test_conformance_0101",
+    "tags": [
+      "narthex",
+      "mdr"
+    ],
+    "docType": "graph",
+    "entryURI": "http://example.org/c/0101",
+    "namedGraphURI": "http://example.org/conformance/0101/graph",
+    "modified": 0,
+    "recDefID": "schema",
+    "aboutTypeURI": [
+      "https://schema.org/CreativeWork"
+    ],
+    "hasDigitalObject": false
+  },
+  "resources": [
+    {
+      "id": "http://example.org/c/0101",
+      "types": [
+        "https://schema.org/CreativeWork"
+      ],
+      "graphExternalContext": null,
+      "context": null,
+      "entries": [
+        {
+          "@value": "De vrolijke huishouding",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 1,
+          "order": 2
+        },
+        {
+          "@id": "http://example.org/c/0101/painter",
+          "entrytype": "Resource",
+          "predicate": "https://schema.org/creator",
+          "searchLabel": "schema_creator",
+          "level": 1,
+          "order": 3
+        }
+      ]
+    },
+    {
+      "id": "http://example.org/c/0101/painter",
+      "types": [
+        "https://schema.org/Person"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "http://example.org/c/0101",
+          "SubjectClass": [
+            "https://schema.org/CreativeWork"
+          ],
+          "Predicate": "https://schema.org/creator",
+          "SearchLabel": "schema_creator",
+          "Level": 1,
+          "ObjectID": "http://example.org/c/0101/painter"
+        }
+      ],
+      "entries": [
+        {
+          "@value": "Jan Steen",
+          "entrytype": "Literal",
+          "predicate": "https://schema.org/name",
+          "searchLabel": "schema_name",
+          "level": 2,
+          "order": 5
+        }
+      ]
+    }
+  ],
+  "fields": {
+    "schema_name": [
+      "De vrolijke huishouding",
+      "Jan Steen"
+    ]
+  }
+}
