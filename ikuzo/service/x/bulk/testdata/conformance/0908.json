@@ -20,6 +20,36 @@
   },
   "resources": [
     {
+      "id": "https://artlibraries.on.worldcat.org/v2/oclc/901048860",
+      "types": [
+        "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+      ],
+      "graphExternalContext": null,
+      "context": [
+        {
+          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+          "SubjectClass": [
+            "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+          "SearchLabel": "crm_P70i_is_documented_in",
+          "Level": 1,
+          "ObjectID": "_:b3d57626d0f3099b0"
+        },
+        {
+          "Subject": "_:b3d57626d0f3099b0",
+          "SubjectClass": [
+            "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
+          ],
+          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
+          "SearchLabel": "crm_P1_is_identified_by",
+          "Level": 2,
+          "ObjectID": "https://artlibraries.on.worldcat.org/v2/oclc/901048860"
+        }
+      ],
+      "entries": []
+    },
+    {
       "id": "https://anet.be/record/lvdopac/c:lvd:10",
       "types": [
         "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
@@ -56,36 +86,6 @@
       ],
       "graphExternalContext": null,
       "context": null,
-      "entries": []
-    },
-    {
-      "id": "https://artlibraries.on.worldcat.org/v2/oclc/901048860",
-      "types": [
-        "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
-      ],
-      "graphExternalContext": null,
-      "context": [
-        {
-          "Subject": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
-          "SubjectClass": [
-            "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
-          ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
-          "SearchLabel": "crm_P70i_is_documented_in",
-          "Level": 1,
-          "ObjectID": "_:b3d57626d0f3099b0"
-        },
-        {
-          "Subject": "_:b3d57626d0f3099b0",
-          "SubjectClass": [
-            "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
-          ],
-          "Predicate": "http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by",
-          "SearchLabel": "crm_P1_is_identified_by",
-          "Level": 2,
-          "ObjectID": "https://artlibraries.on.worldcat.org/v2/oclc/901048860"
-        }
-      ],
       "entries": []
     },
     {

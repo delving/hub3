@@ -202,7 +202,6 @@
       "entries": [
         {
           "@id": "http://data.brabantcloud.nl/resource/document/enb-201-bidprentje/enb-201.bidprentje-0ede2e90-a4ac-a8d0-ba52-bae4c600e14d-8c028ee6-ed04-11e5-a576-63adfcae24ae",
-          "@value": "Joanna Verhofstadt ssjoerd2",
           "entrytype": "Resource",
           "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
           "searchLabel": "edm_aggregatedCHO",
@@ -392,9 +391,6 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 2,
-          "tags": [
-            "label"
-          ],
           "order": 45
         },
         {

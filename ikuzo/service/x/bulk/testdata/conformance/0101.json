@@ -33,14 +33,22 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 2
         },
         {
           "@id": "http://example.org/c/0101/painter",
+          "@value": "Jan Steen",
           "entrytype": "Resource",
           "predicate": "https://schema.org/creator",
           "searchLabel": "schema_creator",
           "level": 1,
+          "tags": [
+            "creator"
+          ],
           "order": 3
         }
       ]
@@ -60,7 +68,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/0101/painter"
+          "ObjectID": "http://example.org/c/0101/painter",
+          "Label": "De vrolijke huishouding"
         }
       ],
       "entries": [
@@ -70,6 +79,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 5
         }
       ]

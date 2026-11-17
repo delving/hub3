@@ -35,14 +35,22 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 3
         },
         {
           "@id": "http://example.org/c/person/adriaen",
+          "@value": "Adriaen de Schilder",
           "entrytype": "Resource",
           "predicate": "https://schema.org/creator",
           "searchLabel": "schema_creator",
           "level": 1,
+          "tags": [
+            "creator"
+          ],
           "order": 4
         },
         {
@@ -56,6 +64,7 @@
         },
         {
           "@id": "http://example.org/c/material/eikenpaneel",
+          "@value": "eikenhouten paneel",
           "entrytype": "Resource",
           "predicate": "https://schema.org/material",
           "searchLabel": "schema_material",
@@ -64,10 +73,14 @@
         },
         {
           "@id": "http://example.org/c/person/maria",
+          "@value": "Maria van Dorp",
           "entrytype": "Resource",
           "predicate": "https://schema.org/about",
           "searchLabel": "schema_about",
           "level": 1,
+          "tags": [
+            "subject"
+          ],
           "order": 7
         }
       ]
@@ -88,7 +101,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         }
       ],
       "entries": [
@@ -98,10 +112,15 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 9
         },
         {
           "@id": "http://example.org/c/place/leiden",
+          "@value": "Leiden",
           "entrytype": "Resource",
           "predicate": "https://schema.org/birthPlace",
           "searchLabel": "schema_birthPlace",
@@ -119,6 +138,7 @@
         },
         {
           "@id": "http://example.org/c/place/amsterdam",
+          "@value": "Amsterdam",
           "entrytype": "Resource",
           "predicate": "https://schema.org/deathPlace",
           "searchLabel": "schema_deathPlace",
@@ -136,6 +156,7 @@
         },
         {
           "@id": "http://example.org/c/person/claes",
+          "@value": "Claes de Leermeester",
           "entrytype": "Resource",
           "predicate": "http://example.org/def/pupilOf",
           "level": 2,
@@ -159,7 +180,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -169,7 +191,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden"
+          "ObjectID": "http://example.org/c/place/leiden",
+          "Label": "Adriaen de Schilder"
         }
       ],
       "entries": [
@@ -180,6 +203,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 3,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 16
         },
         {
@@ -211,6 +238,7 @@
         },
         {
           "@id": "http://example.org/c/place/holland",
+          "@value": "Holland",
           "entrytype": "Resource",
           "predicate": "https://schema.org/containedInPlace",
           "searchLabel": "schema_containedInPlace",
@@ -235,7 +263,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -245,7 +274,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden"
+          "ObjectID": "http://example.org/c/place/leiden",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/place/leiden",
@@ -255,7 +285,8 @@
           "Predicate": "https://schema.org/containedInPlace",
           "SearchLabel": "schema_containedInPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland"
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Leiden"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -265,7 +296,8 @@
           "Predicate": "https://schema.org/deathPlace",
           "SearchLabel": "schema_deathPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -274,7 +306,8 @@
           ],
           "Predicate": "http://example.org/def/pupilOf",
           "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes"
+          "ObjectID": "http://example.org/c/person/claes",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/claes",
@@ -284,7 +317,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Claes de Leermeester"
         }
       ],
       "entries": [
@@ -295,6 +329,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 4,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 22
         },
         {
@@ -317,6 +355,7 @@
         },
         {
           "@id": "http://example.org/c/place/republiek",
+          "@value": "Republiek der Zeven Verenigde Nederlanden",
           "entrytype": "Resource",
           "predicate": "https://schema.org/containedInPlace",
           "searchLabel": "schema_containedInPlace",
@@ -341,7 +380,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -351,7 +391,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/leiden"
+          "ObjectID": "http://example.org/c/place/leiden",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/place/leiden",
@@ -361,7 +402,8 @@
           "Predicate": "https://schema.org/containedInPlace",
           "SearchLabel": "schema_containedInPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/holland"
+          "ObjectID": "http://example.org/c/place/holland",
+          "Label": "Leiden"
         },
         {
           "Subject": "http://example.org/c/place/holland",
@@ -371,7 +413,8 @@
           "Predicate": "https://schema.org/containedInPlace",
           "SearchLabel": "schema_containedInPlace",
           "Level": 5,
-          "ObjectID": "http://example.org/c/place/republiek"
+          "ObjectID": "http://example.org/c/place/republiek",
+          "Label": "Holland"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -381,7 +424,8 @@
           "Predicate": "https://schema.org/deathPlace",
           "SearchLabel": "schema_deathPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -390,7 +434,8 @@
           ],
           "Predicate": "http://example.org/def/pupilOf",
           "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes"
+          "ObjectID": "http://example.org/c/person/claes",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/claes",
@@ -400,7 +445,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Claes de Leermeester"
         }
       ],
       "entries": [
@@ -411,6 +457,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 6,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 27
         },
         {
@@ -449,7 +499,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -459,7 +510,8 @@
           "Predicate": "https://schema.org/deathPlace",
           "SearchLabel": "schema_deathPlace",
           "Level": 2,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -468,7 +520,8 @@
           ],
           "Predicate": "http://example.org/def/pupilOf",
           "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes"
+          "ObjectID": "http://example.org/c/person/claes",
+          "Label": "Adriaen de Schilder"
         },
         {
           "Subject": "http://example.org/c/person/claes",
@@ -478,7 +531,8 @@
           "Predicate": "https://schema.org/birthPlace",
           "SearchLabel": "schema_birthPlace",
           "Level": 3,
-          "ObjectID": "http://example.org/c/place/amsterdam"
+          "ObjectID": "http://example.org/c/place/amsterdam",
+          "Label": "Claes de Leermeester"
         }
       ],
       "entries": [
@@ -489,6 +543,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 4,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 31
         },
         {
@@ -511,6 +569,7 @@
         },
         {
           "@id": "http://example.org/c/place/holland",
+          "@value": "Holland",
           "entrytype": "Resource",
           "predicate": "https://schema.org/containedInPlace",
           "searchLabel": "schema_containedInPlace",
@@ -535,7 +594,8 @@
           "Predicate": "https://schema.org/creator",
           "SearchLabel": "schema_creator",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/adriaen"
+          "ObjectID": "http://example.org/c/person/adriaen",
+          "Label": "Portret van Maria, leerling van Claes"
         },
         {
           "Subject": "http://example.org/c/person/adriaen",
@@ -544,7 +604,8 @@
           ],
           "Predicate": "http://example.org/def/pupilOf",
           "Level": 2,
-          "ObjectID": "http://example.org/c/person/claes"
+          "ObjectID": "http://example.org/c/person/claes",
+          "Label": "Adriaen de Schilder"
         }
       ],
       "entries": [
@@ -554,10 +615,15 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 3,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 36
         },
         {
           "@id": "http://example.org/c/place/amsterdam",
+          "@value": "Amsterdam",
           "entrytype": "Resource",
           "predicate": "https://schema.org/birthPlace",
           "searchLabel": "schema_birthPlace",
@@ -575,6 +641,7 @@
         },
         {
           "@id": "http://example.org/c/place/amsterdam",
+          "@value": "Amsterdam",
           "entrytype": "Resource",
           "predicate": "https://schema.org/deathPlace",
           "searchLabel": "schema_deathPlace",
@@ -608,7 +675,8 @@
           "Predicate": "https://schema.org/material",
           "SearchLabel": "schema_material",
           "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel"
+          "ObjectID": "http://example.org/c/material/eikenpaneel",
+          "Label": "Portret van Maria, leerling van Claes"
         }
       ],
       "entries": [
@@ -619,6 +687,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 42
         },
         {
@@ -628,6 +700,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 43
         }
       ]
@@ -648,7 +724,8 @@
           "Predicate": "https://schema.org/about",
           "SearchLabel": "schema_about",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria"
+          "ObjectID": "http://example.org/c/person/maria",
+          "Label": "Portret van Maria, leerling van Claes"
         }
       ],
       "entries": [
@@ -658,6 +735,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 45
         }
       ]

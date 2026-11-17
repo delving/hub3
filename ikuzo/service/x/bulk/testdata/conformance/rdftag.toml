@@ -1,0 +1,15 @@
+# The [rdftag] section of the NDE hub3 config, verbatim.
+# Keep it in step with NDE's configuration.
+[rdftag]
+title = ["https://schema.org/name"]
+label = ["https://schema.org/name", "http://www.w3.org/2004/02/skos/core#prefLabel"]
+description = ["https://schema.org/description"]
+thumbnail = ["https://schema.org/thumbnailUrl"]
+creator = ["https://schema.org/creator"]
+subject = ["https://schema.org/about"]
+objectID = ["https://schema.org/identifier"]
+landingPage = ["https://schema.org/mainEntityOfPage"]
+owner = ["https://schema.org/publisher"]
+# ponytail: no date/isoDate/dateRange tags yet; hub3 drops records whose
+# tagged dates it cannot parse, and schema:dateCreated holds gYear and
+# free text. Add once the ingest normalises dates.

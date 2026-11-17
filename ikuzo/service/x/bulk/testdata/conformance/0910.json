@@ -111,6 +111,7 @@
         },
         {
           "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://rdf.histograph.io/liesIn",
           "level": 1,
@@ -154,6 +155,9 @@
           "predicate": "https://schema.org/identifier",
           "searchLabel": "schema_identifier",
           "level": 1,
+          "tags": [
+            "objectID"
+          ],
           "order": 78
         },
         {
@@ -180,6 +184,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 81
         },
         {
@@ -580,6 +588,7 @@
         },
         {
           "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://www.w3.org/2000/01/rdf-schema#seeAlso",
           "searchLabel": "rdfs_seeAlso",
@@ -640,6 +649,9 @@
           "predicate": "https://schema.org/identifier",
           "searchLabel": "schema_identifier",
           "level": 7,
+          "tags": [
+            "objectID"
+          ],
           "order": 62
         },
         {
@@ -649,6 +661,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 7,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 63
         },
         {
@@ -773,6 +789,7 @@
         },
         {
           "@id": "https://n2t.net/ark:/60537/buzpEa",
+          "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item",
           "level": 7,
@@ -1153,7 +1170,8 @@
           "Predicate": "https://schema.org/subjectOf",
           "SearchLabel": "schema_subjectOf",
           "Level": 2,
-          "ObjectID": "http://viaf.org/viaf/292994024"
+          "ObjectID": "http://viaf.org/viaf/292994024",
+          "Label": "Gouda"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1216,7 +1234,8 @@
           "Predicate": "https://schema.org/subjectOf",
           "SearchLabel": "schema_subjectOf",
           "Level": 2,
-          "ObjectID": "https://nl.wikipedia.org/wiki/Gouda"
+          "ObjectID": "https://nl.wikipedia.org/wiki/Gouda",
+          "Label": "Gouda"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1279,7 +1298,8 @@
           "Predicate": "https://schema.org/subjectOf",
           "SearchLabel": "schema_subjectOf",
           "Level": 2,
-          "ObjectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001"
+          "ObjectID": "https://www.dbnl.org/atlas/plaats.php?id=gouda001",
+          "Label": "Gouda"
         },
         {
           "Subject": "https://n2t.net/ark:/60537/buzpEa",
@@ -1344,7 +1364,8 @@
           "Predicate": "https://schema.org/subjectOf",
           "SearchLabel": "schema_subjectOf",
           "Level": 1,
-          "ObjectID": "https://stratenvangouda.nl/straat/burgemeester-martenssingel"
+          "ObjectID": "https://stratenvangouda.nl/straat/burgemeester-martenssingel",
+          "Label": "Burgemeester Martenssingel"
         }
       ],
       "entries": [

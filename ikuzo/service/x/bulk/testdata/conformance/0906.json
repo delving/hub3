@@ -121,7 +121,6 @@
       "entries": [
         {
           "@id": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
-          "@value": "10-delig sluitgewicht van messing",
           "entrytype": "Resource",
           "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
           "searchLabel": "edm_aggregatedCHO",
@@ -211,9 +210,6 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 2,
-          "tags": [
-            "label"
-          ],
           "order": 22
         },
         {

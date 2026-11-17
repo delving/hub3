@@ -4,8 +4,9 @@ From reviewing the baseline goldens. Status: open, fixed, deferred, wontfix.
 A fix is one commit changing code and the affected goldens; it sets the row
 to fixed and names the commit.
 
-The harness runs on hub3's default configuration (no `hub3.toml`): `RDFTag.Label`
-is `skos:prefLabel`, `dc:title`; `RDFTagMap` is empty. Findings that depend on
+The harness runs on hub3's defaults, except `[rdftag]`, which it loads from
+`rdftag.toml`: the NDE config. That config has no
+date tags, so `isoDate`/`dateRange` stay empty (F19). Findings that depend on
 configuration say so.
 
 | ID | Cases | Observed | Proposal | Status |
@@ -27,11 +28,12 @@ configuration say so.
 | F15 | 0902, 0907, 0908 (and 0906 vs 0903) | `BySortOrder.Less` (`resource.go:894`) returns `true` whenever the first resource has no entries, whatever the second: an inconsistent comparator, so entry-less resources (identifiers, types) come out in map order. 0902/0907/0908 differ between runs; they are compared order-insensitively by name (`knownUnstable`). | order entry-less resources by first appearance in the source (or by id) | open |
 | F16 | 0302 | `setDataSet` also sets `req.Revision = ds.Revision` (`parser.go:186`) for the first request only; later records keep the revision from their own envelope. | with F5: resolve per request | open |
 | F17 | 0002 | `@language` is kept per entry, but `fields` flattens languages: `schema_name: ["Gezicht op Delft","View of Delft"]`. | decide whether `fields` needs language (e.g. `schema_name_nl`) or stays a plain projection; document | open |
-| F18 | 0101, 0102, 05xx | Link entries carry the target's label as `@value` only when the target has a `RDFTag.Label` predicate: 0303 (`dc:title`) has `"@value": "Aggregatie"` on `edm_aggregatedCHO`; 0101 (`schema:name`) has no label on `schema_creator`. With the default config schema.org records get no link labels at all. External IRIs (0102) get none either way. | run the harness with the NDE `hub3.toml` (label = `schema:name`, `skos:prefLabel`, `rdfs:label`, …) or document that goldens are default-config | open |
+| F18 | 0101, 0102, 05xx | Link entries carry the target's label as `@value` only when the target has a `RDFTag.Label` predicate: 0303 (`dc:title`) has `"@value": "Aggregatie"` on `edm_aggregatedCHO`; 0101 (`schema:name`) has no label on `schema_creator`. With the default config schema.org records get no link labels at all. External IRIs (0102) get none either way. | run the harness with the NDE `hub3.toml` (label = `schema:name`, `skos:prefLabel`, `rdfs:label`, …) or document that goldens are default-config | fixed: the harness loads `rdftag.toml`, the NDE `[rdftag]` section |
 | F19 | 0003, 0104 | With the default config no entry gets `isoDate`, `dateRange` or `latLong`: these come only from `RDFTagMap`, not from `xsd:date`/`gYear`/`dateTime`. 0003 has `@type` only. | either derive `isoDate`/`dateRange` from the datatype, or load an rdftag config in the harness (with F18) | open |
 | F20 | 0004 | `xsd:integer` gives `"integer": 45`; `xsd:decimal` (`38.5`) gives nothing — only `xsd:float` fills `float` (`resource.go:1051`). | also map `xsd:decimal`/`xsd:double` to `float` | open |
 | F21 | 0102 | `fields` is `null`, not `{}`, when a record has no literal values. | harmless; document or emit `{}` | open |
 | F22 | 01xx, 05xx | `context` objects serialise with Go field names (`Subject`, `SubjectClass`, `Predicate`, `SearchLabel`, `Level`, `ObjectID`): no json tags, unlike every other field. | add camelCase json tags (mapping change) or document | open |
+| F24 | 0006, 0101, 0107, 0203 `formats/` | A context's `Label` and `SubjectClass` are copied from the subject while the triples are read (`NewContext`, called from `resource.go:1747`), so they hold only what was read so far: when `schema:name` or `rdf:type` comes after the link triple, as in the Turtle and JSON-LD of these cases, the context has no `Label`. Visible since the harness loads the NDE `rdftag` config (F18). Skipped by name (`knownFormatDiffs`). | fill `Label`/`SubjectClass` after the graph is read, in the F11 rewrite | open |
 | F23 | 0906 vs 0903 | Same museum-sloten record: JSON-LD relative IRIs (`"isShownBy": "toBeRemoved"`) are dropped silently, so 0906 loses 6 aggregation entries and `hasDigitalObject` is false; 0903 has them (true). Fixture artefact, but nothing warns. | warn on dropped relative IRIs; no golden change | open |
 
 Not findings (behaviour checked and fine):

@@ -33,6 +33,9 @@
           "predicate": "https://schema.org/description",
           "searchLabel": "schema_description",
           "level": 1,
+          "tags": [
+            "description"
+          ],
           "order": 2
         },
         {
@@ -41,6 +44,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 3
         }
       ]

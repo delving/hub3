@@ -10,6 +10,10 @@ One bulk request in, the v2 document hub3 sends to Elasticsearch out.
 `-update` rewrites `NNNN.json` / `NNNN.error.json` only. Review the diff:
 every golden change is a behaviour change.
 
+Configuration: hub3's defaults, except `[rdftag]`, which comes from
+`rdftag.toml`, the NDE config (which predicates are labels, titles, creators,
+…). The goldens show what NDE indexes; a change to that file changes them.
+
 ## A case
 
 - `NNNN.<nt|ttl|rdf|jsonld>`: the record graph; the extension is its mime type.

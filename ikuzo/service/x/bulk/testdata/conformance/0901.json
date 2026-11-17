@@ -29,7 +29,6 @@
       "entries": [
         {
           "@id": "http://data.brabantcloud.nl/resource/document/enb-10-beeldmateriaal/enb-10.beeldmateriaal-db129c8f-50bc-930c-5f0e-90bc80ecbe30-ab16f200-8232-11e5-b3dd-0741013467d3",
-          "@value": "personen",
           "entrytype": "Resource",
           "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
           "searchLabel": "edm_aggregatedCHO",
@@ -175,9 +174,6 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 2,
-          "tags": [
-            "label"
-          ],
           "order": 18
         },
         {
@@ -302,8 +298,7 @@
           "Predicate": "http://purl.org/dc/terms/spatial",
           "SearchLabel": "dcterms_spatial",
           "Level": 2,
-          "ObjectID": "http://sws.geonames.org/2759059",
-          "Label": "personen"
+          "ObjectID": "http://sws.geonames.org/2759059"
         }
       ],
       "entries": [

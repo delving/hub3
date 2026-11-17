@@ -29,14 +29,19 @@
       "entries": [
         {
           "@id": "http://example.org/c/0105/p",
+          "@value": "Jan Steen",
           "entrytype": "Resource",
           "predicate": "https://schema.org/creator",
           "searchLabel": "schema_creator",
           "level": 1,
+          "tags": [
+            "creator"
+          ],
           "order": 2
         },
         {
           "@id": "http://example.org/c/0105/p",
+          "@value": "Jan Steen",
           "entrytype": "Resource",
           "predicate": "https://schema.org/contributor",
           "searchLabel": "schema_contributor",
@@ -78,6 +83,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 4
         }
       ]

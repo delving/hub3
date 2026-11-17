@@ -34,8 +34,7 @@
           "Predicate": "https://wo2.collectienederland.nl/nk/terms/productionDate",
           "SearchLabel": "nk_productionDate",
           "Level": 1,
-          "ObjectID": "_:b0",
-          "Label": "Romeinse ruïnes"
+          "ObjectID": "_:b0"
         }
       ],
       "entries": [
@@ -80,8 +79,7 @@
           "Predicate": "https://wo2.collectienederland.nl/nk/terms/dimension",
           "SearchLabel": "nk_dimension",
           "Level": 1,
-          "ObjectID": "_:b1",
-          "Label": "Romeinse ruïnes"
+          "ObjectID": "_:b1"
         }
       ],
       "entries": [
@@ -118,8 +116,7 @@
           "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
           "SearchLabel": "nk_creator",
           "Level": 1,
-          "ObjectID": "_:b2",
-          "Label": "Romeinse ruïnes"
+          "ObjectID": "_:b2"
         }
       ],
       "entries": [
@@ -149,8 +146,7 @@
           "Predicate": "https://wo2.collectienederland.nl/nk/terms/creator",
           "SearchLabel": "nk_creator",
           "Level": 1,
-          "ObjectID": "_:b3",
-          "Label": "Romeinse ruïnes"
+          "ObjectID": "_:b3"
         }
       ],
       "entries": [
@@ -221,9 +217,6 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 1,
-          "tags": [
-            "label"
-          ],
           "order": 18
         },
         {
@@ -501,14 +494,10 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 1,
-          "tags": [
-            "label"
-          ],
           "order": 50
         },
         {
           "@id": "https://wo2.collectienederland.nl/id/cho/snk-29541",
-          "@value": "Romeinse ruïnes",
           "entrytype": "Resource",
           "predicate": "https://wo2.collectienederland.nl/nk/terms/cho",
           "searchLabel": "nk_cho",

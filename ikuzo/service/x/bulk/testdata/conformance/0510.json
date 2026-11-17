@@ -35,6 +35,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 3
         },
         {
@@ -43,6 +47,9 @@
           "predicate": "https://schema.org/creator",
           "searchLabel": "schema_creator",
           "level": 1,
+          "tags": [
+            "creator"
+          ],
           "order": 4
         },
         {
@@ -56,6 +63,7 @@
         },
         {
           "@id": "http://example.org/c/material/eikenpaneel",
+          "@value": "eikenhouten paneel",
           "entrytype": "Resource",
           "predicate": "https://schema.org/material",
           "searchLabel": "schema_material",
@@ -64,10 +72,14 @@
         },
         {
           "@id": "http://example.org/c/person/maria",
+          "@value": "Maria van Dorp",
           "entrytype": "Resource",
           "predicate": "https://schema.org/about",
           "searchLabel": "schema_about",
           "level": 1,
+          "tags": [
+            "subject"
+          ],
           "order": 7
         }
       ]
@@ -88,7 +100,8 @@
           "Predicate": "https://schema.org/material",
           "SearchLabel": "schema_material",
           "Level": 1,
-          "ObjectID": "http://example.org/c/material/eikenpaneel"
+          "ObjectID": "http://example.org/c/material/eikenpaneel",
+          "Label": "Portret van Maria, externe maker"
         }
       ],
       "entries": [
@@ -99,6 +112,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 9
         },
         {
@@ -108,6 +125,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 10
         }
       ]
@@ -128,7 +149,8 @@
           "Predicate": "https://schema.org/about",
           "SearchLabel": "schema_about",
           "Level": 1,
-          "ObjectID": "http://example.org/c/person/maria"
+          "ObjectID": "http://example.org/c/person/maria",
+          "Label": "Portret van Maria, externe maker"
         }
       ],
       "entries": [
@@ -138,6 +160,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 12
         }
       ]

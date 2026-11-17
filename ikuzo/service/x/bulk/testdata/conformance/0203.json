@@ -33,10 +33,15 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 1,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 2
         },
         {
           "@id": "http://example.org/c/0203/b",
+          "@value": "Tweede",
           "entrytype": "Resource",
           "predicate": "https://schema.org/hasPart",
           "searchLabel": "schema_hasPart",
@@ -60,7 +65,8 @@
           "Predicate": "https://schema.org/hasPart",
           "SearchLabel": "schema_hasPart",
           "Level": 1,
-          "ObjectID": "http://example.org/c/0203/b"
+          "ObjectID": "http://example.org/c/0203/b",
+          "Label": "Eerste"
         }
       ],
       "entries": [
@@ -70,6 +76,10 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 2,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 5
         }
       ]

@@ -19,6 +19,7 @@ import (
 	"github.com/delving/hub3/hub3/models"
 	"github.com/delving/hub3/ikuzo/domain/domainpb"
 	"github.com/delving/hub3/ikuzo/testutil"
+	"github.com/spf13/viper"
 )
 
 // The conformance suite: one bulk request in, the v2 document out.
@@ -44,13 +45,17 @@ var (
 	}
 )
 
-// knownFormatDiffs maps a case range (first two digits) to the finding in
+// knownFormatDiffs maps a case number, or a case range (first two digits), to the finding in
 // testdata/conformance/FINDINGS.md that explains why another serialisation
 // gives a different document. A formats subtest in that range is skipped only
 // when it differs; remove the entry once the finding is fixed.
 var knownFormatDiffs = map[string]string{
-	"05": "F11: level and context follow triple order",
-	"06": "F11: level and context follow triple order",
+	"05":   "F11: level and context follow triple order",
+	"06":   "F11: level and context follow triple order",
+	"0006": "F24: context Label follows triple order",
+	"0101": "F24: context Label follows triple order",
+	"0107": "F24: context Label follows triple order",
+	"0203": "F24: context Label follows triple order",
 }
 
 // knownUnstable lists cases whose document hub3 does not produce the same way
@@ -67,6 +72,23 @@ type caseResult struct {
 	kind string // BulkError stage or "untyped", when refused
 }
 
+// loadRDFTag replaces the rdftag config with the [rdftag] section of path (the
+// NDE config), so goldens show what NDE indexes rather than hub3's defaults.
+func loadRDFTag(t *testing.T, path string) {
+	t.Helper()
+	v := viper.New()
+	v.SetConfigFile(path)
+	if err := v.ReadInConfig(); err != nil {
+		t.Fatal(err)
+	}
+	var tag c.RDFTag
+	if err := v.UnmarshalKey("rdftag", &tag); err != nil {
+		t.Fatal(err)
+	}
+	c.Config.RDFTag = tag
+	c.Config.RDFTagMap = c.NewRDFTagMap(&c.Config)
+}
+
 type captureIndex struct{ msgs []*domainpb.IndexMessage }
 
 func (ci *captureIndex) Publish(_ context.Context, m ...*domainpb.IndexMessage) error {
@@ -77,10 +99,13 @@ func (ci *captureIndex) Publish(_ context.Context, m ...*domainpb.IndexMessage) 
 func TestConformance(t *testing.T) {
 	c.InitConfig()
 	prevRDF, prevES, prevTags := c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled, c.Config.DatasetTagMap
+	prevRDFTag, prevRDFTagMap := c.Config.RDFTag, c.Config.RDFTagMap
 	c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled = false, false
 	c.Config.DatasetTagMap = c.NewDataSetTagMap(&c.RawConfig{})
+	loadRDFTag(t, filepath.Join(confDir, "rdftag.toml"))
 	t.Cleanup(func() {
 		c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled, c.Config.DatasetTagMap = prevRDF, prevES, prevTags
+		c.Config.RDFTag, c.Config.RDFTagMap = prevRDFTag, prevRDFTagMap
 	})
 
 	entries, err := os.ReadDir(confDir) // sorted by name, so by number
@@ -111,7 +136,11 @@ func TestConformance(t *testing.T) {
 						t.Fatalf("refused as %q", alt.kind)
 					}
 					if diff := cmp.Diff(want, normaliseForFormats(t, alt.doc)); diff != "" {
-						if f, ok := knownFormatDiffs[num[:2]]; ok {
+						f, ok := knownFormatDiffs[num]
+						if !ok {
+							f, ok = knownFormatDiffs[num[:2]]
+						}
+						if ok {
 							t.Skipf("known difference %s; diff:\n%s", f, diff)
 						}
 						t.Errorf("formats/%s.%s differs from %s.json (order, bnode labels and array order ignored):\n%s", num, ext, num, diff)

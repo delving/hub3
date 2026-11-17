@@ -29,7 +29,6 @@
       "entries": [
         {
           "@id": "http://example.org/c/0303/cho",
-          "@value": "Aggregatie",
           "entrytype": "Resource",
           "predicate": "http://www.europeana.eu/schemas/edm/aggregatedCHO",
           "searchLabel": "edm_aggregatedCHO",
@@ -63,9 +62,6 @@
           "predicate": "http://purl.org/dc/elements/1.1/title",
           "searchLabel": "dc_title",
           "level": 2,
-          "tags": [
-            "label"
-          ],
           "order": 4
         }
       ]

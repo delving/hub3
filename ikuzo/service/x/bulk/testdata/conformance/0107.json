@@ -29,10 +29,14 @@
       "entries": [
         {
           "@id": "http://example.org/c/0107/a",
+          "@value": "A",
           "entrytype": "Resource",
           "predicate": "https://schema.org/creator",
           "searchLabel": "schema_creator",
           "level": 1,
+          "tags": [
+            "creator"
+          ],
           "order": 2
         }
       ]
@@ -57,14 +61,16 @@
           "Predicate": "https://schema.org/knows",
           "SearchLabel": "schema_knows",
           "Level": 6,
-          "ObjectID": "http://example.org/c/0107/b"
+          "ObjectID": "http://example.org/c/0107/b",
+          "Label": "A"
         },
         {
           "Subject": "http://example.org/c/0107/b",
           "Predicate": "https://schema.org/knows",
           "SearchLabel": "schema_knows",
           "Level": 5,
-          "ObjectID": "http://example.org/c/0107/a"
+          "ObjectID": "http://example.org/c/0107/a",
+          "Label": "B"
         }
       ],
       "entries": [
@@ -74,10 +80,15 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 7,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 3
         },
         {
           "@id": "http://example.org/c/0107/b",
+          "@value": "B",
           "entrytype": "Resource",
           "predicate": "https://schema.org/knows",
           "searchLabel": "schema_knows",
@@ -106,14 +117,16 @@
           "Predicate": "https://schema.org/knows",
           "SearchLabel": "schema_knows",
           "Level": 6,
-          "ObjectID": "http://example.org/c/0107/b"
+          "ObjectID": "http://example.org/c/0107/b",
+          "Label": "A"
         },
         {
           "Subject": "http://example.org/c/0107/b",
           "Predicate": "https://schema.org/knows",
           "SearchLabel": "schema_knows",
           "Level": 5,
-          "ObjectID": "http://example.org/c/0107/a"
+          "ObjectID": "http://example.org/c/0107/a",
+          "Label": "B"
         }
       ],
       "entries": [
@@ -123,10 +136,15 @@
           "predicate": "https://schema.org/name",
           "searchLabel": "schema_name",
           "level": 7,
+          "tags": [
+            "label",
+            "title"
+          ],
           "order": 5
         },
         {
           "@id": "http://example.org/c/0107/a",
+          "@value": "A",
           "entrytype": "Resource",
           "predicate": "https://schema.org/knows",
           "searchLabel": "schema_knows",
