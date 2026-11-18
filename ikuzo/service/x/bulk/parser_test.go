@@ -1,6 +1,7 @@
 package bulk
 
 import (
+	"fmt"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -246,5 +247,53 @@ func TestProcessResolvesTagsPerRequest(t *testing.T) {
 	}
 	if !slices.Contains(doc.Meta.Tags, "extra") || doc.Meta.Revision != 3 {
 		t.Fatalf("meta tags %v revision %d, want tags with \"extra\" and revision 3", doc.Meta.Tags, doc.Meta.Revision)
+	}
+}
+
+// A record over maxNestedDocs is skipped and counted; the rest of the upload
+// is still indexed.
+func TestParseSkipsRecordTooLarge(t *testing.T) {
+	c.InitConfig()
+	prevRDF, prevES := c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled
+	c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled = false, false
+	t.Cleanup(func() { c.Config.RDF.RDFStoreEnabled, c.Config.ElasticSearch.Enabled = prevRDF, prevES })
+
+	ci := &captureIndex{}
+	p := &Parser{
+		ds:            &models.DataSet{OrgID: "org1", Spec: "ds1", Revision: 1},
+		stats:         &Stats{},
+		bi:            ci,
+		indexTypes:    []string{"v2"},
+		recDef:        RecDefResolver{m: map[string][]string{"schema": {"https://schema.org/CreativeWork"}}, defaultRecDefID: "schema"},
+		s:             &Service{},
+		maxNestedDocs: 3,
+	}
+	p.once.Do(func() {})
+
+	line := func(id string, names int) string {
+		s := "http://example.org/" + id
+		g := "<" + s + "> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .\n"
+		for i := 0; i < names; i++ {
+			g += fmt.Sprintf("<%s> <https://schema.org/name> \"n%d\" .\n", s, i)
+		}
+		b, err := json.Marshal(Request{
+			Action: "index", OrgID: "org1", DatasetID: "ds1", HubID: "org1_ds1_" + id, LocalID: id,
+			NamedGraphURI: s + "/graph", GraphMimeType: "application/n-triples", Graph: g,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(b) + "\n"
+	}
+
+	err := p.Parse(context.Background(), strings.NewReader(line("big", 10)+line("small", 0)))
+	if err != nil {
+		t.Fatalf("Parse: %v", err)
+	}
+	if p.stats.RecordsTooLarge != 1 || p.stats.RecordsStored != 1 {
+		t.Fatalf("recordsTooLarge %d recordsStored %d, want 1 and 1", p.stats.RecordsTooLarge, p.stats.RecordsStored)
+	}
+	if len(ci.msgs) != 1 {
+		t.Fatalf("want 1 index message (small), got %d", len(ci.msgs))
 	}
 }

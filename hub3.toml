@@ -188,7 +188,9 @@ shards = 1
 replicas = 0
 # indexTypes enabled types for the bulk index service
 indexTypes = ["v2"]
-# refuse a record with more nested documents (resources + entries); default 1000
+# skip a record with more nested documents (resources + entries + contexts); the
+# rest of the upload is still indexed and the skip counted in recordsTooLarge.
+# default 1000
 # maxNestedDocs = 1000
 # maxTreeSize is the maximum size of the number of nodes in the tree navigation API
 maxTreeSize = 251

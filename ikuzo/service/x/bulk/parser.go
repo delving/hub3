@@ -119,6 +119,13 @@ func (p *Parser) Parse(ctx context.Context, r io.Reader) error {
 				a := a
 
 				if err := p.process(ctx, &a); err != nil {
+					// One oversized record must not stop the rest of the upload.
+					var be *BulkError
+					if errors.As(err, &be) && be.Stage == "record_too_large" {
+						atomic.AddUint64(&p.stats.RecordsTooLarge, 1)
+						log.Warn().Err(err).Str("hubID", a.HubID).Msg("record skipped")
+						continue
+					}
 					log.Error().Err(err).Str("orgID", a.OrgID).Msg("unable to process action")
 					return err
 				}
@@ -613,13 +620,15 @@ func (p *Parser) AppendRDFBulkRequest(req *Request, g *rdf.Graph) error {
 }
 
 type Stats struct {
-	OrgID              string `json:"orgID"`
-	DatasetID          string `json:"datasetID"`
-	Spec               string `json:"spec"`
-	SpecRevision       uint64 `json:"specRevision"`  // version of the records stored
-	TotalReceived      uint64 `json:"totalReceived"` // originally json was total_received
-	RecordsStored      uint64 `json:"recordsStored"` // originally json was records_stored
-	JSONErrors         uint64 `json:"jsonErrors"`
+	OrgID         string `json:"orgID"`
+	DatasetID     string `json:"datasetID"`
+	Spec          string `json:"spec"`
+	SpecRevision  uint64 `json:"specRevision"`  // version of the records stored
+	TotalReceived uint64 `json:"totalReceived"` // originally json was total_received
+	RecordsStored uint64 `json:"recordsStored"` // originally json was records_stored
+	JSONErrors    uint64 `json:"jsonErrors"`
+	// RecordsTooLarge counts records refused as record_too_large and skipped.
+	RecordsTooLarge    uint64 `json:"recordsTooLarge"`
 	TriplesStored      uint64 `json:"triplesStored"`
 	PostHooksSubmitted uint64 `json:"postHooksSubmitted"`
 	// ContentHashMatches uint64    `json:"contentHashMatches"` // originally json was content_hash_matches
