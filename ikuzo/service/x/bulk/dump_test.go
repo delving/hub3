@@ -58,6 +58,7 @@ func TestDumpV2(t *testing.T) {
 		}
 		ci := &captureIndex{}
 		p := &Parser{
+			// The dump pins revision 1 for a stable comparison (process() overwrites req.Revision with ds.Revision).
 			ds:            &models.DataSet{OrgID: req.OrgID, Spec: req.DatasetID, Revision: 1},
 			stats:         &Stats{},
 			bi:            ci,
@@ -74,9 +75,18 @@ func TestDumpV2(t *testing.T) {
 			if errors.As(err, &be) {
 				line["kind"] = be.Stage
 			}
-		} else if len(ci.msgs) == 1 {
-			src := modifiedRe.ReplaceAll(ci.msgs[0].Source, []byte(`"modified":0`))
-			line["doc"] = json.RawMessage(src)
+		} else {
+			switch len(ci.msgs) {
+			case 1:
+				src := modifiedRe.ReplaceAll(ci.msgs[0].Source, []byte(`"modified":0`))
+				line["doc"] = json.RawMessage(src)
+			case 0:
+				line["kind"] = "no_message"
+				t.Errorf("record %s: want 1 index message, got %d", req.HubID, len(ci.msgs))
+			default:
+				line["kind"] = "multiple_messages"
+				t.Errorf("record %s: want 1 index message, got %d", req.HubID, len(ci.msgs))
+			}
 		}
 		b, err := json.Marshal(line)
 		if err != nil {
