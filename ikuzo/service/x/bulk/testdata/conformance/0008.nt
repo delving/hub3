@@ -1,0 +1,4 @@
+<http://example.org/c/0008> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://schema.org/CreativeWork> .
+<http://example.org/c/0008> <https://schema.org/name> "C:\\temp\\new" .
+<http://example.org/c/0008> <https://schema.org/description> "regel 1\nregel 2\\n blijft letterlijk" .
+<http://example.org/c/0008> <https://schema.org/keywords> "a\\\\b \"q\" \u005Ct" .

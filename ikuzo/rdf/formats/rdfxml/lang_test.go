@@ -67,6 +67,16 @@ func TestParseXMLLangInheritance(t *testing.T) {
 			head + ` xml:lang="nl"><rdf:Description rdf:about="http://x/1"><dc:title xml:lang="">t</dc:title></rdf:Description></rdf:RDF>`,
 			map[string]string{"t": ""},
 		},
+		{
+			"empty property lang does not leak to next nested node",
+			head + `><rdf:Description rdf:about="http://x/1"><dc:relation><rdf:Description rdf:about="http://x/2"><dc:description xml:lang="nl"></dc:description></rdf:Description></dc:relation><dc:relation><rdf:Description rdf:about="http://x/3"><dc:title>t</dc:title></rdf:Description></dc:relation></rdf:Description></rdf:RDF>`,
+			map[string]string{"t": ""},
+		},
+		{
+			"empty property lang does not leak to sibling property",
+			head + `><rdf:Description rdf:about="http://x/1"><dc:description xml:lang="nl"></dc:description><dc:title>t</dc:title></rdf:Description></rdf:RDF>`,
+			map[string]string{"t": ""},
+		},
 	}
 
 	for _, tt := range tests {

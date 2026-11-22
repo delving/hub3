@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:schema="https://schema.org/">
+  <schema:CreativeWork rdf:about="http://example.org/c/0109">
+    <schema:name xml:lang="nl">Kaart van Limburg</schema:name>
+    <schema:size>
+      <schema:QuantitativeValue rdf:about="http://example.org/c/0109#dimension-1">
+        <schema:name xml:lang="nl">hoogte</schema:name>
+        <schema:unitText>cm</schema:unitText>
+        <schema:description xml:lang="nl"></schema:description>
+      </schema:QuantitativeValue>
+    </schema:size>
+    <schema:size>
+      <schema:QuantitativeValue rdf:about="http://example.org/c/0109#dimension-2">
+        <schema:name xml:lang="nl">breedte</schema:name>
+        <schema:unitText>cm</schema:unitText>
+      </schema:QuantitativeValue>
+    </schema:size>
+    <schema:description xml:lang="nl"></schema:description>
+    <schema:keywords>kaart</schema:keywords>
+  </schema:CreativeWork>
+</rdf:RDF>
