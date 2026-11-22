@@ -735,6 +735,8 @@ github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422/go.mod h1:wSjqV6
 github.com/kiivihal/gon3 v0.0.0-20211121225715-4c6aac646e7e/go.mod h1:F4UJY3cYY8VfMd5aF5Ix7bdH5IL1fvUvldeAYPZSHQ8=
 github.com/kiivihal/gon3 v0.0.0-20241213084604-f70aaf04367d h1:qUTXom6XSXWd38jdaDcFao0uKp+SCoj04JMADkZ2iU0=
 github.com/kiivihal/gon3 v0.0.0-20241213084604-f70aaf04367d/go.mod h1:8nGvi3TeoDx17bGKBFcCrugtnMulFlAjRXBv+xgDjRc=
+github.com/kiivihal/gon3 v0.0.0-20261122145725-9cf4a2d50aea h1:Q2qFKdIq4ywVRRORyLAl3/iUsjOnWZUFiv3tsTfxa/Q=
+github.com/kiivihal/gon3 v0.0.0-20261122145725-9cf4a2d50aea/go.mod h1:8nGvi3TeoDx17bGKBFcCrugtnMulFlAjRXBv+xgDjRc=
 github.com/kiivihal/rdf2go v0.1.5 h1:tCp/Z+Vk6C8MpVb2BtiWmnDSyrTxs8sWn5refVqRpvM=
 github.com/kiivihal/rdf2go v0.1.5/go.mod h1:TvTgs/NBSVHFK5fz+OqPgoxhNr+mGk8ovDbxHjSRP+g=
 github.com/kisielk/errcheck v1.5.0/go.mod h1:pFxgyoBC7bSaBwPgfKdkLd5X25qrDl4LWUI2bnpBCr8=

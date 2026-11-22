@@ -35,7 +35,7 @@ require (
 	github.com/hibiken/asynqmon v0.7.2
 	github.com/justinas/alice v1.2.0
 	github.com/kiivihal/gojsonld v0.0.0-20201006115110-4ae92c75b422
-	github.com/kiivihal/gon3 v0.0.0-20241213084604-f70aaf04367d
+	github.com/kiivihal/gon3 v0.0.0-20261122145725-9cf4a2d50aea
 	github.com/kiivihal/rdf2go v0.1.5
 	github.com/klauspost/compress v1.20.3
 	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
