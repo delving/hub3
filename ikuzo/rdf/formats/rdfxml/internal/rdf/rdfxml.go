@@ -810,6 +810,7 @@ first:
 		d.parseObjLiteral("")
 		d.triples = append(d.triples, d.current)
 		d.reifyCheck()
+		d.lang, d.langSet = "", false // clear the property element's xml:lang, as parseXMLPropElemEnd does
 		d.nextState = parseXMLPropElemOrNodeEnd
 		return nil
 
