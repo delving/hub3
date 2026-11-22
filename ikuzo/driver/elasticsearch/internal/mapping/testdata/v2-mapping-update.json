@@ -1,0 +1,144 @@
+{
+  "dynamic_templates": [
+    {
+      "fields_as_multi_field": {
+        "path_match": "fields.*",
+        "mapping": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256,
+              "doc_values": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "properties": {
+    "_checksum": {
+      "type": "keyword"
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "sourceID": {
+          "type": "keyword"
+        },
+        "sourcePath": {
+          "type": "keyword"
+        },
+        "groupID": {
+          "type": "keyword"
+        },
+        "recDefID": {
+          "type": "keyword"
+        },
+        "aboutTypeURI": {
+          "type": "keyword"
+        },
+        "hasDigitalObject": {
+          "type": "boolean"
+        }
+      }
+    },
+    "fields": {
+      "type": "object"
+    },
+    "tree": {
+      "properties": {
+        "physDesc": {
+          "type": "keyword"
+        },
+        "periodDesc": {
+          "type": "keyword"
+        },
+        "rawContent": {
+          "type": "text",
+          "store": false
+        },
+        "genreform": {
+          "type": "keyword"
+        }
+      }
+    },
+    "protobuf": {
+      "type": "object",
+      "properties": {
+        "messageType": {
+          "type": "keyword"
+        },
+        "data": {
+          "type": "keyword",
+          "store": true,
+          "index": false,
+          "doc_values": false
+        }
+      }
+    },
+    "resources": {
+      "type": "nested",
+      "properties": {
+        "context": {
+          "type": "nested",
+          "properties": {
+            "subject": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "subjectClass": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "predicate": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "searchLabel": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "level": {
+              "type": "integer"
+            },
+            "objectID": {
+              "type": "keyword",
+              "ignore_above": 256
+            },
+            "sortKey": {
+              "type": "integer"
+            },
+            "label": {
+              "type": "keyword"
+            }
+          }
+        },
+        "entries": {
+          "type": "nested",
+          "properties": {
+            "intRange": {
+              "type": "integer_range"
+            },
+            "float": {
+              "type": "float"
+            },
+            "level": {
+              "type": "integer"
+            },
+            "sortValue": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
