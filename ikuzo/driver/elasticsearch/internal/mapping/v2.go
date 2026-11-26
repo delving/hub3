@@ -236,6 +236,9 @@ func V2MappingUpdate() string {
 // request with 400 mapper_parsing_exception when it does, and the
 // client's log-only error handling would swallow it silently.
 // Index-level settings that need updating go via _settings instead.
+// It also MUST NOT redefine resources.context: before its fields were
+// renamed to lowercase, indices got them from dynamic mapping (long,
+// text), and changing those types fails the whole request.
 var v2MappingUpdate = `{
   "dynamic_templates": [
     {
@@ -293,19 +296,6 @@ var v2MappingUpdate = `{
 	"resources": {
 		"type": "nested",
 		"properties": {
-			"context": {
-				"type": "nested",
-				"properties": {
-					"subject": {"type": "keyword", "ignore_above": 256},
-					"subjectClass": {"type": "keyword", "ignore_above": 256},
-					"predicate": {"type": "keyword", "ignore_above": 256},
-					"searchLabel": {"type": "keyword", "ignore_above": 256},
-					"level": {"type": "integer"},
-					"objectID": {"type": "keyword", "ignore_above": 256},
-					"sortKey": {"type": "integer"},
-					"label": {"type": "keyword"}
-				}
-			},
 			"entries": {
 				"type": "nested",
 				"properties": {

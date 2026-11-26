@@ -74,7 +74,8 @@ func TestV2Mapping_ContainsResolvedFields(t *testing.T) {
 }
 
 // Both mappings are valid JSON, and the context fields use the names the v2
-// document writes (camelCase since F22).
+// document writes (camelCase since F22). Only the create mapping declares them:
+// the update leaves resources.context alone (TestV2MappingUpdateLeavesContextAlone).
 func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
 	for name, m := range map[string]string{"create": V2ESMapping(1, 0), "update": V2MappingUpdate()} {
 		var doc map[string]any
@@ -86,7 +87,11 @@ func TestV2MappingsValidAndCamelCaseContext(t *testing.T) {
 			props = doc
 		}
 		b, _ := json.Marshal(props)
-		for _, f := range []string{`"subjectClass"`, `"searchLabel"`, `"objectID"`, `"sortValue"`} {
+		want := []string{`"sortValue"`}
+		if name == "create" {
+			want = append(want, `"subjectClass"`, `"searchLabel"`, `"objectID"`)
+		}
+		for _, f := range want {
 			if !strings.Contains(string(b), f) {
 				t.Errorf("%s mapping lacks %s", name, f)
 			}
@@ -119,5 +124,38 @@ func TestV2MappingWithoutMetaFacetFields(t *testing.T) {
 				t.Errorf("%s mapping still declares %s", name, f)
 			}
 		}
+	}
+}
+
+// An index created before the context fields were renamed to lowercase (they were
+// "Level", "Subject", ...) got "level", "subject", ... from dynamic mapping, as
+// long/text. Redefining them in the update makes the _mapping call fail and hub3
+// refuse to start, so the update must leave resources.context alone; the create
+// mapping still sets the right types for new indices.
+func TestV2MappingUpdateLeavesContextAlone(t *testing.T) {
+	var m struct {
+		Properties map[string]struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"properties"`
+	}
+	if err := json.Unmarshal([]byte(V2MappingUpdate()), &m); err != nil {
+		t.Fatalf("update mapping is not valid JSON: %v", err)
+	}
+	if _, ok := m.Properties["resources"].Properties["context"]; ok {
+		t.Fatal("v2MappingUpdate must not define resources.context: existing indices hold dynamic types for it")
+	}
+
+	var c struct {
+		Mappings struct {
+			Properties map[string]struct {
+				Properties map[string]json.RawMessage `json:"properties"`
+			} `json:"properties"`
+		} `json:"mappings"`
+	}
+	if err := json.Unmarshal([]byte(V2ESMapping(1, 0)), &c); err != nil {
+		t.Fatalf("create mapping is not valid JSON: %v", err)
+	}
+	if _, ok := c.Mappings.Properties["resources"].Properties["context"]; !ok {
+		t.Fatal("the create mapping must keep resources.context")
 	}
 }

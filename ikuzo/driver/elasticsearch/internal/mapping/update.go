@@ -33,8 +33,11 @@ const (
 	// fields sortValue and inline (conformance findings F22, F2); inline only
 	// on create, an existing index may have it mapped dynamically. Bumped again
 	// for dropping mFilterID/mType/mRole (F3: superseded by facet.mergeField).
+	// Update bumped for leaving resources.context out of the update: indices
+	// from before the camelCase rename map those fields dynamically (long, text)
+	// and the type change failed hub3's startup on dcn-acpt.
 	v2MappingSha       = "ff2620d457566641"
-	v2UpdateMappingSha = "2ae62c0b3a950fe9"
+	v2UpdateMappingSha = "0a8e34f5ce61e5f3"
 	fragmentMappingSha = "7607ca7737d17e4a"
 )
 
