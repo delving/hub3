@@ -28,24 +28,24 @@ func TestPersistentBlankNodeIDs(t *testing.T) {
     `
 	expected := []Triple{
 		{
-			Subj: Blank{id: "_:b1f63bcc868f9561"},
+			Subj: Blank{id: "_:b66765fb9ea2d8811"},
 			Pred: IRI{str: "http://example.org/prop1"},
-			Obj:  Blank{id: "_:b8b434bd122cbc67e"},
+			Obj:  Blank{id: "_:b140008127eafebb0"},
 		},
 		{
-			Subj: Blank{id: "_:b1f63bcc868f9561"},
+			Subj: Blank{id: "_:b66765fb9ea2d8811"},
 			Pred: IRI{str: "http://example.org/prop2"},
 			Obj:  Blank{id: "_:abc"},
 		},
 		{
-			Subj: Blank{id: "_:b77e9e79d1fcd7e99"},
+			Subj: Blank{id: "_:b481d10b23ee2da68"},
 			Pred: IRI{str: "http://example.org/prop3"},
-			Obj:  Blank{id: "_:b98039e712ac3d16"},
+			Obj:  Blank{id: "_:b32cb4b4cdf946253"},
 		},
 		{
-			Subj: Blank{id: "_:b77e9e79d1fcd7e99"},
+			Subj: Blank{id: "_:b481d10b23ee2da68"},
 			Pred: IRI{str: "http://example.org/prop3"},
-			Obj:  Blank{id: "_:bb4bd705b468ba169"},
+			Obj:  Blank{id: "_:b9e6956d1598d1fec"},
 		},
 	}
 
@@ -139,4 +139,53 @@ func Test_rdfXMLDecoder_Files(t *testing.T) {
 
 func TestMain(m *testing.M) {
 	testutil.TestMainHelper(m)
+}
+
+// Two sibling node elements without rdf:about or rdf:nodeID are two blank nodes.
+// Their path used to hold only element names and depths, so whether two such
+// siblings got distinct labels depended on what else was on the path stack: in
+// fries-museum P2023-025 (testdata/sibling-blank-concepts.rdf) both blank
+// skos:Concept nodes got one label and their triples merged.
+func TestSiblingBlankNodesGetDistinctIDs(t *testing.T) {
+	for name, open := range map[string]func() (io.Reader, error){
+		"minimal": func() (io.Reader, error) {
+			return strings.NewReader(`
+        <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+                 xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+            <skos:Concept><skos:prefLabel>digital born</skos:prefLabel></skos:Concept>
+            <skos:Concept rdf:about="http://example.org/c"><skos:prefLabel>video-installatie</skos:prefLabel></skos:Concept>
+            <skos:Concept><skos:prefLabel>digitale film</skos:prefLabel></skos:Concept>
+        </rdf:RDF>`), nil
+		},
+		"fries-museum P2023-025": func() (io.Reader, error) { return os.Open("testdata/sibling-blank-concepts.rdf") },
+	} {
+		t.Run(name, func(t *testing.T) {
+			r, err := open()
+			if err != nil {
+				t.Fatal(err)
+			}
+			dec := NewRDFXMLDecoder(r, WithSeed("dcn_fries-museum_P2023-025"), WithIDStrategy(DeterministicIDs))
+			labels := map[string]string{} // blank concept -> prefLabel
+			for {
+				triple, err := dec.Decode()
+				if err == io.EOF {
+					break
+				}
+				if err != nil {
+					t.Fatalf("Decode error: %v", err)
+				}
+				b, ok := triple.Subj.(Blank)
+				if !ok || !strings.HasSuffix(triple.Pred.String(), "skos/core#prefLabel") {
+					continue
+				}
+				if prev, dup := labels[b.id]; dup {
+					t.Fatalf("blank node %s carries both %s and %s", b.id, prev, triple.Obj.String())
+				}
+				labels[b.id] = triple.Obj.String()
+			}
+			if len(labels) != 2 {
+				t.Fatalf("want 2 blank concepts, got %d: %v", len(labels), labels)
+			}
+		})
+	}
 }
