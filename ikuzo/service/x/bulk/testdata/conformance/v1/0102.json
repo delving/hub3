@@ -1,0 +1,67 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0102",
+  "hubID": "test_conformance_0102",
+  "legacy": {
+    "delving_hubId": "test_conformance_0102",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0102",
+    "@type": "Literal",
+    "raw": "test_conformance_0102"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_creator": [
+    {
+      "id": "http://example.org/ext/person/1",
+      "value": "http://example.org/ext/person/1",
+      "@type": "URIRef",
+      "raw": "http://example.org/ext/person/1"
+    }
+  ],
+  "schema_sameAs": [
+    {
+      "id": "https://www.wikidata.org/wiki/Q205863",
+      "value": "https://www.wikidata.org/wiki/Q205863",
+      "@type": "URIRef",
+      "raw": "https://www.wikidata.org/wiki/Q205863"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0102",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0102/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0102",
+    "slug": "test_conformance_0102",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0102\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/creator\":[{\"@id\":\"http://example.org/ext/person/1\"}],\"https://schema.org/sameAs\":[{\"@id\":\"https://www.wikidata.org/wiki/Q205863\"}]}]",
+    "source_uri": "http://example.org/c/0102",
+    "spec": "conformance"
+  }
+}

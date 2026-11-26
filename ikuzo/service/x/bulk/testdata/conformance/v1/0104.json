@@ -1,0 +1,96 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0104",
+  "hubID": "test_conformance_0104",
+  "legacy": {
+    "delving_hubId": "test_conformance_0104",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0104",
+    "@type": "Literal",
+    "raw": "test_conformance_0104"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_address": [
+    {
+      "id": "addr",
+      "value": "addr",
+      "@type": "Bnode",
+      "raw": "addr"
+    }
+  ],
+  "schema_addressLocality": [
+    {
+      "value": "Delft",
+      "@type": "Literal",
+      "raw": "Delft"
+    }
+  ],
+  "schema_contentLocation": [
+    {
+      "id": "place",
+      "value": "place",
+      "@type": "Bnode",
+      "raw": "place"
+    }
+  ],
+  "schema_geo": [
+    {
+      "id": "geo",
+      "value": "geo",
+      "@type": "Bnode",
+      "raw": "geo"
+    }
+  ],
+  "schema_latitude": [
+    {
+      "value": "52.0116",
+      "@type": "Literal",
+      "raw": "52.0116"
+    }
+  ],
+  "schema_longitude": [
+    {
+      "value": "4.3571",
+      "@type": "Literal",
+      "raw": "4.3571"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0104",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0104/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0104",
+    "slug": "test_conformance_0104",
+    "source_graph": "[{\"@id\":\"_:addr\",\"https://schema.org/addressLocality\":[{\"@value\":\"Delft\"}],\"https://schema.org/geo\":[{\"@id\":\"_:geo\"}]},{\"@id\":\"_:geo\",\"https://schema.org/latitude\":[{\"@value\":\"52.0116\"}],\"https://schema.org/longitude\":[{\"@value\":\"4.3571\"}]},{\"@id\":\"_:place\",\"https://schema.org/address\":[{\"@id\":\"_:addr\"}]},{\"@id\":\"http://example.org/c/0104\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/contentLocation\":[{\"@id\":\"_:place\"}]}]",
+    "source_uri": "http://example.org/c/0104",
+    "spec": "conformance"
+  }
+}

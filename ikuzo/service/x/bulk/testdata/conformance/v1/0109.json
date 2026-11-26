@@ -1,0 +1,116 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0109",
+  "hubID": "test_conformance_0109",
+  "legacy": {
+    "delving_hubId": "test_conformance_0109",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0109",
+    "@type": "Literal",
+    "raw": "test_conformance_0109"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    },
+    {
+      "id": "https://schema.org/QuantitativeValue",
+      "value": "https://schema.org/QuantitativeValue",
+      "@type": "URIRef",
+      "raw": "https://schema.org/QuantitativeValue"
+    },
+    {
+      "id": "https://schema.org/QuantitativeValue",
+      "value": "https://schema.org/QuantitativeValue",
+      "@type": "URIRef",
+      "raw": "https://schema.org/QuantitativeValue"
+    }
+  ],
+  "revision": 1,
+  "schema_keywords": [
+    {
+      "value": "kaart",
+      "@type": "Literal",
+      "raw": "kaart"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "Kaart van Limburg",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Kaart van Limburg"
+    },
+    {
+      "value": "hoogte",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "hoogte"
+    },
+    {
+      "value": "breedte",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "breedte"
+    }
+  ],
+  "schema_size": [
+    {
+      "id": "http://example.org/c/0109#dimension-1",
+      "value": "http://example.org/c/0109#dimension-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0109#dimension-1"
+    },
+    {
+      "id": "http://example.org/c/0109#dimension-2",
+      "value": "http://example.org/c/0109#dimension-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0109#dimension-2"
+    }
+  ],
+  "schema_unitText": [
+    {
+      "value": "cm",
+      "@type": "Literal",
+      "raw": "cm"
+    },
+    {
+      "value": "cm",
+      "@type": "Literal",
+      "raw": "cm"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0109",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0109/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0109",
+    "slug": "test_conformance_0109",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0109\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/keywords\":[{\"@value\":\"kaart\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Kaart van Limburg\"}],\"https://schema.org/size\":[{\"@id\":\"http://example.org/c/0109#dimension-1\"},{\"@id\":\"http://example.org/c/0109#dimension-2\"}]},{\"@id\":\"http://example.org/c/0109#dimension-1\",\"@type\":[\"https://schema.org/QuantitativeValue\"],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"hoogte\"}],\"https://schema.org/unitText\":[{\"@value\":\"cm\"}]},{\"@id\":\"http://example.org/c/0109#dimension-2\",\"@type\":[\"https://schema.org/QuantitativeValue\"],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"breedte\"}],\"https://schema.org/unitText\":[{\"@value\":\"cm\"}]}]",
+    "source_uri": "http://example.org/c/0109",
+    "spec": "conformance"
+  }
+}

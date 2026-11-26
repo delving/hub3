@@ -1,0 +1,1010 @@
+{
+  "crm_P01i_is_domain_of": [
+    {
+      "id": "http://example.org/c/pc14/pieter-leerling",
+      "value": "http://example.org/c/pc14/pieter-leerling",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/pc14/pieter-leerling"
+    },
+    {
+      "id": "http://example.org/c/pc14/pieter-leermeester",
+      "value": "http://example.org/c/pc14/pieter-leermeester",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/pc14/pieter-leermeester"
+    }
+  ],
+  "crm_P02_has_range": [
+    {
+      "id": "http://example.org/c/person/pieter",
+      "value": "http://example.org/c/person/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/pieter"
+    },
+    {
+      "id": "http://example.org/c/person/jacob",
+      "value": "http://example.org/c/person/jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/jacob"
+    }
+  ],
+  "crm_P100i_died_in": [
+    {
+      "id": "http://example.org/c/death/pieter",
+      "value": "http://example.org/c/death/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/death/pieter"
+    },
+    {
+      "id": "http://example.org/c/death/jacob",
+      "value": "http://example.org/c/death/jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/death/jacob"
+    }
+  ],
+  "crm_P102_has_title": [
+    {
+      "id": "http://example.org/c/title/0612",
+      "value": "http://example.org/c/title/0612",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/title/0612"
+    }
+  ],
+  "crm_P108i_was_produced_by": [
+    {
+      "id": "http://example.org/c/production/0612",
+      "value": "http://example.org/c/production/0612",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/production/0612"
+    }
+  ],
+  "crm_P14.1_in_the_role_of": [
+    {
+      "id": "http://example.org/c/type/leerling",
+      "value": "http://example.org/c/type/leerling",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/leerling"
+    },
+    {
+      "id": "http://example.org/c/type/leermeester",
+      "value": "http://example.org/c/type/leermeester",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/leermeester"
+    }
+  ],
+  "crm_P14_carried_out_by": [
+    {
+      "id": "http://example.org/c/person/pieter",
+      "value": "http://example.org/c/person/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/pieter"
+    }
+  ],
+  "crm_P14i_performed": [
+    {
+      "id": "http://example.org/c/training/pieter",
+      "value": "http://example.org/c/training/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/training/pieter"
+    }
+  ],
+  "crm_P190_has_symbolic_content": [
+    {
+      "value": "Portret van Maria, materiaal als tekst",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Portret van Maria, materiaal als tekst"
+    },
+    {
+      "value": "Pieter de Schilder",
+      "@type": "Literal",
+      "raw": "Pieter de Schilder"
+    },
+    {
+      "value": "Leiden",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Leiden"
+    },
+    {
+      "value": "Leyden",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Leyden"
+    },
+    {
+      "value": "Leyde",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Leyde"
+    },
+    {
+      "value": "Lugdunum Batavorum",
+      "language": "la",
+      "@type": "Literal",
+      "raw": "Lugdunum Batavorum"
+    },
+    {
+      "value": "Holland",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Holland"
+    },
+    {
+      "value": "Holland",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Holland"
+    },
+    {
+      "value": "Hollande",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Hollande"
+    },
+    {
+      "value": "Republiek der Zeven Verenigde Nederlanden",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Republiek der Zeven Verenigde Nederlanden"
+    },
+    {
+      "value": "Dutch Republic",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Dutch Republic"
+    },
+    {
+      "value": "Provinces-Unies",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Provinces-Unies"
+    },
+    {
+      "value": "Amsterdam",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Amsterdam"
+    },
+    {
+      "value": "Amsterdam",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Amsterdam"
+    },
+    {
+      "value": "Amstelodamum",
+      "language": "la",
+      "@type": "Literal",
+      "raw": "Amstelodamum"
+    },
+    {
+      "value": "Jacob de Meester",
+      "@type": "Literal",
+      "raw": "Jacob de Meester"
+    },
+    {
+      "value": "Haarlem",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Haarlem"
+    },
+    {
+      "value": "Harlem",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Harlem"
+    },
+    {
+      "value": "Harlemum",
+      "language": "la",
+      "@type": "Literal",
+      "raw": "Harlemum"
+    },
+    {
+      "value": "Maria van Dorp",
+      "@type": "Literal",
+      "raw": "Maria van Dorp"
+    }
+  ],
+  "crm_P1_is_identified_by": [
+    {
+      "id": "http://example.org/c/appellation/person-pieter-0",
+      "value": "http://example.org/c/appellation/person-pieter-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/person-pieter-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-0",
+      "value": "http://example.org/c/appellation/place-leiden-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-leiden-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-1",
+      "value": "http://example.org/c/appellation/place-leiden-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-leiden-1"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-2",
+      "value": "http://example.org/c/appellation/place-leiden-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-leiden-2"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-leiden-3",
+      "value": "http://example.org/c/appellation/place-leiden-3",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-leiden-3"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-0",
+      "value": "http://example.org/c/appellation/place-holland-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-holland-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-1",
+      "value": "http://example.org/c/appellation/place-holland-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-holland-1"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-holland-2",
+      "value": "http://example.org/c/appellation/place-holland-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-holland-2"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-0",
+      "value": "http://example.org/c/appellation/place-republiek-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-republiek-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-1",
+      "value": "http://example.org/c/appellation/place-republiek-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-republiek-1"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-republiek-2",
+      "value": "http://example.org/c/appellation/place-republiek-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-republiek-2"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-amsterdam-0",
+      "value": "http://example.org/c/appellation/place-amsterdam-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-amsterdam-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-amsterdam-1",
+      "value": "http://example.org/c/appellation/place-amsterdam-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-amsterdam-1"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-amsterdam-2",
+      "value": "http://example.org/c/appellation/place-amsterdam-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-amsterdam-2"
+    },
+    {
+      "id": "http://example.org/c/appellation/person-jacob-0",
+      "value": "http://example.org/c/appellation/person-jacob-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/person-jacob-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-0",
+      "value": "http://example.org/c/appellation/place-haarlem-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-haarlem-0"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-1",
+      "value": "http://example.org/c/appellation/place-haarlem-1",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-haarlem-1"
+    },
+    {
+      "id": "http://example.org/c/appellation/place-haarlem-2",
+      "value": "http://example.org/c/appellation/place-haarlem-2",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/place-haarlem-2"
+    },
+    {
+      "id": "http://example.org/c/appellation/person-maria-0",
+      "value": "http://example.org/c/appellation/person-maria-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/person-maria-0"
+    }
+  ],
+  "crm_P2_has_type": [
+    {
+      "id": "http://example.org/c/type/techniek",
+      "value": "http://example.org/c/type/techniek",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/techniek"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/opleiding",
+      "value": "http://example.org/c/type/opleiding",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/opleiding"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/alternatieve-naam",
+      "value": "http://example.org/c/type/alternatieve-naam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/alternatieve-naam"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    }
+  ],
+  "crm_P32_used_general_technique": [
+    {
+      "id": "http://example.org/c/type/paneelschildering",
+      "value": "http://example.org/c/type/paneelschildering",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/paneelschildering"
+    }
+  ],
+  "crm_P3_has_note": [
+    {
+      "value": "eikenhouten paneel",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "eikenhouten paneel"
+    }
+  ],
+  "crm_P4_has_time-span": [
+    {
+      "id": "http://example.org/c/timespan/0612",
+      "value": "http://example.org/c/timespan/0612",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/0612"
+    },
+    {
+      "id": "http://example.org/c/timespan/birth-pieter",
+      "value": "http://example.org/c/timespan/birth-pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/birth-pieter"
+    },
+    {
+      "id": "http://example.org/c/timespan/death-pieter",
+      "value": "http://example.org/c/timespan/death-pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/death-pieter"
+    },
+    {
+      "id": "http://example.org/c/timespan/birth-jacob",
+      "value": "http://example.org/c/timespan/birth-jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/birth-jacob"
+    },
+    {
+      "id": "http://example.org/c/timespan/death-jacob",
+      "value": "http://example.org/c/timespan/death-jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/death-jacob"
+    }
+  ],
+  "crm_P62_depicts": [
+    {
+      "id": "http://example.org/c/person/maria",
+      "value": "http://example.org/c/person/maria",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/maria"
+    }
+  ],
+  "crm_P7_took_place_at": [
+    {
+      "id": "http://example.org/c/place/leiden",
+      "value": "http://example.org/c/place/leiden",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/leiden"
+    },
+    {
+      "id": "http://example.org/c/place/amsterdam",
+      "value": "http://example.org/c/place/amsterdam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/amsterdam"
+    },
+    {
+      "id": "http://example.org/c/place/haarlem",
+      "value": "http://example.org/c/place/haarlem",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/haarlem"
+    },
+    {
+      "id": "http://example.org/c/place/leiden",
+      "value": "http://example.org/c/place/leiden",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/leiden"
+    }
+  ],
+  "crm_P82a_begin_of_the_begin": [
+    {
+      "value": "1660-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1660-01-01T00:00:00"
+    },
+    {
+      "value": "1620-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1620-01-01T00:00:00"
+    },
+    {
+      "value": "1675-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1675-01-01T00:00:00"
+    },
+    {
+      "value": "1590-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1590-01-01T00:00:00"
+    },
+    {
+      "value": "1655-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1655-01-01T00:00:00"
+    }
+  ],
+  "crm_P82b_end_of_the_end": [
+    {
+      "value": "1660-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1660-12-31T23:59:59"
+    },
+    {
+      "value": "1620-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1620-12-31T23:59:59"
+    },
+    {
+      "value": "1675-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1675-12-31T23:59:59"
+    },
+    {
+      "value": "1590-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1590-12-31T23:59:59"
+    },
+    {
+      "value": "1655-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1655-12-31T23:59:59"
+    }
+  ],
+  "crm_P89_falls_within": [
+    {
+      "id": "http://example.org/c/place/holland",
+      "value": "http://example.org/c/place/holland",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/holland"
+    },
+    {
+      "id": "http://example.org/c/place/republiek",
+      "value": "http://example.org/c/place/republiek",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/republiek"
+    },
+    {
+      "id": "http://example.org/c/place/holland",
+      "value": "http://example.org/c/place/holland",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/holland"
+    },
+    {
+      "id": "http://example.org/c/place/holland",
+      "value": "http://example.org/c/place/holland",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/holland"
+    }
+  ],
+  "crm_P98i_was_born": [
+    {
+      "id": "http://example.org/c/birth/pieter",
+      "value": "http://example.org/c/birth/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/birth/pieter"
+    },
+    {
+      "id": "http://example.org/c/birth/jacob",
+      "value": "http://example.org/c/birth/jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/birth/jacob"
+    }
+  ],
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0612",
+  "hubID": "test_conformance_0612",
+  "legacy": {
+    "delving_hubId": "test_conformance_0612",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0612",
+    "@type": "Literal",
+    "raw": "test_conformance_0612"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E12_Production",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E12_Production",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E69_Death",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E69_Death",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E7_Activity",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E7_Activity",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E7_Activity"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E67_Birth"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E69_Death",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E69_Death",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E69_Death"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    }
+  ],
+  "rdfs_label": [
+    {
+      "value": "paneelschildering",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "paneelschildering"
+    },
+    {
+      "value": "techniek",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "techniek"
+    },
+    {
+      "value": "voorkeursnaam",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "voorkeursnaam"
+    },
+    {
+      "value": "alternatieve naam",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "alternatieve naam"
+    },
+    {
+      "value": "leerling",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "leerling"
+    },
+    {
+      "value": "leermeester",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "leermeester"
+    },
+    {
+      "value": "opleiding",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "opleiding"
+    }
+  ],
+  "revision": 1,
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0612",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0612/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0612",
+    "slug": "test_conformance_0612",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0612\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P102_has_title\":[{\"@id\":\"http://example.org/c/title/0612\"}],\"http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by\":[{\"@id\":\"http://example.org/c/production/0612\"}],\"http://www.cidoc-crm.org/cidoc-crm/P3_has_note\":[{\"@language\":\"nl\",\"@value\":\"eikenhouten paneel\"}],\"http://www.cidoc-crm.org/cidoc-crm/P62_depicts\":[{\"@id\":\"http://example.org/c/person/maria\"}]},{\"@id\":\"http://example.org/c/appellation/person-jacob-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Jacob de Meester\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/person-maria-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Maria van Dorp\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/person-pieter-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Pieter de Schilder\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-amsterdam-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Amsterdam\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-amsterdam-1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"en\",\"@value\":\"Amsterdam\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-amsterdam-2\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"la\",\"@value\":\"Amstelodamum\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-haarlem-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Haarlem\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-haarlem-1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"en\",\"@value\":\"Harlem\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-haarlem-2\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"la\",\"@value\":\"Harlemum\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-holland-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Holland\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-holland-1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"en\",\"@value\":\"Holland\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-holland-2\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"fr\",\"@value\":\"Hollande\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-leiden-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Leiden\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-leiden-1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"en\",\"@value\":\"Leyden\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-leiden-2\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"fr\",\"@value\":\"Leyde\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-leiden-3\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"la\",\"@value\":\"Lugdunum Batavorum\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-republiek-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Republiek der Zeven Verenigde Nederlanden\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/appellation/place-republiek-1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"en\",\"@value\":\"Dutch Republic\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/appellation/place-republiek-2\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"fr\",\"@value\":\"Provinces-Unies\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/alternatieve-naam\"}]},{\"@id\":\"http://example.org/c/birth/jacob\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E67_Birth\"],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/birth-jacob\"}],\"http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at\":[{\"@id\":\"http://example.org/c/place/haarlem\"}]},{\"@id\":\"http://example.org/c/birth/pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E67_Birth\"],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/birth-pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at\":[{\"@id\":\"http://example.org/c/place/leiden\"}]},{\"@id\":\"http://example.org/c/death/jacob\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E69_Death\"],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/death-jacob\"}],\"http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at\":[{\"@id\":\"http://example.org/c/place/leiden\"}]},{\"@id\":\"http://example.org/c/death/pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E69_Death\"],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/death-pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at\":[{\"@id\":\"http://example.org/c/place/amsterdam\"}]},{\"@id\":\"http://example.org/c/pc14/pieter-leerling\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by\"],\"http://www.cidoc-crm.org/cidoc-crm/P02_has_range\":[{\"@id\":\"http://example.org/c/person/pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of\":[{\"@id\":\"http://example.org/c/type/leerling\"}]},{\"@id\":\"http://example.org/c/pc14/pieter-leermeester\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by\"],\"http://www.cidoc-crm.org/cidoc-crm/P02_has_range\":[{\"@id\":\"http://example.org/c/person/jacob\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of\":[{\"@id\":\"http://example.org/c/type/leermeester\"}]},{\"@id\":\"http://example.org/c/person/jacob\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E21_Person\"],\"http://www.cidoc-crm.org/cidoc-crm/P100i_died_in\":[{\"@id\":\"http://example.org/c/death/jacob\"}],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/person-jacob-0\"}],\"http://www.cidoc-crm.org/cidoc-crm/P98i_was_born\":[{\"@id\":\"http://example.org/c/birth/jacob\"}]},{\"@id\":\"http://example.org/c/person/maria\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E21_Person\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/person-maria-0\"}]},{\"@id\":\"http://example.org/c/person/pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E21_Person\"],\"http://www.cidoc-crm.org/cidoc-crm/P100i_died_in\":[{\"@id\":\"http://example.org/c/death/pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14i_performed\":[{\"@id\":\"http://example.org/c/training/pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/person-pieter-0\"}],\"http://www.cidoc-crm.org/cidoc-crm/P98i_was_born\":[{\"@id\":\"http://example.org/c/birth/pieter\"}]},{\"@id\":\"http://example.org/c/place/amsterdam\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/place-amsterdam-0\"},{\"@id\":\"http://example.org/c/appellation/place-amsterdam-1\"},{\"@id\":\"http://example.org/c/appellation/place-amsterdam-2\"}],\"http://www.cidoc-crm.org/cidoc-crm/P89_falls_within\":[{\"@id\":\"http://example.org/c/place/holland\"}]},{\"@id\":\"http://example.org/c/place/haarlem\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/place-haarlem-0\"},{\"@id\":\"http://example.org/c/appellation/place-haarlem-1\"},{\"@id\":\"http://example.org/c/appellation/place-haarlem-2\"}],\"http://www.cidoc-crm.org/cidoc-crm/P89_falls_within\":[{\"@id\":\"http://example.org/c/place/holland\"}]},{\"@id\":\"http://example.org/c/place/holland\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/place-holland-0\"},{\"@id\":\"http://example.org/c/appellation/place-holland-1\"},{\"@id\":\"http://example.org/c/appellation/place-holland-2\"}],\"http://www.cidoc-crm.org/cidoc-crm/P89_falls_within\":[{\"@id\":\"http://example.org/c/place/republiek\"}]},{\"@id\":\"http://example.org/c/place/leiden\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/place-leiden-0\"},{\"@id\":\"http://example.org/c/appellation/place-leiden-1\"},{\"@id\":\"http://example.org/c/appellation/place-leiden-2\"},{\"@id\":\"http://example.org/c/appellation/place-leiden-3\"}],\"http://www.cidoc-crm.org/cidoc-crm/P89_falls_within\":[{\"@id\":\"http://example.org/c/place/holland\"}]},{\"@id\":\"http://example.org/c/place/republiek\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/place-republiek-0\"},{\"@id\":\"http://example.org/c/appellation/place-republiek-1\"},{\"@id\":\"http://example.org/c/appellation/place-republiek-2\"}]},{\"@id\":\"http://example.org/c/production/0612\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E12_Production\"],\"http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by\":[{\"@id\":\"http://example.org/c/person/pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique\":[{\"@id\":\"http://example.org/c/type/paneelschildering\"}],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/0612\"}]},{\"@id\":\"http://example.org/c/timespan/0612\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1660-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1660-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/timespan/birth-jacob\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1590-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1590-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/timespan/birth-pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1620-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1620-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/timespan/death-jacob\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1655-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1655-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/timespan/death-pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1675-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1675-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/title/0612\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E35_Title\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Portret van Maria, materiaal als tekst\"}]},{\"@id\":\"http://example.org/c/training/pieter\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E7_Activity\"],\"http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of\":[{\"@id\":\"http://example.org/c/pc14/pieter-leerling\"},{\"@id\":\"http://example.org/c/pc14/pieter-leermeester\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/opleiding\"}]},{\"@id\":\"http://example.org/c/type/alternatieve-naam\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"alternatieve naam\"}]},{\"@id\":\"http://example.org/c/type/leerling\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"leerling\"}]},{\"@id\":\"http://example.org/c/type/leermeester\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"leermeester\"}]},{\"@id\":\"http://example.org/c/type/opleiding\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"opleiding\"}]},{\"@id\":\"http://example.org/c/type/paneelschildering\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/techniek\"}],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"paneelschildering\"}]},{\"@id\":\"http://example.org/c/type/techniek\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"techniek\"}]},{\"@id\":\"http://example.org/c/type/voorkeursnaam\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"voorkeursnaam\"}]}]",
+    "source_uri": "http://example.org/c/0612",
+    "spec": "conformance"
+  }
+}

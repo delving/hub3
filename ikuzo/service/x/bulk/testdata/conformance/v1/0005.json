@@ -1,0 +1,84 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0005",
+  "hubID": "test_conformance_0005",
+  "legacy": {
+    "delving_hubId": "test_conformance_0005",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0005",
+    "@type": "Literal",
+    "raw": "test_conformance_0005"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_alternateName": [
+    {
+      "value": "café",
+      "@type": "Literal",
+      "raw": "café"
+    }
+  ],
+  "schema_description": [
+    {
+      "value": "regel 1\nregel 2",
+      "@type": "Literal",
+      "raw": "regel 1\nregel 2"
+    }
+  ],
+  "schema_keywords": [
+    {
+      "value": "🎨",
+      "@type": "Literal",
+      "raw": "🎨"
+    },
+    {
+      "value": "é",
+      "@type": "Literal",
+      "raw": "é"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "Het \"Puttertje\"",
+      "@type": "Literal",
+      "raw": "Het 'Puttertje'"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0005",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0005/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0005",
+    "slug": "test_conformance_0005",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0005\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/alternateName\":[{\"@value\":\"café\"}],\"https://schema.org/description\":[{\"@value\":\"regel 1\\nregel 2\"}],\"https://schema.org/keywords\":[{\"@value\":\"é\"},{\"@value\":\"🎨\"}],\"https://schema.org/name\":[{\"@value\":\"Het \\\"Puttertje\\\"\"}]}]",
+    "source_uri": "http://example.org/c/0005",
+    "spec": "conformance"
+  }
+}

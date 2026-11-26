@@ -21,7 +21,7 @@ import (
 	"github.com/matryer/is"
 )
 
-const defaultListSize = 2208
+const defaultListSize = 2209
 
 func TestService_SearchLabel(t *testing.T) {
 	dc := &domain.Namespace{
@@ -49,11 +49,12 @@ func TestService_SearchLabel(t *testing.T) {
 			false,
 		},
 		{
-			"unknown namespace",
+			"unknown namespace gets a generated prefix",
 			dc,
 			args{uri: "http://purl.org/unknown/elements/1.1/title"},
-			"",
-			true,
+			// "ns" + the first 8 hex digits of sha1("http://purl.org/unknown/elements/1.1/")
+			"nsb4286cf7_title",
+			false,
 		},
 	}
 
