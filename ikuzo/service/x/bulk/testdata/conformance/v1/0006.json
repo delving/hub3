@@ -1,0 +1,71 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0006",
+  "hubID": "test_conformance_0006",
+  "legacy": {
+    "delving_hubId": "test_conformance_0006",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0006",
+    "@type": "Literal",
+    "raw": "test_conformance_0006"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_creator": [
+    {
+      "id": "http://example.org/c/0006/maker",
+      "value": "http://example.org/c/0006/maker",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0006/maker"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "Molen",
+      "@type": "Literal",
+      "raw": "Molen"
+    },
+    {
+      "value": "Molen",
+      "@type": "Literal",
+      "raw": "Molen"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0006",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0006/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0006",
+    "slug": "test_conformance_0006",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0006\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/creator\":[{\"@id\":\"http://example.org/c/0006/maker\"}],\"https://schema.org/name\":[{\"@value\":\"Molen\"}]},{\"@id\":\"http://example.org/c/0006/maker\",\"https://schema.org/name\":[{\"@value\":\"Molen\"}]}]",
+    "source_uri": "http://example.org/c/0006",
+    "spec": "conformance"
+  }
+}

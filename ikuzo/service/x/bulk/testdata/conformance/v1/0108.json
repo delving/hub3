@@ -1,0 +1,82 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0108",
+  "hubID": "test_conformance_0108",
+  "legacy": {
+    "delving_hubId": "test_conformance_0108",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0108",
+    "@type": "Literal",
+    "raw": "test_conformance_0108"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_description": [
+    {
+      "value": "B",
+      "@type": "Literal",
+      "raw": "B"
+    },
+    {
+      "value": "E",
+      "@type": "Literal",
+      "raw": "E"
+    }
+  ],
+  "schema_keywords": [
+    {
+      "value": "D",
+      "@type": "Literal",
+      "raw": "D"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "A",
+      "@type": "Literal",
+      "raw": "A"
+    },
+    {
+      "value": "C",
+      "@type": "Literal",
+      "raw": "C"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0108",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0108/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0108",
+    "slug": "test_conformance_0108",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0108\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/description\":[{\"@value\":\"B\"},{\"@value\":\"E\"}],\"https://schema.org/keywords\":[{\"@value\":\"D\"}],\"https://schema.org/name\":[{\"@value\":\"A\"},{\"@value\":\"C\"}]}]",
+    "source_uri": "http://example.org/c/0108",
+    "spec": "conformance"
+  }
+}

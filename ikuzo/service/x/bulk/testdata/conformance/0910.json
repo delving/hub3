@@ -33,6 +33,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
+          "searchLabel": "o_created",
           "level": 1,
           "isoDate": [
             "2021-07-08"
@@ -48,6 +49,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 1,
           "integer": 137,
           "order": 2
@@ -57,6 +59,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#boolean",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "searchLabel": "o_is_public",
           "level": 1,
           "order": 3
         },
@@ -64,6 +67,7 @@
           "@id": "https://n2t.net/ark:/60537/biWGGg",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item_set",
+          "searchLabel": "o_item_set",
           "level": 1,
           "order": 4
         },
@@ -71,6 +75,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "searchLabel": "o_owner",
           "level": 1,
           "order": 5
         },
@@ -78,6 +83,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "searchLabel": "o_resource_class",
           "level": 1,
           "order": 7
         },
@@ -85,6 +91,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "searchLabel": "o_resource_template",
           "level": 1,
           "order": 9
         },
@@ -92,6 +99,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#site",
+          "searchLabel": "o_site",
           "level": 1,
           "order": 11
         },
@@ -99,6 +107,7 @@
           "@value": "Burgemeester Martenssingel",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#title",
+          "searchLabel": "o_title",
           "level": 1,
           "order": 13
         },
@@ -106,6 +115,7 @@
           "@id": "https://n2t.net/ark:/60537/bEYpwJ",
           "entrytype": "Resource",
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "order": 14
         },
@@ -113,6 +123,7 @@
           "@id": "https://n2t.net/ark:/60537/beA1xj",
           "entrytype": "Resource",
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "order": 15
         },
@@ -121,6 +132,7 @@
           "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "order": 16
         },
@@ -242,6 +254,7 @@
           "@language": "nl",
           "entrytype": "Literal",
           "predicate": "https://www.goudatijdmachine.nl/def#genoemdNaar",
+          "searchLabel": "nseb768547_genoemdNaar",
           "level": 1,
           "order": 86
         },
@@ -250,6 +263,7 @@
           "@language": "nl",
           "entrytype": "Literal",
           "predicate": "https://www.goudatijdmachine.nl/def#ligging",
+          "searchLabel": "nseb768547_ligging",
           "level": 1,
           "order": 87
         }
@@ -267,6 +281,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "searchLabel": "o_owner",
           "level": 1,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "label": "Burgemeester Martenssingel"
@@ -278,6 +293,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 2,
           "integer": 2,
           "order": 6
@@ -296,6 +312,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "searchLabel": "o_resource_class",
           "level": 1,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/909",
           "label": "Burgemeester Martenssingel"
@@ -307,6 +324,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 2,
           "integer": 909,
           "order": 8
@@ -325,6 +343,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "searchLabel": "o_resource_template",
           "level": 1,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/2",
           "label": "Burgemeester Martenssingel"
@@ -336,6 +355,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 2,
           "integer": 2,
           "order": 10
@@ -354,6 +374,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#site",
+          "searchLabel": "o_site",
           "level": 1,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
           "label": "Burgemeester Martenssingel"
@@ -365,6 +386,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 2,
           "integer": 2,
           "order": 12
@@ -385,6 +407,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -396,6 +419,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
+          "searchLabel": "o_created",
           "level": 2,
           "isoDate": [
             "2022-04-11"
@@ -411,6 +435,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 2,
           "integer": 37823,
           "order": 18
@@ -420,6 +445,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#boolean",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "searchLabel": "o_is_public",
           "level": 2,
           "order": 19
         },
@@ -427,6 +453,7 @@
           "@id": "https://n2t.net/ark:/60537/bmEOvk",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item_set",
+          "searchLabel": "o_item_set",
           "level": 2,
           "order": 20
         },
@@ -434,6 +461,7 @@
           "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#media",
+          "searchLabel": "o_media",
           "level": 2,
           "order": 21
         },
@@ -441,6 +469,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "searchLabel": "o_owner",
           "level": 2,
           "order": 39
         },
@@ -448,6 +477,7 @@
           "@id": "https://n2t.net/ark:/60537/buzpEa/93653",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "searchLabel": "o_primary_media",
           "level": 2,
           "order": 40
         },
@@ -455,6 +485,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "searchLabel": "o_resource_class",
           "level": 2,
           "order": 41
         },
@@ -462,6 +493,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "searchLabel": "o_resource_template",
           "level": 2,
           "order": 43
         },
@@ -469,6 +501,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/sites/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#site",
+          "searchLabel": "o_site",
           "level": 2,
           "order": 45
         },
@@ -476,6 +509,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#thumbnail",
+          "searchLabel": "o_thumbnail",
           "level": 2,
           "order": 46
         },
@@ -483,6 +517,7 @@
           "@value": "Gouda",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#title",
+          "searchLabel": "o_title",
           "level": 2,
           "order": 48
         },
@@ -655,6 +690,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -665,6 +701,7 @@
             "https://schema.org/Place"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#media",
+          "searchLabel": "o_media",
           "level": 2,
           "objectID": "https://n2t.net/ark:/60537/buzpEa/93653",
           "label": "Gouda"
@@ -675,6 +712,7 @@
             "https://schema.org/Place"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#primary_media",
+          "searchLabel": "o_primary_media",
           "level": 2,
           "objectID": "https://n2t.net/ark:/60537/buzpEa/93653",
           "label": "Gouda"
@@ -686,6 +724,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#dateTime",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#created",
+          "searchLabel": "o_created",
           "level": 3,
           "isoDate": [
             "2022-11-20"
@@ -700,6 +739,7 @@
           "@value": "2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#filename",
+          "searchLabel": "o_filename",
           "level": 3,
           "order": 23
         },
@@ -708,6 +748,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 3,
           "integer": 93653,
           "order": 24
@@ -716,6 +757,7 @@
           "@value": "url",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#ingester",
+          "searchLabel": "o_ingester",
           "level": 3,
           "order": 25
         },
@@ -724,6 +766,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#boolean",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#is_public",
+          "searchLabel": "o_is_public",
           "level": 3,
           "order": 26
         },
@@ -732,6 +775,7 @@
           "@value": "Gouda",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#item",
+          "searchLabel": "o_item",
           "level": 3,
           "order": 27
         },
@@ -739,6 +783,7 @@
           "@value": "image/png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#media_type",
+          "searchLabel": "o_media_type",
           "level": 3,
           "order": 28
         },
@@ -746,6 +791,7 @@
           "@value": "https://www.goudatijdmachine.nl/omeka/files/original/2ea03f3f8b936d73e137f7d90229d3b7236147da.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#original_url",
+          "searchLabel": "o_original_url",
           "level": 3,
           "order": 29
         },
@@ -753,6 +799,7 @@
           "@id": "https://www.goudatijdmachine.nl/omeka/api/users/2",
           "entrytype": "Resource",
           "predicate": "http://omeka.org/s/vocabs/o#owner",
+          "searchLabel": "o_owner",
           "level": 3,
           "order": 30
         },
@@ -760,6 +807,7 @@
           "@value": "file",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#renderer",
+          "searchLabel": "o_renderer",
           "level": 3,
           "order": 31
         },
@@ -767,6 +815,7 @@
           "@value": "8c795d2993dcb150d406069b85d0e554f6fd3c511cb4332e9b0f469dac1baae0",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#sha256",
+          "searchLabel": "o_sha256",
           "level": 3,
           "order": 32
         },
@@ -775,6 +824,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#size",
+          "searchLabel": "o_size",
           "level": 3,
           "integer": 160780,
           "order": 33
@@ -783,6 +833,7 @@
           "@value": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wapen_van_Gouda.svg/640px-Wapen_van_Gouda.svg.png",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#source",
+          "searchLabel": "o_source",
           "level": 3,
           "order": 34
         },
@@ -790,6 +841,7 @@
           "@id": "_:genid1-93653",
           "entrytype": "Bnode",
           "predicate": "http://omeka.org/s/vocabs/o#thumbnail_urls",
+          "searchLabel": "o_thumbnail_urls",
           "level": 3,
           "order": 35
         },
@@ -831,6 +883,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -841,6 +894,7 @@
             "https://schema.org/Place"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#resource_class",
+          "searchLabel": "o_resource_class",
           "level": 2,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_classes/952",
           "label": "Gouda"
@@ -852,6 +906,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 3,
           "integer": 952,
           "order": 42
@@ -870,6 +925,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -880,6 +936,7 @@
             "https://schema.org/Place"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#resource_template",
+          "searchLabel": "o_resource_template",
           "level": 2,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/resource_templates/26",
           "label": "Gouda"
@@ -891,6 +948,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 3,
           "integer": 26,
           "order": 44
@@ -909,6 +967,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -919,6 +978,7 @@
             "https://schema.org/Place"
           ],
           "predicate": "http://omeka.org/s/vocabs/o#thumbnail",
+          "searchLabel": "o_thumbnail",
           "level": 2,
           "objectID": "https://www.goudatijdmachine.nl/omeka/api/assets/36",
           "label": "Gouda"
@@ -930,6 +990,7 @@
           "@type": "http://www.w3.org/2001/XMLSchema#integer",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#id",
+          "searchLabel": "o_id",
           "level": 3,
           "integer": 36,
           "order": 47
@@ -948,6 +1009,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -988,6 +1050,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -1009,6 +1072,7 @@
           "@value": "Gouda (in VIAF)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
+          "searchLabel": "o_label",
           "level": 3,
           "order": 66
         }
@@ -1026,6 +1090,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -1047,6 +1112,7 @@
           "@value": "Gouda (op Wikipedia)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
+          "searchLabel": "o_label",
           "level": 3,
           "order": 68
         }
@@ -1064,6 +1130,7 @@
             "https://www.goudatijdmachine.nl/def#Straat"
           ],
           "predicate": "http://rdf.histograph.io/liesIn",
+          "searchLabel": "nsdd33a9bb_liesIn",
           "level": 1,
           "objectID": "https://n2t.net/ark:/60537/buzpEa",
           "label": "Burgemeester Martenssingel"
@@ -1085,6 +1152,7 @@
           "@value": "Gouda (op DBNL)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
+          "searchLabel": "o_label",
           "level": 3,
           "order": 70
         }
@@ -1143,6 +1211,7 @@
           "@value": "Burgemeester Martenssingel (Straten van Gouda)",
           "entrytype": "Literal",
           "predicate": "http://omeka.org/s/vocabs/o#label",
+          "searchLabel": "o_label",
           "level": 2,
           "order": 85
         }
@@ -1153,6 +1222,64 @@
     "gsp_asWKT": [
       "POINT(4.708329999999933 52.01667)",
       "MULTILINESTRING((4.7175099 52.0096531,4.7174463 52.0099008,4.7183383 52.009994,4.7193704 52.0101123,4.7195255 52.0101468,4.7196866 52.0101851,4.7198954 52.0102424,4.7200915 52.0103105,4.7202798 52.0103911,4.7204753 52.010492,4.720694 52.0106276,4.7208565 52.0107439,4.7209888 52.0108538,4.7211131 52.0109839,4.7212298 52.0111264,4.7213146 52.0112597,4.7214128 52.0114489,4.7214519 52.011564,4.7214716 52.011632,4.7215094 52.0118115,4.7215156 52.0119035,4.7215098 52.012016,4.7210749 52.0135737,4.721102 52.0136176,4.721222 52.0137024,4.7213224 52.0137482,4.7213041 52.0138401,4.7212815 52.0139538,4.7212279 52.0143307),(4.7213224 52.0137482,4.7213953 52.013714,4.7214391 52.0136597,4.7218262 52.0122386,4.7218561 52.0120938,4.7218737 52.0119287,4.7218668 52.0117761,4.721829 52.0115966,4.7218081 52.0115139,4.7217783 52.0114358,4.7216742 52.0111938,4.7215382 52.0109919,4.7214091 52.0108369,4.7212608 52.0106979,4.7211607 52.0106128,4.7209882 52.0104934,4.720813 52.0103832,4.7206049 52.0102745,4.7204218 52.0101861,4.7202224 52.0101088,4.720083 52.0100619,4.7199585 52.01002,4.7195657 52.0099273,4.719425 52.0099038,4.7193238 52.009887,4.7185182 52.0097912,4.7183997 52.0097812,4.7183591 52.0097507,4.7175099 52.0096531))"
+    ],
+    "nseb768547_genoemdNaar": [
+      "Genoemd naar Rudolf Lodewijk Martens (1863 - 1917), burgemeester van Gouda van 1895 tot zijn overlijden. In 1892 werd Martens, zonder bestuurlijke ervaring, benoemd tot burgemeester van Bodegraven. Dit was de opstap naar een lange en succesvolle burgemeesterscarrière in Gouda. Tijdens zijn ambtsperiode werd een pensioenfonds voor de Goudse ambtenaren gesticht en werd het Van Itersonziekenhuis gebouwd. Voorts werd aan de gasfabriek een elektrische centrale gekoppeld en werd in verband met de uitbreidingsplannen van Gouda buiten de singels het gemeentelijk grondbedrijf opgericht."
+    ],
+    "nseb768547_ligging": [
+      "van de Karnemelksloot naar de Burgemeester Martensstraat"
+    ],
+    "o_created": [
+      "2021-07-08T12:42:00+00:00",
+      "2022-04-11T09:27:59+00:00",
+      "2022-11-20T12:39:55+00:00"
+    ],
+    "o_filename": [
+      "2ea03f3f8b936d73e137f7d90229d3b7236147da.png"
+    ],
+    "o_id": [
+      "137",
+      "2",
+      "909",
+      "37823",
+      "93653",
+      "952",
+      "26",
+      "36"
+    ],
+    "o_ingester": [
+      "url"
+    ],
+    "o_is_public": [
+      "true"
+    ],
+    "o_label": [
+      "Gouda (in VIAF)",
+      "Gouda (op Wikipedia)",
+      "Gouda (op DBNL)",
+      "Burgemeester Martenssingel (Straten van Gouda)"
+    ],
+    "o_media_type": [
+      "image/png"
+    ],
+    "o_original_url": [
+      "https://www.goudatijdmachine.nl/omeka/files/original/2ea03f3f8b936d73e137f7d90229d3b7236147da.png"
+    ],
+    "o_renderer": [
+      "file"
+    ],
+    "o_sha256": [
+      "8c795d2993dcb150d406069b85d0e554f6fd3c511cb4332e9b0f469dac1baae0"
+    ],
+    "o_size": [
+      "160780"
+    ],
+    "o_source": [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Wapen_van_Gouda.svg/640px-Wapen_van_Gouda.svg.png"
+    ],
+    "o_title": [
+      "Burgemeester Martenssingel",
+      "Gouda"
     ],
     "schema_identifier": [
       "https://www.goudatijdmachine.nl/id/straat/burgemeester-martenssingel",

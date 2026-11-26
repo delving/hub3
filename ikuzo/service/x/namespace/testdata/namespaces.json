@@ -2730,6 +2730,11 @@
     "weight": 2
   },
   {
+    "prefix": "o",
+    "base": "http://omeka.org/s/vocabs/o#",
+    "weight": 100
+  },
+  {
     "prefix": "oxi",
     "base": "http://omerxi.com/ontologies/core.owl.ttl#",
     "weight": 2

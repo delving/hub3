@@ -1,0 +1,77 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0101",
+  "hubID": "test_conformance_0101",
+  "legacy": {
+    "delving_hubId": "test_conformance_0101",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0101",
+    "@type": "Literal",
+    "raw": "test_conformance_0101"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    },
+    {
+      "id": "https://schema.org/Person",
+      "value": "https://schema.org/Person",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Person"
+    }
+  ],
+  "revision": 1,
+  "schema_creator": [
+    {
+      "id": "http://example.org/c/0101/painter",
+      "value": "http://example.org/c/0101/painter",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0101/painter"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "De vrolijke huishouding",
+      "@type": "Literal",
+      "raw": "De vrolijke huishouding"
+    },
+    {
+      "value": "Jan Steen",
+      "@type": "Literal",
+      "raw": "Jan Steen"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0101",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0101/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0101",
+    "slug": "test_conformance_0101",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0101\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/creator\":[{\"@id\":\"http://example.org/c/0101/painter\"}],\"https://schema.org/name\":[{\"@value\":\"De vrolijke huishouding\"}]},{\"@id\":\"http://example.org/c/0101/painter\",\"@type\":[\"https://schema.org/Person\"],\"https://schema.org/name\":[{\"@value\":\"Jan Steen\"}]}]",
+    "source_uri": "http://example.org/c/0101",
+    "spec": "conformance"
+  }
+}

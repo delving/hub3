@@ -180,6 +180,7 @@
           "@value": "Jacob de Meester",
           "entrytype": "Resource",
           "predicate": "http://example.org/def/pupilOf",
+          "searchLabel": "nsf6ec9367_pupilOf",
           "level": 2,
           "order": 14
         }
@@ -583,6 +584,7 @@
             "https://schema.org/Person"
           ],
           "predicate": "http://example.org/def/pupilOf",
+          "searchLabel": "nsf6ec9367_pupilOf",
           "level": 2,
           "objectID": "http://example.org/c/person/jacob",
           "label": "Paulus de Schilder"

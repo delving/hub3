@@ -1,0 +1,70 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0202",
+  "hubID": "test_conformance_0202",
+  "legacy": {
+    "delving_hubId": "test_conformance_0202",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0202",
+    "@type": "Literal",
+    "raw": "test_conformance_0202"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/Painting",
+      "value": "https://schema.org/Painting",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Painting"
+    },
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    },
+    {
+      "id": "https://schema.org/VisualArtwork",
+      "value": "https://schema.org/VisualArtwork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/VisualArtwork"
+    }
+  ],
+  "revision": 1,
+  "schema_name": [
+    {
+      "value": "Drie typen",
+      "@type": "Literal",
+      "raw": "Drie typen"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0202",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0202/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0202",
+    "slug": "test_conformance_0202",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0202\",\"@type\":[\"https://schema.org/CreativeWork\",\"https://schema.org/Painting\",\"https://schema.org/VisualArtwork\"],\"https://schema.org/name\":[{\"@value\":\"Drie typen\"}]}]",
+    "source_uri": "http://example.org/c/0202",
+    "spec": "conformance"
+  }
+}

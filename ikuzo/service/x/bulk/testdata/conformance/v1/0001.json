@@ -1,0 +1,58 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0001",
+  "hubID": "test_conformance_0001",
+  "legacy": {
+    "delving_hubId": "test_conformance_0001",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0001",
+    "@type": "Literal",
+    "raw": "test_conformance_0001"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_name": [
+    {
+      "value": "Gezicht op Delft",
+      "@type": "Literal",
+      "raw": "Gezicht op Delft"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0001",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0001/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0001",
+    "slug": "test_conformance_0001",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0001\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/name\":[{\"@value\":\"Gezicht op Delft\"}]}]",
+    "source_uri": "http://example.org/c/0001",
+    "spec": "conformance"
+  }
+}

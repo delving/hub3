@@ -1,0 +1,72 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0003",
+  "hubID": "test_conformance_0003",
+  "legacy": {
+    "delving_hubId": "test_conformance_0003",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0003",
+    "@type": "Literal",
+    "raw": "test_conformance_0003"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_dateCreated": [
+    {
+      "value": "1660-05-01",
+      "@type": "Literal",
+      "raw": "1660-05-01"
+    }
+  ],
+  "schema_dateModified": [
+    {
+      "value": "2024-07-16T18:01:37+00:00",
+      "@type": "Literal",
+      "raw": "2024-07-16T18:01:37+00:00"
+    }
+  ],
+  "schema_datePublished": [
+    {
+      "value": "1661",
+      "@type": "Literal",
+      "raw": "1661"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0003",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0003/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0003",
+    "slug": "test_conformance_0003",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0003\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/dateCreated\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#date\",\"@value\":\"1660-05-01\"}],\"https://schema.org/dateModified\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"2024-07-16T18:01:37+00:00\"}],\"https://schema.org/datePublished\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1661\"}]}]",
+    "source_uri": "http://example.org/c/0003",
+    "spec": "conformance"
+  }
+}

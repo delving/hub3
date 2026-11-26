@@ -1,0 +1,397 @@
+{
+  "dc_creator": [
+    {
+      "value": "Vervaardiger onbekend",
+      "@type": "Literal",
+      "raw": "Vervaardiger onbekend"
+    }
+  ],
+  "dc_date": [
+    {
+      "value": "18e eeuw",
+      "@type": "Literal",
+      "raw": "18e eeuw"
+    }
+  ],
+  "dc_description": [
+    {
+      "value": "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]",
+      "@type": "Literal",
+      "raw": "Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkel"
+    }
+  ],
+  "dc_identifier": [
+    {
+      "value": "D036",
+      "@type": "Literal",
+      "raw": "D036"
+    }
+  ],
+  "dc_title": [
+    {
+      "value": "10-delig sluitgewicht van messing",
+      "@type": "Literal",
+      "raw": "10-delig sluitgewicht van messing"
+    }
+  ],
+  "dc_type": [
+    {
+      "value": "gebruiksvoorwerpen",
+      "@type": "Literal",
+      "raw": "gebruiksvoorwerpen"
+    }
+  ],
+  "dcterms_extent": [
+    {
+      "value": "breedte: 16 cm",
+      "@type": "Literal",
+      "raw": "breedte: 16 cm"
+    },
+    {
+      "value": "diameter: 1,5 cm",
+      "@type": "Literal",
+      "raw": "diameter: 1,5 cm"
+    },
+    {
+      "value": "diameter: 1.9 cm",
+      "@type": "Literal",
+      "raw": "diameter: 1.9 cm"
+    },
+    {
+      "value": "diameter: 10.5 cm",
+      "@type": "Literal",
+      "raw": "diameter: 10.5 cm"
+    },
+    {
+      "value": "diameter: 2.4 cm",
+      "@type": "Literal",
+      "raw": "diameter: 2.4 cm"
+    },
+    {
+      "value": "diameter: 2.8 cm",
+      "@type": "Literal",
+      "raw": "diameter: 2.8 cm"
+    },
+    {
+      "value": "diameter: 3.6 cm",
+      "@type": "Literal",
+      "raw": "diameter: 3.6 cm"
+    },
+    {
+      "value": "diameter: 4.4 cm",
+      "@type": "Literal",
+      "raw": "diameter: 4.4 cm"
+    },
+    {
+      "value": "diameter: 5.4 cm",
+      "@type": "Literal",
+      "raw": "diameter: 5.4 cm"
+    },
+    {
+      "value": "diameter: 6.6 cm",
+      "@type": "Literal",
+      "raw": "diameter: 6.6 cm"
+    },
+    {
+      "value": "diameter: 8.3 cm",
+      "@type": "Literal",
+      "raw": "diameter: 8.3 cm"
+    },
+    {
+      "value": "gewicht: 10 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 10 gr"
+    },
+    {
+      "value": "gewicht: 1000 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 1000 gr"
+    },
+    {
+      "value": "gewicht: 160 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 160 gr"
+    },
+    {
+      "value": "gewicht: 20 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 20 gr"
+    },
+    {
+      "value": "gewicht: 2000 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 2000 gr"
+    },
+    {
+      "value": "gewicht: 226.80 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 226.80 gr"
+    },
+    {
+      "value": "gewicht: 40 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 40 gr"
+    },
+    {
+      "value": "gewicht: 4000 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 4000 gr"
+    },
+    {
+      "value": "gewicht: 450 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 450 gr"
+    },
+    {
+      "value": "gewicht: 56.70 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 56.70 gr"
+    },
+    {
+      "value": "gewicht: 6000 gr",
+      "@type": "Literal",
+      "raw": "gewicht: 6000 gr"
+    },
+    {
+      "value": "hoogte: 0.6 ",
+      "@type": "Literal",
+      "raw": "hoogte: 0.6 "
+    },
+    {
+      "value": "hoogte: 0.8 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 0.8 cm"
+    },
+    {
+      "value": "hoogte: 1.0 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 1.0 cm"
+    },
+    {
+      "value": "hoogte: 1.5 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 1.5 cm"
+    },
+    {
+      "value": "hoogte: 2.1 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 2.1 cm"
+    },
+    {
+      "value": "hoogte: 2.5 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 2.5 cm"
+    },
+    {
+      "value": "hoogte: 20 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 20 cm"
+    },
+    {
+      "value": "hoogte: 3.4 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 3.4 cm"
+    },
+    {
+      "value": "hoogte: 4.2 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 4.2 cm"
+    },
+    {
+      "value": "hoogte: 6 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 6 cm"
+    },
+    {
+      "value": "hoogte: 7.3 cm",
+      "@type": "Literal",
+      "raw": "hoogte: 7.3 cm"
+    }
+  ],
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "edm_aggregatedCHO": [
+    {
+      "id": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+      "value": "http://data.collectienederland.nl/resource/document/museum-sloten/D036",
+      "@type": "URIRef",
+      "raw": "http://data.collectienederland.nl/resource/document/museum-sloten/D036"
+    }
+  ],
+  "edm_dataProvider": [
+    {
+      "value": "Museum Sloten",
+      "@type": "Literal",
+      "raw": "Museum Sloten"
+    }
+  ],
+  "edm_hasView": [
+    {
+      "id": "urn:museum-sloten/D036a",
+      "value": "urn:museum-sloten/D036a",
+      "@type": "URIRef",
+      "raw": "urn:museum-sloten/D036a"
+    }
+  ],
+  "edm_provider": [
+    {
+      "value": "Rijksdienst voor het Cultureel Erfgoed",
+      "@type": "Literal",
+      "raw": "Rijksdienst voor het Cultureel Erfgoed"
+    }
+  ],
+  "edm_rights": [
+    {
+      "id": "http://rightsstatements.org/vocab/InC/1.0/",
+      "value": "http://rightsstatements.org/vocab/InC/1.0/",
+      "@type": "URIRef",
+      "raw": "http://rightsstatements.org/vocab/InC/1.0/"
+    }
+  ],
+  "entryURI": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+  "hubID": "test_conformance_0903",
+  "legacy": {
+    "delving_hubId": "test_conformance_0903",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_allowDeepZoom": [
+    {
+      "value": "true",
+      "@type": "Literal",
+      "raw": "true"
+    }
+  ],
+  "nave_allowLinkedOpenData": [
+    {
+      "value": "true",
+      "@type": "Literal",
+      "raw": "true"
+    }
+  ],
+  "nave_allowSourceDownload": [
+    {
+      "value": "false",
+      "@type": "Literal",
+      "raw": "false"
+    }
+  ],
+  "nave_extra": [
+    {
+      "value": "test extra",
+      "@type": "Literal",
+      "raw": "test extra"
+    }
+  ],
+  "nave_id": {
+    "value": "test_conformance_0903",
+    "@type": "Literal",
+    "raw": "test_conformance_0903"
+  },
+  "nave_public": [
+    {
+      "value": "true",
+      "@type": "Literal",
+      "raw": "true"
+    }
+  ],
+  "nave_resourceSortOrder": [
+    {
+      "value": "1",
+      "@type": "Literal",
+      "raw": "1"
+    }
+  ],
+  "nave_thumbMedium": [
+    {
+      "value": "toBeRemoved",
+      "@type": "Literal",
+      "raw": "toBeRemoved"
+    }
+  ],
+  "ore_aggregates": [
+    {
+      "id": "https://json-ld.org/playground/toBeRemoved1",
+      "value": "https://json-ld.org/playground/toBeRemoved1",
+      "@type": "URIRef",
+      "raw": "https://json-ld.org/playground/toBeRemoved1"
+    },
+    {
+      "id": "https://json-ld.org/playground/toBeRemoved2",
+      "value": "https://json-ld.org/playground/toBeRemoved2",
+      "@type": "URIRef",
+      "raw": "https://json-ld.org/playground/toBeRemoved2"
+    },
+    {
+      "id": "b0",
+      "value": "b0",
+      "@type": "Bnode",
+      "raw": "b0"
+    },
+    {
+      "id": "b1",
+      "value": "b1",
+      "@type": "Bnode",
+      "raw": "b1"
+    }
+  ],
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "http://www.openarchives.org/ore/terms/Aggregation",
+      "value": "http://www.openarchives.org/ore/terms/Aggregation",
+      "@type": "URIRef",
+      "raw": "http://www.openarchives.org/ore/terms/Aggregation"
+    },
+    {
+      "id": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+      "value": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+      "@type": "URIRef",
+      "raw": "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+    },
+    {
+      "id": "http://schemas.delving.eu/nave/terms/DcnResource",
+      "value": "http://schemas.delving.eu/nave/terms/DcnResource",
+      "@type": "URIRef",
+      "raw": "http://schemas.delving.eu/nave/terms/DcnResource"
+    },
+    {
+      "id": "http://schemas.delving.eu/nave/terms/DelvingResource",
+      "value": "http://schemas.delving.eu/nave/terms/DelvingResource",
+      "@type": "URIRef",
+      "raw": "http://schemas.delving.eu/nave/terms/DelvingResource"
+    },
+    {
+      "id": "http://www.europeana.eu/schemas/edm/WebResource",
+      "value": "http://www.europeana.eu/schemas/edm/WebResource",
+      "@type": "URIRef",
+      "raw": "http://www.europeana.eu/schemas/edm/WebResource"
+    }
+  ],
+  "revision": 1,
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0903/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0903",
+    "slug": "test_conformance_0903",
+    "source_graph": "[{\"@id\":\"_:b0\",\"@type\":[\"http://schemas.delving.eu/nave/terms/DcnResource\"],\"http://schemas.delving.eu/nave/terms/extra\":[{\"@value\":\"test extra\"}]},{\"@id\":\"_:b1\",\"@type\":[\"http://schemas.delving.eu/nave/terms/DelvingResource\"],\"http://schemas.delving.eu/nave/terms/allowDeepZoom\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowLinkedOpenData\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/allowSourceDownload\":[{\"@value\":\"false\"}],\"http://schemas.delving.eu/nave/terms/public\":[{\"@value\":\"true\"}],\"http://schemas.delving.eu/nave/terms/thumbMedium\":[{\"@value\":\"toBeRemoved\"}]},{\"@id\":\"http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036\",\"@type\":[\"http://www.openarchives.org/ore/terms/Aggregation\"],\"http://www.europeana.eu/schemas/edm/aggregatedCHO\":[{\"@id\":\"http://data.collectienederland.nl/resource/document/museum-sloten/D036\"}],\"http://www.europeana.eu/schemas/edm/dataProvider\":[{\"@value\":\"Museum Sloten\"}],\"http://www.europeana.eu/schemas/edm/hasView\":[{\"@id\":\"urn:museum-sloten/D036a\"}],\"http://www.europeana.eu/schemas/edm/provider\":[{\"@value\":\"Rijksdienst voor het Cultureel Erfgoed\"}],\"http://www.europeana.eu/schemas/edm/rights\":[{\"@id\":\"http://rightsstatements.org/vocab/InC/1.0/\"}],\"http://www.openarchives.org/ore/terms/aggregates\":[{\"@id\":\"_:b0\"},{\"@id\":\"_:b1\"},{\"@id\":\"https://json-ld.org/playground/toBeRemoved1\"},{\"@id\":\"https://json-ld.org/playground/toBeRemoved2\"}]},{\"@id\":\"http://data.collectienederland.nl/resource/document/museum-sloten/D036\",\"@type\":[\"http://www.europeana.eu/schemas/edm/ProvidedCHO\"],\"http://purl.org/dc/elements/1.1/creator\":[{\"@value\":\"Vervaardiger onbekend\"}],\"http://purl.org/dc/elements/1.1/date\":[{\"@value\":\"18e eeuw\"}],\"http://purl.org/dc/elements/1.1/description\":[{\"@value\":\"Messing emmervormige bus met deksel, sluitklem en handvat. De klem van het sluitgewicht is gestileerd in de vorm van reptielen en het handvat in de vorm van twee vrouwfiguren. De bus is rondom versierd met stippen en cirkels. Het geheel bestond oorspronkelijk uit 11 gewichten waarvan 10 in het moedergewicht passen. Het kleinste gewicht is verloren gegaan. Boven op het deksel, tussen de reptiel en halve vrouwfiguren, staan verschillende getallen en figuren ingeslagen.nnOp het deksel staan waarschijnlijk diverse jaartallen ingeslagen tussen 1761 en 1811 (1761, 1763, 67, 69, 71, 73, 75, 77, 79. 81, 83, 99, 1801, 1811). nnOpschriften gewichten van licht naar zwaar: na. 1D [1 Decagram = 10 gram]nb. 2D [2 Decagram = 20 gram]nc. 4D [4 Decagram = 40 gram]nd. 2 [2 ounce = 56,70 gram]ne. 16D [16 Decagram = 160 gram]nf. 8 [8 ounche = 226,80 gram]ng. 16 [16 ounche = 450 gram]nh. 1 [1 kilogram]ni. 2 [2 kilogram]nj. 4 [4 kilogram] nk. 6 [6 kilogram]\"}],\"http://purl.org/dc/elements/1.1/identifier\":[{\"@value\":\"D036\"}],\"http://purl.org/dc/elements/1.1/title\":[{\"@value\":\"10-delig sluitgewicht van messing\"}],\"http://purl.org/dc/elements/1.1/type\":[{\"@value\":\"gebruiksvoorwerpen\"}],\"http://purl.org/dc/terms/extent\":[{\"@value\":\"breedte: 16 cm\"},{\"@value\":\"diameter: 1,5 cm\"},{\"@value\":\"diameter: 1.9 cm\"},{\"@value\":\"diameter: 10.5 cm\"},{\"@value\":\"diameter: 2.4 cm\"},{\"@value\":\"diameter: 2.8 cm\"},{\"@value\":\"diameter: 3.6 cm\"},{\"@value\":\"diameter: 4.4 cm\"},{\"@value\":\"diameter: 5.4 cm\"},{\"@value\":\"diameter: 6.6 cm\"},{\"@value\":\"diameter: 8.3 cm\"},{\"@value\":\"gewicht: 10 gr\"},{\"@value\":\"gewicht: 1000 gr\"},{\"@value\":\"gewicht: 160 gr\"},{\"@value\":\"gewicht: 20 gr\"},{\"@value\":\"gewicht: 2000 gr\"},{\"@value\":\"gewicht: 226.80 gr\"},{\"@value\":\"gewicht: 40 gr\"},{\"@value\":\"gewicht: 4000 gr\"},{\"@value\":\"gewicht: 450 gr\"},{\"@value\":\"gewicht: 56.70 gr\"},{\"@value\":\"gewicht: 6000 gr\"},{\"@value\":\"hoogte: 0.6 \"},{\"@value\":\"hoogte: 0.8 cm\"},{\"@value\":\"hoogte: 1.0 cm\"},{\"@value\":\"hoogte: 1.5 cm\"},{\"@value\":\"hoogte: 2.1 cm\"},{\"@value\":\"hoogte: 2.5 cm\"},{\"@value\":\"hoogte: 20 cm\"},{\"@value\":\"hoogte: 3.4 cm\"},{\"@value\":\"hoogte: 4.2 cm\"},{\"@value\":\"hoogte: 6 cm\"},{\"@value\":\"hoogte: 7.3 cm\"}]},{\"@id\":\"urn:museum-sloten/D036a\",\"@type\":[\"http://www.europeana.eu/schemas/edm/WebResource\"],\"http://schemas.delving.eu/nave/terms/resourceSortOrder\":[{\"@value\":\"1\"}]}]",
+    "source_uri": "http://data.collectienederland.nl/resource/aggregation/museum-sloten/D036",
+    "spec": "conformance"
+  }
+}

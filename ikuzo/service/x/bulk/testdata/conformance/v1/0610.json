@@ -1,0 +1,260 @@
+{
+  "crm_P102_has_title": [
+    {
+      "id": "http://example.org/c/title/0610",
+      "value": "http://example.org/c/title/0610",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/title/0610"
+    }
+  ],
+  "crm_P108i_was_produced_by": [
+    {
+      "id": "http://example.org/c/production/0610",
+      "value": "http://example.org/c/production/0610",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/production/0610"
+    }
+  ],
+  "crm_P14_carried_out_by": [
+    {
+      "id": "http://example.org/ext/person/pieter",
+      "value": "http://example.org/ext/person/pieter",
+      "@type": "URIRef",
+      "raw": "http://example.org/ext/person/pieter"
+    }
+  ],
+  "crm_P190_has_symbolic_content": [
+    {
+      "value": "Portret van Maria, externe maker",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Portret van Maria, externe maker"
+    },
+    {
+      "value": "Maria van Dorp",
+      "@type": "Literal",
+      "raw": "Maria van Dorp"
+    }
+  ],
+  "crm_P1_is_identified_by": [
+    {
+      "id": "http://example.org/c/appellation/person-maria-0",
+      "value": "http://example.org/c/appellation/person-maria-0",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/appellation/person-maria-0"
+    }
+  ],
+  "crm_P2_has_type": [
+    {
+      "id": "http://example.org/c/type/techniek",
+      "value": "http://example.org/c/type/techniek",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/techniek"
+    },
+    {
+      "id": "http://example.org/c/type/materiaal",
+      "value": "http://example.org/c/type/materiaal",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/materiaal"
+    },
+    {
+      "id": "http://example.org/c/type/voorkeursnaam",
+      "value": "http://example.org/c/type/voorkeursnaam",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/voorkeursnaam"
+    }
+  ],
+  "crm_P32_used_general_technique": [
+    {
+      "id": "http://example.org/c/type/paneelschildering",
+      "value": "http://example.org/c/type/paneelschildering",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/type/paneelschildering"
+    }
+  ],
+  "crm_P45_consists_of": [
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "value": "http://example.org/c/material/eikenpaneel",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/material/eikenpaneel"
+    }
+  ],
+  "crm_P4_has_time-span": [
+    {
+      "id": "http://example.org/c/timespan/0610",
+      "value": "http://example.org/c/timespan/0610",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/timespan/0610"
+    }
+  ],
+  "crm_P62_depicts": [
+    {
+      "id": "http://example.org/c/person/maria",
+      "value": "http://example.org/c/person/maria",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/maria"
+    }
+  ],
+  "crm_P82a_begin_of_the_begin": [
+    {
+      "value": "1660-01-01T00:00:00",
+      "@type": "Literal",
+      "raw": "1660-01-01T00:00:00"
+    }
+  ],
+  "crm_P82b_end_of_the_end": [
+    {
+      "value": "1660-12-31T23:59:59",
+      "@type": "Literal",
+      "raw": "1660-12-31T23:59:59"
+    }
+  ],
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0610",
+  "hubID": "test_conformance_0610",
+  "legacy": {
+    "delving_hubId": "test_conformance_0610",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0610",
+    "@type": "Literal",
+    "raw": "test_conformance_0610"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E12_Production",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E12_Production",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E12_Production"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E57_Material",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E57_Material",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E57_Material"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E21_Person",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E21_Person"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    }
+  ],
+  "rdfs_label": [
+    {
+      "value": "paneelschildering",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "paneelschildering"
+    },
+    {
+      "value": "techniek",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "techniek"
+    },
+    {
+      "value": "eikenhouten paneel",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "eikenhouten paneel"
+    },
+    {
+      "value": "oak panel",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "oak panel"
+    },
+    {
+      "value": "materiaal",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "materiaal"
+    },
+    {
+      "value": "voorkeursnaam",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "voorkeursnaam"
+    }
+  ],
+  "revision": 1,
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0610",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0610/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0610",
+    "slug": "test_conformance_0610",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0610\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P102_has_title\":[{\"@id\":\"http://example.org/c/title/0610\"}],\"http://www.cidoc-crm.org/cidoc-crm/P108i_was_produced_by\":[{\"@id\":\"http://example.org/c/production/0610\"}],\"http://www.cidoc-crm.org/cidoc-crm/P45_consists_of\":[{\"@id\":\"http://example.org/c/material/eikenpaneel\"}],\"http://www.cidoc-crm.org/cidoc-crm/P62_depicts\":[{\"@id\":\"http://example.org/c/person/maria\"}]},{\"@id\":\"http://example.org/c/appellation/person-maria-0\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Maria van Dorp\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/voorkeursnaam\"}]},{\"@id\":\"http://example.org/c/material/eikenpaneel\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E57_Material\"],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/materiaal\"}],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"en\",\"@value\":\"oak panel\"},{\"@language\":\"nl\",\"@value\":\"eikenhouten paneel\"}]},{\"@id\":\"http://example.org/c/person/maria\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E21_Person\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"http://example.org/c/appellation/person-maria-0\"}]},{\"@id\":\"http://example.org/c/production/0610\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E12_Production\"],\"http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by\":[{\"@id\":\"http://example.org/ext/person/pieter\"}],\"http://www.cidoc-crm.org/cidoc-crm/P32_used_general_technique\":[{\"@id\":\"http://example.org/c/type/paneelschildering\"}],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"http://example.org/c/timespan/0610\"}]},{\"@id\":\"http://example.org/c/timespan/0610\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1660-01-01T00:00:00\"}],\"http://www.cidoc-crm.org/cidoc-crm/P82b_end_of_the_end\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#dateTime\",\"@value\":\"1660-12-31T23:59:59\"}]},{\"@id\":\"http://example.org/c/title/0610\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E35_Title\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@language\":\"nl\",\"@value\":\"Portret van Maria, externe maker\"}]},{\"@id\":\"http://example.org/c/type/materiaal\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"materiaal\"}]},{\"@id\":\"http://example.org/c/type/paneelschildering\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"http://example.org/c/type/techniek\"}],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"paneelschildering\"}]},{\"@id\":\"http://example.org/c/type/techniek\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"techniek\"}]},{\"@id\":\"http://example.org/c/type/voorkeursnaam\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.w3.org/2000/01/rdf-schema#label\":[{\"@language\":\"nl\",\"@value\":\"voorkeursnaam\"}]}]",
+    "source_uri": "http://example.org/c/0610",
+    "spec": "conformance"
+  }
+}

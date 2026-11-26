@@ -1,0 +1,72 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0806",
+  "hubID": "test_conformance_0806",
+  "legacy": {
+    "delving_hubId": "test_conformance_0806",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0806",
+    "@type": "Literal",
+    "raw": "test_conformance_0806"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_depth": [
+    {
+      "value": "abc",
+      "@type": "Literal",
+      "raw": "abc"
+    }
+  ],
+  "schema_height": [
+    {
+      "value": "38.5",
+      "@type": "Literal",
+      "raw": "38.5"
+    }
+  ],
+  "schema_width": [
+    {
+      "value": "45",
+      "@type": "Literal",
+      "raw": "45"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0806",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0806/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0806",
+    "slug": "test_conformance_0806",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0806\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/depth\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#integer\",\"@value\":\"abc\"}],\"https://schema.org/height\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#decimal\",\"@value\":\"38.5\"}],\"https://schema.org/width\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#integer\",\"@value\":\"45\"}]}]",
+    "source_uri": "http://example.org/c/0806",
+    "spec": "conformance"
+  }
+}
