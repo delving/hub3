@@ -80,40 +80,6 @@
     "resources": {
       "type": "nested",
       "properties": {
-        "context": {
-          "type": "nested",
-          "properties": {
-            "subject": {
-              "type": "keyword",
-              "ignore_above": 256
-            },
-            "subjectClass": {
-              "type": "keyword",
-              "ignore_above": 256
-            },
-            "predicate": {
-              "type": "keyword",
-              "ignore_above": 256
-            },
-            "searchLabel": {
-              "type": "keyword",
-              "ignore_above": 256
-            },
-            "level": {
-              "type": "integer"
-            },
-            "objectID": {
-              "type": "keyword",
-              "ignore_above": 256
-            },
-            "sortKey": {
-              "type": "integer"
-            },
-            "label": {
-              "type": "keyword"
-            }
-          }
-        },
         "entries": {
           "type": "nested",
           "properties": {
