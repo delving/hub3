@@ -290,7 +290,8 @@ func TestNewResourceEntryConfiguredDatesValidated(t *testing.T) {
 	}{
 		{"1660-05-01", []string{"1660-05-01", "1660-05-01", "1660-05-01"}},
 		{"zomer 1660", []string{"1660-01-01", "1660-12-31"}}, // raw text out, the range's year stays
-		{"1650-1700", nil}, // padYears reads it as year-month: no valid date
+		{"1650-1700", []string{"1650-01-01", "1700-12-31"}}, // years joined by a hyphen: a period (the raw text is no isoDate)
+		{"1650-13", nil}, // year-month with no such month: no valid date
 	} {
 		fe := &FragmentEntry{Value: tc.value, EntryType: "Literal"}
 		re, err := fe.NewResourceEntry("https://schema.org/dateCreated", 1, &ResourceMap{})

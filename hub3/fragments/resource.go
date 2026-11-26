@@ -1123,7 +1123,12 @@ func (fe *FragmentEntry) NewResourceEntry(predicate string, level int32, rm *Res
 						re.Date = append(re.Date, indexRange.Less)
 					}
 				case "latLong":
-					re.LatLong = re.Value
+					ll, ok := normalizeLatLong(re.Value)
+					if !ok {
+						log.Printf("not indexing %q (%s) as latLong", re.Value, predicate)
+						continue
+					}
+					re.LatLong = ll
 				case "integer":
 					i, err := strconv.Atoi(re.Value)
 					if err != nil {
@@ -1221,6 +1226,10 @@ func (ir IndexRange) isDates() bool {
 
 // CreateDateRange creates a date indexRange
 func CreateDateRange(period string) (IndexRange, error) {
+	if ir, ok := centuryRange(period); ok {
+		return ir, nil
+	}
+	period = yearHyphenYear.ReplaceAllString(period, "$1/$2")
 	ir := IndexRange{}
 	parts := strings.FieldsFunc(period, splitPeriod)
 	switch len(parts) {
