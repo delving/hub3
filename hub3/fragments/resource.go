@@ -1229,7 +1229,10 @@ func CreateDateRange(period string) (IndexRange, error) {
 	if ir, ok := centuryRange(period); ok {
 		return ir, nil
 	}
-	period = yearHyphenYear.ReplaceAllString(period, "$1/$2")
+	if openEnded(strings.TrimSpace(period)) {
+		return IndexRange{}, errOpenEnded
+	}
+	period = yearHyphenYear.ReplaceAllString(edtfUnspecified(isoDayFirst(period)), "$1/$2")
 	ir := IndexRange{}
 	parts := strings.FieldsFunc(period, splitPeriod)
 	switch len(parts) {

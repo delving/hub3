@@ -52,6 +52,14 @@ func TestCreateDateRangeMore(t *testing.T) {
 		"4e kwart 19e eeuw": {"1875-01-01", "1899-12-31"},
 		"1e helft 19e eeuw": {"1800-01-01", "1849-12-31"},
 		"2e helft 20e eeuw": {"1950-01-01", "1999-12-31"},
+		// day first, as Dutch archives write them (birth, death and burial dates)
+		"26-10-1920":              {"1920-10-26", "1920-10-26"},
+		"6-5-1925":                {"1925-05-06", "1925-05-06"},
+		"31/12/1938":              {"1938-12-31", "1938-12-31"},
+		"01-1997":                 {"1997-01-01", "1997-01-31"},
+		"2-1996":                  {"1996-02-01", "1996-02-28"},
+		"09-2013 – 01-2014":       {"2013-09-01", "2014-01-31"},
+		"23-03-2012 – 01-04-2012": {"2012-03-23", "2012-04-01"},
 		// unchanged
 		"1980":                  {"1980-01-01", "1980-12-31"},
 		"1793-05-13/1794-01-11": {"1793-05-13", "1794-01-11"},
@@ -64,7 +72,39 @@ func TestCreateDateRangeMore(t *testing.T) {
 		}
 	}
 	for _, in := range []string{"Z.d.", "ongeveer", "XXX", "XXII", "19", "IIX9", "1985-1980", "XIX-XVIII", "5e kwart 19e eeuw",
-		"3e helft 19e eeuw", "eind 19e eeuw", "XIXm"} {
+		"3e helft 19e eeuw", "eind 19e eeuw", "XIXm", "31-02-1945", "13-1997", "00-1997", "32-01-1945", "01-04-2012 – 23-03-2012"} {
+		if got, err := CreateDateRange(in); err == nil && got.isDates() {
+			t.Errorf("CreateDateRange(%q) = %v, want refused", in, got)
+		}
+	}
+}
+
+func TestCreateDateRangeEDTF(t *testing.T) {
+	ok := map[string]IndexRange{
+		// EDTF qualifiers: uncertain (?), approximate (~), both (%) keep their date
+		"1850~":       {"1850-01-01", "1850-12-31"},
+		"1850?":       {"1850-01-01", "1850-12-31"},
+		"1850%":       {"1850-01-01", "1850-12-31"},
+		"1850-05~":    {"1850-05-01", "1850-05-31"},
+		"1850~/1870?": {"1850-01-01", "1870-12-31"},
+		// EDTF unspecified digits: the decade, century or millennium they leave open
+		"185X":       {"1850-01-01", "1859-12-31"},
+		"18XX":       {"1800-01-01", "1899-12-31"},
+		"1XXX":       {"1000-01-01", "1999-12-31"},
+		"1850-XX":    {"1850-01-01", "1850-12-31"},
+		"1850-05-XX": {"1850-05-01", "1850-05-31"},
+		"18XX/19XX":  {"1800-01-01", "1999-12-31"},
+		"1850/1870":  {"1850-01-01", "1870-12-31"},
+	}
+	for in, want := range ok {
+		got, err := CreateDateRange(in)
+		if err != nil || got != want || !got.isDates() {
+			t.Errorf("CreateDateRange(%q) = %v, %v; want %v", in, got, err, want)
+		}
+	}
+	// open-ended: no end (or start) to index, so no range rather than the wrong year
+	for _, in := range []string{"1850/..", "../1850", "1850/", "/1850", "na 1850", "Na 1850", "voor 1850", "vóór 1850",
+		"vanaf 1850", "sinds 1850", "tot 1850", "after 1850", "before 1850", "-0800", "XXXX"} {
 		if got, err := CreateDateRange(in); err == nil && got.isDates() {
 			t.Errorf("CreateDateRange(%q) = %v, want refused", in, got)
 		}
