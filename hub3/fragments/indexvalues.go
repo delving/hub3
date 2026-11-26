@@ -75,7 +75,22 @@ var (
 	centurySpan   = regexp.MustCompile(`^(.+?)\s*(?:-|;|\bof\b)\s*(.+)$`)
 	arabicCentury = regexp.MustCompile(`^(?:ca\.?\s*)?(\d{1,2})(?:e(?:\s*eeuw)?|([a-dAB]))$`)
 	romanValues   = map[byte]int{'I': 1, 'V': 5, 'X': 10}
+	// "26-10-1920", "6-5-1925", "31/12/1938", "01-1997": day (and month) first, as Dutch archives write dates
+	// (not inside an ISO date: "1793-05/1794" stays as it is)
+	dayFirst = regexp.MustCompile(`(^|[^-/\d])(?:(\d{1,2})[-/])?(\d{1,2})[-/](\d{4})\b`)
 )
+
+// isoDayFirst rewrites day-first dates in s as yyyy-MM-dd, or yyyy-MM without a
+// day, so the year parser reads them. Whether the date exists is checked later.
+func isoDayFirst(s string) string {
+	return dayFirst.ReplaceAllStringFunc(s, func(d string) string {
+		m := dayFirst.FindStringSubmatch(d)
+		if m[2] == "" {
+			return fmt.Sprintf("%s%s-%02s", m[1], m[4], m[3])
+		}
+		return fmt.Sprintf("%s%s-%02s-%02s", m[1], m[4], m[3], m[2])
+	})
+}
 
 // centuryRange reads s as a century, a quarter or half of one, or a span of two.
 func centuryRange(s string) (IndexRange, bool) {

@@ -52,6 +52,14 @@ func TestCreateDateRangeMore(t *testing.T) {
 		"4e kwart 19e eeuw": {"1875-01-01", "1899-12-31"},
 		"1e helft 19e eeuw": {"1800-01-01", "1849-12-31"},
 		"2e helft 20e eeuw": {"1950-01-01", "1999-12-31"},
+		// day first, as Dutch archives write them (birth, death and burial dates)
+		"26-10-1920":              {"1920-10-26", "1920-10-26"},
+		"6-5-1925":                {"1925-05-06", "1925-05-06"},
+		"31/12/1938":              {"1938-12-31", "1938-12-31"},
+		"01-1997":                 {"1997-01-01", "1997-01-31"},
+		"2-1996":                  {"1996-02-01", "1996-02-28"},
+		"09-2013 – 01-2014":       {"2013-09-01", "2014-01-31"},
+		"23-03-2012 – 01-04-2012": {"2012-03-23", "2012-04-01"},
 		// unchanged
 		"1980":                  {"1980-01-01", "1980-12-31"},
 		"1793-05-13/1794-01-11": {"1793-05-13", "1794-01-11"},
@@ -64,7 +72,7 @@ func TestCreateDateRangeMore(t *testing.T) {
 		}
 	}
 	for _, in := range []string{"Z.d.", "ongeveer", "XXX", "XXII", "19", "IIX9", "1985-1980", "XIX-XVIII", "5e kwart 19e eeuw",
-		"3e helft 19e eeuw", "eind 19e eeuw", "XIXm"} {
+		"3e helft 19e eeuw", "eind 19e eeuw", "XIXm", "31-02-1945", "13-1997", "00-1997", "32-01-1945", "01-04-2012 – 23-03-2012"} {
 		if got, err := CreateDateRange(in); err == nil && got.isDates() {
 			t.Errorf("CreateDateRange(%q) = %v, want refused", in, got)
 		}
