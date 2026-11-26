@@ -16,7 +16,13 @@ import (
 // TestDumpV2 runs a bulk NDJSON file through the index path and writes every
 // v2 document (or refusal kind) as NDJSON. Skipped unless HUB3_DUMP_IN and
 // HUB3_DUMP_OUT are set; HUB3_DUMP_RDFTAG optionally names the rdftag config.
-func TestDumpV2(t *testing.T) {
+func TestDumpV2(t *testing.T) { dumpIndex(t, "v2") }
+
+// TestDumpV1 is TestDumpV2 for v1 documents, with system.created_at and
+// modified_at fixed at 1970-01-01T00:00:00Z.
+func TestDumpV1(t *testing.T) { dumpIndex(t, "v1") }
+
+func dumpIndex(t *testing.T, indexType string) {
 	in, out := os.Getenv("HUB3_DUMP_IN"), os.Getenv("HUB3_DUMP_OUT")
 	if in == "" || out == "" {
 		t.Skip("set HUB3_DUMP_IN and HUB3_DUMP_OUT")
@@ -62,7 +68,7 @@ func TestDumpV2(t *testing.T) {
 			ds:            &models.DataSet{OrgID: req.OrgID, Spec: req.DatasetID, Revision: 1},
 			stats:         &Stats{},
 			bi:            ci,
-			indexTypes:    []string{"v2"},
+			indexTypes:    []string{indexType},
 			recDef:        RecDefResolver{m: conformanceRecDefs, defaultRecDefID: "schema"},
 			s:             &Service{},
 			maxNestedDocs: defaultMaxNestedDocs,
@@ -78,8 +84,7 @@ func TestDumpV2(t *testing.T) {
 		} else {
 			switch len(ci.msgs) {
 			case 1:
-				src := modifiedRe.ReplaceAll(ci.msgs[0].Source, []byte(`"modified":0`))
-				line["doc"] = json.RawMessage(src)
+				line["doc"] = json.RawMessage(stableSource(ci.msgs[0].Source))
 			case 0:
 				line["kind"] = "no_message"
 				t.Errorf("record %s: want 1 index message, got %d", req.HubID, len(ci.msgs))

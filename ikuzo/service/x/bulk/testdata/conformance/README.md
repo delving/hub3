@@ -1,6 +1,7 @@
-# v2 conformance cases
+# v2 and v1 conformance cases
 
-One bulk request in, the v2 document hub3 sends to Elasticsearch out.
+One bulk request in, the v2 document hub3 sends to Elasticsearch out, and
+the v1 document from the same request in `v1/`.
 
 ## Run
 
@@ -20,6 +21,14 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
 - `NNNN.json`: the expected v2 `_source`, `meta.modified` set to 0, 2-space indent.
 - `NNNN.error.json`: `{"kind":"<stage>"}` instead, when hub3 refuses the record.
 - `NNNN.bulk.json` (optional): envelope fields over `envelope.json`.
+- `v1/NNNN.json` / `v1/NNNN.error.json`: the same for v1 (indexTypes `["v1"]`
+  alone). `system.created_at`/`modified_at` set to `1970-01-01T00:00:00Z`, and
+  `system.source_graph` canonicalised: hub3 builds it from maps, so its node
+  and value order change from run to run; the goldens sort both (nodes and
+  value arrays by their JSON). Compare it as a JSON-LD set, not as a string.
+  v1 refuses a record whose predicate or type namespace is not in hub3's
+  namespace table (`indexing_v1`; 05xx, 0910), where v2 indexes it. The
+  `formats/` check is v2 only.
 - `formats/NNNN.<fmt>`: the same graph in another format; must give the same
   document apart from `order`, blank-node labels and array order. No goldens.
 

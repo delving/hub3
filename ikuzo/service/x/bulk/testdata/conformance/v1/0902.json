@@ -1,0 +1,704 @@
+{
+  "crm_P01i_is_domain_of": [
+    {
+      "id": "B0b412722X2De782X2D4f37X2Db094X2D7b06ec4dd0a5",
+      "value": "B0b412722X2De782X2D4f37X2Db094X2D7b06ec4dd0a5",
+      "@type": "Bnode",
+      "raw": "B0b412722X2De782X2D4f37X2Db094X2D7b06ec4dd0a5"
+    },
+    {
+      "id": "Bb4207a88X2D8bfbX2D4014X2Da26dX2D9ce0ae1167ed",
+      "value": "Bb4207a88X2D8bfbX2D4014X2Da26dX2D9ce0ae1167ed",
+      "@type": "Bnode",
+      "raw": "Bb4207a88X2D8bfbX2D4014X2Da26dX2D9ce0ae1167ed"
+    },
+    {
+      "id": "Bfa024011X2Da9c2X2D4aafX2D8ce1X2Db653b53c66c8",
+      "value": "Bfa024011X2Da9c2X2D4aafX2D8ce1X2Db653b53c66c8",
+      "@type": "Bnode",
+      "raw": "Bfa024011X2Da9c2X2D4aafX2D8ce1X2Db653b53c66c8"
+    }
+  ],
+  "crm_P02_has_range": [
+    {
+      "id": "Bf8482909X2D51ceX2D4a48X2Da179X2Df3ca97635152",
+      "value": "Bf8482909X2D51ceX2D4a48X2Da179X2Df3ca97635152",
+      "@type": "Bnode",
+      "raw": "Bf8482909X2D51ceX2D4a48X2Da179X2Df3ca97635152"
+    },
+    {
+      "id": "B2a01c163X2D1ce4X2D45beX2Da910X2D69c5fc45fad1",
+      "value": "B2a01c163X2D1ce4X2D45beX2Da910X2D69c5fc45fad1",
+      "@type": "Bnode",
+      "raw": "B2a01c163X2D1ce4X2D45beX2Da910X2D69c5fc45fad1"
+    },
+    {
+      "id": "Ba1a9612cX2De869X2D4a6bX2D8f5aX2Dd57590ade8f8",
+      "value": "Ba1a9612cX2De869X2D4a6bX2D8f5aX2Dd57590ade8f8",
+      "@type": "Bnode",
+      "raw": "Ba1a9612cX2De869X2D4a6bX2D8f5aX2Dd57590ade8f8"
+    }
+  ],
+  "crm_P102_has_title": [
+    {
+      "id": "B4eb9ba10X2D86a3X2D4627X2Da290X2D51fc5a7e9e5b",
+      "value": "B4eb9ba10X2D86a3X2D4627X2Da290X2D51fc5a7e9e5b",
+      "@type": "Bnode",
+      "raw": "B4eb9ba10X2D86a3X2D4627X2Da290X2D51fc5a7e9e5b"
+    }
+  ],
+  "crm_P106_is_composed_of": [
+    {
+      "id": "B4f25169eX2D79dcX2D4d98X2D8dd5X2Db18e5e92144f",
+      "value": "B4f25169eX2D79dcX2D4d98X2D8dd5X2Db18e5e92144f",
+      "@type": "Bnode",
+      "raw": "B4f25169eX2D79dcX2D4d98X2D8dd5X2Db18e5e92144f"
+    }
+  ],
+  "crm_P128i_is_carried_by": [
+    {
+      "id": "B1b3a846fX2De900X2D4cb1X2Dbc8aX2D804f62b76baa",
+      "value": "B1b3a846fX2De900X2D4cb1X2Dbc8aX2D804f62b76baa",
+      "@type": "Bnode",
+      "raw": "B1b3a846fX2De900X2D4cb1X2Dbc8aX2D804f62b76baa"
+    }
+  ],
+  "crm_P129_is_about": [
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-authorities/a::681.33:1",
+      "value": "https://data.antwerp.be/id/term/brocade-authorities/a::681.33:1",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-authorities/a::681.33:1"
+    }
+  ],
+  "crm_P129i_is_subject_of": [
+    {
+      "id": "Bc15d0f19X2Db819X2D429bX2Db88fX2D4c1f40ac59b9",
+      "value": "Bc15d0f19X2Db819X2D429bX2Db88fX2D4c1f40ac59b9",
+      "@type": "Bnode",
+      "raw": "Bc15d0f19X2Db819X2D429bX2Db88fX2D4c1f40ac59b9"
+    }
+  ],
+  "crm_P14.1_in_the_role_of": [
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/fu/aut"
+    }
+  ],
+  "crm_P14_carried_out_by": [
+    {
+      "id": "B9a2fa200X2D27f1X2D46e3X2D9c70X2D4c4d703214b8",
+      "value": "B9a2fa200X2D27f1X2D46e3X2D9c70X2D4c4d703214b8",
+      "@type": "Bnode",
+      "raw": "B9a2fa200X2D27f1X2D46e3X2D9c70X2D4c4d703214b8"
+    }
+  ],
+  "crm_P190_has_symbolic_content": [
+    {
+      "value": "1",
+      "@type": "Literal",
+      "raw": "1"
+    },
+    {
+      "value": "Riche",
+      "@type": "Literal",
+      "raw": "Riche"
+    },
+    {
+      "value": "901048860",
+      "@type": "Literal",
+      "raw": "901048860"
+    },
+    {
+      "value": "Société d'édition d'enseignement supérieur",
+      "@type": "Literal",
+      "raw": "Société d'édition d'enseignement supérieur"
+    },
+    {
+      "value": "Fortran: initiation au langage de l'informatique scientifique",
+      "@type": "Literal",
+      "raw": "Fortran: initiation au langage de l'informatique scientifique"
+    },
+    {
+      "value": "Gérard",
+      "@type": "Literal",
+      "raw": "Gérard"
+    },
+    {
+      "value": "Paris",
+      "@type": "Literal",
+      "raw": "Paris"
+    },
+    {
+      "value": "o:lvd:11",
+      "@type": "Literal",
+      "raw": "o:lvd:11"
+    },
+    {
+      "value": "Société d'édition d'enseignement supérieur",
+      "@type": "Literal",
+      "raw": "Société d'édition d'enseignement supérieur"
+    },
+    {
+      "value": "Charet",
+      "@type": "Literal",
+      "raw": "Charet"
+    },
+    {
+      "value": "MAG-UIA-B 10480",
+      "@type": "Literal",
+      "raw": "MAG-UIA-B 10480"
+    },
+    {
+      "value": "p:lvd:3365601",
+      "@type": "Literal",
+      "raw": "p:lvd:3365601"
+    },
+    {
+      "value": "Alain",
+      "@type": "Literal",
+      "raw": "Alain"
+    },
+    {
+      "value": "239 p.",
+      "@type": "Literal",
+      "raw": "239 p."
+    }
+  ],
+  "crm_P1_is_identified_by": [
+    {
+      "id": "B9fe60ab5X2D4354X2D4ac6X2Dbe6fX2D07996fe339fd",
+      "value": "B9fe60ab5X2D4354X2D4ac6X2Dbe6fX2D07996fe339fd",
+      "@type": "Bnode",
+      "raw": "B9fe60ab5X2D4354X2D4ac6X2Dbe6fX2D07996fe339fd"
+    },
+    {
+      "id": "B9091ad99X2Df80cX2D4bf6X2D9487X2D47052b7f7e84",
+      "value": "B9091ad99X2Df80cX2D4bf6X2D9487X2D47052b7f7e84",
+      "@type": "Bnode",
+      "raw": "B9091ad99X2Df80cX2D4bf6X2D9487X2D47052b7f7e84"
+    },
+    {
+      "id": "B902cdd11X2D1a03X2D4f18X2D9d37X2Dfc7c9231c5ff",
+      "value": "B902cdd11X2D1a03X2D4f18X2D9d37X2Dfc7c9231c5ff",
+      "@type": "Bnode",
+      "raw": "B902cdd11X2D1a03X2D4f18X2D9d37X2Dfc7c9231c5ff"
+    },
+    {
+      "id": "B62c1a9e5X2Dae34X2D4716X2D8b85X2D470ca9cffc19",
+      "value": "B62c1a9e5X2Dae34X2D4716X2D8b85X2D470ca9cffc19",
+      "@type": "Bnode",
+      "raw": "B62c1a9e5X2Dae34X2D4716X2D8b85X2D470ca9cffc19"
+    },
+    {
+      "id": "B367fa171X2D27afX2D4602X2Dbc17X2D5432e13c7a4b",
+      "value": "B367fa171X2D27afX2D4602X2Dbc17X2D5432e13c7a4b",
+      "@type": "Bnode",
+      "raw": "B367fa171X2D27afX2D4602X2Dbc17X2D5432e13c7a4b"
+    },
+    {
+      "id": "B7a6e3db0X2Def3bX2D4c27X2Daf56X2D14645d5e4831",
+      "value": "B7a6e3db0X2Def3bX2D4c27X2Daf56X2D14645d5e4831",
+      "@type": "Bnode",
+      "raw": "B7a6e3db0X2Def3bX2D4c27X2Daf56X2D14645d5e4831"
+    },
+    {
+      "id": "https://anet.be/record/lvdopac/c:lvd:10",
+      "value": "https://anet.be/record/lvdopac/c:lvd:10",
+      "@type": "URIRef",
+      "raw": "https://anet.be/record/lvdopac/c:lvd:10"
+    },
+    {
+      "id": "https://artlibraries.on.worldcat.org/v2/oclc/901048860",
+      "value": "https://artlibraries.on.worldcat.org/v2/oclc/901048860",
+      "@type": "URIRef",
+      "raw": "https://artlibraries.on.worldcat.org/v2/oclc/901048860"
+    },
+    {
+      "id": "B8435db74X2Df3daX2D42b1X2Da617X2D728ae36ea7d8",
+      "value": "B8435db74X2Df3daX2D42b1X2Da617X2D728ae36ea7d8",
+      "@type": "Bnode",
+      "raw": "B8435db74X2Df3daX2D42b1X2Da617X2D728ae36ea7d8"
+    },
+    {
+      "id": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+      "value": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10"
+    },
+    {
+      "id": "Bd1757818X2D428cX2D40c9X2D8a85X2Ded63ab048a3d",
+      "value": "Bd1757818X2D428cX2D40c9X2D8a85X2Ded63ab048a3d",
+      "@type": "Bnode",
+      "raw": "Bd1757818X2D428cX2D40c9X2D8a85X2Ded63ab048a3d"
+    },
+    {
+      "id": "B6266adfaX2Da298X2D4eabX2Db6d3X2D7120b1b12d1a",
+      "value": "B6266adfaX2Da298X2D4eabX2Db6d3X2D7120b1b12d1a",
+      "@type": "Bnode",
+      "raw": "B6266adfaX2Da298X2D4eabX2Db6d3X2D7120b1b12d1a"
+    },
+    {
+      "id": "B7713c024X2Da33bX2D478dX2D8929X2D2b4a3423900e",
+      "value": "B7713c024X2Da33bX2D478dX2D8929X2D2b4a3423900e",
+      "@type": "Bnode",
+      "raw": "B7713c024X2Da33bX2D478dX2D8929X2D2b4a3423900e"
+    },
+    {
+      "id": "Ba834386eX2D8d17X2D475bX2D9d44X2De51d0c7e35e1",
+      "value": "Ba834386eX2D8d17X2D475bX2D9d44X2De51d0c7e35e1",
+      "@type": "Bnode",
+      "raw": "Ba834386eX2D8d17X2D475bX2D9d44X2De51d0c7e35e1"
+    },
+    {
+      "id": "Bd02bbc23X2D5bbeX2D4c51X2Dac78X2Dfbf63380c913",
+      "value": "Bd02bbc23X2D5bbeX2D4c51X2Dac78X2Dfbf63380c913",
+      "@type": "Bnode",
+      "raw": "Bd02bbc23X2D5bbeX2D4c51X2Dac78X2Dfbf63380c913"
+    }
+  ],
+  "crm_P2_has_type": [
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/co-ty/normal",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/co-ty/normal",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/co-ty/normal"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclc",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclc",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclc"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/dr/paper",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/dr/paper",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/dr/paper"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/nm-fn"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/nm-vn"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/co-pg",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/co-pg",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/co-pg"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/dr",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/dr",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/dr"
+    }
+  ],
+  "crm_P43_has_dimension": [
+    {
+      "id": "Bf2d4f3d9X2Dfa5cX2D4c2eX2D85ebX2Dd69cfa77c21d",
+      "value": "Bf2d4f3d9X2Dfa5cX2D4c2eX2D85ebX2Dd69cfa77c21d",
+      "@type": "Bnode",
+      "raw": "Bf2d4f3d9X2Dfa5cX2D4c2eX2D85ebX2Dd69cfa77c21d"
+    }
+  ],
+  "crm_P46_is_composed_of": [
+    {
+      "id": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11",
+      "value": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11"
+    }
+  ],
+  "crm_P4_has_time-span": [
+    {
+      "id": "B50f6df9eX2D4af1X2D4723X2D82a4X2D54b54fe02eeb",
+      "value": "B50f6df9eX2D4af1X2D4723X2D82a4X2D54b54fe02eeb",
+      "@type": "Bnode",
+      "raw": "B50f6df9eX2D4af1X2D4723X2D82a4X2D54b54fe02eeb"
+    }
+  ],
+  "crm_P55_has_current_location": [
+    {
+      "id": "Beb243136X2Da59dX2D4fc5X2Db97aX2D464f17289ba9",
+      "value": "Beb243136X2Da59dX2D4fc5X2Db97aX2D464f17289ba9",
+      "@type": "Bnode",
+      "raw": "Beb243136X2Da59dX2D4fc5X2Db97aX2D464f17289ba9"
+    }
+  ],
+  "crm_P70i_is_documented_in": [
+    {
+      "id": "Be91dc54bX2D601eX2D48fdX2D881eX2Dedd450971aa5",
+      "value": "Be91dc54bX2D601eX2D48fdX2D881eX2Dedd450971aa5",
+      "@type": "Bnode",
+      "raw": "Be91dc54bX2D601eX2D48fdX2D881eX2Dedd450971aa5"
+    },
+    {
+      "id": "Bed172a9eX2Dfcd4X2D41c6X2Db218X2D66bdbe7cbbfb",
+      "value": "Bed172a9eX2Dfcd4X2D41c6X2Db218X2D66bdbe7cbbfb",
+      "@type": "Bnode",
+      "raw": "Bed172a9eX2Dfcd4X2D41c6X2Db218X2D66bdbe7cbbfb"
+    }
+  ],
+  "crm_P72_has_language": [
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre"
+    },
+    {
+      "id": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre",
+      "value": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre",
+      "@type": "URIRef",
+      "raw": "https://data.antwerp.be/id/term/brocade-catalog/lg/fre"
+    }
+  ],
+  "crm_P7_took_place_at": [
+    {
+      "id": "Ba1c26454X2D0e9eX2D4640X2D8a6eX2Dd053eb64cb1d",
+      "value": "Ba1c26454X2D0e9eX2D4640X2D8a6eX2Dd053eb64cb1d",
+      "@type": "Bnode",
+      "raw": "Ba1c26454X2D0e9eX2D4640X2D8a6eX2Dd053eb64cb1d"
+    }
+  ],
+  "crm_P82a_begin_of_the_begin": [
+    {
+      "value": "1969",
+      "@type": "Literal",
+      "raw": "1969"
+    }
+  ],
+  "crm_P94i_was_created_by": [
+    {
+      "id": "B361341cdX2D1374X2D402aX2Da23bX2Dc265c920670a",
+      "value": "B361341cdX2D1374X2D402aX2Da23bX2Dc265c920670a",
+      "@type": "Bnode",
+      "raw": "B361341cdX2D1374X2D402aX2Da23bX2Dc265c920670a"
+    },
+    {
+      "id": "B58a893bdX2D984fX2D49adX2D8587X2D705dbe16138e",
+      "value": "B58a893bdX2D984fX2D49adX2D8587X2D705dbe16138e",
+      "@type": "Bnode",
+      "raw": "B58a893bdX2D984fX2D49adX2D8587X2D705dbe16138e"
+    }
+  ],
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "file:///home/kiivihal/data_no_backup/PocketMapper/brocade",
+  "hubID": "test_conformance_0902",
+  "legacy": {
+    "delving_hubId": "test_conformance_0902",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "lrm_R24i_was_created_through": [
+    {
+      "id": "Bfe29d407X2D6c4aX2D4572X2Da0ffX2D7867d3301b16",
+      "value": "Bfe29d407X2D6c4aX2D4572X2Da0ffX2D7867d3301b16",
+      "@type": "Bnode",
+      "raw": "Bfe29d407X2D6c4aX2D4572X2Da0ffX2D7867d3301b16"
+    }
+  ],
+  "nave_id": {
+    "value": "test_conformance_0902",
+    "@type": "Literal",
+    "raw": "test_conformance_0902"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E54_Dimension",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E54_Dimension",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E54_Dimension"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation",
+      "value": "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation",
+      "@type": "URIRef",
+      "raw": "https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E31_Document",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E31_Document",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E35_Title",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E35_Title"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation",
+      "value": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation",
+      "@type": "URIRef",
+      "raw": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+    },
+    {
+      "id": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation",
+      "value": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation",
+      "@type": "URIRef",
+      "raw": "https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E31_Document",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E31_Document",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E31_Document"
+    },
+    {
+      "id": "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation",
+      "value": "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation",
+      "@type": "URIRef",
+      "raw": "https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E41_Appellation"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E42_Identifier"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E55_Type",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E55_Type"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E53_Place",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E53_Place"
+    },
+    {
+      "id": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "value": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor",
+      "@type": "URIRef",
+      "raw": "http://www.cidoc-crm.org/cidoc-crm/E39_Actor"
+    }
+  ],
+  "revision": 1,
+  "spec": "conformance",
+  "system": {
+    "about_uri": "file:///home/kiivihal/data_no_backup/PocketMapper/brocade",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0902/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0902",
+    "slug": "test_conformance_0902",
+    "source_graph": "[{\"@id\":\"_:B0b412722X2De782X2D4f37X2Db094X2D7b06ec4dd0a5\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by\"],\"http://www.cidoc-crm.org/cidoc-crm/P02_has_range\":[{\"@id\":\"_:Ba1a9612cX2De869X2D4a6bX2D8f5aX2Dd57590ade8f8\"}]},{\"@id\":\"_:B1b3a846fX2De900X2D4cb1X2Dbc8aX2D804f62b76baa\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:Bd1757818X2D428cX2D40c9X2D8a85X2Ded63ab048a3d\"}],\"http://www.cidoc-crm.org/cidoc-crm/P46_is_composed_of\":[{\"@id\":\"https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11\"}],\"http://www.cidoc-crm.org/cidoc-crm/P55_has_current_location\":[{\"@id\":\"_:Beb243136X2Da59dX2D4fc5X2Db97aX2D464f17289ba9\"}]},{\"@id\":\"_:B2a01c163X2D1ce4X2D45beX2Da910X2D69c5fc45fad1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E39_Actor\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B9091ad99X2Df80cX2D4bf6X2D9487X2D47052b7f7e84\"},{\"@id\":\"_:B9fe60ab5X2D4354X2D4ac6X2Dbe6fX2D07996fe339fd\"}]},{\"@id\":\"_:B361341cdX2D1374X2D402aX2Da23bX2Dc265c920670a\",\"@type\":[\"https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation\"],\"http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of\":[{\"@id\":\"_:Bb4207a88X2D8bfbX2D4014X2Da26dX2D9ce0ae1167ed\"}]},{\"@id\":\"_:B367fa171X2D27afX2D4602X2Dbc17X2D5432e13c7a4b\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Alain\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/nm-vn\"}]},{\"@id\":\"_:B4eb9ba10X2D86a3X2D4627X2Da290X2D51fc5a7e9e5b\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E35_Title\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Fortran: initiation au langage de l'informatique scientifique\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/ti-ty/h\"}],\"http://www.cidoc-crm.org/cidoc-crm/P72_has_language\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/lg/fre\"}]},{\"@id\":\"_:B4f25169eX2D79dcX2D4d98X2D8dd5X2Db18e5e92144f\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P72_has_language\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/lg/fre\"}]},{\"@id\":\"_:B50f6df9eX2D4af1X2D4723X2D82a4X2D54b54fe02eeb\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E52_Time-Span\"],\"http://www.cidoc-crm.org/cidoc-crm/P82a_begin_of_the_begin\":[{\"@value\":\"1969\"}]},{\"@id\":\"_:B58a893bdX2D984fX2D49adX2D8587X2D705dbe16138e\",\"@type\":[\"https://www.iflastandards.info/ns/lrm/lrmoo#F28_Expression_Creation\"],\"http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of\":[{\"@id\":\"_:Bfa024011X2Da9c2X2D4aafX2D8ce1X2Db653b53c66c8\"}]},{\"@id\":\"_:B6266adfaX2Da298X2D4eabX2Db6d3X2D7120b1b12d1a\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Société d'édition d'enseignement supérieur\"}]},{\"@id\":\"_:B62c1a9e5X2Dae34X2D4716X2D8b85X2D470ca9cffc19\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E42_Identifier\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"p:lvd:3365601\"}]},{\"@id\":\"_:B7713c024X2Da33bX2D478dX2D8929X2D2b4a3423900e\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E42_Identifier\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"o:lvd:11\"}]},{\"@id\":\"_:B7a6e3db0X2Def3bX2D4c27X2Daf56X2D14645d5e4831\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Riche\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/nm-fn\"}]},{\"@id\":\"_:B8435db74X2Df3daX2D42b1X2Da617X2D728ae36ea7d8\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E42_Identifier\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"901048860\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/nr-ty/oclc\"}]},{\"@id\":\"_:B902cdd11X2D1a03X2D4f18X2D9d37X2Dfc7c9231c5ff\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"MAG-UIA-B 10480\"}]},{\"@id\":\"_:B9091ad99X2Df80cX2D4bf6X2D9487X2D47052b7f7e84\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Charet\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/nm-fn\"}]},{\"@id\":\"_:B9a2fa200X2D27f1X2D46e3X2D9c70X2D4c4d703214b8\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E39_Actor\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B6266adfaX2Da298X2D4eabX2Db6d3X2D7120b1b12d1a\"}]},{\"@id\":\"_:B9fe60ab5X2D4354X2D4ac6X2Dbe6fX2D07996fe339fd\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Gérard\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/nm-vn\"}]},{\"@id\":\"_:Ba1a9612cX2De869X2D4a6bX2D8f5aX2Dd57590ade8f8\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E39_Actor\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:Bd02bbc23X2D5bbeX2D4c51X2Dac78X2Dfbf63380c913\"}]},{\"@id\":\"_:Ba1c26454X2D0e9eX2D4640X2D8a6eX2Dd053eb64cb1d\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:Ba834386eX2D8d17X2D475bX2D9d44X2De51d0c7e35e1\"}]},{\"@id\":\"_:Ba834386eX2D8d17X2D475bX2D9d44X2De51d0c7e35e1\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Paris\"}]},{\"@id\":\"_:Bb4207a88X2D8bfbX2D4014X2Da26dX2D9ce0ae1167ed\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by\"],\"http://www.cidoc-crm.org/cidoc-crm/P02_has_range\":[{\"@id\":\"_:Bf8482909X2D51ceX2D4a48X2Da179X2Df3ca97635152\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/fu/aut\"}]},{\"@id\":\"_:Bc15d0f19X2Db819X2D429bX2Db88fX2D4c1f40ac59b9\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E33_Linguistic_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"239 p.\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/co-pg\"}]},{\"@id\":\"_:Bd02bbc23X2D5bbeX2D4c51X2Dac78X2Dfbf63380c913\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"Société d'édition d'enseignement supérieur\"}]},{\"@id\":\"_:Bd1757818X2D428cX2D40c9X2D8a85X2Ded63ab048a3d\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E41_Appellation\"],\"http://www.cidoc-crm.org/cidoc-crm/P190_has_symbolic_content\":[{\"@value\":\"1\"}]},{\"@id\":\"_:Be91dc54bX2D601eX2D48fdX2D881eX2Dedd450971aa5\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E31_Document\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"https://anet.be/record/lvdopac/c:lvd:10\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog\"}]},{\"@id\":\"_:Beb243136X2Da59dX2D4fc5X2Db97aX2D464f17289ba9\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E53_Place\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B62c1a9e5X2Dae34X2D4716X2D8b85X2D470ca9cffc19\"},{\"@id\":\"_:B902cdd11X2D1a03X2D4f18X2D9d37X2Dfc7c9231c5ff\"}]},{\"@id\":\"_:Bed172a9eX2Dfcd4X2D41c6X2Db218X2D66bdbe7cbbfb\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E31_Document\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"https://artlibraries.on.worldcat.org/v2/oclc/901048860\"}]},{\"@id\":\"_:Bf2d4f3d9X2Dfa5cX2D4c2eX2D85ebX2Dd69cfa77c21d\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E54_Dimension\"],\"http://www.cidoc-crm.org/cidoc-crm/P129i_is_subject_of\":[{\"@id\":\"_:Bc15d0f19X2Db819X2D429bX2Db88fX2D4c1f40ac59b9\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/co-ty/normal\"}]},{\"@id\":\"_:Bf8482909X2D51ceX2D4a48X2Da179X2Df3ca97635152\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E39_Actor\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B367fa171X2D27afX2D4602X2Dbc17X2D5432e13c7a4b\"},{\"@id\":\"_:B7a6e3db0X2Def3bX2D4c27X2Daf56X2D14645d5e4831\"}]},{\"@id\":\"_:Bfa024011X2Da9c2X2D4aafX2D8ce1X2Db653b53c66c8\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/PC14_carried_out_by\"],\"http://www.cidoc-crm.org/cidoc-crm/P02_has_range\":[{\"@id\":\"_:B2a01c163X2D1ce4X2D45beX2Da910X2D69c5fc45fad1\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14.1_in_the_role_of\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/fu/aut\"}]},{\"@id\":\"_:Bfe29d407X2D6c4aX2D4572X2Da0ffX2D7867d3301b16\",\"@type\":[\"https://www.iflastandards.info/ns/lrm/lrmoo#F30_Manifestation_Creation\"],\"http://www.cidoc-crm.org/cidoc-crm/P01i_is_domain_of\":[{\"@id\":\"_:B0b412722X2De782X2D4f37X2Db094X2D7b06ec4dd0a5\"}],\"http://www.cidoc-crm.org/cidoc-crm/P14_carried_out_by\":[{\"@id\":\"_:B9a2fa200X2D27f1X2D46e3X2D9c70X2D4c4d703214b8\"}],\"http://www.cidoc-crm.org/cidoc-crm/P4_has_time-span\":[{\"@id\":\"_:B50f6df9eX2D4af1X2D4723X2D82a4X2D54b54fe02eeb\"}],\"http://www.cidoc-crm.org/cidoc-crm/P7_took_place_at\":[{\"@id\":\"_:Ba1c26454X2D0e9eX2D4640X2D8a6eX2Dd053eb64cb1d\"}]},{\"@id\":\"file:///home/kiivihal/data_no_backup/PocketMapper/brocade\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object\"]},{\"@id\":\"https://anet.be/record/lvdopac/c:lvd:10\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E42_Identifier\"]},{\"@id\":\"https://artlibraries.on.worldcat.org/v2/oclc/901048860\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E42_Identifier\"]},{\"@id\":\"https://data.antwerp.be/id/human-made-object/brocade-catalog/o:lvd:11\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E22_Human-Made_Object\"],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B7713c024X2Da33bX2D478dX2D8929X2D2b4a3423900e\"}]},{\"@id\":\"https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10\",\"@type\":[\"https://www.iflastandards.info/ns/lrm/lrmoo#F3_Manifestation\"],\"http://www.cidoc-crm.org/cidoc-crm/P102_has_title\":[{\"@id\":\"_:B4eb9ba10X2D86a3X2D4627X2Da290X2D51fc5a7e9e5b\"}],\"http://www.cidoc-crm.org/cidoc-crm/P106_is_composed_of\":[{\"@id\":\"_:B4f25169eX2D79dcX2D4d98X2D8dd5X2Db18e5e92144f\"}],\"http://www.cidoc-crm.org/cidoc-crm/P128i_is_carried_by\":[{\"@id\":\"_:B1b3a846fX2De900X2D4cb1X2Dbc8aX2D804f62b76baa\"}],\"http://www.cidoc-crm.org/cidoc-crm/P129_is_about\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-authorities/a::681.33:1\"}],\"http://www.cidoc-crm.org/cidoc-crm/P1_is_identified_by\":[{\"@id\":\"_:B8435db74X2Df3daX2D42b1X2Da617X2D728ae36ea7d8\"},{\"@id\":\"https://data.antwerp.be/id/manifestation/brocade-catalog/c:lvd:10\"}],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/dr/paper\"}],\"http://www.cidoc-crm.org/cidoc-crm/P43_has_dimension\":[{\"@id\":\"_:Bf2d4f3d9X2Dfa5cX2D4c2eX2D85ebX2Dd69cfa77c21d\"}],\"http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in\":[{\"@id\":\"_:Be91dc54bX2D601eX2D48fdX2D881eX2Dedd450971aa5\"},{\"@id\":\"_:Bed172a9eX2Dfcd4X2D41c6X2Db218X2D66bdbe7cbbfb\"}],\"http://www.cidoc-crm.org/cidoc-crm/P94i_was_created_by\":[{\"@id\":\"_:B361341cdX2D1374X2D402aX2Da23bX2Dc265c920670a\"},{\"@id\":\"_:B58a893bdX2D984fX2D49adX2D8587X2D705dbe16138e\"}],\"https://www.iflastandards.info/ns/lrm/lrmoo#R24i_was_created_through\":[{\"@id\":\"_:Bfe29d407X2D6c4aX2D4572X2Da0ffX2D7867d3301b16\"}]},{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/dr/paper\",\"@type\":[\"http://www.cidoc-crm.org/cidoc-crm/E55_Type\"],\"http://www.cidoc-crm.org/cidoc-crm/P2_has_type\":[{\"@id\":\"https://data.antwerp.be/id/term/brocade-catalog/dr\"}]}]",
+    "source_uri": "file:///home/kiivihal/data_no_backup/PocketMapper/brocade",
+    "spec": "conformance"
+  }
+}

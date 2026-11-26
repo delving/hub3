@@ -1,0 +1,72 @@
+{
+  "dc_title": [
+    {
+      "value": "Aggregatie",
+      "@type": "Literal",
+      "raw": "Aggregatie"
+    }
+  ],
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "edm_aggregatedCHO": [
+    {
+      "id": "http://example.org/c/0303/cho",
+      "value": "http://example.org/c/0303/cho",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0303/cho"
+    }
+  ],
+  "entryURI": "http://example.org/c/0303/agg",
+  "hubID": "test_conformance_0303",
+  "legacy": {
+    "delving_hubId": "test_conformance_0303",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0303",
+    "@type": "Literal",
+    "raw": "test_conformance_0303"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "http://www.openarchives.org/ore/terms/Aggregation",
+      "value": "http://www.openarchives.org/ore/terms/Aggregation",
+      "@type": "URIRef",
+      "raw": "http://www.openarchives.org/ore/terms/Aggregation"
+    },
+    {
+      "id": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+      "value": "http://www.europeana.eu/schemas/edm/ProvidedCHO",
+      "@type": "URIRef",
+      "raw": "http://www.europeana.eu/schemas/edm/ProvidedCHO"
+    }
+  ],
+  "revision": 1,
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0303/agg",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0303/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0303",
+    "slug": "test_conformance_0303",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0303/agg\",\"@type\":[\"http://www.openarchives.org/ore/terms/Aggregation\"],\"http://www.europeana.eu/schemas/edm/aggregatedCHO\":[{\"@id\":\"http://example.org/c/0303/cho\"}]},{\"@id\":\"http://example.org/c/0303/cho\",\"@type\":[\"http://www.europeana.eu/schemas/edm/ProvidedCHO\"],\"http://purl.org/dc/elements/1.1/title\":[{\"@value\":\"Aggregatie\"}]}]",
+    "source_uri": "http://example.org/c/0303/agg",
+    "spec": "conformance"
+  }
+}

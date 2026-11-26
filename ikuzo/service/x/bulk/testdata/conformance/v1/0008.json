@@ -1,0 +1,72 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0008",
+  "hubID": "test_conformance_0008",
+  "legacy": {
+    "delving_hubId": "test_conformance_0008",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0008",
+    "@type": "Literal",
+    "raw": "test_conformance_0008"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_description": [
+    {
+      "value": "regel 1\nregel 2\\n blijft letterlijk",
+      "@type": "Literal",
+      "raw": "regel 1\nregel 2\\n blijft letterlijk"
+    }
+  ],
+  "schema_keywords": [
+    {
+      "value": "a\\\\b \"q\" \\t",
+      "@type": "Literal",
+      "raw": "a\\\\b 'q' \\t"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "C:\\temp\\new",
+      "@type": "Literal",
+      "raw": "C:\\temp\\new"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0008",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0008/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0008",
+    "slug": "test_conformance_0008",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0008\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/description\":[{\"@value\":\"regel 1\\nregel 2\\\\n blijft letterlijk\"}],\"https://schema.org/keywords\":[{\"@value\":\"a\\\\\\\\b \\\"q\\\" \\\\t\"}],\"https://schema.org/name\":[{\"@value\":\"C:\\\\temp\\\\new\"}]}]",
+    "source_uri": "http://example.org/c/0008",
+    "spec": "conformance"
+  }
+}

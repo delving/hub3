@@ -1,0 +1,58 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0803",
+  "hubID": "test_conformance_0803",
+  "legacy": {
+    "delving_hubId": "test_conformance_0803",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0803",
+    "@type": "Literal",
+    "raw": "test_conformance_0803"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/Person",
+      "value": "https://schema.org/Person",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Person"
+    }
+  ],
+  "revision": 1,
+  "schema_name": [
+    {
+      "value": "Geen werk",
+      "@type": "Literal",
+      "raw": "Geen werk"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0803",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0803/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0803",
+    "slug": "test_conformance_0803",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0803\",\"@type\":[\"https://schema.org/Person\"],\"https://schema.org/name\":[{\"@value\":\"Geen werk\"}]}]",
+    "source_uri": "http://example.org/c/0803",
+    "spec": "conformance"
+  }
+}

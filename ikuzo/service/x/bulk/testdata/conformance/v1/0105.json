@@ -1,0 +1,74 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0105",
+  "hubID": "test_conformance_0105",
+  "legacy": {
+    "delving_hubId": "test_conformance_0105",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0105",
+    "@type": "Literal",
+    "raw": "test_conformance_0105"
+  },
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    }
+  ],
+  "revision": 1,
+  "schema_contributor": [
+    {
+      "id": "http://example.org/c/0105/p",
+      "value": "http://example.org/c/0105/p",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0105/p"
+    }
+  ],
+  "schema_creator": [
+    {
+      "id": "http://example.org/c/0105/p",
+      "value": "http://example.org/c/0105/p",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/0105/p"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "Jan Steen",
+      "@type": "Literal",
+      "raw": "Jan Steen"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0105",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0105/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0105",
+    "slug": "test_conformance_0105",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0105\",\"@type\":[\"https://schema.org/CreativeWork\"],\"https://schema.org/contributor\":[{\"@id\":\"http://example.org/c/0105/p\"}],\"https://schema.org/creator\":[{\"@id\":\"http://example.org/c/0105/p\"}]},{\"@id\":\"http://example.org/c/0105/p\",\"https://schema.org/name\":[{\"@value\":\"Jan Steen\"}]}]",
+    "source_uri": "http://example.org/c/0105",
+    "spec": "conformance"
+  }
+}

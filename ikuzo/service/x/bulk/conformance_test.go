@@ -22,13 +22,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-// The conformance suite: one bulk request in, the v2 document out.
+// The conformance suite: one bulk request in, the v2 and v1 documents out.
 // See testdata/conformance/README.md.
 const confDir = "testdata/conformance"
+
+// confDirV1 holds the v1 goldens for the same inputs.
+var confDirV1 = filepath.Join(confDir, "v1")
 
 var (
 	caseFile   = regexp.MustCompile(`^(\d{4})\.(nt|ttl|rdf|jsonld)$`)
 	modifiedRe = regexp.MustCompile(`"modified":\d+`)
+	// v1's system block stamps the indexing time on every document.
+	v1TimeRe = regexp.MustCompile(`"(created_at|modified_at)":"[^"]*"`)
 	mimeByExt  = map[string]string{
 		".nt":     "application/n-triples",
 		".ttl":    "text/turtle",
@@ -97,8 +102,11 @@ func TestConformance(t *testing.T) {
 		}
 		num, input := m[1], filepath.Join(confDir, e.Name())
 		t.Run(num, func(t *testing.T) {
-			got := runConformanceCase(t, num, input)
-			checkGolden(t, num, got)
+			t.Run("v1", func(t *testing.T) {
+				checkGolden(t, confDirV1, num, runConformanceCase(t, num, input, "v1"))
+			})
+			got := runConformanceCase(t, num, input, "v2")
+			checkGolden(t, confDir, num, got)
 			if got.kind != "" || *testutil.Update {
 				return
 			}
@@ -109,7 +117,7 @@ func TestConformance(t *testing.T) {
 					continue
 				}
 				t.Run("formats/"+ext, func(t *testing.T) {
-					alt := runConformanceCase(t, num, f)
+					alt := runConformanceCase(t, num, f, "v2")
 					if alt.kind != "" {
 						t.Fatalf("refused as %q", alt.kind)
 					}
@@ -122,8 +130,9 @@ func TestConformance(t *testing.T) {
 	}
 }
 
-// runConformanceCase runs one input file through the bulk index action.
-func runConformanceCase(t *testing.T, num, inputPath string) caseResult {
+// runConformanceCase runs one input file through the bulk index action for one
+// index type ("v1" or "v2").
+func runConformanceCase(t *testing.T, num, inputPath, indexType string) caseResult {
 	t.Helper()
 	req := loadEnvelope(t, num)
 	graph, err := os.ReadFile(inputPath)
@@ -138,7 +147,7 @@ func runConformanceCase(t *testing.T, num, inputPath string) caseResult {
 		ds:            &models.DataSet{OrgID: req.OrgID, Spec: req.DatasetID, Revision: req.Revision},
 		stats:         &Stats{},
 		bi:            ci,
-		indexTypes:    []string{"v2"},
+		indexTypes:    []string{indexType},
 		recDef:        RecDefResolver{m: conformanceRecDefs, defaultRecDefID: "schema"},
 		s:             &Service{}, // no task service: PID tasks are logged and skipped
 		maxNestedDocs: defaultMaxNestedDocs,
@@ -158,13 +167,77 @@ func runConformanceCase(t *testing.T, num, inputPath string) caseResult {
 		t.Fatalf("want 1 index message, got %d", len(ci.msgs))
 	}
 
-	src := modifiedRe.ReplaceAll(ci.msgs[0].Source, []byte(`"modified":0`))
+	src := stableSource(ci.msgs[0].Source)
 	var buf bytes.Buffer
 	if err := json.Indent(&buf, src, "", "  "); err != nil {
 		t.Fatal(err)
 	}
 	buf.WriteByte('\n')
 	return caseResult{doc: buf.Bytes()}
+}
+
+// stableSource replaces the indexing time in a v2 (meta.modified) or v1
+// (system.created_at/modified_at) document with a fixed value, and puts v1's
+// system.source_graph in canonical order (see canonicalJSONLD).
+func stableSource(src []byte) []byte {
+	src = modifiedRe.ReplaceAll(src, []byte(`"modified":0`))
+	src = v1TimeRe.ReplaceAll(src, []byte(`"$1":"1970-01-01T00:00:00Z"`))
+	var doc map[string]json.RawMessage
+	if json.Unmarshal(src, &doc) != nil || doc["system"] == nil {
+		return src
+	}
+	var sys map[string]any
+	if json.Unmarshal(doc["system"], &sys) != nil {
+		return src
+	}
+	sg, ok := sys["source_graph"].(string)
+	if !ok {
+		return src
+	}
+	sys["source_graph"] = canonicalJSONLD(sg)
+	b, err := json.Marshal(sys)
+	if err != nil {
+		return src
+	}
+	doc["system"] = b
+	out, err := json.Marshal(doc) // map keys come out sorted, as hub3 writes them
+	if err != nil {
+		return src
+	}
+	return out
+}
+
+// canonicalJSONLD sorts the nodes of a flat JSON-LD array by their JSON and
+// every value array inside them. hub3 builds source_graph from maps, so node
+// order and value order change from run to run; the content does not.
+func canonicalJSONLD(s string) string {
+	var v any
+	if err := json.Unmarshal([]byte(s), &v); err != nil {
+		return s
+	}
+	b, err := json.Marshal(sortArrays(v))
+	if err != nil {
+		return s
+	}
+	return string(b)
+}
+
+func sortArrays(v any) any {
+	switch x := v.(type) {
+	case map[string]any:
+		for k, val := range x {
+			x[k] = sortArrays(val)
+		}
+	case []any:
+		keys := make([]string, len(x))
+		for i := range x {
+			x[i] = sortArrays(x[i])
+			b, _ := json.Marshal(x[i])
+			keys[i] = string(b)
+		}
+		sort.Sort(byKey{x, keys})
+	}
+	return v
 }
 
 // loadEnvelope reads envelope.json with NNNN replaced, then NNNN.bulk.json over it.
@@ -191,11 +264,11 @@ func loadEnvelope(t *testing.T, num string) *Request {
 	return req
 }
 
-// checkGolden compares with NNNN.json or NNNN.error.json; -update rewrites them.
-func checkGolden(t *testing.T, num string, got caseResult) {
+// checkGolden compares with dir/NNNN.json or dir/NNNN.error.json; -update rewrites them.
+func checkGolden(t *testing.T, dir, num string, got caseResult) {
 	t.Helper()
-	jsonPath := filepath.Join(confDir, num+".json")
-	errPath := filepath.Join(confDir, num+".error.json")
+	jsonPath := filepath.Join(dir, num+".json")
+	errPath := filepath.Join(dir, num+".error.json")
 
 	if *testutil.Update {
 		_ = os.Remove(jsonPath)
