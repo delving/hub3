@@ -80,6 +80,56 @@ var (
 	dayFirst = regexp.MustCompile(`(^|[^-/\d])(?:(\d{1,2})[-/])?(\d{1,2})[-/](\d{4})\b`)
 )
 
+var (
+	// "na 1850", "voor 1850", "tot 1850": one end of a period, open on the other side
+	beforeAfter = regexp.MustCompile(`(?i)^(?:na|voor|vóór|vanaf|sinds|tot|uiterlijk|after|before|until|since)\s`)
+	// EDTF unspecified digits: 185X, 18XX, 1XXX; 1850-XX, 1850-05-XX
+	unspecifiedYear = regexp.MustCompile(`\b(\d{1,3})(X{1,3})\b`)
+	unspecifiedPart = regexp.MustCompile(`(\d{4}(?:-\d{2})?)(?:-XX)+\b`)
+)
+
+// errOpenEnded: a period with one end open has no range to index. An
+// unbounded date range would also break a yearly histogram of its field.
+var errOpenEnded = fmt.Errorf("open-ended period")
+
+// openEnded reports a period known by one end only: "na 1850", EDTF "1850/..",
+// "../1850", "1850/" or "/1850".
+func openEnded(s string) bool {
+	if beforeAfter.MatchString(s) {
+		return true
+	}
+	from, to, interval := strings.Cut(s, "/")
+	from, to = strings.TrimSpace(from), strings.TrimSpace(to)
+	return interval && (from == "" || to == "" || from == ".." || to == "..")
+}
+
+// edtfUnspecified rewrites EDTF unspecified digits as the span they leave
+// open: 185X is 1850/1859, 18XX/19XX is 1800/1999, 1850-05-XX is 1850-05.
+func edtfUnspecified(s string) string {
+	s = unspecifiedPart.ReplaceAllString(s, "$1")
+	if !unspecifiedYear.MatchString(s) {
+		return s
+	}
+	sides := strings.SplitN(s, "/", 2)
+	bound := func(side string, high bool) string {
+		return unspecifiedYear.ReplaceAllStringFunc(side, func(y string) string {
+			m := unspecifiedYear.FindStringSubmatch(y)
+			if len(m[1])+len(m[2]) != 4 {
+				return y
+			}
+			fill := strings.Repeat("0", len(m[2]))
+			if high {
+				fill = strings.Repeat("9", len(m[2]))
+			}
+			return m[1] + fill
+		})
+	}
+	if len(sides) == 1 {
+		return bound(s, false) + "/" + bound(s, true)
+	}
+	return bound(sides[0], false) + "/" + bound(sides[1], true)
+}
+
 // isoDayFirst rewrites day-first dates in s as yyyy-MM-dd, or yyyy-MM without a
 // day, so the year parser reads them. Whether the date exists is checked later.
 func isoDayFirst(s string) string {

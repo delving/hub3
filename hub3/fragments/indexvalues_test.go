@@ -78,3 +78,35 @@ func TestCreateDateRangeMore(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateDateRangeEDTF(t *testing.T) {
+	ok := map[string]IndexRange{
+		// EDTF qualifiers: uncertain (?), approximate (~), both (%) keep their date
+		"1850~":       {"1850-01-01", "1850-12-31"},
+		"1850?":       {"1850-01-01", "1850-12-31"},
+		"1850%":       {"1850-01-01", "1850-12-31"},
+		"1850-05~":    {"1850-05-01", "1850-05-31"},
+		"1850~/1870?": {"1850-01-01", "1870-12-31"},
+		// EDTF unspecified digits: the decade, century or millennium they leave open
+		"185X":       {"1850-01-01", "1859-12-31"},
+		"18XX":       {"1800-01-01", "1899-12-31"},
+		"1XXX":       {"1000-01-01", "1999-12-31"},
+		"1850-XX":    {"1850-01-01", "1850-12-31"},
+		"1850-05-XX": {"1850-05-01", "1850-05-31"},
+		"18XX/19XX":  {"1800-01-01", "1999-12-31"},
+		"1850/1870":  {"1850-01-01", "1870-12-31"},
+	}
+	for in, want := range ok {
+		got, err := CreateDateRange(in)
+		if err != nil || got != want || !got.isDates() {
+			t.Errorf("CreateDateRange(%q) = %v, %v; want %v", in, got, err, want)
+		}
+	}
+	// open-ended: no end (or start) to index, so no range rather than the wrong year
+	for _, in := range []string{"1850/..", "../1850", "1850/", "/1850", "na 1850", "Na 1850", "voor 1850", "vóór 1850",
+		"vanaf 1850", "sinds 1850", "tot 1850", "after 1850", "before 1850", "-0800", "XXXX"} {
+		if got, err := CreateDateRange(in); err == nil && got.isDates() {
+			t.Errorf("CreateDateRange(%q) = %v, want refused", in, got)
+		}
+	}
+}
