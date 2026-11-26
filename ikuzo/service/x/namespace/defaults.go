@@ -1849,6 +1849,8 @@ var defaultNS = []nsEntry{
 	{Prefix: "sc", BaseURI: "http://purl.org/science/owl/sciencecommons/"},
 	{Prefix: "scco", BaseURI: "http://rdf.ebi.ac.uk/terms/surechembl#"},
 	{Prefix: "schema", BaseURI: "https://schema.org/", Weight: 100},
+	// Omeka S core vocabulary (o:id, o:title, ...), in exports of Omeka sites.
+	{Prefix: "o", BaseURI: "http://omeka.org/s/vocabs/o#", Weight: 100},
 	{Prefix: "scholl", BaseURI: "http://menemeneml.com/school#"},
 	{Prefix: "sci", BaseURI: "http://data.scientology.org/ns/"},
 	{Prefix: "scip", BaseURI: "http://lod.taxonconcept.org/ontology/sci_people.owl#"},

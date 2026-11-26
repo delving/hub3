@@ -1,0 +1,331 @@
+{
+  "delving_spec": {
+    "value": "conformance",
+    "@type": "Literal",
+    "raw": "conformance"
+  },
+  "entryURI": "http://example.org/c/0503",
+  "hubID": "test_conformance_0503",
+  "legacy": {
+    "delving_hubId": "test_conformance_0503",
+    "delving_recordType": "mdr",
+    "delving_spec": "conformance",
+    "delving_orgId": "test",
+    "delving_collection": "conformance",
+    "delving_hasGeoHash": "false",
+    "delving_hasDigitalObject": "false",
+    "delving_hasLandingPage": "false",
+    "delving_hasDeepZoom": "false"
+  },
+  "nave_id": {
+    "value": "test_conformance_0503",
+    "@type": "Literal",
+    "raw": "test_conformance_0503"
+  },
+  "nsf6ec9367_pupilOf": [
+    {
+      "id": "http://example.org/c/person/jacob",
+      "value": "http://example.org/c/person/jacob",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/jacob"
+    }
+  ],
+  "orgID": "test",
+  "rdf_type": [
+    {
+      "id": "https://schema.org/CreativeWork",
+      "value": "https://schema.org/CreativeWork",
+      "@type": "URIRef",
+      "raw": "https://schema.org/CreativeWork"
+    },
+    {
+      "id": "https://schema.org/Painting",
+      "value": "https://schema.org/Painting",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Painting"
+    },
+    {
+      "id": "https://schema.org/Person",
+      "value": "https://schema.org/Person",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Person"
+    },
+    {
+      "id": "https://schema.org/Place",
+      "value": "https://schema.org/Place",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Place"
+    },
+    {
+      "id": "https://schema.org/Place",
+      "value": "https://schema.org/Place",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Place"
+    },
+    {
+      "id": "https://schema.org/Place",
+      "value": "https://schema.org/Place",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Place"
+    },
+    {
+      "id": "https://schema.org/Place",
+      "value": "https://schema.org/Place",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Place"
+    },
+    {
+      "id": "https://schema.org/Person",
+      "value": "https://schema.org/Person",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Person"
+    },
+    {
+      "id": "https://schema.org/DefinedTerm",
+      "value": "https://schema.org/DefinedTerm",
+      "@type": "URIRef",
+      "raw": "https://schema.org/DefinedTerm"
+    },
+    {
+      "id": "https://schema.org/Person",
+      "value": "https://schema.org/Person",
+      "@type": "URIRef",
+      "raw": "https://schema.org/Person"
+    }
+  ],
+  "revision": 1,
+  "schema_about": [
+    {
+      "id": "http://example.org/c/person/maria",
+      "value": "http://example.org/c/person/maria",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/maria"
+    }
+  ],
+  "schema_alternateName": [
+    {
+      "value": "Leyden",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Leyden"
+    },
+    {
+      "value": "Leyde",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Leyde"
+    },
+    {
+      "value": "Lugdunum Batavorum",
+      "language": "la",
+      "@type": "Literal",
+      "raw": "Lugdunum Batavorum"
+    },
+    {
+      "value": "Holland",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Holland"
+    },
+    {
+      "value": "Hollande",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Hollande"
+    },
+    {
+      "value": "Dutch Republic",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Dutch Republic"
+    },
+    {
+      "value": "Provinces-Unies",
+      "language": "fr",
+      "@type": "Literal",
+      "raw": "Provinces-Unies"
+    },
+    {
+      "value": "Harlem",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "Harlem"
+    },
+    {
+      "value": "Harlemum",
+      "language": "la",
+      "@type": "Literal",
+      "raw": "Harlemum"
+    }
+  ],
+  "schema_birthDate": [
+    {
+      "value": "1620",
+      "@type": "Literal",
+      "raw": "1620"
+    },
+    {
+      "value": "1590",
+      "@type": "Literal",
+      "raw": "1590"
+    }
+  ],
+  "schema_birthPlace": [
+    {
+      "id": "http://example.org/c/place/leiden",
+      "value": "http://example.org/c/place/leiden",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/leiden"
+    },
+    {
+      "id": "http://example.org/c/place/haarlem",
+      "value": "http://example.org/c/place/haarlem",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/haarlem"
+    }
+  ],
+  "schema_containedInPlace": [
+    {
+      "id": "http://example.org/c/place/holland",
+      "value": "http://example.org/c/place/holland",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/holland"
+    },
+    {
+      "id": "http://example.org/c/place/republiek",
+      "value": "http://example.org/c/place/republiek",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/republiek"
+    },
+    {
+      "id": "http://example.org/c/place/holland",
+      "value": "http://example.org/c/place/holland",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/holland"
+    }
+  ],
+  "schema_creator": [
+    {
+      "id": "http://example.org/c/person/paulus",
+      "value": "http://example.org/c/person/paulus",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/person/paulus"
+    }
+  ],
+  "schema_dateCreated": [
+    {
+      "value": "1660",
+      "@type": "Literal",
+      "raw": "1660"
+    }
+  ],
+  "schema_deathDate": [
+    {
+      "value": "1675",
+      "@type": "Literal",
+      "raw": "1675"
+    },
+    {
+      "value": "1655",
+      "@type": "Literal",
+      "raw": "1655"
+    }
+  ],
+  "schema_deathPlace": [
+    {
+      "id": "http://example.org/c/place/haarlem",
+      "value": "http://example.org/c/place/haarlem",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/haarlem"
+    },
+    {
+      "id": "http://example.org/c/place/leiden",
+      "value": "http://example.org/c/place/leiden",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/place/leiden"
+    }
+  ],
+  "schema_material": [
+    {
+      "id": "http://example.org/c/material/eikenpaneel",
+      "value": "http://example.org/c/material/eikenpaneel",
+      "@type": "URIRef",
+      "raw": "http://example.org/c/material/eikenpaneel"
+    }
+  ],
+  "schema_name": [
+    {
+      "value": "Portret van Maria, Haarlem",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Portret van Maria, Haarlem"
+    },
+    {
+      "value": "Paulus de Schilder",
+      "@type": "Literal",
+      "raw": "Paulus de Schilder"
+    },
+    {
+      "value": "Leiden",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Leiden"
+    },
+    {
+      "value": "Holland",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Holland"
+    },
+    {
+      "value": "Republiek der Zeven Verenigde Nederlanden",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Republiek der Zeven Verenigde Nederlanden"
+    },
+    {
+      "value": "Haarlem",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "Haarlem"
+    },
+    {
+      "value": "Jacob de Meester",
+      "@type": "Literal",
+      "raw": "Jacob de Meester"
+    },
+    {
+      "value": "eikenhouten paneel",
+      "language": "nl",
+      "@type": "Literal",
+      "raw": "eikenhouten paneel"
+    },
+    {
+      "value": "oak panel",
+      "language": "en",
+      "@type": "Literal",
+      "raw": "oak panel"
+    },
+    {
+      "value": "Maria van Dorp",
+      "@type": "Literal",
+      "raw": "Maria van Dorp"
+    }
+  ],
+  "spec": "conformance",
+  "system": {
+    "about_uri": "http://example.org/c/0503",
+    "created_at": "1970-01-01T00:00:00Z",
+    "graph_name": "http://example.org/conformance/0503/graph",
+    "hasDeepZoom": "false",
+    "hasDigitalObject": "false",
+    "hasGeoHash": "false",
+    "hasLandingPage": "false",
+    "modified_at": "1970-01-01T00:00:00Z",
+    "preview": "detail/foldout/void_edmrecord/test_conformance_0503",
+    "slug": "test_conformance_0503",
+    "source_graph": "[{\"@id\":\"http://example.org/c/0503\",\"@type\":[\"https://schema.org/CreativeWork\",\"https://schema.org/Painting\"],\"https://schema.org/about\":[{\"@id\":\"http://example.org/c/person/maria\"}],\"https://schema.org/creator\":[{\"@id\":\"http://example.org/c/person/paulus\"}],\"https://schema.org/dateCreated\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1660\"}],\"https://schema.org/material\":[{\"@id\":\"http://example.org/c/material/eikenpaneel\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Portret van Maria, Haarlem\"}]},{\"@id\":\"http://example.org/c/material/eikenpaneel\",\"@type\":[\"https://schema.org/DefinedTerm\"],\"https://schema.org/name\":[{\"@language\":\"en\",\"@value\":\"oak panel\"},{\"@language\":\"nl\",\"@value\":\"eikenhouten paneel\"}]},{\"@id\":\"http://example.org/c/person/jacob\",\"@type\":[\"https://schema.org/Person\"],\"https://schema.org/birthDate\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1590\"}],\"https://schema.org/birthPlace\":[{\"@id\":\"http://example.org/c/place/haarlem\"}],\"https://schema.org/deathDate\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1655\"}],\"https://schema.org/deathPlace\":[{\"@id\":\"http://example.org/c/place/leiden\"}],\"https://schema.org/name\":[{\"@value\":\"Jacob de Meester\"}]},{\"@id\":\"http://example.org/c/person/maria\",\"@type\":[\"https://schema.org/Person\"],\"https://schema.org/name\":[{\"@value\":\"Maria van Dorp\"}]},{\"@id\":\"http://example.org/c/person/paulus\",\"@type\":[\"https://schema.org/Person\"],\"http://example.org/def/pupilOf\":[{\"@id\":\"http://example.org/c/person/jacob\"}],\"https://schema.org/birthDate\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1620\"}],\"https://schema.org/birthPlace\":[{\"@id\":\"http://example.org/c/place/leiden\"}],\"https://schema.org/deathDate\":[{\"@type\":\"http://www.w3.org/2001/XMLSchema#gYear\",\"@value\":\"1675\"}],\"https://schema.org/deathPlace\":[{\"@id\":\"http://example.org/c/place/haarlem\"}],\"https://schema.org/name\":[{\"@value\":\"Paulus de Schilder\"}]},{\"@id\":\"http://example.org/c/place/haarlem\",\"@type\":[\"https://schema.org/Place\"],\"https://schema.org/alternateName\":[{\"@language\":\"en\",\"@value\":\"Harlem\"},{\"@language\":\"la\",\"@value\":\"Harlemum\"}],\"https://schema.org/containedInPlace\":[{\"@id\":\"http://example.org/c/place/holland\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Haarlem\"}]},{\"@id\":\"http://example.org/c/place/holland\",\"@type\":[\"https://schema.org/Place\"],\"https://schema.org/alternateName\":[{\"@language\":\"en\",\"@value\":\"Holland\"},{\"@language\":\"fr\",\"@value\":\"Hollande\"}],\"https://schema.org/containedInPlace\":[{\"@id\":\"http://example.org/c/place/republiek\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Holland\"}]},{\"@id\":\"http://example.org/c/place/leiden\",\"@type\":[\"https://schema.org/Place\"],\"https://schema.org/alternateName\":[{\"@language\":\"en\",\"@value\":\"Leyden\"},{\"@language\":\"fr\",\"@value\":\"Leyde\"},{\"@language\":\"la\",\"@value\":\"Lugdunum Batavorum\"}],\"https://schema.org/containedInPlace\":[{\"@id\":\"http://example.org/c/place/holland\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Leiden\"}]},{\"@id\":\"http://example.org/c/place/republiek\",\"@type\":[\"https://schema.org/Place\"],\"https://schema.org/alternateName\":[{\"@language\":\"en\",\"@value\":\"Dutch Republic\"},{\"@language\":\"fr\",\"@value\":\"Provinces-Unies\"}],\"https://schema.org/name\":[{\"@language\":\"nl\",\"@value\":\"Republiek der Zeven Verenigde Nederlanden\"}]}]",
+    "source_uri": "http://example.org/c/0503",
+    "spec": "conformance"
+  }
+}

@@ -15,6 +15,9 @@
 package namespace
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -202,11 +205,25 @@ func (s *Service) GetSearchLabel(uri string) (string, error) {
 	base, label := domain.SplitURI(uri)
 
 	ns, err := s.GetWithBase(base)
+	if errors.Is(err, domain.ErrNamespaceNotFound) {
+		return fmt.Sprintf("%s_%s", GeneratedPrefix(base), label), nil
+	}
+
 	if err != nil {
 		return "", fmt.Errorf("unable to retrieve namespace for %s; %w", base, err)
 	}
 
 	return fmt.Sprintf("%s_%s", ns.Prefix, label), nil
+}
+
+// GeneratedPrefix is the prefix GetSearchLabel uses for a base-URI that is not
+// in the namespace table: "ns" and the first 8 hex digits of the SHA-1 of the
+// base-URI. It depends on nothing but the base-URI, so every run, server and
+// other writer of index documents derives the same field name, and a record
+// with an unknown vocabulary is indexed instead of refused.
+func GeneratedPrefix(base string) string {
+	sum := sha1.Sum([]byte(base)) //nolint:gosec // a name, not a security hash
+	return "ns" + hex.EncodeToString(sum[:4])
 }
 
 // Set sets the default prefix and base-URI for a namespace.

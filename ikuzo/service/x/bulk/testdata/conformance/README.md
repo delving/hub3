@@ -26,9 +26,13 @@ Configuration: hub3's defaults, except `[rdftag]`, which comes from
   `system.source_graph` canonicalised: hub3 builds it from maps, so its node
   and value order change from run to run; the goldens sort both (nodes and
   value arrays by their JSON). Compare it as a JSON-LD set, not as a string.
-  v1 refuses a record whose predicate or type namespace is not in hub3's
-  namespace table (`indexing_v1`; 05xx, 0910), where v2 indexes it. The
-  `formats/` check is v2 only.
+  The `formats/` check is v2 only.
+- Field names (`searchLabel` in v2, the keys of a v1 document) are
+  `<prefix>_<localname>`. A namespace not in hub3's table
+  (`ikuzo/service/x/namespace/testdata/namespaces.json`) gets the prefix
+  `ns` + the first 8 hex digits of the SHA-1 of its base-URI
+  (`namespace.GeneratedPrefix`), e.g. `nsf6ec9367_pupilOf` for
+  `http://example.org/def/pupilOf`.
 - `formats/NNNN.<fmt>`: the same graph in another format; must give the same
   document apart from `order`, blank-node labels and array order. No goldens.
 
