@@ -1,0 +1,52 @@
+<rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:nave="http://schemas.delving.eu/nave/terms/" xmlns:ore="http://www.openarchives.org/ore/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+    <ore:Aggregation rdf:about="http://data.collectienederland.nl/resource/aggregation/fries-museum/P2023-025">
+        <edm:aggregatedCHO rdf:resource="http://data.collectienederland.nl/resource/document/fries-museum/P2023-025"/>
+        <edm:dataProvider>Fries Museum</edm:dataProvider>
+        <edm:isShownAt rdf:resource="https://collectie.friesmuseum.nl/?diw-id=tresoar_friesmuseum_P2023-025"/>
+        <edm:isShownBy rdf:resource="https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images"/>
+        <edm:object rdf:resource="https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images"/>
+        <edm:provider>Rijksdienst voor het Cultureel Erfgoed</edm:provider>
+        <edm:rights rdf:resource="http://rightsstatements.org/vocab/InC/1.0/"/>
+    </ore:Aggregation>
+    <edm:ProvidedCHO rdf:about="http://data.collectienederland.nl/resource/document/fries-museum/P2023-025">
+        <dc:creator>Bert Scholten</dc:creator>
+        <dc:identifier>P2023-025</dc:identifier>
+        <dc:title>Lieve, vuile stadhouder</dc:title>
+        <dc:type rdf:resource="https://data.cultureelerfgoed.nl/term/id/cht/8a0920fa-bb0c-42ad-9cbe-58af94491365"/>
+        <dcterms:created>2023 - 2023</dcterms:created>
+        <dcterms:extent>grootte  MB</dcterms:extent>
+        <edm:type>IMAGE</edm:type>
+    </edm:ProvidedCHO>
+    <edm:WebResource rdf:about="https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images">
+        <nave:resourceSortOrder>https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images</nave:resourceSortOrder>
+        <nave:thumbSmall>https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images</nave:thumbSmall>
+        <nave:thumbMedium>https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images</nave:thumbMedium>
+        <nave:thumbLarge>https://tracker.tresoar.nl/FMadlibapi/wwwopac.ashx?command=getcontent&amp;value=P2023-025_01.jpg&amp;server=images</nave:thumbLarge>
+    </edm:WebResource>
+    <skos:Concept>
+        <skos:prefLabel>digital born</skos:prefLabel>
+    </skos:Concept>
+    <skos:Concept rdf:about="https://data.cultureelerfgoed.nl/term/id/cht/8a0920fa-bb0c-42ad-9cbe-58af94491365">
+        <skos:prefLabel>video-installatie</skos:prefLabel>
+        <skos:prefLabel>film (digital born)</skos:prefLabel>
+    </skos:Concept>
+    <skos:Concept>
+        <skos:prefLabel>digitale film</skos:prefLabel>
+    </skos:Concept>
+    <nave:BrabantCloudResource>
+        <nave:productionPlace>Leeuwarden</nave:productionPlace>
+    </nave:BrabantCloudResource>
+    <nave:DcnResource>
+        <nave:province>Friesland</nave:province>
+    </nave:DcnResource>
+    <nave:Museometrie>
+        <nave:acquisitionMeans>Collectie Fries Museum, Leeuwarden | Verworven met steun van het Mondriaan Fonds</nave:acquisitionMeans>
+    </nave:Museometrie>
+    <nave:DelvingResource>
+        <nave:featured>false</nave:featured>
+        <nave:allowDeepZoom>true</nave:allowDeepZoom>
+        <nave:allowLinkedOpenData>true</nave:allowLinkedOpenData>
+        <nave:allowSourceDownload>false</nave:allowSourceDownload>
+        <nave:public>true</nave:public>
+    </nave:DelvingResource>
+</rdf:RDF>

@@ -48,7 +48,7 @@ func TestGraph_Query(t *testing.T) {
 			wantResources:   1,
 			wantEntries:     0,
 			wantErr:         false,
-			checkResourceID: "_:b9b5bf0b4a85e3c",
+			checkResourceID: "_:be2ab27a4fb346852",
 		},
 		{
 			name:            "Path with filter and value",

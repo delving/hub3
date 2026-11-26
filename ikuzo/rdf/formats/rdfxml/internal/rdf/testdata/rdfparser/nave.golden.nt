@@ -32,19 +32,19 @@
 <http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/province> "Gemeente Sint-Michielsgestel" .
 <http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/municipality> "Gemeente Sint-Michielsgestel" .
 <http://sws.geonames.org/2759059> <http://schemas.delving.eu/nave/terms/city> "Berlicum" .
-_:bbdad5d8fdc6f0077 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/BrabantCloudResource> .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collection> "Heemkundekring 'De Plaets'" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collectionType> "Beeldmateriaal" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/collectionPart> "personen" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/date> "1947-1958" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/dimensionNote> "5044-14" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/place> "Berlicum" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionEnd> "1958" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionPeriod> "1947-1958" .
-_:bbdad5d8fdc6f0077 <http://schemas.delving.eu/nave/terms/productionStart> "1947" .
-_:b67fd7c0234553e3b <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DelvingResource> .
-_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/featured> "false" .
-_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
-_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowLinkedOpenData> "true" .
-_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/allowSourceDownload> "false" .
-_:b67fd7c0234553e3b <http://schemas.delving.eu/nave/terms/public> "true" .
+_:b5a0079e75c09ac03 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/BrabantCloudResource> .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/collection> "Heemkundekring 'De Plaets'" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/collectionType> "Beeldmateriaal" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/collectionPart> "personen" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/date> "1947-1958" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/dimensionNote> "5044-14" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/place> "Berlicum" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/productionEnd> "1958" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/productionPeriod> "1947-1958" .
+_:b5a0079e75c09ac03 <http://schemas.delving.eu/nave/terms/productionStart> "1947" .
+_:be59b871935d7b9c8 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://schemas.delving.eu/nave/terms/DelvingResource> .
+_:be59b871935d7b9c8 <http://schemas.delving.eu/nave/terms/featured> "false" .
+_:be59b871935d7b9c8 <http://schemas.delving.eu/nave/terms/allowDeepZoom> "true" .
+_:be59b871935d7b9c8 <http://schemas.delving.eu/nave/terms/allowLinkedOpenData> "true" .
+_:be59b871935d7b9c8 <http://schemas.delving.eu/nave/terms/allowSourceDownload> "false" .
+_:be59b871935d7b9c8 <http://schemas.delving.eu/nave/terms/public> "true" .

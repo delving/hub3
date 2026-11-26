@@ -92,6 +92,9 @@ type rdfXMLDecoder struct {
 	triples     []Triple // complete, valid triples to be emitted
 	seed        string
 	idGenerator BlankNodeIDGenerator
+	// siblings[n] counts the path elements appended at depth n since the last one
+	// at a shallower depth: the ordinal that tells two same-named siblings apart.
+	siblings []int
 }
 
 // newRDFXMLDecoder creates a new decoder with optional configuration
@@ -154,14 +157,27 @@ func (d *rdfXMLDecoder) appendElementToPath(elem xml.StartElement) {
 		pathElement += ":nodeID=" + nodeID[0].Value
 	}
 
-	// Include position information
-	pathElement += fmt.Sprintf(":pos=%d", len(d.ctx.Path))
+	// Include position information: the depth and the ordinal among siblings
+	pathElement += fmt.Sprintf(":pos=%d:n=%d", len(d.ctx.Path), d.nextSibling())
 
 	d.ctx.Path = append(d.ctx.Path, pathElement)
 	slog.Debug("append to path",
 		"element", pathElement,
 		"full_path", d.ctx.Path,
 		"depth", len(d.ctx.Path))
+}
+
+// nextSibling returns the ordinal of a path element about to be appended at the
+// current depth. Without it two sibling node elements with the same name and no
+// rdf:about or rdf:nodeID had the same path, hence the same blank node label.
+func (d *rdfXMLDecoder) nextSibling() int {
+	depth := len(d.ctx.Path)
+	for len(d.siblings) <= depth {
+		d.siblings = append(d.siblings, 0)
+	}
+	d.siblings = d.siblings[:depth+1]
+	d.siblings[depth]++
+	return d.siblings[depth]
 }
 
 // removeLastElementFromPath removes the last element from the current path
@@ -182,7 +198,7 @@ func (d *rdfXMLDecoder) removeLastElementFromPath() {
 // This is used for special RDF constructs like Collection that aren't
 // represented as XML elements but need to be part of the path.
 func (d *rdfXMLDecoder) appendRDFTermToPath(term string) {
-	pathElement := rdfNS + term + fmt.Sprintf(":pos=%d", len(d.ctx.Path))
+	pathElement := rdfNS + term + fmt.Sprintf(":pos=%d:n=%d", len(d.ctx.Path), d.nextSibling())
 	d.ctx.Path = append(d.ctx.Path, pathElement)
 	slog.Debug("append RDF term to path",
 		"term", term,
